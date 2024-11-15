@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Version>1.0.11</Version>
+		<Authors>The Tech Idea</Authors>
+		<Description>Visualization Logic used to standarized GUI/UI for Beep Apps</Description>
+		<PackageProjectUrl>https://github.com/The-Tech-Idea/BeepEnterprize.winform</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/The-Tech-Idea/BeepEnterprize.winform</RepositoryUrl>
+		<PackageIcon>SimpleODM.png</PackageIcon>
+		<Copyright>2022</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\..\InstallationScripts\LogoGFx\128\SimpleODM.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="8.0.2" />
+		<PackageReference Include="System.Drawing.Common" Version="8.0.10" />
+		<PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.35" />
+		<PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.2" />
+		<PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.2" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
+	</ItemGroup>
+	<Target Name="CopyPackage" AfterTargets="Pack">
+		<Copy SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="..\..\..\LocalNugetFiles" />
+	</Target>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Copy SourceFiles="$(TargetDir)$(PackageId).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(PackageId)\$(TargetFramework)" SkipUnchangedFiles="false" />
+	</Target>
+</Project>

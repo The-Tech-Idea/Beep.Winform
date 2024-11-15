@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0-windows</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>12.0</LangVersion>
+    <Authors>The Tech Idea</Authors>
+    <Company>The Tech Idea</Company>
+    <Copyright>2022</Copyright>
+    <PackageIcon>SimpleODM.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IncludeSymbols>False</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageId>TheTechIdea.Beep.Winform.Controls</PackageId>
+    <Title>TheTechIdea.Beep.Winform.Controls</Title>
+    <Product>TheTechIdea.Beep.Winform.Controls</Product>
+    <AssemblyName>TheTechIdea.Beep.Winform.Controls</AssemblyName>
+    <Version>1.0.163</Version>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+  <Target Name="CopyPackage" AfterTargets="Pack">
+    <Copy SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="..\..\..\LocalNugetFiles" />
+  </Target>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Copy SourceFiles="$(TargetDir)$(Assemblyname).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(Assemblyname)\$(TargetFramework)" SkipUnchangedFiles="false" />
+  </Target>
+  <ItemGroup>
+    <Compile Remove="AppBar\**" />
+    <Compile Remove="Dashboard\**" />
+    <Compile Remove="Services\**" />
+    <EmbeddedResource Remove="AppBar\**" />
+    <EmbeddedResource Remove="Dashboard\**" />
+    <EmbeddedResource Remove="Services\**" />
+    <None Remove="AppBar\**" />
+    <None Remove="Dashboard\**" />
+    <None Remove="Services\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\InstallationScripts\LogoGFx\128\SimpleODM.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Grid\DesignerForm\CustomDataGridViewDesigner.cs" />
+    <Compile Remove="Grid\ExtendedDataGridViewColumnCollectionEditor.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="BeepiForm.Designer.cs~RF145a38e5.TMP" />
+    <None Remove="GFX\SVG\about.svg" />
+    <None Remove="GFX\SVG\addressbook.svg" />
+    <None Remove="GFX\SVG\back.svg" />
+    <None Remove="GFX\SVG\close.svg" />
+    <None Remove="GFX\SVG\comment.svg" />
+    <None Remove="GFX\SVG\dislike.svg" />
+    <None Remove="GFX\SVG\doorclosed.svg" />
+    <None Remove="GFX\SVG\dooropen.svg" />
+    <None Remove="GFX\SVG\enter.svg" />
+    <None Remove="GFX\SVG\exit.svg" />
+    <None Remove="GFX\SVG\export.svg" />
+    <None Remove="GFX\SVG\favorite.svg" />
+    <None Remove="GFX\SVG\filter.svg" />
+    <None Remove="GFX\SVG\firstrecord.svg" />
+    <None Remove="GFX\SVG\help.svg" />
+    <None Remove="GFX\SVG\home.svg" />
+    <None Remove="GFX\SVG\info.svg" />
+    <None Remove="GFX\SVG\lastrecord.svg" />
+    <None Remove="GFX\SVG\like.svg" />
+    <None Remove="GFX\SVG\mail.svg" />
+    <None Remove="GFX\SVG\maximize.svg" />
+    <None Remove="GFX\SVG\menu.svg" />
+    <None Remove="GFX\SVG\minimize.svg" />
+    <None Remove="GFX\SVG\minus.svg" />
+    <None Remove="GFX\SVG\next.svg" />
+    <None Remove="GFX\SVG\No.svg" />
+    <None Remove="GFX\SVG\notice.svg" />
+    <None Remove="GFX\SVG\personedit.svg" />
+    <None Remove="GFX\SVG\personminus.svg" />
+    <None Remove="GFX\SVG\personplus.svg" />
+    <None Remove="GFX\SVG\plus.svg" />
+    <None Remove="GFX\SVG\power.svg" />
+    <None Remove="GFX\SVG\previous.svg" />
+    <None Remove="GFX\SVG\print.svg" />
+    <None Remove="GFX\SVG\refresh.svg" />
+    <None Remove="GFX\SVG\restore.svg" />
+    <None Remove="GFX\SVG\search.svg" />
+    <None Remove="GFX\SVG\settings.svg" />
+    <None Remove="GFX\SVG\share.svg" />
+    <None Remove="GFX\SVG\sort.svg" />
+    <None Remove="GFX\SVG\sortalphadown.svg" />
+    <None Remove="GFX\SVG\sortalphaup.svg" />
+    <None Remove="GFX\SVG\trash.svg" />
+    <None Remove="GFX\SVG\yes.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="GFX\SVG\about.svg" />
+    <EmbeddedResource Include="GFX\SVG\addressbook.svg" />
+    <EmbeddedResource Include="GFX\SVG\back.svg" />
+    <EmbeddedResource Include="GFX\SVG\close.svg" />
+    <EmbeddedResource Include="GFX\SVG\comment.svg" />
+    <EmbeddedResource Include="GFX\SVG\dislike.svg" />
+    <EmbeddedResource Include="GFX\SVG\doorclosed.svg" />
+    <EmbeddedResource Include="GFX\SVG\dooropen.svg" />
+    <EmbeddedResource Include="GFX\SVG\enter.svg" />
+    <EmbeddedResource Include="GFX\SVG\exit.svg" />
+    <EmbeddedResource Include="GFX\SVG\export.svg" />
+    <EmbeddedResource Include="GFX\SVG\favorite.svg" />
+    <EmbeddedResource Include="GFX\SVG\filter.svg" />
+    <EmbeddedResource Include="GFX\SVG\firstrecord.svg" />
+    <EmbeddedResource Include="GFX\SVG\help.svg" />
+    <EmbeddedResource Include="GFX\SVG\home.svg" />
+    <EmbeddedResource Include="GFX\SVG\info.svg" />
+    <EmbeddedResource Include="GFX\SVG\lastrecord.svg" />
+    <EmbeddedResource Include="GFX\SVG\like.svg" />
+    <EmbeddedResource Include="GFX\SVG\mail.svg" />
+    <EmbeddedResource Include="GFX\SVG\maximize.svg" />
+    <EmbeddedResource Include="GFX\SVG\menu.svg" />
+    <EmbeddedResource Include="GFX\SVG\minimize.svg" />
+    <EmbeddedResource Include="GFX\SVG\minus.svg" />
+    <EmbeddedResource Include="GFX\SVG\next.svg" />
+    <EmbeddedResource Include="GFX\SVG\No.svg" />
+    <EmbeddedResource Include="GFX\SVG\notice.svg" />
+    <EmbeddedResource Include="GFX\SVG\personedit.svg" />
+    <EmbeddedResource Include="GFX\SVG\personminus.svg" />
+    <EmbeddedResource Include="GFX\SVG\personplus.svg" />
+    <EmbeddedResource Include="GFX\SVG\plus.svg" />
+    <EmbeddedResource Include="GFX\SVG\power.svg" />
+    <EmbeddedResource Include="GFX\SVG\previous.svg" />
+    <EmbeddedResource Include="GFX\SVG\print.svg" />
+    <EmbeddedResource Include="GFX\SVG\refresh.svg" />
+    <EmbeddedResource Include="GFX\SVG\restore.svg" />
+    <EmbeddedResource Include="GFX\SVG\search.svg" />
+    <EmbeddedResource Include="GFX\SVG\settings.svg" />
+    <EmbeddedResource Include="GFX\SVG\share.svg" />
+    <EmbeddedResource Include="GFX\SVG\sort.svg" />
+    <EmbeddedResource Include="GFX\SVG\sortalphadown.svg" />
+    <EmbeddedResource Include="GFX\SVG\sortalphaup.svg" />
+    <EmbeddedResource Include="GFX\SVG\trash.svg" />
+    <EmbeddedResource Include="GFX\SVG\yes.svg" />
+    <EmbeddedResource Include="Resources/073-lock.svg" />
+    <EmbeddedResource Include="Resources/072-bookmark.svg" />
+    <EmbeddedResource Include="Resources/004-notification-bell.svg" />
+    <EmbeddedResource Include="Resources/057-drag.svg" />
+    <EmbeddedResource Include="Resources/041-group.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="8.0.2" />
+    <PackageReference Include="Svg" Version="3.4.7" />
+    <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.35" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.2" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.2" />
+    <PackageReference Include="TheTechIdea.Beep.MVVM" Version="1.0.17" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Containers\uc_Container.cs" />
+    <Compile Update="DataNavigator\BeepbindingNavigator.cs" />
+    <Compile Update="Grid\BeepGrid.cs" />
+    <Compile Update="MainForm\uc_MainSplitPanel.cs" />
+    <Compile Update="Managers\Wizards\Frm_Wizard.cs" />
+    <Compile Update="BeepCheckBox.cs" />
+    <Compile Update="BeepProgressBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Update="Template\BeepForm.cs" />
+    <Compile Update="Wait\BeepWait.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Managers\Wizards\Frm_Wizard.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\DataSources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TheTechIdea.Beep.Vis.Logic\TheTechIdea.Beep.Vis.Logic.csproj" />
+    <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
+  </ItemGroup>
+</Project>

@@ -112,12 +112,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                               //  UpdateSize(); // Adjust size when MaxImageSize changes
             }
         }
-
+        Rectangle contentRect;
         public BeepLabel()
         {
             InitializeComponents();
-            Padding = new Padding(3);
-            Margin = new Padding(0);
+            ApplyTheme();
+
             //  SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
             AutoSize = false;
             IsChild = true;
@@ -125,31 +125,50 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void InitializeComponents()
         {
+
             beepImage = new BeepImage
             {
-                Dock = DockStyle.None,
+                Dock = DockStyle.None, // We'll manually position it
                 Margin = new Padding(0),
-                Size = _maxImageSize
+                Location = new Point(5, 5), // Set initial position (will adjust in layout)
+                Size = _maxImageSize // Set the size based on the max image size
             };
+          //  beepImage.MouseHover += BeepImage_MouseHover;
+            //   beepImage.MouseLeave += BeepImage_MouseLeave;
+            IsChild = false;
+          //  beepImage.Click += BeepImage_Click;
+            Padding = new Padding(2);
+            Margin = new Padding(0);
+            Size = new Size(120, 40);  // Default size
         }
-       
+
         protected override void OnPaint(PaintEventArgs e)
         {
-           
-            base.OnPaint(e);
-            DrawBackColor(e,_currentTheme.LabelBackColor,_currentTheme.ButtonHoverBackColor);
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            DrawToGraphics(e.Graphics, ClientRectangle);
-        }
-        public void DrawToGraphics(Graphics graphics, Rectangle bounds)
-        { // Measure and scale the font to fit within the control bounds
-            Font = BeepThemesManager.ToFont(_currentTheme?.BodySmall) ?? Font;
-            Font scaledFont = GetScaledFont(graphics, Text, DrawingRect.Size, Font);
-           
-            Size textSize = TextRenderer.MeasureText(Text, scaledFont);
-            Size imageSize = beepImage?.HasImage == true ? beepImage.GetImageSize() : Size.Empty;
 
-            // Scale image to fit within MaxImageSize if necessary
+
+            base.OnPaint(e);
+            // Do not call base.OnPaint(e);
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            UpdateDrawingRect();
+            // Draw the image and text
+            contentRect = DrawingRect;
+            contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
+            DrawBackColor(e, _currentTheme.LabelBackColor, _currentTheme.ButtonHoverBackColor);
+            DrawToGraphics(e.Graphics);
+        }
+        private void DrawToGraphics(Graphics g)
+        {
+            DrawToGraphics(g, contentRect);
+        }
+        public void DrawToGraphics(Graphics g,Rectangle drawrect)
+        {
+            drawrect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
+            Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            // Measure and scale the font to fit within the control bounds
+            Font scaledFont = GetScaledFont(g, Text, drawrect.Size, Font);
+            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
+
+            // Limit image size to MaxImageSize
             if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
             {
                 float scaleFactor = Math.Min(
@@ -160,36 +179,69 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Height * scaleFactor));
             }
 
-            // Calculate layout for text and image
-            Rectangle textRect, imageRect;
-            CalculateLayout(DrawingRect, imageSize, textSize, out imageRect, out textRect);
-            // Ensure text fits within control bounds by applying clipping
-            // Clip text rectangle to control bounds to prevent overflow
-            textRect.Intersect(DrawingRect);
-            // Draw image if available
+            Size textSize = TextRenderer.MeasureText(Text, scaledFont);
+
+            // Calculate the layout of image and text
+            Rectangle imageRect, textRect;
+            CalculateLayout(drawrect, imageSize, textSize, out imageRect, out textRect);
+            //Console.WriteLine("Drawing Image 1");
+            // Draw the image if available
             if (beepImage != null && beepImage.HasImage)
             {
-                beepImage.DrawImage(graphics, imageRect);
+                //Console.WriteLine("Loading Image 2 333");
+                beepImage.DrawImage(g, imageRect);
+                // place beepimage in the same place imagerect is
+                beepImage.Location = imageRect.Location;
             }
 
-            // Draw text with clipping and ellipsis if it exceeds bounds
-            TextFormatFlags flags = TextFormatFlags.EndEllipsis | TextFormatFlags.PreserveGraphicsClipping | TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter;
 
-            TextRenderer.DrawText(graphics, Text, scaledFont, textRect, _currentTheme.LabelForeColor, flags);
-            // Show tooltip if text is truncated
-            //if (textSize.Width > textRect.Width || textSize.Height > textRect.Height)
-            //{
-            //    ShowToolTip(Text);
-            //}
-            //else
-            //{
-            //    ToolTipText = string.Empty;
-            //}
-            if (_isHovered)
+            //Console.WriteLine("Font changed  3");
+            // Draw the text
+            // Draw the text
+            if (!string.IsNullOrEmpty(Text))
             {
-                DrawBorder(graphics);
+                TextFormatFlags flags = GetTextFormatFlags(TextAlign);
+                TextRenderer.DrawText(g, Text, scaledFont, textRect, _currentTheme.ButtonForeColor, flags);
             }
 
+            //}
+        }
+        private TextFormatFlags GetTextFormatFlags(ContentAlignment alignment)
+        {
+            TextFormatFlags flags = TextFormatFlags.SingleLine | TextFormatFlags.PreserveGraphicsClipping;
+
+            switch (alignment)
+            {
+                case ContentAlignment.TopLeft:
+                    flags |= TextFormatFlags.Left | TextFormatFlags.Top;
+                    break;
+                case ContentAlignment.TopCenter:
+                    flags |= TextFormatFlags.HorizontalCenter | TextFormatFlags.Top;
+                    break;
+                case ContentAlignment.TopRight:
+                    flags |= TextFormatFlags.Right | TextFormatFlags.Top;
+                    break;
+                case ContentAlignment.MiddleLeft:
+                    flags |= TextFormatFlags.Left | TextFormatFlags.VerticalCenter;
+                    break;
+                case ContentAlignment.MiddleCenter:
+                    flags |= TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter;
+                    break;
+                case ContentAlignment.MiddleRight:
+                    flags |= TextFormatFlags.Right | TextFormatFlags.VerticalCenter;
+                    break;
+                case ContentAlignment.BottomLeft:
+                    flags |= TextFormatFlags.Left | TextFormatFlags.Bottom;
+                    break;
+                case ContentAlignment.BottomCenter:
+                    flags |= TextFormatFlags.HorizontalCenter | TextFormatFlags.Bottom;
+                    break;
+                case ContentAlignment.BottomRight:
+                    flags |= TextFormatFlags.Right | TextFormatFlags.Bottom;
+                    break;
+            }
+
+            return flags;
         }
 
         private void CalculateLayout(Rectangle contentRect, Size imageSize, Size textSize, out Rectangle imageRect, out Rectangle textRect)
@@ -201,8 +253,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool hasImage = imageSize != Size.Empty;
             bool hasText = !string.IsNullOrEmpty(Text) ; // Check if text is available and not hidden
 
-            // Adjust contentRect for padding
-            //   contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
+            // Adjust drawrect for padding
+            //   drawrect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
 
             if (!hasText && hasImage)
             {
@@ -344,53 +396,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             return new Rectangle(new Point(x, y), size);
         }
 
-        // Helper method to align text within the control
-        // Updated helper method to align text within the control bounds based on alignment
-
-
-        private Rectangle AlignText(Rectangle container, Size textSize, ContentAlignment alignment)
-        {
-            int x = container.Left;
-            int y = container.Top;
-
-            switch (alignment)
-            {
-                case ContentAlignment.TopLeft:
-                    break;
-                case ContentAlignment.TopCenter:
-                    x = container.Left + (container.Width - textSize.Width) / 2;
-                    break;
-                case ContentAlignment.TopRight:
-                    x = container.Right - textSize.Width;
-                    break;
-                case ContentAlignment.MiddleLeft:
-                    y = container.Top + (container.Height - textSize.Height) / 2;
-                    break;
-                case ContentAlignment.MiddleCenter:
-                    x = container.Left + (container.Width - textSize.Width) / 2;
-                    y = container.Top + (container.Height - textSize.Height) / 2;
-                    break;
-                case ContentAlignment.MiddleRight:
-                    x = container.Right - textSize.Width;
-                    y = container.Top + (container.Height - textSize.Height) / 2;
-                    break;
-                case ContentAlignment.BottomLeft:
-                    y = container.Bottom - textSize.Height;
-                    break;
-                case ContentAlignment.BottomCenter:
-                    x = container.Left + (container.Width - textSize.Width) / 2;
-                    y = container.Bottom - textSize.Height;
-                    break;
-                case ContentAlignment.BottomRight:
-                    x = container.Right - textSize.Width;
-                    y = container.Bottom - textSize.Height;
-                    break;
-            }
-
-            return new Rectangle(new Point(x, y), textSize);
-        }
-
-
+ 
         
         public override void ApplyTheme()
         {

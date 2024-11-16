@@ -336,13 +336,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             DrawImageAndText(e.Graphics);
         }
         private void DrawImageAndText(Graphics g)
-        { //Console.WriteLine("Loading Image 2");
-
-           
-            //Console.WriteLine("Font changed  2");
+        { 
             Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             // Measure and scale the font to fit within the control bounds
-            Font scaledFont = GetScaledFont(g, Text, DrawingRect.Size, Font);
+            Font scaledFont = GetScaledFont(g, Text, contentRect.Size, Font);
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
 
             // Limit image size to MaxImageSize

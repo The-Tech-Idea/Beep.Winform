@@ -1,9 +1,7 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using System;
 using System.ComponentModel;
-using System.Drawing;
-using System.Globalization;
-using System.Windows.Forms;
+
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -20,8 +18,181 @@ namespace TheTechIdea.Beep.Winform.Controls
         private TextImageRelation _textImageRelation = TextImageRelation.ImageBeforeText;
         private ContentAlignment _imageAlign = ContentAlignment.MiddleLeft;
         private Size _maxImageSize = new Size(16, 16); // Default image size
+        private string? _imagepath;
 
-     
+
+        // show the inner textbox properties like multiline
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool Multiline
+        {
+            get => _innerTextBox.Multiline;
+            set
+            {
+                _innerTextBox.Multiline = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool ReadOnly
+        {
+            get => _innerTextBox.ReadOnly;
+            set
+            {
+                _innerTextBox.ReadOnly = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool UseSystemPasswordChar
+        {
+            get => _innerTextBox.UseSystemPasswordChar;
+            set
+            {
+                _innerTextBox.UseSystemPasswordChar = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public char PasswordChar
+        {
+            get => _innerTextBox.PasswordChar;
+            set
+            {
+                _innerTextBox.PasswordChar = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool WordWrap
+        {
+            get => _innerTextBox.WordWrap;
+            set
+            {
+                _innerTextBox.WordWrap = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool AcceptsReturn
+        {
+            get => _innerTextBox.AcceptsReturn;
+            set
+            {
+                _innerTextBox.AcceptsReturn = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool AcceptsTab
+        {
+            get => _innerTextBox.AcceptsTab;
+            set
+            {
+                _innerTextBox.AcceptsTab = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool scrollbars
+        {
+            get => _innerTextBox.ScrollBars != ScrollBars.None;
+            set
+            {
+                _innerTextBox.ScrollBars = value ? ScrollBars.Both : ScrollBars.None;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public ScrollBars ScrollBars
+        {
+            get => _innerTextBox.ScrollBars;
+            set
+            {
+                _innerTextBox.ScrollBars = value;
+                Invalidate();
+            }
+        }
+  
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool AutoSize
+        {
+            get => _innerTextBox.AutoSize;
+            set
+            {
+                _innerTextBox.AutoSize = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool CausesValidation
+        {
+            get => _innerTextBox.CausesValidation;
+            set
+            {
+                _innerTextBox.CausesValidation = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool HideSelection
+        {
+            get => _innerTextBox.HideSelection;
+            set
+            {
+                _innerTextBox.HideSelection = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool Modified
+        {
+            get => _innerTextBox.Modified;
+            set
+            {
+                _innerTextBox.Modified = value;
+                Invalidate();
+            }
+        }
+         [Browsable(true)]
+        [Category("Appearance")]
+        public bool Enabled
+        {
+            get => _innerTextBox.Enabled;
+            set
+            {
+                _innerTextBox.Enabled = value;
+                Invalidate();
+            }
+        }
+
+
+
+
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        public HorizontalAlignment TextAlignment
+        {
+            get => _innerTextBox.TextAlign;
+            set
+            {
+                _innerTextBox.TextAlign = value;
+                Invalidate();
+            }
+        }
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -136,13 +307,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => beepImage?.ImagePath;
             set
             {
-                if (beepImage != null)
-                {
-                    beepImage.ImagePath = value;
-                    beepImage.ApplyThemeToSvg();
-                    beepImage.ApplyTheme();
-                    Invalidate();
-                }
+                //if (beepImage != null)
+                //{
+                //    beepImage.ImagePath = value;
+                //    beepImage.ApplyThemeToSvg();
+                //    beepImage.ApplyTheme();
+                //    Invalidate();
+                //}
             }
         }
         public BeepTextBox()
@@ -203,72 +374,85 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnResize(e);
             PositionInnerTextBoxAndImage();
         }
-
         private void PositionInnerTextBoxAndImage()
         {
-            int padding = BorderThickness + 10;
+            int padding = BorderThickness ;
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
-            _innerTextBox.Multiline =true   ;
-            if(string.IsNullOrEmpty(ImagePath))
+            _innerTextBox.Multiline = true;
+
+            // Limit image size to MaxImageSize
+            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
             {
-                _innerTextBox.Location = new Point(padding, padding);
-                _innerTextBox.Width = Width - padding * 2;
+                float scaleFactor = Math.Min(
+                    (float)_maxImageSize.Width / imageSize.Width,
+                    (float)_maxImageSize.Height / imageSize.Height);
+                imageSize = new Size(
+                    (int)(imageSize.Width * scaleFactor),
+                    (int)(imageSize.Height * scaleFactor));
             }
-            else
-            if (TextImageRelation == TextImageRelation.ImageBeforeText)
+            // Determine the width and height of the inner text box based on DrawingRect
+            int innerTextBoxWidth = DrawingRect.Width - padding * 2;
+            int innerTextBoxHeight = DrawingRect.Height - padding * 2;
+
+            if (string.IsNullOrEmpty(_imagepath))
+            {
+                _innerTextBox.Location = new Point(DrawingRect.Left + padding, DrawingRect.Top + padding);
+                _innerTextBox.Width = innerTextBoxWidth;
+            }
+            else if (TextImageRelation == TextImageRelation.ImageBeforeText)
             {
                 // Place the image on the left, with text to the right
-                _innerTextBox.Location = new Point(imageSize.Width + padding * 2, padding);
-                _innerTextBox.Width = Width - imageSize.Width - padding *3;
+                _innerTextBox.Location = new Point(DrawingRect.Left + imageSize.Width + padding * 2, DrawingRect.Top + padding);
+                _innerTextBox.Width = DrawingRect.Width - imageSize.Width - padding * 3;
             }
             else if (TextImageRelation == TextImageRelation.TextBeforeImage)
             {
                 // Place the text on the left, with image on the right
-                _innerTextBox.Location = new Point(padding-10, padding);
-                _innerTextBox.Width = Width - imageSize.Width - padding * 3;
+                _innerTextBox.Location = new Point(DrawingRect.Left + padding, DrawingRect.Top + padding);
+                _innerTextBox.Width = DrawingRect.Width - imageSize.Width - padding * 3;
             }
             else
             {
-                // No specific relation; occupy full width
-                _innerTextBox.Location = new Point(padding-15, padding);
-                _innerTextBox.Width = Width - padding * 2;
+                // No specific relation; occupy full width within DrawingRect
+                _innerTextBox.Location = new Point(DrawingRect.Left + padding, DrawingRect.Top + padding);
+                _innerTextBox.Width = innerTextBoxWidth;
             }
 
-            // Set the height of the inner TextBox
-            _innerTextBox.Height = Height - padding * 2;
+            // Set the height of the inner TextBox to fit within DrawingRect
+            _innerTextBox.Height = innerTextBoxHeight;
 
-            // Adjust beepImage position according to ImageAlign setting
+            // Adjust beepImage position according to ImageAlign setting and DrawingRect
             if (beepImage.HasImage)
             {
                 beepImage.Size = imageSize;
                 switch (ImageAlign)
                 {
                     case ContentAlignment.TopLeft:
-                        beepImage.Location = new Point(padding, padding);
+                        beepImage.Location = new Point(DrawingRect.Left + padding, DrawingRect.Top + padding);
                         break;
                     case ContentAlignment.TopRight:
-                        beepImage.Location = new Point(Width - imageSize.Width - padding, padding);
+                        beepImage.Location = new Point(DrawingRect.Right - imageSize.Width - padding, DrawingRect.Top + padding);
                         break;
                     case ContentAlignment.BottomLeft:
-                        beepImage.Location = new Point(padding, Height - imageSize.Height - padding);
+                        beepImage.Location = new Point(DrawingRect.Left + padding, DrawingRect.Bottom - imageSize.Height - padding);
                         break;
                     case ContentAlignment.BottomRight:
-                        beepImage.Location = new Point(Width - imageSize.Width - padding, Height - imageSize.Height - padding);
+                        beepImage.Location = new Point(DrawingRect.Right - imageSize.Width - padding, DrawingRect.Bottom - imageSize.Height - padding);
                         break;
                     case ContentAlignment.MiddleLeft:
-                        beepImage.Location = new Point(padding, (Height - imageSize.Height) / 2);
+                        beepImage.Location = new Point(DrawingRect.Left + padding, DrawingRect.Top + (DrawingRect.Height - imageSize.Height) / 2);
                         break;
                     case ContentAlignment.MiddleRight:
-                        beepImage.Location = new Point(Width - imageSize.Width - padding, (Height - imageSize.Height) / 2);
+                        beepImage.Location = new Point(DrawingRect.Right - imageSize.Width - padding, DrawingRect.Top + (DrawingRect.Height - imageSize.Height) / 2);
                         break;
                     case ContentAlignment.TopCenter:
-                        beepImage.Location = new Point((Width - imageSize.Width) / 2, padding);
+                        beepImage.Location = new Point(DrawingRect.Left + (DrawingRect.Width - imageSize.Width) / 2, DrawingRect.Top + padding);
                         break;
                     case ContentAlignment.BottomCenter:
-                        beepImage.Location = new Point((Width - imageSize.Width) / 2, Height - imageSize.Height - padding);
+                        beepImage.Location = new Point(DrawingRect.Left + (DrawingRect.Width - imageSize.Width) / 2, DrawingRect.Bottom - imageSize.Height - padding);
                         break;
                     case ContentAlignment.MiddleCenter:
-                        beepImage.Location = new Point((Width - imageSize.Width) / 2, (Height - imageSize.Height) / 2);
+                        beepImage.Location = new Point(DrawingRect.Left + (DrawingRect.Width - imageSize.Width) / 2, DrawingRect.Top + (DrawingRect.Height - imageSize.Height) / 2);
                         break;
                 }
             }
@@ -280,7 +464,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //base.ApplyTheme();
             _innerTextBox.BackColor = _currentTheme.TextBoxBackColor;
             _innerTextBox.ForeColor = _currentTheme.TextBoxForeColor;
-            BackColor=_currentTheme.TextBoxBackColor;
+            BackColor=_currentTheme.BackgroundColor;
             beepImage.ApplyTheme();
             Invalidate();
         }

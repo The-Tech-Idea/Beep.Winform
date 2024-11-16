@@ -130,26 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Size = _maxImageSize
             };
         }
-        //protected override void OnPaintBackground(PaintEventArgs e)
-        //{
-        //    // Do not call base.OnPaintBackground(e);
-        //    // Fill the background with the control's background color
-
-        //    if (IsChild)
-        //    {
-        //        using (SolidBrush brush = new SolidBrush(parentbackcolor))
-        //        {
-        //            e.Graphics.FillRectangle(brush, DrawingRect);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        using (SolidBrush brush = new SolidBrush(BackColor))
-        //        {
-        //            e.Graphics.FillRectangle(brush, DrawingRect);
-        //        }
-        //    }
-        //}
+       
         protected override void OnPaint(PaintEventArgs e)
         {
            
@@ -184,10 +165,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Draw text
-            var textColor = _currentTheme?.LabelForeColor ?? ForeColor;
-            ForeColor = textColor;
-            TextRenderer.DrawText(e.Graphics, Text, Font, textRect, textColor); //          TextFormatFlags.EndEllipsis | TextFormatFlags.PreserveGraphicsClipping
-
+            //var textColor = _currentTheme?.LabelForeColor ?? ForeColor;
+            //ForeColor = textColor;
+            TextRenderer.DrawText(e.Graphics, Text, Font, textRect, ForeColor); //          TextFormatFlags.EndEllipsis | TextFormatFlags.PreserveGraphicsClipping
+            if (_isHovered)
+            {
+                DrawBorder(e.Graphics);
+            }
 
         }
         public void DrawToGraphics(Graphics graphics, Rectangle bounds)
@@ -324,21 +308,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         public override void ApplyTheme()
         {
-            //base.ApplyTheme();
+            base.ApplyTheme();
             if (_currentTheme != null)
             {
-                if (IsChild)
-                {
-                  //  Console.WriteLine("IsChild");
-                   // Console.WriteLine("ParentBackColor: " + parentbackcolor);
-                    BackColor = parentbackcolor;
-                }
-                else
-                {
-                   // Console.WriteLine("IsNotChild");
-                    BackColor = _currentTheme.LabelBackColor;
-                }
-
+                //if (IsChild)
+                //{
+                //  //  Console.WriteLine("IsChild");
+                //   // Console.WriteLine("ParentBackColor: " + parentbackcolor);
+                //    BackColor = parentbackcolor;
+                //}
+                //else
+                //{
+                //   // Console.WriteLine("IsNotChild");
+                //    BackColor = _currentTheme.LabelBackColor;
+                //}
+                
+                BackColor = _currentTheme.LabelBackColor;
                 ForeColor = _currentTheme.LabelForeColor;
                 Font = BeepThemesManager.ToFont(_currentTheme.BodySmall);
                 beepImage.Theme = Theme;

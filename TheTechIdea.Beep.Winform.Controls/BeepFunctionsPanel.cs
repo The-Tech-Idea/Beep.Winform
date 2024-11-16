@@ -234,8 +234,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             //base.ApplyTheme();
             BackColor = _currentTheme.BackgroundColor;;
             foreach (Control ctrl in Controls)
-            {
-                BeepGlobalThemeManager.ApplyThemeToControl(ctrl, Theme, ApplyThemeOnImage);
+            { 
+                ApplyThemeToControl(ctrl);
                 //if (ctrl is BeepButton)
                 //{
                 //    ((BeepButton)ctrl).Theme = Theme;

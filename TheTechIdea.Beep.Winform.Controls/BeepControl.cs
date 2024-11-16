@@ -699,7 +699,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepControl()
         {
-           DoubleBuffered = true;
+            DoubleBuffered = true;
             SetStyle( ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
             InitializeTooltip();
@@ -790,14 +790,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
     
     #endregion "Data Binding"
-    protected void BeepControl_LocationChanged(object? sender, EventArgs e)
+        protected void BeepControl_LocationChanged(object? sender, EventArgs e)
         {
             if (StaticNotMoving)
             {
                 this.Location = originalLocation;
             }
         }
-       
         protected override void OnControlAdded(ControlEventArgs e)
         {
             base.OnControlAdded(e);
@@ -819,8 +818,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-                ForeColor = _currentTheme.LatestForColor;
-                BackColor = _currentTheme.BackgroundColor;;
+                //ForeColor = _currentTheme.LatestForColor;
+                //BackColor = _currentTheme.BackgroundColor;;
                 BorderColor = _currentTheme.BorderColor;
                 HoverBackColor = _currentTheme.ButtonHoverBackColor;
                 PressedBackColor = _currentTheme.ButtonActiveBackColor;
@@ -886,25 +885,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             base.OnPaintBackground(e);
-
-
-
-
         }
         protected override void OnPaint(PaintEventArgs e)
         {
             SuspendLayout();
            // base.OnPaint(e);
-             e.Graphics.Clear(Parent.BackColor);
-             shadowOffset = ShowShadow ? 5 : 0;
+             e.Graphics.Clear(BackColor);
+             shadowOffset = ShowShadow ? 3 : 0;
             // Define the padded drawing rectangle to leave room for the shadow
             UpdateDrawingRect();
            
             Rectangle rectangle = new Rectangle(0, 0, Width, Height);
             if (!_isframless)
             {
-                
-
                 if (ShowShadow)
                 {
                     DrawShadowUsingRectangle(e.Graphics);
@@ -922,7 +915,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 using (SolidBrush brush = new SolidBrush(parentbackcolor))
                 {
-                    e.Graphics.FillRectangle(brush, rectangle);
+                    e.Graphics.FillRectangle(brush, DrawingRect);
                 }
                 
             }
@@ -951,7 +944,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _borderThickness = 1;
                 }
-                if ((BorderThickness > 0) && (_showBottomBorder || _showTopBorder || _showLeftBorder || _showRightBorder || ShowAllBorders))
+                if ((BorderThickness > 0) &&  ShowAllBorders)
                 {
                     DrawBorder(e.Graphics, DrawingRect);
                 }
@@ -965,35 +958,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
            ResumeLayout();
         }
-        protected void DrawBackground(Graphics graphics, Rectangle drawingRect)
-        {
-            if (IsChild)
-            {
-                using (SolidBrush brush = new SolidBrush(parentbackcolor))
-                {
-                    graphics.FillRectangle(brush, DrawingRect);
-                }
-            }
-            else
-            {
-                if (UseGradientBackground)
-                {
-                    using (var brush = new LinearGradientBrush(drawingRect, GradientStartColor, GradientEndColor, GradientDirection))
-                    {
-                        graphics.FillRectangle(brush, drawingRect);
-                    }
-                }
-                else
-                {
-                    using (var brush = new SolidBrush(BackColor))
-                    {
-                        graphics.FillRectangle(brush, drawingRect);
-                    }
-                }
-
-            }
-          
-        }
+ 
     
         protected void DrawBorder(Graphics graphics, Rectangle drawingRect)
         {
@@ -1178,6 +1143,35 @@ namespace TheTechIdea.Beep.Winform.Controls
                         DrawingRect.Top + BorderThickness + shadowOffset,
                         DrawingRect.Width + BorderThickness+shadowOffset,
                         DrawingRect.Height + BorderThickness+shadowOffset
+                    );
+
+                    if (IsRounded)
+                    {
+                        using (GraphicsPath shadowPath = GetRoundedRectPath(shadowRect, BorderRadius))
+                        {
+                            graphics.FillPath(shadowBrush, shadowPath);
+                        }
+                    }
+                    else
+                    {
+                        graphics.FillRectangle(shadowBrush, shadowRect);
+                    }
+                }
+            }
+        }
+        protected void DrawShadow(Graphics graphics)
+        {
+            // Ensure shadow is drawn only if it's enabled and the control is not transparent
+            if (ShowShadow) // Ensure no transparency conflicts
+            {
+                using (var shadowBrush = new SolidBrush(Color.FromArgb((int)(255 * ShadowOpacity), ShadowColor)))
+                {
+                    // Calculate an offset shadow rectangle slightly larger than the main control
+                    Rectangle shadowRect = new Rectangle(
+                        Left + BorderThickness + shadowOffset,
+                        Top + BorderThickness + shadowOffset,
+                        Width + BorderThickness + shadowOffset,
+                        Height + BorderThickness + shadowOffset
                     );
 
                     if (IsRounded)

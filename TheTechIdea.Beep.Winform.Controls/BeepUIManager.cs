@@ -14,6 +14,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         private EnumBeepThemes _theme = EnumBeepThemes.DefaultTheme;
         private Form _form;
         private bool _showborder = true;
+
+        public event Action<EnumBeepThemes> OnThemeChanged;
+        //private EnumBeepThemes _globalTheme = EnumBeepThemes.DefaultTheme;
+
+        bool _applyThemeOnImage = false;
+        public bool ApplyThemeOnImage
+        {
+            get => _applyThemeOnImage;
+            set
+            {
+                _applyThemeOnImage = value;
+                ApplyImage();
+               
+            }
+        }
+
+    
+
         [Browsable(true)]
         [Category("Appearance")]
         [DefaultValue(false)]
@@ -23,9 +41,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             get { return _showborder; }
             set { _showborder = value; ApplyBorder(); }
         }
-
-     
-
         private bool _showShadow = false;
         [Browsable(true)]
         [Category("Appearance")]
@@ -41,21 +56,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         [DefaultValue(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public bool ISRounded
+        public bool IsRounded
         {
             get { return _isrounded; }
             set { _isrounded = value; ApplyRounded(); }
         }
-
-      
-
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Enable or disable BeepForm styling for the form.")]
         [DefaultValue(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-      
-
         bool ApplyBeepFormStyle
         {
             get => _applyBeepFormStyle;
@@ -84,6 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _theme = value;
+                OnThemeChanged?.Invoke(_theme);
                 ApplyThemeToAllBeepControls(_form); // Apply to all existing controls recursively
             }
         }
@@ -97,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepUIManager(IContainer container)
         {
             container.Add(this);
-            BeepGlobalThemeManager.OnThemeChanged += theme => Theme = theme;
+          // OnThemeChanged += theme => Theme = theme;
             // Set form load event to apply settings at runtime
             
         }
@@ -222,6 +233,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (e.Control is ContainerControl containerControl)
             {
                 AttachControlAddedEvent(containerControl);
+                ApplyBorderToControl(containerControl, _showborder);
+                ApplyShadowToControl(containerControl, _showShadow);
+                ApplyRoundedToControl(containerControl, _isrounded);
             }
         }
 
@@ -229,13 +243,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void ApplyThemeToAllBeepControls(Control container)
         {
             if (container == null) return;
-            Console.WriteLine(" apply1 ");
             container.BackColor = BeepThemesManager.GetTheme(_theme).BackgroundColor;
-            Console.WriteLine(" apply2 ");
             // Apply theme to the container itself
-
             ApplyThemeToControl(container);
-
             // Recursively apply theme to all child controls
             foreach (Control child in container.Controls)
             {
@@ -258,22 +268,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Apply the selected theme to a single control
         private void ApplyThemeToControl(Control control)
         {
-            var themeProperty = TypeDescriptor.GetProperties(control)["Theme"];
-            if (themeProperty != null && themeProperty.PropertyType == typeof(EnumBeepThemes))
-            {
-                themeProperty.SetValue(control, _theme);
-            }
+            ApplyThemeToControl(control, _theme, ApplyThemeOnImage);
         }
          private void ApplyShadow()
         {
             if (_form != null)
             {
-                ApplyThemeToControl(_form); // Apply to the control itself
+           //     ApplyThemeToControl(_form); // Apply to the control itself
 
                 // Recursively apply to child controls if the control is a container
                 foreach (Control child in _form.Controls)
                 {
-                    BeepGlobalThemeManager.ApplyShadowToControl(child, _showShadow);
+                    ApplyShadowToControl(child, _showShadow);
                 }
             }
             
@@ -282,12 +288,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_form != null)
             {
-                ApplyThemeToControl(_form); // Apply to the control itself
+           //     ApplyThemeToControl(_form); // Apply to the control itself
 
                 // Recursively apply to child controls if the control is a container
                 foreach (Control child in _form.Controls)
                 {
-                    BeepGlobalThemeManager.ApplyRoundedToControl(child, _isrounded);
+                    ApplyRoundedToControl(child, _isrounded);
                 }
             }
            
@@ -296,12 +302,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_form != null)
             {
-                ApplyThemeToControl(_form); // Apply to the control itself
+             //   ApplyThemeToControl(_form); // Apply to the control itself
 
                 // Recursively apply to child controls if the control is a container
                 foreach (Control child in _form.Controls)
                 {
-                    BeepGlobalThemeManager.ApplyBorderToControl(child, _showborder);
+                    ApplyBorderToControl(child, _showborder);
+                }
+            }
+        }
+        private void ApplyImage()
+        {
+            if (_form != null)
+            {
+               // ApplyThemeToControl(_form); // Apply to the control itself
+
+                // Recursively apply to child controls if the control is a container
+                foreach (Control child in _form.Controls)
+                {
+                    ApplyThemeOnImageControl(child, _applyThemeOnImage);
                 }
             }
         }
@@ -310,7 +329,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (disposing)
             {
                 DetachControlAddedEvent(_form);
-                BeepGlobalThemeManager.OnThemeChanged -= theme => Theme = theme;
+                OnThemeChanged -= theme => Theme = theme;
 
                 if (_form != null)
                 {
@@ -350,6 +369,59 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_form != null)
             {
                 BeepFormGenerator.RemoveBeepForm(_form); // Remove BeepForm styling and reset form appearance
+            }
+        }
+      
+        public  void ApplyThemeToControl(Control control, EnumBeepThemes _theme, bool applytoimage)
+        {
+            var themeProperty = TypeDescriptor.GetProperties(control)["Theme"];
+            if (themeProperty != null && themeProperty.PropertyType == typeof(EnumBeepThemes))
+            {
+                themeProperty.SetValue(control, _theme);
+            }
+           
+            ApplyShadowToControl(control, _showShadow);
+            ApplyRoundedToControl(control, _isrounded);
+            ApplyBorderToControl(control, _showborder);
+            ApplyThemeOnImageControl(control, _applyThemeOnImage);
+        }
+        public  void ApplyShadowToControl(Control control, bool showshadow)
+        {
+            var themeProperty = TypeDescriptor.GetProperties(control)["ShowShadow"];
+            if (themeProperty != null)
+            {
+                themeProperty.SetValue(control, showshadow);
+            }
+
+        }
+        public  void ApplyRoundedToControl(Control control, bool isrounded)
+        {
+            var themeProperty = TypeDescriptor.GetProperties(control)["IsRounded"];
+            if (themeProperty != null)
+            {
+                themeProperty.SetValue(control, isrounded);
+            }
+
+        }
+        public  void ApplyBorderToControl(Control control, bool showborder)
+        {
+            var themeProperty = TypeDescriptor.GetProperties(control)["ShowAllBorders"];
+            if (themeProperty != null)
+            {
+                themeProperty.SetValue(control, showborder);
+            }
+
+        }
+        public void ApplyThemeOnImageControl(Control control, bool _applyonimage)
+        {
+            var ImageProperty = TypeDescriptor.GetProperties(control)["ImagePath"];
+            if (ImageProperty != null && ImageProperty.PropertyType == typeof(string))
+            {
+                var ApplyThemeOnImage = TypeDescriptor.GetProperties(control)["ApplyThemeOnImage"];
+                if (ApplyThemeOnImage != null && ApplyThemeOnImage.PropertyType == typeof(bool))
+                {
+                    ApplyThemeOnImage.SetValue(control, _applyonimage);
+                }
             }
         }
     }

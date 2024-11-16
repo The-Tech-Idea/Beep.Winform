@@ -1,8 +1,5 @@
 ﻿
 using TheTechIdea.Beep.Winform.Controls.DataNavigator;
-
-using TheTechIdea.Beep.Vis.Modules;
-using System.Security.Authentication.ExtendedProtection;
 using TheTechIdea.Beep.Editor;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -43,8 +40,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnResize(EventArgs e)
         {
-            base.OnResize(e);
-            UpdateDrawingRect();
+          //  base.OnResize(e);
+          //  UpdateDrawingRect();
             ArrangeControls();
         }
         private void CreateNavigator()
@@ -229,14 +226,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             //base.ApplyTheme();
             foreach (Control ctrl in Controls)
             {
-                if (ctrl is BeepButton)
+                // apply theme to all child controls
+                if (ctrl is BeepControl)
                 {
-                    ((BeepButton)ctrl).Theme = Theme;
-                    ((BeepButton)ctrl).ApplyThemeToSvg();
-                }
-                else if (ctrl is BeepLabel)
-                {
-                    ((BeepLabel)ctrl).Theme = Theme;
+                   // ((BeepButton)ctrl).ApplyThemeOnImage = true;
+                    ((BeepControl)ctrl).Theme = Theme;
+                   // ((BeepControl)ctrl).ApplyTheme();
                 }
             }
         }

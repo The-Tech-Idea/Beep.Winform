@@ -68,5 +68,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
         }
+        public static void ApplyIsRoundedToControl(Control control, bool isrounded)
+        {
+            var themeProperty = TypeDescriptor.GetProperties(control)["IsRounded"];
+            if (themeProperty != null)
+            {
+                themeProperty.SetValue(control, isrounded);
+            }
+
+        }
     }
 }

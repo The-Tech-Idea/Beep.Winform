@@ -5,8 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Design;
 using System.Reflection;
 using Svg;
-using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Template;
+
 using System.Windows.Forms.Design;
 using TheTechIdea.Beep.Winform.Controls.UIEditor;
 
@@ -20,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepImage : BeepControl
     {
        
-        private bool isinit= true;
+  
        
         private ImageSelectorImporterForm form;
         private SvgDocument svgDocument;
@@ -29,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _advancedImagePath;
         // Property for the image path (SVG, PNG, JPG, BMP)
         protected string _imagepath;
-        private bool isinvalidated = false;
+        
         public BeepImage()
         {
            // ImageSelector.SetSelector();
@@ -161,20 +160,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Theme Properties"
         public override void ApplyTheme()
         {
-            //base.ApplyTheme();
+            base.ApplyTheme();
             if (_currentTheme != null)
             {
-              
-               
-                    if (IsChild)
-                    {
-                        BackColor =parentbackcolor; // Default background color
-                    }
-                    else
-                    {
-                       
-                        BackColor = _currentTheme.BackgroundColor;; // Default background color
-                    }
                 HoverBackColor = _currentTheme.ButtonHoverBackColor; // Hover background color
                 HoverForeColor = _currentTheme.ButtonHoverForeColor; // Hover foreground color
                 PressedBackColor = _currentTheme.ButtonActiveBackColor; // Pressed background color
@@ -184,7 +172,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 ForeColor = _currentTheme.ButtonForeColor; // Default foreground color
                
-                isinvalidated = true;
+                
                 if(_applyThemeOnImage)
                 {
                     ApplyThemeToSvg();
@@ -253,7 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Image Drawing Methods"
         protected override void OnPaint(PaintEventArgs e)
         {
-           // base.OnPaint(e);
+            base.OnPaint(e);
 
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             //if (BackColor == Color.Transparent && Parent != null)

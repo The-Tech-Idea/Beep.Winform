@@ -20,7 +20,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private Color borderColor = Color.Black;
         private Color selectedBorderColor = Color.Blue;
-        private bool _isHovered = false;
         private bool _isStillButton = false;
       
         private TextImageRelation textImageRelation = TextImageRelation.ImageBeforeText;
@@ -33,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private bool _isSideMenuChild = false;
         // Private field to store the button's text
-        private string _text = string.Empty;
+        
         private Rectangle contentRect;
 
         // create a public event for beepImage.onClick
@@ -263,9 +262,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeComponents();
             ApplyTheme();
             
-            //beepImage.MouseHover += BeepImage_MouseHover;
-            //beepImage.MouseLeave += BeepImage_MouseLeave;
-            //beepImage.Click += BeepImage_Click;
+           
+           
         }
 
 
@@ -279,27 +277,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Location = new Point(5, 5), // Set initial position (will adjust in layout)
                 Size = _maxImageSize // Set the size based on the max image size
             };
-
+            beepImage.MouseHover += BeepImage_MouseHover;
+            beepImage.MouseLeave += BeepImage_MouseLeave;
             beepImage.Click += BeepImage_Click;
-            Padding = new Padding(borderSize);
+            Padding = new Padding(0);
             Size = new Size(120, 40);  // Default size
         }
 
-        private void BeepImage_Click(object? sender, EventArgs e)
-        {
-            var ev= new BeepEventDataArgs("ImageClicked",this) ;
-            ImageClicked?.Invoke(this,ev);
-        }
+    
 
         public override void ApplyTheme()
         {
-            ////base.ApplyTheme();
-            if (_currentTheme != null)
-            {
-               
-                    BackColor = _currentTheme.ButtonBackColor;
-                    ForeColor = _currentTheme.ButtonForeColor;
-              
+            BackColor = _currentTheme.ButtonBackColor;
+            ForeColor = _currentTheme.ButtonForeColor;
+
+        
 
                 try
                 {
@@ -321,8 +313,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                   
                 }
-                Invalidate();  // Trigger repaint
-            }
+           Invalidate();  // Trigger repaint
         }
         public  void ApplyThemeToSvg()
         {
@@ -337,7 +328,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
             }
-            Invalidate();  // Trigger repaint
+           // Invalidate();  // Trigger repaint
 
         }
         protected override void OnPaint(PaintEventArgs e)
@@ -351,36 +342,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             DrawImageAndText(e.Graphics);
         }
         private void DrawImageAndText(Graphics g)
-        {
-
-            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
-
-            // Limit image size to MaxImageSize
-            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
-            {
-                float scaleFactor = Math.Min(
-                    (float)_maxImageSize.Width / imageSize.Width,
-                    (float)_maxImageSize.Height / imageSize.Height);
-                imageSize = new Size(
-                    (int)(imageSize.Width * scaleFactor),
-                    (int)(imageSize.Height * scaleFactor));
-            }
-
-            Size textSize = TextRenderer.MeasureText(Text, Font);
-
-            // Calculate the layout of image and text
-            Rectangle imageRect, textRect;
-            CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
-            Console.WriteLine("Drawing Image 1");
-            // Draw the image if available
-            if (beepImage != null && beepImage.HasImage)
-            {
-                Console.WriteLine("Loading Image 2 333");
-                beepImage.DrawImage(g, imageRect);
-            }
-            Console.WriteLine("Loading Image 2");
+        { //Console.WriteLine("Loading Image 2");
             var tempstyle = _currentTheme.ButtonStyle;
-            Console.WriteLine("Font changed  1");
+            //Console.WriteLine("Font changed  1");
             if (OverrideFontSize != TypeStyleFontSize.None)
             {
                 switch (OverrideFontSize)
@@ -400,16 +364,45 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            Console.WriteLine("Font changed  2");
+            //Console.WriteLine("Font changed  2");
             Font = BeepThemesManager.ToFont(tempstyle);
 
-            Console.WriteLine("Font changed  3");
+            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
+
+            // Limit image size to MaxImageSize
+            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
+            {
+                float scaleFactor = Math.Min(
+                    (float)_maxImageSize.Width / imageSize.Width,
+                    (float)_maxImageSize.Height / imageSize.Height);
+                imageSize = new Size(
+                    (int)(imageSize.Width * scaleFactor),
+                    (int)(imageSize.Height * scaleFactor));
+            }
+
+            Size textSize = TextRenderer.MeasureText(Text, Font);
+
+            // Calculate the layout of image and text
+            Rectangle imageRect, textRect;
+            CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
+            //Console.WriteLine("Drawing Image 1");
+            // Draw the image if available
+            if (beepImage != null && beepImage.HasImage)
+            {
+                //Console.WriteLine("Loading Image 2 333");
+                beepImage.DrawImage(g, imageRect);
+                // place beepimage in the same place imagerect is
+                beepImage.Location = imageRect.Location;
+            }
+           
+
+            //Console.WriteLine("Font changed  3");
             // Draw the text
             // Draw the text
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-                TextRenderer.DrawText(g, Text, Font, textRect, ForeColor, flags);
+                TextRenderer.DrawText(g, Text, Font, textRect, _currentTheme.ButtonForeColor, flags);
             }
 
             //}
@@ -653,28 +646,41 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Return the calculated size
             return new Size(width, height);
         }
-       
-        //private void BeepImage_Click(object? sender, EventArgs e)
-        //{
-        //    IsPressed = true;
-        //    base.OnClick(e);
-            
-        //}
 
-        //private void BeepImage_MouseLeave(object? sender, EventArgs e)
-        //{
-        //    IsHovered = false;
-        //    base.OnMouseLeave(e);
-           
-        //}
+     
+        protected override void OnMouseHover(EventArgs e)
+        {
+            IsHovered = true;
+            BackColor = _currentTheme.ButtonHoverBackColor;
+            base.OnMouseHover(e);
+        }
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            IsHovered = false;
+            BackColor = _currentTheme.ButtonBackColor;
+            base.OnMouseLeave(e);
+        }
+        private void BeepImage_MouseLeave(object? sender, EventArgs e)
+        {
+            IsHovered = false;
+            BackColor = _currentTheme.ButtonBackColor;
+            base.OnMouseLeave(e);
 
-        //private void BeepImage_MouseHover(object? sender, EventArgs e)
-        //{
-        //    IsHovered = true;
-        //    base.OnMouseHover(e);
-          
-        //}
+        }
 
+        private void BeepImage_MouseHover(object? sender, EventArgs e)
+        {
+            IsHovered = true;
+            BackColor = _currentTheme.ButtonHoverBackColor;
+            base.OnMouseHover(e);
+
+        }
+        private void BeepImage_Click(object? sender, EventArgs e)
+        {
+            var ev = new BeepEventDataArgs("ImageClicked", this);
+            ImageClicked?.Invoke(this, ev);
+            base.OnClick(e);
+        }
 
     }
 

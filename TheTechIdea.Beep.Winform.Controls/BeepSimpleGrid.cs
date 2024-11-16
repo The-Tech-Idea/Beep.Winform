@@ -310,24 +310,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Theme"
         public override void ApplyTheme()
         {
+            //base.ApplyTheme();
             this.BackColor = _theme.BackgroundColor;
-            this.ForeColor = _theme.PrimaryTextColor;
+            this.ForeColor = _theme.LabelForeColor;
             if (titleLabel != null) 
             {
                 titleLabel.Theme = Theme;
             }
-            
+
             if (DataNavigator != null)
             {
                 DataNavigator.Theme = Theme;
             }
-            
+
             //foreach (var row in Rows)
             //{
             //    row.ApplyTheme(_theme);
             //}
 
-            Invalidate(); // Repaint the grid after applying the theme
+            // Invalidate(); // Repaint the grid after applying the theme
         }
 
        

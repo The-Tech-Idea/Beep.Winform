@@ -3,9 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
-using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Template;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -125,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Constructor
         public BeepCard()
         {
-            Padding = new Padding(10);
+            Padding = new Padding(0);
             //ShowTitle = false;
             //ShowTitleLine = false;
             InitializeComponents();

@@ -153,10 +153,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
              Console.WriteLine("Applying Theme on Simple Panel");
             BackColor = _currentTheme.BackgroundColor;
-            ForeColor = _currentTheme.LatestForColor;
+            ForeColor = _currentTheme.TitleForColor;
             foreach (Control ctrl in Controls)
             {
-                BeepGlobalThemeManager.ApplyThemeToControl(ctrl, Theme,true);
+                ApplyThemeToControl(ctrl);
                 //if (ctrl is BeepButton)
                 //{
                 //    //  Console.WriteLine("Applying Theme to Button");
@@ -168,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //    ((BeepLabel)ctrl).Theme = Theme;
                 //}
             }
-            Invalidate();
+           // Invalidate();
         }
         //protected override void OnPaintBackground(PaintEventArgs e)
         //{
@@ -196,10 +196,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Use BeepThemesManager to fetch the theme-based font, or fall back to default font
             Font fontToUse = BeepThemesManager.ToFont(_currentTheme?.TitleStyle) ?? Font;
-            Color titleColor = _currentTheme?.TitleForColor ?? ForeColor;
+            
 
             SizeF titleSize = graphics.MeasureString(_titleText, fontToUse);
-            int padding = BorderThickness + 5; // Adjusted padding for shadow and borders
+            int padding = 0; // Adjusted padding for shadow and borders
             PointF titlePosition = new PointF(DrawingRect.Left + padding, DrawingRect.Top + padding);
 
             // Adjust title position based on alignment setting within DrawingRect
@@ -216,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
 
-            using (var brush = new SolidBrush(titleColor))
+            using (var brush = new SolidBrush(_currentTheme.TitleForColor))
             {
                 if(_showTitle && !string.IsNullOrEmpty(TitleText))
                 {

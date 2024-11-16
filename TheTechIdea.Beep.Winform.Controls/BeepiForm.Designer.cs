@@ -46,8 +46,8 @@
             CloseButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             CloseButton.AnimationDuration = 500;
             CloseButton.AnimationType = DisplayAnimationType.None;
-            CloseButton.ApplyThemeOnImage = true;
-            CloseButton.BackColor = Color.FromArgb(15, 15, 30);
+            CloseButton.ApplyThemeOnImage = false;
+            CloseButton.BackColor = Color.FromArgb(18, 18, 50);
             CloseButton.BlockID = null;
             CloseButton.BorderColor = Color.Black;
             CloseButton.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -67,8 +67,8 @@
             CloseButton.FocusBorderColor = Color.Transparent;
             CloseButton.FocusForeColor = Color.Black;
             CloseButton.FocusIndicatorColor = Color.Blue;
-            CloseButton.Font = new Font("Arial", 14F, FontStyle.Bold);
-            CloseButton.ForeColor = Color.FromArgb(255, 255, 255);
+            CloseButton.Font = new Font("Segoe UI", 12F);
+            CloseButton.ForeColor = Color.Black;
             CloseButton.Form = null;
             CloseButton.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             CloseButton.GradientEndColor = Color.Transparent;
@@ -81,6 +81,7 @@
             CloseButton.Id = -1;
             CloseButton.Image = null;
             CloseButton.ImageAlign = ContentAlignment.MiddleCenter;
+            CloseButton.ImageClicked = null;
             CloseButton.ImagePath = "";
             CloseButton.InactiveBackColor = Color.Transparent;
             CloseButton.InactiveBorderColor = Color.Transparent;
@@ -100,8 +101,9 @@
             CloseButton.Location = new Point(841, 4);
             CloseButton.MaxImageSize = new Size(20, 20);
             CloseButton.Name = "CloseButton";
+            CloseButton.OverrideFontSize = TypeStyleFontSize.None;
             CloseButton.Padding = new Padding(1);
-            CloseButton.ParentBackColor = Color.FromArgb(15, 15, 30);
+            CloseButton.ParentBackColor = Color.FromArgb(18, 18, 50);
             CloseButton.PressedBackColor = Color.Transparent;
             CloseButton.PressedBorderColor = Color.Transparent;
             CloseButton.PressedForeColor = Color.Black;
@@ -111,13 +113,13 @@
             CloseButton.ShadowColor = Color.Black;
             CloseButton.ShadowOffset = 0;
             CloseButton.ShadowOpacity = 0.5F;
-            CloseButton.ShowAllBorders = false;
-            CloseButton.ShowBottomBorder = false;
+            CloseButton.ShowAllBorders = true;
+            CloseButton.ShowBottomBorder = true;
             CloseButton.ShowFocusIndicator = false;
-            CloseButton.ShowLeftBorder = false;
-            CloseButton.ShowRightBorder = false;
+            CloseButton.ShowLeftBorder = true;
+            CloseButton.ShowRightBorder = true;
             CloseButton.ShowShadow = false;
-            CloseButton.ShowTopBorder = false;
+            CloseButton.ShowTopBorder = true;
             CloseButton.Size = new Size(20, 20);
             CloseButton.SlideFrom = SlideDirection.Left;
             CloseButton.StaticNotMoving = false;
@@ -125,7 +127,7 @@
             CloseButton.Text = "X";
             CloseButton.TextAlign = ContentAlignment.MiddleCenter;
             CloseButton.TextImageRelation = TextImageRelation.ImageAboveText;
-            CloseButton.Theme = Vis.Modules.EnumBeepThemes.MidnightTheme;
+            CloseButton.Theme = Vis.Modules.EnumBeepThemes.NeonTheme;
             CloseButton.ToolTipText = "";
             CloseButton.UseGradientBackground = false;
             // 
@@ -135,8 +137,8 @@
             MaximizeButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             MaximizeButton.AnimationDuration = 500;
             MaximizeButton.AnimationType = DisplayAnimationType.None;
-            MaximizeButton.ApplyThemeOnImage = true;
-            MaximizeButton.BackColor = Color.FromArgb(15, 15, 30);
+            MaximizeButton.ApplyThemeOnImage = false;
+            MaximizeButton.BackColor = Color.FromArgb(18, 18, 50);
             MaximizeButton.BlockID = null;
             MaximizeButton.BorderColor = Color.Black;
             MaximizeButton.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -156,8 +158,8 @@
             MaximizeButton.FocusBorderColor = Color.Transparent;
             MaximizeButton.FocusForeColor = Color.Black;
             MaximizeButton.FocusIndicatorColor = Color.Blue;
-            MaximizeButton.Font = new Font("Arial", 14F, FontStyle.Bold);
-            MaximizeButton.ForeColor = Color.FromArgb(255, 255, 255);
+            MaximizeButton.Font = new Font("Segoe UI", 12F);
+            MaximizeButton.ForeColor = Color.Black;
             MaximizeButton.Form = null;
             MaximizeButton.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             MaximizeButton.GradientEndColor = Color.Transparent;
@@ -170,6 +172,7 @@
             MaximizeButton.Id = -1;
             MaximizeButton.Image = null;
             MaximizeButton.ImageAlign = ContentAlignment.MiddleCenter;
+            MaximizeButton.ImageClicked = null;
             MaximizeButton.ImagePath = null;
             MaximizeButton.InactiveBackColor = Color.Transparent;
             MaximizeButton.InactiveBorderColor = Color.Transparent;
@@ -189,8 +192,9 @@
             MaximizeButton.Location = new Point(815, 4);
             MaximizeButton.MaxImageSize = new Size(32, 32);
             MaximizeButton.Name = "MaximizeButton";
+            MaximizeButton.OverrideFontSize = TypeStyleFontSize.None;
             MaximizeButton.Padding = new Padding(1);
-            MaximizeButton.ParentBackColor = Color.FromArgb(15, 15, 30);
+            MaximizeButton.ParentBackColor = Color.FromArgb(18, 18, 50);
             MaximizeButton.PressedBackColor = Color.Transparent;
             MaximizeButton.PressedBorderColor = Color.Transparent;
             MaximizeButton.PressedForeColor = Color.Black;
@@ -200,13 +204,13 @@
             MaximizeButton.ShadowColor = Color.Black;
             MaximizeButton.ShadowOffset = 0;
             MaximizeButton.ShadowOpacity = 0.5F;
-            MaximizeButton.ShowAllBorders = false;
-            MaximizeButton.ShowBottomBorder = false;
+            MaximizeButton.ShowAllBorders = true;
+            MaximizeButton.ShowBottomBorder = true;
             MaximizeButton.ShowFocusIndicator = false;
-            MaximizeButton.ShowLeftBorder = false;
-            MaximizeButton.ShowRightBorder = false;
+            MaximizeButton.ShowLeftBorder = true;
+            MaximizeButton.ShowRightBorder = true;
             MaximizeButton.ShowShadow = false;
-            MaximizeButton.ShowTopBorder = false;
+            MaximizeButton.ShowTopBorder = true;
             MaximizeButton.Size = new Size(20, 20);
             MaximizeButton.SlideFrom = SlideDirection.Left;
             MaximizeButton.StaticNotMoving = false;
@@ -214,7 +218,7 @@
             MaximizeButton.Text = "◱";
             MaximizeButton.TextAlign = ContentAlignment.MiddleCenter;
             MaximizeButton.TextImageRelation = TextImageRelation.ImageAboveText;
-            MaximizeButton.Theme = Vis.Modules.EnumBeepThemes.MidnightTheme;
+            MaximizeButton.Theme = Vis.Modules.EnumBeepThemes.NeonTheme;
             MaximizeButton.ToolTipText = "";
             MaximizeButton.UseGradientBackground = false;
             // 
@@ -224,8 +228,8 @@
             MinimizeButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             MinimizeButton.AnimationDuration = 500;
             MinimizeButton.AnimationType = DisplayAnimationType.None;
-            MinimizeButton.ApplyThemeOnImage = true;
-            MinimizeButton.BackColor = Color.FromArgb(15, 15, 30);
+            MinimizeButton.ApplyThemeOnImage = false;
+            MinimizeButton.BackColor = Color.FromArgb(18, 18, 50);
             MinimizeButton.BlockID = null;
             MinimizeButton.BorderColor = Color.Black;
             MinimizeButton.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -245,8 +249,8 @@
             MinimizeButton.FocusBorderColor = Color.Transparent;
             MinimizeButton.FocusForeColor = Color.Black;
             MinimizeButton.FocusIndicatorColor = Color.Blue;
-            MinimizeButton.Font = new Font("Arial", 14F, FontStyle.Bold);
-            MinimizeButton.ForeColor = Color.FromArgb(255, 255, 255);
+            MinimizeButton.Font = new Font("Segoe UI", 12F);
+            MinimizeButton.ForeColor = Color.Black;
             MinimizeButton.Form = null;
             MinimizeButton.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             MinimizeButton.GradientEndColor = Color.Transparent;
@@ -259,6 +263,7 @@
             MinimizeButton.Id = -1;
             MinimizeButton.Image = null;
             MinimizeButton.ImageAlign = ContentAlignment.MiddleCenter;
+            MinimizeButton.ImageClicked = null;
             MinimizeButton.ImagePath = null;
             MinimizeButton.InactiveBackColor = Color.Transparent;
             MinimizeButton.InactiveBorderColor = Color.Transparent;
@@ -278,8 +283,9 @@
             MinimizeButton.Location = new Point(789, 4);
             MinimizeButton.MaxImageSize = new Size(32, 32);
             MinimizeButton.Name = "MinimizeButton";
+            MinimizeButton.OverrideFontSize = TypeStyleFontSize.None;
             MinimizeButton.Padding = new Padding(1);
-            MinimizeButton.ParentBackColor = Color.FromArgb(15, 15, 30);
+            MinimizeButton.ParentBackColor = Color.FromArgb(18, 18, 50);
             MinimizeButton.PressedBackColor = Color.Transparent;
             MinimizeButton.PressedBorderColor = Color.Transparent;
             MinimizeButton.PressedForeColor = Color.Black;
@@ -289,13 +295,13 @@
             MinimizeButton.ShadowColor = Color.Black;
             MinimizeButton.ShadowOffset = 0;
             MinimizeButton.ShadowOpacity = 0.5F;
-            MinimizeButton.ShowAllBorders = false;
-            MinimizeButton.ShowBottomBorder = false;
+            MinimizeButton.ShowAllBorders = true;
+            MinimizeButton.ShowBottomBorder = true;
             MinimizeButton.ShowFocusIndicator = false;
-            MinimizeButton.ShowLeftBorder = false;
-            MinimizeButton.ShowRightBorder = false;
+            MinimizeButton.ShowLeftBorder = true;
+            MinimizeButton.ShowRightBorder = true;
             MinimizeButton.ShowShadow = false;
-            MinimizeButton.ShowTopBorder = false;
+            MinimizeButton.ShowTopBorder = true;
             MinimizeButton.Size = new Size(20, 20);
             MinimizeButton.SlideFrom = SlideDirection.Left;
             MinimizeButton.StaticNotMoving = false;
@@ -303,14 +309,14 @@
             MinimizeButton.Text = "--";
             MinimizeButton.TextAlign = ContentAlignment.MiddleCenter;
             MinimizeButton.TextImageRelation = TextImageRelation.ImageAboveText;
-            MinimizeButton.Theme = Vis.Modules.EnumBeepThemes.MidnightTheme;
+            MinimizeButton.Theme = Vis.Modules.EnumBeepThemes.NeonTheme;
             MinimizeButton.ToolTipText = "";
             MinimizeButton.UseGradientBackground = false;
             // 
             // beepuiManager1
             // 
+            beepuiManager1.ApplyThemeOnImage = false;
             beepuiManager1.BeepFunctionsPanel = FunctionsPanel1;
-            beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.MidnightTheme;
             // 
             // FunctionsPanel1
             // 
@@ -319,7 +325,7 @@
             FunctionsPanel1.AnimationDuration = 500;
             FunctionsPanel1.AnimationType = DisplayAnimationType.None;
             FunctionsPanel1.ApplyThemeOnImage = true;
-            FunctionsPanel1.BackColor = Color.FromArgb(15, 15, 30);
+            FunctionsPanel1.BackColor = Color.White;
             FunctionsPanel1.BlockID = null;
             FunctionsPanel1.BorderColor = Color.FromArgb(222, 226, 230);
             FunctionsPanel1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -354,18 +360,19 @@
             FunctionsPanel1.InactiveForeColor = Color.Black;
             FunctionsPanel1.IsAcceptButton = false;
             FunctionsPanel1.IsCancelButton = false;
-            FunctionsPanel1.IsChild = false;
+            FunctionsPanel1.IsChild = true;
             FunctionsPanel1.IsDefault = false;
             FunctionsPanel1.IsFocused = false;
             FunctionsPanel1.IsFramless = true;
             FunctionsPanel1.IsHovered = false;
             FunctionsPanel1.IsPressed = false;
-            FunctionsPanel1.IsRounded = true;
-            FunctionsPanel1.Location = new Point(838, 35);
+            FunctionsPanel1.IsRounded = false;
+            FunctionsPanel1.Location = new Point(832, 53);
             FunctionsPanel1.MinimumSize = new Size(29, 277);
             FunctionsPanel1.Name = "FunctionsPanel1";
+            FunctionsPanel1.OverrideFontSize = TypeStyleFontSize.None;
             FunctionsPanel1.PanelOrientation = Orientation.Vertical;
-            FunctionsPanel1.ParentBackColor = Color.Empty;
+            FunctionsPanel1.ParentBackColor = Color.White;
             FunctionsPanel1.PressedBackColor = Color.Transparent;
             FunctionsPanel1.PressedBorderColor = Color.Transparent;
             FunctionsPanel1.PressedForeColor = Color.Black;
@@ -386,7 +393,7 @@
             FunctionsPanel1.StaticNotMoving = false;
             FunctionsPanel1.TabIndex = 5;
             FunctionsPanel1.Text = "beepFunctionsPanel1";
-            FunctionsPanel1.Theme = Vis.Modules.EnumBeepThemes.MidnightTheme;
+            FunctionsPanel1.Theme = Vis.Modules.EnumBeepThemes.NeonTheme;
             FunctionsPanel1.ToolTipText = "";
             FunctionsPanel1.UseGradientBackground = false;
             FunctionsPanel1.XOffset = 1;
@@ -397,7 +404,7 @@
             beepPanel1.ActiveBackColor = Color.FromArgb(205, 133, 63);
             beepPanel1.AnimationDuration = 500;
             beepPanel1.AnimationType = DisplayAnimationType.None;
-            beepPanel1.BackColor = Color.FromArgb(15, 15, 30);
+            beepPanel1.BackColor = Color.FromArgb(18, 18, 50);
             beepPanel1.BlockID = null;
             beepPanel1.BorderColor = Color.FromArgb(205, 133, 63);
             beepPanel1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -419,7 +426,7 @@
             beepPanel1.FocusBorderColor = Color.Transparent;
             beepPanel1.FocusForeColor = Color.Black;
             beepPanel1.FocusIndicatorColor = Color.Blue;
-            beepPanel1.ForeColor = Color.FromArgb(120, 120, 120);
+            beepPanel1.ForeColor = Color.FromArgb(0, 255, 255);
             beepPanel1.Form = null;
             beepPanel1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepPanel1.GradientEndColor = Color.FromArgb(222, 184, 135);
@@ -434,7 +441,7 @@
             beepPanel1.InactiveForeColor = Color.Black;
             beepPanel1.IsAcceptButton = false;
             beepPanel1.IsCancelButton = false;
-            beepPanel1.IsChild = false;
+            beepPanel1.IsChild = true;
             beepPanel1.IsDefault = false;
             beepPanel1.IsFocused = false;
             beepPanel1.IsFramless = false;
@@ -443,7 +450,8 @@
             beepPanel1.IsRounded = false;
             beepPanel1.Location = new Point(0, 0);
             beepPanel1.Name = "beepPanel1";
-            beepPanel1.ParentBackColor = SystemColors.Control;
+            beepPanel1.OverrideFontSize = TypeStyleFontSize.None;
+            beepPanel1.ParentBackColor = Color.FromArgb(18, 18, 50);
             beepPanel1.PressedBackColor = Color.Transparent;
             beepPanel1.PressedBorderColor = Color.Transparent;
             beepPanel1.PressedForeColor = Color.Black;
@@ -467,7 +475,7 @@
             beepPanel1.StaticNotMoving = false;
             beepPanel1.TabIndex = 4;
             beepPanel1.Text = "beepPanel1";
-            beepPanel1.Theme = Vis.Modules.EnumBeepThemes.MidnightTheme;
+            beepPanel1.Theme = Vis.Modules.EnumBeepThemes.NeonTheme;
             beepPanel1.TitleAlignment = ContentAlignment.TopLeft;
             beepPanel1.TitleBottomY = 76;
             beepPanel1.TitleLineColor = Color.Gray;
@@ -478,14 +486,14 @@
             // 
             // TitleLabel
             // 
-            TitleLabel.ActiveBackColor = Color.Transparent;
+            TitleLabel.ActiveBackColor = Color.FromArgb(255, 20, 147);
             TitleLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             TitleLabel.AnimationDuration = 500;
             TitleLabel.AnimationType = DisplayAnimationType.None;
-            TitleLabel.ApplyThemeOnImage = true;
-            TitleLabel.BackColor = Color.FromArgb(15, 15, 30);
+            TitleLabel.ApplyThemeOnImage = false;
+            TitleLabel.BackColor = Color.FromArgb(18, 18, 50);
             TitleLabel.BlockID = null;
-            TitleLabel.BorderColor = Color.Black;
+            TitleLabel.BorderColor = Color.FromArgb(0, 255, 255);
             TitleLabel.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             TitleLabel.BorderRadius = 5;
             TitleLabel.BorderStyle = BorderStyle.None;
@@ -496,18 +504,18 @@
             TitleLabel.DrawingRect = new Rectangle(1, 1, 772, 26);
             TitleLabel.Easing = EasingType.Linear;
             TitleLabel.FieldID = null;
-            TitleLabel.FocusBackColor = Color.Transparent;
+            TitleLabel.FocusBackColor = Color.Black;
             TitleLabel.FocusBorderColor = Color.Transparent;
             TitleLabel.FocusForeColor = Color.Black;
             TitleLabel.FocusIndicatorColor = Color.Blue;
-            TitleLabel.Font = new Font("Segoe UI", 9F);
-            TitleLabel.ForeColor = Color.FromArgb(200, 200, 200);
+            TitleLabel.Font = new Font("Segoe UI", 12F);
+            TitleLabel.ForeColor = Color.FromArgb(128, 255, 0);
             TitleLabel.Form = null;
             TitleLabel.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            TitleLabel.GradientEndColor = Color.Transparent;
-            TitleLabel.GradientStartColor = Color.Transparent;
-            TitleLabel.HoverBackColor = Color.Transparent;
-            TitleLabel.HoverBorderColor = Color.Transparent;
+            TitleLabel.GradientEndColor = Color.FromArgb(30, 30, 30);
+            TitleLabel.GradientStartColor = Color.FromArgb(0, 0, 0);
+            TitleLabel.HoverBackColor = Color.FromArgb(0, 255, 127);
+            TitleLabel.HoverBorderColor = Color.FromArgb(0, 255, 127);
             TitleLabel.HoveredBackcolor = Color.Transparent;
             TitleLabel.HoverForeColor = Color.Black;
             TitleLabel.Id = -1;
@@ -524,18 +532,19 @@
             TitleLabel.IsFramless = false;
             TitleLabel.IsHovered = false;
             TitleLabel.IsPressed = false;
-            TitleLabel.IsRounded = true;
+            TitleLabel.IsRounded = false;
             TitleLabel.Location = new Point(12, 5);
             TitleLabel.Margin = new Padding(0);
             TitleLabel.MaxImageSize = new Size(16, 16);
             TitleLabel.Name = "TitleLabel";
-            TitleLabel.ParentBackColor = Color.FromArgb(15, 15, 30);
-            TitleLabel.PressedBackColor = Color.Transparent;
+            TitleLabel.OverrideFontSize = TypeStyleFontSize.None;
+            TitleLabel.ParentBackColor = Color.FromArgb(18, 18, 50);
+            TitleLabel.PressedBackColor = Color.FromArgb(255, 20, 147);
             TitleLabel.PressedBorderColor = Color.Transparent;
             TitleLabel.PressedForeColor = Color.Black;
             TitleLabel.SavedGuidID = null;
             TitleLabel.SavedID = null;
-            TitleLabel.ShadowColor = Color.Black;
+            TitleLabel.ShadowColor = Color.FromArgb(100, 0, 255, 255);
             TitleLabel.ShadowOffset = 0;
             TitleLabel.ShadowOpacity = 0.5F;
             TitleLabel.ShowAllBorders = false;
@@ -552,7 +561,7 @@
             TitleLabel.Text = "beepLabel1";
             TitleLabel.TextAlign = ContentAlignment.MiddleLeft;
             TitleLabel.TextImageRelation = TextImageRelation.ImageBeforeText;
-            TitleLabel.Theme = Vis.Modules.EnumBeepThemes.MidnightTheme;
+            TitleLabel.Theme = Vis.Modules.EnumBeepThemes.NeonTheme;
             TitleLabel.ToolTipText = "";
             TitleLabel.UseGradientBackground = false;
             // 

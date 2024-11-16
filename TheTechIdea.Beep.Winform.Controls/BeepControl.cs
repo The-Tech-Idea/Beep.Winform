@@ -889,8 +889,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             SuspendLayout();
-           // base.OnPaint(e);
-             e.Graphics.Clear(BackColor);
+            // base.OnPaint(e);
+            if (IsChild)
+            {
+                if (this.Parent != null)
+                {
+                    parentbackcolor = this.Parent.BackColor;
+                    BackColor = parentbackcolor;
+
+                }
+            }
+            e.Graphics.Clear(BackColor);
              shadowOffset = ShowShadow ? 3 : 0;
             // Define the padded drawing rectangle to leave room for the shadow
             UpdateDrawingRect();
@@ -907,12 +916,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (IsChild)
             {
-                if (this.Parent != null)
-                {
-                    parentbackcolor = this.Parent.BackColor;
-                    BackColor = parentbackcolor;
+                //if (this.Parent != null)
+                //{
+                //    parentbackcolor = this.Parent.BackColor;
+                //    BackColor = parentbackcolor;
 
-                }
+                //}
                 using (SolidBrush brush = new SolidBrush(parentbackcolor))
                 {
                     e.Graphics.FillRectangle(brush, DrawingRect);

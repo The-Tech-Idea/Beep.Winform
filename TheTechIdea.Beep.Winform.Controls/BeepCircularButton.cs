@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showBorder = true;
         private bool _isForColorSet = false;
         private bool _hidetext = false;
-
+        private const int TextPadding = 5; // Padding to prevent overlap
         bool _applyThemeOnImage = false;
         public bool ApplyThemeOnImage
         {
@@ -164,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Calculate the circle bounds based on control size
             int diameter = Math.Min(circleBounds.Width, circleBounds.Height);
 
-            using (Brush brush = new SolidBrush(IsHovered?_currentTheme.ButtonHoverForeColor: _currentTheme.ButtonForeColor ))
+            using (Brush brush = new SolidBrush(IsHovered?_currentTheme.ButtonHoverBackColor: _currentTheme.ButtonBackColor ))
             {
                 pevent.Graphics.FillEllipse(brush, circleBounds);
             }
@@ -211,7 +211,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //beepLabel.Size = textRect.Size;
                 //beepLabel.Location = new Point(textRect.Left, textRect.Top);
 
-                  TextRenderer.DrawText(pevent.Graphics, Text, Font, textRect, ForeColor);
+                  TextRenderer.DrawText(pevent.Graphics, Text, Font, textRect, _currentTheme.PrimaryTextColor);
             }
         }
         public Size GetInscribedSquareSize(int circleDiameter)
@@ -223,35 +223,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private Rectangle GetCircleBounds(Rectangle textRect)
         {
-            // Calculate maximum diameter based on the available space within DrawingRect minus padding
             int maxDiameter = Math.Min(
                 DrawingRect.Width - Padding.Horizontal,
                 DrawingRect.Height - Padding.Vertical
             );
 
-            // Adjust diameter further if text is displayed above or below the circle
             int diameter = (!HideText && (_textLocation == TextLocation.Above || _textLocation == TextLocation.Below))
-                ? Math.Max(0, maxDiameter - textRect.Height)
+                ? Math.Max(0, maxDiameter - textRect.Height - TextPadding) // Include padding here
                 : maxDiameter;
 
-            // Calculate the centered X and Y positions for the circle, considering padding
             int x = DrawingRect.X + Padding.Left + (DrawingRect.Width - diameter) / 2;
             int y = DrawingRect.Y + Padding.Top + (DrawingRect.Height - diameter) / 2;
 
-            // Adjust Y position based on text location if text is displayed
             if (!HideText)
             {
                 y += _textLocation switch
                 {
-                    TextLocation.Below => -textRect.Height / 2, // Adjust up if text is below
-                    TextLocation.Above => textRect.Height / 2,  // Adjust down if text is above
+                    TextLocation.Below => -textRect.Height / 2 - TextPadding / 2, // Adjust up for below
+                    TextLocation.Above => textRect.Height / 2 + TextPadding / 2,  // Adjust down for above
                     _ => 0 // No adjustment for other locations
                 };
             }
 
-            // Ensure diameter is non-negative and return the circle bounds
             return new Rectangle(x, y, Math.Max(0, diameter), Math.Max(0, diameter));
         }
+
         private Rectangle GetImageRectangle(Rectangle circleBounds)
         {
             // Define the maximum size as the circle's diameter
@@ -288,7 +284,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case TextLocation.Above:
                     textRect = new Rectangle(
                         (DrawingRect.Width - textSize.Width) / 2,
-                        2,
+                        DrawingRect.Top + TextPadding, // Add padding from the top
                         textSize.Width,
                         textSize.Height
                     );
@@ -296,14 +292,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case TextLocation.Below:
                     textRect = new Rectangle(
                         (DrawingRect.Width - textSize.Width) / 2,
-                        DrawingRect.Height - textSize.Height - 2,
+                        DrawingRect.Bottom - textSize.Height - TextPadding, // Add padding from the bottom
                         textSize.Width,
                         textSize.Height
                     );
                     break;
                 case TextLocation.Left:
                     textRect = new Rectangle(
-                        2,
+                        TextPadding, // Add padding from the left
                         (DrawingRect.Height - textSize.Height) / 2,
                         textSize.Width,
                         textSize.Height
@@ -311,7 +307,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
                 case TextLocation.Right:
                     textRect = new Rectangle(
-                        DrawingRect.Width - textSize.Width - 2,
+                        DrawingRect.Width - textSize.Width - TextPadding, // Add padding from the right
                         (DrawingRect.Height - textSize.Height) / 2,
                         textSize.Width,
                         textSize.Height
@@ -333,6 +329,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //base.ApplyTheme();
             //Font=BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             Font = _currentTheme.GetCaptionFont();
+            
             ForeColor = _currentTheme.ButtonForeColor;
             BackColor = _currentTheme.ButtonBackColor;
             beepLabel.Theme = Theme;
@@ -343,7 +340,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
             }
             beepImage.Theme = Theme;
-
+            Invalidate();
         }
         private void BeepImage_MouseLeave(object? sender, EventArgs e)
         {

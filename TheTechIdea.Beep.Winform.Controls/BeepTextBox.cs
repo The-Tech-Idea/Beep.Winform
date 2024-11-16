@@ -148,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepTextBox()
         {
             InitializeComponents();
-            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw, true);
+            Size = new Size(150, 30);
             _innerTextBox.TextChanged += (s, e) => Invalidate(); // Repaint to apply formatting
         }
 

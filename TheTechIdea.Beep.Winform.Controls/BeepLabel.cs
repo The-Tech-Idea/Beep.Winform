@@ -121,6 +121,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
             AutoSize = false;
             IsChild = true;
+            IsBorderAffectedByTheme = false;
+            IsShadowAffectedByTheme = false;
+            ShowAllBorders = false;
+            ShowShadow = false;
         }
 
         private void InitializeComponents()

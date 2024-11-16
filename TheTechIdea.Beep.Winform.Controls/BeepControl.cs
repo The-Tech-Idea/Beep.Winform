@@ -113,9 +113,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected Color _hoveredBackcolor = Color.Wheat;
         protected TypeStyleFontSize  _overridefontsize= TypeStyleFontSize.None;
         protected string _text = string.Empty;
+        protected bool _isborderaffectedbytheme = true;
+        protected bool _isshadowaffectedbytheme = true;
         #endregion "protected Properties"
         #region "Public Properties"
-
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool IsBorderAffectedByTheme { get { return _isborderaffectedbytheme; } set { _isborderaffectedbytheme = value; } }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool IsShadowAffectedByTheme { get { return _isshadowaffectedbytheme; } set { _isshadowaffectedbytheme = value; } }
         // Make the Text property visible in the designer
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
@@ -889,7 +896,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             SuspendLayout();
-            // base.OnPaint(e);
+            base.OnPaint(e);
+            e.Graphics.Clear(BackColor);
+            shadowOffset = ShowShadow ? 3 : 0;
+            // Define the padded drawing rectangle to leave room for the shadow
+            UpdateDrawingRect();
+
+            Rectangle rectangle = new Rectangle(0, 0, Width, Height);
             if (IsChild)
             {
                 if (this.Parent != null)
@@ -899,15 +912,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 }
             }
-            e.Graphics.Clear(BackColor);
-             shadowOffset = ShowShadow ? 3 : 0;
-            // Define the padded drawing rectangle to leave room for the shadow
-            UpdateDrawingRect();
            
-            Rectangle rectangle = new Rectangle(0, 0, Width, Height);
             if (!_isframless)
             {
-                if (ShowShadow)
+                if (ShowShadow && IsShadowAffectedByTheme)
                 {
                     DrawShadowUsingRectangle(e.Graphics);
                 }
@@ -916,12 +924,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (IsChild)
             {
-                //if (this.Parent != null)
-                //{
-                //    parentbackcolor = this.Parent.BackColor;
-                //    BackColor = parentbackcolor;
-
-                //}
+                
                 using (SolidBrush brush = new SolidBrush(parentbackcolor))
                 {
                     e.Graphics.FillRectangle(brush, DrawingRect);
@@ -930,19 +933,42 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                if (UseGradientBackground)
+                // Draw background based on `IsRounded` and `UseGradientBackground`
+                if (IsRounded)
                 {
-                    using (var brush = new LinearGradientBrush(DrawingRect, GradientStartColor, GradientEndColor, GradientDirection))
+                    using (GraphicsPath path = GetRoundedRectPath(DrawingRect, BorderRadius))
                     {
-                        e.Graphics.FillRectangle(brush, DrawingRect);
+                        if (UseGradientBackground)
+                        {
+                            using (var brush = new LinearGradientBrush(DrawingRect, GradientStartColor, GradientEndColor, GradientDirection))
+                            {
+                                e.Graphics.FillPath(brush, path);
+                            }
+                        }
+                        else
+                        {
+                            using (var brush = new SolidBrush(BackColor))
+                            {
+                                e.Graphics.FillPath(brush, path);
+                            }
+                        }
                     }
                 }
                 else
                 {
-                   // BackColor = _currentTheme.BackgroundColor;
-                    using (var brush = new SolidBrush(BackColor))
+                    if (UseGradientBackground)
                     {
-                        e.Graphics.FillRectangle(brush, DrawingRect);
+                        using (var brush = new LinearGradientBrush(DrawingRect, GradientStartColor, GradientEndColor, GradientDirection))
+                        {
+                            e.Graphics.FillRectangle(brush, DrawingRect);
+                        }
+                    }
+                    else
+                    {
+                        using (var brush = new SolidBrush(BackColor))
+                        {
+                            e.Graphics.FillRectangle(brush, DrawingRect);
+                        }
                     }
                 }
 
@@ -953,7 +979,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _borderThickness = 1;
                 }
-                if ((BorderThickness > 0) &&  ShowAllBorders)
+                if ((BorderThickness > 0) &&  ShowAllBorders && _isborderaffectedbytheme)
                 {
                     DrawBorder(e.Graphics, DrawingRect);
                 }
@@ -967,8 +993,82 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
            ResumeLayout();
         }
- 
-    
+        protected Font GetScaledFont(Graphics graphics, string text, Size maxSize, Font originalFont)
+        {
+            Font currentFont = originalFont;
+            Size textSize = TextRenderer.MeasureText(graphics, text, currentFont);
+
+            // Set a minimum font size to prevent text from becoming unreadable
+            float minFontSize = 6.0f;
+
+            // Reduce font size until text fits within maxSize or reaches minimum font size
+            while ((textSize.Width > maxSize.Width || textSize.Height > maxSize.Height) && currentFont.Size > minFontSize)
+            {
+                currentFont = new Font(currentFont.FontFamily, currentFont.Size - 0.5f, currentFont.Style);
+                textSize = TextRenderer.MeasureText(graphics, text, currentFont);
+            }
+
+            return currentFont;
+        }
+        protected void DrawBackColor(PaintEventArgs e,Color color,Color hovercolor)
+        {
+            if (IsChild)
+            {
+                //if (this.Parent != null)
+                //{
+                //    parentbackcolor = this.Parent.BackColor;
+                //    BackColor = parentbackcolor;
+
+                //}
+                using (SolidBrush brush = new SolidBrush( parentbackcolor))
+                {
+                    e.Graphics.FillRectangle(brush, DrawingRect);
+                }
+
+            }
+            else
+            {
+                // Draw background based on `IsRounded` and `UseGradientBackground`
+                if (IsRounded)
+                {
+                    using (GraphicsPath path = GetRoundedRectPath(DrawingRect, BorderRadius))
+                    {
+                        if (UseGradientBackground)
+                        {
+                            using (var brush = new LinearGradientBrush(DrawingRect, GradientStartColor, GradientEndColor, GradientDirection))
+                            {
+                                e.Graphics.FillPath(brush, path);
+                            }
+                        }
+                        else
+                        {
+                            using (var brush = new SolidBrush(IsHovered ? hovercolor : color))
+                            {
+                                e.Graphics.FillPath(brush, path);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (UseGradientBackground)
+                    {
+                        using (var brush = new LinearGradientBrush(DrawingRect, GradientStartColor, GradientEndColor, GradientDirection))
+                        {
+                            e.Graphics.FillRectangle(brush, DrawingRect);
+                        }
+                    }
+                    else
+                    {
+                        using (var brush = new SolidBrush(IsHovered? hovercolor : color))
+                        {
+                            e.Graphics.FillRectangle(brush, DrawingRect);
+                        }
+                    }
+                }
+
+            }
+        }
         protected void DrawBorder(Graphics graphics, Rectangle drawingRect)
         {
             int brder= BorderThickness;
@@ -1060,7 +1160,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
         // Helper method for custom control shape outline; adjust shape as needed (e.g., ellipse for rounded)
         protected GraphicsPath GetControlShapePath(Rectangle rect)
         {
@@ -1069,7 +1168,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.AddEllipse(rect);
             return path;
         }
-        public virtual void DrawBorder(Graphics graphics)
+        protected virtual void DrawBorder(Graphics graphics)
         {
             using (var pen = new Pen(BorderColor, BorderThickness))
             {
@@ -1122,7 +1221,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        public virtual void DrawBackground(Graphics graphics)
+        protected virtual void DrawBackground(Graphics graphics)
         {
             if (UseGradientBackground)
             {
@@ -1147,13 +1246,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 using (var shadowBrush = new SolidBrush(Color.FromArgb((int)(255 * ShadowOpacity), ShadowColor)))
                 {
                     // Calculate an offset shadow rectangle slightly larger than the main control
+                    //Rectangle shadowRect = new Rectangle(
+                    //    DrawingRect.Left+BorderThickness +shadowOffset,
+                    //    DrawingRect.Top + BorderThickness + shadowOffset,
+                    //    DrawingRect.Width + BorderThickness+shadowOffset,
+                    //    DrawingRect.Height + BorderThickness+shadowOffset
+                    //);
                     Rectangle shadowRect = new Rectangle(
-                        DrawingRect.Left+BorderThickness +shadowOffset,
-                        DrawingRect.Top + BorderThickness + shadowOffset,
-                        DrawingRect.Width + BorderThickness+shadowOffset,
-                        DrawingRect.Height + BorderThickness+shadowOffset
-                    );
-
+                       DrawingRect.Left + BorderThickness + shadowOffset,
+                       DrawingRect.Top + BorderThickness + shadowOffset,
+                       Width + BorderThickness + shadowOffset,
+                       Height + BorderThickness + shadowOffset
+                   );
                     if (IsRounded)
                     {
                         using (GraphicsPath shadowPath = GetRoundedRectPath(shadowRect, BorderRadius))
@@ -1197,15 +1301,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        public virtual void DrawFocusIndicator(Graphics graphics)
+        protected virtual void DrawFocusIndicator(Graphics graphics)
         {
             using (var pen = new Pen(FocusIndicatorColor, 2))
             {
                 graphics.DrawRectangle(pen, new Rectangle(0, 0, Width - 1, Height - 1));
             }
         }
-
-        private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
+        protected GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
         {
             GraphicsPath path = new GraphicsPath();
 
@@ -1229,8 +1332,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return path;
         }
-
-
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);
@@ -1259,7 +1360,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
-            Invalidate();
+           // Invalidate();
         }
 
         protected override void OnLostFocus(EventArgs e)

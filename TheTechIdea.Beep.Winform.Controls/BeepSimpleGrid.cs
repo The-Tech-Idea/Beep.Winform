@@ -290,7 +290,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected int headerPanelHeight = 30; // Height of the header panel
         protected int bottomagregationPanelHeight = 20; // Height of the bottom panel for agregation
         protected int footerPanelHeight = 20; // Height of the Footer panel
-        protected int navigatorPanelHeight = 25; // Height of the navigator panel
+        protected int navigatorPanelHeight = 30; // Height of the navigator panel
 
         private Rectangle footerPanelRect; // Rectangle for the header panel
         private Rectangle headerPanelRect; // Rectangle for the header panel
@@ -328,7 +328,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    row.ApplyTheme(_theme);
             //}
 
-            // Invalidate(); // Repaint the grid after applying the theme
+             Invalidate(); // Repaint the grid after applying the theme
         }
 
        
@@ -338,7 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             Controls.Clear();
-            UpdateDrawingRect();
+            
             base.OnPaint(e);
             UpdateDrawingRect();
             // Adjust all drawing within DrawingRect
@@ -481,8 +481,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ShowShadow = false,
                     //ShowBottomBorder =true,
                     //ShowTopBorder = true,
-                    IsChild = true
-                };
+                    IsChild = true,
+                    IsShadowAffectedByTheme =false,
+                     IsBorderAffectedByTheme = false,
+
+
+            };
             
             titleLabel.Size = new Size(headerPanelBorderRect.Width-2 , headerPanelBorderRect.Height-2 );
             titleLabel.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg";

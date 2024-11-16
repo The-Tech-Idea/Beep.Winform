@@ -278,9 +278,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Size = _maxImageSize // Set the size based on the max image size
             };
             beepImage.MouseHover += BeepImage_MouseHover;
-            beepImage.MouseLeave += BeepImage_MouseLeave;
+         //   beepImage.MouseLeave += BeepImage_MouseLeave;
+            IsChild = false;
             beepImage.Click += BeepImage_Click;
-            Padding = new Padding(0);
+            Padding = new Padding(2);
+            Margin = new Padding(0);
             Size = new Size(120, 40);  // Default size
         }
 
@@ -288,7 +290,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-            BackColor = _currentTheme.ButtonBackColor;
+            BackColor = _currentTheme.BackgroundColor;
             ForeColor = _currentTheme.ButtonForeColor;
 
         
@@ -302,17 +304,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, _currentTheme.FontSize, FontWeight.Normal, FontStyle.Regular);
                 }
 
-
-                if (beepImage != null) // Safely apply theme to beepImage
-                {
-                    beepImage.ApplyThemeOnImage = true;
-                    beepImage.Theme = Theme;
-                    if (ApplyThemeOnImage)
-                    {
-                        beepImage.ApplyThemeToSvg();
-                    }
-                  
-                }
+            ApplyThemeToSvg();
            Invalidate();  // Trigger repaint
         }
         public  void ApplyThemeToSvg()
@@ -328,7 +320,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
             }
-           // Invalidate();  // Trigger repaint
+           
 
         }
         protected override void OnPaint(PaintEventArgs e)
@@ -339,34 +331,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             // Draw the image and text
             contentRect = DrawingRect;
+            contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
+            DrawBackColor(e, _currentTheme.ButtonBackColor,_currentTheme.ButtonHoverBackColor);
             DrawImageAndText(e.Graphics);
         }
         private void DrawImageAndText(Graphics g)
         { //Console.WriteLine("Loading Image 2");
-            var tempstyle = _currentTheme.ButtonStyle;
-            //Console.WriteLine("Font changed  1");
-            if (OverrideFontSize != TypeStyleFontSize.None)
-            {
-                switch (OverrideFontSize)
-                {
-                    case TypeStyleFontSize.Small:
-                        tempstyle.FontSize = 8;
-                        break;
-                    case TypeStyleFontSize.Medium:
-                        tempstyle.FontSize = 12;
-                        break;
-                    case TypeStyleFontSize.Big:
-                        tempstyle.FontSize = 20;
-                        break;
-                    case TypeStyleFontSize.Banner:
-                        tempstyle.FontSize = 24;
-                        break;
-                }
-            }
 
+           
             //Console.WriteLine("Font changed  2");
-            Font = BeepThemesManager.ToFont(tempstyle);
-
+            Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            // Measure and scale the font to fit within the control bounds
+            Font scaledFont = GetScaledFont(g, Text, DrawingRect.Size, Font);
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
 
             // Limit image size to MaxImageSize
@@ -380,7 +356,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Height * scaleFactor));
             }
 
-            Size textSize = TextRenderer.MeasureText(Text, Font);
+            Size textSize = TextRenderer.MeasureText(Text, scaledFont);
 
             // Calculate the layout of image and text
             Rectangle imageRect, textRect;
@@ -402,7 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-                TextRenderer.DrawText(g, Text, Font, textRect, _currentTheme.ButtonForeColor, flags);
+                TextRenderer.DrawText(g, Text, scaledFont, textRect, _currentTheme.ButtonForeColor, flags);
             }
 
             //}
@@ -648,31 +624,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
      
-        protected override void OnMouseHover(EventArgs e)
-        {
-            IsHovered = true;
-            BackColor = _currentTheme.ButtonHoverBackColor;
-            base.OnMouseHover(e);
-        }
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            IsHovered = false;
-            BackColor = _currentTheme.ButtonBackColor;
-            base.OnMouseLeave(e);
-        }
-        private void BeepImage_MouseLeave(object? sender, EventArgs e)
-        {
-            IsHovered = false;
-            BackColor = _currentTheme.ButtonBackColor;
-            base.OnMouseLeave(e);
-
-        }
+      
 
         private void BeepImage_MouseHover(object? sender, EventArgs e)
         {
             IsHovered = true;
-            BackColor = _currentTheme.ButtonHoverBackColor;
-            base.OnMouseHover(e);
+          //  BackColor = _currentTheme.ButtonHoverBackColor;
+          //  base.OnMouseHover(e);
 
         }
         private void BeepImage_Click(object? sender, EventArgs e)

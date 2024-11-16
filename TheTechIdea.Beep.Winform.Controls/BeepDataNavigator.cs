@@ -37,6 +37,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             CreateNavigator();
             InitializeBindingSourceEvents();
+            IsShadowAffectedByTheme = false;
+            IsBorderAffectedByTheme = false;
         }
         protected override void OnResize(EventArgs e)
         {
@@ -56,7 +58,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             btnSave = CreateButton("Save", btnSave_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.FunctionButton.favorite.svg");
             btnCancel = CreateButton("Cancel", btnCancel_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.FunctionButton.favorite.svg");
 
-          
+            // set isborderaffectedbytheme  and isshadowaffected to false to all controls
+            btnFirst.IsBorderAffectedByTheme = false;
+            btnFirst.IsShadowAffectedByTheme = false;
+            btnPrevious.IsBorderAffectedByTheme = false;
+            btnPrevious.IsShadowAffectedByTheme = false;
+            btnNext.IsBorderAffectedByTheme = false;
+            btnNext.IsShadowAffectedByTheme = false;
+            btnLast.IsBorderAffectedByTheme = false;
+            btnLast.IsShadowAffectedByTheme = false;
+            btnInsert.IsBorderAffectedByTheme = false;
+            btnInsert.IsShadowAffectedByTheme = false;
+            btnDelete.IsBorderAffectedByTheme = false;
+            btnDelete.IsShadowAffectedByTheme = false;
+            btnSave.IsBorderAffectedByTheme = false;
+            btnSave.IsShadowAffectedByTheme = false;
+            btnCancel.IsBorderAffectedByTheme = false;
+            btnCancel.IsShadowAffectedByTheme = false;
+            
+
             txtPosition = new BeepLabel { Text = "1 of 1",
                 Size = new Size(60, ButtonHeight),
                 IsChild = true,
@@ -67,8 +87,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Anchor = AnchorStyles.None
             };
           
-          
-  
+          txtPosition.IsShadowAffectedByTheme = false;
+            txtPosition.IsBorderAffectedByTheme = false;
+
             Controls.AddRange(new Control[]
             {
                 btnFirst, btnPrevious, btnNext, btnLast,  txtPosition,  

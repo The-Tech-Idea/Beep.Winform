@@ -94,9 +94,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
             drawRectY = DrawingRect.Y;
             drawRectWidth = DrawingRect.Width;
             drawRectHeight = DrawingRect.Height;
+            IsFramless = true;
+            IsShadowAffectedByTheme = false;
+            IsBorderAffectedByTheme = false;
             // Initialize the logo and hamburger icons inside the icon panel
             InitializeIcons();
-
+            ShowAllBorders = false;
+            ShowShadow = false;
+           
             // Add the icon panel to the first row of the menuPanel
             // Add the icon panel directly to the BeepSideMenu
             //this.Controls.Add(iconPanel);
@@ -118,7 +123,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
                 ShowAllBorders = false,
                 ShowShadow = false,
                 ShowTitle = false,
-                ShowTitleLine = false
+                ShowTitleLine = false,
+                 IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
                 
             };
 
@@ -131,28 +138,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
                 Theme = this.Theme,
                 Visible = true, // Explicitly ensure visibility
                 IsStillImage = true,
+                ShowAllBorders = false,
+                ShowShadow = false,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                ApplyThemeOnImage = false,
                 Location = new Point(drawRectX+10, drawRectY+10),
                 Anchor = AnchorStyles.None
             };
-            //logoIcon.
-            //  logoIcon.ApplyTheme();
-            // Initialize hamburger icon
-            hamburgerIcon = new BeepImage
-            {
-                Width = 40,
-                Height = 40,
-                Cursor = Cursors.Hand,
-                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.hamburger.svg",  // Ensure this path is correct
-                Theme = this.Theme,
-                IsStillImage = true,
-                Visible = isCollapsed,  // Show the hamburger icon when collapsed
-                Location = new Point(drawRectX + 10, drawRectY + 10),
-                Anchor = AnchorStyles.None
-            };
-
+           
             // Add icons to the icon panel
             iconPanel.Controls.Add(logoIcon);
-            iconPanel.Controls.Add(hamburgerIcon);
+          
 
             // Set up centering for both icons
             //     iconPanel.Resize += iconPanel_Resize;
@@ -162,8 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
             this.Controls.Add(iconPanel);
             iconPanel.Height = menuitemStartTop;
             logoIcon.Location = new Point((iconPanel.Width - logoIcon.Width) / 2, (iconPanel.Height - logoIcon.Height) / 2);
-            hamburgerIcon.Location = new Point((iconPanel.Width - hamburgerIcon.Width) / 2, (iconPanel.Height - hamburgerIcon.Height) / 2);
-
+            logoIcon.Visible = !isCollapsed;  // Show the logo icon when expanded
             //     MessageBox.Show($"Icon Panel Resize 1 {iconPanel.Height} {iconPanel.Top}");
             // Center icons within iconPanel
             //iconPanel.Resize += iconPanel_Resize;
@@ -181,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
             }
             
            menuItems.ListChanged += MenuItems_ListChanged;
-            this.DoubleBuffered = true;
+            //this.DoubleBuffered = true;
             // Enable double buffering to reduce flickering
             // SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
             //UpdateStyles();
@@ -346,6 +342,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
                 MaxImageSize = new Size(20, 20),
                 ShowAllBorders = false,
                 ShowShadow = false,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                ApplyThemeOnImage = false,
                 Tag = item
             };
 
@@ -364,17 +363,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
             menuItemPanel.Controls.Add(highlightPanel);
             menuItemPanel.Controls.Add(button);
 
-            // Handle hover effects for the menu item panel
-            //menuItemPanel.MouseEnter += (s, e) =>
-            //{
-            //    menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
-            //    highlightPanel.Visible = true;
-            //};
-            //menuItemPanel.MouseLeave += (s, e) =>
-            //{
-            //    menuItemPanel.BackColor = _currentTheme.PanelBackColor;
-            //    highlightPanel.Visible = false;
-            //};
+            //Handle hover effects for the menu item panel
+
+           //menuItemPanel.MouseEnter += (s, e) =>
+           //{
+           //    menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
+           //    highlightPanel.Visible = true;
+           //};
+           // menuItemPanel.MouseLeave += (s, e) =>
+           // {
+           //     menuItemPanel.BackColor = _currentTheme.PanelBackColor;
+           //     highlightPanel.Visible = false;
+           // };
 
             // Handle button events
             button.MouseEnter += (s, e) =>
@@ -506,13 +506,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
         #endregion "Animation"
         #region "Theme"
 
-        private void InitializeTheme()
-        {
-            if (Theme == null)
-            {
-                _currentTheme = BeepThemesManager.LightTheme; // Default to LightTheme if null
-            }
-        }
+       
 
         public bool ShouldSerializeTheme()
         {
@@ -525,9 +519,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
             if (_currentTheme == null) { return; }
             //base.ApplyTheme();
             // Apply theme to the main menu panel (background gradient or solid color)
-            //menuPanel.BackColor = _currentTheme.PanelBackColor;
+             BackColor = _currentTheme.SideMenuBackColor;
+            iconPanel.BackColor = BackColor;
             iconPanel.BackColor = _currentTheme.SideMenuBackColor;
-            BackColor = _currentTheme.SideMenuBackColor;
+            _currentTheme.ButtonBackColor = _currentTheme.SideMenuBackColor;
             // Apply theme to each item (button and highlight panel)
             foreach (Control control in this.Controls)
             {
@@ -587,11 +582,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
                 //logoIcon.ApplyTheme();
             }
 
-            if (hamburgerIcon != null)
-            {
-                hamburgerIcon.Theme = this.Theme;
-               // hamburgerIcon.ApplyTheme();
-            }
+         
             Invalidate();
             // Optionally, apply any additional theming for the overall side menu layout here (e.g., scrollbars, borders, or custom UI components)
         }

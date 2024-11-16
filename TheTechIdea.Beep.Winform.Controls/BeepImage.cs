@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                
 
                 _imagepath = value;
-                Console.WriteLine("Loading Image");
+               // Console.WriteLine("Loading Image");
                 if (!string.IsNullOrEmpty(_imagepath))
                 {
                     //Use ImageSelector to select and process the image path
@@ -63,9 +63,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     //}
                  //   isinit = false;
-                    Console.WriteLine("Loading Image");
+                   // Console.WriteLine("Loading Image");
                     LoadImage(_imagepath);  // Use the final processed path for the image
-                    Console.WriteLine("Apply Theme to  Image");
+                  //  Console.WriteLine("Apply Theme to  Image");
                     ApplyTheme();
                     Invalidate();
                 }
@@ -582,7 +582,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 return;
             }
-               base.OnMouseLeave(e);
+             base.OnMouseLeave(e);
         }
 
         protected override void OnMouseLeave(EventArgs e)
@@ -602,7 +602,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 IsPressed = true;
                // ApplyTheme();  // Reapply theme to reflect pressed state
-                Invalidate();
+               // Invalidate();
             }
             base.OnMouseDown(e);
         }
@@ -615,8 +615,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             base.OnMouseUp(e);
             IsPressed = false;
-            ApplyTheme();  // Reapply theme to reflect released state
-            Invalidate();
+          //  ApplyTheme();  // Reapply theme to reflect released state
+         //   Invalidate();
         }
 
         #endregion

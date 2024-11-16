@@ -12,9 +12,13 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepListBox : BeepPanel
     {
         private List<BeepButton> _buttons = new List<BeepButton>();
+        private List<Panel> _panels = new List<Panel>();
         private int _selectedIndex = -1;
-        private SimpleMenuItemCollection _menuitems = new SimpleMenuItemCollection();
-
+        private SimpleMenuItemCollection items = new SimpleMenuItemCollection();
+        int drawRectX;
+        int drawRectY;
+        int drawRectWidth;
+        int drawRectHeight;
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
@@ -22,11 +26,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public SimpleMenuItemCollection ListItems
         {
-            get => _menuitems;
+            get => items;
             set
             {
-                _menuitems = value;
-                UpdateButtons();
+                items = value;
+                InitializeMenu();
             }
         }
 
@@ -39,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (value >= 0 && value < _buttons.Count)
                 {
                     _selectedIndex = value;
-                    HighlightSelectedButton();
+                  //  HighlightSelectedButton();
                     OnSelectedIndexChanged(EventArgs.Empty);
                 }
             }
@@ -51,78 +55,179 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepListBox()
         {
-            //AutoScroll = true;
-         
+            
+            if (items == null)
+            {
+                items = new SimpleMenuItemCollection();
+            }
+
+            items.ListChanged += Items_ListChanged;
+            InitLayout();
+
         }
         protected override void InitLayout()
         {
             base.InitLayout();
             BorderThickness = 1;
-            _menuitems.ListChanged += Items_ListChanged;
-            UpdateButtons();
+           
+
+            // Get the dimensions of DrawingRect
+            drawRectX = DrawingRect.X;
+            drawRectY = DrawingRect.Y;
+            drawRectWidth = DrawingRect.Width;
+            drawRectHeight = DrawingRect.Height;
+            IsFramless = true;
+            IsShadowAffectedByTheme = false;
+            IsBorderAffectedByTheme = false;
+            InitializeMenu();
             TitleText = "List Box";
 
         }
-        private void Items_ListChanged(object sender, ListChangedEventArgs e) => UpdateButtons();
+        private void Items_ListChanged(object sender, ListChangedEventArgs e) => InitializeMenu();
 
-        public override void ApplyTheme()
+      
+
+        private Panel CreateMenuItemPanel(SimpleMenuItem item, bool isChild)
         {
-            //base.ApplyTheme();
-           
-            UpdateButtons(); // Ensure buttons are updated with the new theme
+            var menuItemPanel = new Panel
+            {
+                Height = 40,
+                Padding = new Padding(isChild ? 20 : 10, 0, 0, 0),
+                Visible = true,
+                Tag = item, // Store the SimpleMenuItem for reference
+            };
+
+            // Create the left-side highlight panel
+            Panel highlightPanel = new Panel
+            {
+                Width = 5,
+                Dock = DockStyle.Left,
+                BackColor = _currentTheme.SideMenuBackColor,
+                Visible = false
+            };
+
+            // Initialize BeepButton for icon and text
+            BeepButton button = new BeepButton
+            {
+                Dock = DockStyle.Fill,
+                Text = item.Text,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextAlign =  ContentAlignment.MiddleCenter,
+                ParentBackColor = _currentTheme.SideMenuBackColor,
+                ImageAlign = ContentAlignment.MiddleLeft,
+                Theme = this.Theme,
+                BorderSize = 0,
+                IsChild = true,
+                IsSideMenuChild = true,
+                MaxImageSize = new Size(20, 20),
+                ShowAllBorders = false,
+                ShowShadow = false,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                ApplyThemeOnImage = false,
+                Tag = item
+            };
+
+            // Load the icon if specified
+            if (!string.IsNullOrEmpty(item.Image) && File.Exists(item.Image))
+            {
+                button.ImagePath = item.Image;
+            }
+            if (_currentTheme != null)
+            {
+                button.ApplyTheme(Theme);
+                BackColor = _currentTheme.SideMenuBackColor;
+
+            }
+            // Add BeepButton and highlight panel to the panel
+            menuItemPanel.Controls.Add(highlightPanel);
+            menuItemPanel.Controls.Add(button);
+
+            //Handle hover effects for the menu item panel
+
+            //menuItemPanel.MouseEnter += (s, e) =>
+            //{
+            //    menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
+            //    highlightPanel.Visible = true;
+            //};
+            // menuItemPanel.MouseLeave += (s, e) =>
+            // {
+            //     menuItemPanel.BackColor = _currentTheme.PanelBackColor;
+            //     highlightPanel.Visible = false;
+            // };
+
+            // Handle button events
+            button.MouseEnter += (s, e) =>
+            {
+                menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
+                highlightPanel.Visible = true;
+            };
+            button.MouseLeave += (s, e) =>
+            {
+                menuItemPanel.BackColor = _currentTheme.SideMenuBackColor;
+                highlightPanel.Visible = false;
+            };
+            button.Click += MenuItemButton_Click;
+
+            return menuItemPanel;
         }
 
-        private void UpdateButtons()
+        private void MenuItemButton_Click(object? sender, EventArgs e)
         {
-            // Clear previous buttons
-            foreach (var button in _buttons)
+           
+        }
+
+        public void InitializeMenu()
+        {
+            // Remove existing menu item panels
+            foreach (var control in this.Controls.OfType<Panel>().Where(c => c.Tag is SimpleMenuItem).ToList())
             {
-                button.Click -= Button_Click;
-                Controls.Remove(button);
+                this.Controls.Remove(control);
+                control.Dispose();
             }
 
-            _buttons.Clear();
-            // Calculate TitleBottomY
-            CalculateTitleBottomY();
-            // Calculate starting position below title line
-            int y = TitleBottomY + 10; // 10px offset to avoid overlap with title line
-
-            // Create new buttons based on ListItems collection
-            foreach (var item in ListItems)
+            if (items == null || items.Count == 0)
             {
-                var button = new BeepButton
-                {
-                    Text = item.Text,
-                    Width = DrawingRect.Width - 20,
-                    Height = 30,
-                    IsChild = true,
-                    BorderSize = 0,
-                    ParentBackColor = _currentTheme.BackgroundColor,
-                    Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                    Location = new Point(DrawingRect.Left + 10, y),
-                  
-                };
-                if(_currentTheme != null)
-                {
-                    //button.BackColor = BackColor;
-                    //button.ForeColor = _currentTheme.TitleForColor;
-                    //button.Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-                    button.Theme = Theme;
-                }
-                if(item.Image != null)
-                {
-                    button.MaxImageSize = new Size(24, 24);
-                    button.ImagePath = item.Image;
-                }
-                button.Click += Button_Click;
-
-                _buttons.Add(button);
-                Controls.Add(button);
-                y += button.Height + 5; // Add spacing for the next button
+                return;
             }
 
-            //AutoScrollMinSize = new Size(Width, y+10);
-            Invalidate();
+            int yOffset = drawRectY + TitleBottomY; // Start placing items below the iconPanel
+
+            foreach (var item in items.Where(p => p.ItemType == ModernSideMenu.MenuItemType.Main))
+            {
+                var menuItemPanel = CreateMenuItemPanel(item, false);
+                if (menuItemPanel != null)
+                {
+
+                    menuItemPanel.Top = yOffset;
+                    menuItemPanel.Left = drawRectX;
+                    menuItemPanel.Width = drawRectWidth;
+                    menuItemPanel.Height = 40;
+                    menuItemPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+                    menuItemPanel.BackColor = _currentTheme.SideMenuBackColor;
+                    this.Controls.Add(menuItemPanel);
+
+                    yOffset += menuItemPanel.Height;
+
+                    //Add child items(if any) below the parent menu item
+                    if (item.Children != null && item.Children.Count > 0)
+                    {
+                        foreach (var childItem in item.Children)
+                        {
+                            var childPanel = CreateMenuItemPanel(childItem, true);
+                            childPanel.Top = yOffset;
+                            childPanel.Left = drawRectX;
+                            childPanel.Width = drawRectWidth;
+                            childPanel.Visible = false; // Initially hidden
+                            childPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+                            childPanel.BackColor = _currentTheme.SideMenuBackColor;
+                            this.Controls.Add(childPanel);
+
+                            yOffset += childPanel.Height;
+                        }
+                    }
+                }
+            }
         }
 
 
@@ -132,25 +237,71 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SelectedIndex = _buttons.IndexOf(clickedButton);
         }
 
-        private void HighlightSelectedButton()
-        {
-            for (int i = 0; i < _buttons.Count; i++)
-            {
-                _buttons[i].BackColor = (i == _selectedIndex)
-                    ? _currentTheme?.ButtonActiveBackColor ?? Color.LightBlue
-                    : _currentTheme?.ButtonBackColor ?? Color.LightGray;
-            }
-        }
 
-        //private void ApplyThemeToButton(BeepButton button)
-        //{
-        //    if (_currentTheme != null)
-        //    {
-        //        button.BackColor = _currentTheme.ButtonBackColor;
-        //        button.ForeColor = _currentTheme.ButtonForeColor;
-        //        button.BorderColor = _currentTheme.BorderColor;
-        //        button.Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-        //    }
-        //}
+        public override void ApplyTheme()
+        {
+            if (_currentTheme == null) { return; }
+            //base.ApplyTheme();
+            // Apply theme to the main menu panel (background gradient or solid color)
+            BackColor = _currentTheme.SideMenuBackColor;
+          
+            _currentTheme.ButtonBackColor = _currentTheme.SideMenuBackColor;
+            // Apply theme to each item (button and highlight panel)
+            foreach (Control control in this.Controls)
+            {
+                if (control is Panel menuItemPanel)
+                {
+                    // Apply background color for the menu item panel
+                    menuItemPanel.BackColor = _currentTheme.SideMenuBackColor;
+
+                    // Loop through the controls inside the panel (button and highlight panel)
+                    foreach (Control subControl in menuItemPanel.Controls)
+                    {
+                        switch (subControl)
+                        {
+                            case BeepButton button:
+                                //   button.ForeColor = _currentTheme.SidebarTextColor;
+                                button.ParentBackColor = _currentTheme.SideMenuBackColor;
+                                button.IsChild = true;
+                                button.Theme = this.Theme;  // Assign the theme to BeepButton to apply
+                                                            // button.ApplyTheme();  // Apply the theme to the button
+                                                            //button.BackColor = _currentTheme.SideMenuBackColor;  // Apply the background color
+                                                            //button.Text = isCollapsed ? "" : button.Text;  // Hide text when collapsed
+                                                            //button.TextAlign = isCollapsed ? ContentAlignment.MiddleCenter : ContentAlignment.MiddleLeft;  // Adjust text alignment based on collapse state
+                                break;
+
+                            case Panel highlightPanel:
+                                // Apply the highlight color for the side highlight panel
+                                highlightPanel.BackColor = _currentTheme.SideMenuBackColor;
+                                break;
+                        }
+                    }
+
+                    // Apply hover effects based on theme colors
+                    //menuItemPanel.MouseEnter -= (s, e) =>
+                    //{
+                    //    menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
+                    //};
+                    //menuItemPanel.MouseLeave -= (s, e) =>
+                    //{
+                    //    menuItemPanel.BackColor = _currentTheme.PanelBackColor;
+                    //};
+
+                    //menuItemPanel.MouseEnter += (s, e) =>
+                    //{
+                    //    menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
+                    //};
+                    //menuItemPanel.MouseLeave += (s, e) =>
+                    //{
+                    //    menuItemPanel.BackColor = _currentTheme.PanelBackColor;
+                    //};
+                }
+            }
+
+         
+
+            Invalidate();
+            // Optionally, apply any additional theming for the overall side menu layout here (e.g., scrollbars, borders, or custom UI components)
+        }
     }
 }

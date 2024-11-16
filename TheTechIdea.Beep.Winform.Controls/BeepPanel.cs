@@ -151,12 +151,12 @@ namespace TheTechIdea.Beep.Winform.Controls
       
         public override void ApplyTheme()
         {
-             Console.WriteLine("Applying Theme on Simple Panel");
+            // Console.WriteLine("Applying Theme on Simple Panel");
             BackColor = _currentTheme.BackgroundColor;
             ForeColor = _currentTheme.TitleForColor;
             foreach (Control ctrl in Controls)
             {
-                ApplyThemeToControl(ctrl);
+               // ApplyThemeToControl(ctrl);
                 //if (ctrl is BeepButton)
                 //{
                 //    //  Console.WriteLine("Applying Theme to Button");
@@ -168,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //    ((BeepLabel)ctrl).Theme = Theme;
                 //}
             }
-           // Invalidate();
+            Invalidate();
         }
         //protected override void OnPaintBackground(PaintEventArgs e)
         //{

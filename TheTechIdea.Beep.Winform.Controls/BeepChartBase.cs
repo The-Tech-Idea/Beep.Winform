@@ -338,21 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawAxisTitles(e.Graphics);
                 DrawAxes(e.Graphics);
                 DrawAxisLabels(e.Graphics);
-                //switch (ChartType)
-                //{
-                //    case ChartType.Line:
-                //        DrawLineDataSeries(e.Graphics, ChartDrawingRect);
-                //        break;
-                //    case ChartType.Bar:
-                //        DrawBarDataSeries(e.Graphics, ChartDrawingRect);
-                //        break;
-                //    case ChartType.Pie:
-                //        DrawPieDataSeries(e.Graphics, ChartDrawingRect);
-                //        break;
-                //    case ChartType.Bubble:
-                //        DrawBubbleDataSeries(e.Graphics, ChartDrawingRect);
-                //        break;
-                //}
+             
                 if(ChartType != ChartType.Pie)
                     DrawDataSeries(e.Graphics, ChartDrawingRect);
                 else

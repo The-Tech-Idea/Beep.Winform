@@ -10,8 +10,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepLabel txtPosition;
 
         public BeepBindingSource BindingSource { get; set; } = new BeepBindingSource();
-        public int ButtonWidth { get; set; } = 15;
-        public int ButtonHeight { get; set; } = 15;
+        public int ButtonWidth { get; set; } = 20;
+        public int ButtonHeight { get; set; } = 20;
         public int XOffset { get; set; } = 5;
         public int YOffset { get; set; } = 5;
         // Events for CRUD actions
@@ -49,14 +49,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void CreateNavigator()
         {
             UpdateDrawingRect();
-            btnFirst = CreateButton("First", btnFirst_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.FunctionButton.favorite.svg");
-            btnPrevious = CreateButton("Previous", btnPrevious_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.FunctionButton.favorite.svg");
-            btnNext = CreateButton("Next", btnNext_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.FunctionButton.favorite.svg");
-            btnLast = CreateButton("Last", btnLast_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.FunctionButton.favorite.svg");
-            btnInsert = CreateButton("Insert", btnInsert_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.FunctionButton.favorite.svg");
-            btnDelete = CreateButton("Delete", btnDelete_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.FunctionButton.favorite.svg");
-            btnSave = CreateButton("Save", btnSave_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.FunctionButton.favorite.svg");
-            btnCancel = CreateButton("Cancel", btnCancel_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.FunctionButton.favorite.svg");
+            btnFirst = CreateButton("First", btnFirst_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.firstrecord.svg");
+            btnPrevious = CreateButton("Previous", btnPrevious_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.previous.svg");
+            btnNext = CreateButton("Next", btnNext_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.next.svg");
+            btnLast = CreateButton("Last", btnLast_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.lastrecord.svg");
+            btnInsert = CreateButton("Insert", btnInsert_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg");
+            btnDelete = CreateButton("Delete", btnDelete_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg");
+            btnSave = CreateButton("Save", btnSave_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.yes.svg");
+            btnCancel = CreateButton("Cancel", btnCancel_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.back.svg");
 
             // set isborderaffectedbytheme  and isshadowaffected to false to all controls
             btnFirst.IsBorderAffectedByTheme = false;

@@ -6,84 +6,118 @@ using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
+    [ToolboxItem(true)]
+    [Category("Beep Controls")]
     public class BeepDatePicker : BeepControl
     {
-        private DateTimePicker dateTimePickerControl;
+        private DateTimePicker _innerDatePicker;
+        private string _customDateFormat = "yyyy-MM-dd"; // Default date format
 
         public BeepDatePicker()
         {
-            InitializeDateTimePicker();
+            InitializeDatePicker();
         }
 
-        private void InitializeDateTimePicker()
+        private void InitializeDatePicker()
         {
-            dateTimePickerControl = new DateTimePicker
+            _innerDatePicker = new DateTimePicker
             {
-                Dock = DockStyle.Fill,
                 Format = DateTimePickerFormat.Custom,
-                CustomFormat = "yyyy-MM-dd" // Default format, can be changed
+                CustomFormat = _customDateFormat,
+                Dock = DockStyle.Fill
             };
 
-            dateTimePickerControl.ValueChanged += (s, e) => Text = dateTimePickerControl.Value.ToString("yyyy-MM-dd");
-            Controls.Add(dateTimePickerControl);
+            _innerDatePicker.ValueChanged += (s, e) => Text = _innerDatePicker.Value.ToString(_customDateFormat);
+            Controls.Add(_innerDatePicker);
         }
 
-        // Properties to expose DateTimePicker settings
+        // Expose properties for the DateTimePicker
         [Browsable(true)]
         [Category("Date Settings")]
+        [Description("Sets the selected date.")]
         public DateTime SelectedDate
         {
-            get => dateTimePickerControl.Value;
-            set => dateTimePickerControl.Value = value;
+            get => _innerDatePicker.Value;
+            set => _innerDatePicker.Value = value;
         }
 
         [Browsable(true)]
         [Category("Date Settings")]
+        [Description("Sets the date format.")]
         public string DateFormat
         {
-            get => dateTimePickerControl.CustomFormat;
-            set => dateTimePickerControl.CustomFormat = value;
+            get => _innerDatePicker.CustomFormat;
+            set
+            {
+                _customDateFormat = value;
+                _innerDatePicker.CustomFormat = value;
+                Invalidate();
+            }
         }
 
         [Browsable(true)]
         [Category("Date Settings")]
+        [Description("Sets the minimum allowable date.")]
         public DateTime MinDate
         {
-            get => dateTimePickerControl.MinDate;
-            set => dateTimePickerControl.MinDate = value;
+            get => _innerDatePicker.MinDate;
+            set => _innerDatePicker.MinDate = value;
         }
 
         [Browsable(true)]
         [Category("Date Settings")]
+        [Description("Sets the maximum allowable date.")]
         public DateTime MaxDate
         {
-            get => dateTimePickerControl.MaxDate;
-            set => dateTimePickerControl.MaxDate = value;
+            get => _innerDatePicker.MaxDate;
+            set => _innerDatePicker.MaxDate = value;
         }
 
-        // Override Text property to sync with the selected date
+        // Override Text property to sync with the selected date in the specified format
         [Browsable(true)]
         [Category("Appearance")]
+        [Description("The date text displayed in the control.")]
         public override string Text
         {
-            get => dateTimePickerControl.Value.ToString(DateFormat);
+            get => _innerDatePicker.Value.ToString(_customDateFormat);
             set
             {
                 if (DateTime.TryParse(value, out DateTime result))
                 {
-                    dateTimePickerControl.Value = result;
+                    _innerDatePicker.Value = result;
+                }
+                else
+                {
+                    _innerDatePicker.Value = DateTime.Now; // Default to current date if invalid
                 }
             }
         }
 
-        // Apply theme customization for DateTimePicker
+        // Apply theme styling to the DateTimePicker control
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            dateTimePickerControl.CalendarForeColor = _currentTheme.PrimaryTextColor;
-            dateTimePickerControl.CalendarMonthBackground = _currentTheme.TextBoxBackColor;
-            dateTimePickerControl.CalendarTitleBackColor = _currentTheme.BackgroundColor;
-            dateTimePickerControl.CalendarTitleForeColor = _currentTheme.PrimaryTextColor;
+            _innerDatePicker.CalendarForeColor = _currentTheme.PrimaryTextColor;
+            _innerDatePicker.CalendarMonthBackground = _currentTheme.TextBoxBackColor;
+            _innerDatePicker.CalendarTitleBackColor = _currentTheme.BackgroundColor;
+            _innerDatePicker.CalendarTitleForeColor = _currentTheme.PrimaryTextColor;
+            _innerDatePicker.BackColor = _currentTheme.TextBoxBackColor;
+            _innerDatePicker.ForeColor = _currentTheme.PrimaryTextColor;
+        }
+
+        // Manage layout updates and position adjustments for inner DatePicker
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            PositionDatePicker();
+        }
+
+        private void PositionDatePicker()
+        {
+            int padding = BorderThickness + 2; // Adjust padding to account for borders
+            _innerDatePicker.Location = new Point(DrawingRect.Left + padding, DrawingRect.Top + padding);
+            _innerDatePicker.Width = DrawingRect.Width - padding * 2;
+            _innerDatePicker.Height = DrawingRect.Height - padding * 2;
         }
     }
 }

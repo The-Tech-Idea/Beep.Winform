@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -19,166 +18,170 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [Description("ProgressBar with text")]
-    public class BeepProgressBar : ProgressBar
+    public class BeepProgressBar : BeepControl
     {
-        [Description("Font of the text on ProgressBar"), Category("Additional Options")]
+        private int _value = 0;
+        private int _minimum = 0;
+        private int _maximum = 100;
+
+        [Category("Behavior")]
+        public int Value
+        {
+            get => _value;
+            set
+            {
+                _value = Math.Max(Minimum, Math.Min(value, Maximum));
+                Invalidate();
+            }
+        }
+
+        [Category("Behavior")]
+        public int Minimum
+        {
+            get => _minimum;
+            set
+            {
+                _minimum = value;
+                if (_value < _minimum) _value = _minimum;
+                Invalidate();
+            }
+        }
+
+        [Category("Behavior")]
+        public int Maximum
+        {
+            get => _maximum;
+            set
+            {
+                _maximum = value;
+                if (_value > _maximum) _value = _maximum;
+                Invalidate();
+            }
+        }
+
+        [Description("Font of the text on ProgressBar"), Category("Appearance")]
         public Font TextFont { get; set; } = new Font(FontFamily.GenericSerif, 11, FontStyle.Bold | FontStyle.Italic);
 
         private SolidBrush _textColourBrush = (SolidBrush)Brushes.Black;
-        [Category("Additional Options")]
+        [Category("Appearance")]
         public Color TextColor
         {
-            get
-            {
-                return _textColourBrush.Color;
-            }
+            get => _textColourBrush.Color;
             set
             {
                 _textColourBrush.Dispose();
                 _textColourBrush = new SolidBrush(value);
+                Invalidate();
             }
         }
 
         private SolidBrush _progressColourBrush = (SolidBrush)Brushes.LightGreen;
-        [Category("Additional Options"), Browsable(true), EditorBrowsable(EditorBrowsableState.Always)]
+        [Category("Appearance")]
         public Color ProgressColor
         {
-            get
-            {
-                return _progressColourBrush.Color;
-            }
+            get => _progressColourBrush.Color;
             set
             {
                 _progressColourBrush.Dispose();
                 _progressColourBrush = new SolidBrush(value);
+                Invalidate();
             }
         }
 
         private ProgressBarDisplayMode _visualMode = ProgressBarDisplayMode.CurrProgress;
-        [Category("Additional Options"), Browsable(true)]
+        [Category("Appearance")]
         public ProgressBarDisplayMode VisualMode
         {
-            get
-            {
-                return _visualMode;
-            }
+            get => _visualMode;
             set
             {
                 _visualMode = value;
-                Invalidate();//redraw component after change value from VS Properties section
+                Invalidate();
             }
         }
 
-        private string _text = string.Empty;
-
-        [Description("If it's empty, % will be shown"), Category("Additional Options"), Browsable(true), EditorBrowsable(EditorBrowsableState.Always)]
+        private string _customText = string.Empty;
+        [Category("Appearance")]
         public string CustomText
         {
-            get
-            {
-                return _text;
-            }
+            get => _customText;
             set
             {
-                _text = value;
-                Invalidate();//redraw component after change value from VS Properties section
+                _customText = value;
+                Invalidate();
             }
         }
 
-        private string _textToDraw
+        private string PercentageText => $"{(int)((float)(_value - _minimum) / (_maximum - _minimum) * 100)} %";
+        private string ProgressText => $"{_value}/{_maximum}";
+
+        private string TextToDraw
         {
             get
             {
-                string text = CustomText;
-
-                switch (VisualMode)
+                return VisualMode switch
                 {
-                    case ProgressBarDisplayMode.Percentage:
-                        text = _percentageStr;
-                        break;
-                    case ProgressBarDisplayMode.CurrProgress:
-                        text = _currProgressStr;
-                        break;
-                    case ProgressBarDisplayMode.TextAndCurrProgress:
-                        text = $"{CustomText}: {_currProgressStr}";
-                        break;
-                    case ProgressBarDisplayMode.TextAndPercentage:
-                        text = $"{CustomText}: {_percentageStr}";
-                        break;
-                }
-
-                return text;
-            }
-            set { }
-        }
-
-        private string _percentageStr { get { return $"{(int)((float)Value - Minimum) / ((float)Maximum - Minimum) * 100} %"; } }
-
-        private string _currProgressStr
-        {
-            get
-            {
-                return $"{Value}/{Maximum}";
+                    ProgressBarDisplayMode.Percentage => PercentageText,
+                    ProgressBarDisplayMode.CurrProgress => ProgressText,
+                    ProgressBarDisplayMode.TextAndPercentage => $"{CustomText}: {PercentageText}",
+                    ProgressBarDisplayMode.TextAndCurrProgress => $"{CustomText}: {ProgressText}",
+                    _ => CustomText
+                };
             }
         }
 
         public BeepProgressBar()
         {
-            Value = Minimum;
-            FixComponentBlinking();
-        }
-
-        private void FixComponentBlinking()
-        {
-            SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer, true);
+            DoubleBuffered = true;
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            base.OnPaint(e);
             Graphics g = e.Graphics;
+           // g.Clear(BackColor);
 
             DrawProgressBar(g);
-
-            DrawStringIfNeeded(g);
+            DrawText(g);
         }
 
         private void DrawProgressBar(Graphics g)
         {
-            Rectangle rect = ClientRectangle;
+            Rectangle rect = DrawingRect;
+            rect.Inflate(-2, -2);
 
-            ProgressBarRenderer.DrawHorizontalBar(g, rect);
-
-            rect.Inflate(-3, -3);
-
-            if (Value > 0)
+            if (_value > _minimum)
             {
-                Rectangle clip = new Rectangle(rect.X, rect.Y, (int)Math.Round((float)Value / Maximum * rect.Width), rect.Height);
-
-                g.FillRectangle(_progressColourBrush, clip);
+                float progressWidth = (float)(_value - _minimum) / (_maximum - _minimum) * rect.Width;
+                Rectangle progressRect = new Rectangle(rect.X, rect.Y, (int)progressWidth, rect.Height);
+                g.FillRectangle(_progressColourBrush, progressRect);
             }
+
         }
 
-        private void DrawStringIfNeeded(Graphics g)
+        private void DrawText(Graphics g)
         {
             if (VisualMode != ProgressBarDisplayMode.NoText)
             {
-
-                string text = _textToDraw;
-
-                SizeF len = g.MeasureString(text, TextFont);
-
-                Point location = new Point(Width / 2 - (int)len.Width / 2, Height / 2 - (int)len.Height / 2);
+                string text = TextToDraw;
+                SizeF textSize = g.MeasureString(text, TextFont);
+                PointF location = new PointF(
+                    DrawingRect.Left + (DrawingRect.Width - textSize.Width) / 2,
+                    DrawingRect.Top + (DrawingRect.Height - textSize.Height) / 2
+                );
 
                 g.DrawString(text, TextFont, _textColourBrush, location);
             }
         }
 
-        public new void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            _textColourBrush.Dispose();
-            _progressColourBrush.Dispose();
-            base.Dispose();
+            if (disposing)
+            {
+                _textColourBrush?.Dispose();
+                _progressColourBrush?.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }
-

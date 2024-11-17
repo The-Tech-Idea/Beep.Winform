@@ -321,8 +321,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeComponents();
             Size = new Size(150, 30);
             _innerTextBox.TextChanged += (s, e) => Invalidate(); // Repaint to apply formatting
+            this.Invalidated += BeepTextBox_Invalidated;
         }
 
+        private void BeepTextBox_Invalidated(object? sender, InvalidateEventArgs e)
+        {
+            Controlinvalidated=true;
+        }
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            if (Controlinvalidated) {
+                if (ShowAllBorders) { _innerTextBox.BorderStyle = BorderStyle.None; } else { _innerTextBox.BorderStyle = BorderStyle.FixedSingle; }
+                Controlinvalidated = false;
+            }
+        }
         private void InitializeComponents()
         {
             _innerTextBox = new TextBox
@@ -373,6 +386,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnResize(e);
             PositionInnerTextBoxAndImage();
+           
         }
         private void PositionInnerTextBoxAndImage()
         {

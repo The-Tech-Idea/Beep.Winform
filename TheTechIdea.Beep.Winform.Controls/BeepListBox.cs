@@ -19,6 +19,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         int drawRectY;
         int drawRectWidth;
         int drawRectHeight;
+        //protected bool _showtitle = true;
+        //[Browsable(true)]
+        //[Category("Appearance")]
+        //[Description("The list of items to display in the list box.")]
+        //public bool ShowTitle
+        //{
+        //    get => _showtitle;
+        //    set
+        //    {
+        //        _showtitle = value;
+        //        ShowTitle = value;
+        //        ShowTitleLine = value;
+        //      //  UpdateDrawingRect();
+        //      //  Invalidate();
+        //    }
+        //}
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
@@ -62,9 +78,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             items.ListChanged += Items_ListChanged;
+           
             InitLayout();
-
+            this.Invalidated += BeepListBox_Invalidated;
         }
+       
+        private void BeepListBox_Invalidated(object? sender, InvalidateEventArgs e)
+        {
+            Controlinvalidated = true;
+        }
+
         protected override void InitLayout()
         {
             base.InitLayout();
@@ -83,9 +106,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleText = "List Box";
 
         }
+
         private void Items_ListChanged(object sender, ListChangedEventArgs e) => InitializeMenu();
 
-      
+      protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            if(Controlinvalidated)
+            {
+                InitializeMenu();
+                Controlinvalidated=false;
+            }
+          
+        }
 
         private Panel CreateMenuItemPanel(SimpleMenuItem item, bool isChild)
         {
@@ -117,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ImageAlign = ContentAlignment.MiddleLeft,
                 BorderSize = 0,
                // IsChild = true,
-                IsSideMenuChild = true,
+                //IsSideMenuChild = true,
                 MaxImageSize = new Size(20, 20),
                 ShowAllBorders = false,
                 ShowShadow = false,

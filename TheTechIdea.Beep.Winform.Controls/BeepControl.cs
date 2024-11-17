@@ -47,6 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region "protected Properties"
         Point originalLocation;
+        protected bool Controlinvalidated = false;
         protected bool tooltipShown = false; // Flag to track if tooltip is shown
         protected ImageScaleMode _scaleMode = ImageScaleMode.KeepAspectRatio;
         protected bool _staticnotmoving = false;

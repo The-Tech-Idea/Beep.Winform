@@ -13,14 +13,14 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepPanel : BeepControl
     {
 
-
+        const int startyoffset = 0;
         private string _titleText = "Panel Title";
         private bool _showTitle = true;
         private bool _showTitleLine = true;
         private bool _titleLineFullWidth = true;
         private Color _titleLineColor = Color.Gray;
         private int _titleLineThickness = 2;
-        private int _titleBottomY = 30;
+        private int _titleBottomY = startyoffset;
         private ContentAlignment _titleAlignment = ContentAlignment.TopLeft;
 
         #region "Scrolling Properties"
@@ -177,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e); // Draw base elements (border, shadow, etc.)
-
+            _titleBottomY = startyoffset;
             // Draw title text if enabled
             if (_showTitle && !string.IsNullOrEmpty(_titleText))
             {

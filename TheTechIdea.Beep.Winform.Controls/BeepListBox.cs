@@ -115,7 +115,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextAlign =  ContentAlignment.MiddleCenter,
                 ParentBackColor = _currentTheme.SideMenuBackColor,
                 ImageAlign = ContentAlignment.MiddleLeft,
-                Theme = this.Theme,
                 BorderSize = 0,
                 IsChild = true,
                 IsSideMenuChild = true,
@@ -135,8 +134,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (_currentTheme != null)
             {
-                button.ApplyTheme(Theme);
+                button.Theme = Theme;
+                button.ForeColor = _currentTheme.SideMenuForeColor;
+                button.BackColor = _currentTheme.SideMenuBackColor;
+                //  
+
+
                 BackColor = _currentTheme.SideMenuBackColor;
+                
 
             }
             // Add BeepButton and highlight panel to the panel
@@ -260,10 +265,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                         switch (subControl)
                         {
                             case BeepButton button:
-                                //   button.ForeColor = _currentTheme.SidebarTextColor;
+                                // button.Theme = this.Theme;
+                                button.Theme = Theme;
+                                button.ForeColor = _currentTheme.SideMenuForeColor;
+                                button.BackColor = _currentTheme.SideMenuBackColor;
                                 button.ParentBackColor = _currentTheme.SideMenuBackColor;
                                 button.IsChild = true;
-                                button.Theme = this.Theme;  // Assign the theme to BeepButton to apply
+                              // Assign the theme to BeepButton to apply
                                                             // button.ApplyTheme();  // Apply the theme to the button
                                                             //button.BackColor = _currentTheme.SideMenuBackColor;  // Apply the background color
                                                             //button.Text = isCollapsed ? "" : button.Text;  // Hide text when collapsed

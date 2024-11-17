@@ -375,7 +375,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-                TextRenderer.DrawText(g, Text, scaledFont, textRect, _currentTheme.ButtonForeColor, flags);
+                TextRenderer.DrawText(g, Text, scaledFont, textRect, ForeColor, flags);
             }
 
             //}

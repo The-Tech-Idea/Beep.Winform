@@ -117,6 +117,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 ShowAllBorders = false,
                 ShowShadow = false,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
                 Anchor = AnchorStyles.None,
                 
                

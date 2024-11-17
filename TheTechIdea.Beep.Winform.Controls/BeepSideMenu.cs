@@ -337,7 +337,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
                 ImageAlign = ContentAlignment.MiddleLeft,
                 Theme = this.Theme,
                 BorderSize = 0,
-                IsChild = true,
+               // IsChild = true,
                 IsSideMenuChild = true,
                 MaxImageSize = new Size(20, 20),
                 ShowAllBorders = false,
@@ -351,12 +351,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
             // Load the icon if specified
             if (!string.IsNullOrEmpty(item.Image) && File.Exists(item.Image))
             {
-                button.ImagePath = item.Image;
+                try
+                {
+                    button.ImagePath = item.Image;
+                }
+                catch (Exception)
+                {
+
+                }
+                
             }
             if(_currentTheme != null)
             {
-                button.ApplyTheme(Theme);
-                BackColor = _currentTheme.SideMenuBackColor;
+                button.Theme=Theme;
+              //  BackColor = _currentTheme.SideMenuBackColor;
               
             }
             // Add BeepButton and highlight panel to the panel
@@ -537,10 +545,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
                         switch (subControl)
                         {
                             case BeepButton button:
-                             //   button.ForeColor = _currentTheme.SidebarTextColor;
-                                button.ParentBackColor = _currentTheme.SideMenuBackColor;
-                                button.IsChild = true;
+                                //   button.ForeColor = _currentTheme.SidebarTextColor;
                                 button.Theme = this.Theme;  // Assign the theme to BeepButton to apply
+                              //  button.ParentBackColor = _currentTheme.SideMenuBackColor;
+                              //  button.IsChild = true;
+                               
                                // button.ApplyTheme();  // Apply the theme to the button
                                 //button.BackColor = _currentTheme.SideMenuBackColor;  // Apply the background color
                                 //button.Text = isCollapsed ? "" : button.Text;  // Hide text when collapsed

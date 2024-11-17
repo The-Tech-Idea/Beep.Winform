@@ -285,42 +285,56 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Load the image from the provided path (checks if it's a file path or embedded resource).
         /// </summary>
-        private void LoadImage(string path)
+        private bool LoadImage(string path)
         {
-            if (IsEmbeddedResource(path))
+            bool retval = false;
+            try
             {
-                // Attempt to load from embedded resources
-                LoadImageFromEmbeddedResource(path);
-            }
-            else
-            {
-                if (File.Exists(path))
+                if (IsEmbeddedResource(path))
                 {
-                    // Load from file system
-                    LoadImageFromFile(path);
+                    // Attempt to load from embedded resources
+                    retval= LoadImageFromEmbeddedResource(path);
+                }
+                else
+                {
+                    if (File.Exists(path))
+                    {
+                        // Load from file system
+                        retval= LoadImageFromFile(path);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading image: {ex.Message}");
+                return false;
+            }
+           return retval;
         }
         /// <summary>
         /// Load an image from the file system (SVG, PNG, JPG, BMP)
         /// </summary>
-        private void LoadImageFromFile(string path)
+        private bool LoadImageFromFile(string path)
         {
+            bool retval = false;
             string extension = Path.GetExtension(path).ToLower();
             switch (extension)
             {
                 case ".svg":
-                    LoadSvg(path);
+                    retval= LoadSvg(path);
                     break;
                 case ".png":
                 case ".jpg":
                 case ".jpeg":
                 case ".bmp":
-                    LoadRegularImage(path);
+                    retval= LoadRegularImage(path);
                     break;
                 default:
-                    throw new ArgumentException("Unsupported image format. Supported formats are: SVG, PNG, JPG, BMP.");
+                    Console.WriteLine("Unsupported image format. Supported formats are: SVG, PNG, JPG, BMP.");
+                    break;
             }
+            
+            return retval;
         }
         public bool IsEmbeddedResource(string path)
         {
@@ -338,7 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Load an image from the embedded resources (checks the current assembly).
        /// </summary>
-        public void LoadImageFromEmbeddedResource(string resourcePath)
+        public bool LoadImageFromEmbeddedResource(string resourcePath)
         {
             try
             {
@@ -365,15 +379,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     else
                     {
-                        throw new FileNotFoundException($"Embedded resource not found: {resourcePath}");
+                        Console.WriteLine($"Embedded resource not found: {resourcePath}");
+                        return false;
+                        
                     }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error loading embedded resource: {ex.Message}");
+                return false;
                 //MessageBox.Show($"Error loading embedded resource: {ex.Message}", "Embedded Resource Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            return true;
         }
         public void ClearImage()
         {
@@ -382,7 +400,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             regularImage = null;
             isSvg = false;
         }
-        public void LoadSvg(string svgPath)
+        public bool LoadSvg(string svgPath)
         {
             try
             {
@@ -395,9 +413,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             catch (Exception ex)
             {
                 MessageBox.Show($"Error loading SVG: {ex.Message}", "SVG Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
+            return true;
         }
-        public void LoadRegularImage(string imagePath)
+        public bool LoadRegularImage(string imagePath)
         {
             try
             {
@@ -410,7 +430,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             catch (Exception ex)
             {
                 MessageBox.Show($"Error loading image: {ex.Message}", "Image Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
+            return true;
         }
         private void DisposeImages()
         {

@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ParentBackColor = _currentTheme.SideMenuBackColor,
                 ImageAlign = ContentAlignment.MiddleLeft,
                 BorderSize = 0,
-                IsChild = true,
+               // IsChild = true,
                 IsSideMenuChild = true,
                 MaxImageSize = new Size(20, 20),
                 ShowAllBorders = false,
@@ -130,14 +130,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Load the icon if specified
             if (!string.IsNullOrEmpty(item.Image) && File.Exists(item.Image))
             {
-                button.ImagePath = item.Image;
+                try
+                {
+                    button.ImagePath = item.Image;
+                }
+                catch (Exception)
+                {
+
+                    //throw;
+                }
+               
             }
             if (_currentTheme != null)
             {
                 button.Theme = Theme;
-                button.ForeColor = _currentTheme.SideMenuForeColor;
-                button.BackColor = _currentTheme.SideMenuBackColor;
-                //  
+                //_currentTheme.ButtonBackColor = _currentTheme.SideMenuBackColor;
+                //button.ForeColor = _currentTheme.SideMenuForeColor;
+           
+               
 
 
                 BackColor = _currentTheme.SideMenuBackColor;
@@ -266,11 +276,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             case BeepButton button:
                                 // button.Theme = this.Theme;
+                               // Console.WriteLine("Button");
                                 button.Theme = Theme;
-                                button.ForeColor = _currentTheme.SideMenuForeColor;
-                                button.BackColor = _currentTheme.SideMenuBackColor;
-                                button.ParentBackColor = _currentTheme.SideMenuBackColor;
-                                button.IsChild = true;
+                                //_currentTheme.ButtonBackColor = _currentTheme.SideMenuBackColor;
+                                //button.ForeColor = _currentTheme.SideMenuForeColor;
+                              
+                                //button.ParentBackColor = _currentTheme.SideMenuBackColor;
+                               
+                                //button.IsChild = true;
                               // Assign the theme to BeepButton to apply
                                                             // button.ApplyTheme();  // Apply the theme to the button
                                                             //button.BackColor = _currentTheme.SideMenuBackColor;  // Apply the background color

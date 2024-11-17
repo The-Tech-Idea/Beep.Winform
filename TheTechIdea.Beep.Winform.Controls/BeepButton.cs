@@ -389,105 +389,57 @@ namespace TheTechIdea.Beep.Winform.Controls
             imageRect = Rectangle.Empty;
             textRect = Rectangle.Empty;
 
-            // Handle the case where there is no image
             bool hasImage = imageSize != Size.Empty;
             bool hasText = !string.IsNullOrEmpty(Text) && !HideText; // Check if text is available and not hidden
 
             // Adjust contentRect for padding
-         //   contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
+            contentRect.Inflate(-Padding.Horizontal / 2, -Padding.Vertical / 2);
 
-            if (!hasText && hasImage)
+            if (hasImage && !hasText)
             {
-                // If there's no text but an image, center the image
+                // Center image in the button if there is no text
                 imageRect = AlignRectangle(contentRect, imageSize, ContentAlignment.MiddleCenter);
             }
-            else
+            else if (hasText && !hasImage)
+            {
+                // Only text is present, align text within the button
+                textRect = AlignRectangle(contentRect, textSize, TextAlign);
+            }
+            else if (hasImage && hasText)
             {
                 // Layout logic based on TextImageRelation when both text and image are present
                 switch (this.TextImageRelation)
                 {
                     case TextImageRelation.Overlay:
                         // Image and text overlap
-                        if (hasImage)
-                        {
-                            imageRect = AlignRectangle(contentRect, imageSize, this.ImageAlign);
-                        }
-                        if (hasText)
-                        {
-                            textRect = AlignRectangle(contentRect, textSize, this.TextAlign);
-                        }
+                        imageRect = AlignRectangle(contentRect, imageSize, ImageAlign);
+                        textRect = AlignRectangle(contentRect, textSize, TextAlign);
                         break;
 
                     case TextImageRelation.ImageBeforeText:
-                        if (hasImage)
-                        {
-                            Rectangle imageArea = new Rectangle(contentRect.Location, new Size(imageSize.Width, contentRect.Height));
-                            imageRect = AlignRectangle(imageArea, imageSize, this.ImageAlign);
-                        }
-                        if (hasText)
-                        {
-                            Rectangle textArea = new Rectangle(
-                                contentRect.X + imageSize.Width,
-                                contentRect.Y,
-                                contentRect.Width - imageSize.Width,
-                                contentRect.Height);
-                            textRect = AlignRectangle(textArea, textSize, this.TextAlign);
-                        }
+                        imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, imageSize.Width, contentRect.Height), imageSize, ImageAlign);
+                        textRect = AlignRectangle(new Rectangle(contentRect.Left + imageSize.Width + Padding.Horizontal, contentRect.Top, contentRect.Width - imageSize.Width - Padding.Horizontal, contentRect.Height), textSize, TextAlign);
                         break;
 
                     case TextImageRelation.TextBeforeImage:
-                        if (hasText)
-                        {
-                            Rectangle textArea = new Rectangle(contentRect.Location, new Size(textSize.Width, contentRect.Height));
-                            textRect = AlignRectangle(textArea, textSize, this.TextAlign);
-                        }
-                        if (hasImage)
-                        {
-                            Rectangle imageArea = new Rectangle(
-                                contentRect.X + textSize.Width,
-                                contentRect.Y,
-                                contentRect.Width - textSize.Width,
-                                contentRect.Height);
-                            imageRect = AlignRectangle(imageArea, imageSize, this.ImageAlign);
-                        }
+                        textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, textSize.Width, contentRect.Height), textSize, TextAlign);
+                        imageRect = AlignRectangle(new Rectangle(contentRect.Left + textSize.Width + Padding.Horizontal, contentRect.Top, contentRect.Width - textSize.Width - Padding.Horizontal, contentRect.Height), imageSize, ImageAlign);
                         break;
 
                     case TextImageRelation.ImageAboveText:
-                        if (hasImage)
-                        {
-                            Rectangle imageArea = new Rectangle(contentRect.Location, new Size(contentRect.Width, imageSize.Height));
-                            imageRect = AlignRectangle(imageArea, imageSize, this.ImageAlign);
-                        }
-                        if (hasText)
-                        {
-                            Rectangle textArea = new Rectangle(
-                                contentRect.X,
-                                contentRect.Y + imageSize.Height,
-                                contentRect.Width,
-                                contentRect.Height - imageSize.Height);
-                            textRect = AlignRectangle(textArea, textSize, this.TextAlign);
-                        }
+                        imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, contentRect.Width, imageSize.Height), imageSize, ImageAlign);
+                        textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + imageSize.Height + Padding.Vertical, contentRect.Width, contentRect.Height - imageSize.Height - Padding.Vertical), textSize, TextAlign);
                         break;
 
                     case TextImageRelation.TextAboveImage:
-                        if (hasText)
-                        {
-                            Rectangle textArea = new Rectangle(contentRect.Location, new Size(contentRect.Width, textSize.Height));
-                            textRect = AlignRectangle(textArea, textSize, this.TextAlign);
-                        }
-                        if (hasImage)
-                        {
-                            Rectangle imageArea = new Rectangle(
-                                contentRect.X,
-                                contentRect.Y + textSize.Height,
-                                contentRect.Width,
-                                contentRect.Height - textSize.Height);
-                            imageRect = AlignRectangle(imageArea, imageSize, this.ImageAlign);
-                        }
+                        textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, contentRect.Width, textSize.Height), textSize, TextAlign);
+                        imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + textSize.Height + Padding.Vertical, contentRect.Width, contentRect.Height - textSize.Height - Padding.Vertical), imageSize, ImageAlign);
                         break;
                 }
             }
         }
+
+
         private Rectangle AlignRectangle(Rectangle container, Size size, ContentAlignment alignment)
         {
             int x = 0;

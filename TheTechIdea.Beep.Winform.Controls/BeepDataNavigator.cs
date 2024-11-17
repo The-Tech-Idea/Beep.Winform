@@ -10,8 +10,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepLabel txtPosition;
 
         public BeepBindingSource BindingSource { get; set; } = new BeepBindingSource();
-        public int ButtonWidth { get; set; } = 20;
-        public int ButtonHeight { get; set; } = 20;
+        protected int _buttonWidth = 15;
+        protected int _buttonHeight = 15;
+        public int ButtonWidth
+        {
+            get => _buttonWidth;
+            set
+            {
+                _buttonWidth = value;
+                UpdateDrawingRect();
+                ArrangeControls();
+                Invalidate();
+            }
+        }
+        public int ButtonHeight
+            {
+            get => _buttonHeight;
+            set
+            {
+                _buttonHeight = value;
+                UpdateDrawingRect();
+                ArrangeControls();
+                Invalidate();
+            }
+        }
         public int XOffset { get; set; } = 5;
         public int YOffset { get; set; } = 5;
         // Events for CRUD actions
@@ -83,11 +105,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 ShowAllBorders = false,
                 ShowShadow = false,
-                Font = new Font("Arial", 8, FontStyle.Bold),
                 Anchor = AnchorStyles.None
             };
           
-          txtPosition.IsShadowAffectedByTheme = false;
+            txtPosition.IsShadowAffectedByTheme = false;
             txtPosition.IsBorderAffectedByTheme = false;
 
             Controls.AddRange(new Control[]
@@ -245,6 +266,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             //base.ApplyTheme();
+            txtPosition.Theme = Theme;
             foreach (Control ctrl in Controls)
             {
                 // apply theme to all child controls
@@ -252,7 +274,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                    // ((BeepButton)ctrl).ApplyThemeOnImage = true;
                     ((BeepControl)ctrl).Theme = Theme;
-                   // ((BeepControl)ctrl).ApplyTheme();
+                    // ((BeepControl)ctrl).ApplyTheme();
+                    
                 }
             }
         }

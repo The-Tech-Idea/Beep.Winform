@@ -419,7 +419,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             DataNavigator.Location = new Point(navigatorPanelRect.Left+2, navigatorPanelRect.Top+2);
             DataNavigator.Size = new Size(navigatorPanelRect.Width-2, navigatorPanelHeight-2);
-          //  DataNavigator.Theme = Theme;
+            DataNavigator.Theme = Theme;
             
             DataNavigator.ShowAllBorders = false;
             DataNavigator.ShowShadow = false;

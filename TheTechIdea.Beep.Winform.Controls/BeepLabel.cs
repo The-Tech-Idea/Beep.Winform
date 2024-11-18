@@ -88,6 +88,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => beepImage?.ImagePath;
             set
             {
+                if (beepImage == null)
+                {
+                    beepImage = new BeepImage();
+
+                }
                 if (beepImage != null)
                 {
                     beepImage.ImagePath = value;
@@ -192,10 +197,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw the image if available
             if (beepImage != null && beepImage.HasImage)
             {
-                //Console.WriteLine("Loading Image 2 333");
+                beepImage.MaximumSize = imageSize;
+                beepImage.Size = imageRect.Size;
+                Console.WriteLine("Label show Image");
                 beepImage.DrawImage(g, imageRect);
                 // place beepimage in the same place imagerect is
-                beepImage.Location = imageRect.Location;
+                //beepImage.Location = imageRect.Location;
             }
 
 

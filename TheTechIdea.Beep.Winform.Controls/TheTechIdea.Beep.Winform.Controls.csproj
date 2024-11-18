@@ -65,6 +65,7 @@
     <None Remove="GFX\SVG\favorite.svg" />
     <None Remove="GFX\SVG\filter.svg" />
     <None Remove="GFX\SVG\firstrecord.svg" />
+    <None Remove="GFX\SVG\hamburger.svg" />
     <None Remove="GFX\SVG\help.svg" />
     <None Remove="GFX\SVG\home.svg" />
     <None Remove="GFX\SVG\info.svg" />
@@ -111,6 +112,7 @@
     <EmbeddedResource Include="GFX\SVG\favorite.svg" />
     <EmbeddedResource Include="GFX\SVG\filter.svg" />
     <EmbeddedResource Include="GFX\SVG\firstrecord.svg" />
+    <EmbeddedResource Include="GFX\SVG\hamburger.svg" />
     <EmbeddedResource Include="GFX\SVG\help.svg" />
     <EmbeddedResource Include="GFX\SVG\home.svg" />
     <EmbeddedResource Include="GFX\SVG\info.svg" />

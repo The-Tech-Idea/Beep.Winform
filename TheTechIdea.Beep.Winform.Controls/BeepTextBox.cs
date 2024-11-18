@@ -326,14 +326,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void BeepTextBox_Invalidated(object? sender, InvalidateEventArgs e)
         {
-            Controlinvalidated=true;
+            _isControlinvalidated=true;
         }
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            if (Controlinvalidated) {
+            if (_isControlinvalidated) {
                 if (ShowAllBorders) { _innerTextBox.BorderStyle = BorderStyle.None; } else { _innerTextBox.BorderStyle = BorderStyle.FixedSingle; }
-                Controlinvalidated = false;
+                _isControlinvalidated = false;
             }
         }
         private void InitializeComponents()

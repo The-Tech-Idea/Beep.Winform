@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls
        
         private void BeepListBox_Invalidated(object? sender, InvalidateEventArgs e)
         {
-            Controlinvalidated = true;
+            _isControlinvalidated = true;
         }
 
         protected override void InitLayout()
@@ -112,10 +112,10 @@ namespace TheTechIdea.Beep.Winform.Controls
       protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            if(Controlinvalidated)
+            if(_isControlinvalidated)
             {
                 InitializeMenu();
-                Controlinvalidated=false;
+                _isControlinvalidated=false;
             }
           
         }

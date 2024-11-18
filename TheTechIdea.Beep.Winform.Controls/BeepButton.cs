@@ -153,6 +153,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => beepImage?.ImagePath;
             set
             {
+                if(beepImage == null)
+                {
+                    beepImage = new BeepImage();
+                   
+                }
+                else
                 if (beepImage != null)
                 {
                     beepImage.ImagePath = value;
@@ -364,17 +370,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 beepImage.MaximumSize = imageSize;
                 beepImage.Size = imageRect.Size;
-                beepImage.Location = imageRect.Location;
+                //beepImage.Location = imageRect.Location;
 
-                // Adjust alignment based on TextImageRelation
-                if (string.IsNullOrEmpty(Text))
-                {
-                    beepImage.Location = AlignRectangle(ClientRectangle, imageSize, ContentAlignment.MiddleCenter).Location;
-                }
-                //Console.WriteLine("Loading Image 2 333");
-              //  beepImage.DrawImage(g, imageRect);
-             //   // place beepimage in the same place imagerect is
-              
+                ////Adjust alignment based on TextImageRelation
+                //if (string.IsNullOrEmpty(Text))
+                //{
+                //    beepImage.Location = AlignRectangle(ClientRectangle, imageSize, ContentAlignment.MiddleCenter).Location;
+                //}
+                Console.WriteLine("Button show Image");
+                beepImage.DrawImage(g, imageRect);
+                // place beepimage in the same place imagerect is
+
               //  beepImage.Location = imageRect.Location;
             }
            

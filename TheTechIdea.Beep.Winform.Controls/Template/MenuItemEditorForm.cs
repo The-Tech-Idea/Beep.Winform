@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
+namespace TheTechIdea.Beep.Winform.Controls.Template
 {
     public partial class MenuItemEditorForm : Form
     {
@@ -133,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
                 //}
             }
         }
-       
+
         private void MenuTreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (menuTreeView.SelectedNode?.Tag is MenuItem selectedItem)
@@ -153,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
                 // Add as a child node to the selected node
                 menuTreeView.SelectedNode.Nodes.Add(newNode);
                 menuTreeView.SelectedNode.Expand();
-              //  ((SimpleMenuItem)menuTreeView.SelectedNode.Tag).Children.Add(newItem);
+                //  ((SimpleMenuItem)menuTreeView.SelectedNode.Tag).Children.Add(newItem);
             }
             else
             {
@@ -202,15 +202,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
 
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            this.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.Close();
+            DialogResult = System.Windows.Forms.DialogResult.OK;
+            Close();
         }
 
 
         private void CancelButton_Click(object sender, EventArgs e)
         {
-            this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.Close();
+            DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            Close();
         }
     }
 }

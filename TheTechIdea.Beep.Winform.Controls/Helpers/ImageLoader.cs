@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Collections;
 using System.Resources;
 using System.Xml.Linq;
-using TheTechIdea.Beep.Winform.Controls.ModernSideMenu;
+using TheTechIdea.Beep.Winform.Controls.Template;
 
 namespace TheTechIdea.Beep.Winform.Controls.Helpers
 {

@@ -12,9 +12,9 @@ using System.Drawing.Design;
 using System.Windows.Forms.Design;
 
 
-namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
+namespace TheTechIdea.Beep.Winform.Controls.Template
 {
-  
+
     public class MenuItemCollectionEditor : CollectionEditor
     {
         public MenuItemCollectionEditor(Type type) : base(type) { }

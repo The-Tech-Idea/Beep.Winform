@@ -42,9 +42,9 @@ namespace TheTechIdea.Beep.Winform.Controls.UIEditor
         {
             if (value is string imagePath)
             {
-                // Serialize the ImagePath as a string assignment
+                // Serialize the LogoImage as a string assignment
                 var assignImagePath = new CodeAssignStatement(
-                    new CodePropertyReferenceExpression(new CodeThisReferenceExpression(), "ImagePath"),
+                    new CodePropertyReferenceExpression(new CodeThisReferenceExpression(), "LogoImage"),
                     new CodePrimitiveExpression(imagePath));
 
                 return new CodeStatementCollection { assignImagePath };
@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls.UIEditor
         public string ImagePath
         {
             get => _control.ImagePath;
-            set => TypeDescriptor.GetProperties(_control)["ImagePath"].SetValue(_control, value);
+            set => TypeDescriptor.GetProperties(_control)["LogoImage"].SetValue(_control, value);
         }
 
         public void EditImagePath()
@@ -88,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.UIEditor
         {
             var items = new DesignerActionItemCollection
             {
-                new DesignerActionPropertyItem("ImagePath", "Image Path", "Properties", "Set the image path"),
+                new DesignerActionPropertyItem("LogoImage", "Image Path", "Properties", "Set the image path"),
                 new DesignerActionMethodItem(this, nameof(EditImagePath), "Edit Image Path...", "Actions", "Open image path editor")
             };
             return items;

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
-using TheTechIdea.Beep.Winform.Controls.ModernSideMenu;
+using TheTechIdea.Beep.Winform.Controls.Template;
 
 namespace TheTechIdea.Beep.Winform.Controls.UIEditor
 {

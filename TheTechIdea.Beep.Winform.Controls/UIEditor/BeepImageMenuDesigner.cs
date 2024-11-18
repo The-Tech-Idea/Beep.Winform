@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.UIEditor
         {
             base.Initialize(component);
             Debugger.Launch();  // This will prompt you to attach a debugger when the designer loads
-            // Add custom context menu item for setting ImagePath
+            // Add custom context menu item for setting LogoImage
             var menuItem = new DesignerVerb("Set Image Path", OnSetImagePath);
             Verbs.Add(menuItem);
         }
@@ -32,8 +32,8 @@ namespace TheTechIdea.Beep.Winform.Controls.UIEditor
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    // Set the ImagePath property if the user selects an image
-                    PropertyDescriptor property = TypeDescriptor.GetProperties(beepImageControl)["ImagePath"];
+                    // Set the LogoImage property if the user selects an image
+                    PropertyDescriptor property = TypeDescriptor.GetProperties(beepImageControl)["LogoImage"];
                     property.SetValue(beepImageControl, form.SelectedImagePath);
                 }
             }

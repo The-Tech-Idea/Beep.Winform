@@ -17,17 +17,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             ishandled = false   ;
             beepPanel1.IsFramless = true;
             TitleLabel.IsFramless = true;
-            this.Resize += (s, e) => doresize();
+           // this.Resize += (s, e) => doresize();
+        }
+        public void ShowTitle(bool show)
+        {
+         
+            TitleLabel.Visible = show;
         }
 
-        private void doresize()
-        {
+        //private void doresize()
+        //{
           
-                CloseButton.Left = beepPanel1.Left + beepPanel1.Width - BorderRadius - CloseButton.Width - 20;
-                MaximizeButton.Left = CloseButton.Left - BorderRadius - MaximizeButton.Width;
-                MinimizeButton.Left = MaximizeButton.Left - BorderRadius - MinimizeButton.Width;
-                TitleLabel.Width = MinimizeButton.Left- TitleLabel.Left -  20;
-        }
+        //        CloseButton.Left = beepPanel1.Left + beepPanel1.Width - BorderRadius - CloseButton.Width - 20;
+        //        MaximizeButton.Left = CloseButton.Left - BorderRadius - MaximizeButton.Width;
+        //        MinimizeButton.Left = MaximizeButton.Left - BorderRadius - MinimizeButton.Width;
+        //        TitleLabel.Width = MinimizeButton.Left- TitleLabel.Left -  20;
+        //}
 
         protected override void OnHandleCreated(EventArgs e)
         {
@@ -50,23 +55,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Button events
             CloseButton.Click += (s, e) => Close();
-          //  ClosebeepButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg";
+          //  ClosebeepButton.LogoImage = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg";
 
             MaximizeButton.Click += (s, e) => ToggleMaximize();
-          //  MaximizebeepButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.maximize.svg";
+          //  MaximizebeepButton.LogoImage = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.maximize.svg";
             MinimizeButton.Click += (s, e) => WindowState = FormWindowState.Minimized;
-            //MinimizebeepButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minimize.svg";
+            //MinimizebeepButton.LogoImage = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minimize.svg";
 
             // Enable dragging on TitlebeepLabel
-            TitleLabel.MouseDown += (s, e) => { if (e.Button == MouseButtons.Left) BeginDrag(e.Location); };
-            TitleLabel.MouseMove += (s, e) => { if (e.Button == MouseButtons.Left) PerformDrag(e.Location); };
-            TitleLabel.MouseUp += (s, e) => EndDrag();
+            beepPanel1.MouseDown += (s, e) => { if (e.Button == MouseButtons.Left) BeginDrag(e.Location); };
+            beepPanel1.MouseMove += (s, e) => { if (e.Button == MouseButtons.Left) PerformDrag(e.Location); };
+            beepPanel1.MouseUp += (s, e) => EndDrag();
             // align close button ,maximize and minimize button to the end of form
           
 
-            CloseButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg";
-            MaximizeButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.maximize.svg";
-            MinimizeButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minimize.svg";
+            //CloseButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg";
+            //MaximizeButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.maximize.svg";
+            //MinimizeButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minimize.svg";
             CloseButton.ToolTipText = "Close";
             MaximizeButton.ToolTipText = "Maximize";
             MinimizeButton.ToolTipText = "Minimize";
@@ -80,17 +85,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             CloseButton.ImageAlign = ContentAlignment.MiddleCenter;
             CloseButton.TextAlign = ContentAlignment.MiddleCenter;
             CloseButton.TextImageRelation = TextImageRelation.ImageAboveText;
-            CloseButton.Text = "";
+          //  CloseButton.Text = "";
             CloseButton.MaxImageSize = CloseButton.Size;
             MaximizeButton.ImageAlign = ContentAlignment.MiddleCenter;
             MaximizeButton.TextAlign = ContentAlignment.MiddleCenter;
             MaximizeButton.TextImageRelation = TextImageRelation.ImageAboveText;
-            MaximizeButton.Text = "";
+           // MaximizeButton.Text = "";
             MaximizeButton.MaxImageSize = CloseButton.Size;
             MinimizeButton.ImageAlign = ContentAlignment.MiddleCenter;
             MinimizeButton.TextAlign = ContentAlignment.MiddleCenter;
             MinimizeButton.TextImageRelation = TextImageRelation.ImageAboveText;
-            MinimizeButton.Text = "";
+          //  MinimizeButton.Text = "";
             MinimizeButton.MaxImageSize = CloseButton.Size;
             // Resize settings
             MouseDown += BeepiForm_MouseDown;
@@ -128,22 +133,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             CloseButton.ImageAlign= ContentAlignment.MiddleCenter;
             CloseButton.TextAlign= ContentAlignment.MiddleCenter;
             CloseButton.TextImageRelation = TextImageRelation.ImageAboveText;
-            CloseButton.Text = "";
+//CloseButton.Text = "";
             CloseButton.MaxImageSize = CloseButton.Size;
             MaximizeButton.ImageAlign = ContentAlignment.MiddleCenter;
             MaximizeButton.TextAlign = ContentAlignment.MiddleCenter;
             MaximizeButton.TextImageRelation = TextImageRelation.ImageAboveText;
-            MaximizeButton.Text = "";
+          //  MaximizeButton.Text = "";
             MaximizeButton.MaxImageSize = CloseButton.Size;
             MinimizeButton.ImageAlign = ContentAlignment.MiddleCenter;
             MinimizeButton.TextAlign = ContentAlignment.MiddleCenter;
             MinimizeButton.TextImageRelation = TextImageRelation.ImageAboveText;
-            MinimizeButton.Text = "";
+          //  MinimizeButton.Text = "";
             MinimizeButton.MaxImageSize = CloseButton.Size;
             // Enable dragging on TitlebeepLabel
-            TitleLabel.MouseDown += (s, e) => { if (e.Button == MouseButtons.Left) BeginDrag(e.Location); };
-            TitleLabel.MouseMove += (s, e) => { if (e.Button == MouseButtons.Left) PerformDrag(e.Location); };
-            TitleLabel.MouseUp += (s, e) => EndDrag();
+            beepPanel1.MouseDown += (s, e) => { if (e.Button == MouseButtons.Left) BeginDrag(e.Location); };
+            beepPanel1.MouseMove += (s, e) => { if (e.Button == MouseButtons.Left) PerformDrag(e.Location); };
+            beepPanel1.MouseUp += (s, e) => EndDrag();
 
             // Resize settings
             MouseDown += BeepiForm_MouseDown;
@@ -234,15 +239,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             BackColor = theme.BackColor;
             //beepPanel1.IsChild = true;
             beepPanel1.Theme= beepuiManager1.Theme;
-            //ClosebeepButton.IsChild = true;
-            //ClosebeepButton.ApplyTheme(theme);
-            //MaximizebeepButton.IsChild = true;
-            //MaximizebeepButton.ApplyTheme(theme);
-            //MinimizebeepButton.IsChild = true;
-            //MinimizebeepButton.ApplyTheme(theme);
-            //TitlebeepLabel.IsChild = true;
-            //TitlebeepLabel.ApplyTheme(theme);
-           Invalidate();
+        //    CloseButton.IsChild = true;
+            CloseButton.Theme = beepuiManager1.Theme;
+        //    MaximizeButton.IsChild = true;
+            MaximizeButton.Theme = beepuiManager1.Theme;
+           // MinimizeButton.IsChild = true;
+            MinimizeButton.Theme = beepuiManager1.Theme;
+          //  MaximizeButton.IsChild = true;
+            TitleLabel.Theme = beepuiManager1.Theme;
+            Invalidate();
 
         }
         #endregion

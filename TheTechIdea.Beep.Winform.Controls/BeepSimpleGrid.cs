@@ -419,7 +419,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             DataNavigator.Location = new Point(navigatorPanelRect.Left+2, navigatorPanelRect.Top+2);
             DataNavigator.Size = new Size(navigatorPanelRect.Width-2, navigatorPanelHeight-2);
-            DataNavigator.Theme = Theme;
+          //  DataNavigator.Theme = Theme;
             
             DataNavigator.ShowAllBorders = false;
             DataNavigator.ShowShadow = false;
@@ -510,7 +510,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //        ShowAllBorders = false,
             //        IsChild = true,
             //    };
-            //    filterButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg";
+            //    filterButton.LogoImage = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg";
             //filterButton.ApplyTheme(_theme);
             //Rectangle filterButtonRect = new Rectangle(headerPanelBorderRect.Right - _buttonssize - 5, headerPanelBorderRect.Top+2, _buttonssize, _buttonssize);
             //// filterButton.DrawToGraphics(g, filterButtonRect);
@@ -681,7 +681,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 //var filterIcon = new BeepImage
                 //{
-                //    ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg",
+                //    LogoImage = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg",
                 //    Size = new Size(10, 10),
                 //    Location = new Point(columnRect.Right - 12, columnRect.Top + 2), // Top-right for filter icon
                 //    Theme = _themeEnum // Apply the current theme

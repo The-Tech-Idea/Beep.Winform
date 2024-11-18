@@ -384,48 +384,54 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         /// <summary>
         /// Load an image from the embedded resources (checks the current assembly).
-       /// </summary>
+        /// </summary>
         public bool LoadImageFromEmbeddedResource(string resourcePath)
         {
             try
             {
+                // Attempt to load the resource from the current assembly first
                 var assembly = Assembly.GetExecutingAssembly();
-                using (var stream = assembly.GetManifestResourceStream(resourcePath))
+                Stream stream = assembly.GetManifestResourceStream(resourcePath);
+
+                // If not found, try to load from the calling assembly (useful when referenced by other projects)
+                if (stream == null)
                 {
-                    if (stream != null)
+                    assembly = Assembly.GetCallingAssembly();
+                    stream = assembly.GetManifestResourceStream(resourcePath);
+                }
+
+                if (stream != null)
+                {
+                    // Determine the image type by file extension
+                    string extension = Path.GetExtension(resourcePath).ToLower();
+                    if (extension == ".svg")
                     {
-                        // Check file extension to determine the type
-                        string extension = Path.GetExtension(resourcePath).ToLower();
-                        if (extension == ".svg")
-                        {
-                            svgDocument = SvgDocument.Open<SvgDocument>(stream);
-                            isSvg = true;
-                        }
-                        else
-                        {
-                            regularImage = Image.FromStream(stream);
-                            isSvg = false;
-                        }
-                      
-                        ApplyTheme(); // Apply theme after loading
-                        Invalidate(); // Trigger a repaint
+                        svgDocument = SvgDocument.Open<SvgDocument>(stream);
+                        isSvg = true;
                     }
                     else
                     {
-                        Console.WriteLine($"Embedded resource not found: {resourcePath}");
-                        return false;
-                        
+                        regularImage = Image.FromStream(stream);
+                        isSvg = false;
                     }
+
+                    ApplyTheme(); // Apply theme after loading
+                    Invalidate(); // Trigger a repaint
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine($"Embedded resource not found: {resourcePath}");
+                    return false;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error loading embedded resource: {ex.Message}");
                 return false;
-                //MessageBox.Show($"Error loading embedded resource: {ex.Message}", "Embedded Resource Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            return true;
         }
+
         public void ClearImage()
         {
             svgDocument = null;

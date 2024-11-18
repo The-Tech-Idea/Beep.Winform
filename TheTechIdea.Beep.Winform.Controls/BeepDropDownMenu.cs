@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Winform.Controls.ModernSideMenu;
 using TheTechIdea.Beep.Winform.Controls.Template;
 using Timer = System.Windows.Forms.Timer;
 

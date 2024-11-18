@@ -7,10 +7,10 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using System.Windows.Forms;
 using System.Drawing.Design;
-using TheTechIdea.Beep.Winform.Controls.ModernSideMenu;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Winform.Controls.Template;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -196,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Console.WriteLine("3");
 
             tabButton.MaxImageSize = new Size(16, 16);
-               // tabButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg";
+               // tabButton.LogoImage = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg";
             tabButton.Click += TabButton_Click;
             return tabButton;
         }

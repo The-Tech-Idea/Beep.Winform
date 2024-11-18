@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Svg;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -6,7 +7,7 @@ using System.Drawing.Design;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.ModernSideMenu;
+using TheTechIdea.Beep.Winform.Controls.Template;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -21,16 +22,44 @@ namespace TheTechIdea.Beep.Winform.Controls
         private FlowLayoutPanel itemsPanel;
         private List<BeepButton> buttons = new List<BeepButton>();
         private int itemHeight = 40;
-
+        private string logoImagePath;
         public event EventHandler<BeepEventDataArgs> ItemClick;
         public event EventHandler<BeepEventDataArgs> ToggleClicked;
         // Define the items collection property with designer support
         private SimpleMenuItemCollection items = new SimpleMenuItemCollection();
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public string LogoImage
+        {
+            get => logo?.ImagePath;
+            set
+            {
+                if (logo == null)
+                {
+                    logo = new BeepLabel();
+
+                }
+                else
+                if (logo != null)
+                {
+                    logo.ImagePath = value;
+                    logo.Theme = Theme;
+                    Properties.Settings.Default.LogoImagePath = logo?.ImagePath;
+                    Properties.Settings.Default.Save();  // Save immediately or when needed
+                    Invalidate(); // Repaint when the image changes
+                                  // UpdateSize();
+                }
+            }
+        }
 
         private string _title = "Accordion";
         [Category("Appearance")]
         [Description("The title of the accordion")]
         [DefaultValue("Accordion")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public string Title
         {
             get => _title;
@@ -60,6 +89,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepAccordion()
         {
+            // Set up default control properties
+            Width = expandedWidth;
+            Height = 200;
+            BackColor = Color.FromArgb(51, 51, 51);
+            ForeColor = Color.White;
+            Font = new Font("Segoe UI", 9);
+            DoubleBuffered = true;
+
         }
 
         protected override void InitLayout()
@@ -67,21 +104,36 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.InitLayout();
             _isControlinvalidated = true;
             InitializeAccordion();
+            logoImagePath = GetLogImagePathStringValueFromSettings(); 
+            if (!string.IsNullOrEmpty(logoImagePath))
+            {
+               logo.ImagePath = logoImagePath;
+               
+            }
+           
+            LogoImage = Properties.Settings.Default.LogoImagePath;
             items.ListChanged += Items_ListChanged; // Handle changes in the item collection
         }
+        private string GetLogImagePathStringValueFromSettings()
+        {
 
+            // get the LogoImagePath from settings even if its relative and using in other places
+
+          //  string path = "TheTechIdea.Beep.Winform.Controls.LibrarySettings.LogoImagePath";
+          //  string path = Properties.Settings.Default.LogoImagePath;
+            return "TheTechIdea.Beep.Winform.Controls.LibrarySettings.LogoImagePath"; ;
+        }
         private void Items_ListChanged(object sender, ListChangedEventArgs e)
         {
             InitializeMenu(); // Re-initialize menu on collection change
         }
-
+       
         private void InitializeAccordion()
         {
             // Set up logo
             logo = new BeepLabel
             {
                 Size = new Size(expandedWidth, 32),
-                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg", // Default logo path
                 Location = new Point(0, 0),
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 MaxImageSize = new Size(30, 30),

@@ -309,7 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 //if (beepImage != null)
                 //{
-                //    beepImage.ImagePath = value;
+                //    beepImage.LogoImage = value;
                 //    beepImage.ApplyThemeToSvg();
                 //    beepImage.ApplyTheme();
                 //    Invalidate();

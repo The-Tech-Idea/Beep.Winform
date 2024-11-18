@@ -3,6 +3,8 @@ using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Template;
 using System.Drawing;
+using Microsoft.VisualBasic.Logging;
+using Svg;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -1499,7 +1501,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             return new Size(Width, Height);
 
         }
-
+      
 
         public virtual void Print(Graphics graphics)
         {

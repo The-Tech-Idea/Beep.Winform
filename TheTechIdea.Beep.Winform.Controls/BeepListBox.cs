@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Winform.Controls.ModernSideMenu;
+using TheTechIdea.Beep.Winform.Controls.Template;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 items = value;
-                InitializeMenu();
+               // InitializeMenu();
             }
         }
 
@@ -241,7 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             int yOffset = drawRectY + TitleBottomY; // Start placing items below the iconPanel
 
-            foreach (var item in items.Where(p => p.ItemType == ModernSideMenu.MenuItemType.Main))
+            foreach (var item in items.Where(p => p.ItemType == Template.MenuItemType.Main))
             {
                 var menuItemPanel = CreateMenuItemPanel(item, false);
                 if (menuItemPanel != null)

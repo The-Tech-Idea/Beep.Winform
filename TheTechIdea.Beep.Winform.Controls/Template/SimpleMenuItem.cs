@@ -4,10 +4,10 @@ using TheTechIdea.Beep.ConfigUtil;
 using System.ComponentModel;
 
 
-namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
+namespace TheTechIdea.Beep.Winform.Controls.Template
 {
     [Serializable]
-   
+
     public class SimpleMenuItem
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
         private string _displayField; // used for to store the name of field that has value to display
         public string DisplayField
         {
-            get { return string.IsNullOrEmpty(_displayField)? Text :_displayField; }
+            get { return string.IsNullOrEmpty(_displayField) ? Text : _displayField; }
             set { _displayField = value; }
         }
         private string _valueField; // used for to store the name of field that has value to store
@@ -37,9 +37,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ModernSideMenu
             get { return _parentItem; }
             set { _parentItem = value; }
         }
-       
+
         public BindingList<SimpleMenuItem> Children { get; set; } = new BindingList<SimpleMenuItem>();
-      
+
 
         public string ReferenceID { get; set; }
         public string OwnerReferenceID { get; set; }

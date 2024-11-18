@@ -14,7 +14,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         private TextImageRelation textImageRelation = TextImageRelation.ImageBeforeText;
         private ContentAlignment imageAlign = ContentAlignment.MiddleLeft;
         private Size _maxImageSize = new Size(16, 16); // Default max image size
-       
+        private bool _hideText = false;
+        [Browsable(true)]
+        [Category("Behavior")]
+        public bool HideText
+        {
+            get => _hideText;
+            set
+            {
+                _hideText = value;
+                Invalidate(); // Trigger repaint when the state changes
+            }
+        }
+
         // Add TextAlign property in BeepControl
         private ContentAlignment _textAlign = ContentAlignment.MiddleLeft;
 
@@ -125,11 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             //  SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
             AutoSize = false;
-            IsChild = true;
-            IsBorderAffectedByTheme = false;
-            IsShadowAffectedByTheme = false;
-            ShowAllBorders = false;
-            ShowShadow = false;
+           
         }
 
         private void InitializeComponents()
@@ -144,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
           //  beepImage.MouseHover += BeepImage_MouseHover;
             //   beepImage.MouseLeave += BeepImage_MouseLeave;
-            IsChild = false;
+          
           //  beepImage.Click += BeepImage_Click;
             Padding = new Padding(0);
             Margin = new Padding(0);
@@ -261,19 +269,32 @@ namespace TheTechIdea.Beep.Winform.Controls
             textRect = Rectangle.Empty;
 
             bool hasImage = imageSize != Size.Empty;
-            bool hasText = !string.IsNullOrEmpty(Text);
+            bool hasText = !string.IsNullOrEmpty(Text) && !HideText; // Check if text is available and not hidden
 
-            // Adjust contentRect for Padding
+            // Adjust contentRect for padding
             contentRect.Inflate(-Padding.Horizontal / 2, -Padding.Vertical / 2);
 
-            if (!hasText && hasImage)
+            if (hasImage && !hasText)
             {
+                // Center image in the button if there is no text
                 imageRect = AlignRectangle(contentRect, imageSize, ContentAlignment.MiddleCenter);
             }
-            else
+            else if (hasText && !hasImage)
             {
-                switch (TextImageRelation)
+                // Only text is present, align text within the button
+                textRect = AlignRectangle(contentRect, textSize, TextAlign);
+            }
+            else if (hasImage && hasText)
+            {
+                // Layout logic based on TextImageRelation when both text and image are present
+                switch (this.TextImageRelation)
                 {
+                    case TextImageRelation.Overlay:
+                        // Image and text overlap
+                        imageRect = AlignRectangle(contentRect, imageSize, ImageAlign);
+                        textRect = AlignRectangle(contentRect, textSize, TextAlign);
+                        break;
+
                     case TextImageRelation.ImageBeforeText:
                         imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, imageSize.Width, contentRect.Height), imageSize, ImageAlign);
                         textRect = AlignRectangle(new Rectangle(contentRect.Left + imageSize.Width + Padding.Horizontal, contentRect.Top, contentRect.Width - imageSize.Width - Padding.Horizontal, contentRect.Height), textSize, TextAlign);
@@ -293,15 +314,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                         textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, contentRect.Width, textSize.Height), textSize, TextAlign);
                         imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + textSize.Height + Padding.Vertical, contentRect.Width, contentRect.Height - textSize.Height - Padding.Vertical), imageSize, ImageAlign);
                         break;
-
-                    case TextImageRelation.Overlay:
-                        imageRect = AlignRectangle(contentRect, imageSize, ImageAlign);
-                        textRect = AlignRectangle(contentRect, textSize, TextAlign);
-                        break;
                 }
             }
         }
-
         private Rectangle AlignRectangle(Rectangle container, Size size, ContentAlignment alignment)
         {
             int x = 0;
@@ -350,8 +365,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             return new Rectangle(new Point(x, y), size);
         }
 
- 
-        
+
+
         public override void ApplyTheme()
         {
           //  base.ApplyTheme();
@@ -412,9 +427,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             //return base.Size;
         }
 
+        protected override void OnMouseHover(EventArgs e)
+        {
+            IsHovered = false;
+            
+        }
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            IsHovered = false;
+        }
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            IsHovered = false;
+        }
 
 
-      
 
 
     }

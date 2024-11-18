@@ -239,6 +239,39 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Theme Properties"
         #region "Image Drawing Methods"
+          public void DrawImage(Graphics g, Rectangle imageRect)
+        {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+         
+            if (isSvg && svgDocument != null)
+            { 
+                var imageSize = svgDocument.GetDimensions();
+                var scaleFactor = GetScaleFactor(new SizeF(imageSize.Width, imageSize.Height), imageRect.Size);
+
+                // Ensure scaling factors are valid
+                if (scaleFactor > 0)
+                {
+                    // Apply the transformation to position and scale the SVG
+                    g.TranslateTransform(
+                        imageRect.X + (imageRect.Width - imageSize.Width * scaleFactor) / 2,
+                        imageRect.Y + (imageRect.Height - imageSize.Height * scaleFactor) / 2);
+                    g.ScaleTransform(scaleFactor, scaleFactor);
+
+                    svgDocument.Draw(g);
+                    g.ResetTransform(); // Reset transformations
+                }
+              
+            }
+            else if (regularImage != null)
+            {
+                // Ensure the image bounds have valid size
+                if (imageRect.Width > 0 && imageRect.Height > 0)
+                {
+                    var imageBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), imageRect);
+                    g.DrawImage(regularImage, imageBounds);
+                }
+            }
+        }
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -260,8 +293,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Apply centering and scaling transforms
                 e.Graphics.ResetTransform(); // Clear any previous transforms
                 e.Graphics.TranslateTransform(
-                    (Width - imageSize.Width * scaleFactor) / 2,
-                    (Height - imageSize.Height * scaleFactor) / 2);
+                    (DrawingRect.Width - imageSize.Width * scaleFactor) / 2,
+                    (DrawingRect.Height - imageSize.Height * scaleFactor) / 2);
                 e.Graphics.ScaleTransform(scaleFactor, scaleFactor);
 
                 // Draw the SVG to the Graphics object
@@ -440,39 +473,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             regularImage = null;
             svgDocument = null;
         }
-        public void DrawImage(Graphics g, Rectangle imageRect)
-        {
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-         
-            if (isSvg && svgDocument != null)
-            { 
-                var imageSize = svgDocument.GetDimensions();
-                var scaleFactor = GetScaleFactor(new SizeF(imageSize.Width, imageSize.Height), imageRect.Size);
-
-                // Ensure scaling factors are valid
-                if (scaleFactor > 0)
-                {
-                    // Apply the transformation to position and scale the SVG
-                    g.TranslateTransform(
-                        imageRect.X + (imageRect.Width - imageSize.Width * scaleFactor) / 2,
-                        imageRect.Y + (imageRect.Height - imageSize.Height * scaleFactor) / 2);
-                    g.ScaleTransform(scaleFactor, scaleFactor);
-
-                    svgDocument.Draw(g);
-                    g.ResetTransform(); // Reset transformations
-                }
-              
-            }
-            else if (regularImage != null)
-            {
-                // Ensure the image bounds have valid size
-                if (imageRect.Width > 0 && imageRect.Height > 0)
-                {
-                    var imageBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), imageRect);
-                    g.DrawImage(regularImage, imageBounds);
-                }
-            }
-        }
+      
         #endregion "Image Drawing Methods"
         #region "Designer Support"
 

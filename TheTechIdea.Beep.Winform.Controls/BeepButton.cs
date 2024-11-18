@@ -274,14 +274,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Dock = DockStyle.None, // We'll manually position it
                 Margin = new Padding(0),
-                Location = new Point(5, 5), // Set initial position (will adjust in layout)
+                Location = new Point(0, 0), // Set initial position (will adjust in layout)
                 Size = _maxImageSize // Set the size based on the max image size
             };
             beepImage.MouseHover += BeepImage_MouseHover;
          //   beepImage.MouseLeave += BeepImage_MouseLeave;
             IsChild = false;
             beepImage.Click += BeepImage_Click;
-            Padding = new Padding(2);
+            Padding = new Padding(0);
             Margin = new Padding(0);
             Size = new Size(120, 40);  // Default size
         }
@@ -353,7 +353,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Height * scaleFactor));
             }
 
-            Size textSize = TextRenderer.MeasureText(Text, scaledFont);
+            Size textSize = TextRenderer.MeasureText(Text, Font);
 
             // Calculate the layout of image and text
             Rectangle imageRect, textRect;
@@ -362,10 +362,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw the image if available
             if (beepImage != null && beepImage.HasImage)
             {
-                //Console.WriteLine("Loading Image 2 333");
-                beepImage.DrawImage(g, imageRect);
-                // place beepimage in the same place imagerect is
+                beepImage.MaximumSize = imageSize;
+                beepImage.Size = imageRect.Size;
                 beepImage.Location = imageRect.Location;
+
+                // Adjust alignment based on TextImageRelation
+                if (string.IsNullOrEmpty(Text))
+                {
+                    beepImage.Location = AlignRectangle(ClientRectangle, imageSize, ContentAlignment.MiddleCenter).Location;
+                }
+                //Console.WriteLine("Loading Image 2 333");
+              //  beepImage.DrawImage(g, imageRect);
+             //   // place beepimage in the same place imagerect is
+              
+              //  beepImage.Location = imageRect.Location;
             }
            
 
@@ -375,7 +385,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-                TextRenderer.DrawText(g, Text, scaledFont, textRect, ForeColor, flags);
+                TextRenderer.DrawText(g, Text, Font, textRect, ForeColor, flags);
             }
 
             //}
@@ -438,8 +448,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
-
         private Rectangle AlignRectangle(Rectangle container, Size size, ContentAlignment alignment)
         {
             int x = 0;

@@ -123,7 +123,7 @@
             TitleLabel.BorderColor = Color.FromArgb(0, 160, 176);
             TitleLabel.DrawingRect = new Rectangle(1, 1, 870, 26);
             TitleLabel.FocusBackColor = Color.White;
-            TitleLabel.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            TitleLabel.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             TitleLabel.ForeColor = Color.FromArgb(0, 105, 148);
             TitleLabel.GradientEndColor = Color.FromArgb(175, 238, 238);
             TitleLabel.GradientStartColor = Color.FromArgb(224, 255, 255);
@@ -347,7 +347,7 @@
             beepButton1.DataContext = null;
             beepButton1.DisabledBackColor = Color.Gray;
             beepButton1.DisabledForeColor = Color.Empty;
-            beepButton1.DrawingRect = new Rectangle(1, 1, 175, 45);
+            beepButton1.DrawingRect = new Rectangle(1, 1, 158, 40);
             beepButton1.Easing = EasingType.Linear;
             beepButton1.FieldID = null;
             beepButton1.FlatAppearance = true;
@@ -371,7 +371,7 @@
             beepButton1.Image = null;
             beepButton1.ImageAlign = ContentAlignment.MiddleLeft;
             beepButton1.ImageClicked = null;
-            beepButton1.ImagePath = "H:\\downloads\\11051516-function-button\\11051516-function-button\\svg\\050-medium charge.svg";
+            beepButton1.ImagePath = "H:\\downloads\\9632709-function-button\\9632709-function-button\\svg\\027-restart.svg";
             beepButton1.InactiveBackColor = Color.Gray;
             beepButton1.InactiveBorderColor = Color.Gray;
             beepButton1.InactiveForeColor = Color.Black;
@@ -412,7 +412,7 @@
             beepButton1.ShowRightBorder = true;
             beepButton1.ShowShadow = false;
             beepButton1.ShowTopBorder = true;
-            beepButton1.Size = new Size(177, 47);
+            beepButton1.Size = new Size(160, 42);
             beepButton1.SlideFrom = SlideDirection.Left;
             beepButton1.StaticNotMoving = false;
             beepButton1.TabIndex = 11;
@@ -604,7 +604,7 @@
             beepCircularButton1.DataContext = null;
             beepCircularButton1.DisabledBackColor = Color.Gray;
             beepCircularButton1.DisabledForeColor = Color.Empty;
-            beepCircularButton1.DrawingRect = new Rectangle(1, 1, 96, 92);
+            beepCircularButton1.DrawingRect = new Rectangle(1, 1, 93, 80);
             beepCircularButton1.Easing = EasingType.Linear;
             beepCircularButton1.FieldID = null;
             beepCircularButton1.FocusBackColor = Color.White;
@@ -659,7 +659,7 @@
             beepCircularButton1.ShowRightBorder = true;
             beepCircularButton1.ShowShadow = false;
             beepCircularButton1.ShowTopBorder = true;
-            beepCircularButton1.Size = new Size(98, 94);
+            beepCircularButton1.Size = new Size(95, 82);
             beepCircularButton1.SlideFrom = SlideDirection.Left;
             beepCircularButton1.StaticNotMoving = false;
             beepCircularButton1.TabIndex = 17;
@@ -1120,14 +1120,14 @@
             beepLabel1.DataContext = null;
             beepLabel1.DisabledBackColor = Color.Gray;
             beepLabel1.DisabledForeColor = Color.Empty;
-            beepLabel1.DrawingRect = new Rectangle(1, 1, 170, 24);
+            beepLabel1.DrawingRect = new Rectangle(1, 1, 193, 33);
             beepLabel1.Easing = EasingType.Linear;
             beepLabel1.FieldID = null;
             beepLabel1.FocusBackColor = Color.Gray;
             beepLabel1.FocusBorderColor = Color.Gray;
             beepLabel1.FocusForeColor = Color.Black;
             beepLabel1.FocusIndicatorColor = Color.Blue;
-            beepLabel1.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            beepLabel1.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             beepLabel1.ForeColor = Color.FromArgb(0, 105, 148);
             beepLabel1.Form = null;
             beepLabel1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
@@ -1176,7 +1176,7 @@
             beepLabel1.ShowRightBorder = true;
             beepLabel1.ShowShadow = false;
             beepLabel1.ShowTopBorder = true;
-            beepLabel1.Size = new Size(172, 26);
+            beepLabel1.Size = new Size(195, 35);
             beepLabel1.SlideFrom = SlideDirection.Left;
             beepLabel1.StaticNotMoving = false;
             beepLabel1.TabIndex = 24;
@@ -1207,7 +1207,7 @@
             beepSimpleGrid1.DataSourceType = GridDataSourceType.Fixed;
             beepSimpleGrid1.DisabledBackColor = Color.Gray;
             beepSimpleGrid1.DisabledForeColor = Color.Empty;
-            beepSimpleGrid1.DrawingRect = new Rectangle(1, 1, 298, 289);
+            beepSimpleGrid1.DrawingRect = new Rectangle(1, 1, 313, 256);
             beepSimpleGrid1.Easing = EasingType.Linear;
             beepSimpleGrid1.FieldID = null;
             beepSimpleGrid1.FocusBackColor = Color.Gray;
@@ -1239,7 +1239,7 @@
             beepSimpleGrid1.IsPressed = false;
             beepSimpleGrid1.IsRounded = false;
             beepSimpleGrid1.IsShadowAffectedByTheme = true;
-            beepSimpleGrid1.Location = new Point(699, 365);
+            beepSimpleGrid1.Location = new Point(684, 365);
             beepSimpleGrid1.MinimumSize = new Size(300, 200);
             beepSimpleGrid1.Name = "beepSimpleGrid1";
             beepSimpleGrid1.OverrideFontSize = TypeStyleFontSize.None;
@@ -1273,7 +1273,7 @@
             beepSimpleGrid1.ShowSortIcons = true;
             beepSimpleGrid1.ShowTitle = true;
             beepSimpleGrid1.ShowTopBorder = true;
-            beepSimpleGrid1.Size = new Size(300, 291);
+            beepSimpleGrid1.Size = new Size(315, 258);
             beepSimpleGrid1.SlideFrom = SlideDirection.Left;
             beepSimpleGrid1.StaticNotMoving = false;
             beepSimpleGrid1.TabIndex = 25;
@@ -1300,13 +1300,13 @@
             beepDataNavigator1.BorderRadius = 5;
             beepDataNavigator1.BorderStyle = BorderStyle.FixedSingle;
             beepDataNavigator1.BorderThickness = 1;
-            beepDataNavigator1.ButtonHeight = 30;
+            beepDataNavigator1.ButtonHeight = 20;
             beepDataNavigator1.ButtonSpacing = 5;
-            beepDataNavigator1.ButtonWidth = 15;
+            beepDataNavigator1.ButtonWidth = 20;
             beepDataNavigator1.DataContext = null;
             beepDataNavigator1.DisabledBackColor = Color.Gray;
             beepDataNavigator1.DisabledForeColor = Color.Empty;
-            beepDataNavigator1.DrawingRect = new Rectangle(1, 1, 366, 32);
+            beepDataNavigator1.DrawingRect = new Rectangle(1, 1, 312, 22);
             beepDataNavigator1.Easing = EasingType.Linear;
             beepDataNavigator1.FieldID = null;
             beepDataNavigator1.FocusBackColor = Color.Gray;
@@ -1337,7 +1337,7 @@
             beepDataNavigator1.IsRounded = false;
             beepDataNavigator1.IsShadowAffectedByTheme = false;
             beepDataNavigator1.Location = new Point(519, 699);
-            beepDataNavigator1.MinimumSize = new Size(190, 34);
+            beepDataNavigator1.MinimumSize = new Size(235, 24);
             beepDataNavigator1.Name = "beepDataNavigator1";
             beepDataNavigator1.OverrideFontSize = TypeStyleFontSize.None;
             beepDataNavigator1.ParentBackColor = Color.Empty;
@@ -1356,7 +1356,7 @@
             beepDataNavigator1.ShowRightBorder = true;
             beepDataNavigator1.ShowShadow = false;
             beepDataNavigator1.ShowTopBorder = true;
-            beepDataNavigator1.Size = new Size(368, 34);
+            beepDataNavigator1.Size = new Size(314, 24);
             beepDataNavigator1.SlideFrom = SlideDirection.Left;
             beepDataNavigator1.StaticNotMoving = false;
             beepDataNavigator1.TabIndex = 26;

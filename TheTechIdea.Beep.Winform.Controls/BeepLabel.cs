@@ -134,14 +134,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Dock = DockStyle.None, // We'll manually position it
                 Margin = new Padding(0),
-                Location = new Point(5, 5), // Set initial position (will adjust in layout)
+                Location = new Point(0, 0), // Set initial position (will adjust in layout)
                 Size = _maxImageSize // Set the size based on the max image size
             };
           //  beepImage.MouseHover += BeepImage_MouseHover;
             //   beepImage.MouseLeave += BeepImage_MouseLeave;
             IsChild = false;
           //  beepImage.Click += BeepImage_Click;
-            Padding = new Padding(2);
+            Padding = new Padding(0);
             Margin = new Padding(0);
             Size = new Size(120, 40);  // Default size
         }
@@ -156,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             // Draw the image and text
             contentRect = DrawingRect;
-            contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
+           // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
             DrawBackColor(e, _currentTheme.LabelBackColor, _currentTheme.ButtonHoverBackColor);
             DrawToGraphics(e.Graphics);
         }
@@ -167,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void DrawToGraphics(Graphics g,Rectangle drawrect)
         {
             drawrect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
-            Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
             // Measure and scale the font to fit within the control bounds
             Font scaledFont = GetScaledFont(g, Text, drawrect.Size, Font);
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
@@ -183,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Height * scaleFactor));
             }
 
-            Size textSize = TextRenderer.MeasureText(Text, scaledFont);
+            Size textSize = TextRenderer.MeasureText(Text, Font);
 
             // Calculate the layout of image and text
             Rectangle imageRect, textRect;
@@ -205,7 +205,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!string.IsNullOrEmpty(Text))
             {
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-                TextRenderer.DrawText(g, Text, scaledFont, textRect, _currentTheme.LabelForeColor, flags);
+                TextRenderer.DrawText(g, Text, Font, textRect, _currentTheme.LabelForeColor, flags);
             }
 
             //}

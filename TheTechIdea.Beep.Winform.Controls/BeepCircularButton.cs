@@ -201,17 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw the text inside the button if enabled
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
-               // Color textColor =  _currentTheme.ButtonForeColor;
-                //TextFormatFlags flags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter;
-                Console.WriteLine($"Text Location {textRect.Left}-{textRect.Top}  and {Text} and size {textRect.Width}");
-                //beepLabel.Text = Text;
-                //beepLabel.Font = Font;
-                //beepLabel.ForeColor =ForeColor;
-                //beepLabel.TextAlign = TextAlign;
-                //beepLabel.Size = textRect.Size;
-                //beepLabel.Location = new Point(textRect.Left, textRect.Top);
-
-                  TextRenderer.DrawText(pevent.Graphics, Text, Font, textRect, _currentTheme.PrimaryTextColor);
+                TextRenderer.DrawText(pevent.Graphics, Text, Font, textRect, _currentTheme.PrimaryTextColor);
             }
         }
         public Size GetInscribedSquareSize(int circleDiameter)

@@ -55,6 +55,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (BeepiForm != null)
                 {
                     BeepiForm.Text = _title;
+                 
+                }
+                if(BeepSideMenu != null)
+                {
+                    BeepSideMenu.Title = _title;
                 }
             }
         }
@@ -525,7 +530,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (control is BeepSideMenu)
                     {
                         _beepSideMenu = control as BeepSideMenu;
-                        BeepSideMenu.BeepForm = BeepiForm;
+                        _beepSideMenu.BeepForm = BeepiForm;
                         _beepSideMenu.OnMenuCollapseExpand -= _beepSideMenu_OnMenuCollapseExpand;
                         _beepSideMenu.OnMenuCollapseExpand += _beepSideMenu_OnMenuCollapseExpand;
                     }

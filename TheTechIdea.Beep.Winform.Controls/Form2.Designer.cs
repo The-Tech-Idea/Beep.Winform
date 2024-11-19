@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form2));
             beepSideMenu1 = new BeepSideMenu();
             beepPanel1.SuspendLayout();
             SuspendLayout();
@@ -73,6 +74,7 @@
             beepuiManager1.BeepSideMenu = beepSideMenu1;
             beepuiManager1.LogoImage = "H:\\downloads\\9632709-function-button\\9632709-function-button\\svg\\027-restart.svg";
             beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.DesertTheme;
+            beepuiManager1.Title = "Asset HR Digital WorkSpace";
             // 
             // beepPanel1
             // 
@@ -152,8 +154,10 @@
             beepSideMenu1.IsPressed = false;
             beepSideMenu1.IsRounded = false;
             beepSideMenu1.IsShadowAffectedByTheme = false;
+            beepSideMenu1.Items.Add((Template.SimpleMenuItem)resources.GetObject("beepSideMenu1.Items"));
+            beepSideMenu1.Items.Add((Template.SimpleMenuItem)resources.GetObject("beepSideMenu1.Items1"));
             beepSideMenu1.Location = new Point(10, 10);
-            beepSideMenu1.LogoImage = "H:\\downloads\\9632709-function-button\\9632709-function-button\\svg\\027-restart.svg";
+            beepSideMenu1.LogoImage = null;
             beepSideMenu1.Name = "beepSideMenu1";
             beepSideMenu1.OverrideFontSize = TypeStyleFontSize.None;
             beepSideMenu1.ParentBackColor = Color.Empty;
@@ -178,6 +182,7 @@
             beepSideMenu1.TabIndex = 0;
             beepSideMenu1.Text = "beepSideMenu1";
             beepSideMenu1.Theme = Vis.Modules.EnumBeepThemes.DesertTheme;
+            beepSideMenu1.Title = "Asset HR Digital WorkSpace";
             beepSideMenu1.ToolTipText = "";
             beepSideMenu1.UseGradientBackground = false;
             // 
@@ -191,7 +196,7 @@
             LogoImage = "H:\\downloads\\9632709-function-button\\9632709-function-button\\svg\\027-restart.svg";
             Name = "Form2";
             Padding = new Padding(10);
-            Text = "Form2";
+            Text = "Asset HR Digital WorkSpace";
             Controls.SetChildIndex(beepSideMenu1, 0);
             Controls.SetChildIndex(FunctionsPanel1, 0);
             Controls.SetChildIndex(beepPanel1, 0);

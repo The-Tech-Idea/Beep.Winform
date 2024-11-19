@@ -28,8 +28,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepLabel logo;
         private int menuItemHeight = 40;
         private SimpleMenuItemCollection menuItems = new SimpleMenuItemCollection();
-       // private string _logoImage = "";
-        
+        private string _title = "Beep Form";
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the title of the form.")]
+        [DefaultValue("Beep Form")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public string Title
+        {
+            get => _title;
+            set
+            {
+                _title = value;
+               if(logo != null) {logo.Text = value;Invalidate(); }
+            }
+        }
+
         public BeepSideMenu()
         {
             Width = expandedWidth;
@@ -64,8 +78,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowShadow = false;
             logo = new BeepLabel
             {
-                Padding = new Padding(10, 0, 2, 0),
-                Size = new Size(DrawingRect.Width , 32),
+                Padding = new Padding(00, 0, 2, 0),
+                Size = new Size(DrawingRect.Width-20 , 32),
               //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
                 MaxImageSize = new Size(30, 30),
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -79,14 +93,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsFramless = true,
                 ApplyThemeOnImage = false,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                Location = new Point(DrawingRect.X, DrawingRect.Y)
+                Location = new Point(DrawingRect.X+10, DrawingRect.Y)
             };
             Controls.Add(logo);
 
             toggleButton = new BeepButton
             {
-                Padding = new Padding(10, 0, 2, 0),
-                Size = new Size(DrawingRect.Width, 32),
+                Padding = new Padding(00, 0, 2, 0),
+                Size = new Size(DrawingRect.Width-20, 32),
                 Text = "",
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.hamburger.svg",
                 MaxImageSize = new Size(24, 24),
@@ -96,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowAllBorders = false,
                 ShowShadow = false,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                Location = new Point(DrawingRect.X, logo.Bottom)
+                Location = new Point(DrawingRect.X+10, logo.Bottom)
             };
             toggleButton.Click += ToggleButton_Click;
             Controls.Add(toggleButton);

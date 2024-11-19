@@ -170,7 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 FocusBackColor = _currentTheme.ButtonActiveBackColor; // Focus background color
                 FocusForeColor = _currentTheme.ButtonActiveForeColor; // Focus foreground color
                 
-                ForeColor = _currentTheme.ButtonForeColor; // Default foreground color
+               // ForeColor = _currentTheme.ButtonForeColor; // Default foreground color
                
                 
                 if(_applyThemeOnImage)
@@ -203,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else
                 {
                     fillColor = _currentTheme.BackgroundColor;
-                    strokeColor = _currentTheme.PrimaryColor    ;
+                    strokeColor = ForeColor    ;
                 }
                 // Apply colors recursively to all elements
                // ApplyColorsToElement(svgDocument, fillColor, strokeColor);
@@ -241,6 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Image Drawing Methods"
           public void DrawImage(Graphics g, Rectangle imageRect)
         {
+            //ApplyTheme();
             g.SmoothingMode = SmoothingMode.AntiAlias;
          
             if (isSvg && svgDocument != null)

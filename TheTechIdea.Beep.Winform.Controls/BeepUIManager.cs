@@ -17,7 +17,47 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public event Action<EnumBeepThemes> OnThemeChanged;
         //private EnumBeepThemes _globalTheme = EnumBeepThemes.DefaultTheme;
+        // LogoImage property to set the logo image of the form
+        private string _logoImage = "";
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the logo image of the form.")]
+        [DefaultValue("")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        public string LogoImage
+        {
+            get => _logoImage;
+            set
+            {
+                _logoImage = value;
+                if (BeepiForm != null)
+                {
+                    BeepiForm.LogoImage = _logoImage;
+                    BeepSideMenu.LogoImage = _logoImage;
+                }
+            }
+        }
 
+        // title property to set the title of the form
+        private string _title = "Beep Form";
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the title of the form.")]
+        [DefaultValue("Beep Form")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public string Title
+        {
+            get => _title;
+            set
+            {
+                _title = value;
+                if (BeepiForm != null)
+                {
+                    BeepiForm.Text = _title;
+                }
+            }
+        }
         bool _applyThemeOnImage = false;
         public bool ApplyThemeOnImage
         {

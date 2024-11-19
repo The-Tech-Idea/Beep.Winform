@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.ComponentModel;
+using System.Runtime.InteropServices;
 using TheTechIdea.Beep.Vis.Modules;
 
 
@@ -11,13 +12,52 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Point lastMousePosition;
         private bool isResizing = false;
         private bool ishandled = false;
+
+        private string _logoImage = "";
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the logo image of the form.")]
+        [DefaultValue("")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        public string LogoImage
+        {
+            get => _logoImage;
+            set
+            {
+                _logoImage = value;
+                 TitleLabel.ImagePath = _logoImage;
+            }
+        }
+
+        // title property to set the title of the form
+        private string _title = "Beep Form";
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the title of the form.")]
+        [DefaultValue("Beep Form")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public string Title
+        {
+            get => TitleLabel.Text;
+            set
+            {
+                _title = value;
+                TitleLabel.Text = _title;
+            }
+        }
         public BeepiForm()
         {
             InitializeComponent();
             ishandled = false   ;
             beepPanel1.IsFramless = true;
             TitleLabel.IsFramless = true;
-           // this.Resize += (s, e) => doresize();
+            this.Resize += (s, e) => doresize();
+        }
+        protected override void InitLayout()
+        {
+            base.InitLayout();
+
         }
         public void ShowTitle(bool show)
         {
@@ -25,14 +65,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleLabel.Visible = show;
         }
 
-        //private void doresize()
-        //{
-          
-        //        CloseButton.Left = beepPanel1.Left + beepPanel1.Width - BorderRadius - CloseButton.Width - 20;
-        //        MaximizeButton.Left = CloseButton.Left - BorderRadius - MaximizeButton.Width;
-        //        MinimizeButton.Left = MaximizeButton.Left - BorderRadius - MinimizeButton.Width;
-        //        TitleLabel.Width = MinimizeButton.Left- TitleLabel.Left -  20;
-        //}
+        private void doresize()
+        {
+            beepPanel1.Dock = DockStyle.Top;
+            beepPanel1.Height = 30;
+            beepPanel1.BringToFront();
+           // beepPanel1.Width = Width;
+            CloseButton.Left =beepPanel1.Width - BorderRadius - CloseButton.Width ;
+            MaximizeButton.Left = CloseButton.Left - BorderRadius - MaximizeButton.Width;
+            MinimizeButton.Left = MaximizeButton.Left - BorderRadius - MinimizeButton.Width;
+            TitleLabel.Width = MinimizeButton.Left - TitleLabel.Left - 20;
+        }
 
         protected override void OnHandleCreated(EventArgs e)
         {
@@ -67,8 +110,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepPanel1.MouseMove += (s, e) => { if (e.Button == MouseButtons.Left) PerformDrag(e.Location); };
             beepPanel1.MouseUp += (s, e) => EndDrag();
             // align close button ,maximize and minimize button to the end of form
-          
 
+            // Enable dragging on TitlebeepLabel
+            TitleLabel.MouseDown += (s, e) => { if (e.Button == MouseButtons.Left) BeginDrag(e.Location); };
+            TitleLabel.MouseMove += (s, e) => { if (e.Button == MouseButtons.Left) PerformDrag(e.Location); };
+            TitleLabel.MouseUp += (s, e) => EndDrag();
             //CloseButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg";
             //MaximizeButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.maximize.svg";
             //MinimizeButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minimize.svg";
@@ -149,7 +195,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepPanel1.MouseDown += (s, e) => { if (e.Button == MouseButtons.Left) BeginDrag(e.Location); };
             beepPanel1.MouseMove += (s, e) => { if (e.Button == MouseButtons.Left) PerformDrag(e.Location); };
             beepPanel1.MouseUp += (s, e) => EndDrag();
-
+            TitleLabel.MouseDown += (s, e) => { if (e.Button == MouseButtons.Left) BeginDrag(e.Location); };
+            TitleLabel.MouseMove += (s, e) => { if (e.Button == MouseButtons.Left) PerformDrag(e.Location); };
+            TitleLabel.MouseUp += (s, e) => EndDrag();
             // Resize settings
             MouseDown += BeepiForm_MouseDown;
             MouseMove += BeepiForm_MouseMove;

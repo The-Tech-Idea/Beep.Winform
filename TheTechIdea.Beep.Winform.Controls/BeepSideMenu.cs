@@ -28,7 +28,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepLabel logo;
         private int menuItemHeight = 40;
         private SimpleMenuItemCollection menuItems = new SimpleMenuItemCollection();
-
+       // private string _logoImage = "";
+        
         public BeepSideMenu()
         {
             Width = expandedWidth;
@@ -65,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Padding = new Padding(10, 0, 2, 0),
                 Size = new Size(DrawingRect.Width , 32),
-                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
+              //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
                 MaxImageSize = new Size(30, 30),
                 TextAlign = ContentAlignment.MiddleCenter,
                 ImageAlign = ContentAlignment.MiddleLeft,
@@ -76,6 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowShadow = false,
                 Text = "Side Menu",
                 IsFramless = true,
+                ApplyThemeOnImage = false,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 Location = new Point(DrawingRect.X, DrawingRect.Y)
             };
@@ -271,9 +273,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #region "Properties"
-
         [Browsable(true)]
         [Category("Appearance")]
+        [Description("Set the logo image of the form.")]
+        [DefaultValue("")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(UITypeEditor))]
         public string LogoImage
         {

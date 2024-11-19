@@ -100,7 +100,7 @@
             CloseButton.IsShadowAffectedByTheme = true;
             CloseButton.IsSideMenuChild = false;
             CloseButton.IsStillButton = false;
-            CloseButton.Location = new Point(841, 4);
+            CloseButton.Location = new Point(743, 4);
             CloseButton.Margin = new Padding(0);
             CloseButton.MaxImageSize = new Size(20, 20);
             CloseButton.Name = "CloseButton";
@@ -194,7 +194,7 @@
             MaximizeButton.IsShadowAffectedByTheme = true;
             MaximizeButton.IsSideMenuChild = false;
             MaximizeButton.IsStillButton = false;
-            MaximizeButton.Location = new Point(815, 4);
+            MaximizeButton.Location = new Point(717, 4);
             MaximizeButton.Margin = new Padding(0);
             MaximizeButton.MaxImageSize = new Size(32, 32);
             MaximizeButton.Name = "MaximizeButton";
@@ -288,7 +288,7 @@
             MinimizeButton.IsShadowAffectedByTheme = true;
             MinimizeButton.IsSideMenuChild = false;
             MinimizeButton.IsStillButton = false;
-            MinimizeButton.Location = new Point(789, 4);
+            MinimizeButton.Location = new Point(691, 4);
             MinimizeButton.Margin = new Padding(0);
             MinimizeButton.MaxImageSize = new Size(32, 32);
             MinimizeButton.Name = "MinimizeButton";
@@ -382,7 +382,7 @@
             FunctionsPanel1.IsPressed = false;
             FunctionsPanel1.IsRounded = false;
             FunctionsPanel1.IsShadowAffectedByTheme = true;
-            FunctionsPanel1.Location = new Point(832, 53);
+            FunctionsPanel1.Location = new Point(734, 53);
             FunctionsPanel1.MinimumSize = new Size(29, 277);
             FunctionsPanel1.Name = "FunctionsPanel1";
             FunctionsPanel1.OverrideFontSize = TypeStyleFontSize.None;
@@ -434,7 +434,7 @@
             beepPanel1.DisabledBackColor = Color.Gray;
             beepPanel1.DisabledForeColor = Color.Empty;
             beepPanel1.Dock = DockStyle.Top;
-            beepPanel1.DrawingRect = new Rectangle(1, 1, 870, 34);
+            beepPanel1.DrawingRect = new Rectangle(1, 1, 772, 34);
             beepPanel1.Easing = EasingType.Linear;
             beepPanel1.FieldID = null;
             beepPanel1.FocusBackColor = Color.Transparent;
@@ -487,7 +487,7 @@
             beepPanel1.ShowTitleLine = false;
             beepPanel1.ShowTitleLineinFullWidth = true;
             beepPanel1.ShowTopBorder = true;
-            beepPanel1.Size = new Size(872, 36);
+            beepPanel1.Size = new Size(774, 36);
             beepPanel1.SlideFrom = SlideDirection.Left;
             beepPanel1.StaticNotMoving = false;
             beepPanel1.TabIndex = 4;
@@ -518,7 +518,7 @@
             TitleLabel.DataContext = null;
             TitleLabel.DisabledBackColor = Color.Gray;
             TitleLabel.DisabledForeColor = Color.Empty;
-            TitleLabel.DrawingRect = new Rectangle(1, 1, 180, 26);
+            TitleLabel.DrawingRect = new Rectangle(1, 1, 166, 26);
             TitleLabel.Easing = EasingType.Linear;
             TitleLabel.FieldID = null;
             TitleLabel.FocusBackColor = Color.Black;
@@ -538,7 +538,7 @@
             TitleLabel.HoverForeColor = Color.Black;
             TitleLabel.Id = -1;
             TitleLabel.ImageAlign = ContentAlignment.MiddleLeft;
-            TitleLabel.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg";
+            TitleLabel.ImagePath = "";
             TitleLabel.InactiveBackColor = Color.Transparent;
             TitleLabel.InactiveBorderColor = Color.Transparent;
             TitleLabel.InactiveForeColor = Color.Black;
@@ -575,7 +575,7 @@
             TitleLabel.ShowRightBorder = true;
             TitleLabel.ShowShadow = false;
             TitleLabel.ShowTopBorder = true;
-            TitleLabel.Size = new Size(182, 28);
+            TitleLabel.Size = new Size(168, 28);
             TitleLabel.SlideFrom = SlideDirection.Left;
             TitleLabel.StaticNotMoving = false;
             TitleLabel.TabIndex = 5;
@@ -590,7 +590,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(872, 577);
+            ClientSize = new Size(774, 644);
             Controls.Add(FunctionsPanel1);
             Controls.Add(beepPanel1);
             FormBorderStyle = FormBorderStyle.None;

@@ -320,6 +320,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 beepImage.ApplyThemeOnImage = true;
                 beepImage.Theme = Theme;
+                beepImage.ForeColor = _currentTheme.ButtonForeColor;
                 if (ApplyThemeOnImage)
                 {
                     beepImage.ApplyThemeToSvg();

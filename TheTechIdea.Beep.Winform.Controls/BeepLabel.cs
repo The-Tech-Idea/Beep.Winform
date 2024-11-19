@@ -207,7 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 beepImage.MaximumSize = imageSize;
                 beepImage.Size = imageRect.Size;
-                Console.WriteLine("Label show Image");
+               // Console.WriteLine("Label show Image");
                 beepImage.DrawImage(g, imageRect);
                 // place beepimage in the same place imagerect is
                 //beepImage.Location = imageRect.Location;
@@ -219,8 +219,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw the text
             if (!string.IsNullOrEmpty(Text))
             {
+                Color textColor = IsHovered? _currentTheme.HoverLinkColor: _currentTheme.LabelForeColor;
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-                TextRenderer.DrawText(g, Text, Font, textRect, _currentTheme.LabelForeColor, flags);
+                TextRenderer.DrawText(g, Text, Font, textRect, textColor, flags);
             }
 
             //}
@@ -372,23 +373,12 @@ namespace TheTechIdea.Beep.Winform.Controls
           //  base.ApplyTheme();
             if (_currentTheme != null)
             {
-                //if (IsChild)
-                //{
-                //  //  Console.WriteLine("IsChild");
-                //   // Console.WriteLine("ParentBackColor: " + parentbackcolor);
-                //    BackColor = parentbackcolor;
-                //}
-                //else
-                //{
-                //   // Console.WriteLine("IsNotChild");
-                //    BackColor = _currentTheme.LabelBackColor;
-                //}
-
                 BackColor = _currentTheme.BackgroundColor;
                 ForeColor = _currentTheme.LabelForeColor;
                // Font = BeepThemesManager.ToFont(_currentTheme.BodySmall);
                 beepImage.Theme = Theme;
-               // Invalidate();
+                beepImage.ForeColor = _currentTheme.LabelForeColor;
+                Invalidate();
             }
         }
 
@@ -429,7 +419,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected override void OnMouseHover(EventArgs e)
         {
-            IsHovered = false;
+            IsHovered = true;
             
         }
         protected override void OnMouseLeave(EventArgs e)
@@ -438,7 +428,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnMouseEnter(EventArgs e)
         {
-            IsHovered = false;
+            IsHovered = true;
         }
 
 

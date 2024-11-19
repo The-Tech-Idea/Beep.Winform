@@ -330,6 +330,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
             }
             beepImage.Theme = Theme;
+            beepImage.ForeColor = _currentTheme.ButtonForeColor;
             Invalidate();
         }
         private void BeepImage_MouseLeave(object? sender, EventArgs e)

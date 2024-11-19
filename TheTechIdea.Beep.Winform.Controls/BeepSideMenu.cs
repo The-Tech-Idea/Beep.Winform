@@ -53,6 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Font = new Font("Segoe UI", 9);
             DoubleBuffered = true;
             SendToBack();
+            Padding = new Padding(2);
         }
 
         protected override void InitLayout()
@@ -79,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             logo = new BeepLabel
             {
                 Padding = new Padding(00, 0, 2, 0),
-                Size = new Size(DrawingRect.Width-20 , 32),
+                Size = new Size(DrawingRect.Width-25 , 32),
               //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
                 MaxImageSize = new Size(30, 30),
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -89,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 ShowAllBorders = false,
                 ShowShadow = false,
-                Text = "Side Menu",
+                Text = Title,
                 IsFramless = true,
                 ApplyThemeOnImage = false,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,

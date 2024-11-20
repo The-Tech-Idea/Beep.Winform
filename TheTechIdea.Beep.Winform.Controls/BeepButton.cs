@@ -298,10 +298,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             BackColor = _currentTheme.BackgroundColor;
             ForeColor = _currentTheme.ButtonForeColor;
+            if (IsChild)
+            {
+                ForeColor = _currentTheme.PrimaryColor;
 
-        
+            }
 
-                try
+            try
                 {
                     Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
                 }
@@ -320,7 +323,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 beepImage.ApplyThemeOnImage = true;
                 beepImage.Theme = Theme;
-                beepImage.ForeColor = _currentTheme.ButtonForeColor;
+                if (IsChild)
+                {
+                    beepImage.ForeColor = _currentTheme.PrimaryColor;
+                }
+                else
+                {
+                    beepImage.ForeColor = _currentTheme.ButtonForeColor;
+                }
+                
                 if (ApplyThemeOnImage)
                 {
                     beepImage.ApplyThemeToSvg();
@@ -384,11 +395,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
               //  beepImage.Location = imageRect.Location;
             }
-           
+
 
             //Console.WriteLine("Font changed  3");
             // Draw the text
             // Draw the text
+           
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);

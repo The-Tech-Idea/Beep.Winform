@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private const int expandedWidth = 200;
         private const int collapsedWidth = 64;
         private const int animationStep = 20;
-
+        private Size ButtonSize = new Size(200, 40);
         public BeepiForm BeepForm { get; set; }
         private bool isCollapsed = false;
         private Timer animationTimer;
@@ -28,6 +28,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepLabel logo;
         private int menuItemHeight = 40;
         private SimpleMenuItemCollection menuItems = new SimpleMenuItemCollection();
+        private int _highlightPanelSize = 5;
+        private bool ApplyThemeOnImage = false;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool ApplyThemeOnImages
+        {
+            get { return ApplyThemeOnImage; }
+            set { ApplyThemeOnImage = value; }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the size of the highlight panel.")]
+        public int HilightPanelSize
+        {
+            get { return _highlightPanelSize; }
+            set { _highlightPanelSize = value; }
+        }
         private string _title = "Beep Form";
         [Browsable(true)]
         [Category("Appearance")]
@@ -79,9 +97,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowShadow = false;
             logo = new BeepLabel
             {
-                Padding = new Padding(00, 0, 2, 0),
-                Size = new Size(DrawingRect.Width-25 , 32),
-              //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
+                Padding = new Padding( 10, 0, 10, 0),
+                Size = new Size(ButtonSize.Width - _highlightPanelSize, ButtonSize.Height),
+                //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
                 MaxImageSize = new Size(30, 30),
                 TextAlign = ContentAlignment.MiddleCenter,
                 ImageAlign = ContentAlignment.MiddleLeft,
@@ -92,16 +110,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowShadow = false,
                 Text = Title,
                 IsFramless = true,
+                IsChild = true,
                 ApplyThemeOnImage = false,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                Location = new Point(DrawingRect.X+10, DrawingRect.Y)
+                Location = new Point(DrawingRect.X, DrawingRect.Y)
             };
             Controls.Add(logo);
 
             toggleButton = new BeepButton
             {
-                Padding = new Padding(00, 0, 2, 0),
-                Size = new Size(DrawingRect.Width-20, 32),
+                Padding = new Padding( 10, 0, 10, 0),
+                Size = new Size(ButtonSize.Width- _highlightPanelSize,ButtonSize.Height),
                 Text = "",
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.hamburger.svg",
                 MaxImageSize = new Size(24, 24),
@@ -110,8 +129,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 ShowAllBorders = false,
                 ShowShadow = false,
+               // IsChild = true,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                Location = new Point(DrawingRect.X+10, logo.Bottom)
+                Location = new Point(DrawingRect.X, logo.Bottom)
             };
             toggleButton.Click += ToggleButton_Click;
             Controls.Add(toggleButton);
@@ -197,7 +217,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var menuItemPanel = CreateMenuItemPanel(item, false);
                 menuItemPanel.Top = yOffset;
                 menuItemPanel.Left = DrawingRect.X;
-                menuItemPanel.Width = Width;
+                menuItemPanel.Width = ButtonSize.Width;
                 menuItemPanel.Height = menuItemHeight;
                 menuItemPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
                 Controls.Add(menuItemPanel);
@@ -225,13 +245,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             var menuItemPanel = new Panel
             {
                 Height = menuItemHeight,
-                Padding = new Padding(isChild ? 20 : 10, 0, 0, 0),
-                Tag = item
+                Padding = new Padding( 0, 0,0, 0),
+                Tag = item,
+                BackColor = _currentTheme.SideMenuBackColor,
+
             };
 
             Panel highlightPanel = new Panel
             {
-                Width = 5,
+                Width = HilightPanelSize,
                 Dock = DockStyle.Left,
                 BackColor = _currentTheme.SideMenuBackColor,
                 Visible = false
@@ -247,13 +269,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextAlign = !isCollapsed ? ContentAlignment.MiddleCenter : ContentAlignment.MiddleLeft,
                 ImageAlign = ContentAlignment.MiddleLeft,
                 Theme = Theme,
+                IsChild = false,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
                 ShowAllBorders = false,
                 ShowShadow = false,
                 IsSideMenuChild = true,
                 BorderSize = 0,
-                Tag = item
+                Tag = item,
+                ApplyThemeOnImage = ApplyThemeOnImages,
+
             };
 
             button.MouseEnter += (s, e) => menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
@@ -323,6 +348,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //InitializeMenu();
             }
         }
+
+       
 
         //public bool ShouldSerializeItems()
         //{

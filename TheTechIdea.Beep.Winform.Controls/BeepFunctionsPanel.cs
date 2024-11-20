@@ -120,6 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
                 Anchor = AnchorStyles.None,
+                ApplyThemeOnImage=true
                 
                
             };

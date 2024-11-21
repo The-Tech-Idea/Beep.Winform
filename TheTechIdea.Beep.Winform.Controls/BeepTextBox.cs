@@ -297,7 +297,26 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
+        bool _applyThemeOnImage = false;
+        public bool ApplyThemeOnImage
+        {
+            get => _applyThemeOnImage;
+            set
+            {
+                _applyThemeOnImage = value;
+                if (value)
+                {
 
+                    if (ApplyThemeOnImage)
+                    {
+                        beepImage.ApplyThemeOnImage = true;
+                        beepImage.Theme = Theme;
+
+                    }
+                }
+                Invalidate();
+            }
+        }
         [Browsable(true)]
         [Category("Appearance")]
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
@@ -307,13 +326,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => beepImage?.ImagePath;
             set
             {
-                //if (beepImage != null)
-                //{
-                //    beepImage.LogoImage = value;
-                //    beepImage.ApplyThemeToSvg();
-                //    beepImage.ApplyTheme();
-                //    Invalidate();
-                //}
+                if (beepImage == null)
+                {
+                    beepImage = new BeepImage();
+
+                }
+                if (beepImage != null)
+                {
+                    beepImage.ImagePath = value;
+                    if (ApplyThemeOnImage)
+                    {
+                        beepImage.Theme = Theme;
+                        beepImage.ApplyThemeOnImage = true;
+                        beepImage.ApplyThemeToSvg();
+                        beepImage.ApplyTheme();
+                    }
+                    Invalidate(); // Repaint when the image changes
+                                  // UpdateSize();
+                }
             }
         }
         public BeepTextBox()

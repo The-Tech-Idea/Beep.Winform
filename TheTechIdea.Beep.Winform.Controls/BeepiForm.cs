@@ -123,10 +123,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             MinimizeButton.ToolTipText = "Minimize";
 
 
-            CloseButton.ApplyThemeOnImage = true;
-            MaximizeButton.ApplyThemeOnImage = true;
-            MinimizeButton.ApplyThemeOnImage = true;
-            TitleLabel.ApplyThemeOnImage = true;
+            CloseButton.ApplyThemeOnImage = false;
+            MaximizeButton.ApplyThemeOnImage = false;
+            MinimizeButton.ApplyThemeOnImage = false;
+            TitleLabel.ApplyThemeOnImage = false;
 
             CloseButton.ImageAlign = ContentAlignment.MiddleCenter;
             CloseButton.TextAlign = ContentAlignment.MiddleCenter;
@@ -203,6 +203,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             MouseMove += BeepiForm_MouseMove;
             MouseUp += BeepiForm_MouseUp;
 
+            CloseButton.ApplyThemeOnImage = false;
+            MaximizeButton.ApplyThemeOnImage = false;
+            MinimizeButton.ApplyThemeOnImage = false;
+            TitleLabel.ApplyThemeOnImage = false;
             // Apply initial theme
             ApplyTheme();
         }

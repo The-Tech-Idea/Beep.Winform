@@ -385,7 +385,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BorderSize = 0,
                
                 Tag = item,
-                ApplyThemeOnImage = ApplyThemeOnImages,
+                ApplyThemeOnImage = false,
 
             };
 

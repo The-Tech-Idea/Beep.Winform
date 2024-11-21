@@ -251,7 +251,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Theme Properties"
         #region "Image Drawing Methods"
-          public void DrawImage(Graphics g, Rectangle imageRect)
+        public void DrawImage(Graphics g, Rectangle imageRect)
         {
             //ApplyTheme();
             g.SmoothingMode = SmoothingMode.AntiAlias;

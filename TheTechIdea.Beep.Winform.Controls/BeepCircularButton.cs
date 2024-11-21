@@ -101,12 +101,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         public string ImagePath
         {
-            get => beepImage.ImagePath;
+            get => beepImage?.ImagePath;
             set
             {
-                beepImage.ImagePath = value;
-                beepImage.ApplyTheme();
-                Invalidate();
+                if (beepImage == null)
+                {
+                    beepImage = new BeepImage();
+
+                }
+                if (beepImage != null)
+                {
+                    beepImage.ImagePath = value;
+                    if (ApplyThemeOnImage)
+                    {
+                        beepImage.Theme = Theme;
+                        beepImage.ApplyThemeOnImage = true;
+                        beepImage.ApplyThemeToSvg();
+                        beepImage.ApplyTheme();
+                    }
+                    Invalidate(); // Repaint when the image changes
+                                  // UpdateSize();
+                }
             }
         }
 

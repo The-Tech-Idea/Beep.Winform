@@ -67,9 +67,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _applyThemeOnImage = value;
                 if (value)
                 {
-                    beepImage.Theme = Theme;
+                   
                     if (ApplyThemeOnImage)
                     {
+                        beepImage.Theme = Theme;
                         beepImage.ApplyThemeOnImage = true;
                         beepImage.ApplyThemeToSvg();
                     }
@@ -108,8 +109,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (beepImage != null)
                 {
                     beepImage.ImagePath = value;
-                    beepImage.ApplyThemeToSvg();
-                    beepImage.ApplyTheme();
+                    if (ApplyThemeOnImage)
+                    {
+                        beepImage.Theme = Theme;
+                        beepImage.ApplyThemeOnImage = true;
+                        beepImage.ApplyThemeToSvg();
+                        beepImage.ApplyTheme();
+                    }
                     Invalidate(); // Repaint when the image changes
                    // UpdateSize();
                 }

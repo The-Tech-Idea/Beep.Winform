@@ -162,8 +162,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (beepImage != null)
                 {
                     beepImage.ImagePath = value;
-                    beepImage.ApplyThemeToSvg();
-                    beepImage.ApplyTheme();
+                    if (ApplyThemeOnImage)
+                    {
+                        beepImage.Theme = Theme;
+                        beepImage.ApplyThemeToSvg();
+                        beepImage.ApplyTheme();
+                    }
                     Invalidate(); // Repaint when the image changes
                    // UpdateSize();
                 }
@@ -313,7 +317,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, _currentTheme.FontSize, FontWeight.Normal, FontStyle.Regular);
                 }
 
-            ApplyThemeToSvg();
+           ApplyThemeToSvg();
            Invalidate();  // Trigger repaint
         }
         public  void ApplyThemeToSvg()
@@ -321,19 +325,17 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (beepImage != null) // Safely apply theme to beepImage
             {
-                
-                beepImage.Theme = Theme;
-                if (IsChild)
-                {
-                    beepImage.ForeColor = _currentTheme.PrimaryColor;
-                }
-                else
-                {
-                    beepImage.ForeColor = _currentTheme.ButtonForeColor;
-                }
-                
                 if (ApplyThemeOnImage)
                 {
+                    beepImage.Theme = Theme;
+                    if (IsChild)
+                    {
+                        beepImage.ForeColor = _currentTheme.PrimaryColor;
+                    }
+                    else
+                    {
+                    beepImage.ForeColor = _currentTheme.ButtonForeColor;
+                    }
                     beepImage.ApplyThemeToSvg();
                 }
 

@@ -34,5 +34,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Properties {
                 this["LogoImagePath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("200")]
+        public int SideMenuWidth {
+            get {
+                return ((int)(this["SideMenuWidth"]));
+            }
+            set {
+                this["SideMenuWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SideMenuCollapsed {
+            get {
+                return ((bool)(this["SideMenuCollapsed"]));
+            }
+            set {
+                this["SideMenuCollapsed"] = value;
+            }
+        }
     }
 }

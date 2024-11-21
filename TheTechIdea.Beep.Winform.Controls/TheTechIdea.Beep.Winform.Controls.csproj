@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="BeepiForm.Designer.cs~RF145a38e5.TMP" />
+    <None Remove="GFX\SVG\033-stakeholder.svg" />
     <None Remove="GFX\SVG\about.svg" />
     <None Remove="GFX\SVG\addressbook.svg" />
     <None Remove="GFX\SVG\back.svg" />
@@ -98,6 +99,7 @@
     <None Remove="GFX\SVG\yes.svg" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="GFX\SVG\033-stakeholder.svg" />
     <EmbeddedResource Include="GFX\SVG\about.svg" />
     <EmbeddedResource Include="GFX\SVG\addressbook.svg" />
     <EmbeddedResource Include="GFX\SVG\back.svg" />

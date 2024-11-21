@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Drawing.Design;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Template;
+using Microsoft.VisualBasic.Logging;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -17,9 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event PropertyChangedEventHandler PropertyChanged;
         public event Action<bool> OnMenuCollapseExpand;
 
-        private const int expandedWidth = 200;
-        private const int collapsedWidth = 64;
-        private const int animationStep = 20;
+       
         private Size ButtonSize = new Size(200, 40);
         public BeepiForm BeepForm { get; set; }
         private bool isCollapsed = false;
@@ -30,8 +29,79 @@ namespace TheTechIdea.Beep.Winform.Controls
         private SimpleMenuItemCollection menuItems = new SimpleMenuItemCollection();
         private int _highlightPanelSize = 5;
         private bool ApplyThemeOnImage = false;
+        private  int expandedWidth = 200;
+        private  int collapsedWidth = 64;
+        private  int animationStep = 20;
+        bool isAnimating = false;
+        bool _isExpanedWidthSet = false;
+        int  _tWidth;
+        #region "Properties"
+        [Category("Appearance")]
+        [Description("Set the Expanded Width.")]
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int ExpandedWidth
+        {
+            get { return expandedWidth; }
+            set { expandedWidth = value; }
+        }
+       
+        [Category("Appearance")]
+        [Description("Set the Collapsed Width.")]
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int CollapsedWidth
+        {
+            get { return collapsedWidth; }
+            set { collapsedWidth = value; }
+        }
+        [Category("Appearance")]
+        [Description("Set the Animation Step.")]
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int AnimationStep
+        {
+            get { return animationStep; }
+            set { animationStep = value; }
+        }
         [Browsable(true)]
         [Category("Appearance")]
+        [Description("Set the logo image of the form.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(UITypeEditor))]
+        public string LogoImage
+        {
+            get => logo.ImagePath;
+            set
+            {
+                if (logo != null)
+                {
+                    logo.ImagePath = value;
+                    logo.Invalidate();
+                    Properties.Settings.Default.LogoImagePath = value;
+                    Properties.Settings.Default.Save();
+                   // Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Localizable(true)]
+        [MergableProperty(false)]
+        [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public SimpleMenuItemCollection Items
+        {
+            get => menuItems;
+            set
+            {
+                menuItems = value;
+                //InitializeMenu();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ApplyThemeOnImages
         {
             get { return ApplyThemeOnImage; }
@@ -41,16 +111,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Set the size of the highlight panel.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int HilightPanelSize
         {
             get { return _highlightPanelSize; }
             set { _highlightPanelSize = value; }
         }
-        private string _title = "Beep Form";
+        private string _title ;
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Set the title of the form.")]
-        [DefaultValue("Beep Form")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public string Title
         {
@@ -58,47 +128,60 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _title = value;
-               if(logo != null) {logo.Text = value;Invalidate(); }
+                if (logo != null) { logo.Text = value; Invalidate(); }
             }
         }
 
+        #endregion "Properties"
+
+
         public BeepSideMenu()
         {
-            Width = expandedWidth;
-            Height = 200;
-            BackColor = Color.FromArgb(51, 51, 51);
-            ForeColor = Color.White;
-            Font = new Font("Segoe UI", 9);
+           
             DoubleBuffered = true;
+            Width = expandedWidth;
             SendToBack();
-            Padding = new Padding(2);
+            Padding = new Padding(5);
         }
-
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            if(!isCollapsed && Width > collapsedWidth && !isAnimating)
+                expandedWidth = Width;
+          
+            Invalidate();
+        }
         protected override void InitLayout()
         {
             base.InitLayout();
+            Width = expandedWidth;
+            Height = 200;
+            Dock = DockStyle.Left;
+            BackColor = Color.FromArgb(51, 51, 51);
+            ForeColor = Color.White;
+            Font = new Font("Segoe UI", 9);
             Init();
             ApplyTheme();
             if(!isCollapsed) OnMenuCollapseExpand?.Invoke(false);
-            
             menuItems.ListChanged += MenuItems_ListChanged;
         }
 
         private void Init()
         {
             DoubleBuffered = true;
-            Width = expandedWidth;
+          //  Width = expandedWidth;
+            ButtonSize = new Size(Width, 40);
             _isControlinvalidated = true;
             animationTimer = new Timer { Interval = 10 };
             animationTimer.Tick += AnimationTimer_Tick;
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
-            ShowAllBorders = false;
+            ShowAllBorders = true;
             ShowShadow = false;
             logo = new BeepLabel
             {
-                Padding = new Padding( 10, 0, 10, 0),
-                Size = new Size(ButtonSize.Width - _highlightPanelSize, ButtonSize.Height),
+              //  Padding = new Padding( 10, 0, 10, 0),
+                Size = new Size(ButtonSize.Width , ButtonSize.Height),
                 //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
                 MaxImageSize = new Size(30, 30),
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -119,8 +202,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             toggleButton = new BeepButton
             {
-                Padding = new Padding( 10, 0, 10, 0),
-                Size = new Size(ButtonSize.Width- _highlightPanelSize,ButtonSize.Height),
+               // Padding = new Padding( 10, 0, 10, 0),
+                Size = new Size(ButtonSize.Width,ButtonSize.Height),
                 Text = "",
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.hamburger.svg",
                 MaxImageSize = new Size(24, 24),
@@ -129,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 ShowAllBorders = false,
                 ShowShadow = false,
-               // IsChild = true,
+                IsChild = true,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 Location = new Point(DrawingRect.X, logo.Bottom)
             };
@@ -149,23 +232,46 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void StartMenuAnimation()
         {
+           
+           
+            isAnimating = true;
             animationTimer.Start();
+            _isExpanedWidthSet = false;
         }
 
         private void AnimationTimer_Tick(object sender, EventArgs e)
         {
             int targetWidth = isCollapsed ? collapsedWidth : expandedWidth;
             int currentWidth = Width;
-
+            if (isCollapsed && !_isExpanedWidthSet)
+            {
+                _tWidth = Width;
+                _isExpanedWidthSet = true;
+            }
             currentWidth += isCollapsed ? -animationStep : animationStep;
 
             if ((isCollapsed && currentWidth <= targetWidth) || (!isCollapsed && currentWidth >= targetWidth))
             {
                 currentWidth = targetWidth;
                 animationTimer.Stop();
+                isAnimating = false;
+
+            }
+            if (isAnimating)
+                Width = currentWidth;
+            else
+            {
+                if (!isCollapsed)
+                {
+                    Width = _tWidth;
+                }
+                else
+                {
+                    Width = currentWidth;
+                }
             }
 
-            Width = currentWidth;
+           
             AdjustControlWidths(currentWidth);
             Invalidate();
         }
@@ -185,11 +291,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             button.Width = width;
                             button.HideText = isCollapsed;
+                            button.HideText = isCollapsed ? true :false;
                         }
                     }
                 }
             }
-            logo.Text = isCollapsed ? "" : "Side Menu";
+            logo.Text = isCollapsed ? "" : _title;
             logo.TextImageRelation = isCollapsed ? TextImageRelation.Overlay : TextImageRelation.ImageBeforeText;
         }
 
@@ -217,7 +324,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var menuItemPanel = CreateMenuItemPanel(item, false);
                 menuItemPanel.Top = yOffset;
                 menuItemPanel.Left = DrawingRect.X;
-                menuItemPanel.Width = ButtonSize.Width;
+                menuItemPanel.Width = Width;
                 menuItemPanel.Height = menuItemHeight;
                 menuItemPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
                 Controls.Add(menuItemPanel);
@@ -269,13 +376,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextAlign = !isCollapsed ? ContentAlignment.MiddleCenter : ContentAlignment.MiddleLeft,
                 ImageAlign = ContentAlignment.MiddleLeft,
                 Theme = Theme,
-                IsChild = false,
+                IsChild = true,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
                 ShowAllBorders = false,
                 ShowShadow = false,
                 IsSideMenuChild = true,
                 BorderSize = 0,
+               
                 Tag = item,
                 ApplyThemeOnImage = ApplyThemeOnImages,
 
@@ -312,57 +420,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BeepForm.ShowTitle(isCollapsed);
         }
 
-        #region "Properties"
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Set the logo image of the form.")]
-        [DefaultValue("")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(UITypeEditor))]
-        public string LogoImage
-        {
-            get => logo.ImagePath;
-            set
-            {
-                if (logo != null)
-                {
-                    logo.ImagePath = value;
-                    Properties.Settings.Default.LogoImagePath = value;
-                    Properties.Settings.Default.Save();
-                    Invalidate();
-                }
-            }
-        }
-
-        [Browsable(true)]
-        [Localizable(true)]
-        [MergableProperty(false)]
-        [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public SimpleMenuItemCollection Items
-        {
-            get => menuItems;
-            set
-            {
-                menuItems = value;
-                //InitializeMenu();
-            }
-        }
-
-       
-
-        //public bool ShouldSerializeItems()
-        //{
-        //    return menuItems != null && menuItems.Count > 0;
-        //}
-
-        //public void ResetItems()
-        //{
-        //    menuItems = new SimpleMenuItemCollection();
-        //}
-
-        #endregion "Properties"
-
+    
         public override void ApplyTheme()
         {
             if (!_isControlinvalidated) return;

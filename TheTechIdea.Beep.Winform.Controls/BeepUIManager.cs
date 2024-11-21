@@ -37,6 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     BeepSideMenu.LogoImage = _logoImage;
                 }
             }
+            
         }
 
         // title property to set the title of the form
@@ -64,6 +65,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         bool _applyThemeOnImage = false;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the title of the form.")]
+        [DefaultValue("Beep Form")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ApplyThemeOnImage
         {
             get => _applyThemeOnImage;
@@ -322,6 +328,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _beepSideMenu = beepSideMenu;
                  BeepSideMenu.BeepForm = BeepiForm;
+                BeepiForm.Title = Title;
+                BeepSideMenu.Title = Title;
                 _beepSideMenu.OnMenuCollapseExpand -= _beepSideMenu_OnMenuCollapseExpand;
                 _beepSideMenu.OnMenuCollapseExpand += _beepSideMenu_OnMenuCollapseExpand;
             }
@@ -331,6 +339,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (BeepiForm != null)
             {
+                BeepiForm.Title= Title;
+                BeepSideMenu.Title = Title;
                 BeepiForm.ShowTitle(obj);
             }
         
@@ -476,7 +486,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 themeProperty.SetValue(control, _theme);
             }
-
+            BeepiForm.Title = Title;
+            BeepSideMenu.Title = Title;
             ApplyShadowToControl(control, _showShadow);
             ApplyRoundedToControl(control, _isrounded);
             ApplyBorderToControl(control, _showborder);
@@ -529,6 +540,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     if (control is BeepSideMenu)
                     {
+                       
+                        BeepSideMenu.Title = Title; 
                         _beepSideMenu = control as BeepSideMenu;
                         _beepSideMenu.BeepForm = BeepiForm;
                         _beepSideMenu.OnMenuCollapseExpand -= _beepSideMenu_OnMenuCollapseExpand;

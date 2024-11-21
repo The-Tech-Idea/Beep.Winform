@@ -41,6 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load")]
         [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public string ImagePath
         {
             get => _imagepath;
@@ -79,6 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private ImageScaleMode _scaleMode = ImageScaleMode.KeepAspectRatio;
         [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public ImageScaleMode ScaleMode
         {
             get => _scaleMode;
@@ -89,6 +91,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         bool _applyThemeOnImage = false;
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [Category("Appearance")]
         public bool ApplyThemeOnImage
         {
             get => _applyThemeOnImage;
@@ -101,6 +106,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         private bool _isstillimage = false;
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [Category("Appearance")]
         public bool IsStillImage { get { return _isstillimage; } set { _isstillimage = value; } }
 
         public bool HasImage
@@ -110,6 +118,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return (isSvg && svgDocument != null) || regularImage != null;
             }
         }
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [Category("Appearance")]
         public Size GetImageSize()
         {
             if (isSvg && svgDocument != null)
@@ -132,6 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The image displayed on the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public new Image Image
         {
             get => regularImage;
@@ -447,7 +459,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DisposeImages();
                 svgDocument = SvgDocument.Open(svgPath);
                 isSvg = true;
-             //   ApplyThemeToSvg();
                 Invalidate(); // Trigger repaint
             }
             catch (Exception ex)

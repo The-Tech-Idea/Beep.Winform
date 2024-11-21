@@ -321,7 +321,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (beepImage != null) // Safely apply theme to beepImage
             {
-                beepImage.ApplyThemeOnImage = true;
+                
                 beepImage.Theme = Theme;
                 if (IsChild)
                 {

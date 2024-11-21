@@ -241,7 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// Unique identifier for each BeepGrid instance, persisted across design and runtime.
         /// </summary>
         [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         [Category("Design"), Description("Unique identifier for the grid.")]
         public string GridId
         {

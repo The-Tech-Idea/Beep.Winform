@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         [Description("Set the logo image of the form.")]
         [DefaultValue("")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
         public string LogoImage
         {
@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         [Description("Set the title of the form.")]
         [DefaultValue("Beep Form")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public string Title
         {
             get => TitleLabel.Text;

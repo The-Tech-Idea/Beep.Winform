@@ -156,13 +156,12 @@ namespace TheTechIdea.Beep.Winform.Controls
           //  beepImage.Click += BeepImage_Click;
             Padding = new Padding(0);
             Margin = new Padding(0);
+            IsChild = true;
             Size = new Size(120, 40);  // Default size
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-
-
             base.OnPaint(e);
             // Do not call base.OnPaint(e);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
@@ -214,9 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
 
-            //Console.WriteLine("Font changed  3");
-            // Draw the text
-            // Draw the text
+          // Draw the text
             if (!string.IsNullOrEmpty(Text))
             {
                 Color textColor = IsHovered? _currentTheme.HoverLinkColor: _currentTheme.LabelForeColor;
@@ -365,9 +362,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return new Rectangle(new Point(x, y), size);
         }
-
-
-
         public override void ApplyTheme()
         {
           //  base.ApplyTheme();
@@ -375,13 +369,52 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 BackColor = _currentTheme.BackgroundColor;
                 ForeColor = _currentTheme.LabelForeColor;
-               // Font = BeepThemesManager.ToFont(_currentTheme.BodySmall);
-                beepImage.Theme = Theme;
-                beepImage.ForeColor = _currentTheme.LabelForeColor;
+                if (IsChild)
+                {
+                    ForeColor = _currentTheme.PrimaryColor;
+
+                }
+
+                try
+                {
+                    Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                }
+                catch (Exception ex)
+                {
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, _currentTheme.FontSize, FontWeight.Normal, FontStyle.Regular);
+                }
+
+                ApplyThemeToSvg();
                 Invalidate();
             }
         }
+        public void ApplyThemeToSvg()
+        {
 
+            if (beepImage != null) // Safely apply theme to beepImage
+            {
+
+               
+
+                if (ApplyThemeOnImage)
+                {
+                  
+                    beepImage.Theme = Theme;
+                    if (IsChild)
+                    {
+                        beepImage.ForeColor = _currentTheme.PrimaryColor;
+                    }
+                    else
+                    {
+                        beepImage.ForeColor = _currentTheme.LabelForeColor;
+                    }
+                    beepImage.ApplyThemeToSvg();
+                }
+
+            }
+
+
+        }
         // Dynamically calculate the preferred size based on text and image sizes
         public override Size GetPreferredSize(Size proposedSize)
         {
@@ -419,7 +452,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected override void OnMouseHover(EventArgs e)
         {
-            IsHovered = true;
+            IsHovered = false;
             
         }
         protected override void OnMouseLeave(EventArgs e)
@@ -428,7 +461,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnMouseEnter(EventArgs e)
         {
-            IsHovered = true;
+            IsHovered = false;
         }
 
 

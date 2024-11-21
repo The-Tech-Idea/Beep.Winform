@@ -25,9 +25,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Timer animationTimer;
         private BeepButton toggleButton;
         private BeepLabel logo;
-        private int menuItemHeight = 40;
+        
         private SimpleMenuItemCollection menuItems = new SimpleMenuItemCollection();
         private int _highlightPanelSize = 5;
+        private int menuItemHeight = 40;
         private bool ApplyThemeOnImage = false;
         private  int expandedWidth = 200;
         private  int collapsedWidth = 64;
@@ -361,7 +362,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             var menuItemPanel = new Panel
             {
                 Height = menuItemHeight,
-                Padding = new Padding( 0, 0,0, 0),
+                Padding = new Padding(0, 0, 0, 0),
                 Tag = item,
                 BackColor = _currentTheme.SideMenuBackColor,
 
@@ -392,7 +393,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowShadow = false,
                 IsSideMenuChild = true,
                 BorderSize = 0,
-               
+
                 Tag = item,
                 ApplyThemeOnImage = false,
 

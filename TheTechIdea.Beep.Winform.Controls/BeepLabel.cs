@@ -334,7 +334,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case ContentAlignment.TopLeft:
                 case ContentAlignment.MiddleLeft:
                 case ContentAlignment.BottomLeft:
-                    x = container.X;
+                    x = container.X+5;
                     break;
                 case ContentAlignment.TopCenter:
                 case ContentAlignment.MiddleCenter:
@@ -344,7 +344,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case ContentAlignment.TopRight:
                 case ContentAlignment.MiddleRight:
                 case ContentAlignment.BottomRight:
-                    x = container.Right - size.Width;
+                    x = container.Right - size.Width-5;
                     break;
             }
 

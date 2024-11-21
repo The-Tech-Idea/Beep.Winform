@@ -157,12 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => beepImage?.ImagePath;
             set
             {
-                if(beepImage == null)
-                {
-                    beepImage = new BeepImage();
-                   
-                }
-                else
+                
                 if (beepImage != null)
                 {
                     beepImage.ImagePath = value;
@@ -298,6 +293,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Padding = new Padding(0);
             Margin = new Padding(0);
             Size = new Size(120, 40);  // Default size
+          //  Controls.Add(beepImage);
         }
 
     
@@ -391,9 +387,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //beepImage.Location = imageRect.Location;
 
                 ////Adjust alignment based on TextImageRelation
-                //if (string.IsNullOrEmpty(Text))
+                //if (string.IsNullOrEmpty(ImagePath))
                 //{
-                //    beepImage.Location = AlignRectangle(ClientRectangle, imageSize, ContentAlignment.MiddleCenter).Location;
+                //    beepImage.Location = imageRect.Location;
                 //}
                 Console.WriteLine("Button show Image");
                 beepImage.DrawImage(g, imageRect);
@@ -484,7 +480,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case ContentAlignment.TopLeft:
                 case ContentAlignment.MiddleLeft:
                 case ContentAlignment.BottomLeft:
-                    x = container.X;
+                    x = container.X+5;
                     break;
                 case ContentAlignment.TopCenter:
                 case ContentAlignment.MiddleCenter:
@@ -494,7 +490,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case ContentAlignment.TopRight:
                 case ContentAlignment.MiddleRight:
                 case ContentAlignment.BottomRight:
-                    x = container.Right - size.Width;
+                    x = container.Right - size.Width-5;
                     break;
             }
 

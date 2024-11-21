@@ -14,7 +14,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private List<BeepButton> _buttons = new List<BeepButton>();
         private List<Panel> _panels = new List<Panel>();
         private int _selectedIndex = -1;
-       
+        private Size ButtonSize = new Size(200, 20);
+        private int _highlightPanelSize = 5;
+        private int menuItemHeight = 40;
         int drawRectX;
         int drawRectY;
         int drawRectWidth;
@@ -62,12 +64,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 items = new SimpleMenuItemCollection();
             }
 
+            
             items.ListChanged += Items_ListChanged;
-           
-            InitLayout();
             this.Invalidated += BeepListBox_Invalidated;
+            InitLayout();
+           
         }
-       
+        
         private void BeepListBox_Invalidated(object? sender, InvalidateEventArgs e)
         {
             _isControlinvalidated = true;
@@ -77,27 +80,34 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.InitLayout();
             BorderThickness = 1;
-           
 
+           
+           // IsShadowAffectedByTheme = false;
+          //  IsBorderAffectedByTheme = false;
+            InitializeMenu();
+            TitleText = "List Box";
+          
+
+        }
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+           // InitializeMenu();
+        }
+        private void Items_ListChanged(object sender, ListChangedEventArgs e) => InitializeMenu();
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+           // DrawingRect.Inflate(-2, -2);
             // Get the dimensions of DrawingRect
             drawRectX = DrawingRect.X;
             drawRectY = DrawingRect.Y;
             drawRectWidth = DrawingRect.Width;
             drawRectHeight = DrawingRect.Height;
-            IsFramless = true;
-            IsShadowAffectedByTheme = false;
-            IsBorderAffectedByTheme = false;
-            InitializeMenu();
-            TitleText = "List Box";
 
-        }
-
-        private void Items_ListChanged(object sender, ListChangedEventArgs e) => InitializeMenu();
-
-      protected override void OnPaint(PaintEventArgs e)
-        {
             base.OnPaint(e);
-            if(_isControlinvalidated)
+            
+            if (_isControlinvalidated)
             {
                 InitializeMenu();
                 _isControlinvalidated=false;
@@ -121,7 +131,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 5,
                 Dock = DockStyle.Left,
                 BackColor = _currentTheme.SideMenuBackColor,
-                Visible = false
+                Visible = false,
+                Padding = new Padding(0, 2, 0, 0),
+
             };
 
             // Initialize BeepButton for icon and text
@@ -129,20 +141,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Dock = DockStyle.Fill,
                 Text = item.Text,
+                ImagePath = item.Image,
+                MaxImageSize = new Size(30, 30),
                 TextImageRelation = TextImageRelation.ImageBeforeText,
-                TextAlign =  ContentAlignment.MiddleCenter,
-                ParentBackColor = _currentTheme.SideMenuBackColor,
+                TextAlign = ContentAlignment.MiddleCenter ,
                 ImageAlign = ContentAlignment.MiddleLeft,
-                BorderSize = 0,
-               // IsChild = true,
-                //IsSideMenuChild = true,
-                MaxImageSize = new Size(20, 20),
-                ShowAllBorders = false,
-                ShowShadow = false,
+                Theme = Theme,
+                IsChild = true,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
+                ShowAllBorders = false,
+                ShowShadow = false,
+                IsSideMenuChild = true,
+                BorderSize = 0,
+
+                Tag = item,
                 ApplyThemeOnImage = false,
-                Tag = item
             };
 
             // Load the icon if specified
@@ -205,13 +219,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             return menuItemPanel;
         }
 
-        private void MenuItemButton_Click(object? sender, EventArgs e)
-        {
-           
-        }
+        
 
         public virtual void InitializeMenu()
         {
+            UpdateDrawingRect();
+            ButtonSize = new Size(drawRectWidth, 40);
             // Remove existing menu item panels
             foreach (var control in this.Controls.OfType<Panel>().Where(c => c.Tag is SimpleMenuItem).ToList())
             {
@@ -235,9 +248,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     menuItemPanel.Top = yOffset;
                     menuItemPanel.Left = drawRectX;
                     menuItemPanel.Width = drawRectWidth;
-                    menuItemPanel.Height = 40;
+                    menuItemPanel.Height = menuItemHeight;
                     menuItemPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-                    menuItemPanel.BackColor = _currentTheme.SideMenuBackColor;
                     this.Controls.Add(menuItemPanel);
 
                     yOffset += menuItemPanel.Height;
@@ -262,7 +274,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        protected virtual void MenuItemButton_Click(object? sender, EventArgs e)
+        {
 
+        }
 
         private void Button_Click(object sender, EventArgs e)
         {

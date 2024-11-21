@@ -326,7 +326,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void ShowProfileMenu()
         {
             //    // Initialize the profile menu with the current theme
-            //    var profileMenu = new BeepDropDownMenu(theme);
+            //    var profileMenu = new BeepDropMenu(theme);
 
             //    // Add menu items (SimpleMenuItem instances) with text and optional SVG icons
             //    profileMenu.Items.Add(new SimpleMenuItem { Text = "Profile", Image = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg" });

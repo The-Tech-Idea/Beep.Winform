@@ -2,8 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
-using System.Linq;
-using System.Windows.Forms;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -22,7 +21,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Set the logo image of the form.")]
-        [DefaultValue("")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
         public string LogoImage
@@ -34,6 +32,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (BeepiForm != null)
                 {
                     BeepiForm.LogoImage = _logoImage;
+                }
+                if(BeepSideMenu != null)
+                {
                     BeepSideMenu.LogoImage = _logoImage;
                 }
             }
@@ -45,7 +46,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Set the title of the form.")]
-        [DefaultValue("Beep Form")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public string Title
         {
@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Set the title of the form.")]
-        [DefaultValue("Beep Form")]
+        
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ApplyThemeOnImage
         {
@@ -119,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         [Browsable(true)]
         [Category("Appearance")]
-        [DefaultValue(false)]
+        
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowBorder
         {
@@ -129,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showShadow = false;
         [Browsable(true)]
         [Category("Appearance")]
-        [DefaultValue(false)]
+        
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowShadow
         {
@@ -139,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isrounded = false;
         [Browsable(true)]
         [Category("Appearance")]
-        [DefaultValue(false)]
+        
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool IsRounded
         {
@@ -149,7 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Enable or disable BeepForm styling for the form.")]
-        [DefaultValue(false)]
+        
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         bool ApplyBeepFormStyle
         {
@@ -218,7 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                    
+                   
                    
                 }
             }
@@ -237,7 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_form != null)
                 {
                     _form.Load += Form_Load;
-
+                 
                 }
             }
         }
@@ -273,14 +273,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Console.WriteLine("Form Load event 1");
 
-            //      Console.WriteLine("Form Load event 2");
-            ApplyBeepFormTheme(); // Apply BeepForm styling at runtime
-            FindBeepSideMenu();
-            //   Console.WriteLine("Form Load event 3");
-            ApplyThemeToAllBeepControls(_form); // Apply theme to all controls
+           // InitForm((BeepiForm)sender);
         }
 
-
+        public void InitForm(BeepiForm form)
+        {
+            _form = form;
+        //    ApplyBeepFormTheme(); // Apply BeepForm styling at runtime
+            ApplyThemeToAllBeepControls(_form); // Apply theme to all controls
+            FindBeepSideMenu();
+        }
 
         // Attach to ControlAdded event for the form and all child containers
         private void AttachControlAddedEvent(Control container)
@@ -540,12 +542,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     if (control is BeepSideMenu)
                     {
-                       
-                        BeepSideMenu.Title = Title; 
+
+                        _beepSideMenu.Title = Title;
+                        _beepSideMenu.BeepForm = BeepiForm;
+                        _beepSideMenu.LogoImage = LogoImage;
                         _beepSideMenu = control as BeepSideMenu;
                         _beepSideMenu.BeepForm = BeepiForm;
                         _beepSideMenu.OnMenuCollapseExpand -= _beepSideMenu_OnMenuCollapseExpand;
                         _beepSideMenu.OnMenuCollapseExpand += _beepSideMenu_OnMenuCollapseExpand;
+                    }
+                    if(control is BeepFunctionsPanel)
+                    {
+                        beepFunctionsPanel1 = control as BeepFunctionsPanel;
+                    }
+                    if(control is BeepiForm)
+                    {
+                        BeepiForm = control as BeepiForm;
+                        BeepiForm.LogoImage = LogoImage;
+                        BeepiForm.Title = Title;
                     }
                 }
             }

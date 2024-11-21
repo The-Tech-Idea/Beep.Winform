@@ -3,8 +3,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
-using System.Collections.Generic;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -13,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private const int BorderRadius = 20;
         private const int ButtonSize = 30;
 
-        private static BeepiForm StandardForm { get; set; }=new BeepiForm();
+        private static BeepiForm StandardForm { get; set; } = new BeepiForm();
         // Dictionary to store original form properties for restoration
         private static readonly Dictionary<Form, FormState> originalFormStates = new Dictionary<Form, FormState>();
 
@@ -29,10 +28,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DllImport("user32.dll")]
         private static extern bool ReleaseCapture();
         [DllImport("user32.dll")]
-        private static extern bool SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        private static extern bool SendMessage(nint hWnd, int Msg, int wParam, int lParam);
 
         [DllImport("gdi32.dll")]
-        private static extern IntPtr CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
+        private static extern nint CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
 
         public static void ApplyBeepForm(Form form, BeepTheme theme = null)
         {
@@ -77,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 form.BackColor = state.BackColor;
                 form.ForeColor = state.ForeColor;
                 form.Region = null;
-           
+
                 form.Controls.Remove(titlePanel);
 
                 // Restore color and border properties
@@ -100,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private static void ApplyRoundedCorners(Form form)
         {
-            IntPtr roundedRegion = CreateRoundRectRgn(0, 0, form.Width, form.Height, BorderRadius, BorderRadius);
+            nint roundedRegion = CreateRoundRectRgn(0, 0, form.Width, form.Height, BorderRadius, BorderRadius);
             form.Region = Region.FromHrgn(roundedRegion);
         }
 
@@ -113,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
             titleLabel = new BeepLabel();
-            titleLabel=StandardForm.TitleLabel;
+            titleLabel = StandardForm.TitleLabel;
             closeButton = new BeepButton();
             closeButton = StandardForm.CloseButton;
             closeButton.Click += (s, e) => form.Close();
@@ -131,14 +130,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             minimizeButton.Click += (s, e) => form.WindowState = FormWindowState.Minimized;
 
             // Add controls to the form
-          
+
             titlePanel.Controls.Add(titleLabel);
             titlePanel.Controls.Add(closeButton);
             titlePanel.Controls.Add(maximizeButton);
             titlePanel.Controls.Add(minimizeButton);
-          
-           
-            
+
+
+
         }
 
         private static void RepositionControls(Form form)
@@ -185,7 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else if (sender is Form form1)
             {
-                form1.Cursor = (e.X >= form1.Width - BorderRadius || e.Y >= form1.Height - BorderRadius) ? Cursors.SizeNWSE : Cursors.Default;
+                form1.Cursor = e.X >= form1.Width - BorderRadius || e.Y >= form1.Height - BorderRadius ? Cursors.SizeNWSE : Cursors.Default;
             }
         }
 
@@ -198,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             form.BackColor = theme.BackgroundColor;
             Console.WriteLine("Form BackColor: " + form.BackColor);
-            titlePanel.Theme=BeepThemesManager.GetThemeToEnum(theme);
+            titlePanel.Theme = BeepThemesManager.GetThemeToEnum(theme);
             closeButton.Theme = BeepThemesManager.GetThemeToEnum(theme);
             maximizeButton.Theme = BeepThemesManager.GetThemeToEnum(theme);
             minimizeButton.Theme = BeepThemesManager.GetThemeToEnum(theme);

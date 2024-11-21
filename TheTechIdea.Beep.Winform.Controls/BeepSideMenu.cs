@@ -71,16 +71,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(UITypeEditor))]
         public string LogoImage
         {
-            get => logo.ImagePath;
+            get => logo?.ImagePath;
             set
             {
+               
                 if (logo != null)
                 {
                     logo.ImagePath = value;
-                    logo.Invalidate();
-                    Properties.Settings.Default.LogoImagePath = value;
-                    Properties.Settings.Default.Save();
-                   // Invalidate();
+                    if (ApplyThemeOnImage)
+                    {
+                        logo.Theme = Theme;
+                        logo.ApplyThemeOnImage = true;
+                        logo.ApplyThemeToSvg();
+                        logo.ApplyTheme();
+                    }
+                    Invalidate(); // Repaint when the image changes
+                                  // UpdateSize();
                 }
             }
         }
@@ -141,7 +147,58 @@ namespace TheTechIdea.Beep.Winform.Controls
             DoubleBuffered = true;
             Width = expandedWidth;
             SendToBack();
+            IsChild = false;
             Padding = new Padding(5);
+            DoubleBuffered = true;
+            //  Width = expandedWidth;
+            ButtonSize = new Size(DrawingRect.Width, 40);
+            _isControlinvalidated = true;
+            animationTimer = new Timer { Interval = 10 };
+            animationTimer.Tick += AnimationTimer_Tick;
+            IsBorderAffectedByTheme = false;
+            IsShadowAffectedByTheme = false;
+            ShowAllBorders = true;
+            ShowShadow = false;
+            logo = new BeepLabel
+            {
+                //  Padding = new Padding( 10, 0, 10, 0),
+                Size = ButtonSize,
+                //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
+                MaxImageSize = new Size(30, 30),
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleLeft,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                ShowAllBorders = false,
+                ShowShadow = false,
+                Text = Title,
+                IsFramless = true,
+                IsChild = true,
+                ApplyThemeOnImage = false,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                Location = new Point(DrawingRect.X, DrawingRect.Y)
+            };
+            Controls.Add(logo);
+            logo.ImagePath = this.LogoImage;
+            toggleButton = new BeepButton
+            {
+                // Padding = new Padding( 10, 0, 10, 0),
+                Size = new Size(ButtonSize.Width, ButtonSize.Height),
+                Text = "",
+                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.hamburger.svg",
+                MaxImageSize = new Size(24, 24),
+                ImageAlign = ContentAlignment.MiddleCenter,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                ShowAllBorders = false,
+                ShowShadow = false,
+                IsChild = true,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                Location = new Point(DrawingRect.X, logo.Bottom)
+            };
+            toggleButton.Click += ToggleButton_Click;
+            Controls.Add(toggleButton);
         }
         protected override void OnResize(EventArgs e)
         {
@@ -161,6 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = Color.White;
             Font = new Font("Segoe UI", 9);
             Init();
+            IsChild = false;
             ApplyTheme();
             if(!isCollapsed) OnMenuCollapseExpand?.Invoke(false);
             menuItems.ListChanged += MenuItems_ListChanged;
@@ -168,56 +226,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void Init()
         {
-            DoubleBuffered = true;
-          //  Width = expandedWidth;
-            ButtonSize = new Size(Width, 40);
-            _isControlinvalidated = true;
-            animationTimer = new Timer { Interval = 10 };
-            animationTimer.Tick += AnimationTimer_Tick;
-            IsBorderAffectedByTheme = false;
-            IsShadowAffectedByTheme = false;
-            ShowAllBorders = true;
-            ShowShadow = false;
-            logo = new BeepLabel
-            {
-              //  Padding = new Padding( 10, 0, 10, 0),
-                Size = new Size(ButtonSize.Width , ButtonSize.Height),
-                //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
-                MaxImageSize = new Size(30, 30),
-                TextAlign = ContentAlignment.MiddleCenter,
-                ImageAlign = ContentAlignment.MiddleLeft,
-                TextImageRelation = TextImageRelation.ImageBeforeText,
-                IsBorderAffectedByTheme = false,
-                IsShadowAffectedByTheme = false,
-                ShowAllBorders = false,
-                ShowShadow = false,
-                Text = Title,
-                IsFramless = true,
-                IsChild = true,
-                ApplyThemeOnImage = false,
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                Location = new Point(DrawingRect.X, DrawingRect.Y)
-            };
-            Controls.Add(logo);
-
-            toggleButton = new BeepButton
-            {
-               // Padding = new Padding( 10, 0, 10, 0),
-                Size = new Size(ButtonSize.Width,ButtonSize.Height),
-                Text = "",
-                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.hamburger.svg",
-                MaxImageSize = new Size(24, 24),
-                ImageAlign = ContentAlignment.MiddleCenter,
-                IsBorderAffectedByTheme = false,
-                IsShadowAffectedByTheme = false,
-                ShowAllBorders = false,
-                ShowShadow = false,
-                IsChild = true,
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                Location = new Point(DrawingRect.X, logo.Bottom)
-            };
-            toggleButton.Click += ToggleButton_Click;
-            Controls.Add(toggleButton);
+      
 
             InitializeMenu();
         }
@@ -324,7 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var menuItemPanel = CreateMenuItemPanel(item, false);
                 menuItemPanel.Top = yOffset;
                 menuItemPanel.Left = DrawingRect.X;
-                menuItemPanel.Width = Width;
+                menuItemPanel.Width = DrawingRect.Width;
                 menuItemPanel.Height = menuItemHeight;
                 menuItemPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
                 Controls.Add(menuItemPanel);
@@ -338,7 +347,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         var childPanel = CreateMenuItemPanel(childItem, true);
                         childPanel.Top = yOffset;
                         childPanel.Left = DrawingRect.X;
-                        childPanel.Width = Width;
+                        childPanel.Width = DrawingRect.Width;
                         childPanel.Visible = false;
                         Controls.Add(childPanel);
                         yOffset += childPanel.Height;

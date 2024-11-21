@@ -27,13 +27,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool SetForegroundWindow(IntPtr hWnd);
-
+        public bool IsinCaptureMenuMode { get; set; }
         public event EventHandler<IPassedArgs> PreClose;
         public event EventHandler<IPassedArgs> PreCallModule;
         public event EventHandler<IPassedArgs> PreLogin;
         public event EventHandler<IPassedArgs> PostLogin;
         public event EventHandler<IPassedArgs> PreShowItem;
-        public bool IsinCaptureMenuMode { get; set; }
         public event EventHandler<IPassedArgs> PostShowItem;
         public event EventHandler<IPassedArgs> PostCallModule;
         public event EventHandler<KeyCombination> KeyPressed;

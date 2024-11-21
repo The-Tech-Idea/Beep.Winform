@@ -14,27 +14,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private List<BeepButton> _buttons = new List<BeepButton>();
         private List<Panel> _panels = new List<Panel>();
         private int _selectedIndex = -1;
-        private SimpleMenuItemCollection items = new SimpleMenuItemCollection();
+       
         int drawRectX;
         int drawRectY;
         int drawRectWidth;
         int drawRectHeight;
-        //protected bool _showtitle = true;
-        //[Browsable(true)]
-        //[Category("Appearance")]
-        //[Description("The list of items to display in the list box.")]
-        //public bool ShowTitle
-        //{
-        //    get => _showtitle;
-        //    set
-        //    {
-        //        _showtitle = value;
-        //        ShowTitle = value;
-        //        ShowTitleLine = value;
-        //      //  UpdateDrawingRect();
-        //      //  Invalidate();
-        //    }
-        //}
+        private SimpleMenuItemCollection items = new SimpleMenuItemCollection();
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
@@ -225,7 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls
            
         }
 
-        public void InitializeMenu()
+        public virtual void InitializeMenu()
         {
             // Remove existing menu item panels
             foreach (var control in this.Controls.OfType<Panel>().Where(c => c.Tag is SimpleMenuItem).ToList())

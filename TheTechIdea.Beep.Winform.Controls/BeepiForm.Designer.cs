@@ -477,8 +477,8 @@
             beepPanel1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
             beepPanel1.ShadowOffset = 0;
             beepPanel1.ShadowOpacity = 0.5F;
-            beepPanel1.ShowAllBorders = true;
-            beepPanel1.ShowBottomBorder = true;
+            beepPanel1.ShowAllBorders = false;
+            beepPanel1.ShowBottomBorder = false;
             beepPanel1.ShowFocusIndicator = false;
             beepPanel1.ShowLeftBorder = true;
             beepPanel1.ShowRightBorder = true;
@@ -518,7 +518,7 @@
             TitleLabel.DataContext = null;
             TitleLabel.DisabledBackColor = Color.Gray;
             TitleLabel.DisabledForeColor = Color.Empty;
-            TitleLabel.DrawingRect = new Rectangle(1, 1, 166, 26);
+            TitleLabel.DrawingRect = new Rectangle(1, 1, 185, 26);
             TitleLabel.Easing = EasingType.Linear;
             TitleLabel.FieldID = null;
             TitleLabel.FocusBackColor = Color.Black;
@@ -526,7 +526,7 @@
             TitleLabel.FocusForeColor = Color.Black;
             TitleLabel.FocusIndicatorColor = Color.Blue;
             TitleLabel.Font = new Font("Segoe UI", 12F);
-            TitleLabel.ForeColor = Color.Black;
+            TitleLabel.ForeColor = Color.FromArgb(33, 150, 243);
             TitleLabel.Form = null;
             TitleLabel.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             TitleLabel.GradientEndColor = Color.FromArgb(30, 30, 30);
@@ -575,7 +575,7 @@
             TitleLabel.ShowRightBorder = true;
             TitleLabel.ShowShadow = false;
             TitleLabel.ShowTopBorder = true;
-            TitleLabel.Size = new Size(168, 28);
+            TitleLabel.Size = new Size(187, 28);
             TitleLabel.SlideFrom = SlideDirection.Left;
             TitleLabel.StaticNotMoving = false;
             TitleLabel.TabIndex = 5;

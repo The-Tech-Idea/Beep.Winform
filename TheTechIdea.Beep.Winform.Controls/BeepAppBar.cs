@@ -325,22 +325,22 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ShowProfileMenu()
         {
-            // Initialize the profile menu with the current theme
-            var profileMenu = new BeepDropDownMenu(theme);
+            //    // Initialize the profile menu with the current theme
+            //    var profileMenu = new BeepDropDownMenu(theme);
 
-            // Add menu items (SimpleMenuItem instances) with text and optional SVG icons
-            profileMenu.Items.Add(new SimpleMenuItem { Text = "Profile", Image = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg" });
-            profileMenu.Items.Add(new SimpleMenuItem { Text = "Settings", Image = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.down.svg" });
-            profileMenu.Items.Add(new SimpleMenuItem { Text = "Logout", Image = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.logout.svg" });
+            //    // Add menu items (SimpleMenuItem instances) with text and optional SVG icons
+            //    profileMenu.Items.Add(new SimpleMenuItem { Text = "Profile", Image = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg" });
+            //    profileMenu.Items.Add(new SimpleMenuItem { Text = "Settings", Image = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.down.svg" });
+            //    profileMenu.Items.Add(new SimpleMenuItem { Text = "Logout", Image = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.logout.svg" });
 
-            // Populate the menu with items
-            profileMenu.PopulateMenu();
+            //    // Populate the menu with items
+            //    profileMenu.PopulateMenu();
 
-            // Show the profile menu at the location of the profile icon, just below it
-            var iconLocation = profileIcon.PointToScreen(new Point(0, profileIcon.Height));
-            profileMenu.Show(Parent, profileIcon.Left, profileIcon.Bottom + 10);  // Adjust the Y-coordinate to place it below
+            //    // Show the profile menu at the location of the profile icon, just below it
+            //    var iconLocation = profileIcon.PointToScreen(new Point(0, profileIcon.Height));
+            //    profileMenu.Show(Parent, profileIcon.Left, profileIcon.Bottom + 10);  // Adjust the Y-coordinate to place it below
+            //}
         }
-
         private void ApplyTheme()
         {
             BackColor = theme.PanelBackColor;

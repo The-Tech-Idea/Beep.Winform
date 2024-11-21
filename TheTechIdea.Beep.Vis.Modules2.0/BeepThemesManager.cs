@@ -239,7 +239,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.White,
             ButtonHoverBackColor = Color.FromArgb(70, 70, 70),
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(90, 90, 90),
+            ButtonActiveBackColor = Color.FromArgb(80, 80, 80),
             ButtonActiveForeColor = Color.White,
 
             // TextBox Colors
@@ -251,7 +251,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.White,                  // White for text color
 
             // Panel Colors
-            PanelBackColor = Color.FromArgb(30, 30, 30),
+            PanelBackColor = Color.FromArgb(245, 245, 245), // Light Gray for subtle contrast against white background
+
 
             // Grid Colors
             HeaderBackColor = Color.FromArgb(45, 45, 45),
@@ -317,15 +318,16 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // Side Menu Colors
-            SideMenuBackColor = Color.FromArgb(40, 40, 40),
-            SideMenuHoverBackColor = Color.FromArgb(45, 45, 45),
-            SideMenuSelectedBackColor = Color.FromArgb(50, 50, 50),
-            SideMenuForeColor = Color.White,
-            SideMenuHoverForeColor = Color.White,
-            SideMenuSelectedForeColor = Color.White,
-            SideMenuBorderColor = Color.Gray,
-            SideMenuIconColor = Color.LightGray,
-            SideMenuSelectedIconColor = Color.White,
+            SideMenuBackColor = Color.FromArgb(50, 50, 50),           // Darker than the background
+            SideMenuHoverBackColor = Color.FromArgb(60, 60, 60),      // Slightly lighter than the back color
+            SideMenuSelectedBackColor = Color.FromArgb(80, 80, 80),   // More distinct for selection
+            SideMenuForeColor = Color.White,                         // Clear text color
+            SideMenuHoverForeColor = Color.White,                    // Same as default for simplicity
+            SideMenuSelectedForeColor = Color.LightBlue,             // Highlighted text for selected state
+            SideMenuBorderColor = Color.Gray,                        // Subtle borders for separation
+            SideMenuIconColor = Color.LightGray,                     // Non-selected icons
+            SideMenuSelectedIconColor = Color.DeepSkyBlue,           // Selected icons stand out
+
 
             // Title Bar Colors
             TitleBarBackColor = Color.FromArgb(45, 45, 45),
@@ -865,7 +867,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **General Colors**
             BackColor = Color.White,
-            PanelBackColor = Color.White,
+            PanelBackColor = Color.FromArgb(240, 240, 240), // Medium Light Gray
+
             SurfaceColor = Color.White,
 
             // **Primary and Secondary Colors**
@@ -881,9 +884,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Button Colors**
             ButtonBackColor = Color.FromArgb(33, 150, 243),       // PrimaryColor
             ButtonForeColor = Color.White,                        // OnPrimaryColor
-            ButtonHoverBackColor = Color.FromArgb(30, 136, 229),  // Darker shade of PrimaryColor
+            ButtonHoverBackColor = Color.FromArgb(30, 136, 229),  // Slightly darker shade of PrimaryColor
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(25, 118, 210), // Even darker shade
+            ButtonActiveBackColor = Color.FromArgb(25, 118, 210), // Stronger active state
             ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
@@ -953,15 +956,15 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogButtonForeColor = Color.White,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.White,
-            SideMenuHoverBackColor = Color.FromArgb(245, 245, 245),
-            SideMenuSelectedBackColor = Color.FromArgb(224, 224, 224),
-            SideMenuForeColor = Color.Black,
-            SideMenuSelectedForeColor = Color.Black,
-            SideMenuHoverForeColor = Color.Black,
+            SideMenuBackColor = Color.FromArgb(245, 245, 245),           // Light Gray for subtle contrast
+            SideMenuHoverBackColor = Color.FromArgb(224, 224, 224),      // Slightly darker for hover state
+            SideMenuSelectedBackColor = Color.FromArgb(200, 200, 200),   // More distinct for selection
+            SideMenuForeColor = Color.FromArgb(33, 33, 33),              // Dark Gray for readability
+            SideMenuHoverForeColor = Color.Black,                        // Bold text color for hover
+            SideMenuSelectedForeColor = Color.FromArgb(33, 150, 243),    // Highlighted text for selected state
             SideMenuBorderColor = Color.LightGray,
-            SideMenuIconColor = Color.Black,
-            SideMenuSelectedIconColor = Color.FromArgb(33, 150, 243), // PrimaryColor
+            SideMenuIconColor = Color.Gray,
+            SideMenuSelectedIconColor = Color.FromArgb(33, 150, 243),    // Match PrimaryColor
 
             // **Title Bar Colors**
             TitleBarBackColor = Color.FromArgb(33, 33, 33), // Dark Gray
@@ -971,10 +974,11 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Dashboard Colors**
             DashboardBackColor = Color.White,
-            DashboardCardBackColor = Color.White,
-            DashboardCardHoverBackColor = Color.FromArgb(245, 245, 245),
-            CardTitleForeColor = Color.Black,
-            CardTextForeColor = Color.FromArgb(117, 117, 117), // Light Gray
+            DashboardCardBackColor = Color.FromArgb(250, 250, 250),       // Subtle contrast
+            DashboardCardHoverBackColor = Color.FromArgb(240, 240, 240),  // Slightly darker for hover
+            CardTitleForeColor = Color.FromArgb(33, 33, 33),              // Dark Gray for readability
+            CardTextForeColor = Color.FromArgb(117, 117, 117),            // Consistent with body text
+
 
             // **Data Visualization (Charts)**
             ChartBackColor = Color.White,
@@ -1223,12 +1227,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             BackColor = Color.FromArgb(240, 240, 240),               // Light Gray Background
 
             // **Button Colors**
-            ButtonBackColor = Color.FromArgb(240, 240, 240),          // Light Gray
-            ButtonForeColor = Color.FromArgb(60, 60, 60),            // Dark Gray
-            ButtonHoverBackColor = Color.FromArgb(230, 230, 230),     // Slightly Darker Gray
-            ButtonHoverForeColor = Color.FromArgb(60, 60, 60),
-            ButtonActiveBackColor = Color.FromArgb(220, 220, 220),    // Even Darker Gray
-            ButtonActiveForeColor = Color.FromArgb(60, 60, 60),
+            ButtonBackColor = Color.FromArgb(240, 240, 240),               // Light Gray
+            ButtonForeColor = Color.FromArgb(33, 33, 33),                  // Dark Gray
+            ButtonHoverBackColor = Color.FromArgb(230, 230, 230),          // Slightly Darker Gray
+            ButtonHoverForeColor = Color.FromArgb(33, 33, 33),             // Dark Gray
+            ButtonActiveBackColor = Color.FromArgb(220, 220, 220),         // Darker Gray
+            ButtonActiveForeColor = Color.FromArgb(33, 33, 33),            // Dark Gray
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(245, 245, 245),         // Very Light Gray
@@ -1239,7 +1243,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(60, 60, 60),             // Dark Gray
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(240, 240, 240),           // Light Gray
+            PanelBackColor = Color.FromArgb(245, 245, 245),
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(245, 245, 245),          // Very Light Gray
@@ -1304,13 +1308,13 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientEndColor = Color.FromArgb(230, 230, 230),          // Slightly Darker Gray
             GradientDirection = LinearGradientMode.Vertical,
 
-            // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(240, 240, 240),         // Light Gray
-            SideMenuHoverBackColor = Color.FromArgb(235, 235, 235),    // Slightly Darker Gray
-            SideMenuSelectedBackColor = Color.FromArgb(220, 220, 220), // Even Darker Gray
-            SideMenuForeColor = Color.FromArgb(60, 60, 60),            // Dark Gray
-            SideMenuHoverForeColor = Color.FromArgb(60, 60, 60),       // Dark Gray
-            SideMenuSelectedForeColor = Color.FromArgb(33, 33, 33),    // Darker Gray
+            // **Panel and Side Menu Colors**
+            SideMenuBackColor = Color.FromArgb(245, 245, 245),             // Matches Panel
+            SideMenuHoverBackColor = Color.FromArgb(235, 235, 235),        // Slightly Darker Gray
+            SideMenuSelectedBackColor = Color.FromArgb(220, 220, 220),     // Subtle Contrast
+            SideMenuForeColor = Color.FromArgb(33, 33, 33),                // Dark Gray
+            SideMenuHoverForeColor = Color.FromArgb(33, 33, 33),           // Dark Gray
+            SideMenuSelectedForeColor = Color.FromArgb(0, 172, 193),       // Cyan Accent
             SideMenuBorderColor = Color.FromArgb(220, 220, 220),       // Light Gray
             SideMenuIconColor = Color.FromArgb(60, 60, 60),            // Dark Gray
             SideMenuSelectedIconColor = Color.FromArgb(33, 33, 33),    // Darker Gray
@@ -1597,9 +1601,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Color Palette**
             PrimaryColor = Color.FromArgb(38, 198, 218),               // Blue Accent
             SecondaryColor = Color.FromArgb(60, 60, 60),              // Dark Gray
-            AccentColor = Color.FromArgb(38, 198, 218),                // Blue Accent
+            AccentColor = Color.FromArgb(0, 172, 193),                     // Cyan Accent
             BackgroundColor = Color.FromArgb(240, 240, 240),          // Light Gray
-            SurfaceColor = Color.FromArgb(245, 245, 245),             // Very Light Gray
+            SurfaceColor = Color.FromArgb(250, 250, 250),                  // Very Subtle Surface Color
             ErrorColor = Color.FromArgb(233, 30, 99),                 // Pink Accent
             WarningColor = Color.FromArgb(255, 241, 118),             // Light Yellow
             SuccessColor = Color.FromArgb(0, 230, 118),               // Green Accent
@@ -1766,18 +1770,19 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(0, 105, 148),               // Deep Ocean Blue
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(224, 255, 255),             // Light Cyan
+            PanelBackColor = Color.FromArgb(240, 255, 255),             // Azure
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(175, 238, 238),            // Pale Turquoise
             HeaderForeColor = Color.FromArgb(0, 105, 148),              // Deep Ocean Blue
             GridLineColor = Color.FromArgb(0, 160, 176),                // Blue-Green
-            RowBackColor = Color.White,
+           
             RowForeColor = Color.FromArgb(0, 105, 148),                 // Deep Ocean Blue
-            AltRowBackColor = Color.FromArgb(240, 255, 255),            // Azure
+                                                                        // **Grid Colors**
+            RowBackColor = Color.FromArgb(240, 255, 255),               // Azure
+            AltRowBackColor = Color.FromArgb(224, 255, 255),            // Light Cyan
             SelectedRowBackColor = Color.FromArgb(0, 160, 176),         // Blue-Green
             SelectedRowForeColor = Color.White,
-
             // **ComboBox Colors**
             ComboBoxBackColor = Color.White,
             ComboBoxForeColor = Color.FromArgb(0, 105, 148),            // Deep Ocean Blue
@@ -1832,15 +1837,16 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(224, 255, 255),          // Light Cyan
-            SideMenuHoverBackColor = Color.FromArgb(175, 238, 238),     // Pale Turquoise
+            SideMenuBackColor = Color.FromArgb(240, 255, 255),          // Azure
+            SideMenuHoverBackColor = Color.FromArgb(224, 255, 255),     // Light Cyan
             SideMenuSelectedBackColor = Color.FromArgb(0, 160, 176),    // Blue-Green
             SideMenuForeColor = Color.FromArgb(0, 105, 148),            // Deep Ocean Blue
             SideMenuHoverForeColor = Color.FromArgb(0, 105, 148),       // Deep Ocean Blue
             SideMenuSelectedForeColor = Color.White,
-            SideMenuBorderColor = Color.FromArgb(175, 238, 238),        // Pale Turquoise
             SideMenuIconColor = Color.FromArgb(0, 105, 148),            // Deep Ocean Blue
             SideMenuSelectedIconColor = Color.White,
+            SideMenuBorderColor = Color.FromArgb(175, 238, 238),        // Pale Turquoise
+        
 
             // **Title Bar Colors**
             TitleBarBackColor = Color.FromArgb(0, 160, 176),            // Blue-Green
@@ -2412,7 +2418,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(85, 85, 85),                 // Dark Gray
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(255, 244, 229),              // Linen Background
+            PanelBackColor = Color.FromArgb(255, 223, 211), // Light Coral
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(255, 212, 173),             // Peach Puff
@@ -2480,7 +2487,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(255, 244, 229),           // Linen Background
+            SideMenuBackColor = Color.FromArgb(255, 160, 122), // Light Salmon
+
             SideMenuHoverBackColor = Color.FromArgb(255, 235, 211),      // Light Linen
             SideMenuSelectedBackColor = Color.FromArgb(255, 179, 174),   // Light Pink
             SideMenuForeColor = Color.FromArgb(85, 85, 85),
@@ -2999,7 +3007,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(34, 85, 34),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(245, 245, 220),                // Beige
+            PanelBackColor = Color.FromArgb(222, 184, 135), // Burlywood
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(205, 133, 63),                // Peru (brownish color)
@@ -3067,7 +3076,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(245, 245, 220),             // Beige
+            SideMenuBackColor = Color.FromArgb(85, 107, 47), // Olive Drab
+
             SideMenuHoverBackColor = Color.FromArgb(240, 230, 140),        // Khaki
             SideMenuSelectedBackColor = Color.FromArgb(85, 107, 47),       // Olive Drab
             SideMenuForeColor = Color.FromArgb(34, 85, 34),
@@ -3586,7 +3596,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(85, 85, 85),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(255, 248, 220),               // Cornsilk
+            PanelBackColor = Color.FromArgb(250, 235, 215), // Antique White
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(222, 184, 135),              // Burlywood
@@ -3654,7 +3665,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(255, 248, 220),            // Cornsilk
+            SideMenuBackColor = Color.FromArgb(222, 184, 135), // Burlywood
+
             SideMenuHoverBackColor = Color.FromArgb(250, 235, 215),       // Antique White
             SideMenuSelectedBackColor = Color.FromArgb(210, 105, 30),     // Chocolate
             SideMenuForeColor = Color.FromArgb(85, 85, 85),
@@ -4173,7 +4185,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(85, 85, 85),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(245, 245, 220),              // Beige
+            PanelBackColor = Color.FromArgb(222, 184, 135), // Burlywood
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(210, 180, 140),             // Tan
@@ -4241,7 +4254,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(245, 245, 220),           // Beige
+            SideMenuBackColor = Color.FromArgb(160, 82, 45), // Sienna
+
             SideMenuHoverBackColor = Color.FromArgb(222, 184, 135),      // Burlywood
             SideMenuSelectedBackColor = Color.FromArgb(160, 82, 45),     // Sienna
             SideMenuForeColor = Color.FromArgb(85, 85, 85),
@@ -4760,7 +4774,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(60, 60, 60),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(245, 245, 245),     // White Smoke
+            PanelBackColor = Color.FromArgb(230, 240, 255), // Soft Ice Blue
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(176, 196, 222),    // LightSteelBlue
@@ -4828,7 +4843,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(245, 245, 245),
+            SideMenuBackColor = Color.FromArgb(200, 225, 245), // Frosted Blue
+
             SideMenuHoverBackColor = Color.FromArgb(230, 230, 250), // Lavender
             SideMenuSelectedBackColor = Color.FromArgb(176, 196, 222),
             SideMenuForeColor = Color.FromArgb(60, 60, 60),
@@ -5347,7 +5363,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(85, 107, 47),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(245, 255, 250),         // Mint Cream
+            PanelBackColor = Color.FromArgb(245, 255, 250), // Mint Cream
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(152, 251, 152),        // Pale Green
@@ -5415,7 +5432,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(245, 255, 250),
+            SideMenuBackColor = Color.FromArgb(240, 255, 240), // Honeydew
+
             SideMenuHoverBackColor = Color.FromArgb(240, 255, 240), // Honeydew
             SideMenuSelectedBackColor = Color.FromArgb(144, 238, 144),
             SideMenuForeColor = Color.FromArgb(85, 107, 47),
@@ -5935,7 +5953,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(139, 0, 139),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(255, 250, 250),          // Snow
+            PanelBackColor = Color.FromArgb(230, 230, 250), // Lavender
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(255, 182, 193),         // Light Pink
@@ -6003,7 +6021,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(255, 250, 250),       // Snow
+            SideMenuBackColor = Color.FromArgb(255, 192, 203), // Pink
             SideMenuHoverBackColor = Color.FromArgb(255, 240, 245),  // LavenderBlush
             SideMenuSelectedBackColor = Color.FromArgb(255, 182, 193),
             SideMenuForeColor = Color.FromArgb(139, 0, 139),
@@ -6523,7 +6541,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(60, 60, 60),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(245, 245, 245),
+            PanelBackColor = Color.FromArgb(240, 240, 240), // Light Gray
+        
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(230, 230, 230),
@@ -6591,7 +6610,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(245, 245, 245),
+            SideMenuBackColor = Color.FromArgb(230, 230, 230), // Medium Gray
             SideMenuHoverBackColor = Color.FromArgb(230, 230, 230),
             SideMenuSelectedBackColor = Color.FromArgb(220, 220, 220),
             SideMenuForeColor = Color.FromArgb(60, 60, 60),
@@ -7111,7 +7130,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(255, 255, 0),          // Yellow
 
             // **Panel Colors**
-            PanelBackColor = Color.Black,
+            PanelBackColor = Color.FromArgb(123, 104, 238), // Medium Slate Blue
+            
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(75, 0, 130),          // Indigo
@@ -7179,7 +7200,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.ForwardDiagonal,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.Black,
+            SideMenuBackColor = Color.FromArgb(148, 0, 211), // Dark Violet
             SideMenuHoverBackColor = Color.FromArgb(75, 0, 130),
             SideMenuSelectedBackColor = Color.FromArgb(255, 20, 147),
             SideMenuForeColor = Color.FromArgb(0, 255, 255),       // Aqua
@@ -7699,7 +7720,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(0, 0, 0),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(248, 248, 255),          // Ghost White
+            PanelBackColor = Color.FromArgb(72, 61, 139), // Dark Slate Blue
+            
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(75, 0, 130),
@@ -7767,7 +7790,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(248, 248, 255),
+            SideMenuBackColor = Color.FromArgb(25, 25, 112), // Midnight Blue
             SideMenuHoverBackColor = Color.FromArgb(72, 61, 139),
             SideMenuSelectedBackColor = Color.FromArgb(75, 0, 130),
             SideMenuForeColor = Color.FromArgb(0, 0, 0),
@@ -8289,7 +8312,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(0, 0, 0),
 
             // **Panel Colors**
-            PanelBackColor = Color.White,
+            PanelBackColor = Color.FromArgb(240, 240, 240), // Light Gray
+
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(0, 120, 215),
@@ -8358,7 +8383,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.White,
+            SideMenuBackColor = Color.FromArgb(0, 120, 215), // Highlight Blue
             SideMenuHoverBackColor = Color.FromArgb(240, 240, 240),
             SideMenuSelectedBackColor = Color.FromArgb(0, 120, 215),
             SideMenuForeColor = Color.FromArgb(0, 0, 0),
@@ -8880,7 +8905,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(255, 255, 255),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(30, 30, 30),
+            PanelBackColor = Color.FromArgb(45, 45, 48), // Dark Gray
+            
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(45, 45, 48),
@@ -8949,7 +8976,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(30, 30, 30),
+            SideMenuBackColor = Color.FromArgb(28, 28, 40), // Deep Blue
             SideMenuHoverBackColor = Color.FromArgb(51, 51, 51),
             SideMenuSelectedBackColor = Color.FromArgb(45, 45, 48),
             SideMenuForeColor = Color.FromArgb(255, 255, 255),
@@ -9471,7 +9498,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(33, 33, 33),
 
             // **Panel Colors**
-            PanelBackColor = Color.White,
+            PanelBackColor = Color.FromArgb(245, 245, 245), // Light Gray
+            
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(245, 245, 245),
@@ -9540,7 +9569,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.White,
+            SideMenuBackColor = Color.FromArgb(240, 248, 255), // Subtle Blue Tint
             SideMenuHoverBackColor = Color.FromArgb(245, 245, 245),
             SideMenuSelectedBackColor = Color.FromArgb(33, 150, 243),
             SideMenuForeColor = Color.FromArgb(33, 33, 33),
@@ -10062,7 +10091,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(85, 85, 85),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(255, 250, 240),        // Floral White
+            PanelBackColor = Color.FromArgb(255, 240, 245),        // Lavender Blush
+            
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(255, 240, 245),       // Lavender Blush
@@ -10131,7 +10162,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.White,
+            SideMenuBackColor = Color.FromArgb(255, 245, 238),     // Peach Puff
             SideMenuHoverBackColor = Color.FromArgb(255, 245, 238),
             SideMenuSelectedBackColor = Color.FromArgb(186, 225, 255),
             SideMenuForeColor = Color.FromArgb(85, 85, 85),
@@ -10653,15 +10684,18 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(230, 230, 250),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(15, 15, 30),
+            PanelBackColor = Color.FromArgb(25, 25, 50), // Darker blue-gray
+
+
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(25, 25, 50),
             HeaderForeColor = Color.FromArgb(230, 230, 250),
             GridLineColor = Color.FromArgb(45, 45, 80),
             RowBackColor = Color.FromArgb(20, 20, 40),
-            RowForeColor = Color.FromArgb(230, 230, 250),
-            AltRowBackColor = Color.FromArgb(25, 25, 50),
+            AltRowBackColor = Color.FromArgb(15, 15, 35),       // Very Dark Navy
+            RowForeColor = Color.FromArgb(211, 211, 211),       // Light Gray
             SelectedRowBackColor = Color.FromArgb(65, 105, 225),
             SelectedRowForeColor = Color.White,
 
@@ -10722,7 +10756,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(15, 15, 30),
+            SideMenuBackColor = Color.FromArgb(20, 20, 40), // Deep blue-gray
+
             SideMenuHoverBackColor = Color.FromArgb(25, 25, 50),
             SideMenuSelectedBackColor = Color.FromArgb(25, 25, 50),
             SideMenuForeColor = Color.FromArgb(230, 230, 250),
@@ -11244,7 +11279,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(128, 255, 0),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(0, 0, 0),
+            PanelBackColor = Color.FromArgb(15, 15, 50), // Deep Neon Blue Tint
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(30, 30, 30),
@@ -11313,7 +11349,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(0, 0, 0),
+            SideMenuBackColor = Color.FromArgb(40, 0, 50), // Neon Purple
+
             SideMenuHoverBackColor = Color.FromArgb(15, 15, 15),
             SideMenuSelectedBackColor = Color.FromArgb(30, 30, 30),
             SideMenuForeColor = Color.FromArgb(128, 255, 0),
@@ -11835,7 +11872,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(80, 40, 20),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(245, 222, 179),
+            PanelBackColor = Color.FromArgb(210, 180, 140),// Tan
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(222, 184, 135),
@@ -11904,7 +11942,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(245, 222, 179),
+            SideMenuBackColor = Color.FromArgb(160, 82, 45), // Sienna
+
             SideMenuHoverBackColor = Color.FromArgb(222, 184, 135),
             SideMenuSelectedBackColor = Color.FromArgb(205, 133, 63),
             SideMenuForeColor = Color.FromArgb(80, 40, 20),
@@ -12426,7 +12465,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(230, 230, 250),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(18, 18, 50),
+            PanelBackColor = Color.FromArgb(25, 25, 70), // Slightly Lighter Deep Space Blue
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(25, 25, 112),
@@ -12495,7 +12535,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(18, 18, 50),
+            SideMenuBackColor = Color.FromArgb(15, 15, 40),// Darker Space Blue
+
             SideMenuHoverBackColor = Color.FromArgb(25, 25, 70),
             SideMenuSelectedBackColor = Color.FromArgb(25, 25, 70),
             SideMenuForeColor = Color.FromArgb(230, 230, 250),
@@ -12890,7 +12931,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = true,
         };
-
+             
         public static BeepTheme DesertTheme => new BeepTheme
         {
             // **Card Styles**
@@ -13017,7 +13058,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(102, 51, 0),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(237, 201, 175),
+            PanelBackColor = Color.FromArgb(220, 180, 140), // Sandy Beige
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(222, 184, 135),
@@ -13086,7 +13128,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(237, 201, 175),
+            SideMenuBackColor = Color.FromArgb(200, 160, 120), // Desert Brown
+
             SideMenuHoverBackColor = Color.FromArgb(222, 184, 135),
             SideMenuSelectedBackColor = Color.FromArgb(205, 133, 63),
             SideMenuForeColor = Color.FromArgb(102, 51, 0),
@@ -13607,7 +13650,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(80, 60, 40),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(245, 222, 179),
+            PanelBackColor = Color.FromArgb(230, 200, 160), // Muted Tan
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(222, 184, 135),
@@ -13676,7 +13720,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(245, 222, 179),
+            SideMenuBackColor = Color.FromArgb(200, 170, 120), // Soft Beige
+
             SideMenuHoverBackColor = Color.FromArgb(222, 184, 135),
             SideMenuSelectedBackColor = Color.FromArgb(205, 133, 63),
             SideMenuForeColor = Color.FromArgb(80, 60, 40),
@@ -14071,7 +14116,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = false,
         };
-
         public static BeepTheme DefaultTheme => new BeepTheme
         {
             // **Card Styles**
@@ -14199,7 +14243,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.Black,
 
             // **Panel Colors**
-            PanelBackColor = Color.White,
+            PanelBackColor = Color.FromArgb(245, 245, 245), // Light Gray
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(240, 240, 240),
@@ -14268,7 +14313,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(240, 240, 240),
+            SideMenuBackColor = Color.FromArgb(230, 230, 240), // Cool Light Gray
+
             SideMenuHoverBackColor = Color.FromArgb(230, 230, 230),
             SideMenuSelectedBackColor = Color.FromArgb(0, 120, 215),
             SideMenuForeColor = Color.Black,
@@ -14663,7 +14709,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = false,
         };
-
         public static BeepTheme GlassmorphismTheme => new BeepTheme
         {
 
@@ -14791,7 +14836,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(30, 30, 30),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(150, 255, 255, 255),     // Semi-transparent White
+            PanelBackColor = Color.FromArgb(180, 255, 255, 255), // Semi-transparent White
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(180, 255, 255, 255),
@@ -14860,7 +14906,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(0, 255, 255, 255),
+            SideMenuBackColor = Color.FromArgb(160, 240, 248, 255), // Light Sky Blue Tint
+
             SideMenuHoverBackColor = Color.FromArgb(150, 255, 255, 255),
             SideMenuSelectedBackColor = Color.FromArgb(200, 255, 255, 255),
             SideMenuForeColor = Color.FromArgb(30, 30, 30),
@@ -15381,7 +15428,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(44, 62, 80),
 
             // **Panel Colors**
-            PanelBackColor = Color.White,
+            PanelBackColor = Color.FromArgb(245, 245, 245), // Very Light Gray
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(236, 240, 241),
@@ -15450,7 +15498,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(236, 240, 241),
+            SideMenuBackColor = Color.FromArgb(236, 240, 241), // Clouds (Light Gray)
+
             SideMenuHoverBackColor = Color.FromArgb(189, 195, 199),
             SideMenuSelectedBackColor = Color.FromArgb(52, 152, 219),
             SideMenuForeColor = Color.FromArgb(44, 62, 80),
@@ -15845,7 +15894,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = false,
         };
-
         public static BeepTheme CyberpunkNeonTheme => new BeepTheme
         {
             // **Card Styles**
@@ -15972,7 +16020,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(0, 255, 255),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(25, 25, 25),
+            PanelBackColor = Color.FromArgb(35, 35, 35), // Slightly lighter dark gray
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(30, 30, 30),
@@ -16041,7 +16090,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(25, 25, 25),
+            SideMenuBackColor = Color.FromArgb(40, 40, 40), // Richer dark gray for Side Menu
+
             SideMenuHoverBackColor = Color.FromArgb(30, 30, 30),
             SideMenuSelectedBackColor = Color.FromArgb(0, 255, 255),
             SideMenuForeColor = Color.FromArgb(0, 255, 255),
@@ -16436,7 +16486,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = true,
         };
-
         public static BeepTheme GradientBurstTheme => new BeepTheme
         {
             // **Card Styles**
@@ -16563,7 +16612,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(255, 75, 0, 130),
 
             // **Panel Colors**
-            PanelBackColor = Color.White,
+            PanelBackColor = Color.FromArgb(255, 240, 248, 255), // Alice Blue
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(255, 138, 43, 226),
@@ -16632,7 +16682,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Horizontal,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(255, 240, 248, 255),
+            SideMenuBackColor = Color.FromArgb(255, 138, 43, 226), // Blue Violet
+
             SideMenuHoverBackColor = Color.FromArgb(255, 138, 43, 226),
             SideMenuSelectedBackColor = Color.FromArgb(255, 75, 0, 130),
             SideMenuForeColor = Color.FromArgb(255, 75, 0, 130),
@@ -17027,7 +17078,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = false,
         };
-
         public static BeepTheme HighContrastTheme => new BeepTheme
         {
             // **Card Styles**
@@ -17224,7 +17274,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.Black,
+            SideMenuBackColor = Color.FromArgb(255, 30, 30, 30), // A dark gray tone to distinguish it from the panel
+
             SideMenuHoverBackColor = Color.White,
             SideMenuSelectedBackColor = Color.White,
             SideMenuForeColor = Color.White,
@@ -17777,7 +17828,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.Black,
 
             // **Panel Colors**
-            PanelBackColor = Color.White,
+            PanelBackColor = Color.FromArgb(240, 240, 240), // A soft gray tone distinct from white
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(245, 245, 245),
@@ -17846,7 +17898,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(245, 245, 245),
+            SideMenuBackColor = Color.FromArgb(230, 230, 230), // A slightly darker gray than the panel
+
             SideMenuHoverBackColor = Color.FromArgb(230, 230, 230),
             SideMenuSelectedBackColor = Color.FromArgb(210, 210, 210),
             SideMenuForeColor = Color.Black,
@@ -18369,7 +18422,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.WhiteSmoke,
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(255, 25, 25, 25),
+            PanelBackColor = Color.FromArgb(255, 22, 22, 22), // Slightly lighter than the dark background for distinction
+
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(255, 35, 35, 35),
@@ -18438,7 +18492,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(255, 25, 25, 25),
+            SideMenuBackColor = Color.FromArgb(255, 30, 30, 30), // Slightly darker than PanelBackColor, complements the gold accents
+
             SideMenuHoverBackColor = Color.FromArgb(255, 30, 30, 30),
             SideMenuSelectedBackColor = Color.FromArgb(255, 212, 175),
             SideMenuForeColor = Color.WhiteSmoke,

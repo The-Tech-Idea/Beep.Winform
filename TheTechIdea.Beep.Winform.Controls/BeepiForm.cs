@@ -52,6 +52,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             ishandled = false   ;
             beepPanel1.IsFramless = true;
             TitleLabel.IsFramless = true;
+         
+
             this.Resize += (s, e) => doresize();
         }
         protected override void InitLayout()

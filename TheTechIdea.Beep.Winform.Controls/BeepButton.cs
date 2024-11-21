@@ -60,12 +60,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _applyThemeOnImage = value;
-                if (value) {
-                    beepImage.Theme = Theme;
+                beepImage.ApplyThemeOnImage = value;
+                if (value)
+                {
+
                     if (ApplyThemeOnImage)
                     {
-                        beepImage.ApplyThemeOnImage = true;
+                        beepImage.Theme = Theme;
+
                         beepImage.ApplyThemeToSvg();
+
                     }
                 }
                 Invalidate();

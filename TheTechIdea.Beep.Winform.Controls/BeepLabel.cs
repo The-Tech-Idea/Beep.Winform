@@ -65,14 +65,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _applyThemeOnImage = value;
+                beepImage.ApplyThemeOnImage = value;
                 if (value)
                 {
                    
                     if (ApplyThemeOnImage)
                     {
                         beepImage.Theme = Theme;
-                        beepImage.ApplyThemeOnImage = true;
+                      
                         beepImage.ApplyThemeToSvg();
+                     
                     }
                 }
                 Invalidate();
@@ -458,7 +460,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected override void OnMouseHover(EventArgs e)
         {
-            IsHovered = false;
+            IsHovered = true;
             
         }
         protected override void OnMouseLeave(EventArgs e)
@@ -467,7 +469,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnMouseEnter(EventArgs e)
         {
-            IsHovered = false;
+            IsHovered = true;
         }
 
 

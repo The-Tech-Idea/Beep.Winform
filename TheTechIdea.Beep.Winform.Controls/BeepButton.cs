@@ -304,7 +304,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.ButtonForeColor;
             if (IsChild)
             {
-                ForeColor = _currentTheme.PrimaryColor;
+                ForeColor = _currentTheme.ButtonForeColor;
 
             }
 

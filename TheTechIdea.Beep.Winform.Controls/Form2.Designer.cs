@@ -45,36 +45,33 @@
             // CloseButton
             // 
             CloseButton.ApplyThemeOnImage = true;
-            CloseButton.BackColor = Color.FromArgb(18, 18, 50);
+            CloseButton.BackColor = Color.FromArgb(245, 245, 245);
             CloseButton.Font = new Font("Segoe UI", 12F);
-            CloseButton.ForeColor = Color.FromArgb(138, 43, 226);
             CloseButton.Location = new Point(654, 0);
-            CloseButton.ParentBackColor = Color.FromArgb(18, 18, 50);
-            CloseButton.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            CloseButton.ParentBackColor = Color.FromArgb(245, 245, 245);
+            CloseButton.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             CloseButton.ToolTipText = "Close";
             // 
             // MaximizeButton
             // 
             MaximizeButton.ApplyThemeOnImage = true;
-            MaximizeButton.BackColor = Color.FromArgb(18, 18, 50);
+            MaximizeButton.BackColor = Color.FromArgb(245, 245, 245);
             MaximizeButton.Font = new Font("Segoe UI", 12F);
-            MaximizeButton.ForeColor = Color.FromArgb(138, 43, 226);
             MaximizeButton.Location = new Point(624, 0);
             MaximizeButton.MaxImageSize = new Size(20, 20);
-            MaximizeButton.ParentBackColor = Color.FromArgb(18, 18, 50);
-            MaximizeButton.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            MaximizeButton.ParentBackColor = Color.FromArgb(245, 245, 245);
+            MaximizeButton.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             MaximizeButton.ToolTipText = "Maximize";
             // 
             // MinimizeButton
             // 
             MinimizeButton.ApplyThemeOnImage = true;
-            MinimizeButton.BackColor = Color.FromArgb(18, 18, 50);
+            MinimizeButton.BackColor = Color.FromArgb(245, 245, 245);
             MinimizeButton.Font = new Font("Segoe UI", 12F);
-            MinimizeButton.ForeColor = Color.FromArgb(138, 43, 226);
             MinimizeButton.Location = new Point(594, 0);
             MinimizeButton.MaxImageSize = new Size(20, 20);
-            MinimizeButton.ParentBackColor = Color.FromArgb(18, 18, 50);
-            MinimizeButton.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            MinimizeButton.ParentBackColor = Color.FromArgb(245, 245, 245);
+            MinimizeButton.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             MinimizeButton.ToolTipText = "Minimize";
             // 
             // beepuiManager1
@@ -82,50 +79,50 @@
             beepuiManager1.BeepiForm = this;
             beepuiManager1.BeepSideMenu = beepSideMenu1;
             beepuiManager1.LogoImage = "H:\\dev\\iconPacks\\10007852-team-management (2) (1)\\10007856-team-management\\10007856-team-management\\svg\\016-admin.svg";
-            beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             beepuiManager1.Title = "Asset HR Digital Space";
             // 
             // beepPanel1
             // 
-            beepPanel1.BackColor = Color.FromArgb(18, 18, 50);
+            beepPanel1.BackColor = Color.FromArgb(245, 245, 245);
             beepPanel1.DrawingRect = new Rectangle(1, 1, 682, 28);
-            beepPanel1.ForeColor = Color.FromArgb(230, 230, 250);
+            beepPanel1.ForeColor = Color.FromArgb(70, 130, 180);
             beepPanel1.Location = new Point(354, 10);
-            beepPanel1.ParentBackColor = Color.FromArgb(18, 18, 50);
+            beepPanel1.ParentBackColor = Color.FromArgb(245, 245, 245);
             beepPanel1.ShowAllBorders = true;
             beepPanel1.ShowBottomBorder = true;
             beepPanel1.Size = new Size(684, 30);
-            beepPanel1.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            beepPanel1.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             // 
             // TitleLabel
             // 
-            TitleLabel.BackColor = Color.FromArgb(18, 18, 50);
+            TitleLabel.BackColor = Color.FromArgb(245, 245, 245);
             TitleLabel.DrawingRect = new Rectangle(1, 1, 560, 26);
             TitleLabel.Font = new Font("Segoe UI", 12F);
-            TitleLabel.ForeColor = Color.FromArgb(138, 43, 226);
+            TitleLabel.ForeColor = Color.FromArgb(70, 130, 180);
             TitleLabel.ImagePath = "H:\\dev\\iconPacks\\10007852-team-management (2) (1)\\10007856-team-management\\10007856-team-management\\svg\\016-admin.svg";
             TitleLabel.Size = new Size(562, 28);
             TitleLabel.Text = "Asset HR Digital Space";
-            TitleLabel.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            TitleLabel.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             // 
             // FunctionsPanel1
             // 
-            FunctionsPanel1.BackColor = Color.FromArgb(18, 18, 50);
+            FunctionsPanel1.BackColor = Color.FromArgb(245, 245, 245);
             FunctionsPanel1.Location = new Point(993, 63);
-            FunctionsPanel1.ParentBackColor = Color.FromArgb(18, 18, 50);
-            FunctionsPanel1.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            FunctionsPanel1.ParentBackColor = Color.FromArgb(245, 245, 245);
+            FunctionsPanel1.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             // 
             // beepSideMenu1
             // 
-            beepSideMenu1.ActiveBackColor = Color.FromArgb(138, 43, 226);
+            beepSideMenu1.ActiveBackColor = Color.FromArgb(65, 105, 225);
             beepSideMenu1.AnimationDuration = 500;
             beepSideMenu1.AnimationStep = 20;
             beepSideMenu1.AnimationType = DisplayAnimationType.None;
             beepSideMenu1.ApplyThemeOnImages = false;
-            beepSideMenu1.BackColor = Color.FromArgb(15, 15, 40);
+            beepSideMenu1.BackColor = Color.FromArgb(200, 225, 245);
             beepSideMenu1.BeepForm = this;
             beepSideMenu1.BlockID = null;
-            beepSideMenu1.BorderColor = Color.FromArgb(72, 61, 139);
+            beepSideMenu1.BorderColor = Color.FromArgb(176, 196, 222);
             beepSideMenu1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             beepSideMenu1.BorderRadius = 5;
             beepSideMenu1.BorderStyle = BorderStyle.FixedSingle;
@@ -147,11 +144,11 @@
             beepSideMenu1.ForeColor = Color.White;
             beepSideMenu1.Form = null;
             beepSideMenu1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepSideMenu1.GradientEndColor = Color.FromArgb(25, 25, 70);
-            beepSideMenu1.GradientStartColor = Color.FromArgb(18, 18, 50);
+            beepSideMenu1.GradientEndColor = Color.FromArgb(176, 196, 222);
+            beepSideMenu1.GradientStartColor = Color.FromArgb(245, 245, 245);
             beepSideMenu1.HilightPanelSize = 5;
-            beepSideMenu1.HoverBackColor = Color.FromArgb(72, 61, 139);
-            beepSideMenu1.HoverBorderColor = Color.FromArgb(123, 104, 238);
+            beepSideMenu1.HoverBackColor = Color.FromArgb(70, 130, 180);
+            beepSideMenu1.HoverBorderColor = Color.FromArgb(65, 105, 225);
             beepSideMenu1.HoveredBackcolor = Color.Wheat;
             beepSideMenu1.HoverForeColor = Color.Black;
             beepSideMenu1.Id = -1;
@@ -176,8 +173,8 @@
             beepSideMenu1.Name = "beepSideMenu1";
             beepSideMenu1.OverrideFontSize = TypeStyleFontSize.None;
             beepSideMenu1.Padding = new Padding(2);
-            beepSideMenu1.ParentBackColor = Color.FromArgb(224, 255, 255);
-            beepSideMenu1.PressedBackColor = Color.FromArgb(138, 43, 226);
+            beepSideMenu1.ParentBackColor = Color.FromArgb(20, 20, 20);
+            beepSideMenu1.PressedBackColor = Color.FromArgb(65, 105, 225);
             beepSideMenu1.PressedBorderColor = Color.Gray;
             beepSideMenu1.PressedForeColor = Color.Black;
             beepSideMenu1.SavedGuidID = null;
@@ -197,7 +194,7 @@
             beepSideMenu1.StaticNotMoving = false;
             beepSideMenu1.TabIndex = 0;
             beepSideMenu1.Text = "beepSideMenu1";
-            beepSideMenu1.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            beepSideMenu1.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             beepSideMenu1.Title = "Asset HR Digital Space";
             beepSideMenu1.ToolTipText = "";
             beepSideMenu1.UseGradientBackground = false;
@@ -208,7 +205,7 @@
             beepLabel1.AnimationDuration = 500;
             beepLabel1.AnimationType = DisplayAnimationType.None;
             beepLabel1.ApplyThemeOnImage = false;
-            beepLabel1.BackColor = Color.FromArgb(18, 18, 50);
+            beepLabel1.BackColor = Color.FromArgb(245, 245, 245);
             beepLabel1.BlockID = null;
             beepLabel1.BorderColor = Color.Black;
             beepLabel1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -226,7 +223,7 @@
             beepLabel1.FocusForeColor = Color.Black;
             beepLabel1.FocusIndicatorColor = Color.Blue;
             beepLabel1.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            beepLabel1.ForeColor = Color.FromArgb(230, 230, 250);
+            beepLabel1.ForeColor = Color.FromArgb(60, 60, 60);
             beepLabel1.Form = null;
             beepLabel1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepLabel1.GradientEndColor = Color.Gray;
@@ -281,19 +278,19 @@
             beepLabel1.Text = "beepLabel1";
             beepLabel1.TextAlign = ContentAlignment.MiddleLeft;
             beepLabel1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel1.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            beepLabel1.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             beepLabel1.ToolTipText = "";
             beepLabel1.UseGradientBackground = false;
             // 
             // beepImage1
             // 
-            beepImage1.ActiveBackColor = Color.FromArgb(138, 43, 226);
+            beepImage1.ActiveBackColor = Color.FromArgb(65, 105, 225);
             beepImage1.AnimationDuration = 500;
             beepImage1.AnimationType = DisplayAnimationType.None;
             beepImage1.ApplyThemeOnImage = false;
-            beepImage1.BackColor = Color.FromArgb(18, 18, 50);
+            beepImage1.BackColor = Color.FromArgb(245, 245, 245);
             beepImage1.BlockID = null;
-            beepImage1.BorderColor = Color.FromArgb(72, 61, 139);
+            beepImage1.BorderColor = Color.FromArgb(176, 196, 222);
             beepImage1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             beepImage1.BorderRadius = 5;
             beepImage1.BorderStyle = BorderStyle.FixedSingle;
@@ -304,16 +301,16 @@
             beepImage1.DrawingRect = new Rectangle(1, 1, 66, 50);
             beepImage1.Easing = EasingType.Linear;
             beepImage1.FieldID = null;
-            beepImage1.FocusBackColor = Color.FromArgb(138, 43, 226);
+            beepImage1.FocusBackColor = Color.FromArgb(65, 105, 225);
             beepImage1.FocusBorderColor = Color.Gray;
             beepImage1.FocusForeColor = Color.White;
             beepImage1.FocusIndicatorColor = Color.Blue;
             beepImage1.Form = null;
             beepImage1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepImage1.GradientEndColor = Color.FromArgb(25, 25, 70);
-            beepImage1.GradientStartColor = Color.FromArgb(18, 18, 50);
-            beepImage1.HoverBackColor = Color.FromArgb(72, 61, 139);
-            beepImage1.HoverBorderColor = Color.FromArgb(123, 104, 238);
+            beepImage1.GradientEndColor = Color.FromArgb(176, 196, 222);
+            beepImage1.GradientStartColor = Color.FromArgb(245, 245, 245);
+            beepImage1.HoverBackColor = Color.FromArgb(70, 130, 180);
+            beepImage1.HoverBorderColor = Color.FromArgb(65, 105, 225);
             beepImage1.HoveredBackcolor = Color.Wheat;
             beepImage1.HoverForeColor = Color.White;
             beepImage1.Id = -1;
@@ -338,7 +335,7 @@
             beepImage1.Name = "beepImage1";
             beepImage1.OverrideFontSize = TypeStyleFontSize.None;
             beepImage1.ParentBackColor = Color.Empty;
-            beepImage1.PressedBackColor = Color.FromArgb(138, 43, 226);
+            beepImage1.PressedBackColor = Color.FromArgb(65, 105, 225);
             beepImage1.PressedBorderColor = Color.Gray;
             beepImage1.PressedForeColor = Color.White;
             beepImage1.SavedGuidID = null;
@@ -359,7 +356,7 @@
             beepImage1.StaticNotMoving = false;
             beepImage1.TabIndex = 4;
             beepImage1.Text = "beepImage1";
-            beepImage1.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            beepImage1.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             beepImage1.ToolTipText = "";
             beepImage1.UseGradientBackground = false;
             // 
@@ -369,7 +366,7 @@
             beepButton1.AnimationDuration = 500;
             beepButton1.AnimationType = DisplayAnimationType.None;
             beepButton1.ApplyThemeOnImage = false;
-            beepButton1.BackColor = Color.FromArgb(18, 18, 50);
+            beepButton1.BackColor = Color.FromArgb(245, 245, 245);
             beepButton1.BlockID = null;
             beepButton1.BorderColor = Color.Black;
             beepButton1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -390,7 +387,7 @@
             beepButton1.FocusForeColor = Color.Black;
             beepButton1.FocusIndicatorColor = Color.Blue;
             beepButton1.Font = new Font("Segoe UI", 12F);
-            beepButton1.ForeColor = Color.FromArgb(173, 216, 230);
+            beepButton1.ForeColor = Color.White;
             beepButton1.Form = null;
             beepButton1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepButton1.GradientEndColor = Color.Gray;
@@ -451,7 +448,7 @@
             beepButton1.Text = "beepButton1";
             beepButton1.TextAlign = ContentAlignment.MiddleLeft;
             beepButton1.TextImageRelation = TextImageRelation.Overlay;
-            beepButton1.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            beepButton1.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             beepButton1.ToolTipText = "";
             beepButton1.UseGradientBackground = false;
             // 
@@ -461,7 +458,7 @@
             beepCircularButton1.AnimationDuration = 500;
             beepCircularButton1.AnimationType = DisplayAnimationType.None;
             beepCircularButton1.ApplyThemeOnImage = false;
-            beepCircularButton1.BackColor = Color.FromArgb(18, 18, 50);
+            beepCircularButton1.BackColor = Color.FromArgb(245, 245, 245);
             beepCircularButton1.BlockID = null;
             beepCircularButton1.BorderColor = Color.Black;
             beepCircularButton1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -479,7 +476,7 @@
             beepCircularButton1.FocusForeColor = Color.Black;
             beepCircularButton1.FocusIndicatorColor = Color.Blue;
             beepCircularButton1.Font = new Font("Segoe UI", 12F);
-            beepCircularButton1.ForeColor = Color.FromArgb(173, 216, 230);
+            beepCircularButton1.ForeColor = Color.White;
             beepCircularButton1.Form = null;
             beepCircularButton1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepCircularButton1.GradientEndColor = Color.Gray;
@@ -509,7 +506,7 @@
             beepCircularButton1.Location = new Point(391, 504);
             beepCircularButton1.Name = "beepCircularButton1";
             beepCircularButton1.OverrideFontSize = TypeStyleFontSize.None;
-            beepCircularButton1.ParentBackColor = Color.FromArgb(18, 18, 50);
+            beepCircularButton1.ParentBackColor = Color.FromArgb(245, 245, 245);
             beepCircularButton1.PressedBackColor = Color.Gray;
             beepCircularButton1.PressedBorderColor = Color.Gray;
             beepCircularButton1.PressedForeColor = Color.Black;
@@ -533,7 +530,7 @@
             beepCircularButton1.Text = "beepCircularButton1";
             beepCircularButton1.TextAlign = ContentAlignment.MiddleCenter;
             beepCircularButton1.TextLocation = TextLocation.Below;
-            beepCircularButton1.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            beepCircularButton1.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             beepCircularButton1.ToolTipText = "";
             beepCircularButton1.UseGradientBackground = false;
             // 
@@ -542,7 +539,7 @@
             beepListBox1.ActiveBackColor = Color.Gray;
             beepListBox1.AnimationDuration = 500;
             beepListBox1.AnimationType = DisplayAnimationType.None;
-            beepListBox1.BackColor = Color.FromArgb(15, 15, 40);
+            beepListBox1.BackColor = Color.FromArgb(200, 225, 245);
             beepListBox1.BlockID = null;
             beepListBox1.BorderColor = Color.Black;
             beepListBox1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -614,7 +611,7 @@
             beepListBox1.StaticNotMoving = false;
             beepListBox1.TabIndex = 9;
             beepListBox1.Text = "beepListBox1";
-            beepListBox1.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            beepListBox1.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             beepListBox1.TitleAlignment = ContentAlignment.TopLeft;
             beepListBox1.TitleBottomY = 40;
             beepListBox1.TitleLineColor = Color.Gray;
@@ -628,7 +625,7 @@
             beepFlyMenu1.ActiveBackColor = Color.Gray;
             beepFlyMenu1.AnimationDuration = 500;
             beepFlyMenu1.AnimationType = DisplayAnimationType.None;
-            beepFlyMenu1.BackColor = Color.FromArgb(15, 15, 40);
+            beepFlyMenu1.BackColor = Color.FromArgb(200, 225, 245);
             beepFlyMenu1.BlockID = null;
             beepFlyMenu1.BorderColor = Color.Black;
             beepFlyMenu1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -699,7 +696,7 @@
             beepFlyMenu1.StaticNotMoving = false;
             beepFlyMenu1.TabIndex = 13;
             beepFlyMenu1.Text = "beepFlyMenu1";
-            beepFlyMenu1.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            beepFlyMenu1.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             beepFlyMenu1.TitleAlignment = ContentAlignment.TopLeft;
             beepFlyMenu1.TitleBottomY = 40;
             beepFlyMenu1.TitleLineColor = Color.Gray;
@@ -710,12 +707,12 @@
             // 
             // beepFlyoutMenu1
             // 
-            beepFlyoutMenu1.ActiveBackColor = Color.FromArgb(138, 43, 226);
+            beepFlyoutMenu1.ActiveBackColor = Color.FromArgb(65, 105, 225);
             beepFlyoutMenu1.AnimationDuration = 500;
             beepFlyoutMenu1.AnimationType = DisplayAnimationType.SlideAndFade;
-            beepFlyoutMenu1.BackColor = Color.FromArgb(18, 18, 50);
+            beepFlyoutMenu1.BackColor = Color.FromArgb(245, 245, 245);
             beepFlyoutMenu1.BlockID = null;
-            beepFlyoutMenu1.BorderColor = Color.FromArgb(72, 61, 139);
+            beepFlyoutMenu1.BorderColor = Color.FromArgb(176, 196, 222);
             beepFlyoutMenu1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             beepFlyoutMenu1.BorderRadius = 5;
             beepFlyoutMenu1.BorderStyle = BorderStyle.FixedSingle;
@@ -733,10 +730,10 @@
             beepFlyoutMenu1.FocusIndicatorColor = Color.Blue;
             beepFlyoutMenu1.Form = null;
             beepFlyoutMenu1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepFlyoutMenu1.GradientEndColor = Color.FromArgb(25, 25, 70);
-            beepFlyoutMenu1.GradientStartColor = Color.FromArgb(18, 18, 50);
-            beepFlyoutMenu1.HoverBackColor = Color.FromArgb(72, 61, 139);
-            beepFlyoutMenu1.HoverBorderColor = Color.FromArgb(123, 104, 238);
+            beepFlyoutMenu1.GradientEndColor = Color.FromArgb(176, 196, 222);
+            beepFlyoutMenu1.GradientStartColor = Color.FromArgb(245, 245, 245);
+            beepFlyoutMenu1.HoverBackColor = Color.FromArgb(70, 130, 180);
+            beepFlyoutMenu1.HoverBorderColor = Color.FromArgb(65, 105, 225);
             beepFlyoutMenu1.HoveredBackcolor = Color.Wheat;
             beepFlyoutMenu1.HoverForeColor = Color.Black;
             beepFlyoutMenu1.Id = -1;
@@ -761,7 +758,7 @@
             beepFlyoutMenu1.Name = "beepFlyoutMenu1";
             beepFlyoutMenu1.OverrideFontSize = TypeStyleFontSize.None;
             beepFlyoutMenu1.ParentBackColor = Color.Empty;
-            beepFlyoutMenu1.PressedBackColor = Color.FromArgb(138, 43, 226);
+            beepFlyoutMenu1.PressedBackColor = Color.FromArgb(65, 105, 225);
             beepFlyoutMenu1.PressedBorderColor = Color.Gray;
             beepFlyoutMenu1.PressedForeColor = Color.Black;
             beepFlyoutMenu1.SavedGuidID = null;
@@ -782,19 +779,19 @@
             beepFlyoutMenu1.StaticNotMoving = false;
             beepFlyoutMenu1.TabIndex = 14;
             beepFlyoutMenu1.Text = "beepFlyoutMenu1";
-            beepFlyoutMenu1.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            beepFlyoutMenu1.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             beepFlyoutMenu1.ToolTipText = "";
             beepFlyoutMenu1.UseGradientBackground = false;
             // 
             // beepExtendedButton1
             // 
-            beepExtendedButton1.ActiveBackColor = Color.FromArgb(138, 43, 226);
+            beepExtendedButton1.ActiveBackColor = Color.FromArgb(65, 105, 225);
             beepExtendedButton1.AnimationDuration = 500;
             beepExtendedButton1.AnimationType = DisplayAnimationType.None;
             beepExtendedButton1.ApplyThemeOnImage = false;
-            beepExtendedButton1.BackColor = Color.FromArgb(18, 18, 50);
+            beepExtendedButton1.BackColor = Color.FromArgb(245, 245, 245);
             beepExtendedButton1.BlockID = null;
-            beepExtendedButton1.BorderColor = Color.FromArgb(72, 61, 139);
+            beepExtendedButton1.BorderColor = Color.FromArgb(176, 196, 222);
             beepExtendedButton1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             beepExtendedButton1.BorderRadius = 5;
             beepExtendedButton1.BorderStyle = BorderStyle.FixedSingle;
@@ -813,10 +810,10 @@
             beepExtendedButton1.FocusIndicatorColor = Color.Blue;
             beepExtendedButton1.Form = null;
             beepExtendedButton1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepExtendedButton1.GradientEndColor = Color.FromArgb(25, 25, 70);
-            beepExtendedButton1.GradientStartColor = Color.FromArgb(18, 18, 50);
-            beepExtendedButton1.HoverBackColor = Color.FromArgb(72, 61, 139);
-            beepExtendedButton1.HoverBorderColor = Color.FromArgb(123, 104, 238);
+            beepExtendedButton1.GradientEndColor = Color.FromArgb(176, 196, 222);
+            beepExtendedButton1.GradientStartColor = Color.FromArgb(245, 245, 245);
+            beepExtendedButton1.HoverBackColor = Color.FromArgb(70, 130, 180);
+            beepExtendedButton1.HoverBorderColor = Color.FromArgb(65, 105, 225);
             beepExtendedButton1.HoveredBackcolor = Color.Wheat;
             beepExtendedButton1.HoverForeColor = Color.Black;
             beepExtendedButton1.Id = -1;
@@ -841,7 +838,7 @@
             beepExtendedButton1.Name = "beepExtendedButton1";
             beepExtendedButton1.OverrideFontSize = TypeStyleFontSize.None;
             beepExtendedButton1.ParentBackColor = Color.Empty;
-            beepExtendedButton1.PressedBackColor = Color.FromArgb(138, 43, 226);
+            beepExtendedButton1.PressedBackColor = Color.FromArgb(65, 105, 225);
             beepExtendedButton1.PressedBorderColor = Color.Gray;
             beepExtendedButton1.PressedForeColor = Color.Black;
             beepExtendedButton1.SavedGuidID = null;
@@ -861,7 +858,7 @@
             beepExtendedButton1.StaticNotMoving = false;
             beepExtendedButton1.TabIndex = 15;
             beepExtendedButton1.Text = "Test";
-            beepExtendedButton1.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            beepExtendedButton1.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             beepExtendedButton1.ToolTipText = "";
             beepExtendedButton1.UseGradientBackground = false;
             // 
@@ -871,7 +868,7 @@
             beepButton2.AnimationDuration = 500;
             beepButton2.AnimationType = DisplayAnimationType.None;
             beepButton2.ApplyThemeOnImage = false;
-            beepButton2.BackColor = Color.FromArgb(18, 18, 50);
+            beepButton2.BackColor = Color.FromArgb(245, 245, 245);
             beepButton2.BlockID = null;
             beepButton2.BorderColor = Color.Black;
             beepButton2.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -892,7 +889,7 @@
             beepButton2.FocusForeColor = Color.Black;
             beepButton2.FocusIndicatorColor = Color.Blue;
             beepButton2.Font = new Font("Segoe UI", 12F);
-            beepButton2.ForeColor = Color.FromArgb(173, 216, 230);
+            beepButton2.ForeColor = Color.White;
             beepButton2.Form = null;
             beepButton2.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepButton2.GradientEndColor = Color.Gray;
@@ -953,7 +950,7 @@
             beepButton2.Text = "beepButton2";
             beepButton2.TextAlign = ContentAlignment.MiddleCenter;
             beepButton2.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepButton2.Theme = Vis.Modules.EnumBeepThemes.GalaxyTheme;
+            beepButton2.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
             beepButton2.ToolTipText = "";
             beepButton2.UseGradientBackground = false;
             // 

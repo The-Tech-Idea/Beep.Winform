@@ -352,12 +352,36 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw the image and text
             contentRect = DrawingRect;
             contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
+            switch (OverrideFontSize)
+            {
+                case TypeStyleFontSize.None:
+                    break;
+                case TypeStyleFontSize.Small:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 8, FontWeight.Normal, FontStyle.Regular);
+                    break;
+                case TypeStyleFontSize.Medium:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 10, FontWeight.Normal, FontStyle.Regular);
+                    break;
+                case TypeStyleFontSize.Large:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 12, FontWeight.Normal, FontStyle.Regular);
+                    break;
+                case TypeStyleFontSize.ExtraLarge:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 14, FontWeight.Normal, FontStyle.Regular);
+                    break;
+                case TypeStyleFontSize.ExtraExtraLarge:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 16, FontWeight.Normal, FontStyle.Regular);
+                    break;
+                case TypeStyleFontSize.ExtraExtraExtraLarge:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 18, FontWeight.Normal, FontStyle.Regular);
+                    break;
+            }
+            
             DrawBackColor(e, _currentTheme.ButtonBackColor,_currentTheme.ButtonHoverBackColor);
             DrawImageAndText(e.Graphics);
         }
         private void DrawImageAndText(Graphics g)
         { 
-            Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+          //  Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             // Measure and scale the font to fit within the control bounds
             Font scaledFont = GetScaledFont(g, Text, contentRect.Size, Font);
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;

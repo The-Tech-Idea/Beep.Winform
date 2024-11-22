@@ -203,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawTitle(Graphics graphics)
         {
             // Use BeepThemesManager to fetch the theme-based font, or fall back to default font
-            Font fontToUse = BeepThemesManager.ToFont(_currentTheme?.TitleStyle) ?? Font;
+            Font fontToUse = BeepThemesManager.ToFont(_currentTheme?.ButtonStyle) ?? Font;
             
 
             SizeF titleSize = graphics.MeasureString(_titleText, fontToUse);
@@ -259,7 +259,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawTitleLine(Graphics graphics)
         {
             // Use the current theme font or default font
-            Font fontToUse = BeepThemesManager.ToFont(_currentTheme?.TitleStyle) ?? Font;
+            Font fontToUse = BeepThemesManager.ToFont(_currentTheme?.ButtonStyle) ?? Font;
             SizeF titleSize = graphics.MeasureString(TitleText, fontToUse);
             // Calculate Y position relative to DrawingRect to align line below title text
             int lineY = DrawingRect.Top + BorderThickness + (int)titleSize.Height + 8; // Adjust based on title height and padding

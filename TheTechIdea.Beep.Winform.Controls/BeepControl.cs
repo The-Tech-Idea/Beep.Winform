@@ -15,7 +15,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         Small,
         Medium,
         Big,
-        Banner
+        Banner,
+        Large,
+        ExtraLarge,
+        ExtraExtraLarge,
+        ExtraExtraExtraLarge
     }
     public enum CustomBorderStyle
     {

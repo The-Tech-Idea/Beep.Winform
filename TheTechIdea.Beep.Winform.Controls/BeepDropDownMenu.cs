@@ -18,11 +18,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepDropDownMenu()
         {
-            InitDropDownMenu();
+            _isControlinvalidated = true;
+           
             ShowTitleLine = true;
             UpdateDrawingRect();
          
             Height = _collapsedHeight; // Initially collapsed to the size of the button
+            InitDropDownMenu();
         }
 
         /// <summary>
@@ -46,12 +48,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 BackColor = _currentTheme.ButtonBackColor,
                 ForeColor = _currentTheme.ButtonForeColor,
-                Height = 20,
-                Size = new Size(20, 20),
-                MaxImageSize = new Size(20, 20),
+                Size = new Size(30, DrawingRect.Height),
+                MaxImageSize = new Size(30, DrawingRect.Height),
                 // Center the button vertically and align to the right side
-                Location = new Point(DrawingRect.Width - 30, (Height - 20) / 2),
-                ApplyThemeOnImage = true,
+                Location = new Point(DrawingRect.Width - 30, DrawingRect.Top+2),
+               // ApplyThemeOnImage = true,
                 TextAlign = ContentAlignment.MiddleCenter,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 TextImageRelation = TextImageRelation.Overlay,
@@ -60,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsFramless = true,
                 IsChild = true
             };
-
+            
             if (_isExpanded)
             {
                 _dropDownButton.ImagePath= "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-right.svg";
@@ -75,6 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Add the dropdown button to the controls
             Controls.Add(_dropDownButton);
+            _isControlinvalidated = false;
         }
 
         /// <summary>
@@ -187,7 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (_dropDownButton != null)
             {
-                _dropDownButton.Location = new Point(DrawingRect.Width - 30, DrawingRect.Top);
+                _dropDownButton.Location = new Point(DrawingRect.Width - 30, DrawingRect.Top+2);
             }
         }
 
@@ -197,8 +199,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            if (_dropDownButton == null)
+            //  
+            if (_isControlinvalidated)
+            {
                 InitDropDownMenu();
+                _isControlinvalidated = false;
+            }
+                
         }
 
         /// <summary>

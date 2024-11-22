@@ -142,9 +142,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _dropDownButton = new BeepButton
             {
-                Height = 20,
+                Height = DrawingRect.Height,
                 Width = 20,
-                MaxImageSize = new Size(20, 20),
+                MaxImageSize = new Size(20, DrawingRect.Height-4),
                 Dock = DockStyle.None,
                 ApplyThemeOnImage = true,
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -297,27 +297,33 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void UpdateControlLayout()
         {
+            _dropDownLabel.Top = DrawingRect.Top;
+            _dropDownLabel.Height = DrawingRect.Height;
+            _dropDownButton.Top = DrawingRect.Top;
+            _dropDownButton.Height = DrawingRect.Height;
+
             if (_labelPosition == LabelPosition.Left)
             {
-                _dropDownLabel.Dock = DockStyle.Left;
-                _dropDownLabel.Width = Width - 30;
-                _dropDownButton.Dock = DockStyle.Right;
+                _dropDownLabel.Left = DrawingRect.Left;
+                _dropDownLabel.Width = DrawingRect.Width - _dropDownButton.Width;
+                _dropDownButton.Left = _dropDownLabel.Right;
             }
             else if (_labelPosition == LabelPosition.Right)
             {
-                _dropDownButton.Dock = DockStyle.Left;
-                _dropDownLabel.Dock = DockStyle.Right;
-                _dropDownLabel.Width = Width - 30;
+                _dropDownButton.Left = DrawingRect.Left;
+                _dropDownLabel.Left = _dropDownButton.Right;
+                _dropDownLabel.Width = DrawingRect.Width - _dropDownButton.Width;
             }
 
             UpdateMenuPosition();
         }
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
             if (_dropDownButton != null)
             {
-                _dropDownButton.Location = new Point(Width - _dropDownButton.Width - 5, (Height - _dropDownButton.Height) / 2);
+                _dropDownButton.Location = new Point(DrawingRect.Width - _dropDownButton.Width - 5, (DrawingRect.Height - _dropDownButton.Height) / 2);
             }
             if(_menu != null)
             {

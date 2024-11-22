@@ -177,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw the image and text
             contentRect = DrawingRect;
            // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
-            DrawBackColor(e, _currentTheme.LabelBackColor, _currentTheme.ButtonHoverBackColor);
+            DrawBackColor(e, _currentTheme.NavigationBackColor, _currentTheme.NavigationHoverBackColor);
             DrawToGraphics(e.Graphics);
         }
         private void DrawToGraphics(Graphics g)

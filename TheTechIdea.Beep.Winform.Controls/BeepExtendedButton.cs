@@ -14,9 +14,12 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         private BeepButton extendButton;
         private BeepButton button;
+        Panel highlightPanel;
         private int buttonWidth = 200;
         
         private int buttonHeight = 30;
+        private int starty = 2;
+        private int startx = 2;
 
         private Size _imagesize = new Size(20, 20);
         bool _applyThemeOnImage = false;
@@ -145,9 +148,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _menuItem = value;
-                if (button != null)
+                if (button != null && value!=null)
                 {
-                    button.Text = value.Text;
+                    if (value.Text != null) { button.Text = value.Text; }
+                    
                     if (!string.IsNullOrEmpty(value.Image))
                     {
                         button.ImagePath = value.Image;
@@ -176,49 +180,43 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void CreateMenuItemPanel()
         {
+            
+
+            // Clear existing controls before re-creating the layout
+            Controls.Clear();
             UpdateDrawingRect();
-           // Controls.Clear();
-            var menuItemPanel = new Panel
-            {
-                Height = DrawingRect.Height,
-                Visible = true,
-                Dock = DockStyle.Fill,
-                Location = new System.Drawing.Point(DrawingRect.X, DrawingRect.Y),
-                Size = new System.Drawing.Size(DrawingRect.Width, DrawingRect.Height),
-               Anchor= AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom
-            };
+            // DrawingRect.Inflate(-2, -10);
+            buttonHeight = DrawingRect.Height - 2;
 
-            // Create the left-side highlight panel
-            Panel highlightPanel = new Panel
-            {
-                Width = 5,
-                Location = new System.Drawing.Point(0, 0),
-                BackColor = _currentTheme.PanelBackColor,
-                Visible = false,
-                Size = new System.Drawing.Size(5, DrawingRect.Height),
-                 Dock= DockStyle.Left
-            };
+             // Highlight panel (optional, adjust as needed)
+            // highlightPanel = new Panel
+            //{
+            //    Location = new Point(0, starty),
+            //    BackColor = _currentTheme.BackgroundColor,
+            //    Size = new Size(20, buttonHeight),
+            //    BorderStyle = BorderStyle.FixedSingle
+            //};
 
-            // Initialize BeepButton for icon and text
+            // Main button setup
             button = new BeepButton
             {
-                Location = new System.Drawing.Point(7, 0),
-                Text = this.Text,
-                Size = new System.Drawing.Size(DrawingRect.Width- ImageSize-10, ImageSize),
+                Size = new Size(DrawingRect.Width - ImageSize -  4, buttonHeight),
+                Location = new Point(startx, starty),
+                
                 MaxImageSize = new Size(ImageSize, ImageSize),
+                Text = this.Text,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 TextAlign = ContentAlignment.MiddleCenter,
                 ImageAlign = ContentAlignment.MiddleLeft,
-                Theme = Theme,
-                IsChild = true,
                 IsBorderAffectedByTheme = false,
-                IsShadowAffectedByTheme = false,
+                Theme = Theme,
                 ShowAllBorders = false,
                 ShowShadow = false,
                 BorderSize = 0,
-                ApplyThemeOnImage = false,
-                Dock= DockStyle.Fill
+                IsRounded = false,
+                ApplyThemeOnImage = ApplyThemeOnImage
             };
+
             if (MenuItem != null)
             {
                 button.Text = MenuItem.Text;
@@ -226,86 +224,63 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     button.ImagePath = MenuItem.Image;
                 }
-                
             }
-           extendButton = new BeepButton
+
+            // Extend button setup
+            extendButton = new BeepButton
             {
-               
                 HideText = true,
-                 Location = new System.Drawing.Point(DrawingRect.Width - ImageSize-2, 0),
-                Size = new System.Drawing.Size(ImageSize, ImageSize),
+                Size = new Size(ImageSize + 4, buttonHeight),
+                Location = new Point(button.Right + 1 , starty),
+               
                 MaxImageSize = new Size(ImageSize, ImageSize),
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 Theme = Theme,
-                IsChild = true,
-                IsBorderAffectedByTheme = false,
-                IsShadowAffectedByTheme = false,
                 ShowAllBorders = false,
                 ShowShadow = false,
+                IsRounded = false,
+                IsBorderAffectedByTheme = false,
                 BorderSize = 0,
-                ApplyThemeOnImage = false,
-               Dock = DockStyle.Right   
-           };
-            if(_buttonImagePath != null)
+                ApplyThemeOnImage = ApplyThemeOnImage
+            };
+
+            if (!string.IsNullOrEmpty(_buttonImagePath))
             {
                 button.ImagePath = _buttonImagePath;
             }
-            if (_extendedbuttonImagePath != null)
+
+            if (!string.IsNullOrEmpty(_extendedbuttonImagePath))
             {
                 extendButton.ImagePath = _extendedbuttonImagePath;
             }
-            // Load the icon if specified
 
-            if (_currentTheme != null)
-            {
-                button.Theme = Theme;
-                extendButton.Theme = Theme;
-                BackColor = _currentTheme.BackColor;
+            // Add highlight panel, main button, and extend button to the panel
+            Controls.Add(highlightPanel);
+            Controls.Add(button);
+            Controls.Add(extendButton);
 
-            }
-            // Add BeepButton and highlight panel to the panel
-            menuItemPanel.Controls.Add(highlightPanel);
-            menuItemPanel.Controls.Add(button);
-            menuItemPanel.Controls.Add(extendButton);
-          
-            //Handle hover effects for the menu item panel
-
-            menuItemPanel.MouseEnter += (s, e) =>
-            {
-                menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
-                highlightPanel.Visible = true;
-            };
-            menuItemPanel.MouseLeave += (s, e) =>
-            {
-                menuItemPanel.BackColor = _currentTheme.BackColor;
-                highlightPanel.Visible = false;
-            };
-
-            // Handle button events
-            button.MouseEnter += (s, e) =>
-            {
-                menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
-                highlightPanel.Visible = true;
-            };
-            button.MouseLeave += (s, e) =>
-            {
-                menuItemPanel.BackColor = _currentTheme.BackColor;
-                highlightPanel.Visible = false;
-            };
+            // Event handlers
+            //button.MouseEnter += (s, e) => { highlightPanel.BackColor = _currentTheme.ButtonHoverBackColor; };
+            //button.MouseLeave += (s, e) => { highlightPanel.BackColor = _currentTheme.BackColor; };
+            //button.MouseHover += (s, e) => { highlightPanel.BackColor = _currentTheme.ButtonHoverBackColor; };
             button.Click += MenuItemButton_Click;
             extendButton.Click += ExtendButton_Click;
-            Controls.Add(menuItemPanel);
-            
+
+            // Add the panel to the control
+           
+
             _isControlinvalidated = false;
         }
+
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            Console.WriteLine("Control Invalidated 1 ");
+           // Console.WriteLine("Control Invalidated 1 ");
             if (_isControlinvalidated)
             {
-                Console.WriteLine("Control Invalidated 2");
+               // Console.WriteLine("Control Invalidated 2");
                 Controls.Clear();
                 CreateMenuItemPanel();
                 _isControlinvalidated = false;
@@ -315,21 +290,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            _isControlinvalidated = true;
-            //if (button != null)
-            //{
-            //    button.Width = Width - ImageSize;
-            //    extendButton.Location = new Point(Width - ImageSize, 0);
-            //}
-        }
-        protected void RearrangeControls()
-        {
-            if (button != null)
+            UpdateDrawingRect();
+            
+            if (button != null && extendButton != null)
             {
-                button.Width = Width - ImageSize;
-                extendButton.Location = new Point(Width - ImageSize, 0);
+                button.Size = new Size(DrawingRect.Width - ImageSize -  4, buttonHeight);
+                button.Location = new Point(startx, starty);
+                extendButton.Size = new Size(ImageSize + 4, buttonHeight);
+                extendButton.Location = new Point(button.Right , starty);
             }
+
+            _isControlinvalidated = true;
+            Invalidate();
         }
+       
         private void ExtendButton_Click(object? sender, EventArgs e)
         {
             ExtendButtonClick?.Invoke(this, new BeepEventDataArgs("ExentededButtonClick", MenuItem));

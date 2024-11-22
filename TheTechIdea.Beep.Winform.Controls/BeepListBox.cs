@@ -97,6 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls
            // IsShadowAffectedByTheme = false;
           //  IsBorderAffectedByTheme = false;
             InitializeMenu();
+            ApplyTheme();
             TitleText = "List Box";
           
 
@@ -112,10 +113,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
            // DrawingRect.Inflate(-2, -2);
             // Get the dimensions of DrawingRect
-            drawRectX = DrawingRect.X;
-            drawRectY = DrawingRect.Y;
-            drawRectWidth = DrawingRect.Width;
-            drawRectHeight = DrawingRect.Height;
+            drawRectX = DrawingRect.X+2;
+            drawRectY = DrawingRect.Y+2;
+            drawRectWidth = DrawingRect.Width-2;
+            drawRectHeight = DrawingRect.Height-2;
 
             base.OnPaint(e);
             
@@ -166,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowShadow = false,
                 IsSideMenuChild = true,
                 BorderSize = 0,
-
+                OverrideFontSize= TypeStyleFontSize.Medium,
                 Tag = item,
                 ApplyThemeOnImage = false,
             };
@@ -188,15 +189,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentTheme != null)
             {
                 button.Theme = Theme;
-                //_currentTheme.ButtonBackColor = _currentTheme.SideMenuBackColor;
-                //button.ForeColor = _currentTheme.SideMenuForeColor;
-           
-               
-
-
-                BackColor = _currentTheme.SideMenuBackColor;
-                
-
             }
             // Add BeepButton and highlight panel to the panel
             menuItemPanel.Controls.Add(highlightPanel);
@@ -236,6 +228,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public virtual void InitializeMenu()
         {
             UpdateDrawingRect();
+            drawRectX = DrawingRect.X + 2;
+            drawRectY = DrawingRect.Y + 2;
+            drawRectWidth = DrawingRect.Width - 2;
+            drawRectHeight = DrawingRect.Height - 2;
             ButtonSize = new Size(drawRectWidth-2, _menuItemHeight-2);
             // Remove existing menu item panels
             foreach (var control in this.Controls.OfType<Panel>().Where(c => c.Tag is SimpleMenuItem).ToList())
@@ -320,20 +316,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         switch (subControl)
                         {
                             case BeepButton button:
-                                // button.Theme = this.Theme;
-                               // Console.WriteLine("Button");
                                 button.Theme = Theme;
-                                //_currentTheme.ButtonBackColor = _currentTheme.SideMenuBackColor;
-                                //button.ForeColor = _currentTheme.SideMenuForeColor;
-                              
-                                //button.ParentBackColor = _currentTheme.SideMenuBackColor;
-                               
-                                //button.IsChild = true;
-                              // Assign the theme to BeepButton to apply
-                                                            // button.ApplyTheme();  // Apply the theme to the button
-                                                            //button.BackColor = _currentTheme.SideMenuBackColor;  // Apply the background color
-                                                            //button.Text = isCollapsed ? "" : button.Text;  // Hide text when collapsed
-                                                            //button.TextAlign = isCollapsed ? ContentAlignment.MiddleCenter : ContentAlignment.MiddleLeft;  // Adjust text alignment based on collapse state
+                                button.Font = BeepThemesManager.ToFont(_currentTheme.BodyStyle);
                                 break;
 
                             case Panel highlightPanel:

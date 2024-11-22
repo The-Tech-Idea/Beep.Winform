@@ -253,18 +253,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Image Drawing Methods"
         public void DrawImage(Graphics g, Rectangle imageRect)
         {
-            //ApplyTheme();
             g.SmoothingMode = SmoothingMode.AntiAlias;
-         
+
             if (isSvg && svgDocument != null)
-            { 
+            {
                 var imageSize = svgDocument.GetDimensions();
                 var scaleFactor = GetScaleFactor(new SizeF(imageSize.Width, imageSize.Height), imageRect.Size);
 
-                // Ensure scaling factors are valid
+                // Ensure the content fits within DrawingRect
+                scaleFactor = Math.Max(scaleFactor, GetScaleFactor(imageSize, new Size(imageRect.Width, imageRect.Height)));
+
+                // Apply scaling and positioning
                 if (scaleFactor > 0)
                 {
-                    // Apply the transformation to position and scale the SVG
                     g.TranslateTransform(
                         imageRect.X + (imageRect.Width - imageSize.Width * scaleFactor) / 2,
                         imageRect.Y + (imageRect.Height - imageSize.Height * scaleFactor) / 2);
@@ -273,57 +274,70 @@ namespace TheTechIdea.Beep.Winform.Controls
                     svgDocument.Draw(g);
                     g.ResetTransform(); // Reset transformations
                 }
-              
             }
             else if (regularImage != null)
             {
-                // Ensure the image bounds have valid size
+                // Ensure the image fits within DrawingRect
                 if (imageRect.Width > 0 && imageRect.Height > 0)
                 {
-                    var imageBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), imageRect);
-                    g.DrawImage(regularImage, imageBounds);
+                    var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), imageRect);
+
+                    // Scale up if the image is smaller than DrawingRect
+                    var scaleFactor = GetScaleFactor(new SizeF(regularImage.Width, regularImage.Height), new Size(imageRect.Width, imageRect.Height));
+                    if (scaleFactor > 1)
+                    {
+                        var scaledSize = new SizeF(regularImage.Width * scaleFactor, regularImage.Height * scaleFactor);
+                        var xOffset = imageRect.X + (imageRect.Width - scaledSize.Width) / 2;
+                        var yOffset = imageRect.Y + (imageRect.Height - scaledSize.Height) / 2;
+                        scaledBounds = new RectangleF(xOffset, yOffset, scaledSize.Width, scaledSize.Height);
+                    }
+
+                    g.DrawImage(regularImage, scaledBounds);
                 }
             }
         }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
 
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            //if (BackColor == Color.Transparent && Parent != null)
-            //{
-            //    var parentBackColor = Parent.BackColor;
-            //    e.Graphics.FillRectangle(new SolidBrush(parentBackColor), DrawingRect);
-            //}
+
             if (isSvg && svgDocument != null)
             {
-                //ApplyThemeToSvg(); // Ensure colors are applied
-
-                // Get the SVG dimensions and calculate the appropriate scaling factor
                 var imageSize = svgDocument.GetDimensions();
-                var scaleFactor = GetScaleFactor(new SizeF(imageSize.Width, imageSize.Height));
+                var scaleFactor = GetScaleFactor(new SizeF(imageSize.Width, imageSize.Height), DrawingRect.Size);
 
-                // Apply centering and scaling transforms
-                e.Graphics.ResetTransform(); // Clear any previous transforms
+                // Ensure scaling up to fit DrawingRect
+                scaleFactor = Math.Max(scaleFactor, GetScaleFactor(imageSize, new Size(DrawingRect.Width, DrawingRect.Height)));
+
+                // Apply transformations for centering and scaling
                 e.Graphics.TranslateTransform(
-                    (DrawingRect.Width - imageSize.Width * scaleFactor) / 2,
-                    (DrawingRect.Height - imageSize.Height * scaleFactor) / 2);
+                    DrawingRect.X + (DrawingRect.Width - imageSize.Width * scaleFactor) / 2,
+                    DrawingRect.Y + (DrawingRect.Height - imageSize.Height * scaleFactor) / 2);
                 e.Graphics.ScaleTransform(scaleFactor, scaleFactor);
 
-                // Draw the SVG to the Graphics object
                 svgDocument.Draw(e.Graphics);
-
-                // Reset the transformation matrix to avoid affecting other drawings
                 e.Graphics.ResetTransform();
             }
             else if (regularImage != null)
             {
-                var imageBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height));
-                e.Graphics.DrawImage(regularImage, imageBounds);
-            }
+                var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), DrawingRect);
 
-           
+                // Scale up if the image is smaller than DrawingRect
+                var scaleFactor = GetScaleFactor(new SizeF(regularImage.Width, regularImage.Height), new Size(DrawingRect.Width, DrawingRect.Height));
+                if (scaleFactor > 1)
+                {
+                    var scaledSize = new SizeF(regularImage.Width * scaleFactor, regularImage.Height * scaleFactor);
+                    var xOffset = DrawingRect.X + (DrawingRect.Width - scaledSize.Width) / 2;
+                    var yOffset = DrawingRect.Y + (DrawingRect.Height - scaledSize.Height) / 2;
+                    scaledBounds = new RectangleF(xOffset, yOffset, scaledSize.Width, scaledSize.Height);
+                }
+
+                e.Graphics.DrawImage(regularImage, scaledBounds);
+            }
         }
+
         public bool IsSvgPath(string path)
         {
             return Path.GetExtension(path)?.ToLower() == ".svg";

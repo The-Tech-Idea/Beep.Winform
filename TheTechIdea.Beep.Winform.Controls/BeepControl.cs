@@ -141,6 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _text = value;
+                _isControlinvalidated = true;
                 Invalidate();  // Trigger repaint when the text changes
             }
         }

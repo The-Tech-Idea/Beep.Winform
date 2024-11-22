@@ -15,7 +15,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton extendButton;
         private BeepButton button;
         private int buttonWidth = 200;
-        private int buttonHeight = 20;
+        
+        private int buttonHeight = 30;
 
         private Size _imagesize = new Size(20, 20);
         bool _applyThemeOnImage = false;
@@ -31,6 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 button.Width = value;
                 UpdateDrawingRect();
+                _isControlinvalidated = true;
                 Invalidate();
             }
         }
@@ -47,6 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _imagesize.Height = value;
                 button.MaxImageSize = _imagesize;
                 extendButton.MaxImageSize = _imagesize;
+                _isControlinvalidated = true;
                 Invalidate();
             }
         }
@@ -69,19 +72,21 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     }
                 }
+                _isControlinvalidated = true;
                 Invalidate();
             }
         }
+        private string _buttonImagePath;
         [Browsable(true)]
         [Category("Appearance")]
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
         public string ImagePath
         {
-            get => button?.ImagePath;
+            get => _buttonImagePath;
             set
             {
-
+                _buttonImagePath = value;
                 if (button != null)
                 {
                     button.ImagePath = value;
@@ -91,22 +96,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                         button.ApplyThemeToSvg();
                         button.ApplyTheme();
                     }
+                    _isControlinvalidated = true;
                     Invalidate(); // Repaint when the image changes
                                   // UpdateSize();
                   //  _isControlinvalidated = true;
                 }
             }
         }
+        private string _extendedbuttonImagePath;
         [Browsable(true)]
         [Category("Appearance")]
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
         public string ExtendButtonImagePath
         {
-            get => extendButton?.ImagePath;
+            get => _extendedbuttonImagePath;
             set
             {
-
+                _extendedbuttonImagePath=value;
                 if (extendButton != null)
                 {
                  
@@ -117,6 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         extendButton.ApplyThemeToSvg();
                         extendButton.ApplyTheme();
                     }
+                    _isControlinvalidated = true;
                     Invalidate(); // Repaint when the image changes
                                   // UpdateSize();
                   //  _isControlinvalidated = true;
@@ -146,31 +154,38 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     
                 }
+                _isControlinvalidated= true;
                 Invalidate();
             }
         }
         public BeepExtendedButton()
         {
             CreateMenuItemPanel();
-            Size = new System.Drawing.Size(buttonWidth, buttonHeight);
+            //Size = new System.Drawing.Size(buttonWidth, buttonHeight);
+            Console.WriteLine("Control Created");   
         }
         protected override void InitLayout()
         {
+            Console.WriteLine("Control InitLayout");
             base.InitLayout();
-            Size = new System.Drawing.Size(buttonWidth, buttonHeight);
+           
             UpdateDrawingRect();
             CreateMenuItemPanel();
+            _isControlinvalidated = true;
+            Invalidate();
         }
         private void CreateMenuItemPanel()
         {
-            Controls.Clear();
+            UpdateDrawingRect();
+           // Controls.Clear();
             var menuItemPanel = new Panel
             {
                 Height = DrawingRect.Height,
                 Visible = true,
+                Dock = DockStyle.Fill,
                 Location = new System.Drawing.Point(DrawingRect.X, DrawingRect.Y),
                 Size = new System.Drawing.Size(DrawingRect.Width, DrawingRect.Height),
-                Dock = DockStyle.Fill,
+               Anchor= AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom
             };
 
             // Create the left-side highlight panel
@@ -180,17 +195,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Location = new System.Drawing.Point(0, 0),
                 BackColor = _currentTheme.PanelBackColor,
                 Visible = false,
-                Padding = new Padding(0, 2, 0, 0),
                 Size = new System.Drawing.Size(5, DrawingRect.Height),
-                Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom
+                 Dock= DockStyle.Left
             };
 
             // Initialize BeepButton for icon and text
             button = new BeepButton
             {
-                Location = new System.Drawing.Point(5, 0),
+                Location = new System.Drawing.Point(7, 0),
                 Text = this.Text,
-                Size = new System.Drawing.Size(DrawingRect.Width- ImageSize, DrawingRect.Height),
+                Size = new System.Drawing.Size(DrawingRect.Width- ImageSize-10, ImageSize),
                 MaxImageSize = new Size(ImageSize, ImageSize),
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -203,7 +217,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowShadow = false,
                 BorderSize = 0,
                 ApplyThemeOnImage = false,
-                Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom
+                Dock= DockStyle.Fill
             };
             if (MenuItem != null)
             {
@@ -216,9 +230,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
            extendButton = new BeepButton
             {
-                Dock= DockStyle.Right,
-               HideText = true,
-                Location = new System.Drawing.Point(DrawingRect.Width - ImageSize, 0),
+               
+                HideText = true,
+                 Location = new System.Drawing.Point(DrawingRect.Width - ImageSize-2, 0),
                 Size = new System.Drawing.Size(ImageSize, ImageSize),
                 MaxImageSize = new Size(ImageSize, ImageSize),
                 TextImageRelation = TextImageRelation.Overlay,
@@ -231,10 +245,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowShadow = false,
                 BorderSize = 0,
                 ApplyThemeOnImage = false,
-               Anchor = AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom
+               Dock = DockStyle.Right   
            };
+            if(_buttonImagePath != null)
+            {
+                button.ImagePath = _buttonImagePath;
+            }
+            if (_extendedbuttonImagePath != null)
+            {
+                extendButton.ImagePath = _extendedbuttonImagePath;
+            }
             // Load the icon if specified
-          
+
             if (_currentTheme != null)
             {
                 button.Theme = Theme;
@@ -275,20 +297,38 @@ namespace TheTechIdea.Beep.Winform.Controls
             extendButton.Click += ExtendButton_Click;
             Controls.Add(menuItemPanel);
             
-            _isControlinvalidated = true;
+            _isControlinvalidated = false;
         }
         protected override void OnPaint(PaintEventArgs e)
         {
-          
-
             base.OnPaint(e);
-
+            Console.WriteLine("Control Invalidated 1 ");
             if (_isControlinvalidated)
             {
-                 CreateMenuItemPanel();
+                Console.WriteLine("Control Invalidated 2");
+                Controls.Clear();
+                CreateMenuItemPanel();
                 _isControlinvalidated = false;
             }
 
+        }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            _isControlinvalidated = true;
+            //if (button != null)
+            //{
+            //    button.Width = Width - ImageSize;
+            //    extendButton.Location = new Point(Width - ImageSize, 0);
+            //}
+        }
+        protected void RearrangeControls()
+        {
+            if (button != null)
+            {
+                button.Width = Width - ImageSize;
+                extendButton.Location = new Point(Width - ImageSize, 0);
+            }
         }
         private void ExtendButton_Click(object? sender, EventArgs e)
         {

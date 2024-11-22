@@ -17,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int buttonWidth = 200;
         private int buttonHeight = 20;
 
+        private Size _imagesize = new Size(20, 20);
         bool _applyThemeOnImage = false;
 
         [Browsable(true)]
@@ -33,6 +34,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Change Size of  images inside control")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int ImageSize
+        {
+            get => _imagesize.Width;
+            set
+            {
+                _imagesize.Width = value;
+                _imagesize.Height = value;
+                button.MaxImageSize = _imagesize;
+                extendButton.MaxImageSize = _imagesize;
+                Invalidate();
+            }
+        }
+       
         public bool ApplyThemeOnImage
         {
             get => _applyThemeOnImage;
@@ -172,8 +190,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Location = new System.Drawing.Point(5, 0),
                 Text = this.Text,
-                Size = new System.Drawing.Size(DrawingRect.Width-25, DrawingRect.Height),
-                MaxImageSize = new Size(20, DrawingRect.Height),
+                Size = new System.Drawing.Size(DrawingRect.Width- ImageSize, DrawingRect.Height),
+                MaxImageSize = new Size(ImageSize, ImageSize),
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 TextAlign = ContentAlignment.MiddleCenter,
                 ImageAlign = ContentAlignment.MiddleLeft,
@@ -200,9 +218,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Dock= DockStyle.Right,
                HideText = true,
-                Location = new System.Drawing.Point(DrawingRect.Width - 20, 0),
-                Size = new System.Drawing.Size(20, DrawingRect.Height),
-                MaxImageSize = new Size(20, DrawingRect.Height),
+                Location = new System.Drawing.Point(DrawingRect.Width - ImageSize, 0),
+                Size = new System.Drawing.Size(ImageSize, ImageSize),
+                MaxImageSize = new Size(ImageSize, ImageSize),
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 Theme = Theme,

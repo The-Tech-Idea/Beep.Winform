@@ -823,13 +823,13 @@
             beepExtendedButton1.BorderRadius = 5;
             beepExtendedButton1.BorderStyle = BorderStyle.FixedSingle;
             beepExtendedButton1.BorderThickness = 1;
-            beepExtendedButton1.ButtonWidth = 182;
+            beepExtendedButton1.ButtonWidth = 170;
             beepExtendedButton1.DataContext = null;
             beepExtendedButton1.DisabledBackColor = Color.Gray;
             beepExtendedButton1.DisabledForeColor = Color.Empty;
-            beepExtendedButton1.DrawingRect = new Rectangle(1, 1, 205, 35);
+            beepExtendedButton1.DrawingRect = new Rectangle(1, 1, 198, 41);
             beepExtendedButton1.Easing = EasingType.Linear;
-            beepExtendedButton1.ExtendButtonImagePath = "H:\\dev\\iconPacks\\10007852-team-management (2) (1)\\10007856-team-management\\10007856-team-management\\svg\\014-working time.svg";
+            beepExtendedButton1.ExtendButtonImagePath = null;
             beepExtendedButton1.FieldID = null;
             beepExtendedButton1.FocusBackColor = Color.White;
             beepExtendedButton1.FocusBorderColor = Color.Gray;
@@ -844,7 +844,8 @@
             beepExtendedButton1.HoveredBackcolor = Color.Wheat;
             beepExtendedButton1.HoverForeColor = Color.Black;
             beepExtendedButton1.Id = -1;
-            beepExtendedButton1.ImagePath = "H:\\dev\\iconPacks\\10007852-team-management (2) (1)\\10007856-team-management\\10007856-team-management\\svg\\016-admin.svg";
+            beepExtendedButton1.ImagePath = "H:\\dev\\iconPacks\\10007852-team-management (2) (1)\\10007856-team-management\\10007856-team-management\\svg\\015-Competitive.svg";
+            beepExtendedButton1.ImageSize = 30;
             beepExtendedButton1.InactiveBackColor = Color.Gray;
             beepExtendedButton1.InactiveBorderColor = Color.Gray;
             beepExtendedButton1.InactiveForeColor = Color.Black;
@@ -879,7 +880,7 @@
             beepExtendedButton1.ShowRightBorder = false;
             beepExtendedButton1.ShowShadow = false;
             beepExtendedButton1.ShowTopBorder = false;
-            beepExtendedButton1.Size = new Size(207, 37);
+            beepExtendedButton1.Size = new Size(200, 43);
             beepExtendedButton1.SlideFrom = SlideDirection.Left;
             beepExtendedButton1.StaticNotMoving = false;
             beepExtendedButton1.TabIndex = 15;

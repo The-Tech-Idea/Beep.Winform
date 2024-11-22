@@ -38,6 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Title Bottom Location Y")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int TitleBottomY
         {
             get => _titleBottomY;
@@ -51,6 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The text displayed as the title.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public string TitleText
         {
             get => _titleText;
@@ -64,6 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Show a line below the title.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowTitleLine
         {
             get => _showTitleLine;
@@ -77,6 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Color of the line below the title.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public Color TitleLineColor
         {
             get => _titleLineColor;
@@ -90,6 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Thickness of the line below the title.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int TitleLineThickness
         {
             get => _titleLineThickness;
@@ -103,6 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Determines if the title is shown.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowTitle
         {
             get => _showTitle;
@@ -116,6 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Alignment of the title text within the panel.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public ContentAlignment TitleAlignment
         {
             get => _titleAlignment;
@@ -129,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Draw the title line with full width or just below the title.")]
-
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowTitleLineinFullWidth
         {
             get => _titleLineFullWidth;
@@ -177,6 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e); // Draw base elements (border, shadow, etc.)
+            Console.WriteLine($" start Title {startyoffset}");
             _titleBottomY = startyoffset;
             // Draw title text if enabled
             if (_showTitle && !string.IsNullOrEmpty(_titleText))
@@ -220,30 +228,33 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if(_showTitle && !string.IsNullOrEmpty(TitleText))
                 {
+
+                //    Console.WriteLine($" -1 1 No Title Line {titleSize.Height}");
                     graphics.DrawString(_titleText, fontToUse, brush, titlePosition);
-                    
-                    if (ShowTitleLine)
+                   
+
+
+                    if (_showTitleLine)
                     {
+                  //      Console.WriteLine($" 1 No Title Line {titleSize.Height}");
                         DrawTitleLine(graphics);
                     }
-                        
+                    else
+                    {
+                  //      Console.WriteLine($"2 No Title Line {titleSize.Height}");
+                        // get the next Y position for items below the title
+                        _titleBottomY = DrawingRect.Top + BorderThickness + (int)titleSize.Height + 8; // Adjusted for title height and padding
+
+
+
+                    }
+
+
                 }
                
             }
         }
-        public void CalculateTitleBottomY()
-        {
-            using (Graphics g = CreateGraphics())
-            {
-                // Use the current theme font or default font
-                Font fontToUse = BeepThemesManager.ToFont(_currentTheme?.TitleStyle) ?? Font;
-                SizeF titleSize = g.MeasureString(TitleText, fontToUse);
-                // Calculate Y position relative to DrawingRect to align line below title text
-                int lineY = DrawingRect.Top + BorderThickness + (int)titleSize.Height + 8; // Adjust based on title height and padding
-
-                TitleBottomY = lineY + 5;
-            }
-        }
+      
 
         private void DrawTitleLine(Graphics graphics)
         {
@@ -257,7 +268,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int lineStartX = DrawingRect.Left + BorderThickness;
             int lineEndX = ShowTitleLineinFullWidth
                 ? DrawingRect.Right - BorderThickness // Full width
-                : lineStartX + (int)titleSize.Width + 10; // Title width + padding
+                : lineStartX + (int)titleSize.Width ; // Title width + padding
            // TitleBottomY = lineY + 5;
             // Set line color and thickness, using the current theme or default if unavailable
             using (var pen = new Pen(_currentTheme?.TitleForColor ?? Color.Gray, TitleLineThickness))

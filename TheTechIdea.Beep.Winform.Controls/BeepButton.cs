@@ -391,7 +391,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //{
                 //    beepImage.Location = imageRect.Location;
                 //}
-                Console.WriteLine("Button show Image");
+               // Console.WriteLine("Button show Image");
                 beepImage.DrawImage(g, imageRect);
                 // place beepimage in the same place imagerect is
 

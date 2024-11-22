@@ -6,17 +6,18 @@ using System.Drawing;
 using System.Drawing.Design;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Template;
+using System.ComponentModel.Design.Serialization;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     public class BeepListBox : BeepPanel
     {
-        private List<BeepButton> _buttons = new List<BeepButton>();
-        private List<Panel> _panels = new List<Panel>();
+        public List<BeepButton> _buttons { get; set; } = new List<BeepButton>();
+        
         private int _selectedIndex = -1;
         private Size ButtonSize = new Size(200, 20);
         private int _highlightPanelSize = 5;
-        private int menuItemHeight = 40;
+        private int _menuItemHeight = 20;
         int drawRectX;
         int drawRectY;
         int drawRectWidth;
@@ -56,6 +57,17 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected virtual void OnSelectedIndexChanged(EventArgs e) => SelectedIndexChanged?.Invoke(this, e);
 
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int MenuItemHeight
+        {
+            get => _menuItemHeight;
+            set
+            {
+                _menuItemHeight = value;
+                Invalidate();
+            }
+        }
         public BeepListBox()
         {
             
@@ -119,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             var menuItemPanel = new Panel
             {
-                Height = 40,
+                Height = ButtonSize.Height,
                 Padding = new Padding(isChild ? 20 : 10, 0, 0, 0),
                 Visible = true,
                 Tag = item, // Store the SimpleMenuItem for reference
@@ -142,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Dock = DockStyle.Fill,
                 Text = item.Text,
                 ImagePath = item.Image,
-                MaxImageSize = new Size(30, 30),
+                MaxImageSize = new Size(20,ButtonSize.Height),
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 TextAlign = ContentAlignment.MiddleCenter ,
                 ImageAlign = ContentAlignment.MiddleLeft,
@@ -224,7 +236,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public virtual void InitializeMenu()
         {
             UpdateDrawingRect();
-            ButtonSize = new Size(drawRectWidth, 40);
+            ButtonSize = new Size(drawRectWidth-2, _menuItemHeight-2);
             // Remove existing menu item panels
             foreach (var control in this.Controls.OfType<Panel>().Where(c => c.Tag is SimpleMenuItem).ToList())
             {
@@ -248,7 +260,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     menuItemPanel.Top = yOffset;
                     menuItemPanel.Left = drawRectX;
                     menuItemPanel.Width = drawRectWidth;
-                    menuItemPanel.Height = menuItemHeight;
+                    menuItemPanel.Height = _menuItemHeight;
                     menuItemPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
                     this.Controls.Add(menuItemPanel);
 

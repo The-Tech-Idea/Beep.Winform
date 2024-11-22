@@ -104,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.InitLayout();
             _isControlinvalidated = true;
             InitializeAccordion();
-            logoImagePath = GetLogImagePathStringValueFromSettings(); 
+            logoImagePath = string.Empty ; // GetLogImagePathStringValueFromSettings(); 
             if (!string.IsNullOrEmpty(logoImagePath))
             {
                logo.ImagePath = logoImagePath;

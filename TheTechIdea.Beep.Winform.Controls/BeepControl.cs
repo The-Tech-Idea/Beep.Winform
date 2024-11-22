@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Winform.Controls.Template;
 using System.Drawing;
 using Microsoft.VisualBasic.Logging;
 using Svg;
+using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -91,6 +92,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected Color _originalBackColor;
         protected System.Windows.Forms.Timer _animationTimer;
         protected float _opacity = 0f; // Initial opacity for fade animations
+        private int _animationElapsedTime;
+        private Rectangle _slideStartRect;
+        private Rectangle _slideEndRect;
         protected int scrollOffsetX = 0;
         protected int scrollOffsetY = 0;
         protected Size virtualSize = new Size(0, 0);
@@ -689,6 +693,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected Dictionary<Binding, EventHandler<ConvertEventArgs>> parseHandlers = new();
         protected List<Binding> _originalBindings = new List<Binding>();
         protected Color _disabledForeColor;
+        private bool _isAnimating;
 
         [Browsable(true)]
         [Category("Data")]
@@ -1392,6 +1397,131 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsPressed = false;
            // Invalidate();
         }
+        #region "Animation"
+        // Default Animation Properties
+      
+        /// <summary>
+        /// Shows the control with the specified animation.
+        /// </summary>
+        /// 
+
+        public void ShowWithAnimation( DisplayAnimationType animationType,Control parentControl = null)
+        {
+            AnimationType = animationType;
+            if (AnimationType == DisplayAnimationType.None)
+            {
+                Visible = true;
+                return;
+            }
+            if (Visible==false)
+            {
+                Visible = true;
+            }
+            InitializeAnimation(parentControl);
+        }
+        /// <summary>
+        /// Initialize animation properties and start animation.
+        /// </summary>
+        private void InitializeAnimation(Control parentControl)
+        {
+            _animationTimer?.Stop();
+
+            // Ensure menu is visible
+            Visible = true;
+
+            // Reset animation state
+            _opacity = 0f;
+            _animationElapsedTime = 0;
+
+            // Define initial and final positions
+            _slideStartRect = GetSlideStartRect(parentControl);
+            _slideEndRect = Bounds;
+
+            // Start animation timer
+            _animationTimer = new Timer { Interval = 15 }; // ~60 FPS
+            _animationTimer.Tick += OnAnimationTick;
+            _isAnimating = true;
+
+            // Set initial state for fade or slide
+            if (AnimationType == DisplayAnimationType.Fade || AnimationType == DisplayAnimationType.SlideAndFade)
+            {
+                BackColor = Color.FromArgb((int)(_opacity * 255), BackColor);
+            }
+
+            if (AnimationType == DisplayAnimationType.Slide || AnimationType == DisplayAnimationType.SlideAndFade)
+            {
+                Bounds = _slideStartRect;
+            }
+
+            // Start the timer
+            _animationTimer.Start();
+        }
+        /// <summary>
+        /// Handles each animation frame.
+        /// </summary>
+        private void OnAnimationTick(object sender, EventArgs e)
+        {
+            _animationElapsedTime += _animationTimer.Interval;
+            float progress = Math.Min(1.0f, (float)_animationElapsedTime / AnimationDuration);
+            progress = ApplyEasing(progress); // Smooth the animation with easing
+
+            // Fade effect
+            if (AnimationType == DisplayAnimationType.Fade || AnimationType == DisplayAnimationType.SlideAndFade)
+            {
+                _opacity = progress;
+                BackColor = Color.FromArgb((int)(_opacity * 255), BackColor);
+            }
+
+            // Slide effect
+            if (AnimationType == DisplayAnimationType.Slide || AnimationType == DisplayAnimationType.SlideAndFade)
+            {
+                int x = (int)(_slideStartRect.X + (_slideEndRect.X - _slideStartRect.X) * progress);
+                int y = (int)(_slideStartRect.Y + (_slideEndRect.Y - _slideStartRect.Y) * progress);
+                int width = (int)(_slideStartRect.Width + (_slideEndRect.Width - _slideStartRect.Width) * progress);
+                int height = (int)(_slideStartRect.Height + (_slideEndRect.Height - _slideStartRect.Height) * progress);
+                Bounds = new Rectangle(x, y, width, height);
+            }
+
+            // Stop animation when done
+            if (progress >= 1.0f)
+            {
+                _animationTimer.Stop();
+                _isAnimating = false;
+            }
+        }
+
+        /// <summary>
+        /// Calculates the start rectangle for slide animation.
+        /// </summary>
+        private Rectangle GetSlideStartRect(Control parentControl)
+        {
+            Rectangle startRect = Bounds;
+
+            if (parentControl != null)
+            {
+                Point parentLocation = parentControl.PointToScreen(Point.Empty);
+
+                switch (SlideFrom)
+                {
+                    case SlideDirection.Bottom:
+                        startRect = new Rectangle(parentLocation.X, parentLocation.Y + parentControl.Height, Width, Height);
+                        break;
+                    case SlideDirection.Top:
+                        startRect = new Rectangle(parentLocation.X, parentLocation.Y - Height, Width, Height);
+                        break;
+                    case SlideDirection.Left:
+                        startRect = new Rectangle(parentLocation.X - Width, parentLocation.Y, Width, Height);
+                        break;
+                    case SlideDirection.Right:
+                        startRect = new Rectangle(parentLocation.X + parentControl.Width, parentLocation.Y, Width, Height);
+                        break;
+                }
+            }
+
+            return startRect;
+        }
+
+
         public void ShowWithDropdownAnimation(Control parentControl = null)
         {
             if (AnimationType == DisplayAnimationType.None)
@@ -1453,7 +1583,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 elapsedTime += _animationTimer.Interval;
                 float progress = Math.Min(1.0f, (float)elapsedTime / AnimationDuration);
-                progress = ApplyEasing(Easing, progress);
+                progress = ApplyEasing( progress);
 
                 // Handle fade and slide animations
                 if (AnimationType == DisplayAnimationType.Fade || AnimationType == DisplayAnimationType.SlideAndFade)
@@ -1483,9 +1613,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
 
-        protected float ApplyEasing(EasingType easing, float progress)
+        /// <summary>
+        /// Applies easing to the animation progress.
+        /// </summary>
+        private float ApplyEasing(float progress)
         {
-            return easing switch
+            return Easing switch
             {
                 EasingType.Linear => progress,
                 EasingType.EaseIn => progress * progress,
@@ -1494,6 +1627,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _ => progress
             };
         }
+
+        /// <summary>
+        /// Stops the animation immediately.
+        /// </summary>
+        public void StopAnimation()
+        {
+            _animationTimer?.Stop();
+            _isAnimating = false;
+        }
+
+        #endregion "Animation"
+
 
         public Size GetSize()
 

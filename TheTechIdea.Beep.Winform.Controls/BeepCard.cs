@@ -123,22 +123,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Constructor
         public BeepCard()
         {
+           
             Padding = new Padding(0);
             //ShowTitle = false;
             //ShowTitleLine = false;
             InitializeComponents();
+          //  this.MinimumSize = new Size(300, 200); // Set based on layout needs
+            this.Size = new Size(400, 300); // Default start size
             Console.WriteLine("BeepCard Constructor");
            // InitializeComponents();
             Console.WriteLine("BeepCard Constructor End");
            
         }
-        protected override void OnHandleCreated(EventArgs e)
+        protected override void InitLayout()
         {
-            base.OnHandleCreated(e);
+            base.InitLayout();
             InitializeComponents();
             PerformLayout();
             Invalidate();
             ApplyTheme(); // Apply the default theme initially
+        }
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+           
         }
         // Initialize the components
         private void InitializeComponents()

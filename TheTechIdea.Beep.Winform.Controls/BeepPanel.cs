@@ -152,8 +152,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepPanel()
         {
             ApplyTheme();
-            
-            
+           // this.MinimumSize = new Size(300, 200); // Set based on layout needs
+            this.Size = new Size(400, 300); // Default start size
+
         }
       
         public override void ApplyTheme()

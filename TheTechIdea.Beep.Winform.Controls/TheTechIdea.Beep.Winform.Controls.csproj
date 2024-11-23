@@ -104,6 +104,8 @@
     <None Remove="GFX\SVG\sortalphadown.svg" />
     <None Remove="GFX\SVG\sortalphaup.svg" />
     <None Remove="GFX\SVG\trash.svg" />
+    <None Remove="GFX\SVG\user.svg" />
+    <None Remove="GFX\SVG\x.svg" />
     <None Remove="GFX\SVG\yes.svg" />
   </ItemGroup>
   <ItemGroup>
@@ -160,6 +162,8 @@
     <EmbeddedResource Include="GFX\SVG\sortalphadown.svg" />
     <EmbeddedResource Include="GFX\SVG\sortalphaup.svg" />
     <EmbeddedResource Include="GFX\SVG\trash.svg" />
+    <EmbeddedResource Include="GFX\SVG\user.svg" />
+    <EmbeddedResource Include="GFX\SVG\x.svg" />
     <EmbeddedResource Include="GFX\SVG\yes.svg" />
     <EmbeddedResource Include="Resources/073-lock.svg" />
     <EmbeddedResource Include="Resources/072-bookmark.svg" />

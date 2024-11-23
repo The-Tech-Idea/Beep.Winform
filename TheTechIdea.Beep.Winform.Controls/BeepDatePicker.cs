@@ -15,6 +15,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepDatePicker()
         {
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 100;
+                Height = 30;
+            }
             InitializeDatePicker();
         }
 
@@ -114,6 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void PositionDatePicker()
         {
+            if(_innerDatePicker == null) return;
             int padding = BorderThickness + 2; // Adjust padding to account for borders
             _innerDatePicker.Location = new Point(DrawingRect.Left + padding, DrawingRect.Top + padding);
             _innerDatePicker.Width = DrawingRect.Width - padding * 2;

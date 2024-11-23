@@ -12,6 +12,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepNumericUpDown()
         {
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 100;
+                Height = 30;
+            }
             InitializeNumericUpDown();
         }
 

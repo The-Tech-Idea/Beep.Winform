@@ -89,9 +89,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepAccordion()
         {
-            // Set up default control properties
-            Width = expandedWidth;
-            Height = 200;
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = expandedWidth;
+                Height = 200;
+            }
+          
             BackColor = Color.FromArgb(51, 51, 51);
             ForeColor = Color.White;
             Font = new Font("Segoe UI", 9);

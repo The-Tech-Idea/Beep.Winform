@@ -127,6 +127,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public BeepChartBase()
         {
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 200;
+                Height = 200;
+            }
             MouseWheel += OnMouseWheel;
             MouseDown += OnMouseDown;
             MouseMove += OnMouseMove;

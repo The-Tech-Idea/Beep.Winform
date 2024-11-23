@@ -31,7 +31,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         public BeepImage()
         {
-           // ImageSelector.SetSelector();
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 100;
+                Height = 100;
+            }
+            // ImageSelector.SetSelector();
         }
 
 
@@ -258,18 +263,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (isSvg && svgDocument != null)
             {
                 var imageSize = svgDocument.GetDimensions();
-                var scaleFactor = GetScaleFactor(new SizeF(imageSize.Width, imageSize.Height), imageRect.Size);
+                var scaledBounds = GetScaledBounds(new SizeF(imageSize.Width, imageSize.Height), imageRect);
 
-                // Ensure the content fits within DrawingRect
-                scaleFactor = Math.Max(scaleFactor, GetScaleFactor(imageSize, new Size(imageRect.Width, imageRect.Height)));
-
-                // Apply scaling and positioning
-                if (scaleFactor > 0)
+                if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
                 {
-                    g.TranslateTransform(
-                        imageRect.X + (imageRect.Width - imageSize.Width * scaleFactor) / 2,
-                        imageRect.Y + (imageRect.Height - imageSize.Height * scaleFactor) / 2);
-                    g.ScaleTransform(scaleFactor, scaleFactor);
+                    // Apply scaling and positioning
+                    g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
+                    g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
 
                     svgDocument.Draw(g);
                     g.ResetTransform(); // Reset transformations
@@ -277,25 +277,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else if (regularImage != null)
             {
-                // Ensure the image fits within DrawingRect
-                if (imageRect.Width > 0 && imageRect.Height > 0)
+                // Calculate scaled bounds for the raster image
+                var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), imageRect);
+
+                // Ensure the bounds are valid
+                if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
                 {
-                    var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), imageRect);
-
-                    // Scale up if the image is smaller than DrawingRect
-                    var scaleFactor = GetScaleFactor(new SizeF(regularImage.Width, regularImage.Height), new Size(imageRect.Width, imageRect.Height));
-                    if (scaleFactor > 1)
-                    {
-                        var scaledSize = new SizeF(regularImage.Width * scaleFactor, regularImage.Height * scaleFactor);
-                        var xOffset = imageRect.X + (imageRect.Width - scaledSize.Width) / 2;
-                        var yOffset = imageRect.Y + (imageRect.Height - scaledSize.Height) / 2;
-                        scaledBounds = new RectangleF(xOffset, yOffset, scaledSize.Width, scaledSize.Height);
-                    }
-
+                    // Draw the raster image within the scaled bounds
                     g.DrawImage(regularImage, scaledBounds);
                 }
             }
         }
+
 
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -305,38 +298,29 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (isSvg && svgDocument != null)
             {
+                // Get scaled bounds for the SVG
                 var imageSize = svgDocument.GetDimensions();
-                var scaleFactor = GetScaleFactor(new SizeF(imageSize.Width, imageSize.Height), DrawingRect.Size);
+                var scaledBounds = GetScaledBounds(new SizeF(imageSize.Width, imageSize.Height), DrawingRect);
 
-                // Ensure scaling up to fit DrawingRect
-                scaleFactor = Math.Max(scaleFactor, GetScaleFactor(imageSize, new Size(DrawingRect.Width, DrawingRect.Height)));
+                // Apply scaling and positioning
+                e.Graphics.TranslateTransform(scaledBounds.X, scaledBounds.Y);
+                e.Graphics.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
 
-                // Apply transformations for centering and scaling
-                e.Graphics.TranslateTransform(
-                    DrawingRect.X + (DrawingRect.Width - imageSize.Width * scaleFactor) / 2,
-                    DrawingRect.Y + (DrawingRect.Height - imageSize.Height * scaleFactor) / 2);
-                e.Graphics.ScaleTransform(scaleFactor, scaleFactor);
-
+                // Draw the SVG
                 svgDocument.Draw(e.Graphics);
-                e.Graphics.ResetTransform();
+                e.Graphics.ResetTransform(); // Reset transformations
             }
             else if (regularImage != null)
             {
+                // Get scaled bounds for the regular image
                 var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), DrawingRect);
 
-                // Scale up if the image is smaller than DrawingRect
-                var scaleFactor = GetScaleFactor(new SizeF(regularImage.Width, regularImage.Height), new Size(DrawingRect.Width, DrawingRect.Height));
-                if (scaleFactor > 1)
-                {
-                    var scaledSize = new SizeF(regularImage.Width * scaleFactor, regularImage.Height * scaleFactor);
-                    var xOffset = DrawingRect.X + (DrawingRect.Width - scaledSize.Width) / 2;
-                    var yOffset = DrawingRect.Y + (DrawingRect.Height - scaledSize.Height) / 2;
-                    scaledBounds = new RectangleF(xOffset, yOffset, scaledSize.Width, scaledSize.Height);
-                }
-
+                // Draw the regular image
                 e.Graphics.DrawImage(regularImage, scaledBounds);
             }
         }
+
+
 
         public bool IsSvgPath(string path)
         {
@@ -523,29 +507,29 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return _scaleMode switch
             {
-                ImageScaleMode.Stretch => 1.0f,
+                ImageScaleMode.Stretch => Math.Min(scaleX, scaleY), // Fit within bounds, stretching as needed
+                ImageScaleMode.KeepAspectRatio => Math.Min(scaleX, scaleY), // Maintain aspect ratio
                 ImageScaleMode.KeepAspectRatioByWidth => scaleX,
                 ImageScaleMode.KeepAspectRatioByHeight => scaleY,
-                _ => Math.Min(scaleX, scaleY) // Default to KeepAspectRatio
+                _ => 1.0f // Default to no scaling
             };
         }
 
 
+
         public RectangleF GetScaledBounds(SizeF imageSize, Rectangle targetRect)
         {
-            float scale = GetScaleFactor(imageSize, targetRect.Size);
+            float scaleFactor = GetScaleFactor(imageSize, targetRect.Size);
 
-            if (scale <= 0)
-                return RectangleF.Empty;
+            float newWidth = imageSize.Width * scaleFactor;
+            float newHeight = imageSize.Height * scaleFactor;
 
-            float newWidth = imageSize.Width * scale;
-            float newHeight = imageSize.Height * scale;
-
-            float xOffset = targetRect.X + (targetRect.Width - newWidth) / 2;  // Center the image horizontally
-            float yOffset = targetRect.Y + (targetRect.Height - newHeight) / 2; // Center the image vertically
+            float xOffset = targetRect.X + (targetRect.Width - newWidth) / 2;  // Center horizontally
+            float yOffset = targetRect.Y + (targetRect.Height - newHeight) / 2; // Center vertically
 
             return new RectangleF(xOffset, yOffset, newWidth, newHeight);
         }
+
 
         private string ProcessImagePath()
         {

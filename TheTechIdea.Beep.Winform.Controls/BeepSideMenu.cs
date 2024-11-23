@@ -144,7 +144,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepSideMenu()
         {
-           
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 300;
+                Height = 300;
+            }
             DoubleBuffered = true;
             Width = expandedWidth;
             SendToBack();

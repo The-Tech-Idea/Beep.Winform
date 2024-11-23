@@ -13,8 +13,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Bubble chart-specific properties can be added here if needed
         public BeepBubbleChart()
         {
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 200;
+                Height = 200;
+            }
             // Add sample data when the control is created
-          
+
         }
 
       

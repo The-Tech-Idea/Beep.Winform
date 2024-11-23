@@ -75,8 +75,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 items = new SimpleMenuItemCollection();
             }
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 200;
+                Height = 250;
+            }
 
-            
             items.ListChanged += Items_ListChanged;
             this.Invalidated += BeepListBox_Invalidated;
             InitLayout();
@@ -93,15 +97,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.InitLayout();
             BorderThickness = 1;
 
-           
-           // IsShadowAffectedByTheme = false;
-          //  IsBorderAffectedByTheme = false;
+
             InitializeMenu();
             ApplyTheme();
             TitleText = "List Box";
           
 
         }
+    
+
+
         protected override void OnSizeChanged(EventArgs e)
         {
             base.OnSizeChanged(e);

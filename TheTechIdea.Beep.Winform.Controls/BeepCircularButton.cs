@@ -142,7 +142,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepCircularButton():base()
         {
 
-         
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 100;
+                Height = 100;
+            }
             beepImage = new BeepImage
             {
                 Dock = DockStyle.None,

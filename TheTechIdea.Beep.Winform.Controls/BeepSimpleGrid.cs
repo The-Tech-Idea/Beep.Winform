@@ -5,9 +5,7 @@ using TheTechIdea.Beep.Winform.Controls.Grid;
 using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewColumns;
 using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns;
 using TheTechIdea.Beep.Winform.Controls.Template;
-using System.Security.AccessControl;
-using System.Windows.Forms.VisualStyles;
-using System.Drawing;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -271,12 +269,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             //  Rows.ListChanged += Rows_ListChanged;
             // Apply default dimensions to accommodate all layout elements by default
-            this.MinimumSize = new Size(300, 200); // Set based on layout needs
-            this.Size = new Size(400, 300); // Default start size
+        //    this.MinimumSize = new Size(300, 200); // Set based on layout needs
+        ////    this.Size = new Size(400, 300); // Default start size
 
-            this.MouseDown += BeepGrid_MouseDown;
-            this.MouseMove += BeepGrid_MouseMove;
-            this.MouseUp += BeepGrid_MouseUp;
+        //    this.MouseDown += BeepGrid_MouseDown;
+        //    this.MouseMove += BeepGrid_MouseMove;
+        //    this.MouseUp += BeepGrid_MouseUp;
             
            // ApplyTheme();
         }
@@ -337,7 +335,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Drawin on DrawingRectangle"
         protected override void OnPaint(PaintEventArgs e)
         {
-            Controls.Clear();
+          
             
             base.OnPaint(e);
             UpdateDrawingRect();

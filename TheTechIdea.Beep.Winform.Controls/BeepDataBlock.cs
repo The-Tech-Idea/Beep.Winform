@@ -35,6 +35,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepDataBlock()
         {
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 200;
+                Height = 250;
+            }
         }
         public void Refresh()
         {

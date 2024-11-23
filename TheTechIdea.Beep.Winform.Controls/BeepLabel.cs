@@ -142,7 +142,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InitializeComponents();
             ApplyTheme();
-
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 200;
+                Height = 40;
+            }
             //  SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
             AutoSize = false;
            
@@ -165,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Padding = new Padding(0);
             Margin = new Padding(0);
             IsChild = true;
-            Size = new Size(120, 40);  // Default size
+         
         }
 
         protected override void OnPaint(PaintEventArgs e)

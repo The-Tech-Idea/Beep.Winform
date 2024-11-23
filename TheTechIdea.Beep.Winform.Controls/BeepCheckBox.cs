@@ -44,6 +44,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         Rectangle checkBoxRect;
         public BeepCheckBox()
         {
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 200;
+                Height = 30;
+            }
             animationTimer.Interval = 16; // 60 FPS
             animationTimer.Tick += AnimationTimer_Tick;
             Padding = new Padding(5, 5,5,5);

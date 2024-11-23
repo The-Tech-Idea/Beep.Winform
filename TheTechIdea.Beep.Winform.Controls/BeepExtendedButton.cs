@@ -164,6 +164,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public BeepExtendedButton()
         {
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 100;
+                Height = buttonHeight;
+            }
             CreateMenuItemPanel();
             //Size = new System.Drawing.Size(buttonWidth, buttonHeight);
             Console.WriteLine("Control Created");   

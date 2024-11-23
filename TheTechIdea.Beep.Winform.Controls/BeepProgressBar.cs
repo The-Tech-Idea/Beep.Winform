@@ -132,6 +132,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepProgressBar()
         {
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 400;
+                Height = 30;
+            }
             DoubleBuffered = true;
         }
 

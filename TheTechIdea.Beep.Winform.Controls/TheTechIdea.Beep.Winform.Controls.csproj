@@ -53,6 +53,7 @@
     <None Remove="BeepiForm.Designer.cs~RF145a38e5.TMP" />
     <None Remove="GFX\SVG\033-stakeholder.svg" />
     <None Remove="GFX\SVG\about.svg" />
+    <None Remove="GFX\SVG\add.svg" />
     <None Remove="GFX\SVG\addressbook.svg" />
     <None Remove="GFX\SVG\angle-double-small-down.svg" />
     <None Remove="GFX\SVG\angle-double-small-left.svg" />
@@ -62,6 +63,7 @@
     <None Remove="GFX\SVG\angle-small-left.svg" />
     <None Remove="GFX\SVG\angle-small-right.svg" />
     <None Remove="GFX\SVG\angle-small-up.svg" />
+    <None Remove="GFX\SVG\back-button.svg" />
     <None Remove="GFX\SVG\back.svg" />
     <None Remove="GFX\SVG\close.svg" />
     <None Remove="GFX\SVG\comment.svg" />
@@ -74,6 +76,7 @@
     <None Remove="GFX\SVG\favorite.svg" />
     <None Remove="GFX\SVG\filter.svg" />
     <None Remove="GFX\SVG\firstrecord.svg" />
+    <None Remove="GFX\SVG\floppy-disk.svg" />
     <None Remove="GFX\SVG\hamburger.svg" />
     <None Remove="GFX\SVG\help.svg" />
     <None Remove="GFX\SVG\home.svg" />
@@ -111,6 +114,7 @@
   <ItemGroup>
     <EmbeddedResource Include="GFX\SVG\033-stakeholder.svg" />
     <EmbeddedResource Include="GFX\SVG\about.svg" />
+    <EmbeddedResource Include="GFX\SVG\add.svg" />
     <EmbeddedResource Include="GFX\SVG\addressbook.svg" />
     <EmbeddedResource Include="GFX\SVG\angle-double-small-down.svg" />
     <EmbeddedResource Include="GFX\SVG\angle-double-small-left.svg" />
@@ -120,6 +124,7 @@
     <EmbeddedResource Include="GFX\SVG\angle-small-left.svg" />
     <EmbeddedResource Include="GFX\SVG\angle-small-right.svg" />
     <EmbeddedResource Include="GFX\SVG\angle-small-up.svg" />
+    <EmbeddedResource Include="GFX\SVG\back-button.svg" />
     <EmbeddedResource Include="GFX\SVG\back.svg" />
     <EmbeddedResource Include="GFX\SVG\close.svg" />
     <EmbeddedResource Include="GFX\SVG\comment.svg" />
@@ -132,6 +137,7 @@
     <EmbeddedResource Include="GFX\SVG\favorite.svg" />
     <EmbeddedResource Include="GFX\SVG\filter.svg" />
     <EmbeddedResource Include="GFX\SVG\firstrecord.svg" />
+    <EmbeddedResource Include="GFX\SVG\floppy-disk.svg" />
     <EmbeddedResource Include="GFX\SVG\hamburger.svg" />
     <EmbeddedResource Include="GFX\SVG\help.svg" />
     <EmbeddedResource Include="GFX\SVG\home.svg" />

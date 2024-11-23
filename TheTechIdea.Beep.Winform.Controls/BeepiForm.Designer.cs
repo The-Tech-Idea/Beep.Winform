@@ -29,12 +29,10 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BeepiForm));
             CloseButton = new BeepButton();
             MaximizeButton = new BeepButton();
             MinimizeButton = new BeepButton();
             beepuiManager1 = new BeepUIManager(components);
-            FunctionsPanel1 = new BeepFunctionsPanel();
             beepPanel1 = new BeepPanel();
             TitleLabel = new BeepLabel();
             beepPanel1.SuspendLayout();
@@ -68,7 +66,7 @@
             CloseButton.FocusForeColor = Color.Black;
             CloseButton.FocusIndicatorColor = Color.Blue;
             CloseButton.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
-            CloseButton.ForeColor = Color.FromArgb(33, 150, 243);
+            CloseButton.ForeColor = Color.White;
             CloseButton.Form = null;
             CloseButton.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             CloseButton.GradientEndColor = Color.Transparent;
@@ -90,6 +88,7 @@
             CloseButton.IsBorderAffectedByTheme = true;
             CloseButton.IsCancelButton = false;
             CloseButton.IsChild = true;
+            CloseButton.IsCustomeBorder = false;
             CloseButton.IsDefault = false;
             CloseButton.IsFocused = false;
             CloseButton.IsFramless = true;
@@ -162,7 +161,7 @@
             MaximizeButton.FocusForeColor = Color.Black;
             MaximizeButton.FocusIndicatorColor = Color.Blue;
             MaximizeButton.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
-            MaximizeButton.ForeColor = Color.FromArgb(33, 150, 243);
+            MaximizeButton.ForeColor = Color.White;
             MaximizeButton.Form = null;
             MaximizeButton.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             MaximizeButton.GradientEndColor = Color.Transparent;
@@ -184,6 +183,7 @@
             MaximizeButton.IsBorderAffectedByTheme = true;
             MaximizeButton.IsCancelButton = false;
             MaximizeButton.IsChild = true;
+            MaximizeButton.IsCustomeBorder = false;
             MaximizeButton.IsDefault = false;
             MaximizeButton.IsFocused = false;
             MaximizeButton.IsFramless = true;
@@ -256,7 +256,7 @@
             MinimizeButton.FocusForeColor = Color.Black;
             MinimizeButton.FocusIndicatorColor = Color.Blue;
             MinimizeButton.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
-            MinimizeButton.ForeColor = Color.FromArgb(33, 150, 243);
+            MinimizeButton.ForeColor = Color.White;
             MinimizeButton.Form = null;
             MinimizeButton.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             MinimizeButton.GradientEndColor = Color.Transparent;
@@ -278,6 +278,7 @@
             MinimizeButton.IsBorderAffectedByTheme = true;
             MinimizeButton.IsCancelButton = false;
             MinimizeButton.IsChild = true;
+            MinimizeButton.IsCustomeBorder = false;
             MinimizeButton.IsDefault = false;
             MinimizeButton.IsFocused = false;
             MinimizeButton.IsFramless = true;
@@ -325,94 +326,14 @@
             // beepuiManager1
             // 
             beepuiManager1.ApplyThemeOnImage = false;
-            beepuiManager1.BeepFunctionsPanel = FunctionsPanel1;
             beepuiManager1.BeepiForm = null;
             beepuiManager1.BeepSideMenu = null;
+            beepuiManager1.IsRounded = false;
+            beepuiManager1.LogoImage = "";
             beepuiManager1.ShowBorder = true;
+            beepuiManager1.ShowShadow = false;
             beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.MaterialDesignTheme;
-            // 
-            // FunctionsPanel1
-            // 
-            FunctionsPanel1.ActiveBackColor = Color.FromArgb(206, 212, 218);
-            FunctionsPanel1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            FunctionsPanel1.AnimationDuration = 500;
-            FunctionsPanel1.AnimationType = DisplayAnimationType.None;
-            FunctionsPanel1.ApplyThemeOnImage = true;
-            FunctionsPanel1.BackColor = SystemColors.Control;
-            FunctionsPanel1.BlockID = null;
-            FunctionsPanel1.BorderColor = Color.FromArgb(222, 226, 230);
-            FunctionsPanel1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            FunctionsPanel1.BorderRadius = 5;
-            FunctionsPanel1.BorderStyle = BorderStyle.FixedSingle;
-            FunctionsPanel1.BorderThickness = 1;
-            FunctionsPanel1.ButtonHeight = 20;
-            FunctionsPanel1.ButtonSpacing = 5;
-            FunctionsPanel1.ButtonWidth = 20;
-            FunctionsPanel1.DataContext = null;
-            FunctionsPanel1.DisabledBackColor = Color.Gray;
-            FunctionsPanel1.DisabledForeColor = Color.Empty;
-            FunctionsPanel1.DrawingRect = new Rectangle(1, 1, 27, 275);
-            FunctionsPanel1.Easing = EasingType.Linear;
-            FunctionsPanel1.FieldID = null;
-            FunctionsPanel1.FocusBackColor = Color.Transparent;
-            FunctionsPanel1.FocusBorderColor = Color.Transparent;
-            FunctionsPanel1.FocusForeColor = Color.Black;
-            FunctionsPanel1.FocusIndicatorColor = Color.Blue;
-            FunctionsPanel1.ForeColor = Color.FromArgb(33, 37, 41);
-            FunctionsPanel1.Form = null;
-            FunctionsPanel1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            FunctionsPanel1.GradientEndColor = Color.FromArgb(233, 236, 239);
-            FunctionsPanel1.GradientStartColor = Color.FromArgb(248, 249, 250);
-            FunctionsPanel1.HoverBackColor = Color.FromArgb(222, 226, 230);
-            FunctionsPanel1.HoverBorderColor = Color.Transparent;
-            FunctionsPanel1.HoveredBackcolor = Color.Transparent;
-            FunctionsPanel1.HoverForeColor = Color.Black;
-            FunctionsPanel1.Id = -1;
-            FunctionsPanel1.InactiveBackColor = Color.Transparent;
-            FunctionsPanel1.InactiveBorderColor = Color.Transparent;
-            FunctionsPanel1.InactiveForeColor = Color.Black;
-            FunctionsPanel1.IsAcceptButton = false;
-            FunctionsPanel1.IsBorderAffectedByTheme = true;
-            FunctionsPanel1.IsCancelButton = false;
-            FunctionsPanel1.IsChild = true;
-            FunctionsPanel1.IsDefault = false;
-            FunctionsPanel1.IsFocused = false;
-            FunctionsPanel1.IsFramless = true;
-            FunctionsPanel1.IsHovered = false;
-            FunctionsPanel1.IsPressed = false;
-            FunctionsPanel1.IsRounded = false;
-            FunctionsPanel1.IsShadowAffectedByTheme = true;
-            FunctionsPanel1.Location = new Point(734, 53);
-            FunctionsPanel1.MinimumSize = new Size(29, 277);
-            FunctionsPanel1.Name = "FunctionsPanel1";
-            FunctionsPanel1.OverrideFontSize = TypeStyleFontSize.None;
-            FunctionsPanel1.PanelOrientation = Orientation.Vertical;
-            FunctionsPanel1.ParentBackColor = SystemColors.Control;
-            FunctionsPanel1.PressedBackColor = Color.Transparent;
-            FunctionsPanel1.PressedBorderColor = Color.Transparent;
-            FunctionsPanel1.PressedForeColor = Color.Black;
-            FunctionsPanel1.SavedGuidID = null;
-            FunctionsPanel1.SavedID = null;
-            FunctionsPanel1.ShadowColor = Color.FromArgb(50, 0, 0, 0);
-            FunctionsPanel1.ShadowOffset = 0;
-            FunctionsPanel1.ShadowOpacity = 0.5F;
-            FunctionsPanel1.ShowAllBorders = true;
-            FunctionsPanel1.ShowBottomBorder = true;
-            FunctionsPanel1.ShowFocusIndicator = false;
-            FunctionsPanel1.ShowLeftBorder = true;
-            FunctionsPanel1.ShowRightBorder = true;
-            FunctionsPanel1.ShowShadow = false;
-            FunctionsPanel1.ShowTopBorder = true;
-            FunctionsPanel1.Size = new Size(29, 277);
-            FunctionsPanel1.SlideFrom = SlideDirection.Left;
-            FunctionsPanel1.StaticNotMoving = false;
-            FunctionsPanel1.TabIndex = 5;
-            FunctionsPanel1.Text = "beepFunctionsPanel1";
-            FunctionsPanel1.Theme = Vis.Modules.EnumBeepThemes.MaterialDesignTheme;
-            FunctionsPanel1.ToolTipText = "";
-            FunctionsPanel1.UseGradientBackground = false;
-            FunctionsPanel1.XOffset = 1;
-            FunctionsPanel1.YOffset = 1;
+            beepuiManager1.Title = "Beep Form";
             // 
             // beepPanel1
             // 
@@ -458,6 +379,7 @@
             beepPanel1.IsBorderAffectedByTheme = false;
             beepPanel1.IsCancelButton = false;
             beepPanel1.IsChild = true;
+            beepPanel1.IsCustomeBorder = false;
             beepPanel1.IsDefault = false;
             beepPanel1.IsFocused = false;
             beepPanel1.IsFramless = false;
@@ -477,8 +399,8 @@
             beepPanel1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
             beepPanel1.ShadowOffset = 0;
             beepPanel1.ShadowOpacity = 0.5F;
-            beepPanel1.ShowAllBorders = false;
-            beepPanel1.ShowBottomBorder = false;
+            beepPanel1.ShowAllBorders = true;
+            beepPanel1.ShowBottomBorder = true;
             beepPanel1.ShowFocusIndicator = false;
             beepPanel1.ShowLeftBorder = true;
             beepPanel1.ShowRightBorder = true;
@@ -546,6 +468,7 @@
             TitleLabel.IsBorderAffectedByTheme = true;
             TitleLabel.IsCancelButton = false;
             TitleLabel.IsChild = true;
+            TitleLabel.IsCustomeBorder = false;
             TitleLabel.IsDefault = false;
             TitleLabel.IsFocused = false;
             TitleLabel.IsFramless = true;
@@ -591,7 +514,6 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(774, 644);
-            Controls.Add(FunctionsPanel1);
             Controls.Add(beepPanel1);
             FormBorderStyle = FormBorderStyle.None;
             Name = "BeepiForm";
@@ -609,6 +531,5 @@
         public BeepUIManager beepuiManager1;
         public BeepPanel beepPanel1;
         public BeepLabel TitleLabel;
-        public BeepFunctionsPanel FunctionsPanel1;
     }
 }

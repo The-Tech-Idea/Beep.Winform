@@ -28,13 +28,80 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepSideMenu _sidemenu;
         public BeepSideMenu SideMenu { get { return _sidemenu; } set { _sidemenu = value;if (_sidemenu != null) { _sidemenu.OnMenuCollapseExpand += HandleSideMenuState; } } }
 
-        private Panel leftPanel;    // Holds hamburger button and logo
-        private Panel centerPanel;  // Holds search bar
-        private Panel rightPanel;   // Holds window controls (minimize, maximize, close)
-        TableLayoutPanel toptable;
-        int toptablecols;
-        TableLayoutPanel bottomtable;
-        TableLayoutPanel tablelayout;
+        public bool ShowHamburgerIcon
+        {
+            get => hamburgerIcon.Visible;
+            set
+            {
+                hamburgerIcon.Visible = value;
+                RearrangeLayout();
+            }
+        }
+        public bool ShowLogoIcon
+        {
+            get => logoIcon.Visible;
+            set
+            {
+                logoIcon.Visible = value;
+                RearrangeLayout();
+            }
+        }
+        public bool ShowSearchBox
+        {
+            get => searchBox.Visible;
+            set
+            {
+                searchBox.Visible = value;
+                RearrangeLayout();
+            }
+        }
+        public bool ShowNotificationIcon
+        {
+            get => notificationIcon.Visible;
+            set
+            {
+                notificationIcon.Visible = value;
+                RearrangeLayout();
+            }
+        }
+        public bool ShowProfileIcon
+        {
+            get => profileIcon.Visible;
+            set
+            {
+                profileIcon.Visible = value;
+                RearrangeLayout();
+            }
+        }
+        public bool ShowCloseIcon
+        {
+            get => closeIcon.Visible;
+            set
+            {
+                closeIcon.Visible = value;
+                RearrangeLayout();
+            }
+        }
+        public bool ShowMaximizeIcon
+        {
+            get => maximizeIcon.Visible;
+            set
+            {
+                maximizeIcon.Visible = value;
+                RearrangeLayout();
+            }
+        }
+        public bool ShowMinimizeIcon
+        {
+            get => minimizeIcon.Visible;
+            set
+            {
+                minimizeIcon.Visible = value;
+                RearrangeLayout();
+            }
+        }
+
+
         private BeepTextBox searchBox;
         bool _applyThemeOnImage = true;
         public bool ApplyThemeOnImage

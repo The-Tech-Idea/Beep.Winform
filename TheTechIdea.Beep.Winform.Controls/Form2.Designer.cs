@@ -109,13 +109,7 @@
             TitleLabel.Size = new Size(562, 28);
             TitleLabel.Text = "Asset HR Digital Space";
             TitleLabel.Theme = Vis.Modules.EnumBeepThemes.ZenTheme;
-            // 
-            // FunctionsPanel1
-            // 
-            FunctionsPanel1.BackColor = Color.FromArgb(250, 250, 250);
-            FunctionsPanel1.Location = new Point(993, 63);
-            FunctionsPanel1.ParentBackColor = Color.FromArgb(250, 250, 250);
-            FunctionsPanel1.Theme = Vis.Modules.EnumBeepThemes.ZenTheme;
+           
             // 
             // beepSideMenu1
             // 
@@ -1171,7 +1165,6 @@
             Padding = new Padding(10);
             Text = "Asset HR Digital Space";
             Controls.SetChildIndex(beepSideMenu1, 0);
-            Controls.SetChildIndex(FunctionsPanel1, 0);
             Controls.SetChildIndex(beepLabel1, 0);
             Controls.SetChildIndex(beepImage1, 0);
             Controls.SetChildIndex(beepButton1, 0);

@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 using TheTechIdea.Beep.Winform.Controls.Grid;
 using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewColumns;
 using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns;
+using System.Drawing.Design;
+using System.Windows.Forms.Design;
 
 
 
@@ -235,6 +237,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         public  BeepDataNavigator DataNavigator { get; set; } = new BeepDataNavigator();
 
 
+        [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
+        [Description("Select the image file (SVG, PNG, JPG, etc.) to load")]
+        [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public string ImagePath
+        {
+            get => _imagepath;
+            set
+            {
+
+
+                _imagepath = value;
+                // Console.WriteLine("Loading Image");
+                if (!string.IsNullOrEmpty(_imagepath))
+                {
+                    titleLabel.ImagePath = _imagepath;
+                    ApplyTheme();
+                    Invalidate();
+                }
+               
+                    
+                    Invalidate();
+               
+            }
+        }
 
 
 
@@ -274,6 +301,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepLabel titleLabel;
         private BeepButton filterButton;
         private int _buttonssize = 25;
+        private string _imagepath;
+
         private void FilterButton_Click(object sender, EventArgs e)
         {
             // Show filter form when filter button is clicked
@@ -303,8 +332,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
              Invalidate(); // Repaint the grid after applying the theme
         }
-
-       
         #endregion "Theme"
         #region "Paint"
         #region "Drawin on DrawingRectangle"
@@ -442,55 +469,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw the Title Label (BeepLabel) within drawingBounds
 
             titleLabel = new BeepLabel
-                {
+            {
                     Text = string.IsNullOrEmpty(Title)?"Beep Grid": Title,
                     TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
                     Location = new Point(headerPanelBorderRect.Left+1, headerPanelBorderRect.Top+1), // Adjust Y as needed
-                    
                     Theme = Theme,
                     ImageAlign = System.Drawing.ContentAlignment.MiddleLeft,
                     TextImageRelation = TextImageRelation.ImageBeforeText,
+                    MaxImageSize = new Size(20, 20),
                     ShowAllBorders = false,
                     ShowShadow = false,
                     //ShowBottomBorder =true,
                     //ShowTopBorder = true,
                     IsChild = true,
                     IsShadowAffectedByTheme =false,
-                     IsBorderAffectedByTheme = false,
-
-
+                    IsBorderAffectedByTheme = false,
             };
             
             titleLabel.Size = new Size(headerPanelBorderRect.Width-2 , headerPanelBorderRect.Height-2 );
-            titleLabel.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg";
             titleLabel.BackColor = _currentTheme.BackColor;
-            // Set title label bounds within headerPanelRect
-            // Rectangle titleLabelRect = new Rectangle(headerPanelBorderRect.Left + 10, headerPanelBorderRect.Top+2, headerPanelBorderRect.Width - (_buttonssize + 15), headerPanelBorderRect.Height-2);
-            // titleLabel.DrawToGraphics(g, titleLabelRect);
-
-            // Draw the Filter Button within headerPanelRect, aligned to the right side
-
-            //    filterButton = new BeepButton
-            //    {
-            //        Text = "",
-            //        Size = new Size(_buttonssize, _buttonssize),
-            //        Location = new Point(headerPanelBorderRect.Right - _buttonssize - 5, headerPanelBorderRect.Top + 2), // Adjust X and Y as needed
-            //        Theme = Theme,
-            //        ImageAlign= System.Drawing.ContentAlignment.MiddleCenter,
-            //        TextImageRelation= TextImageRelation.ImageAboveText,
-            //        MaxImageSize = new Size(20, 20),
-            //        ShowShadow = false,
-            //        ShowAllBorders = false,
-            //        IsChild = true,
-            //    };
-            //    filterButton.LogoImage = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg";
-            //filterButton.ApplyTheme(_currentTheme);
-            //Rectangle filterButtonRect = new Rectangle(headerPanelBorderRect.Right - _buttonssize - 5, headerPanelBorderRect.Top+2, _buttonssize, _buttonssize);
-            //// filterButton.DrawToGraphics(g, filterButtonRect);
-            //// Add click event to the filter button
-            //filterButton.Click += FilterButton_Click;
-            //Controls.Add(filterButton);
-
+            if (!string.IsNullOrEmpty(_imagepath))
+            {
+                titleLabel.ImagePath = _imagepath;
+            }
             // Add controls to BeepSimpleGrid
             Controls.Add(titleLabel);
             titleLabel.Theme = Theme;

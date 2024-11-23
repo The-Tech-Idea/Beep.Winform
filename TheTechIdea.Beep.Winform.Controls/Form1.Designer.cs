@@ -29,12 +29,10 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            DataNavigator.BeepBindingSource beepBindingSource1 = new DataNavigator.BeepBindingSource();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             beepAppBar1 = new BeepAppBar();
             beepuiManager1 = new BeepUIManager(components);
             beepCard1 = new BeepCard();
-            beepDataNavigator1 = new BeepDataNavigator();
             beepSimpleGrid2 = new BeepSimpleGrid();
             SuspendLayout();
             // 
@@ -209,90 +207,6 @@
             beepCard1.ToolTipText = "";
             beepCard1.UseGradientBackground = false;
             // 
-            // beepDataNavigator1
-            // 
-            beepDataNavigator1.ActiveBackColor = Color.Gray;
-            beepDataNavigator1.AnimationDuration = 500;
-            beepDataNavigator1.AnimationType = DisplayAnimationType.None;
-            beepBindingSource1.ChildUnitofWorks = (List<Editor.IUnitofWork>)resources.GetObject("beepBindingSource1.ChildUnitofWorks");
-            beepBindingSource1.Filter = null;
-            beepBindingSource1.Position = -1;
-            beepBindingSource1.UnitofWork = null;
-            beepDataNavigator1.BindingSource = beepBindingSource1;
-            beepDataNavigator1.BlockID = null;
-            beepDataNavigator1.BorderColor = Color.Black;
-            beepDataNavigator1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            beepDataNavigator1.BorderRadius = 5;
-            beepDataNavigator1.BorderStyle = BorderStyle.FixedSingle;
-            beepDataNavigator1.BorderThickness = 1;
-            beepDataNavigator1.ButtonHeight = 15;
-            beepDataNavigator1.ButtonSpacing = 5;
-            beepDataNavigator1.ButtonWidth = 15;
-            beepDataNavigator1.DataContext = null;
-            beepDataNavigator1.DisabledBackColor = Color.Gray;
-            beepDataNavigator1.DisabledForeColor = Color.Empty;
-            beepDataNavigator1.DrawingRect = new Rectangle(1, 1, 236, 17);
-            beepDataNavigator1.Easing = EasingType.Linear;
-            beepDataNavigator1.FieldID = null;
-            beepDataNavigator1.FocusBackColor = Color.Gray;
-            beepDataNavigator1.FocusBorderColor = Color.Gray;
-            beepDataNavigator1.FocusForeColor = Color.Black;
-            beepDataNavigator1.FocusIndicatorColor = Color.Blue;
-            beepDataNavigator1.Form = null;
-            beepDataNavigator1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepDataNavigator1.GradientEndColor = Color.Gray;
-            beepDataNavigator1.GradientStartColor = Color.Gray;
-            beepDataNavigator1.HoverBackColor = Color.Gray;
-            beepDataNavigator1.HoverBorderColor = Color.Gray;
-            beepDataNavigator1.HoveredBackcolor = Color.Wheat;
-            beepDataNavigator1.HoverForeColor = Color.Black;
-            beepDataNavigator1.Id = -1;
-            beepDataNavigator1.InactiveBackColor = Color.Gray;
-            beepDataNavigator1.InactiveBorderColor = Color.Gray;
-            beepDataNavigator1.InactiveForeColor = Color.Black;
-            beepDataNavigator1.IsAcceptButton = false;
-            beepDataNavigator1.IsBorderAffectedByTheme = false;
-            beepDataNavigator1.IsCancelButton = false;
-            beepDataNavigator1.IsChild = false;
-            beepDataNavigator1.IsCustomeBorder = false;
-            beepDataNavigator1.IsDefault = false;
-            beepDataNavigator1.IsFocused = false;
-            beepDataNavigator1.IsFramless = false;
-            beepDataNavigator1.IsHovered = false;
-            beepDataNavigator1.IsPressed = false;
-            beepDataNavigator1.IsRounded = true;
-            beepDataNavigator1.IsShadowAffectedByTheme = false;
-            beepDataNavigator1.Location = new Point(351, 228);
-            beepDataNavigator1.MinimumSize = new Size(190, 19);
-            beepDataNavigator1.Name = "beepDataNavigator1";
-            beepDataNavigator1.OverrideFontSize = TypeStyleFontSize.None;
-            beepDataNavigator1.ParentBackColor = Color.Empty;
-            beepDataNavigator1.PressedBackColor = Color.Gray;
-            beepDataNavigator1.PressedBorderColor = Color.Gray;
-            beepDataNavigator1.PressedForeColor = Color.Black;
-            beepDataNavigator1.SavedGuidID = null;
-            beepDataNavigator1.SavedID = null;
-            beepDataNavigator1.ShadowColor = Color.Black;
-            beepDataNavigator1.ShadowOffset = 0;
-            beepDataNavigator1.ShadowOpacity = 0.5F;
-            beepDataNavigator1.ShowAllBorders = true;
-            beepDataNavigator1.ShowBottomBorder = true;
-            beepDataNavigator1.ShowFocusIndicator = false;
-            beepDataNavigator1.ShowLeftBorder = true;
-            beepDataNavigator1.ShowRightBorder = true;
-            beepDataNavigator1.ShowShadow = false;
-            beepDataNavigator1.ShowTopBorder = true;
-            beepDataNavigator1.Size = new Size(238, 19);
-            beepDataNavigator1.SlideFrom = SlideDirection.Left;
-            beepDataNavigator1.StaticNotMoving = false;
-            beepDataNavigator1.TabIndex = 3;
-            beepDataNavigator1.Text = "beepDataNavigator1";
-            beepDataNavigator1.Theme = Vis.Modules.EnumBeepThemes.HighlightTheme;
-            beepDataNavigator1.ToolTipText = "";
-            beepDataNavigator1.UseGradientBackground = false;
-            beepDataNavigator1.XOffset = 5;
-            beepDataNavigator1.YOffset = 5;
-            // 
             // beepSimpleGrid2
             // 
             beepSimpleGrid2.ActiveBackColor = Color.Gray;
@@ -313,7 +227,7 @@
             beepSimpleGrid2.DataSourceType = GridDataSourceType.Fixed;
             beepSimpleGrid2.DisabledBackColor = Color.Gray;
             beepSimpleGrid2.DisabledForeColor = Color.Empty;
-            beepSimpleGrid2.DrawingRect = new Rectangle(1, 1, 387, 151);
+            beepSimpleGrid2.DrawingRect = new Rectangle(1, 1, 408, 144);
             beepSimpleGrid2.Easing = EasingType.Linear;
             beepSimpleGrid2.FieldID = null;
             beepSimpleGrid2.FocusBackColor = Color.Gray;
@@ -330,6 +244,7 @@
             beepSimpleGrid2.HoveredBackcolor = Color.Wheat;
             beepSimpleGrid2.HoverForeColor = Color.Black;
             beepSimpleGrid2.Id = -1;
+            beepSimpleGrid2.ImagePath = "H:\\dev\\iconPacks\\svg_interface_ui\\angle-double-small-up.svg";
             beepSimpleGrid2.InactiveBackColor = Color.Gray;
             beepSimpleGrid2.InactiveBorderColor = Color.Gray;
             beepSimpleGrid2.InactiveForeColor = Color.Black;
@@ -378,7 +293,7 @@
             beepSimpleGrid2.ShowSortIcons = true;
             beepSimpleGrid2.ShowTitle = true;
             beepSimpleGrid2.ShowTopBorder = true;
-            beepSimpleGrid2.Size = new Size(389, 153);
+            beepSimpleGrid2.Size = new Size(410, 146);
             beepSimpleGrid2.SlideFrom = SlideDirection.Left;
             beepSimpleGrid2.StaticNotMoving = false;
             beepSimpleGrid2.TabIndex = 4;
@@ -395,7 +310,6 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(852, 450);
             Controls.Add(beepSimpleGrid2);
-            Controls.Add(beepDataNavigator1);
             Controls.Add(beepCard1);
             Controls.Add(beepAppBar1);
             Name = "Form1";
@@ -409,7 +323,6 @@
         private BeepAppBar beepAppBar1;
         private BeepUIManager beepuiManager1;
         private BeepCard beepCard1;
-        private BeepDataNavigator beepDataNavigator1;
         private BeepSimpleGrid beepSimpleGrid2;
     }
 }

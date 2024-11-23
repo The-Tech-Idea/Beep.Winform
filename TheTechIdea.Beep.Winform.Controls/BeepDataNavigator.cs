@@ -80,14 +80,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void CreateNavigator()
         {
             UpdateDrawingRect();
-            btnFirst = CreateButton("First", btnFirst_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.firstrecord.svg");
-            btnPrevious = CreateButton("Previous", btnPrevious_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.previous.svg");
-            btnNext = CreateButton("Next", btnNext_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.next.svg");
-            btnLast = CreateButton("Last", btnLast_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.lastrecord.svg");
-            btnInsert = CreateButton("Insert", btnInsert_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg");
-            btnDelete = CreateButton("Delete", btnDelete_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg");
-            btnSave = CreateButton("Save", btnSave_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.yes.svg");
-            btnCancel = CreateButton("Cancel", btnCancel_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.back.svg");
+            btnFirst = CreateButton("First", btnFirst_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-double-small-left.svg");
+            btnPrevious = CreateButton("Previous", btnPrevious_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-left.svg");
+            btnNext = CreateButton("Next", btnNext_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-right.svg");
+            btnLast = CreateButton("Last", btnLast_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-double-small-right.svg");
+            btnInsert = CreateButton("Insert", btnInsert_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.add.svg");//
+            btnDelete = CreateButton("Delete", btnDelete_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg");// "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg"
+            btnSave = CreateButton("Save", btnSave_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.floppy-disk.svg");//"TheTechIdea.Beep.Winform.Controls.GFX.SVG.yes.svg"
+            btnCancel = CreateButton("Cancel", btnCancel_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.back-button.svg"); //
 
             // set isborderaffectedbytheme  and isshadowaffected to false to all controls
             btnFirst.IsBorderAffectedByTheme = false;
@@ -106,7 +106,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             btnSave.IsShadowAffectedByTheme = false;
             btnCancel.IsBorderAffectedByTheme = false;
             btnCancel.IsShadowAffectedByTheme = false;
-            
+
+          
 
             txtPosition = new BeepLabel { Text = "1 of 1",
                 Size = new Size(60, ButtonHeight),

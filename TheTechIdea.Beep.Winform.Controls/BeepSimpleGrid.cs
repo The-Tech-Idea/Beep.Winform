@@ -4,21 +4,18 @@ using Newtonsoft.Json;
 using TheTechIdea.Beep.Winform.Controls.Grid;
 using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewColumns;
 using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns;
-using TheTechIdea.Beep.Winform.Controls.Template;
+
 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public class BeepSimpleGrid : BeepControl, IDisposable
+    public class BeepSimpleGrid : BeepControl
     {
         #region "Properties"  
         int bottomPanelY;
         int botomspacetaken = 0;
         int topPanelY ;
-        protected BeepTheme _theme = BeepThemesManager.DefaultTheme;
-        protected string _themeName = "DefaultTheme";
-        protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
-
+     
         public int _rowHeight = 30; // Default row height
         private List<int> _columnWidths = new List<int> { 100, 100, 100 }; // Default column widths
 
@@ -220,32 +217,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public GridDataSourceType DataSourceType { get; set; } = GridDataSourceType.Fixed;
 
-        [Browsable(true)]
-        [TypeConverter(typeof(ThemeConverter))]
-        public EnumBeepThemes Theme
-        {
-            get => _themeEnum;
-            set
-            {
-                _themeEnum = value;
-                _theme = BeepThemesManager.GetTheme(value);
-                _themeName = BeepThemesManager.GetThemeName(value);
-                ApplyTheme();
-            }
-        }
-        private string _gridId;
+     
+      
 
-        /// <summary>
-        /// Unique identifier for each BeepGrid instance, persisted across design and runtime.
-        /// </summary>
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Category("Design"), Description("Unique identifier for the grid.")]
-        public string GridId
-        {
-            get => _gridId;
-            set => _gridId = value;
-        }
+      
         private string _title = "BeepSimpleGrid Title"; // Title text
         public string Title
         {
@@ -269,14 +244,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             //  Rows.ListChanged += Rows_ListChanged;
             // Apply default dimensions to accommodate all layout elements by default
-        //    this.MinimumSize = new Size(300, 200); // Set based on layout needs
-        ////    this.Size = new Size(400, 300); // Default start size
+             //  this.MinimumSize = new Size(300, 200); // Set based on layout needs
+           //    this.Size = new Size(400, 300); // Default start size
 
-        //    this.MouseDown += BeepGrid_MouseDown;
-        //    this.MouseMove += BeepGrid_MouseMove;
-        //    this.MouseUp += BeepGrid_MouseUp;
-            
-           // ApplyTheme();
+         //   this.MouseDown += BeepGrid_MouseDown;
+         //   this.MouseMove += BeepGrid_MouseMove;
+         //   this.MouseUp += BeepGrid_MouseUp;
+
+         //   ApplyTheme();
         }
      
 
@@ -309,8 +284,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             //base.ApplyTheme();
-            this.BackColor = _theme.BackgroundColor;
-            this.ForeColor = _theme.LabelForeColor;
+            this.BackColor = _currentTheme.BackgroundColor;
+            this.ForeColor = _currentTheme.LabelForeColor;
             if (titleLabel != null) 
             {
                 titleLabel.Theme = Theme;
@@ -323,7 +298,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             //foreach (var row in Rows)
             //{
-            //    row.ApplyTheme(_theme);
+            //    row.ApplyTheme(_currentTheme);
             //}
 
              Invalidate(); // Repaint the grid after applying the theme
@@ -335,7 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Drawin on DrawingRectangle"
         protected override void OnPaint(PaintEventArgs e)
         {
-          
+            Controls.Clear();
             
             base.OnPaint(e);
             UpdateDrawingRect();
@@ -391,7 +366,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawBottomAggregationRow(Graphics g, Rectangle bottomagregationPanelRect)
         {
-            using (var pen = new Pen(_theme.BorderColor))
+            using (var pen = new Pen(_currentTheme.BorderColor))
             {
 
 
@@ -401,7 +376,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DrawFooterRow(Graphics g, Rectangle footerPanelRect)
         {
-            using (var pen = new Pen(_theme.BorderColor))
+            using (var pen = new Pen(_currentTheme.BorderColor))
             {
 
 
@@ -423,7 +398,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DataNavigator.ShowShadow = false;
             DataNavigator.Theme=Theme;
             // draw line between header and grid
-            using (var pen = new Pen(_theme.BorderColor))
+            using (var pen = new Pen(_currentTheme.BorderColor))
             {
                 g.DrawLine(pen, navigatorPanelRect.Left, navigatorPanelRect.Top, navigatorPanelRect.Right, navigatorPanelRect.Top);
             }
@@ -453,12 +428,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
             // Draw the header panel top border
-            //using (var borderPen = new Pen(_theme.BorderColor))
+            //using (var borderPen = new Pen(_currentTheme.BorderColor))
             //{
             //    g.DrawLine(borderPen, headerPanelBorderRect.Left, headerPanelBorderRect.Top, headerPanelBorderRect.Right, headerPanelBorderRect.Top);
             //}
             // Draw the header panel bottom border
-            using (var borderPen = new Pen(_theme.BorderColor))
+            using (var borderPen = new Pen(_currentTheme.BorderColor))
             {
                 g.DrawLine(borderPen, headerPanelBorderRect.Left, headerPanelBorderRect.Bottom, headerPanelBorderRect.Right, headerPanelBorderRect.Bottom);
             }
@@ -488,7 +463,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             titleLabel.Size = new Size(headerPanelBorderRect.Width-2 , headerPanelBorderRect.Height-2 );
             titleLabel.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg";
-            titleLabel.BackColor = _theme.BackColor;
+            titleLabel.BackColor = _currentTheme.BackColor;
             // Set title label bounds within headerPanelRect
             // Rectangle titleLabelRect = new Rectangle(headerPanelBorderRect.Left + 10, headerPanelBorderRect.Top+2, headerPanelBorderRect.Width - (_buttonssize + 15), headerPanelBorderRect.Height-2);
             // titleLabel.DrawToGraphics(g, titleLabelRect);
@@ -509,7 +484,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //        IsChild = true,
             //    };
             //    filterButton.LogoImage = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg";
-            //filterButton.ApplyTheme(_theme);
+            //filterButton.ApplyTheme(_currentTheme);
             //Rectangle filterButtonRect = new Rectangle(headerPanelBorderRect.Right - _buttonssize - 5, headerPanelBorderRect.Top+2, _buttonssize, _buttonssize);
             //// filterButton.DrawToGraphics(g, filterButtonRect);
             //// Add click event to the filter button
@@ -538,7 +513,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 var columnRect = new Rectangle(xOffset, yOffset, _columnWidths[i], _defaultcolumnheaderheight);
 
-                using (var textBrush = new SolidBrush(_theme.PrimaryColor))
+                using (var textBrush = new SolidBrush(_currentTheme.PrimaryColor))
                 {
                     g.DrawString(headerText, Font, textBrush, columnRect, new StringFormat
                     {
@@ -550,7 +525,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 xOffset += _columnWidths[i];
             }
             // draw line between header and grid
-            using (var pen = new Pen(_theme.BorderColor))
+            using (var pen = new Pen(_currentTheme.BorderColor))
             {
                 g.DrawLine(pen, drawingBounds.Left, drawingBounds.Top + _defaultcolumnheaderheight, drawingBounds.Right, drawingBounds.Top + _defaultcolumnheaderheight);
             }
@@ -558,7 +533,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void PaintCell(Graphics g, BeepGridCell cell, Rectangle cellRect)
         {
             // Draw cell background
-            using (var cellBrush = new SolidBrush(_theme.BackColor))
+            using (var cellBrush = new SolidBrush(_currentTheme.BackColor))
             {
                 g.FillRectangle(cellBrush, cellRect);
             }
@@ -573,12 +548,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             else if (cell.UIComponent != null)
             {
                 // Draw any other UIComponent content if it's not a BeepLabel
-                g.DrawString(cell.UIComponent.ToString(), Font, new SolidBrush(_theme.PrimaryTextColor),
+                g.DrawString(cell.UIComponent.ToString(), Font, new SolidBrush(_currentTheme.PrimaryTextColor),
                     cellRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
             }
 
             //// Draw cell border
-            //using (var borderPen = new Pen(_theme.BorderColor))
+            //using (var borderPen = new Pen(_currentTheme.BorderColor))
             //{
             //    g.DrawRectangle(borderPen, cellRect);
             //}
@@ -588,7 +563,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             int xOffset = drawingBounds.Left+XOffset;
             int yOffset = drawingBounds.Top +ColumnHeight;
-            using (var pen = new Pen(_theme.BorderColor))
+            using (var pen = new Pen(_currentTheme.BorderColor))
             {
                 for (int i = 0; i < _columnWidths.Count-1; i++)
                 {
@@ -600,7 +575,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawRowsBorders(Graphics g, Rectangle drawingBounds)
         {
             int yOffset = drawingBounds.Top + ColumnHeight;
-            using (var pen = new Pen(_theme.BorderColor))
+            using (var pen = new Pen(_currentTheme.BorderColor))
             {
                 for (int i = 0; i < Rows.Count; i++)
                 {
@@ -620,7 +595,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Draw the empty row borders (no content, just visual rows)
-            using (var pen = new Pen(_theme.BorderColor))
+            using (var pen = new Pen(_currentTheme.BorderColor))
             {
                 graphics.DrawRectangle(pen, rowRect);
             }
@@ -647,7 +622,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Draw the header text if it's not empty
                 if (!string.IsNullOrEmpty(headerText))
                 {
-                    using (var brush = new SolidBrush(_theme.PrimaryTextColor))
+                    using (var brush = new SolidBrush(_currentTheme.PrimaryTextColor))
                     {
                         graphics.DrawString(headerText, Font, brush, columnRect, new StringFormat
                         {
@@ -674,7 +649,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.sort.svg",
                     Size = new Size(10, 10),
                     Location = new Point(columnRect.Left + 2, columnRect.Top + 2), // Top-left for sort icon
-                    Theme = _themeEnum // Apply the current theme
+                    Theme = Theme // Apply the current theme
                 };
 
                 //var filterIcon = new BeepImage
@@ -682,7 +657,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //    LogoImage = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg",
                 //    Size = new Size(10, 10),
                 //    Location = new Point(columnRect.Right - 12, columnRect.Top + 2), // Top-right for filter icon
-                //    Theme = _themeEnum // Apply the current theme
+                //    Theme = _currentThemeEnum // Apply the current theme
                 //};
 
                 // Render the SVG icons using BeepImage's internal draw methods
@@ -749,20 +724,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             //// Draw row borders if needed (optional)
             //if (ShowAllBorders)
             //{
-            //    using (var pen = new Pen(_theme.BorderColor))
+            //    using (var pen = new Pen(_currentTheme.BorderColor))
             //    {
             //        graphics.DrawRectangle(pen, rowRect);
             //    }
             //}if(ShowBottomBorder && ShowAllBorders==false)
             //{
-            //    using (var pen = new Pen(_theme.BorderColor))
+            //    using (var pen = new Pen(_currentTheme.BorderColor))
             //    {
             //        graphics.DrawLine(pen, rowRect.Left, rowRect.Bottom, rowRect.Right, rowRect.Bottom);
             //    }
             //}
             //if (ShowLeftBorder && ShowAllBorders == false) 
             //{
-            //    using (var pen = new Pen(_theme.BorderColor))
+            //    using (var pen = new Pen(_currentTheme.BorderColor))
             //    {
             //        graphics.DrawLine(pen, rowRect.Left, rowRect.Top, rowRect.Left, rowRect.Bottom);
             //    }
@@ -770,7 +745,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //}
             //if (ShowRightBorder && ShowAllBorders == false)
             //{
-            //    using (var pen = new Pen(_theme.BorderColor))
+            //    using (var pen = new Pen(_currentTheme.BorderColor))
             //    {
             //        graphics.DrawLine(pen, rowRect.Right, rowRect.Top, rowRect.Right, rowRect.Bottom);
             //    }
@@ -778,7 +753,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //}
             //if (ShowTopBorder && ShowAllBorders == false)
             //{
-            //    using (var pen = new Pen(_theme.BorderColor))
+            //    using (var pen = new Pen(_currentTheme.BorderColor))
             //    {
             //        graphics.DrawLine(pen, rowRect.Left, rowRect.Top, rowRect.Right, rowRect.Top);
             //    }
@@ -1161,18 +1136,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Dispose"
         #region "Layout Load and Save"
-        /// <summary>
-        /// Generates a unique GridId based on the current timestamp or GUID.
-        /// This is used to uniquely identify each grid dropped in the form.
-        /// </summary>
-        private void GenerateUniqueGridId()
-        {
-            if (DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime)
-            {
-                // Ensure unique ID is generated at design time
-                _gridId = "BeepGrid_" + Guid.NewGuid().ToString("N");
-            }
-        }
+       
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
@@ -1185,7 +1149,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void LoadGridLayout()
         {
-            string layoutFilePath = $"{GridId}_layout.json";
+            string layoutFilePath = $"{GuidID}_layout.json";
             if (File.Exists(layoutFilePath))
             {
                 LoadColumnLayoutFromFile(layoutFilePath);  // Load layout if file exists
@@ -1194,7 +1158,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void SaveGridLayout()
         {
-            string layoutFilePath = $"{GridId}_layout.json";
+            string layoutFilePath = $"{GuidID}_layout.json";
             SaveColumnLayoutToFile(layoutFilePath);  // Save layout to file
         }
         public void ApplyColumnConfigurations()

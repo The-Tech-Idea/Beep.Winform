@@ -714,7 +714,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public IBeepUIComponent Form { get; set; }
         public Rectangle DrawingRect { get; set; }
-        
+        public bool IsCustomeBorder { get;  set; }
+
         #endregion "Public Properties"
 
         public BeepControl()
@@ -988,15 +989,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (!_isframless)
             {
-                if(ShowAllBorders && BorderThickness == 0)
+                
+                if (IsCustomeBorder)
                 {
-                    _borderThickness = 1;
+                    DrawCustomBorder(e);
                 }
-                if ((BorderThickness > 0) &&  ShowAllBorders && _isborderaffectedbytheme)
+                else
                 {
-                    DrawBorder(e.Graphics, DrawingRect);
-                }
+                    if (ShowAllBorders && BorderThickness == 0)
+                    {
+                        _borderThickness = 1;
+                    }
+                    if ((BorderThickness > 0) && ShowAllBorders && _isborderaffectedbytheme)
+                    {
 
+                        DrawBorder(e.Graphics, DrawingRect);
+
+                    }
+                }
+                
 
             }
 
@@ -1005,6 +1016,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawFocusIndicator(e.Graphics);
             }
            ResumeLayout();
+        }
+        public virtual void DrawCustomBorder(PaintEventArgs e)
+        {
+            // Draw custom border based on the control's properties
+            DrawBorder(e.Graphics, DrawingRect);
         }
         protected Font GetScaledFont(Graphics graphics, string text, Size maxSize, Font originalFont)
         {
@@ -1181,76 +1197,76 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.AddEllipse(rect);
             return path;
         }
-        protected virtual void DrawBorder(Graphics graphics)
-        {
-            using (var pen = new Pen(BorderColor, BorderThickness))
-            {
-                pen.DashStyle = _borderDashStyle;
-                // Apply border style to the pen
-                switch (BorderDashStyle)
-                {
-                    case DashStyle.Dash:
-                        pen.DashStyle = DashStyle.Dash;
-                        break;
-                    case DashStyle.Dot:
-                        pen.DashStyle = DashStyle.Dot;
-                        break;
-                    case DashStyle.Solid:
-                        pen.DashStyle = DashStyle.Solid;
-                        break;
-                    case DashStyle.DashDotDot:
-                        return; // No border to draw
-                }
+        //protected virtual void DrawBorder(Graphics graphics)
+        //{
+        //    using (var pen = new Pen(BorderColor, BorderThickness))
+        //    {
+        //        pen.DashStyle = _borderDashStyle;
+        //        // Apply border style to the pen
+        //        switch (BorderDashStyle)
+        //        {
+        //            case DashStyle.Dash:
+        //                pen.DashStyle = DashStyle.Dash;
+        //                break;
+        //            case DashStyle.Dot:
+        //                pen.DashStyle = DashStyle.Dot;
+        //                break;
+        //            case DashStyle.Solid:
+        //                pen.DashStyle = DashStyle.Solid;
+        //                break;
+        //            case DashStyle.DashDotDot:
+        //                return; // No border to draw
+        //        }
                 
-                // Draw a rounded or standard rectangle border
-                if (IsRounded)
-                {
-                    // Draw a fully rounded border if `IsRounded` is true
-                    var rect = new Rectangle(BorderThickness, BorderThickness, Width - 2 * BorderThickness, Height - 2 * BorderThickness);
-                    using (GraphicsPath path = GetRoundedRectPath(rect, BorderRadius))
-                    {
-                        graphics.DrawPath(pen, path);
-                    }
-                }
-                else
-                {
-                    // For standard borders, draw individual sides based on the border settings
-                    if (ShowAllBorders || ShowTopBorder)
-                    {
-                        graphics.DrawLine(pen, 0, 0, Width, 0); // Top border
-                    }
-                    if (ShowAllBorders || ShowBottomBorder)
-                    {
-                        graphics.DrawLine(pen, 0, Height - BorderThickness, Width, Height - BorderThickness); // Bottom border
-                    }
-                    if (ShowAllBorders || ShowLeftBorder)
-                    {
-                        graphics.DrawLine(pen, 0, 0, 0, Height); // Left border
-                    }
-                    if (ShowAllBorders || ShowRightBorder)
-                    {
-                        graphics.DrawLine(pen, Width - BorderThickness, 0, Width - BorderThickness, Height); // Right border
-                    }
-                }
-            }
-        }
-        protected virtual void DrawBackground(Graphics graphics)
-        {
-            if (UseGradientBackground)
-            {
-                using (var brush = new LinearGradientBrush(ClientRectangle, GradientStartColor, GradientEndColor, GradientDirection))
-                {
-                    graphics.FillRectangle(brush, ClientRectangle);
-                }
-            }
-            else
-            {
-                using (var brush = new SolidBrush(BackColor))
-                {
-                    graphics.FillRectangle(brush, ClientRectangle);
-                }
-            }
-        }
+        //        // Draw a rounded or standard rectangle border
+        //        if (IsRounded)
+        //        {
+        //            // Draw a fully rounded border if `IsRounded` is true
+        //            var rect = new Rectangle(BorderThickness, BorderThickness, Width - 2 * BorderThickness, Height - 2 * BorderThickness);
+        //            using (GraphicsPath path = GetRoundedRectPath(rect, BorderRadius))
+        //            {
+        //                graphics.DrawPath(pen, path);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            // For standard borders, draw individual sides based on the border settings
+        //            if (ShowAllBorders || ShowTopBorder)
+        //            {
+        //                graphics.DrawLine(pen, 0, 0, Width, 0); // Top border
+        //            }
+        //            if (ShowAllBorders || ShowBottomBorder)
+        //            {
+        //                graphics.DrawLine(pen, 0, Height - BorderThickness, Width, Height - BorderThickness); // Bottom border
+        //            }
+        //            if (ShowAllBorders || ShowLeftBorder)
+        //            {
+        //                graphics.DrawLine(pen, 0, 0, 0, Height); // Left border
+        //            }
+        //            if (ShowAllBorders || ShowRightBorder)
+        //            {
+        //                graphics.DrawLine(pen, Width - BorderThickness, 0, Width - BorderThickness, Height); // Right border
+        //            }
+        //        }
+        //    }
+        //}
+        //protected virtual void DrawBackground(Graphics graphics)
+        //{
+        //    if (UseGradientBackground)
+        //    {
+        //        using (var brush = new LinearGradientBrush(ClientRectangle, GradientStartColor, GradientEndColor, GradientDirection))
+        //        {
+        //            graphics.FillRectangle(brush, ClientRectangle);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        using (var brush = new SolidBrush(BackColor))
+        //        {
+        //            graphics.FillRectangle(brush, ClientRectangle);
+        //        }
+        //    }
+        //}
         protected void DrawShadowUsingRectangle(Graphics graphics)
         {
             // Ensure shadow is drawn only if it's enabled and the control is not transparent

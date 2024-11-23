@@ -488,8 +488,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 themeProperty.SetValue(control, _theme);
             }
-            BeepiForm.Title = Title;
-            BeepSideMenu.Title = Title;
+            if(BeepiForm!=null)
+            {
+                BeepiForm.LogoImage = LogoImage;
+                BeepiForm.Title = Title;
+            }
+            if (BeepSideMenu != null)
+            {
+                BeepSideMenu.LogoImage = LogoImage;
+                BeepSideMenu.Title = Title;
+            }
+            
+            
             ApplyShadowToControl(control, _showShadow);
             ApplyRoundedToControl(control, _isrounded);
             ApplyBorderToControl(control, _showborder);

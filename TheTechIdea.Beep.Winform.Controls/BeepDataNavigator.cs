@@ -54,17 +54,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public BeepDataNavigator()
         {
-            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
-            {
-                Width = 200;
-                Height = 30;
-            }
+          
             // UpdateMinimumSize();
             UpdateDrawingRect();
             CreateNavigator();
             InitializeBindingSourceEvents();
             IsShadowAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
+        }
+        protected override void InitLayout()
+        {
+            base.InitLayout();
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 200;
+                Height = 30;
+            }
         }
         protected override void OnResize(EventArgs e)
         {
@@ -131,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Text = text,
                 Size = new Size(ButtonWidth, ButtonHeight),
-                MaxImageSize = new Size(ButtonWidth-1, ButtonHeight-1),
+                MaxImageSize = new Size(ButtonWidth-2, ButtonHeight-2),
                 Tag = text,
                 IsChild = true,
                 Theme = Theme,
@@ -141,7 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             if (!string.IsNullOrEmpty(imagepath))
             {
-                btn.MaxImageSize = new Size(ButtonWidth -1, ButtonHeight - 1);
+                btn.MaxImageSize = new Size(ButtonWidth -2, ButtonHeight - 2);
                 btn.ImagePath = imagepath;
                 btn.ImageAlign = ContentAlignment.MiddleCenter;
                 btn.TextImageRelation = TextImageRelation.ImageAboveText;

@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         TableLayoutPanel bottomtable;
         TableLayoutPanel tablelayout;
         private BeepTextBox searchBox;
-        bool _applyThemeOnImage = false;
+        bool _applyThemeOnImage = true;
         public bool ApplyThemeOnImage
         {
             get => _applyThemeOnImage;
@@ -205,8 +205,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Text = string.Empty,
                 IsChild = true,
                 PlaceholderText = "Search...",
-                OverrideFontSize= TypeStyleFontSize.Small  
-
+                OverrideFontSize= TypeStyleFontSize.Small  ,
+                
+                
             };
             //searchBox.Font = new Font("Segoe UI", 12, FontStyle.Regular);
             Controls.Add(searchBox);

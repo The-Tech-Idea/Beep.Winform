@@ -58,12 +58,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Size = headerRect.Size,
                     TextAlign = ContentAlignment.MiddleCenter,
                     Theme = Theme,
-                    BackColor = _theme.HeaderBackColor,
-                    ForeColor = _theme.PrimaryTextColor
+                    BackColor = _currentTheme.HeaderBackColor,
+                    ForeColor = _currentTheme.PrimaryTextColor
                 };
 
                 // Apply the theme to the header label
-                headerLabel.ApplyTheme(_theme);
+                headerLabel.ApplyTheme(_currentTheme);
 
                 // Draw the header label within the defined header rectangle
                 headerLabel.DrawToGraphics(e.Graphics, headerRect);
@@ -71,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Optionally, draw a border around each row header
                 if (ShowRowHeaderBorders)
                 {
-                    using (var pen = new Pen(_theme.BorderColor, 1))
+                    using (var pen = new Pen(_currentTheme.BorderColor, 1))
                     {
                         e.Graphics.DrawRectangle(pen, headerRect);
                     }
@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int lineYPosition = ColumnHeight / 2; // Position for the horizontal dividing line
 
             // Draw a thin horizontal line between the headers
-            using (var pen = new Pen(_theme.BorderColor, 1))
+            using (var pen = new Pen(_currentTheme.BorderColor, 1))
             {
                 e.Graphics.DrawLine(pen, DrawingRect.Left, lineYPosition + yOffset, RowHeaderWidth, lineYPosition + yOffset);
             }
@@ -109,10 +109,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Size = columnHeaderRect.Size,
                     TextAlign = ContentAlignment.MiddleCenter,
                     Theme = Theme,
-                    BackColor = _theme.HeaderBackColor,
-                    ForeColor = _theme.PrimaryTextColor
+                    BackColor = _currentTheme.HeaderBackColor,
+                    ForeColor = _currentTheme.PrimaryTextColor
                 };
-                columnHeaderLabel.ApplyTheme(_theme);
+                columnHeaderLabel.ApplyTheme(_currentTheme);
                 columnHeaderLabel.DrawToGraphics(e.Graphics, columnHeaderRect);
             }
 
@@ -126,10 +126,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Size = rowHeaderRect.Size,
                     TextAlign = ContentAlignment.MiddleCenter,
                     Theme = Theme,
-                    BackColor = _theme.HeaderBackColor,
-                    ForeColor = _theme.PrimaryTextColor
+                    BackColor = _currentTheme.HeaderBackColor,
+                    ForeColor = _currentTheme.PrimaryTextColor
                 };
-                rowHeaderLabel.ApplyTheme(_theme);
+                rowHeaderLabel.ApplyTheme(_currentTheme);
                 rowHeaderLabel.DrawToGraphics(e.Graphics, rowHeaderRect);
             }
         }

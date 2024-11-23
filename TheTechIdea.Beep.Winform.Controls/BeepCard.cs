@@ -196,6 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             paragraphLabel.Font = _currentTheme.GetBlockTextFont();
             imageBox.Theme = Theme;
             RefreshLayout();
+            Invalidate();
         }
 
         // Handle layout adjustments
@@ -208,10 +209,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Adjust the layout of the image and text
         private void RefreshLayout()
         {
+            Padding = new Padding(5);
+            int padding = Padding.All;
+            UpdateDrawingRect();
+            //DrawingRect.Inflate(-2, -2); // Shrink DrawingRect slightly to avoid border overlap
 
-            int             padding = Padding.All;
             // Ensure the control has a minimum size to avoid negative or zero size issues
-            if (DrawingRect.Width <= padding * 2 || Height <= padding * 2)
+            if (DrawingRect.Width <= padding * 2 || DrawingRect.Height <= padding * 2)
             {
                 return; // Skip layout if there's not enough space
             }
@@ -222,42 +226,79 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Header size and alignment
             Size headerSize = headerLabel.PreferredSize;
             headerLabel.Size = headerSize;
-            // MessageBox.Show(headerSize.ToString());
+
             // Image size and alignment
-            Size imageSize = new Size(Math.Min(maxImageSize, availableWidth / 2), Math.Min(maxImageSize, availableHeight / 2));
+            Size imageSize = new Size(
+                Math.Min(maxImageSize, availableWidth / 2),
+                Math.Min(maxImageSize, availableHeight / 2)
+            );
             imageBox.Size = imageSize;
 
             // Determine top row layout (header + image)
             int topRowHeight = Math.Max(headerSize.Height, imageSize.Height);
-            int topRowY = padding;
+            int topRowY = DrawingRect.Top + padding;
 
             // Position header and image based on alignment
-            if (HeaderAlignment == ContentAlignment.TopLeft || HeaderAlignment == ContentAlignment.MiddleLeft)
+            int headerX, imageX;
+
+            switch (HeaderAlignment)
             {
-                // Header left, image right
-                headerLabel.Location = new Point(DrawingRect.Left+padding, DrawingRect.Top + topRowY);
-                imageBox.Location = new Point(DrawingRect.Left + DrawingRect.Width - imageSize.Width - padding, DrawingRect.Top + topRowY);
-            }
-            else if (HeaderAlignment == ContentAlignment.TopRight || HeaderAlignment == ContentAlignment.MiddleRight)
-            {
-                // Header right, image left
-                headerLabel.Location = new Point(DrawingRect.Left + DrawingRect.Width - headerSize.Width - padding, DrawingRect.Top + topRowY);
-                imageBox.Location = new Point(DrawingRect.Left + padding, DrawingRect.Top + topRowY);
-            }
-            else
-            {
-                // Header center, image right
-                headerLabel.Location = new Point(DrawingRect.Left + (DrawingRect.Width - headerSize.Width) / 2, DrawingRect.Top + topRowY);
-                imageBox.Location = new Point(DrawingRect.Left + DrawingRect.Width - imageSize.Width - padding, DrawingRect.Top + topRowY);
+                case ContentAlignment.TopLeft:
+                case ContentAlignment.MiddleLeft:
+                    headerX = DrawingRect.Left + padding;
+                    imageX = DrawingRect.Right - imageSize.Width - padding;
+                    break;
+                case ContentAlignment.TopRight:
+                case ContentAlignment.MiddleRight:
+                    headerX = DrawingRect.Right - headerSize.Width - padding;
+                    imageX = DrawingRect.Left + padding;
+                    break;
+                default: // Center alignment
+                    headerX = DrawingRect.Left + (DrawingRect.Width - headerSize.Width) / 2;
+                    imageX = DrawingRect.Right - imageSize.Width - padding;
+                    break;
             }
 
-            // Paragraph
+            headerLabel.Location = new Point(headerX, topRowY);
+            imageBox.Location = new Point(imageX, topRowY);
+
+            // Ensure header and image are within bounds
+            if (headerLabel.Right > DrawingRect.Right || headerLabel.Bottom > DrawingRect.Bottom)
+            {
+                headerLabel.Size = new Size(
+                    Math.Min(headerSize.Width, DrawingRect.Width - 2 * padding),
+                    Math.Min(headerSize.Height, DrawingRect.Height - 2 * padding)
+                );
+            }
+
+            if (imageBox.Right > DrawingRect.Right || imageBox.Bottom > DrawingRect.Bottom)
+            {
+                imageBox.Size = new Size(
+                    Math.Min(imageSize.Width, DrawingRect.Width - 2 * padding),
+                    Math.Min(imageSize.Height, DrawingRect.Height - 2 * padding)
+                );
+            }
+
+            // Paragraph text
             int remainingHeightForText = availableHeight - topRowHeight - padding;
+
             if (remainingHeightForText > 0)
             {
                 paragraphLabel.Size = new Size(availableWidth, remainingHeightForText);
-                paragraphLabel.Location = new Point(DrawingRect.Left + padding, DrawingRect.Top + topRowY + topRowHeight + padding);
+                paragraphLabel.Location = new Point(
+                    DrawingRect.Left + padding,
+                    topRowY + topRowHeight + padding
+                );
                 paragraphLabel.Visible = true;
+
+                // Ensure paragraph label stays within bounds
+                if (paragraphLabel.Right > DrawingRect.Right || paragraphLabel.Bottom > DrawingRect.Bottom)
+                {
+                    paragraphLabel.Size = new Size(
+                        Math.Min(paragraphLabel.Width, DrawingRect.Width - 2 * padding),
+                        Math.Min(paragraphLabel.Height, DrawingRect.Height - topRowHeight - 2 * padding)
+                    );
+                }
             }
             else
             {
@@ -265,12 +306,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+
         // Custom painting for additional features
         //protected override void OnPaint(PaintEventArgs e)
         //{
         //    base.OnPaint(e);
         //    e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            
+
 
 
         //}

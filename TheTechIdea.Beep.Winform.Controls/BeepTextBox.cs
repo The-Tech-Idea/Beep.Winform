@@ -352,6 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size = new Size(150, 30);
             _innerTextBox.TextChanged += (s, e) => Invalidate(); // Repaint to apply formatting
             this.Invalidated += BeepTextBox_Invalidated;
+
         }
 
         private void BeepTextBox_Invalidated(object? sender, InvalidateEventArgs e)
@@ -361,10 +362,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            if (_isControlinvalidated) {
-                if (ShowAllBorders) { _innerTextBox.BorderStyle = BorderStyle.None; } else { _innerTextBox.BorderStyle = BorderStyle.FixedSingle; }
-                _isControlinvalidated = false;
-            }
+            //if (_isControlinvalidated) {
+            //    if (ShowAllBorders) { _innerTextBox.BorderStyle = BorderStyle.None; } else { _innerTextBox.BorderStyle = BorderStyle.FixedSingle; }
+            //    _isControlinvalidated = false;
+            //}
         }
         private void InitializeComponents()
         {
@@ -373,16 +374,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BorderStyle = System.Windows.Forms.BorderStyle.None,
                 Multiline = true,
             };
+             IsCustomeBorder=true;   
             _innerTextBox.TextChanged += InnerTextBox_TextChanged;
             _innerTextBox.KeyPress += InnerTextBox_KeyPress;
             _innerTextBox.KeyDown += OnSearchKeyDown;
             _innerTextBox.MouseEnter += OnMouseEnter;
             _innerTextBox.MouseLeave += OnMouseLeave;
             Controls.Add(_innerTextBox);
-
+            ShowAllBorders = false;
             beepImage = new BeepImage { Size = _maxImageSize, Dock = DockStyle.None, Margin = new Padding(0) };
         }
-
+        public override void DrawCustomBorder(PaintEventArgs e)
+        {
+            if(!ShowAllBorders) 
+            { _innerTextBox.BorderStyle = BorderStyle.None; } 
+            else { _innerTextBox.BorderStyle = BorderStyle.FixedSingle; }
+        }
         private void OnMouseEnter(object? sender, EventArgs e)
         {
             base.OnMouseEnter(e);
@@ -420,7 +427,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void PositionInnerTextBoxAndImage()
         {
-            int padding = BorderThickness ;
+            int padding = 0;// BorderThickness ;
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
             _innerTextBox.Multiline = true;
 
@@ -435,8 +442,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Height * scaleFactor));
             }
             // Determine the width and height of the inner text box based on DrawingRect
-            int innerTextBoxWidth = DrawingRect.Width - padding * 2;
-            int innerTextBoxHeight = DrawingRect.Height - padding * 2;
+            int innerTextBoxWidth = DrawingRect.Width ;
+            int innerTextBoxHeight = DrawingRect.Height;
 
             if (string.IsNullOrEmpty(_imagepath))
             {

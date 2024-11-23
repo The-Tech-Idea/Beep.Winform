@@ -19,11 +19,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private static Point lastMousePosition;
         private static bool isResizing = false;
 
-        private static BeepButton closeButton;
-        private static BeepButton minimizeButton;
-        private static BeepButton maximizeButton;
-        private static BeepLabel titleLabel;
-        private static BeepPanel titlePanel;
 
         [DllImport("user32.dll")]
         private static extern bool ReleaseCapture();
@@ -49,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             form.Resize += (s, e) => ApplyRoundedCorners(form);
 
-            AddCustomControls(form);
+            //AddCustomControls(form);
 
             // Apply theme if provided
             if (theme != null)
@@ -77,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 form.ForeColor = state.ForeColor;
                 form.Region = null;
 
-                form.Controls.Remove(titlePanel);
+               // form.Controls.Remove(titlePanel);
 
                 // Restore color and border properties
                 form.BackColor = state.BackColor;
@@ -103,60 +98,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             form.Region = Region.FromHrgn(roundedRegion);
         }
 
-        private static void AddCustomControls(Form form)
-        {
-            titlePanel = new BeepPanel();
-            titlePanel = StandardForm.beepPanel1;
-            titlePanel.Dock = DockStyle.Top;
-            form.Controls.Add(titlePanel);
-
-
-            titleLabel = new BeepLabel();
-            titleLabel = StandardForm.TitleLabel;
-            closeButton = new BeepButton();
-            closeButton = StandardForm.CloseButton;
-            closeButton.Click += (s, e) => form.Close();
-            // Maximize Button settings
-            maximizeButton = new BeepButton();
-            maximizeButton = StandardForm.MaximizeButton;
-            maximizeButton.Click += (s, e) =>
-            {
-                form.WindowState = form.WindowState == FormWindowState.Maximized
-                    ? FormWindowState.Normal
-                    : FormWindowState.Maximized;
-            };
-            minimizeButton = new BeepButton();
-            minimizeButton = StandardForm.MinimizeButton;
-            minimizeButton.Click += (s, e) => form.WindowState = FormWindowState.Minimized;
-
-            // Add controls to the form
-
-            titlePanel.Controls.Add(titleLabel);
-            titlePanel.Controls.Add(closeButton);
-            titlePanel.Controls.Add(maximizeButton);
-            titlePanel.Controls.Add(minimizeButton);
-
-
-
-        }
+     
 
         private static void RepositionControls(Form form)
         {
-            closeButton.Location = new Point(titlePanel.Width - ButtonSize - 10, 10);
-            maximizeButton.Location = new Point(closeButton.Left - ButtonSize - 10, 10);
-            minimizeButton.Location = new Point(maximizeButton.Left - ButtonSize - 10, 10);
+            //closeButton.Location = new Point(titlePanel.Width - ButtonSize - 10, 10);
+            //maximizeButton.Location = new Point(closeButton.Left - ButtonSize - 10, 10);
+            //minimizeButton.Location = new Point(maximizeButton.Left - ButtonSize - 10, 10);
         }
 
         private static void AttachDragMove(Form form)
         {
-            titleLabel.MouseDown += (s, e) =>
-            {
-                if (e.Button == MouseButtons.Left)
-                {
-                    ReleaseCapture();
-                    SendMessage(form.Handle, 0x112, 0xf012, 0); // Specify all four parameters
-                }
-            };
+            //titleLabel.MouseDown += (s, e) =>
+            //{
+            //    if (e.Button == MouseButtons.Left)
+            //    {
+            //        ReleaseCapture();
+            //        SendMessage(form.Handle, 0x112, 0xf012, 0); // Specify all four parameters
+            //    }
+            //};
         }
 
 
@@ -197,11 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             form.BackColor = theme.BackgroundColor;
             Console.WriteLine("Form BackColor: " + form.BackColor);
-            titlePanel.Theme = BeepThemesManager.GetThemeToEnum(theme);
-            closeButton.Theme = BeepThemesManager.GetThemeToEnum(theme);
-            maximizeButton.Theme = BeepThemesManager.GetThemeToEnum(theme);
-            minimizeButton.Theme = BeepThemesManager.GetThemeToEnum(theme);
-            titleLabel.Theme = BeepThemesManager.GetThemeToEnum(theme);
+           
             //closeButton.BackColor = theme.BackgroundColor;
             //closeButton.ForeColor = theme.ButtonForeColor;
             //maximizeButton.BackColor = theme.BackgroundColor;

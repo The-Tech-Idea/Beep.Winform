@@ -37,6 +37,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         bool _isExpanedWidthSet = false;
         int  _tWidth;
         #region "Properties"
+        private BeepAppBar _beepappbar;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public BeepAppBar BeepAppBar
+        {
+            get => _beepappbar;
+            set
+            {
+
+                if (value != null)
+                {
+                    _beepappbar = value;
+
+                   
+                }
+
+            }
+        }
         [Category("Appearance")]
         [Description("Set the Expanded Width.")]
 
@@ -431,7 +449,7 @@ namespace TheTechIdea.Beep.Winform.Controls
           
             StartMenuAnimation();
             OnMenuCollapseExpand?.Invoke(isCollapsed);
-            BeepForm.ShowTitle(isCollapsed);
+            BeepAppBar.ShowLogoIcon = isCollapsed;
         }
 
     

@@ -31,14 +31,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _logoImage = value;
                 if (BeepiForm != null)
                 {
-                    BeepiForm.LogoImage = _logoImage;
+                    BeepAppBar.LogoImage = _logoImage;
                 }
-                if(BeepSideMenu != null)
+                if (BeepSideMenu != null)
                 {
                     BeepSideMenu.LogoImage = _logoImage;
                 }
             }
-            
+
         }
 
         // title property to set the title of the form
@@ -56,9 +56,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (BeepiForm != null)
                 {
                     BeepiForm.Text = _title;
-                 
+
                 }
-                if(BeepSideMenu != null)
+                if (BeepSideMenu != null)
                 {
                     BeepSideMenu.Title = _title;
                 }
@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Set the title of the form.")]
-        
+
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ApplyThemeOnImage
         {
@@ -80,6 +80,28 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
         }
+        private BeepAppBar _beepappbar;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public BeepAppBar BeepAppBar
+        {
+            get => _beepappbar;
+            set
+            {
+
+                if (value != null)
+                {
+                    _beepappbar = value;
+
+                    if (BeepSideMenu != null)
+                    {
+                        BeepSideMenu.BeepForm = BeepiForm;
+                        BeepSideMenu.BeepAppBar = _beepappbar;
+                    }
+                }
+
+            }
+        }
         private BeepiForm _beepiForm;
         [Browsable(true)]
         [Category("Appearance")]
@@ -88,16 +110,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _beepiForm;
             set
             {
-               
-                if (value != null) {
+
+                if (value != null)
+                {
                     _beepiForm = value;
-                    _beepiForm.ShowTitle(false);
+
                     if (BeepSideMenu != null)
                     {
                         BeepSideMenu.BeepForm = BeepiForm;
                     }
                 }
-                
+
             }
         }
         private BeepSideMenu _beepSideMenu;
@@ -106,20 +129,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepSideMenu BeepSideMenu
         {
             get => _beepSideMenu;
-            set { _beepSideMenu = value; _beepSideMenu = value;
+            set
+            {
+                _beepSideMenu = value; _beepSideMenu = value;
                 if (BeepiForm != null)
                 {
                     BeepSideMenu.BeepForm = BeepiForm;
                     _beepSideMenu.OnMenuCollapseExpand -= _beepSideMenu_OnMenuCollapseExpand;
                     _beepSideMenu.OnMenuCollapseExpand += _beepSideMenu_OnMenuCollapseExpand;
                 }
-               
-                
+
+
             }
         }
         [Browsable(true)]
         [Category("Appearance")]
-        
+
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowBorder
         {
@@ -129,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showShadow = false;
         [Browsable(true)]
         [Category("Appearance")]
-        
+
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowShadow
         {
@@ -139,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isrounded = false;
         [Browsable(true)]
         [Category("Appearance")]
-        
+
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool IsRounded
         {
@@ -149,7 +174,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Enable or disable BeepForm styling for the form.")]
-        
+
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         bool ApplyBeepFormStyle
         {
@@ -218,8 +243,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                   
-                   
+
+
                 }
             }
         }
@@ -237,7 +262,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_form != null)
                 {
                     _form.Load += Form_Load;
-                 
+
                 }
             }
         }
@@ -273,13 +298,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Console.WriteLine("Form Load event 1");
 
-           // InitForm((BeepiForm)sender);
+            // InitForm((BeepiForm)sender);
         }
 
         public void InitForm(BeepiForm form)
         {
             _form = form;
-        //    ApplyBeepFormTheme(); // Apply BeepForm styling at runtime
+            //    ApplyBeepFormTheme(); // Apply BeepForm styling at runtime
             ApplyThemeToAllBeepControls(_form); // Apply theme to all controls
             FindBeepSideMenu();
         }
@@ -329,23 +354,39 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (e.Control is BeepSideMenu beepSideMenu)
             {
                 _beepSideMenu = beepSideMenu;
-                 BeepSideMenu.BeepForm = BeepiForm;
-                BeepiForm.Title = Title;
+                BeepSideMenu.BeepForm = BeepiForm;
+                BeepAppBar.Title = Title;
                 BeepSideMenu.Title = Title;
                 _beepSideMenu.OnMenuCollapseExpand -= _beepSideMenu_OnMenuCollapseExpand;
                 _beepSideMenu.OnMenuCollapseExpand += _beepSideMenu_OnMenuCollapseExpand;
+            }
+            if (e.Control is BeepAppBar beepappbar)
+            {
+                _beepappbar = beepappbar;
+                BeepAppBar.Title = Title;
+            }
+            if (e.Control is BeepFunctionsPanel beepFunctionsPanel)
+            {
+                beepFunctionsPanel1 = beepFunctionsPanel;
+            }
+            if (e.Control is BeepiForm beepiForm)
+            {
+                _beepiForm = beepiForm;
+                BeepSideMenu.BeepForm = BeepiForm;
+                BeepAppBar.Title = Title;
+                BeepSideMenu.Title = Title;
             }
         }
 
         private void _beepSideMenu_OnMenuCollapseExpand(bool obj)
         {
-            if (BeepiForm != null)
+            if (BeepAppBar != null)
             {
-                BeepiForm.Title= Title;
+                BeepAppBar.Title = Title;
                 BeepSideMenu.Title = Title;
-                BeepiForm.ShowTitle(obj);
+                BeepAppBar.ShowLogoIcon = obj;
             }
-        
+
         }
 
         // Recursively apply the theme to all controls on the form and child containers
@@ -488,18 +529,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 themeProperty.SetValue(control, _theme);
             }
-            if(BeepiForm!=null)
+            if (BeepiForm != null)
             {
-                BeepiForm.LogoImage = LogoImage;
-                BeepiForm.Title = Title;
+                BeepAppBar.LogoImage = LogoImage;
+                BeepAppBar.Title = Title;
             }
             if (BeepSideMenu != null)
             {
                 BeepSideMenu.LogoImage = LogoImage;
                 BeepSideMenu.Title = Title;
             }
-            
-            
+
+
             ApplyShadowToControl(control, _showShadow);
             ApplyRoundedToControl(control, _isrounded);
             ApplyBorderToControl(control, _showborder);
@@ -561,17 +602,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                         _beepSideMenu.OnMenuCollapseExpand -= _beepSideMenu_OnMenuCollapseExpand;
                         _beepSideMenu.OnMenuCollapseExpand += _beepSideMenu_OnMenuCollapseExpand;
                     }
-                    if(control is BeepFunctionsPanel)
+                    if (control is BeepFunctionsPanel)
                     {
                         beepFunctionsPanel1 = control as BeepFunctionsPanel;
                     }
-                    if(control is BeepiForm)
+                    if (control is BeepiForm)
                     {
                         BeepiForm = control as BeepiForm;
-                        BeepiForm.LogoImage = LogoImage;
-                        BeepiForm.Title = Title;
+                        BeepAppBar.LogoImage = LogoImage;
+                        BeepAppBar.Title = Title;
                     }
                 }
+            }
+        }
+
+        public void ShowTitle(bool show)
+        {
+            if (BeepAppBar != null)
+            {
+                BeepAppBar.ShowLogoIcon = show;
             }
         }
     }

@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public partial class Form1 : Form
+    public partial class Form1 : BeepiForm
     {
         public Form1()
         {

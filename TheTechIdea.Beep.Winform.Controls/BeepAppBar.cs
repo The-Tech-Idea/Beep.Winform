@@ -15,19 +15,57 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepAppBar : BeepControl 
     {
         private int windowsicons_height = 15;
+        private int defaultHeight = 60;
 
-   
 
         private BeepButton hamburgerIcon;
-        private BeepButton logoIcon;
+        private BeepLabel TitleLabel;
         private BeepButton profileIcon;
         private BeepButton notificationIcon;
         private BeepButton closeIcon;
         private BeepButton maximizeIcon;
         private BeepButton minimizeIcon;
         private BeepSideMenu _sidemenu;
+
+
+
         public BeepSideMenu SideMenu { get { return _sidemenu; } set { _sidemenu = value;if (_sidemenu != null) { _sidemenu.OnMenuCollapseExpand += HandleSideMenuState; } } }
 
+
+
+        private string _logoImage = "";
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the logo image of the form.")]
+        [DefaultValue("")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        public string LogoImage
+        {
+            get => _logoImage;
+            set
+            {
+                _logoImage = value;
+             //   TitleLabel.ImagePath = _logoImage;
+            }
+        }
+
+        // title property to set the title of the form
+        private string _title = "Beep Form";
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the title of the form.")]
+        [DefaultValue("Beep Form")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public string Title
+        {
+            get => _title;
+            set
+            {
+                _title = value;
+                TitleLabel.Text = _title;
+            }
+        }
         public bool ShowHamburgerIcon
         {
             get => hamburgerIcon.Visible;
@@ -39,10 +77,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public bool ShowLogoIcon
         {
-            get => logoIcon.Visible;
+            get => TitleLabel.Visible;
             set
             {
-                logoIcon.Visible = value;
+                TitleLabel.Visible = value;
                 RearrangeLayout();
             }
         }
@@ -127,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
                 Width = 200;
-                Height = 60;
+                Height = defaultHeight;
             }
         }
         private void InitializeAppNavBar()
@@ -137,7 +175,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Initialize the panels
             //InitializePanels();
-
+            ShowAllBorders = false;
+            ShowShadow = false;
+            
             // Add controls to their respective panels 
             Console.WriteLine("Adding controls to panels");
             AddHamburgerButton();
@@ -245,21 +285,31 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void AddLogoIcon()
         {
-            logoIcon = new BeepButton
+            TitleLabel = new BeepLabel
             {
-                Width = 40,
+                Width = 200,
                 Height = 40,
-                IsFramless = true,
-                IsShadowAffectedByTheme = false,
+                //  Padding = new Padding( 10, 0, 10, 0),
+                //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
+                MaxImageSize = new Size(30, 30),
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleLeft,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
                 IsBorderAffectedByTheme = false,
-                MaxImageSize = new Size(40, 40),
-                Cursor = Cursors.Default,
-                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
-                Theme = Theme,
+                IsShadowAffectedByTheme = false,
+                ShowAllBorders = false,
+                ShowShadow = false,
+                Text = Title,
+                IsFramless = true,
                 IsChild = true,
-                Visible = false // Initially hidden
+                ApplyThemeOnImage = false,
+
             };
-            Controls.Add(logoIcon);
+            //if (!string.IsNullOrEmpty(_logoImage))
+            //{
+            //    TitleLabel.ImagePath = _logoImage;
+            //}
+            Controls.Add(TitleLabel);
         }
 
         private void AddSearchBox()
@@ -273,8 +323,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChild = true,
                 PlaceholderText = "Search...",
                 OverrideFontSize= TypeStyleFontSize.Small  ,
-                
-                
+                ShowAllBorders = false,
+                ShowShadow=false,
+                IsFramless = true,
+
             };
             //searchBox.Font = new Font("Segoe UI", 12, FontStyle.Regular);
             Controls.Add(searchBox);
@@ -409,13 +461,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (isCollapsed)
             {
                 // Show logo, hide hamburger
-                logoIcon.Visible = true;
+                TitleLabel.Visible = true;
                 hamburgerIcon.Visible = false;
             }
             else
             {
                 // Show hamburger, hide logo
-                logoIcon.Visible = false;
+                TitleLabel.Visible = false;
                 hamburgerIcon.Visible = true;
             }
         }
@@ -446,7 +498,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            BackColor = _currentTheme.PanelBackColor;
+            BackColor = _currentTheme.TabBackColor;
             //leftPanel.BackColor = _currentTheme.PanelBackColor;
             //centerPanel.BackColor = _currentTheme.PanelBackColor;
             //rightPanel.BackColor = _currentTheme.PanelBackColor;
@@ -455,7 +507,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             searchBox.Theme = Theme;
             
-            logoIcon.Theme = Theme;
+            TitleLabel.Theme = Theme;
             hamburgerIcon.Theme = Theme;
             profileIcon.Theme = Theme;
             closeIcon.Theme = Theme;
@@ -476,7 +528,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int rightEdge = DrawingRect.Right - padding;
             int centerX = DrawingRect.Left + DrawingRect.Width / 2;
 
-            // Position hamburgerIcon and logoIcon (left-aligned)
+            // Position hamburgerIcon and TitleLabel (left-aligned)
             if (hamburgerIcon != null && hamburgerIcon.Visible)
             {
                 hamburgerIcon.Top = DrawingRect.Top + (DrawingRect.Height - hamburgerIcon.Height) / 2;
@@ -484,11 +536,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 leftEdge += hamburgerIcon.Width + spacing;
             }
 
-            if (logoIcon != null && logoIcon.Visible)
+            if (TitleLabel != null && TitleLabel.Visible)
             {
-                logoIcon.Top = DrawingRect.Top + (DrawingRect.Height - logoIcon.Height) / 2;
-                logoIcon.Left = leftEdge;
-                leftEdge += logoIcon.Width + spacing;
+                TitleLabel.Top = DrawingRect.Top + (DrawingRect.Height - TitleLabel.Height) / 2;
+                TitleLabel.Left = leftEdge;
+                leftEdge += TitleLabel.Width + spacing;
             }
 
             // Position searchBox (centered horizontally)
@@ -536,7 +588,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-
+        protected override void OnMouseHover(EventArgs e)
+        {
+            IsHovered = false;
+        }
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            IsHovered = false;
+        }
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);

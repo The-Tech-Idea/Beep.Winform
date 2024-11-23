@@ -167,7 +167,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     
 
         // Side Menu Colors
-        public Color SideMenuBackColor { get; set; }
+            public Color SideMenuBackColor { get; set; }
             public Color SideMenuHoverBackColor { get; set; }
             public Color SideMenuSelectedBackColor { get; set; }
             public Color SideMenuForeColor { get; set; }
@@ -187,6 +187,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             public Color DashboardCardHoverBackColor { get; set; }
             public Color CardTitleForeColor { get; set; }
             public Color CardTextForeColor { get; set; }
+            public Color CardBackColor { get;set; }
+        
+
             public TypographyStyle CardHeaderStyle { get; set; }
             public TypographyStyle CardparagraphStyle { get; set; }
             public Color ChartBackColor { get; set; }

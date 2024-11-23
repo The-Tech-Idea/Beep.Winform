@@ -64,12 +64,16 @@ namespace TheTechIdea.Beep.Vis.Modules
                 throw;
             }
         }
+        
 
 
         public static readonly Guid DefaultThemeGuid = new Guid("00000000-0000-0000-0000-000000000001");
         #region "Themes"
         public static BeepTheme ModernDarkTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(45, 45, 48),
+
+
             CardHeaderStyle = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
@@ -717,6 +721,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme MaterialDesignTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(236, 240, 241),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -1070,6 +1075,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme NeumorphismTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(240, 240, 240),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -1635,6 +1641,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme OceanTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(176, 224, 230),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -2238,6 +2245,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme SunsetTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(255, 160, 122),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -2885,6 +2893,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme ForestTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(107, 142, 35),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -3474,6 +3483,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme AutumnTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(205, 92, 92),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -4063,6 +4073,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme EarthyTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(181, 101, 29),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -4652,6 +4663,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme WinterTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(220, 245, 254),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -5241,6 +5253,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme SpringTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(204, 255, 204),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -5831,6 +5844,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme CandyTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(255, 182, 193),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -6419,6 +6433,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme ZenTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(240, 234, 214),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -7008,6 +7023,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme RetroTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(250, 214, 165),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -7598,6 +7614,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme RoyalTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(250, 230, 190),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -8188,6 +8205,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme HighlightTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(255, 244, 180),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -8781,6 +8799,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme DarkTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(34, 34, 34),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -9374,6 +9393,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme LightTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(248, 248, 255),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -9967,6 +9987,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme PastelTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(255, 223, 211),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -10560,6 +10581,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme MidnightTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(25, 25, 112),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -11155,6 +11177,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme NeonTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(255, 0, 255),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -11748,6 +11771,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme RusticTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(210, 180, 140),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -12341,6 +12365,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme GalaxyTheme => new BeepTheme
         {
+
+            CardBackColor = Color.FromArgb(70, 35, 90),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -12934,6 +12960,7 @@ namespace TheTechIdea.Beep.Vis.Modules
              
         public static BeepTheme DesertTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(237, 201, 175),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -13526,6 +13553,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme VintageTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(238, 232, 170),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -14118,6 +14146,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme DefaultTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(255, 69, 58), // Soft reddish tone
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -14711,7 +14740,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme GlassmorphismTheme => new BeepTheme
         {
-
+            CardBackColor = Color.FromArgb(128, 255, 255, 255),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -15304,6 +15333,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme FlatDesignTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(250, 250, 250),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -15896,6 +15926,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme CyberpunkNeonTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(0, 255, 255),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -16488,6 +16519,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme GradientBurstTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(255, 105, 180),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -17080,6 +17112,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme HighContrastTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(255, 215, 0),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -17703,6 +17736,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme MonochromeTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(128, 128, 128),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -18297,6 +18331,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme LuxuryGoldTheme => new BeepTheme
         {
+            CardBackColor = Color.FromArgb(212, 175, 55),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {

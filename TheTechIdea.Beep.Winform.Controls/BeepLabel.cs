@@ -181,7 +181,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw the image and text
             contentRect = DrawingRect;
            // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
-            DrawBackColor(e, _currentTheme.NavigationBackColor, _currentTheme.NavigationHoverBackColor);
+            DrawBackColor(e, _currentTheme.BackColor, _currentTheme.ButtonHoverBackColor);
             DrawToGraphics(e.Graphics);
         }
         private void DrawToGraphics(Graphics g)
@@ -191,7 +191,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void DrawToGraphics(Graphics g,Rectangle drawrect)
         {
             drawrect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
-            Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+           
             // Measure and scale the font to fit within the control bounds
             Font scaledFont = GetScaledFont(g, Text, drawrect.Size, Font);
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
@@ -381,15 +381,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 BackColor = _currentTheme.BackgroundColor;
                 ForeColor = _currentTheme.LabelForeColor;
+                HoverBackColor = _currentTheme.ButtonHoverBackColor;
+                HoverForeColor = _currentTheme.ButtonHoverForeColor;
                 if (IsChild)
                 {
-                    ForeColor = _currentTheme.PrimaryColor;
+                    ForeColor = _currentTheme.LabelForeColor;
 
                 }
 
                 try
                 {
-                    Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                    Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                 }
                 catch (Exception ex)
                 {
@@ -412,9 +414,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                   
                     beepImage.Theme = Theme;
+                    beepImage.BackColor = BackColor;
                     if (IsChild)
                     {
-                        beepImage.ForeColor = _currentTheme.PrimaryColor;
+                        beepImage.ForeColor = _currentTheme.LabelForeColor;
                     }
                     else
                     {

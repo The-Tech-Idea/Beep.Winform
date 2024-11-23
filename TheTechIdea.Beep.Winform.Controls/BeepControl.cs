@@ -126,8 +126,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected string _text = string.Empty;
         protected bool _isborderaffectedbytheme = true;
         protected bool _isshadowaffectedbytheme = true;
+        private bool _isroundedffectedbytheme=true;
         #endregion "protected Properties"
         #region "Public Properties"
+
+        //IsRoundedAffectedByTheme
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool IsRoundedAffectedByTheme { get { return _isroundedffectedbytheme; } set { _isroundedffectedbytheme = value; } }
         [Browsable(true)]
         [Category("Appearance")]
         public bool IsBorderAffectedByTheme { get { return _isborderaffectedbytheme; } set { _isborderaffectedbytheme = value; } }
@@ -699,6 +706,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected List<Binding> _originalBindings = new List<Binding>();
         protected Color _disabledForeColor;
         private bool _isAnimating;
+       
 
         [Browsable(true)]
         [Category("Data")]
@@ -929,7 +937,7 @@ namespace TheTechIdea.Beep.Winform.Controls
            
             if (!_isframless)
             {
-                if (ShowShadow && IsShadowAffectedByTheme)
+                if (ShowShadow )
                 {
                     DrawShadowUsingRectangle(e.Graphics);
                 }
@@ -1000,7 +1008,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         _borderThickness = 1;
                     }
-                    if ((BorderThickness > 0) && ShowAllBorders && _isborderaffectedbytheme)
+                    if ((BorderThickness > 0) && ShowAllBorders )
                     {
 
                         DrawBorder(e.Graphics, DrawingRect);

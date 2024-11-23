@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -13,8 +14,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private EnumBeepThemes _theme = EnumBeepThemes.DefaultTheme;
         private Form _form;
         private bool _showborder = true;
+        private BeepImage beepimage = new BeepImage();
 
         public event Action<EnumBeepThemes> OnThemeChanged;
+
+
         //private EnumBeepThemes _globalTheme = EnumBeepThemes.DefaultTheme;
         // LogoImage property to set the logo image of the form
         private string _logoImage = "";
@@ -29,13 +33,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _logoImage = value;
-                if (BeepiForm != null)
+                if (value != null)
                 {
+                    beepimage.ImagePath = value;
+                }
+                if (BeepAppBar != null)
+                {
+                   
                     BeepAppBar.LogoImage = _logoImage;
+
+                    
                 }
                 if (BeepSideMenu != null)
                 {
                     BeepSideMenu.LogoImage = _logoImage;
+                }
+                if (BeepiForm != null)
+                {
+                    BeepiForm.Icon= ImageTools.ConvertSvgToIcon(beepimage.svgDocument, 64);
                 }
             }
 
@@ -540,10 +555,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BeepSideMenu.Title = Title;
             }
 
-
-            ApplyShadowToControl(control, _showShadow);
-            ApplyRoundedToControl(control, _isrounded);
-            ApplyBorderToControl(control, _showborder);
+            if(GetPropertyFromControl(control, "IsBorderAffectedByTheme"))
+            {
+                ApplyThemeOnImageControl(control, _showborder);
+            }
+            //IsShadowAffectedByTheme
+            if (GetPropertyFromControl(control, "IsShadowAffectedByTheme"))
+            {
+                ApplyShadowToControl(control, _showShadow);
+            }
+            if (GetPropertyFromControl(control, "IsRoundedAffectedByTheme"))
+            {
+                ApplyRoundedToControl(control, _isrounded);
+            }
+            
+            
             ApplyThemeOnImageControl(control, _applyThemeOnImage);
         }
         public void ApplyShadowToControl(Control control, bool showshadow)
@@ -554,6 +580,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 themeProperty.SetValue(control, showshadow);
             }
 
+        }
+        public bool GetPropertyFromControl(Control control, string PropertyName)
+        {
+            var themeProperty = TypeDescriptor.GetProperties(control)[PropertyName];
+            if (themeProperty != null)
+            {
+                return (bool)themeProperty.GetValue(control);
+            }
+            else
+            {
+                return false;
+            }
         }
         public void ApplyRoundedToControl(Control control, bool isrounded)
         {

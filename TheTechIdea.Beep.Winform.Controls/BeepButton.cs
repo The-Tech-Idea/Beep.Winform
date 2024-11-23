@@ -328,13 +328,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (ApplyThemeOnImage)
                 {
                     beepImage.Theme = Theme;
+                    beepImage.BackColor = _currentTheme.BackColor;
                     if (IsChild)
                     {
-                        beepImage.ForeColor = _currentTheme.PrimaryColor;
+                        beepImage.ForeColor = _currentTheme.ButtonForeColor;
                     }
                     else
                     {
-                    beepImage.ForeColor = _currentTheme.ButtonForeColor;
+                        beepImage.ForeColor = _currentTheme.ButtonForeColor;
                     }
                     beepImage.ApplyThemeToSvg();
                 }

@@ -6,10 +6,11 @@ using System.Collections;
 using System.Resources;
 using System.Xml.Linq;
 using TheTechIdea.Beep.Winform.Controls.Template;
+using System.Drawing.Imaging;
 
 namespace TheTechIdea.Beep.Winform.Controls.Helpers
 {
-    public static class ImageLoader
+    public static class ImageTools
     {
         private static int index;
         private static string[] extensions = { ".png", ".ico", ".svg", ".bmp", ".jpg" };
@@ -774,6 +775,80 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
 
         #endregion "Loading Images"
+        #region "PNG or SVG to ICO"
+        public static Icon ConvertSvgToIcon(string svgPath, int iconSize = 64)
+        {
+            if (string.IsNullOrWhiteSpace(svgPath) || !File.Exists(svgPath))
+                throw new FileNotFoundException($"SVG file not found at {svgPath}");
+
+            SvgDocument svgDoc = SvgDocument.Open(svgPath);
+
+            Bitmap bitmap = svgDoc.Draw(iconSize, iconSize);
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                ms.Seek(0, SeekOrigin.Begin);
+
+                Icon icon = new Icon(ms);
+                return icon;
+            }
+        }
+        public static Icon ConvertPngToIcon(string pngPath, int iconSize = 64)
+        {
+            if (string.IsNullOrWhiteSpace(pngPath) || !File.Exists(pngPath))
+                throw new FileNotFoundException($"PNG file not found at {pngPath}");
+
+            using (Bitmap bitmap = new Bitmap(pngPath))
+            {
+                Bitmap resizedBitmap = new Bitmap(bitmap, new Size(iconSize, iconSize));
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    resizedBitmap.Save(ms, ImageFormat.Png);
+                    ms.Seek(0, SeekOrigin.Begin);
+                    return CreateIconFromPngStream(ms, iconSize, iconSize);
+                }
+            }
+        }
+        public static Icon ConvertSvgToIcon(SvgDocument svgDoc, int iconSize = 64)
+        {
+            Bitmap bitmap = svgDoc.Draw(iconSize, iconSize);
+
+            // Convert the Bitmap to Icon
+            using (MemoryStream ms = new MemoryStream())
+            {
+                bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                ms.Seek(0, SeekOrigin.Begin);
+                return CreateIconFromPngStream(ms, iconSize, iconSize);
+            }
+        }
+        private static Icon CreateIconFromPngStream(Stream pngStream, int width, int height)
+        {
+            using (BinaryReader reader = new BinaryReader(pngStream))
+            {
+                byte[] pngData = reader.ReadBytes((int)pngStream.Length);
+
+                using (MemoryStream icoStream = new MemoryStream())
+                {
+                    // Write ICO header
+                    icoStream.Write(new byte[] { 0, 0, 1, 0, 1, 0 }, 0, 6);
+                    icoStream.WriteByte((byte)width);
+                    icoStream.WriteByte((byte)height);
+                    icoStream.WriteByte(0); // No color palette
+                    icoStream.WriteByte(0); // Reserved
+                    icoStream.Write(new byte[] { 1, 0, 32, 0 }, 0, 4); // 32-bit color
+                    icoStream.Write(BitConverter.GetBytes(pngData.Length), 0, 4); // PNG data size
+                    icoStream.Write(BitConverter.GetBytes(22), 0, 4); // Offset to PNG data
+
+                    // Write PNG data
+                    icoStream.Write(pngData, 0, pngData.Length);
+                    icoStream.Seek(0, SeekOrigin.Begin);
+                    return new Icon(icoStream);
+                }
+            }
+        }
+
+        #endregion "PNG or SVG to ICO"
         public static string GetProjectPath(string GetMyPath)
         {
 

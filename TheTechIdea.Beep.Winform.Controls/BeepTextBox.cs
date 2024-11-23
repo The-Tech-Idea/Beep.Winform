@@ -19,16 +19,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ContentAlignment _imageAlign = ContentAlignment.MiddleLeft;
         private Size _maxImageSize = new Size(16, 16); // Default image size
         private string? _imagepath;
-
+        private bool _multiline=false;
 
         // show the inner textbox properties like multiline
         [Browsable(true)]
         [Category("Appearance")]
         public bool Multiline
         {
-            get => _innerTextBox.Multiline;
+            get => _multiline;
             set
             {
+                _multiline = value;
                 _innerTextBox.Multiline = value;
                 Invalidate();
             }
@@ -298,6 +299,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         bool _applyThemeOnImage = false;
+       
+
         public bool ApplyThemeOnImage
         {
             get => _applyThemeOnImage;
@@ -372,7 +375,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _innerTextBox = new TextBox
             {
                 BorderStyle = System.Windows.Forms.BorderStyle.None,
-                Multiline = true,
+               // Multiline = true,
+                //ScrollBars= ScrollBars.Both
             };
              IsCustomeBorder=true;   
             _innerTextBox.TextChanged += InnerTextBox_TextChanged;
@@ -381,7 +385,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _innerTextBox.MouseEnter += OnMouseEnter;
             _innerTextBox.MouseLeave += OnMouseLeave;
             Controls.Add(_innerTextBox);
-            ShowAllBorders = false;
+       
             beepImage = new BeepImage { Size = _maxImageSize, Dock = DockStyle.None, Margin = new Padding(0) };
         }
         public override void DrawCustomBorder(PaintEventArgs e)
@@ -427,9 +431,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void PositionInnerTextBoxAndImage()
         {
-            int padding = 0;// BorderThickness ;
+            int padding = 0; // Adjust padding as needed
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
-            _innerTextBox.Multiline = true;
 
             // Limit image size to MaxImageSize
             if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
@@ -441,9 +444,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Width * scaleFactor),
                     (int)(imageSize.Height * scaleFactor));
             }
-            // Determine the width and height of the inner text box based on DrawingRect
-            int innerTextBoxWidth = DrawingRect.Width ;
-            int innerTextBoxHeight = DrawingRect.Height;
+
+            // Calculate dimensions for the inner TextBox
+            int innerTextBoxWidth = DrawingRect.Width;
+            int innerTextBoxHeight = _multiline ? DrawingRect.Height : _innerTextBox.Font.Height + 5;
 
             if (string.IsNullOrEmpty(_imagepath))
             {
@@ -469,7 +473,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _innerTextBox.Width = innerTextBoxWidth;
             }
 
-            // Set the height of the inner TextBox to fit within DrawingRect
+            // Set the height of the inner TextBox based on multiline mode
             _innerTextBox.Height = innerTextBoxHeight;
 
             // Adjust beepImage position according to ImageAlign setting and DrawingRect
@@ -515,7 +519,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //base.ApplyTheme();
             _innerTextBox.BackColor = _currentTheme.TextBoxBackColor;
             _innerTextBox.ForeColor = _currentTheme.TextBoxForeColor;
-            BackColor=_currentTheme.BackgroundColor;
+            BackColor=_currentTheme.TextBoxBackColor;
             beepImage.ApplyTheme();
             Invalidate();
         }

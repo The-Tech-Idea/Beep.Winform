@@ -460,7 +460,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             BackColor = _currentTheme.SideMenuBackColor;
             logo.Theme = Theme;
             toggleButton.Theme = Theme;
-
+            toggleButton.ApplyThemeOnImage = true;
+            toggleButton.ApplyThemeToSvg();
+            logo.BackColor = _currentTheme.SideMenuBackColor;
+            logo.ForeColor = _currentTheme.SideMenuForeColor;
             foreach (Control control in Controls)
             {
                 if (control is Panel menuItemPanel && menuItemPanel.Tag is SimpleMenuItem)

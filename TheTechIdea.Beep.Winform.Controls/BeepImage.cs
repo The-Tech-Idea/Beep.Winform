@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
   
        
         private ImageSelectorImporterForm form;
-        private SvgDocument svgDocument;
+        public SvgDocument svgDocument { get; private set; }
         private Image regularImage;
         private bool isSvg = false;
         private string _advancedImagePath;
@@ -219,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                    fillColor = _currentTheme.BackgroundColor;
+                    fillColor = BackColor;
                     strokeColor = ForeColor    ;
                 }
                 // Apply colors recursively to all elements

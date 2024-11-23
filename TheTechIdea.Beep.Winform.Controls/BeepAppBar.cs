@@ -175,9 +175,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Initialize the panels
             //InitializePanels();
-            ShowAllBorders = false;
+            IsBorderAffectedByTheme = false;
+            IsShadowAffectedByTheme = false;
+            ShowAllBorders = true;
             ShowShadow = false;
-            
+
             // Add controls to their respective panels 
             Console.WriteLine("Adding controls to panels");
             AddHamburgerButton();
@@ -292,9 +294,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //  Padding = new Padding( 10, 0, 10, 0),
                 //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
                 MaxImageSize = new Size(30, 30),
-                TextAlign = ContentAlignment.MiddleCenter,
-                ImageAlign = ContentAlignment.MiddleLeft,
-                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextAlign = ContentAlignment.MiddleLeft,
+           //     ImageAlign = ContentAlignment.MiddleLeft,
+                TextImageRelation = TextImageRelation.TextBeforeImage,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
                 ShowAllBorders = false,
@@ -316,17 +318,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             searchBox = new BeepTextBox
             {
-                Width = 300,
+                Width = 200,
                 Height =30,
                 Theme = this.Theme,
                 Text = string.Empty,
-                IsChild = true,
+                //IsChild = true,
                 PlaceholderText = "Search...",
                 OverrideFontSize= TypeStyleFontSize.Small  ,
-                ShowAllBorders = false,
-                ShowShadow=false,
+                ApplyThemeOnImage = _applyThemeOnImage,
                 IsFramless = true,
-
+                
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
             };
             //searchBox.Font = new Font("Segoe UI", 12, FontStyle.Regular);
             Controls.Add(searchBox);
@@ -498,7 +501,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            BackColor = _currentTheme.TabBackColor;
+            BackColor = _currentTheme.TitleBarBackColor;
             //leftPanel.BackColor = _currentTheme.PanelBackColor;
             //centerPanel.BackColor = _currentTheme.PanelBackColor;
             //rightPanel.BackColor = _currentTheme.PanelBackColor;

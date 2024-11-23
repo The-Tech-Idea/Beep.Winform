@@ -120,4 +120,52 @@
   <metadata name="beepuiManager1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <data name="beepCard1.ParagraphText" xml:space="preserve">
+    <value>To enable multiline functionality without scrollbars in your BeepTextBox control, you can achieve this by ensuring the ScrollBars property of the inner TextBox is set to ScrollBars.None. Here's how you can update your BeepTextBox implementation</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        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
+        AjRo1xC1kLfeAAAAAElFTkSuQmCC
+</value>
+  </data>
 </root>

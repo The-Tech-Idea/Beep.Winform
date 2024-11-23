@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Vis.Modules;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -13,8 +14,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepCard : BeepControl
     {
         private BeepImage imageBox;
-        private Label headerLabel;
-        private Label paragraphLabel;
+        private BeepLabel headerLabel;
+        private BeepTextBox paragraphLabel;
         private string headerText = "Card Title";
         private string paragraphText = "Card Description";
         private int maxImageSize = 64;
@@ -25,7 +26,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         // Properties
 
-      
+        private bool _multiline = false;
+
+        // show the inner textbox properties like multiline
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public bool Multiline
+        {
+            get => _multiline;
+            set
+            {
+                _multiline = value;
+                paragraphLabel.Multiline = value;
+                RefreshLayout();
+              
+            }
+        }
 
         [Category("Appearance")]
         [Description("Text displayed as the header of the card.")]
@@ -35,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 headerText = value;
-         //       headerLabel.Text = value;
+                headerLabel.Text = value;
                 RefreshLayout();
             }
         }
@@ -123,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Constructor
         public BeepCard()
         {
-           
+            IsChild = false;
             Padding = new Padding(0);
             //ShowTitle = false;
             //ShowTitleLine = false;
@@ -133,16 +150,26 @@ namespace TheTechIdea.Beep.Winform.Controls
             Console.WriteLine("BeepCard Constructor");
            // InitializeComponents();
             Console.WriteLine("BeepCard Constructor End");
-           
+            ApplyTheme(); // Apply the default theme initially
+
         }
         protected override void InitLayout()
         {
             base.InitLayout();
-            InitializeComponents();
-            PerformLayout();
-            Invalidate();
+           // InitializeComponents();
+          //  PerformLayout();
             ApplyTheme(); // Apply the default theme initially
+          //  _isControlinvalidated = true;
+           // Invalidate();
         }
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            if (_isControlinvalidated)
+            {
+                InitializeComponents(); _isControlinvalidated = false;
+            }
+         }
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
@@ -160,27 +187,49 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             Controls.Add(imageBox);
 
-            headerLabel = new Label
+            headerLabel = new BeepLabel
             {
-                AutoSize = true,
-                TextAlign = ContentAlignment.MiddleCenter,
-                Font = new Font("Segoe UI", 12, FontStyle.Bold),
-                BackColor = Color.Transparent,
-                Text = headerText  // Default text
+                TextAlign = ContentAlignment.MiddleLeft,
+                Text = headerText,  // Default text
+                TextImageRelation = TextImageRelation.Overlay,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                Theme = Theme,
+                IsFramless = true,
+                IsChild = true,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+                
             };
             Controls.Add(headerLabel);
 
-            paragraphLabel = new Label
+            paragraphLabel = new BeepTextBox
             {
-                AutoSize = true,
-                TextAlign = ContentAlignment.MiddleCenter,
-                Font = new Font("Segoe UI", 10, FontStyle.Regular),
-                BackColor = Color.Transparent,
+               
+                ImageAlign = ContentAlignment.MiddleCenter,
+                Theme = Theme,
+                IsFramless = true,
+                IsChild = true,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+               // AutoScroll=true,
+                Multiline = _multiline,
+                //ScrollBars = System.Windows.Forms.ScrollBars.Both,
+                ReadOnly = true,
                 Text = paragraphText  // Default text
             };
             Controls.Add(paragraphLabel);
             paragraphLabel.MouseEnter += (s, e) => { BorderColor = HoverBackColor;  };
             paragraphLabel.MouseLeave += (s, e) => { BorderColor = _currentTheme.BorderColor; };
+            headerLabel.Theme = Theme;
+            paragraphLabel.Theme = Theme;
+            headerLabel.ForeColor = _currentTheme.CardTitleForeColor;
+            headerLabel.Font = BeepThemesManager.ToFont(_currentTheme.HeadlineMedium);
+            headerLabel.BackColor = _currentTheme.CardBackColor;
+            paragraphLabel.ForeColor = _currentTheme.CardTextForeColor;
+            paragraphLabel.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+            paragraphLabel.BackColor = _currentTheme.CardBackColor;
+            BackColor = _currentTheme.CardBackColor;
+            imageBox.Theme = Theme;
             RefreshLayout();
         }
 
@@ -188,14 +237,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             if (_currentTheme == null) return;
-
+            headerLabel.Theme = Theme;
+            paragraphLabel.Theme = Theme;
             headerLabel.ForeColor = _currentTheme.CardTitleForeColor;
-            headerLabel.Font = _currentTheme.GetBlockHeaderFont();
-
+            headerLabel.Font = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
+            headerLabel.BackColor = _currentTheme.CardBackColor;
             paragraphLabel.ForeColor = _currentTheme.CardTextForeColor;
-            paragraphLabel.Font = _currentTheme.GetBlockTextFont();
+            paragraphLabel.Font = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
+            paragraphLabel.BackColor = _currentTheme.CardBackColor;
+            BackColor = _currentTheme.CardBackColor;
             imageBox.Theme = Theme;
-            RefreshLayout();
+            _isControlinvalidated = true;
             Invalidate();
         }
 
@@ -209,10 +261,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Adjust the layout of the image and text
         private void RefreshLayout()
         {
-            Padding = new Padding(5);
+            Padding = new Padding(0);
             int padding = Padding.All;
             UpdateDrawingRect();
-            //DrawingRect.Inflate(-2, -2); // Shrink DrawingRect slightly to avoid border overlap
 
             // Ensure the control has a minimum size to avoid negative or zero size issues
             if (DrawingRect.Width <= padding * 2 || DrawingRect.Height <= padding * 2)
@@ -224,7 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int availableWidth = Math.Max(0, DrawingRect.Width - padding * 2);
 
             // Header size and alignment
-            Size headerSize = headerLabel.PreferredSize;
+            Size headerSize = TextRenderer.MeasureText(headerLabel.Text, headerLabel.Font);
             headerLabel.Size = headerSize;
 
             // Image size and alignment
@@ -262,41 +313,32 @@ namespace TheTechIdea.Beep.Winform.Controls
             headerLabel.Location = new Point(headerX, topRowY);
             imageBox.Location = new Point(imageX, topRowY);
 
-            // Ensure header and image are within bounds
-            if (headerLabel.Right > DrawingRect.Right || headerLabel.Bottom > DrawingRect.Bottom)
-            {
-                headerLabel.Size = new Size(
-                    Math.Min(headerSize.Width, DrawingRect.Width - 2 * padding),
-                    Math.Min(headerSize.Height, DrawingRect.Height - 2 * padding)
-                );
-            }
-
-            if (imageBox.Right > DrawingRect.Right || imageBox.Bottom > DrawingRect.Bottom)
-            {
-                imageBox.Size = new Size(
-                    Math.Min(imageSize.Width, DrawingRect.Width - 2 * padding),
-                    Math.Min(imageSize.Height, DrawingRect.Height - 2 * padding)
-                );
-            }
-
-            // Paragraph text
-            int remainingHeightForText = availableHeight - topRowHeight - padding;
+            // Paragraph label
+            int remainingHeightForText = DrawingRect.Bottom - (headerLabel.Bottom + padding);
 
             if (remainingHeightForText > 0)
             {
                 paragraphLabel.Size = new Size(availableWidth, remainingHeightForText);
+
+                // Align the bottom of the paragraphLabel to the bottom of the DrawingRect
                 paragraphLabel.Location = new Point(
                     DrawingRect.Left + padding,
-                    topRowY + topRowHeight + padding
+                    DrawingRect.Bottom - paragraphLabel.Height - padding
                 );
+
                 paragraphLabel.Visible = true;
 
                 // Ensure paragraph label stays within bounds
-                if (paragraphLabel.Right > DrawingRect.Right || paragraphLabel.Bottom > DrawingRect.Bottom)
+                if (paragraphLabel.Right > DrawingRect.Right || paragraphLabel.Top < headerLabel.Bottom + padding)
                 {
                     paragraphLabel.Size = new Size(
                         Math.Min(paragraphLabel.Width, DrawingRect.Width - 2 * padding),
-                        Math.Min(paragraphLabel.Height, DrawingRect.Height - topRowHeight - 2 * padding)
+                        paragraphLabel.Height
+                    );
+
+                    paragraphLabel.Location = new Point(
+                        DrawingRect.Left + padding,
+                        Math.Max(headerLabel.Bottom + padding, DrawingRect.Bottom - paragraphLabel.Height - padding)
                     );
                 }
             }
@@ -305,7 +347,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 paragraphLabel.Visible = false;
             }
         }
-
 
         // Custom painting for additional features
         //protected override void OnPaint(PaintEventArgs e)

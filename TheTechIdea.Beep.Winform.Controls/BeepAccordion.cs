@@ -23,8 +23,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private List<BeepButton> buttons = new List<BeepButton>();
         private int itemHeight = 40;
         private string logoImagePath;
-        public event EventHandler<BeepEventDataArgs> ItemClick;
-        public event EventHandler<BeepEventDataArgs> ToggleClicked;
+        public event EventHandler<BeepMouseEventArgs> ItemClick;
+        public event EventHandler<BeepMouseEventArgs> ToggleClicked;
         // Define the items collection property with designer support
         private SimpleMenuItemCollection items = new SimpleMenuItemCollection();
         [Browsable(true)]
@@ -182,7 +182,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void ToggleButton_Click(object sender, EventArgs e)
         {
             isCollapsed = !isCollapsed;
-            var x = new BeepEventDataArgs("ToggleClicked",isCollapsed);
+            var x = new BeepMouseEventArgs("ToggleClicked",isCollapsed);
        
             ToggleClicked?.Invoke(this, x);
             StartAccordionAnimation();
@@ -225,8 +225,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ItemButton_Click(object? sender, EventArgs e)
         {
-            var x = new BeepEventDataArgs("ItemClicked", sender);
-            x.Cancel = false;
+            var x = new BeepMouseEventArgs("ItemClicked", sender);
+            x.Handled = false;
             ItemClick?.Invoke(this, x);
         }
 

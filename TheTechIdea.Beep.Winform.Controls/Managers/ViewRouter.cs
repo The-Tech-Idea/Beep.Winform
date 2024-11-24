@@ -123,7 +123,7 @@ public class ViewRouter
 
         // Create a new instance of the view
         var viewType = _routes[routeName];
-        var view = (Control)Activator.CreateInstance(viewType);
+        var view = (Control)CreateUsingActivator(viewType);
 
         // If the view implements INavigable, pass parameters
         if (view is INavigable navigableView)
@@ -143,7 +143,20 @@ public class ViewRouter
 
         Navigated?.Invoke(this, routeName);
     }
-
+    private Control CreateUsingActivator(Type viewType)
+    {
+        return (Control)Activator.CreateInstance(viewType);
+    }
+    private Control CreateUserServicesHost(Type viewType)
+    {
+        var constructor = viewType.GetConstructor(new[] { typeof(IServiceProvider) });
+        if (constructor == null)
+        {
+            throw new InvalidOperationException("View must have a constructor that accepts an IServiceProvider.");
+        }
+        var serviceProvider = new ServiceProvider();
+        return (Control)constructor.Invoke(new object[] { serviceProvider });
+    }
     public void NavigateBack()
     {
         if (_navigationHistory.Count <= 1) return;

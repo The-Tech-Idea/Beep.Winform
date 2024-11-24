@@ -18,7 +18,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public event Action<EnumBeepThemes> OnThemeChanged;
 
-
+        #region "Properties"
+        private ViewRouter _viewrouter;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public ViewRouter ViewRouter
+        {
+            get => _viewrouter;
+            set => _viewrouter = value;
+        }
         //private EnumBeepThemes _globalTheme = EnumBeepThemes.DefaultTheme;
         // LogoImage property to set the logo image of the form
         private string _logoImage = "";
@@ -39,10 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 if (BeepAppBar != null)
                 {
-                   
                     BeepAppBar.LogoImage = _logoImage;
-
-                    
                 }
                 if (BeepSideMenu != null)
                 {
@@ -50,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 if (BeepiForm != null)
                 {
-                    BeepiForm.Icon= ImageTools.ConvertSvgToIcon(beepimage.svgDocument, 64);
+                    BeepiForm.Icon = ImageTools.ConvertSvgToIcon(beepimage.svgDocument, 64);
                 }
             }
 
@@ -130,9 +135,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _beepiForm = value;
 
-                    if (BeepSideMenu != null)
+                    if (_beepSideMenu != null)
                     {
-                        BeepSideMenu.BeepForm = BeepiForm;
+                        _beepSideMenu.BeepForm = BeepiForm;
+
+                    }
+                    if (beepimage != null)
+                    {
+                        if (beepimage.svgDocument!=null)
+                        {
+                            _beepiForm.Icon = ImageTools.ConvertSvgToIcon(beepimage.svgDocument, 64);
+                        }
                     }
                 }
 
@@ -146,10 +159,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _beepSideMenu;
             set
             {
-                _beepSideMenu = value; _beepSideMenu = value;
+                _beepSideMenu = value; 
                 if (BeepiForm != null)
                 {
-                    BeepSideMenu.BeepForm = BeepiForm;
+                    _beepSideMenu.BeepForm = BeepiForm;
+                   
+                }
+                if(_beepSideMenu!= null)
+                {
+                    _beepSideMenu.Title = Title;
+                    _beepSideMenu.LogoImage = LogoImage;
                     _beepSideMenu.OnMenuCollapseExpand -= _beepSideMenu_OnMenuCollapseExpand;
                     _beepSideMenu.OnMenuCollapseExpand += _beepSideMenu_OnMenuCollapseExpand;
                 }
@@ -231,6 +250,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => beepFunctionsPanel1;
             set => beepFunctionsPanel1 = value;
         }
+        #endregion "Properties"
+
         public BeepUIManager(IContainer container)
         {
             container.Add(this);

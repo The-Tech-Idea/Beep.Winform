@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Drawing.Design;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Template;
-using Microsoft.VisualBasic.Logging;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -461,6 +461,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             logo.Theme = Theme;
             toggleButton.Theme = Theme;
             toggleButton.ApplyThemeOnImage = true;
+            toggleButton.ForeColor = _currentTheme.SideMenuForeColor;
             toggleButton.ApplyThemeToSvg();
             logo.BackColor = _currentTheme.SideMenuBackColor;
             logo.ForeColor = _currentTheme.SideMenuForeColor;

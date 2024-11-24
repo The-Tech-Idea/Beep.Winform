@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Text;
 
 namespace TheTechIdea.Beep.Vis.Modules
@@ -15,7 +16,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         private readonly int y;
 
         private readonly int delta;
-
+        public bool Handled { get; set; }
+        private readonly object data;
+        private readonly string eventname;
+        private readonly object sender;
         //
         // Summary:
         //     Gets which mouse button was pressed.
@@ -95,6 +99,29 @@ namespace TheTechIdea.Beep.Vis.Modules
             this.x = x;
             this.y = y;
             this.delta = delta;
+        }
+        public BeepMouseEventArgs(BeepMouseButtons button, int clicks, int x, int y, int delta, object data)
+        {
+            this.button = button;
+            this.clicks = clicks;
+            this.x = x;
+            this.y = y;
+            this.delta = delta;
+            this.data = data;
+        }
+        public BeepMouseEventArgs(BeepMouseButtons button, int clicks, int x, int y, int delta, bool handled)
+        {
+            this.button = button;
+            this.clicks = clicks;
+            this.x = x;
+            this.y = y;
+            this.delta = delta;
+            this.Handled = handled;
+        }
+        public BeepMouseEventArgs(string evname,object senderobj)
+        {
+            this.eventname = evname;
+            this.sender = senderobj;
         }
     }
 }

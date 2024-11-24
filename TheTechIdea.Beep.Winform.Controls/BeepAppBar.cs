@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ModernSideMenu;
 using TheTechIdea.Beep.Winform.Controls.Template;
@@ -27,11 +28,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton minimizeIcon;
         private BeepSideMenu _sidemenu;
 
-
-
         public BeepSideMenu SideMenu { get { return _sidemenu; } set { _sidemenu = value;if (_sidemenu != null) { _sidemenu.OnMenuCollapseExpand += HandleSideMenuState; } } }
 
 
+        public EventHandler<BeepMouseEventArgs> Clicked;
 
         private string _logoImage = "";
         [Browsable(true)]
@@ -195,74 +195,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Console.WriteLine("Rearranged layout");
             ApplyTheme();
         }
-
-        //private void InitializePanels()
-        //{
-        //    // Left panel (Hamburger button or logo)
-        //    leftPanel = new Panel
-        //    {
-        //        Dock = DockStyle.Left,
-        //        Width = 150,
-        //        Padding = new Padding(5, 0, 0, 0),  // Padding on the left side
-        //        Margin = new Padding(0),
-        //        BackColor = _currentTheme.PanelBackColor
-        //    };
-
-        //    // Center panel (Search Box)
-        //    centerPanel = new Panel
-        //    {
-        //        Dock = DockStyle.Fill,  // Center aligned by filling the available space
-        //        Padding = new Padding(0),
-        //        Margin = new Padding(0),
-        //        BackColor = _currentTheme.PanelBackColor
-        //    };
-
-        //    // Right panel (Window Controls)
-        //    rightPanel = new Panel
-        //    {
-        //        Dock = DockStyle.Right,
-        //        Padding = new Padding(0),
-        //        Margin = new Padding(0),
-        //        BackColor = _currentTheme.PanelBackColor
-        //    };
-        //    // create table layout panel
-        //    tablelayout = new TableLayoutPanel();
-        //    rightPanel.Controls.Add(tablelayout);
-        //    tablelayout.Dock = DockStyle.Fill;
-        //    tablelayout.ColumnCount = 1;
-        //    tablelayout.RowCount = 2;
-        //    tablelayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        //    tablelayout.RowStyles.Add(new RowStyle(SizeType.Percent,50));
-        //    tablelayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
-        
-        //    toptablecols = rightPanel.Width / windowsicons_height;
-         
-        //    toptable = new TableLayoutPanel()
-        //    {
-        //        ColumnCount = toptablecols,
-        //        RowCount = 1,
-        //        Padding = new Padding(0),
-        //        Margin = new Padding(0),
-        //        BackColor = _currentTheme.PanelBackColor
-        //    };
-         
-        //    for (int i = 0; i < toptablecols; i++)
-        //    {
-        //        toptable.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, windowsicons_height));
-        //    }
-          
-        //    tablelayout.Controls.Add(toptable, 0, 0);
-        //     bottomtable = new TableLayoutPanel()
-        //    {
-        //        ColumnCount = 3,
-        //        RowCount = 1,
-        //        Padding = new Padding(0),
-        //        Margin = new Padding(0),
-        //        BackColor = _currentTheme.PanelBackColor
-        //    };
-        //    tablelayout.Controls.Add(bottomtable, 0, 1);
-        //}
-
         private void AddHamburgerButton()
         {
             hamburgerIcon = new BeepButton
@@ -284,7 +216,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             hamburgerIcon.Click += (s, e) => SideMenu?.ToggleMenu();
             Controls.Add(hamburgerIcon);
         }
-
         private void AddLogoIcon()
         {
             TitleLabel = new BeepLabel
@@ -313,7 +244,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             //}
             Controls.Add(TitleLabel);
         }
-
         private void AddSearchBox()
         {
             searchBox = new BeepTextBox
@@ -334,7 +264,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             //searchBox.Font = new Font("Segoe UI", 12, FontStyle.Regular);
             Controls.Add(searchBox);
         }
-
         private void AddNotificationIcon()
         {
             notificationIcon = new BeepButton
@@ -352,13 +281,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleLeft,
                 HideText = true,
-
+                Tag= "Notifications"
             };
             notificationIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg";
-            notificationIcon.Click += (s, e) => ShowNotifications();
+            notificationIcon.Click += ButtonClicked;
             Controls.Add(notificationIcon);
         }
-
         private void AddUserProfileIcon()
         {
             profileIcon = new BeepButton
@@ -377,13 +305,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 HideText= true,
-                
+                Tag = "Profile"
 
             };
-            profileIcon.Click += (s, e) => ShowProfileMenu();
+            profileIcon.Click += ButtonClicked;
             Controls.Add(profileIcon);
         }
-
         private void AddWindowControlIcons()
         {
           
@@ -456,7 +383,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(closeIcon);
            
         }
-
         // Handle the SideMenu collapse/expand state
         private void HandleSideMenuState(bool isCollapsed)
         {
@@ -474,13 +400,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 hamburgerIcon.Visible = true;
             }
         }
-
         private void ShowNotifications()
         {
             // Handle the notification click event
             MessageBox.Show("Showing notifications");
         }
-
         private void ShowProfileMenu()
         {
             //    // Initialize the profile menu with the current theme
@@ -520,7 +444,21 @@ namespace TheTechIdea.Beep.Winform.Controls
 
          
         }
-
+        private void ButtonClicked(object sender, EventArgs e)
+        {
+            string tag = (sender as BeepButton).Tag.ToString();
+            Clicked?.Invoke(this, new BeepMouseEventArgs(tag, sender));
+            //switch (tag)
+            //{
+            //    case "Notifications":
+                   
+            //        ShowNotifications();
+            //        break;
+            //    case "Profile":
+            //        ShowProfileMenu();
+            //        break;
+            //}
+        }
         private void RearrangeLayout()
         {
             int padding = 5; // Padding between controls and edges

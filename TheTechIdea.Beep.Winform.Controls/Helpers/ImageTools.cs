@@ -277,7 +277,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
             }
         }
-        public static void PreviewImageFromFile(PictureBox previewPictureBox, SimpleMenuItem menuItem)
+        public static void PreviewImageFromFile(PictureBox previewPictureBox, SimpleItem menuItem)
         {
             if (menuItem == null || string.IsNullOrEmpty(menuItem.Image))
             {
@@ -424,7 +424,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
         #endregion
         #region "Moving Images"
-        public static void EmbedImageInResources(Dictionary<string, SimpleMenuItem> _imageResources, string resxFile, string previewFilePath, string projectDirectory)
+        public static void EmbedImageInResources(Dictionary<string, SimpleItem> _imageResources, string resxFile, string previewFilePath, string projectDirectory)
         {
             if (string.IsNullOrEmpty(previewFilePath))
             {
@@ -463,7 +463,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
 
                 // Add to _imageResources dictionary
-                _imageResources[fileName] = new SimpleMenuItem { Name = fileName, Image = destPath };
+                _imageResources[fileName] = new SimpleItem { Name = fileName, Image = destPath };
             }
             catch (Exception ex)
             {
@@ -471,7 +471,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
         }
 
-        public static string CopyFileToProjectResources(Dictionary<string, SimpleMenuItem> _projectResources, string previewFilePath, string projectDirectory)
+        public static string CopyFileToProjectResources(Dictionary<string, SimpleItem> _projectResources, string previewFilePath, string projectDirectory)
         {
             if (string.IsNullOrEmpty(previewFilePath))
             {
@@ -488,7 +488,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 File.Copy(previewFilePath, destPath, true); // Copy file
                 EmbedFileAsEmbeddedResource(previewFilePath, destPath, projectDirectory);
 
-                _projectResources[Path.GetFileNameWithoutExtension(previewFilePath)] = new SimpleMenuItem { Name = Path.GetFileNameWithoutExtension(previewFilePath), Image = destPath };
+                _projectResources[Path.GetFileNameWithoutExtension(previewFilePath)] = new SimpleItem { Name = Path.GetFileNameWithoutExtension(previewFilePath), Image = destPath };
                 return destPath;
             }
             catch (Exception ex)
@@ -536,7 +536,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
         }
         public static string CopyAndEmbedFileToProjectResources(
-    Dictionary<string, SimpleMenuItem> projectResources,
+    Dictionary<string, SimpleItem> projectResources,
     string previewFilePath,
     string projectDirectory)
         {
@@ -588,7 +588,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
 
                 // Add to projectResources dictionary as SimpleMenuItem
-                var simpleMenuItem = new SimpleMenuItem { Name = Path.GetFileNameWithoutExtension(fileName), Image = destPath };
+                var simpleMenuItem = new SimpleItem { Name = Path.GetFileNameWithoutExtension(fileName), Image = destPath };
                 projectResources[Path.GetFileNameWithoutExtension(fileName)] = simpleMenuItem;
 
                 return destPath;
@@ -600,7 +600,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
         }
 
-        public static void MoveFileToProjectResources(Dictionary<string, SimpleMenuItem> _localImages, string sourceFilePath, string destinationFolder)
+        public static void MoveFileToProjectResources(Dictionary<string, SimpleItem> _localImages, string sourceFilePath, string destinationFolder)
         {
             try
             {
@@ -612,7 +612,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
                 File.Copy(sourceFilePath, destinationPath, true);
 
-                _localImages[fileName] = new SimpleMenuItem { Name = fileName, Image = destinationPath };
+                _localImages[fileName] = new SimpleItem { Name = fileName, Image = destinationPath };
                 MessageBox.Show($"File moved to project resource folder: {destinationPath}", "File Moved", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -624,7 +624,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
         #endregion "Moving Images"
         #region "Loading Images"
-        public static void LoadResourceFilesToDictionary(Dictionary<string, SimpleMenuItem> _imageResources, string[] possibleFolders)
+        public static void LoadResourceFilesToDictionary(Dictionary<string, SimpleItem> _imageResources, string[] possibleFolders)
         {
             _imageResources.Clear();
             foreach (string folder in possibleFolders)
@@ -642,7 +642,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                                 if (entry.Value is Bitmap) // Only add image resources
                                 {
                                     string resourceKey = entry.Key.ToString();
-                                    SimpleMenuItem item = new SimpleMenuItem
+                                    SimpleItem item = new SimpleItem
                                     {
                                         Name = resourceKey,
                                         Image = resxFile // Path to the .resx file
@@ -655,7 +655,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
             }
         }
-        public static void LoadEmbeddedImagesToDictionary(Dictionary<string, SimpleMenuItem> _embeddedImages, string projectDirectory)
+        public static void LoadEmbeddedImagesToDictionary(Dictionary<string, SimpleItem> _embeddedImages, string projectDirectory)
         {
             _embeddedImages.Clear();
 
@@ -690,7 +690,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     string resourceName = Path.GetFileNameWithoutExtension(resourcePath);
 
                     // Add to dictionary with SimpleMenuItem structure
-                    SimpleMenuItem item = new SimpleMenuItem
+                    SimpleItem item = new SimpleItem
                     {
                         Name = resourceName,
                         Image = resourcePath // Store the relative path
@@ -706,7 +706,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
         }
 
-        public static void LoadEmbeddedResourcesToDictionary(Dictionary<string, SimpleMenuItem> _embeddedImages)
+        public static void LoadEmbeddedResourcesToDictionary(Dictionary<string, SimpleItem> _embeddedImages)
         {
             _embeddedImages.Clear();
             Assembly assembly = Assembly.GetExecutingAssembly();
@@ -720,7 +720,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     resourceName.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase) ||
                     resourceName.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
                 {
-                    SimpleMenuItem item = new SimpleMenuItem
+                    SimpleItem item = new SimpleItem
                     {
                         Name = resourceName,
                         Image = resourceName // Store the resource name for embedded resources
@@ -730,7 +730,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
         }
 
-        public static void LoadProjectImagesToDictionary(Dictionary<string, SimpleMenuItem> _projectImages)
+        public static void LoadProjectImagesToDictionary(Dictionary<string, SimpleItem> _projectImages)
         {
             _projectImages.Clear();
             var resourceSet = Properties.Resources.ResourceManager.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true);
@@ -740,7 +740,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 if (entry.Value is Bitmap) // Only add image resources
                 {
                     string resourceKey = entry.Key.ToString();
-                    SimpleMenuItem item = new SimpleMenuItem
+                    SimpleItem item = new SimpleItem
                     {
                         Name = resourceKey,
                         Image = resourceKey // Store the resource key for project resources
@@ -750,7 +750,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
         }
 
-        public static void LoadLocalImagesToDictionary(Dictionary<string, SimpleMenuItem> _localImages)
+        public static void LoadLocalImagesToDictionary(Dictionary<string, SimpleItem> _localImages)
         {
             _localImages.Clear();
             string localImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LocalImages");
@@ -763,7 +763,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 foreach (var imagePath in images)
                 {
                     string fileName = Path.GetFileName(imagePath);
-                    SimpleMenuItem item = new SimpleMenuItem
+                    SimpleItem item = new SimpleItem
                     {
                         Name = fileName,
                         Text = fileName,
@@ -812,6 +812,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
         public static Icon ConvertSvgToIcon(SvgDocument svgDoc, int iconSize = 64)
         {
+            if (svgDoc == null) return null;
             Bitmap bitmap = svgDoc.Draw(iconSize, iconSize);
 
             // Convert the Bitmap to Icon

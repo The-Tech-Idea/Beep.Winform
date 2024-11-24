@@ -48,14 +48,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             Console.WriteLine("Update Tab 2");
         }
 
-        private SimpleMenuItemCollection _menuitems = new SimpleMenuItemCollection();
+        private SimpleItemCollection _menuitems = new SimpleItemCollection();
 
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
         [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public SimpleMenuItemCollection TabPages
+        public SimpleItemCollection TabPages
         {
             get => _menuitems;
             set
@@ -172,7 +172,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             x.ForeColor = _currentTheme.LatestForColor;
             return x;
         }
-        protected BeepButton CreateButton(SimpleMenuItem item,string panelguid)
+        protected BeepButton CreateButton(SimpleItem item,string panelguid)
         {
             Console.WriteLine("1");
             var tabButton = new BeepButton

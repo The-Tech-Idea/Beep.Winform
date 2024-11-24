@@ -19,12 +19,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
         private Button saveButton;
         private Button cancelButton;
 
-        public BindingList<SimpleMenuItem> MenuItems { get; private set; }
+        public BindingList<SimpleItem> MenuItems { get; private set; }
 
-        public MenuItemEditorForm(BindingList<SimpleMenuItem> menuItems)
+        public MenuItemEditorForm(BindingList<SimpleItem> menuItems)
         {
             InitializeComponent();
-            MenuItems = menuItems ?? new BindingList<SimpleMenuItem>();
+            MenuItems = menuItems ?? new BindingList<SimpleItem>();
             LoadMenuItemsToTree(MenuItems);
         }
 
@@ -109,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
         }
 
 
-        private void LoadMenuItemsToTree(BindingList<SimpleMenuItem> menuItems, TreeNode parentNode = null)
+        private void LoadMenuItemsToTree(BindingList<SimpleItem> menuItems, TreeNode parentNode = null)
         {
             foreach (var item in menuItems)
             {
@@ -145,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
 
         private void AddButton_Click(object sender, EventArgs e)
         {
-            SimpleMenuItem newItem = new SimpleMenuItem { Name = "New Item", Text = "New Text" };
+            SimpleItem newItem = new SimpleItem { Name = "New Item", Text = "New Text" };
             TreeNode newNode = new TreeNode(newItem.Name) { Tag = newItem };
 
             if (menuTreeView.SelectedNode != null)
@@ -191,7 +191,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
                 else
                 {
                     // Remove root node
-                    MenuItems.Remove(menuTreeView.SelectedNode.Tag as SimpleMenuItem);
+                    MenuItems.Remove(menuTreeView.SelectedNode.Tag as SimpleItem);
                     menuTreeView.Nodes.Remove(menuTreeView.SelectedNode);
                 }
 

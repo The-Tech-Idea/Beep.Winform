@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepMouseEventArgs> ItemClick;
         public event EventHandler<BeepMouseEventArgs> ToggleClicked;
         // Define the items collection property with designer support
-        private SimpleMenuItemCollection items = new SimpleMenuItemCollection();
+        private SimpleItemCollection items = new SimpleItemCollection();
         [Browsable(true)]
         [Category("Appearance")]
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [MergableProperty(false)]
         [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public SimpleMenuItemCollection ListItems
+        public SimpleItemCollection ListItems
         {
             get => items;
             set

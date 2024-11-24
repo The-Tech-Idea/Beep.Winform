@@ -55,7 +55,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 if (BeepiForm != null)
                 {
-                    BeepiForm.Icon = ImageTools.ConvertSvgToIcon(beepimage.svgDocument, 64);
+                    if (beepimage != null)
+                    {
+                        if (beepimage.svgDocument != null)
+                        {
+                            BeepiForm.Icon = ImageTools.ConvertSvgToIcon(beepimage.svgDocument, 64);
+                        }
+                    }
+              
                 }
             }
 

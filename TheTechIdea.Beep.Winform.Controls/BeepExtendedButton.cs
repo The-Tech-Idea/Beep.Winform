@@ -138,11 +138,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepEventDataArgs> ButtonClick;
         public event EventHandler<BeepEventDataArgs> ExtendButtonClick;
         #endregion
-        private SimpleMenuItem _menuItem;
+        private SimpleItem _menuItem;
         [Browsable(true)]
         [Category("Appearance")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public SimpleMenuItem MenuItem
+        public SimpleItem MenuItem
         {
             get => _menuItem;
             set

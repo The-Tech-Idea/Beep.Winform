@@ -33,6 +33,7 @@
             beepSideMenu1 = new BeepSideMenu();
             beepCard1 = new BeepCard();
             panel1 = new Panel();
+            beepTree1 = new BeepTree();
             panel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -194,7 +195,7 @@
             beepSideMenu1.Name = "beepSideMenu1";
             beepSideMenu1.OverrideFontSize = TypeStyleFontSize.None;
             beepSideMenu1.Padding = new Padding(5);
-            beepSideMenu1.ParentBackColor = Color.White;
+            beepSideMenu1.ParentBackColor = Color.FromArgb(245, 245, 245);
             beepSideMenu1.PressedBackColor = Color.FromArgb(65, 105, 225);
             beepSideMenu1.PressedBorderColor = Color.Gray;
             beepSideMenu1.PressedForeColor = Color.Black;
@@ -306,12 +307,93 @@
             // panel1
             // 
             panel1.BackColor = Color.FromArgb(245, 245, 245);
+            panel1.Controls.Add(beepTree1);
             panel1.Controls.Add(beepCard1);
             panel1.Dock = DockStyle.Fill;
             panel1.Location = new Point(214, 76);
             panel1.Name = "panel1";
             panel1.Size = new Size(728, 697);
             panel1.TabIndex = 8;
+            // 
+            // beepTree1
+            // 
+            beepTree1.ActiveBackColor = Color.FromArgb(65, 105, 225);
+            beepTree1.AnimationDuration = 500;
+            beepTree1.AnimationType = DisplayAnimationType.None;
+            beepTree1.BlockID = null;
+            beepTree1.BorderColor = Color.FromArgb(176, 196, 222);
+            beepTree1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            beepTree1.BorderRadius = 5;
+            beepTree1.BorderStyle = BorderStyle.FixedSingle;
+            beepTree1.BorderThickness = 1;
+            beepTree1.DataContext = null;
+            beepTree1.DisabledBackColor = Color.Gray;
+            beepTree1.DisabledForeColor = Color.Empty;
+            beepTree1.DrawingRect = new Rectangle(1, 1, 278, 256);
+            beepTree1.Easing = EasingType.Linear;
+            beepTree1.FieldID = null;
+            beepTree1.FocusBackColor = Color.White;
+            beepTree1.FocusBorderColor = Color.Gray;
+            beepTree1.FocusForeColor = Color.Black;
+            beepTree1.FocusIndicatorColor = Color.Blue;
+            beepTree1.Form = null;
+            beepTree1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
+            beepTree1.GradientEndColor = Color.FromArgb(176, 196, 222);
+            beepTree1.GradientStartColor = Color.FromArgb(245, 245, 245);
+            beepTree1.HoverBackColor = Color.FromArgb(70, 130, 180);
+            beepTree1.HoverBorderColor = Color.FromArgb(65, 105, 225);
+            beepTree1.HoveredBackcolor = Color.Wheat;
+            beepTree1.HoverForeColor = Color.Black;
+            beepTree1.Id = -1;
+            beepTree1.InactiveBackColor = Color.Gray;
+            beepTree1.InactiveBorderColor = Color.Gray;
+            beepTree1.InactiveForeColor = Color.Black;
+            beepTree1.IsAcceptButton = false;
+            beepTree1.IsBorderAffectedByTheme = true;
+            beepTree1.IsCancelButton = false;
+            beepTree1.IsChild = false;
+            beepTree1.IsCustomeBorder = false;
+            beepTree1.IsDefault = false;
+            beepTree1.IsFocused = false;
+            beepTree1.IsFramless = false;
+            beepTree1.IsHovered = false;
+            beepTree1.IsPressed = false;
+            beepTree1.IsRounded = true;
+            beepTree1.IsRoundedAffectedByTheme = true;
+            beepTree1.IsShadowAffectedByTheme = true;
+            beepTree1.Location = new Point(133, 184);
+            beepTree1.Name = "beepTree1";
+            beepTree1.NodeHeight = 20;
+            beepTree1.Nodes.Add((Template.SimpleItem)resources.GetObject("beepTree1.Nodes"));
+            beepTree1.Nodes.Add((Template.SimpleItem)resources.GetObject("beepTree1.Nodes1"));
+            beepTree1.Nodes.Add((Template.SimpleItem)resources.GetObject("beepTree1.Nodes2"));
+            beepTree1.Nodes.Add((Template.SimpleItem)resources.GetObject("beepTree1.Nodes3"));
+            beepTree1.NodeWidth = 100;
+            beepTree1.OverrideFontSize = TypeStyleFontSize.None;
+            beepTree1.ParentBackColor = Color.Empty;
+            beepTree1.PressedBackColor = Color.FromArgb(65, 105, 225);
+            beepTree1.PressedBorderColor = Color.Gray;
+            beepTree1.PressedForeColor = Color.Black;
+            beepTree1.SavedGuidID = null;
+            beepTree1.SavedID = null;
+            beepTree1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
+            beepTree1.ShadowOffset = 0;
+            beepTree1.ShadowOpacity = 0.5F;
+            beepTree1.ShowAllBorders = true;
+            beepTree1.ShowBottomBorder = true;
+            beepTree1.ShowFocusIndicator = false;
+            beepTree1.ShowLeftBorder = true;
+            beepTree1.ShowRightBorder = true;
+            beepTree1.ShowShadow = false;
+            beepTree1.ShowTopBorder = true;
+            beepTree1.Size = new Size(280, 258);
+            beepTree1.SlideFrom = SlideDirection.Left;
+            beepTree1.StaticNotMoving = false;
+            beepTree1.TabIndex = 8;
+            beepTree1.Text = "beepTree1";
+            beepTree1.Theme = Vis.Modules.EnumBeepThemes.WinterTheme;
+            beepTree1.ToolTipText = "";
+            beepTree1.UseGradientBackground = false;
             // 
             // Form1
             // 
@@ -340,5 +422,7 @@
         private BeepSideMenu beepSideMenu1;
         private BeepCard beepCard1;
         private Panel panel1;
+        private BeepTree beepTree1;
+    
     }
 }

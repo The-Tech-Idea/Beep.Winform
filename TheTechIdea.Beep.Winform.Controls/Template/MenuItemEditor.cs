@@ -21,12 +21,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
 
         protected override Type CreateCollectionItemType()
         {
-            return typeof(SimpleMenuItem);  // Specify the type for collection items
+            return typeof(SimpleItem);  // Specify the type for collection items
         }
 
         protected override object CreateInstance(Type itemType)
         {
-            return new SimpleMenuItem();  // Create an instance of SimpleMenuItem
+            return new SimpleItem();  // Create an instance of SimpleMenuItem
         }
     }
 
@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
         // Override EditValue to display the custom form
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
-            if (value is BindingList<SimpleMenuItem> menuItems)
+            if (value is BindingList<SimpleItem> menuItems)
             {
                 IWindowsFormsEditorService editorService = provider?.GetService(typeof(IWindowsFormsEditorService)) as IWindowsFormsEditorService;
 

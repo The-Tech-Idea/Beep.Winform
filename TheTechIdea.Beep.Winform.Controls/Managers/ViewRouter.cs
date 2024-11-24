@@ -21,6 +21,25 @@ public class ViewRouter
     public event EventHandler<IRouteArgs> PostLogin;
     public event EventHandler<IRouteArgs> PreShowItem;
     public event EventHandler<IRouteArgs> PostShowItem;
+    private bool _isCustomeCreatorSet = false;
+    private bool _useCustomeCreator=false;
+    
+    public Control CurrentControl => _currentView;
+
+    public bool UseCustomeCreator
+    {
+        get => _useCustomeCreator; set => _useCustomeCreator = value;
+    }
+
+    private Func<Type, Control>? _customControlCreator;
+    public bool SetControlCreator(Func<Type, Control> customCreator)
+    {
+        _customControlCreator = customCreator;
+        _isCustomeCreatorSet = true; // Indicate that a custom creator is set
+        return _isCustomeCreatorSet;
+    }
+
+   
 
     public delegate bool RouteGuard(Dictionary<string, object> parameters);
 
@@ -120,10 +139,14 @@ public class ViewRouter
 
         // Dispose the current view if it exists
         _currentView?.Dispose();
-
+        Control view;
         // Create a new instance of the view
         var viewType = _routes[routeName];
-        var view = (Control)CreateUsingActivator(viewType);
+        if(_useCustomeCreator && _isCustomeCreatorSet)
+        {
+            view = CreateControlUsingCustomeCreator(viewType);
+            
+        }else   view = (Control)CreateUsingActivator(viewType);
 
         // If the view implements INavigable, pass parameters
         if (view is INavigable navigableView)
@@ -145,17 +168,20 @@ public class ViewRouter
     }
     private Control CreateUsingActivator(Type viewType)
     {
+
         return (Control)Activator.CreateInstance(viewType);
     }
-    private Control CreateUserServicesHost(Type viewType)
+    public Control? CreateControlUsingCustomeCreator(Type viewType)
     {
-        var constructor = viewType.GetConstructor(new[] { typeof(IServiceProvider) });
-        if (constructor == null)
+        if (_isCustomeCreatorSet && _customControlCreator != null)
         {
-            throw new InvalidOperationException("View must have a constructor that accepts an IServiceProvider.");
+            // Call the custom creator to create the control
+            return _customControlCreator(viewType);
         }
-        var serviceProvider = new ServiceProvider();
-        return (Control)constructor.Invoke(new object[] { serviceProvider });
+        else
+        {
+            throw new InvalidOperationException("Custom control creator is not set.");
+        }
     }
     public void NavigateBack()
     {

@@ -26,14 +26,14 @@ namespace TheTechIdea.Beep.Winform.Controls.UIEditor
         private bool _isinPreview = false;
         private string previewFilePath = string.Empty; // Store the file path of the selected image for later embedding
 
-        private Dictionary<string, SimpleMenuItem> _embeddedImages = new Dictionary<string, SimpleMenuItem>();
+        private Dictionary<string, SimpleItem> _embeddedImages = new Dictionary<string, SimpleItem>();
 
-       private Dictionary<string, SimpleMenuItem> _selectedEmbeddedImages = new Dictionary<string, SimpleMenuItem>();
+       private Dictionary<string, SimpleItem> _selectedEmbeddedImages = new Dictionary<string, SimpleItem>();
         private bool _isImageFromlistSelected;
 
         public string CurrentResourceType { get; set; }
         public string SelectedImagePath { get; set; }
-        public SimpleMenuItem SelectedImage { get; set; }
+        public SimpleItem SelectedImage { get; set; }
 
         public BeepImageSelectorDialog()
         {
@@ -53,11 +53,11 @@ namespace TheTechIdea.Beep.Winform.Controls.UIEditor
             return ImageTools.GetProjectPath(from);
            
         }
-        public void SetEmbeddedImages(Dictionary<string, SimpleMenuItem> embeddedImages)
+        public void SetEmbeddedImages(Dictionary<string, SimpleItem> embeddedImages)
         {
             _embeddedImages = embeddedImages;
         }
-        public void SetSelectedEmbeddedImages(Dictionary<string, SimpleMenuItem> selectedEmbeddedImages)
+        public void SetSelectedEmbeddedImages(Dictionary<string, SimpleItem> selectedEmbeddedImages)
         {
             _selectedEmbeddedImages = selectedEmbeddedImages;
         }
@@ -88,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.UIEditor
         {
             if(ImagelistBox.SelectedItems.Count > 0)
             {
-                SelectedImage = (SimpleMenuItem)ImagelistBox.SelectedItem;
+                SelectedImage = (SimpleItem)ImagelistBox.SelectedItem;
                 ImageTools.PreviewImageFromFile(PreviewpictureBox,SelectedImage);
                 SelectedImagePath = SelectedImage.Image;
                 this.Close();
@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.UIEditor
             ImagelistBox.ValueMember = "Id";
             foreach (var item in _embeddedImages)
             {
-                SimpleMenuItem x = item.Value;
+                SimpleItem x = item.Value;
                 ImagelistBox.Items.Add(x); // Add embedded resource names
             }
         }

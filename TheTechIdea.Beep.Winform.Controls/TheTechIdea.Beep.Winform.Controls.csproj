@@ -81,6 +81,7 @@
     <None Remove="GFX\SVG\help.svg" />
     <None Remove="GFX\SVG\home.svg" />
     <None Remove="GFX\SVG\info.svg" />
+    <None Remove="GFX\SVG\l.svg" />
     <None Remove="GFX\SVG\lastrecord.svg" />
     <None Remove="GFX\SVG\like.svg" />
     <None Remove="GFX\SVG\mail.svg" />
@@ -142,6 +143,7 @@
     <EmbeddedResource Include="GFX\SVG\help.svg" />
     <EmbeddedResource Include="GFX\SVG\home.svg" />
     <EmbeddedResource Include="GFX\SVG\info.svg" />
+    <EmbeddedResource Include="GFX\SVG\l.svg" />
     <EmbeddedResource Include="GFX\SVG\lastrecord.svg" />
     <EmbeddedResource Include="GFX\SVG\like.svg" />
     <EmbeddedResource Include="GFX\SVG\mail.svg" />

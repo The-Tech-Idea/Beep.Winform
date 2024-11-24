@@ -235,7 +235,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.MenuItemButton_Click(sender, e);
 
-            if (sender is BeepButton clickedButton && clickedButton.Tag is SimpleMenuItem selectedItem)
+            if (sender is BeepButton clickedButton && clickedButton.Tag is SimpleItem selectedItem)
             {
                 _dropDownButton.Text = selectedItem.Text; // Update dropdown button text
                 HideMenu(); // Collapse the menu

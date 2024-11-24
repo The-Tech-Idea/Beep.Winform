@@ -22,13 +22,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         int drawRectY;
         int drawRectWidth;
         int drawRectHeight;
-        private SimpleMenuItemCollection items = new SimpleMenuItemCollection();
+        private SimpleItemCollection items = new SimpleItemCollection();
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
         [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public SimpleMenuItemCollection ListItems
+        public SimpleItemCollection ListItems
         {
             get => items;
             set
@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             if (items == null)
             {
-                items = new SimpleMenuItemCollection();
+                items = new SimpleItemCollection();
             }
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
@@ -133,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls
           
         }
 
-        private Panel CreateMenuItemPanel(SimpleMenuItem item, bool isChild)
+        private Panel CreateMenuItemPanel(SimpleItem item, bool isChild)
         {
             var menuItemPanel = new Panel
             {
@@ -239,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             drawRectHeight = DrawingRect.Height - 2;
             ButtonSize = new Size(drawRectWidth-2, _menuItemHeight-2);
             // Remove existing menu item panels
-            foreach (var control in this.Controls.OfType<Panel>().Where(c => c.Tag is SimpleMenuItem).ToList())
+            foreach (var control in this.Controls.OfType<Panel>().Where(c => c.Tag is SimpleItem).ToList())
             {
                 this.Controls.Remove(control);
                 control.Dispose();

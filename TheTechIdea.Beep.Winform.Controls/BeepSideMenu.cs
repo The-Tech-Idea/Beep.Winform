@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton toggleButton;
         private BeepLabel logo;
         
-        private SimpleMenuItemCollection menuItems = new SimpleMenuItemCollection();
+        private SimpleItemCollection menuItems = new SimpleItemCollection();
         private int _highlightPanelSize = 5;
         private int menuItemHeight = 40;
         private bool ApplyThemeOnImage = false;
@@ -115,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [MergableProperty(false)]
         [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public SimpleMenuItemCollection Items
+        public SimpleItemCollection Items
         {
             get => menuItems;
             set
@@ -314,7 +314,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             toggleButton.Width = width;
             foreach (Control control in Controls)
             {
-                if (control is Panel menuItemPanel && menuItemPanel.Tag is SimpleMenuItem)
+                if (control is Panel menuItemPanel && menuItemPanel.Tag is SimpleItem)
                 {
                     menuItemPanel.Width = width;
                     foreach (Control subControl in menuItemPanel.Controls)
@@ -340,7 +340,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void InitializeMenu()
         {
             // Remove existing menu item panels
-            foreach (var control in Controls.OfType<Panel>().Where(c => c.Tag is SimpleMenuItem).ToList())
+            foreach (var control in Controls.OfType<Panel>().Where(c => c.Tag is SimpleItem).ToList())
             {
                 Controls.Remove(control);
                 control.Dispose();
@@ -379,7 +379,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        private Panel CreateMenuItemPanel(SimpleMenuItem item, bool isChild)
+        private Panel CreateMenuItemPanel(SimpleItem item, bool isChild)
         {
             var menuItemPanel = new Panel
             {
@@ -431,7 +431,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             return menuItemPanel;
         }
 
-        private void OnMenuItemClick(SimpleMenuItem item)
+        private void OnMenuItemClick(SimpleItem item)
         {
             MessageBox.Show($"Selected item: {item.Text}");
             CollapseMenu();
@@ -467,7 +467,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             logo.ForeColor = _currentTheme.SideMenuForeColor;
             foreach (Control control in Controls)
             {
-                if (control is Panel menuItemPanel && menuItemPanel.Tag is SimpleMenuItem)
+                if (control is Panel menuItemPanel && menuItemPanel.Tag is SimpleItem)
                 {
                     menuItemPanel.BackColor = _currentTheme.SideMenuBackColor;
                     foreach (Control subControl in menuItemPanel.Controls)

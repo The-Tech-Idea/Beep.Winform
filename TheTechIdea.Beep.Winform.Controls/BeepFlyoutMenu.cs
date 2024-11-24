@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private List<BeepFlyoutMenu> beepFlyoutMenus = new List<BeepFlyoutMenu>();
 
 
-        private SimpleMenuItemCollection items = new SimpleMenuItemCollection();
+        private SimpleItemCollection items = new SimpleItemCollection();
         private int _selectedIndex;
 
         [Browsable(true)]
@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [MergableProperty(false)]
         [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public SimpleMenuItemCollection ListItems
+        public SimpleItemCollection ListItems
         {
             get => items;
             set

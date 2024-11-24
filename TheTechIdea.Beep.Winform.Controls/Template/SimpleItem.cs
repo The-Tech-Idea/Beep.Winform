@@ -8,13 +8,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
 {
     [Serializable]
 
-    public class SimpleMenuItem
+    public class SimpleItem
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Name { get; set; }
         public string Text { get; set; }
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         [Category("Appearance")]
         public string Image { get; set; }
         public MenuItemType ItemType { get; set; }
@@ -31,14 +32,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
             get { return _valueField; }
             set { _valueField = value; }
         }
-        private SimpleMenuItem _parentItem; // used for to store the parent item
-        public SimpleMenuItem ParentItem
+        private SimpleItem _parentItem; // used for to store the parent item
+        public SimpleItem ParentItem
         {
             get { return _parentItem; }
             set { _parentItem = value; }
         }
 
-        public BindingList<SimpleMenuItem> Children { get; set; } = new BindingList<SimpleMenuItem>();
+        public BindingList<SimpleItem> Children { get; set; } = new BindingList<SimpleItem>();
 
 
         public string ReferenceID { get; set; }
@@ -50,10 +51,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
         }
     }
     [Serializable]
-    public class SimpleMenuItemCollection : BindingList<SimpleMenuItem>
+    public class SimpleItemCollection : BindingList<SimpleItem>
     {
-        public SimpleMenuItemCollection() : base() { }
-        public SimpleMenuItemCollection(BindingList<SimpleMenuItem> list) { }
+        public SimpleItemCollection() : base() { }
+        public SimpleItemCollection(BindingList<SimpleItem> list) { }
     }
     public enum MenuItemType
     {

@@ -45,6 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.Name = "BeepTree";
             _childnodes= new List<BeepTreeNode>();
             items.ListChanged += Items_ListChanged;
+            ApplyThemeToChilds = false;
             InitLayout();
         }
         protected override void InitLayout()
@@ -111,6 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     IsChild=true,
                     Size = new Size(NodeWidth, NodeHeight),
                     Theme = this.Theme,
+                   
                     Level = parent?.Level + 1 ?? 1 // Increment level for child nodes
                 };
                 Console.WriteLine("Node Created: " + node.Text);
@@ -204,10 +206,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.ApplyTheme();
             BackColor =_currentTheme.PanelBackColor ;
+            _nodePanels.Values.ToList().ForEach(p => p.BackColor = _currentTheme.PanelBackColor);
             foreach (BeepTreeNode node in _childnodes)
             {
                 node.Theme = Theme;
-                node.ApplyTheme();
+           //     node.ApplyTheme();
             }
         }
 
@@ -222,6 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     BeepTreeNode node = GetBeepTreeNodeFromPanel(panel.Key);
                     Console.WriteLine("Node: " + node.Text);
                     Panel panel1 = panel.Value;
+                  //  panel1.BackColor = _currentTheme.PanelBackColor;
                     panel1.Location = new Point(5, startY);
                     node.RearrangeNode();
                     startY += panel1.Height + 5; // Add spacing

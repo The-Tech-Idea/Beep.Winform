@@ -593,6 +593,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     child.Location = new Point(20, starty);
                     child.Width = Width -20; // Indent child nodes
                     starty += child.Height + 5;
+                    child.Theme= Theme;
+                    child.ApplyTheme();
                     child.RearrangeNode();
                 }
             }
@@ -656,29 +658,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         child.Location = new Point(padding, childStartY); // Indent child nodes
                         child.Width = _childrenPanel.Width - 2 * padding;
+                        child.Theme = Theme;
                         child.RearrangeNode();
                         childStartY += child.Height + 5;
                     }
 
                     _childrenPanel.Height = childStartY;
                     _childrenPanel.Visible = true;
-                    _toggleButton.Text = "-";
+                   
                 }
                 else
                 {
                     _childrenPanel.Height = 0;
                     _childrenPanel.Visible = false;
-                    _toggleButton.Text = "+";
+                    
                 }
             }
-            else
-            {
-                _toggleButton.Text = "-"; // Default to expanded state if no children
-            }
 
+            checktoggle();
             // Adjust the node's height
             Height = _nodePanel.Height + _childrenPanel.Height;
-
+            
             // If the parent is a panel, adjust its height
             if (Parent is Panel parentPanel)
             {
@@ -686,7 +686,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-
+        private void checktoggle()
+        {
+            if (_childNodes.Count > 0)
+            {
+                if (IsExpanded)
+                {
+                    _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-minus.svg";
+                }
+                else
+                {
+                    _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-plus.svg";
+                }
+            }else
+            {
+                _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-minus.svg";
+            }
+        }
         public void DrawLeftBranch()
         {
             // Draw Left Branch use startx and starty
@@ -816,14 +832,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Size = new Size(SmallNodeHeight, SmallNodeHeight),
                 ImageAlign = System.Drawing.ContentAlignment.MiddleCenter,
                 TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
-                TextImageRelation = System.Windows.Forms.TextImageRelation.TextAboveImage,
+                TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText,
                 IsChild = true,
                 ShowAllBorders = false,
                 HideText = true,
                 IsFramless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
-                MaxImageSize = new System.Drawing.Size(SmallNodeHeight-2, SmallNodeHeight-2),
+                ApplyThemeOnImage = true,
+                MaxImageSize = new System.Drawing.Size(SmallNodeHeight - 2, SmallNodeHeight - 2),
                 Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall),
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-minus.svg"
             };
@@ -840,10 +857,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             _nodePanel.Height = NodeHeight;
 
             // Adjust visibility of child nodes based on expansion state
-            _childrenPanel.Visible = IsExpanded;
-
+            
+          //  _childrenPanel.BackColor = _currentTheme.PanelBackColor;
             // Ensure the total height reflects the node and its children
             Height = _nodePanel.Height + (IsExpanded ? _childrenPanel.Height : 0);
+            
+            RearrangeNode();
             Tree.RearrangeTree();
         }
         private void ToggleButton_Click(object? sender, EventArgs e)
@@ -867,11 +886,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+           // base.ApplyTheme();
             if (NodeMainMiddlebutton != null)
             {
                 NodeMainMiddlebutton.Theme = Theme;
                 NodeMainMiddlebutton.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                
             }
             if (Nodeleftbutton != null)
             {
@@ -883,11 +903,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 foreach (var item in _childNodes)
                 {
                     item.Theme = Theme;
-                    item.ApplyTheme();
+                   // item.ApplyTheme();
                 }
 
             }
-
+            NodeMainMiddlebutton.ForeColor = _currentTheme.AccentColor;
+            NodeMainMiddlebutton.BackColor = _currentTheme.PanelBackColor;
+            _nodePanel.BackColor = _currentTheme.PanelBackColor;
+            _childrenPanel.BackColor = _currentTheme.PanelBackColor;
+            this.BackColor = _currentTheme.PanelBackColor;
+            _toggleButton.BackColor = _currentTheme.PanelBackColor;
+            _toggleButton.ForeColor = _currentTheme.AccentColor;
+       //     Noderightbutton.BackColor = _currentTheme.PanelBackColor;
         }
         private void ChangeNodeImageSettings()
         {
@@ -897,6 +924,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NodeMainMiddlebutton.TextImageRelation = ShowNodeImage ? System.Windows.Forms.TextImageRelation.ImageBeforeText : System.Windows.Forms.TextImageRelation.TextBeforeImage;
                 NodeMainMiddlebutton.ImageAlign = ShowNodeImage ? System.Drawing.ContentAlignment.MiddleLeft : System.Drawing.ContentAlignment.MiddleCenter;
                 NodeMainMiddlebutton.TextAlign = ShowNodeImage ? System.Drawing.ContentAlignment.MiddleCenter : System.Drawing.ContentAlignment.MiddleLeft;
+             
             }
             if (ShowNodeImage)
             {
@@ -917,6 +945,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 item.ShowNodeImage = _shownodeimage;
                 item.ChangeNodeImageSettings();
             }
+            
+            Invalidate();
 
         }
         #region "Node Methods"

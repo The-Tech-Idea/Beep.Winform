@@ -439,13 +439,53 @@ namespace TheTechIdea.Beep.Winform.Controls
             container.BackColor = BeepThemesManager.GetTheme(_theme).BackgroundColor;
             // Apply theme to the container itself
             ApplyThemeToControl(container);
-            // Recursively apply theme to all child controls
-            foreach (Control child in container.Controls)
+            if (HasApplyThemeToChildsProperty(container))
             {
-                ApplyThemeToAllBeepControls(child);
+                if (GetPropertyFromControl(container, "ApplyThemeToChilds"))
+                {
+                    // Recursively apply theme to all child controls
+                    foreach (Control child in container.Controls)
+                    {
+
+                        ApplyThemeToAllBeepControls(child);
+                    }
+                }
+            }
+            else
+            {
+                // Recursively apply theme to all child controls
+                foreach (Control child in container.Controls)
+                {
+                    ApplyThemeToAllBeepControls(child);
+                }
+
             }
         }
-
+        private bool HasApplyThemeToChildsProperty(Control control)
+        {
+            var themeProperty = TypeDescriptor.GetProperties(control)["ApplyThemeToChilds"];
+            if (themeProperty != null && themeProperty.PropertyType == typeof(bool))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        private bool HasThemeProperty(Control control)
+        {
+            var themeProperty = TypeDescriptor.GetProperties(control)["Theme"];
+            if (themeProperty != null && themeProperty.PropertyType == typeof(EnumBeepThemes))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        // Apply the t
         // Apply the theme to a single control and all its children recursively
         private void ApplyThemeToControlAndChildren(Control control)
         {

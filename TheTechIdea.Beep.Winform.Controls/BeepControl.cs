@@ -132,10 +132,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected bool _isborderaffectedbytheme = true;
         protected bool _isshadowaffectedbytheme = true;
         private bool _isroundedffectedbytheme=true;
+        private bool _applythemetochilds = true;
         #endregion "protected Properties"
         #region "Public Properties"
 
         //IsRoundedAffectedByTheme
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool ApplyThemeToChilds { get { return _applythemetochilds; } set { _applythemetochilds = value; } }
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -699,7 +703,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _themeEnum = value;
                 _currentTheme = BeepThemesManager.GetTheme(value);
-                this.ApplyTheme();
+          //      this.ApplyTheme();
                 ApplyTheme();
             }
         }

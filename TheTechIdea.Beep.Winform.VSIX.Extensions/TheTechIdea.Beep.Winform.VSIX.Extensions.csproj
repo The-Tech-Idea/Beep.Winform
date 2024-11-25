@@ -51,31 +51,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="BeepDataNavigator.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="BeepDataNavigator.Designer.cs">
-      <DependentUpon>BeepDataNavigator.cs</DependentUpon>
-    </Compile>
-    <Compile Include="DataNavigator.cs" />
-    <Compile Include="DataNavigatorCommand.cs" />
-    <Compile Include="DataNavigatorControl.xaml.cs">
-      <DependentUpon>DataNavigatorControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="DataNavigatorPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="ProvideToolboxControlAttribute.cs" />
-    <Compile Include="ToolboxControl1.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ToolboxControl1.Designer.cs">
-      <DependentUpon>ToolboxControl1.cs</DependentUpon>
-    </Compile>
+    <Compile Include="RegisterBeepControls.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.snk" />
@@ -94,6 +76,9 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
+    <Reference Include="TheTechIdea.Beep.Winform.Controls">
+      <HintPath>..\..\outputDLL\TheTechIdea.Beep.Winform.Controls\net8.0-windows\TheTechIdea.Beep.Winform.Controls.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
@@ -101,15 +86,9 @@
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.12.2069" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="BeepDataNavigator.resx">
-      <DependentUpon>BeepDataNavigator.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ToolboxControl1.resx">
-      <DependentUpon>ToolboxControl1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>
@@ -118,17 +97,18 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="DataNavigatorControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <VSCTCompile Include="DataNavigatorPackage.vsct">
-      <ResourceName>Menus.ctmenu</ResourceName>
-    </VSCTCompile>
-    <Content Include="Resources\DataNavigatorCommand.png" />
-    <Content Include="Resources\DataNavigatorPackage.ico" />
+    <Content Include="Resources\DataNavigatorCommand.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Resources\DataNavigatorPackage.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="TheTechIdea.Beep.Winform.Controls.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />

@@ -60,6 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [ToolboxBitmap(typeof(BeepChartBase))]
     [DefaultProperty("ChartDataSeries")]
+    [DisplayName("Beep Chart")]
     public class BeepChartBase : BeepControl
     {
 

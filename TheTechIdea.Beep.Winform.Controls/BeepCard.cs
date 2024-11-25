@@ -382,7 +382,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.CloseFigure();
             return path;
         }
-
+        public override string ToString()
+        {
+            return GetType().Name.Replace("Control", "").Replace("Beep", "Beep ");
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)

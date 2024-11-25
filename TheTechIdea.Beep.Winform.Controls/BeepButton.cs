@@ -352,7 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             // Draw the image and text
             contentRect = DrawingRect;
-            contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
+           // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
             switch (OverrideFontSize)
             {
                 case TypeStyleFontSize.None:
@@ -505,7 +505,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case ContentAlignment.TopLeft:
                 case ContentAlignment.MiddleLeft:
                 case ContentAlignment.BottomLeft:
-                    x = container.X+5;
+                    x = container.X;
                     break;
                 case ContentAlignment.TopCenter:
                 case ContentAlignment.MiddleCenter:
@@ -515,7 +515,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case ContentAlignment.TopRight:
                 case ContentAlignment.MiddleRight:
                 case ContentAlignment.BottomRight:
-                    x = container.Right - size.Width-5;
+                    x = container.Right - size.Width;
                     break;
             }
 

@@ -16,6 +16,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         private SimpleItemCollection items = new SimpleItemCollection();
         private List<BeepTreeNode> _childnodes = new List<BeepTreeNode>();
         private Dictionary<int,Panel> _nodePanels = new Dictionary<int,Panel>();
+
+        private bool _shownodeimage = true;
+
+        public bool ShowNodeImage
+        {
+            get { return _shownodeimage; }
+            set { _shownodeimage = value; ChangeNodeImageSettings(); }
+        }
+
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
@@ -253,6 +262,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             RearrangeTree();
+        }
+        private void ChangeNodeImageSettings()
+        {
+           
+            foreach (var item in _childnodes)
+            {
+                item.ShowNodeImage = _shownodeimage;
+               
+            }
+
         }
     }
     

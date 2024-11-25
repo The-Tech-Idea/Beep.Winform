@@ -6,6 +6,9 @@ using System.Drawing;
 using Microsoft.VisualBasic.Logging;
 using Svg;
 using Timer = System.Windows.Forms.Timer;
+using System.Drawing.Design;
+using System.Windows.Forms.Design;
+using TheTechIdea.Beep.Winform.Controls.Extensions.UIEditor;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -50,6 +53,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         Top,
         Bottom
     }
+    [ToolboxItem(true)]
+    [Category("Beep Controls")]
     public class BeepControl : ContainerControl,  IBeepUIComponent
     {
         #region "protected Properties"
@@ -1668,7 +1673,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Animation"
 
-
+        public override string ToString()
+        {
+            return GetType().Name.Replace("Control", "").Replace("Beep", "Beep ");
+        }
         public Size GetSize()
 
         {

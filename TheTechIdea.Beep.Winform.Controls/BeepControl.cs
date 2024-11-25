@@ -1051,9 +1051,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (IsChild)
             {
-                //if (this.Parent != null)
+                //if (this.ParentNode != null)
                 //{
-                //    parentbackcolor = this.Parent.BackColor;
+                //    parentbackcolor = this.ParentNode.BackColor;
                 //    BackColor = parentbackcolor;
 
                 //}

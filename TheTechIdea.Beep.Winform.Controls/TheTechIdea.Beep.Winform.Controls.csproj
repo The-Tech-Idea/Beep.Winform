@@ -107,6 +107,8 @@
     <None Remove="GFX\SVG\sort.svg" />
     <None Remove="GFX\SVG\sortalphadown.svg" />
     <None Remove="GFX\SVG\sortalphaup.svg" />
+    <None Remove="GFX\SVG\square-minus.svg" />
+    <None Remove="GFX\SVG\square-plus.svg" />
     <None Remove="GFX\SVG\trash.svg" />
     <None Remove="GFX\SVG\user.svg" />
     <None Remove="GFX\SVG\x.svg" />
@@ -228,6 +230,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\DataSources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="GFX\SVG\square-minus.svg" />
+    <EmbeddedResource Include="GFX\SVG\square-plus.svg" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Logic\TheTechIdea.Beep.Vis.Logic.csproj" />

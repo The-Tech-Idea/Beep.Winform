@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton _toggleButton; // used to show the dropdown for the node with childern nodes
         private BeepImage lefttreebranchimage; // used to show the left branch of the tree
         private SimpleItemCollection items = new SimpleItemCollection();
-        private List<BeepTreeNode> _childernnodes;
+        private List<BeepTreeNode> _childNodes;
         private int _nodeseq;
         private string _key;
         private string _text;
@@ -68,8 +68,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _level;
 
         private string _guidid=Guid.NewGuid().ToString();
-
+        private Panel _nodePanel; // Panel to encapsulate the node
+        private Panel _childrenPanel; // Panel for child nodes
         public  string GuidID => _guidid;
+        public int NodeHeight { get; set; } = 30;
+        public int NodeWidth { get; set; } = 100;
+        public int SmallNodeHeight { get; set; } = 10;
+        public int MinimumTextWidth { get; set; } = 100;
+        public int MaxImageSize { get; set; } = 10;
+        private int _minNodeHeight = 20;
+        private int _minNodeWidth = 100;
+
 
         private SimpleItem _menuitem;
 
@@ -144,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get { return _tree; }
             set { _tree = value; }
         }
-        public BeepTreeNode Parent
+        public BeepTreeNode ParentNode
         {
             get { return _parent; }
             set { _parent = value; }
@@ -172,8 +181,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public bool IsExpanded
         {
-            get { return _isExpanded; }
-            set { _isExpanded = value; }
+            get => _isExpanded;
+            set
+            {
+                _isExpanded = value;
+                ToggleExpansion();
+            }
         }
         public bool IsSelected
         {
@@ -235,10 +248,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Constructors"
         public BeepTreeNode()
         {
-            _childernnodes = new List<BeepTreeNode>();
+            _childNodes = new List<BeepTreeNode>();
             UpdateDrawingRect();
+
             Height = NodeHeight;
             Width = NodeWidth;
+            _nodePanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                BackColor =parentbackcolor
+            };
+
+            _childrenPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                BackColor = parentbackcolor
+            };
+            Controls.Add(_childrenPanel);
+            Controls.Add(_nodePanel);
             InitNode();
         }
 
@@ -246,7 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _key = key;
             _text = text;
-            _childernnodes = new List<BeepTreeNode>();
+            _childNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey)
@@ -254,7 +283,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _key = key;
             _text = text;
             _imageKey = imageKey;
-            _childernnodes = new List<BeepTreeNode>();
+            _childNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey)
@@ -263,7 +292,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _text = text;
             _imageKey = imageKey;
             _selectedImageKey = selectedImageKey;
-            _childernnodes = new List<BeepTreeNode>();
+            _childNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded)
@@ -273,7 +302,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _imageKey = imageKey;
             _selectedImageKey = selectedImageKey;
             _isExpanded = isExpanded;
-            _childernnodes = new List<BeepTreeNode>();
+            _childNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected)
@@ -284,7 +313,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _selectedImageKey = selectedImageKey;
             _isExpanded = isExpanded;
             _isSelected = isSelected;
-            _childernnodes = new List<BeepTreeNode>();
+            _childNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected, bool isChecked)
@@ -296,7 +325,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isExpanded = isExpanded;
             _isSelected = isSelected;
             _isChecked = isChecked;
-            _childernnodes = new List<BeepTreeNode>();
+            _childNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected, bool isChecked, bool isVisible)
@@ -309,7 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isSelected = isSelected;
             _isChecked = isChecked;
             _isVisible = isVisible;
-            _childernnodes = new List<BeepTreeNode>();
+            _childNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected, bool isChecked, bool isVisible, bool isReadOnly)
@@ -323,7 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isChecked = isChecked;
             _isVisible = isVisible;
             _isReadOnly = isReadOnly;
-            _childernnodes = new List<BeepTreeNode>();
+            _childNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected, bool isChecked, bool isVisible, bool isReadOnly, bool isEnabled)
@@ -338,7 +367,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isVisible = isVisible;
             _isReadOnly = isReadOnly;
             _isEnabled = isEnabled;
-            _childernnodes = new List<BeepTreeNode>();
+            _childNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected, bool isChecked, bool isVisible, bool isReadOnly, bool isEnabled, bool isEditable)
@@ -354,7 +383,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isReadOnly = isReadOnly;
             _isEnabled = isEnabled;
             _isEditable = isEditable;
-            _childernnodes = new List<BeepTreeNode>();
+            _childNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected, bool isChecked, bool isVisible, bool isReadOnly, bool isEnabled, bool isEditable, bool isDeletable)
@@ -371,7 +400,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isEnabled = isEnabled;
             _isEditable = isEditable;
             _isDeletable = isDeletable;
-            _childernnodes = new List<BeepTreeNode>();
+            _childNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected, bool isChecked, bool isVisible, bool isReadOnly, bool isEnabled, bool isEditable, bool isDeletable, bool isDirty)
@@ -389,7 +418,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isEditable = isEditable;
             _isDeletable = isDeletable;
             _isDirty = isDirty;
-            _childernnodes = new List<BeepTreeNode>();
+            _childNodes = new List<BeepTreeNode>();
             InitNode();
         }
         #endregion "Constructors"
@@ -522,14 +551,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Events Methods"
         #region "Painting Methods"
-        public int NodeHeight { get; set; } = 20;
-        public int NodeWidth { get; set; } = 100;
+      
         int startx = 0;
         int starty = 0;
         public void InitNode()
         {
             UpdateDrawingRect();
-            IsShadowAffectedByTheme=false;
+           
+            _nodePanel.Controls.Clear();
+           
+            IsShadowAffectedByTheme =false;
             IsBorderAffectedByTheme = false;
             IsFramless = true;
             IsChild = true;
@@ -538,14 +569,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             NodeWidth = DrawingRect.Width;
             NodeHeight = DrawingRect.Height;
            
-            DrawLeftBranch();
+         //   DrawLeftBranch();
             DrawLeftButton();
             DrawMiddleButton();
             DrawRightButton();
             DrawToggleButton();
             starty = NodeHeight;
 
-            foreach (var child in _childernnodes)
+            foreach (var child in _childNodes)
             {
                 if(child.IsInitialized == false) child.InitNode();
                 child.Visible = IsExpanded;
@@ -563,76 +594,90 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void RearrangeNode()
         {
-            UpdateDrawingRect();
+            int padding = 5; // Padding around elements
+            int startx = padding; // Horizontal start point
+            int centerY = (NodeHeight - SmallNodeHeight) / 2; // Center alignment for small buttons
 
-            int padding = 5; // Add padding between elements for better alignment
-            startx = DrawingRect.Left + padding;
-            starty = DrawingRect.Top + padding;
+            // Adjust the size of the main node panel
+            _nodePanel.Width = DrawingRect.Width;
+            _nodePanel.Height = NodeHeight;
 
-            NodeWidth = DrawingRect.Width - 2 * padding; // Account for padding
-            NodeHeight = 20; // Set a consistent height for the node (or use your preferred logic)
-
-            // Position the left tree branch image
-            if (lefttreebranchimage != null)
+            // Position the toggle button
+            if (_toggleButton != null)
             {
-                lefttreebranchimage.Location = new Point(startx, starty);
-                lefttreebranchimage.Size = new Size(NodeHeight, NodeHeight);
-                startx += lefttreebranchimage.Width + padding;
+                _toggleButton.Location = new Point(startx, centerY); // Center vertically
+                _toggleButton.Size = new Size(SmallNodeHeight, SmallNodeHeight);
+                startx += _toggleButton.Width + padding;
             }
 
             // Position the left button
             if (Nodeleftbutton != null)
             {
-                Nodeleftbutton.Location = new Point(startx, starty);
-                Nodeleftbutton.Size = new Size(NodeHeight, NodeHeight);
+                Nodeleftbutton.Location = new Point(startx, centerY); // Center vertically
+                Nodeleftbutton.Size = new Size(SmallNodeHeight, SmallNodeHeight);
                 startx += Nodeleftbutton.Width + padding;
             }
 
             // Position the main middle button
             if (NodeMainMiddlebutton != null)
             {
-                NodeMainMiddlebutton.Location = new Point(startx, starty);
-                NodeMainMiddlebutton.Text = _text;
-                NodeMainMiddlebutton.Size = new Size(NodeWidth - startx - NodeHeight * 2 - 3 * padding, NodeHeight);
+                NodeMainMiddlebutton.Location = new Point(startx, 0); // Top aligned
+                NodeMainMiddlebutton.MinimumSize = new Size(MinimumTextWidth, NodeHeight); // Ensure a minimum size
+                NodeMainMiddlebutton.Size = new Size(Math.Max(MinimumTextWidth, _nodePanel.Width - startx - SmallNodeHeight - 2 * padding), NodeHeight);
                 startx += NodeMainMiddlebutton.Width + padding;
             }
 
             // Position the right button
             if (Noderightbutton != null)
             {
-                Noderightbutton.Location = new Point(startx, starty);
-                Noderightbutton.Size = new Size(NodeHeight, NodeHeight);
+                Noderightbutton.Location = new Point(startx, centerY); // Center vertically
+                Noderightbutton.Size = new Size(SmallNodeHeight, SmallNodeHeight);
                 startx += Noderightbutton.Width + padding;
             }
 
-            // Position the toggle button
-            if (_toggleButton != null)
-            {
-                _toggleButton.Location = new Point(startx, starty);
-                _toggleButton.Size = new Size(NodeHeight, NodeHeight);
-            }
+            // Adjust the size of the node panel
+            _nodePanel.Height = NodeHeight + padding * 2;
 
-            // Set the height of the current node
-            Height = NodeHeight + padding * 2;
-
-            // Recalculate positions for child nodes if expanded
-            if (IsExpanded)
+            // Adjust the size of `_childrenPanel` based on expansion
+            if (_childNodes.Count > 0)
             {
-                foreach (var child in _childernnodes)
+                if (IsExpanded)
                 {
-                    child.Location = new Point(DrawingRect.Left + 20, starty + Height + padding); // Indent child nodes
-                    child.Width = NodeWidth - 20; // Account for indentation
-                    child.RearrangeNode();
-                    starty += child.Height + 5; // Add spacing between child nodes
-                }
+                    int childStartY = padding;
+                    foreach (var child in _childNodes)
+                    {
+                        child.Location = new Point(padding, childStartY); // Indent child nodes
+                        child.Width = _childrenPanel.Width - 2 * padding;
+                        child.RearrangeNode();
+                        childStartY += child.Height + 5;
+                    }
 
-                // Update the height of the current node to include its children
-                Height += starty - (DrawingRect.Top + padding);
+                    _childrenPanel.Height = childStartY;
+                    _childrenPanel.Visible = true;
+                    _toggleButton.Text = "-";
+                }
+                else
+                {
+                    _childrenPanel.Height = 0;
+                    _childrenPanel.Visible = false;
+                    _toggleButton.Text = "+";
+                }
+            }
+            else
+            {
+                _toggleButton.Text = "-"; // Default to expanded state if no children
             }
 
-            // Ensure the node width accommodates all elements
-            Width = Math.Max(NodeWidth, _toggleButton?.Right ?? 0);
+            // Adjust the node's height
+            Height = _nodePanel.Height + _childrenPanel.Height;
+
+            // If the parent is a panel, adjust its height
+            if (Parent is Panel parentPanel)
+            {
+                parentPanel.Height = Height;
+            }
         }
+
 
         public void DrawLeftBranch()
         {
@@ -644,13 +689,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsBorderAffectedByTheme = false,
                 IsFramless = true,
                 IsChild = true,
-                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-down.svg"
+                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.L.svg"
                 
             };
            // lefttreebranchimage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-down.svg";
             lefttreebranchimage.Location = new System.Drawing.Point(startx, starty);
             lefttreebranchimage.Size = new System.Drawing.Size(10, 10);
-            this.Controls.Add(lefttreebranchimage);
+            _nodePanel.Controls.Add(lefttreebranchimage);
             startx = startx + NodeHeight;
         }
         public void DrawLeftButton()
@@ -674,7 +719,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Nodeleftbutton.MaxImageSize = new System.Drawing.Size(NodeHeight - 2, NodeHeight - 2);
                 Nodeleftbutton.Size = new System.Drawing.Size(NodeHeight, NodeHeight);
                 Nodeleftbutton.Height = NodeHeight;
-                Nodeleftbutton.Location = new System.Drawing.Point(startx, 0);
+          
                 Nodeleftbutton.Click += Nodeleftbutton_Click;
                 Nodeleftbutton.MouseEnter += Nodeleftbutton_MouseEnter;
                 Nodeleftbutton.MouseLeave += Nodeleftbutton_MouseLeave;
@@ -683,7 +728,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Nodeleftbutton.MouseUp += Nodeleftbutton_MouseUp;
                 Nodeleftbutton.MouseDown += Nodeleftbutton_MouseDown;
                 Nodeleftbutton.MouseMove += Nodeleftbutton_MouseMove;
-                this.Controls.Add(Nodeleftbutton);
+                _nodePanel.Controls.Add(Nodeleftbutton);
                 startx = startx + NodeHeight;
             }
         }
@@ -705,10 +750,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Noderightbutton.IsFramless = true;
                 Noderightbutton.IsShadowAffectedByTheme = true;
                 Noderightbutton.IsBorderAffectedByTheme = true;
-                Noderightbutton.MaxImageSize = new System.Drawing.Size(NodeHeight - 2, NodeHeight - 2);
+                Noderightbutton.MaxImageSize = new System.Drawing.Size(MaxImageSize , MaxImageSize);
                 Noderightbutton.Size = new System.Drawing.Size(NodeHeight, NodeHeight);
-                Noderightbutton.Height = NodeHeight;
-                Noderightbutton.Location = new System.Drawing.Point(startx, 0);
+                
+              
                 Noderightbutton.Click += Noderightbutton_Click;
                 Noderightbutton.MouseEnter += Noderightbutton_MouseEnter;
                 Noderightbutton.MouseLeave += Noderightbutton_MouseLeave;
@@ -717,7 +762,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Noderightbutton.MouseUp += Noderightbutton_MouseUp;
                 Noderightbutton.MouseDown += Noderightbutton_MouseDown;
                 Noderightbutton.MouseMove += Noderightbutton_MouseMove;
-                this.Controls.Add(Noderightbutton);
+                _nodePanel.Controls.Add(Noderightbutton);
                 startx = startx + NodeHeight;
             }
         }
@@ -737,12 +782,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 NodeMainMiddlebutton.IsChild = true;
                 NodeMainMiddlebutton.IsFramless = true;
-                NodeMainMiddlebutton.IsShadowAffectedByTheme = true;
-                NodeMainMiddlebutton.IsBorderAffectedByTheme = true;
-                NodeMainMiddlebutton.MaxImageSize = new System.Drawing.Size(10, 10);
-         
-                NodeMainMiddlebutton.Height = NodeHeight;
-                NodeMainMiddlebutton.Location = new System.Drawing.Point(startx, starty);
+                NodeMainMiddlebutton.IsShadowAffectedByTheme = false;
+                NodeMainMiddlebutton.IsBorderAffectedByTheme = false;
+                NodeMainMiddlebutton.MaxImageSize = new System.Drawing.Size(MaxImageSize, MaxImageSize);
+                NodeMainMiddlebutton.Font=BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                
+                
                 NodeMainMiddlebutton.Click += NodeMainMiddlebutton_Click;
                 NodeMainMiddlebutton.DoubleClick += NodeMainMiddlebutton_DoubleClick;
                 NodeMainMiddlebutton.MouseEnter += NodeMainMiddlebutton_MouseEnter;
@@ -752,32 +797,61 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NodeMainMiddlebutton.MouseUp += NodeMainMiddlebutton_MouseUp;
                 NodeMainMiddlebutton.MouseDown += NodeMainMiddlebutton_MouseDown;
                 NodeMainMiddlebutton.MouseMove += NodeMainMiddlebutton_MouseMove;
-                this.Controls.Add(NodeMainMiddlebutton);
+                _nodePanel.Controls.Add(NodeMainMiddlebutton);
             }
         }
-        public void DrawToggleButton()
+        private void DrawToggleButton()
         {
             _toggleButton = new BeepButton
             {
-                IsShadowAffectedByTheme = false,
-                IsBorderAffectedByTheme = false,
-                IsFramless = true,
-                IsChild = true,
-                Text = "+",
-                Size = new Size(10, 10),
-                
-                Location = new Point(startx,starty),
-            };
-            _toggleButton.Click += ToggleButton_Click;
-            Controls.Add(_toggleButton);
-        }
+                Text = "-",
+                Size = new Size(NodeHeight, NodeHeight),
+                ImageAlign = System.Drawing.ContentAlignment.MiddleLeft,
+                TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
 
+                IsChild = true,
+                IsFramless = true,
+                IsShadowAffectedByTheme = true,
+                IsBorderAffectedByTheme = true,
+                MaxImageSize = new System.Drawing.Size(10, 10),
+                Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall),
+
+            };
+
+            _toggleButton.Click += (s, e) =>
+            {
+                IsExpanded = !IsExpanded;
+            };
+
+            _nodePanel.Controls.Add(_toggleButton);
+        }
+        private void UpdatePanelSize()
+        {
+            _nodePanel.Height = NodeHeight;
+
+            // Adjust visibility of child nodes based on expansion state
+            _childrenPanel.Visible = IsExpanded;
+
+            // Ensure the total height reflects the node and its children
+            Height = _nodePanel.Height + (IsExpanded ? _childrenPanel.Height : 0);
+            Tree.RearrangeTree();
+        }
         private void ToggleButton_Click(object? sender, EventArgs e)
         {
             IsExpanded = !IsExpanded;
             _toggleButton.Text = IsExpanded ? "-" : "+";
             RearrangeNode();
         }
+        private void ToggleExpansion()
+        {
+            if (_toggleButton != null)
+            {
+                _toggleButton.Text = IsExpanded ? "-" : "+";
+            }
+
+            UpdatePanelSize();
+        }
+
         #endregion "Painting Methods"
 
         public override void ApplyTheme()
@@ -786,6 +860,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (NodeMainMiddlebutton != null)
             {
                 NodeMainMiddlebutton.Theme = Theme;
+                NodeMainMiddlebutton.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
             }
             if (Nodeleftbutton != null)
             {
@@ -794,9 +869,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Noderightbutton.Theme = Theme;
                 }
-                foreach (var item in _childernnodes)
+                foreach (var item in _childNodes)
                 {
                     item.Theme = Theme;
+                    item.ApplyTheme();
                 }
 
             }
@@ -806,40 +882,40 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Node Methods"
         public void AddNode(BeepTreeNode node)
         {
-            _childernnodes.Add(node);
+            _childNodes.Add(node);
         }
         public void RemoveNode(BeepTreeNode node)
         {
-            _childernnodes.Remove(node);
+            _childNodes.Remove(node);
         }
         public void RemoveNode(string NodeName)
         {
-            BeepTreeNode node = _childernnodes.Where(c => c.Name == NodeName).FirstOrDefault();
+            BeepTreeNode node = _childNodes.Where(c => c.Name == NodeName).FirstOrDefault();
             if (node != null)
             {
-                _childernnodes.Remove(node);
+                _childNodes.Remove(node);
             }
         }
         public void RemoveNode(int NodeIndex)
         {
-            if (NodeIndex >= 0 && NodeIndex < _childernnodes.Count)
+            if (NodeIndex >= 0 && NodeIndex < _childNodes.Count)
             {
-                _childernnodes.RemoveAt(NodeIndex);
+                _childNodes.RemoveAt(NodeIndex);
             }
         }
         public void ClearNodes()
         {
-            _childernnodes.Clear();
+            _childNodes.Clear();
         }
         public BeepTreeNode GetNode(string NodeName)
         {
-            return _childernnodes.Where(c => c.Name == NodeName).FirstOrDefault();
+            return _childNodes.Where(c => c.Name == NodeName).FirstOrDefault();
         }
         public BeepTreeNode GetNode(int NodeIndex)
         {
-            if (NodeIndex >= 0 && NodeIndex < _childernnodes.Count)
+            if (NodeIndex >= 0 && NodeIndex < _childNodes.Count)
             {
-                return _childernnodes[NodeIndex];
+                return _childNodes[NodeIndex];
             }
             else
             {
@@ -848,21 +924,56 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public List<BeepTreeNode> GetNodes()
         {
-            return _childernnodes;
+            return _childNodes;
         }
-        public void AddChild(BeepTreeNode child)
+       
+        public void ExpandAll()
         {
-            child.Tree = Tree;
-            child.Visible = IsExpanded;
-            _childernnodes.Add(child);
-            Controls.Add(child);
+            IsExpanded = true;
+            foreach (var child in _childNodes)
+            {
+                child.ExpandAll();
+
+            }
+            _toggleButton.Text = "-";
+            RearrangeNode();
+        }
+        public void MiniAll()
+        {
+            IsExpanded = true;
+            foreach (var child in _childNodes)
+            {
+                child.MiniAll();
+            }
+            _toggleButton.Text = "-";
             RearrangeNode();
         }
 
-        internal void ExpandAll()
-        {
-           
-        }
+
         #endregion "Node Methods"
+        #region Child Node Management
+
+        public void AddChild(BeepTreeNode child)
+        {
+            _childNodes.Add(child);
+            _childrenPanel.Controls.Add(child);
+            UpdatePanelSize();
+        }
+
+        public void RemoveChild(BeepTreeNode child)
+        {
+            _childNodes.Remove(child);
+            _childrenPanel.Controls.Remove(child);
+            UpdatePanelSize();
+        }
+
+        public void ClearChildren()
+        {
+            _childNodes.Clear();
+            _childrenPanel.Controls.Clear();
+            UpdatePanelSize();
+        }
+
+        #endregion
     }
 }

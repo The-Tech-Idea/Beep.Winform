@@ -420,7 +420,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             //    // Show the profile menu at the location of the profile icon, just below it
             //    var iconLocation = profileIcon.PointToScreen(new Point(0, profileIcon.Height));
-            //    profileMenu.Show(Parent, profileIcon.Left, profileIcon.Bottom + 10);  // Adjust the Y-coordinate to place it below
+            //    profileMenu.Show(ParentNode, profileIcon.Left, profileIcon.Bottom + 10);  // Adjust the Y-coordinate to place it below
             //}
         }
         public override void ApplyTheme()

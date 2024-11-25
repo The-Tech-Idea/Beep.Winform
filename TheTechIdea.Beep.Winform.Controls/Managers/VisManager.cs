@@ -966,7 +966,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 BeepWaitForm.TopMost=true;
                // Form frm = (Form)MainFormView;
                 BeepWaitForm.StartPosition = FormStartPosition.CenterScreen;
-               // BeepWaitForm.Parent = frm;
+               // BeepWaitForm.ParentNode = frm;
                 BeepWaitForm.ShowDialog();
    
             });

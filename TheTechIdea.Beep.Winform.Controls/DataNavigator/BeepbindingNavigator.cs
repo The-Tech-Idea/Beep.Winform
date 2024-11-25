@@ -275,7 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         {
             try
             {
-                //  if (MessageBox.Show(this.Parent, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+                //  if (MessageBox.Show(this.ParentNode, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
                 //  {
                 // bindingSource.CancelEdit();
                 //FocusPicture(sender);
@@ -292,7 +292,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         {
             try
             {
-                //  if (MessageBox.Show(this.Parent, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+                //  if (MessageBox.Show(this.ParentNode, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
                 //  {
                 // bindingSource.CancelEdit();
           //      FocusPicture(sender);
@@ -309,7 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         {
             try
             {
-              //  if (MessageBox.Show(this.Parent, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+              //  if (MessageBox.Show(this.ParentNode, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
               //  {
                    // bindingSource.CancelEdit();
                //FocusPicture(sender);
@@ -326,7 +326,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         {
             try
             {
-                //if (MessageBox.Show(this.Parent, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+                //if (MessageBox.Show(this.ParentNode, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
                 //{
                   //  bindingSource.CancelEdit();
               //      FocusPicture(sender);

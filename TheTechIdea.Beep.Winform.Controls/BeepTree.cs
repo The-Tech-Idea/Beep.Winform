@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public int NodeWidth { get; set; } = 100;
         private SimpleItemCollection items = new SimpleItemCollection();
         private List<BeepTreeNode> _childnodes = new List<BeepTreeNode>();
-
+        private Dictionary<int,Panel> _nodePanels = new Dictionary<int,Panel>();
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
@@ -92,16 +92,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Name = menuItem.Text ?? $"Node{nodeseq}",
                     Text = menuItem.Text ,
                     ImagePath = menuItem.Image,
-                    Parent = parent,
+                    ParentNode = parent,
                     Tree = this,
                     NodeSeq = nodeseq,
-                    Width=NodeWidth,
                     Height = NodeHeight,
                     IsBorderAffectedByTheme =false,
                     IsShadowAffectedByTheme = false,
-                    //IsFramless = true,
-                    //IsChild=true,
+                    IsFramless = true,
+                    IsChild=true,
                     Size = new Size(NodeWidth, NodeHeight),
+                    Theme = this.Theme,
                     Level = parent?.Level + 1 ?? 1 // Increment level for child nodes
                 };
                 Console.WriteLine("Node Created: " + node.Text);
@@ -125,45 +125,38 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void AddNode(BeepTreeNode node)
         {
-            Console.WriteLine("Adding Node: " + node.Text);
-            node.Tree = this;
-
-            if (node.NodeSeq == 0)
+            var panel = new Panel
             {
-                nodeseq++;
-                node.NodeSeq = nodeseq;
-            }
-            Console.WriteLine("Node Seq: " + node.NodeSeq);
-            if (string.IsNullOrEmpty(node.Name))
-            {
-                node.Name = "Node" + nodeseq.ToString();
-            }
-
-            if (node.Level == 0)
-            {
-                node.Level = 1; // Represent the root node
-            }
-            Console.WriteLine("Node Level: " + node.Level);
+                Width = Width,
+                Height = node.Height,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink
+               
+            };
             _childnodes.Add(node);
-            Console.WriteLine("Node Added: " + node.Text);
-            Controls.Add(node);
-            Console.WriteLine("Node Added to Control: " + node.Text);
+            panel.Controls.Add(node); // Add the node to the panel
+            Controls.Add(panel); // Add the panel to the tree
+            _nodePanels.Add(node.NodeSeq,panel);
+
             RearrangeTree();
         }
+
 
         public void RemoveNode(BeepTreeNode node)
         {
             _childnodes.Remove(node);
             Controls.Remove(node);
+            _nodePanels.Remove(node.NodeSeq);
             RearrangeTree();
         }
 
         public void ClearNodes()
         {
-
-                Controls.Clear();
-            _childnodes.Clear();
-            RearrangeTree();
+            foreach (var panel in _nodePanels)
+            {
+                Controls.Remove(panel.Value);
+            }
+            _nodePanels.Clear();
         }
 
         public void RemoveNode(string NodeName)
@@ -201,59 +194,45 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
+            BackColor =_currentTheme.PanelBackColor ;
             foreach (BeepTreeNode node in _childnodes)
             {
                 node.Theme = Theme;
+                node.ApplyTheme();
             }
         }
 
-        private void RearrangeTree()
+        public void RearrangeTree()
         {
-            Console.WriteLine("Rearrange Tree");
-            UpdateDrawingRect();
-            DrawingRect.Inflate(-3, -3); // Allow some padding
-            int starty = DrawingRect.Top+3;
-            int startx = DrawingRect.Left+3;
-            int NodeWidth = DrawingRect.Width-6;
-            Console.WriteLine("Node Width: " + NodeWidth);
-            foreach (var node in _childnodes.OrderBy(p=>p.NodeSeq))
+            int startY = 5; // Initial offset
+
+            foreach (var panel in _nodePanels)
             {
                 try
                 {
-                   
-                    node.Location = new Point(startx, starty); // Adjust X and Y for alignment
+                    BeepTreeNode node = GetBeepTreeNodeFromPanel(panel.Key);
+                    Console.WriteLine("Node: " + node.Text);
+                    Panel panel1 = panel.Value;
+                    panel1.Location = new Point(5, startY);
                     node.RearrangeNode();
-                  
-                    Console.WriteLine($"Rearrange Node:{node.Text} - ({startx},{starty}) width {node.Width}");
-                    starty += node.Height + 2; // Add spacing between nodes
-
-                    
+                    startY += panel1.Height + 5; // Add spacing
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Error: " + ex.Message);
                 }
-
+               
             }
 
-            //Invalidate(); // Redraw tree
+            Invalidate();
         }
 
-        public void DrawTree()
+        private BeepTreeNode GetBeepTreeNodeFromPanel(int seq)
         {
-            foreach (var node in _childnodes)
-            {
-                if (node.Level == 1)
-                {
-                    if (!node.IsInitialized)
-                    {
-                        node.InitNode();
-                    }
-                }
-            }
-
-            RearrangeTree();
+           
+            return _childnodes.FirstOrDefault(p=>p.NodeSeq==seq);
         }
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -261,10 +240,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void ExpandAll()
         {
-            foreach (var node in _childnodes)
+            foreach (var panel in _nodePanels)
             {
-                node.ExpandAll();
+                BeepTreeNode node = GetBeepTreeNodeFromPanel(panel.Key);
+                Panel panel1 = panel.Value;
+                if (node != null)
+                {
+                    node.IsExpanded = true;
+                    node.RearrangeNode();
+                    panel1.Height = node.Height; // Adjust panel height
+                }
             }
+
+            RearrangeTree();
         }
     }
     

@@ -2,12 +2,12 @@
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing;
-using Microsoft.VisualBasic.Logging;
+
 using Svg;
 using Timer = System.Windows.Forms.Timer;
 using System.Drawing.Design;
 using System.Windows.Forms.Design;
-using TheTechIdea.Beep.Winform.Controls.Extensions.UIEditor;
+
 using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 

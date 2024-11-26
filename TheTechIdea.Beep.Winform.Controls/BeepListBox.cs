@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
-using System.Windows.Forms;
-using System.ComponentModel.Design.Serialization;
+
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Editors;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -23,10 +23,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         int drawRectWidth;
         int drawRectHeight;
         private SimpleItemCollection items = new SimpleItemCollection();
+        private bool _shownodeimage;
+        private string? _imageKey;
+
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
-       // [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
+        [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public SimpleItemCollection ListItems
         {
@@ -37,6 +40,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                // InitializeMenu();
             }
         }
+        public bool ShowImage
+        {
+            get { return _shownodeimage; }
+            set { _shownodeimage = value; ChangeImageSettings(); }
+        }
+
+      
 
         [Browsable(false)]
         public int SelectedIndex
@@ -138,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             var menuItemPanel = new Panel
             {
                 Height = ButtonSize.Height,
-                Padding = new Padding(isChild ? 20 : 10, 0, 0, 0),
+              //  Padding = new Padding(isChild ? 20 : 10, 0, 0, 0),
                 Visible = true,
                 Tag = item, // Store the SimpleMenuItem for reference
             };
@@ -149,8 +159,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 5,
                 Dock = DockStyle.Left,
                 BackColor = _currentTheme.SideMenuBackColor,
-                Visible = false,
-                Padding = new Padding(0, 2, 0, 0),
+                Visible = true,
+                
 
             };
 
@@ -198,7 +208,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Add BeepButton and highlight panel to the panel
             menuItemPanel.Controls.Add(highlightPanel);
             menuItemPanel.Controls.Add(button);
-
+            _buttons.Add(button);
+            button.BringToFront();
             //Handle hover effects for the menu item panel
 
             //menuItemPanel.MouseEnter += (s, e) =>
@@ -215,13 +226,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Handle button events
             button.MouseEnter += (s, e) =>
             {
-                menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
-                highlightPanel.Visible = true;
+                highlightPanel.BackColor = _currentTheme.ButtonHoverBackColor;
+             //   highlightPanel.Visible = true;
             };
             button.MouseLeave += (s, e) =>
             {
-                menuItemPanel.BackColor = _currentTheme.SideMenuBackColor;
-                highlightPanel.Visible = false;
+                highlightPanel.BackColor = _currentTheme.SideMenuBackColor;
+             //   highlightPanel.Visible = false;
             };
             button.Click += MenuItemButton_Click;
 
@@ -298,7 +309,29 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SelectedIndex = _buttons.IndexOf(clickedButton);
         }
 
+        private void ChangeImageSettings()
+        {
+            foreach (var item in _buttons)
+            {
+                SimpleItem s = (SimpleItem)item.Tag;
+                if (ShowImage)
+                {
+                    item.TextImageRelation = TextImageRelation.ImageBeforeText;
+                    item.ImageAlign = ContentAlignment.MiddleLeft;
+                    item.TextAlign = ContentAlignment.MiddleCenter;
+                    item.ImagePath =s.Image  ;
+                }
+                else
+                {
+                    item.TextImageRelation = TextImageRelation.Overlay;
+                    item.ImageAlign = ContentAlignment.MiddleCenter;
+                    item.TextAlign = ContentAlignment.MiddleLeft;
+                    item.ImagePath = null;
+                }
+               
+            }
 
+        }
         public override void ApplyTheme()
         {
             if (_currentTheme == null) { return; }

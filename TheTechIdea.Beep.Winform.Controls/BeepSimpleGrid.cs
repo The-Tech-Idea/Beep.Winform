@@ -281,7 +281,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             //   ApplyTheme();
             ApplyThemeToChilds = false;
         }
-     
+        protected override void InitLayout()
+        {
+            base.InitLayout();
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 200;
+                Height = defaultHeight;
+            }
+        }
 
         private void Rows_ListChanged(object sender, ListChangedEventArgs e)
         {
@@ -303,6 +311,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton filterButton;
         private int _buttonssize = 25;
         private string _imagepath;
+        private int defaultHeight=100;
 
         private void FilterButton_Click(object sender, EventArgs e)
         {

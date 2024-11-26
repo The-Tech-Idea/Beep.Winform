@@ -85,8 +85,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Apply border and custom form styles
             FormBorderStyle = FormBorderStyle.None;
-            Padding = new Padding(0);
-            Margin = new Padding(0);
+            Padding = new Padding(5);
+            Margin = new Padding(5);
 
             //beepPanel1.IsFramless = true;
             //beepPanel1.Dock = DockStyle.Top;

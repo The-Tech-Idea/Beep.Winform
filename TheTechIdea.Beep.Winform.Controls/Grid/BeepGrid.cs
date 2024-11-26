@@ -10,8 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Filter;
 using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns;
 using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewColumns;
 using TheTechIdea.Beep.Winform.Controls.Grid.DesignerForm;
-using TheTechIdea.Beep.Winform.Controls.UIEditor;
-using TheTechIdea.Beep.Winform.Controls.Template;
+
 using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Editor;

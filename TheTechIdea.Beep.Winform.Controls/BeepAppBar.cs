@@ -1,11 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
-using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Template;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -15,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepAppBar : BeepControl 
     {
         private int windowsicons_height = 15;
-        private int defaultHeight = 60;
+        private int defaultHeight = 32;
 
 
         private BeepButton hamburgerIcon;
@@ -154,8 +150,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public BeepAppBar()
         {
-           
             InitializeAppNavBar();
+
         }
 
         protected override void InitLayout()
@@ -166,6 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 200;
                 Height = defaultHeight;
             }
+           
         }
         private void InitializeAppNavBar()
         {
@@ -174,21 +171,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Initialize the panels
             //InitializePanels();
-            IsBorderAffectedByTheme = false;
+
             IsShadowAffectedByTheme = false;
+            IsBorderAffectedByTheme = false;
+            IsRoundedAffectedByTheme = false;
             ShowAllBorders = true;
             ShowShadow = false;
 
             // Add controls to their respective panels 
             Console.WriteLine("Adding controls to panels");
-            AddHamburgerButton();
+          //  AddHamburgerButton();
             AddLogoIcon();
             AddSearchBox();
             AddNotificationIcon();
             AddUserProfileIcon();
             AddWindowControlIcons();
             Console.WriteLine("Controls added to panels");
-            Height = 60;
+            
             Console.WriteLine("Height set to 60");
             RearrangeLayout();
             Console.WriteLine("Rearranged layout");
@@ -220,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleLabel = new BeepLabel
             {
                 Width = 200,
-                Height = 40,
+                Height = windowsicons_height,
                 //  Padding = new Padding( 10, 0, 10, 0),
                 //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
                 MaxImageSize = new Size(30, 30),
@@ -235,6 +234,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsFramless = true,
                 IsChild = true,
                 ApplyThemeOnImage = false,
+              
 
             };
             //if (!string.IsNullOrEmpty(_logoImage))
@@ -248,12 +248,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             searchBox = new BeepTextBox
             {
                 Width = 200,
-                Height =30,
+                Height = 23,
                 Theme = this.Theme,
                 Text = string.Empty,
                 //IsChild = true,
                 PlaceholderText = "Search...",
-                OverrideFontSize= TypeStyleFontSize.Small  ,
                 ApplyThemeOnImage = _applyThemeOnImage,
                 IsFramless = true,
                 
@@ -434,7 +433,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             searchBox.Theme = Theme;
             
             TitleLabel.Theme = Theme;
-            hamburgerIcon.Theme = Theme;
+           // hamburgerIcon.Theme = Theme;
             profileIcon.Theme = Theme;
             closeIcon.Theme = Theme;
             maximizeIcon.Theme = Theme;
@@ -469,19 +468,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             int centerX = DrawingRect.Left + DrawingRect.Width / 2;
 
             // Position hamburgerIcon and TitleLabel (left-aligned)
-            if (hamburgerIcon != null && hamburgerIcon.Visible)
-            {
-                hamburgerIcon.Top = DrawingRect.Top + (DrawingRect.Height - hamburgerIcon.Height) / 2;
-                hamburgerIcon.Left = leftEdge;
-                leftEdge += hamburgerIcon.Width + spacing;
-            }
+            //if (hamburgerIcon != null && hamburgerIcon.Visible)
+            //{
+            //    hamburgerIcon.Top = DrawingRect.Top + (DrawingRect.Height - hamburgerIcon.Height) / 2;
+            //    hamburgerIcon.Left = leftEdge;
+            //    leftEdge += hamburgerIcon.Width + spacing;
+            //}
 
-            if (TitleLabel != null && TitleLabel.Visible)
-            {
-                TitleLabel.Top = DrawingRect.Top + (DrawingRect.Height - TitleLabel.Height) / 2;
-                TitleLabel.Left = leftEdge;
-                leftEdge += TitleLabel.Width + spacing;
-            }
+          
 
             // Position searchBox (centered horizontally)
             if (searchBox != null && searchBox.Visible)
@@ -490,7 +484,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 searchBox.Top = DrawingRect.Top + (DrawingRect.Height - searchBox.Height) / 2;
                 searchBox.Left = centerX - searchBox.Width / 2;
             }
-
+            if (TitleLabel != null && TitleLabel.Visible)
+            {
+                TitleLabel.Top = DrawingRect.Top + (DrawingRect.Height - TitleLabel.Height) / 2;
+                TitleLabel.Left = leftEdge;
+                // Ensure TitleLabel does not exceed the Searchbox left edge
+                TitleLabel.Width= searchBox.Left - TitleLabel.Left - spacing;
+                leftEdge += TitleLabel.Width + spacing;
+            }
             // Position closeIcon, maximizeIcon, minimizeIcon, notificationIcon, and profileIcon (right-aligned)
             if (closeIcon != null && closeIcon.Visible)
             {

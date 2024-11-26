@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -18,6 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Dictionary<int,Panel> _nodePanels = new Dictionary<int,Panel>();
 
         private bool _shownodeimage = true;
+        private int defaultHeight= 100;
 
         public bool ShowNodeImage
         {
@@ -28,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
-       // [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
+        [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public SimpleItemCollection Nodes
         {
@@ -51,6 +53,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void InitLayout()
         {
             base.InitLayout();
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 200;
+                Height = defaultHeight;
+            }
             InitializeTreeFromMenuItems();
             RearrangeTree();
         }

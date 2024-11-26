@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Design;
 using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
@@ -37,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
-     //   [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
+        [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public SimpleItemCollection ListItems
         {

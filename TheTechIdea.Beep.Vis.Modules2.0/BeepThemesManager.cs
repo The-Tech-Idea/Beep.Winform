@@ -678,7 +678,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontFamily = "Segoe UI",
                 FontSize = 12f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Regular,
                 TextColor = Color.White,
             },
             LabelSmall = new TypographyStyle
@@ -686,7 +686,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontFamily = "Segoe UI",
                 FontSize = 10f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Light,
                 TextColor = Color.White,
             },
 

@@ -16,10 +16,5 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InitializeComponent();
         }
-
-        private void beepCard1_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }

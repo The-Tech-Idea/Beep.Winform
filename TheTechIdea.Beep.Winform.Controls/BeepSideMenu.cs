@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Drawing.Design;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Editors;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -113,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
-       // [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
+        [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public SimpleItemCollection Items
         {

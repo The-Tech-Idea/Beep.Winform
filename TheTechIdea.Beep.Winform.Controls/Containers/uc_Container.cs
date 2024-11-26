@@ -8,7 +8,7 @@ using TheTechIdea.Beep.ConfigUtil;
 
 namespace TheTechIdea.Beep.Winform.Controls.Containers
 {
-    public partial class uc_Container : UserControl, IDisplayContainer
+    public partial class uc_Container : BeepControl, IDisplayContainer
     {
         public ContainerTypeEnum ContainerType { get; set; }
         private Panel ContainerPanel=new Panel();

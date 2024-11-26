@@ -9,7 +9,7 @@ using System.Xml.Linq;
 using System.Runtime.CompilerServices;
 
 
-namespace TheTechIdea.Beep.Winform.Controls.Extensions.UIEditor
+namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
 {
 
     // Form use to  return the selected image Path either from local or project resources

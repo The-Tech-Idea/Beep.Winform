@@ -5,9 +5,9 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Design;
 using System.Reflection;
 using Svg;
-
+using System.Drawing.Text;
 using System.Windows.Forms.Design;
-using TheTechIdea.Beep.Winform.Controls.UIEditor;
+
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -15,13 +15,13 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [ToolboxBitmap(typeof(BeepImage))]
     [Category("Beep Controls")]
-    [Designer(typeof(BeepImageDesigner))]
+    //[Designer(typeof(ImageLoaderDesigner))]
     public class BeepImage : BeepControl
     {
        
   
        
-        private ImageSelectorImporterForm form;
+       // private ImageSelectorImporterForm form;
         public SvgDocument svgDocument { get; private set; }
         private Image regularImage;
         private bool isSvg = false;
@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         #region "Properties"
-       
+
 
         [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load")]
@@ -259,7 +259,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void DrawImage(Graphics g, Rectangle imageRect)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
-
+            g.SmoothingMode = SmoothingMode.HighQuality;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             if (isSvg && svgDocument != null)
             {
                 var imageSize = svgDocument.GetDimensions();
@@ -531,34 +533,34 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
 
-        private string ProcessImagePath()
-        {
-            string selectedPath = string.Empty;
+        //private string ProcessImagePath()
+        //{
+        //    string selectedPath = string.Empty;
 
-            try
-            {
-                // Attempt to open ImageSelectorImporterForm
-                form.PreviewImage(_imagepath);
-                if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                    {
-                        // If dialog result is OK, capture the selected image path
-                        selectedPath = form.SelectedImagePath;
-                        if (!string.IsNullOrEmpty(selectedPath))
-                        {
-                            return selectedPath;  // Valid path obtained
-                        }
-                    }
+        //    try
+        //    {
+        //        // Attempt to open ImageSelectorImporterForm
+        //        form.PreviewImage(_imagepath);
+        //        if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        //            {
+        //                // If dialog result is OK, capture the selected image path
+        //                selectedPath = form.SelectedImagePath;
+        //                if (!string.IsNullOrEmpty(selectedPath))
+        //                {
+        //                    return selectedPath;  // Valid path obtained
+        //                }
+        //            }
                 
-            }
-            catch (Exception ex)
-            {
-                // Show error dialog or handle the exception as needed
-                MessageBox.Show($"Error processing image path: {ex.Message}", "Process Image Path Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Show error dialog or handle the exception as needed
+        //        MessageBox.Show($"Error processing image path: {ex.Message}", "Process Image Path Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //    }
 
-            // Return empty if no valid path was obtained
-            return string.Empty;
-        }
+        //    // Return empty if no valid path was obtained
+        //    return string.Empty;
+        //}
 
 
         public float GetScaleFactor(SizeF imageSize)

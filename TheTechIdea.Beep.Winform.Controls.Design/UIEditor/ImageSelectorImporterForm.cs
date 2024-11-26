@@ -7,9 +7,10 @@ using Svg;
 using System.Reflection;
 using System.Xml.Linq;
 using System.Runtime.CompilerServices;
+using TheTechIdea.Beep.Winform.Controls.Design.Models;
 
 
-namespace TheTechIdea.Beep.Winform.Controls.UIEditor
+namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
 {
 
     // Form use to  return the selected image Path either from local or project resources
@@ -115,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.UIEditor
         private void PopulateLocalResources()
         {
             // Add local files (e.g., from a directory)
-            string localImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LocalImages");
+            string localImagePath = Path.Combine(GetProjectPath(), "LocalImages");
             if (Directory.Exists(localImagePath))
             {
                 var images = Directory.GetFiles(localImagePath, "*.*").Where(file =>

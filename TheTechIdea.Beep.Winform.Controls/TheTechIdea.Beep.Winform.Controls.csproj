@@ -183,12 +183,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="MessagePack" Version="2.5.192" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="8.0.2" />
     <PackageReference Include="Svg" Version="3.4.7" />
     <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.35" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.2" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.2" />
-    <PackageReference Include="TheTechIdea.Beep.MVVM" Version="1.0.17" />
+    <PackageReference Include="TheTechIdea.Beep.MVVM" Version="1.0.18" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Containers\uc_Container.cs" />
@@ -238,6 +239,5 @@
   <ItemGroup>
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Logic\TheTechIdea.Beep.Vis.Logic.csproj" />
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
-    <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Extensions\TheTechIdea.Beep.Winform.Controls.Extensions.csproj" />
   </ItemGroup>
 </Project>

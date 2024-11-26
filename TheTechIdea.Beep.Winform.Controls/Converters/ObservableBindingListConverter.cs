@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Editor;
 
-namespace TheTechIdea.Beep.Winform.Controls.DataNavigator
+namespace TheTechIdea.Beep.Winform.Controls.Converters
 {
     public class ObservableBindingListConverter : TypeConverter
     {

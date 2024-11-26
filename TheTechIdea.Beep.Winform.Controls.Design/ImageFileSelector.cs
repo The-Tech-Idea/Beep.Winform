@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms.Design;
 
-namespace TheTechIdea.Beep.Winform.Controls.Template
+namespace TheTechIdea.Beep.Winform.Controls.Design
 {
     public class ImageFileSelector : UITypeEditor
     {

@@ -1,10 +1,8 @@
-﻿using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Addin;
-using TheTechIdea.Beep.ConfigUtil;
+﻿
 using System.ComponentModel;
 
 
-namespace TheTechIdea.Beep.Winform.Controls.Template
+namespace TheTechIdea.Beep.Winform.Controls.Design
 {
     [Serializable]
 

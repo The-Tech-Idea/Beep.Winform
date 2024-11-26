@@ -7,7 +7,7 @@ using System.Drawing.Design;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
-namespace TheTechIdea.Beep.Winform.Controls.UIEditor
+namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
 {
     [CLSCompliant(false)]
     public class ImagePathEditor : UITypeEditor
@@ -17,9 +17,11 @@ namespace TheTechIdea.Beep.Winform.Controls.UIEditor
         {
             return UITypeEditorEditStyle.Modal;
         }
+      
 
         public override object? EditValue(ITypeDescriptorContext? context, IServiceProvider provider, object? value)
         {
+            
             string path = value as string;
             var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
             if (editorService != null)
@@ -54,44 +56,5 @@ namespace TheTechIdea.Beep.Winform.Controls.UIEditor
         }
     }
 
-    internal class ImagePathActionList : DesignerActionList
-    {
-        private readonly BeepImage _control;
-
-        public ImagePathActionList(BeepImage control) : base(control)
-        {
-            _control = control;
-        }
-
-        public string ImagePath
-        {
-            get => _control.ImagePath;
-            set => TypeDescriptor.GetProperties(_control)["LogoImage"].SetValue(_control, value);
-        }
-
-        public void EditImagePath()
-        {
-            var uiService = (IUIService)GetService(typeof(IUIService));
-            if (uiService != null)
-            {
-                using (var form = new ImageSelectorImporterForm(_control.ImagePath))
-                {
-                    if (form.ShowDialog() == DialogResult.OK)
-                    {
-                        _control.ImagePath = form.SelectedImagePath;
-                    }
-                }
-            }
-        }
-
-        public override DesignerActionItemCollection GetSortedActionItems()
-        {
-            var items = new DesignerActionItemCollection
-            {
-                new DesignerActionPropertyItem("LogoImage", "Image Path", "Properties", "Set the image path"),
-                new DesignerActionMethodItem(this, nameof(EditImagePath), "Edit Image Path...", "Actions", "Open image path editor")
-            };
-            return items;
-        }
-    }
+    
 }

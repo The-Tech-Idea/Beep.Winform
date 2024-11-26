@@ -1,16 +1,17 @@
-﻿using Newtonsoft.Json.Bson;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TheTechIdea.Beep.Winform.Controls.Design.UIEditor;
 
-namespace TheTechIdea.Beep.Winform.Controls.UIEditor
+namespace TheTechIdea.Beep.Winform.Controls.Design.Models
 {
     public interface IImageSelector
     {
         string PreviewImage(string initialPath);
-        DialogResult ShowDialog(); 
+        DialogResult ShowDialog();
         string SelectedImagePath { get; set; }
     }
     public static class ImageSelector

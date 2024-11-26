@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheTechIdea.Beep.Winform.Controls.Extensions.UIEditor
+namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
 {
     public class BeepImageSelectorImporterUIEditor:UITypeEditor
     {

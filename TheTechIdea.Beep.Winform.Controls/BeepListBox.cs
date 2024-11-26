@@ -5,8 +5,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Winform.Controls.Template;
 using System.ComponentModel.Design.Serialization;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
-        [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
+       // [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public SimpleItemCollection ListItems
         {
@@ -252,7 +252,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             int yOffset = drawRectY + TitleBottomY; // Start placing items below the iconPanel
 
-            foreach (var item in items.Where(p => p.ItemType == Template.MenuItemType.Main))
+            foreach (var item in items.Where(p => p.ItemType == Models.MenuItemType.Main))
             {
                 var menuItemPanel = CreateMenuItemPanel(item, false);
                 if (menuItemPanel != null)

@@ -1,7 +1,6 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
-using TheTechIdea.Beep.Winform.Controls.Template;
 using System.Drawing;
 using Microsoft.VisualBasic.Logging;
 using Svg;
@@ -9,6 +8,8 @@ using Timer = System.Windows.Forms.Timer;
 using System.Drawing.Design;
 using System.Windows.Forms.Design;
 using TheTechIdea.Beep.Winform.Controls.Extensions.UIEditor;
+using System.Drawing.Text;
+using TheTechIdea.Beep.Winform.Controls.Converters;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -928,6 +929,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SuspendLayout();
             base.OnPaint(e);
+            var g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.HighQuality;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             e.Graphics.Clear(BackColor);
             shadowOffset = ShowShadow ? 3 : 0;
             // Define the padded drawing rectangle to leave room for the shadow
@@ -1719,6 +1724,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #region "Util"
+
         public float GetScaleFactor(SizeF imageSize, Size targetSize)
         {
             float scaleX = targetSize.Width / imageSize.Width;

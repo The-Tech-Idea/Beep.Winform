@@ -3,7 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace TheTechIdea.Beep.Winform.Controls.Template
+namespace TheTechIdea.Beep.Winform.Controls.Converters
 {
     public class ThemeConverter : TypeConverter
     {
@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
             return true; // Force the user to pick from the list
         }
 
-        public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             // Return the available theme names (the names of EnumBeepThemes)
             var themeNames = BeepThemesManager.GetThemesNames(); // List of all enum theme names

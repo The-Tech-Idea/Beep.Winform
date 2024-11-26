@@ -1,5 +1,5 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
-namespace TheTechIdea.Beep.Winform.Controls.UIEditor
+﻿
+namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
 {
     partial class ImageSelectorImporterForm
     {

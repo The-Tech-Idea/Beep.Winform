@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheTechIdea.Beep.Winform.Controls.UIEditor
+namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
 {
     /// <summary>
     /// Provides data for the <see cref="BeepImage.ImageLoadError"/> event.

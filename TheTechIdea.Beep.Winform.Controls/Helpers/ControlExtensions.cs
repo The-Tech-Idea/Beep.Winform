@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -127,5 +128,133 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             return list;
         }
+
+        // Special thanks to ReaLTaiizor for this code snippet
+        public static void DrawRoundedRectangle(Graphics G, Pen P, float X, float Y, float W, float H, float Rad)
+        {
+            using GraphicsPath GP = new();
+            GP.AddLine(X + Rad, Y, X + W - (Rad * 2), Y);
+            GP.AddArc(X + W - (Rad * 2), Y, Rad * 2, Rad * 2, 270, 90);
+            GP.AddLine(X + W, Y + Rad, X + W, Y + H - (Rad * 2));
+            GP.AddArc(X + W - (Rad * 2), Y + H - (Rad * 2), Rad * 2, Rad * 2, 0, 90);
+            GP.AddLine(X + W - (Rad * 2), Y + H, X + Rad, Y + H);
+            GP.AddArc(X, Y + H - (Rad * 2), Rad * 2, Rad * 2, 90, 90);
+            GP.AddLine(X, Y + H - (Rad * 2), X, Y + Rad);
+            GP.AddArc(X, Y, Rad * 2, Rad * 2, 180, 90);
+            GP.CloseFigure();
+
+            G.SmoothingMode = SmoothingMode.AntiAlias;
+            G.DrawPath(P, GP);
+            G.SmoothingMode = SmoothingMode.Default;
+
+        }
+            public static GraphicsPath RoundRect(Rectangle Rectangle, int Curve)
+            {
+                GraphicsPath GP = new();
+
+                int ArcRectangleWidth = Curve * 2;
+
+                GP.AddArc(new(Rectangle.X, Rectangle.Y, ArcRectangleWidth, ArcRectangleWidth), -180, 90);
+                GP.AddArc(new(Rectangle.Width - ArcRectangleWidth + Rectangle.X, Rectangle.Y, ArcRectangleWidth, ArcRectangleWidth), -90, 90);
+                GP.AddArc(new(Rectangle.Width - ArcRectangleWidth + Rectangle.X, Rectangle.Height - ArcRectangleWidth + Rectangle.Y, ArcRectangleWidth, ArcRectangleWidth), 0, 90);
+                GP.AddArc(new(Rectangle.X, Rectangle.Height - ArcRectangleWidth + Rectangle.Y, ArcRectangleWidth, ArcRectangleWidth), 90, 90);
+                GP.AddLine(new Point(Rectangle.X, Rectangle.Height - ArcRectangleWidth + Rectangle.Y), new Point(Rectangle.X, Curve + Rectangle.Y));
+
+                return GP;
+            }
+
+            public static GraphicsPath RoundRect(int X, int Y, int Width, int Height, int Curve)
+            {
+                Rectangle Rectangle = new(X, Y, Width, Height);
+
+                GraphicsPath GP = new();
+
+                int EndArcWidth = Curve * 2;
+
+                GP.AddArc(new(Rectangle.X, Rectangle.Y, EndArcWidth, EndArcWidth), -180, 90);
+                GP.AddArc(new(Rectangle.Width - EndArcWidth + Rectangle.X, Rectangle.Y, EndArcWidth, EndArcWidth), -90, 90);
+                GP.AddArc(new(Rectangle.Width - EndArcWidth + Rectangle.X, Rectangle.Height - EndArcWidth + Rectangle.Y, EndArcWidth, EndArcWidth), 0, 90);
+                GP.AddArc(new(Rectangle.X, Rectangle.Height - EndArcWidth + Rectangle.Y, EndArcWidth, EndArcWidth), 90, 90);
+                GP.AddLine(new Point(Rectangle.X, Rectangle.Height - EndArcWidth + Rectangle.Y), new Point(Rectangle.X, Curve + Rectangle.Y));
+
+                return GP;
+            }
+
+            public static GraphicsPath RoundedTopRect(Rectangle Rectangle, int Curve)
+            {
+                GraphicsPath GP = new();
+
+                int ArcRectangleWidth = Curve * 2;
+
+                GP.AddArc(new(Rectangle.X, Rectangle.Y, ArcRectangleWidth, ArcRectangleWidth), -180, 90);
+                GP.AddArc(new(Rectangle.Width - ArcRectangleWidth + Rectangle.X, Rectangle.Y, ArcRectangleWidth, ArcRectangleWidth), -90, 90);
+                GP.AddLine(new Point(Rectangle.X + Rectangle.Width, Rectangle.Y + ArcRectangleWidth), new Point(Rectangle.X + Rectangle.Width, Rectangle.Y + Rectangle.Height - 1));
+                GP.AddLine(new Point(Rectangle.X, Rectangle.Height - 1 + Rectangle.Y), new Point(Rectangle.X, Rectangle.Y + Curve));
+
+                return GP;
+            }
+
+            public static GraphicsPath CreateRoundRect(float X, float Y, float Width, float Height, float Radius)
+            {
+                GraphicsPath GP = new();
+                GP.AddLine(X + Radius, Y, X + Width - (Radius * 2), Y);
+                GP.AddArc(X + Width - (Radius * 2), Y, Radius * 2, Radius * 2, 270, 90);
+
+                GP.AddLine(X + Width, Y + Radius, X + Width, Y + Height - (Radius * 2));
+                GP.AddArc(X + Width - (Radius * 2), Y + Height - (Radius * 2), Radius * 2, Radius * 2, 0, 90);
+
+                GP.AddLine(X + Width - (Radius * 2), Y + Height, X + Radius, Y + Height);
+                GP.AddArc(X, Y + Height - (Radius * 2), Radius * 2, Radius * 2, 90, 90);
+
+                GP.AddLine(X, Y + Height - (Radius * 2), X, Y + Radius);
+                GP.AddArc(X, Y, Radius * 2, Radius * 2, 180, 90);
+
+                GP.CloseFigure();
+
+                return GP;
+            }
+
+            public static GraphicsPath CreateUpRoundRect(float X, float Y, float Width, float Height, float Radius)
+            {
+                GraphicsPath GP = new();
+
+                GP.AddLine(X + Radius, Y, X + Width - (Radius * 2), Y);
+                GP.AddArc(X + Width - (Radius * 2), Y, Radius * 2, Radius * 2, 270, 90);
+
+                GP.AddLine(X + Width, Y + Radius, X + Width, Y + Height - (Radius * 2) + 1);
+                GP.AddArc(X + Width - (Radius * 2), Y + Height - (Radius * 2), Radius * 2, 2, 0, 90);
+
+                GP.AddLine(X + Width, Y + Height, X + Radius, Y + Height);
+                GP.AddArc(X, Y + Height - (Radius * 2) + 1, Radius * 2, 1, 90, 90);
+
+                GP.AddLine(X, Y + Height, X, Y + Radius);
+                GP.AddArc(X, Y, Radius * 2, Radius * 2, 180, 90);
+
+                GP.CloseFigure();
+
+                return GP;
+            }
+
+            public static GraphicsPath CreateLeftRoundRect(float X, float Y, float Width, float Height, float Radius)
+            {
+                GraphicsPath GP = new();
+                GP.AddLine(X + Radius, Y, X + Width - (Radius * 2), Y);
+                GP.AddArc(X + Width - (Radius * 2), Y, Radius * 2, Radius * 2, 270, 90);
+
+                GP.AddLine(X + Width, Y + 0, X + Width, Y + Height);
+                GP.AddArc(X + Width - (Radius * 2), Y + Height - 1, Radius * 2, 1, 0, 90);
+
+                GP.AddLine(X + Width - (Radius * 2), Y + Height, X + Radius, Y + Height);
+                GP.AddArc(X, Y + Height - (Radius * 2), Radius * 2, Radius * 2, 90, 90);
+
+                GP.AddLine(X, Y + Height - (Radius * 2), X, Y + Radius);
+                GP.AddArc(X, Y, Radius * 2, Radius * 2, 180, 90);
+
+                GP.CloseFigure();
+
+                return GP;
+            }
+
+        
     }
 }

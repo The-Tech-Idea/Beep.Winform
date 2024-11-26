@@ -1,8 +1,9 @@
-﻿using System.Runtime.CompilerServices;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Template;
+﻿
+using System.Runtime.CompilerServices;
+using TheTechIdea.Beep.Winform.Controls.Design.Helper;
+using TheTechIdea.Beep.Winform.Controls.Design.Models;
 
-namespace TheTechIdea.Beep.Winform.Controls.UIEditor
+namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
 {
     public partial class BeepImageSelectorDialog : Form, IImageSelector
     {
@@ -48,11 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.UIEditor
             // Populate ImagelistBox and display the specified image
             PopulateImagelistBoxFromDictionary();
         }
-        string GetMyPath([CallerFilePath] string from = null)
-        {
-            return ImageTools.GetProjectPath(from);
-           
-        }
+      
         public void SetEmbeddedImages(Dictionary<string, SimpleItem> embeddedImages)
         {
             _embeddedImages = embeddedImages;
@@ -114,11 +111,11 @@ namespace TheTechIdea.Beep.Winform.Controls.UIEditor
         }
         private void ImportImageandEmbeddIt()
         {
-            ImageTools.CopyAndEmbedFileToProjectResources(_embeddedImages,previewFilePath, GetMyPath());
+            ImageTools.CopyAndEmbedFileToProjectResources(_embeddedImages,previewFilePath, ProjectPathHelper.GetMyPath());
         }
         private void PopulateImagelistBoxFromDictionary()
         {
-            ImageTools.LoadEmbeddedImagesToDictionary(_embeddedImages,GetMyPath());
+            ImageTools.LoadEmbeddedImagesToDictionary(_embeddedImages, ProjectPathHelper.GetMyPath());
             ImagelistBox.Items.Clear();
             _isinPreview = false;
             ImagelistBox.DisplayMember = "Name";

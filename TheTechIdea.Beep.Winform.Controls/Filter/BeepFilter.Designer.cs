@@ -53,13 +53,12 @@
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridView1.Columns.AddRange(new DataGridViewColumn[] { iDDataGridViewTextBoxColumn, guidIDDataGridViewTextBoxColumn, fieldNameDataGridViewTextBoxColumn, operatorDataGridViewTextBoxColumn, filterValueDataGridViewTextBoxColumn, valueTypeDataGridViewTextBoxColumn, filterValue1DataGridViewTextBoxColumn });
             dataGridView1.DataSource = filtersBindingSource;
-            dataGridView1.Dock = DockStyle.Fill;
             dataGridView1.GridColor = Color.White;
-            dataGridView1.Location = new Point(0, 0);
+            dataGridView1.Location = new Point(13, 29);
             dataGridView1.Margin = new Padding(4, 3, 4, 3);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersVisible = false;
-            dataGridView1.Size = new Size(550, 494);
+            dataGridView1.Size = new Size(524, 459);
             dataGridView1.TabIndex = 2;
             // 
             // iDDataGridViewTextBoxColumn
@@ -170,7 +169,6 @@
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Margin = new Padding(4, 3, 4, 3);
             Name = "BeepFilter";
-            StartPosition = FormStartPosition.CenterParent;
             Text = "Filter";
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ((System.ComponentModel.ISupportInitialize)filtersBindingSource).EndInit();

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -337,6 +339,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
+           
             UpdateChartDrawingRect();
 
             if (CustomDraw) DrawDataSeries(e.Graphics, ChartDrawingRect);

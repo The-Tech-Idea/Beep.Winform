@@ -13,7 +13,7 @@ using TheTechIdea.Beep.ConfigUtil;
 namespace TheTechIdea.Beep.Winform.Controls.Basic
 {
     
-    public partial class uc_Addin : UserControl, IDM_Addin
+    public partial class uc_Addin : BeepControl, IDM_Addin
     {
         public uc_Addin()
         {

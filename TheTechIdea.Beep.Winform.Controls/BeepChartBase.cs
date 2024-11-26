@@ -133,6 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 200;
                 Height = 200;
             }
+            ApplyThemeToChilds = false;
             MouseWheel += OnMouseWheel;
             MouseDown += OnMouseDown;
             MouseMove += OnMouseMove;

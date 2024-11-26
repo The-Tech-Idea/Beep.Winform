@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 200;
                 Height = 200;
             }
-
+            ApplyThemeToChilds = false;
         }
 
         private void _tabPages_ListChanged(object? sender, ListChangedEventArgs e)

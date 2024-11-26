@@ -150,6 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Console.WriteLine("BeepCard Constructor");
            // InitializeComponents();
             Console.WriteLine("BeepCard Constructor End");
+            ApplyThemeToChilds = false;
             ApplyTheme(); // Apply the default theme initially
 
         }

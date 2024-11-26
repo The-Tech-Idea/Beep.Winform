@@ -99,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = Color.White;
             Font = new Font("Segoe UI", 9);
             DoubleBuffered = true;
-
+            ApplyThemeToChilds = false;
         }
 
         protected override void InitLayout()

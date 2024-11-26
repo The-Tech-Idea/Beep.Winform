@@ -271,14 +271,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             //  Rows.ListChanged += Rows_ListChanged;
             // Apply default dimensions to accommodate all layout elements by default
-             //  this.MinimumSize = new Size(300, 200); // Set based on layout needs
-           //    this.Size = new Size(400, 300); // Default start size
+            //  this.MinimumSize = new Size(300, 200); // Set based on layout needs
+            //    this.Size = new Size(400, 300); // Default start size
 
-         //   this.MouseDown += BeepGrid_MouseDown;
-         //   this.MouseMove += BeepGrid_MouseMove;
-         //   this.MouseUp += BeepGrid_MouseUp;
+            //   this.MouseDown += BeepGrid_MouseDown;
+            //   this.MouseMove += BeepGrid_MouseMove;
+            //   this.MouseUp += BeepGrid_MouseUp;
 
-         //   ApplyTheme();
+            //   ApplyTheme();
+            ApplyThemeToChilds = false;
         }
      
 

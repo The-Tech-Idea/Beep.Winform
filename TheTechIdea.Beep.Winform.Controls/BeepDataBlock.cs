@@ -40,6 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 200;
                 Height = 250;
             }
+            ApplyThemeToChilds = false;
         }
         public void Refresh()
         {

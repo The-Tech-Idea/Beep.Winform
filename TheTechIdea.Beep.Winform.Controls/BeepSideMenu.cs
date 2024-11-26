@@ -167,6 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 300;
                 Height = 300;
             }
+            ApplyThemeToChilds = false;
             DoubleBuffered = true;
             Width = expandedWidth;
             SendToBack();

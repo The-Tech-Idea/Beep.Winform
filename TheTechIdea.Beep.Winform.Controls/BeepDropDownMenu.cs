@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             ShowTitleLine = true;
             UpdateDrawingRect();
-         
+            ApplyThemeToChilds = false;
             Height = _collapsedHeight; // Initially collapsed to the size of the button
             InitDropDownMenu();
         }

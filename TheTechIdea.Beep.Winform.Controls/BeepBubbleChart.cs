@@ -18,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 200;
                 Height = 200;
             }
+            ApplyThemeToChilds = false;
             // Add sample data when the control is created
 
         }

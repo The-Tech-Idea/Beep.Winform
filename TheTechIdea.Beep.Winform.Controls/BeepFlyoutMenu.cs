@@ -99,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepFlyoutMenu()
         {
             Height = _collapsedHeight; // Default collapsed height
-        
+            ApplyThemeToChilds = false;
             Text = "Flyout Menu";
             InitDropDownMenu();
             InitMenu();

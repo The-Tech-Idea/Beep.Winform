@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -14,20 +13,35 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         private TextBox _textBox;
         private Button _calendarButton;
-        private DateTimePicker _datePicker;
-        int buttonWidth = 15;
-        private string _customDateFormat; // To store a custom date format if needed
-                                          // Expose properties for customization
+        private MonthCalendar _monthCalendar;
+        private Form _popupForm;
+        private string _customDateFormat;
+        private int buttonWidth = 25;
+        private bool isPopupOpening = false; // Flag to track the popup state
+        private System.Windows.Forms.Timer popupDelayTimer;       // Timer to add a small delay
+
+
         [Browsable(true)]
         [Category("Date Settings")]
-        [Description("Sets the selected date.")]
-        public DateTime SelectedDate
+        [Description("Sets the selected date as a string.")]
+        public string SelectedDate
         {
-            get => _datePicker.Value;
+            get => _textBox.Text;
             set
             {
-                _datePicker.Value = value;
-                _textBox.Text = value.ToString(_customDateFormat);
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    _textBox.Text = string.Empty;
+                }
+                else if (DateTime.TryParse(value, out DateTime result))
+                {
+                    _textBox.Text = result.ToString(_customDateFormat);
+                    _monthCalendar.SetDate(result);
+                }
+                else
+                {
+                    throw new FormatException("Invalid date format.");
+                }
             }
         }
 
@@ -40,8 +54,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _customDateFormat = value;
-                _datePicker.CustomFormat = value;
-                _textBox.Text = _datePicker.Value.ToString(value);
+                if (_monthCalendar != null)
+                {
+                    //_monthCalendar.CustomFormat = value;
+                    UpdateTextBoxFromCalendar();
+                }
             }
         }
 
@@ -50,8 +67,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("Sets the minimum allowable date.")]
         public DateTime MinDate
         {
-            get => _datePicker.MinDate;
-            set => _datePicker.MinDate = value;
+            get => _monthCalendar?.MinDate ?? DateTimePicker.MinimumDateTime;
+            set
+            {
+                if (_monthCalendar != null)
+                    _monthCalendar.MinDate = value;
+            }
         }
 
         [Browsable(true)]
@@ -59,27 +80,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("Sets the maximum allowable date.")]
         public DateTime MaxDate
         {
-            get => _datePicker.MaxDate;
-            set => _datePicker.MaxDate = value;
-        }
-
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("The date text displayed in the control.")]
-        public override string Text
-        {
-            get => _textBox.Text;
+            get => _monthCalendar?.MaxDate ?? DateTimePicker.MaximumDateTime;
             set
             {
-                if (DateTime.TryParse(value, out DateTime result))
-                {
-                    _textBox.Text = result.ToString(_customDateFormat);
-                    _datePicker.Value = result;
-                }
-                else
-                {
-                    _textBox.Text = DateTime.Now.ToString(_customDateFormat);
-                }
+                if (_monthCalendar != null)
+                    _monthCalendar.MaxDate = value;
             }
         }
         public BeepDatePicker()
@@ -89,15 +94,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 80;
                 Height = 30;
             }
-
             _customDateFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern; // Default to system format
             InitializeComponents();
-            AdjustSizeToTextBox(); // Ensure initial size matches TextBox
+            // Initialize the delay timer
+            popupDelayTimer = new System.Windows.Forms.Timer
+            {
+                Interval = 200 // Adjust the delay as needed (in milliseconds)
+            };
+            popupDelayTimer.Tick += (s, e) =>
+            {
+                isPopupOpening = false; // Reset the flag after the delay
+                popupDelayTimer.Stop();
+            };
+
         }
         protected override void InitLayout()
         {
             base.InitLayout();
-          
+        
+            AdjustSizeToTextBox(); // Ensure initial size matches TextBox
         }
        
         private void InitializeComponents()
@@ -120,18 +135,29 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = Height, // Square button
                 FlatStyle = FlatStyle.Flat
             };
-            _calendarButton.Click += CalendarButton_Click;
+          //  _calendarButton.Click += CalendarButton_Click;
 
-            // Initialize DatePicker for selecting dates
-            _datePicker = new DateTimePicker
+            // Initialize MonthCalendar within a popup form
+            _popupForm = new Form
             {
-                Format = DateTimePickerFormat.Custom,
-                CustomFormat = _customDateFormat,
-                Visible = false // Initially hidden
+                FormBorderStyle = FormBorderStyle.None,
+                ShowInTaskbar = false,
+                StartPosition = FormStartPosition.Manual,
+                BackColor = Color.White,
+                Size = new Size(200, 160)
             };
-            _datePicker.ValueChanged += DatePicker_ValueChanged;
-            Controls.Add(_datePicker);
-
+            // Initialize MonthCalendar for selecting dates
+            _monthCalendar = new MonthCalendar
+            {
+                Visible = true,
+                MaxSelectionCount = 1
+            };
+            _monthCalendar.DateSelected += MonthCalendar_DateSelected;
+           // _monthCalendar.LostFocus += (s, e) => _monthCalendar.Visible = false;
+            _popupForm.Controls.Add(_monthCalendar);
+            _monthCalendar.Dock = DockStyle.Fill;
+            _popupForm.Deactivate += (s, e) => _popupForm.Hide();
+          //  _popupForm.Leave += (s, e) => _popupForm.Hide();
             // Add TextBox and Button
             Controls.Add(_textBox);
             Controls.Add(_calendarButton);
@@ -140,42 +166,61 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void TextBox_TextChanged(object sender, EventArgs e)
         {
-            // Update the DatePicker value when the TextBox text changes
-            if (DateTime.TryParse(_textBox.Text, out DateTime result))
+            if (!string.IsNullOrWhiteSpace(_textBox.Text) && DateTime.TryParse(_textBox.Text, out DateTime result))
             {
-                _datePicker.Value = result;
+                _monthCalendar.SetDate(result);
             }
         }
 
+        private void UpdateTextBoxFromCalendar()
+        {
+            _textBox.Text = _monthCalendar.SelectionStart.ToString(_customDateFormat);
+        }
         private void TextBox_Validating(object sender, CancelEventArgs e)
         {
-            // Validate the date input
-            if (!DateTime.TryParse(_textBox.Text, out _))
+            if (!string.IsNullOrWhiteSpace(_textBox.Text) && !DateTime.TryParse(_textBox.Text, out _))
             {
-                e.Cancel = true; // Cancel focus change
+                e.Cancel = true; // Prevent focus change
                 MessageBox.Show("Invalid date format.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                _textBox.Text = _datePicker.Value.ToString(_customDateFormat); // Reset to last valid value
+                UpdateTextBoxFromCalendar(); // Reset to last valid value
             }
         }
+        private void MonthCalendar_DateSelected(object sender, DateRangeEventArgs e)
+        {
+            // Update TextBox when a date is selected
+            _textBox.Text = _monthCalendar.SelectionStart.ToString(_customDateFormat);
+            _popupForm.Hide();
+        }
+
+        private bool _isToggling = false;
 
         private void CalendarButton_Click(object sender, EventArgs e)
         {
-            // Show the DatePicker dropdown
-            _datePicker.Visible = !_datePicker.Visible;
-            if (_datePicker.Visible)
+            if (_isToggling) return;
+
+            _isToggling = true;
+
+            if (_popupForm.Visible)
             {
-                _datePicker.BringToFront();
-                _datePicker.Focus();
+                _popupForm.Hide();
             }
+            else
+            {
+                PositionPopupForm();
+                _popupForm.Show();
+                _popupForm.BringToFront();
+            }
+
+            Task.Delay(200).ContinueWith(_ => _isToggling = false);
         }
 
-        private void DatePicker_ValueChanged(object sender, EventArgs e)
+        private void PositionPopupForm()
         {
-            // Update TextBox when DatePicker value changes
-            _textBox.Text = _datePicker.Value.ToString(_customDateFormat);
+            var screenLocation = PointToScreen(new Point(0, Height));
+            _popupForm.Location = new Point(screenLocation.X, screenLocation.Y);
         }
 
-    
+
 
         public override void ApplyTheme()
         {
@@ -188,10 +233,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _calendarButton.BackColor = _currentTheme.TextBoxBackColor;
                 _calendarButton.ForeColor = _currentTheme.TextBoxForeColor;
 
-                _datePicker.CalendarForeColor = _currentTheme.PrimaryTextColor;
-                _datePicker.CalendarMonthBackground = _currentTheme.TextBoxBackColor;
-                _datePicker.CalendarTitleBackColor = _currentTheme.BackgroundColor;
-                _datePicker.CalendarTitleForeColor = _currentTheme.PrimaryTextColor;
+                _monthCalendar.TitleBackColor = _currentTheme.BackgroundColor;
+                _monthCalendar.TitleForeColor = _currentTheme.PrimaryTextColor;
+                _monthCalendar.TrailingForeColor = _currentTheme.TextBoxForeColor;
+                _monthCalendar.BackColor = _currentTheme.TextBoxBackColor;
+                _monthCalendar.ForeColor = _currentTheme.PrimaryTextColor;
             }
            
         }
@@ -210,9 +256,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
         {
-            // Override height to match TextBox height
-            base.SetBoundsCore(x, y, width, _textBox.PreferredHeight, specified);
+            // Use the TextBox's preferred height for consistent alignment
+            int adjustedHeight = _textBox?.PreferredHeight ?? base.Height;
+            base.SetBoundsCore(x, y, width, adjustedHeight, specified);
         }
+
 
         private void AdjustLayout()
         {
@@ -235,7 +283,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _calendarButton.Height = _textBox.PreferredHeight;
 
             // Hide DatePicker off the screen
-            _datePicker.Location = new Point(-Width, -Height);
+           // _datePicker.Location = new Point(-Width, -Height);
         }
         private void AdjustSizeToTextBox()
         {

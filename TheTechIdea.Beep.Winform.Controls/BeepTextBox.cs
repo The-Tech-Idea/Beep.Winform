@@ -21,6 +21,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string? _imagepath;
         private bool _multiline=false;
 
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        public int PreferredHeight
+        {
+            get => _innerTextBox.PreferredHeight;
+           
+        }
+
         // show the inner textbox properties like multiline
         [Browsable(true)]
         [Category("Appearance")]

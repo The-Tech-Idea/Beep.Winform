@@ -179,18 +179,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowShadow = false;
             IsFramless = true;
             // Add controls to their respective panels 
-            Console.WriteLine("Adding controls to panels");
+           // Console.WriteLine("Adding controls to panels");
           //  AddHamburgerButton();
             AddLogoIcon();
             AddSearchBox();
             AddNotificationIcon();
             AddUserProfileIcon();
             AddWindowControlIcons();
-            Console.WriteLine("Controls added to panels");
+          //  Console.WriteLine("Controls added to panels");
             
-            Console.WriteLine("Height set to 60");
+         //   Console.WriteLine("Height set to 60");
             RearrangeLayout();
-            Console.WriteLine("Rearranged layout");
+          //  Console.WriteLine("Rearranged layout");
             ApplyTheme();
         }
         private void AddHamburgerButton()

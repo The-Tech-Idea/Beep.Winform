@@ -192,16 +192,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             // DrawingRect.Inflate(-2, -10);
             buttonHeight = DrawingRect.Height - 2;
-
-             // Highlight panel (optional, adjust as needed)
-            // highlightPanel = new Panel
-            //{
-            //    Location = new Point(0, starty),
-            //    BackColor = _currentTheme.BackgroundColor,
-            //    Size = new Size(20, buttonHeight),
-            //    BorderStyle = BorderStyle.FixedSingle
-            //};
-
             // Main button setup
             button = new BeepButton
             {

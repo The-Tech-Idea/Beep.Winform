@@ -482,7 +482,11 @@ namespace TheTechIdea.Beep.Winform.Controls
           
             StartMenuAnimation();
             OnMenuCollapseExpand?.Invoke(isCollapsed);
-            BeepAppBar.ShowLogoIcon = isCollapsed;
+            if (BeepAppBar != null)
+            {
+                BeepAppBar.ShowLogoIcon = isCollapsed;
+            }
+            
         }
 
     

@@ -16,5 +16,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InitializeComponent();
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void beepListofValuesBox1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

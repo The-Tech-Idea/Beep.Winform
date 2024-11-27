@@ -15,6 +15,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ContentAlignment imageAlign = ContentAlignment.MiddleLeft;
         private Size _maxImageSize = new Size(16, 16); // Default max image size
         private bool _hideText = false;
+
+
+
         [Browsable(true)]
         [Category("Behavior")]
         public bool HideText

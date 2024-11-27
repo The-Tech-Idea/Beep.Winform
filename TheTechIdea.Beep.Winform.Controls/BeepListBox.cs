@@ -246,7 +246,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             drawRectX = DrawingRect.X + 2;
             drawRectY = DrawingRect.Y + 2;
-            drawRectWidth = DrawingRect.Width - 2;
+            drawRectWidth = DrawingRect.Width - 4;
             drawRectHeight = DrawingRect.Height - 2;
             ButtonSize = new Size(drawRectWidth-2, _menuItemHeight-2);
             // Remove existing menu item panels

@@ -947,6 +947,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     BackColor = parentbackcolor;
 
                 }
+                else
+                {
+                    BackColor = HoverBackColor;
+                    ForeColor = HoverForeColor;
+                }
+
             }
            
             if (!_isframless)
@@ -963,7 +969,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 using (SolidBrush brush = new SolidBrush(parentbackcolor))
                 {
-                    e.Graphics.FillRectangle(brush, DrawingRect);
+                    e.Graphics.FillRectangle(brush, rectangle);
                 }
                 
             }
@@ -972,11 +978,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Draw background based on `IsRounded` and `UseGradientBackground`
                 if (IsRounded)
                 {
-                    using (GraphicsPath path = GetRoundedRectPath(DrawingRect, BorderRadius))
+                    using (GraphicsPath path = GetRoundedRectPath(rectangle, BorderRadius))
                     {
                         if (UseGradientBackground)
                         {
-                            using (var brush = new LinearGradientBrush(DrawingRect, GradientStartColor, GradientEndColor, GradientDirection))
+                            using (var brush = new LinearGradientBrush(rectangle, GradientStartColor, GradientEndColor, GradientDirection))
                             {
                                 e.Graphics.FillPath(brush, path);
                             }
@@ -994,16 +1000,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     if (UseGradientBackground)
                     {
-                        using (var brush = new LinearGradientBrush(DrawingRect, GradientStartColor, GradientEndColor, GradientDirection))
+                        using (var brush = new LinearGradientBrush(rectangle, GradientStartColor, GradientEndColor, GradientDirection))
                         {
-                            e.Graphics.FillRectangle(brush, DrawingRect);
+                            e.Graphics.FillRectangle(brush, rectangle);
                         }
                     }
                     else
                     {
                         using (var brush = new SolidBrush(BackColor))
                         {
-                            e.Graphics.FillRectangle(brush, DrawingRect);
+                            e.Graphics.FillRectangle(brush, rectangle);
                         }
                     }
                 }

@@ -38,8 +38,6 @@
             // 
             beepuiManager1.BeepAppBar = beepAppBar1;
             beepuiManager1.BeepSideMenu = beepSideMenu1;
-            beepuiManager1.IsRounded = false;
-            beepuiManager1.ShowBorder = false;
             beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.MonochromeTheme;
             // 
             // beepAppBar1
@@ -89,7 +87,7 @@
             beepAppBar1.IsFramless = false;
             beepAppBar1.IsHovered = false;
             beepAppBar1.IsPressed = false;
-            beepAppBar1.IsRounded = false;
+            beepAppBar1.IsRounded = true;
             beepAppBar1.IsRoundedAffectedByTheme = false;
             beepAppBar1.IsShadowAffectedByTheme = false;
             beepAppBar1.Location = new Point(305, 5);
@@ -104,20 +102,20 @@
             beepAppBar1.ShadowColor = Color.Black;
             beepAppBar1.ShadowOffset = 0;
             beepAppBar1.ShadowOpacity = 0.5F;
-            beepAppBar1.ShowAllBorders = false;
-            beepAppBar1.ShowBottomBorder = false;
+            beepAppBar1.ShowAllBorders = true;
+            beepAppBar1.ShowBottomBorder = true;
             beepAppBar1.ShowCloseIcon = true;
             beepAppBar1.ShowFocusIndicator = false;
-            beepAppBar1.ShowLeftBorder = false;
+            beepAppBar1.ShowLeftBorder = true;
             beepAppBar1.ShowLogoIcon = false;
             beepAppBar1.ShowMaximizeIcon = true;
             beepAppBar1.ShowMinimizeIcon = true;
             beepAppBar1.ShowNotificationIcon = true;
             beepAppBar1.ShowProfileIcon = true;
-            beepAppBar1.ShowRightBorder = false;
+            beepAppBar1.ShowRightBorder = true;
             beepAppBar1.ShowSearchBox = true;
             beepAppBar1.ShowShadow = false;
-            beepAppBar1.ShowTopBorder = false;
+            beepAppBar1.ShowTopBorder = true;
             beepAppBar1.SideMenu = null;
             beepAppBar1.Size = new Size(490, 32);
             beepAppBar1.SlideFrom = SlideDirection.Left;
@@ -183,7 +181,7 @@
             beepSideMenu1.IsFramless = false;
             beepSideMenu1.IsHovered = false;
             beepSideMenu1.IsPressed = false;
-            beepSideMenu1.IsRounded = false;
+            beepSideMenu1.IsRounded = true;
             beepSideMenu1.IsRoundedAffectedByTheme = true;
             beepSideMenu1.IsShadowAffectedByTheme = false;
             beepSideMenu1.Location = new Point(5, 5);
@@ -200,13 +198,13 @@
             beepSideMenu1.ShadowColor = Color.Empty;
             beepSideMenu1.ShadowOffset = 0;
             beepSideMenu1.ShadowOpacity = 0.5F;
-            beepSideMenu1.ShowAllBorders = false;
-            beepSideMenu1.ShowBottomBorder = false;
+            beepSideMenu1.ShowAllBorders = true;
+            beepSideMenu1.ShowBottomBorder = true;
             beepSideMenu1.ShowFocusIndicator = false;
-            beepSideMenu1.ShowLeftBorder = false;
-            beepSideMenu1.ShowRightBorder = false;
+            beepSideMenu1.ShowLeftBorder = true;
+            beepSideMenu1.ShowRightBorder = true;
             beepSideMenu1.ShowShadow = false;
-            beepSideMenu1.ShowTopBorder = false;
+            beepSideMenu1.ShowTopBorder = true;
             beepSideMenu1.Size = new Size(300, 533);
             beepSideMenu1.SlideFrom = SlideDirection.Left;
             beepSideMenu1.StaticNotMoving = false;
@@ -233,7 +231,7 @@
             beepListBox1.DataContext = null;
             beepListBox1.DisabledBackColor = Color.Gray;
             beepListBox1.DisabledForeColor = Color.Empty;
-            beepListBox1.DrawingRect = new Rectangle(1, 1, 128, 298);
+            beepListBox1.DrawingRect = new Rectangle(1, 1, 174, 333);
             beepListBox1.Easing = EasingType.Linear;
             beepListBox1.FieldID = null;
             beepListBox1.FocusBackColor = Color.Gray;
@@ -262,7 +260,7 @@
             beepListBox1.IsFramless = false;
             beepListBox1.IsHovered = false;
             beepListBox1.IsPressed = false;
-            beepListBox1.IsRounded = false;
+            beepListBox1.IsRounded = true;
             beepListBox1.IsRoundedAffectedByTheme = true;
             beepListBox1.IsShadowAffectedByTheme = true;
             beepListBox1.ListItems.Add((Models.SimpleItem)resources.GetObject("beepListBox1.ListItems"));
@@ -281,18 +279,18 @@
             beepListBox1.ShadowColor = Color.Black;
             beepListBox1.ShadowOffset = 0;
             beepListBox1.ShadowOpacity = 0.5F;
-            beepListBox1.ShowAllBorders = false;
-            beepListBox1.ShowBottomBorder = false;
+            beepListBox1.ShowAllBorders = true;
+            beepListBox1.ShowBottomBorder = true;
             beepListBox1.ShowFocusIndicator = false;
             beepListBox1.ShowImage = true;
-            beepListBox1.ShowLeftBorder = false;
-            beepListBox1.ShowRightBorder = false;
+            beepListBox1.ShowLeftBorder = true;
+            beepListBox1.ShowRightBorder = true;
             beepListBox1.ShowShadow = false;
             beepListBox1.ShowTitle = true;
             beepListBox1.ShowTitleLine = true;
             beepListBox1.ShowTitleLineinFullWidth = true;
-            beepListBox1.ShowTopBorder = false;
-            beepListBox1.Size = new Size(130, 300);
+            beepListBox1.ShowTopBorder = true;
+            beepListBox1.Size = new Size(176, 335);
             beepListBox1.SlideFrom = SlideDirection.Left;
             beepListBox1.StaticNotMoving = false;
             beepListBox1.TabIndex = 2;

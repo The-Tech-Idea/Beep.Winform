@@ -26,7 +26,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Timer animationTimer;
         private BeepButton toggleButton;
         private BeepLabel logo;
-        
+        int drawRectX;
+        int drawRectY;
+        int drawRectWidth;
+        int drawRectHeight;
         private SimpleItemCollection menuItems = new SimpleItemCollection();
         private int _highlightPanelSize = 5;
         private int menuItemHeight = 40;
@@ -259,7 +262,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void ToggleButton_Click(object sender, EventArgs e)
         {
             isCollapsed = !isCollapsed;
-            
+            UpdateDrawingRect();
             StartMenuAnimation();
             OnMenuCollapseExpand?.Invoke(isCollapsed);
         }
@@ -341,6 +344,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void InitializeMenu()
         {
+            UpdateDrawingRect();
+           
+            drawRectX = DrawingRect.X + 2;
+            drawRectY = DrawingRect.Y + 2;
+            drawRectWidth = DrawingRect.Width - 4;
+            drawRectHeight = DrawingRect.Height - 2;
+            
             // Remove existing menu item panels
             foreach (var control in Controls.OfType<Panel>().Where(c => c.Tag is SimpleItem).ToList())
             {
@@ -351,14 +361,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (menuItems == null || menuItems.Count == 0)
                 return;
 
-            int yOffset = toggleButton.Bottom + DrawingRect.Y;
+            int yOffset = toggleButton.Bottom + drawRectY;
 
             foreach (var item in menuItems)
             {
                 var menuItemPanel = CreateMenuItemPanel(item, false);
                 menuItemPanel.Top = yOffset;
-                menuItemPanel.Left = DrawingRect.X;
-                menuItemPanel.Width = DrawingRect.Width;
+                menuItemPanel.Left = drawRectX;
+                menuItemPanel.Width = drawRectWidth;
                 menuItemPanel.Height = menuItemHeight;
                 menuItemPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
                 Controls.Add(menuItemPanel);
@@ -372,7 +382,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         var childPanel = CreateMenuItemPanel(childItem, true);
                         childPanel.Top = yOffset;
                         childPanel.Left = DrawingRect.X;
-                        childPanel.Width = DrawingRect.Width;
+                        childPanel.Width = DrawingRect.Width-2;
                         childPanel.Visible = false;
                         Controls.Add(childPanel);
                         yOffset += childPanel.Height;

@@ -287,7 +287,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Size = _maxImageSize // Set the size based on the max image size
             };
             beepImage.MouseHover += BeepImage_MouseHover;
-         //   beepImage.MouseLeave += BeepImage_MouseLeave;
+            beepImage.MouseLeave += BeepImage_MouseLeave;
+            beepImage.MouseEnter += BeepImage_MouseEnter;
+            //   beepImage.MouseLeave += BeepImage_MouseLeave;
             IsChild = false;
             beepImage.Click += BeepImage_Click;
             Padding = new Padding(0);
@@ -296,12 +298,14 @@ namespace TheTechIdea.Beep.Winform.Controls
           //  Controls.Add(beepImage);
         }
 
-    
+      
 
         public override void ApplyTheme()
         {
             BackColor = _currentTheme.BackgroundColor;
             ForeColor = _currentTheme.ButtonForeColor;
+            HoverBackColor = _currentTheme.ButtonHoverBackColor;
+            HoverForeColor = _currentTheme.ButtonHoverForeColor;
             if (IsChild)
             {
                 ForeColor = _currentTheme.ButtonForeColor;
@@ -635,6 +639,14 @@ namespace TheTechIdea.Beep.Winform.Controls
           //  BackColor = _currentTheme.ButtonHoverBackColor;
           //  base.OnMouseHover(e);
 
+        }
+        private void BeepImage_MouseLeave(object? sender, EventArgs e)
+        {
+            IsHovered = false;
+        }
+        private void BeepImage_MouseEnter(object? sender, EventArgs e)
+        {
+            IsHovered = true;
         }
         private void BeepImage_Click(object? sender, EventArgs e)
         {

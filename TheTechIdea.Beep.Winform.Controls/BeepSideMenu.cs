@@ -231,7 +231,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            if(!isCollapsed && Width > collapsedWidth && !isAnimating)
+            if(!isCollapsed &&( Width > expandedWidth) && !isAnimating)
                 expandedWidth = Width;
           
             Invalidate();
@@ -269,8 +269,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void StartMenuAnimation()
         {
-           
-           
+
+            UpdateDrawingRect();
+
+            drawRectX = DrawingRect.X + 2;
+            drawRectY = DrawingRect.Y + 2;
+            drawRectWidth = DrawingRect.Width - 4;
+            drawRectHeight = DrawingRect.Height - 2;
             isAnimating = true;
             animationTimer.Start();
             _isExpanedWidthSet = false;
@@ -315,24 +320,39 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void AdjustControlWidths(int width)
         {
-            logo.Width = width;
-            toggleButton.Width = width;
+            int padding = 5; // Add padding to prevent overlap with the border
+            int buttonWidth = width - (2 * padding); // Adjust for left and right padding
+
+            logo.Width = buttonWidth;
+            toggleButton.Width = buttonWidth;
+
+            logo.Location = new Point(padding, padding); // Position logo with padding
+            toggleButton.Location = new Point(padding, logo.Bottom + padding); // Position toggle button below the logo with padding
+
+            int yOffset = toggleButton.Bottom + padding; // Start placing menu items below the toggle button
+
             foreach (Control control in Controls)
             {
                 if (control is Panel menuItemPanel && menuItemPanel.Tag is SimpleItem)
                 {
-                    menuItemPanel.Width = width;
+                    menuItemPanel.Width = buttonWidth; // Adjust width for padding
+                    menuItemPanel.Location = new Point(padding, yOffset); // Adjust position to prevent overlap
+                    yOffset += menuItemPanel.Height + padding; // Add spacing between menu items
+
                     foreach (Control subControl in menuItemPanel.Controls)
                     {
                         if (subControl is BeepButton button)
                         {
-                            button.Width = width;
-                            button.HideText = isCollapsed;
-                            button.HideText = isCollapsed ? true :false;
+                            button.Width = buttonWidth; // Adjust button width
+                            button.HideText = isCollapsed; // Toggle text visibility
+                            button.TextImageRelation = isCollapsed ? TextImageRelation.Overlay : TextImageRelation.ImageBeforeText;
                         }
                     }
                 }
             }
+
+            // Update the menu's width to reflect the collapsed/expanded state
+            Width = width;
             logo.Text = isCollapsed ? "" : _title;
             logo.TextImageRelation = isCollapsed ? TextImageRelation.Overlay : TextImageRelation.ImageBeforeText;
         }
@@ -345,12 +365,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void InitializeMenu()
         {
             UpdateDrawingRect();
-           
+
             drawRectX = DrawingRect.X + 2;
             drawRectY = DrawingRect.Y + 2;
             drawRectWidth = DrawingRect.Width - 4;
             drawRectHeight = DrawingRect.Height - 2;
-            
+
             // Remove existing menu item panels
             foreach (var control in Controls.OfType<Panel>().Where(c => c.Tag is SimpleItem).ToList())
             {
@@ -381,7 +401,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         var childPanel = CreateMenuItemPanel(childItem, true);
                         childPanel.Top = yOffset;
-                        childPanel.Left = DrawingRect.X;
+                        childPanel.Left = drawRectX;
                         childPanel.Width = DrawingRect.Width-2;
                         childPanel.Visible = false;
                         Controls.Add(childPanel);

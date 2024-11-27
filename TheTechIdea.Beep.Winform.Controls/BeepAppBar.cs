@@ -177,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsRoundedAffectedByTheme = false;
             ShowAllBorders = true;
             ShowShadow = false;
-
+            IsFramless = true;
             // Add controls to their respective panels 
             Console.WriteLine("Adding controls to panels");
           //  AddHamburgerButton();

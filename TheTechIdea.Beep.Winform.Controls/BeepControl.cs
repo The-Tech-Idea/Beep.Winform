@@ -906,25 +906,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             Invalidate(); // Redraw on resize to adjust title positioning
         }
-
-
-        public void UpdateDrawingRect()
-        {
-
-            DrawingRect = new Rectangle(
-                BorderThickness + shadowOffset - scrollOffsetX,
-                BorderThickness + shadowOffset - scrollOffsetY,
-                Width - 2 * (BorderThickness + shadowOffset),
-                Height - 2 * (BorderThickness + shadowOffset)
-            );
-
-        }
-
         // Override background painting for optimized repaint
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             base.OnPaintBackground(e);
         }
+
+        public void UpdateDrawingRect()
+        {
+            // Calculate offsets based on the state of borders, shadows, and frameless setting
+            int borderOffset = (!_isframless && ShowAllBorders && !IsCustomeBorder) ? BorderThickness : 0;
+            int shadowOffsetValue = ShowShadow ? shadowOffset : 0;
+
+            // Update the drawing rectangle dynamically based on the offsets
+            DrawingRect = new Rectangle(
+                borderOffset + shadowOffsetValue - scrollOffsetX,
+                borderOffset + shadowOffsetValue - scrollOffsetY,
+                Width - 2 * (borderOffset + shadowOffsetValue),
+                Height - 2 * (borderOffset + shadowOffsetValue)
+            );
+        }
+
+
+
         protected override void OnPaint(PaintEventArgs e)
         {
             SuspendLayout();
@@ -1045,11 +1049,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
            ResumeLayout();
         }
-        public virtual void DrawCustomBorder(PaintEventArgs e)
-        {
-            // Draw custom border based on the control's properties
-            DrawBorder(e.Graphics, DrawingRect);
-        }
+  
         protected Font GetScaledFont(Graphics graphics, string text, Size maxSize, Font originalFont)
         {
             Font currentFont = originalFont;
@@ -1067,17 +1067,76 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return currentFont;
         }
-        protected void DrawBackColor(PaintEventArgs e,Color color,Color hovercolor)
+        #region "Drawing Methods"
+      
+
+
+        private void DrawBackground(Graphics g)
+        {
+            Rectangle rectangle = new Rectangle(0, 0, Width, Height);
+
+            if (IsChild && Parent != null)
+            {
+                // Use parent's background for child controls
+                using (var brush = new SolidBrush(parentbackcolor))
+                {
+                    g.FillRectangle(brush, rectangle);
+                }
+            }
+            else
+            {
+                // Use control's background
+                if (IsRounded)
+                {
+                    using (var path = GetRoundedRectPath(rectangle, BorderRadius))
+                    {
+                        if (UseGradientBackground)
+                        {
+                            using (var brush = new LinearGradientBrush(rectangle, GradientStartColor, GradientEndColor, GradientDirection))
+                            {
+                                g.FillPath(brush, path);
+                            }
+                        }
+                        else
+                        {
+                            using (var brush = new SolidBrush(BackColor))
+                            {
+                                g.FillPath(brush, path);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (UseGradientBackground)
+                    {
+                        using (var brush = new LinearGradientBrush(rectangle, GradientStartColor, GradientEndColor, GradientDirection))
+                        {
+                            g.FillRectangle(brush, rectangle);
+                        }
+                    }
+                    else
+                    {
+                        using (var brush = new SolidBrush(BackColor))
+                        {
+                            g.FillRectangle(brush, rectangle);
+                        }
+                    }
+                }
+            }
+        }
+
+        public virtual void DrawCustomBorder(PaintEventArgs e)
+        {
+            // Draw custom border based on the control's properties
+            DrawBorder(e.Graphics, DrawingRect);
+        }
+        protected void DrawBackColor(PaintEventArgs e, Color color, Color hovercolor)
         {
             if (IsChild)
             {
-                //if (this.ParentNode != null)
-                //{
-                //    parentbackcolor = this.ParentNode.BackColor;
-                //    BackColor = parentbackcolor;
 
-                //}
-                using (SolidBrush brush = new SolidBrush( parentbackcolor))
+                using (SolidBrush brush = new SolidBrush(parentbackcolor))
                 {
                     e.Graphics.FillRectangle(brush, DrawingRect);
                 }
@@ -1117,7 +1176,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     else
                     {
-                        using (var brush = new SolidBrush(IsHovered? hovercolor : color))
+                        using (var brush = new SolidBrush(IsHovered ? hovercolor : color))
                         {
                             e.Graphics.FillRectangle(brush, DrawingRect);
                         }
@@ -1128,14 +1187,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected void DrawBorder(Graphics graphics, Rectangle drawingRect)
         {
-            int brder= BorderThickness;
+            int brder = BorderThickness;
             Color color = BorderColor;
             if (IsHovered)
             {
                 color = _currentTheme.HoverLinkColor;
                 brder = BorderThickness + 1;
             }
-            
+
             using (var pen = new Pen(color, brder))
             {
                 pen.DashStyle = _borderDashStyle;
@@ -1157,7 +1216,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 // Draw rounded or regular borders
-                if (IsRounded &&  ShowAllBorders)
+                if (IsRounded && ShowAllBorders)
                 {
 
                     using (GraphicsPath path = GetRoundedRectPath(drawingRect, BorderRadius))
@@ -1171,11 +1230,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (ShowTopBorder)
                         graphics.DrawLine(pen, drawingRect.Left, drawingRect.Top, drawingRect.Right, drawingRect.Top);
                     if (ShowBottomBorder)
-                        graphics.DrawLine(pen, drawingRect.Left, drawingRect.Bottom , drawingRect.Right, drawingRect.Bottom );
+                        graphics.DrawLine(pen, drawingRect.Left, drawingRect.Bottom, drawingRect.Right, drawingRect.Bottom);
                     if (ShowLeftBorder)
                         graphics.DrawLine(pen, drawingRect.Left, drawingRect.Top, drawingRect.Left, drawingRect.Bottom);
                     if (ShowRightBorder)
-                        graphics.DrawLine(pen, drawingRect.Right, drawingRect.Top, drawingRect.Right , drawingRect.Bottom);
+                        graphics.DrawLine(pen, drawingRect.Right, drawingRect.Top, drawingRect.Right, drawingRect.Bottom);
                 }
             }
         }
@@ -1245,7 +1304,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //            case DashStyle.DashDotDot:
         //                return; // No border to draw
         //        }
-                
+
         //        // Draw a rounded or standard rectangle border
         //        if (IsRounded)
         //        {
@@ -1298,7 +1357,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected void DrawShadowUsingRectangle(Graphics graphics)
         {
             // Ensure shadow is drawn only if it's enabled and the control is not transparent
-            if (ShowShadow ) // Ensure no transparency conflicts
+            if (ShowShadow) // Ensure no transparency conflicts
             {
                 using (var shadowBrush = new SolidBrush(Color.FromArgb((int)(255 * ShadowOpacity), ShadowColor)))
                 {
@@ -1389,6 +1448,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return path;
         }
+        #endregion "Drawing Methods"
+        #region "Mouse events"
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);
@@ -1400,7 +1461,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-            
+
         }
 
         protected override void OnMouseLeave(EventArgs e)
@@ -1409,29 +1470,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             BorderColor = _currentTheme.BorderColor;
             IsPressed = false;
             IsFocused = false;
-            IsHovered=false;
+            IsHovered = false;
             HideToolTip(); // Hide tooltip on mouse leave
-           // Invalidate();
+                           // Invalidate();
         }
 
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
-           // Invalidate();
+            // Invalidate();
         }
 
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
-           // Invalidate();
+            // Invalidate();
         }
 
         protected override void OnClick(EventArgs e)
         {
             IsPressed = true;
             base.OnClick(e);
-            IsPressed=false;
-          //  Invalidate();
+            IsPressed = false;
+            //  Invalidate();
         }
         protected override void OnMouseDown(MouseEventArgs e)
         {
@@ -1444,11 +1505,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
             IsPressed = false;
-           // Invalidate();
+            // Invalidate();
         }
+        #endregion "Mouse events"
         #region "Animation"
         // Default Animation Properties
-      
+
         /// <summary>
         /// Shows the control with the specified animation.
         /// </summary>
@@ -1687,6 +1749,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion "Animation"
+        #region "ToolTip"
+        public void ShowToolTip(string text)
+        {
+            ToolTipText = text;
+            if (!string.IsNullOrEmpty(ToolTipText))
+            {
+                _toolTip.Show(ToolTipText, this, PointToClient(MousePosition), 3000); // Show tooltip for 3 seconds
+            }
+
+        }
+
+        public void HideToolTip()
+        {
+            _toolTip.Hide(this);
+
+        }
+        protected void ShowToolTipIfExists()
+        {
+            if (!string.IsNullOrEmpty(ToolTipText))
+            {
+                ShowToolTip(ToolTipText);
+            }
+        }
+        #endregion "ToolTip"
+        #region "Util"
 
         public override string ToString()
         {
@@ -1698,38 +1785,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             return new Size(Width, Height);
 
         }
-      
+
 
         public virtual void Print(Graphics graphics)
         {
             // Draw the control on the provided graphics object
             OnPrint(new PaintEventArgs(graphics, ClientRectangle));
         }
-
-        public void ShowToolTip(string text)
-        {
-            ToolTipText = text;
-            if (!string.IsNullOrEmpty(ToolTipText))
-            {
-                _toolTip.Show(ToolTipText, this, PointToClient(MousePosition), 3000); // Show tooltip for 3 seconds
-            }
-          
-        }
-
-        public void HideToolTip()
-        {
-            _toolTip.Hide(this);
-           
-        }
-        protected void ShowToolTipIfExists()
-        {
-            if (!string.IsNullOrEmpty(ToolTipText))
-            {
-               ShowToolTip(ToolTipText);
-            }
-        }
-
-        #region "Util"
 
         public float GetScaleFactor(SizeF imageSize, Size targetSize)
         {

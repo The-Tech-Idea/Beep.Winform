@@ -162,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowAllBorders = false,
                 ShowShadow = false,
             };
-           
+            IsChild= true;
             ApplyTheme();
             beepImage.MouseHover += BeepImage_MouseHover;
             beepImage.MouseLeave += BeepImage_MouseLeave;

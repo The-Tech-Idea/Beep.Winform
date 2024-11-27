@@ -185,6 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             animationTimer.Tick += AnimationTimer_Tick;
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
+            IsFramless = true;
             ShowAllBorders = true;
             ShowShadow = false;
             logo = new BeepLabel

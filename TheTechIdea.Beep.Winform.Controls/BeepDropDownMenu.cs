@@ -11,17 +11,23 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         private BeepButton _dropDownButton;
         private bool _isExpanded = false;
-        private readonly int _maxMenuHeight = 200; // Maximum dropdown height
+        private readonly int _maxMenuHeight = 100; // Maximum dropdown height
         private readonly int _collapsedHeight = 25; // Fixed height when not expanded
         private System.Windows.Forms.Timer _animationTimer;
         private int _targetHeight;
 
+        public override string ToString()
+        {
+            return  "Beep DropDown";
+        }
+
         public BeepDropDownMenu()
         {
+
             _isControlinvalidated = true;
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
-                Width = 200;
+                Width = 80;
                 Height = _collapsedHeight;
             }
             ShowTitleLine = true;
@@ -62,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextImageRelation = TextImageRelation.Overlay,
                 ShowAllBorders = false,
                 ShowShadow = false,
-                IsFramless = true,
+              
                 IsChild = true
             };
             

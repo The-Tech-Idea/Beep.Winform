@@ -22,8 +22,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
-                Width = 200;
-                Height = 200;
+                Width = 100;
+                Height = 100;
             }
             //InitializeDialog();
 

@@ -394,14 +394,14 @@ namespace TheTechIdea.Beep.Winform.Controls.TableLayout
         //private void PositionControl(Control control, int row, int column)
         //{
         //    control.Location = GetCellStartingPoint(column,row);
-        //    control.Size = new Size(layoutInfo.Columns[column], layoutInfo.Rows[row]);
+        //    control.Size = new Size(layoutInfo.GridViewColumns[column], layoutInfo.Rows[row]);
         //}
         //private void ExtendTable(int rowsNeeded, int columnsNeeded)
         //{
         //    while (layoutInfo.Rows.Count <= rowsNeeded)
         //        layoutInfo.Rows.Add(100); // Default size
-        //    while (layoutInfo.Columns.Count <= columnsNeeded)
-        //        layoutInfo.Columns.Add(100); // Default size
+        //    while (layoutInfo.GridViewColumns.Count <= columnsNeeded)
+        //        layoutInfo.GridViewColumns.Add(100); // Default size
         //}
         //protected override void OnControlAdded(ControlEventArgs e)
         //{

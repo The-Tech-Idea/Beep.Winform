@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton maximizeIcon;
         private BeepButton minimizeIcon;
         private BeepSideMenu _sidemenu;
-
+        private int imageoffset = 4;
         public BeepSideMenu SideMenu { get { return _sidemenu; } set { _sidemenu = value;if (_sidemenu != null) { _sidemenu.OnMenuCollapseExpand += HandleSideMenuState; } } }
 
 
@@ -137,6 +137,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private BeepTextBox searchBox;
         bool _applyThemeOnImage = true;
+       
+
         public bool ApplyThemeOnImage
         {
             get => _applyThemeOnImage;
@@ -175,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsShadowAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
             IsRoundedAffectedByTheme = false;
-            ShowAllBorders = true;
+            ShowAllBorders = false;
             ShowShadow = false;
             IsFramless = true;
             // Add controls to their respective panels 
@@ -268,7 +270,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Width = windowsicons_height,
                 Height = windowsicons_height,
-                MaxImageSize = new Size(windowsicons_height-2, windowsicons_height-2),
+                MaxImageSize = new Size(windowsicons_height-imageoffset, windowsicons_height-imageoffset),
                 Cursor = Cursors.Hand,
                 Theme = Theme,
                 ApplyThemeOnImage = _applyThemeOnImage,
@@ -291,7 +293,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Width = windowsicons_height,
                 Height = windowsicons_height,
-                MaxImageSize = new Size(windowsicons_height-2, windowsicons_height-2),
+                MaxImageSize = new Size(windowsicons_height-imageoffset, windowsicons_height-imageoffset),
                 TextImageRelation= TextImageRelation.Overlay,
                 ImageAlign= ContentAlignment.MiddleCenter,
                 Cursor = Cursors.Hand,
@@ -317,7 +319,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                  Width = windowsicons_height,
                  Height = windowsicons_height,
-                 MaxImageSize = new Size(windowsicons_height-2, windowsicons_height-2),
+                 MaxImageSize = new Size(windowsicons_height-imageoffset, windowsicons_height-imageoffset),
                  Cursor = Cursors.Hand,
                 Theme = Theme,
                 ApplyThemeOnImage = _applyThemeOnImage,
@@ -338,7 +340,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                  Width = windowsicons_height,
                  Height = windowsicons_height,
-                 MaxImageSize = new Size(windowsicons_height-2, windowsicons_height-2),
+                 MaxImageSize = new Size(windowsicons_height-imageoffset, windowsicons_height-imageoffset),
                  Cursor = Cursors.Hand,
                  Theme = Theme,
                  ApplyThemeOnImage = _applyThemeOnImage,
@@ -364,7 +366,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                  Width = windowsicons_height,
                  Height = windowsicons_height,
-                 MaxImageSize = new Size(windowsicons_height-2, windowsicons_height-2),
+                 MaxImageSize = new Size(windowsicons_height-imageoffset, windowsicons_height-imageoffset),
                  Cursor = Cursors.Hand,
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.x.svg",
                 Theme = Theme,
@@ -459,7 +461,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void RearrangeLayout()
         {
-            int padding = 5; // Padding between controls and edges
+            int padding = 2; // Padding between controls and edges
             int spacing = 5; // Spacing between controls
 
             // Calculate available areas in DrawingRect

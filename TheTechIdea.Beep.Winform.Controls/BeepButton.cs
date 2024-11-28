@@ -411,6 +411,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw the image if available
             if (beepImage != null && beepImage.HasImage)
             {
+                if (beepImage.Size.Width>this.Size.Width || beepImage.Size.Height>this.Size.Height)
+                {
+                    imageSize = this.Size;
+                }
                 beepImage.MaximumSize = imageSize;
                 beepImage.Size = imageRect.Size;
                 //beepImage.Location = imageRect.Location;

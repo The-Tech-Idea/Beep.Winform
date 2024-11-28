@@ -16,6 +16,7 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Winform.Controls.Editors;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid
 {
@@ -116,8 +117,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// <summary>
         /// Stores configuration details for each column, such as filters and totals.
         /// </summary>
-        private List<ColumnConfig> columnConfigs { get; set; } = new List<ColumnConfig>();
-
+       // private List<BeepGridColumnConfig> columnConfigs { get; set; } = new List<BeepGridColumnConfig>();
+        public List<BeepGridColumnConfig> columnConfigs { get; set; } = new List<BeepGridColumnConfig>();
+        [Browsable(true)]
+        [Localizable(true)]
+        [MergableProperty(false)]
+        [Editor(typeof(ColumnConfigCollectionEditor), typeof(UITypeEditor))]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public List<BeepGridColumnConfig> GridViewColumns
+        {
+            get => columnConfigs;
+            set
+            {
+                columnConfigs = value;
+                Invalidate(); // Redraw grid with new columns
+            }
+        }
         /// <summary>
         /// A list of TextBox controls for filtering columns.
         /// </summary>
@@ -792,7 +807,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             decimal oldValue;
             if (dataGridView1.Columns[e.ColumnIndex] is BeepDataGridViewNumericColumn)
             {
-                ColumnConfig cfg = columnConfigs[e.ColumnIndex];
+                BeepGridColumnConfig cfg = columnConfigs[e.ColumnIndex];
                 string cellValue = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString();
 
                 if (!string.IsNullOrEmpty(cellValue))
@@ -820,7 +835,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
             if (columnConfigs != null && columnConfigs.Count > 0)
             {
-                ColumnConfig cfg = columnConfigs[e.ColumnIndex];
+                BeepGridColumnConfig cfg = columnConfigs[e.ColumnIndex];
                 if (dataGridView1.Columns[e.ColumnIndex] is BeepDataGridViewNumericColumn)
                 {
                     decimal newValue;
@@ -847,7 +862,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         {
             TextBox txt = (TextBox)sender;
             int idx = (int)txt.Tag;
-            ColumnConfig cfg = columnConfigs[idx];
+            BeepGridColumnConfig cfg = columnConfigs[idx];
             decimal total = dataGridView1.Rows
                 .Cast<DataGridViewRow>()
                 .Sum(row => Convert.ToDecimal(row.Cells[cfg.Index].Value));
@@ -1095,7 +1110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
                     var col = dataGridView1.Columns[column.Text];
                     string guid = (String)col.Tag;
-                    columnConfigs[columnConfigs.FindIndex(p => p.GuidID == guid)].ColumnWidth = col.Width;
+                    columnConfigs[columnConfigs.FindIndex(p => p.GuidID == guid)].Width = col.Width;
                     column.Width = col.Width;
                     xPos += column.Width;
                 }
@@ -1108,7 +1123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 {
                     string guid = (String)filter.Tag;
                     GridControls gridctls = gridControls[gridControls.FindIndex(p => p.GuidID == guid)];
-                    int wdth = columnConfigs[columnConfigs.FindIndex(p => p.GuidID == gridctls.GuidID)].ColumnWidth;
+                    int wdth = columnConfigs[columnConfigs.FindIndex(p => p.GuidID == gridctls.GuidID)].Width;
                     filter.Left = xPos;
                     filter.Width = wdth;
                     textBox.BorderStyle = this.BorderStyle;
@@ -1122,7 +1137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 if (total is TextBox textBox)
                 {
                     GridControls gridctls = gridControls[gridControls.FindIndex(p => p.GuidID == total.Tag.ToString())];
-                    int wdth = columnConfigs[columnConfigs.FindIndex(p => p.GuidID == gridctls.GuidID)].ColumnWidth;
+                    int wdth = columnConfigs[columnConfigs.FindIndex(p => p.GuidID == gridctls.GuidID)].Width;
                     total.Left = xPos;
                     total.Width = wdth;
                     textBox.BorderStyle = this.BorderStyle;
@@ -1168,7 +1183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 TotalBox = TotalBox,
                 GuidID = column.Tag.ToString()
             };
-            ColumnConfig cfg = new ColumnConfig()
+            BeepGridColumnConfig cfg = new BeepGridColumnConfig()
             {
                 Index = index,
                 ColumnName = name,
@@ -1622,7 +1637,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         column = new BeepDataGridViewComboBoxColumn
                         {
                             Name = config.Name,
-                            HeaderText = config.HeaderText,
+                            HeaderText = config.ColumnCaption,
                             Width = config.Width,
                             DataSourceName = config.DataSourceName,
                             DisplayMember = config.DisplayMember,
@@ -1630,17 +1645,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         };
 
                         // Check for custom cascading map
-                        if (column is BeepDataGridViewComboBoxColumn comboBoxColumn && config.CascadingMap != null)
-                        {
-                            comboBoxColumn.CascadingMap = config.CascadingMap;
-                        }
+                        //if (column is BeepDataGridViewComboBoxColumn comboBoxColumn && config.CascadingMap != null)
+                        //{
+                        //    comboBoxColumn.CascadingMap = config.CascadingMap;
+                        //}
                         break;
 
                     case "BeepDataGridViewNumericColumn":
                         column = new BeepDataGridViewNumericColumn
                         {
                             Name = config.Name,
-                            HeaderText = config.HeaderText,
+                            HeaderText = config.ColumnCaption,
                             Width = config.Width,
                             // You can add more numeric-specific properties here if needed
                         };
@@ -1650,7 +1665,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         column = new BeepDataGridViewProgressBarColumn
                         {
                             Name = config.Name,
-                            HeaderText = config.HeaderText,
+                            HeaderText = config.ColumnCaption,
                             Width = config.Width,
                             ProgressBarColor = config.ProgressBarColor
                         };
@@ -1660,7 +1675,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         column = new BeepDataGridViewSvgColumn
                         {
                             Name = config.Name,
-                            HeaderText = config.HeaderText,
+                            HeaderText = config.ColumnCaption,
                             Width = config.Width,
                         };
                         break;
@@ -1669,7 +1684,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         column = new BeepDataGridViewThreeStateCheckBoxColumn
                         {
                             Name = config.Name,
-                            HeaderText = config.HeaderText,
+                            HeaderText = config.ColumnCaption,
                             Width = config.Width
                         };
                         break;
@@ -1678,7 +1693,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         column = new BeepDataGridViewSliderColumn
                         {
                             Name = config.Name,
-                            HeaderText = config.HeaderText,
+                            HeaderText = config.ColumnCaption,
                             Width = config.Width,
                         };
                         break;
@@ -1687,7 +1702,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         column = new BeepDataGridViewRatingColumn
                         {
                             Name = config.Name,
-                            HeaderText = config.HeaderText,
+                            HeaderText = config.ColumnCaption,
                             Width = config.Width,
                             FilledStarColor = config.FilledStarColor,
                             EmptyStarColor = config.EmptyStarColor,
@@ -1699,7 +1714,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         column = new BeepDataGridViewSwitchColumn
                         {
                             Name = config.Name,
-                            HeaderText = config.HeaderText,
+                            HeaderText = config.ColumnCaption,
                             Width = config.Width,
                         };
                         break;
@@ -1708,7 +1723,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         column = new BeepDataGridViewMultiColumnColumn
                         {
                             Name = config.Name,
-                            HeaderText = config.HeaderText,
+                            HeaderText = config.ColumnCaption,
                             Width = config.Width,
                         };
                         break;
@@ -1717,7 +1732,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         column = new BeepDataGridViewImageComboBoxColumn
                         {
                             Name = config.Name,
-                            HeaderText = config.HeaderText,
+                            HeaderText = config.ColumnCaption,
                             Width = config.Width,
                         };
                         break;
@@ -1727,7 +1742,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         column = new DataGridViewTextBoxColumn
                         {
                             Name = config.Name,
-                            HeaderText = config.HeaderText,
+                            HeaderText = config.ColumnCaption,
                             Width = config.Width
                         };
                         break;
@@ -1750,7 +1765,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 var config = new BeepGridColumnConfig
                 {
                     Name = column.Name,
-                    HeaderText = column.HeaderText,
+                    ColumnCaption = column.HeaderText,
                     Width = column.Width,
                     Visible = column.Visible,
                     DisplayIndex = column.DisplayIndex,
@@ -1769,17 +1784,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                     config.ColumnType = nameof(DataGridViewComboBoxColumn);
                     config.DisplayMember = comboBoxColumn.DisplayMember;
                     config.ValueMember = comboBoxColumn.ValueMember;
-                    config.LookupList = new List<ColumnLookupList>();
+                    //config.LookupList = new List<ColumnLookupList>();
 
                     // Capture ComboBox items
-                    foreach (var item in comboBoxColumn.Items)
-                    {
-                        config.LookupList.Add(new ColumnLookupList
-                        {
-                            Display = item.ToString(),
-                            Value = item
-                        });
-                    }
+                    //foreach (var item in comboBoxColumn.Items)
+                    //{
+                    //    config.LookupList.Add(new ColumnLookupList
+                    //    {
+                    //        Display = item.ToString(),
+                    //        Value = item
+                    //    });
+                    //}
                 }
                 // Handle Rating columns
                 else if (column is BeepDataGridViewRatingColumn ratingColumn)

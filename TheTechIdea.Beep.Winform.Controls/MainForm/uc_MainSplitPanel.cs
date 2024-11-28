@@ -152,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MainForm
 
         }
 
-        public bool StartLoggin { get { return uc_logPanel1.startLoggin; } set { uc_logPanel1.startLoggin = value; } }
+        public bool StartLoggin { get { return uc_logPanel1.StartLogging; } set { uc_logPanel1.StartLogging = value; } }
 
     }
 }

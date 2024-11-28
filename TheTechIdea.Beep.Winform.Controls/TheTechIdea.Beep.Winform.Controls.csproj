@@ -70,6 +70,7 @@
     <None Remove="GFX\SVG\dislike.svg" />
     <None Remove="GFX\SVG\doorclosed.svg" />
     <None Remove="GFX\SVG\dooropen.svg" />
+    <None Remove="GFX\SVG\dropdown-select.svg" />
     <None Remove="GFX\SVG\enter.svg" />
     <None Remove="GFX\SVG\exit.svg" />
     <None Remove="GFX\SVG\export.svg" />
@@ -134,6 +135,7 @@
     <EmbeddedResource Include="GFX\SVG\dislike.svg" />
     <EmbeddedResource Include="GFX\SVG\doorclosed.svg" />
     <EmbeddedResource Include="GFX\SVG\dooropen.svg" />
+    <EmbeddedResource Include="GFX\SVG\dropdown-select.svg" />
     <EmbeddedResource Include="GFX\SVG\enter.svg" />
     <EmbeddedResource Include="GFX\SVG\exit.svg" />
     <EmbeddedResource Include="GFX\SVG\export.svg" />

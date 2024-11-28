@@ -19,7 +19,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int buttonWidth = 25;
         private bool isPopupOpening = false; // Flag to track the popup state
         private System.Windows.Forms.Timer popupDelayTimer;       // Timer to add a small delay
-
+        int padding; 
+        int spacing; 
 
         [Browsable(true)]
         [Category("Date Settings")]
@@ -106,7 +107,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 isPopupOpening = false; // Reset the flag after the delay
                 popupDelayTimer.Stop();
             };
-
+             padding = BorderThickness + 5;
+             spacing = 5;
         }
         protected override void InitLayout()
         {
@@ -121,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _textBox = new TextBox
             {
                 BorderStyle = BorderStyle.None,
-                Dock = DockStyle.Fill,
+               // Dock = DockStyle.Fill,
                 Text = DateTime.Now.ToString(_customDateFormat)
             };
             _textBox.TextChanged += TextBox_TextChanged;
@@ -130,12 +132,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize Calendar Button
             _calendarButton = new Button
             {
-                Dock = DockStyle.Right,
+             //   Dock = DockStyle.Right,
                 Text = "📅", // Unicode calendar icon
                 Width = Height, // Square button
                 FlatStyle = FlatStyle.Flat
             };
-          //  _calendarButton.Click += CalendarButton_Click;
+            _calendarButton.Click += CalendarButton_Click;
 
             // Initialize MonthCalendar within a popup form
             _popupForm = new Form
@@ -153,7 +155,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MaxSelectionCount = 1
             };
             _monthCalendar.DateSelected += MonthCalendar_DateSelected;
-           // _monthCalendar.LostFocus += (s, e) => _monthCalendar.Visible = false;
+            // _monthCalendar.LostFocus += (s, e) => _monthCalendar.Visible = false;
+            _popupForm.Width = _monthCalendar.Width+50;
+            _popupForm.Height = _monthCalendar.Height + 6;
             _popupForm.Controls.Add(_monthCalendar);
             _monthCalendar.Dock = DockStyle.Fill;
             _popupForm.Deactivate += (s, e) => _popupForm.Hide();
@@ -249,17 +253,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_textBox != null && _calendarButton!=null) {
 
                 // Ensure the height is fixed
-                Height = _textBox.PreferredHeight;
+              //  Height = _textBox.PreferredHeight;
                 AdjustLayout();
             }
            
         }
-        protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
-        {
-            // Use the TextBox's preferred height for consistent alignment
-            int adjustedHeight = _textBox?.PreferredHeight ?? base.Height;
-            base.SetBoundsCore(x, y, width, adjustedHeight, specified);
-        }
+      
 
 
         private void AdjustLayout()
@@ -267,9 +266,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (DrawingRect == Rectangle.Empty)
                 UpdateDrawingRect();
 
-            int padding = BorderThickness + 3; // Adjust padding for borders
-           // int buttonWidth = Height - padding * 2; // Square button
-            int textBoxWidth = DrawingRect.Width - buttonWidth - padding * 3; // TextBox width
+
+         
+
+            Height = _textBox.PreferredHeight + (padding * 2);
+            // int buttonWidth = Height - padding * 2; // Square button
+            int textBoxWidth = DrawingRect.Width - buttonWidth - padding * 2; // TextBox width
             int centerY = DrawingRect.Top + (DrawingRect.Height - _textBox.Height) / 2;
 
             // Set TextBox bounds
@@ -289,10 +291,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if(_textBox != null)
             {
-                Height = _textBox.PreferredHeight; // Set the control's height based on the TextBox height
+                Height = _textBox.PreferredHeight + (padding * 2);
             }
           
             OnResize(EventArgs.Empty); // Trigger layout adjustment
         }
+       
     }
 }

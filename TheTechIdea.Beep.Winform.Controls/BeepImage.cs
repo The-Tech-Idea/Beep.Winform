@@ -495,13 +495,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Image Drawing Methods"
         #region "Designer Support"
 
-        private void ClearImages()
-        {
-            svgDocument = null;
-            regularImage?.Dispose();
-            regularImage = null;
-            Invalidate();  // Repaint the control to reflect the cleared state
-        }
+      
         public float GetScaleFactor(SizeF imageSize, Size targetSize)
         {
             float scaleX = targetSize.Width / imageSize.Width;

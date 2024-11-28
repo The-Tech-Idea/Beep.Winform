@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DesignerForm
                 return;
             }
 
-           // selectedcolumn = targetDataGridView.Columns[selectedcolumnindex];
+           // selectedcolumn = targetDataGridView.GridViewColumns[selectedcolumnindex];
             propertyGrid1.SelectedObject = selectedcolumn;
 
             IsChanged = false; // Set the flag before changing the index

@@ -24,9 +24,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton _dropdownButton;
         private ListBox _dropdownListBox;
         private Form _popupForm;
-
+        int padding;
+        int spacing; 
         private SimpleItemCollection _items = new SimpleItemCollection();
-
+        Panel sp1,sp2;
         private string _listField;
         private string _displayField;
         private int _valueTextBoxWidth=80;
@@ -35,18 +36,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             Width = 300;
             Height = 30;
-        
 
+            
         }
         protected override void CreateHandle()
         {
             base.CreateHandle();
-            _keyTextBox.MouseEnter += (s, e) => OnMouseEnter(e);
-            _keyTextBox.MouseHover += (s, e) => OnMouseHover(e);
-            _keyTextBox.MouseLeave += (s, e) => OnMouseLeave(e);
-            _valueTextBox.MouseEnter += (s, e) => OnMouseEnter(e);
-            _valueTextBox.MouseHover += (s, e) => OnMouseHover(e);
-            _valueTextBox.MouseLeave += (s, e) => OnMouseLeave(e);
+            padding = BorderThickness + 5;
+             spacing = 5;
         }
         protected override void InitLayout()
         {
@@ -128,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Key TextBox
             _keyTextBox = new TextBox
             {
-                BorderStyle = BorderStyle.FixedSingle,
+                BorderStyle = BorderStyle.None,
                 Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall),
               
 
@@ -138,24 +135,47 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Value TextBox
             _valueTextBox = new TextBox
             {
-                BorderStyle = BorderStyle.FixedSingle,
+                BorderStyle = BorderStyle.None,
                 ReadOnly = true,
-               
+                BackColor = _currentTheme.TextBoxBackColor,
                 Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall),
                
             };
-
+           
             // Dropdown Button
             _dropdownButton = new BeepButton
             {
                 Text = "▼",
-                Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall),
-                ShowAllBorders=false,
+                HideText = true,
+                ShowAllBorders =false,
                 IsShadowAffectedByTheme = false,
-                IsChild = true
-            };
-            _dropdownButton.Click += DropdownButton_Click;
+                IsChild = true,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                TextImageRelation = TextImageRelation.Overlay,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.dropdown-select.svg"
 
+            };
+            
+            _dropdownButton.Click += DropdownButton_Click;
+            sp1 = new Panel
+            {
+                BackColor =_currentTheme.BorderColor,
+                BorderStyle = BorderStyle.FixedSingle,
+                Height = 1,
+                Width = 1,
+                Visible = true,
+                Location = new Point(0, 0)
+            };
+            sp2 = new Panel
+            {
+                BackColor = _currentTheme.BorderColor,
+                BorderStyle = BorderStyle.FixedSingle,
+                Height = 1,
+                Width = 1,
+                Visible = true,
+                Location = new Point(0, 0)
+            };
             // Dropdown ListBox
             _dropdownListBox = new ListBox
             {
@@ -180,7 +200,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(_keyTextBox);
             Controls.Add(_valueTextBox);
             Controls.Add(_dropdownButton);
-
+            Controls.Add(sp1);
+            Controls.Add(sp2);
+            
+            _keyTextBox.MouseEnter += (s, e) => OnMouseEnter(e);
+            _keyTextBox.MouseHover += (s, e) => OnMouseHover(e);
+            _keyTextBox.MouseLeave += (s, e) => OnMouseLeave(e);
+            _valueTextBox.MouseEnter += (s, e) => OnMouseEnter(e);
+            _valueTextBox.MouseHover += (s, e) => OnMouseHover(e);
+            _valueTextBox.MouseLeave += (s, e) => OnMouseLeave(e);
             AdjustLayout();
         }
 
@@ -189,41 +217,51 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (DrawingRect == Rectangle.Empty)
                 UpdateDrawingRect();
 
-            int padding = BorderThickness + 5;
-            int spacing = 5;
-            // Calculate button height to match the TextBox height
             int buttonHeight = _keyTextBox.PreferredHeight;
             Height = _keyTextBox.PreferredHeight + (padding * 2);
-            // Ensure the height of the control matches the TextBox height
 
             int centerY = DrawingRect.Top + (DrawingRect.Height - _keyTextBox.PreferredHeight) / 2;
-            // Set TextBox dimensions
-            _keyTextBox.Location = new Point(DrawingRect.Left + BorderThickness, centerY);
-            _keyTextBox.Width = 30; // Divide space for two TextBoxes and the button
-            _keyTextBox.Height = buttonHeight;
-            // Set dropdown button dimensions
-            _dropdownButton.Location = new Point(DrawingRect.Right- buttonHeight - BorderThickness, centerY);
-            _dropdownButton.Width = buttonHeight;
-            _dropdownButton.Height = buttonHeight;
 
-            // Set display TextBox dimensions
-            _valueTextBox.Location = new Point(_keyTextBox.Right + BorderThickness, _keyTextBox.Top);
-            _valueTextBox.Width = _dropdownButton.Left- _keyTextBox.Right -(BorderThickness * 2);
+            // Key TextBox layout
+            _keyTextBox.Location = new Point(DrawingRect.Left + padding + BorderThickness, centerY);
+            _keyTextBox.Width = 60; // Example width
+            _keyTextBox.Height = buttonHeight;
+
+            // Separator 1 (sp1) layout
+            sp1.Location = new Point(_keyTextBox.Right + 2, centerY);
+            sp1.Width = 2;
+            sp1.Height = buttonHeight;
+
+            // Value TextBox layout
+            _valueTextBox.Location = new Point(sp1.Right + 2, centerY);
+            _valueTextBox.Width = DrawingRect.Width - _keyTextBox.Width - (buttonHeight + padding * 4) - sp1.Width - sp2.Width - (BorderThickness * 2);
             _valueTextBox.Height = buttonHeight;
 
-          
+            // Separator 2 (sp2) layout
+            sp2.Location = new Point(_valueTextBox.Right + 2, centerY);
+            sp2.Width = 2;
+            sp2.Height = buttonHeight;
 
+            // Dropdown Button layout (centered in the remaining space)
+            int remainingSpace = DrawingRect.Right - sp2.Right - padding - BorderThickness;
+            int dropdownX = sp2.Right + (remainingSpace - buttonHeight) / 2;
+
+            _dropdownButton.Location = new Point(dropdownX , _valueTextBox.Top-2);
+            _dropdownButton.Width = buttonHeight;
+            _dropdownButton.Height = buttonHeight;
+            _dropdownButton.MaxImageSize = new Size(buttonHeight-3, buttonHeight-3);
             // Adjust the popup location when resizing
             if (_popupForm.Visible)
             {
                 PositionPopupForm();
             }
-           
         }
 
 
 
-      
+
+
+
         private void UpdateDropdownItems()
         {
             if (_dropdownListBox == null) return;

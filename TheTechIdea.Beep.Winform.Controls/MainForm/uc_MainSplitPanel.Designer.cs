@@ -211,7 +211,7 @@
             uc_logPanel1.RootBranch = null;
             uc_logPanel1.Size = new Size(753, 99);
             uc_logPanel1.SourceConnection = null;
-            uc_logPanel1.startLoggin = false;
+            uc_logPanel1.StartLogging = false;
             uc_logPanel1.TabIndex = 3;
             uc_logPanel1.Tree = null;
             uc_logPanel1.util = null;

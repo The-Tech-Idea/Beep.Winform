@@ -105,9 +105,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void InitLayout()
         {
             base.InitLayout();
-            BorderThickness = 1;
-
-
             InitializeMenu();
             ApplyTheme();
             TitleText = "List Box";
@@ -128,10 +125,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
            // DrawingRect.Inflate(-2, -2);
             // Get the dimensions of DrawingRect
-            drawRectX = DrawingRect.X+2;
-            drawRectY = DrawingRect.Y+2;
-            drawRectWidth = DrawingRect.Width-2;
-            drawRectHeight = DrawingRect.Height-2;
+            drawRectX = DrawingRect.X;
+            drawRectY = DrawingRect.Y;
+            drawRectWidth = DrawingRect.Width;
+            drawRectHeight = DrawingRect.Height;
 
             base.OnPaint(e);
             
@@ -243,10 +240,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public virtual void InitializeMenu()
         {
             UpdateDrawingRect();
-            drawRectX = DrawingRect.X + 2;
-            drawRectY = DrawingRect.Y + 2;
-            drawRectWidth = DrawingRect.Width - 4;
-            drawRectHeight = DrawingRect.Height - 2;
+            drawRectX = DrawingRect.X ;
+            drawRectY = DrawingRect.Y ;
+            drawRectWidth = DrawingRect.Width ;
+            drawRectHeight = DrawingRect.Height ;
             ButtonSize = new Size(drawRectWidth-2, _menuItemHeight-2);
             int spacing = 2;
             // Remove existing menu item panels

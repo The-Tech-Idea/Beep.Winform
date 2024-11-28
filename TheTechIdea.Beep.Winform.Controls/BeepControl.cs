@@ -134,9 +134,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected bool _isshadowaffectedbytheme = true;
         private bool _isroundedffectedbytheme=true;
         private bool _applythemetochilds = true;
+        private int _topoffsetForDrawingRect = 0;
+        private int _leftoffsetForDrawingRect = 0;
+        private int _bottomoffsetForDrawingRect = 0;
+        private int _rightoffsetForDrawingRect = 0;
+
         #endregion "protected Properties"
         #region "Public Properties"
+        [Browsable(true)]
+        [Category("Appearance")]
+        public int RightoffsetForDrawingRect { get { return _rightoffsetForDrawingRect; } set { _rightoffsetForDrawingRect = value; Invalidate(); } }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public int BottomoffsetForDrawingRect { get { return _bottomoffsetForDrawingRect; } set { _bottomoffsetForDrawingRect = value; Invalidate(); } }
 
+
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        public int TopoffsetForDrawingRect { get { return _topoffsetForDrawingRect; } set { _topoffsetForDrawingRect = value;Invalidate(); } }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public int LeftoffsetForDrawingRect { get { return _leftoffsetForDrawingRect; } set { _leftoffsetForDrawingRect = value; Invalidate(); } }
         //IsRoundedAffectedByTheme
         [Browsable(true)]
         [Category("Appearance")]
@@ -716,7 +735,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected List<Binding> _originalBindings = new List<Binding>();
         protected Color _disabledForeColor;
         private bool _isAnimating;
-       
+        private int offset=3;
 
         [Browsable(true)]
         [Category("Data")]
@@ -900,6 +919,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Theme"
 
+        protected override void OnPaddingChanged(EventArgs e)
+        {
+            base.OnPaddingChanged(e);
+            UpdateDrawingRect();
+            Invalidate(); // Trigger a redraw when padding changes
+        }
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -914,18 +939,28 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void UpdateDrawingRect()
         {
-            // Calculate offsets based on the state of borders, shadows, and frameless setting
-            int borderOffset = (!_isframless && ShowAllBorders && !IsCustomeBorder) ? BorderThickness : 0;
+            int borderOffset = ShowAllBorders ? BorderThickness : 0;
             int shadowOffsetValue = ShowShadow ? shadowOffset : 0;
 
-            // Update the drawing rectangle dynamically based on the offsets
+            // Calculate effective padding values
+            int leftPadding = Padding.Left + LeftoffsetForDrawingRect; // Include X offset
+            int topPadding = Padding.Top + TopoffsetForDrawingRect;  // Include Y offset
+            int rightPadding = Padding.Right- RightoffsetForDrawingRect;
+            int bottomPadding = Padding.Bottom- _bottomoffsetForDrawingRect;
+
+            // Calculate DrawingRect dynamically, avoiding borders, shadows, padding, and offsets
             DrawingRect = new Rectangle(
-                borderOffset + shadowOffsetValue - scrollOffsetX,
-                borderOffset + shadowOffsetValue - scrollOffsetY,
-                Width - 2 * (borderOffset + shadowOffsetValue),
-                Height - 2 * (borderOffset + shadowOffsetValue)
+                borderOffset + shadowOffsetValue + leftPadding,
+                borderOffset + shadowOffsetValue + topPadding,
+                Width - (borderOffset + shadowOffsetValue + leftPadding + rightPadding),
+                Height - (borderOffset + shadowOffsetValue + topPadding + bottomPadding)
             );
+
+            // Optionally, slightly shrink the DrawingRect to ensure it doesn't overlap with borders or shadows
+            DrawingRect = Rectangle.Inflate(DrawingRect, -1, -1);
         }
+
+
 
 
 
@@ -933,60 +968,63 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SuspendLayout();
             base.OnPaint(e);
+
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.HighQuality;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             e.Graphics.Clear(BackColor);
+
             shadowOffset = ShowShadow ? 3 : 0;
-            // Define the padded drawing rectangle to leave room for the shadow
+
+            // Update the drawing rectangle to reflect shadow and border changes
             UpdateDrawingRect();
 
-            Rectangle rectangle = new Rectangle(0, 0, Width, Height);
-            if (IsChild)
+            Rectangle outerRectangle = new Rectangle(0, 0, Width, Height);
+            Rectangle borderRectangle = new Rectangle(
+                shadowOffset,
+                shadowOffset,
+                Width - offset * shadowOffset,
+                Height - offset * shadowOffset
+            );
+
+            // Adjust for border thickness
+            if (!_isframless && ShowAllBorders && BorderThickness > 0)
             {
-                if (this.Parent != null)
-                {
-                    parentbackcolor = this.Parent.BackColor;
-                    BackColor = parentbackcolor;
-
-                }
-                else
-                {
-                    BackColor = HoverBackColor;
-                    ForeColor = HoverForeColor;
-                }
-
+                borderRectangle.Inflate(-BorderThickness, -BorderThickness);
             }
-           
+
             if (!_isframless)
             {
-                if (ShowShadow )
+                if (ShowShadow)
                 {
-                    DrawShadowUsingRectangle(e.Graphics);
+                    DrawShadowUsingRectangle(g);
                 }
-
             }
 
             if (IsChild)
             {
-                
+                if (Parent != null)
+                {
+                    parentbackcolor = Parent.BackColor;
+                    BackColor = parentbackcolor;
+                }
+              //  BackColor = Color.Transparent;
                 using (SolidBrush brush = new SolidBrush(parentbackcolor))
                 {
-                    e.Graphics.FillRectangle(brush, rectangle);
+                    e.Graphics.FillRectangle(brush, outerRectangle);
                 }
-                
             }
             else
             {
-                // Draw background based on `IsRounded` and `UseGradientBackground`
+                // Draw background
                 if (IsRounded)
                 {
-                    using (GraphicsPath path = GetRoundedRectPath(rectangle, BorderRadius))
+                    using (GraphicsPath path = GetRoundedRectPath(borderRectangle, BorderRadius))
                     {
                         if (UseGradientBackground)
                         {
-                            using (var brush = new LinearGradientBrush(rectangle, GradientStartColor, GradientEndColor, GradientDirection))
+                            using (var brush = new LinearGradientBrush(borderRectangle, GradientStartColor, GradientEndColor, GradientDirection))
                             {
                                 e.Graphics.FillPath(brush, path);
                             }
@@ -1004,52 +1042,42 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     if (UseGradientBackground)
                     {
-                        using (var brush = new LinearGradientBrush(rectangle, GradientStartColor, GradientEndColor, GradientDirection))
+                        using (var brush = new LinearGradientBrush(borderRectangle, GradientStartColor, GradientEndColor, GradientDirection))
                         {
-                            e.Graphics.FillRectangle(brush, rectangle);
+                            e.Graphics.FillRectangle(brush, borderRectangle);
                         }
                     }
                     else
                     {
                         using (var brush = new SolidBrush(BackColor))
                         {
-                            e.Graphics.FillRectangle(brush, rectangle);
+                            e.Graphics.FillRectangle(brush, borderRectangle);
                         }
                     }
                 }
-
             }
+
             if (!_isframless)
             {
-                
                 if (IsCustomeBorder)
                 {
                     DrawCustomBorder(e);
                 }
-                else
+                else if (ShowAllBorders && BorderThickness > 0)
                 {
-                    if (ShowAllBorders && BorderThickness == 0)
-                    {
-                        _borderThickness = 1;
-                    }
-                    if ((BorderThickness > 0) && ShowAllBorders )
-                    {
-
-                        DrawBorder(e.Graphics, DrawingRect);
-
-                    }
+                    DrawBorder(g, borderRectangle);
                 }
-                
-
             }
 
             if (ShowFocusIndicator && Focused)
             {
-                DrawFocusIndicator(e.Graphics);
+                DrawFocusIndicator(g);
             }
-           ResumeLayout();
+
+            ResumeLayout();
         }
-  
+
+
         protected Font GetScaledFont(Graphics graphics, string text, Size maxSize, Font originalFont)
         {
             Font currentFont = originalFont;
@@ -1069,62 +1097,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #region "Drawing Methods"
       
-
-
-        private void DrawBackground(Graphics g)
-        {
-            Rectangle rectangle = new Rectangle(0, 0, Width, Height);
-
-            if (IsChild && Parent != null)
-            {
-                // Use parent's background for child controls
-                using (var brush = new SolidBrush(parentbackcolor))
-                {
-                    g.FillRectangle(brush, rectangle);
-                }
-            }
-            else
-            {
-                // Use control's background
-                if (IsRounded)
-                {
-                    using (var path = GetRoundedRectPath(rectangle, BorderRadius))
-                    {
-                        if (UseGradientBackground)
-                        {
-                            using (var brush = new LinearGradientBrush(rectangle, GradientStartColor, GradientEndColor, GradientDirection))
-                            {
-                                g.FillPath(brush, path);
-                            }
-                        }
-                        else
-                        {
-                            using (var brush = new SolidBrush(BackColor))
-                            {
-                                g.FillPath(brush, path);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    if (UseGradientBackground)
-                    {
-                        using (var brush = new LinearGradientBrush(rectangle, GradientStartColor, GradientEndColor, GradientDirection))
-                        {
-                            g.FillRectangle(brush, rectangle);
-                        }
-                    }
-                    else
-                    {
-                        using (var brush = new SolidBrush(BackColor))
-                        {
-                            g.FillRectangle(brush, rectangle);
-                        }
-                    }
-                }
-            }
-        }
 
         public virtual void DrawCustomBorder(PaintEventArgs e)
         {

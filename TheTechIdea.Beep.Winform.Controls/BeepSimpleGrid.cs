@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
-using Newtonsoft.Json;
 using TheTechIdea.Beep.Winform.Controls.Grid;
-using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewColumns;
-using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns;
 using System.Drawing.Design;
 using System.Windows.Forms.Design;
+using TheTechIdea.Beep.Winform.Controls.Editors;
 
 
 
@@ -19,8 +17,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         int topPanelY ;
      
         public int _rowHeight = 30; // Default row height
-        private List<int> _columnWidths = new List<int> { 100, 100, 100 }; // Default column widths
+       // private List<int> _columnWidths = new List<int> { 100, 100, 100 }; // Default column widths
 
+        
         private bool _resizingColumn = false;
         public bool _resizingRow = false;
         private int _resizingIndex = -1;
@@ -40,6 +39,64 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _xOffset = 0; // New offset for drawing
 
         private bool _showFilterButton = true;
+
+       
+        public BindingList<BeepGridRow> Rows { get; set; } = new BindingList<BeepGridRow>();
+        public BeepGridRow BottomRow { get; set; } // For aggregations and totals
+
+        public BeepDataNavigator DataNavigator { get; set; } = new BeepDataNavigator();
+
+
+
+        private List<BeepGridColumnConfig> _columns = new List<BeepGridColumnConfig>();
+        [Browsable(true)]
+        [Localizable(true)]
+        [MergableProperty(false)]
+        [Editor(typeof(ColumnConfigCollectionEditor), typeof(UITypeEditor))]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public List<BeepGridColumnConfig> Columns
+        {
+            get => _columns;
+            set
+            {
+                _columns = value;
+                Invalidate(); // Redraw grid with new columns
+            }
+        }
+        [Browsable(true)]
+        [Category("Layout")]
+        public int DefaultColumnHeaderWidth
+        {
+            get { return _defaultcolumnheaderwidth; }
+            set { _defaultcolumnheaderwidth = value; Invalidate(); }
+        }
+
+
+        private bool _showverticalgridlines = true;
+        [Browsable(true)]
+        [Category("Layout")]
+        public bool ShowVerticalGridLines
+        {
+            get => _showverticalgridlines;
+            set
+            {
+                _showverticalgridlines = value;
+                Invalidate(); // Redraw grid with new vertical grid line visibility
+            }
+        }
+        private bool _showhorizontalgridlines = true;
+        [Browsable(true)]
+        [Category("Layout")]
+        public bool ShowHorizontalGridLines
+        {
+            get => _showhorizontalgridlines;
+            set
+            {
+                _showhorizontalgridlines = value;
+                Invalidate(); // Redraw grid with new horizontal grid line visibility
+            }
+        }
+
         [Browsable(true)]
         [Category("Layout")]
         public bool ShowFilterButton
@@ -135,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Redraw grid with new title visibility
             }
         }
-        private bool _showBottomRow = true;
+        private bool _showBottomRow = false;
         [Browsable(true)]
         [Category("Layout")]
         public bool ShowBottomRow
@@ -147,7 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Redraw grid with new bottom row visibility
             }
         }
-        private bool _showFooter = true;
+        private bool _showFooter = false;
         [Browsable(true)]
         [Category("Layout")]
         public bool ShowFooter
@@ -159,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Redraw grid with new footer visibility
             }
         }
-        private bool _showHeaderPanel = true;
+        private bool _showHeaderPanel = false;
         [Browsable(true)]
         [Category("Layout")]
         public bool ShowHeaderPanel
@@ -230,11 +287,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             set => _title = value;
 
         }
-        public BindingList<BeepGridColumnConfig> beepGridColumns { get; set; } = new BindingList<BeepGridColumnConfig>();
-        public BindingList<BeepGridRow> Rows { get; set; } = new BindingList<BeepGridRow>();
-        public BeepGridRow BottomRow { get; set; } // For aggregations and totals
+   
 
-        public  BeepDataNavigator DataNavigator { get; set; } = new BeepDataNavigator();
 
 
         [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
@@ -269,26 +323,37 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepSimpleGrid()
         {
-            //  Rows.ListChanged += Rows_ListChanged;
-            // Apply default dimensions to accommodate all layout elements by default
-            //  this.MinimumSize = new Size(300, 200); // Set based on layout needs
-            //    this.Size = new Size(400, 300); // Default start size
-
-            //   this.MouseDown += BeepGrid_MouseDown;
-            //   this.MouseMove += BeepGrid_MouseMove;
-            //   this.MouseUp += BeepGrid_MouseUp;
-
-            //   ApplyTheme();
+           
+           
+            Width = 200;
+            Height = 200;
+            // Set up the grid's default properties
+            this.MouseDown += BeepGrid_MouseDown;
+            this.MouseMove += BeepGrid_MouseMove;
+            this.MouseUp += BeepGrid_MouseUp;
             ApplyThemeToChilds = false;
+            this.Rows.ListChanged += Rows_ListChanged;
+            
         }
         protected override void InitLayout()
         {
             base.InitLayout();
-            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+
+            if (DataNavigator == null)
             {
-                Width = 200;
-                Height = defaultHeight;
+                DataNavigator = new BeepDataNavigator();
+                Console.WriteLine("Data Navigator is Null");
+
             }
+            Controls.Add(DataNavigator);
+            DataNavigator.ShowAllBorders = false;
+            DataNavigator.ShowShadow = false;
+            DataNavigator.IsBorderAffectedByTheme = false;
+            DataNavigator.IsChild = true;
+            DataNavigator.IsShadowAffectedByTheme = false;
+            DataNavigator.ApplyThemeToChilds = false;
+            DataNavigator.Theme = Theme;
+
         }
 
         private void Rows_ListChanged(object sender, ListChangedEventArgs e)
@@ -335,10 +400,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DataNavigator.Theme = Theme;
             }
 
-            //foreach (var row in Rows)
-            //{
-            //    row.ApplyTheme(_currentTheme);
-            //}
 
              Invalidate(); // Repaint the grid after applying the theme
         }
@@ -347,9 +408,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Drawin on DrawingRectangle"
         protected override void OnPaint(PaintEventArgs e)
         {
-            Controls.Clear();
+           // Controls.Clear();
             
-            base.OnPaint(e);
+          //  base.OnPaint(e);
             UpdateDrawingRect();
             // Adjust all drawing within DrawingRect
             var g = e.Graphics;
@@ -362,6 +423,7 @@ namespace TheTechIdea.Beep.Winform.Controls
              topPanelY = drawingBounds.Top;
             if (_showNavigator)
             {
+               
                 bottomPanelY -= navigatorPanelHeight;
                 botomspacetaken = navigatorPanelHeight;
                 navigatorPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width, navigatorPanelHeight);
@@ -388,16 +450,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Draw Header Panel and Title
                 DrawHeaderPanel(g, headerPanelRect);
             }
-           
+          
             var gridRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width  , drawingBounds.Height- botomspacetaken);
             // Draw Column Headers
             PaintColumnHeaders(g, gridRect);
 
             // Draw Rows
             PaintRows(g, gridRect);
+            if (_showverticalgridlines)
+            {
+                DrawColumnBorders(g, gridRect);
 
-            // Draw Column Borders
-           // DrawColumnBorders(g, gridRect);
+            }
+            if (_showhorizontalgridlines)
+            {
+                DrawRowsBorders(g, gridRect);
+            }
+            
 
         }
 
@@ -423,23 +492,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DrawNavigationRow(Graphics g, Rectangle navigatorPanelRect)
         {
-            if (DataNavigator == null)
-            {
-                DataNavigator = new BeepDataNavigator();
-            }
+           
             DataNavigator.Location = new Point(navigatorPanelRect.Left+2, navigatorPanelRect.Top+2);
             DataNavigator.Size = new Size(navigatorPanelRect.Width-2, navigatorPanelHeight-2);
-          //  DataNavigator.Theme = Theme;
-            
-            DataNavigator.ShowAllBorders = false;
-            DataNavigator.ShowShadow = false;
-            DataNavigator.Theme=Theme;
+           
+           // DataNavigator.Invalidate();
+            //DataNavigator.BringToFront();
             // draw line between header and grid
             using (var pen = new Pen(_currentTheme.BorderColor))
             {
                 g.DrawLine(pen, navigatorPanelRect.Left, navigatorPanelRect.Top, navigatorPanelRect.Right, navigatorPanelRect.Top);
             }
-            Controls.Add(DataNavigator);
+           //Console.WriteLine("Drawing Navigator");
         }
         private void PaintRows(Graphics graphics, Rectangle drawingBounds)
         {
@@ -513,16 +577,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             int xOffset = drawingBounds.Left + XOffset;
 
             // Default or user-defined headers
-            List<string> defaultHeaders = new List<string> { "Column 1", "Column 2", "Column 3" };
-            int columnCount = _columnWidths.Count > 0 ? _columnWidths.Count : defaultHeaders.Count;
-
+            //  List<string> defaultHeaders = new List<string> { "Column 1", "Column 2", "Column 3" };
+            int columnCount = Columns.Count;//> 0 ? _columnWidths.Count : defaultHeaders.Count;
+           // Console.WriteLine("Column Count " + columnCount);
             for (int i = 0; i < columnCount; i++)
             {
-                string headerText = (beepGridColumns.Count > i && !string.IsNullOrEmpty(beepGridColumns[i].HeaderText))
-                    ? beepGridColumns[i].HeaderText
-                    : defaultHeaders[i];
+                string headerText = Columns[i].ColumnCaption;
 
-                var columnRect = new Rectangle(xOffset, yOffset, _columnWidths[i], _defaultcolumnheaderheight);
+
+                var columnRect = new Rectangle(xOffset, yOffset, Columns[i].Width, _defaultcolumnheaderheight);
 
                 using (var textBrush = new SolidBrush(_currentTheme.PrimaryColor))
                 {
@@ -533,7 +596,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     });
                 }
 
-                xOffset += _columnWidths[i];
+                xOffset += Columns[i].Width;
             }
             // draw line between header and grid
             using (var pen = new Pen(_currentTheme.BorderColor))
@@ -576,10 +639,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             int yOffset = drawingBounds.Top +ColumnHeight;
             using (var pen = new Pen(_currentTheme.BorderColor))
             {
-                for (int i = 0; i < _columnWidths.Count-1; i++)
+                for (int i = 0; i < Columns.Count-1; i++)
                 {
-                    xOffset += _columnWidths[i];
-                    g.DrawLine(pen, xOffset, yOffset, xOffset, topPanelY );
+                    xOffset += Columns[i].Width;
+                    g.DrawLine(pen, xOffset, yOffset, xOffset, drawingBounds.Bottom);
                 }
             }
         }
@@ -618,17 +681,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             List<string> defaultHeaders = new List<string> { "Column 1", "Column 2", "Column 3" };
 
             // Use defined column widths or placeholder widths
-            int columnCount = _columnWidths.Count > 0 ? _columnWidths.Count : defaultHeaders.Count;
+            int columnCount = Columns.Count;
             int xOffset = XOffset;
 
             for (int i = 0; i < columnCount; i++)
             {
                 // If a header is defined, use it; otherwise, use the default header
-                string headerText = (beepGridColumns.Count > i && !string.IsNullOrEmpty(beepGridColumns[i].HeaderText))
-                                    ? beepGridColumns[i].HeaderText
-                                    : defaultHeaders[i];
+                string headerText = Columns[i].ColumnCaption;
 
-                var columnRect = new Rectangle(xOffset, headerPanelHeight, _columnWidths[i], _defaultcolumnheaderheight);
+                var columnRect = new Rectangle(xOffset, headerPanelHeight, Columns[i].Width, _defaultcolumnheaderheight);
 
                 // Draw the header text if it's not empty
                 if (!string.IsNullOrEmpty(headerText))
@@ -646,13 +707,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                     DrawColumnIcons(graphics, columnRect, i);
                 }
 
-                xOffset += _columnWidths[i];
+                xOffset += Columns[i].Width;
             }
         }
         private void DrawColumnIcons(Graphics graphics, Rectangle columnRect, int columnIndex)
         {
             // Only draw icons if the column has a valid title (i.e., non-empty)
-            //if (!string.IsNullOrEmpty(beepGridColumns[columnIndex].HeaderText))
+            //if (!string.IsNullOrEmpty(GridViewColumns[columnIndex].ColumnCaption))
             //{
                 // Load SVG icons using BeepImage
                 var sortIcon = new BeepImage
@@ -695,6 +756,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void PaintRow(Graphics graphics, BeepGridRow row, Rectangle rowRect)
         {
+            rowRect.Inflate(-1, -1);
             // Ensure we only draw within the grid's DrawingRect area
             int yOffset = DrawingRect.Top+headerPanelHeight ;
             int xOffset = DrawingRect.Left + XOffset;
@@ -705,7 +767,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             for (int i = 0; i < row.Cells.Count; i++)
             {
                 var cell = row.Cells[i];
-                int cellWidth = _columnWidths[i];
+                int cellWidth = Columns[i].Width;
 
                 // Define the cell rectangle within the grid's drawing boundaries
                 var cellRect = new Rectangle(xOffset, yOffset, cellWidth, _rowHeight);
@@ -776,26 +838,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-
-            //// Recalculate the layout here if necessary
-            //AdjustColumnWidths();
-            //AdjustRowHeights();
-
-            // Redraw the grid after resize adjustments
             Invalidate();
         }
         private void AdjustColumnWidths()
         {
             int availableWidth = this.Width - XOffset; // Account for any offsets
-            int columnCount = _columnWidths.Count;
+            int columnCount = Columns.Count;
 
             if (columnCount > 0)
             {
                 int newWidth = availableWidth / columnCount;
 
-                for (int i = 0; i < _columnWidths.Count; i++)
+                for (int i = 0; i < Columns.Count; i++)
                 {
-                    _columnWidths[i] = newWidth;
+                    Columns[i].Width = newWidth;
                 }
             }
         }
@@ -892,7 +948,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_resizingColumn)
             {
                 int deltaX = e.X - _lastMousePos.X;
-                _columnWidths[_resizingIndex] += deltaX;
+                Columns[_resizingIndex].Width += deltaX;
                 _lastMousePos = e.Location;
                 Invalidate();
             }
@@ -930,9 +986,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool IsNearColumnBorder(Point location, out int columnIndex)
         {
             int xOffset = 0;
-            for (int i = 0; i < _columnWidths.Count; i++)
+            for (int i = 0; i < Columns.Count; i++)
             {
-                xOffset += _columnWidths[i];
+                xOffset += Columns[i].Width;
                 if (Math.Abs(location.X - xOffset) <= _resizeMargin)
                 {
                     columnIndex = i;
@@ -1006,13 +1062,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                     int xOffset = 0;
                     for (int colIndex = 0; colIndex < row.Cells.Count; colIndex++)
                     {
-                        var cellRect = new Rectangle(xOffset, yOffset, _columnWidths[colIndex], _rowHeight);
+                        var cellRect = new Rectangle(xOffset, yOffset, Columns[colIndex].Width, _rowHeight);
                         if (cellRect.Contains(e.Location))
                         {
                             OnCellClick(row.Cells[colIndex]);
                             return;
                         }
-                        xOffset += _columnWidths[colIndex];
+                        xOffset += Columns[colIndex].Width;
                     }
                 }
                 yOffset += _rowHeight;
@@ -1153,171 +1209,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnHandleCreated(e);
             ApplyTheme();
             // Ensure consistent GridId at runtime and design time
-            if (!DesignMode && LicenseManager.UsageMode != LicenseUsageMode.Designtime)
-            {
-                LoadGridLayout();  // Load layout specific to this grid based on GridId
-            }
-        }
-        public void LoadGridLayout()
-        {
-            string layoutFilePath = $"{GuidID}_layout.json";
-            if (File.Exists(layoutFilePath))
-            {
-                LoadColumnLayoutFromFile(layoutFilePath);  // Load layout if file exists
-            }
-        }
-
-        public void SaveGridLayout()
-        {
-            string layoutFilePath = $"{GuidID}_layout.json";
-            SaveColumnLayoutToFile(layoutFilePath);  // Save layout to file
-        }
-        public void ApplyColumnConfigurations()
-        {
-            this.beepGridColumns.Clear(); // Clear existing columns before applying the configuration
-
-            foreach (var config in beepGridColumns)
-            {
-                DataGridViewColumn column = null;
-
-                // Handle different types of columns
-                switch (config.ColumnType)
-                {
-                    case "BeepDataGridViewComboBoxColumn":
-                        column = new BeepDataGridViewComboBoxColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.HeaderText,
-                            Width = config.Width,
-                            DataSourceName = config.DataSourceName,
-                            DisplayMember = config.DisplayMember,
-                            ValueMember = config.ValueMember
-                        };
-
-                        // Check for custom cascading map
-                        if (column is BeepDataGridViewComboBoxColumn comboBoxColumn && config.CascadingMap != null)
-                        {
-                            comboBoxColumn.CascadingMap = config.CascadingMap;
-                        }
-                        break;
-
-                    case "BeepDataGridViewNumericColumn":
-                        column = new BeepDataGridViewNumericColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.HeaderText,
-                            Width = config.Width,
-                            // You can add more numeric-specific properties here if needed
-                        };
-                        break;
-
-                    case "BeepDataGridViewProgressBarColumn":
-                        column = new BeepDataGridViewProgressBarColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.HeaderText,
-                            Width = config.Width,
-                            ProgressBarColor = config.ProgressBarColor
-                        };
-                        break;
-
-                    case "BeepDataGridViewSvgColumn":
-                        column = new BeepDataGridViewSvgColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.HeaderText,
-                            Width = config.Width,
-                        };
-                        break;
-
-                    case "BeepDataGridViewThreeStateCheckBoxColumn":
-                        column = new BeepDataGridViewThreeStateCheckBoxColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.HeaderText,
-                            Width = config.Width
-                        };
-                        break;
-
-                    case "BeepDataGridViewSliderColumn":
-                        column = new BeepDataGridViewSliderColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.HeaderText,
-                            Width = config.Width,
-                        };
-                        break;
-
-                    case "BeepDataGridViewRatingColumn":
-                        column = new BeepDataGridViewRatingColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.HeaderText,
-                            Width = config.Width,
-                            FilledStarColor = config.FilledStarColor,
-                            EmptyStarColor = config.EmptyStarColor,
-                            MaxStars = config.MaxStars
-                        };
-                        break;
-
-                    case "BeepDataGridViewSwitchColumn":
-                        column = new BeepDataGridViewSwitchColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.HeaderText,
-                            Width = config.Width,
-                        };
-                        break;
-
-                    case "BeepDataGridViewMultiColumnColumn":
-                        column = new BeepDataGridViewMultiColumnColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.HeaderText,
-                            Width = config.Width,
-                        };
-                        break;
-
-                    case "BeepDataGridViewImageComboBoxColumn":
-                        column = new BeepDataGridViewImageComboBoxColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.HeaderText,
-                            Width = config.Width,
-                        };
-                        break;
-
-                    default:
-                        // Fallback to DataGridViewTextBoxColumn if type is not found
-                        column = new DataGridViewTextBoxColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.HeaderText,
-                            Width = config.Width
-                        };
-                        break;
-                }
-
-                if (column != null)
-                {
-                   // this.beepGridColumns.Add(column); // Add the column to the grid
-                }
-            }
-        }
-
-        public void SaveColumnLayoutToFile(string filePath)
-        {
-            var json = JsonConvert.SerializeObject(beepGridColumns, Formatting.Indented);
-            File.WriteAllText(filePath, json);
-        }
-        public void LoadColumnLayoutFromFile(string filePath)
-        {
-            if (File.Exists(filePath))
-            {
-                var json = File.ReadAllText(filePath);
-                beepGridColumns = JsonConvert.DeserializeObject<BindingList<BeepGridColumnConfig>>(json);
-                ApplyColumnConfigurations(); // Rebuild the grid with loaded columns
-            }
+            //if (!DesignMode && LicenseManager.UsageMode != LicenseUsageMode.Designtime)
+            //{
+            //    LoadGridLayout();  // Load layout specific to this grid based on GridId
+            //}
         }
         #endregion "Layout Load and Save"
     }

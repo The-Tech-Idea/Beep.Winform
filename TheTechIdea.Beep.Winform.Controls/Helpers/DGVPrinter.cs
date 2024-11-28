@@ -317,7 +317,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         public IList<ImbeddedImage> ImbeddedImageList = new List<ImbeddedImage>();
 
         // handle wide-column printing - that is, lists of columns that extend
-        // wider than one page width. Columns are broken up into "Page Sets" that
+        // wider than one page width. GridViewColumns are broken up into "Page Sets" that
         // are printed one after another until all columns are printed.
         class PageDef
         {
@@ -2014,15 +2014,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
                 RowHeaderCellStyle = dgv.Rows[0].HeaderCell.InheritedStyle;
 
             /* Functionality to come - redo of styling
-            foreach (DataGridViewColumn col in dgv.Columns)
+            foreach (DataGridViewColumn col in dgv.GridViewColumns)
             {
                 // Set the default column styles where we've not been given an override
                 if (!ColumnStyles.ContainsKey(col.Name))
-                    ColumnStyles[col.Name] = dgv.Columns[col.Name].InheritedStyle;
+                    ColumnStyles[col.Name] = dgv.GridViewColumns[col.Name].InheritedStyle;
 
                 // Set the default column header styles where we don't have an override
                 if (!ColumnHeaderStyles.ContainsKey(col.Name))
-                    ColumnHeaderStyles[col.Name] = dgv.Columns[col.Name].HeaderCell.InheritedStyle;
+                    ColumnHeaderStyles[col.Name] = dgv.GridViewColumns[col.Name].HeaderCell.InheritedStyle;
             }
             */
 

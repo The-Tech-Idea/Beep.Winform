@@ -61,6 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeBindingSourceEvents();
             IsShadowAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
+            ApplyThemeToChilds = false  ;
         }
         protected override void InitLayout()
         {
@@ -73,10 +74,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnResize(EventArgs e)
         {
-          //  base.OnResize(e);
-          //  UpdateDrawingRect();
+            base.OnResize(e);
+
+            // Ensure the height remains limited
+            Height = ButtonHeight + (YOffset * 2);
+
+            // Rearrange buttons and label
             ArrangeControls();
         }
+        protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+        {
+            // Limit the height to the preferred height of the buttons and padding
+            int adjustedHeight = ButtonHeight + (YOffset * 2); // Add padding for spacing
+            base.SetBoundsCore(x, y, width, adjustedHeight, specified);
+        }
+
         private void CreateNavigator()
         {
             UpdateDrawingRect();
@@ -130,6 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ArrangeControls();
            
         }
+       
 
         private BeepButton CreateButton(string text, EventHandler onClick,string imagepath=null)
         {
@@ -160,39 +173,37 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ArrangeControls()
         {
-            // Get the dimensions of DrawingRect
             int drawRectX = DrawingRect.X;
             int drawRectY = DrawingRect.Y;
             int drawRectWidth = DrawingRect.Width;
             int drawRectHeight = DrawingRect.Height;
 
-            // Calculate the total width of all buttons and spacing in between
-            int totalButtonWidth = (ButtonWidth + 5) * 8; // Adjust this based on the actual number of buttons
+            // Center the buttons vertically within the control
+            int y = drawRectY + (drawRectHeight - ButtonHeight) / 2;
+
+            // Calculate the starting X position for horizontal centering
+            int totalButtonWidth = (ButtonWidth + buttonSpacing) * 8; // Adjust based on the number of buttons
             int totalLabelWidth = txtPosition.Width;
             int totalWidth = totalButtonWidth + totalLabelWidth;
+            int x = drawRectX + (drawRectWidth - totalWidth) / 2;
 
-            // Calculate starting X position to center align the buttons and label horizontally within DrawingRect
-            int x = drawRectX + (drawRectWidth - totalWidth) / 2; // Center horizontally within DrawingRect
-            int y = drawRectY + (drawRectHeight - ButtonHeight) / 2; // Center vertically within DrawingRect
-
-            // Arrange navigation buttons (first, previous, next, last)
+            // Arrange navigation buttons
             btnFirst.Location = new Point(x, y);
             btnPrevious.Location = new Point(btnFirst.Right + buttonSpacing, y);
             btnNext.Location = new Point(btnPrevious.Right + buttonSpacing, y);
             btnLast.Location = new Point(btnNext.Right + buttonSpacing, y);
 
-            // Arrange CRUD buttons (insert, delete, save, cancel)
+            // Arrange CRUD buttons
             btnInsert.Location = new Point(btnLast.Right + buttonSpacing, y);
             btnDelete.Location = new Point(btnInsert.Right + buttonSpacing, y);
             btnSave.Location = new Point(btnDelete.Right + buttonSpacing, y);
             btnCancel.Location = new Point(btnSave.Right + buttonSpacing, y);
 
-            // Position the label for current position (txtPosition) after the cancel button
-            txtPosition.Size = new Size(60, ButtonHeight);
+            // Arrange the label for the current position
             txtPosition.Location = new Point(btnCancel.Right + buttonSpacing, y);
-            this.MinimumSize = new Size((ButtonWidth * 9)+(buttonSpacing*11) , ButtonHeight + 4); // Set based on layout needs
-          //  this.Size = new Size(400, ButtonHeight + 4); // Default start size
+            txtPosition.Size = new Size(60, ButtonHeight);
         }
+
 
 
         private void InitializeBindingSourceEvents()

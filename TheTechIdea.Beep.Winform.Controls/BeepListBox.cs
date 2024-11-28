@@ -156,13 +156,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Create the left-side highlight panel
             Panel highlightPanel = new Panel
             {
-                Width = 5,
+                Width = 7,
                 Dock = DockStyle.Left,
                 BackColor = _currentTheme.SideMenuBackColor,
                 Visible = true,
-                
 
             };
+            Panel spacingpane = new Panel
+            {
+                Width =2,
+                Dock = DockStyle.Left,
+                BackColor = _currentTheme.SideMenuBackColor,
+                Visible = true,
+            };
+
 
             // Initialize BeepButton for icon and text
             BeepButton button = new BeepButton
@@ -206,35 +213,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                 button.Theme = Theme;
             }
             // Add BeepButton and highlight panel to the panel
+            menuItemPanel.Controls.Add(spacingpane);
             menuItemPanel.Controls.Add(highlightPanel);
+     
             menuItemPanel.Controls.Add(button);
-            _buttons.Add(button);
             button.BringToFront();
+            _buttons.Add(button);
+            //button.BringToFront();
             //Handle hover effects for the menu item panel
 
-            //menuItemPanel.MouseEnter += (s, e) =>
-            //{
-            //    menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
-            //    highlightPanel.Visible = true;
-            //};
-            // menuItemPanel.MouseLeave += (s, e) =>
-            // {
-            //     menuItemPanel.BackColor = _currentTheme.PanelBackColor;
-            //     highlightPanel.Visible = false;
-            // };
-
-            // Handle button events
             button.MouseEnter += (s, e) =>
             {
-                highlightPanel.BackColor = _currentTheme.ButtonHoverBackColor;
-             //   highlightPanel.Visible = true;
+                menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
+                highlightPanel.BackColor = _currentTheme.AccentColor;
             };
             button.MouseLeave += (s, e) =>
             {
+                menuItemPanel.BackColor = _currentTheme.SideMenuBackColor;
                 highlightPanel.BackColor = _currentTheme.SideMenuBackColor;
-             //   highlightPanel.Visible = false;
             };
-            button.Click += MenuItemButton_Click;
+            button.Click += Button_Click;
+
 
             return menuItemPanel;
         }
@@ -249,6 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             drawRectWidth = DrawingRect.Width - 4;
             drawRectHeight = DrawingRect.Height - 2;
             ButtonSize = new Size(drawRectWidth-2, _menuItemHeight-2);
+            int spacing = 2;
             // Remove existing menu item panels
             foreach (var control in this.Controls.OfType<Panel>().Where(c => c.Tag is SimpleItem).ToList())
             {
@@ -276,7 +276,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     menuItemPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
                     this.Controls.Add(menuItemPanel);
 
-                    yOffset += menuItemPanel.Height;
+                    yOffset += menuItemPanel.Height+ spacing;
 
                     //Add child items(if any) below the parent menu item
                     if (item.Children != null && item.Children.Count > 0)
@@ -300,15 +300,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected virtual void MenuItemButton_Click(object? sender, EventArgs e)
         {
-
+            ItemClicked(sender);
         }
 
         private void Button_Click(object sender, EventArgs e)
         {
+            ItemClicked(sender);
+        }
+        protected virtual void ItemClicked(object sender)
+        {
             if (sender is BeepButton clickedButton)
                 SelectedIndex = _buttons.IndexOf(clickedButton);
         }
-
         private void ChangeImageSettings()
         {
             foreach (var item in _buttons)

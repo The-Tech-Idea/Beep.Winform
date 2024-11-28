@@ -1,13 +1,23 @@
-﻿
-using System.ComponentModel;
-
+﻿using System.ComponentModel;
 using System.Drawing.Drawing2D;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public class BeepCheckBox : BeepControl
+    // Non-generic base class with a default type of bool
+    public class BeepCheckBox : BeepCheckBox<bool>
     {
-        // Enum for checkbox states
+        public BeepCheckBox()
+        {
+            // Default values for CheckedValue and UncheckedValue
+            CheckedValue = true;
+            UncheckedValue = false;
+            CurrentValue = false;
+        }
+    }
+
+    // Generic class for flexibility
+    public class BeepCheckBox<T> : BeepControl
+    {
         public enum CheckBoxState
         {
             Unchecked,
@@ -15,7 +25,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Indeterminate
         }
 
-        // Enum for checkbox alignment relative to text
         public enum TextAlignment
         {
             Right,
@@ -24,7 +33,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Below
         }
 
-        // Enum for check mark shapes
         public enum CheckMarkShape
         {
             Square,
@@ -33,25 +41,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         private CheckBoxState _state = CheckBoxState.Unchecked;
-        private bool _checked;
+        private T _checkedValue;
+        private T _uncheckedValue;
+        private T _currentValue;
         private BeepImage _beepImage;
-        private ToolTip _toolTip = new ToolTip();
-        private System.Windows.Forms.Timer animationTimer = new System.Windows.Forms.Timer();
-        private int animationStep = 0;
-        private TextAlignment _textAlignRelativeToCheckBox = TextAlignment.Right;
-        private const int MaxSteps = 10;
-        private int checkBoxSize = 10;
-        Rectangle checkBoxRect;
+        private bool _hideText = false;
+
         public BeepCheckBox()
         {
-            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            if (Width <= 0 || Height <= 0)
             {
                 Width = 200;
                 Height = 30;
             }
-            animationTimer.Interval = 16; // 60 FPS
-            animationTimer.Tick += AnimationTimer_Tick;
-            Padding = new Padding(5, 5,5,5);
+
+            Padding = new Padding(5, 5, 5, 5);
+
             _beepImage = new BeepImage
             {
                 Theme = Theme
@@ -60,53 +65,74 @@ namespace TheTechIdea.Beep.Winform.Controls
             ApplyTheme();
         }
 
-        // Properties
-        private int _spacing = 5;
-        [Category("Appearance")]
-        public int Spacing
-        {
-            get { return _spacing; }
-            set { _spacing = value;Invalidate(); }
-        }
-
+        #region Properties
 
         [Category("Appearance")]
-        public TextAlignment TextAlignRelativeToCheckBox { get { return _textAlignRelativeToCheckBox; } set { _textAlignRelativeToCheckBox = value; Invalidate (); } } 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public TextAlignment TextAlignRelativeToCheckBox { get; set; } = TextAlignment.Right;
 
         [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public CheckMarkShape CheckMark { get; set; } = CheckMarkShape.Square;
 
         [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public CheckBoxState State
         {
             get => _state;
             set
             {
                 _state = value;
+                UpdateCurrentValue();
+                Invalidate();
+            }
+        }
+
+        [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public T CheckedValue
+        {
+            get => _checkedValue;
+            set
+            {
+                _checkedValue = value;
+                UpdateCurrentValue();
+            }
+        }
+
+        [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public T UncheckedValue
+        {
+            get => _uncheckedValue;
+            set
+            {
+                _uncheckedValue = value;
+                UpdateCurrentValue();
+            }
+        }
+
+        [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public T CurrentValue
+        {
+            get => _currentValue;
+            set
+            {
+                _currentValue = value;
+                UpdateStateFromValue();
                 Invalidate();
             }
         }
 
         [Category("Appearance")]
-        public int BorderRadius { get; set; } = 5;
 
-        [Category("Appearance")]
-        public Font CheckedFont { get; set; } = new Font("Arial", 10, FontStyle.Bold);
-
-        [Category("Appearance")]
-        public Font UncheckedFont { get; set; } = new Font("Arial", 10, FontStyle.Regular);
-
-     
-        // Custom True/False values
-        public char TrueValue { get; set; } = 'Y';
-        public char FalseValue { get; set; } = 'N';
-
-        public new char CheckedValue
+        public bool HideText
         {
-            get => _checked ? TrueValue : FalseValue;
+            get => _hideText;
             set
             {
-                _checked = value == TrueValue;
+                _hideText = value;
                 Invalidate();
             }
         }
@@ -131,178 +157,118 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        // Animation and state handling
-        private void AnimationTimer_Tick(object sender, EventArgs e)
+        public int Spacing { get; set; } = 5;
+
+        #endregion
+
+        #region Methods
+
+        private void UpdateCurrentValue()
         {
-            animationStep++;
-            if (animationStep >= MaxSteps)
-            {
-                animationTimer.Stop();
-                animationStep = 0;
-            }
-            Invalidate();
+            _currentValue = _state == CheckBoxState.Checked ? _checkedValue : _uncheckedValue;
+        }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+
+            // Enforce minimum size for the control
+            int minSize = Padding.Left + Padding.Right + 20; // 20 is the minimum checkbox size
+            if (Width < minSize) Width = minSize;
+            if (Height < minSize) Height = minSize;
+
+            Invalidate(); // Redraw to ensure the layout is updated
         }
 
-        // Paint customization
+        private void UpdateStateFromValue()
+        {
+            if (_currentValue != null && _currentValue.Equals(_checkedValue))
+            {
+                _state = CheckBoxState.Checked;
+            }
+            else if (_currentValue != null && _currentValue.Equals(_uncheckedValue))
+            {
+                _state = CheckBoxState.Unchecked;
+            }
+            else
+            {
+                _state = CheckBoxState.Indeterminate;
+            }
+        }
+
+        #endregion
+
+        #region Painting
 
         protected override void OnPaint(PaintEventArgs pe)
         {
             base.OnPaint(pe);
+
             var g = pe.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
+
             UpdateDrawingRect();
-            // Define the checkbox dimensions within DrawingRect, adjusted based on text alignment
-           
-            // Define text rectangle if text is visible
-            Rectangle textRect = Rectangle.Empty;
-            if (!string.IsNullOrEmpty(Text))
-            {
-                textRect = GetTextRectangle(Text, Font, TextAlignRelativeToCheckBox);
-            }
 
-            checkBoxSize = Math.Min(DrawingRect.Height - 10, 20); // Limit checkbox size to fit within DrawingRect
-            checkBoxRect = GetCheckBoxRectangle(checkBoxSize, textRect);
+            int checkBoxSize = Math.Min(DrawingRect.Height - 10, 20); // Define checkbox size
 
-            // Draw the checkbox background and border
+            // Get checkbox rectangle
+            var checkBoxRect = GetCheckBoxRectangle(checkBoxSize);
+
+            // Draw checkbox background
             Color checkBoxBackColor = _state == CheckBoxState.Checked ? _currentTheme.ButtonBackColor
-                         : (_state == CheckBoxState.Indeterminate ? _currentTheme.WarningColor
-                         : _currentTheme.PanelBackColor);
+                : (_state == CheckBoxState.Indeterminate ? _currentTheme.WarningColor : _currentTheme.PanelBackColor);
+
             using (Brush backBrush = new SolidBrush(checkBoxBackColor))
             {
                 g.FillRectangle(backBrush, checkBoxRect);
             }
+
+            // Draw checkbox border
             using (Pen borderPen = new Pen(_currentTheme.BorderColor, 2))
             {
                 g.DrawRectangle(borderPen, checkBoxRect);
             }
 
-            // Draw the check mark if needed
+            // Draw the check mark
             if (_state == CheckBoxState.Checked)
             {
-                DrawCheckMark(g, checkBoxRect); // Only for Checked
+                DrawCheckMark(g, checkBoxRect);
             }
             else if (_state == CheckBoxState.Indeterminate)
             {
-                DrawIndeterminateMark(g, checkBoxRect); // Custom drawing for Indeterminate state
+                DrawIndeterminateMark(g, checkBoxRect);
             }
 
-            // Draw aligned text
-            if (!string.IsNullOrEmpty(Text))
+            // Draw text if HideText is false
+            if (!HideText && !string.IsNullOrEmpty(Text))
             {
+                var textRect = GetTextRectangle(Text, Font);
                 DrawAlignedText(g, Text, Font, ForeColor, textRect);
             }
         }
 
-        // Alignment calculation for checkbox and text
-
-        private Rectangle GetTextRectangle(string text, Font font, TextAlignment alignment)
+        private Rectangle GetCheckBoxRectangle(int checkBoxSize)
         {
+            // Adjust for padding and position the checkbox vertically centered
+            int centerY = DrawingRect.Y + (DrawingRect.Height - checkBoxSize) / 2;
+            return new Rectangle(DrawingRect.X + Padding.Left, centerY, checkBoxSize, checkBoxSize);
+        }
+
+        private Rectangle GetTextRectangle(string text, Font font)
+        {
+            int checkBoxSize = Math.Min(DrawingRect.Height - 10, 20); // Define checkbox size here
             Size textSize = TextRenderer.MeasureText(text, font);
 
-            // Adjust DrawingRect by Padding
-            Rectangle adjustedRect = new Rectangle(
-                DrawingRect.X + Padding.Left,
-                DrawingRect.Y + Padding.Top,
-                DrawingRect.Width - (Padding.Left + Padding.Right),
-                DrawingRect.Height - (Padding.Top + Padding.Bottom)
-            );
+            int offsetX = DrawingRect.X + checkBoxSize + Spacing + Padding.Left; // Include checkbox size
+            int centerY = DrawingRect.Y + (DrawingRect.Height - textSize.Height) / 2;
 
-            int spacing = 5; // Add spacing between text and checkbox
-
-            return alignment switch
-            {
-                TextAlignment.Right => new Rectangle(
-                    adjustedRect.Right - textSize.Width - spacing,
-                    adjustedRect.Y + (adjustedRect.Height - textSize.Height) / 2,
-                    textSize.Width,
-                    textSize.Height),
-
-                TextAlignment.Left => new Rectangle(
-                    adjustedRect.X + spacing,
-                    adjustedRect.Y + (adjustedRect.Height - textSize.Height) / 2,
-                    textSize.Width,
-                    textSize.Height),
-
-                TextAlignment.Above => new Rectangle(
-                    adjustedRect.X + (adjustedRect.Width - textSize.Width) / 2,
-                    adjustedRect.Y,
-                    textSize.Width,
-                    textSize.Height),
-
-                TextAlignment.Below => new Rectangle(
-                    adjustedRect.X + (adjustedRect.Width - textSize.Width) / 2,
-                    adjustedRect.Bottom - textSize.Height,
-                    textSize.Width,
-                    textSize.Height),
-
-                _ => Rectangle.Empty
-            };
+            return new Rectangle(offsetX, centerY, textSize.Width, textSize.Height);
         }
 
-        private Rectangle GetCheckBoxRectangle(int checkBoxSize, Rectangle textRect)
-        {
-            // Define the padded area within DrawingRect for positioning
-            Rectangle paddedRect = new Rectangle(
-                DrawingRect.X + Padding.Left,
-                DrawingRect.Y + Padding.Top,
-                DrawingRect.Width - (Padding.Left + Padding.Right),
-                DrawingRect.Height - (Padding.Top + Padding.Bottom)
-            );
-
-            // Position checkbox relative to text based on TextAlignRelativeToCheckBox
-            return TextAlignRelativeToCheckBox switch
-            {
-                TextAlignment.Right => new Rectangle(
-                    paddedRect.X,
-                    paddedRect.Y + (paddedRect.Height - checkBoxSize) / 2,
-                    checkBoxSize,
-                    checkBoxSize),
-
-                TextAlignment.Left => new Rectangle(
-                    textRect.Right + Padding.Right,
-                    paddedRect.Y + (paddedRect.Height - checkBoxSize) / 2,
-                    checkBoxSize,
-                    checkBoxSize),
-
-                TextAlignment.Above => new Rectangle(
-                    paddedRect.X + (paddedRect.Width - checkBoxSize) / 2,
-                    textRect.Bottom + Padding.Bottom,
-                    checkBoxSize,
-                    checkBoxSize),
-
-                TextAlignment.Below => new Rectangle(
-                    paddedRect.X + (paddedRect.Width - checkBoxSize) / 2,
-                    paddedRect.Y,
-                    checkBoxSize,
-                    checkBoxSize),
-
-                _ => new Rectangle(paddedRect.X, paddedRect.Y, checkBoxSize, checkBoxSize)
-            };
-        }
-
-
-
-
-        private void DrawAlignedText(Graphics g, string text, Font font, Color color, Rectangle textRect)
-        {
-            TextRenderer.DrawText(
-                g,
-                text,
-                font,
-                textRect,
-                color,
-                TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
-        }
-
-        // Check mark and indeterminate drawing
 
         private void DrawCheckMark(Graphics g, Rectangle bounds)
         {
-            Color checkMarkColor = _currentTheme.ButtonForeColor;
-
-            using (Pen pen = new Pen(checkMarkColor, 2))
+            using (Pen pen = new Pen(_currentTheme.ButtonForeColor, 2))
             {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
                 PointF[] checkMarkPoints = new PointF[]
                 {
                     new PointF(bounds.X + bounds.Width / 4, bounds.Y + bounds.Height / 2),
@@ -318,13 +284,47 @@ namespace TheTechIdea.Beep.Winform.Controls
             using (Brush indeterminateBrush = new SolidBrush(_currentTheme.WarningColor))
             {
                 g.FillRectangle(indeterminateBrush, bounds.X + bounds.Width / 4, bounds.Y + bounds.Height / 4,
-                                bounds.Width / 2, bounds.Height / 2);
+                    bounds.Width / 2, bounds.Height / 2);
             }
+        }
+
+        private void DrawAlignedText(Graphics g, string text, Font font, Color color, Rectangle textRect)
+        {
+            TextRenderer.DrawText(
+                g,
+                text,
+                font,
+                textRect,
+                color,
+                TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
+        }
+
+        #endregion
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+
+            // Get the checkbox rectangle
+            int checkBoxSize = Math.Min(Math.Min(DrawingRect.Width, DrawingRect.Height) - 10, 20); // Ensure checkbox fits within the control
+            var checkBoxRect = GetCheckBoxRectangle(checkBoxSize);
+
+            // Toggle state if HideText is true or the click is inside the checkbox rectangle
+            if (HideText || checkBoxRect.Contains(e.Location))
+            {
+                State = State == CheckBoxState.Checked ? CheckBoxState.Unchecked : CheckBoxState.Checked;
+                OnStateChanged(); // Update CurrentValue and redraw
+            }
+        }
+
+
+        private void OnStateChanged()
+        {
+            CurrentValue = State == CheckBoxState.Checked ? CheckedValue : UncheckedValue;
+            Invalidate(); // Redraw the control
         }
 
         public override void ApplyTheme()
         {
-            //base.ApplyTheme();
             if (Theme != null)
             {
                 _beepImage.Theme = Theme;

@@ -428,9 +428,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = HilightPanelSize,
                 Dock = DockStyle.Left,
                 BackColor = _currentTheme.SideMenuBackColor,
-                Visible = false
+                Visible = true
             };
-
+            Panel spacingpane = new Panel
+            {
+                Width = 2,
+                Dock = DockStyle.Left,
+                BackColor = _currentTheme.SideMenuBackColor,
+                Visible = true,
+            };
             BeepButton button = new BeepButton
             {
                 Dock = DockStyle.Fill,
@@ -454,13 +460,21 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             };
 
-            button.MouseEnter += (s, e) => menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
-            button.MouseLeave += (s, e) => menuItemPanel.BackColor = _currentTheme.SideMenuBackColor;
+            button.MouseEnter += (s, e) =>
+            {
+                menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
+                highlightPanel.BackColor = _currentTheme.AccentColor;
+            };
+            button.MouseLeave += (s, e) =>
+            {
+                menuItemPanel.BackColor = _currentTheme.SideMenuBackColor;
+                highlightPanel.BackColor = _currentTheme.SideMenuBackColor;
+            };
             button.Click += (s, e) => OnMenuItemClick(item);
-
+            menuItemPanel.Controls.Add(spacingpane);
             menuItemPanel.Controls.Add(highlightPanel);
             menuItemPanel.Controls.Add(button);
-
+            button.BringToFront();
             return menuItemPanel;
         }
 

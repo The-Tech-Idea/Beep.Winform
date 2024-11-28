@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
-using System.Linq;
-using System.Windows.Forms;
+
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -36,7 +35,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             Width = 300;
             Height = 30;
-            
+        
+
+        }
+        protected override void CreateHandle()
+        {
+            base.CreateHandle();
+            _keyTextBox.MouseEnter += (s, e) => OnMouseEnter(e);
+            _keyTextBox.MouseHover += (s, e) => OnMouseHover(e);
+            _keyTextBox.MouseLeave += (s, e) => OnMouseLeave(e);
+            _valueTextBox.MouseEnter += (s, e) => OnMouseEnter(e);
+            _valueTextBox.MouseHover += (s, e) => OnMouseHover(e);
+            _valueTextBox.MouseLeave += (s, e) => OnMouseLeave(e);
         }
         protected override void InitLayout()
         {
@@ -105,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Data")]
         [Description("The selected display value.")]
-        public string SelectedValue
+        public string SelectedDisplayValue
         {
             get => _valueTextBox.Text;
             private set { if (_valueTextBox == null) return; _valueTextBox.Text = value; }
@@ -165,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Padding = new Padding(2)
             };
             _popupForm.Controls.Add(_dropdownListBox);
-
+            _dropdownListBox.Dock = DockStyle.Fill;
             // Add controls
             Controls.Add(_keyTextBox);
             Controls.Add(_valueTextBox);
@@ -213,7 +223,26 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
 
+      
         private void UpdateDropdownItems()
+        {
+            if (_dropdownListBox == null) return;
+            _dropdownListBox.Items.Clear();
+            if (_items == null) return;
+
+            foreach (var item in _items)
+            {
+                _dropdownListBox.Items.Add(item);
+            }
+        }
+        private void UpdateDisplayValue()
+        {
+            var selectedItem = _items.FirstOrDefault(i => i.Id == SelectedKey);
+            SelectedDisplayValue = selectedItem?.DisplayField ?? string.Empty;
+        }
+
+        #region "Generic Handling"
+        private void UpdateDropdownItemsGeneric()
         {
             if (_dropdownListBox == null) return;
             _dropdownListBox.Items.Clear();
@@ -229,8 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
-        private void UpdateDisplayValue()
+        private void UpdateDisplayValueGeneric()
         {
             if (_items == null || string.IsNullOrEmpty(_listField) || string.IsNullOrEmpty(_displayField)) return;
 
@@ -242,14 +270,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (item != null)
             {
-                SelectedValue = item.GetType().GetProperty(_displayField)?.GetValue(item)?.ToString();
+                SelectedDisplayValue = item.GetType().GetProperty(_displayField)?.GetValue(item)?.ToString();
             }
             else
             {
-                SelectedValue = string.Empty;
+                SelectedDisplayValue = string.Empty;
             }
         }
-
+        #endregion "Generic Handling"
         private void DropdownButton_Click(object sender, EventArgs e)
         {
             if (_popupForm.Visible)
@@ -265,9 +293,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DropdownListBox_DoubleClick(object sender, EventArgs e)
         {
-            if (_dropdownListBox.SelectedItem is KeyValuePair<string, string> selectedItem)
+            if (_dropdownListBox.SelectedItem is SimpleItem selectedItem)
             {
-                SelectedKey = selectedItem.Key;
+                SelectedKey = selectedItem.Id;
                 _popupForm.Hide();
             }
         }
@@ -309,6 +337,28 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _dropdownButton.BackColor = _currentTheme.TextBoxBackColor;
             _dropdownButton.ForeColor = _currentTheme.TextBoxForeColor;
+        }
+        private  void OnMouseEnter(EventArgs e)
+        {
+           
+           
+            IsHovered = true;
+           
+            //Invalidate();
+        }
+        protected  void OnMouseHover(EventArgs e)
+        {
+            IsHovered = true;
+        }
+        protected  void OnMouseLeave(EventArgs e)
+        {
+           
+            BorderColor = _currentTheme.BorderColor;
+            IsPressed = false;
+            IsFocused = false;
+            IsHovered = false;
+            HideToolTip(); // Hide tooltip on mouse leave
+                           // Invalidate();
         }
     }
 }

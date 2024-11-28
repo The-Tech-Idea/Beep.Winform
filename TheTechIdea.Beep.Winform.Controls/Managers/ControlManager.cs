@@ -567,7 +567,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                         cb.ValueMember = FK.RelatedEntityColumnID;
                         cb.Width = maxDatasize;
                         cb.Height = l.Height;
-                        cb.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", EntityBindingSource, col.fieldname, true));
+                        cb.DataBindings.Add(new System.Windows.Forms.Binding("SelectedDisplayValue", EntityBindingSource, col.fieldname, true));
                         // cb.SelectedValueChanged += Cb_SelectedValueChanged;
                         cb.Anchor = AnchorStyles.Top;
                         control.Controls.Add(cb);
@@ -631,7 +631,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
                                 break;
                             case "System.Char":
-                                BeepCheckBox ch2 = new BeepCheckBox
+                                BeepCheckBox<Char> ch2 = new BeepCheckBox<Char>
                                 {
                                     Left = l.Left + l.Width + 10,
                                     Top = starth
@@ -645,8 +645,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
                                 if (coldefaults != null)
                                 {
-                                    ch2.TrueValue = v[0].ToCharArray()[0];
-                                    ch2.FalseValue = v[1].ToCharArray()[0];
+                                    ch2.CheckedValue = v[0].ToCharArray()[0];
+                                    ch2.UncheckedValue = v[1].ToCharArray()[0];
                                 }
                                 //ch2.CheckStateChanged += Ch1_CheckStateChanged; ;
                                 ch2.Anchor = AnchorStyles.Top;
@@ -683,7 +683,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                                 }
                                 else
                                 {
-                                    ch2 = new BeepCheckBox
+                                    ch2 = new BeepCheckBox<Char>
                                     {
                                         Left = l.Left + l.Width + 10,
                                         Top = starth
@@ -699,8 +699,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                                     if (coldefaults != null)
                                     {
                                         v = coldefaults.propoertValue.Split(',');
-                                        ch2.TrueValue = v[0].ToCharArray()[0];
-                                        ch2.FalseValue = v[1].ToCharArray()[0];
+                                        ch2.CheckedValue = v[0].ToCharArray()[0];
+                                        ch2.UncheckedValue = v[1].ToCharArray()[0];
                                     }
                                     //      ch2.CheckStateChanged += Ch1_CheckStateChanged; ;
                                     CurCTL = ch2;
@@ -868,7 +868,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     cbcondition.Width = 50;
                     cbcondition.Height = l.Height;
                     // cbcondition.SelectedText
-                    cbcondition.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", BindingData[i], "Operator", true, DataSourceUpdateMode.OnPropertyChanged));
+                    cbcondition.DataBindings.Add(new System.Windows.Forms.Binding("SelectedDisplayValue", BindingData[i], "Operator", true, DataSourceUpdateMode.OnPropertyChanged));
                     //  cbcondition.Anchor = AnchorStyles.Top;
                     CrudFilterPanel.Controls.Add(cbcondition);
 
@@ -885,7 +885,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                         cb.ValueMember = FK.RelatedEntityColumnID;
                         cb.Width = valuewidth;
                         cb.Height = l.Height;
-                        cb.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", BindingData[i], "FilterValue", true));
+                        cb.DataBindings.Add(new System.Windows.Forms.Binding("SelectedDisplayValue", BindingData[i], "FilterValue", true));
                         //  cb.SelectedValueChanged += Cb_SelectedValueChanged;
                         //cb.Anchor = AnchorStyles.Top;
                         CrudFilterPanel.Controls.Add(cb);
@@ -968,7 +968,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
                                 break;
                             case "System.Char":
-                                BeepCheckBox ch2 = new BeepCheckBox
+                                BeepCheckBox<Char> ch2 = new BeepCheckBox<Char>
                                 {
                                     Left = startleft,
                                     Top = starth
@@ -982,8 +982,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
                                 if (coldefaults != null)
                                 {
-                                    ch2.TrueValue = v[0].ToCharArray()[0];
-                                    ch2.FalseValue = v[1].ToCharArray()[0];
+                                    ch2.CheckedValue = v[0].ToCharArray()[0];
+                                    ch2.UncheckedValue = v[1].ToCharArray()[0];
                                 }
                                 //  ch2.CheckStateChanged += Ch1_CheckStateChanged; ;
                                 //   ch2.Anchor = AnchorStyles.Top;
@@ -1067,7 +1067,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                                 }
                                 else
                                 {
-                                    ch2 = new BeepCheckBox
+                                    ch2 = new BeepCheckBox<Char>
                                     {
                                         Left = startleft,
                                         Top = starth
@@ -1083,8 +1083,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                                     if (coldefaults != null)
                                     {
                                         v = coldefaults.propoertValue.Split(',');
-                                        ch2.TrueValue = v[0].ToCharArray()[0];
-                                        ch2.FalseValue = v[1].ToCharArray()[0];
+                                        ch2.CheckedValue = v[0].ToCharArray()[0];
+                                        ch2.UncheckedValue = v[1].ToCharArray()[0];
                                     }
                                     // ch2.CheckStateChanged += Ch1_CheckStateChanged; ;
 

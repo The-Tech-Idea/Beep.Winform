@@ -34,21 +34,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepListofValuesBox()
         {
-            Width = 300;
-            Height = 30;
+            padding = BorderThickness + 5;
+            spacing = 5;
+            InitializeComponents();
+            ApplyTheme();
 
-            
+
         }
         protected override void CreateHandle()
         {
             base.CreateHandle();
-            padding = BorderThickness + 5;
-             spacing = 5;
+           
         }
         protected override void InitLayout()
         {
             base.InitLayout();
-            InitializeComponents();
+            Width = 300;
+            Height = 30;
         }
 
         #region Properties
@@ -358,6 +360,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //int padding = BorderThickness +5;
                 //// Ensure the height is fixed
                 //Height = _valueTextBox.PreferredHeight+(padding * 2);
+                _popupForm.Width = Width;
                 AdjustLayout();
             }
           
@@ -367,14 +370,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.ApplyTheme();
             if(_keyTextBox == null) return;
-            _keyTextBox.BackColor = _currentTheme.TextBoxBackColor;
-            _keyTextBox.ForeColor = _currentTheme.TextBoxForeColor;
+            _keyTextBox.BackColor = _currentTheme.ButtonActiveBackColor;
+            _keyTextBox.ForeColor = _currentTheme.AccentTextColor;
 
-            _valueTextBox.BackColor = _currentTheme.TextBoxBackColor;
-            _valueTextBox.ForeColor = _currentTheme.TextBoxForeColor;
+            _valueTextBox.BackColor = _currentTheme.AltRowBackColor;
+            _valueTextBox.ForeColor = _currentTheme.AccentTextColor;
 
             _dropdownButton.BackColor = _currentTheme.TextBoxBackColor;
             _dropdownButton.ForeColor = _currentTheme.TextBoxForeColor;
+            _dropdownButton.ApplyThemeOnImage = true;
+            
         }
         private  void OnMouseEnter(EventArgs e)
         {

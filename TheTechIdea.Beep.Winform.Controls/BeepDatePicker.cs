@@ -114,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.InitLayout();
         
-            AdjustSizeToTextBox(); // Ensure initial size matches TextBox
+        
         }
        
         private void InitializeComponents()

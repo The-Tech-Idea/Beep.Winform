@@ -123,23 +123,28 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected override void OnPaint(PaintEventArgs e)
         {
-           // DrawingRect.Inflate(-2, -2);
+            // DrawingRect.Inflate(-2, -2);
             // Get the dimensions of DrawingRect
-            drawRectX = DrawingRect.X;
-            drawRectY = DrawingRect.Y;
-            drawRectWidth = DrawingRect.Width;
-            drawRectHeight = DrawingRect.Height;
+         
 
             base.OnPaint(e);
             
             if (_isControlinvalidated)
             {
+               
                 InitializeMenu();
                 _isControlinvalidated=false;
             }
           
         }
-
+        void GetDimensions()
+        {
+            UpdateDrawingRect();
+            drawRectX = DrawingRect.X+1;
+            drawRectY = DrawingRect.Y+1;
+            drawRectWidth = DrawingRect.Width-2;
+            drawRectHeight = DrawingRect.Height-2;
+        }
         private Panel CreateMenuItemPanel(SimpleItem item, bool isChild)
         {
             var menuItemPanel = new Panel
@@ -239,11 +244,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public virtual void InitializeMenu()
         {
-            UpdateDrawingRect();
-            drawRectX = DrawingRect.X ;
-            drawRectY = DrawingRect.Y ;
-            drawRectWidth = DrawingRect.Width ;
-            drawRectHeight = DrawingRect.Height ;
+            GetDimensions();
             ButtonSize = new Size(drawRectWidth-2, _menuItemHeight-2);
             int spacing = 2;
             // Remove existing menu item panels

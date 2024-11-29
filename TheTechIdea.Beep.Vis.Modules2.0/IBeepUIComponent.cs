@@ -20,10 +20,12 @@ namespace TheTechIdea.Beep.Vis.Modules
         string GuidID { get; }
         int Id { get; set; }
         string[] Items { get; set; }
+        bool ValidateData(out string  messege);
 
         // New properties and methods for binding
         object DataContext { get; set; } // The source of data for binding
-
+        string BoundProperty { get; set; }
+        void RefreshBinding();
         void SetBinding(string controlProperty, string dataSourceProperty); // Method to bind a control property
     }
 }

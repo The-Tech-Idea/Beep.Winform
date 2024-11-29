@@ -3,6 +3,8 @@ using System;
 using System.ComponentModel;
 
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using System.Windows.Forms;
+using TheTechIdea.Beep.ConfigUtil;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -10,6 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Controls")]
     public class BeepTextBox : BeepControl
     {
+        #region "Properties"
         private TextBox _innerTextBox;
         private BeepImage beepImage;
         private string _maskFormat = "";
@@ -19,15 +22,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ContentAlignment _imageAlign = ContentAlignment.MiddleLeft;
         private Size _maxImageSize = new Size(16, 16); // Default image size
         private string? _imagepath;
-        private bool _multiline=false;
+        private bool _multiline = false;
 
-
+        int offset = 1;
         [Browsable(true)]
         [Category("Appearance")]
         public int PreferredHeight
         {
             get => _innerTextBox.PreferredHeight;
-           
+
         }
 
         // show the inner textbox properties like multiline
@@ -40,9 +43,35 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _multiline = value;
                 _innerTextBox.Multiline = value;
+
+                //if (!_multiline)
+                //{
+                //    // Fix the height when not multiline
+                //    int singleLineHeight = GetSingleLineHeight();
+                //    this.MinimumSize = new Size(0, singleLineHeight);
+                //    this.MaximumSize = new Size(0, singleLineHeight);
+                //    Height = singleLineHeight;
+                //}
+                //else
+                //{
+                //    // Allow resizing when multiline
+                //    this.MinimumSize = new Size(0, 0);
+                //    this.MaximumSize = new Size(0, 0);
+                //}
+
+                AdjustTextBoxHeight();
                 Invalidate();
             }
         }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public TextBox InnerTextBox
+        {
+            get => _innerTextBox;
+        }
+
+
         [Browsable(true)]
         [Category("Appearance")]
         public bool ReadOnly
@@ -131,7 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-  
+
         [Browsable(true)]
         [Category("Appearance")]
         public bool AutoSize
@@ -176,7 +205,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-         [Browsable(true)]
+        [Browsable(true)]
         [Category("Appearance")]
         public bool Enabled
         {
@@ -207,7 +236,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("AutoComplete displayed in the control.")]
-        public  AutoCompleteMode AutoCompleteMode
+        public AutoCompleteMode AutoCompleteMode
         {
             get => _innerTextBox.AutoCompleteMode;
             set
@@ -324,7 +353,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         bool _applyThemeOnImage = false;
-       
+        private int padding;
+        private int spacing;
 
         public bool ApplyThemeOnImage
         {
@@ -374,18 +404,45 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        #endregion "Properties"
+
         public BeepTextBox()
         {
             InitializeComponents();
-            Size = new Size(150, 23);
-            _innerTextBox.TextChanged += (s, e) => Invalidate(); // Repaint to apply formatting
-            this.Invalidated += BeepTextBox_Invalidated;
-
+          
+            AutoSize = false;
+            IsChild = true;
+            BoundProperty = "Text";
+            ApplyTheme(); // Ensure _currentTheme is initialized
+            // Ensure size adjustments occur after initialization
+            UpdateDrawingRect();
+            AdjustTextBoxHeight();
+            PositionInnerTextBoxAndImage();
+          
+            //AdjustTextBoxHeight();
+            //PositionInnerTextBoxAndImage();
         }
-        
+
+        protected override void OnLayout(LayoutEventArgs levent)
+        {
+            base.OnLayout(levent);
+        }
+        protected override Size DefaultSize => new Size (200, GetSingleLineHeight());
+
+        protected override void OnCreateControl()
+        {
+            base.OnCreateControl();
+        }
+        protected override void InitLayout()
+        {
+            base.InitLayout();
+           
+        }
+
         private void BeepTextBox_Invalidated(object? sender, InvalidateEventArgs e)
         {
             _isControlinvalidated=true;
+           // Invalidate();
         }
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -409,12 +466,156 @@ namespace TheTechIdea.Beep.Winform.Controls
             _innerTextBox.KeyDown += OnSearchKeyDown;
             _innerTextBox.MouseEnter += OnMouseEnter;
             _innerTextBox.MouseLeave += OnMouseLeave;
+            _innerTextBox.TextChanged += (s, e) => Invalidate(); // Repaint to apply formatting
             Controls.Add(_innerTextBox);
         
             beepImage = new BeepImage { Size = _maxImageSize, Dock = DockStyle.None, Margin = new Padding(0) };
+            Console.WriteLine("InitializeComponents");
+            //AdjustTextBoxHeight();
+            //PositionInnerTextBoxAndImage();
+
+        }
+        #region "Size and Position"
+       // protected override Size DefaultSize => GetDefaultSize();
+        private int GetSingleLineHeight()
+        {
+            // Ensure DrawingRect is updated
+            UpdateDrawingRect();
+            int textBoxHeight;
+            padding = BorderThickness + offset;
+            spacing = 5;
+            using (TextBox tempTextBox = new TextBox())
+            {
+                tempTextBox.Multiline = false;
+                tempTextBox.BorderStyle = BorderStyle.None;
+                tempTextBox.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+
+                 textBoxHeight = tempTextBox.PreferredHeight + (padding * 2);
+
+                // Calculate the total height, including borders and padding
+            }
+           Console.WriteLine($" GetSingleLineHeight : {textBoxHeight}");
+
+            return textBoxHeight;
+        }
+        protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+        {
+            if (!_multiline)
+            {
+                // Update DrawingRect to get accurate measurements
+                UpdateDrawingRect();
+
+                int singleLineHeight = GetSingleLineHeight();
+
+                // Set Minimum and Maximum height to enforce fixed height
+                this.MinimumSize = new Size(0, singleLineHeight);
+                this.MaximumSize = new Size(0, singleLineHeight);
+
+                height = singleLineHeight;
+                specified &= ~BoundsSpecified.Height; // Remove the Height flag to prevent external changes
+            }
+            else
+            {
+                // Remove any height constraints when multiline
+                this.MinimumSize = new Size(0, 0);
+                this.MaximumSize = new Size(0, 0);
+            }
+
+            base.SetBoundsCore(x, y, width, height, specified);
+        }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            Console.WriteLine("OnResize");  
+            UpdateDrawingRect();
             AdjustTextBoxHeight();
             PositionInnerTextBoxAndImage();
         }
+        private void AdjustTextBoxHeight()
+        {
+            if (_multiline)
+            {
+                // Set the inner TextBox's height to fill the DrawingRect
+                _innerTextBox.Height = DrawingRect.Height;
+                _innerTextBox.Location = new Point(DrawingRect.X, DrawingRect.Y);
+            }
+            else
+            {
+                // Ensure DrawingRect is updated
+                UpdateDrawingRect();
+
+                // Set the inner TextBox's height to its preferred height
+                _innerTextBox.Height = _innerTextBox.PreferredHeight;
+                Console.WriteLine($" _innerTextBox.Height  :{_innerTextBox.Height}");
+                // Center the inner TextBox vertically within the DrawingRect
+                int textBoxY = DrawingRect.Y + (DrawingRect.Height - _innerTextBox.Height) / 2;
+                _innerTextBox.Location = new Point(DrawingRect.X, textBoxY);
+            }
+            Console.WriteLine("AdjustTextBoxHeight");
+            // Set the width of the inner TextBox to match the DrawingRect
+            _innerTextBox.Width = DrawingRect.Width;
+        }
+        private void PositionInnerTextBoxAndImage()
+        {
+            Console.WriteLine("PositionInnerTextBoxAndImage");
+            // Ensure that DrawingRect is updated
+            UpdateDrawingRect();
+
+            // Get the image size
+            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
+
+            // Scale image size to respect the max image size
+            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
+            {
+                float scaleFactor = Math.Min(
+                    (float)_maxImageSize.Width / imageSize.Width,
+                    (float)_maxImageSize.Height / imageSize.Height);
+                imageSize = new Size(
+                    (int)(imageSize.Width * scaleFactor),
+                    (int)(imageSize.Height * scaleFactor));
+            }
+
+            // Calculate the height of the inner TextBox
+            int textBoxHeight = _innerTextBox.Multiline ? DrawingRect.Height : GetSingleLineHeight();
+
+            // Center the TextBox vertically if not multiline
+            int textBoxY = DrawingRect.Y + (DrawingRect.Height - textBoxHeight) / 2;
+
+            if (string.IsNullOrEmpty(ImagePath))
+            {
+                Console.WriteLine($" Hight :{textBoxHeight}");
+                // Position the TextBox
+                _innerTextBox.Location = new Point(DrawingRect.X, textBoxY);
+                _innerTextBox.Size = new Size(DrawingRect.Width, textBoxHeight);
+            }
+            else if (_textImageRelation == TextImageRelation.ImageBeforeText)
+            {
+                // Position the image inside DrawingRect
+                int imageY = DrawingRect.Y + (DrawingRect.Height - imageSize.Height) / 2;
+                beepImage.Location = new Point(DrawingRect.X, imageY);
+                beepImage.Size = imageSize;
+
+                // Position the TextBox next to the image
+                int textBoxX = beepImage.Right;
+                int textBoxWidth = DrawingRect.Right - beepImage.Right;
+
+                _innerTextBox.Location = new Point(textBoxX, textBoxY);
+                _innerTextBox.Size = new Size(textBoxWidth, textBoxHeight);
+            }
+            else if (_textImageRelation == TextImageRelation.TextBeforeImage)
+            {
+                // Position the TextBox
+                int textBoxWidth = DrawingRect.Width - imageSize.Width;
+                _innerTextBox.Location = new Point(DrawingRect.X, textBoxY);
+                _innerTextBox.Size = new Size(textBoxWidth, textBoxHeight);
+
+                // Position the image after the TextBox
+                int imageY = DrawingRect.Y + (DrawingRect.Height - imageSize.Height) / 2;
+                beepImage.Location = new Point(_innerTextBox.Right, imageY);
+                beepImage.Size = imageSize;
+            }
+        }
+        #endregion "Size and Position"
         public override void DrawCustomBorder(PaintEventArgs e)
         {
             if(!ShowAllBorders) 
@@ -450,69 +651,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 e.Handled = true;
             }
         }
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            AdjustTextBoxHeight();
-            PositionInnerTextBoxAndImage();
-           
-        }
-        private void AdjustTextBoxHeight()
-        {
-            // Override the TextBox's height
-            int innerHeight = Height - 2; // Adjust for padding if necessary
-            if (_innerTextBox.Multiline)
-            {
-                _innerTextBox.Height = innerHeight; // Allow full height for multiline mode
-            }
-            else
-            {
-                // For single-line TextBox, ensure it's not restricted by font size
-                int minimumHeight = _innerTextBox.Font.Height + 2; // Minimum height based on font size
-                _innerTextBox.Height = Math.Max(innerHeight, minimumHeight);
-            }
-        }
-        private void PositionInnerTextBoxAndImage()
-        {
-            int padding = 2; // Adjust padding as needed
-            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
-
-            // Ensure the image size respects the maximum size
-            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
-            {
-                float scaleFactor = Math.Min(
-                    (float)_maxImageSize.Width / imageSize.Width,
-                    (float)_maxImageSize.Height / imageSize.Height);
-                imageSize = new Size(
-                    (int)(imageSize.Width * scaleFactor),
-                    (int)(imageSize.Height * scaleFactor));
-            }
-
-            if (string.IsNullOrEmpty(ImagePath))
-            {
-                _innerTextBox.Location = new Point(padding, padding);
-                _innerTextBox.Width = Width - 2 * padding;
-            }
-            else if (_textImageRelation == TextImageRelation.ImageBeforeText)
-            {
-                beepImage.Location = new Point(padding, (Height - imageSize.Height) / 2);
-                beepImage.Size = imageSize;
-
-                _innerTextBox.Location = new Point(beepImage.Right + padding, padding);
-                _innerTextBox.Width = Width - beepImage.Width - 3 * padding;
-            }
-            else if (_textImageRelation == TextImageRelation.TextBeforeImage)
-            {
-                _innerTextBox.Location = new Point(padding, padding);
-                _innerTextBox.Width = Width - imageSize.Width - 3 * padding;
-
-                beepImage.Location = new Point(_innerTextBox.Right + padding, (Height - imageSize.Height) / 2);
-                beepImage.Size = imageSize;
-            }
-
-            _innerTextBox.Height = _innerTextBox.Multiline ? Height - 2 * padding : _innerTextBox.Font.Height + 2;
-        }
-
+     
 
 
         public override void ApplyTheme()
@@ -521,7 +660,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _innerTextBox.BackColor = _currentTheme.TextBoxBackColor;
             _innerTextBox.ForeColor = _currentTheme.TextBoxForeColor;
             Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-            BackColor =_currentTheme.TextBoxBackColor;
+            BackColor =_currentTheme.BackColor  ;
             beepImage.ApplyTheme();
             Invalidate();
         }

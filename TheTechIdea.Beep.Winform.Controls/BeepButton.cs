@@ -402,7 +402,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Height * scaleFactor));
             }
 
-            Size textSize = TextRenderer.MeasureText(Text, Font);
+            Size textSize = TextRenderer.MeasureText(Text, scaledFont);
 
             // Calculate the layout of image and text
             Rectangle imageRect, textRect;
@@ -439,7 +439,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-                TextRenderer.DrawText(g, Text, Font, textRect, ForeColor, flags);
+                TextRenderer.DrawText(g, Text, scaledFont, textRect, ForeColor, flags);
             }
 
             //}

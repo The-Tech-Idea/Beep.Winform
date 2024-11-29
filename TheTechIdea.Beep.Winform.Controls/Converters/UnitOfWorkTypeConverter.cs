@@ -5,8 +5,7 @@ using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Reflection;
-using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Beep.Editor;
+
 
 public class UnitOfWorkConverter : TypeConverter
 {

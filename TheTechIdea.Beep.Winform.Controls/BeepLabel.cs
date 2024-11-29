@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -10,12 +11,13 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Controls")]
     public class BeepLabel : BeepControl
     {
+        #region "Properties"
         private BeepImage beepImage;
         private TextImageRelation textImageRelation = TextImageRelation.ImageBeforeText;
         private ContentAlignment imageAlign = ContentAlignment.MiddleLeft;
         private Size _maxImageSize = new Size(16, 16); // Default max image size
         private bool _hideText = false;
-
+        int offset = 3;
 
 
         [Browsable(true)]
@@ -46,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-       
+
         // Properties for customization
         [Browsable(true)]
         [Category("Appearance")]
@@ -71,13 +73,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 beepImage.ApplyThemeOnImage = value;
                 if (value)
                 {
-                   
+
                     if (ApplyThemeOnImage)
                     {
                         beepImage.Theme = Theme;
-                      
+
                         beepImage.ApplyThemeToSvg();
-                     
+
                     }
                 }
                 Invalidate();
@@ -93,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 imageAlign = value;
                 Invalidate(); // Repaint on change
-               // UpdateSize();
+                              // UpdateSize();
             }
         }
 
@@ -122,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         beepImage.ApplyTheme();
                     }
                     Invalidate(); // Repaint when the image changes
-                   // UpdateSize();
+                                  // UpdateSize();
                 }
             }
         }
@@ -141,20 +143,61 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         Rectangle contentRect;
+        private int padding;
+        private int spacing;
+        #endregion "Properties"
+
         public BeepLabel()
         {
             InitializeComponents();
             ApplyTheme();
-            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
-            {
-                Width = 200;
-                Height = 40;
-            }
+           
             //  SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
             AutoSize = false;
-           
-        }
+            BoundProperty = "Text";
+            //  UpdateSize();
 
+        }
+        protected override Size DefaultSize => new Size(100,GetSingleLineHeight());
+        private int GetSingleLineHeight()
+        {
+            // Ensure DrawingRect is updated
+            UpdateDrawingRect();
+            int textBoxHeight;
+            padding = BorderThickness + offset;
+            spacing = 5;
+            using (Label tempTextBox = new Label())
+            {
+                tempTextBox.BorderStyle = BorderStyle.None;
+                tempTextBox.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+
+                textBoxHeight = tempTextBox.PreferredHeight + (padding * 2);
+
+                // Calculate the total height, including borders and padding
+            }
+
+
+            return textBoxHeight;
+        }
+        protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+        {
+    
+                // Update DrawingRect to get accurate measurements
+                UpdateDrawingRect();
+
+                int singleLineHeight = GetSingleLineHeight();
+
+                // Set Minimum and Maximum height to enforce fixed height
+                this.MinimumSize = new Size(0, singleLineHeight);
+                this.MaximumSize = new Size(0, singleLineHeight);
+
+                height = singleLineHeight;
+                specified &= ~BoundsSpecified.Height; // Remove the Height flag to prevent external changes
+            
+          
+
+            base.SetBoundsCore(x, y, width, height, specified);
+        }
         private void InitializeComponents()
         {
 
@@ -193,7 +236,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void DrawToGraphics(Graphics g,Rectangle drawrect)
         {
-            drawrect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
+            //drawrect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
            
             // Measure and scale the font to fit within the control bounds
             Font scaledFont = GetScaledFont(g, Text, drawrect.Size, Font);

@@ -752,6 +752,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public IBeepUIComponent Form { get; set; }
         public Rectangle DrawingRect { get; set; }
         public bool IsCustomeBorder { get;  set; }
+        public string BoundProperty { get ; set ; }
 
         #endregion "Public Properties"
 
@@ -768,6 +769,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             DataBindings.CollectionChanged += DataBindings_CollectionChanged;
 
         }
+        protected void BeepControl_LocationChanged(object? sender, EventArgs e)
+        {
+            if (StaticNotMoving)
+            {
+                this.Location = originalLocation;
+            }
+        }
+        protected override void OnControlAdded(ControlEventArgs e)
+        {
+            base.OnControlAdded(e);
+            // UpdateScrollBars();
+        }
+        // Method to initialize tooltip with default settings
+
         #region "Data Binding"
         // Override property binding management when DataContext changes
         protected override void OnBindingContextChanged(EventArgs e)
@@ -776,12 +791,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateBindings();
         }
         // Clear and recreate bindings when DataContext changes
-        protected void UpdateBindings()
+        protected virtual void UpdateBindings()
         {
             OnDataContextChanged();
         }
         // RefreshBindings method: Force an update to each binding in the control
-        protected void RefreshBindings()
+        public virtual void RefreshBinding()
         {
             foreach (Binding binding in DataBindings)
             {
@@ -791,6 +806,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Optionally trigger a repaint to reflect changes in the UI
             Invalidate();
+        }
+     
+
+        public virtual bool ValidateData(out string messege)
+        {
+            messege = "ok";
+            return true;
         }
         // Method to be called whenever DataContext changes
         protected virtual void OnDataContextChanged()
@@ -838,7 +860,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 UpdateBindings();
             }
         }
-        public void SetBinding(string controlProperty, string dataSourceProperty)
+        public virtual void SetBinding(string controlProperty, string dataSourceProperty)
         {
             if (DataContext == null)
                 throw new InvalidOperationException("DataContext is not set.");
@@ -848,30 +870,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
     
     #endregion "Data Binding"
-        protected void BeepControl_LocationChanged(object? sender, EventArgs e)
-        {
-            if (StaticNotMoving)
-            {
-                this.Location = originalLocation;
-            }
-        }
-        protected override void OnControlAdded(ControlEventArgs e)
-        {
-            base.OnControlAdded(e);
-           // UpdateScrollBars();
-        }
-        // Method to initialize tooltip with default settings
-        protected void InitializeTooltip()
-        {
-            _toolTip = new ToolTip
-            {
-                AutoPopDelay = 5000,
-                InitialDelay = 500,
-                ReshowDelay = 500,
-                ShowAlways = true // Always show the tooltip, even if the control is not active
-            };
-        }
-        // Apply theme properties to the control and children
+        #region "Theme"
         public virtual void ApplyTheme()
         {
             try
@@ -893,9 +892,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 MessageBox.Show(ex.Message);
             }
-      
+
         }
-        #region "Theme"
         public virtual void ApplyThemeToControl(Control control)
         {
             var themeProperty = TypeDescriptor.GetProperties(control)["Theme"];
@@ -918,7 +916,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion "Theme"
-
+        #region "Painting"
         protected override void OnPaddingChanged(EventArgs e)
         {
             base.OnPaddingChanged(e);
@@ -936,7 +934,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnPaintBackground(e);
         }
-
         public void UpdateDrawingRect()
         {
             int borderOffset = ShowAllBorders ? BorderThickness : 0;
@@ -945,8 +942,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Calculate effective padding values
             int leftPadding = Padding.Left + LeftoffsetForDrawingRect; // Include X offset
             int topPadding = Padding.Top + TopoffsetForDrawingRect;  // Include Y offset
-            int rightPadding = Padding.Right- RightoffsetForDrawingRect;
-            int bottomPadding = Padding.Bottom- _bottomoffsetForDrawingRect;
+            int rightPadding = Padding.Right - RightoffsetForDrawingRect;
+            int bottomPadding = Padding.Bottom - _bottomoffsetForDrawingRect;
 
             // Calculate DrawingRect dynamically, avoiding borders, shadows, padding, and offsets
             DrawingRect = new Rectangle(
@@ -957,13 +954,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             );
 
             // Optionally, slightly shrink the DrawingRect to ensure it doesn't overlap with borders or shadows
-            DrawingRect = Rectangle.Inflate(DrawingRect, -1, -1);
+            
+            DrawingRect = new Rectangle(DrawingRect.X, DrawingRect.Y, DrawingRect.Width - 1, DrawingRect.Height-1);
         }
-
-
-
-
-
         protected override void OnPaint(PaintEventArgs e)
         {
             SuspendLayout();
@@ -1009,7 +1002,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     parentbackcolor = Parent.BackColor;
                     BackColor = parentbackcolor;
                 }
-              //  BackColor = Color.Transparent;
+                //  BackColor = Color.Transparent;
                 using (SolidBrush brush = new SolidBrush(parentbackcolor))
                 {
                     e.Graphics.FillRectangle(brush, outerRectangle);
@@ -1076,8 +1069,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             ResumeLayout();
         }
-
-
         protected Font GetScaledFont(Graphics graphics, string text, Size maxSize, Font originalFont)
         {
             Font currentFont = originalFont;
@@ -1096,8 +1087,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             return currentFont;
         }
         #region "Drawing Methods"
-      
-
         public virtual void DrawCustomBorder(PaintEventArgs e)
         {
             // Draw custom border based on the control's properties
@@ -1420,6 +1409,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return path;
         }
+        #endregion "Painting"
+
         #endregion "Drawing Methods"
         #region "Mouse events"
         protected override void OnMouseEnter(EventArgs e)
@@ -1722,6 +1713,17 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Animation"
         #region "ToolTip"
+        protected void InitializeTooltip()
+        {
+            _toolTip = new ToolTip
+            {
+                AutoPopDelay = 5000,
+                InitialDelay = 500,
+                ReshowDelay = 500,
+                ShowAlways = true // Always show the tooltip, even if the control is not active
+            };
+        }
+        // Apply theme properties to the control and children
         public void ShowToolTip(string text)
         {
             ToolTipText = text;
@@ -1877,6 +1879,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Return the calculated size
             return new Size(width, height);
         }
+
+       
         #endregion "Util"
     }
 

@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Theme = Theme
             };
-
+            BoundProperty= "State";
             ApplyTheme();
         }
 

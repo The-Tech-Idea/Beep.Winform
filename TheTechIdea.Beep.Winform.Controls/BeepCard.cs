@@ -13,6 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     public class BeepCard : BeepControl
     {
+        #region "Properties"
         private BeepImage imageBox;
         private BeepLabel headerLabel;
         private BeepTextBox paragraphLabel;
@@ -40,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _multiline = value;
                 paragraphLabel.Multiline = value;
                 RefreshLayout();
-              
+
             }
         }
 
@@ -135,6 +136,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RefreshLayout();
             }
         }
+        #endregion "Properties"
+
         // Expose BorderThickness from BeepPanel
 
         // Constructor
@@ -142,6 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             IsChild = false;
             Padding = new Padding(0);
+            BoundProperty = "ParagraphText";
             //ShowTitle = false;
             //ShowTitleLine = false;
             InitializeComponents();

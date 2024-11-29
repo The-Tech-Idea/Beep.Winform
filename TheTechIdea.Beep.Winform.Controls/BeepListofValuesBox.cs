@@ -31,11 +31,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _listField;
         private string _displayField;
         private int _valueTextBoxWidth=80;
+        int buttonHeight;
 
         public BeepListofValuesBox()
         {
-            padding = BorderThickness + 5;
-            spacing = 5;
+            
             InitializeComponents();
             ApplyTheme();
 
@@ -213,14 +213,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             _valueTextBox.MouseLeave += (s, e) => OnMouseLeave(e);
             AdjustLayout();
         }
-
+        void GetHeight()
+        {
+            padding = BorderThickness ;
+            spacing = 5;
+            buttonHeight = _keyTextBox.PreferredHeight;
+            Height = _keyTextBox.PreferredHeight + (padding * 2);
+        }
         private void AdjustLayout()
         {
             if (DrawingRect == Rectangle.Empty)
                 UpdateDrawingRect();
 
-            int buttonHeight = _keyTextBox.PreferredHeight;
-            Height = _keyTextBox.PreferredHeight + (padding * 2);
+            GetHeight();
 
             int centerY = DrawingRect.Top + (DrawingRect.Height - _keyTextBox.PreferredHeight) / 2;
 
@@ -230,17 +235,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             _keyTextBox.Height = buttonHeight;
 
             // Separator 1 (sp1) layout
-            sp1.Location = new Point(_keyTextBox.Right + 2, centerY);
+            sp1.Location = new Point(_keyTextBox.Right + 1, centerY);
             sp1.Width = 2;
             sp1.Height = buttonHeight;
 
             // Value TextBox layout
-            _valueTextBox.Location = new Point(sp1.Right + 2, centerY);
+            _valueTextBox.Location = new Point(sp1.Right + 1, centerY);
             _valueTextBox.Width = DrawingRect.Width - _keyTextBox.Width - (buttonHeight + padding * 4) - sp1.Width - sp2.Width - (BorderThickness * 2);
             _valueTextBox.Height = buttonHeight;
 
             // Separator 2 (sp2) layout
-            sp2.Location = new Point(_valueTextBox.Right + 2, centerY);
+            sp2.Location = new Point(_valueTextBox.Right + 1, centerY);
             sp2.Width = 2;
             sp2.Height = buttonHeight;
 
@@ -248,21 +253,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             int remainingSpace = DrawingRect.Right - sp2.Right - padding - BorderThickness;
             int dropdownX = sp2.Right + (remainingSpace - buttonHeight) / 2;
 
-            _dropdownButton.Location = new Point(dropdownX , _valueTextBox.Top-2);
-            _dropdownButton.Width = buttonHeight;
-            _dropdownButton.Height = buttonHeight;
-            _dropdownButton.MaxImageSize = new Size(buttonHeight-3, buttonHeight-3);
+            _dropdownButton.Location = new Point(dropdownX , _valueTextBox.Top+1);
+            _dropdownButton.Width = buttonHeight-3;
+            _dropdownButton.Height = buttonHeight-3;
+            _dropdownButton.MaxImageSize = new Size(buttonHeight-5, buttonHeight-5);
             // Adjust the popup location when resizing
             if (_popupForm.Visible)
             {
                 PositionPopupForm();
             }
         }
-
-
-
-
-
 
         private void UpdateDropdownItems()
         {
@@ -370,14 +370,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.ApplyTheme();
             if(_keyTextBox == null) return;
-            _keyTextBox.BackColor = _currentTheme.ButtonActiveBackColor;
-            _keyTextBox.ForeColor = _currentTheme.AccentTextColor;
+            _keyTextBox.BackColor = _currentTheme.AltRowBackColor;
+            _keyTextBox.ForeColor = _currentTheme.LatestForColor;
 
             _valueTextBox.BackColor = _currentTheme.AltRowBackColor;
             _valueTextBox.ForeColor = _currentTheme.AccentTextColor;
 
-            _dropdownButton.BackColor = _currentTheme.TextBoxBackColor;
-            _dropdownButton.ForeColor = _currentTheme.TextBoxForeColor;
+            _dropdownButton.BackColor = _currentTheme.ButtonBackColor;
+            _dropdownButton.ForeColor = _currentTheme.ButtonForeColor;
             _dropdownButton.ApplyThemeOnImage = true;
             
         }

@@ -1,214 +1,422 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.DataNavigator;
+using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Winform.Controls.DataNavigator;
+using TheTechIdea.Beep.Vis.Modules;
+using DialogResult = System.Windows.Forms.DialogResult;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public enum BlockDisplayType
+    public class BeepDataBlock:BeepDataBlock<Entity> 
     {
-        Record,
-        Table
+        public BeepDataBlock()
+        {
+        }
     }
 
-    public class BeepDataBlock : BeepPanel
+    public class BeepDataBlock<T> : BeepPanel where T : Entity, INotifyPropertyChanged, new()
     {
-        protected IUnitofWork _data;
+        protected UnitofWork<T> _data;
 
+        public IEntityStructure Structure => Data != null ? Data.EntityStructure : null;
 
-        public IEntityStructure Structure => Data!=null ? (Data.EntityStructure!=null? Data.EntityStructure: null) : null; 
         public List<IBeepUIComponent> UIComponents { get; set; } = new List<IBeepUIComponent>();
+
         [Browsable(true)]
         [Category("Data")]
         [TypeConverter(typeof(UnitOfWorkConverter))]
-        public IUnitofWork Data { get { return _data; } set { _data = value;Refresh(); } }
-        protected BlockDisplayType _displaytype = BlockDisplayType.Record;
-        protected BlockDisplayType _currentdisplaytype = BlockDisplayType.Record;
-        public BlockDisplayType DisplayType { get { return _displaytype; } set { _displaytype=value;ChangeLayout(); } }
+        public UnitofWork<T> Data
+        {
+            get { return _data; }
+            set
+            {
+                if (_data != value)
+                {
+                    if (_data != null)
+                    {
+                        _data.PropertyChanged -= Data_PropertyChanged;
+                    }
+                    _data = value;
+                    if (_data != null)
+                    {
+                        _data.PropertyChanged += Data_PropertyChanged;
+                        _data.Units.CurrentChanged += Units_CurrentChanged;
+                    }
+                    Refresh();
+                }
+            }
+        }
+
+        private BeepDataNavigator dataNavigator;
+
+        // Master record for filtering detail data
+        private object _masterRecord;
+        private string _foreignKeyPropertyName;
+        private string _masterKeyPropertyName;
+
+        // Support for multiple detail blocks
+        private List<ChildBlockInfo> _childBlocks = new List<ChildBlockInfo>();
 
         public BeepDataBlock()
         {
-            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
-            {
-                Width = 200;
-                Height = 250;
-            }
-            ApplyThemeToChilds = false;
-        }
-        public void Refresh()
-        {
-            Controls.Clear();
-            UIComponents.Clear();
+            // Initialize component
+            InitializeComponent();
 
-            if (Structure != null)
-            {
-                
-                CreateControlsBasedonStucture();
-            }
+            // Initialize the data navigator
+            InitializeDataNavigator();
         }
-        public void ChangeLayout()
+
+        private void InitializeComponent()
         {
-            // Check if the current layout type is different from the desired display type
-            if (_currentdisplaytype == _displaytype)
+            this.AutoScroll = true;
+            this.BackColor = Color.White;
+        }
+
+        /// <summary>
+        /// Creates controls based on the entity structure.
+        /// </summary>
+        private void CreateControlsBasedonStructure()
+        {
+            if (Structure == null)
                 return;
 
-            // Clear any existing controls and UI components before changing the layout
-            Controls.Clear();
-            UIComponents.Clear();
-
-            if (Structure != null && Data != null)
-            {
-                if (_displaytype == BlockDisplayType.Record)
-                {
-                    // If display type is Record, create controls based on individual positioning
-                    CreateControlsBasedonStucture();
-                }
-                else if (_displaytype == BlockDisplayType.Table)
-                {
-                    // If display type is Table, create controls within a TableLayoutPanel
-                    CreateControlsInTableLayout();
-                }
-            }
-
-            // Update the current display type to the new one
-            _currentdisplaytype = _displaytype;
-        }
-
-        // Function to create controls and bind to data based on Structure
-        public void CreateControlsBasedonStucture()
-        {
-            if (Structure == null || Data == null) return;
-
-            int yPosition = DrawingRect.Top + 10; // Start from the top of DrawingRect with padding
-            int xPosition = DrawingRect.Left + 10; // Start slightly offset from the left of DrawingRect
+            int yPosition = 10;
+            int xPosition = 10;
+            int labelWidth = 100;
+            int controlWidth = 200;
+            int controlHeight = 25;
+            int verticalSpacing = 5;
 
             foreach (var field in Structure.Fields)
             {
-                // Create a label for each field
-                BeepLabel label = new BeepLabel
-                {
-                    Text = field.Description,
-                    Location = new Point(xPosition, yPosition),
-                    Width = 100,
-                    ShowAllBorders = true,
-                    ShowShadow = false,
-                };
-                Controls.Add(label);
-
-                // Create and configure BeepControl for field, including binding
-                IBeepUIComponent beepControl = CreateAndBindBeepControl(field);
-                if (beepControl != null)
-                {
-                    var control = beepControl as Control;
-                    if (control != null)
-                    {
-                        control.Location = new Point(xPosition + 120, yPosition);
-                        control.Width = DrawingRect.Width - xPosition - 140; // Adjust width based on DrawingRect bounds
-                        control.Height = 25; // Fixed height for each control
-                        Controls.Add(control);
-
-                        // Add to UIComponents for further access
-                        UIComponents.Add(beepControl);
-                    }
-                }
-
-                yPosition += 30; // Increment y position for the next field
-            }
-        }
-
-        public void CreateControlsInTableLayout()
-        {
-            if (Structure == null || Data == null) return;
-
-            // Create TableLayoutPanel with 2 columns and set its bounds to fit within DrawingRect
-            var tableLayout = new TableLayoutPanel
-            {
-                ColumnCount = 2,
-                RowCount = Structure.Fields.Count,
-                Location = new Point(DrawingRect.Left, DrawingRect.Top),  // Position within DrawingRect
-                Size = new Size(DrawingRect.Width, DrawingRect.Height),   // Size based on DrawingRect dimensions
-                AutoSize = true,
-                AutoScroll = true,
-            };
-
-            tableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F)); // 30% for labels
-            tableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70F)); // 70% for controls
-
-            foreach (var field in Structure.Fields)
-            {
-                // Create label for each field
+                // Create label
                 Label label = new Label
                 {
-                    Text = field.Description,
-                    AutoSize = true,
-                    TextAlign = ContentAlignment.MiddleLeft,
-                    Dock = DockStyle.Fill
+                    Text = field.fieldname,
+                    Location = new Point(xPosition, yPosition),
+                    Width = labelWidth,
+                    Height = controlHeight
                 };
-                tableLayout.Controls.Add(label);
+                this.Controls.Add(label);
 
-                // Create BeepControl and bind it to data
-                IBeepUIComponent beepControl = CreateAndBindBeepControl(field);
-                if (beepControl != null)
+                // Create control
+                var control = CreateAndBindBeepControl(field);
+                if (control != null)
                 {
-                    var control = beepControl as Control;
-                    if (control != null)
-                    {
-                        control.Dock = DockStyle.Fill;  // Allow control to expand within cell
-                        tableLayout.Controls.Add(control);
+                    Control winControl = control as Control;
+                    winControl.Location = new Point(xPosition + labelWidth + 5, yPosition);
+                    winControl.Width = controlWidth;
+                    winControl.Height = controlHeight;
 
-                        // Add to UIComponents for further access
-                        UIComponents.Add(beepControl);
-                    }
+                    this.Controls.Add(winControl);
+                    UIComponents.Add(control);
+
+                    yPosition += controlHeight + verticalSpacing;
                 }
             }
-
-            // Add the TableLayoutPanel to the BeepDataBlock's Controls collection within DrawingRect
-            Controls.Add(tableLayout);
         }
 
+        /// <summary>
+        /// Creates and binds a BeepControl based on the field type.
+        /// </summary>
         private IBeepUIComponent CreateAndBindBeepControl(EntityField field)
         {
-            IBeepUIComponent beepControl = null;
+            BeepControl beepControl = null;
 
             // Select BeepControl type based on field category
             switch (field.fieldCategory)
             {
                 case DbFieldCategory.String:
-                    beepControl = new BeepTextBox { Text = field.fieldname };
+                    beepControl = new BeepTextBox();
                     break;
 
                 case DbFieldCategory.Numeric:
-                    beepControl = new BeepNumericUpDown { Text = field.fieldname };
+                    beepControl = new BeepNumericUpDown();
                     break;
 
                 case DbFieldCategory.Date:
-                    beepControl = new BeepDatePicker { Text = field.fieldname };
+                    beepControl = new BeepDatePicker();
                     break;
 
                 default:
-                    beepControl = new BeepTextBox { Text = field.fieldname };
+                    beepControl = new BeepTextBox();
                     break;
             }
 
             // Bind BeepControl to data
             if (beepControl != null && Data != null)
             {
-                var entityData = Data.Units;
-                if (entityData != null)
-                {
-                    beepControl.DataContext = entityData.Current;
-                    beepControl.SetBinding(nameof(beepControl.Text), field.fieldname);
-                }
+                // Set the DataContext to the CurrentItem of UnitOfWork
+                beepControl.DataContext = Data.CurrentItem;
+
+                // Set the property name to bind to
+                beepControl.SetBinding("Text", field.fieldname);
             }
 
-            return beepControl;
+            return beepControl as IBeepUIComponent;
+        }
+
+        /// <summary>
+        /// Initializes the data navigator and hooks up events.
+        /// </summary>
+        private void InitializeDataNavigator()
+        {
+            dataNavigator = new BeepDataNavigator
+            {
+                Dock = DockStyle.Bottom,
+                Height = 40
+            };
+
+            dataNavigator.BindingSource = new BeepBindingSource();
+            dataNavigator.BindingSource.DataSource = Data?.Units;
+
+            // Hook up events
+            dataNavigator.NewRecordCreated += DataNavigator_NewRecordCreated;
+            dataNavigator.SaveCalled += DataNavigator_SaveCalled;
+            dataNavigator.DeleteCalled += DataNavigator_DeleteCalled;
+
+            this.Controls.Add(dataNavigator);
+        }
+
+        /// <summary>
+        /// Handles the NewRecordCreated event from the data navigator.
+        /// </summary>
+        private void DataNavigator_NewRecordCreated(object sender, BeepEventDataArgs e)
+        {
+            var newEntity = new T();
+
+            // If this is a detail block, set the foreign key value to match the master record
+            if (_masterRecord != null && !string.IsNullOrEmpty(_foreignKeyPropertyName))
+            {
+                var masterKeyValue = GetPropertyValue(_masterRecord, _masterKeyPropertyName);
+                SetPropertyValue(newEntity, _foreignKeyPropertyName, masterKeyValue);
+            }
+
+            Data.Create(newEntity);
+            Data.MoveLast(); // Move to the new record
+            UpdateDataContext();
+        }
+
+        /// <summary>
+        /// Handles the SaveCalled event from the data navigator.
+        /// </summary>
+        private async void DataNavigator_SaveCalled(object sender, BeepEventDataArgs e)
+        {
+            if (ValidateData())
+            {
+                await Data.Commit();
+                MessageBox.Show("Record saved successfully.");
+            }
+        }
+
+        /// <summary>
+        /// Handles the DeleteCalled event from the data navigator.
+        /// </summary>
+        private async void DataNavigator_DeleteCalled(object sender, BeepEventDataArgs e)
+        {
+            var confirmResult = MessageBox.Show("Are you sure to delete this item?",
+                                                 "Confirm Delete!",
+                                                 MessageBoxButtons.YesNo);
+            if (confirmResult == DialogResult.Yes)
+            {
+                await Data.DeleteAsync(Data.CurrentItem);
+                UpdateDataContext();
+            }
+        }
+
+        /// <summary>
+        /// Validates data before saving.
+        /// </summary>
+        private bool ValidateData()
+        {
+            foreach (var component in UIComponents)
+            {
+                if (!component.ValidateData(out string errorMessage))
+                {
+                    MessageBox.Show(errorMessage, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Handles property changes in the UnitOfWork.
+        /// </summary>
+        private void Data_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "CurrentItem")
+            {
+                UpdateDataContext();
+                NotifyChildBlocksOfMasterChange();
+            }
+        }
+
+        /// <summary>
+        /// Handles CurrentChanged event from the Units collection.
+        /// </summary>
+        private void Units_CurrentChanged(object sender, EventArgs e)
+        {
+            UpdateDataContext();
+            NotifyChildBlocksOfMasterChange();
+        }
+
+        /// <summary>
+        /// Updates the DataContext of each UI component.
+        /// </summary>
+        private void UpdateDataContext()
+        {
+            foreach (var component in UIComponents)
+            {
+                component.DataContext = Data.CurrentItem;
+                component.RefreshBinding(); // Ensure each component refreshes its bindings
+            }
+        }
+
+        /// <summary>
+        /// Overrides the Refresh method to rebuild the UI components.
+        /// </summary>
+        public override void Refresh()
+        {
+            base.Refresh();
+
+            // Clear existing controls except dataNavigator
+            Control[] controlsToRemove = new Control[this.Controls.Count];
+            this.Controls.CopyTo(controlsToRemove, 0);
+            foreach (var control in controlsToRemove)
+            {
+                if (control != dataNavigator)
+                {
+                    this.Controls.Remove(control);
+                }
+            }
+            UIComponents.Clear();
+
+            // Re-initialize controls
+            CreateControlsBasedonStructure();
+
+            // Update data navigator's BindingSource
+            if (dataNavigator != null && Data != null)
+            {
+                dataNavigator.BindingSource.DataSource = Data.Units;
+                dataNavigator.BindingSource.Position = Data.Units.CurrentIndex;
+                dataNavigator.UpdateRecordCountDisplay();
+            }
+        }
+
+        // Support for multiple detail blocks
+        /// <summary>
+        /// Adds a child data block to the current block.
+        /// </summary>
+        /// <typeparam name="TChild">The type of the child entity.</typeparam>
+        /// <param name="childBlock">The child data block instance.</param>
+        /// <param name="masterKeyPropertyName">The property name of the master key in the master entity.</param>
+        /// <param name="foreignKeyPropertyName">The property name of the foreign key in the child entity.</param>
+        public void AddChildBlock<TChild>(BeepDataBlock<Entity> childBlock, string masterKeyPropertyName, string foreignKeyPropertyName)
+            where TChild : Entity, INotifyPropertyChanged, new()
+        {
+            var childInfo = new ChildBlockInfo
+            {
+                ChildBlock = childBlock,
+                MasterKeyPropertyName = masterKeyPropertyName,
+                ForeignKeyPropertyName = foreignKeyPropertyName
+            };
+
+            _childBlocks.Add(childInfo);
+
+            // Set initial master record for the child block
+            var masterRecord = Data?.CurrentItem;
+            childBlock.SetMasterRecord(masterRecord, masterKeyPropertyName, foreignKeyPropertyName);
+        }
+
+        /// <summary>
+        /// Notifies all child blocks that the master record has changed.
+        /// </summary>
+        private void NotifyChildBlocksOfMasterChange()
+        {
+            var masterRecord = Data?.CurrentItem;
+            foreach (var childInfo in _childBlocks)
+            {
+                childInfo.ChildBlock.SetMasterRecord(masterRecord, childInfo.MasterKeyPropertyName, childInfo.ForeignKeyPropertyName);
+            }
+        }
+
+        /// <summary>
+        /// Sets the master record for this data block (used if this block is a detail block).
+        /// </summary>
+        /// <param name="masterRecord">The master record object.</param>
+        /// <param name="masterKeyPropertyName">The property name of the master record's key.</param>
+        /// <param name="foreignKeyPropertyName">The property name of the detail record's foreign key.</param>
+        public void SetMasterRecord(object masterRecord, string masterKeyPropertyName, string foreignKeyPropertyName)
+        {
+            _masterRecord = masterRecord;
+            _masterKeyPropertyName = masterKeyPropertyName;
+            _foreignKeyPropertyName = foreignKeyPropertyName;
+
+            ApplyMasterDetailFilter();
+            Refresh();
+        }
+
+        /// <summary>
+        /// Applies filtering based on the master record to show related detail records.
+        /// </summary>
+        private void ApplyMasterDetailFilter()
+        {
+            if (_masterRecord == null || string.IsNullOrEmpty(_foreignKeyPropertyName) || string.IsNullOrEmpty(_masterKeyPropertyName))
+            {
+                // Remove filter
+                Data.Units.RemoveFilter();
+            }
+            else
+            {
+                var masterKeyValue = GetPropertyValue(_masterRecord, _masterKeyPropertyName);
+
+                // Build filter string
+                string filterString = $"{_foreignKeyPropertyName} = '{masterKeyValue}'";
+                Data.Units.Filter = filterString;
+            }
+
+          //  Data.Units.RefreshBinding();
+            Data.Units.MoveFirst();
+        }
+
+        /// <summary>
+        /// Helper method to get property value using reflection.
+        /// </summary>
+        private object GetPropertyValue(object obj, string propertyName)
+        {
+            var property = obj.GetType().GetProperty(propertyName);
+            if (property == null)
+                throw new InvalidOperationException($"Property '{propertyName}' not found on type '{obj.GetType().Name}'.");
+
+            return property.GetValue(obj);
+        }
+
+        /// <summary>
+        /// Helper method to set property value using reflection.
+        /// </summary>
+        private void SetPropertyValue(object obj, string propertyName, object value)
+        {
+            var property = obj.GetType().GetProperty(propertyName);
+            if (property == null)
+                throw new InvalidOperationException($"Property '{propertyName}' not found on type '{obj.GetType().Name}'.");
+
+            property.SetValue(obj, value);
+        }
+
+        /// <summary>
+        /// Holds information about a child data block.
+        /// </summary>
+        private class ChildBlockInfo
+        {
+            public BeepDataBlock<Entity> ChildBlock { get; set; }
+            public string MasterKeyPropertyName { get; set; }
+            public string ForeignKeyPropertyName { get; set; }
         }
     }
 }

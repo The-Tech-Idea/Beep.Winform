@@ -10,15 +10,14 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DesignerCategory("Component")]
     public class BeepUIManager : Component
     {
+        #region "Properties"
         private bool _applyBeepFormStyle = false;
         private EnumBeepThemes _theme = EnumBeepThemes.DefaultTheme;
         private Form _form;
         private bool _showborder = true;
         private BeepImage beepimage = new BeepImage();
-
         public event Action<EnumBeepThemes> OnThemeChanged;
 
-        #region "Properties"
         private ViewRouter _viewrouter;
         [Browsable(true)]
         [Category("Appearance")]
@@ -258,7 +257,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set => beepFunctionsPanel1 = value;
         }
         #endregion "Properties"
-
+        #region "Constructors"
         public BeepUIManager(IContainer container)
         {
             container.Add(this);
@@ -266,7 +265,71 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Set form load event to apply settings at runtime
 
         }
+        #endregion
+        #region "Design-time support"
+        private void DetachControlAddedEvent(Control container)
+        {
+            if (container != null)
+            {
+                container.ControlAdded -= OnControlAdded;
+                foreach (Control child in container.Controls)
+                {
+                    if (child is ContainerControl)
+                    {
+                        DetachControlAddedEvent(child);
+                    }
+                }
+            }
+        }
+        public bool GetPropertyFromControl(Control control, string PropertyName)
+        {
+            var themeProperty = TypeDescriptor.GetProperties(control)[PropertyName];
+            if (themeProperty != null)
+            {
+                return (bool)themeProperty.GetValue(control);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public void FindBeepSideMenu()
+        {
+            if (_form != null)
+            {
+                foreach (Control control in _form.Controls)
+                {
+                    if (control is BeepSideMenu)
+                    {
 
+                        _beepSideMenu.Title = Title;
+                        _beepSideMenu.BeepForm = BeepiForm;
+                        _beepSideMenu.LogoImage = LogoImage;
+                        _beepSideMenu = control as BeepSideMenu;
+                        _beepSideMenu.BeepForm = BeepiForm;
+                        _beepSideMenu.OnMenuCollapseExpand -= _beepSideMenu_OnMenuCollapseExpand;
+                        _beepSideMenu.OnMenuCollapseExpand += _beepSideMenu_OnMenuCollapseExpand;
+                    }
+                    if (control is BeepFunctionsPanel)
+                    {
+                        beepFunctionsPanel1 = control as BeepFunctionsPanel;
+                    }
+                    if (control is BeepiForm)
+                    {
+                        BeepiForm = control as BeepiForm;
+                        BeepAppBar.LogoImage = LogoImage;
+                        BeepAppBar.Title = Title;
+                    }
+                }
+            }
+        }
+        public void ShowTitle(bool show)
+        {
+            if (BeepAppBar != null)
+            {
+                BeepAppBar.ShowLogoIcon = show;
+            }
+        }
         public override ISite Site
         {
             get => base.Site;
@@ -291,12 +354,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
         private void BeepUIManager_ParentChanged(object sender, EventArgs e)
         {
             FindFormAtRuntime();
         }
-
         private void FindFormAtRuntime()
         {
             if (_form == null)
@@ -309,7 +370,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
         private Form FindParentForm()
         {
             if (this.Container is ISite site && site.Container != null)
@@ -336,14 +396,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             return null;
         }
-
         private void Form_Load(object sender, EventArgs e)
         {
             // Console.WriteLine("Form Load event 1");
 
             // InitForm((BeepiForm)sender);
         }
-
         public void InitForm(BeepiForm form)
         {
             _form = form;
@@ -351,7 +409,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             ApplyThemeToAllBeepControls(_form); // Apply theme to all controls
             FindBeepSideMenu();
         }
-
         // Attach to ControlAdded event for the form and all child containers
         private void AttachControlAddedEvent(Control container)
         {
@@ -380,7 +437,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
         // Event handler for when a control is added to the form or a container
         private void OnControlAdded(object sender, ControlEventArgs e)
         {
@@ -420,7 +476,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BeepSideMenu.Title = Title;
             }
         }
-
         private void _beepSideMenu_OnMenuCollapseExpand(bool obj)
         {
             if (BeepAppBar != null)
@@ -428,6 +483,99 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BeepAppBar.Title = Title;
                 BeepSideMenu.Title = Title;
                 BeepAppBar.ShowLogoIcon = obj;
+            }
+
+        }
+        #endregion "Design-time support"
+        #region "Theme Management"
+        // Optional method to revert to default form styling
+        private void RevertToDefaultFormStyle()
+        {
+            if (_form != null)
+            {
+                BeepFormGenerator.RemoveBeepForm(_form); // Remove BeepForm styling and reset form appearance
+            }
+        }
+        public void ApplyRoundedToControl(Control control, bool isrounded)
+        {
+            var themeProperty = TypeDescriptor.GetProperties(control)["IsRounded"];
+            if (themeProperty != null)
+            {
+                themeProperty.SetValue(control, isrounded);
+            }
+
+        }
+        public void ApplyBorderToControl(Control control, bool showborder)
+        {
+            var themeProperty = TypeDescriptor.GetProperties(control)["ShowAllBorders"];
+            if (themeProperty != null)
+            {
+                themeProperty.SetValue(control, showborder);
+            }
+
+        }
+        public void ApplyThemeOnImageControl(Control control, bool _applyonimage)
+        {
+            var ImageProperty = TypeDescriptor.GetProperties(control)["LogoImage"];
+            if (ImageProperty != null && ImageProperty.PropertyType == typeof(string))
+            {
+                var ApplyThemeOnImage = TypeDescriptor.GetProperties(control)["ApplyThemeOnImage"];
+                if (ApplyThemeOnImage != null && ApplyThemeOnImage.PropertyType == typeof(bool))
+                {
+                    ApplyThemeOnImage.SetValue(control, _applyonimage);
+                }
+            }
+        }
+        // Apply BeepForm styling to the form
+        private void ApplyBeepFormTheme()
+        {
+            if (_form != null)
+            {
+                BeepFormGenerator.ApplyBeepForm(_form, BeepThemesManager.GetTheme(_theme)); // Apply BeepForm properties
+            }
+        }
+
+        public void ApplyThemeToControl(Control control, EnumBeepThemes _theme, bool applytoimage)
+        {
+            var themeProperty = TypeDescriptor.GetProperties(control)["Theme"];
+            if (themeProperty != null && themeProperty.PropertyType == typeof(EnumBeepThemes))
+            {
+                themeProperty.SetValue(control, _theme);
+            }
+            if (BeepiForm != null)
+            {
+                BeepAppBar.LogoImage = LogoImage;
+                BeepAppBar.Title = Title;
+            }
+            if (BeepSideMenu != null)
+            {
+                BeepSideMenu.LogoImage = LogoImage;
+                BeepSideMenu.Title = Title;
+            }
+
+            if (GetPropertyFromControl(control, "IsBorderAffectedByTheme"))
+            {
+                ApplyThemeOnImageControl(control, _showborder);
+            }
+            //IsShadowAffectedByTheme
+            if (GetPropertyFromControl(control, "IsShadowAffectedByTheme"))
+            {
+                ApplyShadowToControl(control, _showShadow);
+            }
+            if (GetPropertyFromControl(control, "IsRoundedAffectedByTheme"))
+            {
+                ApplyRoundedToControl(control, _isrounded);
+            }
+
+
+            ApplyThemeOnImageControl(control, _applyThemeOnImage);
+        }
+        public void ApplyShadowToControl(Control control, bool showshadow)
+        {
+            var themeProperty = TypeDescriptor.GetProperties(control)["ShowShadow"];
+            if (themeProperty != null)
+            {
+                themeProperty.SetValue(control, showshadow);
             }
 
         }
@@ -557,6 +705,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        #endregion "Theme Management"
+        #region "Dispose"
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -571,163 +721,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             base.Dispose(disposing);
         }
+        #endregion "Dispose"
 
-        private void DetachControlAddedEvent(Control container)
-        {
-            if (container != null)
-            {
-                container.ControlAdded -= OnControlAdded;
-                foreach (Control child in container.Controls)
-                {
-                    if (child is ContainerControl)
-                    {
-                        DetachControlAddedEvent(child);
-                    }
-                }
-            }
-        }
 
-        // Apply BeepForm styling to the form
-        private void ApplyBeepFormTheme()
-        {
-            if (_form != null)
-            {
-                BeepFormGenerator.ApplyBeepForm(_form, BeepThemesManager.GetTheme(_theme)); // Apply BeepForm properties
-            }
-        }
-
-        // Optional method to revert to default form styling
-        private void RevertToDefaultFormStyle()
-        {
-            if (_form != null)
-            {
-                BeepFormGenerator.RemoveBeepForm(_form); // Remove BeepForm styling and reset form appearance
-            }
-        }
-
-        public void ApplyThemeToControl(Control control, EnumBeepThemes _theme, bool applytoimage)
-        {
-            var themeProperty = TypeDescriptor.GetProperties(control)["Theme"];
-            if (themeProperty != null && themeProperty.PropertyType == typeof(EnumBeepThemes))
-            {
-                themeProperty.SetValue(control, _theme);
-            }
-            if (BeepiForm != null)
-            {
-                BeepAppBar.LogoImage = LogoImage;
-                BeepAppBar.Title = Title;
-            }
-            if (BeepSideMenu != null)
-            {
-                BeepSideMenu.LogoImage = LogoImage;
-                BeepSideMenu.Title = Title;
-            }
-
-            if(GetPropertyFromControl(control, "IsBorderAffectedByTheme"))
-            {
-                ApplyThemeOnImageControl(control, _showborder);
-            }
-            //IsShadowAffectedByTheme
-            if (GetPropertyFromControl(control, "IsShadowAffectedByTheme"))
-            {
-                ApplyShadowToControl(control, _showShadow);
-            }
-            if (GetPropertyFromControl(control, "IsRoundedAffectedByTheme"))
-            {
-                ApplyRoundedToControl(control, _isrounded);
-            }
-            
-            
-            ApplyThemeOnImageControl(control, _applyThemeOnImage);
-        }
-        public void ApplyShadowToControl(Control control, bool showshadow)
-        {
-            var themeProperty = TypeDescriptor.GetProperties(control)["ShowShadow"];
-            if (themeProperty != null)
-            {
-                themeProperty.SetValue(control, showshadow);
-            }
-
-        }
-        public bool GetPropertyFromControl(Control control, string PropertyName)
-        {
-            var themeProperty = TypeDescriptor.GetProperties(control)[PropertyName];
-            if (themeProperty != null)
-            {
-                return (bool)themeProperty.GetValue(control);
-            }
-            else
-            {
-                return false;
-            }
-        }
-        public void ApplyRoundedToControl(Control control, bool isrounded)
-        {
-            var themeProperty = TypeDescriptor.GetProperties(control)["IsRounded"];
-            if (themeProperty != null)
-            {
-                themeProperty.SetValue(control, isrounded);
-            }
-
-        }
-        public void ApplyBorderToControl(Control control, bool showborder)
-        {
-            var themeProperty = TypeDescriptor.GetProperties(control)["ShowAllBorders"];
-            if (themeProperty != null)
-            {
-                themeProperty.SetValue(control, showborder);
-            }
-
-        }
-        public void ApplyThemeOnImageControl(Control control, bool _applyonimage)
-        {
-            var ImageProperty = TypeDescriptor.GetProperties(control)["LogoImage"];
-            if (ImageProperty != null && ImageProperty.PropertyType == typeof(string))
-            {
-                var ApplyThemeOnImage = TypeDescriptor.GetProperties(control)["ApplyThemeOnImage"];
-                if (ApplyThemeOnImage != null && ApplyThemeOnImage.PropertyType == typeof(bool))
-                {
-                    ApplyThemeOnImage.SetValue(control, _applyonimage);
-                }
-            }
-        }
-        public void FindBeepSideMenu()
-        {
-            if (_form != null)
-            {
-                foreach (Control control in _form.Controls)
-                {
-                    if (control is BeepSideMenu)
-                    {
-
-                        _beepSideMenu.Title = Title;
-                        _beepSideMenu.BeepForm = BeepiForm;
-                        _beepSideMenu.LogoImage = LogoImage;
-                        _beepSideMenu = control as BeepSideMenu;
-                        _beepSideMenu.BeepForm = BeepiForm;
-                        _beepSideMenu.OnMenuCollapseExpand -= _beepSideMenu_OnMenuCollapseExpand;
-                        _beepSideMenu.OnMenuCollapseExpand += _beepSideMenu_OnMenuCollapseExpand;
-                    }
-                    if (control is BeepFunctionsPanel)
-                    {
-                        beepFunctionsPanel1 = control as BeepFunctionsPanel;
-                    }
-                    if (control is BeepiForm)
-                    {
-                        BeepiForm = control as BeepiForm;
-                        BeepAppBar.LogoImage = LogoImage;
-                        BeepAppBar.Title = Title;
-                    }
-                }
-            }
-        }
-
-        public void ShowTitle(bool show)
-        {
-            if (BeepAppBar != null)
-            {
-                BeepAppBar.ShowLogoIcon = show;
-            }
-        }
     }
 }

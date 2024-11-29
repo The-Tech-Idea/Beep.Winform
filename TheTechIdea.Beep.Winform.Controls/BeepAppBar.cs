@@ -253,7 +253,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = 23,
                 Theme = this.Theme,
                 Text = string.Empty,
-                //IsChild = true,
+
+                IsChild = true,
                 PlaceholderText = "Search...",
                 ApplyThemeOnImage = _applyThemeOnImage,
                 IsFramless = true,
@@ -261,6 +262,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
             };
+            
             //searchBox.Font = new Font("Segoe UI", 12, FontStyle.Regular);
             Controls.Add(searchBox);
         }
@@ -433,7 +435,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             //bottomtable.BackColor = _currentTheme.PanelBackColor;
             
             searchBox.Theme = Theme;
-            
+            searchBox.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+            searchBox.Height=searchBox.PreferredHeight;
             TitleLabel.Theme = Theme;
            // hamburgerIcon.Theme = Theme;
             profileIcon.Theme = Theme;

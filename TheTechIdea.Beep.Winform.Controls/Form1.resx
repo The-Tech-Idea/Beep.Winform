@@ -122,7 +122,7 @@
   </metadata>
   <data name="beepBindingSource1.ChildUnitofWorks" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAEtEYXRhTWFuYWdlbWVudE1vZGVscywgVmVyc2lvbj0yLjAuMi4w
+        AAEAAAD/////AQAAAAAAAAAMAgAAAEtEYXRhTWFuYWdlbWVudE1vZGVscywgVmVyc2lvbj0yLjAuNC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwEAQAAAIQBU3lzdGVtLkNvbGxlY3Rp
         b25zLkdlbmVyaWMuTGlzdGAxW1tUaGVUZWNoSWRlYS5CZWVwLkVkaXRvci5JVW5pdG9mV29yaywgRGF0
         YU1hbmFnZW1lbnRNb2RlbHMsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVsbF1dAwAA
@@ -131,6 +131,36 @@
         ZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1udWxsBwMAAAAAAQAAAAAAAAAEI1RoZVRlY2hJZGVhLkJlZXAu
         RWRpdG9yLklVbml0b2ZXb3JrBAAAAAs=
 </value>
+  </data>
+  <data name="beepTextBox1.InnerTextBox.Text" xml:space="preserve">
+    <value> GetHeight();
+    Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
+
+    // Scale image size to respect the max image size
+    if (imageSize.Width &gt; _maxImageSize.Width || imageSize.Height &gt; _maxImageSize.Height)
+    {
+        float scaleFactor = Math.Min(
+            (float)_maxImageSize.Width / imageSize.Width,
+            (float)_maxImageSize.Height / imageSize.Height);
+        imageSize = new Size(
+            (int)(imageSize.Width * scaleFactor),
+            (int)(imageSize.Height * scaleFactor));
+    }</value>
+  </data>
+  <data name="beepTextBox1.Text" xml:space="preserve">
+    <value> GetHeight();
+    Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
+
+    // Scale image size to respect the max image size
+    if (imageSize.Width &gt; _maxImageSize.Width || imageSize.Height &gt; _maxImageSize.Height)
+    {
+        float scaleFactor = Math.Min(
+            (float)_maxImageSize.Width / imageSize.Width,
+            (float)_maxImageSize.Height / imageSize.Height);
+        imageSize = new Size(
+            (int)(imageSize.Width * scaleFactor),
+            (int)(imageSize.Height * scaleFactor));
+    }</value>
   </data>
   <data name="beepSimpleGrid1.Columns" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>

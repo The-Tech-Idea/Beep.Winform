@@ -258,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _childNodes = new List<BeepTreeNode>();
             UpdateDrawingRect();
-
+            BoundProperty= "Text";
             Height = NodeHeight;
             Width = NodeWidth;
             _nodePanel = new Panel
@@ -278,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(_nodePanel);
             InitNode();
         }
-
+        protected override Size DefaultSize => new Size(NodeWidth,NodeHeight);
         public BeepTreeNode(string key, string text)
         {
             _key = key;

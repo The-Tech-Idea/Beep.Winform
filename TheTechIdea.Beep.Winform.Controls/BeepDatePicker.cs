@@ -11,6 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Date Picker")]
     public class BeepDatePicker : BeepControl
     {
+        #region "Properties"
         private TextBox _textBox;
         private Button _calendarButton;
         private MonthCalendar _monthCalendar;
@@ -19,8 +20,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int buttonWidth = 25;
         private bool isPopupOpening = false; // Flag to track the popup state
         private System.Windows.Forms.Timer popupDelayTimer;       // Timer to add a small delay
-        int padding; 
-        int spacing; 
+        int padding;
+        int spacing;
 
         [Browsable(true)]
         [Category("Date Settings")]
@@ -88,6 +89,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _monthCalendar.MaxDate = value;
             }
         }
+        #endregion "Properties"
+
         public BeepDatePicker()
         {
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
@@ -107,8 +110,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 isPopupOpening = false; // Reset the flag after the delay
                 popupDelayTimer.Stop();
             };
-             padding = BorderThickness + 5;
-             spacing = 5;
+            BoundProperty="SelectedDate";
+
+
         }
         protected override void InitLayout()
         {
@@ -116,7 +120,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         
         }
-       
+        void GetHeight()
+        {
+            padding = BorderThickness + 2;
+            spacing = 5;
+           // buttonHeight = _textBox.PreferredHeight;
+            Height = _textBox.PreferredHeight + (padding * 2);
+        }
         private void InitializeComponents()
         {
             // Initialize TextBox for manual input
@@ -266,10 +276,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (DrawingRect == Rectangle.Empty)
                 UpdateDrawingRect();
 
-
-         
-
-            Height = _textBox.PreferredHeight + (padding * 2);
+            GetHeight();
             // int buttonWidth = Height - padding * 2; // Square button
             int textBoxWidth = DrawingRect.Width - buttonWidth - padding * 2; // TextBox width
             int centerY = DrawingRect.Top + (DrawingRect.Height - _textBox.Height) / 2;

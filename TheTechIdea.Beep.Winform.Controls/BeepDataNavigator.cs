@@ -1,24 +1,30 @@
 ﻿
 using TheTechIdea.Beep.Winform.Controls.DataNavigator;
 using TheTechIdea.Beep.Editor;
+using static System.Net.Mime.MediaTypeNames;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     public class BeepDataNavigator : BeepControl
     {
         public BeepButton btnFirst, btnPrevious, btnNext, btnLast, btnInsert, btnDelete,  btnSave, btnCancel;
-        public BeepLabel txtPosition;
+        public BeepButton txtPosition;
 
         public BeepBindingSource BindingSource { get; set; } = new BeepBindingSource();
         protected int _buttonWidth = 15;
         protected int _buttonHeight = 15;
+        int drawRectX;//= DrawingRect.X + 1;
+        int drawRectY;//= DrawingRect.Y + 1;
+        int drawRectWidth;
+        int drawRectHeight;
         public int ButtonWidth
         {
             get => _buttonWidth;
             set
             {
                 _buttonWidth = value;
-                UpdateDrawingRect();
+              
                 ArrangeControls();
                 Invalidate();
             }
@@ -29,13 +35,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _buttonHeight = value;
-                UpdateDrawingRect();
+                 adjustedHeight = ButtonHeight + (YOffset * 2);
+               
                 ArrangeControls();
                 Invalidate();
             }
         }
         public int XOffset { get; set; } = 5;
         public int YOffset { get; set; } = 5;
+        int adjustedHeight;
         // Events for CRUD actions
         public event EventHandler<BeepEventDataArgs> NewRecordCreated;
         public event EventHandler<BeepEventDataArgs> SaveCalled;
@@ -48,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 buttonSpacing = value;
-               ArrangeControls();
+                ArrangeControls();
                 Invalidate();
             }
         }
@@ -69,25 +77,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
                 Width = 200;
-                Height = 30;
+                Height = ButtonHeight + (YOffset * 2); // Include YOffset
             }
         }
+
+
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-
-            // Ensure the height remains limited
-            Height = ButtonHeight + (YOffset * 2);
-
-            // Rearrange buttons and label
-            ArrangeControls();
+            GetDimensions();
+           // Height = adjustedHeight + (YOffset * 2); // Adjust height to include YOffset
+            ArrangeControls(); // Rearrange controls on resize
         }
-        protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
-        {
-            // Limit the height to the preferred height of the buttons and padding
-            int adjustedHeight = ButtonHeight + (YOffset * 2); // Add padding for spacing
-            base.SetBoundsCore(x, y, width, adjustedHeight, specified);
-        }
+
+
+
+        //protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+        //{
+        //    // Limit the height to fit the buttons and padding
+        //     adjustedHeight = ButtonHeight + (YOffset * 2);
+        //    base.SetBoundsCore(x, y, width, adjustedHeight, specified);
+        //}
 
         private void CreateNavigator()
         {
@@ -121,8 +132,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
           
 
-            txtPosition = new BeepLabel { Text = "1 of 1",
-                Size = new Size(60, ButtonHeight),
+            txtPosition = new BeepButton
+            { Text = "1 of 1",
+                Size = new Size(ButtonWidth, ButtonHeight),
+                MaxImageSize = new Size(ButtonWidth - 2, ButtonHeight - 2),
                 IsChild = true,
                 Theme = Theme,
                 ShowAllBorders = false,
@@ -142,7 +155,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             ArrangeControls();
            
         }
-       
+        void GetDimensions()
+        {
+            UpdateDrawingRect();
+            drawRectX = DrawingRect.X ;
+            drawRectY = DrawingRect.Y ; // Consider YOffset
+            drawRectWidth = DrawingRect.Width ;
+            drawRectHeight = DrawingRect.Height ;
+            adjustedHeight = ButtonHeight + (YOffset * 2); // Adjusted height includes YOffset
+        }
+
+        protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+        {
+            GetDimensions();
+            // Enforce a fixed height
+            height = ButtonHeight + (YOffset * 2);
+            base.SetBoundsCore(x, y, width, height+2, specified);
+        }
 
         private BeepButton CreateButton(string text, EventHandler onClick,string imagepath=null)
         {
@@ -173,48 +202,65 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ArrangeControls()
         {
-            int drawRectX = DrawingRect.X;
-            int drawRectY = DrawingRect.Y;
-            int drawRectWidth = DrawingRect.Width;
-            int drawRectHeight = DrawingRect.Height;
+            GetDimensions();
 
-            // Center the buttons vertically within the control
-            int y = drawRectY + (drawRectHeight - ButtonHeight) / 2;
+            // Calculate total width of all controls
+            int totalButtonWidth = (ButtonWidth + buttonSpacing) * 8; // Width for 8 buttons
+            int totalLabelWidth = TextRenderer.MeasureText(txtPosition.Text, txtPosition.Font).Width + 10; // Add padding
+            int totalWidth = totalButtonWidth + totalLabelWidth + buttonSpacing;
 
-            // Calculate the starting X position for horizontal centering
-            int totalButtonWidth = (ButtonWidth + buttonSpacing) * 8; // Adjust based on the number of buttons
-            int totalLabelWidth = txtPosition.Width;
-            int totalWidth = totalButtonWidth + totalLabelWidth;
-            int x = drawRectX + (drawRectWidth - totalWidth) / 2;
+            // Center the controls horizontally
+            int centerX = drawRectX + (drawRectWidth - totalWidth) / 2;
+
+            // Center the controls vertically, considering YOffset
+            int centerY = drawRectY + YOffset;
 
             // Arrange navigation buttons
-            btnFirst.Location = new Point(x, y);
-            btnPrevious.Location = new Point(btnFirst.Right + buttonSpacing, y);
-            btnNext.Location = new Point(btnPrevious.Right + buttonSpacing, y);
-            btnLast.Location = new Point(btnNext.Right + buttonSpacing, y);
+            int currentX = centerX;
+            btnFirst.Location = new Point(currentX, centerY);
+            currentX = btnFirst.Right + buttonSpacing;
+
+            btnPrevious.Location = new Point(currentX, centerY);
+            currentX = btnPrevious.Right + buttonSpacing;
+
+            btnNext.Location = new Point(currentX, centerY);
+            currentX = btnNext.Right + buttonSpacing;
+
+            btnLast.Location = new Point(currentX, centerY);
+            currentX = btnLast.Right + buttonSpacing;
 
             // Arrange CRUD buttons
-            btnInsert.Location = new Point(btnLast.Right + buttonSpacing, y);
-            btnDelete.Location = new Point(btnInsert.Right + buttonSpacing, y);
-            btnSave.Location = new Point(btnDelete.Right + buttonSpacing, y);
-            btnCancel.Location = new Point(btnSave.Right + buttonSpacing, y);
+            btnInsert.Location = new Point(currentX, centerY);
+            currentX = btnInsert.Right + buttonSpacing;
 
-            // Arrange the label for the current position
-            txtPosition.Location = new Point(btnCancel.Right + buttonSpacing, y);
-            txtPosition.Size = new Size(60, ButtonHeight);
+            btnDelete.Location = new Point(currentX, centerY);
+            currentX = btnDelete.Right + buttonSpacing;
+
+            btnSave.Location = new Point(currentX, centerY);
+            currentX = btnSave.Right + buttonSpacing;
+
+            btnCancel.Location = new Point(currentX, centerY);
+            currentX = btnCancel.Right + buttonSpacing;
+
+            // Arrange txtPosition
+            txtPosition.Location = new Point(currentX, centerY);
+            txtPosition.Size = new Size(totalLabelWidth, ButtonHeight);
         }
 
 
 
+
+
+        #region "Event Handlers"
         private void InitializeBindingSourceEvents()
         {
             BindingSource.CurrentChanged += (s, e) => UpdateRecordCountDisplay();
         }
 
-        private void UpdateRecordCountDisplay()
+        public void UpdateRecordCountDisplay()
         {
             txtPosition.Text = $"{BindingSource.Position + 1} of {BindingSource.Count}";
-           
+
         }
 
         // Event handlers for CRUD buttons (similar to your initial code)
@@ -284,17 +330,26 @@ namespace TheTechIdea.Beep.Winform.Controls
             BindingSource.CancelEdit();
             MessageBox.Show("Changes have been canceled.");
         }
+        #endregion "Event Handlers"
+
         public override void ApplyTheme()
         {
             //base.ApplyTheme();
             txtPosition.Theme = Theme;
+          //  txtPosition.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
             foreach (Control ctrl in Controls)
             {
                 // apply theme to all child controls
                 if (ctrl is BeepControl)
                 {
-                   // ((BeepButton)ctrl).ApplyThemeOnImage = true;
                     ((BeepControl)ctrl).Theme = Theme;
+                    if (ctrl is BeepButton)
+                    {
+                        ((BeepButton)ctrl).ApplyThemeOnImage = true;
+                    }
+                   
+                
+                    
                     // ((BeepControl)ctrl).ApplyTheme();
                     
                 }

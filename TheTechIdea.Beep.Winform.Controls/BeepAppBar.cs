@@ -427,7 +427,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            BackColor = _currentTheme.TitleBarColor;
+            BackColor = _currentTheme.TitleBarBackColor;
             //leftPanel.BackColor = _currentTheme.PanelBackColor;
             //centerPanel.BackColor = _currentTheme.PanelBackColor;
             //rightPanel.BackColor = _currentTheme.PanelBackColor;

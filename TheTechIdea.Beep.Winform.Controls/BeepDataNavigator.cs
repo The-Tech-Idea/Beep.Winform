@@ -70,6 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsShadowAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
             ApplyThemeToChilds = false  ;
+            IsChild = false;
         }
         protected override void InitLayout()
         {
@@ -140,6 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 ShowAllBorders = false,
                 ShowShadow = false,
+                ApplyThemeOnImage = true,
                 Anchor = AnchorStyles.None
             };
           
@@ -185,7 +187,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 ShowAllBorders = false,
                 ShowShadow = false,
+                ApplyThemeOnImage = true,
                 Anchor = AnchorStyles.None
+
             };
             if (!string.IsNullOrEmpty(imagepath))
             {
@@ -335,6 +339,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             //base.ApplyTheme();
+            BackColor = _currentTheme.ButtonBackColor;
             txtPosition.Theme = Theme;
           //  txtPosition.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
             foreach (Control ctrl in Controls)
@@ -342,18 +347,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // apply theme to all child controls
                 if (ctrl is BeepControl)
                 {
-                    ((BeepControl)ctrl).Theme = Theme;
-                    if (ctrl is BeepButton)
-                    {
-                        ((BeepButton)ctrl).ApplyThemeOnImage = true;
-                    }
-                   
-                
-                    
-                    // ((BeepControl)ctrl).ApplyTheme();
-                    
+                     ((BeepControl)ctrl).Theme = Theme;
                 }
             }
+            Invalidate();
         }
     }
 }

@@ -226,7 +226,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             button.MouseEnter += (s, e) =>
             {
-                menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
+                menuItemPanel.BackColor = _currentTheme.ButtonHoverBackColor;
                 highlightPanel.BackColor = _currentTheme.AccentColor;
             };
             button.MouseLeave += (s, e) =>

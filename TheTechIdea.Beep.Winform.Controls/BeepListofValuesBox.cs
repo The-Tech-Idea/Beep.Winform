@@ -375,7 +375,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _valueTextBox.BackColor = _currentTheme.AltRowBackColor;
             _valueTextBox.ForeColor = _currentTheme.AccentTextColor;
-
+            _dropdownListBox.BackColor = _currentTheme.AltRowBackColor;
+            _dropdownListBox.ForeColor = _currentTheme.AccentTextColor;
             _dropdownButton.BackColor = _currentTheme.ButtonBackColor;
             _dropdownButton.ForeColor = _currentTheme.ButtonForeColor;
             _dropdownButton.ApplyThemeOnImage = true;

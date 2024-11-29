@@ -2407,7 +2407,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             DescriptionForColor = Color.FromArgb(255, 142, 128),         // Light Salmon
             BeforeForColor = Color.FromArgb(255, 179, 174),              // Light Pink
             LatestForColor = Color.FromArgb(255, 212, 173),              // Peach Puff
-            BackColor = Color.FromArgb(255, 244, 229),                   // Linen Background
+            BackColor = Color.FromArgb(255, 110, 102), // Light Salmon                   // Linen Background
 
             // **Button Colors**
             ButtonBackColor = Color.FromArgb(255, 94, 77),               // Sunset Orange
@@ -2856,7 +2856,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             PrimaryColor = Color.FromArgb(255, 94, 77),                 // Sunset Orange
             SecondaryColor = Color.FromArgb(150, 60, 130),              // Plum
             AccentColor = Color.FromArgb(255, 142, 128),                // Light Salmon
-            BackgroundColor = Color.FromArgb(255, 244, 229),            // Linen
+            BackgroundColor = Color.FromArgb(255, 130, 122), // Light Salmon            // Linen
             SurfaceColor = Color.White,
             ErrorColor = Color.FromArgb(199, 73, 60),                   // Dark Sunset Orange
             WarningColor = Color.FromArgb(227, 83, 68),                 // Darker Sunset Orange
@@ -3587,7 +3587,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             DescriptionForColor = Color.FromArgb(210, 105, 30),           // Chocolate
             BeforeForColor = Color.FromArgb(205, 92, 92),                 // Indian Red
             LatestForColor = Color.FromArgb(218, 165, 32),                // Golden Rod
-            BackColor = Color.FromArgb(255, 248, 220),                    // Cornsilk background
+            BackColor = Color.FromArgb(200, 180, 135),                   // Cornsilk background
 
             // **Button Colors**
             ButtonBackColor = Color.FromArgb(205, 133, 63),               // Peru
@@ -3606,7 +3606,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(85, 85, 85),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(250, 235, 215), // Antique White
+            PanelBackColor = Color.FromArgb(250, 200, 200), // Antique White
 
 
             // **Grid Colors**
@@ -4036,7 +4036,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             PrimaryColor = Color.FromArgb(205, 92, 92),          // Indian Red
             SecondaryColor = Color.FromArgb(218, 165, 32),       // Golden Rod
             AccentColor = Color.FromArgb(210, 105, 30),          // Chocolate
-            BackgroundColor = Color.FromArgb(255, 248, 220),     // Cornsilk
+            BackgroundColor = Color.FromArgb(222, 210, 155),
             SurfaceColor = Color.White,
             ErrorColor = Color.FromArgb(139, 0, 0),              // Dark Red
             WarningColor = Color.FromArgb(255, 140, 0),          // Dark Orange
@@ -4767,7 +4767,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             DescriptionForColor = Color.FromArgb(176, 196, 222), // LightSteelBlue
             BeforeForColor = Color.FromArgb(211, 211, 211),     // Light Gray
             LatestForColor = Color.FromArgb(192, 192, 192),     // Silver
-            BackColor = Color.FromArgb(245, 245, 245),          // White Smoke background
+            BackColor = Color.FromArgb(70, 130, 180), // SteelBlue     // White Smoke background
 
             // **Button Colors**
             ButtonBackColor = Color.FromArgb(135, 206, 250),    // LightSkyBlue
@@ -4867,7 +4867,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(70, 130, 180),   // SteelBlue
+            TitleBarBackColor = Color.FromArgb(176, 196, 222), // SteelBlue
             TitleBarForeColor = Color.White,
             TitleBarHoverBackColor = Color.FromArgb(65, 105, 225), // RoyalBlue
             TitleBarHoverForeColor = Color.White,
@@ -5216,7 +5216,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             PrimaryColor = Color.FromArgb(70, 130, 180),        // Steel Blue
             SecondaryColor = Color.FromArgb(176, 196, 222),     // Light Steel Blue
             AccentColor = Color.FromArgb(135, 206, 250),        // Light Sky Blue
-            BackgroundColor = Color.FromArgb(245, 245, 245),    // White Smoke
+            BackgroundColor = Color.FromArgb(176, 196, 222),
             SurfaceColor = Color.White,
             ErrorColor = Color.FromArgb(178, 34, 34),           // Firebrick
             WarningColor = Color.FromArgb(255, 165, 0),         // Orange
@@ -16624,11 +16624,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             DescriptionForColor = Color.WhiteSmoke,
             BeforeForColor = Color.FromArgb(255, 255, 140, 0),       // Dark Orange
             LatestForColor = Color.FromArgb(255, 0, 255, 127),       // Spring Green
-            BackColor = Color.White,
+            BackColor = Color.FromArgb(255, 200, 248, 255), // Alice Blue
+            BackgroundColor = Color.FromArgb(255, 040, 248, 255), // Alice Blue
 
             // **Button Colors**
             ButtonBackColor = Color.FromArgb(255, 255, 105, 180),    // Hot Pink
-            ButtonForeColor = Color.White,
+            ButtonForeColor = Color.FromArgb(255, 75, 0, 130),
             ButtonHoverBackColor = Color.FromArgb(255, 255, 20, 147), // Deep Pink
             ButtonHoverForeColor = Color.White,
             ButtonActiveBackColor = Color.FromArgb(255, 255, 0, 255), // Magenta
@@ -16714,7 +16715,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientDirection = LinearGradientMode.Horizontal,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(255, 138, 43, 226), // Blue Violet
+            SideMenuBackColor = Color.FromArgb(255, 010, 208, 255), // Blue Violet
 
             SideMenuHoverBackColor = Color.FromArgb(255, 138, 43, 226),
             SideMenuSelectedBackColor = Color.FromArgb(255, 75, 0, 130),
@@ -17075,7 +17076,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             PrimaryColor = Color.FromArgb(255, 75, 0, 130),          // Indigo
             SecondaryColor = Color.FromArgb(255, 138, 43, 226),      // Blue Violet
             AccentColor = Color.FromArgb(255, 255, 69, 0),           // Orange Red
-            BackgroundColor = Color.White,
             SurfaceColor = Color.FromArgb(255, 240, 248, 255),       // Alice Blue
             ErrorColor = Color.FromArgb(255, 220, 20, 60),           // Crimson
             WarningColor = Color.FromArgb(255, 255, 140, 0),         // Dark Orange
@@ -17221,15 +17221,15 @@ namespace TheTechIdea.Beep.Vis.Modules
             BackColor = Color.Black,
 
             // **Button Colors**
-            ButtonBackColor = Color.Black,
+            ButtonBackColor = Color.DimGray ,
             ButtonForeColor = Color.White,
-            ButtonHoverBackColor = Color.White,
-            ButtonHoverForeColor = Color.Black,
-            ButtonActiveBackColor = Color.White,
-            ButtonActiveForeColor = Color.Black,
+            ButtonHoverBackColor = Color.DimGray,
+            ButtonHoverForeColor = Color.White,
+            ButtonActiveBackColor = Color.DimGray,
+            ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
-            TextBoxBackColor = Color.Black,
+            TextBoxBackColor = Color.DarkGray,
             TextBoxForeColor = Color.White,
 
 
@@ -17238,7 +17238,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.White,
 
             // **Panel Colors**
-            PanelBackColor = Color.Black,
+            PanelBackColor = Color.Gray,
 
             // **Grid Colors**
             HeaderBackColor = Color.Black,
@@ -17296,7 +17296,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ActiveTabForeColor = Color.Black,
 
             // **Dialog Box Colors**
-            DialogBackColor = Color.Black,
+            DialogBackColor = Color.Gray,
             DialogForeColor = Color.White,
             DialogButtonBackColor = Color.White,
             DialogButtonForeColor = Color.Black,
@@ -17319,7 +17319,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuSelectedIconColor = Color.Black,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.Black,
+            TitleBarBackColor = Color.FromArgb(255, 35, 35, 30),
             TitleBarForeColor = Color.White,
             TitleBarHoverBackColor = Color.FromArgb(255, 30, 30, 30),
             TitleBarHoverForeColor = Color.White,
@@ -17698,7 +17698,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             PrimaryColor = Color.Black,
             SecondaryColor = Color.White,
             AccentColor = Color.Yellow,
-            BackgroundColor = Color.Black,
+            BackgroundColor = Color.DimGray,
             SurfaceColor = Color.Black,
             ErrorColor = Color.Red,
             WarningColor = Color.Yellow,

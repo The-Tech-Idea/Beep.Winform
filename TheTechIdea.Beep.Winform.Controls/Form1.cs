@@ -26,5 +26,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
 
         }
+
+        private void beepAppBar1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

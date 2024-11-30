@@ -340,7 +340,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             //base.ApplyTheme();
             BackColor = _currentTheme.ButtonBackColor;
-            txtPosition.Theme = Theme;
+         //   txtPosition.Theme = Theme;
           //  txtPosition.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
             foreach (Control ctrl in Controls)
             {

@@ -388,7 +388,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             //base.ApplyTheme();
-            this.BackColor = _currentTheme.BackgroundColor;
+            this.BackColor = _currentTheme.PanelBackColor;
             this.ForeColor = _currentTheme.LabelForeColor;
             if (titleLabel != null) 
             {

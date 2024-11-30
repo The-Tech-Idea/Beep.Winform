@@ -391,6 +391,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 menuItemPanel.Left = drawRectX;
                 menuItemPanel.Width = drawRectWidth;
                 menuItemPanel.Height = menuItemHeight;
+                menuItemPanel.Tag = item;
                 menuItemPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
                 Controls.Add(menuItemPanel);
                 yOffset += menuItemPanel.Height;
@@ -506,7 +507,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     
         public override void ApplyTheme()
         {
-            if (!_isControlinvalidated) return;
+          //  if (!_isControlinvalidated) return;
             base.ApplyTheme();
             BackColor = _currentTheme.SideMenuBackColor;
             logo.Theme = Theme;

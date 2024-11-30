@@ -231,7 +231,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             button.MouseLeave += (s, e) =>
             {
-                menuItemPanel.BackColor = _currentTheme.SideMenuBackColor;
+                menuItemPanel.BackColor = _currentTheme.PanelBackColor;
                 highlightPanel.BackColor = _currentTheme.SideMenuBackColor;
             };
             button.Click += Button_Click;
@@ -338,16 +338,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentTheme == null) { return; }
             //base.ApplyTheme();
             // Apply theme to the main menu panel (background gradient or solid color)
-            BackColor = _currentTheme.SideMenuBackColor;
+            BackColor = _currentTheme.PanelBackColor;
           
-            _currentTheme.ButtonBackColor = _currentTheme.SideMenuBackColor;
+            _currentTheme.ButtonBackColor = _currentTheme.PanelBackColor;
             // Apply theme to each item (button and highlight panel)
             foreach (Control control in this.Controls)
             {
                 if (control is Panel menuItemPanel)
                 {
                     // Apply background color for the menu item panel
-                    menuItemPanel.BackColor = _currentTheme.SideMenuBackColor;
+                    menuItemPanel.BackColor = _currentTheme.PanelBackColor;
 
                     // Loop through the controls inside the panel (button and highlight panel)
                     foreach (Control subControl in menuItemPanel.Controls)
@@ -361,7 +361,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                             case Panel highlightPanel:
                                 // Apply the highlight color for the side highlight panel
-                                highlightPanel.BackColor = _currentTheme.SideMenuBackColor;
+                                highlightPanel.BackColor = _currentTheme.PanelBackColor;
                                 break;
                         }
                     }

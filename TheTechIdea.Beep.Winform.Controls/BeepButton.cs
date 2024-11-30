@@ -306,12 +306,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.ButtonForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
-            if (IsChild)
-            {
-                ForeColor = _currentTheme.ButtonForeColor;
-
-            }
-
             try
                 {
                     Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
@@ -333,14 +327,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     beepImage.Theme = Theme;
                     beepImage.BackColor = _currentTheme.BackColor;
-                    if (IsChild)
-                    {
-                        beepImage.ForeColor = _currentTheme.ButtonForeColor;
-                    }
-                    else
-                    {
-                        beepImage.ForeColor = _currentTheme.ButtonForeColor;
-                    }
+                    beepImage.ForeColor =ForeColor;
                     beepImage.ApplyThemeToSvg();
                 }
 

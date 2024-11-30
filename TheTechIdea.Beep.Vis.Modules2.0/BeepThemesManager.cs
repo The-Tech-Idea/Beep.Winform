@@ -1777,7 +1777,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(0, 105, 148),               // Deep Ocean Blue
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(240, 255, 255),             // Azure
+            PanelBackColor = Color.FromArgb(0, 123, 167),             // Azure
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(175, 238, 238),            // Pale Turquoise
@@ -8330,7 +8330,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(0, 0, 0),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(240, 240, 240), // Light Gray
+            PanelBackColor = Color.FromArgb(0, 120, 215), // Light Gray
 
 
 
@@ -9518,7 +9518,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(33, 33, 33),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(245, 245, 245), // Light Gray
+            PanelBackColor = Color.FromArgb(33, 150, 243), // Light Gray
             
 
 
@@ -17238,7 +17238,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.White,
 
             // **Panel Colors**
-            PanelBackColor = Color.Gray,
+            PanelBackColor = Color.DarkGray,
 
             // **Grid Colors**
             HeaderBackColor = Color.Black,

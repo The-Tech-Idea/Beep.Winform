@@ -3,25 +3,17 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.DataBase;
+using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
-using TheTechIdea.Beep.Winform.Controls.DataNavigator;
 using TheTechIdea.Beep.Vis.Modules;
-using DialogResult = System.Windows.Forms.DialogResult;
+using TheTechIdea.Beep.Winform.Controls.DataNavigator;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public class BeepDataBlock:BeepDataBlock<Entity> 
+    public class BeepDataBlock : BeepControl
     {
-        public BeepDataBlock()
-        {
-        }
-    }
-
-    public class BeepDataBlock<T> : BeepPanel where T : Entity, INotifyPropertyChanged, new()
-    {
-        protected UnitofWork<T> _data;
+        protected IUnitofWork _data;
 
         public IEntityStructure Structure => Data != null ? Data.EntityStructure : null;
 
@@ -30,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Data")]
         [TypeConverter(typeof(UnitOfWorkConverter))]
-        public UnitofWork<T> Data
+        public IUnitofWork Data
         {
             get { return _data; }
             set
@@ -39,12 +31,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     if (_data != null)
                     {
-                        _data.PropertyChanged -= Data_PropertyChanged;
+                        // Unsubscribe from previous events
+                        _data.Units.CurrentChanged -= Units_CurrentChanged;
                     }
+
                     _data = value;
                     if (_data != null)
                     {
-                        _data.PropertyChanged += Data_PropertyChanged;
+                        // Subscribe to new events
                         _data.Units.CurrentChanged += Units_CurrentChanged;
                     }
                     Refresh();
@@ -55,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepDataNavigator dataNavigator;
 
         // Master record for filtering detail data
-        private object _masterRecord;
+        private dynamic _masterRecord;
         private string _foreignKeyPropertyName;
         private string _masterKeyPropertyName;
 
@@ -80,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Creates controls based on the entity structure.
         /// </summary>
-        private void CreateControlsBasedonStructure()
+        private void CreateControlsBasedOnStructure()
         {
             if (Structure == null)
                 return;
@@ -136,13 +130,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
 
                 case DbFieldCategory.Numeric:
+                case DbFieldCategory.Currency:
                     beepControl = new BeepNumericUpDown();
                     break;
 
                 case DbFieldCategory.Date:
+                case DbFieldCategory.Timestamp:
                     beepControl = new BeepDatePicker();
                     break;
 
+                case DbFieldCategory.Boolean:
+                    beepControl = new BeepCheckBox();
+                    break;
+
+                // Add cases for other field categories as needed
                 default:
                     beepControl = new BeepTextBox();
                     break;
@@ -152,10 +153,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (beepControl != null && Data != null)
             {
                 // Set the DataContext to the CurrentItem of UnitOfWork
-                beepControl.DataContext = Data.CurrentItem;
+                beepControl.DataContext = Data.Units.Current;
 
                 // Set the property name to bind to
-                beepControl.SetBinding("Text", field.fieldname);
+                beepControl.SetBinding("Value", field.fieldname);
             }
 
             return beepControl as IBeepUIComponent;
@@ -172,10 +173,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = 40
             };
 
-            dataNavigator.BindingSource = new BeepBindingSource();
-            dataNavigator.BindingSource.DataSource = Data?.Units;
+            dataNavigator.UnitOfWork = Data;
 
-            // Hook up events
+            // Hook up navigation events
+            // No need to subscribe to navigation events since BeepDataNavigator handles them internally
+
+            // Subscribe to CRUD events to relay them to the parent or handle as needed
             dataNavigator.NewRecordCreated += DataNavigator_NewRecordCreated;
             dataNavigator.SaveCalled += DataNavigator_SaveCalled;
             dataNavigator.DeleteCalled += DataNavigator_DeleteCalled;
@@ -183,78 +186,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.Controls.Add(dataNavigator);
         }
 
-        /// <summary>
-        /// Handles the NewRecordCreated event from the data navigator.
-        /// </summary>
+        // Event handlers for CRUD events raised by the data navigator
         private void DataNavigator_NewRecordCreated(object sender, BeepEventDataArgs e)
         {
-            var newEntity = new T();
-
-            // If this is a detail block, set the foreign key value to match the master record
-            if (_masterRecord != null && !string.IsNullOrEmpty(_foreignKeyPropertyName))
-            {
-                var masterKeyValue = GetPropertyValue(_masterRecord, _masterKeyPropertyName);
-                SetPropertyValue(newEntity, _foreignKeyPropertyName, masterKeyValue);
-            }
-
-            Data.Create(newEntity);
-            Data.MoveLast(); // Move to the new record
-            UpdateDataContext();
+            // Raise the event to notify listeners or handle it here
+            // You can create a new record in your data source here if needed
         }
 
-        /// <summary>
-        /// Handles the SaveCalled event from the data navigator.
-        /// </summary>
-        private async void DataNavigator_SaveCalled(object sender, BeepEventDataArgs e)
+        private void DataNavigator_SaveCalled(object sender, BeepEventDataArgs e)
         {
-            if (ValidateData())
-            {
-                await Data.Commit();
-                MessageBox.Show("Record saved successfully.");
-            }
+            // Handle save logic here or notify the data source
         }
 
-        /// <summary>
-        /// Handles the DeleteCalled event from the data navigator.
-        /// </summary>
-        private async void DataNavigator_DeleteCalled(object sender, BeepEventDataArgs e)
+        private void DataNavigator_DeleteCalled(object sender, BeepEventDataArgs e)
         {
-            var confirmResult = MessageBox.Show("Are you sure to delete this item?",
-                                                 "Confirm Delete!",
-                                                 MessageBoxButtons.YesNo);
-            if (confirmResult == DialogResult.Yes)
-            {
-                await Data.DeleteAsync(Data.CurrentItem);
-                UpdateDataContext();
-            }
-        }
-
-        /// <summary>
-        /// Validates data before saving.
-        /// </summary>
-        private bool ValidateData()
-        {
-            foreach (var component in UIComponents)
-            {
-                if (!component.ValidateData(out string errorMessage))
-                {
-                    MessageBox.Show(errorMessage, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Handles property changes in the UnitOfWork.
-        /// </summary>
-        private void Data_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == "CurrentItem")
-            {
-                UpdateDataContext();
-                NotifyChildBlocksOfMasterChange();
-            }
+            // Handle delete logic here or notify the data source
         }
 
         /// <summary>
@@ -271,10 +217,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void UpdateDataContext()
         {
-            foreach (var component in UIComponents)
+            if (Data != null)
             {
-                component.DataContext = Data.CurrentItem;
-                component.RefreshBinding(); // Ensure each component refreshes its bindings
+                foreach (var component in UIComponents)
+                {
+                    component.DataContext = Data.Units.Current;
+                    component.RefreshBinding(); // Ensure each component refreshes its bindings
+                }
             }
         }
 
@@ -298,13 +247,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             UIComponents.Clear();
 
             // Re-initialize controls
-            CreateControlsBasedonStructure();
+            CreateControlsBasedOnStructure();
 
-            // Update data navigator's BindingSource
+            // Update data navigator's UnitOfWork
             if (dataNavigator != null && Data != null)
             {
-                dataNavigator.BindingSource.DataSource = Data.Units;
-                dataNavigator.BindingSource.Position = Data.Units.CurrentIndex;
+                dataNavigator.UnitOfWork = Data;
                 dataNavigator.UpdateRecordCountDisplay();
             }
         }
@@ -313,12 +261,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Adds a child data block to the current block.
         /// </summary>
-        /// <typeparam name="TChild">The type of the child entity.</typeparam>
         /// <param name="childBlock">The child data block instance.</param>
         /// <param name="masterKeyPropertyName">The property name of the master key in the master entity.</param>
         /// <param name="foreignKeyPropertyName">The property name of the foreign key in the child entity.</param>
-        public void AddChildBlock<TChild>(BeepDataBlock<Entity> childBlock, string masterKeyPropertyName, string foreignKeyPropertyName)
-            where TChild : Entity, INotifyPropertyChanged, new()
+        public void AddChildBlock(BeepDataBlock childBlock, string masterKeyPropertyName, string foreignKeyPropertyName)
         {
             var childInfo = new ChildBlockInfo
             {
@@ -330,7 +276,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _childBlocks.Add(childInfo);
 
             // Set initial master record for the child block
-            var masterRecord = Data?.CurrentItem;
+            var masterRecord = Data?.Units.Current;
             childBlock.SetMasterRecord(masterRecord, masterKeyPropertyName, foreignKeyPropertyName);
         }
 
@@ -339,7 +285,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void NotifyChildBlocksOfMasterChange()
         {
-            var masterRecord = Data?.CurrentItem;
+            var masterRecord = Data?.Units.Current;
             foreach (var childInfo in _childBlocks)
             {
                 childInfo.ChildBlock.SetMasterRecord(masterRecord, childInfo.MasterKeyPropertyName, childInfo.ForeignKeyPropertyName);
@@ -352,7 +298,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <param name="masterRecord">The master record object.</param>
         /// <param name="masterKeyPropertyName">The property name of the master record's key.</param>
         /// <param name="foreignKeyPropertyName">The property name of the detail record's foreign key.</param>
-        public void SetMasterRecord(object masterRecord, string masterKeyPropertyName, string foreignKeyPropertyName)
+        public void SetMasterRecord(dynamic masterRecord, string masterKeyPropertyName, string foreignKeyPropertyName)
         {
             _masterRecord = masterRecord;
             _masterKeyPropertyName = masterKeyPropertyName;
@@ -376,37 +322,33 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 var masterKeyValue = GetPropertyValue(_masterRecord, _masterKeyPropertyName);
 
-                // Build filter string
-                string filterString = $"{_foreignKeyPropertyName} = '{masterKeyValue}'";
-                Data.Units.Filter = filterString;
+                // Build filter predicate
+                Func<dynamic, bool> filterPredicate = entity =>
+                {
+                    var value = GetPropertyValue(entity, _foreignKeyPropertyName);
+                    return value != null && value.Equals(masterKeyValue);
+                };
+
+                // Apply filter
+                Data.Units.ApplyFilter(filterPredicate);
             }
 
-          //  Data.Units.RefreshBinding();
             Data.Units.MoveFirst();
         }
 
         /// <summary>
         /// Helper method to get property value using reflection.
         /// </summary>
-        private object GetPropertyValue(object obj, string propertyName)
+        private object GetPropertyValue(dynamic entity, string propertyName)
         {
-            var property = obj.GetType().GetProperty(propertyName);
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            var property = entity.GetType().GetProperty(propertyName);
             if (property == null)
-                throw new InvalidOperationException($"Property '{propertyName}' not found on type '{obj.GetType().Name}'.");
+                throw new InvalidOperationException($"Property '{propertyName}' not found on type '{entity.GetType().Name}'.");
 
-            return property.GetValue(obj);
-        }
-
-        /// <summary>
-        /// Helper method to set property value using reflection.
-        /// </summary>
-        private void SetPropertyValue(object obj, string propertyName, object value)
-        {
-            var property = obj.GetType().GetProperty(propertyName);
-            if (property == null)
-                throw new InvalidOperationException($"Property '{propertyName}' not found on type '{obj.GetType().Name}'.");
-
-            property.SetValue(obj, value);
+            return property.GetValue(entity);
         }
 
         /// <summary>
@@ -414,7 +356,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private class ChildBlockInfo
         {
-            public BeepDataBlock<Entity> ChildBlock { get; set; }
+            public BeepDataBlock ChildBlock { get; set; }
             public string MasterKeyPropertyName { get; set; }
             public string ForeignKeyPropertyName { get; set; }
         }

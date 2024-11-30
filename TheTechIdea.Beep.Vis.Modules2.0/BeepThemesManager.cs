@@ -247,7 +247,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonActiveForeColor = Color.White,
 
             // TextBox Colors
-            TextBoxBackColor = Color.FromArgb(45, 45, 45),
+            TextBoxBackColor = Color.FromArgb(55, 55, 55),
             TextBoxForeColor = Color.White,
 
             // Label Colors
@@ -255,7 +255,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.White,                  // White for text color
 
             // Panel Colors
-            PanelBackColor = Color.FromArgb(245, 245, 245), // Light Gray for subtle contrast against white background
+            PanelBackColor = Color.FromArgb(40, 40, 40), // Light Gray for subtle contrast against white background
 
 
             // Grid Colors
@@ -3001,7 +3001,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Button Colors**
             ButtonBackColor = Color.FromArgb(34, 139, 34),                 // Forest Green
-            ButtonForeColor = Color.White,
+            ButtonForeColor = Color.Black,
             ButtonHoverBackColor = Color.FromArgb(0, 128, 0),              // Green
             ButtonHoverForeColor = Color.White,
             ButtonActiveBackColor = Color.FromArgb(0, 100, 0),             // Dark Green
@@ -3016,7 +3016,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(34, 85, 34),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(222, 184, 135), // Burlywood
+            PanelBackColor = Color.FromArgb(107, 142, 35), // Burlywood
 
 
             // **Grid Colors**
@@ -5361,7 +5361,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Button Colors**
             ButtonBackColor = Color.FromArgb(144, 238, 144),        // Light Green
-            ButtonForeColor = Color.White,
+            ButtonForeColor = Color.Black,
             ButtonHoverBackColor = Color.FromArgb(60, 179, 113),    // Medium Sea Green
             ButtonHoverForeColor = Color.White,
             ButtonActiveBackColor = Color.FromArgb(46, 139, 87),    // Sea Green
@@ -5376,7 +5376,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelForeColor = Color.FromArgb(85, 107, 47),
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(245, 255, 250), // Mint Cream
+            PanelBackColor = Color.FromArgb(144, 238, 144),  // Mint Cream
 
 
             // **Grid Colors**
@@ -11285,8 +11285,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             BackColor = Color.FromArgb(0, 0, 0),                 // Black
 
             // **Button Colors**
-            ButtonBackColor = Color.FromArgb(0, 255, 255),       // Neon Cyan
-            ButtonForeColor = Color.Black,
+            ButtonBackColor = Color.FromArgb(55, 15, 50),      // Neon Cyan
+            ButtonForeColor = Color.FromArgb(128, 255, 0),
             ButtonHoverBackColor = Color.FromArgb(0, 255, 127),  // Neon Green
             ButtonHoverForeColor = Color.Black,
             ButtonActiveBackColor = Color.FromArgb(255, 20, 147), // Neon Pink
@@ -11384,7 +11384,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuSelectedIconColor = Color.FromArgb(255, 0, 255),
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(0, 0, 0),
+            TitleBarBackColor = Color.FromArgb(25, 25, 15),
             TitleBarForeColor = Color.FromArgb(255, 0, 255),
             TitleBarHoverBackColor = Color.FromArgb(30, 30, 30),
             TitleBarHoverForeColor = Color.FromArgb(255, 0, 255),
@@ -11970,7 +11970,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             SideMenuHoverBackColor = Color.FromArgb(222, 184, 135),
             SideMenuSelectedBackColor = Color.FromArgb(205, 133, 63),
-            SideMenuForeColor = Color.FromArgb(80, 40, 20),
+            SideMenuForeColor = Color.FromArgb(10, 20, 50),
             SideMenuHoverForeColor = Color.FromArgb(80, 40, 20),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(160, 82, 45),
@@ -12573,7 +12573,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuSelectedIconColor = Color.FromArgb(230, 230, 250),
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(18, 18, 50),
+            TitleBarBackColor = Color.FromArgb(25, 25, 70),
             TitleBarForeColor = Color.FromArgb(230, 230, 250),
             TitleBarHoverBackColor = Color.FromArgb(28, 28, 70),
             TitleBarHoverForeColor = Color.FromArgb(230, 230, 250),

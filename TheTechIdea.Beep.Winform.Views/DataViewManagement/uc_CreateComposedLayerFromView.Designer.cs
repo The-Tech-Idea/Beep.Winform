@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
+﻿using TheTechIdea.Beep.ConfigUtil;
+
+namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
 {
     partial class uc_CreateComposedLayerFromView
     {
@@ -103,7 +105,7 @@
             // 
             // dataConnectionsBindingSource
             // 
-            this.dataConnectionsBindingSource.DataSource = typeof(TheTechIdea.Util.ConnectionProperties);
+            this.dataConnectionsBindingSource.DataSource = typeof(ConnectionProperties);
             // 
             // databaseTextBox
             // 

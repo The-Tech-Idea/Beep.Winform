@@ -715,7 +715,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         [Browsable(true)]
-        [TypeConverter(typeof(ThemeConverter))]
+        [TypeConverter(typeof(ThemeEnumConverter))]
         public EnumBeepThemes Theme
         {
             get => _themeEnum;

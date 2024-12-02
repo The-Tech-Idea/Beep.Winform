@@ -1,23 +1,17 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using CommunityToolkit.Mvvm.ComponentModel;
-using DataManagementModels.Editor;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.MVVM;
 using TheTechIdea.Beep.Report;
-using DataManagementModels.ConfigUtil;
-using TheTechIdea.Util;
-using System.Windows.Forms;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.DriversConfigurations;
+using TheTechIdea.Beep.Utilities;
+
 using System.ComponentModel;
 using System.Diagnostics;
-using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns;
-using TheTechIdea.Beep.Winform.Controls.Grid;
+
 using System.Data;
 using TheTechIdea.Beep.Winform.Controls;
 
@@ -182,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                             }
                             else
                             {
-                                BeepCheckBox ch2 = new BeepCheckBox();
+                                BeepCheckBox<Char> ch2 = new BeepCheckBox<Char>();
 
                                 ch2.DataBindings.Add(new Binding("Checked", Ts, field.fieldname, true, DataSourceUpdateMode.OnPropertyChanged));
                                 ch2.Text = "";
@@ -194,8 +188,8 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                                     {
                                         string[] v = coldefaults.propoertValue.Split(',');
                                         v = coldefaults.propoertValue.Split(',');
-                                        ch2.TrueValue = v[0].ToCharArray()[0];
-                                        ch2.FalseValue = v[1].ToCharArray()[0];
+                                        ch2.CheckedValue = v[0].ToCharArray()[0];
+                                        ch2.UncheckedValue = v[1].ToCharArray()[0];
                                     }
 
                                 }
@@ -399,7 +393,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                         }
                         else
                         {
-                            BeepCheckBox ch2 = new BeepCheckBox();
+                            BeepCheckBox<Char> ch2 = new BeepCheckBox<Char>();
 
                             ch2.DataBindings.Add(new Binding("Checked", bindingSource, field.fieldname, true, DataSourceUpdateMode.OnPropertyChanged));
                             ch2.Text = "";
@@ -411,8 +405,8 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                                 {
                                     string[] v = coldefaults.propoertValue.Split(',');
                                     v = coldefaults.propoertValue.Split(',');
-                                    ch2.TrueValue = v[0].ToCharArray()[0];
-                                    ch2.FalseValue = v[1].ToCharArray()[0];
+                                    ch2.CheckedValue = v[0].ToCharArray()[0];
+                                    ch2.UncheckedValue = v[1].ToCharArray()[0];
                                 }
 
                             }
@@ -770,7 +764,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
 
                                 break;
                             case "System.Char":
-                                BeepCheckBox ch2 = new BeepCheckBox
+                                BeepCheckBox<Char> ch2 = new BeepCheckBox<Char>
                                 {
                                     Left = startleft,
                                     Top = starth
@@ -784,8 +778,8 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
 
                                 if (coldefaults != null)
                                 {
-                                    ch2.TrueValue = v[0].ToCharArray()[0];
-                                    ch2.FalseValue = v[1].ToCharArray()[0];
+                                    ch2.CheckedValue = v[0].ToCharArray()[0];
+                                    ch2.UncheckedValue = v[1].ToCharArray()[0];
                                 }
                                 //  ch2.CheckStateChanged += Ch1_CheckStateChanged; ;
                                 //   ch2.Anchor = AnchorStyles.Top;
@@ -869,7 +863,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                                 }
                                 else
                                 {
-                                    ch2 = new BeepCheckBox
+                                    ch2 = new BeepCheckBox<Char>
                                     {
                                         Left = startleft,
                                         Top = starth
@@ -885,8 +879,8 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                                     if (coldefaults != null)
                                     {
                                         v = coldefaults.propoertValue.Split(',');
-                                        ch2.TrueValue = v[0].ToCharArray()[0];
-                                        ch2.FalseValue = v[1].ToCharArray()[0];
+                                        ch2.CheckedValue = v[0].ToCharArray()[0];
+                                        ch2.UncheckedValue = v[1].ToCharArray()[0];
                                     }
                                     // ch2.CheckStateChanged += Ch1_CheckStateChanged; ;
 

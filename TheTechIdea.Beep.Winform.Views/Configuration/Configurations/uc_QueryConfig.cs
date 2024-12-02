@@ -1,17 +1,17 @@
 ﻿using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Logger;
+using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep;
 using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
-using TheTechIdea.Util;
+using TheTechIdea.Beep.Utilities;
 using TheTechIdea;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Editor;
-using QuerySqlRepo = TheTechIdea.Util.QuerySqlRepo;
-using DataManagementModels.Editor;
+
+using TheTechIdea.Beep.ConfigUtil;
 
 namespace Beep.Config.Winform.Configurations
 {

@@ -1,4 +1,4 @@
-﻿using DataManagementModels.Editor;
+﻿//using DataManagementModels.Editor;
 using System.Data;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Report;
@@ -6,9 +6,13 @@ using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls.Basic;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 using TheTechIdea.Beep.Winform.Controls.Template;
-using TheTechIdea.Logger;
-using TheTechIdea.Util;
+using TheTechIdea.Beep.Logger;
+using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.MVVM.ViewModels;
+using TheTechIdea.Beep.Composite;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Addin;
 
 namespace TheTechIdea.Beep.Winform.Views.Crud
 {
@@ -137,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
             {
                 uc_Search.AppFilters = AppFilters;
             }
-            if (frm_Addin.ShowDialog() == DialogResult.OK)
+            if (frm_Addin.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 // Access the AppFilters property here after the form is closed with DialogResult.OK
                 AppFilters = uc_Search.AppFilters;

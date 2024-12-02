@@ -1,10 +1,5 @@
-﻿using System;
-using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
-using TheTechIdea.Beep.Winform.Controls.DataNavigator;
-using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Utilities;
+﻿using TheTechIdea.Beep.Editor;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -12,6 +7,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         public BeepButton btnFirst, btnPrevious, btnNext, btnLast, btnInsert, btnDelete, btnSave, btnCancel;
         public BeepButton txtPosition;
+        public bool IsInQueryMode { get; private set; } = false;
 
         public IUnitofWork UnitOfWork
         {
@@ -34,13 +30,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                         _unitOfWork.Units.CurrentChanged += Units_CurrentChanged;
                     }
                     UpdateRecordCountDisplay();
+                    UpdateNavigationButtonState();
                 }
             }
         }
         private IUnitofWork _unitOfWork;
 
-        protected int _buttonWidth = 25;
-        protected int _buttonHeight = 25;
+        protected int _buttonWidth = 15;
+        protected int _buttonHeight = 15;
         int drawRectX;
         int drawRectY;
         int drawRectWidth;
@@ -78,6 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepEventDataArgs> SaveCalled;
         public event EventHandler<BeepEventDataArgs> DeleteCalled;
         public event EventHandler<BeepEventDataArgs> EditCalled;
+        public event EventHandler<BeepEventDataArgs> RollbackCalled;
 
         int buttonSpacing = 5;
         public int ButtonSpacing
@@ -128,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             btnInsert = CreateButton("Insert", btnInsert_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.add.svg");
             btnDelete = CreateButton("Delete", btnDelete_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg");
             btnSave = CreateButton("Save", btnSave_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.floppy-disk.svg");
-            btnCancel = CreateButton("Cancel", btnCancel_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.back-button.svg");
+            btnCancel = CreateButton("Rollback", btnCancel_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.back-button.svg");
 
             // Set theme effects to false for all buttons
             SetThemeEffects(btnFirst);
@@ -268,7 +266,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void Units_CurrentChanged(object sender, EventArgs e)
         {
             UpdateRecordCountDisplay();
+            UpdateNavigationButtonState(); // Update buttons when the current index changes
         }
+
 
         public void UpdateRecordCountDisplay()
         {
@@ -287,38 +287,61 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Event handlers for navigation buttons
         private void btnFirst_Click(object sender, EventArgs e)
         {
-            UnitOfWork?.Units.MoveFirst();
+            UnitOfWork?.MoveFirst();
+
             UpdateRecordCountDisplay();
+            UpdateNavigationButtonState();
         }
 
         private void btnPrevious_Click(object sender, EventArgs e)
         {
-            UnitOfWork?.Units.MovePrevious();
+            UnitOfWork?.MovePrevious();
             UpdateRecordCountDisplay();
+            UpdateNavigationButtonState();
         }
 
         private void btnNext_Click(object sender, EventArgs e)
         {
-            UnitOfWork?.Units.MoveNext();
+            UnitOfWork?.MoveNext();
             UpdateRecordCountDisplay();
+            UpdateNavigationButtonState();
         }
 
         private void btnLast_Click(object sender, EventArgs e)
         {
-            UnitOfWork?.Units.MoveLast();
+            UnitOfWork?.MoveLast();
             UpdateRecordCountDisplay();
+            UpdateNavigationButtonState();
         }
 
         private void btnInsert_Click(object sender, EventArgs e)
         {
             var args = new BeepEventDataArgs("Insert", null);
             NewRecordCreated?.Invoke(this, args); // Raise event for the parent control to handle
+            if (args.Cancel)
+            {
+                return;
+            }
+            else
+            {
+                UnitOfWork?.Create();
+                UpdateRecordCountDisplay();
+            }
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
             var args = new BeepEventDataArgs("Delete", null);
             DeleteCalled?.Invoke(this, args); // Raise event for the parent control to handle
+            if(args.Cancel)
+            {
+                return;
+            }
+            else
+            {
+                UnitOfWork?.Delete();
+                UpdateRecordCountDisplay();
+            }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -329,11 +352,51 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            var args = new BeepEventDataArgs("Cancel", null);
-            // You may implement cancel logic here if needed
+            var args = new BeepEventDataArgs("Rollback", null);
+            if (MessageBox.Show(this.Parent, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            {
+                RollbackCalled?.Invoke(this, args); // Raise event for the parent control to handle
+                if (args.Cancel)
+                {
+                    return;
+                }
+                else
+                {
+                    UnitOfWork?.Rollback();
+                    UpdateRecordCountDisplay();
+                }
+            }
         }
 
         #endregion "Event Handlers"
+        private void NotifyUser(string message, bool isError = false)
+        {
+            MessageBox.Show(message, "Notification", MessageBoxButtons.OK, isError ? MessageBoxIcon.Error : MessageBoxIcon.Information);
+        }
+
+        private void HighlightCurrentRecord()
+        {
+            // Assuming UnitOfWork.Units.CurrentIndex is exposed
+            var currentIndex = UnitOfWork.Units.CurrentIndex;
+            // Update UI styling to reflect the current record
+        }
+
+        private void UpdateNavigationButtonState()
+        {
+            btnFirst.Enabled = UnitOfWork != null && UnitOfWork.Units.CurrentIndex > 0;
+            btnPrevious.Enabled = UnitOfWork != null && UnitOfWork.Units.CurrentIndex > 0;
+            btnNext.Enabled = UnitOfWork != null && UnitOfWork.Units.CurrentIndex < UnitOfWork.Units.Count - 1;
+            btnLast.Enabled = UnitOfWork != null && UnitOfWork.Units.CurrentIndex < UnitOfWork.Units.Count - 1;
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.Left)
+                btnPrevious_Click(null, null);
+            else if (keyData == Keys.Right)
+                btnNext_Click(null, null);
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
 
         public override void ApplyTheme()
         {

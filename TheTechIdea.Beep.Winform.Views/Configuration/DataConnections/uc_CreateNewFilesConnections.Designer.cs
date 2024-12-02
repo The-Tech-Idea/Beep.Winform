@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Views.Configuration.DataConnections
+﻿using TheTechIdea.Beep.ConfigUtil;
+
+namespace TheTechIdea.Beep.Winform.Views.Configuration.DataConnections
 {
     partial class uc_CreateNewFilesConnections
     {
@@ -35,7 +37,7 @@
             // 
             // dataConnectionsBindingSource
             // 
-            dataConnectionsBindingSource.DataSource = typeof(TheTechIdea.Util.ConnectionProperties);
+            dataConnectionsBindingSource.DataSource = typeof(ConnectionProperties);
             // 
             // uc_CreateNewFilesConnections
             // 

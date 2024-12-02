@@ -2,8 +2,12 @@
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls.Basic;
-using TheTechIdea.Logger;
-using TheTechIdea.Util;
+using TheTechIdea.Beep.Logger;
+using TheTechIdea.Beep.Utilities;
+
+using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Addin;
 
 namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
 {

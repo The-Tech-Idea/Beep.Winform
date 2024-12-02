@@ -1,5 +1,6 @@
 ﻿
- 
+
+using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 
 namespace Beep.Config.Winform.Configurations
@@ -54,11 +55,11 @@ namespace Beep.Config.Winform.Configurations
             // 
             // queryListBindingSource
             // 
-            this.queryListBindingSource.DataSource = typeof(TheTechIdea.Util.QuerySqlRepo);
+            this.queryListBindingSource.DataSource = typeof(QuerySqlRepo);
             // 
             // DatabaseTypebindingSource
             // 
-            this.DatabaseTypebindingSource.DataSource = typeof(TheTechIdea.Util.QuerySqlRepo);
+            this.DatabaseTypebindingSource.DataSource = typeof(QuerySqlRepo);
             // 
             // queryListDataGridView
             // 

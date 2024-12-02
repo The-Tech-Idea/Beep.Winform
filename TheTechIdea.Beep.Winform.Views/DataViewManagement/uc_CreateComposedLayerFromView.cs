@@ -1,5 +1,8 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
-using DataManagementModels.DriversConfigurations;
+
+using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Addin;
 
 using System.Data;
 
@@ -7,11 +10,12 @@ using TheTechIdea;
 using TheTechIdea.Beep;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.DataView;
-using TheTechIdea.Beep.Editor;
+
 using TheTechIdea.Beep.Vis;
-using TheTechIdea.Logger;
-using TheTechIdea.Util;
+using TheTechIdea.Beep.Logger;
+using TheTechIdea.Beep.Utilities;
 using DialogResult = TheTechIdea.Beep.Vis.Modules.DialogResult;
+using TheTechIdea.Beep.DriversConfigurations;
 
 namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
 {
@@ -199,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
                             DMEEditor.ConfigEditor.AddDataConnection(cn);
                             DMEEditor.ConfigEditor.SaveDataconnectionsValues();
 
-                            DMEEditor.ConfigEditor.CompositeQueryLayers.Add(new TheTechIdea.Beep.CompositeLayer.CompositeLayer() { DataSourceName = databaseTextBox.Text, DataViewDataSourceName = vds.DataViewDataSourceID, LayerName = databaseTextBox.Text });
+                            DMEEditor.ConfigEditor.CompositeQueryLayers.Add(new TheTechIdea.Beep.Composite.CompositeLayer() { DataSourceName = databaseTextBox.Text, DataViewDataSourceName = vds.DataViewDataSourceID, LayerName = databaseTextBox.Text });
                             DMEEditor.ConfigEditor.SaveCompositeLayersValues();
                             Parentbranch.CreateChildNodes();
                             DMEEditor.ErrorObject.Flag = Errors.Ok;

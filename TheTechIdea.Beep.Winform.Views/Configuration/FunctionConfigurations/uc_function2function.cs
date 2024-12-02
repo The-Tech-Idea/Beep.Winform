@@ -4,8 +4,11 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.MVVM.ViewModels;
 using TheTechIdea.Beep.Vis;
-using TheTechIdea.Logger;
-using TheTechIdea.Util;
+using TheTechIdea.Beep.Logger;
+using TheTechIdea.Beep.Utilities;
+
+using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.ConfigUtil;
 
 
 

@@ -1,4 +1,6 @@
 ﻿
+using TheTechIdea.Beep.ConfigUtil;
+
 namespace Beep.Config.Winform.Functions
 {
     partial class uc_CreateLocalDatabase
@@ -129,7 +131,7 @@ namespace Beep.Config.Winform.Functions
             // 
             // dataConnectionsBindingSource
             // 
-            dataConnectionsBindingSource.DataSource = typeof(TheTechIdea.Util.ConnectionProperties);
+            dataConnectionsBindingSource.DataSource = typeof(ConnectionProperties);
             // 
             // passwordTextBox
             // 

@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
+﻿using TheTechIdea.Beep.DataView;
+
+namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
 {
     partial class uc_CreateViewQueryEntity
     {
@@ -37,7 +39,7 @@
             // dataViewDataSourceBindingSource
             // 
             this.dataViewDataSourceBindingSource.AllowNew = true;
-            this.dataViewDataSourceBindingSource.DataSource = typeof(TheTechIdea.Beep.DataBase.DMDataView);
+            this.dataViewDataSourceBindingSource.DataSource = typeof(DMDataView);
             // 
             // uc_CreateViewQueryEntity
             // 

@@ -13,7 +13,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepListBox : BeepPanel
     {
         public List<BeepButton> _buttons { get; set; } = new List<BeepButton>();
-        
+        private Dictionary<SimpleItem, BeepCheckBox> _itemCheckBoxes = new Dictionary<SimpleItem, BeepCheckBox>();
+
         private int _selectedIndex = -1;
         private Size ButtonSize = new Size(200, 20);
         private int _highlightPanelSize = 5;
@@ -25,7 +26,36 @@ namespace TheTechIdea.Beep.Winform.Controls
         private SimpleItemCollection items = new SimpleItemCollection();
         private bool _shownodeimage;
         private string? _imageKey;
+        private bool _showCheckBox = false;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Indicates whether to show checkboxes for menu items.")]
+        public bool ShowCheckBox
+        {
+            get => _showCheckBox;
+            set
+            {
+                _showCheckBox = value;
+                InitializeMenu();
+            }
+        }
 
+        [Browsable(false)]
+        public List<SimpleItem> SelectedItems
+        {
+            get
+            {
+                List<SimpleItem> selectedItems = new();
+                foreach (var kvp in _itemCheckBoxes)
+                {
+                    if (kvp.Value.State == BeepCheckBox<bool>.CheckBoxState.Checked)
+                    {
+                        selectedItems.Add(kvp.Key);
+                    }
+                }
+                return selectedItems;
+            }
+        }
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
@@ -221,8 +251,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             menuItemPanel.Controls.Add(button);
             button.BringToFront();
             _buttons.Add(button);
-            //button.BringToFront();
-            //Handle hover effects for the menu item panel
+
+            if (ShowCheckBox)
+            {
+                BeepCheckBox checkBox = new BeepCheckBox
+                {
+                    Dock = DockStyle.Left,
+                    Width = 20,
+                    Height = ButtonSize.Height,
+                    Theme = Theme,
+                    Tag = item
+                };
+
+                checkBox.StateChanged += (s, e) => UpdateSelectedItems(item, checkBox);
+                menuItemPanel.Controls.Add(checkBox);
+                _itemCheckBoxes[item] = checkBox;
+            }
 
             button.MouseEnter += (s, e) =>
             {
@@ -240,8 +284,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             return menuItemPanel;
         }
 
-        
 
+        private void UpdateSelectedItems(SimpleItem item, BeepCheckBox checkBox)
+        {
+            if (checkBox.State == BeepCheckBox<bool>.CheckBoxState.Checked)
+            {
+                if (!_itemCheckBoxes.ContainsKey(item))
+                {
+                    _itemCheckBoxes[item] = checkBox;
+                }
+            }
+            else
+            {
+                if (_itemCheckBoxes.ContainsKey(item))
+                {
+                    _itemCheckBoxes.Remove(item);
+                }
+            }
+        }
         public virtual void InitializeMenu()
         {
             GetDimensions();

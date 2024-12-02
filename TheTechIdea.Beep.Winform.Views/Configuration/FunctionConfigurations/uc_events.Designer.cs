@@ -1,6 +1,5 @@
 ﻿
  
-using DataManagementModels.ConfigUtil;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 
 namespace TheTechIdea.Beep.Winform.Views
@@ -143,7 +142,7 @@ namespace TheTechIdea.Beep.Winform.Views
             // 
             // eventsBindingSource
             // 
-            this.eventsBindingSource.DataSource = typeof(DataManagementModels.ConfigUtil.Event);
+            this.eventsBindingSource.DataSource = typeof(ConfigUtil.Event);
             // 
             // poisonPanel2
             // 

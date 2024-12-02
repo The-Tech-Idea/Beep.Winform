@@ -1,6 +1,6 @@
 ﻿using TheTechIdea.Beep;
 using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Logger;
+using TheTechIdea.Beep.Logger;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,13 +10,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using TheTechIdea.Util;
+using TheTechIdea.Beep.Utilities;
 using TheTechIdea;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Addin;
-using DataManagementModels.DriversConfigurations;
+using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.ConfigUtil;
+
 using TheTechIdea.Beep.Winform.Controls.Basic;
 using TheTechIdea.Beep.MVVM.ViewModels;
+using TheTechIdea.Beep.DriversConfigurations;
 
 namespace TheTechIdea.Beep.Winform.Views.Configuration
 {

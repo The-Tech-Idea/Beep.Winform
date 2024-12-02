@@ -1,4 +1,5 @@
-﻿ 
+﻿
+using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 
 namespace Beep.Config.Winform.Configurations
@@ -126,7 +127,7 @@ namespace Beep.Config.Winform.Configurations
             // 
             // foldersBindingSource
             // 
-            this.foldersBindingSource.DataSource = typeof(TheTechIdea.Util.StorageFolders);
+            this.foldersBindingSource.DataSource = typeof(StorageFolders);
             // 
             // BeepbindingNavigator1
             // 

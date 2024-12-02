@@ -3,15 +3,18 @@ using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Logger;
+using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep;
  
-using TheTechIdea.Util;
+using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.DataView;
-using TheTechIdea.Beep.CompositeLayer;
+using TheTechIdea.Beep.Composite;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Vis;
+using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Addin;
+
 
 namespace TheTechIdea.ETL
 {

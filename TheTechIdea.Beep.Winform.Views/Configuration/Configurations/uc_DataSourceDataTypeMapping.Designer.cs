@@ -1,4 +1,5 @@
-﻿using DataManagementModels.DriversConfigurations;
+﻿
+using TheTechIdea.Beep.DriversConfigurations;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 
 namespace Beep.Config.Winform.Configurations
@@ -168,7 +169,7 @@ namespace Beep.Config.Winform.Configurations
             // 
             // dataTypesMapBindingSource
             // 
-            this.dataTypesMapBindingSource.DataSource = typeof(DataManagementModels.DriversConfigurations.DatatypeMapping);
+            this.dataTypesMapBindingSource.DataSource = typeof(DatatypeMapping);
             // 
             // favDataGridViewCheckBoxColumn
             // 

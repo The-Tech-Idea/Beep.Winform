@@ -1,4 +1,5 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
+﻿using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Views.Configuration.DataConnections
 {
@@ -274,11 +275,11 @@ namespace TheTechIdea.Beep.Winform.Views.Configuration.DataConnections
             // HeadersbindingSource
             // 
             HeadersbindingSource.DataMember = "Headers";
-            HeadersbindingSource.DataSource = typeof(TheTechIdea.Util.ConnectionProperties);
+            HeadersbindingSource.DataSource = typeof(ConnectionProperties);
             // 
             // dataConnectionsBindingSource
             // 
-            dataConnectionsBindingSource.DataSource = typeof(TheTechIdea.Util.ConnectionProperties);
+            dataConnectionsBindingSource.DataSource = typeof(ConnectionProperties);
             // 
             // poisonStyleManager2
             // 
@@ -287,11 +288,11 @@ namespace TheTechIdea.Beep.Winform.Views.Configuration.DataConnections
             // bindingSource1
             // 
             bindingSource1.DataMember = "Headers";
-            bindingSource1.DataSource = typeof(TheTechIdea.Util.ConnectionProperties);
+            bindingSource1.DataSource = typeof(ConnectionProperties);
             // 
             // bindingSource2
             // 
-            bindingSource2.DataSource = typeof(TheTechIdea.Util.ConnectionProperties);
+            bindingSource2.DataSource = typeof(ConnectionProperties);
             // 
             // poisonStyleManager3
             // 
@@ -300,11 +301,11 @@ namespace TheTechIdea.Beep.Winform.Views.Configuration.DataConnections
             // bindingSource3
             // 
             bindingSource3.DataMember = "Headers";
-            bindingSource3.DataSource = typeof(TheTechIdea.Util.ConnectionProperties);
+            bindingSource3.DataSource = typeof(ConnectionProperties);
             // 
             // bindingSource4
             // 
-            bindingSource4.DataSource = typeof(TheTechIdea.Util.ConnectionProperties);
+            bindingSource4.DataSource = typeof(ConnectionProperties);
             // 
             // poisonTextBox2
             // 

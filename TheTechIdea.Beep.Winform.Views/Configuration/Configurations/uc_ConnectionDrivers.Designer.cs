@@ -1,5 +1,5 @@
-﻿ 
-using DataManagementModels.DriversConfigurations;
+﻿
+using TheTechIdea.Beep.DriversConfigurations;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 
 namespace Beep.Config.Winform.Configurations
@@ -252,7 +252,7 @@ namespace Beep.Config.Winform.Configurations
             // 
             // connectiondriversConfigBindingSource
             // 
-            this.connectiondriversConfigBindingSource.DataSource = typeof(DataManagementModels.DriversConfigurations.ConnectionDriversConfig);
+            this.connectiondriversConfigBindingSource.DataSource = typeof(ConnectionDriversConfig);
             // 
             // dataGridViewTextBoxColumn5
             // 

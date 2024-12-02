@@ -1,4 +1,6 @@
-﻿namespace Beep.Config.Winform.DataConnections
+﻿using TheTechIdea.Beep.ConfigUtil;
+
+namespace Beep.Config.Winform.DataConnections
 {
     partial class uc_WebApi
     {
@@ -275,7 +277,7 @@
             // 
             // dataConnectionsBindingSource
             // 
-            dataConnectionsBindingSource.DataSource = typeof(TheTechIdea.Util.ConnectionProperties);
+            dataConnectionsBindingSource.DataSource = typeof(ConnectionProperties);
             // 
             // driverVersionComboBox
             // 
@@ -749,7 +751,7 @@
             // HeadersbindingSource
             // 
             HeadersbindingSource.DataMember = "Headers";
-            HeadersbindingSource.DataSource = typeof(TheTechIdea.Util.ConnectionProperties);
+            HeadersbindingSource.DataSource = typeof(ConnectionProperties);
             // 
             // uc_WebApi
             // 

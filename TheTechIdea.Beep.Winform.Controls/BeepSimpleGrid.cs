@@ -587,7 +587,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 var columnRect = new Rectangle(xOffset, yOffset, Columns[i].Width, _defaultcolumnheaderheight);
 
-                using (var textBrush = new SolidBrush(_currentTheme.PrimaryColor))
+                using (var textBrush = new SolidBrush(_currentTheme.ButtonForeColor))
                 {
                     g.DrawString(headerText, Font, textBrush, columnRect, new StringFormat
                     {

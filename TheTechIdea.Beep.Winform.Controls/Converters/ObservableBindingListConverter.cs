@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Collections.Generic;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Editor;
 
 namespace TheTechIdea.Beep.Winform.Controls.Converters
 {

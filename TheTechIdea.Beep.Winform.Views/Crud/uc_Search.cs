@@ -1,4 +1,4 @@
-﻿using DataManagementModels.Editor;
+﻿//using DataManagementModels.Editor;
 using System.Data;
 using System.Windows.Forms.VisualStyles;
 using TheTechIdea.Beep.Editor;
@@ -6,8 +6,10 @@ using TheTechIdea.Beep.MVVM.ViewModels;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls.Basic;
-using TheTechIdea.Logger;
-using TheTechIdea.Util;
+using TheTechIdea.Beep.Logger;
+using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.ConfigUtil;
 
 
 namespace TheTechIdea.Beep.Winform.Views.Crud

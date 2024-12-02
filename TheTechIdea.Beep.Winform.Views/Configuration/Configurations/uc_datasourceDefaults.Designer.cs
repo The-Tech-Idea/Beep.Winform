@@ -1,6 +1,5 @@
 ﻿
- 
-using DataManagementModels.ConfigUtil;
+using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 
 namespace Beep.Config.Winform.Configurations
@@ -106,7 +105,7 @@ namespace Beep.Config.Winform.Configurations
             // 
             // datasourceDefaultsBindingSource
             // 
-            this.datasourceDefaultsBindingSource.DataSource = typeof(DataManagementModels.ConfigUtil.DefaultValue);
+            this.datasourceDefaultsBindingSource.DataSource = typeof(DefaultValue);
             // 
             // BeepbindingNavigator1
             // 

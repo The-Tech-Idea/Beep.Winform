@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            DataNavigator.BeepBindingSource beepBindingSource1 = new DataNavigator.BeepBindingSource();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             beepAppBar1 = new BeepAppBar();
             beepSideMenu1 = new BeepSideMenu();
@@ -210,7 +209,7 @@
             beepSideMenu1.Name = "beepSideMenu1";
             beepSideMenu1.OverrideFontSize = TypeStyleFontSize.None;
             beepSideMenu1.Padding = new Padding(5);
-            beepSideMenu1.ParentBackColor = Color.FromArgb(30, 30, 30);
+            beepSideMenu1.ParentBackColor = Color.FromArgb(240, 240, 240);
             beepSideMenu1.PressedBackColor = Color.FromArgb(220, 220, 220);
             beepSideMenu1.PressedBorderColor = Color.Gray;
             beepSideMenu1.PressedForeColor = Color.Black;
@@ -338,7 +337,6 @@
             beepDatePicker1.AnimationDuration = 500;
             beepDatePicker1.AnimationType = DisplayAnimationType.None;
             beepDatePicker1.ApplyThemeToChilds = true;
-            beepDatePicker1.BackColor = Color.FromArgb(240, 240, 240);
             beepDatePicker1.BlockID = null;
             beepDatePicker1.BorderColor = Color.FromArgb(220, 220, 220);
             beepDatePicker1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -631,7 +629,6 @@
             beepListofValuesBox1.AnimationDuration = 500;
             beepListofValuesBox1.AnimationType = DisplayAnimationType.None;
             beepListofValuesBox1.ApplyThemeToChilds = true;
-            beepListofValuesBox1.BackColor = Color.FromArgb(240, 240, 240);
             beepListofValuesBox1.BlockID = null;
             beepListofValuesBox1.BorderColor = Color.FromArgb(220, 220, 220);
             beepListofValuesBox1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -759,7 +756,7 @@
             // 
             // 
             // 
-            beepTextBox1.InnerTextBox.BackColor = Color.FromArgb(240, 240, 240);
+            beepTextBox1.InnerTextBox.BackColor = Color.FromArgb(245, 245, 245);
             beepTextBox1.InnerTextBox.BorderStyle = BorderStyle.FixedSingle;
             beepTextBox1.InnerTextBox.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             beepTextBox1.InnerTextBox.ForeColor = Color.FromArgb(60, 60, 60);
@@ -927,11 +924,6 @@
             beepDataNavigator1.AnimationType = DisplayAnimationType.None;
             beepDataNavigator1.ApplyThemeToChilds = false;
             beepDataNavigator1.BackColor = Color.FromArgb(240, 240, 240);
-            beepBindingSource1.ChildUnitofWorks = (List<Editor.IUnitofWork>)resources.GetObject("beepBindingSource1.ChildUnitofWorks");
-            beepBindingSource1.Filter = null;
-            beepBindingSource1.Position = -1;
-            beepBindingSource1.UnitofWork = null;
-            beepDataNavigator1.BindingSource = beepBindingSource1;
             beepDataNavigator1.BlockID = null;
             beepDataNavigator1.BorderColor = Color.Black;
             beepDataNavigator1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -1007,6 +999,7 @@
             beepDataNavigator1.Theme = Vis.Modules.EnumBeepThemes.NeumorphismTheme;
             beepDataNavigator1.ToolTipText = "";
             beepDataNavigator1.TopoffsetForDrawingRect = 0;
+            beepDataNavigator1.UnitOfWork = null;
             beepDataNavigator1.UseGradientBackground = false;
             beepDataNavigator1.XOffset = 5;
             beepDataNavigator1.YOffset = 5;

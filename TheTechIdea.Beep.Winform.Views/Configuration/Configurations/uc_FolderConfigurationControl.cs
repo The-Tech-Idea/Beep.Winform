@@ -8,12 +8,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea;
-using TheTechIdea.Util;
-using TheTechIdea.Logger;
+using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.Composite;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.ConfigUtil;
+
 
 namespace Beep.Config.Winform.Configurations
 {

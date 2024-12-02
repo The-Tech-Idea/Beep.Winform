@@ -1,5 +1,8 @@
 ﻿
+using TheTechIdea.Beep;
+using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.DataBase;
+using TheTechIdea.Beep.DataView;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 
 namespace TheTechIdea.ETL
@@ -105,7 +108,7 @@ namespace TheTechIdea.ETL
             // dataViewDataSourceBindingSource
             // 
             this.dataViewDataSourceBindingSource.AllowNew = true;
-            this.dataViewDataSourceBindingSource.DataSource = typeof(TheTechIdea.Beep.DataBase.DMDataView);
+            this.dataViewDataSourceBindingSource.DataSource = typeof(DMDataView);
             // 
             // viewIDTextBox
             // 
@@ -176,7 +179,7 @@ namespace TheTechIdea.ETL
             // 
             // dataConnectionsBindingSource
             // 
-            this.dataConnectionsBindingSource.DataSource = typeof(TheTechIdea.Util.ConnectionProperties);
+            this.dataConnectionsBindingSource.DataSource = typeof(      ConnectionProperties);
             // 
             // ViewtypeComboBox
             // 
@@ -193,7 +196,7 @@ namespace TheTechIdea.ETL
             // 
             // dataSourcesBindingSource
             // 
-            this.dataSourcesBindingSource.DataSource = typeof(TheTechIdea.IDataSource);
+            this.dataSourcesBindingSource.DataSource = typeof(IDataSource);
             // 
             // NewDatasourcecomboBox1
             // 

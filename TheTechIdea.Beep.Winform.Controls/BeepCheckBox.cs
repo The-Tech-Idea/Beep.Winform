@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Data;
 using System.Drawing.Drawing2D;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -46,7 +47,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private T _currentValue;
         private BeepImage _beepImage;
         private bool _hideText = false;
-
+        // Declare the StateChanged event
+        public event EventHandler? StateChanged;
         public BeepCheckBox()
         {
             if (Width <= 0 || Height <= 0)
@@ -193,6 +195,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _state = CheckBoxState.Indeterminate;
             }
+            OnStateChanged();
         }
 
         #endregion
@@ -320,6 +323,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void OnStateChanged()
         {
             CurrentValue = State == CheckBoxState.Checked ? CheckedValue : UncheckedValue;
+            // Trigger the StateChanged event
+            StateChanged?.Invoke(this, EventArgs.Empty);
             Invalidate(); // Redraw the control
         }
 

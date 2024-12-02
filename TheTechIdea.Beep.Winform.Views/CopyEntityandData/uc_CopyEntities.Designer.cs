@@ -1,4 +1,5 @@
 ﻿
+using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Winform.Controls;
 
 namespace Beep.Winform.Vis.ETL.CopyEntityandData
@@ -152,7 +153,7 @@ namespace Beep.Winform.Vis.ETL.CopyEntityandData
             // 
             // dataConnectionsBindingSource
             // 
-            dataConnectionsBindingSource.DataSource = typeof(TheTechIdea.Util.ConnectionProperties);
+            dataConnectionsBindingSource.DataSource = typeof(ConnectionProperties);
             // 
             // destinationdatasourcename
             // 

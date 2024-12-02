@@ -1,5 +1,6 @@
 ﻿
-using DataManagementModels.DriversConfigurations;
+
+using TheTechIdea.Beep.DriversConfigurations;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 
 namespace TheTechIdea.Beep.Winform.Views.Configuration

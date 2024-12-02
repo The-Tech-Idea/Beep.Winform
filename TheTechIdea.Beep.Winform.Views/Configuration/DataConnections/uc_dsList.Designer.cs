@@ -1,4 +1,6 @@
-﻿namespace Beep.Config.Winform.DataConnections
+﻿using TheTechIdea.Beep.ConfigUtil;
+
+namespace Beep.Config.Winform.DataConnections
 {
     partial class uc_dsList
     {
@@ -118,7 +120,7 @@
             // 
             // dataConnectionsBindingSource
             // 
-            dataConnectionsBindingSource.DataSource = typeof(TheTechIdea.Util.ConnectionProperties);
+            dataConnectionsBindingSource.DataSource = typeof(ConnectionProperties);
             // 
             // poisonPanel1
             // 

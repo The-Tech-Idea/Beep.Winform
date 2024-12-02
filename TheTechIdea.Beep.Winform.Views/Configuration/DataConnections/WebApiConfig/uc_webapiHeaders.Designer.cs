@@ -1,6 +1,7 @@
 ﻿
 
 
+using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 
 namespace Beep.Config.Winform.DataConnections
@@ -51,7 +52,7 @@ namespace Beep.Config.Winform.DataConnections
             // 
             // headersBindingSource
             // 
-            this.headersBindingSource.DataSource = typeof(TheTechIdea.Util.WebApiHeader);
+            this.headersBindingSource.DataSource = typeof(WebApiHeader);
             // 
             // headersDataGridView
             // 

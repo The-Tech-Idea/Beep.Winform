@@ -1,19 +1,19 @@
 ﻿using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Logger;
+using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep;
 using System.Data;
-using TheTechIdea.Util;
+using TheTechIdea.Beep.Utilities;
 using TheTechIdea;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
 
 using TheTechIdea.Beep.Addin;
-using Beep.Winform.Vis;
+
 using TheTechIdea.Beep.Editor;
 using System;
-using TheTechIdea.Beep.Winform.Controls.Tree;
 using TheTechIdea.Beep.Winform.Controls.Basic;
 using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
+using TheTechIdea.Beep.ConfigUtil;
 
 
 namespace TheTechIdea.Beep.Winform.Views.Configuration.DataConnections

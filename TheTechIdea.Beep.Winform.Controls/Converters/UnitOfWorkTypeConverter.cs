@@ -6,7 +6,7 @@ using System.ComponentModel.Design;
 using System.Linq;
 using System.Reflection;
 
-
+namespace TheTechIdea.Beep.Winform.Controls.Converters;
 public class UnitOfWorkConverter : TypeConverter
 {
     public override bool GetStandardValuesExclusive(ITypeDescriptorContext context) => true;

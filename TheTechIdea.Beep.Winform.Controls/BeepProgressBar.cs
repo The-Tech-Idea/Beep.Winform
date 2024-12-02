@@ -23,6 +23,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _value = 0;
         private int _minimum = 0;
         private int _maximum = 100;
+        private int _step = 10;
+        private int _progress = 0;
+
+        [Browsable(true)]
+        [Category ("Behavior")]
+        public int Step
+        {
+            get => _step;
+            set
+            {
+                _step = value;
+                Invalidate();
+            }
+        }
 
         [Category("Behavior")]
         public int Value

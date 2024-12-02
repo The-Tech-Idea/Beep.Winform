@@ -1,6 +1,6 @@
 ﻿
  
-using DataManagementModels.ConfigUtil;
+
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 
 namespace TheTechIdea.Beep.Winform.Views
@@ -238,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Views
             // 
             // function2FunctionsBindingSource
             // 
-            this.function2FunctionsBindingSource.DataSource = typeof(DataManagementModels.ConfigUtil.Function2FunctionAction);
+            this.function2FunctionsBindingSource.DataSource = typeof(ConfigUtil.Function2FunctionAction);
             // 
             // fromClassComboBox
             // 

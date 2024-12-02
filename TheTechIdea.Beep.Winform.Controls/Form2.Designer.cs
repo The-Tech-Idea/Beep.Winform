@@ -54,7 +54,7 @@
             beepAppBar1.DisabledBackColor = Color.Gray;
             beepAppBar1.DisabledForeColor = Color.Empty;
             beepAppBar1.Dock = DockStyle.Top;
-            beepAppBar1.DrawingRect = new Rectangle(0, 0, 799, 36);
+            beepAppBar1.DrawingRect = new Rectangle(0, 0, 988, 36);
             beepAppBar1.Easing = EasingType.Linear;
             beepAppBar1.FieldID = null;
             beepAppBar1.FocusBackColor = Color.Gray;
@@ -115,7 +115,7 @@
             beepAppBar1.ShowShadow = false;
             beepAppBar1.ShowTopBorder = false;
             beepAppBar1.SideMenu = null;
-            beepAppBar1.Size = new Size(800, 37);
+            beepAppBar1.Size = new Size(989, 37);
             beepAppBar1.SlideFrom = SlideDirection.Left;
             beepAppBar1.StaticNotMoving = false;
             beepAppBar1.TabIndex = 0;
@@ -178,7 +178,7 @@
             beepDataBlock1.IsRoundedAffectedByTheme = true;
             beepDataBlock1.IsShadowAffectedByTheme = true;
             beepDataBlock1.LeftoffsetForDrawingRect = 0;
-            beepDataBlock1.Location = new Point(108, 123);
+            beepDataBlock1.Location = new Point(99, 53);
             beepDataBlock1.Name = "beepDataBlock1";
             beepDataBlock1.OverrideFontSize = TypeStyleFontSize.None;
             beepDataBlock1.ParentBackColor = Color.Empty;
@@ -230,7 +230,7 @@
             beepDataBlock2.DataContext = null;
             beepDataBlock2.DisabledBackColor = Color.Gray;
             beepDataBlock2.DisabledForeColor = Color.Empty;
-            beepDataBlock2.DrawingRect = new Rectangle(1, 1, 271, 209);
+            beepDataBlock2.DrawingRect = new Rectangle(1, 1, 448, 315);
             beepDataBlock2.Easing = EasingType.Linear;
             beepDataBlock2.FieldID = null;
             beepDataBlock2.FocusBackColor = Color.White;
@@ -264,7 +264,7 @@
             beepDataBlock2.IsRoundedAffectedByTheme = true;
             beepDataBlock2.IsShadowAffectedByTheme = true;
             beepDataBlock2.LeftoffsetForDrawingRect = 0;
-            beepDataBlock2.Location = new Point(639, 227);
+            beepDataBlock2.Location = new Point(99, 340);
             beepDataBlock2.Name = "beepDataBlock2";
             beepDataBlock2.OverrideFontSize = TypeStyleFontSize.None;
             beepDataBlock2.ParentBackColor = Color.Empty;
@@ -286,7 +286,7 @@
             beepDataBlock2.ShowRightBorder = true;
             beepDataBlock2.ShowShadow = false;
             beepDataBlock2.ShowTopBorder = true;
-            beepDataBlock2.Size = new Size(273, 211);
+            beepDataBlock2.Size = new Size(450, 317);
             beepDataBlock2.SlideFrom = SlideDirection.Left;
             beepDataBlock2.StaticNotMoving = false;
             beepDataBlock2.TabIndex = 2;
@@ -301,7 +301,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(989, 783);
             Controls.Add(beepDataBlock2);
             Controls.Add(beepDataBlock1);
             Controls.Add(beepAppBar1);

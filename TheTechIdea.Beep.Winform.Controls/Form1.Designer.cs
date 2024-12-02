@@ -307,6 +307,7 @@
             beepListBox1.ShadowOpacity = 0.5F;
             beepListBox1.ShowAllBorders = true;
             beepListBox1.ShowBottomBorder = true;
+            beepListBox1.ShowCheckBox = false;
             beepListBox1.ShowFocusIndicator = false;
             beepListBox1.ShowImage = false;
             beepListBox1.ShowLeftBorder = true;
@@ -440,7 +441,7 @@
             beepSimpleGrid1.DefaultColumnHeaderWidth = 50;
             beepSimpleGrid1.DisabledBackColor = Color.Gray;
             beepSimpleGrid1.DisabledForeColor = Color.Empty;
-            beepSimpleGrid1.DrawingRect = new Rectangle(1, 1, 256, 124);
+            beepSimpleGrid1.DrawingRect = new Rectangle(1, 1, 323, 124);
             beepSimpleGrid1.Easing = EasingType.Linear;
             beepSimpleGrid1.FieldID = null;
             beepSimpleGrid1.FocusBackColor = Color.Gray;
@@ -475,7 +476,7 @@
             beepSimpleGrid1.IsRoundedAffectedByTheme = true;
             beepSimpleGrid1.IsShadowAffectedByTheme = true;
             beepSimpleGrid1.LeftoffsetForDrawingRect = 0;
-            beepSimpleGrid1.Location = new Point(715, 56);
+            beepSimpleGrid1.Location = new Point(703, 56);
             beepSimpleGrid1.Name = "beepSimpleGrid1";
             beepSimpleGrid1.OverrideFontSize = TypeStyleFontSize.None;
             beepSimpleGrid1.ParentBackColor = Color.White;
@@ -511,7 +512,7 @@
             beepSimpleGrid1.ShowTitle = true;
             beepSimpleGrid1.ShowTopBorder = true;
             beepSimpleGrid1.ShowVerticalGridLines = true;
-            beepSimpleGrid1.Size = new Size(258, 126);
+            beepSimpleGrid1.Size = new Size(325, 126);
             beepSimpleGrid1.SlideFrom = SlideDirection.Left;
             beepSimpleGrid1.StaticNotMoving = false;
             beepSimpleGrid1.TabIndex = 6;
@@ -938,7 +939,7 @@
             beepDataNavigator1.DataContext = null;
             beepDataNavigator1.DisabledBackColor = Color.Gray;
             beepDataNavigator1.DisabledForeColor = Color.Empty;
-            beepDataNavigator1.DrawingRect = new Rectangle(1, 1, 325, 25);
+            beepDataNavigator1.DrawingRect = new Rectangle(1, 1, 352, 25);
             beepDataNavigator1.Easing = EasingType.Linear;
             beepDataNavigator1.FieldID = null;
             beepDataNavigator1.FocusBackColor = Color.Gray;
@@ -988,10 +989,12 @@
             beepDataNavigator1.ShowBottomBorder = true;
             beepDataNavigator1.ShowFocusIndicator = false;
             beepDataNavigator1.ShowLeftBorder = true;
+            beepDataNavigator1.ShowPrint = false;
             beepDataNavigator1.ShowRightBorder = true;
+            beepDataNavigator1.ShowSendEmail = false;
             beepDataNavigator1.ShowShadow = false;
             beepDataNavigator1.ShowTopBorder = true;
-            beepDataNavigator1.Size = new Size(327, 27);
+            beepDataNavigator1.Size = new Size(354, 27);
             beepDataNavigator1.SlideFrom = SlideDirection.Left;
             beepDataNavigator1.StaticNotMoving = false;
             beepDataNavigator1.TabIndex = 15;

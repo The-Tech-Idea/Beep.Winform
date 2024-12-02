@@ -6,7 +6,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepDataNavigator : BeepControl
     {
         public BeepButton btnFirst, btnPrevious, btnNext, btnLast, btnInsert, btnDelete, btnSave, btnCancel;
-        public BeepButton txtPosition;
+        public BeepButton txtPosition, btnQuery, btnFilter,btnPrint,btnEmail;
         public bool IsInQueryMode { get; private set; } = false;
 
         public IUnitofWork UnitOfWork
@@ -42,6 +42,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         int drawRectY;
         int drawRectWidth;
         int drawRectHeight;
+        private bool _showsendemail=false;
+        private bool _showprint = false;
+        public bool ShowSendEmail
+        {
+            get => _showsendemail;
+            set
+            {
+                _showsendemail = value;
+                btnEmail.Visible = value;
+                ArrangeControls();
+                Invalidate();
+            }
+        }
+        public bool ShowPrint
+        {
+            get => _showprint;
+            set
+            {
+                _showprint = value;
+                btnPrint.Visible = value;
+                ArrangeControls();
+                Invalidate();
+            }
+        }
 
         public int ButtonWidth
         {
@@ -76,6 +100,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepEventDataArgs> DeleteCalled;
         public event EventHandler<BeepEventDataArgs> EditCalled;
         public event EventHandler<BeepEventDataArgs> RollbackCalled;
+        public event EventHandler<BeepEventDataArgs> QueryCalled;
+        public event EventHandler<BeepEventDataArgs> FilterCalled;
+        public event EventHandler<BeepEventDataArgs> EmailCalled;
+        public event EventHandler<BeepEventDataArgs> PrintCalled;
 
         int buttonSpacing = 5;
         public int ButtonSpacing
@@ -153,11 +181,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             SetThemeEffects(txtPosition);
 
+            btnQuery = CreateButton("Query", btnQuery_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg");
+            btnFilter = CreateButton("Filter", btnFilter_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.filter.svg");
+            btnPrint = CreateButton("Print", btnPrint_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg");
+            btnEmail = CreateButton("Email", btnEmail_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg");
+            SetThemeEffects(btnQuery);
+            SetThemeEffects(btnFilter);
+            SetThemeEffects(btnPrint);
+            SetThemeEffects(btnEmail);
+
             Controls.AddRange(new Control[]
             {
                 btnFirst, btnPrevious, btnNext, btnLast, txtPosition,
-                btnInsert, btnDelete, btnSave, btnCancel
+                btnInsert, btnDelete, btnSave, btnCancel,btnQuery,btnFilter,btnPrint,btnEmail
             });
+
+
+
 
             ArrangeControls();
         }
@@ -216,10 +256,31 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ArrangeControls()
         {
+            int noOfButtons = 12;
+          
             GetDimensions();
-
+            if(ShowSendEmail)
+            {
+                btnEmail.Visible = true;
+             
+            }
+            else
+            {
+                noOfButtons -= 1;
+                btnEmail.Visible = false;
+            }
+            if(ShowPrint)
+            {
+                btnPrint.Visible = true;
+              
+            }
+            else
+            {
+                noOfButtons -= 1;
+                btnPrint.Visible = false;
+            }
             // Calculate total width of all controls
-            int totalButtonWidth = (ButtonWidth + buttonSpacing) * 8; // Width for 8 buttons
+            int totalButtonWidth = (ButtonWidth + buttonSpacing) * noOfButtons; // Width for 8 buttons
             int totalLabelWidth = TextRenderer.MeasureText(txtPosition.Text, txtPosition.Font).Width + 10; // Add padding
             int totalWidth = totalButtonWidth + totalLabelWidth + buttonSpacing;
 
@@ -231,6 +292,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Arrange navigation buttons
             int currentX = centerX;
+            btnQuery.Location = new Point(currentX, centerY);
+            currentX = btnQuery.Right + buttonSpacing;
+            btnFilter.Location = new Point(currentX, centerY);
+            currentX = btnFilter.Right + buttonSpacing;
             btnFirst.Location = new Point(currentX, centerY);
             currentX = btnFirst.Right + buttonSpacing;
 
@@ -259,6 +324,26 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Arrange txtPosition
             txtPosition.Location = new Point(currentX, centerY);
             txtPosition.Size = new Size(totalLabelWidth, ButtonHeight);
+            currentX = txtPosition.Right + buttonSpacing;
+            if (ShowSendEmail)
+            {
+               btnEmail.Location = new Point(currentX, centerY);
+            }
+            if (ShowPrint)
+            {
+                if (ShowSendEmail)
+                {
+                    currentX = btnEmail.Right + buttonSpacing;
+                }
+                else
+                {
+                    currentX = txtPosition.Right + buttonSpacing;
+                }
+
+                btnPrint.Location = new Point(currentX, centerY);
+            }
+        
+           
         }
 
         #region "Event Handlers"
@@ -285,6 +370,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         // Event handlers for navigation buttons
+        private void btnQuery_Click(object sender, EventArgs e)
+        {
+            QueryCalled?.Invoke(this, new BeepEventDataArgs("Query", null));
+        }
+        private void btnFilter_Click(object sender, EventArgs e)
+        {
+            FilterCalled?.Invoke(this, new BeepEventDataArgs("Filter", null));
+
+        }
+        private void btnEmail_Click(object sender, EventArgs e)
+        {
+            EmailCalled?.Invoke(this, new BeepEventDataArgs("Email", null));
+        }
+        private void btnPrint_Click(object sender, EventArgs e)
+        {
+            PrintCalled?.Invoke(this, new BeepEventDataArgs("Print", null));
+        }
+
         private void btnFirst_Click(object sender, EventArgs e)
         {
             UnitOfWork?.MoveFirst();

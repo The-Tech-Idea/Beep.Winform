@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using static System.Windows.Forms.AxHost;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -78,6 +79,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         public int MaxImageSize { get; set; } = 12;
         private int _minNodeHeight = 20;
         private int _minNodeWidth = 100;
+
+        private bool _showCheckBox = false;
+        private BeepCheckBox<bool> _checkBox; // Instance of BeepCheckBox
+
+        public bool ShowCheckBox
+        {
+            get => _showCheckBox;
+            set
+            {
+                _showCheckBox = value;
+                if (_checkBox != null)
+                {
+                    _checkBox.Visible = _showCheckBox;
+                    RearrangeNode(); // Adjust layout when the checkbox visibility changes
+                }
+            }
+        }
+
+
         private bool _shownodeimage = true;
 
         public bool ShowNodeImage
@@ -196,11 +216,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ToggleExpansion();
             }
         }
+       
         public bool IsSelected
         {
-            get { return _isSelected; }
-            set { _isSelected = value; }
+            get => _isSelected;
+            set
+            {
+                _isSelected = value;
+                if (_checkBox != null)
+                {
+                    _checkBox.CurrentValue = _isSelected;
+                }
+                Invalidate(); // Redraw the node if necessary
+            }
         }
+
         public bool IsChecked
         {
             get { return _isChecked; }
@@ -576,8 +606,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             starty = DrawingRect.Top;
             NodeWidth = DrawingRect.Width;
             NodeHeight = DrawingRect.Height;
-           
-         //   DrawLeftBranch();
+            _checkBox = new BeepCheckBox<bool>
+            {
+                CheckedValue = true,
+                UncheckedValue = false,
+                CurrentValue = IsSelected,
+                Visible = _showCheckBox,
+                IsChild = true,
+                IsFramless = true,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+                Theme = Theme,
+                Size = new Size(20, 20), // Adjust size as needed
+            };
+
+            _checkBox.StateChanged += CheckBox_StateChanged;
+
+            _nodePanel.Controls.Add(_checkBox);
+            //   DrawLeftBranch();
             DrawLeftButton();
             DrawMiddleButton();
             DrawRightButton();
@@ -620,6 +666,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 startx += _toggleButton.Width + padding;
             }
 
+            // Position the CheckBox
+            if (_checkBox != null && _showCheckBox)
+            {
+                _checkBox.Location = new Point(startx, centerY);
+                startx += _checkBox.Width + padding;
+            }
             //// Position the left button
             //if (Nodeleftbutton != null)
             //{
@@ -685,7 +737,31 @@ namespace TheTechIdea.Beep.Winform.Controls
                 parentPanel.Height = Height;
             }
         }
+        public void ToggleAllCheckBoxVisibility(bool show)
+        {
+            foreach (var node in _childNodes)
+            {
+                node.ToggleCheckBoxVisibility(show);
+            }
+        }
 
+        public void ToggleCheckBoxVisibility(bool show)
+        {
+            ShowCheckBox = show;
+            foreach (var child in _childNodes)
+            {
+                child.ToggleCheckBoxVisibility(show);
+            }
+        }
+
+        // Synchronize IsSelected with the CheckBox state
+        private void CheckBox_StateChanged(object sender, EventArgs e)
+        {
+            if (_checkBox != null)
+            {
+                IsSelected = _checkBox.CurrentValue;
+            }
+        }
         private void checktoggle()
         {
             if (_childNodes.Count > 0)
@@ -906,6 +982,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                    // item.ApplyTheme();
                 }
 
+            }
+            if (_checkBox != null)
+            {
+                _checkBox.Theme = Theme;
+                _checkBox.ApplyTheme();
             }
             NodeMainMiddlebutton.ForeColor = _currentTheme.AccentColor;
             NodeMainMiddlebutton.BackColor = _currentTheme.PanelBackColor;

@@ -7,6 +7,7 @@ using System.Reflection;
 using Svg;
 using System.Drawing.Text;
 using System.Windows.Forms.Design;
+using Timer = System.Windows.Forms.Timer;
 
 
 
@@ -41,6 +42,32 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         #region "Properties"
+        private Timer _spinTimer;
+        private float _rotationAngle;
+        private bool _isSpinning = false;
+
+        [Category("Behavior")]
+        [Description("Indicates whether the image should spin.")]
+        public bool IsSpinning
+        {
+            get => _isSpinning;
+            set
+            {
+                _isSpinning = value;
+                if (_isSpinning)
+                {
+                    StartSpin();
+                }
+                else
+                {
+                    StopSpin();
+                }
+            }
+        }
+
+        [Category("Behavior")]
+        [Description("Sets the speed of the spin in degrees per frame.")]
+        public float SpinSpeed { get; set; } = 5f;
 
 
         [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
@@ -655,11 +682,33 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion
+        #region "Spin and Animations"
+        private void StartSpin()
+        {
+            if (_spinTimer == null)
+            {
+                _spinTimer = new Timer { Interval = 30 }; // Adjust interval for smoother or slower animation
+                _spinTimer.Tick += (s, e) =>
+                {
+                    _rotationAngle = (_rotationAngle + SpinSpeed) % 360;
+                    Invalidate(); // Trigger a repaint
+                };
+            }
+            _spinTimer.Start();
+        }
+
+        private void StopSpin()
+        {
+            _spinTimer?.Stop();
+        }
+
+        #endregion "Spin and Animations"
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
                 DisposeImages();
+                _spinTimer?.Dispose();
             }
             base.Dispose(disposing);
         }

@@ -17,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.KeyManagement
         public static GlobalKeyHandler globalKeyHandler ;
         public static IDMEEditor Editor;
 
+        public static EventHandler<BeepEventDataArgs> KeyPressed;
         public static IVisManager Vis { get; private set; }
 
         public static ObservableBindingList<KeyCombination> keyMapToFunction = new ObservableBindingList<KeyCombination>();
@@ -40,6 +41,9 @@ namespace TheTechIdea.Beep.Winform.Controls.KeyManagement
             {
                 Console.WriteLine($"{combination.MappedFunction.Name} triggered");
                 // Implement your function call logic based on functionName
+                var x = new BeepEventDataArgs("KeyPressed",combination);
+
+                KeyPressed?.Invoke(null,x);
                 Vis.PressKey(combination);
                 e.Handled = true;
             }

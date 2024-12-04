@@ -1,13 +1,8 @@
-﻿
-using TheTechIdea.Beep.Vis.Modules;
+﻿using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Addin;
-using TheTechIdea.Beep.ConfigUtil;
 using Microsoft.Extensions.DependencyModel;
 using System.Collections;
 using System.Reflection;
-
-
 using System.Diagnostics;
 using TheTechIdea.Beep.DriversConfigurations;
 
@@ -705,7 +700,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             rm.ReleaseAllResources();
             return resources;
         }
-
         public object GetResource(string resource)
         {
             return null;

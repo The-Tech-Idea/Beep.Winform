@@ -560,15 +560,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-                // Attempt to load the resource from the current assembly first
-                var assembly = Assembly.GetExecutingAssembly();
-                Stream stream = assembly.GetManifestResourceStream(resourcePath);
+                Stream stream = null;
 
-                // If not found, try to load from the calling assembly (useful when referenced by other projects)
-                if (stream == null)
+                // Try to load the resource from all loaded assemblies
+                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    assembly = Assembly.GetCallingAssembly();
                     stream = assembly.GetManifestResourceStream(resourcePath);
+                    if (stream != null)
+                    {
+                        break; // Stop searching once we find the resource
+                    }
                 }
 
                 if (stream != null)
@@ -602,6 +603,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return false;
             }
         }
+
 
         public void ClearImage()
         {

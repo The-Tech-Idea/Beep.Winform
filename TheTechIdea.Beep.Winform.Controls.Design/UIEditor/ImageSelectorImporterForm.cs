@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Xml.Linq;
 using System.Runtime.CompilerServices;
 using TheTechIdea.Beep.Winform.Controls.Design.Models;
+using EnvDTE;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor

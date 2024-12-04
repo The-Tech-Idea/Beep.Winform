@@ -229,7 +229,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
         #region Theme Application
-        public void ApplyTheme()
+        public virtual void ApplyTheme()
         {
             BeepTheme theme = BeepThemesManager.GetTheme(beepuiManager1.Theme);
             BackColor = theme.BackColor;

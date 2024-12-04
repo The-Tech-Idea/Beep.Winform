@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [Description("Splash Screen with fade-in and fade-out effects")]
-    public partial class BeepSplashScreen : Form
+    public partial class BeepSplashScreen : BeepiForm
     {
         private System.Windows.Forms.Timer _fadeTimer;
         private bool _isFadingIn = true;
@@ -119,6 +119,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnShown(e);
             ShowWithFadeIn(); // Start fade-in after the form is shown
+        }
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            if(_logoImage == null) return;
+            _logoImage.Theme = Theme;
+            _titleLabel.Theme = Theme;
+
         }
     }
 }

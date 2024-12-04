@@ -429,6 +429,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override Size DefaultSize => new Size (200, GetSingleLineHeight());
 
+        public int SelectionStart { get => _innerTextBox.SelectionStart; set { _innerTextBox.SelectionStart = value; } }
+
         protected override void OnCreateControl()
         {
             base.OnCreateControl();
@@ -673,5 +675,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler SearchTriggered;
         protected virtual void OnSearchTriggered() => SearchTriggered?.Invoke(this, EventArgs.Empty);
 
+        internal void ScrollToCaret()
+        {
+            _innerTextBox.ScrollToCaret();
+        }
+
+        internal void AppendText(string v)
+        {
+           _innerTextBox.AppendText(v);
+        }
     }
 }

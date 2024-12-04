@@ -85,6 +85,7 @@
     <None Remove="GFX\SVG\l.svg" />
     <None Remove="GFX\SVG\lastrecord.svg" />
     <None Remove="GFX\SVG\like.svg" />
+    <None Remove="GFX\SVG\loading.svg" />
     <None Remove="GFX\SVG\mail.svg" />
     <None Remove="GFX\SVG\maximize.svg" />
     <None Remove="GFX\SVG\menu.svg" />
@@ -150,6 +151,7 @@
     <EmbeddedResource Include="GFX\SVG\l.svg" />
     <EmbeddedResource Include="GFX\SVG\lastrecord.svg" />
     <EmbeddedResource Include="GFX\SVG\like.svg" />
+    <EmbeddedResource Include="GFX\SVG\loading.svg" />
     <EmbeddedResource Include="GFX\SVG\mail.svg" />
     <EmbeddedResource Include="GFX\SVG\maximize.svg" />
     <EmbeddedResource Include="GFX\SVG\menu.svg" />

@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -15,9 +14,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepImage _spinnerImage;
         private BeepLabel _messageLabel;
         private BeepProgressBar _progressBar;
-
-        private Timer _spinnerTimer;
-        private int _rotationAngle;
 
         public BeepWaitScreen()
         {
@@ -58,6 +54,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             set => _progressBar.Value = value;
         }
 
+        [Category("Behavior")]
+        [Description("The spinning speed of the spinner image.")]
+        public float SpinSpeed
+        {
+            get => _spinnerImage.SpinSpeed;
+            set => _spinnerImage.SpinSpeed = value;
+        }
+
         #endregion
 
         private void InitializeComponents()
@@ -75,8 +79,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Dock = DockStyle.Top,
                 Height = 100,
                 ScaleMode = ImageScaleMode.KeepAspectRatio,
-                IsStillImage = false,
-                ApplyThemeOnImage = true
+                IsSpinning = true, // Enable spinning by default
+                SpinSpeed = 5f,    // Default spin speed
+                ApplyThemeOnImage = true,
+                ShowAllBorders = false,
+                ShowShadow = false
             };
 
             // Message Label
@@ -104,21 +111,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(_progressBar);
             Controls.Add(_messageLabel);
             Controls.Add(_spinnerImage);
-
-            // Initialize spinner animation timer
-            _spinnerTimer = new Timer
-            {
-                Interval = 50 // Rotate the spinner every 50ms
-            };
-            _spinnerTimer.Tick += SpinnerTimer_Tick;
-        }
-
-        private void SpinnerTimer_Tick(object sender, EventArgs e)
-        {
-            _rotationAngle += 10; // Rotate by 10 degrees
-            if (_rotationAngle >= 360) _rotationAngle = 0;
-
-            _spinnerImage.Invalidate(); // Redraw the spinner
         }
 
         public async Task ShowAndRunAsync(Func<Task> asyncAction)
@@ -139,12 +131,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void StartSpinner()
         {
-            _spinnerTimer.Start();
+            _spinnerImage.IsSpinning = true; // Start spinning
         }
 
         private void StopSpinner()
         {
-            _spinnerTimer.Stop();
+            _spinnerImage.IsSpinning = false; // Stop spinning
         }
 
         public void UpdateProgress(int progress, string message = null)
@@ -160,30 +152,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             ProgressValue = 0;
             Message = "Please wait...";
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-            DrawSpinner(e.Graphics);
-        }
-
-        private void DrawSpinner(Graphics g)
-        {
-            if (_spinnerImage.HasImage)
-            {
-                var rect = new Rectangle(
-                    (Width - _spinnerImage.Width) / 2,
-                    (Height - _spinnerImage.Height - 50) / 2,
-                    _spinnerImage.Width,
-                    _spinnerImage.Height);
-
-                g.TranslateTransform(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
-                g.RotateTransform(_rotationAngle);
-                g.TranslateTransform(-(rect.Left + rect.Width / 2), -(rect.Top + rect.Height / 2));
-
-                _spinnerImage.DrawImage(g, rect);
-            }
         }
 
         protected override void OnShown(EventArgs e)

@@ -31,7 +31,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected string _imagepath;
         
         public BeepImage()
-        {
+        { // Enable double buffering and optimized painting
+            SetStyle(ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.UserPaint, true);
+            UpdateStyles();
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
                 Width = 100;
@@ -42,6 +46,53 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         #region "Properties"
+
+        private float _manualRotationAngle = 0; // Manual rotation angle
+        private bool _allowManualRotation = true; // Allows toggling between manual and spinning
+        
+
+        public float ManualRotationAngle
+        {
+            get => _manualRotationAngle;
+            set
+            {
+                if (IsSpinning)
+                {
+                    Console.WriteLine("Warning: Spinner is active. Manual rotation may combine with spinning.");
+                    // Option 1: Combine rotation
+                    _manualRotationAngle = value; // Allows combining angles
+                                                  // Option 2: Block manual rotation
+                                                  // return; // Ignore the new value
+                }
+                else
+                {
+                    _manualRotationAngle = value;
+                }
+
+                Invalidate(); // Trigger redraw
+            }
+        }
+
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Allows manual rotation when spinning is disabled.")]
+        public bool AllowManualRotation
+        {
+            get => _allowManualRotation;
+            set
+            {
+                if (_allowManualRotation != value)
+                {
+                    _allowManualRotation = value;
+                    if (!_allowManualRotation)
+                        _manualRotationAngle = 0; // Reset manual rotation if disabled
+                    Invalidate();
+                }
+            }
+        }
+
+
         private Timer _spinTimer;
         private float _rotationAngle;
         private bool _isSpinning = false;
@@ -53,17 +104,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _isSpinning;
             set
             {
+                if (_isSpinning == value)
+                    return; // Skip if the state isn't changing
+
                 _isSpinning = value;
+
                 if (_isSpinning)
                 {
-                    StartSpin();
+                    StartSpin(); // Start or ensure spinning continues
                 }
                 else
                 {
-                    StopSpin();
+                    StopSpin(); // Stop spinning if requested
                 }
             }
         }
+
 
         [Category("Behavior")]
         [Description("Sets the speed of the spin in degrees per frame.")]
@@ -283,41 +339,134 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Theme Properties"
         #region "Image Drawing Methods"
-        public void DrawImage(Graphics g, Rectangle imageRect)
+        protected override void OnPaintBackground(PaintEventArgs e)
         {
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.SmoothingMode = SmoothingMode.HighQuality;
-            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-            if (isSvg && svgDocument != null)
-            {
-                var imageSize = svgDocument.GetDimensions();
-                var scaledBounds = GetScaledBounds(new SizeF(imageSize.Width, imageSize.Height), imageRect);
-
-                if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
-                {
-                    // Apply scaling and positioning
-                    g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
-                    g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
-
-                    svgDocument.Draw(g);
-                    g.ResetTransform(); // Reset transformations
-                }
-            }
-            else if (regularImage != null)
-            {
-                // Calculate scaled bounds for the raster image
-                var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), imageRect);
-
-                // Ensure the bounds are valid
-                if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
-                {
-                    // Draw the raster image within the scaled bounds
-                    g.DrawImage(regularImage, scaledBounds);
-                }
-            }
+            // Do nothing to prevent flicker, or customize as needed
         }
 
+      public void DrawImage(Graphics g, Rectangle imageRect)
+{
+    g.SmoothingMode = SmoothingMode.AntiAlias;
+    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+    g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
+    // Save the current transformation state
+    var originalTransform = g.Transform;
+
+    try
+    {
+        float effectiveRotation = _manualRotationAngle + (IsSpinning ? _rotationAngle : 0);
+        PointF center = new PointF(imageRect.X + imageRect.Width / 2f, imageRect.Y + imageRect.Height / 2f);
+
+        // Apply rotation transformations
+        g.TranslateTransform(center.X, center.Y);
+        g.RotateTransform(effectiveRotation);
+        g.TranslateTransform(-center.X, -center.Y);
+
+        if (isSvg && svgDocument != null)
+        {
+            var imageSize = svgDocument.GetDimensions();
+            var scaledBounds = GetScaledBounds(new SizeF(imageSize.Width, imageSize.Height), imageRect);
+
+            if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
+            {
+                g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
+                g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
+                svgDocument.Draw(g);
+            }
+        }
+        else if (regularImage != null)
+        {
+            var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), imageRect);
+
+            if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
+            {
+                g.DrawImage(
+                    regularImage,
+                    new Rectangle((int)scaledBounds.X, (int)scaledBounds.Y, (int)scaledBounds.Width, (int)scaledBounds.Height),
+                    0,
+                    0,
+                    regularImage.Width,
+                    regularImage.Height,
+                    GraphicsUnit.Pixel
+                );
+            }
+        }
+    }
+    finally
+    {
+        // Restore the original transformation state
+        g.Transform = originalTransform;
+    }
+}
+
+
+
+        //public void DrawImage(Graphics g, Rectangle imageRect)
+        //{
+        //    g.SmoothingMode = SmoothingMode.AntiAlias;
+        //    g.SmoothingMode = SmoothingMode.HighQuality;
+        //    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+        //    g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+        //    if (isSvg && svgDocument != null)
+        //    {
+        //        var imageSize = svgDocument.GetDimensions();
+        //        var scaledBounds = GetScaledBounds(new SizeF(imageSize.Width, imageSize.Height), imageRect);
+
+        //        if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
+        //        {
+        //            // Apply scaling and positioning
+        //            g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
+        //            g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
+
+        //            svgDocument.Draw(g);
+        //            g.ResetTransform(); // Reset transformations
+        //        }
+        //    }
+        //    else if (regularImage != null)
+        //    {
+        //        // Calculate scaled bounds for the raster image
+        //        var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), imageRect);
+
+        //        // Ensure the bounds are valid
+        //        if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
+        //        {
+        //            // Draw the raster image within the scaled bounds
+        //            g.DrawImage(regularImage, scaledBounds);
+        //        }
+        //    }
+        //}
+
+
+        //protected override void OnPaint(PaintEventArgs e)
+        //{
+        //    base.OnPaint(e);
+
+        //    e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+        //    if (isSvg && svgDocument != null)
+        //    {
+        //        // Get scaled bounds for the SVG
+        //        var imageSize = svgDocument.GetDimensions();
+        //        var scaledBounds = GetScaledBounds(new SizeF(imageSize.Width, imageSize.Height), DrawingRect);
+
+        //        // Apply scaling and positioning
+        //        e.Graphics.TranslateTransform(scaledBounds.X, scaledBounds.Y);
+        //        e.Graphics.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
+
+        //        // Draw the SVG
+        //        svgDocument.Draw(e.Graphics);
+        //        e.Graphics.ResetTransform(); // Reset transformations
+        //    }
+        //    else if (regularImage != null)
+        //    {
+        //        // Get scaled bounds for the regular image
+        //        var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), DrawingRect);
+
+        //        // Draw the regular image
+        //        e.Graphics.DrawImage(regularImage, scaledBounds);
+        //    }
+        //}
 
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -325,30 +474,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-            if (isSvg && svgDocument != null)
-            {
-                // Get scaled bounds for the SVG
-                var imageSize = svgDocument.GetDimensions();
-                var scaledBounds = GetScaledBounds(new SizeF(imageSize.Width, imageSize.Height), DrawingRect);
-
-                // Apply scaling and positioning
-                e.Graphics.TranslateTransform(scaledBounds.X, scaledBounds.Y);
-                e.Graphics.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
-
-                // Draw the SVG
-                svgDocument.Draw(e.Graphics);
-                e.Graphics.ResetTransform(); // Reset transformations
-            }
-            else if (regularImage != null)
-            {
-                // Get scaled bounds for the regular image
-                var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), DrawingRect);
-
-                // Draw the regular image
-                e.Graphics.DrawImage(regularImage, scaledBounds);
-            }
+            // Use spin functionality if enabled
+            DrawImage(
+                e.Graphics,
+                DrawingRect
+            );
         }
-
 
 
         public bool IsSvgPath(string path)
@@ -623,11 +754,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Designer Support"
         #region Event Handlers for Hover and Pressed State
-        protected override void OnParentChanged(EventArgs e)
-        {
-            base.OnParentChanged(e);
-            Invalidate(); // Force redraw when parent changes
-        }
+        //protected override void OnParentChanged(EventArgs e)
+        //{
+        //    base.OnParentChanged(e);
+        //    Invalidate(); // Force redraw when parent changes
+        //}
 
         protected override void OnVisibleChanged(EventArgs e)
         {
@@ -685,22 +816,44 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Spin and Animations"
         private void StartSpin()
         {
+            // Check if the spinner is already running
+            if (_spinTimer != null && _spinTimer.Enabled)
+                return; // Do nothing if the spinner is already active
+                        // Optionally reset manual rotation when spinning starts
+            _manualRotationAngle = 0; // Reset if needed
+            // Initialize the timer if it doesn't exist
             if (_spinTimer == null)
             {
-                _spinTimer = new Timer { Interval = 30 }; // Adjust interval for smoother or slower animation
+                _spinTimer = new Timer { Interval = 30 }; // Adjust interval for desired speed
                 _spinTimer.Tick += (s, e) =>
                 {
+                    // Increment the rotation angle and keep it within 0-360 degrees
                     _rotationAngle = (_rotationAngle + SpinSpeed) % 360;
-                    Invalidate(); // Trigger a repaint
+                    Invalidate(); // Redraw the control to reflect the new angle
                 };
             }
+
+            // Start the timer
             _spinTimer.Start();
         }
 
+
         private void StopSpin()
         {
+            if (!IsSpinning) return; // If not spinning, do nothing
+
+            _isSpinning = false;
             _spinTimer?.Stop();
+
+            // Reset the rotation angle
+            _rotationAngle = 0;
+            _manualRotationAngle = 0; // Optionally reset manual rotation too
+
+            Invalidate(new Rectangle(0, 0, Width, Height)); // Redraw the entire control
+
         }
+
+
 
         #endregion "Spin and Animations"
         protected override void Dispose(bool disposing)

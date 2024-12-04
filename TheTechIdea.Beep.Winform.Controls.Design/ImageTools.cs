@@ -769,25 +769,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
             // Return the full directory path of the project
             return Path.GetDirectoryName(activeProject.FullName);
         }
-        public static void LoadProjectImagesToDictionary(Dictionary<string, SimpleItem> _projectImages)
-        {
-            _projectImages.Clear();
-            var resourceSet = Properties.Resources.ResourceManager.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true);
+        //public static void LoadProjectImagesToDictionary(Dictionary<string, SimpleItem> _projectImages)
+        //{
+        //    _projectImages.Clear();
+        //    var resourceSet = Properties.Resources.ResourceManager.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true);
 
-            foreach (DictionaryEntry entry in resourceSet)
-            {
-                if (entry.Value is Bitmap) // Only add image resources
-                {
-                    string resourceKey = entry.Key.ToString();
-                    SimpleItem item = new SimpleItem
-                    {
-                        Name = resourceKey,
-                        Image = resourceKey // Store the resource key for project resources
-                    };
-                    _projectImages[resourceKey] = item;
-                }
-            }
-        }
+        //    foreach (DictionaryEntry entry in resourceSet)
+        //    {
+        //        if (entry.Value is Bitmap) // Only add image resources
+        //        {
+        //            string resourceKey = entry.Key.ToString();
+        //            SimpleItem item = new SimpleItem
+        //            {
+        //                Name = resourceKey,
+        //                Image = resourceKey // Store the resource key for project resources
+        //            };
+        //            _projectImages[resourceKey] = item;
+        //        }
+        //    }
+        //}
 
         public static void LoadLocalImagesToDictionary(Dictionary<string, SimpleItem> _localImages)
         {

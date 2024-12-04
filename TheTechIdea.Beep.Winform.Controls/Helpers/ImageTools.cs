@@ -180,6 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             object image = null;
             try
             {
+
                 var assembly = Assembly.GetExecutingAssembly();
                 using (var stream = assembly.GetManifestResourceStream(resourcePath))
                 {
@@ -903,5 +904,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 MessageBox.Show($"Error loading image: {ex.Message}", "Image Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+      
     }
 }

@@ -525,7 +525,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 return null;
             }
         }
-     
         public object GetImageFromIndex(int index)
         {
             if (index >= 0 && index < ImgAssemblies.Count)
@@ -709,7 +708,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
         public object GetResource(string resource)
         {
-            throw new NotImplementedException();
+            return null;
         }
         //private bool IsMethodApplicabletoNode(AssemblyClassDefinition cls, IBranch br)
         //{

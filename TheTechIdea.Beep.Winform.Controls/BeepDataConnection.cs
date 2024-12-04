@@ -43,14 +43,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void InitializeBeepService()
         {
-            if (IsInDesignTime())
-            {
-                _beepService = BeepServiceLocator.GetDesignTimeService();
-            }
-            else
-            {
-                _beepService = BeepServiceLocator.GetRuntimeService();
-            }
+            //if (IsInDesignTime())
+            //{
+            //    _beepService = BeepServiceLocator.GetDesignTimeService();
+            //}
+            //else
+            //{
+            //    _beepService = BeepServiceLocator.GetRuntimeService();
+            //}
         }
 
         /// <summary>

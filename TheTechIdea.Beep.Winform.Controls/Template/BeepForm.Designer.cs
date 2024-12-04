@@ -131,7 +131,7 @@
             // Closebutton
             // 
             Closebutton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            Closebutton.BackgroundImage = Properties.Resources.close1;
+            Closebutton.BackgroundImage = Properties.Resources.close;
             Closebutton.BackgroundImageLayout = ImageLayout.Zoom;
             Closebutton.FlatAppearance.BorderSize = 0;
             Closebutton.FlatStyle = FlatStyle.Flat;

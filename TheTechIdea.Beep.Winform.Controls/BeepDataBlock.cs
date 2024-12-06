@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private BeepDataBlock _parentBlock;
 
-        
+
 
         [Browsable(true)]
         [Category("Data Blocks")]

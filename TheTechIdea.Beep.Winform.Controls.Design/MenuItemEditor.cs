@@ -4,9 +4,12 @@ using System.ComponentModel.Design;
 using System.Configuration;
 using System.Drawing.Design;
 using System.Windows.Forms.Design;
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Design.Models;
 
 
-namespace TheTechIdea.Beep.Winform.Controls.Design
+
+namespace TheTechIdea.Beep.Winform.Controls.Editors
 {
 
     public class MenuItemCollectionEditor : CollectionEditor

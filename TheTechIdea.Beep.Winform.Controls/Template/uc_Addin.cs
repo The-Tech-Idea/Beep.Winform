@@ -52,6 +52,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
         bool isfinish = false;
         public FunctionandExtensionsHelpers ExtensionsHelpers { get; set; }
         public Progress<PassedArgs> Progress { get; set; }
+        public string GuidID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public virtual void Run(IPassedArgs pPassedarg)
         {
           
@@ -158,6 +160,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
             //{
             //    ParentBranch = (IBranch)e.Objects.Where(c => c.Name == "ParentBranch").FirstOrDefault().obj;
             //}
+        }
+
+        public void Run(params object[] args)
+        {
+            throw new NotImplementedException();
         }
     }
 }

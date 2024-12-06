@@ -189,14 +189,20 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.0" />
     <PackageReference Include="Svg" Version="3.4.7" />
-    <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.38" />
+    <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.39" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.4" />
-    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.7" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.8" />
     <PackageReference Include="TheTechIdea.Beep.MVVM" Version="1.0.18" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="BeepDataBlock.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Update="Containers\uc_Container.cs" />
     <Compile Update="DataNavigator\BeepbindingNavigator.cs" />
+    <Compile Update="Design\Forms\DataBlocksCollectionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Grid\BeepGrid.cs" />
     <Compile Update="MainForm\uc_MainSplitPanel.cs" />
     <Compile Update="Managers\Wizards\Frm_Wizard.cs" />
@@ -233,6 +239,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Design\Action\" />
     <Folder Include="Properties\DataSources\" />
   </ItemGroup>
   <ItemGroup>
@@ -242,5 +249,6 @@
   <ItemGroup>
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Logic\TheTechIdea.Beep.Vis.Logic.csproj" />
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
+    <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Winform.Controls.Common.csproj" />
   </ItemGroup>
 </Project>

@@ -1,10 +1,11 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Timer = System.Windows.Forms.Timer;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -45,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _titleBottomY = value;
-              
+
             }
         }
         // Title and Title Line properties
@@ -152,11 +153,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepPanel()
         {
             ApplyTheme();
-           // this.MinimumSize = new Size(300, 200); // Set based on layout needs
+            // this.MinimumSize = new Size(300, 200); // Set based on layout needs
             this.Size = new Size(400, 300); // Default start size
 
         }
-      
+
         public override void ApplyTheme()
         {
             // Console.WriteLine("Applying Theme on Simple Panel");
@@ -164,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.TitleForColor;
             foreach (Control ctrl in Controls)
             {
-               // ApplyThemeToControl(ctrl);
+                // ApplyThemeToControl(ctrl);
                 //if (ctrl is BeepButton)
                 //{
                 //    //  Console.WriteLine("Applying Theme to Button");
@@ -185,7 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e); // Draw base elements (border, shadow, etc.)
-            Console.WriteLine($" start Title {startyoffset}");
+           // Console.WriteLine($" start Title {startyoffset}");
             _titleBottomY = startyoffset;
             // Draw title text if enabled
             if (_showTitle && !string.IsNullOrEmpty(_titleText))
@@ -194,18 +195,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-  
+
         protected override void OnControlAdded(ControlEventArgs e)
-    {
-        base.OnControlAdded(e);
-        // Adjust layout for any new controls if necessary
-    }
-      
+        {
+            base.OnControlAdded(e);
+            // Adjust layout for any new controls if necessary
+        }
+
         private void DrawTitle(Graphics graphics)
         {
             // Use BeepThemesManager to fetch the theme-based font, or fall back to default font
             Font fontToUse = BeepThemesManager.ToFont(_currentTheme?.ButtonStyle) ?? Font;
-            
+
 
             SizeF titleSize = graphics.MeasureString(_titleText, fontToUse);
             int padding = 0; // Adjusted padding for shadow and borders
@@ -227,22 +228,22 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             using (var brush = new SolidBrush(_currentTheme.TitleForColor))
             {
-                if(_showTitle && !string.IsNullOrEmpty(TitleText))
+                if (_showTitle && !string.IsNullOrEmpty(TitleText))
                 {
 
-                //    Console.WriteLine($" -1 1 No Title Line {titleSize.Height}");
+                    //    Console.WriteLine($" -1 1 No Title Line {titleSize.Height}");
                     graphics.DrawString(_titleText, fontToUse, brush, titlePosition);
-                   
+
 
 
                     if (_showTitleLine)
                     {
-                  //      Console.WriteLine($" 1 No Title Line {titleSize.Height}");
+                        //      Console.WriteLine($" 1 No Title Line {titleSize.Height}");
                         DrawTitleLine(graphics);
                     }
                     else
                     {
-                  //      Console.WriteLine($"2 No Title Line {titleSize.Height}");
+                        //      Console.WriteLine($"2 No Title Line {titleSize.Height}");
                         // get the next Y position for items below the title
                         _titleBottomY = DrawingRect.Top + BorderThickness + (int)titleSize.Height + 8; // Adjusted for title height and padding
 
@@ -252,10 +253,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
                 }
-               
+
             }
         }
-      
+
 
         private void DrawTitleLine(Graphics graphics)
         {
@@ -269,9 +270,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             int lineStartX = DrawingRect.Left + BorderThickness;
             int lineEndX = ShowTitleLineinFullWidth
                 ? DrawingRect.Right - BorderThickness // Full width
-                : lineStartX + (int)titleSize.Width ; // Title width + padding
-           // TitleBottomY = lineY + 5;
-            // Set line color and thickness, using the current theme or default if unavailable
+                : lineStartX + (int)titleSize.Width; // Title width + padding
+                                                     // TitleBottomY = lineY + 5;
+                                                     // Set line color and thickness, using the current theme or default if unavailable
             using (var pen = new Pen(_currentTheme?.TitleForColor ?? Color.Gray, TitleLineThickness))
             {
                 // Draw line based on the selected width option
@@ -280,7 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Update the TitleBottomY to position items below the line
             _titleBottomY = lineY + _titleLineThickness + 5; // Adjusted for the line's thickness and extra padding
         }
-   
+
         //protected override void OnResize(EventArgs e)
         //{
         //    base.OnResize(e);

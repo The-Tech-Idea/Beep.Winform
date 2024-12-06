@@ -1,4 +1,4 @@
-﻿namespace TheTechIdea.Beep.Winform.Controls.Editors.Forms
+﻿namespace TheTechIdea.Beep.Winform.Controls.Design.Forms
 {
     partial class DataBlocksCollectionForm
     {

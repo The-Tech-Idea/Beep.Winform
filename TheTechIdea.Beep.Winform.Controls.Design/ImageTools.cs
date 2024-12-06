@@ -10,6 +10,8 @@ using System.Diagnostics;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.VisualStudio.Shell;
 using EnvDTE;
+using TheTechIdea.Beep.Winform.Controls.Design.Models;
+using TheTechIdea.Beep.Winform.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design
 {

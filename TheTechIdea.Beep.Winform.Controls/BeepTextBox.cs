@@ -472,7 +472,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(_innerTextBox);
         
             beepImage = new BeepImage { Size = _maxImageSize, Dock = DockStyle.None, Margin = new Padding(0) };
-            Console.WriteLine("InitializeComponents");
+     //       Console.WriteLine("InitializeComponents");
             //AdjustTextBoxHeight();
             //PositionInnerTextBoxAndImage();
 
@@ -496,7 +496,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Calculate the total height, including borders and padding
             }
-           Console.WriteLine($" GetSingleLineHeight : {textBoxHeight}");
+       //    Console.WriteLine($" GetSingleLineHeight : {textBoxHeight}");
 
             return textBoxHeight;
         }
@@ -528,7 +528,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            Console.WriteLine("OnResize");  
+           // Console.WriteLine("OnResize");  
             UpdateDrawingRect();
             AdjustTextBoxHeight();
             PositionInnerTextBoxAndImage();
@@ -548,18 +548,18 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Set the inner TextBox's height to its preferred height
                 _innerTextBox.Height = _innerTextBox.PreferredHeight;
-                Console.WriteLine($" _innerTextBox.Height  :{_innerTextBox.Height}");
+             //   Console.WriteLine($" _innerTextBox.Height  :{_innerTextBox.Height}");
                 // Center the inner TextBox vertically within the DrawingRect
                 int textBoxY = DrawingRect.Y + (DrawingRect.Height - _innerTextBox.Height) / 2;
                 _innerTextBox.Location = new Point(DrawingRect.X, textBoxY);
             }
-            Console.WriteLine("AdjustTextBoxHeight");
+        //    Console.WriteLine("AdjustTextBoxHeight");
             // Set the width of the inner TextBox to match the DrawingRect
             _innerTextBox.Width = DrawingRect.Width;
         }
         private void PositionInnerTextBoxAndImage()
         {
-            Console.WriteLine("PositionInnerTextBoxAndImage");
+        //   Console.WriteLine("PositionInnerTextBoxAndImage");
             // Ensure that DrawingRect is updated
             UpdateDrawingRect();
 
@@ -585,7 +585,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (string.IsNullOrEmpty(ImagePath))
             {
-                Console.WriteLine($" Hight :{textBoxHeight}");
+            //    Console.WriteLine($" Hight :{textBoxHeight}");
                 // Position the TextBox
                 _innerTextBox.Location = new Point(DrawingRect.X, textBoxY);
                 _innerTextBox.Size = new Size(DrawingRect.Width, textBoxHeight);

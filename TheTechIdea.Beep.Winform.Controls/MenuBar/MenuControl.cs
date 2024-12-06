@@ -61,6 +61,9 @@ namespace TheTechIdea.Beep.Winform.Controls.MenuBar
         public  IVisManager vismanager { get; set; }
     //    public List<ToolStripMenuItem> menuitems { get; set; } = new List<ToolStripMenuItem>();
         VisHelper visHelper { get { return (VisHelper)vismanager.visHelper; }  }
+
+        public string GuidID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public void Run(IPassedArgs pPassedarg)
         {
           
@@ -254,6 +257,11 @@ namespace TheTechIdea.Beep.Winform.Controls.MenuBar
 
             };
             vismanager.ShowUserControlPopUp(menuItem.Tag.ToString(), DMEEditor, null, Passedarguments);
+        }
+
+        public void Run(params object[] args)
+        {
+            throw new NotImplementedException();
         }
     }
 }

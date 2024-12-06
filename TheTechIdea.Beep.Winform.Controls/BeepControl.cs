@@ -10,6 +10,7 @@ using System.Windows.Forms.Design;
 
 using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Winform.Controls.Editors;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -225,7 +226,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string SavedGuidID { get; set; }
         public string [] Items { get { return _items; } set { _items = value; } }
         public string GuidID
-            { get { return _guidID; } }
+            { get { return _guidID; }set { _guidID = value; } }
         public int Id {  get { return _id; }set { _id = value; } }
 
         protected bool _isChild;
@@ -934,29 +935,34 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnPaintBackground(e);
         }
-        public void UpdateDrawingRect()
+        public virtual void UpdateDrawingRect()
         {
-            int borderOffset = ShowAllBorders ? BorderThickness : 0;
+            // Initialize offsets for shadow and border
             int shadowOffsetValue = ShowShadow ? shadowOffset : 0;
+            int borderOffsetValue = ShowAllBorders ? BorderThickness : 0;
 
-            // Calculate effective padding values
-            int leftPadding = Padding.Left + LeftoffsetForDrawingRect; // Include X offset
-            int topPadding = Padding.Top + TopoffsetForDrawingRect;  // Include Y offset
+            // Account for padding and offsets
+            int leftPadding = Padding.Left + LeftoffsetForDrawingRect;
+            int topPadding = Padding.Top + TopoffsetForDrawingRect;
             int rightPadding = Padding.Right - RightoffsetForDrawingRect;
             int bottomPadding = Padding.Bottom - _bottomoffsetForDrawingRect;
 
-            // Calculate DrawingRect dynamically, avoiding borders, shadows, padding, and offsets
+            // Calculate the DrawingRect as the inner rectangle avoiding borders, shadows, and padding
             DrawingRect = new Rectangle(
-                borderOffset + shadowOffsetValue + leftPadding,
-                borderOffset + shadowOffsetValue + topPadding,
-                Width - (borderOffset + shadowOffsetValue + leftPadding + rightPadding),
-                Height - (borderOffset + shadowOffsetValue + topPadding + bottomPadding)
+                shadowOffsetValue + borderOffsetValue + leftPadding,
+                shadowOffsetValue + borderOffsetValue + topPadding,
+                Width - (2 * shadowOffsetValue + 2 * borderOffsetValue + leftPadding + rightPadding),
+                Height - (2 * shadowOffsetValue + 2 * borderOffsetValue + topPadding + bottomPadding)
             );
 
-            // Optionally, slightly shrink the DrawingRect to ensure it doesn't overlap with borders or shadows
-            
-            DrawingRect = new Rectangle(DrawingRect.X, DrawingRect.Y, DrawingRect.Width - 1, DrawingRect.Height-1);
+            // Ensure DrawingRect has valid dimensions
+            if (DrawingRect.Width < 0 || DrawingRect.Height < 0)
+            {
+                DrawingRect = Rectangle.Empty;
+            }
         }
+
+
         protected override void OnPaint(PaintEventArgs e)
         {
             SuspendLayout();
@@ -1094,6 +1100,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected void DrawBackColor(PaintEventArgs e, Color color, Color hovercolor)
         {
+            shadowOffset = ShowShadow ? 3 : 0;
+
+            // Update the drawing rectangle to reflect shadow and border changes
+            UpdateDrawingRect();
+
             if (IsChild)
             {
 
@@ -1317,38 +1328,36 @@ namespace TheTechIdea.Beep.Winform.Controls
         //}
         protected void DrawShadowUsingRectangle(Graphics graphics)
         {
-            // Ensure shadow is drawn only if it's enabled and the control is not transparent
-            if (ShowShadow) // Ensure no transparency conflicts
+            // Ensure shadow is drawn only if it's enabled
+            if (ShowShadow)
             {
                 using (var shadowBrush = new SolidBrush(Color.FromArgb((int)(255 * ShadowOpacity), ShadowColor)))
                 {
-                    // Calculate an offset shadow rectangle slightly larger than the main control
-                    //Rectangle shadowRect = new Rectangle(
-                    //    DrawingRect.Left+BorderThickness +shadowOffset,
-                    //    DrawingRect.Top + BorderThickness + shadowOffset,
-                    //    DrawingRect.Width + BorderThickness+shadowOffset,
-                    //    DrawingRect.Height + BorderThickness+shadowOffset
-                    //);
+                    // Calculate an offset shadow rectangle larger than the DrawingRect and extending outside the border
                     Rectangle shadowRect = new Rectangle(
-                       DrawingRect.Left + BorderThickness + shadowOffset,
-                       DrawingRect.Top + BorderThickness + shadowOffset,
-                       Width + BorderThickness + shadowOffset,
-                       Height + BorderThickness + shadowOffset
-                   );
+                        DrawingRect.Left - shadowOffset - BorderThickness,
+                        DrawingRect.Top - shadowOffset - BorderThickness,
+                        DrawingRect.Width + (2 * shadowOffset) + (2 * BorderThickness),
+                        DrawingRect.Height + (2 * shadowOffset) + (2 * BorderThickness)
+                    );
+
                     if (IsRounded)
                     {
-                        using (GraphicsPath shadowPath = GetRoundedRectPath(shadowRect, BorderRadius))
+                        // If the control is rounded, draw a rounded shadow
+                        using (GraphicsPath shadowPath = GetRoundedRectPath(shadowRect, BorderRadius + shadowOffset))
                         {
                             graphics.FillPath(shadowBrush, shadowPath);
                         }
                     }
                     else
                     {
+                        // Draw a rectangular shadow for non-rounded controls
                         graphics.FillRectangle(shadowBrush, shadowRect);
                     }
                 }
             }
         }
+
         protected void DrawShadow(Graphics graphics)
         {
             // Ensure shadow is drawn only if it's enabled and the control is not transparent

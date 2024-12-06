@@ -471,7 +471,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-
+            DrawingRect.Inflate(-1,-1); // Adjust for border thickness
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Use spin functionality if enabled

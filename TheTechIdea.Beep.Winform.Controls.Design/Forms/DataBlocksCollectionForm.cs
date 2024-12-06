@@ -4,7 +4,7 @@ using System.ComponentModel.Design;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace TheTechIdea.Beep.Winform.Controls.Editors.Forms
+namespace TheTechIdea.Beep.Winform.Controls.Design.Forms
 {
     public partial class DataBlocksCollectionForm : Form
     {

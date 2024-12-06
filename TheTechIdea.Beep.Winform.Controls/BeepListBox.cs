@@ -7,6 +7,7 @@ using System.Drawing.Design;
 
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Editors;
+using TheTechIdea.Beep.Winform.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -321,7 +322,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             int yOffset = drawRectY + TitleBottomY; // Start placing items below the iconPanel
 
-            foreach (var item in items.Where(p => p.ItemType == Models.MenuItemType.Main))
+            foreach (var item in items.Where(p => p.ItemType== Common.MenuItemType.Main))
             {
                 var menuItemPanel = CreateMenuItemPanel(item, false);
                 if (menuItemPanel != null)

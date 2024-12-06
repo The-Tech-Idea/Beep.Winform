@@ -159,8 +159,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public Form MainForm { get; set; }
         IDisplayContainer container;
         // private Control _container;
-        public IDisplayContainer Container { get { return  container; } set {  container =value;  container.AddinRemoved += Container_AddinRemoved; container.VisManager = this;container.Editor = DMEEditor;
-                container.AddinChanged += Container_AddinChanged; _controlManager.DisplayPanel = (Control)value; } }
+        public IDisplayContainer Container { get { return  container; } set {  container =value;  } } // container.AddinRemoved += Container_AddinRemoved; container.VisManager = this;container.Editor = DMEEditor;
+        //container.AddinChanged += Container_AddinChanged; _controlManager.DisplayPanel = (Control) value;
         #endregion
         public IWizardManager wizardManager { get; set; }
         public bool IsShowingMainForm { get; set; } = false;

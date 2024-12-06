@@ -43,6 +43,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolBar
           public bool IsHorizentalBar { get ; set ; }=false;
         public IVisManager vismanager { get; set; }
         public List<ToolStripButton> menuitems { get; set; } = new List<ToolStripButton>();
+        public string GuidID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         ImageList imageList;
         public void Run(IPassedArgs pPassedarg)
         {
@@ -149,6 +151,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolBar
         {
             
             Treecontrol.RunFunction(sender, e);
+        }
+
+        public void Run(params object[] args)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }

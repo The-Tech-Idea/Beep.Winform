@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Drawing.Text;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -221,13 +222,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            // Do not call base.OnPaint(e);
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+            var g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             UpdateDrawingRect();
             // Draw the image and text
             contentRect = DrawingRect;
            // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
-            DrawBackColor(e, _currentTheme.BackColor, _currentTheme.ButtonHoverBackColor);
+          //  DrawBackColor(e, _currentTheme.BackColor, _currentTheme.ButtonHoverBackColor);
             DrawToGraphics(e.Graphics);
         }
         private void DrawToGraphics(Graphics g)

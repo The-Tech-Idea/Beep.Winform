@@ -2,13 +2,17 @@
 using System.ComponentModel;
 
 
-namespace TheTechIdea.Beep.Winform.Controls.Design
+namespace TheTechIdea.Beep.Winform.Controls.Common
 {
     [Serializable]
 
     public class SimpleItem
     {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public SimpleItem()
+        {
+            Id = Guid.NewGuid().ToString();
+        }
+        public string Id { get; set; }
         public string Name { get; set; }
         public string Text { get; set; }
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]

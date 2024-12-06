@@ -8,7 +8,7 @@ using TheTechIdea.Beep.ConfigUtil;
 
 namespace TheTechIdea.Beep.Winform.Controls.Containers
 {
-    public partial class uc_Container : BeepControl, IDisplayContainer
+    public partial class uc_Container : UserControl, IDisplayContainer
     {
         public ContainerTypeEnum ContainerType { get; set; }
         private Panel ContainerPanel=new Panel();
@@ -219,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers
             panel1.Resize += Panel1_Resize;
             panel1.AutoScroll = true;
             TabContainerPanel.SelectedTab = TabContainerPanel.TabPages[TabContainerPanel.TabPages.Count - 1];
-            // TabContainerPanel.TabPages[TabContainerPanel.TabPages.Count-1].Controls.Add(control);
+            // TabContainerPanel.TabPanels[TabContainerPanel.TabPanels.Count-1].Controls.Add(control);
             if (TabContainerPanel.SelectedTab!=null)
             {
                 TabContainerPanel.SelectedTab.Controls.Add(panel1);

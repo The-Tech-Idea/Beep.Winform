@@ -8,19 +8,29 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MessagePack" Version="2.5.192" />
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.12.40392" />
+    <Compile Remove="DataBlocksCollectionEditor.cs" />
+    <Compile Remove="ParentControlDesigner.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Svg" Version="3.4.7" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="UIEditor\BeepImageSelectorDialog.cs">
+    <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Winform.Controls.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Forms\DataBlocksCollectionForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UIEditor\ImageImporterForm.cs">
+    <Compile Update="Forms\BeepImageSelectorDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UIEditor\ImageSelectorImporterForm.cs">
+    <Compile Update="Forms\ImageImporterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\ImageSelectorImporterForm.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>

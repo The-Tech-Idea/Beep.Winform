@@ -12,9 +12,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 {
     public partial class Form1 : BeepiForm
     {
+        
         public Form1()
         {
             InitializeComponent();
+           // this.tabControl1.TabPanels[0].Controls.Add(beepAppBar1);
         }
 
         private void Form1_Load(object sender, EventArgs e)

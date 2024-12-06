@@ -7,6 +7,7 @@ using System.Drawing.Design;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Editors;
+using TheTechIdea.Beep.Winform.Controls.Common;
 
 
 namespace TheTechIdea.Beep.Winform.Controls

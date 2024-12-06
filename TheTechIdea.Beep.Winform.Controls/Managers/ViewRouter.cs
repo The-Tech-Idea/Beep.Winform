@@ -2,7 +2,10 @@
 
 public class ViewRouter
 {
+
+    private readonly object _historyLock = new object();
     private readonly Panel _hostPanel;
+    private readonly Dictionary<string, Lazy<Control>> _viewCache = new Dictionary<string, Lazy<Control>>();
     private readonly Dictionary<string, Type> _routes = new Dictionary<string, Type>();
     private readonly Dictionary<string, RouteGuard> _routeGuards = new Dictionary<string, RouteGuard>();
     private readonly Dictionary<string, string> _aliases = new Dictionary<string, string>();
@@ -38,16 +41,11 @@ public class ViewRouter
         _isCustomeCreatorSet = true; // Indicate that a custom creator is set
         return _isCustomeCreatorSet;
     }
-
-   
-
     public delegate bool RouteGuard(Dictionary<string, object> parameters);
-
     public ViewRouter(Panel hostPanel)
     {
         _hostPanel = hostPanel ?? throw new ArgumentNullException(nameof(hostPanel));
     }
-
     public void RegisterRoute(string routeName, Type viewType, RouteGuard guard = null)
     {
         if (string.IsNullOrWhiteSpace(routeName))
@@ -56,13 +54,16 @@ public class ViewRouter
         if (viewType == null || !typeof(Control).IsAssignableFrom(viewType))
             throw new ArgumentException("View type must be a subclass of Control.", nameof(viewType));
 
-        _routes[routeName] = viewType;
+        if (!_routes.ContainsKey(routeName))
+        {
+            _routes[routeName] = viewType;
+            _viewCache[routeName] = new Lazy<Control>(() => CreateUsingActivator(viewType));
+        }
         if (guard != null)
         {
             _routeGuards[routeName] = guard;
         }
     }
-
     public void RegisterAlias(string alias, string routeName)
     {
         if (!_routes.ContainsKey(routeName))
@@ -70,7 +71,6 @@ public class ViewRouter
 
         _aliases[alias] = routeName;
     }
-
     public void SetDefaultRoute(string routeName)
     {
         if (!_routes.ContainsKey(routeName))
@@ -78,7 +78,6 @@ public class ViewRouter
 
         _defaultRoute = routeName;
     }
-
     public void SetErrorView(Type errorViewType)
     {
         if (errorViewType == null || !typeof(Control).IsAssignableFrom(errorViewType))
@@ -112,60 +111,63 @@ public class ViewRouter
 
     public void NavigateTo(string routeName, Dictionary<string, object> parameters = null)
     {
-        Navigating?.Invoke(this, routeName);
-
-        if (!_routes.ContainsKey(routeName))
+        try
         {
-            NavigateToError($"No view registered for route: {routeName}");
-            return;
-        }
+            Navigating?.Invoke(this, routeName);
 
-        if (_routeGuards.TryGetValue(routeName, out var guard) && guard != null)
-        {
-            if (!guard(parameters ?? new Dictionary<string, object>()))
+            if (!_routes.ContainsKey(routeName))
             {
-                NavigateToError($"Access denied for route: {routeName}");
+                NavigateToError($"No view registered for route: {routeName}");
                 return;
             }
+
+            if (_routeGuards.TryGetValue(routeName, out var guard) && guard != null)
+            {
+                if (!guard(parameters ?? new Dictionary<string, object>()))
+                {
+                    NavigateToError($"Access denied for route: {routeName}");
+                    return;
+                }
+            }
+
+            _navigationHistory.Push(routeName);
+            _forwardHistory.Clear();
+
+            // Trigger PreShowItem event
+            var preShowArgs = new RouteArgs(routeName, parameters);
+            PreShowItem?.Invoke(this, preShowArgs);
+            if (preShowArgs.Cancel) return;
+
+            // Dispose the current view if it exists
+            _currentView?.Dispose();
+
+            // Create a new instance of the view
+            Control view = _useCustomeCreator && _isCustomeCreatorSet
+                ? CreateControlUsingCustomeCreator(_routes[routeName])
+                : CreateUsingActivator(_routes[routeName]);
+
+            if (view is INavigable navigableView)
+            {
+                navigableView.OnNavigatedTo(parameters ?? new Dictionary<string, object>());
+            }
+
+            _hostPanel.Controls.Clear();
+            view.Dock = DockStyle.Fill;
+            _hostPanel.Controls.Add(view);
+
+            _currentView = view;
+
+            // Trigger PostShowItem event
+            PostShowItem?.Invoke(this, new RouteArgs(routeName, parameters));
+
+            Navigated?.Invoke(this, routeName);
         }
-
-        _navigationHistory.Push(routeName);
-        _forwardHistory.Clear();
-
-        // Trigger PreShowItem event
-        var preShowArgs = new RouteArgs(routeName, parameters);
-        PreShowItem?.Invoke(this, preShowArgs);
-        if (preShowArgs.Cancel) return;
-
-        // Dispose the current view if it exists
-        _currentView?.Dispose();
-        Control view;
-        // Create a new instance of the view
-        var viewType = _routes[routeName];
-        if(_useCustomeCreator && _isCustomeCreatorSet)
+        catch (Exception ex)
         {
-            view = CreateControlUsingCustomeCreator(viewType);
-            
-        }else   view = (Control)CreateUsingActivator(viewType);
-
-        // If the view implements INavigable, pass parameters
-        if (view is INavigable navigableView)
-        {
-            navigableView.OnNavigatedTo(parameters ?? new Dictionary<string, object>());
+            NavigateToError($"An error occurred during navigation: {ex.Message}");
         }
-
-        // Add the new view to the host panel
-        _hostPanel.Controls.Clear();
-        view.Dock = DockStyle.Fill;
-        _hostPanel.Controls.Add(view);
-
-        _currentView = view;
-
-        // Trigger PostShowItem event
-        PostShowItem?.Invoke(this, new RouteArgs(routeName, parameters));
-
-        Navigated?.Invoke(this, routeName);
     }
+
     private Control CreateUsingActivator(Type viewType)
     {
 
@@ -185,19 +187,25 @@ public class ViewRouter
     }
     public void NavigateBack()
     {
-        if (_navigationHistory.Count <= 1) return;
+        lock (_historyLock)
+        {
+            if (_navigationHistory.Count <= 1) return;
 
-        _forwardHistory.Push(_navigationHistory.Pop());
-        var previousRoute = _navigationHistory.Peek();
-        NavigateTo(previousRoute);
+            _forwardHistory.Push(_navigationHistory.Pop());
+            var previousRoute = _navigationHistory.Peek();
+            NavigateTo(previousRoute);
+        }
     }
 
     public void NavigateForward()
     {
-        if (_forwardHistory.Count == 0) return;
+        lock (_historyLock)
+        {
+            if (_forwardHistory.Count == 0) return;
 
-        var nextRoute = _forwardHistory.Pop();
-        NavigateTo(nextRoute);
+            var nextRoute = _forwardHistory.Pop();
+            NavigateTo(nextRoute);
+        }
     }
 
     private void NavigateToError(string errorMessage)
@@ -234,9 +242,15 @@ public class ViewRouter
     {
         get
         {
-            return string.Join(" > ", _navigationHistory.Reverse());
+            return string.Join(" > ", _navigationHistory.Reverse().Select(route =>
+            {
+                var (name, parameters) = ParseRoute(route);
+                var paramString = string.Join(", ", parameters.Select(kvp => $"{kvp.Key}={kvp.Value}"));
+                return string.IsNullOrEmpty(paramString) ? name : $"{name} ({paramString})";
+            }));
         }
     }
+
 }
 
 public interface INavigable

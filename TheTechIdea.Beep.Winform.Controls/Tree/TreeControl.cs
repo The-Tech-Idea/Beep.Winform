@@ -919,7 +919,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
         #region "Filter Nodes"
         public string Filterstring { set { FilterString_TextChanged(value); } }
 
-
+        public string GuidID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         private TreeView TreeCache = new TreeView();
         private bool IsFiltering = false;
@@ -1144,6 +1144,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 }
                 n.Text = br.BranchText;
             }
+        }
+
+        public void Run(params object[] args)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }

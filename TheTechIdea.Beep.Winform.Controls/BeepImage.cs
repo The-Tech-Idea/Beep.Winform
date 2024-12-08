@@ -8,6 +8,8 @@ using Svg;
 using System.Drawing.Text;
 using System.Windows.Forms.Design;
 using Timer = System.Windows.Forms.Timer;
+using TheTechIdea.Beep.Winform.Controls.Editors;
+using TheTechIdea.Beep.Winform.Controls.Design;
 
 
 
@@ -16,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [ToolboxBitmap(typeof(BeepImage))]
     [Category("Beep Controls")]
-    //[Designer(typeof(ImageLoaderDesigner))]
+    [Designer(typeof(TheTechIdea.Beep.Winform.Controls.Design.BeepImageDesigner))]
     public class BeepImage : BeepControl
     {
        
@@ -126,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public float SpinSpeed { get; set; } = 5f;
 
 
-        [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
+        [Editor(typeof(TheTechIdea.Beep.Winform.Controls.Editors.ImagePathEditor), typeof(UITypeEditor))]
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load")]
         [Category("Appearance")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]

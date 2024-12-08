@@ -1,12 +1,13 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
-using Microsoft.Extensions.DependencyModel;
+﻿
 using Svg;
 using System.Reflection;
 using System.Collections;
 using System.Resources;
 using System.Xml.Linq;
+
 using System.Drawing.Imaging;
-using TheTechIdea.Beep.Winform.Controls.Models;
+using System.Diagnostics;
+
 using TheTechIdea.Beep.Winform.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls.Helpers
@@ -15,135 +16,135 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     {
         private static int index;
         private static string[] extensions = { ".png", ".ico", ".svg", ".bmp", ".jpg" };
-        public static List<ImageConfiguration> ImgAssemblies { get; set; } = new List<ImageConfiguration>();
+       
         public static List<Icon> Icons { get; set; } = new List<Icon>();
-
-        public static List<ImageConfiguration> GetGraphicFilesLocations(string path)
-        {
-            var result = new List<ImageConfiguration>();
-            // Add extensions to look for
+ //       public static List<ImageConfiguration> ImgAssemblies { get; set; } = new List<ImageConfiguration>();
+ //       public static List<ImageConfiguration> GetGraphicFilesLocations(string path)
+ //       {
+ //           var result = new List<ImageConfiguration>();
+ //           // Add extensions to look for
             
-            if (string.IsNullOrEmpty(path))
-            {
-                return result;
-            }
-            if (Directory.Exists(path))
-            {
-                // Iterate through the files in the folder
-                foreach (string file in Directory.GetFiles(path))
-                {
-                    string filename = Path.GetFileName(file);
-                    string extension = Path.GetExtension(filename);
-                    // Check if the file has one of the specified extensions
-                    if (Array.Exists(extensions, ext => ext.Equals(extension, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        if (!ImgAssemblies.Any(ext => ext.Name.Equals(filename, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            result.Add(new ImageConfiguration
-                            {
-                                Index = index++,
-                                Name = filename,
-                                Ext = extension,
-                                Path = path
-                            });
-                            if (extension == ".ico")
-                            {
-                                using (Icon icon = new Icon(file))
-                                {
-                                    Icons.Add(icon);
-                                }
-                            }
+ //           if (string.IsNullOrEmpty(path))
+ //           {
+ //               return result;
+ //           }
+ //           if (Directory.Exists(path))
+ //           {
+ //               // Iterate through the files in the folder
+ //               foreach (string file in Directory.GetFiles(path))
+ //               {
+ //                   string filename = Path.GetFileName(file);
+ //                   string extension = Path.GetExtension(filename);
+ //                   // Check if the file has one of the specified extensions
+ //                   if (Array.Exists(extensions, ext => ext.Equals(extension, StringComparison.OrdinalIgnoreCase)))
+ //                   {
+ //                       if (!ImgAssemblies.Any(ext => ext.Name.Equals(filename, StringComparison.OrdinalIgnoreCase)))
+ //                       {
+ //                           result.Add(new ImageConfiguration
+ //                           {
+ //                               Index = index++,
+ //                               Name = filename,
+ //                               Ext = extension,
+ //                               Path = path
+ //                           });
+ //                           if (extension == ".ico")
+ //                           {
+ //                               using (Icon icon = new Icon(file))
+ //                               {
+ //                                   Icons.Add(icon);
+ //                               }
+ //                           }
                          
-                        }
-                    }
-                }
-            }
-            if (result.Count > 0)
-            {
-                ImgAssemblies.AddRange(result);
-                //FillImageList(result);
-            }
+ //                       }
+ //                   }
+ //               }
+ //           }
+ //           if (result.Count > 0)
+ //           {
+ //               ImgAssemblies.AddRange(result);
+ //               //FillImageList(result);
+ //           }
 
-            return result;
-        }
-        public static List<ImageConfiguration> GetGraphicFilesLocationsFromEmbedded(string[] namesspaces)
-        {
-            var result = new List<ImageConfiguration>();
-            // Add extensions to look for
+ //           return result;
+ //       }
+ //       public static List<ImageConfiguration> GetGraphicFilesLocationsFromEmbedded(string[] namesspaces)
+ //       {
+ //           var result = new List<ImageConfiguration>();
+ //           // Add extensions to look for
          
-            // namesspaces= { "BeepEnterprize","Koc","DHUB","TheTechIdea","Beep" };
-            // Get current, executing, and calling assemblies
-            List<Assembly> assemblies = new Assembly[]{
-                Assembly.GetExecutingAssembly(),
-                Assembly.GetCallingAssembly(),
-                Assembly.GetEntryAssembly()!       }.ToList();
-            List<Assembly> LoadedAssemblies = DependencyContext.Default.RuntimeLibraries
- .SelectMany(library => library.GetDefaultAssemblyNames(DependencyContext.Default))
- .Select(Assembly.Load)
- .ToList();
-            assemblies.AddRange(LoadedAssemblies);
-            // Load all assemblies from the current domain to ensure referenced projects are included
-            assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies()
-                .Where(assembly => !assembly.FullName.StartsWith("System") && !assembly.FullName.StartsWith("Microsoft")));
-            foreach (Assembly assembly in assemblies)
-            {
+ //           // namesspaces= { "BeepEnterprize","Koc","DHUB","TheTechIdea","Beep" };
+ //           // Get current, executing, and calling assemblies
+ //           List<Assembly> assemblies = new Assembly[]{
+ //               Assembly.GetExecutingAssembly(),
+ //               Assembly.GetCallingAssembly(),
+ //               Assembly.GetEntryAssembly()!       }.ToList();
+ //           List<Assembly> LoadedAssemblies = DependencyContext.Default.RuntimeLibraries
+ //.SelectMany(library => library.GetDefaultAssemblyNames(DependencyContext.Default))
+ //.Select(Assembly.Load)
+ //.ToList();
+ //           assemblies.AddRange(LoadedAssemblies);
+ //           // Load all assemblies from the current domain to ensure referenced projects are included
+ //           assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies()
+ //               .Where(assembly => !assembly.FullName.StartsWith("System") && !assembly.FullName.StartsWith("Microsoft")));
+ //           foreach (Assembly assembly in assemblies)
+ //           {
                
-                // Get all embedded resources
-                string[] resources = assembly.GetManifestResourceNames();
+ //               // Get all embedded resources
+ //               string[] resources = assembly.GetManifestResourceNames();
 
-                foreach (string resource in resources)
-                {
-                    // Check if the resource name contains any of the specified namespaces
-                    if (namesspaces != null)
-                    {
-                        if (!namesspaces.Any(ns => resource.Contains(ns, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            continue; // Skip this resource as it doesn't match the namespace criteria
-                        }
+ //               foreach (string resource in resources)
+ //               {
+ //                   // Check if the resource name contains any of the specified namespaces
+ //                   if (namesspaces != null)
+ //                   {
+ //                       if (!namesspaces.Any(ns => resource.Contains(ns, StringComparison.OrdinalIgnoreCase)))
+ //                       {
+ //                           continue; // Skip this resource as it doesn't match the namespace criteria
+ //                       }
 
-                    }
-                    foreach (string extension in extensions)
-                    {
-                        if (resource.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
-                        {
-                            int lastDot = resource.LastIndexOf('.');
-                            int secondToLastDot = resource.LastIndexOf('.', lastDot - 1);
+ //                   }
+ //                   foreach (string extension in extensions)
+ //                   {
+ //                       if (resource.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
+ //                       {
+ //                           int lastDot = resource.LastIndexOf('.');
+ //                           int secondToLastDot = resource.LastIndexOf('.', lastDot - 1);
 
-                            string fileName = (resource.Substring(secondToLastDot + 1, lastDot - secondToLastDot - 1)).ToLower();
+ //                           string fileName = (resource.Substring(secondToLastDot + 1, lastDot - secondToLastDot - 1)).ToLower();
 
-                            if (!ImgAssemblies.Any(ext => ext.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase)))
-                            {
-                                result.Add(new ImageConfiguration
-                                {
-                                    Index = index++,
-                                    Name = fileName + extension,
-                                    Ext = extension,
-                                    Path = resource,
-                                    Assembly = assembly
-                                });
-                                if (extension == ".ico")
-                                {
-                                    using (Stream stream = assembly.GetManifestResourceStream(resource))
-                                    {
-                                        if (stream != null)
-                                        {
-                                            Icons.Add(new Icon(stream));
-                                        }
-                                    }
-                                }
-                                // Check for LogoBigImage based on LogoUrl
-                            }
+ //                           if (!ImgAssemblies.Any(ext => ext.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase)))
+ //                           {
+ //                               result.Add(new ImageConfiguration
+ //                               {
+ //                                   Index = index++,
+ //                                   Name = fileName + extension,
+ //                                   Ext = extension,
+ //                                   Path = resource,
+ //                                   Assembly = assembly
+ //                               });
+ //                               if (extension == ".ico")
+ //                               {
+ //                                   using (Stream stream = assembly.GetManifestResourceStream(resource))
+ //                                   {
+ //                                       if (stream != null)
+ //                                       {
+ //                                           Icons.Add(new Icon(stream));
+ //                                       }
+ //                                   }
+ //                               }
+ //                               // Check for LogoBigImage based on LogoUrl
+ //                           }
 
-                            break;
-                        }
-                    }
-                }
-            }
+ //                           break;
+ //                       }
+ //                   }
+ //               }
+ //           }
 
-            ImgAssemblies.AddRange(result);
-            //FillImageList(result);
-            return result;
-        }
+ //           ImgAssemblies.AddRange(result);
+ //           //FillImageList(result);
+ //           return result;
+ //       }
         public static bool IsEmbeddedResource(string path)
         {
             // check if path has more than one dot
@@ -181,7 +182,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             object image = null;
             try
             {
-
                 var assembly = Assembly.GetExecutingAssembly();
                 using (var stream = assembly.GetManifestResourceStream(resourcePath))
                 {
@@ -731,26 +731,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
             }
         }
-
-        public static void LoadProjectImagesToDictionary(Dictionary<string, SimpleItem> _projectImages)
+        public static string GetCallingProjectPath()
         {
-            _projectImages.Clear();
-            var resourceSet = Properties.Resources.ResourceManager.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true);
+            var stackTrace = new StackTrace();
+            var frames = stackTrace.GetFrames();
 
-            foreach (DictionaryEntry entry in resourceSet)
+            foreach (var frame in frames)
             {
-                if (entry.Value is Bitmap) // Only add image resources
+                var method = frame.GetMethod();
+                var declaringType = method.DeclaringType;
+                if (declaringType != null && !declaringType.Assembly.FullName.Contains("Design"))
                 {
-                    string resourceKey = entry.Key.ToString();
-                    SimpleItem item = new SimpleItem
-                    {
-                        Name = resourceKey,
-                        Image = resourceKey // Store the resource key for project resources
-                    };
-                    _projectImages[resourceKey] = item;
+                    return Path.GetDirectoryName(declaringType.Assembly.Location);
                 }
             }
+
+            throw new Exception("Calling project not found in stack trace.");
         }
+        //public static void LoadProjectImagesToDictionary(Dictionary<string, SimpleItem> _projectImages)
+        //{
+        //    _projectImages.Clear();
+        //    var resourceSet = Properties.Resources.ResourceManager.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true);
+
+        //    foreach (DictionaryEntry entry in resourceSet)
+        //    {
+        //        if (entry.Value is Bitmap) // Only add image resources
+        //        {
+        //            string resourceKey = entry.Key.ToString();
+        //            SimpleItem item = new SimpleItem
+        //            {
+        //                Name = resourceKey,
+        //                Image = resourceKey // Store the resource key for project resources
+        //            };
+        //            _projectImages[resourceKey] = item;
+        //        }
+        //    }
+        //}
 
         public static void LoadLocalImagesToDictionary(Dictionary<string, SimpleItem> _localImages)
         {
@@ -852,19 +868,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
 
         #endregion "PNG or SVG to ICO"
-        public static string GetProjectPath(string GetMyPath)
-        {
-
-            string projectPath = null;
-            string fullPath = Path.GetDirectoryName(Path.GetFullPath(GetMyPath));
-
-            DirectoryInfo directory = new DirectoryInfo(fullPath);
-            // Runtime path handling
-            projectPath = directory.Parent?.FullName;
-            MessageBox.Show(projectPath);
-
-            return projectPath;
-        }
+       
         public static void LoadImageToPictureBox(PictureBox PreviewpictureBox,string path)
         {
             // Clear previous image
@@ -905,6 +909,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 MessageBox.Show($"Error loading image: {ex.Message}", "Image Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-      
     }
 }

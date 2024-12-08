@@ -6,34 +6,42 @@ using System.ComponentModel.Design.Serialization;
 using System.Drawing.Design;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
+using TheTechIdea.Beep.Winform.Controls.Design.UIEditor;
 
-namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
+namespace TheTechIdea.Beep.Winform.Controls.Editors
 {
     [CLSCompliant(false)]
     public class ImagePathEditor : UITypeEditor
     {
-      
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
+            // Indicate that this editor uses a modal dialog
             return UITypeEditorEditStyle.Modal;
         }
-      
 
         public override object? EditValue(ITypeDescriptorContext? context, IServiceProvider provider, object? value)
         {
-            
-            string path = value as string;
-            var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
-            if (editorService != null)
+            // Ensure the value is a string
+            string path = value as string ?? string.Empty;
+
+            // Get the editor service
+            var editorService = provider?.GetService(typeof(IWindowsFormsEditorService)) as IWindowsFormsEditorService;
+            if (editorService == null)
             {
-                using (var form = new BeepImageSelectorDialog())
+                return path; // If no editor service is available, return the original value
+            }
+
+            // Show the image selector dialog
+            using (var form = new ImageSelectorImporterDialog(path))
+            {
+                if (form.ShowDialog() == DialogResult.OK)
                 {
-                    if (form.ShowDialog() == DialogResult.OK)
-                    {
-                        path = form.SelectedImagePath;
-                    }
+                    // Update the path if the user clicks OK
+                    path = form.SelectedImagePath;
                 }
             }
+
+            // Return the updated or original path
             return path;
         }
     }
@@ -56,5 +64,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
         }
     }
 
-    
+
 }

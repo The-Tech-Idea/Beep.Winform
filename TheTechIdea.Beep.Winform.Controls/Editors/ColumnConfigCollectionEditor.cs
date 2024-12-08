@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Editors
 {
     public class ColumnConfigCollectionEditor : CollectionEditor
     {
-       
+
         public ColumnConfigCollectionEditor(Type type) : base(type) { }
 
         protected override Type CreateCollectionItemType()
@@ -23,11 +23,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Editors
         {
             return new BeepGridColumnConfig();  // Create an instance of SimpleMenuItem
         }
-       
-        
+
+
 
     }
 
-  
+
 
 }

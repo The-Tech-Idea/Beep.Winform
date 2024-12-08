@@ -6,13 +6,13 @@ using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Forms
 {
-    public partial class DataBlocksCollectionForm : Form
+    public partial class DataBlocksCollectionDialog : Form
     {
         private readonly CollectionEditor _editor;
         private readonly List<BeepDataBlock> _existingBlocks; // Existing blocks on the form
         private readonly List<BeepDataBlock> _selectedBlocks = new List<BeepDataBlock>(); // Selected blocks
 
-        public DataBlocksCollectionForm(CollectionEditor editor, List<BeepDataBlock> existingBlocks)
+        public DataBlocksCollectionDialog(CollectionEditor editor, List<BeepDataBlock> existingBlocks)
         {
             InitializeComponent();
             _editor = editor;

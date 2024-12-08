@@ -5,7 +5,7 @@ using System.Linq;
 using System.ComponentModel;
 using TheTechIdea.Beep.Winform.Controls.Design.Forms;
 
-namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
+namespace TheTechIdea.Beep.Winform.Controls.Editors
 {
     public class DataBlocksCollectionEditor : CollectionEditor
     {
@@ -36,17 +36,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
                     {
                         var blocksOnForm = editorSite.Components
                             .OfType<BeepDataBlock>()
-                            .Where(b => !this.Context.Instance.Equals(b)) // Exclude the current block
+                            .Where(b => !Context.Instance.Equals(b)) // Exclude the current block
                             .ToList();
 
-                        var customForm = new DataBlocksCollectionForm(this, blocksOnForm);
+                        var customForm = new DataBlocksCollectionDialog(this, blocksOnForm);
                         if (customForm.ShowDialog() == DialogResult.OK)
                         {
                             // Use selected blocks to update collection
                             var selectedBlocks = customForm.GetSelectedBlocks();
                             foreach (var block in selectedBlocks)
                             {
-                                this.Context.PropertyDescriptor.SetValue(this.Context.Instance, block);
+                                Context.PropertyDescriptor.SetValue(Context.Instance, block);
                             }
                         }
                     }

@@ -147,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MenuBar
                         //Extensionsmenu.ForeColor = Color.Black;
                         //Extensionsmenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
                         //Extensionsmenu.ImageIndex = vismanager.visHelper.GetImageIndex(attrib.iconimage);
-                        // ListItems.Add(Extensionsmenu);
+                        // Buttons.Add(Extensionsmenu);
                      
                         foreach (MethodsClass item in cls.Methods)
                         {

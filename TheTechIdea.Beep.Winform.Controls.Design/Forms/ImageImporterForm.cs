@@ -127,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
         // Populate ImagelistBox with resources from a .resx file
         private void PopulateProjectResxResources()
         {
-            var resourceSet = Properties.Resources.ResourceManager.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true);
+            var resourceSet= Properties.Resources.ResourceManager.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true);
             foreach (DictionaryEntry entry in resourceSet)
             {
                 if (entry.Value is Bitmap || entry.Value is string svgPath && svgPath.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))

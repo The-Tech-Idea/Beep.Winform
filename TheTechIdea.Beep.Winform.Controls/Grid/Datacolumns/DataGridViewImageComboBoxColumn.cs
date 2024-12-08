@@ -29,9 +29,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
                 control.Items.Clear(); // Clear existing items
 
                 //// Example: adding some items with image and text
-                //control.ListItems.Add(new ImageComboBoxItem("Option 1", Properties.Resources.Icon1));
-                //control.ListItems.Add(new ImageComboBoxItem("Option 2", Properties.Resources.Icon2));
-                //control.ListItems.Add(new ImageComboBoxItem("Option 3", Properties.Resources.Icon3));
+                //control.Buttons.Add(new ImageComboBoxItem("Option 1", Properties.Resources.Icon1));
+                //control.Buttons.Add(new ImageComboBoxItem("Option 2", Properties.Resources.Icon2));
+                //control.Buttons.Add(new ImageComboBoxItem("Option 3", Properties.Resources.Icon3));
 
                 // Set the selected value based on the cell's value
                 control.SelectedItem = this.Value;

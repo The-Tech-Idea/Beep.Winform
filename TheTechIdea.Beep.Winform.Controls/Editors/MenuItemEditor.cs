@@ -1,11 +1,6 @@
-﻿
-using System.ComponentModel;
-using System.ComponentModel.Design;
-using System.Configuration;
-using System.Drawing.Design;
-using System.Windows.Forms.Design;
+﻿using System.ComponentModel.Design;
 using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Models;
+
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Editors

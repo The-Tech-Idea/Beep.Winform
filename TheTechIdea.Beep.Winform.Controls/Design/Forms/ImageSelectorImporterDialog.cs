@@ -7,7 +7,7 @@ using Svg;
 using System.Reflection;
 using System.Xml.Linq;
 using System.Runtime.CompilerServices;
-using TheTechIdea.Beep.Winform.Controls.Design.Models;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
     // Form use to  return the selected image Path either from local or project resources
     // Or just Import Images wether is local or project resources and supply the path
     // can import image types bmp,jpg,jpeg,png,svg
-    public partial class ImageSelectorImporterForm : Form, IImageSelector
+    public partial class ImageSelectorImporterDialog : Form, IImageSelector
     {
         private string _imagePath;
         private bool _isEmbedded;
@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
         
         public string CurrentResourceType { get; set; }
         public string SelectedImagePath { get;  set; }
-        public ImageSelectorImporterForm(string imagePath)
+        public ImageSelectorImporterDialog(string imagePath)
         {
             InitializeComponent();
             _isinPreview = true;
@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
             ShowDialog();
         }
         
-        public ImageSelectorImporterForm()
+        public ImageSelectorImporterDialog()
         {
             InitializeComponent();
 
@@ -708,7 +708,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
         private void LoadProjectImagesToDictionary()
         {
             _projectImages.Clear();
-            var resourceSet =  Properties.Resources.ResourceManager.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true);
+            var resourceSet = Properties.Resources.ResourceManager.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true);
 
             foreach (DictionaryEntry entry in resourceSet)
             {

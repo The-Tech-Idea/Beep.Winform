@@ -51,11 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler? StateChanged;
         public BeepCheckBox()
         {
-            if (Width <= 0 || Height <= 0)
-            {
-                Width = 200;
-                Height = 30;
-            }
+
 
             Padding = new Padding(5, 5, 5, 5);
 
@@ -66,7 +62,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             BoundProperty= "State";
             ApplyTheme();
         }
-
+        protected override void InitLayout()
+        {
+            base.InitLayout();
+            if (Width <= 0 || Height <= 0)
+            {
+                Width = 200;
+                Height = 30;
+            }
+        }
         #region Properties
 
         [Category("Appearance")]
@@ -195,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _state = CheckBoxState.Indeterminate;
             }
-            OnStateChanged();
+          //  OnStateChanged();
         }
 
         #endregion

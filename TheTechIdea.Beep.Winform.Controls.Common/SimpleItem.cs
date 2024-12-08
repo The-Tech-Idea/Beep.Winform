@@ -34,14 +34,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
             get { return _valueField; }
             set { _valueField = value; }
         }
+
+        [NonSerialized]
         private SimpleItem _parentItem; // used for to store the parent item
         public SimpleItem ParentItem
         {
             get { return _parentItem; }
             set { _parentItem = value; }
         }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
 
         public BindingList<SimpleItem> Children { get; set; } = new BindingList<SimpleItem>();
+       
+       
 
 
         public string ReferenceID { get; set; }
@@ -56,7 +61,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
     public class SimpleItemCollection : BindingList<SimpleItem>
     {
         public SimpleItemCollection() : base() { }
-        public SimpleItemCollection(BindingList<SimpleItem> list) { }
+        public SimpleItemCollection(BindingList<SimpleItem> list) : base(list) { }
+
     }
     public enum MenuItemType
     {

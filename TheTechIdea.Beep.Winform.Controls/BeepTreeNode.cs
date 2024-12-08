@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Models;
-using static System.Windows.Forms.AxHost;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -63,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton Noderightbutton;
         private BeepButton _toggleButton; // used to show the dropdown for the node with childern nodes
         private BeepImage lefttreebranchimage; // used to show the left branch of the tree
-        private SimpleItemCollection items = new SimpleItemCollection();
+        private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
         private List<BeepTreeNode> _childNodes;
         private int _nodeseq;
         private string _key;
@@ -143,7 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [MergableProperty(false)]
         //[Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public SimpleItemCollection Nodes
+        public BindingList<SimpleItem> Nodes
         {
             get => items;
             set
@@ -309,7 +308,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Constructors"
         public BeepTreeNode()
         {
-            _childNodes = new List<BeepTreeNode>();
+            LogMessage($"Construct 1");
             UpdateDrawingRect();
             BoundProperty= "Text";
             Height = NodeHeight;
@@ -327,8 +326,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 AutoSize = true,
                 BackColor = parentbackcolor
             };
+            LogMessage($"Construct 2");
             Controls.Add(_childrenPanel);
             Controls.Add(_nodePanel);
+            LogMessage($"Construct 3");
             InitNode();
         }
         protected override Size DefaultSize => new Size(NodeWidth,NodeHeight);
@@ -617,10 +618,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         int starty = 0;
         public void InitNode()
         {
+            LogMessage($"init");
             UpdateDrawingRect();
-           
+
+            _childNodes = new List<BeepTreeNode>();
+            items = new BindingList<SimpleItem>();
             _nodePanel.Controls.Clear();
-           
+             LogMessage($"init1");
             IsShadowAffectedByTheme =false;
             IsBorderAffectedByTheme = false;
             IsFramless = true;
@@ -629,7 +633,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             starty = DrawingRect.Top;
             NodeWidth = DrawingRect.Width;
             NodeHeight = DrawingRect.Height;
-            _checkBox = new BeepCheckBox<bool>
+            LogMessage($"init2");
+            _checkBox = new BeepCheckBox
             {
                 CheckedValue = true,
                 UncheckedValue = false,
@@ -642,17 +647,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 Size = new Size(20, 20), // Adjust size as needed
             };
-
+            LogMessage($"init3");
             _checkBox.StateChanged += CheckBox_StateChanged;
-
+            LogMessage($"init4");
             _nodePanel.Controls.Add(_checkBox);
+            LogMessage($"init6");
             //   DrawLeftBranch();
             DrawLeftButton();
             DrawMiddleButton();
             DrawRightButton();
             DrawToggleButton();
             starty = NodeHeight;
-
+            LogMessage($"init3");
             foreach (var child in _childNodes)
             {
                 if(child.IsInitialized == false) child.InitNode();
@@ -667,98 +673,109 @@ namespace TheTechIdea.Beep.Winform.Controls
                     child.RearrangeNode();
                 }
             }
-
-            Invalidate();
-            _isinitialized= true;
+            LogMessage($"init4");
+            //   Invalidate();
+            _isinitialized = true;
         }
         public void RearrangeNode()
         {
-            int padding = 0; // Padding around elements
-            int startx = padding; // Horizontal start point
-            int centerY = (NodeHeight - SmallNodeHeight) / 2; // Center alignment for small buttons
-
-            // Adjust the size of the main node panel
-            _nodePanel.Width = DrawingRect.Width;
-            _nodePanel.Height = NodeHeight;
-
-            // Position the toggle button
-            if (_toggleButton != null)
+            SuspendLayout(); // Temporarily stop layout updates
+            try
             {
-                _toggleButton.Location = new Point(startx, centerY); // Center vertically
-                _toggleButton.Size = new Size(SmallNodeHeight, SmallNodeHeight);
-                startx += _toggleButton.Width + padding;
-            }
 
-            // Position the CheckBox
-            if (_checkBox != null && _showCheckBox)
-            {
-                _checkBox.Location = new Point(startx, centerY);
-                startx += _checkBox.Width + padding;
-            }
-            //// Position the left button
-            //if (Nodeleftbutton != null)
-            //{
-            //    Nodeleftbutton.Location = new Point(startx, centerY); // Center vertically
-            //    Nodeleftbutton.Size = new Size(SmallNodeHeight, SmallNodeHeight);
-            //    startx += Nodeleftbutton.Width + padding;
-            //}
+                int padding = 0; // Padding around elements
+                int startx = padding; // Horizontal start point
+                int centerY = (NodeHeight - SmallNodeHeight) / 2; // Center alignment for small buttons
 
-            // Position the main middle button
-            if (NodeMainMiddlebutton != null)
-            {
-                NodeMainMiddlebutton.Location = new Point(startx, 0); // Top aligned
-                NodeMainMiddlebutton.MinimumSize = new Size(MinimumTextWidth, NodeHeight); // Ensure a minimum size
-                NodeMainMiddlebutton.Size = new Size(Math.Max(MinimumTextWidth, _nodePanel.Width - startx - SmallNodeHeight - 2 * padding), NodeHeight);
-                startx += NodeMainMiddlebutton.Width + padding;
-            }
+                // Adjust the size of the main node panel
+                _nodePanel.Width = DrawingRect.Width;
+                _nodePanel.Height = NodeHeight;
 
-            // Position the right button
-            if (Noderightbutton != null)
-            {
-                Noderightbutton.Location = new Point(startx, centerY); // Center vertically
-                Noderightbutton.Size = new Size(SmallNodeHeight, SmallNodeHeight);
-                startx += Noderightbutton.Width + padding;
-            }
-
-            // Adjust the size of the node panel
-            _nodePanel.Height = NodeHeight + padding * 2;
-            padding=5;
-            // Adjust the size of `_childrenPanel` based on expansion
-            if (_childNodes.Count > 0)
-            {
-                if (IsExpanded)
+                // Position the toggle button
+                if (_toggleButton != null)
                 {
-                    int childStartY = padding;
-                    foreach (var child in _childNodes)
+                    _toggleButton.Location = new Point(startx, centerY); // Center vertically
+                    _toggleButton.Size = new Size(SmallNodeHeight, SmallNodeHeight);
+                    startx += _toggleButton.Width + padding;
+                }
+
+                // Position the CheckBox
+                if (_checkBox != null && _showCheckBox)
+                {
+                    _checkBox.Location = new Point(startx, centerY);
+                    startx += _checkBox.Width + padding;
+                }
+                //// Position the left button
+                //if (Nodeleftbutton != null)
+                //{
+                //    Nodeleftbutton.Location = new Point(startx, centerY); // Center vertically
+                //    Nodeleftbutton.Size = new Size(SmallNodeHeight, SmallNodeHeight);
+                //    startx += Nodeleftbutton.Width + padding;
+                //}
+
+                // Position the main middle button
+                if (NodeMainMiddlebutton != null)
+                {
+                    NodeMainMiddlebutton.Location = new Point(startx, 0); // Top aligned
+                    NodeMainMiddlebutton.MinimumSize = new Size(MinimumTextWidth, NodeHeight); // Ensure a minimum size
+                    NodeMainMiddlebutton.Size = new Size(Math.Max(MinimumTextWidth, _nodePanel.Width - startx - SmallNodeHeight - 2 * padding), NodeHeight);
+                    startx += NodeMainMiddlebutton.Width + padding;
+                }
+
+                // Position the right button
+                if (Noderightbutton != null)
+                {
+                    Noderightbutton.Location = new Point(startx, centerY); // Center vertically
+                    Noderightbutton.Size = new Size(SmallNodeHeight, SmallNodeHeight);
+                    startx += Noderightbutton.Width + padding;
+                }
+
+                // Adjust the size of the node panel
+                _nodePanel.Height = NodeHeight + padding * 2;
+                padding = 5;
+                // Adjust the size of `_childrenPanel` based on expansion
+                if (_childNodes.Count > 0)
+                {
+                    if (IsExpanded)
                     {
-                        child.Location = new Point(padding, childStartY); // Indent child nodes
-                        child.Width = _childrenPanel.Width - 2 * padding;
-                        child.Theme = Theme;
-                        child.RearrangeNode();
-                        childStartY += child.Height + 5;
+                        int childStartY = padding;
+                        foreach (var child in _childNodes)
+                        {
+                            child.Location = new Point(padding, childStartY); // Indent child nodes
+                            child.Width = _childrenPanel.Width - 2 * padding;
+                            child.Theme = Theme;
+                            child.RearrangeNode();
+                            childStartY += child.Height + 5;
+                        }
+
+                        _childrenPanel.Height = childStartY;
+                        _childrenPanel.Visible = true;
+
                     }
+                    else
+                    {
+                        _childrenPanel.Height = 0;
+                        _childrenPanel.Visible = false;
 
-                    _childrenPanel.Height = childStartY;
-                    _childrenPanel.Visible = true;
-                   
+                    }
                 }
-                else
+
+                checktoggle();
+                // Adjust the node's height
+                Height = _nodePanel.Height + _childrenPanel.Height;
+
+                // If the parent is a panel, adjust its height
+                if (Parent is Panel parentPanel)
                 {
-                    _childrenPanel.Height = 0;
-                    _childrenPanel.Visible = false;
-                    
+                    parentPanel.Height = Height;
                 }
-            }
-
-            checktoggle();
-            // Adjust the node's height
-            Height = _nodePanel.Height + _childrenPanel.Height;
             
-            // If the parent is a panel, adjust its height
-            if (Parent is Panel parentPanel)
-            {
-                parentPanel.Height = Height;
             }
+            finally
+            {
+                ResumeLayout(); // Resume layout updates
+            }
+           
         }
         public void ToggleAllCheckBoxVisibility(bool show)
         {
@@ -953,17 +970,47 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void UpdatePanelSize()
         {
-            _nodePanel.Height = NodeHeight;
+            try
+            {
+                // Calculate the new height of the node panel
+                int newPanelHeight = NodeHeight;
+                int newHeight = newPanelHeight + (IsExpanded ? _childrenPanel.Height : 0);
 
-            // Adjust visibility of child nodes based on expansion state
-            
-          //  _childrenPanel.BackColor = _currentTheme.PanelBackColor;
-            // Ensure the total height reflects the node and its children
-            Height = _nodePanel.Height + (IsExpanded ? _childrenPanel.Height : 0);
-            
-            RearrangeNode();
-            Tree.RearrangeTree();
+                // Only update sizes if there is a change
+                if (_nodePanel.Height != newPanelHeight)
+                {
+                    _nodePanel.Height = newPanelHeight;
+                }
+
+                if (Height != newHeight)
+                {
+                    Height = newHeight;
+
+                    // Notify parent tree or layout if size changes
+                    if (Parent is Panel parentPanel)
+                    {
+                        parentPanel.Height = Height;
+                    }
+                }
+
+                // Rearrange child nodes if the expanded state has changed
+                if (IsExpanded)
+                {
+                    foreach (var child in Traverse())
+                    {
+                        child.RearrangeNode();
+                    }
+                }
+
+                // Call RearrangeTree only if necessary
+                //Tree?.RearrangeTree();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in UpdatePanelSize: {ex.Message}");
+            }
         }
+
         private void ToggleButton_Click(object? sender, EventArgs e)
         {
             IsExpanded = !IsExpanded;
@@ -1195,5 +1242,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion
+        private void LogMessage(string message)
+        {
+            try
+            {
+                File.AppendAllText(@"C:\Logs\debug_log.txt", $"{DateTime.Now}: {message}{Environment.NewLine}");
+
+            }
+            catch { /* Ignore logging errors */ }
+        }
     }
 }

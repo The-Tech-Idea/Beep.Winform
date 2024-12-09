@@ -48,14 +48,16 @@ namespace Beep.Config.Winform.Configurations
 
        // public event EventHandler<PassedArgs> OnObjectSelected;
         public IVisManager Visutil { get; set; }
+               public string GuidID { get ; set; }=Guid.NewGuid().ToString();
+
         public void RaiseObjectSelected()
         {
-            throw new NotImplementedException();
+          
         }
 
         public void Run(IPassedArgs pPassedarg)
         {
-            throw new NotImplementedException();
+          
         }
 
         public void SetConfig(IDMEEditor pbl, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
@@ -144,5 +146,9 @@ namespace Beep.Config.Winform.Configurations
             e.NewObject = defv;
         }
 
+        public void Run(params object[] args)
+        {
+          
+        }
     }
 }

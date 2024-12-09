@@ -52,7 +52,9 @@ namespace TheTechIdea.ETL
         IBranch branch = null;
     IBranch Parentbranch = null;
     public EntityStructure ParentEntity { get; set; } = null;
-    DataViewDataSource vds;
+               public string GuidID { get ; set; }=Guid.NewGuid().ToString();
+
+        DataViewDataSource vds;
     ICompositeLayerDataSource cds;
     public void Run(IPassedArgs pPassedarg)
     {
@@ -173,5 +175,9 @@ namespace TheTechIdea.ETL
 
     }
 
+        public void Run(params object[] args)
+        {
+          
+        }
     }
 }

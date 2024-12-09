@@ -57,9 +57,11 @@ namespace Beep.Config.Winform.Configurations
         public IDMEEditor DMEEditor { get; set; }
         public IErrorsInfo ErrorObject { get; set; }
         public IPassedArgs Passedarg { get; set; }
-       // public event EventHandler<PassedArgs> OnObjectSelected;
+               public string GuidID { get ; set; }=Guid.NewGuid().ToString();
 
-       
+        // public event EventHandler<PassedArgs> OnObjectSelected;
+
+
         public void Run(IPassedArgs pPassedarg)
         {
             
@@ -116,9 +118,10 @@ namespace Beep.Config.Winform.Configurations
             }
         }
 
-
-
-
+        public void Run(params object[] args)
+        {
+          
+        }
     }
 
     

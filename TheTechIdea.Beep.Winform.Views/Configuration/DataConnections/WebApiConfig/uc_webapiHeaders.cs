@@ -23,7 +23,7 @@ using TheTechIdea;
 namespace Beep.Config.Winform.DataConnections
 {
     [AddinAttribute(Caption = "WebApi Configuration", Name = "uc_webapiHeaders", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.Popup)]
-    public partial class uc_webapiHeaders : UserControl,IDM_Addin
+    public partial class uc_webapiHeaders : UserControl, IDM_Addin
 
     {
         public uc_webapiHeaders()
@@ -51,14 +51,21 @@ namespace Beep.Config.Winform.DataConnections
 
        // public event EventHandler<PassedArgs> OnObjectSelected;
         public IVisManager Visutil { get; set; }
+               public string GuidID { get ; set; }=Guid.NewGuid().ToString();
+
         public void RaiseObjectSelected()
         {
-            throw new NotImplementedException();
+          
         }
 
         public void Run(IPassedArgs pPassedarg)
         {
-            throw new NotImplementedException();
+          
+        }
+
+        public void Run(params object[] args)
+        {
+          
         }
 
         public void SetConfig(IDMEEditor pbl, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)

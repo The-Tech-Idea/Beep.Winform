@@ -44,6 +44,7 @@ namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
         public bool DefaultCreate { get; set ; }
         private IDMDataView MyDataView;
         public IVisManager Visutil { get; set; }
+               public string GuidID { get ; set; }=Guid.NewGuid().ToString();
 
         IBranch branch = null;
         IBranch Parentbranch = null;
@@ -52,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
         List<EntityStructure> ls = new List<EntityStructure>();
         public void Run(IPassedArgs pPassedarg)
         {
-            throw new NotImplementedException();
+          
         }
 
         public void SetConfig(IDMEEditor pbl, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
@@ -292,6 +293,11 @@ namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
 
             return DMEEditor.ErrorObject;
            
+        }
+
+        public void Run(params object[] args)
+        {
+          
         }
         #endregion
     }

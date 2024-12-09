@@ -268,5 +268,9 @@ namespace Beep.Config.Winform.DataConnections
             poisonDataGridView1.Refresh();
         }
 
+        public void Run(params object[] args)
+        {
+          
+        }
     }
 }

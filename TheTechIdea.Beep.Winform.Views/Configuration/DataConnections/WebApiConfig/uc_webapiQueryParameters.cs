@@ -47,16 +47,18 @@ namespace Beep.Config.Winform.DataConnections
         IDataSource ds;
        // public event EventHandler<PassedArgs> OnObjectSelected;
         public IVisManager Visutil { get; set; }
+               public string GuidID { get ; set; }=Guid.NewGuid().ToString();
+
         TreeControl tree;
         IBranch branch;
         public void RaiseObjectSelected()
         {
-            throw new NotImplementedException();
+          
         }
 
         public void Run(IPassedArgs pPassedarg)
         {
-            throw new NotImplementedException();
+          
         }
 
         public void SetConfig(IDMEEditor pbl, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
@@ -110,6 +112,11 @@ namespace Beep.Config.Winform.DataConnections
         private void EntitiesBindingNavigatorSaveItem_Click(object sender, EventArgs e)
         {
            
+        }
+
+        public void Run(params object[] args)
+        {
+          
         }
     }
 }

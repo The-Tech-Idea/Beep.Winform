@@ -54,6 +54,8 @@ namespace TheTechIdea.ETL
 
        
         public EntityStructure ParentEntity { get; set; } = null;
+               public string GuidID { get ; set; }=Guid.NewGuid().ToString();
+
         DataViewDataSource vds;
         ICompositeLayerDataSource cds;
         public void Run(IPassedArgs pPassedarg)
@@ -326,6 +328,11 @@ namespace TheTechIdea.ETL
         public void RaiseObjectSelected()
         {
            
+        }
+
+        public void Run(params object[] args)
+        {
+          
         }
     }
 }

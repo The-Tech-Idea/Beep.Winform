@@ -61,8 +61,9 @@ namespace Beep.Config.Winform.Configurations
         public int ParentBranchID { get; set; }
         public string BranchDescription { get; set; } = "";
         public string BranchClass { get; set; } = "ADDIN";
+               public string GuidID { get ; set; }=Guid.NewGuid().ToString();
         #endregion "IAddinVisSchema"
-       // public event EventHandler<PassedArgs> OnObjectSelected;
+        // public event EventHandler<PassedArgs> OnObjectSelected;
 
         public void Run(IPassedArgs pPassedarg)
         {
@@ -126,6 +127,11 @@ namespace Beep.Config.Winform.Configurations
                 ErrorObject.Message = $"{ermsg}:{ex.Message}";
                 Logger.WriteLog($"{ermsg}:{ex.Message}");
             }
+        }
+
+        public void Run(params object[] args)
+        {
+          
         }
     }
 }

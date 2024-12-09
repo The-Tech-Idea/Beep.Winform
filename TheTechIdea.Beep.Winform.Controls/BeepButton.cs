@@ -40,6 +40,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         public EventHandler<BeepEventDataArgs> ImageClicked { get; set; }
         private Color tmpbackcolor;
         private Color tmpforcolor;
+
+        private bool _useScaledfont = false;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool UseScaledFont
+        {
+            get => _useScaledfont;
+            set
+            {
+                _useScaledfont = value;
+                Invalidate();  // Trigger repaint
+            }
+        }
+
+
         private bool isSelectedAuto = true;
         // Public properties
         [Browsable(true)]
@@ -403,7 +418,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             //  Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             // Measure and scale the font to fit within the control bounds
-            Font scaledFont = GetScaledFont(g, Text, contentRect.Size, Font);
+            Font scaledFont = Font;// GetScaledFont(g, Text, contentRect.Size, Font);
+            if(UseScaledFont)
+            {
+                scaledFont = GetScaledFont(g, Text, contentRect.Size, Font);
+            }
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
 
             // Limit image size to MaxImageSize

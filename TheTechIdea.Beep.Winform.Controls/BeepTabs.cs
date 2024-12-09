@@ -165,6 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsRoundedAffectedByTheme=false,
                 IsBorderAffectedByTheme = true,
                 IsShadowAffectedByTheme = false,
+                UseScaledFont = true,
                 IsSelectedAuto = false,
                 Size = new Size(textwidth, _headerButtonSize-4),
                 ImagePath = "" // Set an image path if you want icons on your tabs

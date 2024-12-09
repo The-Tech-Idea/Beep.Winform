@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepEventDataArgs> NodeCollapsed;
         public event EventHandler<BeepEventDataArgs> NodeSelected;
         public event EventHandler<BeepEventDataArgs> NodeDeselected;
-        private int _nodeHeight = 30;
+        private int _nodeHeight = 40;
         private BindingList<SimpleItem> itemsnk=new BindingList<SimpleItem>();
         private int depth;
 

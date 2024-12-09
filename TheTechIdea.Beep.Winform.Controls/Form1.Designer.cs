@@ -344,7 +344,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepTabs1.DataContext = null;
             beepTabs1.DisabledBackColor = Color.Gray;
             beepTabs1.DisabledForeColor = Color.Empty;
-            beepTabs1.DrawingRect = new Rectangle(1, 1, 315, 309);
+            beepTabs1.DrawingRect = new Rectangle(1, 1, 561, 309);
             beepTabs1.Easing = EasingType.Linear;
             beepTabs1.FieldID = null;
             beepTabs1.FocusBackColor = Color.White;
@@ -379,7 +379,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepTabs1.IsRoundedAffectedByTheme = true;
             beepTabs1.IsShadowAffectedByTheme = true;
             beepTabs1.LeftoffsetForDrawingRect = 0;
-            beepTabs1.Location = new Point(838, 230);
+            beepTabs1.Location = new Point(592, 230);
             beepTabs1.MinimumSize = new Size(200, 100);
             beepTabs1.Name = "beepTabs1";
             beepTabs1.OverrideFontSize = TypeStyleFontSize.None;
@@ -402,7 +402,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepTabs1.ShowRightBorder = true;
             beepTabs1.ShowShadow = false;
             beepTabs1.ShowTopBorder = true;
-            beepTabs1.Size = new Size(317, 311);
+            beepTabs1.Size = new Size(563, 311);
             beepTabs1.SlideFrom = SlideDirection.Left;
             beepTabs1.StaticNotMoving = false;
             beepTabs1.TabIndex = 2;
@@ -420,7 +420,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             tabPage1.Controls.Add(beepButton1);
             tabPage1.Location = new Point(0, 0);
             tabPage1.Name = "tabPage1";
-            tabPage1.Size = new Size(315, 279);
+            tabPage1.Size = new Size(562, 279);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "tabPage1";
             // 
@@ -531,7 +531,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             tabPage2.BackColor = Color.FromArgb(245, 255, 250);
             tabPage2.Location = new Point(0, 0);
             tabPage2.Name = "tabPage2";
-            tabPage2.Size = new Size(463, 306);
+            tabPage2.Size = new Size(439, 279);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "tabPage2";
             // 
@@ -540,7 +540,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             tabPage3.BackColor = Color.FromArgb(245, 255, 250);
             tabPage3.Location = new Point(0, 0);
             tabPage3.Name = "tabPage3";
-            tabPage3.Size = new Size(463, 306);
+            tabPage3.Size = new Size(439, 279);
             tabPage3.TabIndex = 2;
             tabPage3.Text = "tabPage3";
             // 
@@ -564,7 +564,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepButton2.DataContext = null;
             beepButton2.DisabledBackColor = Color.Gray;
             beepButton2.DisabledForeColor = Color.Empty;
-            beepButton2.DrawingRect = new Rectangle(1, 1, 68, 13);
+            beepButton2.DrawingRect = new Rectangle(1, 1, 96, 33);
             beepButton2.Easing = EasingType.Linear;
             beepButton2.FieldID = null;
             beepButton2.FlatAppearance = true;
@@ -634,7 +634,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepButton2.ShowRightBorder = true;
             beepButton2.ShowShadow = false;
             beepButton2.ShowTopBorder = true;
-            beepButton2.Size = new Size(70, 15);
+            beepButton2.Size = new Size(98, 35);
             beepButton2.SlideFrom = SlideDirection.Left;
             beepButton2.StaticNotMoving = false;
             beepButton2.TabIndex = 3;
@@ -745,6 +745,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // beepTree1
             // 
             beepTree1.ActiveBackColor = Color.FromArgb(46, 139, 87);
+            beepTree1.AllowMultiSelect = false;
             beepTree1.AnimationDuration = 500;
             beepTree1.AnimationType = DisplayAnimationType.None;
             beepTree1.ApplyThemeToChilds = false;
@@ -797,6 +798,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepTree1.Location = new Point(352, 105);
             beepTree1.Name = "beepTree1";
             beepTree1.NodeHeight = 30;
+            beepTree1.Nodes.Add((SimpleItem)resources.GetObject("beepTree1.Nodes"));
             beepTree1.NodeWidth = 100;
             beepTree1.OverrideFontSize = TypeStyleFontSize.None;
             beepTree1.ParentBackColor = Color.Empty;

@@ -925,9 +925,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NodeMainMiddlebutton.IsShadowAffectedByTheme = false;
                 NodeMainMiddlebutton.IsBorderAffectedByTheme = false;
                 NodeMainMiddlebutton.MaxImageSize = new System.Drawing.Size(MaxImageSize-2, MaxImageSize-2);
-                NodeMainMiddlebutton.Font=BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-                
-                
+               // NodeMainMiddlebutton.Size = new System.Drawing.Size(NodeWidth - 2 * NodeHeight, NodeHeight);
+                //   NodeMainMiddlebutton.Font=BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+
+
                 NodeMainMiddlebutton.Click += NodeMainMiddlebutton_Click;
                 NodeMainMiddlebutton.DoubleClick += NodeMainMiddlebutton_DoubleClick;
                 NodeMainMiddlebutton.MouseEnter += NodeMainMiddlebutton_MouseEnter;

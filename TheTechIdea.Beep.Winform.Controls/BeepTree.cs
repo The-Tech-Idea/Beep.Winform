@@ -31,7 +31,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepEventDataArgs> NodeSelected;
         public event EventHandler<BeepEventDataArgs> NodeDeselected;
         private int _nodeHeight = 40;
-        private BindingList<SimpleItem> itemsnk=new BindingList<SimpleItem>();
+        
+
+        private int nodeimagesize = 16;
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int NodeImageSize
+        {
+            get => nodeimagesize;
+            set
+            {
+                nodeimagesize = value;
+                ChangeNodeImageSettings();
+            }
+        }
+
         private int depth;
 
         public int NodeHeight
@@ -473,7 +487,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             foreach (var item in _childnodes)
             {
                 item.ShowNodeImage = _shownodeimage;
-                item.Refresh(); // Ensure the node redraws with the updated setting
+                item.MaxImageSize = nodeimagesize;
+                item.ChangeNodeImageSettings(); // Ensure the node redraws with the updated setting
             }
         }
         private void LogMessage(string message)

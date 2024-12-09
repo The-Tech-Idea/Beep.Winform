@@ -98,9 +98,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         public int NodeWidth { get; set; } = 100;
         public int SmallNodeHeight { get; set; } = 15;
         public int MinimumTextWidth { get; set; } = 100;
-        public int MaxImageSize { get; set; } = 12;
+        //public int MaxImageSize { get; set; } = 16;
         private int _minNodeHeight = 20;
         private int _minNodeWidth = 100;
+
+        private int nodeimagesize = 16;
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int MaxImageSize
+        {
+            get => nodeimagesize;
+            set
+            {
+                nodeimagesize = value;
+                ChangeNodeImageSettings();
+            }
+        }
 
         private bool _showCheckBox = false;
         private BeepCheckBox<bool> _checkBox; // Instance of BeepCheckBox
@@ -856,7 +869,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Nodeleftbutton.IsFramless = true;
                 Nodeleftbutton.IsShadowAffectedByTheme = true;
                 Nodeleftbutton.IsBorderAffectedByTheme = true;
-                Nodeleftbutton.MaxImageSize = new System.Drawing.Size(MaxImageSize - 2, MaxImageSize - 2);
+                Nodeleftbutton.MaxImageSize = new System.Drawing.Size(MaxImageSize , MaxImageSize);
                 Nodeleftbutton.Size = new System.Drawing.Size(NodeHeight, NodeHeight);
                 Nodeleftbutton.Height = NodeHeight;
           
@@ -890,7 +903,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Noderightbutton.IsFramless = true;
                 Noderightbutton.IsShadowAffectedByTheme = true;
                 Noderightbutton.IsBorderAffectedByTheme = true;
-                Noderightbutton.MaxImageSize = new System.Drawing.Size(MaxImageSize -2, MaxImageSize-2);
+                Noderightbutton.MaxImageSize = new System.Drawing.Size(MaxImageSize , MaxImageSize);
                 Noderightbutton.Size = new System.Drawing.Size(NodeHeight, NodeHeight);
                 
               
@@ -924,7 +937,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NodeMainMiddlebutton.IsFramless = true;
                 NodeMainMiddlebutton.IsShadowAffectedByTheme = false;
                 NodeMainMiddlebutton.IsBorderAffectedByTheme = false;
-                NodeMainMiddlebutton.MaxImageSize = new System.Drawing.Size(MaxImageSize-2, MaxImageSize-2);
+                NodeMainMiddlebutton.MaxImageSize = new System.Drawing.Size(MaxImageSize, MaxImageSize);
                // NodeMainMiddlebutton.Size = new System.Drawing.Size(NodeWidth - 2 * NodeHeight, NodeHeight);
                 //   NodeMainMiddlebutton.Font=BeepThemesManager.ToFont(_currentTheme.LabelSmall);
 
@@ -1068,7 +1081,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _toggleButton.ForeColor = _currentTheme.AccentColor;
        //     Noderightbutton.BackColor = _currentTheme.PanelBackColor;
         }
-        private void ChangeNodeImageSettings()
+        public void ChangeNodeImageSettings()
         {
             if (NodeMainMiddlebutton != null)
             {
@@ -1076,7 +1089,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NodeMainMiddlebutton.TextImageRelation = ShowNodeImage ? System.Windows.Forms.TextImageRelation.ImageBeforeText : System.Windows.Forms.TextImageRelation.TextBeforeImage;
                 NodeMainMiddlebutton.ImageAlign = ShowNodeImage ? System.Drawing.ContentAlignment.MiddleLeft : System.Drawing.ContentAlignment.MiddleCenter;
                 NodeMainMiddlebutton.TextAlign = ShowNodeImage ? System.Drawing.ContentAlignment.MiddleCenter : System.Drawing.ContentAlignment.MiddleLeft;
-             
+                NodeMainMiddlebutton.MaxImageSize = new System.Drawing.Size(MaxImageSize, MaxImageSize);
+
             }
             if (ShowNodeImage)
             {

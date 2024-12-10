@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TheTechIdea.Beep.Addin;
+﻿using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
-using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public class BeepDisplayContainer : BeepControl, IDisplayContainer
+    public class BeepDisplayContainer : BeepTabs, IDisplayContainer
     {
+        private Dictionary<string, TabPage> _controls = new Dictionary<string, TabPage>();
+
         public BeepDisplayContainer()
         {
             
@@ -29,42 +25,88 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public bool AddControl(string TitleText, IDM_Addin control, ContainerTypeEnum pcontainerType)
         {
-            throw new NotImplementedException();
+            if (control == null || string.IsNullOrWhiteSpace(TitleText)) return false;
+
+            if (_controls.ContainsKey(TitleText)) return false; // Avoid duplicates
+
+            // Create and configure a new TabPage
+            var tabPage = new TabPage
+            {
+                Text = TitleText,
+                Tag = control,
+                BackColor = _currentTheme.PanelBackColor
+            };
+
+            // Add control to the TabPage
+            if (control is Control winControl)
+            {
+                winControl.Dock = DockStyle.Fill;
+                tabPage.Controls.Add(winControl);
+            }
+
+            // Add TabPage to dictionary and UI container
+            _controls[TitleText] = tabPage;
+            TabPages.Add(tabPage);
+
+            // Trigger AddinAdded event
+            AddinAdded?.Invoke(this, new ContainerEvents
+            {
+                TitleText = TitleText,
+                Control = control,
+                ContainerType = pcontainerType
+            });
+
+            return true;
         }
 
         public void Clear()
         {
-            throw new NotImplementedException();
+            _controls.Clear();
+            TabPages.Clear();
         }
-
         public bool IsControlExit(IDM_Addin control)
         {
-            throw new NotImplementedException();
+            return _controls.Values.Any(tab => tab.Tag == control);
         }
-
         public IErrorsInfo PressKey(KeyCombination keyCombination)
         {
-            throw new NotImplementedException();
+            KeyPressed?.Invoke(this, keyCombination);
+            return null; // Replace with appropriate error handling if needed
         }
-
         public bool RemoveControl(string TitleText, IDM_Addin control)
         {
-            throw new NotImplementedException();
+            if (!_controls.ContainsKey(TitleText)) return false;
+
+            var tabPage = _controls[TitleText];
+            _controls.Remove(TitleText);
+            TabPages.Remove(tabPage);
+
+            AddinRemoved?.Invoke(this, new ContainerEvents
+            {
+                TitleText = TitleText,
+                Control = control
+            });
+
+            return true;
         }
 
         public bool RemoveControlByGuidTag(string guidid)
         {
-            throw new NotImplementedException();
+            var entry = _controls.FirstOrDefault(c => ((IDM_Addin)c.Value.Tag).GuidID == guidid);
+            return entry.Key != null && RemoveControl(entry.Key, (IDM_Addin)entry.Value.Tag);
         }
 
-        public bool RemoveControlByName(string guidid)
+        public bool RemoveControlByName(string name)
         {
-            throw new NotImplementedException();
+            return _controls.ContainsKey(name) && RemoveControl(name, (IDM_Addin)_controls[name].Tag);
         }
-
         public bool ShowControl(string TitleText, IDM_Addin control)
         {
-            throw new NotImplementedException();
+            if (!_controls.ContainsKey(TitleText)) return false;
+
+            SelectedTab = _controls[TitleText];
+            return true;
         }
+
     }
 }

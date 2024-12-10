@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         int drawRectY;
         int drawRectWidth;
         int drawRectHeight;
-        private SimpleItemCollection items = new SimpleItemCollection();
+        private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
         private bool _shownodeimage;
         private string? _imageKey;
         private bool _showCheckBox = false;
@@ -60,9 +60,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
-        [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
+        
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public SimpleItemCollection ListItems
+        public BindingList<SimpleItem> ListItems
         {
             get => items;
             set

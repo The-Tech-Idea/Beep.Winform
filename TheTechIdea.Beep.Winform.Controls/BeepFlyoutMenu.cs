@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Design;
 using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -32,16 +33,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private List<BeepFlyoutMenu> beepFlyoutMenus = new List<BeepFlyoutMenu>();
 
+        public EventHandler<BeepEventDataArgs> MenuClicked;
 
-        private SimpleItemCollection items = new SimpleItemCollection();
+        private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
         private int _selectedIndex;
 
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
-        [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public SimpleItemCollection ListItems
+        public BindingList<SimpleItem> ListItems
         {
             get => items;
             set
@@ -98,6 +99,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 UpdateControlLayout(); // Update layout when position changes
             }
         }
+
+     
         public BeepFlyoutMenu()
         {
             Height = _collapsedHeight; // Default collapsed height
@@ -193,7 +196,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 ToggleMenu(this, EventArgs.Empty); // Collapse after selection
             };
-
+            _menu.Click += (s, e) =>
+            {
+                if (SelectedIndex >= 0)
+                {
+                    MenuClicked?.Invoke(this, new BeepEventDataArgs("MenuClick",_menu.ListItems[SelectedIndex]));
+                }
+            };
             Controls.Add(_menu);
         }
 

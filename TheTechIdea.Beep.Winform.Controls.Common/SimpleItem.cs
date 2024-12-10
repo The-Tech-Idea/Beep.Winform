@@ -48,7 +48,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
        
        
 
-
+        public string MenuID { get; set; }
+        public string ActionID { get; set; }
         public string ReferenceID { get; set; }
         public string OwnerReferenceID { get; set; }
         public string OtherReferenceID { get; set; }

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
-using TheTechIdea.Beep.Vis.Modules;
+﻿using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Models;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

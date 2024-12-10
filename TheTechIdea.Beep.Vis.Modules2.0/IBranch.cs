@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         IErrorsInfo RemoveChildNodes();
         IErrorsInfo MenuItemClicked(string ActionNam);
         IBranch CreateCategoryNode(CategoryFolder p);
-
+        string MenuID { get; set; }
 
 
 

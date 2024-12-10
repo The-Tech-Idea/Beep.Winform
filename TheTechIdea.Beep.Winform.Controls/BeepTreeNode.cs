@@ -52,6 +52,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public EventHandler<BeepEventDataArgs> NodeMouseUp;
         public EventHandler<BeepEventDataArgs> NodeMouseDown;
         public EventHandler<BeepEventDataArgs> NodeMouseMove;
+
+        public EventHandler<BeepEventDataArgs> ShowMenu;
         #endregion "Events"
         #region "Properties"
         private BeepTree _tree;
@@ -101,6 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //public int MaxImageSize { get; set; } = 16;
         private int _minNodeHeight = 20;
         private int _minNodeWidth = 100;
+        public string NodeDataType { get; set; } = "SimpleItem";
 
         private int nodeimagesize = 16;
         [Browsable(true)]
@@ -500,8 +503,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Events Methods"
         private void NodeMainMiddlebutton_Click(object sender, EventArgs e)
         {
+            e.Equals(MouseButtons.Right);
             BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonClicked", this);
-            NodeClicked?.Invoke(this, args);
+          
+           
+
         }
         private void Nodeleftbutton_Click(object sender, EventArgs e)
         {
@@ -512,6 +518,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             BeepEventDataArgs args = new BeepEventDataArgs("NoderightbuttonClicked", this);
             NodeRightClicked?.Invoke(this, args);
+           
         }
         private void NodeMainMiddlebutton_DoubleClick(object sender, EventArgs e)
         {
@@ -543,7 +550,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonMouseUp", this);
             NodeMouseUp?.Invoke(this, args);
         }
-        private void NodeMainMiddlebutton_MouseDown(object sender, EventArgs e)
+        private void NodeMainMiddlebutton_MouseDown(object sender, MouseEventArgs e)
         {
             BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonMouseDown", this);
             NodeMouseDown?.Invoke(this, args);
@@ -552,6 +559,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonMouseMove", this);
             NodeMouseMove?.Invoke(this, args);
+            if (e.Equals(MouseButtons.Right))
+            {
+                BeepEventDataArgs args1 = new BeepEventDataArgs("NodeMainButtonRightClicked", this);
+                NodeRightClicked?.Invoke(this, args1);
+                if(ShowMenu != null)
+                {
+                    ShowMenu?.Invoke(this, args1);
+                }
+            }
+            if (e.Equals(MouseButtons.Left))
+            {
+                BeepEventDataArgs args1 = new BeepEventDataArgs("NodeMainButtonLeftClicked", this);
+                NodeLeftClicked?.Invoke(this, args1);
+            }
         }
         private void Nodeleftbutton_MouseEnter(object sender, EventArgs e)
         {

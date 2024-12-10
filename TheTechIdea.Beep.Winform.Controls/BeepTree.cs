@@ -7,8 +7,6 @@ using System.Linq;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Editors;
-using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -31,7 +29,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepEventDataArgs> NodeSelected;
         public event EventHandler<BeepEventDataArgs> NodeDeselected;
         private int _nodeHeight = 40;
-        
+        private BeepFlyoutMenu BeepFlyoutMenu;
+
+        private Dictionary<string,SimpleItem> _menus = new Dictionary<string,SimpleItem>();
+        [Browsable(true)]
+        [Localizable(true)]
+        [MergableProperty(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public Dictionary<string, SimpleItem> ContextMenu
+        {
+            get => _menus;
+            set
+            {
+                _menus = value;
+            }
+        }
 
         private int nodeimagesize = 16;
         [Browsable(true)]
@@ -87,7 +99,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                // InitializeTreeFromMenuItems();
             }
         }
-        
+
+    
+
         public BeepTree()
         {
             this.Name = "BeepTree";
@@ -316,13 +330,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     IsChild=true,
                     Size = new Size(NodeWidth, NodeHeight),
                     Theme = this.Theme,
-                   
+                    Tag = menuItem,
+                    NodeDataType =menuItem.GetType().Name,
                     Level = parent?.Level + 1 ?? 1 // Increment level for child nodes
                 };
                 node.NodeClicked += (sender, e) => NodeClicked?.Invoke(sender, e);
                 node.NodeRightClicked += (sender, e) => NodeRightClicked?.Invoke(sender, e);
                 node.NodeDoubleClicked += (sender, e) => NodeDoubleClicked?.Invoke(sender, e);
-
+                node.ShowMenu += (sender, e) => ShowFlyoutMenu(node,new Point(node.Left,node.Top));
                 node.NodeExpanded += (sender, e) => NodeExpanded?.Invoke(sender, e);
                 node.NodeCollapsed += (sender, e) => NodeCollapsed?.Invoke(sender, e);
                 node.NodeSelected += (sender, e) => NodeSelected?.Invoke(sender, e);
@@ -500,7 +515,60 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch { /* Ignore logging errors */ }
         }
+        #region "Flyout Menu"
+        public void ShowMenu(BeepTreeNode node,BeepEventDataArgs e)
+        {
+            
+            SimpleItem item;
+            IBranch branch;
+            string menuid = "";
+            if (node.Tag is SimpleItem)
+            {
+                item = (SimpleItem)node.Tag;
+                menuid = item.MenuID;
+            }
+            else
+            {
+                branch = (IBranch)node.Tag;
+                menuid = branch.MenuID;
+            }
+            List<SimpleItem> menu = _menus.Where(c => c.Key == menuid).Select(c => c.Value).ToList();
+            BeepFlyoutMenu.ListItems = new BindingList<SimpleItem>(menu);
+            BeepFlyoutMenu.Show();
+        }
+        public void ShowFlyoutMenu(BeepTreeNode node, Point location)
+        {
+            SimpleItem item;
+            IBranch branch;
+            string menuid = "";
+            if (BeepFlyoutMenu == null)
+            {
+                BeepFlyoutMenu = new BeepFlyoutMenu();
+                
+            }
+            // 
+            if(node.Tag is SimpleItem)
+            {
+                item = (SimpleItem)node.Tag;
+                menuid = item.MenuID;
 
+            }
+            else
+            {
+                branch = (IBranch)node.Tag;
+                menuid = branch.MenuID;
+            }
+            List<SimpleItem> menu = _menus.Where(c => c.Key == menuid).Select(c => c.Value).ToList();
+            BeepFlyoutMenu.ListItems = new BindingList<SimpleItem>(menu);
+            BeepFlyoutMenu.MenuClicked += MenuItemClicked;
+            BeepFlyoutMenu.Show();
+        }
+
+        private void MenuItemClicked(object sender, BeepEventDataArgs e)
+        {
+            
+        }
+        #endregion "Flyout Menu"
     }
 
 }

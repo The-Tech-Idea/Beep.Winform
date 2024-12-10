@@ -9,8 +9,17 @@ using System.Threading.Tasks;
 namespace TheTechIdea.Beep.Winform.Controls
 {// We assume BeepButton, BeepTheme, and related classes are in your namespace.
  // using TheTechIdea.Beep.Winform.Controls; // Adjust namespace as needed
+    public enum HeaderLocation
+    {
+        Top,
+        Bottom,
+        Left,
+        Right
+    }
 
     // A TabControl that hides the default tab headers
+    [DesignerCategory("Code")]
+    [ToolboxItem(false)]
     public class TabControlWithoutTabs : TabControl
     {
         [StructLayout(LayoutKind.Sequential)]
@@ -47,20 +56,47 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         private FlowLayoutPanel _headerPanel;
         private TabControlWithoutTabs _tabControl;
-       
-        private int _headerButtonSize = 30;
+        private HeaderLocation _headerLocation = HeaderLocation.Top;
+
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public int HeaderButtonSize
+        public HeaderLocation HeaderLocation
         {
-            get => _headerButtonSize;
+            get => _headerLocation;
             set
             {
-                _headerButtonSize = value;
-                RefreshHeaders();
+                if (_headerLocation != value)
+                {
+                    _headerLocation = value;
+                    PerformLayout(); // Trigger layout update when header location changes
+                }
             }
         }
 
+        private int _headerButtonHeight = 30;
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int HeaderButtonHeight
+        {
+            get => _headerButtonHeight;
+            set
+            {
+                _headerButtonHeight = value;
+                RefreshHeaders();
+            }
+        }
+        private int _headerButtonWidth = 60;
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int HeaderButtonWidth
+        {
+            get => _headerButtonWidth;
+            set
+            {
+                _headerButtonWidth = value;
+                RefreshHeaders();
+            }
+        }
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
@@ -85,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Top= DrawingRect.Top,
                 Left = DrawingRect.Left,
                 Width = DrawingRect.Width,
-                Height = _headerButtonSize,
+                Height = _headerButtonHeight,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 AutoSize = true,
                 FlowDirection = FlowDirection.LeftToRight,
@@ -112,19 +148,37 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnLayout(e);
 
-            // Ensure DrawingRect has been updated by BeepControl
-            // DrawingRect is accessible because BeepTabs inherits from BeepControl
-            var rect = this.DrawingRect;
+            var rect = DrawingRect;
             if (rect == Rectangle.Empty) return;
 
-            // Position header panel at the top of DrawingRect
-            _headerPanel.SetBounds(rect.X, rect.Y, rect.Width, _headerButtonSize);
+            switch (_headerLocation)
+            {
+                case HeaderLocation.Top:
+                    _headerPanel.SetBounds(rect.X, rect.Y, rect.Width, _headerButtonHeight);
+                    _tabControl.SetBounds(rect.X, rect.Y + _headerButtonHeight, rect.Width, rect.Height - _headerButtonHeight);
+                    _headerPanel.FlowDirection = FlowDirection.LeftToRight;
+                    break;
 
-            // Position tab control below the header panel, also within DrawingRect
-            int tabControlHeight = rect.Height - _headerPanel.Height;
-            if (tabControlHeight < 0) tabControlHeight = 0;
-            _tabControl.SetBounds(rect.X, rect.Y + _headerPanel.Height, rect.Width, tabControlHeight);
+                case HeaderLocation.Bottom:
+                    _tabControl.SetBounds(rect.X, rect.Y, rect.Width, rect.Height - _headerButtonHeight);
+                    _headerPanel.SetBounds(rect.X, rect.Y + _tabControl.Height, rect.Width, _headerButtonHeight);
+                    _headerPanel.FlowDirection = FlowDirection.LeftToRight;
+                    break;
+
+                case HeaderLocation.Left:
+                    _headerPanel.SetBounds(rect.X, rect.Y, _headerButtonWidth, rect.Height);
+                    _tabControl.SetBounds(rect.X + _headerButtonWidth, rect.Y, rect.Width - _headerButtonWidth, rect.Height);
+                    _headerPanel.FlowDirection = FlowDirection.TopDown;
+                    break;
+
+                case HeaderLocation.Right:
+                    _tabControl.SetBounds(rect.X, rect.Y, rect.Width - _headerButtonWidth, rect.Height);
+                    _headerPanel.SetBounds(rect.Right - _headerButtonWidth, rect.Y, _headerButtonWidth, rect.Height);
+                    _headerPanel.FlowDirection = FlowDirection.TopDown;
+                    break;
+            }
         }
+
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
@@ -148,37 +202,36 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private BeepButton CreateTabButton(TabPage page, int index)
         {
-            // Create a BeepButton for each tab
-            // measure the width of the text
-            int textwidth = TextRenderer.MeasureText(page.Text, page.Font).Width;
+            int maxTextWidth = GetMaxTextWidth() + 20; // Include padding for horizontal alignment
 
             var btn = new BeepButton
             {
                 Text = page.Text,
                 Margin = new Padding(2),
                 SavedGuidID = index.ToString(),
-                HideText = false, // Show text on the tab button
-                IsChild=false,
-                ShowAllBorders=true,
+                HideText = false,
+                IsChild = false,
+                ShowAllBorders = true,
                 ShowShadow = false,
-                IsRounded =false,
-                IsRoundedAffectedByTheme=false,
+                IsRounded = false,
+                IsRoundedAffectedByTheme = false,
                 IsBorderAffectedByTheme = true,
                 IsShadowAffectedByTheme = false,
                 UseScaledFont = true,
                 IsSelectedAuto = false,
-                Size = new Size(textwidth, _headerButtonSize-4),
-                ImagePath = "" // Set an image path if you want icons on your tabs
-               
-               
+                ImagePath = "", // Optionally set an image path
+                Size = (_headerLocation == HeaderLocation.Left || _headerLocation == HeaderLocation.Right)
+                    ? new Size(_headerButtonWidth, _headerButtonHeight) // Consistent size for vertical headers
+                    : new Size(maxTextWidth, _headerButtonHeight), // Consistent size for horizontal headers
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                TextImageRelation = TextImageRelation.ImageBeforeText // Text remains horizontal
             };
 
             btn.Click += (s, e) => SelectTab(index);
 
-            // Apply theme if requested
-
-                btn.Theme = Theme;
-
+            // Apply theme if applicable
+            btn.Theme = Theme;
 
             return btn;
         }
@@ -204,6 +257,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        private int GetMaxTextWidth()
+        {
+            return _tabControl.TabPages.Cast<TabPage>()
+                .Max(page => TextRenderer.MeasureText(page.Text, Font).Width);
+        }
+
 
         public override void ApplyTheme()
         {

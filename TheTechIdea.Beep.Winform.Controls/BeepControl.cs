@@ -139,9 +139,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _leftoffsetForDrawingRect = 0;
         private int _bottomoffsetForDrawingRect = 0;
         private int _rightoffsetForDrawingRect = 0;
-
+        private bool _canbehovered = false;
+        private bool _canbepressed = true;
+        private bool _canbefocused = true;
+        private bool _canbedefault = false;
         #endregion "protected Properties"
         #region "Public Properties"
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool CanBeHovered { get { return _canbehovered; } set { _canbehovered = value; } }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool CanBePressed { get { return _canbepressed; } set { _canbepressed = value; } }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool CanBeFocused { get { return _canbefocused; } set { _canbefocused = value; } }
         [Browsable(true)]
         [Category("Appearance")]
         public int RightoffsetForDrawingRect { get { return _rightoffsetForDrawingRect; } set { _rightoffsetForDrawingRect = value; Invalidate(); } }
@@ -203,13 +215,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Appearance")]
-        public bool IsHovered { get { return _isHovered; } set { _isHovered = value; Invalidate(); } }
+        public bool IsHovered { get { return _isHovered; } set { if (CanBeHovered) { _isHovered = value; Invalidate(); } } }
         [Browsable(true)]
         [Category("Appearance")]
-        public bool IsPressed { get { return _isPressed; } set { _isPressed = value; Invalidate(); } }
+        public bool IsPressed { get { return _isPressed; } set { if (CanBePressed) { _isPressed = value; Invalidate(); } } }
         [Browsable(true)]
         [Category("Appearance")]
-        public bool IsFocused { get { return _isFocused; } set { _isFocused = value; Invalidate(); } }
+        public bool IsFocused { get { return _isFocused; } set { if (CanBeFocused) { _isFocused = value; Invalidate(); } } }
         [Browsable(true)]
         [Category("Appearance")]
         public bool IsDefault { get { return _isDefault; } set { _isDefault = value; Invalidate(); } }
@@ -1009,7 +1021,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     BackColor = parentbackcolor;
                 }
                 //  BackColor = Color.Transparent;
-                using (SolidBrush brush = new SolidBrush(parentbackcolor))
+                using (SolidBrush brush = new SolidBrush(IsHovered ? HoverBackColor:parentbackcolor))
                 {
                     e.Graphics.FillRectangle(brush, outerRectangle);
                 }
@@ -1030,7 +1042,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         }
                         else
                         {
-                            using (var brush = new SolidBrush(BackColor))
+                            using (var brush = new SolidBrush(IsHovered ? HoverBackColor:BackColor))
                             {
                                 e.Graphics.FillPath(brush, path);
                             }
@@ -1048,14 +1060,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     else
                     {
-                        using (var brush = new SolidBrush(BackColor))
+                        using (var brush = new SolidBrush(IsHovered ? HoverBackColor:BackColor))
                         {
                             e.Graphics.FillRectangle(brush, borderRectangle);
                         }
                     }
                 }
             }
+            if (IsHovered)
+            {
+                if (IsRounded)
+                {
 
+
+                }
+                else
+                {
+
+                }
+            }
             if (!_isframless)
             {
                 if (IsCustomeBorder)
@@ -1107,12 +1130,54 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (IsChild)
             {
-
-                using (SolidBrush brush = new SolidBrush(parentbackcolor))
+                if (IsHovered)
                 {
-                    e.Graphics.FillRectangle(brush, DrawingRect);
+                    // Draw background based on `IsRounded` and `UseGradientBackground`
+                    if (IsRounded)
+                    {
+                        using (GraphicsPath path = GetRoundedRectPath(DrawingRect, BorderRadius))
+                        {
+                            if (UseGradientBackground)
+                            {
+                                using (var brush = new LinearGradientBrush(DrawingRect, GradientStartColor, GradientEndColor, GradientDirection))
+                                {
+                                    e.Graphics.FillPath(brush, path);
+                                }
+                            }
+                            else
+                            {
+                                using (var brush = new SolidBrush(IsHovered ? hovercolor : color))
+                                {
+                                    e.Graphics.FillPath(brush, path);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (UseGradientBackground)
+                        {
+                            using (var brush = new LinearGradientBrush(DrawingRect, GradientStartColor, GradientEndColor, GradientDirection))
+                            {
+                                e.Graphics.FillRectangle(brush, DrawingRect);
+                            }
+                        }
+                        else
+                        {
+                            using (var brush = new SolidBrush(IsHovered ? hovercolor : color))
+                            {
+                                e.Graphics.FillRectangle(brush, DrawingRect);
+                            }
+                        }
+                    }
                 }
-
+                else
+                {
+                    using (SolidBrush brush = new SolidBrush(parentbackcolor))
+                    {
+                        e.Graphics.FillRectangle(brush, DrawingRect);
+                    }
+                }
             }
             else
             {

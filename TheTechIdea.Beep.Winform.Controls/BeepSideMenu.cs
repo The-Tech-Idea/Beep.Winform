@@ -224,6 +224,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowAllBorders = false,
                 ShowShadow = false,
                 IsChild = true,
+                CanBeHovered=false,
+                CanBeFocused = false,
+
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 Location = new Point(DrawingRect.X, logo.Bottom)
             };
@@ -331,7 +334,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             logo.Location = new Point(padding, padding); // Position logo with padding
             toggleButton.Location = new Point(padding, logo.Bottom + padding); // Position toggle button below the logo with padding
 
-            int yOffset = toggleButton.Bottom + padding; // Start placing menu items below the toggle button
+            int yOffset = toggleButton.Bottom + padding; // Start placing menu rootnodeitems below the toggle button
 
             foreach (Control control in Controls)
             {
@@ -339,7 +342,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     menuItemPanel.Width = buttonWidth; // Adjust width for padding
                     menuItemPanel.Location = new Point(padding, yOffset); // Adjust position to prevent overlap
-                    yOffset += menuItemPanel.Height + padding; // Add spacing between menu items
+                    yOffset += menuItemPanel.Height + padding; // Add spacing between menu rootnodeitems
 
                     foreach (Control subControl in menuItemPanel.Controls)
                     {
@@ -397,7 +400,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Controls.Add(menuItemPanel);
                 yOffset += menuItemPanel.Height;
 
-                // Handle child items
+                // Handle child rootnodeitems
                 if (item.Children != null && item.Children.Count > 0)
                 {
                     foreach (var childItem in item.Children)
@@ -443,7 +446,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Dock = DockStyle.Fill,
                 Text = item.Text,
-                ImagePath = item.Image,
+                ImagePath = item.ImagePath,
                 MaxImageSize = new Size(30, 30),
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 TextAlign = !isCollapsed ? ContentAlignment.MiddleCenter : ContentAlignment.MiddleLeft,

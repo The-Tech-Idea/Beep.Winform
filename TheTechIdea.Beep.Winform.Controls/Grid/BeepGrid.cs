@@ -1786,7 +1786,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                     config.ValueMember = comboBoxColumn.ValueMember;
                     //config.LookupList = new List<ColumnLookupList>();
 
-                    // Capture ComboBox items
+                    // Capture ComboBox rootnodeitems
                     //foreach (var item in comboBoxColumn.Items)
                     //{
                     //    config.LookupList.Add(new ColumnLookupList

@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 else
                 {
                     // Read the file from the path
-                    //image = Image.FromFile(Path.Combine(file.Path, file.Name));
+                    //image = ImagePath.FromFile(Path.Combine(file.Path, file.Name));
                     string fullPath = Path.Combine(file.Path, file.Name);
 
                     using (FileStream fileStream = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
@@ -533,7 +533,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     {
                         if (stream != null)
                         {
-                            // Create and return the Image from the stream
+                            // Create and return the ImagePath from the stream
                             return Image.FromStream(stream);
                         }
                     }
@@ -543,7 +543,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     // Read the file from the path
                     using (Stream stream = File.OpenRead(Path.Combine(file.Path, file.Name)))
                     {
-                        // Create and return the Image from the stream
+                        // Create and return the ImagePath from the stream
                         return Image.FromStream(stream);
                     }
                 }
@@ -619,8 +619,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             //            {
             //                if (stream != null)
             //                {
-            //                    // Create and return the Image from the stream
-            //                    return Image.FromStream(stream);
+            //                    // Create and return the ImagePath from the stream
+            //                    return ImagePath.FromStream(stream);
             //                }
             //            }
             //        }
@@ -629,8 +629,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             //            // Read the file from the path
             //            using (Stream stream = File.OpenRead(Path.Combine(file.Path, file.Name)))
             //            {
-            //                // Create and return the Image from the stream
-            //                return Image.FromStream(stream);
+            //                // Create and return the ImagePath from the stream
+            //                return ImagePath.FromStream(stream);
             //            }
             //        }
             //    }
@@ -655,7 +655,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             // Read the file from the path
             using (Stream stream = File.OpenRead(fullname))
             {
-                // Create and return the Image from the stream
+                // Create and return the ImagePath from the stream
                 return Image.FromStream(stream);
             }
         }

@@ -140,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                
 
                 _imagepath = value;
-               // Console.WriteLine("Loading Image");
+               // Console.WriteLine("Loading ImagePath");
                 if (!string.IsNullOrEmpty(_imagepath))
                 {
                     //Use ImageSelector to select and process the image path
@@ -154,9 +154,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     //}
                  //   isinit = false;
-                   // Console.WriteLine("Loading Image");
+                   // Console.WriteLine("Loading ImagePath");
                     LoadImage(_imagepath);  // Use the final processed path for the image
-                  //  Console.WriteLine("Apply Theme to  Image");
+                  //  Console.WriteLine("Apply Theme to  ImagePath");
                     ApplyTheme();
                     Invalidate();
                 }
@@ -642,7 +642,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading image: {ex.Message}", "Image Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error loading image: {ex.Message}", "ImagePath Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             return true;
@@ -711,7 +711,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    catch (Exception ex)
         //    {
         //        // Show error dialog or handle the exception as needed
-        //        MessageBox.Show($"Error processing image path: {ex.Message}", "Process Image Path Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //        MessageBox.Show($"Error processing image path: {ex.Message}", "Process ImagePath Path Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         //    }
 
         //    // Return empty if no valid path was obtained

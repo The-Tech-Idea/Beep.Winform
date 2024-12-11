@@ -99,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(UITypeEditor))]
         [Category("Appearance")]
-        [Description("Image to display (supports SVG, PNG, JPG).")]
+        [Description("ImagePath to display (supports SVG, PNG, JPG).")]
         public string ImagePath
         {
             get => imageBox.ImagePath;
@@ -283,7 +283,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size headerSize = TextRenderer.MeasureText(headerLabel.Text, headerLabel.Font);
             headerLabel.Size = headerSize;
 
-            // Image size and alignment
+            // ImagePath size and alignment
             Size imageSize = new Size(
                 Math.Min(maxImageSize, availableWidth / 2),
                 Math.Min(maxImageSize, availableHeight / 2)

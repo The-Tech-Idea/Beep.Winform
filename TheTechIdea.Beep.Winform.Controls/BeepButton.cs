@@ -301,22 +301,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Trigger repaint when the state changes
             }
         }
-
-
-        // Updated Property to use theme for hover color
-
-
         // Constructor
         public BeepButton()
         {
             InitializeComponents();
             ApplyTheme();
-
-
-
+            CanBeHovered = true;
+            CanBePressed = true;
+            CanBeFocused = true;    
         }
-
-
         private void InitializeComponents()
         {
 
@@ -338,9 +331,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size = new Size(120, 40);  // Default size
                                        //  Controls.Add(beepImage);
         }
-
-
-
         public override void ApplyTheme()
         {
             BackColor = _currentTheme.BackgroundColor;
@@ -411,7 +401,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
            
           
-            DrawBackColor(e, BackColor, _currentTheme.ButtonHoverBackColor);
+         //   DrawBackColor(e, BackColor, _currentTheme.ButtonHoverBackColor);
             DrawImageAndText(e.Graphics);
         }
         private void DrawImageAndText(Graphics g)
@@ -435,13 +425,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Width * scaleFactor),
                     (int)(imageSize.Height * scaleFactor));
             }
-
             Size textSize = TextRenderer.MeasureText(Text, scaledFont);
-
             // Calculate the layout of image and text
             Rectangle imageRect, textRect;
             CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
-            //Console.WriteLine("Drawing Image 1");
+            //Console.WriteLine("Drawing ImagePath 1");
             // Draw the image if available
             if (beepImage != null && beepImage.HasImage)
             {
@@ -451,25 +439,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 beepImage.MaximumSize = imageSize;
                 beepImage.Size = imageRect.Size;
-                //beepImage.Location = imageRect.Location;
-
-                ////Adjust alignment based on TextImageRelation
-                //if (string.IsNullOrEmpty(ImagePath))
-                //{
-                //    beepImage.Location = imageRect.Location;
-                //}
-                // Console.WriteLine("Button show Image");
                 beepImage.DrawImage(g, imageRect);
-                // place beepimage in the same place imagerect is
 
-                //  beepImage.Location = imageRect.Location;
             }
-
-
-            //Console.WriteLine("Font changed  3");
-            // Draw the text
-            // Draw the text
-
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
@@ -510,7 +482,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 switch (this.TextImageRelation)
                 {
                     case TextImageRelation.Overlay:
-                        // Image and text overlap
+                        // ImagePath and text overlap
                         imageRect = AlignRectangle(contentRect, imageSize, ImageAlign);
                         textRect = AlignRectangle(contentRect, textSize, TextAlign);
                         break;
@@ -668,24 +640,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Return the calculated size
             return new Size(width, height);
         }
-
-
-
-
         private void BeepImage_MouseHover(object? sender, EventArgs e)
         {
             IsHovered = true;
             //  BackColor = _currentTheme.ButtonHoverBackColor;
-            //  base.OnMouseHover(e);
+             base.OnMouseHover(e);
 
         }
         private void BeepImage_MouseLeave(object? sender, EventArgs e)
         {
             IsHovered = false;
+            base.OnMouseLeave(e);
         }
         private void BeepImage_MouseEnter(object? sender, EventArgs e)
         {
             IsHovered = true;
+            base.OnMouseEnter(e);
         }
         private void BeepImage_Click(object? sender, EventArgs e)
         {

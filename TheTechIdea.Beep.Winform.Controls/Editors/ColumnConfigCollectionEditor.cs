@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Editors
 
         protected override Type CreateCollectionItemType()
         {
-            return typeof(BeepGridColumnConfig);  // Specify the type for collection items
+            return typeof(BeepGridColumnConfig);  // Specify the type for collection rootnodeitems
         }
 
         protected override object CreateInstance(Type itemType)

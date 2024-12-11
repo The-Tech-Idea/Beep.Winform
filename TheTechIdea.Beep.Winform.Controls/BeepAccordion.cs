@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string logoImagePath;
         public event EventHandler<BeepMouseEventArgs> ItemClick;
         public event EventHandler<BeepMouseEventArgs> ToggleClicked;
-        // Define the items collection property with designer support
+        // Define the rootnodeitems collection property with designer support
         private SimpleItemCollection items = new SimpleItemCollection();
         [Browsable(true)]
         [Category("Appearance")]
@@ -166,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             toggleButton.Click += ToggleButton_Click;
             Controls.Add(toggleButton);
 
-            // Set up items panel
+            // Set up rootnodeitems panel
             itemsPanel = new FlowLayoutPanel
             {
                 Location = new Point(0, toggleButton.Bottom),
@@ -177,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             Controls.Add(itemsPanel);
 
-            // Initialize menu items
+            // Initialize menu rootnodeitems
             InitializeMenu();
         }
 
@@ -205,7 +205,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var itemButton = new BeepButton
                 {
                     Text = item.Text,
-                    ImagePath = item.Image,
+                    ImagePath = item.ImagePath,
                     MaxImageSize = new Size(30, 30),
                     TextImageRelation = TextImageRelation.ImageBeforeText,
                     ImageAlign = ContentAlignment.MiddleLeft,

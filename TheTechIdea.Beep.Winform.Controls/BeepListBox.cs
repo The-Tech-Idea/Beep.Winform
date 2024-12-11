@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showCheckBox = false;
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Indicates whether to show checkboxes for menu items.")]
+        [Description("Indicates whether to show checkboxes for menu rootnodeitems.")]
         public bool ShowCheckBox
         {
             get => _showCheckBox;
@@ -209,7 +209,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Dock = DockStyle.Fill,
                 Text = item.Text,
-                ImagePath = item.Image,
+                ImagePath = item.ImagePath,
                 MaxImageSize = new Size(20,ButtonSize.Height),
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 TextAlign = ContentAlignment.MiddleCenter ,
@@ -228,11 +228,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
 
             // Load the icon if specified
-            if (!string.IsNullOrEmpty(item.Image) && File.Exists(item.Image))
+            if (!string.IsNullOrEmpty(item.ImagePath) && File.Exists(item.ImagePath))
             {
                 try
                 {
-                    button.ImagePath = item.Image;
+                    button.ImagePath = item.ImagePath;
                 }
                 catch (Exception)
                 {
@@ -320,9 +320,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
-            int yOffset = drawRectY + TitleBottomY; // Start placing items below the iconPanel
+            int yOffset = drawRectY + TitleBottomY; // Start placing rootnodeitems below the iconPanel
 
-            foreach (var item in items.Where(p => p.ItemType== Common.MenuItemType.Main))
+            foreach (var item in items.Where(p => p.ItemType== MenuItemType.Main))
             {
                 var menuItemPanel = CreateMenuItemPanel(item, false);
                 if (menuItemPanel != null)
@@ -337,7 +337,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     yOffset += menuItemPanel.Height+ spacing;
 
-                    //Add child items(if any) below the parent menu item
+                    //Add child rootnodeitems(if any) below the parent menu item
                     if (item.Children != null && item.Children.Count > 0)
                     {
                         foreach (var childItem in item.Children)
@@ -381,7 +381,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     item.TextImageRelation = TextImageRelation.ImageBeforeText;
                     item.ImageAlign = ContentAlignment.MiddleLeft;
                     item.TextAlign = ContentAlignment.MiddleCenter;
-                    item.ImagePath =s.Image  ;
+                    item.ImagePath =s.ImagePath  ;
                 }
                 else
                 {

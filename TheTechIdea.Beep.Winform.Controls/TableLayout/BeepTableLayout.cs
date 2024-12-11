@@ -56,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TableLayout
             ToolStripMenuItem AddTextBoxItem = new ToolStripMenuItem("Add TextBox", null, AddTextBox);
             ToolStripMenuItem AddInsideTableLayoutItem = new ToolStripMenuItem("Add Layout", null, AddInsideTableLayout);
 
-            // Adding menu items to the context menu
+            // Adding menu rootnodeitems to the context menu
             contextMenu.Items.AddRange(new ToolStripItem[] { AddInsideTableLayoutItem, addRowItem, removeRowItem, addColumnItem, removeColumnItem, AddTextBoxItem });
            
         }

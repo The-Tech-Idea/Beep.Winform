@@ -412,12 +412,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    // Initialize the profile menu with the current theme
             //    var profileMenu = new BeepDropMenu(theme);
 
-            //    // Add menu items (SimpleMenuItem instances) with text and optional SVG icons
-            //    profileMenu.Items.Add(new SimpleMenuItem { Text = "Profile", Image = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg" });
-            //    profileMenu.Items.Add(new SimpleMenuItem { Text = "Settings", Image = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.down.svg" });
-            //    profileMenu.Items.Add(new SimpleMenuItem { Text = "Logout", Image = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.logout.svg" });
+            //    // Add menu rootnodeitems (SimpleMenuItem instances) with text and optional SVG icons
+            //    profileMenu.Items.Add(new SimpleMenuItem { Text = "Profile", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg" });
+            //    profileMenu.Items.Add(new SimpleMenuItem { Text = "Settings", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.down.svg" });
+            //    profileMenu.Items.Add(new SimpleMenuItem { Text = "Logout", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.logout.svg" });
 
-            //    // Populate the menu with items
+            //    // Populate the menu with rootnodeitems
             //    profileMenu.PopulateMenu();
 
             //    // Show the profile menu at the location of the profile icon, just below it

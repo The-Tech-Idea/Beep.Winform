@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewC
             }
         }
 
-        // Example function to execute a query and return a list of ColumnLookupList items (to be implemented based on your data source)
+        // Example function to execute a query and return a list of ColumnLookupList rootnodeitems (to be implemented based on your data source)
         private List<ColumnLookupList> ExecuteQuery(string query)
         {
             // Query execution logic here to retrieve the list based on `query`
@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewC
 
         public override object DefaultNewRowValue => 0; // Default ID is 0
 
-        // Method to update combo box items for the specific row
+        // Method to update combo box rootnodeitems for the specific row
         public void UpdateComboBoxItems(List<ColumnLookupList> items, int rowIndex)
         {
             if (items == null || DataGridView == null || rowIndex < 0 || rowIndex >= DataGridView.Rows.Count)
@@ -121,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewC
             // Check if the row being edited is the same as the rowIndex provided
             if (DataGridView.CurrentCell != null && DataGridView.CurrentCell.RowIndex == rowIndex)
             {
-                // Clear the current items and add the new list for this row
+                // Clear the current rootnodeitems and add the new list for this row
                 this.Items.Clear();
 
                 // Populate ComboBox with Display (shown) and Value (ID) for each item

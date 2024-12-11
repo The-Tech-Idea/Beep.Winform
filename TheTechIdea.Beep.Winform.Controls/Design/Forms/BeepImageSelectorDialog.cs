@@ -88,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
             {
                 SelectedImage = (SimpleItem)ImagelistBox.SelectedItem;
                 ImageTools.PreviewImageFromFile(PreviewpictureBox,SelectedImage);
-                SelectedImagePath = SelectedImage.Image;
+                SelectedImagePath = SelectedImage.ImagePath;
                 this.Close();
             }
             else

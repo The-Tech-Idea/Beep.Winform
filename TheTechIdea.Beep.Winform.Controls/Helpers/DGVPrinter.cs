@@ -385,7 +385,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         // logging 
         LogManager Logger = null;
 
-        // print status items
+        // print status rootnodeitems
         Boolean EmbeddedPrinting = false;
         List<rowdata> rowstoprint;
         IList colstoprint;          // divided into pagesets for printing
@@ -2182,7 +2182,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
             // set up the rows and columns to print
             //
             // Note: The "Selectedxxxx" lists in the datagridview are 'stacks' that
-            //  have the selected items pushed in the *in the order they were selected*
+            //  have the selected rootnodeitems pushed in the *in the order they were selected*
             //  i.e. not the order you want to print them in!
             //-----------------------------------------------------------------
             SortedList temprowstoprint = null;
@@ -2378,7 +2378,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
                 // Measure cell contents
                 //-------------------------------------------------------------
                 if (("DataGridViewImageCell" == dgv.Columns[cell.ColumnIndex].CellType.Name)
-                    && ("Image" == cell.ValueType.Name || "Byte[]" == cell.ValueType.Name))
+                    && ("ImagePath" == cell.ValueType.Name || "Byte[]" == cell.ValueType.Name))
                 {
                     // image to measure
                     Image img;
@@ -2388,7 +2388,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
                         return new SizeF(1,1);
 
                     // Check on type of image cell value - may not be an actual "image" type
-                    if ("Image" == cell.ValueType.Name || "Object" == cell.ValueType.Name)
+                    if ("ImagePath" == cell.ValueType.Name || "Object" == cell.ValueType.Name)
                     {
                         // if it's an "image" type, then load it directly
                         img = (System.Drawing.Image)cell.Value;
@@ -3764,7 +3764,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
                 return;
 
             // Check on type of image cell value - may not be an actual "image" type
-            if ("Image" == imagecell.ValueType.Name)
+            if ("ImagePath" == imagecell.ValueType.Name)
             {
                 // if it's an "image" type, then load it directly
                 img = (System.Drawing.Image)imagecell.Value;

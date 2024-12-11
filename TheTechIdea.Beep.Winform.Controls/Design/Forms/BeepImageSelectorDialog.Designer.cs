@@ -103,7 +103,7 @@
             label1.Name = "label1";
             label1.Size = new Size(67, 15);
             label1.TabIndex = 11;
-            label1.Text = "Image Path";
+            label1.Text = "ImagePath Path";
             // 
             // ImportLocalResourcesbutton
             // 
@@ -159,7 +159,7 @@
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Name = "BeepImageSelectorDialog";
             StartPosition = FormStartPosition.CenterParent;
-            Text = "Beep Image Selector Dialog";
+            Text = "Beep ImagePath Selector Dialog";
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             panel2.ResumeLayout(false);

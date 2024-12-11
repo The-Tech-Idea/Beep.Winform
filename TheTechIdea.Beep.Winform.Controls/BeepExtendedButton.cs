@@ -153,9 +153,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     if (value.Text != null) { button.Text = value.Text; }
                     
-                    if (!string.IsNullOrEmpty(value.Image))
+                    if (!string.IsNullOrEmpty(value.ImagePath))
                     {
-                        button.ImagePath = value.Image;
+                        button.ImagePath = value.ImagePath;
                     }
                     
                 }
@@ -216,9 +216,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (MenuItem != null)
             {
                 button.Text = MenuItem.Text;
-                if (!string.IsNullOrEmpty(MenuItem.Image))
+                if (!string.IsNullOrEmpty(MenuItem.ImagePath))
                 {
-                    button.ImagePath = MenuItem.Image;
+                    button.ImagePath = MenuItem.ImagePath;
                 }
             }
 

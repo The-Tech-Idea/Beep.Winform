@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     items.ListChanged += Items_ListChanged;
                 }
 
-                // Refresh toolbar from the updated items collection
+                // Refresh toolbar from the updated rootnodeitems collection
                 RefreshToolbarFromItems();
             }
         }
@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Controls.Add(_stripPanel);
 
-            // Initialize an empty items collection by default
+            // Initialize an empty rootnodeitems collection by default
             items = new SimpleItemCollection();
             items.ListChanged += Items_ListChanged;
 
@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void Items_ListChanged(object? sender, ListChangedEventArgs e)
         {
-            // Whenever the items collection changes, rebuild the toolbar
+            // Whenever the rootnodeitems collection changes, rebuild the toolbar
             RefreshToolbarFromItems();
         }
 
@@ -123,9 +123,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
 
             // If there is an image specified, set the ImagePath
-            if (!string.IsNullOrEmpty(item.Image))
+            if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                btn.ImagePath = item.Image;
+                btn.ImagePath = item.ImagePath;
             }
             else
             {

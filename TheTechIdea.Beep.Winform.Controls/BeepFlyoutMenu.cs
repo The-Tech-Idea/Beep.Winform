@@ -256,7 +256,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (items.Count == 0)
                 {
-                    MessageBox.Show("No items available.");
+                    MessageBox.Show("No rootnodeitems available.");
                     return;
                 }
 

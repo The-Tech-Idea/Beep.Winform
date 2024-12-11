@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (ListItems == null || !ListItems.Any())
                 {
-                    MessageBox.Show("No items available.");
+                    MessageBox.Show("No rootnodeitems available.");
                     return;
                 }
 
@@ -114,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _isExpanded = true;
 
-            // Calculate target height based on items and maximum menu height
+            // Calculate target height based on rootnodeitems and maximum menu height
             _targetHeight = Math.Min(_maxMenuHeight, ListItems.Count * 40) + _dropDownButton.Height;
 
             StartAnimation();
@@ -216,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         /// <summary>
-        /// Override InitializeMenu to adjust menu items' positions relative to the dropdown button.
+        /// Override InitializeMenu to adjust menu rootnodeitems' positions relative to the dropdown button.
         /// </summary>
         public override void InitializeMenu()
         {
@@ -224,7 +224,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             base.InitializeMenu();
 
-            // Adjust position of menu items to start below the dropdown button
+            // Adjust position of menu rootnodeitems to start below the dropdown button
             //foreach (Control control in Controls.OfType<Panel>().Where(c => c.Tag is SimpleMenuItem))
             //{
             //    control.Top += _dropDownButton.Height;

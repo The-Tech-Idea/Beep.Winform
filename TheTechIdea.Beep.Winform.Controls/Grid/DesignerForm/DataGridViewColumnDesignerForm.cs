@@ -88,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DesignerForm
         private void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
          //   MessageBox.Show($"Before: Selected Index: {selectedcolumnindex}");
-            // The items in listBox1 are DataGridViewColumn objects.
+            // The rootnodeitems in listBox1 are DataGridViewColumn objects.
             DataGridViewColumn selectedColumn = listBox1.SelectedItem as DataGridViewColumn;
 
             if (selectedColumn == null)

@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton Noderightbutton;
         private BeepButton _toggleButton; // used to show the dropdown for the node with childern nodes
         private BeepImage lefttreebranchimage; // used to show the left branch of the tree
-        private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
+      //  private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
         private List<BeepTreeNode> _childNodes;
         private int _nodeseq;
         private string _key;
@@ -95,15 +95,57 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _guidid=Guid.NewGuid().ToString();
         private Panel _nodePanel; // Panel to encapsulate the node
         private Panel _childrenPanel; // Panel for child nodes
+
+        private string _nodeLevelID = string.Empty;
+        private int childnodesSeq = 0;
+
+
         public  string GuidID => _guidid;
         public int NodeHeight { get; set; } = 30;
         public int NodeWidth { get; set; } = 100;
         public int SmallNodeHeight { get; set; } = 15;
         public int MinimumTextWidth { get; set; } = 100;
-        //public int MaxImageSize { get; set; } = 16;
-        private int _minNodeHeight = 20;
-        private int _minNodeWidth = 100;
         public string NodeDataType { get; set; } = "SimpleItem";
+
+        /// <summary>
+        /// this id is maintained by the treeview to identify the node
+        /// its unique and is used to identify the node
+        /// its split by levels and the node id
+        /// so if the node is at level 1 and its id is 2 then the node id will be 1_2
+        /// and if its at level 2 and its id 3 then the node id will be 1_2_3
+        /// and to find it we go to the level 1 and find the node with id 2 and then find the node with id 3
+        /// </summary>
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public string NodeLevelID
+        {
+            get => _nodeLevelID;
+            set
+            {
+                _nodeLevelID = value;
+                //if (_childNodes.Count > 0)
+                //{
+                //    foreach (var item in _childNodes)
+                //    {
+                //        item.NodeLevelID = $"{_nodeLevelID}_{item.NodeSeq}";
+                //    }
+                //}
+            }
+
+        }
+        
+        /// <summary>
+        /// this is the sequence of the child nodes
+        /// this will help us set Nodeleveid for the child nodes
+        /// </summary>
+
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int ChildNodesSeq
+        {
+            get => childnodesSeq++;
+            
+        }
 
         private int nodeimagesize = 16;
         [Browsable(true)]
@@ -160,12 +202,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public BindingList<SimpleItem> Nodes
         {
-            get => items;
-            set
-            {
-                items = value;
-              
-            }
+            get => Tree.Nodes;
+           
         }
         private bool _isinitialized = false;
         public bool IsInitialized
@@ -529,16 +567,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonMouseEnter", this);
             NodeMouseEnter?.Invoke(this, args);
+            HilightNode();
+
         }
         private void NodeMainMiddlebutton_MouseLeave(object sender, EventArgs e)
         {
             BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonMouseLeave", this);
             NodeMouseLeave?.Invoke(this, args);
+            UnHilightNode();
         }
         private void NodeMainMiddlebutton_MouseHover(object sender, EventArgs e)
         {
             BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonMouseHover", this);
             NodeMouseHover?.Invoke(this, args);
+            HilightNode();
+
         }
         private void NodeMainMiddlebutton_MouseWheel(object sender, EventArgs e)
         {
@@ -656,7 +699,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
 
             _childNodes = new List<BeepTreeNode>();
-            items = new BindingList<SimpleItem>();
             _nodePanel.Controls.Clear();
              LogMessage($"init1");
             IsShadowAffectedByTheme =false;
@@ -679,6 +721,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 Theme = Theme,
+                IsRounded = false,
                 Size = new Size(20, 20), // Adjust size as needed
             };
             LogMessage($"init3");
@@ -722,7 +765,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 int centerY = (NodeHeight - SmallNodeHeight) / 2; // Center alignment for small buttons
 
                 // Adjust the size of the main node panel
-                _nodePanel.Width = DrawingRect.Width;
+               // _nodePanel.Width = Parent?.Width ?? DrawingRect.Width; // Match parent's width
+                LogMessage($"Rearranging inside Nodes 1 : {_nodePanel.Width}");
                 _nodePanel.Height = NodeHeight;
 
                 // Position the toggle button
@@ -863,6 +907,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsBorderAffectedByTheme = false,
                 IsFramless = true,
                 IsChild = true,
+                IsRounded=false,
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.L.svg"
                 
             };
@@ -885,7 +930,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 Nodeleftbutton.ImageAlign = System.Drawing.ContentAlignment.MiddleCenter;
                 Nodeleftbutton.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-
+                Nodeleftbutton.IsRounded = false;
                 Nodeleftbutton.IsChild = true;
                 Nodeleftbutton.IsFramless = true;
                 Nodeleftbutton.IsShadowAffectedByTheme = true;
@@ -921,6 +966,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Noderightbutton.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
              //   Noderightbutton.HideText = true;
                 Noderightbutton.IsChild = true;
+                Noderightbutton.IsRounded = false;
                 Noderightbutton.IsFramless = true;
                 Noderightbutton.IsShadowAffectedByTheme = true;
                 Noderightbutton.IsBorderAffectedByTheme = true;
@@ -956,6 +1002,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 NodeMainMiddlebutton.IsChild = true;
                 NodeMainMiddlebutton.IsFramless = true;
+                NodeMainMiddlebutton.IsRounded = false;
                 NodeMainMiddlebutton.IsShadowAffectedByTheme = false;
                 NodeMainMiddlebutton.IsBorderAffectedByTheme = false;
                 NodeMainMiddlebutton.MaxImageSize = new System.Drawing.Size(MaxImageSize, MaxImageSize);
@@ -991,6 +1038,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ApplyThemeOnImage = true,
+                IsRounded = false,
                 MaxImageSize = new System.Drawing.Size(SmallNodeHeight - 2, SmallNodeHeight - 2),
                 Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall),
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-minus.svg"
@@ -1101,6 +1149,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             _toggleButton.BackColor = _currentTheme.PanelBackColor;
             _toggleButton.ForeColor = _currentTheme.AccentColor;
        //     Noderightbutton.BackColor = _currentTheme.PanelBackColor;
+        }
+        public void HilightNode()
+        {
+            NodeMainMiddlebutton.ForeColor = _currentTheme.ButtonHoverForeColor;
+            NodeMainMiddlebutton.BackColor = _currentTheme.ButtonHoverBackColor;
+            LogMessage("Hilight");
+
+        }
+        public void UnHilightNode()
+        {
+            NodeMainMiddlebutton.ForeColor = _currentTheme.ButtonForeColor;
+            NodeMainMiddlebutton.BackColor = _currentTheme.ButtonBackColor;
+            LogMessage("UnHilight");
+
         }
         public void ChangeNodeImageSettings()
         {
@@ -1219,10 +1281,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ResumeLayout();
             RearrangeNode();
         }
-        public BeepTreeNode SearchNode(string searchText)
-        {
-            return Traverse().FirstOrDefault(node => node.Text.Contains(searchText, StringComparison.OrdinalIgnoreCase));
-        }
+      
         public void HighlightSelectedNode()
         {
             if (IsSelected)
@@ -1259,6 +1318,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void AddChild(BeepTreeNode child)
         {
             _childNodes.Add(child);
+             //items.Add(child.Tag as SimpleItem);
             _childrenPanel.Controls.Add(child);
             UpdatePanelSize();
         }
@@ -1266,6 +1326,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void RemoveChild(BeepTreeNode child)
         {
             _childNodes.Remove(child);
+           // items.Remove(child.Tag as SimpleItem);
             _childrenPanel.Controls.Remove(child);
             UpdatePanelSize();
         }
@@ -1273,6 +1334,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void ClearChildren()
         {
             _childNodes.Clear();
+            //items.Clear();
             _childrenPanel.Controls.Clear();
             UpdatePanelSize();
         }
@@ -1282,7 +1344,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-                File.AppendAllText(@"C:\Logs\debug_log.txt", $"{DateTime.Now}: {message}{Environment.NewLine}");
+            //    File.AppendAllText(@"C:\Logs\debug_log.txt", $"{DateTime.Now}: {message}{Environment.NewLine}");
 
             }
             catch { /* Ignore logging errors */ }

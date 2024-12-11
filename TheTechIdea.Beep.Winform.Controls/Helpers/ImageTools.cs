@@ -237,7 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             catch (Exception ex)
             {
                 
-                MessageBox.Show($"Error loading image: {ex.Message}", "Image Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error loading image: {ex.Message}", "ImagePath Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
         }
@@ -248,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                ofd.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.svg";
+                ofd.Filter = "ImagePath Files|*.bmp;*.jpg;*.jpeg;*.png;*.svg";
 
                 if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
@@ -281,7 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
         public static void PreviewImageFromFile(PictureBox previewPictureBox, SimpleItem menuItem)
         {
-            if (menuItem == null || string.IsNullOrEmpty(menuItem.Image))
+            if (menuItem == null || string.IsNullOrEmpty(menuItem.ImagePath))
             {
                 MessageBox.Show("No valid image path provided.", "Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -289,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
             try
             {
-                string imagePath = menuItem.Image;
+                string imagePath = menuItem.ImagePath;
 
                 // Dispose any previously loaded image to free resources
                 previewPictureBox.Image?.Dispose();
@@ -430,7 +430,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         {
             if (string.IsNullOrEmpty(previewFilePath))
             {
-                MessageBox.Show("Please preview an image before embedding it.", "No Image Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please preview an image before embedding it.", "No ImagePath Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -465,7 +465,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
 
                 // Add to _imageResources dictionary
-                _imageResources[fileName] = new SimpleItem { Name = fileName, Image = destPath };
+                _imageResources[fileName] = new SimpleItem { Name = fileName, ImagePath = destPath };
             }
             catch (Exception ex)
             {
@@ -477,7 +477,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         {
             if (string.IsNullOrEmpty(previewFilePath))
             {
-                MessageBox.Show("Please preview an image before embedding it.", "No Image Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please preview an image before embedding it.", "No ImagePath Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return null;
             }
 
@@ -490,7 +490,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 File.Copy(previewFilePath, destPath, true); // Copy file
                 EmbedFileAsEmbeddedResource(previewFilePath, destPath, projectDirectory);
 
-                _projectResources[Path.GetFileNameWithoutExtension(previewFilePath)] = new SimpleItem { Name = Path.GetFileNameWithoutExtension(previewFilePath), Image = destPath };
+                _projectResources[Path.GetFileNameWithoutExtension(previewFilePath)] = new SimpleItem { Name = Path.GetFileNameWithoutExtension(previewFilePath), ImagePath = destPath };
                 return destPath;
             }
             catch (Exception ex)
@@ -544,7 +544,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         {
             if (string.IsNullOrEmpty(previewFilePath))
             {
-                MessageBox.Show("Please preview an image before embedding it.", "No Image Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please preview an image before embedding it.", "No ImagePath Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return null;
             }
 
@@ -590,7 +590,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
 
                 // Add to projectResources dictionary as SimpleMenuItem
-                var simpleMenuItem = new SimpleItem { Name = Path.GetFileNameWithoutExtension(fileName), Image = destPath };
+                var simpleMenuItem = new SimpleItem { Name = Path.GetFileNameWithoutExtension(fileName), ImagePath = destPath };
                 projectResources[Path.GetFileNameWithoutExtension(fileName)] = simpleMenuItem;
 
                 return destPath;
@@ -614,7 +614,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
                 File.Copy(sourceFilePath, destinationPath, true);
 
-                _localImages[fileName] = new SimpleItem { Name = fileName, Image = destinationPath };
+                _localImages[fileName] = new SimpleItem { Name = fileName, ImagePath = destinationPath };
                 MessageBox.Show($"File moved to project resource folder: {destinationPath}", "File Moved", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -647,7 +647,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                                     SimpleItem item = new SimpleItem
                                     {
                                         Name = resourceKey,
-                                        Image = resxFile // Path to the .resx file
+                                        ImagePath = resxFile // Path to the .resx file
                                     };
                                     _imageResources[resourceKey] = item;
                                 }
@@ -674,7 +674,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 // Load the .csproj file to identify embedded resources
                 var xmlDocument = XDocument.Load(csprojFilePath);
 
-                // Find all <EmbeddedResource> items in the .csproj file
+                // Find all <EmbeddedResource> rootnodeitems in the .csproj file
                 var embeddedResources = xmlDocument.Descendants("EmbeddedResource")
                     .Select(er => er.Attribute("Include")?.Value)
                     .Where(path => path != null &&
@@ -695,7 +695,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     SimpleItem item = new SimpleItem
                     {
                         Name = resourceName,
-                        Image = resourcePath // Store the relative path
+                        ImagePath = resourcePath // Store the relative path
                     };
                     _embeddedImages[resourceName] = item;
                 }
@@ -725,7 +725,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     SimpleItem item = new SimpleItem
                     {
                         Name = resourceName,
-                        Image = resourceName // Store the resource name for embedded resources
+                        ImagePath = resourceName // Store the resource name for embedded resources
                     };
                     _embeddedImages[resourceName] = item;
                 }
@@ -761,7 +761,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         //            SimpleItem item = new SimpleItem
         //            {
         //                Name = resourceKey,
-        //                Image = resourceKey // Store the resource key for project resources
+        //                ImagePath = resourceKey // Store the resource key for project resources
         //            };
         //            _projectImages[resourceKey] = item;
         //        }
@@ -785,7 +785,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     {
                         Name = fileName,
                         Text = fileName,
-                        Image = imagePath // Store the file path for local images
+                        ImagePath = imagePath // Store the file path for local images
                     };
                     _localImages[fileName] = item;
                 }
@@ -906,7 +906,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading image: {ex.Message}", "Image Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error loading image: {ex.Message}", "ImagePath Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

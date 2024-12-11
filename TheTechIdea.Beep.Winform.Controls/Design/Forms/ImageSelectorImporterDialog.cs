@@ -335,7 +335,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                ofd.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.svg";
+                ofd.Filter = "ImagePath Files|*.bmp;*.jpg;*.jpeg;*.png;*.svg";
 
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
@@ -489,7 +489,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
         {
             if (string.IsNullOrEmpty(previewFilePath))
             {
-                MessageBox.Show("Please preview an image before embedding it.", "No Image Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please preview an image before embedding it.", "No ImagePath Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -535,7 +535,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
                     }
                 }
 
-               // MessageBox.Show("Image embedded in resources successfully.", "Embedding Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+               // MessageBox.Show("ImagePath embedded in resources successfully.", "Embedding Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 SelectedImagePath = destPath;
                 ImagePath = destPath;
                 // Refresh the resources list
@@ -550,7 +550,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
         {
             if (string.IsNullOrEmpty(previewFilePath))
             {
-                MessageBox.Show("Please preview an image before embedding it.", "No Image Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please preview an image before embedding it.", "No ImagePath Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return null;
             }
 
@@ -824,7 +824,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading image: {ex.Message}", "Image Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error loading image: {ex.Message}", "ImagePath Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         // Allows external setting of the image path

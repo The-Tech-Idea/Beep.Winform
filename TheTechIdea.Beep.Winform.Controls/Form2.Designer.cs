@@ -50,7 +50,7 @@
             beepListBox1.DataContext = null;
             beepListBox1.DisabledBackColor = Color.Gray;
             beepListBox1.DisabledForeColor = Color.Empty;
-            beepListBox1.DrawingRect = new Rectangle(4, 4, 392, 322);
+            beepListBox1.DrawingRect = new Rectangle(4, 4, 563, 322);
             beepListBox1.Easing = EasingType.Linear;
             beepListBox1.FieldID = null;
             beepListBox1.FocusBackColor = Color.Gray;
@@ -85,9 +85,7 @@
             beepListBox1.IsShadowAffectedByTheme = true;
             beepListBox1.LeftoffsetForDrawingRect = 0;
             beepListBox1.ListItems.Add((Common.SimpleItem)resources.GetObject("beepListBox1.ListItems"));
-            beepListBox1.ListItems.Add((Common.SimpleItem)resources.GetObject("beepListBox1.ListItems1"));
-            beepListBox1.ListItems.Add((Common.SimpleItem)resources.GetObject("beepListBox1.ListItems2"));
-            beepListBox1.Location = new Point(447, 97);
+            beepListBox1.Location = new Point(122, 79);
             beepListBox1.MenuItemHeight = 20;
             beepListBox1.Name = "beepListBox1";
             beepListBox1.OverrideFontSize = TypeStyleFontSize.None;
@@ -114,7 +112,7 @@
             beepListBox1.ShowTitleLine = true;
             beepListBox1.ShowTitleLineinFullWidth = true;
             beepListBox1.ShowTopBorder = true;
-            beepListBox1.Size = new Size(400, 330);
+            beepListBox1.Size = new Size(571, 330);
             beepListBox1.SlideFrom = SlideDirection.Left;
             beepListBox1.StaticNotMoving = false;
             beepListBox1.TabIndex = 1;

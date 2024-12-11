@@ -26,9 +26,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
             var control = DataGridView.EditingControl as ImageComboBoxEditingControl;
             if (control != null)
             {
-                control.Items.Clear(); // Clear existing items
+                control.Items.Clear(); // Clear existing rootnodeitems
 
-                //// Example: adding some items with image and text
+                //// Example: adding some rootnodeitems with image and text
                 //control.Buttons.Add(new ImageComboBoxItem("Option 1", Properties.Resources.Icon1));
                 //control.Buttons.Add(new ImageComboBoxItem("Option 2", Properties.Resources.Icon2));
                 //control.Buttons.Add(new ImageComboBoxItem("Option 3", Properties.Resources.Icon3));
@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
             this.DrawItem += ImageComboBoxEditingControl_DrawItem;
         }
 
-        // Handles custom drawing of the combo box items (image + text)
+        // Handles custom drawing of the combo box rootnodeitems (image + text)
         private void ImageComboBoxEditingControl_DrawItem(object sender, DrawItemEventArgs e)
         {
             e.DrawBackground();

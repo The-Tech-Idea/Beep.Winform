@@ -957,7 +957,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 //Debug.WriteLine($"Getting Logourl {LogoUrl}");
                 //if (!string.IsNullOrEmpty(LogoUrl))
                 //{
-                //    Image logurl = (Image)visHelper.LogoBigImage;
+                //    ImagePath logurl = (ImagePath)visHelper.LogoBigImage;
                 //    Debug.WriteLine($"found or not = {logurl}");
 
                 //    BeepWaitForm.SetImage(logurl);

@@ -244,7 +244,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     else
                     {
                         //      Console.WriteLine($"2 No Title Line {titleSize.Height}");
-                        // get the next Y position for items below the title
+                        // get the next Y position for rootnodeitems below the title
                         _titleBottomY = DrawingRect.Top + BorderThickness + (int)titleSize.Height + 8; // Adjusted for title height and padding
 
 
@@ -278,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Draw line based on the selected width option
                 graphics.DrawLine(pen, lineStartX, lineY, lineEndX, lineY);
             }
-            // Update the TitleBottomY to position items below the line
+            // Update the TitleBottomY to position rootnodeitems below the line
             _titleBottomY = lineY + _titleLineThickness + 5; // Adjusted for the line's thickness and extra padding
         }
 

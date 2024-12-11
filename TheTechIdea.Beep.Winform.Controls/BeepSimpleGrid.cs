@@ -303,7 +303,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
                 _imagepath = value;
-                // Console.WriteLine("Loading Image");
+                // Console.WriteLine("Loading ImagePath");
                 if (!string.IsNullOrEmpty(_imagepath))
                 {
                     titleLabel.ImagePath = _imagepath;

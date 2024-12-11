@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MultiSplitter
             ToolStripMenuItem addColumnItem = new ToolStripMenuItem("Add Column", null, AddColumnContextItem_Click);
             ToolStripMenuItem removeColumnItem = new ToolStripMenuItem("Remove Column", null, RemoveColumnContextItem_Click);
 
-            // Adding menu items to the context menu
+            // Adding menu rootnodeitems to the context menu
             contextMenu.Items.AddRange(new ToolStripItem[] { addRowItem, removeRowItem, addColumnItem, removeColumnItem });
 
             // Associating the context menu with the TableLayoutPanel

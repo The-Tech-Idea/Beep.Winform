@@ -34,8 +34,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
         public override DesignerActionItemCollection GetSortedActionItems()
         {
             DesignerActionItemCollection items = new DesignerActionItemCollection();
-            items.Add(new DesignerActionHeaderItem("Image Options"));
-            items.Add(new DesignerActionMethodItem(this, "EditImagePath", "Edit Image...", "Image Options", "Open image selector dialog", true));
+            items.Add(new DesignerActionHeaderItem("ImagePath Options"));
+            items.Add(new DesignerActionMethodItem(this, "EditImagePath", "Edit ImagePath...", "ImagePath Options", "Open image selector dialog", true));
             return items;
         }
     }

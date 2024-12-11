@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Properties for customization
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Image alignment relative to text (Left or Right).")]
+        [Description("ImagePath alignment relative to text (Left or Right).")]
         public TextImageRelation TextImageRelation
         {
             get => textImageRelation;
@@ -262,13 +262,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Calculate the layout of image and text
             Rectangle imageRect, textRect;
             CalculateLayout(drawrect, imageSize, textSize, out imageRect, out textRect);
-            //Console.WriteLine("Drawing Image 1");
+            //Console.WriteLine("Drawing ImagePath 1");
             // Draw the image if available
             if (beepImage != null && beepImage.HasImage)
             {
                 beepImage.MaximumSize = imageSize;
                 beepImage.Size = imageRect.Size;
-               // Console.WriteLine("Label show Image");
+               // Console.WriteLine("Label show ImagePath");
                 beepImage.DrawImage(g, imageRect);
                 // place beepimage in the same place imagerect is
                 //beepImage.Location = imageRect.Location;
@@ -350,7 +350,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 switch (this.TextImageRelation)
                 {
                     case TextImageRelation.Overlay:
-                        // Image and text overlap
+                        // ImagePath and text overlap
                         imageRect = AlignRectangle(contentRect, imageSize, ImageAlign);
                         textRect = AlignRectangle(contentRect, textSize, TextAlign);
                         break;

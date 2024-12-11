@@ -228,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
             Controls.Add(panel1);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Name = "ImageSelectorImporterDialog";
-            Text = "Beep Image Loader";
+            Text = "Beep ImagePath Loader";
             panel1.ResumeLayout(false);
             tableLayoutPanel1.ResumeLayout(false);
             panel3.ResumeLayout(false);

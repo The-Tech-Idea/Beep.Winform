@@ -214,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             label.Text = promptText;
             comboBox.Text = value;
 
-            // Populate ComboBox with items
+            // Populate ComboBox with rootnodeitems
             comboBox.Items.AddRange(itvalues.ToArray());
 
             // Set the control's client size

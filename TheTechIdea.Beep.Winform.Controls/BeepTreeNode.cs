@@ -65,7 +65,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton _toggleButton; // used to show the dropdown for the node with childern nodes
         private BeepImage lefttreebranchimage; // used to show the left branch of the tree
       //  private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
-        private List<BeepTreeNode> _childNodes;
+        public List<BeepTreeNode> BeepTreeNodes { get; private set; }
+        private int cachedHeight;
+        private int cachedWidth;
+        private bool isSizeCached = false;
         private int _nodeseq;
         private string _key;
         private string _text;
@@ -123,9 +126,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _nodeLevelID = value;
-                //if (_childNodes.Count > 0)
+                //if (BeepTreeNodes.Count > 0)
                 //{
-                //    foreach (var item in _childNodes)
+                //    foreach (var item in BeepTreeNodes)
                 //    {
                 //        item.NodeLevelID = $"{_nodeLevelID}_{item.NodeSeq}";
                 //    }
@@ -133,7 +136,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
         }
-        
+        /// <summary>
+        /// Gets the cumulative height of all visible child nodes.
+        /// </summary>
+        public int ChildNodesHeight
+        {
+            get
+            {
+                // Sum the heights of all visible child nodes, including padding
+                int totalHeight = 0;
+                int padding = 5; // Adjust padding as needed
+
+                foreach (var child in BeepTreeNodes)
+                {
+                    if (child.Visible)
+                    {
+                        totalHeight += child.Height + padding;
+                    }
+                }
+
+                return totalHeight;
+            }
+        }
         /// <summary>
         /// this is the sequence of the child nodes
         /// this will help us set Nodeleveid for the child nodes
@@ -367,23 +391,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BoundProperty= "Text";
             Height = NodeHeight;
             Width = NodeWidth;
-            _nodePanel = new Panel
-            {
-                Dock = DockStyle.Top,
-                AutoSize = true,
-                BackColor =parentbackcolor
-            };
-
-            _childrenPanel = new Panel
-            {
-                Dock = DockStyle.Top,
-                AutoSize = true,
-                BackColor = parentbackcolor
-            };
-            LogMessage($"Construct 2");
-            Controls.Add(_childrenPanel);
-            Controls.Add(_nodePanel);
-            LogMessage($"Construct 3");
+           
             InitNode();
         }
         protected override Size DefaultSize => new Size(NodeWidth,NodeHeight);
@@ -391,7 +399,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _key = key;
             _text = text;
-            _childNodes = new List<BeepTreeNode>();
+            BeepTreeNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey)
@@ -399,7 +407,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _key = key;
             _text = text;
             _imageKey = imageKey;
-            _childNodes = new List<BeepTreeNode>();
+            BeepTreeNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey)
@@ -408,7 +416,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _text = text;
             _imageKey = imageKey;
             _selectedImageKey = selectedImageKey;
-            _childNodes = new List<BeepTreeNode>();
+            BeepTreeNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded)
@@ -418,7 +426,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _imageKey = imageKey;
             _selectedImageKey = selectedImageKey;
             _isExpanded = isExpanded;
-            _childNodes = new List<BeepTreeNode>();
+            BeepTreeNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected)
@@ -429,7 +437,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _selectedImageKey = selectedImageKey;
             _isExpanded = isExpanded;
             _isSelected = isSelected;
-            _childNodes = new List<BeepTreeNode>();
+            BeepTreeNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected, bool isChecked)
@@ -441,7 +449,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isExpanded = isExpanded;
             _isSelected = isSelected;
             _isChecked = isChecked;
-            _childNodes = new List<BeepTreeNode>();
+            BeepTreeNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected, bool isChecked, bool isVisible)
@@ -454,7 +462,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isSelected = isSelected;
             _isChecked = isChecked;
             _isVisible = isVisible;
-            _childNodes = new List<BeepTreeNode>();
+            BeepTreeNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected, bool isChecked, bool isVisible, bool isReadOnly)
@@ -468,7 +476,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isChecked = isChecked;
             _isVisible = isVisible;
             _isReadOnly = isReadOnly;
-            _childNodes = new List<BeepTreeNode>();
+            BeepTreeNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected, bool isChecked, bool isVisible, bool isReadOnly, bool isEnabled)
@@ -483,7 +491,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isVisible = isVisible;
             _isReadOnly = isReadOnly;
             _isEnabled = isEnabled;
-            _childNodes = new List<BeepTreeNode>();
+            BeepTreeNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected, bool isChecked, bool isVisible, bool isReadOnly, bool isEnabled, bool isEditable)
@@ -499,7 +507,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isReadOnly = isReadOnly;
             _isEnabled = isEnabled;
             _isEditable = isEditable;
-            _childNodes = new List<BeepTreeNode>();
+            BeepTreeNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected, bool isChecked, bool isVisible, bool isReadOnly, bool isEnabled, bool isEditable, bool isDeletable)
@@ -516,7 +524,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isEnabled = isEnabled;
             _isEditable = isEditable;
             _isDeletable = isDeletable;
-            _childNodes = new List<BeepTreeNode>();
+            BeepTreeNodes = new List<BeepTreeNode>();
             InitNode();
         }
         public BeepTreeNode(string key, string text, string imageKey, string selectedImageKey, bool isExpanded, bool isSelected, bool isChecked, bool isVisible, bool isReadOnly, bool isEnabled, bool isEditable, bool isDeletable, bool isDirty)
@@ -534,7 +542,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isEditable = isEditable;
             _isDeletable = isDeletable;
             _isDirty = isDirty;
-            _childNodes = new List<BeepTreeNode>();
+            BeepTreeNodes = new List<BeepTreeNode>();
             InitNode();
         }
         #endregion "Constructors"
@@ -697,8 +705,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             LogMessage($"init");
             UpdateDrawingRect();
+            _nodePanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                BackColor = parentbackcolor
+            };
 
-            _childNodes = new List<BeepTreeNode>();
+            _childrenPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                BackColor = parentbackcolor
+            };
+            LogMessage($"Construct 2");
+            Controls.Add(_childrenPanel);
+            Controls.Add(_nodePanel);
+            LogMessage($"Construct 3");
+            BeepTreeNodes = new List<BeepTreeNode>();
             _nodePanel.Controls.Clear();
              LogMessage($"init1");
             IsShadowAffectedByTheme =false;
@@ -736,7 +760,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DrawToggleButton();
             starty = NodeHeight;
             LogMessage($"init3");
-            foreach (var child in _childNodes)
+            foreach (var child in BeepTreeNodes)
             {
                 if(child.IsInitialized == false) child.InitNode();
                 child.Visible = IsExpanded;
@@ -759,6 +783,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             SuspendLayout(); // Temporarily stop layout updates
             try
             {
+                if (!isSizeCached)
+                {
+                    CalculateSize();
+                }
+
+                // Apply cached sizes
+                this.Height = cachedHeight;
+                this.Width = cachedWidth;
 
                 int padding = 0; // Padding around elements
                 int startx = padding; // Horizontal start point
@@ -812,12 +844,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _nodePanel.Height = NodeHeight + padding * 2;
                 padding = 5;
                 // Adjust the size of `_childrenPanel` based on expansion
-                if (_childNodes.Count > 0)
+                if (BeepTreeNodes.Count > 0)
                 {
                     if (IsExpanded)
                     {
                         int childStartY = padding;
-                        foreach (var child in _childNodes)
+                        foreach (var child in BeepTreeNodes)
                         {
                             child.Location = new Point(padding, childStartY); // Indent child nodes
                             child.Width = _childrenPanel.Width - 2 * padding;
@@ -855,18 +887,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
            
         }
-        public void ToggleAllCheckBoxVisibility(bool show)
-        {
-            foreach (var node in _childNodes)
-            {
-                node.ToggleCheckBoxVisibility(show);
-            }
-        }
+       
 
         public void ToggleCheckBoxVisibility(bool show)
         {
             ShowCheckBox = show;
-            foreach (var child in _childNodes)
+            foreach (var child in BeepTreeNodes)
             {
                 child.ToggleCheckBoxVisibility(show);
             }
@@ -882,7 +908,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void checktoggle()
         {
-            if (_childNodes.Count > 0)
+            if (BeepTreeNodes.Count > 0)
             {
                 if (IsExpanded)
                 {
@@ -1093,7 +1119,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Console.WriteLine($"Error in UpdatePanelSize: {ex.Message}");
             }
         }
-
         private void ToggleButton_Click(object? sender, EventArgs e)
         {
             IsExpanded = !IsExpanded;
@@ -1109,6 +1134,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             UpdatePanelSize();
             RearrangeNode();
+            Tree?.RearrangeTree();
         }
 
         #endregion "Painting Methods"
@@ -1129,7 +1155,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Noderightbutton.Theme = Theme;
                 }
-                foreach (var item in _childNodes)
+                foreach (var item in BeepTreeNodes)
                 {
                     item.Theme = Theme;
                    // item.ApplyTheme();
@@ -1189,7 +1215,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     NodeMainMiddlebutton.ImagePath = null;
                 }
             }
-            foreach (var item in _childNodes)
+            foreach (var item in BeepTreeNodes)
             {
                 item.ShowNodeImage = _shownodeimage;
                 item.ChangeNodeImageSettings();
@@ -1201,40 +1227,40 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Node Methods"
         public void AddNode(BeepTreeNode node)
         {
-            _childNodes.Add(node);
+            BeepTreeNodes.Add(node);
         }
         public void RemoveNode(BeepTreeNode node)
         {
-            _childNodes.Remove(node);
+            BeepTreeNodes.Remove(node);
         }
         public void RemoveNode(string NodeName)
         {
-            BeepTreeNode node = _childNodes.Where(c => c.Name == NodeName).FirstOrDefault();
+            BeepTreeNode node = BeepTreeNodes.Where(c => c.Name == NodeName).FirstOrDefault();
             if (node != null)
             {
-                _childNodes.Remove(node);
+                BeepTreeNodes.Remove(node);
             }
         }
         public void RemoveNode(int NodeIndex)
         {
-            if (NodeIndex >= 0 && NodeIndex < _childNodes.Count)
+            if (NodeIndex >= 0 && NodeIndex < BeepTreeNodes.Count)
             {
-                _childNodes.RemoveAt(NodeIndex);
+                BeepTreeNodes.RemoveAt(NodeIndex);
             }
         }
         public void ClearNodes()
         {
-            _childNodes.Clear();
+            BeepTreeNodes.Clear();
         }
         public BeepTreeNode GetNode(string NodeName)
         {
-            return _childNodes.Where(c => c.Name == NodeName).FirstOrDefault();
+            return BeepTreeNodes.Where(c => c.Name == NodeName).FirstOrDefault();
         }
         public BeepTreeNode GetNode(int NodeIndex)
         {
-            if (NodeIndex >= 0 && NodeIndex < _childNodes.Count)
+            if (NodeIndex >= 0 && NodeIndex < BeepTreeNodes.Count)
             {
-                return _childNodes[NodeIndex];
+                return BeepTreeNodes[NodeIndex];
             }
             else
             {
@@ -1243,13 +1269,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public List<BeepTreeNode> GetNodes()
         {
-            return _childNodes;
+            return BeepTreeNodes;
         }
        
         public void ExpandAll()
         {
             IsExpanded = true;
-            foreach (var child in _childNodes)
+            foreach (var child in BeepTreeNodes)
             {
                 child.ExpandAll();
 
@@ -1260,7 +1286,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void MiniAll()
         {
             IsExpanded = true;
-            foreach (var child in _childNodes)
+            foreach (var child in BeepTreeNodes)
             {
                 child.MiniAll();
             }
@@ -1296,17 +1322,56 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void SyncCheckedState()
         {
-            foreach (var child in _childNodes)
+            foreach (var child in BeepTreeNodes)
             {
                 child.IsChecked = this.IsChecked;
                 child.SyncCheckedState();
             }
         }
+        /// <summary>
+        /// Calculates and caches the size of the node based on its current state.
+        /// </summary>
+        private void CalculateSize()
+        {
+            if (isSizeCached && Tree != null && cachedWidth == Tree.Width - 20)
+            {
+                // Size is already cached and fits the current Tree width
+                return;
+            }
 
+            using (Graphics g = this.CreateGraphics())
+            {
+                SizeF textSize = g.MeasureString(_text, this.Font);
+                int textHeight = (int)textSize.Height + 10; // Add padding
+
+                // Set width based on the parent BeepTree's width
+                if (Tree != null)
+                {
+                    // Assuming the panel in BeepTree subtracts 20 pixels for padding
+                    cachedWidth = Tree.Width - 20; // Adjust as needed
+                }
+                else
+                {
+                    cachedWidth = NodeWidth; // Fallback to default if Tree is not set
+                }
+
+                cachedHeight = textHeight + (_isExpanded ? ChildNodesHeight : 0);
+            }
+
+            isSizeCached = true;
+        }
+
+
+        private bool IsSizeCached { get; set; } = false;
+
+        public void InvalidateSizeCache()
+        {
+            IsSizeCached = false;
+        }
         public IEnumerable<BeepTreeNode> Traverse()
         {
             yield return this;
-            foreach (var child in _childNodes)
+            foreach (var child in BeepTreeNodes)
             {
                 foreach (var descendant in child.Traverse())
                 {
@@ -1317,7 +1382,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void AddChild(BeepTreeNode child)
         {
-            _childNodes.Add(child);
+            BeepTreeNodes.Add(child);
              //items.Add(child.Tag as SimpleItem);
             _childrenPanel.Controls.Add(child);
             UpdatePanelSize();
@@ -1325,7 +1390,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void RemoveChild(BeepTreeNode child)
         {
-            _childNodes.Remove(child);
+            BeepTreeNodes.Remove(child);
            // items.Remove(child.Tag as SimpleItem);
             _childrenPanel.Controls.Remove(child);
             UpdatePanelSize();
@@ -1333,10 +1398,22 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void ClearChildren()
         {
-            _childNodes.Clear();
+            BeepTreeNodes.Clear();
             //items.Clear();
             _childrenPanel.Controls.Clear();
             UpdatePanelSize();
+        }
+        public IEnumerable<BeepTreeNode> GetDescendants()
+        {
+            if (!IsExpanded) yield break;
+            foreach (var child in BeepTreeNodes)
+            {
+                yield return child;
+                foreach (var descendant in child.GetDescendants())
+                {
+                    yield return descendant;
+                }
+            }
         }
 
         #endregion

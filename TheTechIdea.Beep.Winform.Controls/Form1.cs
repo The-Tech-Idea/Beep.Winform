@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Tree;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -16,7 +17,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         public Form1()
         {
             InitializeComponent();
-           // this.tabControl1.TabPanels[0].Controls.Add(beepAppBar1);
+            // this.tabControl1.TabPanels[0].Controls.Add(beepAppBar1);
+            this.beepButton2.Click += BeepButton2_Click;
+        }
+
+        private void BeepButton2_Click(object? sender, EventArgs e)
+        {
+           beepTree1.PopulateTree(BeepTreeDataGenerator.GenerateMockData(100, 3, 3));
         }
 
         private void Form1_Load(object sender, EventArgs e)

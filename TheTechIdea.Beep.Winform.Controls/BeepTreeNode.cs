@@ -791,7 +791,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Apply cached sizes
                 this.Height = cachedHeight;
                 this.Width = cachedWidth;
-
+                _childrenPanel.Width = cachedWidth;
                 int padding = 0; // Padding around elements
                 int startx = padding; // Horizontal start point
                 int centerY = (NodeHeight - SmallNodeHeight) / 2; // Center alignment for small buttons
@@ -843,6 +843,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Adjust the size of the node panel
                 _nodePanel.Height = NodeHeight + padding * 2;
                 padding = 5;
+                int xlevel = 0;
                 // Adjust the size of `_childrenPanel` based on expansion
                 if (BeepTreeNodes.Count > 0)
                 {
@@ -851,8 +852,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                         int childStartY = padding;
                         foreach (var child in BeepTreeNodes)
                         {
-                            child.Location = new Point(padding, childStartY); // Indent child nodes
-                            child.Width = _childrenPanel.Width - 2 * padding;
+                            xlevel++;
+                            child.Location = new Point((xlevel * padding), childStartY); // Indent child nodes
+                            child.Width = _childrenPanel.Width - (xlevel * padding);
                             child.Theme = Theme;
                             child.RearrangeNode();
                             childStartY += child.Height + 5;
@@ -887,8 +889,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
            
         }
-       
-
         public void ToggleCheckBoxVisibility(bool show)
         {
             ShowCheckBox = show;
@@ -1136,9 +1136,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RearrangeNode();
             Tree?.RearrangeTree();
         }
-
         #endregion "Painting Methods"
-
         public override void ApplyTheme()
         {
            // base.ApplyTheme();

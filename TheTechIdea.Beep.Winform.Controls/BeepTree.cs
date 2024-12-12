@@ -62,6 +62,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         private int depth;
+        private bool _dontRearrange;
+
         public int NodeHeight
         {
             get => _nodeHeight;
@@ -119,67 +121,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize scroll event handling for virtualization
             this.AutoScroll = true;
             this.VerticalScroll.Visible = true;
-            this.Scroll += BeepTree_Scroll;
-
-            // Handle Resize event
-            this.Resize += BeepTree_Resize;
         }
         #region Event Handlers
-
-        private void BeepTree_Scroll(object sender, ScrollEventArgs e)
-        {
-          //  UpdateVisibleNodes();
-        }
-
-        private void BeepTree_Resize(object sender, EventArgs e)
-        {
-            // Update the width of all visible nodes
-            foreach (var node in _beeptreenodes)
-            {
-                if (node.Visible)
-                {
-                    node.Width = this.Width - 20; // Adjust based on padding/margin
-                    node.InvalidateSizeCache(); // Invalidate cached size to recalculate
-                    node.RearrangeNode();
-                }
-            }
-
-            // Rearrange the tree layout
-            RearrangeTree();
-        }
-
-        private void UpdateVisibleNodes()
-        {
-            // Clear previous visibility settings
-            foreach (var node in _beeptreenodes)
-            {
-                node.Visible = false;
-            }
-
-            visibleNodes.Clear();
-
-            // Determine visible nodes based on scroll position
-            int scrollOffset = this.VerticalScroll.Value;
-            int clientHeight = this.ClientSize.Height;
-            int currentY = 0;
-
-            foreach (var node in TraverseVisibleNodes())
-            {
-                if (currentY + node.Height >= scrollOffset &&
-                    currentY <= scrollOffset + clientHeight)
-                {
-                    visibleNodes.Add(node);
-                    node.Visible = true;
-                }
-                else
-                {
-                    node.Visible = false;
-                }
-                currentY += node.Height + 5; // Assuming 5px padding
-            }
-
-            Invalidate();
-        }
 
         #endregion Event Handlers
         protected override void InitLayout()
@@ -257,9 +200,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             var node = CreateTreeNodeFromMenuItem(menuItem, null);
             if (node != null)
             {
+                _dontRearrange = true;
                 AddNode(node);
                 LogMessage($"Node added for item at index {index}: {menuItem.Text}");
                 RearrangeTree();
+                _dontRearrange = false;
             }
         }
         private void HandleItemDeleted(int index)
@@ -333,6 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Console.WriteLine("Initialize Tree");
             ClearNodes(); // Clear existing nodes
             Console.WriteLine("Items Count: " + rootnodeitems.Count);
+            _dontRearrange = true;
             foreach (var menuItem in rootnodeitems)
             {
                 try
@@ -344,8 +290,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         continue;
                     }
+                  
                     AddNode(node);
-               
+                   
 
                     Console.WriteLine("Node Added");
 
@@ -358,6 +305,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             RearrangeTree();
+            _dontRearrange = false;
         }
         private BeepTreeNode CreateTreeNodeFromMenuItem(SimpleItem menuItem, BeepTreeNode parent)
         {
@@ -442,6 +390,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = Width,
                 Height = node.Height,
                 AutoSize = true,
+                Dock = DockStyle.Top,
                 AutoSizeMode = AutoSizeMode.GrowAndShrink
                
             };
@@ -452,39 +401,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Subscribe to node's expansion and collapse events
             node.NodeExpanded += (s, e) => RearrangeTree();
             node.NodeCollapsed += (s, e) => RearrangeTree();
-            RearrangeTree();
+            if(!_dontRearrange)
+                RearrangeTree();
         }
-        public IEnumerable<BeepTreeNode> GetDisplayNodes()
-        {
-            return visibleNodes;
-        }
-        // Handle the scroll event to update visible nodes
-      
-       
-        public IEnumerable<BeepTreeNode> TraverseVisibleNodes()
-        {
-            Stack<BeepTreeNode> stack = new Stack<BeepTreeNode>();
-            foreach (var root in _beeptreenodes.Where(n => n.ParentNode == null))
-            {
-                stack.Push(root);
-            }
-
-            while (stack.Count > 0)
-            {
-                var node = stack.Pop();
-                yield return node;
-
-                if (node.IsExpanded)
-                {
-                    // Push children in reverse order to maintain the correct traversal order
-                    foreach (var child in node.BeepTreeNodes.Reverse<BeepTreeNode>())
-                    {
-                        stack.Push(child);
-                    }
-                }
-            }
-        }
-     
         private void RemoveNode(BeepTreeNode node)
         {
             _beeptreenodes.Remove(node);
@@ -512,6 +431,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 rootnodeitems[index].Children.Add(item);
                 int parentreenodeindex = _beeptreenodes.IndexOf(parent);
                 _beeptreenodes[parentreenodeindex].AddChild(CreateTreeNodeFromMenuItem(item, parent));
+                _beeptreenodes[parentreenodeindex].RearrangeNode();
             }
             else
             {
@@ -573,6 +493,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         //public void RearrangeTree()
         //{
+        //    SuspendLayout(); // Suspend layout updates
         //    int startY = 5; // Initial offset
 
         //    foreach (var panel in _nodePanels)
@@ -594,63 +515,40 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        }
 
         //    }
-
+        //    ResumeLayout(); // Resume layout updates
         //    Invalidate();
         //}
-        public void RearrangeTree()
-        {
-            SuspendLayout(); // Suspend layout updates
-
-            try
-            {
-                int startY = 5; // Initial offset
-
-                foreach (var node in GetDisplayNodes())
-                {
-                    if (!_nodePanels.TryGetValue(node.NodeSeq, out var panel))
-                        continue;
-
-                    panel.Location = new Point(5, startY);
-                    panel.Width = Width - 10; // Adjust panel width based on tree width
-
-                    node.RearrangeNode(); // Adjust the node's internal layout
-
-                    startY += panel.Height + 5; // Increment Y position based on panel's height
-                }
-
-                Invalidate(); // Redraw the tree
-            }
-            finally
-            {
-                ResumeLayout(); // Resume layout updates
-            }
-            // After rearranging, update visible nodes
-            UpdateVisibleNodes();
-        }
-
+      
         public async Task LoadTreeAsync(IEnumerable<SimpleItem> data)
         {
+          
             await Task.Run(() =>
             {
+                SuspendLayout(); // Suspend layout updates
                 // Perform data processing here
                 var nodes = CreateTreeNodes(data);
+              
                 // Return the processed nodes
                 return nodes;
             }).ContinueWith(nodes =>
             {
+                _dontRearrange = true;
                 // Update the UI with the loaded nodes
                 foreach (var node in nodes.Result)
                 {
+                    
                     AddNode(node);
                 }
+                ResumeLayout(); // Resume layout updates
                 RearrangeTree();
+                _dontRearrange = false;
             }, TaskScheduler.FromCurrentSynchronizationContext());
+           
         }
-
         private List<BeepTreeNode> CreateTreeNodes(IEnumerable<SimpleItem> data)
         {
             List<BeepTreeNode> nodes = new List<BeepTreeNode>();
-            foreach (var item in data)
+            foreach (var item in data.Where(p=>p.ParentItem==null))
             {
                 var node = CreateTreeNodeFromMenuItem(item, null);
                 if (node != null)
@@ -660,8 +558,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             return nodes;
         }
-
-
         private BeepTreeNode GetBeepTreeNodeFromPanel(int seq)
         {
            
@@ -759,6 +655,60 @@ namespace TheTechIdea.Beep.Winform.Controls
             
         }
         #endregion "Flyout Menu"
+        public IEnumerable<BeepTreeNode> GetDisplayNodes()
+        {
+            foreach (var rootNode in _beeptreenodes.Where(n => n.ParentNode == null))
+            {
+                yield return rootNode;
+
+                if (rootNode.IsExpanded)
+                {
+                    foreach (var descendant in rootNode.GetDescendants())
+                    {
+                        yield return descendant;
+                    }
+                }
+            }
+        }
+        public IEnumerable<BeepTreeNode> GetDescendants()
+        {
+            foreach (var child in _beeptreenodes)
+            {
+                yield return child;
+
+                if (child.IsExpanded)
+                {
+                    foreach (var descendant in child.GetDescendants())
+                    {
+                        yield return descendant;
+                    }
+                }
+            }
+        }
+        public void RearrangeTree()
+        {
+            SuspendLayout(); // Suspend layout updates for performance
+            int startY = 5; // Initial Y offset
+
+            foreach (var node in GetDisplayNodes())
+            {
+                if (!_nodePanels.TryGetValue(node.NodeSeq, out var panel))
+                    continue;
+
+                // Position the panel
+           //     panel.Location = new Point(5, startY);
+                panel.Width = this.Width - 10; // Adjust panel width based on tree width
+
+                node.RearrangeNode(); // Adjust the node's internal layout
+
+                startY += panel.Height + 5; // Increment Y position based on panel's height
+            }
+
+            ResumeLayout(); // Resume layout updates
+            Invalidate(); // Redraw the tree
+        }
+
+
     }
 
 }

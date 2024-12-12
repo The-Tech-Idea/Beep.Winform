@@ -66,7 +66,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 {
                     Text = $"Node {i} at Level {currentLevel} (Parent: {parent.Text})",
                     ImagePath = "path/to/child/image.png", // Replace with actual image paths if needed
-                    MenuID = $"Menu_{nodeName}"
+                    MenuID = $"Menu_{nodeName}",
+                    ParentItem = parent
+
                 };
 
                 parent.Children.Add(childItem);

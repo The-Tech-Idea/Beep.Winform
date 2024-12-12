@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
@@ -145,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Sum the heights of all visible child nodes, including padding
                 int totalHeight = 0;
-                int padding = 5; // Adjust padding as needed
+                int padding = 0; // Adjust padding as needed
 
                 foreach (var child in BeepTreeNodes)
                 {
@@ -386,7 +388,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Constructors"
         public BeepTreeNode()
         {
-            LogMessage($"Construct 1");
+          //  LogMessage($"Construct 1");
             UpdateDrawingRect();
             BoundProperty= "Text";
             Height = NodeHeight;
@@ -703,7 +705,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         int starty = 0;
         public void InitNode()
         {
-            LogMessage($"init");
+          //  LogMessage($"init");
             UpdateDrawingRect();
             _nodePanel = new Panel
             {
@@ -714,17 +716,17 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _childrenPanel = new Panel
             {
-                Dock = DockStyle.Top,
+                Dock = DockStyle.Fill,
                 AutoSize = true,
                 BackColor = parentbackcolor
             };
-            LogMessage($"Construct 2");
+        //    LogMessage($"Construct 2");
             Controls.Add(_childrenPanel);
             Controls.Add(_nodePanel);
-            LogMessage($"Construct 3");
+        //    LogMessage($"Construct 3");
             BeepTreeNodes = new List<BeepTreeNode>();
             _nodePanel.Controls.Clear();
-             LogMessage($"init1");
+        //     LogMessage($"init1");
             IsShadowAffectedByTheme =false;
             IsBorderAffectedByTheme = false;
             IsFramless = true;
@@ -733,7 +735,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             starty = DrawingRect.Top;
             NodeWidth = DrawingRect.Width;
             NodeHeight = DrawingRect.Height;
-            LogMessage($"init2");
+           // LogMessage($"init2");
             _checkBox = new BeepCheckBox
             {
                 CheckedValue = true,
@@ -748,33 +750,36 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsRounded = false,
                 Size = new Size(20, 20), // Adjust size as needed
             };
-            LogMessage($"init3");
+         //   LogMessage($"init3");
             _checkBox.StateChanged += CheckBox_StateChanged;
-            LogMessage($"init4");
+        //    LogMessage($"init4");
             _nodePanel.Controls.Add(_checkBox);
-            LogMessage($"init6");
+         //   LogMessage($"init6");
             //   DrawLeftBranch();
             DrawLeftButton();
             DrawMiddleButton();
             DrawRightButton();
             DrawToggleButton();
             starty = NodeHeight;
-            LogMessage($"init3");
-            foreach (var child in BeepTreeNodes)
-            {
-                if(child.IsInitialized == false) child.InitNode();
-                child.Visible = IsExpanded;
-                if (IsExpanded)
-                {
-                    child.Location = new Point(20, starty);
-                    child.Width = Width -20; // Indent child nodes
-                    starty += child.Height + 5;
-                    child.Theme= Theme;
-                    child.ApplyTheme();
-                    child.RearrangeNode();
-                }
-            }
-            LogMessage($"init4");
+         //   LogMessage($"init3");
+            //foreach (var child in BeepTreeNodes)
+            //{
+            //    if(child.IsInitialized == false) child.InitNode();
+            //    child.Visible = IsExpanded;
+            //    if (IsExpanded)
+            //    {
+            //        child.Location = new Point(20, starty);
+            //        child.Width = Width -20; // Indent child nodes
+            //        starty += child.Height + 5;
+            //        child.Theme= Theme;
+            //        child.ApplyTheme();
+            //        child.RearrangeNode();
+            //    }
+            //}
+            if (NodeMainMiddlebutton != null) NodeMainMiddlebutton.Text = Text;
+            if (NodeMainMiddlebutton != null) NodeMainMiddlebutton.ImagePath = ImagePath;
+            RearrangeNode();
+            //LogMessage($"init4");
             //   Invalidate();
             _isinitialized = true;
         }
@@ -789,16 +794,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 // Apply cached sizes
-                this.Height = cachedHeight;
-                this.Width = cachedWidth;
-                _childrenPanel.Width = cachedWidth;
-                int padding = 0; // Padding around elements
+                UpdateDrawingRect();
+                // this.Height = DrawingRect.Height; ;
+                //  this.Width = DrawingRect.Width;
+                //  _childrenPanel.Width = cachedWidth;
+               int  padding = 5; // Padding around elements
                 int startx = padding; // Horizontal start point
                 int centerY = (NodeHeight - SmallNodeHeight) / 2; // Center alignment for small buttons
 
                 // Adjust the size of the main node panel
                // _nodePanel.Width = Parent?.Width ?? DrawingRect.Width; // Match parent's width
-                LogMessage($"Rearranging inside Nodes 1 : {_nodePanel.Width}");
+             //   LogMessage($"Rearranging inside Nodes 1 : {_nodePanel.Width}");
                 _nodePanel.Height = NodeHeight;
 
                 // Position the toggle button
@@ -841,9 +847,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 // Adjust the size of the node panel
-                _nodePanel.Height = NodeHeight + padding * 2;
-                padding = 5;
-                int xlevel = 0;
+                _nodePanel.Height = NodeHeight;// + padding * 2;
+              
+                int xlevel = 1;
                 // Adjust the size of `_childrenPanel` based on expansion
                 if (BeepTreeNodes.Count > 0)
                 {
@@ -852,12 +858,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                         int childStartY = padding;
                         foreach (var child in BeepTreeNodes)
                         {
-                            xlevel++;
+                           
                             child.Location = new Point((xlevel * padding), childStartY); // Indent child nodes
-                            child.Width = _childrenPanel.Width - (xlevel * padding);
+                            child.Width = Width - (xlevel * padding);
                             child.Theme = Theme;
                             child.RearrangeNode();
-                            childStartY += child.Height + 5;
+                            childStartY += child.Height ;
                         }
 
                         _childrenPanel.Height = childStartY;
@@ -1083,7 +1089,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Calculate the new height of the node panel
                 int newPanelHeight = NodeHeight;
-                int newHeight = newPanelHeight + (IsExpanded ? _childrenPanel.Height : 0);
+                int newHeight = newPanelHeight + (IsExpanded ? ChildNodesHeight : 0);
 
                 // Only update sizes if there is a change
                 if (_nodePanel.Height != newPanelHeight)
@@ -1178,14 +1184,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             NodeMainMiddlebutton.ForeColor = _currentTheme.ButtonHoverForeColor;
             NodeMainMiddlebutton.BackColor = _currentTheme.ButtonHoverBackColor;
-            LogMessage("Hilight");
+         //   LogMessage("Hilight");
 
         }
         public void UnHilightNode()
         {
             NodeMainMiddlebutton.ForeColor = _currentTheme.ButtonForeColor;
             NodeMainMiddlebutton.BackColor = _currentTheme.ButtonBackColor;
-            LogMessage("UnHilight");
+         //   LogMessage("UnHilight");
 
         }
         public void ChangeNodeImageSettings()
@@ -1381,7 +1387,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void AddChild(BeepTreeNode child)
         {
             BeepTreeNodes.Add(child);
-             //items.Add(child.Tag as SimpleItem);
+            LogMessage($"AddChild {child.Text}");
+            //items.Add(child.Tag as SimpleItem);
             _childrenPanel.Controls.Add(child);
             UpdatePanelSize();
         }
@@ -1419,7 +1426,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-            //    File.AppendAllText(@"C:\Logs\debug_log.txt", $"{DateTime.Now}: {message}{Environment.NewLine}");
+                File.AppendAllText(@"C:\Logs\debug_log.txt", $"{DateTime.Now}: {message}{Environment.NewLine}");
 
             }
             catch { /* Ignore logging errors */ }

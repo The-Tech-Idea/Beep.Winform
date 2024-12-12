@@ -117,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                           ControlStyles.UserPaint |
                           ControlStyles.AllPaintingInWmPaint, true);
             this.UpdateStyles();
-
+            Padding = new Padding(5);
             // Initialize scroll event handling for virtualization
             this.AutoScroll = true;
             this.VerticalScroll.Visible = true;
@@ -211,7 +211,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (index < 0 || index >= _beeptreenodes.Count)
             {
-                Console.WriteLine($"Invalid index for deletion: {index}");
+                LogMessage($"Invalid index for deletion: {index}");
                 return;
             }
 
@@ -219,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (node != null)
             {
                 RemoveNode(node);
-                Console.WriteLine($"Node removed for item at index {index}");
+                LogMessage($"Node removed for item at index {index}");
                 RearrangeTree();
             }
         }
@@ -275,17 +275,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void InitializeTreeFromMenuItems()
         {
-            Console.WriteLine("Initialize Tree");
+            LogMessage("Initialize Tree");
             ClearNodes(); // Clear existing nodes
-            Console.WriteLine("Items Count: " + rootnodeitems.Count);
+            LogMessage("Items Count: " + rootnodeitems.Count);
             _dontRearrange = true;
             foreach (var menuItem in rootnodeitems)
             {
                 try
                 {
-                    Console.WriteLine("MenuItem: " + menuItem.Text);
+                    LogMessage("MenuItem: " + menuItem.Text);
                     var node = CreateTreeNodeFromMenuItem(menuItem, null);
-                    Console.WriteLine("Created Node: " + node.Text);
+                    LogMessage("Created Node: " + node.Text);
                     if(node == null)
                     {
                         continue;
@@ -294,12 +294,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     AddNode(node);
                    
 
-                    Console.WriteLine("Node Added");
+                    LogMessage("Node Added");
 
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error: " + ex.Message);
+                    LogMessage("Error: " + ex.Message);
                 }
                
             }
@@ -349,6 +349,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     NodeDataType =menuItem.GetType().Name,
                     Level = parent?.Level + 1 ?? 1 // Increment level for child nodes
                 };
+                node.Text = menuItem.Text ?? $"Node{seq}";
                 node.NodeClicked += (sender, e) => NodeClicked?.Invoke(sender, e);
                 node.NodeRightClicked += (sender, e) => NodeRightClicked?.Invoke(sender, e);
                 node.NodeDoubleClicked += (sender, e) => NodeDoubleClicked?.Invoke(sender, e);
@@ -364,15 +365,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 foreach (var childMenuItem in menuItem.Children)
                 {
                     Console.WriteLine("Child Node: " + childMenuItem.Text);
-                    LogMessage($"Child Node:  {childMenuItem.Text} ");
+                    LogMessage($"adding Child Node:  {childMenuItem.Text} ");
                     var childNode = CreateTreeNodeFromMenuItem(childMenuItem, node);
                     node.AddChild(childNode);
                 }
-                if(parent!=null)
-                {
-                    int index = Nodes.IndexOf(menuItem);
-                    Nodes[index].Children.Add(menuItem);
-                }
+              
                 return node;
 
             }
@@ -391,9 +388,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = node.Height,
                 AutoSize = true,
                 Dock = DockStyle.Top,
+                
                 AutoSizeMode = AutoSizeMode.GrowAndShrink
                
             };
+
             _beeptreenodes.Add(node);
             panel.Controls.Add(node); // Add the node to the panel
             Controls.Add(panel); // Add the panel to the tree
@@ -404,13 +403,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if(!_dontRearrange)
                 RearrangeTree();
         }
-        private void RemoveNode(BeepTreeNode node)
-        {
-            _beeptreenodes.Remove(node);
-            Controls.Remove(node);
-            _nodePanels.Remove(node.NodeSeq);
-            RearrangeTree();
-        }
+       
         /// <summary>
         /// Populates the tree from a hierarchical data structure.
         /// </summary>
@@ -418,28 +411,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void PopulateTree(IEnumerable<SimpleItem> data)
         {
             Nodes.Clear();
-            foreach (var item in data)
+            foreach (var item in data.Where(p=>p.ParentItem==null))
             {
                 Nodes.Add(item);
             }
         }
-        public void AddNode(SimpleItem item, BeepTreeNode parent=null)
-        {
-            if(parent != null)
-            {
-                int index = Nodes.IndexOf(parent.Tag as SimpleItem);
-                rootnodeitems[index].Children.Add(item);
-                int parentreenodeindex = _beeptreenodes.IndexOf(parent);
-                _beeptreenodes[parentreenodeindex].AddChild(CreateTreeNodeFromMenuItem(item, parent));
-                _beeptreenodes[parentreenodeindex].RearrangeNode();
-            }
-            else
-            {
-                rootnodeitems.Add(item);
-                AddNode(CreateTreeNodeFromMenuItem(item, null));
-            }
+        //public void AddNode(SimpleItem item, BeepTreeNode parent=null)
+        //{
+        //    if(parent != null)
+        //    {
+        //        int index = Nodes.IndexOf(parent.Tag as SimpleItem);
+        //        rootnodeitems[index].Children.Add(item);
+        //        int parentreenodeindex = _beeptreenodes.IndexOf(parent);
+        //        _beeptreenodes[parentreenodeindex].AddChild(CreateTreeNodeFromMenuItem(item, parent));
+        //        _beeptreenodes[parentreenodeindex].RearrangeNode();
+        //    }
+        //    else
+        //    {
+        //        rootnodeitems.Add(item);
+        //        AddNode(CreateTreeNodeFromMenuItem(item, null));
+        //    }
           
-        }
+        //}
         public void ClearNodes()
         {
             foreach (var panel in _nodePanels)
@@ -467,6 +460,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 RemoveNode(GetNode(NodeIndex));
             }
+
+        }
+        private void RemoveNode(BeepTreeNode node)
+        {
+            _beeptreenodes.Remove(node);
+            Controls.Remove(node);
+            _nodePanels.Remove(node.NodeSeq);
+            RearrangeTree();
         }
         public BeepTreeNode GetNode(string NodeName)
         {
@@ -553,7 +554,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var node = CreateTreeNodeFromMenuItem(item, null);
                 if (node != null)
                 {
-                    nodes.Add(node);
+                    AddNode(node);
                 }
             }
             return nodes;
@@ -597,7 +598,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-              //  File.AppendAllText(@"C:\Logs\debug_log.txt", $"{DateTime.Now}: {message}{Environment.NewLine}");
+                File.AppendAllText(@"C:\Logs\debug_log.txt", $"{DateTime.Now}: {message}{Environment.NewLine}");
 
             }
             catch { /* Ignore logging errors */ }

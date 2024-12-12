@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void BeepButton2_Click(object? sender, EventArgs e)
         {
-           beepTree1.PopulateTree(BeepTreeDataGenerator.GenerateMockData(30, 3, 3));
+           beepTree1.PopulateTree(BeepTreeDataGenerator.GenerateMockData(100,4, 4));
         }
 
         private void Form1_Load(object sender, EventArgs e)

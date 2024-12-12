@@ -237,7 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 node.Text = menuItem.Text;
                 node.ImagePath = menuItem.ImagePath;
-               // node.Nodes = menuItem.Children;
+               // node.Nodes = parentItem.Children;
                 node.RearrangeNode();
                 Console.WriteLine($"Node updated for item at index {index}: {menuItem.Text}");
                 RearrangeTree();
@@ -362,14 +362,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 node.MouseLeave += (sender, e) => { node.UnHilightNode(); };
                 Console.WriteLine("Node Created: " + node.Text);
                 LogMessage($"Creating Node Childern: {menuItem.Text}, Depth: {depth}");
-                foreach (var childMenuItem in menuItem.Children)
-                {
-                    Console.WriteLine("Child Node: " + childMenuItem.Text);
-                    LogMessage($"adding Child Node:  {childMenuItem.Text} ");
-                    var childNode = CreateTreeNodeFromMenuItem(childMenuItem, node);
-                    node.AddChild(childNode);
-                }
-              
+               
+                //foreach (var childMenuItem in parentItem.Children)
+                //{
+                //    Console.WriteLine("Child Node: " + childMenuItem.Text);
+                //    LogMessage($"adding Child Node:  {childMenuItem.Text} ");
+                //    var childNode = CreateTreeNodeFromMenuItem(childMenuItem, node);
+                //    node.AddChild(childNode);
+                //}
                 return node;
 
             }
@@ -378,6 +378,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                 LogMessage($"Erro in creating node:  {ex.Message} ");
                 Console.WriteLine("Error: " + ex.Message);
                 return new BeepTreeNode();
+            }
+        }
+      
+        public void CreateChildNodes(BeepTreeNode parent,SimpleItem parentItem)
+        {
+            if (parent == null)
+            {
+                return;
+            }
+            if (parentItem.Children.Count == 0)
+            {
+                return;
+            }
+            foreach (var item in parentItem.Children)
+            {
+
+                var node = CreateTreeNodeFromMenuItem(item, parent);
+                if (node != null)
+                {
+                    parent.AddChild(node);
+                }
             }
         }
         private void AddNode(BeepTreeNode node)
@@ -400,7 +421,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Subscribe to node's expansion and collapse events
             node.NodeExpanded += (s, e) => RearrangeTree();
             node.NodeCollapsed += (s, e) => RearrangeTree();
-            if(!_dontRearrange)
+          //  node.RearrangeNode();
+            if (!_dontRearrange)
                 RearrangeTree();
         }
        
@@ -691,22 +713,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             SuspendLayout(); // Suspend layout updates for performance
             int startY = 5; // Initial Y offset
 
-            foreach (var node in GetDisplayNodes())
+            foreach (var node in _beeptreenodes)
             {
                 if (!_nodePanels.TryGetValue(node.NodeSeq, out var panel))
                     continue;
-
                 // Position the panel
            //     panel.Location = new Point(5, startY);
                 panel.Width = this.Width - 10; // Adjust panel width based on tree width
-
                 node.RearrangeNode(); // Adjust the node's internal layout
-
-                startY += panel.Height + 5; // Increment Y position based on panel's height
+                startY += panel.Height; // Increment Y position based on panel's height
             }
-
             ResumeLayout(); // Resume layout updates
-            Invalidate(); // Redraw the tree
+           // Invalidate(); // Redraw the tree
         }
 
 

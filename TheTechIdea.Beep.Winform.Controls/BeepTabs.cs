@@ -51,7 +51,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             TabPagesChanged?.Invoke(this, EventArgs.Empty);
         }
     }
+
     [DefaultProperty("TabPages")]
+    [DesignerCategory("Code")]
+    [ToolboxItem(true)]
     public class BeepTabs : BeepControl
     {
         private FlowLayoutPanel _headerPanel;

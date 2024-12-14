@@ -554,9 +554,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void NodeMainMiddlebutton_Click(object sender, EventArgs e)
         {
             e.Equals(MouseButtons.Right);
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonClicked", this);
-          
-           
+            BeepEventDataArgs args = new BeepEventDataArgs("NodeClicked", this);
+            NodeClicked?.Invoke(this, args);
+
 
         }
         private void Nodeleftbutton_Click(object sender, EventArgs e)
@@ -926,8 +926,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_checkBox != null)
             {
                 IsSelected = _checkBox.CurrentValue;
+
+                // Raise appropriate events without modifying SelectedNodes directly.
+                if (IsSelected)
+                {
+                    NodeSelected?.Invoke(this, new BeepEventDataArgs("NodeSelected", this));
+                }
+                else
+                {
+                    NodeDeselected?.Invoke(this, new BeepEventDataArgs("NodeDeselected", this));
+                }
             }
         }
+
+
         private void checktoggle()
         {
             if (_toggleButton != null)

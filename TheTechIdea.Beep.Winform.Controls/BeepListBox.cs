@@ -1,12 +1,5 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Design;
-
-using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -15,7 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         public List<BeepButton> _buttons { get; set; } = new List<BeepButton>();
         private Dictionary<SimpleItem, BeepCheckBox> _itemCheckBoxes = new Dictionary<SimpleItem, BeepCheckBox>();
-
+        public event EventHandler<SimpleItem> ItemClicked;
         private int _selectedIndex = -1;
         private Size ButtonSize = new Size(200, 20);
         private int _highlightPanelSize = 5;
@@ -359,17 +352,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected virtual void MenuItemButton_Click(object? sender, EventArgs e)
         {
-            ItemClicked(sender);
+            ListItemClicked(sender);
         }
 
         private void Button_Click(object sender, EventArgs e)
         {
-            ItemClicked(sender);
+            ListItemClicked(sender);
         }
-        protected virtual void ItemClicked(object sender)
+        public virtual void ListItemClicked(object sender)
         {
             if (sender is BeepButton clickedButton)
                 SelectedIndex = _buttons.IndexOf(clickedButton);
+            ItemClicked?.Invoke(this, (SimpleItem)items[SelectedIndex]);
         }
         private void ChangeImageSettings()
         {

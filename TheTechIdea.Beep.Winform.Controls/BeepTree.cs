@@ -4,10 +4,14 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Reflection;
+using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using TheTechIdea.Beep.Winform.Controls.Managers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -77,7 +81,26 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         public bool AllowMultiSelect { get; set; }
+  
         public List<BeepTreeNode> SelectedNodes { get; private set; }
+
+        public BeepTreeNode SelectedNode
+        {
+            get
+            {
+                if (!AllowMultiSelect)
+                {
+                    // Return the only selected node or null if none
+                    return SelectedNodes.Count > 0 ? SelectedNodes[0] : null;
+                }
+                else
+                {
+                    // Return the last clicked node that caused selection changes
+                    return _lastSelectedNode;
+                }
+            }
+        }
+
         public bool ShowNodeImage
         {
             get { return _shownodeimage; }
@@ -121,9 +144,135 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize scroll event handling for virtualization
             this.AutoScroll = true;
             this.VerticalScroll.Visible = true;
+            this.NodeClicked += OnNodeClicked;
+            this.NodeSelected += OnNodeSelected;
+            this.NodeDeselected += OnNodeDeselected;
         }
-        #region Event Handlers
+        #region "Node Clicked"
+        private void OnNodeRightClicked(object sender, BeepEventDataArgs e)
+        {
+            NodeRightClicked?.Invoke(sender, e);
+        }
 
+        private void OnNodeDoubleClicked(object sender, BeepEventDataArgs e)
+        {
+            NodeDoubleClicked?.Invoke(sender, e);
+        }
+        private void OnNodeExpanded(object sender, BeepEventDataArgs e)
+        {
+            NodeExpanded?.Invoke(sender, e);
+        }
+
+        private void OnNodeCollapsed(object sender, BeepEventDataArgs e)
+        {
+            NodeCollapsed?.Invoke(sender, e);
+        }
+
+        private void OnNodeDeselected(object? sender, BeepEventDataArgs e)
+        {
+            var node = sender as BeepTreeNode;
+            if (node == null) return;
+
+            // Remove from SelectedNodes if present
+            if (SelectedNodes.Contains(node))
+                SelectedNodes.Remove(node);
+        }
+
+        private void OnNodeSelected(object? sender, BeepEventDataArgs e)
+        {
+            var node = sender as BeepTreeNode;
+            if (node == null) return;
+
+            // Add to SelectedNodes if not already present
+            if (!SelectedNodes.Contains(node))
+                SelectedNodes.Add(node);
+        }
+
+        private BeepTreeNode _lastSelectedNode = null;
+
+        private void OnNodeClicked(object sender, BeepEventDataArgs e)
+        {
+            var clickedNode = sender as BeepTreeNode;
+            if (clickedNode == null) return;
+
+            // If checkboxes are used for selection, the node’s CheckBox_StateChanged event will handle it.
+            // If not, handle selection here.
+
+            if (!AllowMultiSelect)
+            {
+                // Single selection mode
+                DeselectAllNodes();          // This will set IsSelected=false on previously selected nodes
+                clickedNode.IsSelected = true; // This will raise NodeSelected
+                _lastSelectedNode = clickedNode;
+            }
+            else
+            {
+                // Multi-selection mode with Ctrl/Shift support
+                bool ctrlPressed = (Control.ModifierKeys & Keys.Control) == Keys.Control;
+                bool shiftPressed = (Control.ModifierKeys & Keys.Shift) == Keys.Shift;
+
+                if (ctrlPressed)
+                {
+                    // Toggle selection
+                    clickedNode.IsSelected = !clickedNode.IsSelected;
+                    // If set to false, NodeDeselected will fire, removing it from SelectedNodes
+                    // If set to true, NodeSelected will fire, adding it to SelectedNodes
+                    // Do not update _lastSelectedNode if we just toggled
+                }
+                else if (shiftPressed && _lastSelectedNode != null)
+                {
+                    // Select a range of nodes between _lastSelectedNode and clickedNode
+                    var allNodes = this.Traverse().ToList();
+                    int startIndex = allNodes.IndexOf(_lastSelectedNode);
+                    int endIndex = allNodes.IndexOf(clickedNode);
+
+                    if (startIndex > -1 && endIndex > -1)
+                    {
+                        // First clear current selection
+                        DeselectAllNodes();
+
+                        // Ensure startIndex < endIndex
+                        if (startIndex > endIndex)
+                        {
+                            var temp = startIndex;
+                            startIndex = endIndex;
+                            endIndex = temp;
+                        }
+
+                        // Select nodes in the specified range
+                        for (int i = startIndex; i <= endIndex; i++)
+                        {
+                            allNodes[i].IsSelected = true; // Raises NodeSelected event
+                        }
+                    }
+                }
+                else
+                {
+                    // No modifier key pressed, treat it like single selection
+                    DeselectAllNodes();
+                    clickedNode.IsSelected = true; // Raises NodeSelected event
+                    _lastSelectedNode = clickedNode;
+                }
+            }
+
+            // Refresh the UI if necessary
+            Invalidate();
+        }
+
+        public void DeselectAllNodes()
+        {
+            // Create a copy of currently selected nodes, as modifying IsSelected will trigger NodeDeselected
+            // events that modify SelectedNodes
+            var currentlySelected = SelectedNodes.ToList();
+
+            foreach (var node in currentlySelected)
+            {
+                node.IsSelected = false; // Will raise NodeDeselected, removing it from SelectedNodes
+            }
+        }
+        #endregion "Node Clicked"
+
+        #region Event Handlers
         #endregion Event Handlers
         protected override void InitLayout()
         {
@@ -307,7 +456,77 @@ namespace TheTechIdea.Beep.Winform.Controls
             RearrangeTree();
             _dontRearrange = false;
         }
-        private BeepTreeNode CreateTreeNodeFromMenuItem(SimpleItem menuItem, BeepTreeNode parent)
+        public BeepTreeNode CreateTreeNode(string name,string imagepath,string BranchGuid,string typename, BeepTreeNode parent)
+        {
+
+            try
+            {
+
+                int seq = -1;
+                if (parent != null)
+                {
+                    seq = parent.ChildNodesSeq;
+                }
+                else
+                {
+                    seq = nodeseq++; ;
+                }
+                //   LogMessage($"Creating Node: {menuItem.Text}, Depth: {depth}");
+                Console.WriteLine("Creating Node: " + name);
+                var node = new BeepTreeNode
+                {
+                    Name = name ?? $"Node{seq}",
+                    NodeLevelID = parent == null ? seq.ToString() : parent.NodeLevelID + "_" + parent.ChildNodesSeq,
+                    Text = name,
+                    ImagePath = imagepath,
+                    ParentNode = parent,
+                    Tree = this,
+                    NodeSeq = seq,
+                    Height = NodeHeight,
+                    IsBorderAffectedByTheme = false,
+                    IsShadowAffectedByTheme = false,
+                    IsFramless = true,
+                    IsChild = true,
+                    Size = new Size(this.Width, NodeHeight),
+                    Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right,
+                    Theme = this.Theme,
+                    SavedGuidID = BranchGuid,
+                    NodeDataType = typename,
+                    Level = parent?.Level + 1 ?? 1 // Increment level for child nodes
+                };
+                node.Text = name ?? $"Node{seq}";
+                node.NodeClicked += (sender, e) => NodeClicked?.Invoke(sender, e);
+                node.NodeRightClicked += (sender, e) => NodeRightClicked?.Invoke(sender, e);
+                node.NodeDoubleClicked += (sender, e) => NodeDoubleClicked?.Invoke(sender, e);
+                node.ShowMenu += (sender, e) => ShowFlyoutMenu(node, new Point(node.Left, node.Top));
+                node.NodeExpanded += (sender, e) => NodeExpanded?.Invoke(sender, e);
+                node.NodeCollapsed += (sender, e) => NodeCollapsed?.Invoke(sender, e);
+                node.NodeSelected += (sender, e) => NodeSelected?.Invoke(sender, e);
+                node.NodeDeselected += (sender, e) => NodeDeselected?.Invoke(sender, e);
+                node.MouseHover += (sender, e) => { node.HilightNode(); };
+                node.MouseLeave += (sender, e) => { node.UnHilightNode(); };
+                Console.WriteLine("Node Created: " + node.Text);
+                //    LogMessage($"Creating Node Childern: {menuItem.Text}, Depth: {depth}");
+
+                //foreach (var childMenuItem in parentItem.Children)
+                //{
+                //    Console.WriteLine("Child Node: " + childMenuItem.Text);
+                //    LogMessage($"adding Child Node:  {childMenuItem.Text} ");
+                //    var childNode = CreateTreeNode(childMenuItem, node);
+                //    node.AddChild(childNode);
+                //}
+                return node;
+
+            }
+            catch (Exception ex)
+            {
+                //   LogMessage($"Erro in creating node:  {ex.Message} ");
+                Console.WriteLine("Error: " + ex.Message);
+                return new BeepTreeNode();
+            }
+        }
+
+        public BeepTreeNode CreateTreeNodeFromMenuItem(SimpleItem menuItem, BeepTreeNode parent)
         {
            
             try
@@ -350,14 +569,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Level = parent?.Level + 1 ?? 1 // Increment level for child nodes
                 };
                 node.Text = menuItem.Text ?? $"Node{seq}";
-                node.NodeClicked += (sender, e) => NodeClicked?.Invoke(sender, e);
-                node.NodeRightClicked += (sender, e) => NodeRightClicked?.Invoke(sender, e);
-                node.NodeDoubleClicked += (sender, e) => NodeDoubleClicked?.Invoke(sender, e);
+                node.NodeClicked +=OnNodeClicked;
+                node.NodeRightClicked += OnNodeRightClicked;
+                node.NodeDoubleClicked += NodeDoubleClicked;
                 node.ShowMenu += (sender, e) => ShowFlyoutMenu(node,new Point(node.Left,node.Top));
-                node.NodeExpanded += (sender, e) => NodeExpanded?.Invoke(sender, e);
-                node.NodeCollapsed += (sender, e) => NodeCollapsed?.Invoke(sender, e);
-                node.NodeSelected += (sender, e) => NodeSelected?.Invoke(sender, e);
-                node.NodeDeselected += (sender, e) => NodeDeselected?.Invoke(sender, e);
+                node.NodeExpanded += OnNodeExpanded;
+                node.NodeCollapsed += OnNodeCollapsed;
+                node.NodeSelected += OnNodeSelected;
+                node.NodeDeselected += OnNodeDeselected;
                 node.MouseHover += (sender, e) => { node.HilightNode(); };
                 node.MouseLeave += (sender, e) => { node.UnHilightNode(); };
                 Console.WriteLine("Node Created: " + node.Text);
@@ -367,7 +586,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //{
                 //    Console.WriteLine("Child Node: " + childMenuItem.Text);
                 //    LogMessage($"adding Child Node:  {childMenuItem.Text} ");
-                //    var childNode = CreateTreeNodeFromMenuItem(childMenuItem, node);
+                //    var childNode = CreateTreeNode(childMenuItem, node);
                 //    node.AddChild(childNode);
                 //}
                 return node;
@@ -401,7 +620,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        private void AddNode(BeepTreeNode node)
+        public void AddNode(BeepTreeNode node)
         {
             var panel = new Panel
             {
@@ -445,13 +664,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        int index = Nodes.IndexOf(parent.Tag as SimpleItem);
         //        rootnodeitems[index].Children.Add(item);
         //        int parentreenodeindex = _beeptreenodes.IndexOf(parent);
-        //        _beeptreenodes[parentreenodeindex].AddChild(CreateTreeNodeFromMenuItem(item, parent));
+        //        _beeptreenodes[parentreenodeindex].AddChild(CreateTreeNode(item, parent));
         //        _beeptreenodes[parentreenodeindex].RearrangeNode();
         //    }
         //    else
         //    {
         //        rootnodeitems.Add(item);
-        //        AddNode(CreateTreeNodeFromMenuItem(item, null));
+        //        AddNode(CreateTreeNode(item, null));
         //    }
           
         //}
@@ -726,7 +945,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             ResumeLayout(); // Resume layout updates
            // Invalidate(); // Redraw the tree
         }
+        public void SetAllNodesCheckBoxVisibility(bool show)
+        {
+            // Iterate over all nodes that are directly within the _beeptreenodes collection
+            // These are top-level nodes or root nodes in the tree
+            foreach (var node in _beeptreenodes)
+            {
+                node.ToggleCheckBoxVisibility(show);
+            }
 
+            // Optionally, you can store this setting if needed for future reference
+            // For instance: 
+            // this.ShowCheckBox = show; 
+            // if you keep a similar property in the BeepTree itself.
+        }
+       
 
     }
 

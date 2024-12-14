@@ -103,10 +103,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Override ItemClicked or other event from BeepListBox if needed
         public override void ListItemClicked(object sender)
         {
-            
+
+            base.ListItemClicked(sender);
             if (sender is BeepButton btn && btn.Tag is SimpleItem item)
             {
-                OnItemClicked(item);
+                ItemClicked?.Invoke(this, item);
+                Hide();
             }
         }
 

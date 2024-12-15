@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
+using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Tree;
 using TheTechIdea.Beep.Winform.Controls.Common;
@@ -48,6 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public ITreeBranchHandler treeBranchHandler { get; set; }
         public string Filterstring { get; set; }
         public ErrorsInfo ErrorsandMesseges { get; private set; }
+       
         #endregion "Properties"
         #region "Events"   
         public event EventHandler<IPassedArgs> PreCallModule;
@@ -340,7 +342,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                n.ImagePath = CategoryIcon;
             }
-            //n.ContextMenuStrip = 
+            //n.BeepContextMenuStrip = 
             Console.WriteLine(br.BranchText);
             CreateMenuMethods(br);
             if (br.ObjectType != null && br.BranchClass != null)
@@ -454,26 +456,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Refresh Branch Methods"
         #region "Run Method"
-        public void RunFunction(object sender, EventArgs e)
+        public void RunFunction(object sender, SimpleItem item)
         {
             IBranch br = null;
-            AssemblyClassDefinition assemblydef = new AssemblyClassDefinition();
+            AssemblyClassDefinition assemblydef =MethodHandler.GetAssemblyClassDefinitionByGuid(item.AssemblyClassDefinitionID);
             MethodInfo method = null;
             MethodsClass methodsClass;
-            string MethodName = "";
+            string MethodName = item.MethodName;
             if (sender == null) { return; }
-            if (sender.GetType() == typeof(ToolStripButton))
-            {
-                ToolStripButton item = (ToolStripButton)sender;
-                assemblydef = (AssemblyClassDefinition)item.Tag;
-                MethodName = item.Text;
-            }
-            if (sender.GetType() == typeof(ToolStripMenuItem))
-            {
-                ToolStripMenuItem item = (ToolStripMenuItem)sender;
-                assemblydef = (AssemblyClassDefinition)item.Tag;
-                MethodName = item.Text;
-            }
+            
             dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { DMEEditor, VisManager, this });
             //  dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] { DMEEditor, Vismanager, this });
             if (fc == null)
@@ -504,7 +495,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DMEEditor.Passedarguments.DatasourceName = br.DataSourceName;
                 DMEEditor.Passedarguments.Id = br.BranchID;
                 DMEEditor.Passedarguments.ParameterInt1 = br.BranchID;
-                if (!IsMethodApplicabletoNode(cls, br)) return;
+                if (!MethodHandler.IsMethodApplicabletoNode(cls, br)) return;
 
             }
 
@@ -531,7 +522,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     method.Invoke(fc, null);
             }
         }
-        public void RunFunction(IBranch br, ToolStripItem item)
+        public void RunFunction(IBranch br, SimpleItem item)
         {
             if (SelectedNode != null)
             {
@@ -545,14 +536,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     DMEEditor.Passedarguments = new PassedArgs();
                 }
 
-                AssemblyClassDefinition assemblydef = (AssemblyClassDefinition)item.Tag;
+                AssemblyClassDefinition assemblydef = MethodHandler.GetAssemblyClassDefinitionByGuid(item.AssemblyClassDefinitionID);
                 dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { DMEEditor, VisManager, this });
                 Type t = ((IFunctionExtension)fc).GetType();
                 //dynamic fc = Activator.CreateInstance(assemblydef.type, new object[] { DMEEditor, Vismanager, this });
                 AssemblyClassDefinition cls = DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
                 MethodInfo method = null;
                 MethodsClass methodsClass;
-                if (!IsMethodApplicabletoNode(cls, br)) return;
+                if (!MethodHandler.IsMethodApplicabletoNode(cls, br)) return;
 
                 try
                 {
@@ -607,6 +598,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             try
             {
 
+
             }
             catch (Exception ex)
             {
@@ -624,22 +616,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             try
             {
                 MenuList menuList = new MenuList();
-                if (!IsMenuCreated(br))
+                if (!MethodHandler.IsMenuCreated(br))
                 {
                     menuList = new MenuList(br.ObjectType, br.BranchClass, br.BranchType);
                     menuList.branchname = br.BranchText;
-                    Menus.Add(menuList);
-                    ContextMenuStrip nodemenu = new ContextMenuStrip();
-                    nodemenu.ImageList = GetImageList();
-                    //nodemenu.ItemClicked -= Nodemenu_ItemClicked;
-                    //nodemenu.ItemClicked += Nodemenu_ItemClicked;
-                    nodemenu.Items.Clear();
+                    MethodHandler.Menus.Add(menuList);
+                    BeepContextMenuStrip nodemenu = new BeepContextMenuStrip();
+                    // nodemenu.ImageList = GetImageList();
+                    nodemenu.ItemClicked -= ItemClicked;
+                    nodemenu.ItemClicked +=ItemClicked;
+                    nodemenu.ListItems.Clear();
                     menuList.Menu = nodemenu;
                     menuList.ObjectType = br.ObjectType;
                     menuList.BranchClass = br.BranchClass;
                 }
                 else
-                    menuList = GetMenuList(br);
+                    menuList = MethodHandler.GetMenuList(br);
                 List<AssemblyClassDefinition> extentions = DMEEditor.ConfigEditor.GlobalFunctions.Where(o => o.classProperties != null && o.classProperties.ObjectType != null && o.classProperties.ObjectType.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase)).OrderBy(p => p.Order).ToList(); //&&  o.classProperties.menu.Equals(br.BranchClass, StringComparison.InvariantCultureIgnoreCase)
                 foreach (AssemblyClassDefinition cls in extentions)
                 {
@@ -652,34 +644,39 @@ namespace TheTechIdea.Beep.Winform.Controls
                             {
                                 if (item.PointType == br.BranchType)
                                 {
-                                    ContextMenuStrip ls = (ContextMenuStrip)menuList.Menu;
-                                    ToolStripItem st = ls.Items.Add(item.Caption);
+                                    BeepContextMenuStrip ls = (BeepContextMenuStrip)menuList.Menu;
+
+                                    SimpleItem st = new SimpleItem() { Branchname = item.Caption, Name = item.Caption };
+                                    ls.ListItems.Add(st);
                                     ls.Name = br.ToString();
                                     if (item.iconimage != null)
                                     {
-                                        st.ImageIndex = VisManager.visHelper.GetImageIndex(item.iconimage);
+                                      //  st.ImageIndex = VisManager.visHelper.GetImageIndex(item.iconimage);
                                     }
-                                    st.Tag = cls;
-                                    ls.Tag = cls;
-                                    ls.ItemClicked -= Nodemenu_ItemClicked;
-                                    ls.ItemClicked += Nodemenu_ItemClicked;
+                                    st.ActionID = cls.PackageName;
+                                    st.AssemblyClassDefinitionID = cls.GuidID;
+                                  
+                                //    ls.ItemClicked -= Nodemenu_ItemClicked;
+                                 //   ls.ItemClicked += Nodemenu_ItemClicked;
                                 }
                             }
                             else
                             {
                                 if ((item.PointType == br.BranchType) && (br.BranchClass.Equals(item.ClassType, StringComparison.InvariantCultureIgnoreCase)))
                                 {
-                                    ContextMenuStrip ls = (ContextMenuStrip)menuList.Menu;
-                                    ToolStripItem st = ls.Items.Add(item.Caption);
+                                    BeepContextMenuStrip ls = (BeepContextMenuStrip)menuList.Menu;
+                                    SimpleItem st = new SimpleItem() { Branchname = item.Caption, Name = item.Caption };
+                                    ls.ListItems.Add(st);
                                     ls.Name = br.ToString();
                                     if (item.iconimage != null)
                                     {
-                                        st.ImageIndex = VisManager.visHelper.GetImageIndex(item.iconimage);
+                                      //  st.ImageIndex = VisManager.visHelper.GetImageIndex(item.iconimage);
                                     }
-                                    st.Tag = cls;
+                                    st.ActionID = cls.PackageName;
+                                    st.AssemblyClassDefinitionID = cls.GuidID;
                                     ls.Tag = cls;
-                                    ls.ItemClicked -= Nodemenu_ItemClicked;
-                                    ls.ItemClicked += Nodemenu_ItemClicked;
+                                    ls.ItemClicked -= ItemClicked;
+                                    ls.ItemClicked += ItemClicked;
                                 }
                             }
                         }
@@ -692,18 +689,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return DMEEditor.ErrorObject;
             }
         }
-        public ContextMenuStrip CreateMenuMethods(IBranch branch)
+
+        private void ItemClicked(object? sender, SimpleItem e)
         {
-            ContextMenuStrip ls = null;
+            Nodemenu_ItemClicked(sender, e);
+        }
+
+        public BeepContextMenuStrip CreateMenuMethods(IBranch branch)
+        {
+            BeepContextMenuStrip ls = null;
             MenuList menuList = new MenuList();
-            if (!IsMenuCreated(branch))
+            if (!MethodHandler.IsMenuCreated(branch))
             {
                 menuList = new MenuList(branch.ObjectType, branch.BranchClass, branch.BranchType);
                 menuList.branchname = branch.BranchText;
-                Menus.Add(menuList);
-                ContextMenuStrip nodemenu = new ContextMenuStrip();
-                nodemenu.Items.Clear();
-                nodemenu.ImageList = GetImageList();
+                MethodHandler.Menus.Add(menuList);
+                BeepContextMenuStrip nodemenu = new BeepContextMenuStrip();
+                nodemenu.ListItems.Clear();
+               // nodemenu.ImageList = GetImageList();
                 //nodemenu.ItemClicked -= Nodemenu_ItemClicked;
                 //nodemenu.ItemClicked += Nodemenu_ItemClicked;
                 menuList.Menu = nodemenu;
@@ -711,7 +714,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 menuList.BranchClass = branch.BranchClass;
             }
             else
-                menuList = GetMenuList(branch);
+                menuList = MethodHandler.GetMenuList(branch);
             try
             {
                 AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == branch.ToString()).FirstOrDefault();
@@ -720,16 +723,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                     menuList.classDefinitions.Add(cls);
                     foreach (var item in cls.Methods.Where(y => y.Hidden == false))
                     {
-                        ls = (ContextMenuStrip)menuList.Menu;
-                        ToolStripItem st = ls.Items.Add(item.Caption);
+                        ls = (BeepContextMenuStrip)menuList.Menu;
+                        SimpleItem st = new SimpleItem() { Branchname = item.Caption, Name = item.Caption };
+                        ls.ListItems.Add(st);
                         ls.Name = branch.ToString();
-                        ls.ItemClicked -= Nodemenu_ItemClicked;
-                        ls.ItemClicked += Nodemenu_ItemClicked;
+                     //   ls.ItemClicked -= Nodemenu_ItemClicked;
+                     //   ls.ItemClicked += Nodemenu_ItemClicked;
                         if (item.iconimage != null)
                         {
                             try
                             {
-                                st.ImageIndex = VisManager.visHelper.GetImageIndex(item.iconimage);
+                         //       st.ImageIndex = VisManager.visHelper.GetImageIndex(item.iconimage);
                             }
                             catch (Exception)
                             {
@@ -738,7 +742,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                             }
 
                         }
-                        st.Tag = cls;
+                        st.ActionID = item.GuidID;
+                        st.AssemblyClassDefinitionID = cls.GuidID;
                         ls.Tag = cls;
                     }
                 }
@@ -750,18 +755,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             return ls;
         }
-        public void Nodemenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        public void Nodemenu_ItemClicked(object sender,SimpleItem item)
         {
-            ContextMenuStrip menu = (ContextMenuStrip)sender;
-            ToolStripItem item = e.ClickedItem;
+            BeepContextMenuStrip menu = (BeepContextMenuStrip)sender;
+          
             BeepTreeNode n = SelectedNode;
             menu.Hide();
-            IBranch br = (IBranch)n.Tag;
-            AssemblyClassDefinition cls = (AssemblyClassDefinition)item.Tag;
+            IBranch br = (IBranch)GetBranchByGuidID(item.ReferenceID);
+            AssemblyClassDefinition cls = MethodHandler.GetAssemblyClassDefinitionByGuid(item.AssemblyClassDefinitionID);
 
             if (cls != null)
             {
-                if (!IsMethodApplicabletoNode(cls, br)) return;
+                if (!MethodHandler.IsMethodApplicabletoNode(cls, br)) return;
                 if (cls.componentType == "IFunctionExtension")
                 {
                     RunFunction(br, item);
@@ -777,7 +782,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void Nodemenu_MouseClick(TreeNodeMouseClickEventArgs e)
         {
-            // ContextMenuStrip n = (ContextMenuStrip)e.;
+            // BeepContextMenuStrip n = (BeepContextMenuStrip)e.;
             BeepTreeNode n = SelectedNode;
 
             IBranch br = (IBranch)n.Tag;
@@ -802,10 +807,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (e.Button == MouseButtons.Right)
                 {
 
-                    if (IsMenuCreated(br))
+                    if (MethodHandler.IsMenuCreated(br))
                     {
-                        MenuList menuList = GetMenuList(br);
-                        ContextMenuStrip ls = (ContextMenuStrip)menuList.Menu;
+                        MenuList menuList = MethodHandler.GetMenuList(br);
+                        BeepContextMenuStrip ls = (BeepContextMenuStrip)menuList.Menu;
                         ls.Show(Cursor.Position);
                     }
 
@@ -827,7 +832,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == br.Name && x.Methods.Where(y => y.DoubleClick == true || y.Click == true).Any()).FirstOrDefault();
                     if (cls != null)
                     {
-                        if (!IsMethodApplicabletoNode(cls, br)) return;
+                        if (!MethodHandler.IsMethodApplicabletoNode(cls, br)) return;
                         RunMethod(br, clicks);
 
                     }

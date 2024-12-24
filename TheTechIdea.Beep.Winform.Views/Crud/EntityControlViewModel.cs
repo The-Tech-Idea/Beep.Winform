@@ -119,10 +119,10 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
             // Looping through the fields
             foreach (var field in Structure.Fields.OrderBy(p => p.fieldname))
             {
-                DefaultValue coldefaults = defaults.Where(o => o.propertyName == field.fieldname).FirstOrDefault();
+                DefaultValue coldefaults = defaults.Where(o => o.PropertyName == field.fieldname).FirstOrDefault();
                 if (coldefaults == null)
                 {
-                    coldefaults = defaults.Where(o => field.fieldname.Contains(o.propertyName)).FirstOrDefault();
+                    coldefaults = defaults.Where(o => field.fieldname.Contains(o.PropertyName)).FirstOrDefault();
                 }
                 else
                     coldefaults = new DefaultValue();
@@ -184,10 +184,10 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                                 ch2.Height = label.Height;
                                 if (coldefaults != null)
                                 {
-                                    if (coldefaults.propoertValue.Contains(","))
+                                    if (coldefaults.PropertyValue.Contains(","))
                                     {
-                                        string[] v = coldefaults.propoertValue.Split(',');
-                                        v = coldefaults.propoertValue.Split(',');
+                                        string[] v = coldefaults.PropertyValue.Split(',');
+                                        v = coldefaults.PropertyValue.Split(',');
                                         ch2.CheckedValue = v[0].ToCharArray()[0];
                                         ch2.UncheckedValue = v[1].ToCharArray()[0];
                                     }
@@ -350,10 +350,10 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
             Control inputControl = null;
             // Create and configure the label for the field
 
-            DefaultValue coldefaults = defaults.Where(o => o.propertyName == field.fieldname).FirstOrDefault();
+            DefaultValue coldefaults = defaults.Where(o => o.PropertyName == field.fieldname).FirstOrDefault();
             if (coldefaults == null)
             {
-                coldefaults = defaults.Where(o => field.fieldname.Contains(o.propertyName)).FirstOrDefault();
+                coldefaults = defaults.Where(o => field.fieldname.Contains(o.PropertyName)).FirstOrDefault();
             }
             else
                 coldefaults = new DefaultValue();
@@ -401,10 +401,10 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                             ch2.Height = fieldheight;
                             if (coldefaults != null)
                             {
-                                if (coldefaults.propoertValue.Contains(","))
+                                if (coldefaults.PropertyValue.Contains(","))
                                 {
-                                    string[] v = coldefaults.propoertValue.Split(',');
-                                    v = coldefaults.propoertValue.Split(',');
+                                    string[] v = coldefaults.PropertyValue.Split(',');
+                                    v = coldefaults.PropertyValue.Split(',');
                                     ch2.CheckedValue = v[0].ToCharArray()[0];
                                     ch2.UncheckedValue = v[1].ToCharArray()[0];
                                 }
@@ -622,10 +622,10 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                 int towidth = 0;
                 try
                 {
-                    DefaultValue coldefaults = defaults.Where(o => o.propertyName == col.fieldname).FirstOrDefault();
+                    DefaultValue coldefaults = defaults.Where(o => o.PropertyName == col.fieldname).FirstOrDefault();
                     if (coldefaults == null)
                     {
-                        coldefaults = defaults.Where(o => col.fieldname.Contains(o.propertyName)).FirstOrDefault();
+                        coldefaults = defaults.Where(o => col.fieldname.Contains(o.PropertyName)).FirstOrDefault();
                     }
                     string coltype = col.fieldtype;
                     RelationShipKeys FK = entityStructure.Relations.Where(f => f.EntityColumnID == col.fieldname).FirstOrDefault();
@@ -774,7 +774,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                                 ch2.Text = "";
                                 ch2.Width = valuewidth;
                                 ch2.Height = l.Height;
-                                string[] v = coldefaults.propoertValue.Split(',');
+                                string[] v = coldefaults.PropertyValue.Split(',');
 
                                 if (coldefaults != null)
                                 {
@@ -878,7 +878,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
 
                                     if (coldefaults != null)
                                     {
-                                        v = coldefaults.propoertValue.Split(',');
+                                        v = coldefaults.PropertyValue.Split(',');
                                         ch2.CheckedValue = v[0].ToCharArray()[0];
                                         ch2.UncheckedValue = v[1].ToCharArray()[0];
                                     }
@@ -995,10 +995,10 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                     List<string> fields = ent.Fields.Select(u => u.EntityName).ToList();
                     if (defaults != null)
                     {
-                        DefaultValue defaultValue = defaults.Where(p => p.propertyName.Equals(EntityField, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                        DefaultValue defaultValue = defaults.Where(p => p.PropertyName.Equals(EntityField, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
                         if (defaultValue != null)
                         {
-                            DisplayField = defaultValue.propoertValue;
+                            DisplayField = defaultValue.PropertyValue;
                         }
 
                     }

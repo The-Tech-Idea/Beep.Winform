@@ -9,6 +9,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public interface IVisManager: IDisposable
     {
+        EnumBeepThemes Theme { get; set; }
         bool IsLogOn { get; set; }
         IDMEEditor DMEEditor { get; set; }
         ErrorsInfo ErrorsandMesseges { get; set; }

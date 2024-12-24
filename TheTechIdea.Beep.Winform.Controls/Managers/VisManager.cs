@@ -37,6 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public event EventHandler<IPassedArgs> PostCallModule;
         public event EventHandler<KeyCombination> KeyPressed;
 
+        public EnumBeepThemes Theme { get; set; }
         public IBeepUser User { get; set; }
         public string LogoUrl { get; set; }
         string tt;

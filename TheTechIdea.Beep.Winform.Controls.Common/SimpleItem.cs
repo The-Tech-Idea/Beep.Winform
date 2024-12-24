@@ -41,6 +41,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
             get { return _parentItem; }
             set { _parentItem = value; }
         }
+        [NonSerialized]
+        private object _value; // used for to store the parent item
+        public object Value
+        {
+            get { return _value; }
+            set { _value = value; }
+        }
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public BindingList<SimpleItem> Children { get; set; } = new BindingList<SimpleItem>();
         public string MenuID { get; set; }

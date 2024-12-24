@@ -65,7 +65,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             DialogResult dialogResult = MapDialogResult(form.ShowDialog());
             return dialogResult;
         }
-
         public virtual  DialogResult InputBox(string title, string promptText, ref string value)
         {
             // Create the label and textbox
@@ -161,7 +160,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             value = textBox.Text;
             return dialogResult;
         }
-
         public virtual void MsgBox(string title, string promptText)
         {
             try
@@ -199,7 +197,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
             }
         }
-
         public virtual DialogResult InputComboBox(string title, string promptText, List<string> itvalues, ref string value)
         {
             // Create the label and ComboBox
@@ -250,8 +247,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             value = comboBox.Text;
             return dialogResult;
         }
-
-
         public virtual string DialogCombo(string text, List<object> comboSource, string displayMember, string valueMember)
         {
             // Create the label and ComboBox
@@ -309,8 +304,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             // Return the selected value
             return comboBox.SelectedValue?.ToString();
         }
-
-
         public virtual  List<string> LoadFilesDialog(string exts, string dir, string filter)
         {
             OpenFileDialog openFileDialog1 = new System.Windows.Forms.OpenFileDialog()
@@ -529,10 +522,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 Control CurCTL=new Control();
                 foreach (EntityField col in TableCurrentEntity.Fields)
                 {
-                    DefaultValue coldefaults = defaults.Where(o => o.propertyName == col.fieldname).FirstOrDefault();
+                    DefaultValue coldefaults = defaults.Where(o => o.PropertyName == col.fieldname).FirstOrDefault();
                     if (coldefaults == null)
                     {
-                        coldefaults = defaults.Where(o => col.fieldname.Contains(o.propertyName)).FirstOrDefault();
+                        coldefaults = defaults.Where(o => col.fieldname.Contains(o.PropertyName)).FirstOrDefault();
                     }
                     string coltype = col.fieldtype;
                     RelationShipKeys FK = TableCurrentEntity.Relations.Where(f => f.EntityColumnID == col.fieldname).FirstOrDefault();
@@ -641,7 +634,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                                 ch2.Text = "";
                                 ch2.Width = maxDatasize;
                                 ch2.Height = l.Height;
-                                string[] v = coldefaults.propoertValue.Split(',');
+                                string[] v = coldefaults.PropertyValue.Split(',');
 
                                 if (coldefaults != null)
                                 {
@@ -698,7 +691,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
                                     if (coldefaults != null)
                                     {
-                                        v = coldefaults.propoertValue.Split(',');
+                                        v = coldefaults.PropertyValue.Split(',');
                                         ch2.CheckedValue = v[0].ToCharArray()[0];
                                         ch2.UncheckedValue = v[1].ToCharArray()[0];
                                     }
@@ -762,13 +755,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
             return control;
         }
-        public virtual  void CreateEntityFilterControls( EntityStructure entityStructure, List<DefaultValue> dsdefaults, IPassedArgs passedArgs = null)
+        public virtual List<AppFilter> CreateEntityFilterControls( EntityStructure entityStructure, List<DefaultValue> dsdefaults, IPassedArgs passedArgs = null)
         {
-
-            CreateFilterFields(entityStructure,dsdefaults,passedArgs);
+            List<AppFilter> Filters = new List<AppFilter>();
+            if (Filters != null)
+            {
+                Filters.Clear();
+            }
+            else
+                Filters = new List<AppFilter>();
+             CreateFilterFields(entityStructure,dsdefaults,passedArgs);
+            return Filters;
 
         }
-        public virtual  void CreateFieldsFilterControls(List<EntityField> Fields, List<AppFilter> Filters, List<DefaultValue> dsdefaults, IPassedArgs passedArgs = null)
+        public  virtual List<AppFilter> CreateFieldsFilterControls(List<EntityField> Fields, List<AppFilter> Filters, List<DefaultValue> dsdefaults, IPassedArgs passedArgs = null)
         {
           
             if (Filters != null)
@@ -781,6 +781,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             List<string> FieldNames = new List<string>();
             EntityStructure str=new EntityStructure() { Fields=Fields, Filters=Filters};
             CreateFilterFields(str,  dsdefaults, passedArgs);
+            return Filters;
 
 
         }
@@ -827,10 +828,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 EntityField col = entityStructure.Fields[i];
                 try
                 {
-                    DefaultValue coldefaults = dsdefaults.Where(o => o.propertyName == col.fieldname).FirstOrDefault();
+                    DefaultValue coldefaults = dsdefaults.Where(o => o.PropertyName == col.fieldname).FirstOrDefault();
                     if (coldefaults == null)
                     {
-                        coldefaults = dsdefaults.Where(o => col.fieldname.Contains(o.propertyName)).FirstOrDefault();
+                        coldefaults = dsdefaults.Where(o => col.fieldname.Contains(o.PropertyName)).FirstOrDefault();
                     }
                     string coltype = col.fieldtype;
                     RelationShipKeys FK = entityStructure.Relations.Where(f => f.EntityColumnID == col.fieldname).FirstOrDefault();
@@ -978,7 +979,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                                 ch2.Text = "";
                                 ch2.Width = valuewidth;
                                 ch2.Height = l.Height;
-                                string[] v = coldefaults.propoertValue.Split(',');
+                                string[] v = coldefaults.PropertyValue.Split(',');
 
                                 if (coldefaults != null)
                                 {
@@ -1082,7 +1083,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
                                     if (coldefaults != null)
                                     {
-                                        v = coldefaults.propoertValue.Split(',');
+                                        v = coldefaults.PropertyValue.Split(',');
                                         ch2.CheckedValue = v[0].ToCharArray()[0];
                                         ch2.UncheckedValue = v[1].ToCharArray()[0];
                                     }
@@ -1257,10 +1258,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     List<string> fields = ent.Fields.Select(u => u.EntityName).ToList();
                     if (defaults != null)
                     {
-                        DefaultValue defaultValue = defaults.Where(p => p.propertyName.Equals(EntityField, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                        DefaultValue defaultValue = defaults.Where(p => p.PropertyName.Equals(EntityField, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
                         if (defaultValue != null)
                         {
-                            DisplayField = defaultValue.propoertValue;
+                            DisplayField = defaultValue.PropertyValue;
                         }
 
                     }
@@ -1287,7 +1288,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 return null;
             }
         }
-
         public virtual  bool ShowAlert(string title, string message, string icon)
         {
 

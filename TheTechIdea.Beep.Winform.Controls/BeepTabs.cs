@@ -89,6 +89,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         private int _headerButtonWidth = 60;
+        private Rectangle rect;
+
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int HeaderButtonWidth
@@ -150,8 +152,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnLayout(LayoutEventArgs e)
         {
             base.OnLayout(e);
-
-            var rect = DrawingRect;
+            Padding = new Padding(2);
+            rect = DrawingRect;
             if (rect == Rectangle.Empty) return;
 
             switch (_headerLocation)
@@ -271,8 +273,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (Theme != null)
             {
-                this.BackColor = _currentTheme.PanelBackColor;
-                _headerPanel.BackColor = _currentTheme.PanelBackColor; // Or another suitable property
+                this.BackColor = _currentTheme.BackgroundColor;
+                _headerPanel.BackColor = _currentTheme.BackgroundColor; // Or another suitable property
 
                 // Re-apply theme to all buttons
                 foreach (Control ctrl in _headerPanel.Controls)

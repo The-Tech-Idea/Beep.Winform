@@ -29,8 +29,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         string SelectFolderDialog();
         bool ShowAlert(string title, string message, string icon);
         void ShowMessege(string title, string message, string icon);
-        void CreateEntityFilterControls(  EntityStructure entityStructure, List<DefaultValue> dsdefaults, IPassedArgs passedArgs = null);
-        void CreateFieldsFilterControls(List<EntityField> Fields, List<AppFilter> Filters, List<DefaultValue> dsdefaults, IPassedArgs passedArgs = null);
+        List<AppFilter>  CreateEntityFilterControls(EntityStructure entityStructure, List<DefaultValue> dsdefaults, IPassedArgs passedArgs = null);
+        List<AppFilter>  CreateFieldsFilterControls(List<EntityField> Fields, List<AppFilter> Filters, List<DefaultValue> dsdefaults, IPassedArgs passedArgs = null);
         event EventHandler<IPassedArgs> PreCallModule;
         event EventHandler<IPassedArgs> PreShowItem;
     }

@@ -112,6 +112,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                // InitializeTreeFromMenuItems();
             }
         }
+
+        public bool ShowCheckBox { get; private set; }
+
         public BeepTree()
         {
             this.Name = "BeepTree";
@@ -948,7 +951,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Optionally, you can store this setting if needed for future reference
             // For instance: 
-            // this.ShowCheckBox = show; 
+            this.ShowCheckBox = show; 
             // if you keep a similar property in the BeepTree itself.
         }
        

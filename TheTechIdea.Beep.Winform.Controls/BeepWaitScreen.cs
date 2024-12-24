@@ -20,8 +20,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeComponent();
             _spinnerImage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.loading.svg";
         }
-
-
         public async Task ShowAndRunAsync(Func<Task> asyncAction)
         {
             Show();
@@ -37,17 +35,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Close();
             }
         }
-
         private void StartSpinner()
         {
             _spinnerImage.IsSpinning = true; // Start spinning
         }
-
         private void StopSpinner()
         {
             _spinnerImage.IsSpinning = false; // Stop spinning
         }
-
         public void UpdateProgress(int progress, string message = null)
         {
            
@@ -75,21 +70,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             MessegeTextBox.SelectionStart = MessegeTextBox.Text.Length;
             MessegeTextBox.ScrollToCaret();
         }
-
         public void Reset()
         {
 
             AppendLogSafe( "Please wait...");
         }
-
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
             StartSpinner();
         }
-
-
-
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             base.OnFormClosing(e);

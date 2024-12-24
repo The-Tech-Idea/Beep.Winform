@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _themeEnum = value;
                 _currentTheme = BeepThemesManager.GetTheme(value);
-                //      this.ApplyTheme();
+               
                 ApplyTheme();
             }
         }

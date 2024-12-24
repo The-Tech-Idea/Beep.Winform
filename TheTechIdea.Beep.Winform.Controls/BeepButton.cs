@@ -333,7 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            BackColor = _currentTheme.BackgroundColor;
+            BackColor = _currentTheme.ButtonBackColor;
             ForeColor = _currentTheme.ButtonForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
@@ -664,6 +664,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ImageClicked?.Invoke(this, ev);
             base.OnClick(e);
         }
+
         protected override void OnClick(EventArgs e)
         {
             base.OnClick(e);

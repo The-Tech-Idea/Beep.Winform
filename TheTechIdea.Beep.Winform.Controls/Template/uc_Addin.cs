@@ -54,10 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
         public Progress<PassedArgs> Progress { get; set; }
         public string GuidID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public virtual void Run(IPassedArgs pPassedarg)
-        {
-          
-        }
+      
         private void SetupProgress()
         {
             
@@ -145,26 +142,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
             pbr=ExtensionsHelpers.pbr;
             RootBranch = ExtensionsHelpers.RootBranch;
             ParentBranch = ExtensionsHelpers.ParentBranch;
-            //ViewRootBranch = ExtensionsHelpers.ViewRootBranch;
-
-            //if (e.Objects.Where(c => c.Name == "Branch").Any())
-            //{
-            //    pbr = (IBranch)e.Objects.Where(c => c.Name == "Branch").FirstOrDefault().obj;
-            //}
-            //if (e.Objects.Where(i => i.Name == "RootBranch").Any())
-            //{
-            //    RootBranch = (IBranch)e.Objects.Where(c => c.Name == "RootBranch").FirstOrDefault().obj;
-            //}
-
-            //if (e.Objects.Where(i => i.Name == "ParentBranch").Any())
-            //{
-            //    ParentBranch = (IBranch)e.Objects.Where(c => c.Name == "ParentBranch").FirstOrDefault().obj;
-            //}
+         
         }
 
-        public void Run(params object[] args)
+        public virtual void Run(params object[] args)
         {
-            throw new NotImplementedException();
+           
+        }
+        public virtual void Run(IPassedArgs pPassedarg)
+        {
+
         }
     }
 }

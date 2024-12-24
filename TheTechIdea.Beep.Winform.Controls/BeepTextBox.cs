@@ -3,8 +3,7 @@ using System;
 using System.ComponentModel;
 
 using TheTechIdea.Beep.Winform.Controls.Helpers;
-using System.Windows.Forms;
-using TheTechIdea.Beep.ConfigUtil;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -23,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Size _maxImageSize = new Size(16, 16); // Default image size
         private string? _imagepath;
         private bool _multiline = false;
-
+        int padding = 4;
         int offset = 1;
         [Browsable(true)]
         [Category("Appearance")]
@@ -31,6 +30,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get => _innerTextBox.PreferredHeight;
 
+        }
+        // Provide a public property that returns single-line height based on the current font
+        [Browsable(false)]
+        public int SingleLineHeight
+        {
+            get
+            {
+                using (TextBox temp = new TextBox())
+                {
+                    temp.Multiline = false;
+                    temp.BorderStyle = BorderStyle.None;
+                    temp.Font = _innerTextBox.Font; // match the font used by the inner text box
+
+                    // The system's best guess for single-line text
+                    return temp.PreferredHeight;
+                }
+            }
         }
 
         // show the inner textbox properties like multiline
@@ -83,6 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
+      
         [Browsable(true)]
         [Category("Appearance")]
         public bool UseSystemPasswordChar
@@ -353,7 +370,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         bool _applyThemeOnImage = false;
-        private int padding;
+
         private int spacing;
 
         public bool ApplyThemeOnImage
@@ -413,6 +430,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             AutoSize = false;
             IsChild = true;
             BoundProperty = "Text";
+            BorderStyle = BorderStyle.FixedSingle;
             ApplyTheme(); // Ensure _currentTheme is initialized
             // Ensure size adjustments occur after initialization
             UpdateDrawingRect();
@@ -462,7 +480,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                // Multiline = true,
                 //ScrollBars= ScrollBars.Both
             };
-             IsCustomeBorder=true;   
+            // IsCustomeBorder=true;   
             _innerTextBox.TextChanged += InnerTextBox_TextChanged;
             _innerTextBox.KeyPress += InnerTextBox_KeyPress;
             _innerTextBox.KeyDown += OnSearchKeyDown;
@@ -502,25 +520,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
         {
+            // If not multiline => force single-line height logic
             if (!_multiline)
             {
-                // Update DrawingRect to get accurate measurements
                 UpdateDrawingRect();
 
                 int singleLineHeight = GetSingleLineHeight();
-
-                // Set Minimum and Maximum height to enforce fixed height
                 this.MinimumSize = new Size(0, singleLineHeight);
                 this.MaximumSize = new Size(0, singleLineHeight);
 
                 height = singleLineHeight;
-                specified &= ~BoundsSpecified.Height; // Remove the Height flag to prevent external changes
+                specified &= ~BoundsSpecified.Height;
             }
             else
             {
-                // Remove any height constraints when multiline
-                this.MinimumSize = new Size(0, 0);
-                this.MaximumSize = new Size(0, 0);
+                // multiline => allow resizing freely
+                // We'll do final alignment in OnResize
             }
 
             base.SetBoundsCore(x, y, width, height, specified);
@@ -537,93 +552,120 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_multiline)
             {
-                // Set the inner TextBox's height to fill the DrawingRect
-                _innerTextBox.Height = DrawingRect.Height;
-                _innerTextBox.Location = new Point(DrawingRect.X, DrawingRect.Y);
+                // fill the entire DrawingRect minus some padding
+                // (this ensures the text box is inside the beepcontrol border)
+                int fillWidth = DrawingRect.Width - (padding * 2);
+                int fillHeight = DrawingRect.Height - (padding * 2);
+
+                if (fillWidth < 1) fillWidth = 1;
+                if (fillHeight < 1) fillHeight = 1;
+
+                _innerTextBox.Location = new Point(DrawingRect.X + padding, DrawingRect.Y + padding);
+                _innerTextBox.Size = new Size(fillWidth, fillHeight);
             }
             else
             {
-                // Ensure DrawingRect is updated
-                UpdateDrawingRect();
-
-                // Set the inner TextBox's height to its preferred height
+                // single line
+                _innerTextBox.Multiline = false;
+                // Just keep the text box's native preferred height
                 _innerTextBox.Height = _innerTextBox.PreferredHeight;
-             //   Console.WriteLine($" _innerTextBox.Height  :{_innerTextBox.Height}");
-                // Center the inner TextBox vertically within the DrawingRect
+
+                // horizontally fill entire DrawingRect
+                _innerTextBox.Width = DrawingRect.Width - (padding * 2);
+
+                // center vertically
                 int textBoxY = DrawingRect.Y + (DrawingRect.Height - _innerTextBox.Height) / 2;
-                _innerTextBox.Location = new Point(DrawingRect.X, textBoxY);
+                _innerTextBox.Location = new Point(DrawingRect.X+ padding, textBoxY);
             }
-        //    Console.WriteLine("AdjustTextBoxHeight");
-            // Set the width of the inner TextBox to match the DrawingRect
-            _innerTextBox.Width = DrawingRect.Width;
         }
+
         private void PositionInnerTextBoxAndImage()
         {
-        //   Console.WriteLine("PositionInnerTextBoxAndImage");
-            // Ensure that DrawingRect is updated
-            UpdateDrawingRect();
+            // If there's an image, place it. Otherwise, text box fills.
+            // For multiline, we typically skip the image logic or hide it if you don't want an image in multiline.
 
-            // Get the image size
+            if (_multiline)
+            {
+                // typically skip image or hide it
+                if (!string.IsNullOrEmpty(ImagePath))
+                {
+                    beepImage.Visible = false; // or adapt if you want an image for multiline
+                }
+                return;
+            }
+
+            // Single-line code
+            bool hasImage = !string.IsNullOrEmpty(ImagePath);
+            if (!hasImage)
+            {
+                beepImage.Visible = false;
+                return;
+            }
+
+            beepImage.Visible = true;
+
+            // scale image if needed
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
-
-            // Scale image size to respect the max image size
             if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
             {
                 float scaleFactor = Math.Min(
                     (float)_maxImageSize.Width / imageSize.Width,
-                    (float)_maxImageSize.Height / imageSize.Height);
+                    (float)_maxImageSize.Height / imageSize.Height
+                );
                 imageSize = new Size(
                     (int)(imageSize.Width * scaleFactor),
                     (int)(imageSize.Height * scaleFactor));
             }
+            beepImage.Size = imageSize;
 
-            // Calculate the height of the inner TextBox
-            int textBoxHeight = _innerTextBox.Multiline ? DrawingRect.Height : GetSingleLineHeight();
+            // compute textBox final height from _innerTextBox if needed
+            int textBoxHeight = _innerTextBox.Height;
+            int controlHeight = DrawingRect.Height;
 
-            // Center the TextBox vertically if not multiline
-            int textBoxY = DrawingRect.Y + (DrawingRect.Height - textBoxHeight) / 2;
+            // center image & text box
+            int imageY = DrawingRect.Y + (controlHeight - beepImage.Height) / 2;
+            int textBoxY = _innerTextBox.Location.Y; // should already be centered in AdjustTextBoxHeight
 
-            if (string.IsNullOrEmpty(ImagePath))
+            if (_textImageRelation == TextImageRelation.ImageBeforeText)
             {
-            //    Console.WriteLine($" Hight :{textBoxHeight}");
-                // Position the TextBox
-                _innerTextBox.Location = new Point(DrawingRect.X, textBoxY);
-                _innerTextBox.Size = new Size(DrawingRect.Width, textBoxHeight);
-            }
-            else if (_textImageRelation == TextImageRelation.ImageBeforeText)
-            {
-                // Position the image inside DrawingRect
-                int imageY = DrawingRect.Y + (DrawingRect.Height - imageSize.Height) / 2;
-                beepImage.Location = new Point(DrawingRect.X, imageY);
-                beepImage.Size = imageSize;
+                // place image at left
+                beepImage.Location = new Point(DrawingRect.X + padding, imageY);
 
-                // Position the TextBox next to the image
-                int textBoxX = beepImage.Right;
-                int textBoxWidth = DrawingRect.Right - beepImage.Right;
+                // place text box to the right
+                int textBoxX = beepImage.Right + spacing;
+                int textBoxWidth = (DrawingRect.Right - textBoxX) - padding;
+                if (textBoxWidth < 1) textBoxWidth = 1;
 
                 _innerTextBox.Location = new Point(textBoxX, textBoxY);
-                _innerTextBox.Size = new Size(textBoxWidth, textBoxHeight);
+                _innerTextBox.Width = textBoxWidth;
             }
             else if (_textImageRelation == TextImageRelation.TextBeforeImage)
             {
-                // Position the TextBox
-                int textBoxWidth = DrawingRect.Width - imageSize.Width;
-                _innerTextBox.Location = new Point(DrawingRect.X, textBoxY);
-                _innerTextBox.Size = new Size(textBoxWidth, textBoxHeight);
+                // text box first
+                int textBoxWidth = (DrawingRect.Width - beepImage.Width - spacing - (padding * 2));
+                if (textBoxWidth < 1) textBoxWidth = 1;
+                _innerTextBox.Width = textBoxWidth;
 
-                // Position the image after the TextBox
-                int imageY = DrawingRect.Y + (DrawingRect.Height - imageSize.Height) / 2;
-                beepImage.Location = new Point(_innerTextBox.Right, imageY);
-                beepImage.Size = imageSize;
+                // reposition text box to left
+                _innerTextBox.Location = new Point(DrawingRect.X + padding, textBoxY);
+
+                // image after text
+                int imageX = _innerTextBox.Right + spacing;
+                beepImage.Location = new Point(imageX, imageY);
+            }
+            else
+            {
+                // e.g. overlay or something else => skip or hide image
+                beepImage.Visible = false;
             }
         }
         #endregion "Size and Position"
-        public override void DrawCustomBorder(PaintEventArgs e)
-        {
-            if(!ShowAllBorders) 
-            { _innerTextBox.BorderStyle = BorderStyle.None; } 
-            else { _innerTextBox.BorderStyle = BorderStyle.FixedSingle; }
-        }
+        //public override void DrawCustomBorder(PaintEventArgs e)
+        //{
+        //    if(!ShowAllBorders) 
+        //    { _innerTextBox.BorderStyle = BorderStyle.None; } 
+        //    else { _innerTextBox.BorderStyle = BorderStyle.FixedSingle; }
+        //}
         private void OnMouseEnter(object? sender, EventArgs e)
         {
             base.OnMouseEnter(e);

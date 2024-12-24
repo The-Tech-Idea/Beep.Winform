@@ -22,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton maximizeIcon;
         private BeepButton minimizeIcon;
         private BeepSideMenu _sidemenu;
+        private BeepButton themedropdown;
         private int imageoffset = 4;
         public BeepSideMenu SideMenu { get { return _sidemenu; } set { _sidemenu = value;if (_sidemenu != null) { _sidemenu.OnMenuCollapseExpand += HandleSideMenuState; } } }
 
@@ -428,12 +429,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             BackColor = _currentTheme.TitleBarBackColor;
-            //leftPanel.BackColor = _currentTheme.PanelBackColor;
-            //centerPanel.BackColor = _currentTheme.PanelBackColor;
-            //rightPanel.BackColor = _currentTheme.PanelBackColor;
-            //toptable.BackColor = _currentTheme.PanelBackColor;
-            //bottomtable.BackColor = _currentTheme.PanelBackColor;
-            
             searchBox.Theme = Theme;
             searchBox.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
             searchBox.Height=searchBox.PreferredHeight;

@@ -443,7 +443,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         // Border properties
-        protected int _borderRadius = 5;
+        protected int _borderRadius = 1;
 
         public int BorderRadius
         {
@@ -1229,7 +1229,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (IsHovered)
             {
                 color = _currentTheme.HoverLinkColor;
-                brder = BorderThickness + 1;
+               // brder = BorderThickness + 1;
             }
 
             using (var pen = new Pen(color, brder))
@@ -1461,28 +1461,69 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
         {
+            //GraphicsPath path = new GraphicsPath();
+
+            //// Ensure the radius is valid relative to the rectangle's dimensions
+            //int diameter = Math.Min(Math.Min(radius * 2, rect.Width), rect.Height);
+
+            //if (diameter > 0)
+            //{
+            //    // Add arcs and lines for rounded rectangle
+            //    path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
+            //    path.AddArc(rect.Right - diameter, rect.Y, diameter, diameter, 270, 90);
+            //    path.AddArc(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter, 0, 90);
+            //    path.AddArc(rect.X, rect.Bottom - diameter, diameter, diameter, 90, 90);
+            //    path.CloseFigure();
+            //}
+            //else
+            //{
+            //    // Fallback to a regular rectangle if diameter is zero
+            //    path.AddRectangle(rect);
+            //}
+
+           // return path;
+           return GetEllipticalRoundedRectPath(rect, radius, radius);
+        }
+        /// <summary>
+        /// Creates a GraphicsPath for a rectangle with elliptical corners
+        /// allowing different horizontal and vertical radii. This can be used
+        /// for more “modern” or “material” style corners.
+        /// </summary>
+        /// <param name="rect">The overall bounding rectangle.</param>
+        /// <param name="radiusX">Horizontal radius for corners.</param>
+        /// <param name="radiusY">Vertical radius for corners.</param>
+        /// <returns>A GraphicsPath defining the elliptical-corner rectangle.</returns>
+        protected GraphicsPath GetEllipticalRoundedRectPath(Rectangle rect, int radiusX, int radiusY)
+        {
             GraphicsPath path = new GraphicsPath();
 
-            // Ensure the radius is valid relative to the rectangle's dimensions
-            int diameter = Math.Min(Math.Min(radius * 2, rect.Width), rect.Height);
+            // Cap the radii so we don't exceed rect dimensions
+            int diameterX = Math.Min(radiusX * 2, rect.Width);
+            int diameterY = Math.Min(radiusY * 2, rect.Height);
 
-            if (diameter > 0)
+            // If either diameter is 0, fallback to a plain rectangle
+            if (diameterX <= 0 || diameterY <= 0)
             {
-                // Add arcs and lines for rounded rectangle
-                path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-                path.AddArc(rect.Right - diameter, rect.Y, diameter, diameter, 270, 90);
-                path.AddArc(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter, 0, 90);
-                path.AddArc(rect.X, rect.Bottom - diameter, diameter, diameter, 90, 90);
-                path.CloseFigure();
-            }
-            else
-            {
-                // Fallback to a regular rectangle if diameter is zero
                 path.AddRectangle(rect);
+                return path;
             }
 
+            // top-left corner
+            path.AddArc(rect.X, rect.Y, diameterX, diameterY, 180, 90);
+
+            // top-right corner
+            path.AddArc(rect.Right - diameterX, rect.Y, diameterX, diameterY, 270, 90);
+
+            // bottom-right corner
+            path.AddArc(rect.Right - diameterX, rect.Bottom - diameterY, diameterX, diameterY, 0, 90);
+
+            // bottom-left corner
+            path.AddArc(rect.X, rect.Bottom - diameterY, diameterX, diameterY, 90, 90);
+
+            path.CloseFigure();
             return path;
         }
+
         #endregion "Painting"
 
         #endregion "Drawing Methods"

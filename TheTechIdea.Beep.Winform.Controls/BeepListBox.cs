@@ -10,17 +10,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Dictionary<SimpleItem, BeepCheckBox> _itemCheckBoxes = new Dictionary<SimpleItem, BeepCheckBox>();
         public event EventHandler<SimpleItem> ItemClicked;
         private int _selectedIndex = -1;
+        private SimpleItem _selectedItem;
         private Size ButtonSize = new Size(200, 20);
         private int _highlightPanelSize = 5;
         private int _menuItemHeight = 20;
-        int drawRectX;
-        int drawRectY;
-        int drawRectWidth;
-        int drawRectHeight;
+        protected int spacing = 2;
+        protected int drawRectX;
+        protected int drawRectY;
+        protected int drawRectWidth;
+        protected int drawRectHeight;
         private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
         private bool _shownodeimage;
         private string? _imageKey;
         private bool _showCheckBox = false;
+        private bool _showtitlelinetemp = true;
+        // ---------------- NEW PRIVATE FIELD to store original height -------------
+        private int _originalHeight = 0;
+
+        // ---------------- NEW PROPERTY: Collapsed -------------
+        private bool _collapsed = false;
+
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Indicates whether to show checkboxes for menu rootnodeitems.")]
@@ -34,6 +43,49 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("If true, the control shrinks to show only the title area. If false, re-expands to previous height.")]
+        public bool Collapsed
+        {
+            get => _collapsed;
+            set
+            {
+                if (value != _collapsed)
+                {
+                    _collapsed = value;
+                    if (_collapsed)
+                    {
+                        // Store current height
+                        _originalHeight = this.Height;
+                        _showtitlelinetemp= ShowTitleLine;
+                        // Collapse to title line (just top area)
+                        CollapseToTitleLine(0);
+                        ShowTitleLine = false;
+                    }
+                    else
+                    {
+                        // Expand back to the original stored height
+                        if (_originalHeight > 0)
+                        {
+                            this.Height = _originalHeight;
+                            ShowTitleLine = _showtitlelinetemp;
+                            this.Invalidate();
+                        }
+                    }
+                }
+            }
+        }
+        // ------------------------------------------------------
+
+        public SimpleItem SelectedItem
+        {
+            get => _selectedItem;
+            set
+            {
+                _selectedItem = value;
+            }
+        }
         [Browsable(false)]
         public List<SimpleItem> SelectedItems
         {
@@ -64,6 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                // InitializeMenu();
             }
         }
+       
         public bool ShowImage
         {
             get { return _shownodeimage; }
@@ -161,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
           
         }
-        void GetDimensions()
+        public void GetDimensions()
         {
             UpdateDrawingRect();
             drawRectX = DrawingRect.X+1;
@@ -277,8 +330,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return menuItemPanel;
         }
-
-
         private void UpdateSelectedItems(SimpleItem item, BeepCheckBox checkBox)
         {
             if (checkBox.State == BeepCheckBox<bool>.CheckBoxState.Checked)
@@ -300,7 +351,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             GetDimensions();
             ButtonSize = new Size(drawRectWidth-2, _menuItemHeight-2);
-            int spacing = 2;
+            
             // Remove existing menu item panels
             foreach (var control in this.Controls.OfType<Panel>().Where(c => c.Tag is SimpleItem).ToList())
             {
@@ -354,7 +405,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             ListItemClicked(sender);
         }
-
         private void Button_Click(object sender, EventArgs e)
         {
             ListItemClicked(sender);
@@ -388,21 +438,98 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
         }
+        public int GetItemIndex(SimpleItem item)
+        {
+            return items.IndexOf(item);
+        }
+        public void SetItemIndex(SimpleItem item)
+        {
+            SelectedIndex = GetItemIndex(item);
+        }
+        public void SetItemIndex(int index)
+        {
+            SelectedIndex = index;
+        }
+        public void SetItemIndex(string itemtext)
+        {
+            SelectedIndex = items.IndexOf(items.Where(c => c.Text == itemtext).FirstOrDefault());
+        }
+        public void SetItemIndex(string itemtext, string itemvalue)
+        {
+            SelectedIndex = items.IndexOf(items.Where(c => c.Text == itemtext && c.Value == itemvalue).FirstOrDefault());
+        }
+        public  int GetMaxWidth()
+        {
+            int maxwidth = 0;
+            foreach (var item in items)
+            {
+                if (item.Text.Length > maxwidth)
+                {
+                    maxwidth = item.Text.Length;
+                }
+            }
+            return maxwidth;
+        }
+        public int GetMaxHeight()
+        {
+            if (items == null || items.Count == 0)
+                return 0;
+
+            // Calculate total height: sum of all item heights plus spacing between them
+            int totalHeight = items.Count * _menuItemHeight;
+
+            // Add spacing between items
+            if (items.Count > 1)
+            {
+                totalHeight += (items.Count ) * spacing;
+            }
+
+            // Optionally, add padding (if required)
+            // int padding = 10; // Example padding
+            // totalHeight += padding;
+
+           Console.WriteLine($"GetMaxHeight: Total height calculated as {totalHeight} pixels.");
+
+            return totalHeight;
+        }
+
+        // ------------ NEW FUNCTION -------------
+        /// <summary>
+        /// Shrinks the control to only show the top portion
+        /// (title area, optional line). Stores the old height,
+        /// so we can restore it if Collapsed = false.
+        /// Called automatically by Collapsed property when set to true.
+        /// </summary>
+        public void CollapseToTitleLine(int extraMargin =0)
+        {
+            // Force OnPaint to ensure TitleBottomY is updated
+            this.Invalidate();
+            this.Update();
+
+            // TitleBottomY is set in the panel's OnPaint
+            if (TitleBottomY > 0)
+            {
+                // just shrink
+                this.Height = TitleBottomY + extraMargin;
+            }
+        }
+        // ---------------------------------------
         public override void ApplyTheme()
         {
+            base.ApplyTheme();
             if (_currentTheme == null) { return; }
             //base.ApplyTheme();
             // Apply theme to the main menu panel (background gradient or solid color)
-            BackColor = _currentTheme.PanelBackColor;
+            BackColor = _currentTheme.BackgroundColor;
           
-            _currentTheme.ButtonBackColor = _currentTheme.PanelBackColor;
+            _currentTheme.ButtonBackColor = _currentTheme.BackgroundColor;
             // Apply theme to each item (button and highlight panel)
             foreach (Control control in this.Controls)
             {
                 if (control is Panel menuItemPanel)
                 {
                     // Apply background color for the menu item panel
-                    menuItemPanel.BackColor = _currentTheme.PanelBackColor;
+                    menuItemPanel.BackColor = _currentTheme.BackgroundColor;
 
                     // Loop through the controls inside the panel (button and highlight panel)
                     foreach (Control subControl in menuItemPanel.Controls)
@@ -416,7 +543,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                             case Panel highlightPanel:
                                 // Apply the highlight color for the side highlight panel
-                                highlightPanel.BackColor = _currentTheme.PanelBackColor;
+                                highlightPanel.BackColor = _currentTheme.BackgroundColor;
                                 break;
                         }
                     }

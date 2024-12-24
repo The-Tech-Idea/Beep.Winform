@@ -1,11 +1,9 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
-
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Timer = System.Windows.Forms.Timer;
-
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -13,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Containers")]
     public class BeepPanel : BeepControl
     {
-
+        // We'll keep everything the same, only adjusting the logic in DrawTitle and DrawTitleLine
         const int startyoffset = 0;
         private string _titleText = "Panel Title";
         private bool _showTitle = true;
@@ -21,11 +19,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _titleLineFullWidth = true;
         private Color _titleLineColor = Color.Gray;
         private int _titleLineThickness = 2;
+
+   
+
         private int _titleBottomY = startyoffset;
         private ContentAlignment _titleAlignment = ContentAlignment.TopLeft;
 
-        #region "Scrolling Properties"
-        // Scrolling properties
+        int padding = 2; // Adjusted padding for top, left, etc.
+
+        #region "Scrolling"
         private bool _enableScrolling = false;
         private int _scrollOffset = 0;
         private int _scrollSpeed = 1;
@@ -34,7 +36,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _scrollDirection = 1;
         private VScrollBar _verticalScrollBar;
         private HScrollBar _horizontalScrollBar;
-        #endregion "Scrolling Properties"
+        #endregion
+
+        #region "Public Properties"
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -46,10 +50,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _titleBottomY = value;
-
             }
         }
-        // Title and Title Line properties
+
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The text displayed as the title.")]
@@ -60,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _titleText = value;
-                Invalidate(); // Redraw when this property changes
+                Invalidate();
             }
         }
 
@@ -74,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showTitleLine = value;
-                Invalidate(); // Redraw when this property changes
+                Invalidate();
             }
         }
 
@@ -88,7 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _titleLineColor = value;
-                Invalidate(); // Redraw when this property changes
+                Invalidate();
             }
         }
 
@@ -102,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _titleLineThickness = value;
-                Invalidate(); // Redraw when this property changes
+                Invalidate();
             }
         }
 
@@ -116,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showTitle = value;
-                Invalidate(); // Trigger repaint
+                Invalidate();
             }
         }
 
@@ -130,10 +133,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _titleAlignment = value;
-                Invalidate(); // Trigger repaint
+                Invalidate();
             }
         }
-        // Property to control whether the title line should span the full width or just the title width
+
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Draw the title line with full width or just below the title.")]
@@ -144,148 +147,123 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _titleLineFullWidth = value;
-                Invalidate(); // Redraw when this property changes
+                Invalidate();
             }
         }
 
+        #endregion
 
-        // Constructor
+        #region "Constructor"
         public BeepPanel()
         {
             ApplyTheme();
-            // this.MinimumSize = new Size(300, 200); // Set based on layout needs
-            this.Size = new Size(400, 300); // Default start size
-
+            this.Size = new Size(400, 300);
         }
+        #endregion
 
         public override void ApplyTheme()
         {
-            // Console.WriteLine("Applying Theme on Simple Panel");
+            // We'll keep your logic, no changes
             BackColor = _currentTheme.BackgroundColor;
             ForeColor = _currentTheme.TitleForColor;
+
             foreach (Control ctrl in Controls)
             {
-                // ApplyThemeToControl(ctrl);
-                //if (ctrl is BeepButton)
-                //{
-                //    //  Console.WriteLine("Applying Theme to Button");
-                //    ((BeepButton)ctrl).ApplyThemeOnImage = true;
-                //    ((BeepButton)ctrl).Theme = Theme;
-                //}
-                //else if (ctrl is BeepLabel)
-                //{
-                //    ((BeepLabel)ctrl).Theme = Theme;
-                //}
+                // if you want to apply theme to child controls, do so here
             }
             Invalidate();
         }
-        //protected override void OnPaintBackground(PaintEventArgs e)
-        //{
-        //    base.OnPaintBackground(e); // Draw base background elements (gradient, etc.)
-        //}
+
         protected override void OnPaint(PaintEventArgs e)
         {
-            base.OnPaint(e); // Draw base elements (border, shadow, etc.)
-           // Console.WriteLine($" start Title {startyoffset}");
+            // base draws the beepcontrol background/border if any
+            base.OnPaint(e);
+
+            // Reset TitleBottomY each time we paint. We'll recalc it if we draw a title.
             _titleBottomY = startyoffset;
-            // Draw title text if enabled
+
+            // If ShowTitle is true and TitleText is not empty, draw the title
             if (_showTitle && !string.IsNullOrEmpty(_titleText))
             {
                 DrawTitle(e.Graphics);
             }
         }
 
-
         protected override void OnControlAdded(ControlEventArgs e)
         {
             base.OnControlAdded(e);
-            // Adjust layout for any new controls if necessary
+            // If you need to re-layout child controls, do so
         }
 
-        private void DrawTitle(Graphics graphics)
+        private void DrawTitle(Graphics g)
         {
-            // Use BeepThemesManager to fetch the theme-based font, or fall back to default font
-            Font fontToUse = BeepThemesManager.ToFont(_currentTheme?.ButtonStyle) ?? Font;
+            // Use a title font from your theme, or fallback
+            Font fontToUse = BeepThemesManager.ToFont(_currentTheme?.TitleSmall) ?? Font;
 
+            // Update DrawingRect before measuring or positioning
+            UpdateDrawingRect();
 
-            SizeF titleSize = graphics.MeasureString(_titleText, fontToUse);
-            int padding = 0; // Adjusted padding for shadow and borders
-            PointF titlePosition = new PointF(DrawingRect.Left + padding, DrawingRect.Top + padding);
+            // measure how big the text is
+            SizeF titleSize = g.MeasureString(_titleText, fontToUse);
 
-            // Adjust title position based on alignment setting within DrawingRect
+            // We'll define a "textTop" for vertical. It's typically DrawingRect.Top + some padding
+            float textTop = DrawingRect.Top + padding;
+            // We'll define textLeft based on TitleAlignment
+            float textLeft = 0;
+
             switch (_titleAlignment)
             {
-                case ContentAlignment.TopRight:
-                    titlePosition = new PointF(DrawingRect.Right - titleSize.Width - padding, DrawingRect.Top + padding);
-                    break;
                 case ContentAlignment.TopLeft:
-                    titlePosition = new PointF(DrawingRect.Left + padding, DrawingRect.Top + padding);
+                    textLeft = DrawingRect.Left + padding;
                     break;
                 case ContentAlignment.TopCenter:
-                    titlePosition = new PointF(DrawingRect.Left + (DrawingRect.Width - titleSize.Width) / 2, DrawingRect.Top + padding);
+                    textLeft = DrawingRect.Left + (DrawingRect.Width - titleSize.Width) / 2f;
                     break;
+                case ContentAlignment.TopRight:
+                    textLeft = DrawingRect.Right - titleSize.Width - padding;
+                    break;
+                    // If you plan to support MiddleLeft, MiddleCenter, etc. you'd handle them similarly,
+                    // but your code suggests you only do top alignments
             }
 
-            using (var brush = new SolidBrush(_currentTheme.TitleForColor))
+            // Draw the title text
+            using (Brush brush = new SolidBrush(_currentTheme.TitleForColor))
             {
-                if (_showTitle && !string.IsNullOrEmpty(TitleText))
+                g.DrawString(_titleText, fontToUse, brush, textLeft, textTop);
+            }
+
+            // The bottom of the drawn text
+            float textBottomY = textTop + titleSize.Height;
+
+            if (_showTitleLine)
+            {
+                // We'll draw a line below the text
+                // line Y is a bit below the text
+                // e.g. lineY = (int)(textBottomY + 2) if you want a small gap
+                int lineY = (int)(textBottomY + 2);
+
+                // If ShowTitleLineinFullWidth => from DrawingRect.Left + BorderThickness
+                // else from textLeft => textLeft + titleSize.Width
+                int lineStartX = ShowTitleLineinFullWidth
+                    ? (DrawingRect.Left + BorderThickness)
+                    : (int)textLeft;
+                int lineEndX = ShowTitleLineinFullWidth
+                    ? (DrawingRect.Right - BorderThickness)
+                    : (int)(textLeft + titleSize.Width);
+
+                using (var pen = new Pen(_titleLineColor, _titleLineThickness))
                 {
-
-                    //    Console.WriteLine($" -1 1 No Title Line {titleSize.Height}");
-                    graphics.DrawString(_titleText, fontToUse, brush, titlePosition);
-
-
-
-                    if (_showTitleLine)
-                    {
-                        //      Console.WriteLine($" 1 No Title Line {titleSize.Height}");
-                        DrawTitleLine(graphics);
-                    }
-                    else
-                    {
-                        //      Console.WriteLine($"2 No Title Line {titleSize.Height}");
-                        // get the next Y position for rootnodeitems below the title
-                        _titleBottomY = DrawingRect.Top + BorderThickness + (int)titleSize.Height + 8; // Adjusted for title height and padding
-
-
-
-                    }
-
-
+                    g.DrawLine(pen, lineStartX, lineY, lineEndX, lineY);
                 }
-
+                
+                // TitleBottomY is the line's bottom => lineY + lineThickness + some extra
+                _titleBottomY = lineY + _titleLineThickness + padding;
             }
-        }
-
-
-        private void DrawTitleLine(Graphics graphics)
-        {
-            // Use the current theme font or default font
-            Font fontToUse = BeepThemesManager.ToFont(_currentTheme?.ButtonStyle) ?? Font;
-            SizeF titleSize = graphics.MeasureString(TitleText, fontToUse);
-            // Calculate Y position relative to DrawingRect to align line below title text
-            int lineY = DrawingRect.Top + BorderThickness + (int)titleSize.Height + 8; // Adjust based on title height and padding
-
-            // Measure the width of the title text if ShowTitleLineinFullWidth is false
-            int lineStartX = DrawingRect.Left + BorderThickness;
-            int lineEndX = ShowTitleLineinFullWidth
-                ? DrawingRect.Right - BorderThickness // Full width
-                : lineStartX + (int)titleSize.Width; // Title width + padding
-                                                     // TitleBottomY = lineY + 5;
-                                                     // Set line color and thickness, using the current theme or default if unavailable
-            using (var pen = new Pen(_currentTheme?.TitleForColor ?? Color.Gray, TitleLineThickness))
+            else
             {
-                // Draw line based on the selected width option
-                graphics.DrawLine(pen, lineStartX, lineY, lineEndX, lineY);
+                // no line => just set TitleBottomY to textBottom plus some padding
+                _titleBottomY = (int)(textBottomY + padding);
             }
-            // Update the TitleBottomY to position rootnodeitems below the line
-            _titleBottomY = lineY + _titleLineThickness + 5; // Adjusted for the line's thickness and extra padding
         }
-
-        //protected override void OnResize(EventArgs e)
-        //{
-        //    base.OnResize(e);
-        //    Invalidate(); // Redraw on resize to adjust title positioning
-        //}
     }
 }

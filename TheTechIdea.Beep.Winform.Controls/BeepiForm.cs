@@ -219,7 +219,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion
         #region Rounded Corners and DPI Awareness
-
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
@@ -282,7 +281,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnLayout(e);
        //     AdjustControls();
         }
-
         public void AdjustControls()
         {
             Rectangle adjustedClientArea = GetAdjustedClientRectangle();

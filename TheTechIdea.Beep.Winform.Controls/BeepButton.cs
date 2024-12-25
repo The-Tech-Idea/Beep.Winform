@@ -2,12 +2,8 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
-using Svg;
-
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Winform.Controls.Editors;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -16,6 +12,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Controls")]
     public class BeepButton : BeepControl
     {
+        #region "Properties"
+
         private BeepImage beepImage;
         private int borderSize = 1;
 
@@ -301,6 +299,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Trigger repaint when the state changes
             }
         }
+
+        #endregion "Properties"
+        #region "Constructor"
         // Constructor
         public BeepButton()
         {
@@ -308,7 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ApplyTheme();
             CanBeHovered = true;
             CanBePressed = true;
-            CanBeFocused = true;    
+            CanBeFocused = true;
         }
         private void InitializeComponents()
         {
@@ -331,6 +332,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size = new Size(120, 40);  // Default size
                                        //  Controls.Add(beepImage);
         }
+        #endregion "Constructor"
+        #region "Theme"
         public override void ApplyTheme()
         {
             BackColor = _currentTheme.ButtonBackColor;
@@ -366,6 +369,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         }
+        #endregion "Theme"
+        #region "Paint"
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -399,9 +404,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 18, FontWeight.Normal, FontStyle.Regular);
                     break;
             }
-           
-          
-         //   DrawBackColor(e, BackColor, _currentTheme.ButtonHoverBackColor);
+
+
+            //   DrawBackColor(e, BackColor, _currentTheme.ButtonHoverBackColor);
             DrawImageAndText(e.Graphics);
         }
         private void DrawImageAndText(Graphics g)
@@ -409,7 +414,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             // Measure and scale the font to fit within the control bounds
             Font scaledFont = Font;// GetScaledFont(g, Text, contentRect.Size, Font);
-            if(UseScaledFont)
+            if (UseScaledFont)
             {
                 scaledFont = GetScaledFont(g, Text, contentRect.Size, Font);
             }
@@ -640,11 +645,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Return the calculated size
             return new Size(width, height);
         }
+        #endregion "Paint"
+        #region "Mouse and Click"
         private void BeepImage_MouseHover(object? sender, EventArgs e)
         {
             IsHovered = true;
             //  BackColor = _currentTheme.ButtonHoverBackColor;
-             base.OnMouseHover(e);
+            base.OnMouseHover(e);
 
         }
         private void BeepImage_MouseLeave(object? sender, EventArgs e)
@@ -660,11 +667,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void BeepImage_Click(object? sender, EventArgs e)
         {
             var ev = new BeepEventDataArgs("ImageClicked", this);
-           
+
             ImageClicked?.Invoke(this, ev);
             base.OnClick(e);
         }
-
         protected override void OnClick(EventArgs e)
         {
             base.OnClick(e);
@@ -672,9 +678,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 IsSelected = !IsSelected;
             }
-           
-        }
 
+        }
+        #endregion "Mouse and Click"
     }
 
 

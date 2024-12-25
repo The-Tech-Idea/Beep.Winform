@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepAppBar1.DisabledBackColor = Color.Gray;
             beepAppBar1.DisabledForeColor = Color.Empty;
             beepAppBar1.Dock = DockStyle.Top;
-            beepAppBar1.DrawingRect = new Rectangle(1, 1, 759, 33);
+            beepAppBar1.DrawingRect = new Rectangle(1, 1, 827, 30);
             beepAppBar1.Easing = EasingType.Linear;
             beepAppBar1.FieldID = null;
             beepAppBar1.FocusBackColor = Color.Gray;
@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepAppBar1.IsRoundedAffectedByTheme = false;
             beepAppBar1.IsShadowAffectedByTheme = false;
             beepAppBar1.LeftoffsetForDrawingRect = 0;
-            beepAppBar1.Location = new Point(303, 3);
+            beepAppBar1.Location = new Point(235, 3);
             beepAppBar1.Name = "beepAppBar1";
             beepAppBar1.OverrideFontSize = TypeStyleFontSize.None;
             beepAppBar1.ParentBackColor = Color.Empty;
@@ -133,6 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepAppBar1.ShowBottomBorder = true;
             beepAppBar1.ShowCloseIcon = true;
             beepAppBar1.ShowFocusIndicator = false;
+            beepAppBar1.ShowHamburgerIcon = true;
             beepAppBar1.ShowLeftBorder = true;
             beepAppBar1.ShowLogoIcon = false;
             beepAppBar1.ShowMaximizeIcon = true;
@@ -144,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepAppBar1.ShowShadow = false;
             beepAppBar1.ShowTopBorder = true;
             beepAppBar1.SideMenu = null;
-            beepAppBar1.Size = new Size(761, 35);
+            beepAppBar1.Size = new Size(829, 32);
             beepAppBar1.SlideFrom = SlideDirection.Left;
             beepAppBar1.StaticNotMoving = false;
             beepAppBar1.TabIndex = 0;
@@ -182,9 +183,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepSideMenu1.DisabledBackColor = Color.Gray;
             beepSideMenu1.DisabledForeColor = Color.Empty;
             beepSideMenu1.Dock = DockStyle.Left;
-            beepSideMenu1.DrawingRect = new Rectangle(6, 6, 288, 609);
+            beepSideMenu1.DrawingRect = new Rectangle(6, 6, 220, 609);
             beepSideMenu1.Easing = EasingType.Linear;
-            beepSideMenu1.ExpandedWidth = 300;
+            beepSideMenu1.ExpandedWidth = 302;
             beepSideMenu1.FieldID = null;
             beepSideMenu1.FocusBackColor = Color.White;
             beepSideMenu1.FocusBorderColor = Color.Gray;
@@ -225,7 +226,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepSideMenu1.Name = "beepSideMenu1";
             beepSideMenu1.OverrideFontSize = TypeStyleFontSize.None;
             beepSideMenu1.Padding = new Padding(5);
-            beepSideMenu1.ParentBackColor = Color.FromArgb(245, 245, 220);
+            beepSideMenu1.ParentBackColor = Color.White;
             beepSideMenu1.PressedBackColor = Color.FromArgb(0, 120, 215);
             beepSideMenu1.PressedBorderColor = Color.Gray;
             beepSideMenu1.PressedForeColor = Color.Black;
@@ -242,7 +243,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepSideMenu1.ShowRightBorder = true;
             beepSideMenu1.ShowShadow = false;
             beepSideMenu1.ShowTopBorder = true;
-            beepSideMenu1.Size = new Size(300, 621);
+            beepSideMenu1.Size = new Size(232, 621);
             beepSideMenu1.SlideFrom = SlideDirection.Left;
             beepSideMenu1.StaticNotMoving = false;
             beepSideMenu1.TabIndex = 1;
@@ -773,7 +774,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepComboBox1.AnimationDuration = 500;
             beepComboBox1.AnimationType = DisplayAnimationType.None;
             beepComboBox1.ApplyThemeToChilds = true;
-            beepComboBox1.BackColor = Color.White;
             beepComboBox1.BlockID = null;
             beepComboBox1.BorderColor = Color.FromArgb(200, 200, 200);
             beepComboBox1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -1293,7 +1293,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepButtonPopList1.AnimationType = DisplayAnimationType.None;
             beepButtonPopList1.ApplyThemeOnImage = false;
             beepButtonPopList1.ApplyThemeToChilds = true;
-            beepButtonPopList1.BackColor = Color.White;
             beepButtonPopList1.BlockID = null;
             beepButtonPopList1.BorderColor = Color.FromArgb(200, 200, 200);
             beepButtonPopList1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;

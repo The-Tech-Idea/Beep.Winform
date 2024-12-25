@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
 
                 _buttonPanel.Location = new Point(padding, DrawingRect.Bottom - _buttonPanel.Height - padding);
-                _buttonPanel.Width = Width - padding * 2; ;// DrawingRect.Width - BorderThickness * 3;
+                _buttonPanel.Width = Width - padding * 2; ;// DrawingRect.Width - _borderThickness * 3;
 
             }
 

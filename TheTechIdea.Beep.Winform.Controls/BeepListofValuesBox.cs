@@ -358,7 +358,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_keyTextBox != null && _valueTextBox != null)
             {
-                //int padding = BorderThickness +5;
+                //int padding = _borderThickness +5;
                 //// Ensure the height is fixed
                 //Height = _valueTextBox.PreferredHeight+(padding * 2);
                 _popupForm.Width = Width;

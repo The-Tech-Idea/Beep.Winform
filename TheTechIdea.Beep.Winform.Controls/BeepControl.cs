@@ -11,6 +11,7 @@ using System.Windows.Forms.Design;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Editors;
+using System.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -81,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected LinearGradientMode _gradientDirection = LinearGradientMode.Horizontal;
         protected Color _gradientStartColor = Color.Gray;
         protected Color _gradientEndColor = Color.Gray;
-        protected bool _showShadow = true;
+        protected bool _showShadow = false;
         protected Color _shadowColor = Color.Black;
         protected float _shadowOpacity = 0.5f;
         protected Color _hoverBackColor = Color.Gray;
@@ -748,7 +749,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected List<Binding> _originalBindings = new List<Binding>();
         protected Color _disabledForeColor;
         private bool _isAnimating;
-        private int offset=3;
+      
 
         [Browsable(true)]
         [Category("Data")]
@@ -947,6 +948,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnPaintBackground(e);
         }
+        public override Size GetPreferredSize(Size proposedSize)
+        {
+            UpdateDrawingRect();
+            // Adjust size based on border thickness
+            int adjustedWidth = DrawingRect.Width ;
+            int adjustedHeight = DrawingRect.Height ;
+
+            return new Size(adjustedWidth, adjustedHeight);
+        }
         public virtual void UpdateDrawingRect()
         {
             // Initialize offsets for shadow and border
@@ -956,23 +966,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Account for padding and offsets
             int leftPadding = Padding.Left + LeftoffsetForDrawingRect;
             int topPadding = Padding.Top + TopoffsetForDrawingRect;
-            int rightPadding = Padding.Right - RightoffsetForDrawingRect;
-            int bottomPadding = Padding.Bottom - _bottomoffsetForDrawingRect;
+            int rightPadding = Padding.Right + RightoffsetForDrawingRect;
+            int bottomPadding = Padding.Bottom + BottomoffsetForDrawingRect;
 
             // Calculate the DrawingRect as the inner rectangle avoiding borders, shadows, and padding
+            int calculatedWidth = Width - (shadowOffsetValue * 2 + borderOffsetValue * 2 + leftPadding + rightPadding);
+            int calculatedHeight = Height - (shadowOffsetValue * 2 + borderOffsetValue * 2 + topPadding + bottomPadding);
+
             DrawingRect = new Rectangle(
                 shadowOffsetValue + borderOffsetValue + leftPadding,
                 shadowOffsetValue + borderOffsetValue + topPadding,
-                Width - (2 * shadowOffsetValue + 2 * borderOffsetValue + leftPadding + rightPadding),
-                Height - (2 * shadowOffsetValue + 2 * borderOffsetValue + topPadding + bottomPadding)
+                Math.Max(0, calculatedWidth),  // Prevent negative dimensions
+                Math.Max(0, calculatedHeight) // Prevent negative dimensions
             );
 
-            // Ensure DrawingRect has valid dimensions
-            if (DrawingRect.Width < 0 || DrawingRect.Height < 0)
-            {
-                DrawingRect = Rectangle.Empty;
-            }
+            // Log or debug the dimensions if needed
+          //  Debug.WriteLine($"DrawingRect: {DrawingRect}");
         }
+
 
 
         protected override void OnPaint(PaintEventArgs e)
@@ -984,7 +995,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             g.SmoothingMode = SmoothingMode.HighQuality;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-            e.Graphics.Clear(BackColor);
+          //  e.Graphics.Clear(BackColor);
 
             shadowOffset = ShowShadow ? 3 : 0;
 
@@ -995,8 +1006,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             Rectangle borderRectangle = new Rectangle(
                 shadowOffset,
                 shadowOffset,
-                Width - offset * shadowOffset,
-                Height - offset * shadowOffset
+                Width - _borderThickness * shadowOffset,
+                Height - _borderThickness * shadowOffset
             );
 
             // Adjust for border thickness
@@ -1229,7 +1240,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (IsHovered)
             {
                 color = _currentTheme.HoverLinkColor;
-               // brder = BorderThickness + 1;
+               // brder = _borderThickness + 1;
             }
 
             using (var pen = new Pen(color, brder))
@@ -1323,7 +1334,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         //protected virtual void DrawBorder(Graphics graphics)
         //{
-        //    using (var pen = new Pen(BorderColor, BorderThickness))
+        //    using (var pen = new Pen(BorderColor, _borderThickness))
         //    {
         //        pen.DashStyle = _borderDashStyle;
         //        // Apply border style to the pen
@@ -1346,8 +1357,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        if (IsRounded)
         //        {
         //            // Draw a fully rounded border if `IsRounded` is true
-        //            var rect = new Rectangle(BorderThickness, BorderThickness, Width - 2 * BorderThickness, Height - 2 * BorderThickness);
-        //            using (GraphicsPath path = GetRoundedRectPath(rect, BorderRadius))
+        //            var rect = new Rectangle(_borderThickness, _borderThickness, Width - 2 * _borderThickness, Height - 2 * _borderThickness);
+        //            using (GraphicsPath path = GetRoundedRectPath(rect, _borderRadius))
         //            {
         //                graphics.DrawPath(pen, path);
         //            }
@@ -1361,7 +1372,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //            }
         //            if (ShowAllBorders || ShowBottomBorder)
         //            {
-        //                graphics.DrawLine(pen, 0, Height - BorderThickness, Width, Height - BorderThickness); // Bottom border
+        //                graphics.DrawLine(pen, 0, Height - _borderThickness, Width, Height - _borderThickness); // Bottom border
         //            }
         //            if (ShowAllBorders || ShowLeftBorder)
         //            {
@@ -1369,7 +1380,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //            }
         //            if (ShowAllBorders || ShowRightBorder)
         //            {
-        //                graphics.DrawLine(pen, Width - BorderThickness, 0, Width - BorderThickness, Height); // Right border
+        //                graphics.DrawLine(pen, Width - _borderThickness, 0, Width - _borderThickness, Height); // Right border
         //            }
         //        }
         //    }
@@ -1422,7 +1433,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
         protected void DrawShadow(Graphics graphics)
         {
             // Ensure shadow is drawn only if it's enabled and the control is not transparent

@@ -188,9 +188,6 @@ namespace TheTechIdea.Beep.Winform.Controls
           
 
         }
-    
-
-
         protected override void OnSizeChanged(EventArgs e)
         {
             base.OnSizeChanged(e);
@@ -214,13 +211,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
           
         }
+       
+
         public void GetDimensions()
         {
             UpdateDrawingRect();
-            drawRectX = DrawingRect.X+1;
-            drawRectY = DrawingRect.Y+1;
-            drawRectWidth = DrawingRect.Width-2;
-            drawRectHeight = DrawingRect.Height-2;
+         //   Rectangle rectangle=new Rectangle(DrawingRect.X, DrawingRect.Y, DrawingRect.Width, DrawingRect.Height);
+            drawRectX = DrawingRect.Left+ BorderThickness;
+            drawRectY = DrawingRect.Top+ BorderThickness;
+            drawRectWidth = DrawingRect.Width;
+            drawRectHeight = DrawingRect.Height;
         }
         private Panel CreateMenuItemPanel(SimpleItem item, bool isChild)
         {
@@ -350,8 +350,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         public virtual void InitializeMenu()
         {
             GetDimensions();
-            ButtonSize = new Size(drawRectWidth-2, _menuItemHeight-2);
-            
+            // Set button size to fit within the adjusted drawing rectangle
+            ButtonSize = new Size(DrawingRect.Width - BorderThickness * 2, _menuItemHeight);
+            _buttons.Clear();
             // Remove existing menu item panels
             foreach (var control in this.Controls.OfType<Panel>().Where(c => c.Tag is SimpleItem).ToList())
             {
@@ -374,8 +375,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     menuItemPanel.Top = yOffset;
                     menuItemPanel.Left = drawRectX;
-                    menuItemPanel.Width = drawRectWidth;
-                    menuItemPanel.Height = _menuItemHeight;
+                    menuItemPanel.Width = ButtonSize.Width;
+                    menuItemPanel.Height = ButtonSize.Height;
                     menuItemPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
                     this.Controls.Add(menuItemPanel);
 
@@ -389,7 +390,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                             var childPanel = CreateMenuItemPanel(childItem, true);
                             childPanel.Top = yOffset;
                             childPanel.Left = drawRectX;
-                            childPanel.Width = drawRectWidth;
+                            childPanel.Width = ButtonSize.Width;
+                            childPanel.Height = ButtonSize.Height;
                             childPanel.Visible = false; // Initially hidden
                             childPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
                             childPanel.BackColor = _currentTheme.SideMenuBackColor;
@@ -413,7 +415,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (sender is BeepButton clickedButton)
                 SelectedIndex = _buttons.IndexOf(clickedButton);
-            ItemClicked?.Invoke(this, (SimpleItem)items[SelectedIndex]);
+            ItemClicked?.Invoke(this, (SimpleItem)ListItems[SelectedIndex]);
         }
         private void ChangeImageSettings()
         {
@@ -485,8 +487,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Optionally, add padding (if required)
-            // int padding = 10; // Example padding
-            // totalHeight += padding;
+             int padding = 7; // Example padding
+             totalHeight += padding*2;
 
            Console.WriteLine($"GetMaxHeight: Total height calculated as {totalHeight} pixels.");
 
@@ -574,5 +576,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
             // Optionally, apply any additional theming for the overall side menu layout here (e.g., scrollbars, borders, or custom UI components)
         }
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            IsHovered=false;
+            
+        }
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            IsHovered = false;
+        }
+      
     }
 }

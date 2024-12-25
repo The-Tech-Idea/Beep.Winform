@@ -1,5 +1,8 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 
@@ -7,10 +10,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 {
     public partial class BeepiForm : Form
     {
-        private const int ResizeMargin = 5; // Margin for resizing
-        private const int BorderRadius = 10;
-        private const int BorderThickness = 5; // Thickness of the custom border
-        private Color _borderColor = Color.Blue; // Default border color
+        protected int _resizeMargin = 5; // Margin for resizing
+        protected int _borderRadius =5;
+        protected int _borderThickness = 3; // Thickness of the custom border
+        private Color _borderColor = Color.Red; // Default border color
         private const int ButtonSize = 30;
         private Point lastMousePosition;
         private bool isResizing = false;
@@ -20,11 +23,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Point resizeStartCursorPoint;
         private Size resizeStartFormSize;
         private bool ishandled = false;
+        private bool _inpopupmode = false;
 
 
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
         protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
 
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool InPopMode
+        {
+            get => _inpopupmode;
+            set
+            {
+                _inpopupmode = value;
+                Invalidate(); // Redraw the form when the color changes
+            }
+        }
         [Browsable(true)]
         [TypeConverter(typeof(ThemeConverter))]
         public EnumBeepThemes Theme
@@ -58,10 +73,19 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Enable double buffering on the form
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw, true);
-            this.Padding = new Padding(0);
-
+            // Apply border and custom form styles
+            FormBorderStyle = FormBorderStyle.None;
+            Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
+            Margin = new Padding(_resizeMargin);
             InitializeForm();
         }
+        protected override void OnControlAdded(ControlEventArgs e)
+        {
+           base.OnControlAdded(e);
+            Console.WriteLine($"1 Control Added {e.Control.Text}");
+            AdjustControls();
+        }
+      
 
         protected override void InitLayout()
         {
@@ -85,73 +109,19 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Apply border and custom form styles
             FormBorderStyle = FormBorderStyle.None;
-            Padding = new Padding(5);
-            Margin = new Padding(5);
+            this.Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
 
-            //beepPanel1.IsFramless = true;
-            //beepPanel1.Dock = DockStyle.Top;
-            //beepPanel1.Height = 10;
-            //beepPanel1.BringToFront();
-
-            //// Enable dragging on TitlebeepLabel
-            //beepPanel1.MouseDown += BeepPanel1_MouseDown;
-            //beepPanel1.MouseMove += BeepPanel1_MouseMove;
-            //beepPanel1.MouseUp += BeepPanel1_MouseUp;
-            //beepPanel1.MouseEnter += BeepPanel1_MouseEnter;
-
-            //// Resize settings
-            //MouseDown += BeepiForm_MouseDown;
-            //MouseMove += BeepiForm_MouseMove;
-            //MouseUp += BeepiForm_MouseUp;
-
+          //  Margin = new Padding(5);
             // Apply initial theme
             ApplyTheme();
         }
 
-        #region Drag Support for beepPanel1
-
-       
-
-        //private void BeepPanel1_MouseEnter(object? sender, EventArgs e)
-        //{
-        //    Cursor = Cursors.Hand;
-        //}
-
-        //private void BeepPanel1_MouseDown(object sender, MouseEventArgs e)
-        //{
-        //    if (e.Button == MouseButtons.Left)
-        //    {
-        //        isDragging = true;
-        //        dragStartCursorPoint = Cursor.Position;
-        //        dragStartFormPoint = Location;
-        //    }
-        //}
-
-        //private void BeepPanel1_MouseMove(object sender, MouseEventArgs e)
-        //{
-        //    if (isDragging)
-        //    {
-        //        Point diff = Point.Subtract(Cursor.Position, new Size(dragStartCursorPoint));
-        //        Location = Point.Add(dragStartFormPoint, new Size(diff));
-        //    }
-        //}
-
-        //private void BeepPanel1_MouseUp(object sender, MouseEventArgs e)
-        //{
-        //    if (e.Button == MouseButtons.Left)
-        //    {
-        //        isDragging = false;
-        //        Cursor = Cursors.Default;
-        //    }
-        //}
-
-        #endregion
-
+      
         #region Window Resizing
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-
+            if(_inpopupmode) return;
             if (e.Button == MouseButtons.Left)
             {
                 // Determine if we're resizing or dragging
@@ -173,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-
+            if (_inpopupmode) return;
             if (isResizing)
             {
                 HandleResizing();
@@ -199,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
-
+            if (_inpopupmode) return;
             if (e.Button == MouseButtons.Left)
             {
                 isResizing = false;
@@ -209,7 +179,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private bool IsNearEdge(Point location)
         {
-            return location.X >= Width - ResizeMargin || location.Y >= Height - ResizeMargin;
+            return location.X >= Width - _resizeMargin || location.Y >= Height - _resizeMargin;
         }
 
         private void HandleResizing()
@@ -261,20 +231,129 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-
+            // Enable anti-aliasing for smoother borders
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             // Draw the custom border
-            // Draw the custom border
-            using (Pen borderPen = new Pen(_borderColor, BorderThickness))
+            // Skip drawing if border thickness is zero
+            if (_borderThickness == 0)
+            {
+                return;
+            }
+            using (Pen borderPen = new Pen(_borderColor, _borderThickness))
             {
                 // Account for the border thickness to prevent overlap
                 Rectangle borderRectangle = new Rectangle(
-                    BorderThickness / 2,
-                    BorderThickness / 2,
-                    Width - BorderThickness,
-                    Height - BorderThickness
+                      _borderThickness / 2,
+                      _borderThickness / 2,
+                    Width - (_borderThickness ),
+                    Height - (_borderThickness )
                 );
+
+            
+                borderPen.Alignment = PenAlignment.Center;
                 e.Graphics.DrawRectangle(borderPen, borderRectangle);
             }
+
+          
+        }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+
+            // Update the rounded corners region
+            if (Region != null)
+            {
+                Region.Dispose();
+            }
+
+            // Define the rounded region for the form
+            Region = Region.FromHrgn(CreateRoundRectRgn(
+                0, // No adjustment for border thickness
+                0, // No adjustment for border thickness
+                Width,
+                Height,
+                _borderRadius * 2,
+                _borderRadius * 2
+            ));
+
+        }
+        protected override void OnLayout(LayoutEventArgs e)
+        {
+            base.OnLayout(e);
+       //     AdjustControls();
+        }
+
+        public void AdjustControls()
+        {
+            Rectangle adjustedClientArea = GetAdjustedClientRectangle();
+
+            foreach (Control control in Controls)
+            {
+                if (control.Dock == DockStyle.Fill)
+                {
+                    control.Bounds = adjustedClientArea;
+                }
+                else if (control.Dock == DockStyle.Top)
+                {
+                    control.Bounds = new Rectangle(
+                        adjustedClientArea.Left,
+                        adjustedClientArea.Top,
+                        adjustedClientArea.Width,
+                        control.Height
+                    );
+                    adjustedClientArea.Y += control.Height;
+                    adjustedClientArea.Height -= control.Height;
+                }
+                else if (control.Dock == DockStyle.Bottom)
+                {
+                    control.Bounds = new Rectangle(
+                        adjustedClientArea.Left,
+                        adjustedClientArea.Bottom - control.Height,
+                        adjustedClientArea.Width,
+                        control.Height
+                    );
+                    adjustedClientArea.Height -= control.Height;
+                }
+                else if (control.Dock == DockStyle.Left)
+                {
+                    control.Bounds = new Rectangle(
+                        adjustedClientArea.Left,
+                        adjustedClientArea.Top,
+                        control.Width,
+                        adjustedClientArea.Height
+                    );
+                    adjustedClientArea.X += control.Width;
+                    adjustedClientArea.Width -= control.Width;
+                }
+                else if (control.Dock == DockStyle.Right)
+                {
+                    control.Bounds = new Rectangle(
+                        adjustedClientArea.Right - control.Width,
+                        adjustedClientArea.Top,
+                        control.Width,
+                        adjustedClientArea.Height
+                    );
+                    adjustedClientArea.Width -= control.Width;
+                }
+                else if (control.Dock == DockStyle.None)
+                {
+                    Console.WriteLine($"Control is not docked {control.Left}-{adjustedClientArea.Left}");
+                    // Non-docked controls are clamped within the adjusted client area
+                    control.Left = Math.Max(control.Left, adjustedClientArea.Left+1);
+                    control.Top = Math.Max(control.Top, adjustedClientArea.Top+1);
+                    control.Width = Math.Min(control.Width, adjustedClientArea.Width - control.Left + adjustedClientArea.Left);
+                    control.Height = Math.Min(control.Height, adjustedClientArea.Height - control.Top + adjustedClientArea.Top);
+                }
+            }
+        }
+        public Rectangle GetAdjustedClientRectangle()
+        {
+            return new Rectangle(
+                _borderThickness ,
+                _borderThickness ,
+                ClientSize.Width - (2 * _borderThickness),
+                ClientSize.Height - (2 * _borderThickness )
+            );
         }
         protected override CreateParams CreateParams
         {
@@ -285,14 +364,30 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return cp;
             }
         }
-        protected override void OnResize(EventArgs e)
+        protected new  Rectangle DisplayRectangle
         {
-            base.OnResize(e);
-
-            if (WindowState != FormWindowState.Maximized)
+            get
             {
-                Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, BorderRadius, BorderRadius));
+                // Adjust for the custom borders
+                int adjustedWidth = ClientSize.Width - (_borderThickness * 2);
+                int adjustedHeight = ClientSize.Height - (_borderThickness * 2);
+
+                // Ensure the dockable area respects the borders
+                return new Rectangle(
+                    _borderThickness,
+                    _borderThickness,
+                    Math.Max(0, adjustedWidth),
+                    Math.Max(0, adjustedHeight)
+                );
             }
+        }
+        public override Size GetPreferredSize(Size proposedSize)
+        {
+            // Adjust size based on border thickness
+            int adjustedWidth = proposedSize.Width - (_borderThickness * 2);
+            int adjustedHeight = proposedSize.Height - (_borderThickness * 2);
+
+            return new Size(adjustedWidth, adjustedHeight);
         }
         [DllImport("gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
         private static extern IntPtr CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);

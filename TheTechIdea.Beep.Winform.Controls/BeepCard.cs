@@ -138,7 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Properties"
 
-        // Expose BorderThickness from BeepPanel
+        // Expose _borderThickness from BeepPanel
 
         // Constructor
         public BeepCard()

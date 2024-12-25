@@ -242,7 +242,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // e.g. lineY = (int)(textBottomY + 2) if you want a small gap
                 int lineY = (int)(textBottomY + 2);
 
-                // If ShowTitleLineinFullWidth => from DrawingRect.Left + BorderThickness
+                // If ShowTitleLineinFullWidth => from DrawingRect.Left + _borderThickness
                 // else from textLeft => textLeft + titleSize.Width
                 int lineStartX = ShowTitleLineinFullWidth
                     ? (DrawingRect.Left + BorderThickness)

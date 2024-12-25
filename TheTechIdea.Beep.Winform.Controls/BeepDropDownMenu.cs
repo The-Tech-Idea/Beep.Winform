@@ -136,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void ShowMenu()
         {
             _isExpanded = true;
-          
+            UpdateDrawingRect();
             _targetHeight = Math.Min(_maxMenuHeight,TitleBottomY+ GetMaxHeight()+10) ; // Adjusted item height
             SetDropDownButtonImage();
             StartAnimation();
@@ -214,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //int rightPadding = 2;
 
             //// Calculate the Y position to center the button vertically
-            //int dropdownButtonHeight = _dropDownButton.Height - 4;
+            //int dropdownButtonHeight = _triangleButton.Height - 4;
             //int centerY = (this.Height - dropdownButtonHeight) / 2;
 
             //// Calculate the X position based on the control's client width
@@ -222,8 +222,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             //int xPos = this.ClientSize.Width - _buttonsize - rightPadding;
 
             //// Set the button's location and size
-            //_dropDownButton.Location = new Point(xPos, centerY);
-            //_dropDownButton.Size = new Size(_buttonsize, dropdownButtonHeight);
+            //_triangleButton.Location = new Point(xPos, centerY);
+            //_triangleButton.Size = new Size(_buttonsize, dropdownButtonHeight);
             if (_dropDownButton != null)
             {
                 int dropdownButtonHeight = TitleBottomY - 4;

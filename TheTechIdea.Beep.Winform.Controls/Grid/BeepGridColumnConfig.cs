@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewColumns;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid
@@ -23,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         
         public string ColumnType { get; set; }
+        public BeepGridColumnType CellEditor { get; set; }
         public string Name { get; set; }
         [Required]
         public string ColumnCaption { get; set; }
@@ -66,9 +61,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public string ValueMember { get; set; }
         public string FilterMember { get; set; }
         public string SortMember { get; set; }
-     //   public Dictionary<string, List<ColumnLookupList>> CascadingMap { get; set; }
-      //   public List<ColumnLookupList> LookupList { get; set; } = new List<ColumnLookupList>();  
-        
         public Color ProgressBarColor { get; set; }
         public int ProgressBarMaxValue { get; set; }
         public int ProgressBarMinValue { get; set; }
@@ -76,7 +68,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public int ProgressBarValue { get; set; }
         public string ProgressBarStyle { get; set; }
         public string ProgressBarText { get; set; }
-
         public Color FilledStarColor { get;set; }
         public Color EmptyStarColor { get; set; }
         public int MaxStars { get; set; }
@@ -104,5 +95,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
     {
         Main,
         Child
+    }
+    public enum BeepGridColumnType
+    {
+        Text,
+        CheckBox,
+        ComboBox,
+        DateTime,
+        Image,
+        ProgressBar,
+        Rating,
+        StarRating,
+        Button,
+        Link,
+        Custom
     }
 }

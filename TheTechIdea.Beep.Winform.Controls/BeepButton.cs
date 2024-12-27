@@ -380,38 +380,19 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Draw the image and text
             contentRect = DrawingRect;
-            // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
-            switch (OverrideFontSize)
+            if (!SetFont())
             {
-                case TypeStyleFontSize.None:
-                    break;
-                case TypeStyleFontSize.Small:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 8, FontWeight.Normal, FontStyle.Regular);
-                    break;
-                case TypeStyleFontSize.Medium:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 10, FontWeight.Normal, FontStyle.Regular);
-                    break;
-                case TypeStyleFontSize.Large:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 12, FontWeight.Normal, FontStyle.Regular);
-                    break;
-                case TypeStyleFontSize.ExtraLarge:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 14, FontWeight.Normal, FontStyle.Regular);
-                    break;
-                case TypeStyleFontSize.ExtraExtraLarge:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 16, FontWeight.Normal, FontStyle.Regular);
-                    break;
-                case TypeStyleFontSize.ExtraExtraExtraLarge:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 18, FontWeight.Normal, FontStyle.Regular);
-                    break;
-            }
-
-
+                Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            };
             //   DrawBackColor(e, BackColor, _currentTheme.ButtonHoverBackColor);
             DrawImageAndText(e.Graphics);
         }
         private void DrawImageAndText(Graphics g)
         {
-            //  Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            if (!SetFont())
+            {
+                Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            };
             // Measure and scale the font to fit within the control bounds
             Font scaledFont = Font;// GetScaledFont(g, Text, contentRect.Size, Font);
             if (UseScaledFont)
@@ -598,52 +579,42 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return flags;
         }
-        public Size GetSuitableSize()
+        public override Size GetPreferredSize(Size proposedSize)
         {
-            // Measure the text size based on the current font
+            //if (AutoSize)
+            //{
+            if (!SetFont())
+            {
+                Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            };
+
             Size textSize = TextRenderer.MeasureText(Text, Font);
+            Size imageSize = beepImage?.HasImage == true ? beepImage.GetImageSize() : Size.Empty;
 
-            // Get the original image size and limit it by the MaxImageSize property if necessary
-            Size imageSize = beepImage != null && beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
-
-            // Restrict the image size using the MaxImageSize property
-            if (imageSize.Width > MaxImageSize.Width || imageSize.Height > MaxImageSize.Height)
+            // Scale the image to respect MaxImageSize if needed
+            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
             {
                 float scaleFactor = Math.Min(
-                    (float)MaxImageSize.Width / imageSize.Width,
-                    (float)MaxImageSize.Height / imageSize.Height);
-
+                    (float)_maxImageSize.Width / imageSize.Width,
+                    (float)_maxImageSize.Height / imageSize.Height);
                 imageSize = new Size(
                     (int)(imageSize.Width * scaleFactor),
                     (int)(imageSize.Height * scaleFactor));
             }
 
-            // Calculate the required width and height based on TextImageRelation
-            int width = 0;
-            int height = 0;
+            Rectangle textRect, imageRect;
+            CalculateLayout(DrawingRect, imageSize, textSize, out imageRect, out textRect);
+            // Clip text rectangle to control bounds to prevent overflow
+            //  textRect.Intersect(DrawingRect);
+            // Calculate the total width and height required for text and image with padding
+            int width = Math.Max(textRect.Right, imageRect.Right) + Padding.Left + Padding.Right;
+            int height = Math.Max(textRect.Bottom, imageRect.Bottom) + Padding.Top + Padding.Bottom;
 
-            switch (TextImageRelation)
-            {
-                case TextImageRelation.ImageBeforeText:
-                case TextImageRelation.TextBeforeImage:
-                    width = imageSize.Width + textSize.Width + Padding.Left + Padding.Right;
-                    height = Math.Max(imageSize.Height, textSize.Height) + Padding.Top + Padding.Bottom;
-                    break;
-
-                case TextImageRelation.ImageAboveText:
-                case TextImageRelation.TextAboveImage:
-                    width = Math.Max(imageSize.Width, textSize.Width) + Padding.Left + Padding.Right;
-                    height = imageSize.Height + textSize.Height + Padding.Top + Padding.Bottom;
-                    break;
-
-                case TextImageRelation.Overlay:
-                    width = Math.Max(imageSize.Width, textSize.Width) + Padding.Left + Padding.Right;
-                    height = Math.Max(imageSize.Height, textSize.Height) + Padding.Top + Padding.Bottom;
-                    break;
-            }
-
-            // Return the calculated size
             return new Size(width, height);
+            //  }
+
+            // Return the control's current size if AutoSize is disabled
+            //return base.Size;
         }
         #endregion "Paint"
         #region "Mouse and Click"

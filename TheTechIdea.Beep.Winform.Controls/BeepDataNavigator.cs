@@ -6,7 +6,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepDataNavigator : BeepControl
     {
         public BeepButton btnFirst, btnPrevious, btnNext, btnLast, btnInsert, btnDelete, btnSave, btnCancel;
-        public BeepButton txtPosition, btnQuery, btnFilter,btnPrint,btnEmail;
+        public BeepButton btnQuery, btnFilter,btnPrint,btnEmail;
+        public BeepButton txtPosition;
         public bool IsInQueryMode { get; private set; } = false;
 
         public IUnitofWork UnitOfWork
@@ -84,14 +85,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _buttonHeight = value;
-                adjustedHeight = ButtonHeight + (YOffset * 2);
+               // adjustedHeight = ButtonHeight + (YOffset * 2);
                 ArrangeControls();
                 Invalidate();
             }
         }
 
-        public int XOffset { get; set; } = 5;
-        public int YOffset { get; set; } = 5;
+        public int XOffset { get; set; } = 2;
+        public int YOffset { get; set; } = 1;
         int adjustedHeight;
 
         // Events for CRUD actions
@@ -106,6 +107,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepEventDataArgs> PrintCalled;
 
         int buttonSpacing = 5;
+        private bool _isinit;
+
         public int ButtonSpacing
         {
             get => buttonSpacing;
@@ -125,16 +128,32 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsBorderAffectedByTheme = false;
             ApplyThemeToChilds = false;
             IsChild = false;
+            txtPosition.IsFramless = true;
+            txtPosition.MouseEnter += TxtPosition_MouseEnter;
+            txtPosition.MouseHover += TxtPosition_MouseHover;
+        }
+
+        private void TxtPosition_MouseEnter(object? sender, EventArgs e)
+        {
+            txtPosition.IsHovered = false;
+        }
+
+        private void TxtPosition_MouseHover(object? sender, EventArgs e)
+        {
+            txtPosition.IsHovered = false;
         }
 
         protected override void InitLayout()
         {
             base.InitLayout();
+            _isinit = true;
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
                 Width = 200;
                 Height = ButtonHeight + (YOffset * 2); // Include YOffset
             }
+            _isinit = false;
+            ArrangeControls();
         }
 
         protected override void OnResize(EventArgs e)
@@ -169,17 +188,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             txtPosition = new BeepButton
             {
                 Text = "1 of 1",
-                Size = new Size(ButtonWidth, ButtonHeight),
+                Size = new Size(ButtonWidth - 1, ButtonHeight - 1),
                 MaxImageSize = new Size(ButtonWidth - 2, ButtonHeight - 2),
                 IsChild = true,
                 Theme = Theme,
                 ShowAllBorders = false,
                 ShowShadow = false,
                 ApplyThemeOnImage = true,
-                Anchor = AnchorStyles.None
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                Anchor = AnchorStyles.None,
+                ImageAlign= ContentAlignment.MiddleCenter,
+                TextAlign= ContentAlignment.MiddleCenter,
+                TextImageRelation= TextImageRelation.TextAboveImage,
+                OverrideFontSize = TypeStyleFontSize.Small
             };
 
-            SetThemeEffects(txtPosition);
+           
 
             btnQuery = CreateButton("Query", btnQuery_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg");
             btnFilter = CreateButton("Filter", btnFilter_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.filter.svg");
@@ -215,15 +240,44 @@ namespace TheTechIdea.Beep.Winform.Controls
             drawRectY = DrawingRect.Y;
             drawRectWidth = DrawingRect.Width;
             drawRectHeight = DrawingRect.Height;
-            adjustedHeight = ButtonHeight + (YOffset * 2); // Adjusted height includes YOffset
+            txtPosition.SetFont();
+            int totalLabelWidth = TextRenderer.MeasureText(txtPosition.Text, txtPosition.Font).Width + 10; // Add padding
+            txtPosition.Size = txtPosition.GetPreferredSize(new Size(totalLabelWidth, txtPosition.Height));
+         
+            if(adjustedHeight ==0)
+            {
+                adjustedHeight = ButtonHeight + ((BorderThickness+YOffset) * 2);
+                // _buttonHeight = adjustedHeight - ((BorderThickness + YOffset) * 2);
+                return;
+            }
+            if (drawRectHeight < ButtonHeight )
+            {
+                adjustedHeight= drawRectHeight + ((BorderThickness + YOffset) * 2);
+                _buttonHeight = adjustedHeight - ((BorderThickness + YOffset) * 2);
+                // resize all button heights
+                foreach (var item in Controls)
+                {
+                    if (item is BeepButton)
+                    {
+                        ((BeepButton)item).Size = new Size(ButtonWidth, _buttonHeight);
+                        ((BeepButton)item).MaxImageSize = new Size(ButtonWidth - 2, _buttonHeight - 2);
+                    }
+
+                }
+            }
+          
+         //   adjustedHeight = _buttonHeight + (YOffset * 2); // Adjusted height includes YOffset
         }
 
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
         {
             GetDimensions();
             // Enforce a fixed height
-            height = ButtonHeight + (YOffset * 2);
-            base.SetBoundsCore(x, y, width, height + 2, specified);
+           // if(txtPosition.Height > adjustedHeight)
+           // {
+              // adjustedHeight= txtPosition.Height+(YOffset*2);
+           // }
+            base.SetBoundsCore(x, y, width, adjustedHeight, specified);
         }
 
         private BeepButton CreateButton(string text, EventHandler onClick, string imagepath = null)
@@ -231,7 +285,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             var btn = new BeepButton
             {
                 Text = text,
-                Size = new Size(ButtonWidth, ButtonHeight),
+                Size = new Size(ButtonWidth-1, ButtonHeight-1),
                 MaxImageSize = new Size(ButtonWidth - 2, ButtonHeight - 2),
                 Tag = text,
                 IsChild = true,
@@ -288,7 +342,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int centerX = drawRectX + (drawRectWidth - totalWidth) / 2;
 
             // Center the controls vertically, considering YOffset
-            int centerY = drawRectY + YOffset;
+            int centerY = drawRectY + (YOffset);
 
             // Arrange navigation buttons
             int currentX = centerX;
@@ -322,8 +376,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             currentX = btnCancel.Right + buttonSpacing;
 
             // Arrange txtPosition
-            txtPosition.Location = new Point(currentX, centerY);
-            txtPosition.Size = new Size(totalLabelWidth, ButtonHeight);
+            txtPosition.Size = txtPosition.GetPreferredSize(new Size(totalLabelWidth, txtPosition.Height));
+            // Center the text vertically, considering smaller height for the label
+            int textCenterY = drawRectY + (drawRectHeight - txtPosition.Height) / 2;
+
+            txtPosition.Location = new Point(currentX, textCenterY);
             currentX = txtPosition.Right + buttonSpacing;
             if (ShowSendEmail)
             {

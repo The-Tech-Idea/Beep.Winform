@@ -11,7 +11,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         void ApplyTheme();
         void ApplyTheme(EnumBeepThemes theme);
         void ApplyTheme(BeepTheme theme);
-       
         Size GetSize();
         string Text { get; set; }
         void ShowToolTip(string text);
@@ -21,7 +20,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         int Id { get; set; }
         string[] Items { get; set; }
         bool ValidateData(out string  messege);
-
         // New properties and methods for binding
         object DataContext { get; set; } // The source of data for binding
         string BoundProperty { get; set; }

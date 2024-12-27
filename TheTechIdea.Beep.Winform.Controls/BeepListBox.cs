@@ -26,9 +26,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showtitlelinetemp = true;
         // ---------------- NEW PRIVATE FIELD to store original height -------------
         private int _originalHeight = 0;
+        private bool _showHilightBox= true;
 
         // ---------------- NEW PROPERTY: Collapsed -------------
         private bool _collapsed = false;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Indicates whether to show a highlight box when hovering over menu items.")]
+        public bool ShowHilightBox
+        {
+            get => _showHilightBox;
+            set
+            {
+                _showHilightBox = value;
+                Invalidate();
+            }
+        }   
+
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -171,7 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             items.ListChanged += Items_ListChanged;
             this.Invalidated += BeepListBox_Invalidated;
             InitLayout();
-           
+           BoundProperty= "SelectedItem";
         }
         
         private void BeepListBox_Invalidated(object? sender, InvalidateEventArgs e)
@@ -231,16 +246,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Visible = true,
                 Tag = item, // Store the SimpleMenuItem for reference
             };
-
+            Panel highlightPanel=new Panel();
             // Create the left-side highlight panel
-            Panel highlightPanel = new Panel
+            if (_showHilightBox)
             {
-                Width = 7,
-                Dock = DockStyle.Left,
-                BackColor = _currentTheme.SideMenuBackColor,
-                Visible = true,
+                highlightPanel = new Panel
+                {
+                    Width = 7,
+                    Dock = DockStyle.Left,
+                    BackColor = _currentTheme.SideMenuBackColor,
+                    Visible = true,
 
-            };
+                };
+                menuItemPanel.Controls.Add(highlightPanel);
+            }
+          
             Panel spacingpane = new Panel
             {
                 Width =2,
@@ -293,7 +313,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             // Add BeepButton and highlight panel to the panel
             menuItemPanel.Controls.Add(spacingpane);
-            menuItemPanel.Controls.Add(highlightPanel);
+       
      
             menuItemPanel.Controls.Add(button);
             button.BringToFront();
@@ -318,12 +338,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             button.MouseEnter += (s, e) =>
             {
                 menuItemPanel.BackColor = _currentTheme.ButtonHoverBackColor;
-                highlightPanel.BackColor = _currentTheme.AccentColor;
+                if (_showHilightBox) highlightPanel.BackColor = _currentTheme.AccentColor;
             };
             button.MouseLeave += (s, e) =>
             {
                 menuItemPanel.BackColor = _currentTheme.PanelBackColor;
-                highlightPanel.BackColor = _currentTheme.SideMenuBackColor;
+                if (_showHilightBox) highlightPanel.BackColor = _currentTheme.SideMenuBackColor;
             };
             button.Click += Button_Click;
 
@@ -487,7 +507,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Optionally, add padding (if required)
-             int padding = 7; // Example padding
+             int padding = 1; // Example padding
              totalHeight += padding*2;
 
            Console.WriteLine($"GetMaxHeight: Total height calculated as {totalHeight} pixels.");

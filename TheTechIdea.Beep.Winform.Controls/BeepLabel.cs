@@ -2,9 +2,10 @@
 using System;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
-using System.Drawing;
-using System.Windows.Forms;
 using System.Drawing.Text;
+using Svg;
+
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -20,6 +21,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _hideText = false;
         int offset = 3;
 
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        public int PreferredHeight
+        {
+            get => GetSingleLineHeight();
+
+        }
 
         [Browsable(true)]
         [Category("Behavior")]
@@ -152,11 +161,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InitializeComponents();
             ApplyTheme();
-           
             //  SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
             AutoSize = false;
             BoundProperty = "Text";
-            //  UpdateSize();
 
         }
         protected override Size DefaultSize => new Size(100,GetSingleLineHeight());
@@ -166,18 +173,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             int textBoxHeight;
             padding = BorderThickness + offset;
-            spacing = 5;
-            using (Label tempTextBox = new Label())
-            {
-                tempTextBox.BorderStyle = BorderStyle.None;
-                tempTextBox.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-
-                textBoxHeight = tempTextBox.PreferredHeight + (padding * 2);
-
-                // Calculate the total height, including borders and padding
-            }
-
-
+            spacing = 0;
+            SetFont();
+            textBoxHeight = TextRenderer.MeasureText("A", Font).Height + padding + spacing;
             return textBoxHeight;
         }
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
@@ -230,6 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             // Draw the image and text
             contentRect = DrawingRect;
+
            // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
           //  DrawBackColor(e, _currentTheme.BackColor, _currentTheme.ButtonHoverBackColor);
             DrawToGraphics(e.Graphics);
@@ -241,7 +240,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void DrawToGraphics(Graphics g,Rectangle drawrect)
         {
             //drawrect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
-           
+            // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
+            switch (OverrideFontSize)
+            {
+                case TypeStyleFontSize.None:
+                    break;
+                case TypeStyleFontSize.Small:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 8, FontWeight.Normal, FontStyle.Regular);
+                    break;
+                case TypeStyleFontSize.Medium:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 10, FontWeight.Normal, FontStyle.Regular);
+                    break;
+                case TypeStyleFontSize.Large:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 12, FontWeight.Normal, FontStyle.Regular);
+                    break;
+                case TypeStyleFontSize.ExtraLarge:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 14, FontWeight.Normal, FontStyle.Regular);
+                    break;
+                case TypeStyleFontSize.ExtraExtraLarge:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 16, FontWeight.Normal, FontStyle.Regular);
+                    break;
+                case TypeStyleFontSize.ExtraExtraExtraLarge:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 18, FontWeight.Normal, FontStyle.Regular);
+                    break;
+            }
             // Measure and scale the font to fit within the control bounds
             Font scaledFont = GetScaledFont(g, Text, drawrect.Size, Font);
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
@@ -322,7 +344,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return flags;
         }
-
+       
         private void CalculateLayout(Rectangle contentRect, Size imageSize, Size textSize, out Rectangle imageRect, out Rectangle textRect)
         {
             imageRect = Rectangle.Empty;
@@ -485,7 +507,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             //if (AutoSize)
             //{
-               Font = BeepThemesManager.ToFont(_currentTheme?.BodySmall) ?? Font;
+            if (!SetFont())
+            {
+                Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+            };
+               
                 Size textSize = TextRenderer.MeasureText(Text, Font);
                 Size imageSize = beepImage?.HasImage == true ? beepImage.GetImageSize() : Size.Empty;
 

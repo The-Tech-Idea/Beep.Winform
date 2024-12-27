@@ -71,6 +71,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         #region "Themes"
         public static BeepTheme ModernDarkTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(45, 45, 48), // Dark Gray
+            GridForeColor = Color.WhiteSmoke,
+            GridHeaderBackColor = Color.FromArgb(51, 51, 55), // Slightly Lighter Gray
+            GridHeaderForeColor = Color.White,
+            GridHeaderBorderColor = Color.Gray,
+            GridHeaderHoverBackColor = Color.FromArgb(63, 63, 70), // Medium Gray
+            GridHeaderHoverForeColor = Color.White,
+            GridHeaderSelectedBackColor = Color.FromArgb(104, 33, 122), // Purple Accent
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.Gray,
+            GridHeaderSelectedBorderColor = Color.Purple,
+            GridRowHoverBackColor = Color.FromArgb(55, 55, 58), // Very Dark Gray
+            GridRowHoverForeColor = Color.WhiteSmoke,
+            GridRowSelectedBackColor = Color.FromArgb(104, 33, 122),
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.Gray,
+            GridRowSelectedBorderColor = Color.Purple,
             CardBackColor = Color.FromArgb(45, 45, 48),
 
 
@@ -721,6 +738,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme MaterialDesignTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(250, 250, 250), // Very Light Gray
+            GridForeColor = Color.FromArgb(33, 33, 33), // Dark Gray
+            GridHeaderBackColor = Color.FromArgb(245, 245, 245), // Light Gray
+            GridHeaderForeColor = Color.FromArgb(33, 33, 33),
+            GridHeaderBorderColor = Color.Silver,
+            GridHeaderHoverBackColor = Color.FromArgb(224, 224, 224), // Medium Gray
+            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderSelectedBackColor = Color.FromArgb(0, 121, 107), // Teal
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.Gray,
+            GridHeaderSelectedBorderColor = Color.Teal,
+            GridRowHoverBackColor = Color.FromArgb(245, 245, 245),
+            GridRowHoverForeColor = Color.FromArgb(33, 33, 33),
+            GridRowSelectedBackColor = Color.FromArgb(0, 121, 107),
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.Gray,
+            GridRowSelectedBorderColor = Color.Teal,
             CardBackColor = Color.FromArgb(236, 240, 241),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -1075,6 +1109,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme NeumorphismTheme => new BeepTheme
         {
+            GridBackColor = Color.White,
+            GridForeColor = Color.Black,
+            GridHeaderBackColor = Color.Gainsboro,
+            GridHeaderForeColor = Color.Black,
+            GridHeaderBorderColor = Color.LightGray,
+            GridHeaderHoverBackColor = Color.WhiteSmoke,
+            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderSelectedBackColor = Color.LightGray,
+            GridHeaderSelectedForeColor = Color.Black,
+            GridHeaderHoverBorderColor = Color.LightGray,
+            GridHeaderSelectedBorderColor = Color.Gray,
+            GridRowHoverBackColor = Color.WhiteSmoke,
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.LightGray,
+            GridRowSelectedForeColor = Color.Black,
+            GridRowHoverBorderColor = Color.LightGray,
+            GridRowSelectedBorderColor = Color.Gray,
             CardBackColor = Color.FromArgb(240, 240, 240),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -1637,6 +1688,23 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme OceanTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(240, 248, 255), // Alice Blue
+            GridForeColor = Color.DarkSlateGray,
+            GridHeaderBackColor = Color.FromArgb(70, 130, 180), // Steel Blue
+            GridHeaderForeColor = Color.White,
+            GridHeaderBorderColor = Color.Teal,
+            GridHeaderHoverBackColor = Color.FromArgb(0, 128, 128), // Teal
+            GridHeaderHoverForeColor = Color.White,
+            GridHeaderSelectedBackColor = Color.FromArgb(0, 105, 148), // Deep Teal
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.DarkSlateGray,
+            GridHeaderSelectedBorderColor = Color.DarkSlateGray,
+            GridRowHoverBackColor = Color.FromArgb(224, 255, 255), // Light Cyan
+            GridRowHoverForeColor = Color.DarkSlateGray,
+            GridRowSelectedBackColor = Color.Teal,
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.DarkSlateGray,
+            GridRowSelectedBorderColor = Color.DarkSlateGray,
             CardBackColor = Color.FromArgb(176, 224, 230),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -2241,6 +2309,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme SunsetTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(255, 228, 196), // Bisque
+            GridForeColor = Color.DarkRed,
+            GridHeaderBackColor = Color.FromArgb(255, 140, 0), // Dark Orange
+            GridHeaderForeColor = Color.White,
+            GridHeaderBorderColor = Color.DarkRed,
+            GridHeaderHoverBackColor = Color.FromArgb(255, 69, 0), // Red Orange
+            GridHeaderHoverForeColor = Color.White,
+            GridHeaderSelectedBackColor = Color.FromArgb(255, 99, 71), // Tomato
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.DarkRed,
+            GridHeaderSelectedBorderColor = Color.DarkRed,
+            GridRowHoverBackColor = Color.FromArgb(255, 160, 122), // Light Salmon
+            GridRowHoverForeColor = Color.DarkRed,
+            GridRowSelectedBackColor = Color.Tomato,
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.DarkRed,
+            GridRowSelectedBorderColor = Color.DarkRed,
             CardBackColor = Color.FromArgb(255, 160, 122),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -2889,6 +2974,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme ForestTheme => new BeepTheme
         {
+            GridBackColor = Color.ForestGreen,
+            GridForeColor = Color.White,
+            GridHeaderBackColor = Color.DarkGreen,
+            GridHeaderForeColor = Color.White,
+            GridHeaderBorderColor = Color.OliveDrab,
+            GridHeaderHoverBackColor = Color.MediumSeaGreen,
+            GridHeaderHoverForeColor = Color.White,
+            GridHeaderSelectedBackColor = Color.LimeGreen,
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.DarkOliveGreen,
+            GridHeaderSelectedBorderColor = Color.SeaGreen,
+            GridRowHoverBackColor = Color.DarkSeaGreen,
+            GridRowHoverForeColor = Color.White,
+            GridRowSelectedBackColor = Color.LimeGreen,
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.DarkOliveGreen,
+            GridRowSelectedBorderColor = Color.SeaGreen,
             CardBackColor = Color.FromArgb(107, 142, 35),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -3480,6 +3582,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme AutumnTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(255, 239, 213), // Papaya Whip
+            GridForeColor = Color.DarkOrange,
+            GridHeaderBackColor = Color.FromArgb(255, 165, 0), // Orange
+            GridHeaderForeColor = Color.DarkRed,
+            GridHeaderBorderColor = Color.Brown,
+            GridHeaderHoverBackColor = Color.FromArgb(255, 140, 0), // Dark Orange
+            GridHeaderHoverForeColor = Color.DarkRed,
+            GridHeaderSelectedBackColor = Color.FromArgb(139, 69, 19), // SaddleBrown
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.Brown,
+            GridHeaderSelectedBorderColor = Color.Brown,
+            GridRowHoverBackColor = Color.FromArgb(245, 222, 179), // Wheat
+            GridRowHoverForeColor = Color.DarkOrange,
+            GridRowSelectedBackColor = Color.SaddleBrown,
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.Brown,
+            GridRowSelectedBorderColor = Color.Brown,
             CardBackColor = Color.FromArgb(205, 92, 92),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -4070,6 +4189,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme EarthyTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(245, 222, 179), // Wheat
+            GridForeColor = Color.SaddleBrown,
+            GridHeaderBackColor = Color.FromArgb(210, 180, 140), // Tan
+            GridHeaderForeColor = Color.SaddleBrown,
+            GridHeaderBorderColor = Color.Brown,
+            GridHeaderHoverBackColor = Color.FromArgb(139, 69, 19), // SaddleBrown
+            GridHeaderHoverForeColor = Color.White,
+            GridHeaderSelectedBackColor = Color.FromArgb(160, 82, 45), // Sienna
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.SaddleBrown,
+            GridHeaderSelectedBorderColor = Color.Brown,
+            GridRowHoverBackColor = Color.FromArgb(238, 232, 170), // Pale Goldenrod
+            GridRowHoverForeColor = Color.SaddleBrown,
+            GridRowSelectedBackColor = Color.Sienna,
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.Brown,
+            GridRowSelectedBorderColor = Color.Sienna,
             CardBackColor = Color.FromArgb(181, 101, 29),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -4660,6 +4796,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme WinterTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(240, 248, 255), // Alice Blue
+            GridForeColor = Color.DarkBlue,
+            GridHeaderBackColor = Color.FromArgb(176, 224, 230), // Powder Blue
+            GridHeaderForeColor = Color.DarkBlue,
+            GridHeaderBorderColor = Color.MidnightBlue,
+            GridHeaderHoverBackColor = Color.FromArgb(135, 206, 250), // Light Sky Blue
+            GridHeaderHoverForeColor = Color.DarkBlue,
+            GridHeaderSelectedBackColor = Color.SteelBlue,
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.MidnightBlue,
+            GridHeaderSelectedBorderColor = Color.MidnightBlue,
+            GridRowHoverBackColor = Color.FromArgb(224, 255, 255), // Light Cyan
+            GridRowHoverForeColor = Color.DarkBlue,
+            GridRowSelectedBackColor = Color.MidnightBlue,
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.MidnightBlue,
+            GridRowSelectedBorderColor = Color.SteelBlue,
             CardBackColor = Color.FromArgb(220, 245, 254),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -5250,6 +5403,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme SpringTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(240, 255, 240), // Honeydew
+            GridForeColor = Color.DarkGreen,
+            GridHeaderBackColor = Color.FromArgb(152, 251, 152), // Pale Green
+            GridHeaderForeColor = Color.DarkGreen,
+            GridHeaderBorderColor = Color.SeaGreen,
+            GridHeaderHoverBackColor = Color.FromArgb(144, 238, 144), // Light Green
+            GridHeaderHoverForeColor = Color.DarkGreen,
+            GridHeaderSelectedBackColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.SeaGreen,
+            GridHeaderSelectedBorderColor = Color.FromArgb(60, 179, 113),
+            GridRowHoverBackColor = Color.FromArgb(152, 251, 152),
+            GridRowHoverForeColor = Color.DarkGreen,
+            GridRowSelectedBackColor = Color.FromArgb(60, 179, 113),
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.SeaGreen,
+            GridRowSelectedBorderColor = Color.FromArgb(60, 179, 113),
             CardBackColor = Color.FromArgb(204, 255, 204),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -5841,6 +6011,23 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme CandyTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(255, 240, 245), // Lavender Blush
+            GridForeColor = Color.DarkMagenta,
+            GridHeaderBackColor = Color.FromArgb(255, 182, 193), // Light Pink
+            GridHeaderForeColor = Color.DarkRed,
+            GridHeaderBorderColor = Color.HotPink,
+            GridHeaderHoverBackColor = Color.FromArgb(255, 105, 180), // Hot Pink
+            GridHeaderHoverForeColor = Color.DarkRed,
+            GridHeaderSelectedBackColor = Color.FromArgb(255, 20, 147), // Deep Pink
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.DeepPink,
+            GridHeaderSelectedBorderColor = Color.HotPink,
+            GridRowHoverBackColor = Color.FromArgb(255, 228, 225), // Misty Rose
+            GridRowHoverForeColor = Color.DarkMagenta,
+            GridRowSelectedBackColor = Color.DeepPink,
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.HotPink,
+            GridRowSelectedBorderColor = Color.DeepPink,
             CardBackColor = Color.FromArgb(255, 182, 193),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -6430,6 +6617,23 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public static BeepTheme ZenTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(245, 245, 245), // Light Gray
+            GridForeColor = Color.Black,
+            GridHeaderBackColor = Color.FromArgb(220, 220, 220), // Soft Gray
+            GridHeaderForeColor = Color.Black,
+            GridHeaderBorderColor = Color.Silver,
+            GridHeaderHoverBackColor = Color.FromArgb(200, 200, 200), // Darker Gray
+            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderSelectedBackColor = Color.FromArgb(180, 180, 180), // Deeper Gray
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.Silver,
+            GridHeaderSelectedBorderColor = Color.Gray,
+            GridRowHoverBackColor = Color.WhiteSmoke,
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.FromArgb(150, 150, 150), // Gray Tone
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.Silver,
+            GridRowSelectedBorderColor = Color.Gray,
             CardBackColor = Color.FromArgb(240, 234, 214),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -7017,9 +7221,25 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = false,
         };
-
         public static BeepTheme RetroTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(250, 235, 215), // Antique White
+            GridForeColor = Color.Black,
+            GridHeaderBackColor = Color.FromArgb(240, 230, 140), // Khaki
+            GridHeaderForeColor = Color.Black,
+            GridHeaderBorderColor = Color.Olive,
+            GridHeaderHoverBackColor = Color.FromArgb(218, 165, 32), // Goldenrod
+            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderSelectedBackColor = Color.FromArgb(184, 134, 11), // Dark Goldenrod
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.Olive,
+            GridHeaderSelectedBorderColor = Color.DarkGoldenrod,
+            GridRowHoverBackColor = Color.FromArgb(245, 222, 179), // Wheat
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.DarkGoldenrod,
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.Olive,
+            GridRowSelectedBorderColor = Color.DarkGoldenrod,
             CardBackColor = Color.FromArgb(250, 214, 165),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -7608,9 +7828,25 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = true,
         };
-
         public static BeepTheme RoyalTheme => new BeepTheme
         {
+            GridBackColor = Color.White,
+            GridForeColor = Color.FromArgb(0, 0, 128), // Navy
+            GridHeaderBackColor = Color.FromArgb(65, 105, 225), // Royal Blue
+            GridHeaderForeColor = Color.White,
+            GridHeaderBorderColor = Color.Blue,
+            GridHeaderHoverBackColor = Color.FromArgb(70, 130, 180), // Steel Blue
+            GridHeaderHoverForeColor = Color.White,
+            GridHeaderSelectedBackColor = Color.FromArgb(0, 0, 205), // Medium Blue
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.Blue,
+            GridHeaderSelectedBorderColor = Color.FromArgb(0, 0, 205),
+            GridRowHoverBackColor = Color.LightSteelBlue,
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.MediumBlue,
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.Blue,
+            GridRowSelectedBorderColor = Color.MediumBlue,
             CardBackColor = Color.FromArgb(250, 230, 190),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -8199,152 +8435,167 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = false,
         };
-
         public static BeepTheme HighlightTheme => new BeepTheme
         {
-            CardBackColor = Color.FromArgb(255, 244, 180),
+            // **Grid Colors**
+            GridBackColor = Color.WhiteSmoke,
+            GridForeColor = Color.Black,
+            GridHeaderBackColor = Color.Yellow,                    // Bright Yellow for headers
+            GridHeaderForeColor = Color.Black,                    // Black text for contrast
+            GridHeaderBorderColor = Color.Gray,                    // Changed from DarkOrange to Gray
+            GridHeaderHoverBackColor = Color.Gold,                 // Gold for hover effect
+            GridHeaderHoverForeColor = Color.Black,                // Black text remains for readability
+            GridHeaderSelectedBackColor = Color.FromArgb(0, 120, 215), // Highlight Blue instead of DarkOrange
+            GridHeaderSelectedForeColor = Color.White,             // White text on blue background
+            GridHeaderHoverBorderColor = Color.Gray,               // Changed from DarkOrange to Gray
+            GridHeaderSelectedBorderColor = Color.FromArgb(0, 120, 215), // Highlight Blue instead of DarkOrange
+            GridRowHoverBackColor = Color.LightGray,               // Light Gray for row hover
+            GridRowHoverForeColor = Color.Black,                   // Black text for readability
+            GridRowSelectedBackColor = Color.FromArgb(0, 120, 215), // Highlight Blue instead of DarkOrange
+            GridRowSelectedForeColor = Color.White,                // White text on blue background
+            GridRowHoverBorderColor = Color.Gray,                  // Changed from DarkOrange to Gray
+            GridRowSelectedBorderColor = Color.FromArgb(0, 120, 215), // Highlight Blue instead of DarkOrange
+
+            // **Card Styles**
+            CardBackColor = Color.FromArgb(248, 248, 255),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
                 FontSize = 22f,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(255, 255, 255),  // White
-
+                TextColor = Color.FromArgb(33, 33, 33),  // Dark Gray
             },
             CardparagraphStyle = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
                 FontSize = 14f,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(50, 50, 50),   // Dark Gray
+                TextColor = Color.FromArgb(66, 66, 66),  // Medium Gray
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(232, 17, 35),        // Red
-            MaxButtonColor = Color.FromArgb(0, 153, 188),          // Cyan
-            MinButtonColor = Color.FromArgb(0, 120, 215),          // Highlight Blue
-            TitleBarColor = Color.FromArgb(0, 120, 215),           // Highlight Blue
-            TitleBarTextColor = Color.White,
-            TitleBarIconColor = Color.White,
-            TitleBarHoverColor = Color.FromArgb(0, 99, 177),       // Darker Blue
-            TitleBarHoverTextColor = Color.White,
-            TitleBarHoverIconColor = Color.White,
-            TitleBarActiveColor = Color.FromArgb(0, 99, 177),
-            TitleBarActiveTextColor = Color.White,
-            TitleBarActiveIconColor = Color.White,
-            TitleBarInactiveColor = Color.FromArgb(204, 204, 204), // Light Gray
-            TitleBarInactiveTextColor = Color.FromArgb(102, 102, 102),
-            TitleBarInactiveIconColor = Color.FromArgb(102, 102, 102),
-            TitleBarBorderColor = Color.FromArgb(0, 120, 215),
-            TitleBarBorderHoverColor = Color.FromArgb(0, 99, 177),
-            TitleBarBorderActiveColor = Color.FromArgb(0, 99, 177),
-            TitleBarBorderInactiveColor = Color.FromArgb(204, 204, 204),
+            CloseButtonColor = Color.FromArgb(229, 57, 53),      // Red
+            MaxButtonColor = Color.FromArgb(76, 175, 80),        // Green
+            MinButtonColor = Color.FromArgb(33, 150, 243),       // Blue
+            TitleBarColor = Color.FromArgb(250, 250, 250),       // Near White
+            TitleBarTextColor = Color.FromArgb(33, 33, 33),      // Dark Gray
+            TitleBarIconColor = Color.FromArgb(33, 33, 33),
+            TitleBarHoverColor = Color.FromArgb(240, 240, 240),  // Light Gray
+            TitleBarHoverTextColor = Color.FromArgb(33, 33, 33),
+            TitleBarHoverIconColor = Color.FromArgb(33, 33, 33),
+            TitleBarActiveColor = Color.FromArgb(240, 240, 240),
+            TitleBarActiveTextColor = Color.FromArgb(33, 33, 33),
+            TitleBarActiveIconColor = Color.FromArgb(33, 33, 33),
+            TitleBarInactiveColor = Color.FromArgb(245, 245, 245),
+            TitleBarInactiveTextColor = Color.FromArgb(117, 117, 117),
+            TitleBarInactiveIconColor = Color.FromArgb(117, 117, 117),
+            TitleBarBorderColor = Color.FromArgb(224, 224, 224),
+            TitleBarBorderHoverColor = Color.FromArgb(200, 200, 200),
+            TitleBarBorderActiveColor = Color.FromArgb(200, 200, 200),
+            TitleBarBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
-            // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(170, 0, 0),     // Dark Red
+            // **Close Button**
+            TitleBarCloseHoverColor = Color.FromArgb(211, 47, 47),   // Darker Red
             TitleBarCloseHoverTextColor = Color.White,
             TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(232, 17, 35),  // Red
+            TitleBarCloseActiveColor = Color.FromArgb(229, 57, 53),  // Red
             TitleBarCloseActiveTextColor = Color.White,
             TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(204, 204, 204),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(102, 102, 102),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(102, 102, 102),
-            TitleBarCloseBorderColor = Color.FromArgb(232, 17, 35),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(170, 0, 0),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(170, 0, 0),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(204, 204, 204),
+            TitleBarCloseInactiveColor = Color.FromArgb(245, 245, 245),
+            TitleBarCloseInactiveTextColor = Color.FromArgb(117, 117, 117),
+            TitleBarCloseInactiveIconColor = Color.FromArgb(117, 117, 117),
+            TitleBarCloseBorderColor = Color.FromArgb(224, 224, 224),
+            TitleBarCloseBorderHoverColor = Color.FromArgb(200, 200, 200),
+            TitleBarCloseBorderActiveColor = Color.FromArgb(200, 200, 200),
+            TitleBarCloseBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
-            // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(0, 99, 177),        // Darker Cyan
+            // **Maximize Button**
+            TitleBarMaxHoverColor = Color.FromArgb(67, 160, 71),       // Darker Green
             TitleBarMaxHoverTextColor = Color.White,
             TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(0, 153, 188),      // Cyan
+            TitleBarMaxActiveColor = Color.FromArgb(76, 175, 80),      // Green
             TitleBarMaxActiveTextColor = Color.White,
             TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(204, 204, 204),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(102, 102, 102),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(102, 102, 102),
-            TitleBarMaxBorderColor = Color.FromArgb(0, 153, 188),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(0, 99, 177),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(0, 99, 177),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(204, 204, 204),
+            TitleBarMaxInactiveColor = Color.FromArgb(245, 245, 245),
+            TitleBarMaxInactiveTextColor = Color.FromArgb(117, 117, 117),
+            TitleBarMaxInactiveIconColor = Color.FromArgb(117, 117, 117),
+            TitleBarMaxBorderColor = Color.FromArgb(224, 224, 224),
+            TitleBarMaxBorderHoverColor = Color.FromArgb(200, 200, 200),
+            TitleBarMaxBorderActiveColor = Color.FromArgb(200, 200, 200),
+            TitleBarMaxBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
-            // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(0, 99, 177),        // Darker Blue
+            // **Minimize Button**
+            TitleBarMinHoverColor = Color.FromArgb(30, 136, 229),       // Darker Blue
             TitleBarMinHoverTextColor = Color.White,
             TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(0, 120, 215),      // Highlight Blue
+            TitleBarMinActiveColor = Color.FromArgb(33, 150, 243),      // Blue
             TitleBarMinActiveTextColor = Color.White,
             TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(204, 204, 204),
-            TitleBarMinInactiveTextColor = Color.FromArgb(102, 102, 102),
-            TitleBarMinInactiveIconColor = Color.FromArgb(102, 102, 102),
-            TitleBarMinBorderColor = Color.FromArgb(0, 120, 215),
-            TitleBarMinBorderHoverColor = Color.FromArgb(0, 99, 177),
-            TitleBarMinBorderActiveColor = Color.FromArgb(0, 99, 177),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(204, 204, 204),
+            TitleBarMinInactiveColor = Color.FromArgb(245, 245, 245),
+            TitleBarMinInactiveTextColor = Color.FromArgb(117, 117, 117),
+            TitleBarMinInactiveIconColor = Color.FromArgb(117, 117, 117),
+            TitleBarMinBorderColor = Color.FromArgb(224, 224, 224),
+            TitleBarMinBorderHoverColor = Color.FromArgb(200, 200, 200),
+            TitleBarMinBorderActiveColor = Color.FromArgb(200, 200, 200),
+            TitleBarMinBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
-            // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(0, 99, 177),
+            // **Minimize Button (Alternative Properties)**
+            TitleBarMinimizeHoverColor = Color.FromArgb(30, 136, 229),
             TitleBarMinimizeHoverTextColor = Color.White,
             TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(0, 120, 215),
+            TitleBarMinimizeActiveColor = Color.FromArgb(33, 150, 243),
             TitleBarMinimizeActiveTextColor = Color.White,
             TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(204, 204, 204),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(102, 102, 102),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(102, 102, 102),
-            TitleBarMinimizeBorderColor = Color.FromArgb(0, 120, 215),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(0, 99, 177),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(0, 99, 177),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(204, 204, 204),
+            TitleBarMinimizeInactiveColor = Color.FromArgb(245, 245, 245),
+            TitleBarMinimizeInactiveTextColor = Color.FromArgb(117, 117, 117),
+            TitleBarMinimizeInactiveIconColor = Color.FromArgb(117, 117, 117),
+            TitleBarMinimizeBorderColor = Color.FromArgb(224, 224, 224),
+            TitleBarMinimizeBorderHoverColor = Color.FromArgb(200, 200, 200),
+            TitleBarMinimizeBorderActiveColor = Color.FromArgb(200, 200, 200),
+            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(0, 120, 215),          // Highlight Blue
-            TitleBarForColor = Color.White,
-            DescriptionForColor = Color.FromArgb(50, 50, 50),     // Dark Gray
-            BeforeForColor = Color.FromArgb(232, 17, 35),         // Red
-            LatestForColor = Color.FromArgb(0, 153, 188),         // Cyan
-            BackColor = Color.White,
+            TitleForColor = Color.FromArgb(33, 33, 33),         // Dark Gray
+            TitleBarForColor = Color.FromArgb(33, 33, 33),
+            DescriptionForColor = Color.FromArgb(66, 66, 66),   // Medium Gray
+            BeforeForColor = Color.FromArgb(33, 150, 243),      // Blue
+            LatestForColor = Color.FromArgb(76, 175, 80),       // Green
+            BackColor = Color.FromArgb(255, 255, 255),          // White
 
             // **Button Colors**
             ButtonBackColor = Color.FromArgb(0, 120, 215),        // Highlight Blue
             ButtonForeColor = Color.White,
-            ButtonHoverBackColor = Color.FromArgb(204, 204, 204),    // Darker Blue
-            ButtonHoverForeColor = Color.FromArgb(0, 0, 0),           // Black
+            ButtonHoverBackColor = Color.FromArgb(30, 136, 229),  // Darker Blue on hover
+            ButtonHoverForeColor = Color.White,
             ButtonActiveBackColor = Color.FromArgb(0, 153, 188),  // Cyan
-            ButtonActiveForeColor = Color.FromArgb(232, 17, 35),
+            ButtonActiveForeColor = Color.FromArgb(232, 17, 35),  // Red
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
             TextBoxForeColor = Color.FromArgb(0, 0, 0),           // Black
-
-
-            // **Label Colors**
-            LabelBackColor =  Color.FromArgb(0, 120, 215),
-            LabelForeColor = Color.FromArgb(0, 0, 0),
-
-            // **Panel Colors**
-            PanelBackColor = Color.FromArgb(0, 120, 215), // Light Gray
-
             BackgroundColor = Color.White,
 
-            // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(0, 120, 215),
-            HeaderForeColor = Color.White,
-            GridLineColor = Color.FromArgb(204, 204, 204),
+            // **Label Colors**
+            LabelBackColor = Color.White,
+            LabelForeColor = Color.FromArgb(33, 33, 33),
+
+            // **Panel Colors**
+            PanelBackColor = Color.White,
+
+            // **Grid Colors** (Secondary Grid Properties)
+            HeaderBackColor = Color.FromArgb(245, 245, 245),      // Light Gray
+            HeaderForeColor = Color.FromArgb(33, 33, 33),         // Dark Gray
+            GridLineColor = Color.FromArgb(204, 204, 204),        // Gray Lines
             RowBackColor = Color.White,
-            RowForeColor = Color.FromArgb(0, 0, 0),
-            AltRowBackColor = Color.FromArgb(240, 240, 240),
-            SelectedRowBackColor = Color.FromArgb(0, 153, 188),
-            SelectedRowForeColor = Color.White,
+            RowForeColor = Color.FromArgb(0, 0, 0),               // Black Text
+            AltRowBackColor = Color.FromArgb(240, 240, 240),      // Alternate Row Light Gray
+            SelectedRowBackColor = Color.FromArgb(0, 153, 188),   // Cyan for Selected Rows
+            SelectedRowForeColor = Color.White,                   // White Text for Selected Rows
 
             // **ComboBox Colors**
             ComboBoxBackColor = Color.White,
             ComboBoxForeColor = Color.FromArgb(0, 0, 0),
-
 
             // **CheckBox Colors**
             CheckBoxBackColor = Color.White,
@@ -8355,9 +8606,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             RadioButtonForeColor = Color.FromArgb(0, 0, 0),
 
             // **Border Colors**
-            BorderColor = Color.FromArgb(204, 204, 204),
+            BorderColor = Color.FromArgb(224, 224, 224),
             ActiveBorderColor = Color.FromArgb(0, 120, 215),
-            InactiveBorderColor = Color.FromArgb(204, 204, 204),
+            InactiveBorderColor = Color.FromArgb(224, 224, 224),
             BorderSize = 1,
 
             // **Link Colors**
@@ -8393,8 +8644,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
-            GradientStartColor = Color.White,
-            GradientEndColor = Color.FromArgb(0, 120, 215),
+            GradientStartColor = Color.FromArgb(255, 255, 255),
+            GradientEndColor = Color.FromArgb(245, 245, 245),
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
@@ -8404,7 +8655,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuForeColor = Color.FromArgb(0, 0, 0),
             SideMenuHoverForeColor = Color.FromArgb(0, 0, 0),
             SideMenuSelectedForeColor = Color.White,
-            SideMenuBorderColor = Color.FromArgb(204, 204, 204),
+            SideMenuBorderColor = Color.FromArgb(224, 224, 224),
             SideMenuIconColor = Color.FromArgb(0, 0, 0),
             SideMenuSelectedIconColor = Color.White,
 
@@ -8416,7 +8667,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Dashboard Colors**
             DashboardBackColor = Color.White,
-            DashboardCardBackColor = Color.White,
+            DashboardCardBackColor = Color.FromArgb(245, 245, 245),
             DashboardCardHoverBackColor = Color.FromArgb(240, 240, 240),
             CardTitleForeColor = Color.FromArgb(0, 120, 215),
             CardTextForeColor = Color.FromArgb(50, 50, 50),
@@ -8425,7 +8676,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartBackColor = Color.White,
             ChartLineColor = Color.FromArgb(0, 120, 215),
             ChartFillColor = Color.FromArgb(100, 0, 120, 215), // Semi-transparent Highlight Blue
-            ChartAxisColor = Color.FromArgb(50, 50, 50),
+            ChartAxisColor = Color.FromArgb(117, 117, 117),
 
             // **Sidebar and Menu Colors**
             SidebarIconColor = Color.FromArgb(0, 0, 0),
@@ -8605,7 +8856,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 12f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(50, 50, 50),
+                TextColor = Color.FromArgb(117, 117, 117),
             },
             StrongText = new TypographyStyle
             {
@@ -8758,7 +9009,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             PrimaryColor = Color.FromArgb(0, 120, 215),          // Highlight Blue
             SecondaryColor = Color.FromArgb(0, 153, 188),        // Cyan
             AccentColor = Color.FromArgb(232, 17, 35),           // Red
-          
+
             SurfaceColor = Color.White,
             ErrorColor = Color.FromArgb(232, 17, 35),            // Red
             WarningColor = Color.FromArgb(255, 185, 0),          // Orange
@@ -8793,9 +9044,25 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = false,
         };
-
         public static BeepTheme DarkTheme => new BeepTheme
         {
+            GridBackColor = Color.Black,
+            GridForeColor = Color.White,
+            GridHeaderBackColor = Color.Gray,
+            GridHeaderForeColor = Color.White,
+            GridHeaderBorderColor = Color.DarkSlateGray,
+            GridHeaderHoverBackColor = Color.DimGray,
+            GridHeaderHoverForeColor = Color.White,
+            GridHeaderSelectedBackColor = Color.FromArgb(50, 50, 50),
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.DimGray,
+            GridHeaderSelectedBorderColor = Color.Silver,
+            GridRowHoverBackColor = Color.DarkSlateGray,
+            GridRowHoverForeColor = Color.White,
+            GridRowSelectedBackColor = Color.Gray,
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.DarkSlateGray,
+            GridRowSelectedBorderColor = Color.Gray,
             CardBackColor = Color.FromArgb(34, 34, 34),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -9387,18 +9654,35 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = true,
         };
-
         public static BeepTheme LightTheme => new BeepTheme
         {
-            CardBackColor = Color.FromArgb(248, 248, 255),
+            // **Grid Colors**
+            GridBackColor = Color.WhiteSmoke,
+            GridForeColor = Color.Black,
+            GridHeaderBackColor = Color.White,
+            GridHeaderForeColor = Color.Black,
+            GridHeaderBorderColor = Color.Silver,
+            GridHeaderHoverBackColor = Color.Gainsboro,
+            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderSelectedBackColor = Color.FromArgb(33, 150, 243), // Primary Blue
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.Gray,
+            GridHeaderSelectedBorderColor = Color.FromArgb(33, 150, 243), // Primary Blue
+            GridRowHoverBackColor = Color.LightGray,
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.FromArgb(33, 150, 243), // Primary Blue
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.Gray,
+            GridRowSelectedBorderColor = Color.FromArgb(33, 150, 243), // Primary Blue
+
             // **Card Styles**
+            CardBackColor = Color.FromArgb(248, 248, 255),
             CardHeaderStyle = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
                 FontSize = 22f,
                 FontWeight = FontWeight.Bold,
                 TextColor = Color.FromArgb(33, 33, 33),  // Dark Gray
-
             },
             CardparagraphStyle = new TypographyStyle
             {
@@ -9429,7 +9713,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarBorderActiveColor = Color.FromArgb(200, 200, 200),
             TitleBarBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
-            // Close Button
+            // **Close Button**
             TitleBarCloseHoverColor = Color.FromArgb(211, 47, 47),   // Darker Red
             TitleBarCloseHoverTextColor = Color.White,
             TitleBarCloseHoverIconColor = Color.White,
@@ -9444,7 +9728,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarCloseBorderActiveColor = Color.FromArgb(200, 200, 200),
             TitleBarCloseBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
-            // Maximize Button
+            // **Maximize Button**
             TitleBarMaxHoverColor = Color.FromArgb(67, 160, 71),       // Darker Green
             TitleBarMaxHoverTextColor = Color.White,
             TitleBarMaxHoverIconColor = Color.White,
@@ -9459,7 +9743,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarMaxBorderActiveColor = Color.FromArgb(200, 200, 200),
             TitleBarMaxBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
-            // Minimize Button
+            // **Minimize Button**
             TitleBarMinHoverColor = Color.FromArgb(30, 136, 229),       // Darker Blue
             TitleBarMinHoverTextColor = Color.White,
             TitleBarMinHoverIconColor = Color.White,
@@ -9474,7 +9758,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarMinBorderActiveColor = Color.FromArgb(200, 200, 200),
             TitleBarMinBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
-            // Minimize Button (Alternative Properties)
+            // **Minimize Button (Alternative Properties)**
             TitleBarMinimizeHoverColor = Color.FromArgb(30, 136, 229),
             TitleBarMinimizeHoverTextColor = Color.White,
             TitleBarMinimizeHoverIconColor = Color.White,
@@ -9500,9 +9784,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Button Colors**
             ButtonBackColor = Color.FromArgb(33, 150, 243),     // Blue
             ButtonForeColor = Color.White,
-            ButtonHoverBackColor = Color.FromArgb(30, 136, 229),
+            ButtonHoverBackColor = Color.FromArgb(30, 136, 229),  // Darker Blue on hover
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(25, 118, 210),
+            ButtonActiveBackColor = Color.FromArgb(25, 118, 210),  // Even Darker Blue
             ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
@@ -9517,22 +9801,19 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Panel Colors**
             PanelBackColor = Color.White,
 
-
-
-            // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(245, 245, 245),
-            HeaderForeColor = Color.FromArgb(33, 33, 33),
-            GridLineColor = Color.FromArgb(224, 224, 224),
+            // **Grid Colors** (Secondary Grid Properties)
+            HeaderBackColor = Color.FromArgb(245, 245, 245),      // Light Gray
+            HeaderForeColor = Color.FromArgb(33, 33, 33),         // Dark Gray
+            GridLineColor = Color.FromArgb(224, 224, 224),        // Light Gray
             RowBackColor = Color.White,
-            RowForeColor = Color.FromArgb(33, 33, 33),
-            AltRowBackColor = Color.FromArgb(250, 250, 250),
-            SelectedRowBackColor = Color.FromArgb(224, 224, 224),
-            SelectedRowForeColor = Color.FromArgb(33, 33, 33),
+            RowForeColor = Color.FromArgb(33, 33, 33),           // Dark Gray
+            AltRowBackColor = Color.FromArgb(250, 250, 250),      // Very Light Gray
+            SelectedRowBackColor = Color.FromArgb(33, 150, 243),  // Primary Blue
+            SelectedRowForeColor = Color.White,                   // White Text for Selected Rows
 
             // **ComboBox Colors**
             ComboBoxBackColor = Color.White,
             ComboBoxForeColor = Color.FromArgb(33, 33, 33),
-
 
             // **CheckBox Colors**
             CheckBoxBackColor = Color.White,
@@ -9544,29 +9825,29 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Border Colors**
             BorderColor = Color.FromArgb(224, 224, 224),
-            ActiveBorderColor = Color.FromArgb(33, 150, 243),
+            ActiveBorderColor = Color.FromArgb(33, 150, 243),      // Blue
             InactiveBorderColor = Color.FromArgb(224, 224, 224),
             BorderSize = 1,
 
             // **Link Colors**
-            LinkColor = Color.FromArgb(33, 150, 243),
-            VisitedLinkColor = Color.FromArgb(25, 118, 210),
-            HoverLinkColor = Color.FromArgb(30, 136, 229),
+            LinkColor = Color.FromArgb(33, 150, 243),              // Blue
+            VisitedLinkColor = Color.FromArgb(25, 118, 210),       // Darker Blue
+            HoverLinkColor = Color.FromArgb(30, 136, 229),         // Slightly Lighter Blue
             LinkHoverColor = Color.FromArgb(30, 136, 229),
             LinkIsUnderline = true,
 
             // **ToolTip Colors**
-            ToolTipBackColor = Color.FromArgb(66, 66, 66),
+            ToolTipBackColor = Color.FromArgb(66, 66, 66),         // Medium Gray
             ToolTipForeColor = Color.White,
 
             // **ScrollBar Colors**
             ScrollBarBackColor = Color.White,
-            ScrollBarThumbColor = Color.FromArgb(189, 189, 189),
-            ScrollBarTrackColor = Color.FromArgb(224, 224, 224),
+            ScrollBarThumbColor = Color.FromArgb(189, 189, 189),   // Gray
+            ScrollBarTrackColor = Color.FromArgb(224, 224, 224),   // Light Gray
 
             // **Status Bar Colors**
-            StatusBarBackColor = Color.FromArgb(245, 245, 245),
-            StatusBarForeColor = Color.FromArgb(33, 33, 33),
+            StatusBarBackColor = Color.FromArgb(245, 245, 245),    // Light Gray
+            StatusBarForeColor = Color.FromArgb(33, 33, 33),       // Dark Gray
 
             // **Tab Colors**
             TabBackColor = Color.White,
@@ -9577,16 +9858,16 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.White,
             DialogForeColor = Color.FromArgb(33, 33, 33),
-            DialogButtonBackColor = Color.FromArgb(33, 150, 243),
+            DialogButtonBackColor = Color.FromArgb(33, 150, 243),  // Blue
             DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
-            GradientStartColor = Color.FromArgb(255, 255, 255),
-            GradientEndColor = Color.FromArgb(245, 245, 245),
+            GradientStartColor = Color.FromArgb(255, 255, 255),   // White
+            GradientEndColor = Color.FromArgb(245, 245, 245),     // Light Gray
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(33, 150, 243), // Subtle Blue Tint
+            SideMenuBackColor = Color.FromArgb(33, 150, 243),     // Blue
             SideMenuHoverBackColor = Color.FromArgb(245, 245, 245),
             SideMenuSelectedBackColor = Color.FromArgb(33, 150, 243),
             SideMenuForeColor = Color.FromArgb(33, 33, 33),
@@ -9597,7 +9878,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(100, 33, 150, 243),
+            TitleBarBackColor = Color.FromArgb(100, 33, 150, 243), // Semi-transparent Blue
             TitleBarForeColor = Color.FromArgb(33, 33, 33),
             TitleBarHoverBackColor = Color.FromArgb(240, 240, 240),
             TitleBarHoverForeColor = Color.FromArgb(33, 33, 33),
@@ -9611,9 +9892,9 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Data Visualization (Charts)**
             ChartBackColor = Color.White,
-            ChartLineColor = Color.FromArgb(33, 150, 243),
-            ChartFillColor = Color.FromArgb(100, 33, 150, 243), // Semi-transparent Blue
-            ChartAxisColor = Color.FromArgb(117, 117, 117),
+            ChartLineColor = Color.FromArgb(33, 150, 243),         // Blue
+            ChartFillColor = Color.FromArgb(100, 33, 150, 243),    // Semi-transparent Blue
+            ChartAxisColor = Color.FromArgb(117, 117, 117),        // Gray
 
             // **Sidebar and Menu Colors**
             SidebarIconColor = Color.FromArgb(33, 33, 33),
@@ -9630,7 +9911,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Badge and Highlight Colors**
             BadgeBackColor = Color.FromArgb(229, 57, 53),        // Red
             BadgeForeColor = Color.White,
-            HighlightBackColor = Color.FromArgb(255, 241, 118),  // Yellow
+            HighlightBackColor = Color.FromArgb(33, 150, 243),    // Changed from Yellow to Primary Blue
 
             // **Font Properties**
             FontFamily = "Segoe UI",
@@ -9819,7 +10100,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 40f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(33, 33, 33),
+                TextColor = Color.FromArgb(0, 120, 215), // Accent Blue
             },
             DisplayMedium = new TypographyStyle
             {
@@ -9827,7 +10108,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 34f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(33, 33, 33),
+                TextColor = Color.FromArgb(0, 120, 215), // Accent Blue
             },
             DisplaySmall = new TypographyStyle
             {
@@ -9835,7 +10116,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 28f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(33, 33, 33),
+                TextColor = Color.FromArgb(0, 120, 215), // Accent Blue
             },
 
             // Headlines
@@ -9923,7 +10204,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(33, 33, 33),
+                TextColor = Color.FromArgb(0, 0, 0), // Black
             },
             LabelMedium = new TypographyStyle
             {
@@ -9931,7 +10212,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 12f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(33, 33, 33),
+                TextColor = Color.FromArgb(0, 0, 0), // Black
             },
             LabelSmall = new TypographyStyle
             {
@@ -9939,17 +10220,17 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 10f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(33, 33, 33),
+                TextColor = Color.FromArgb(0, 0, 0), // Black
             },
 
             // **Color Palette**
             PrimaryColor = Color.FromArgb(33, 150, 243),        // Blue
             SecondaryColor = Color.FromArgb(76, 175, 80),       // Green
             AccentColor = Color.FromArgb(229, 57, 53),          // Red
-          
+
             SurfaceColor = Color.White,
             ErrorColor = Color.FromArgb(229, 57, 53),           // Red
-            WarningColor = Color.FromArgb(255, 193, 7),         // Amber
+            WarningColor = Color.FromArgb(255, 185, 0),         // Amber (Consider changing to align with palette)
             SuccessColor = Color.FromArgb(76, 175, 80),         // Green
             OnPrimaryColor = Color.White,
             OnBackgroundColor = Color.FromArgb(33, 33, 33),
@@ -9981,9 +10262,25 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = false,
         };
-
         public static BeepTheme PastelTheme => new BeepTheme
         {
+            GridBackColor = Color.MistyRose,
+            GridForeColor = Color.DarkSlateGray,
+            GridHeaderBackColor = Color.LavenderBlush,
+            GridHeaderForeColor = Color.DarkSlateGray,
+            GridHeaderBorderColor = Color.RosyBrown,
+            GridHeaderHoverBackColor = Color.LightPink,
+            GridHeaderHoverForeColor = Color.DarkSlateGray,
+            GridHeaderSelectedBackColor = Color.Salmon,
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.RosyBrown,
+            GridHeaderSelectedBorderColor = Color.DarkSalmon,
+            GridRowHoverBackColor = Color.LightPink,
+            GridRowHoverForeColor = Color.DarkSlateGray,
+            GridRowSelectedBackColor = Color.Salmon,
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.RosyBrown,
+            GridRowSelectedBorderColor = Color.DarkSalmon,
             CardBackColor = Color.FromArgb(255, 223, 211),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -10575,9 +10872,25 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = false,
         };
-
         public static BeepTheme MidnightTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(18, 18, 18), // Midnight Black
+            GridForeColor = Color.WhiteSmoke,
+            GridHeaderBackColor = Color.FromArgb(34, 34, 34),
+            GridHeaderForeColor = Color.White,
+            GridHeaderBorderColor = Color.Gray,
+            GridHeaderHoverBackColor = Color.FromArgb(50, 50, 50),
+            GridHeaderHoverForeColor = Color.White,
+            GridHeaderSelectedBackColor = Color.FromArgb(0, 120, 215),
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.Gray,
+            GridHeaderSelectedBorderColor = Color.Silver,
+            GridRowHoverBackColor = Color.FromArgb(34, 34, 34),
+            GridRowHoverForeColor = Color.White,
+            GridRowSelectedBackColor = Color.FromArgb(0, 120, 215),
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.Gray,
+            GridRowSelectedBorderColor = Color.Silver,
             CardBackColor = Color.FromArgb(25, 25, 112),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -11171,9 +11484,25 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = true,
         };
-
         public static BeepTheme NeonTheme => new BeepTheme
         {
+            GridBackColor = Color.Black,
+            GridForeColor = Color.Lime,
+            GridHeaderBackColor = Color.Fuchsia,
+            GridHeaderForeColor = Color.Black,
+            GridHeaderBorderColor = Color.Lime,
+            GridHeaderHoverBackColor = Color.Cyan,
+            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderSelectedBackColor = Color.Magenta,
+            GridHeaderSelectedForeColor = Color.Black,
+            GridHeaderHoverBorderColor = Color.Lime,
+            GridHeaderSelectedBorderColor = Color.Lime,
+            GridRowHoverBackColor = Color.Cyan,
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.Magenta,
+            GridRowSelectedForeColor = Color.Black,
+            GridRowHoverBorderColor = Color.Lime,
+            GridRowSelectedBorderColor = Color.Lime,
             CardBackColor = Color.FromArgb(255, 0, 255),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -11765,9 +12094,25 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = true,
         };
-
         public static BeepTheme RusticTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(222, 184, 135), // Burlywood
+            GridForeColor = Color.SaddleBrown,
+            GridHeaderBackColor = Color.Chocolate,
+            GridHeaderForeColor = Color.White,
+            GridHeaderBorderColor = Color.Sienna,
+            GridHeaderHoverBackColor = Color.SandyBrown,
+            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderSelectedBackColor = Color.Peru,
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.Sienna,
+            GridHeaderSelectedBorderColor = Color.Chocolate,
+            GridRowHoverBackColor = Color.SandyBrown,
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.Chocolate,
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.Sienna,
+            GridRowSelectedBorderColor = Color.Chocolate,
             CardBackColor = Color.FromArgb(210, 180, 140),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -12359,9 +12704,25 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = false,
         };
-
         public static BeepTheme GalaxyTheme => new BeepTheme
         {
+            GridBackColor = Color.Black,
+            GridForeColor = Color.White,
+            GridHeaderBackColor = Color.FromArgb(25, 25, 112), // Midnight Blue
+            GridHeaderForeColor = Color.White,
+            GridHeaderBorderColor = Color.Gray,
+            GridHeaderHoverBackColor = Color.FromArgb(72, 61, 139), // Dark Slate Blue
+            GridHeaderHoverForeColor = Color.White,
+            GridHeaderSelectedBackColor = Color.FromArgb(0, 0, 128), // Navy
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.Gray,
+            GridHeaderSelectedBorderColor = Color.FromArgb(0, 0, 128),
+            GridRowHoverBackColor = Color.FromArgb(32, 32, 64), // Deep Space
+            GridRowHoverForeColor = Color.White,
+            GridRowSelectedBackColor = Color.FromArgb(0, 0, 128),
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.Gray,
+            GridRowSelectedBorderColor = Color.FromArgb(0, 0, 128),
 
             CardBackColor = Color.FromArgb(70, 35, 90),
             // **Card Styles**
@@ -12954,9 +13315,25 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = true,
         };
-             
         public static BeepTheme DesertTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(255, 244, 214), // Sand
+            GridForeColor = Color.Black,
+            GridHeaderBackColor = Color.FromArgb(210, 180, 140), // Tan
+            GridHeaderForeColor = Color.Black,
+            GridHeaderBorderColor = Color.SandyBrown,
+            GridHeaderHoverBackColor = Color.FromArgb(244, 164, 96), // Sandy Brown
+            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderSelectedBackColor = Color.FromArgb(210, 105, 30), // Chocolate
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.SandyBrown,
+            GridHeaderSelectedBorderColor = Color.Chocolate,
+            GridRowHoverBackColor = Color.FromArgb(244, 164, 96),
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.FromArgb(210, 105, 30),
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.SandyBrown,
+            GridRowSelectedBorderColor = Color.Chocolate,
             CardBackColor = Color.FromArgb(237, 201, 175),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -13550,6 +13927,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme VintageTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(245, 222, 179), // Wheat
+            GridForeColor = Color.Black,
+            GridHeaderBackColor = Color.BurlyWood,
+            GridHeaderForeColor = Color.Black,
+            GridHeaderBorderColor = Color.SaddleBrown,
+            GridHeaderHoverBackColor = Color.Tan,
+            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderSelectedBackColor = Color.Peru,
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.SaddleBrown,
+            GridHeaderSelectedBorderColor = Color.Chocolate,
+            GridRowHoverBackColor = Color.Tan,
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.Peru,
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.SaddleBrown,
+            GridRowSelectedBorderColor = Color.Chocolate,
             CardBackColor = Color.FromArgb(238, 232, 170),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -14143,6 +14537,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme DefaultTheme => new BeepTheme
         {
+            GridBackColor = Color.White,
+            GridForeColor = Color.Black,
+            GridHeaderBackColor = Color.LightGray,
+            GridHeaderForeColor = Color.Black,
+            GridHeaderBorderColor = Color.Silver,
+            GridHeaderHoverBackColor = Color.Gainsboro,
+            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderSelectedBackColor = Color.FromArgb(0, 120, 215),
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.Gray,
+            GridHeaderSelectedBorderColor = Color.FromArgb(0, 120, 215),
+            GridRowHoverBackColor = Color.Gainsboro,
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.FromArgb(0, 120, 215),
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.Gray,
+            GridRowSelectedBorderColor = Color.FromArgb(0, 120, 215),
             CardBackColor = Color.FromArgb(255, 69, 58), // Soft reddish tone
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -14737,6 +15148,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme GlassmorphismTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(128, 255, 255, 255), // Semi-transparent White
+            GridForeColor = Color.Black,
+            GridHeaderBackColor = Color.FromArgb(128, 240, 240, 240), // Semi-transparent Light Gray
+            GridHeaderForeColor = Color.Black,
+            GridHeaderBorderColor = Color.Gray,
+            GridHeaderHoverBackColor = Color.FromArgb(200, 240, 240, 240),
+            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderSelectedBackColor = Color.FromArgb(128, 0, 120, 215), // Semi-transparent Blue
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.Gray,
+            GridHeaderSelectedBorderColor = Color.FromArgb(0, 120, 215),
+            GridRowHoverBackColor = Color.FromArgb(150, 240, 240, 240),
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.FromArgb(128, 0, 120, 215),
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.Gray,
+            GridRowSelectedBorderColor = Color.FromArgb(0, 120, 215),
             CardBackColor = Color.FromArgb(255, 255, 255), // Was semi-transparent white
                                                            // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -15319,9 +15747,25 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = false
         };
-
         public static BeepTheme FlatDesignTheme => new BeepTheme
         {
+            GridBackColor = Color.White,
+            GridForeColor = Color.Black,
+            GridHeaderBackColor = Color.FromArgb(0, 120, 215),
+            GridHeaderForeColor = Color.White,
+            GridHeaderBorderColor = Color.Gray,
+            GridHeaderHoverBackColor = Color.FromArgb(28, 151, 234),
+            GridHeaderHoverForeColor = Color.White,
+            GridHeaderSelectedBackColor = Color.FromArgb(0, 100, 200),
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.Gray,
+            GridHeaderSelectedBorderColor = Color.FromArgb(0, 100, 200),
+            GridRowHoverBackColor = Color.LightGray,
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.FromArgb(0, 120, 215),
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.Gray,
+            GridRowSelectedBorderColor = Color.FromArgb(0, 120, 215),
             CardBackColor = Color.FromArgb(250, 250, 250),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -15915,6 +16359,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme CyberpunkNeonTheme => new BeepTheme
         {
+            GridBackColor = Color.Black,
+            GridForeColor = Color.Lime,
+            GridHeaderBackColor = Color.Fuchsia,
+            GridHeaderForeColor = Color.Black,
+            GridHeaderBorderColor = Color.Yellow,
+            GridHeaderHoverBackColor = Color.FromArgb(255, 20, 147), // Deep Pink
+            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderSelectedBackColor = Color.Cyan,
+            GridHeaderSelectedForeColor = Color.Black,
+            GridHeaderHoverBorderColor = Color.Yellow,
+            GridHeaderSelectedBorderColor = Color.Fuchsia,
+            GridRowHoverBackColor = Color.FromArgb(0, 255, 255), // Cyan
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.Magenta,
+            GridRowSelectedForeColor = Color.Black,
+            GridRowHoverBorderColor = Color.Yellow,
+            GridRowSelectedBorderColor = Color.Magenta,
             CardBackColor = Color.FromArgb(0, 255, 255),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -16508,6 +16969,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme GradientBurstTheme => new BeepTheme
         {
+            GridBackColor = Color.FromArgb(255, 255, 240), // Ivory
+            GridForeColor = Color.Black,
+            GridHeaderBackColor = Color.FromArgb(255, 182, 193), // Light Pink
+            GridHeaderForeColor = Color.Black,
+            GridHeaderBorderColor = Color.Purple,
+            GridHeaderHoverBackColor = Color.FromArgb(144, 238, 144), // Light Green
+            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderSelectedBackColor = Color.FromArgb(0, 191, 255), // Deep Sky Blue
+            GridHeaderSelectedForeColor = Color.White,
+            GridHeaderHoverBorderColor = Color.Purple,
+            GridHeaderSelectedBorderColor = Color.Orange,
+            GridRowHoverBackColor = Color.FromArgb(255, 222, 173), // Navajo White
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.FromArgb(240, 128, 128), // Light Coral
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.Purple,
+            GridRowSelectedBorderColor = Color.Orange,
             CardBackColor = Color.FromArgb(255, 105, 180),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -17101,6 +17579,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme HighContrastTheme => new BeepTheme
         {
+            GridBackColor = Color.Black,
+            GridForeColor = Color.White,
+            GridHeaderBackColor = Color.Gray,
+            GridHeaderForeColor = Color.White,
+            GridHeaderBorderColor = Color.Yellow,
+            GridHeaderHoverBackColor = Color.FromArgb(128, 128, 128), // Dim Gray
+            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderSelectedBackColor = Color.Yellow,
+            GridHeaderSelectedForeColor = Color.Black,
+            GridHeaderHoverBorderColor = Color.Yellow,
+            GridHeaderSelectedBorderColor = Color.Yellow,
+            GridRowHoverBackColor = Color.FromArgb(64, 64, 64), // Dark Gray
+            GridRowHoverForeColor = Color.White,
+            GridRowSelectedBackColor = Color.Yellow,
+            GridRowSelectedForeColor = Color.Black,
+            GridRowHoverBorderColor = Color.Yellow,
+            GridRowSelectedBorderColor = Color.Yellow,
             CardBackColor = Color.FromArgb(255, 215, 0),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -17722,9 +18217,25 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = true,
         };
-
         public static BeepTheme MonochromeTheme => new BeepTheme
         {
+            GridBackColor = Color.White,
+            GridForeColor = Color.Black,
+            GridHeaderBackColor = Color.Gray,
+            GridHeaderForeColor = Color.White,
+            GridHeaderBorderColor = Color.DarkGray,
+            GridHeaderHoverBackColor = Color.DimGray,
+            GridHeaderHoverForeColor = Color.White,
+            GridHeaderSelectedBackColor = Color.Silver,
+            GridHeaderSelectedForeColor = Color.Black,
+            GridHeaderHoverBorderColor = Color.DarkGray,
+            GridHeaderSelectedBorderColor = Color.Silver,
+            GridRowHoverBackColor = Color.LightGray,
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.Gray,
+            GridRowSelectedForeColor = Color.White,
+            GridRowHoverBorderColor = Color.DarkGray,
+            GridRowSelectedBorderColor = Color.Gray,
             CardBackColor = Color.FromArgb(128, 128, 128),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
@@ -18317,9 +18828,25 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = false,
         };
-
         public static BeepTheme LuxuryGoldTheme => new BeepTheme
         {
+            GridBackColor = Color.Black,
+            GridForeColor = Color.Gold,
+            GridHeaderBackColor = Color.Black,
+            GridHeaderForeColor = Color.Gold,
+            GridHeaderBorderColor = Color.DarkGoldenrod,
+            GridHeaderHoverBackColor = Color.Gold,
+            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderSelectedBackColor = Color.FromArgb(128, 128, 0), // Olive
+            GridHeaderSelectedForeColor = Color.Black,
+            GridHeaderHoverBorderColor = Color.Gold,
+            GridHeaderSelectedBorderColor = Color.DarkGoldenrod,
+            GridRowHoverBackColor = Color.Gold,
+            GridRowHoverForeColor = Color.Black,
+            GridRowSelectedBackColor = Color.FromArgb(128, 128, 0),
+            GridRowSelectedForeColor = Color.Black,
+            GridRowHoverBorderColor = Color.Gold,
+            GridRowSelectedBorderColor = Color.DarkGoldenrod,
             CardBackColor = Color.FromArgb(212, 175, 55),
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle

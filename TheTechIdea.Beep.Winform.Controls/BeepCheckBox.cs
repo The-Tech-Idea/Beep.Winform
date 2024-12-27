@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
 
 
-            Padding = new Padding(5, 5, 5, 5);
+            Padding = new Padding(1, 1,1, 1);
 
             _beepImage = new BeepImage
             {

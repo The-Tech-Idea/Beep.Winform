@@ -984,7 +984,35 @@ namespace TheTechIdea.Beep.Winform.Controls
           //  Debug.WriteLine($"DrawingRect: {DrawingRect}");
         }
 
-
+        public virtual bool SetFont()
+        {
+            bool retval = true;
+            switch (OverrideFontSize)
+            {
+                case TypeStyleFontSize.None:
+                    retval = false;
+                    break;
+                case TypeStyleFontSize.Small:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 8, FontWeight.Normal, FontStyle.Regular);
+                    break;
+                case TypeStyleFontSize.Medium:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 10, FontWeight.Normal, FontStyle.Regular);
+                    break;
+                case TypeStyleFontSize.Large:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 12, FontWeight.Normal, FontStyle.Regular);
+                    break;
+                case TypeStyleFontSize.ExtraLarge:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 14, FontWeight.Normal, FontStyle.Regular);
+                    break;
+                case TypeStyleFontSize.ExtraExtraLarge:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 16, FontWeight.Normal, FontStyle.Regular);
+                    break;
+                case TypeStyleFontSize.ExtraExtraExtraLarge:
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 18, FontWeight.Normal, FontStyle.Regular);
+                    break;
+            }
+            return retval;
+        }
 
         protected override void OnPaint(PaintEventArgs e)
         {

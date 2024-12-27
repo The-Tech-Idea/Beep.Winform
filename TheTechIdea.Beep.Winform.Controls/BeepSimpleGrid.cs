@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Grid;
 using System.Drawing.Design;
 using System.Windows.Forms.Design;
 using TheTechIdea.Beep.Winform.Controls.Editors;
+using TheTechIdea.Beep.Winform.Controls.Common;
 
 
 
@@ -16,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         int botomspacetaken = 0;
         int topPanelY ;
      
-        public int _rowHeight = 30; // Default row height
+        public int _rowHeight = 12; // Default row height
        // private List<int> _columnWidths = new List<int> { 100, 100, 100 }; // Default column widths
 
         
@@ -31,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private List<Rectangle> sortIconBounds = new List<Rectangle>();
         private List<Rectangle> filterIconBounds = new List<Rectangle>();
-        private int _defaultcolumnheaderheight = 20;
+        private int _defaultcolumnheaderheight = 12;
         private int _defaultcolumnheaderwidth = 50;
         public object DataSource { get; set; }
         public string QueryFunctionName { get; set; }
@@ -45,9 +46,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepGridRow BottomRow { get; set; } // For aggregations and totals
 
         public BeepDataNavigator DataNavigator { get; set; } = new BeepDataNavigator();
-
-
-
         private List<BeepGridColumnConfig> _columns = new List<BeepGridColumnConfig>();
         [Browsable(true)]
         [Localizable(true)]
@@ -168,30 +166,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Redraw grid with new navigator visibility
             }
         }
-        private bool _showCRUDPanel = true;
-        [Browsable(true)]
-        [Category("Layout")]
-        public bool ShowCRUDPanel
-        {
-            get => _showCRUDPanel;
-            set
-            {
-                _showCRUDPanel = value;
-                Invalidate(); // Redraw grid with new CRUD panel visibility
-            }
-        }
-        private bool _showTitle = true;
-        [Browsable(true)]
-        [Category("Layout")]
-        public bool ShowTitle
-        {
-            get => _showTitle;
-            set
-            {
-                _showTitle = value;
-                Invalidate(); // Redraw grid with new title visibility
-            }
-        }
         private bool _showBottomRow = false;
         [Browsable(true)]
         [Category("Layout")]
@@ -240,19 +214,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Redraw grid with new header panel border visibility
             }
         }
-        private bool _showHeaderPanelTitle = true;
-        [DefaultValue(true)]
-        [Browsable(true)]
-        [Category("Layout")]
-        public bool ShowHeaderPanelTitle
-        {
-            get => _showHeaderPanelTitle;
-            set
-            {
-                _showHeaderPanelTitle = value;
-                Invalidate(); // Redraw grid with new header panel title visibility
-            }
-        }
+  
+       
 
         [Browsable(true)]
         [Category("Layout")]
@@ -275,11 +238,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         public GridDataSourceType DataSourceType { get; set; } = GridDataSourceType.Fixed;
-
-     
-      
-
-      
         private string _title = "BeepSimpleGrid Title"; // Title text
         public string Title
         {
@@ -287,10 +245,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             set => _title = value;
 
         }
-   
-
-
-
         [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load")]
         [Category("Appearance")]
@@ -316,9 +270,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                
             }
         }
+        //[Browsable(true)]
+        //[Localizable(true)]
+        //[MergableProperty(false)]
 
-
-
+        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        //public BindingList<SimpleItem> ListItems
+        //{
+        //    get => items;
+        //    set
+        //    {
+        //        items = value;
+        //        // InitializeMenu();
+        //    }
+        //}
         #endregion "Properties"
 
         public BeepSimpleGrid()
@@ -355,19 +320,162 @@ namespace TheTechIdea.Beep.Winform.Controls
             DataNavigator.Theme = Theme;
 
         }
-
         private void Rows_ListChanged(object sender, ListChangedEventArgs e)
         {
             Invalidate(); // Redraw the grid when rows change
         }
+        #region "Virtualization"
+        private int _verticalScrollOffset = 0; // Track vertical scroll
+        private int _horizontalScrollOffset = 0; // Track horizontal scroll
+
+        private (int firstRowIndex, int lastRowIndex) GetVisibleRows()
+        {
+            int firstRowIndex = _verticalScrollOffset / _rowHeight;
+            int visibleRowCount = DrawingRect.Height / _rowHeight;
+            int lastRowIndex = Math.Min(firstRowIndex + visibleRowCount, Rows.Count - 1);
+            return (firstRowIndex, lastRowIndex);
+        }
+
+        private (int firstColumnIndex, int lastColumnIndex) GetVisibleColumns()
+        {
+            int xOffset = _horizontalScrollOffset;
+            int firstColumnIndex = 0;
+            int visibleWidth = DrawingRect.Width;
+
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                if (xOffset < Columns[i].Width)
+                {
+                    firstColumnIndex = i;
+                    break;
+                }
+                xOffset -= Columns[i].Width;
+            }
+
+            int lastColumnIndex = firstColumnIndex;
+            int usedWidth = xOffset;
+            for (int i = firstColumnIndex; i < Columns.Count; i++)
+            {
+                usedWidth += Columns[i].Width;
+                if (usedWidth >= visibleWidth)
+                {
+                    lastColumnIndex = i;
+                    break;
+                }
+            }
+
+            return (firstColumnIndex, lastColumnIndex);
+        }
+
+        #endregion "Virtualization"
+        #region "Dynamic Control Pooling"
+        private Dictionary<string, Control> controlPool = new(); // Pool of controls by Cell ID
+
+        private Control GetControlForCell(BeepGridCell cell)
+        {
+            if (!controlPool.TryGetValue(cell.Id, out var control))
+            {
+                // Create a new control if not already in the pool
+                control = CreateControlForCell(cell);
+                controlPool[cell.Id] = control;
+                Controls.Add(control);
+            }
+
+            control.Visible = true;
+            return control;
+        }
+
+        private Control CreateControlForCell(BeepGridCell cell)
+        {
+            Control control = cell.UIComponent switch
+            {
+                BeepLabel => new BeepLabel(),
+                BeepTextBox => new BeepTextBox(),
+                BeepComboBox => new BeepComboBox(),
+                _ => new Label() // Fallback control
+            };
+
+            control.Tag = cell; // Associate the control with its cell
+            return control;
+        }
+        private void RenderVisibleCells()
+        {
+            var (firstRowIndex, lastRowIndex) = GetVisibleRows();
+            var (firstColumnIndex, lastColumnIndex) = GetVisibleColumns();
+
+            // Hide all controls initially
+            foreach (var control in controlPool.Values)
+            {
+                control.Visible = false;
+            }
+
+            // Render visible cells
+            int yOffset = headerPanelHeight;
+            for (int rowIndex = firstRowIndex; rowIndex <= lastRowIndex; rowIndex++)
+            {
+                var row = Rows[rowIndex];
+                int xOffset = XOffset;
+
+                for (int colIndex = firstColumnIndex; colIndex <= lastColumnIndex; colIndex++)
+                {
+                    var cell = row.Cells[colIndex];
+                    var cellControl = GetControlForCell(cell);
+
+                    // Position the control
+                    cellControl.SetBounds(xOffset, yOffset, Columns[colIndex].Width, _rowHeight);
+
+                    // Update content if necessary
+                    UpdateControlContent(cellControl, cell);
+
+                    xOffset += Columns[colIndex].Width;
+                }
+
+                yOffset += _rowHeight;
+            }
+        }
+
+        private void UpdateControlContent(Control control, BeepGridCell cell)
+        {
+            if (control is BeepLabel label && cell.UIComponent is BeepLabel)
+            {
+                label.Text = ((BeepLabel)cell.UIComponent).Text;
+                label.ApplyTheme();
+            }
+            else if (control is BeepTextBox textBox && cell.UIComponent is BeepTextBox)
+            {
+                textBox.Text = ((BeepTextBox)cell.UIComponent).Text;
+                textBox.ApplyTheme();
+            }
+            else if (control is BeepComboBox comboBox && cell.UIComponent is BeepComboBox)
+            {
+                comboBox.Text = ((BeepComboBox)cell.UIComponent).Text;
+                comboBox.ApplyTheme();
+            }
+            else if (control is BeepDatePicker datePicker)
+            {
+                datePicker.Text = cell.UIComponent.ToString();
+            }
+            else if (control is BeepCheckBox checkBox)
+            {
+               // checkBox.CheckedValue = (bool)cell.UIComponent.BoundProperty;
+            }
+            else
+            {
+                control.Text = cell.UIComponent.ToString();
+            }
+            // Add other UIComponent updates as needed
+        }
+
+        #endregion "Dynamic Control Pooling"
         #region "Header Layout"
-        protected int headerPanelHeight = 30; // Height of the header panel
-        protected int bottomagregationPanelHeight = 20; // Height of the bottom panel for agregation
-        protected int footerPanelHeight = 20; // Height of the Footer panel
-        protected int navigatorPanelHeight = 30; // Height of the navigator panel
+        protected int headerPanelHeight = 20; // Height of the header panel
+        protected int bottomagregationPanelHeight = 12; // Height of the bottom panel for agregation
+        protected int footerPanelHeight = 12; // Height of the Footer panel
+        protected int navigatorPanelHeight = 20; // Height of the navigator panel
 
         private Rectangle footerPanelRect; // Rectangle for the header panel
         private Rectangle headerPanelRect; // Rectangle for the header panel
+        private Rectangle columnsheaderPanelRect; // Rectangle for the header panel
         private Rectangle bottomagregationPanelRect; // Rectangle for the header panel
         private Rectangle navigatorPanelRect; // Rectangle for the header panel
 
@@ -377,6 +485,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _buttonssize = 25;
         private string _imagepath;
         private int defaultHeight=100;
+        private BindingList<SimpleItem> items;
 
         private void FilterButton_Click(object sender, EventArgs e)
         {
@@ -388,8 +497,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             //base.ApplyTheme();
-            this.BackColor = _currentTheme.PanelBackColor;
-            this.ForeColor = _currentTheme.LabelForeColor;
+            this.BackColor = _currentTheme.GridBackColor;
+            this.ForeColor = _currentTheme.GridForeColor;
             if (titleLabel != null) 
             {
                 titleLabel.Theme = Theme;
@@ -416,8 +525,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             var g = e.Graphics;
 
             var drawingBounds =DrawingRect;
-            drawingBounds.Inflate(-1, -1); // Adjust for border
-            headerPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Top, drawingBounds.Width, headerPanelHeight);
+          //  drawingBounds.Inflate(-1, -1); // Adjust for border
+             headerPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Top , drawingBounds.Width , headerPanelHeight);
              bottomPanelY = drawingBounds.Bottom;
              botomspacetaken = 0;
              topPanelY = drawingBounds.Top;
@@ -427,6 +536,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 bottomPanelY -= navigatorPanelHeight;
                 botomspacetaken = navigatorPanelHeight;
                 navigatorPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width, navigatorPanelHeight);
+                DrawNavigationRow(g, navigatorPanelRect);
+            }
+            else
+            {
+                // hide navigator
+                navigatorPanelRect = new Rectangle(-100, -100, drawingBounds.Width, navigatorPanelHeight);
                 DrawNavigationRow(g, navigatorPanelRect);
             }
             if (_showFooter)
@@ -443,6 +558,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 bottomagregationPanelRect = new Rectangle(drawingBounds.Left , bottomPanelY, drawingBounds.Width, bottomagregationPanelHeight);
                 DrawBottomAggregationRow(g, bottomagregationPanelRect);
             }
+          
             if(_showHeaderPanel)
             {
                 topPanelY += headerPanelHeight;
@@ -450,10 +566,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Draw Header Panel and Title
                 DrawHeaderPanel(g, headerPanelRect);
             }
-          
-            var gridRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width  , drawingBounds.Height- botomspacetaken);
+            else
+            {
+                // hide header
+                headerPanelRect = new Rectangle(-100, -100, drawingBounds.Width, headerPanelHeight);
+                DrawHeaderPanel(g, headerPanelRect);
+            }
+
             // Draw Column Headers
-            PaintColumnHeaders(g, gridRect);
+          
+            if (_showColumnHeaders)
+            {
+                topPanelY += ColumnHeight;
+                botomspacetaken += ColumnHeight;
+                columnsheaderPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width, ColumnHeight);
+                PaintColumnHeaders(g, columnsheaderPanelRect);
+            }
+            var gridRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width, drawingBounds.Height - botomspacetaken);
 
             // Draw Rows
             PaintRows(g, gridRect);
@@ -469,7 +598,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             
 
         }
-
         private void DrawBottomAggregationRow(Graphics g, Rectangle bottomagregationPanelRect)
         {
             using (var pen = new Pen(_currentTheme.BorderColor))
@@ -495,8 +623,9 @@ namespace TheTechIdea.Beep.Winform.Controls
            
             DataNavigator.Location = new Point(navigatorPanelRect.Left+2, navigatorPanelRect.Top+2);
             DataNavigator.Size = new Size(navigatorPanelRect.Width-2, navigatorPanelHeight-2);
-           
-           // DataNavigator.Invalidate();
+            DataNavigator.IsFramless = true;
+            
+            // DataNavigator.Invalidate();
             //DataNavigator.BringToFront();
             // draw line between header and grid
             using (var pen = new Pen(_currentTheme.BorderColor))
@@ -539,14 +668,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 g.DrawLine(borderPen, headerPanelBorderRect.Left, headerPanelBorderRect.Bottom, headerPanelBorderRect.Right, headerPanelBorderRect.Bottom);
             }
 
-
-            // Draw the Title Label (BeepLabel) within drawingBounds
-
-            titleLabel = new BeepLabel
+            if (titleLabel == null)
             {
-                    Text = string.IsNullOrEmpty(Title)?"Beep Grid": Title,
+                // Draw the Title Label (BeepLabel) within drawingBounds
+
+                titleLabel = new BeepLabel
+                {
+                    Text = string.IsNullOrEmpty(Title) ? "Beep Grid" : Title,
                     TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
-                    Location = new Point(headerPanelBorderRect.Left+1, headerPanelBorderRect.Top+1), // Adjust Y as needed
+                    Location = new Point(headerPanelBorderRect.Left + 1, headerPanelBorderRect.Top + 1), // Adjust Y as needed
                     Theme = Theme,
                     ImageAlign = System.Drawing.ContentAlignment.MiddleLeft,
                     TextImageRelation = TextImageRelation.ImageBeforeText,
@@ -556,18 +686,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                     //ShowBottomBorder =true,
                     //ShowTopBorder = true,
                     IsChild = true,
-                    IsShadowAffectedByTheme =false,
+                    IsShadowAffectedByTheme = false,
                     IsBorderAffectedByTheme = false,
-            };
-            
-            titleLabel.Size = new Size(headerPanelBorderRect.Width-2 , headerPanelBorderRect.Height-2 );
-            titleLabel.BackColor = _currentTheme.BackColor;
+                };
+
+                titleLabel.Size = new Size(headerPanelBorderRect.Width - 2, headerPanelBorderRect.Height - 2);
+                titleLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+                titleLabel.BackColor = _currentTheme.BackColor;
+                Controls.Add(titleLabel);
+            }
+          
             if (!string.IsNullOrEmpty(_imagepath))
             {
                 titleLabel.ImagePath = _imagepath;
             }
+            titleLabel.Location = new Point(headerPanelBorderRect.Left + 1, headerPanelBorderRect.Top + 1);
             // Add controls to BeepSimpleGrid
-            Controls.Add(titleLabel);
+
             titleLabel.Theme = Theme;
         }
         private void PaintColumnHeaders(Graphics g, Rectangle drawingBounds)
@@ -756,7 +891,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void PaintRow(Graphics graphics, BeepGridRow row, Rectangle rowRect)
         {
-            rowRect.Inflate(-1, -1);
+            //rowRect.Inflate(-1, -1);
             // Ensure we only draw within the grid's DrawingRect area
             int yOffset = DrawingRect.Top+headerPanelHeight ;
             int xOffset = DrawingRect.Left + XOffset;
@@ -1077,6 +1212,25 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         #endregion "Events"
+        #region "Scroll"
+        protected override void OnScroll(ScrollEventArgs e)
+        {
+            base.OnScroll(e);
+
+            // Update offsets for virtualization
+            if (e.ScrollOrientation == ScrollOrientation.VerticalScroll)
+            {
+                _verticalScrollOffset = e.NewValue;
+            }
+            else if (e.ScrollOrientation == ScrollOrientation.HorizontalScroll)
+            {
+                _horizontalScrollOffset = e.NewValue;
+            }
+
+            RenderVisibleCells(); // Re-render visible cells based on scroll position
+        }
+
+        #endregion "Scroll"
         #region "Sort and Filter"
 
         private void ShowFilterForm()

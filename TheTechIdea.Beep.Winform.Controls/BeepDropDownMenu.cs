@@ -214,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //int rightPadding = 2;
 
             //// Calculate the Y position to center the button vertically
-            //int dropdownButtonHeight = _triangleButton.Height - 4;
+            //int dropdownButtonHeight = TriangleButton.Height - 4;
             //int centerY = (this.Height - dropdownButtonHeight) / 2;
 
             //// Calculate the X position based on the control's client width
@@ -222,8 +222,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             //int xPos = this.ClientSize.Width - _buttonsize - rightPadding;
 
             //// Set the button's location and size
-            //_triangleButton.Location = new Point(xPos, centerY);
-            //_triangleButton.Size = new Size(_buttonsize, dropdownButtonHeight);
+            //TriangleButton.Location = new Point(xPos, centerY);
+            //TriangleButton.Size = new Size(_buttonsize, dropdownButtonHeight);
             if (_dropDownButton != null)
             {
                 int dropdownButtonHeight = TitleBottomY - 4;

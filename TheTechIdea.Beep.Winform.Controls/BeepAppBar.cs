@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Common;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -8,7 +9,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [DisplayName("Beep AppBar")]
     [Category("Controls")]
-    public class BeepAppBar : BeepControl 
+    public class BeepAppBar : BeepControl
     {
         private int windowsicons_height = 15;
         private int defaultHeight = 32;
@@ -16,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private BeepButton hamburgerIcon;
         private BeepLabel TitleLabel;
-        private BeepButton profileIcon;
+        private BeepButtonPopList profileIcon;
         private BeepButton notificationIcon;
         private BeepButton closeIcon;
         private BeepButton maximizeIcon;
@@ -24,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepSideMenu _sidemenu;
         private BeepButton themedropdown;
         private int imageoffset = 4;
-        public BeepSideMenu SideMenu { get { return _sidemenu; } set { _sidemenu = value;if (_sidemenu != null) { _sidemenu.OnMenuCollapseExpand += HandleSideMenuState; } } }
+        public BeepSideMenu SideMenu { get { return _sidemenu; } set { _sidemenu = value; if (_sidemenu != null) { _sidemenu.OnMenuCollapseExpand += HandleSideMenuState; } } }
 
 
         public EventHandler<BeepMouseEventArgs> Clicked;
@@ -42,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _logoImage = value;
-             //   TitleLabel.ImagePath = _logoImage;
+                //   TitleLabel.ImagePath = _logoImage;
             }
         }
 
@@ -68,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 hamburgerIcon.Visible = value;
-                RearrangeLayout();
+               //  RearrangeLayout();
             }
         }
         public bool ShowLogoIcon
@@ -77,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 TitleLabel.Visible = value;
-                RearrangeLayout();
+               //  RearrangeLayout();
             }
         }
         public bool ShowSearchBox
@@ -86,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 searchBox.Visible = value;
-                RearrangeLayout();
+               //  RearrangeLayout();
             }
         }
         public bool ShowNotificationIcon
@@ -95,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 notificationIcon.Visible = value;
-                RearrangeLayout();
+               //  RearrangeLayout();
             }
         }
         public bool ShowProfileIcon
@@ -104,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 profileIcon.Visible = value;
-                RearrangeLayout();
+               //  RearrangeLayout();
             }
         }
         public bool ShowCloseIcon
@@ -113,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 closeIcon.Visible = value;
-                RearrangeLayout();
+               //  RearrangeLayout();
             }
         }
         public bool ShowMaximizeIcon
@@ -122,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 maximizeIcon.Visible = value;
-                RearrangeLayout();
+               //  RearrangeLayout();
             }
         }
         public bool ShowMinimizeIcon
@@ -131,14 +132,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 minimizeIcon.Visible = value;
-                RearrangeLayout();
+               //  RearrangeLayout();
             }
         }
 
 
         private BeepTextBox searchBox;
         bool _applyThemeOnImage = true;
-       
+
 
         public bool ApplyThemeOnImage
         {
@@ -146,8 +147,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _applyThemeOnImage = value;
-            
-               
+
+
                 Invalidate();
             }
         }
@@ -165,11 +166,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 200;
                 Height = defaultHeight;
             }
-           
+
         }
         private void InitializeAppNavBar()
         {
-           
+
             Dock = DockStyle.Top;
 
             // Initialize the panels
@@ -182,18 +183,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowShadow = false;
             IsFramless = true;
             // Add controls to their respective panels 
-           // Console.WriteLine("Adding controls to panels");
-          //  AddHamburgerButton();
+            // Console.WriteLine("Adding controls to panels");
+            //  AddHamburgerButton();
             AddLogoIcon();
             AddSearchBox();
             AddNotificationIcon();
             AddUserProfileIcon();
             AddWindowControlIcons();
-          //  Console.WriteLine("Controls added to panels");
-            
-         //   Console.WriteLine("Height set to 60");
             RearrangeLayout();
-          //  Console.WriteLine("Rearranged layout");
             ApplyTheme();
         }
         private void AddHamburgerButton()
@@ -227,7 +224,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
                 MaxImageSize = new Size(30, 30),
                 TextAlign = ContentAlignment.MiddleLeft,
-           //     ImageAlign = ContentAlignment.MiddleLeft,
+                //     ImageAlign = ContentAlignment.MiddleLeft,
                 TextImageRelation = TextImageRelation.TextBeforeImage,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
@@ -237,7 +234,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsFramless = true,
                 IsChild = true,
                 ApplyThemeOnImage = false,
-              
+
 
             };
             //if (!string.IsNullOrEmpty(_logoImage))
@@ -259,11 +256,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 PlaceholderText = "Search...",
                 ApplyThemeOnImage = _applyThemeOnImage,
                 IsFramless = true,
-                
+
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
             };
-            
+
             //searchBox.Font = new Font("Segoe UI", 12, FontStyle.Regular);
             Controls.Add(searchBox);
         }
@@ -273,7 +270,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Width = windowsicons_height,
                 Height = windowsicons_height,
-                MaxImageSize = new Size(windowsicons_height-imageoffset, windowsicons_height-imageoffset),
+                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
                 Cursor = Cursors.Hand,
                 Theme = Theme,
                 ApplyThemeOnImage = _applyThemeOnImage,
@@ -284,7 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleLeft,
                 HideText = true,
-                Tag= "Notifications"
+                Tag = "Notifications"
             };
             notificationIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg";
             notificationIcon.Click += ButtonClicked;
@@ -292,13 +289,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void AddUserProfileIcon()
         {
-            profileIcon = new BeepButton
+            profileIcon = new BeepButtonPopList
             {
                 Width = windowsicons_height,
                 Height = windowsicons_height,
-                MaxImageSize = new Size(windowsicons_height-imageoffset, windowsicons_height-imageoffset),
-                TextImageRelation= TextImageRelation.Overlay,
-                ImageAlign= ContentAlignment.MiddleCenter,
+                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
+                TextImageRelation = TextImageRelation.Overlay,
+                ImageAlign = ContentAlignment.MiddleCenter,
                 Cursor = Cursors.Hand,
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg",
                 Theme = Theme,
@@ -307,84 +304,90 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChild = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
-                HideText= true,
-                Tag = "Profile"
-
+                HideText = true,
+                Tag = "Profile",
+                ButtonShape = PopListButtonShape.Triangle
+               
             };
+            
+            // Add menu rootnodeitems (SimpleMenuItem instances) with text and optional SVG icons
+            profileIcon.ListItems.Add(new SimpleItem { Text = "Profile", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg" });
+            profileIcon.ListItems.Add(new SimpleItem { Text = "Settings", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.down.svg" });
+            profileIcon.ListItems.Add(new SimpleItem { Text = "Logout", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.logout.svg" });
+        
             profileIcon.Click += ButtonClicked;
             Controls.Add(profileIcon);
         }
         private void AddWindowControlIcons()
         {
-          
             // Minimize button
-             minimizeIcon = new BeepButton
+            minimizeIcon = new BeepButton
             {
-                 Width = windowsicons_height,
-                 Height = windowsicons_height,
-                 MaxImageSize = new Size(windowsicons_height-imageoffset, windowsicons_height-imageoffset),
-                 Cursor = Cursors.Hand,
+                Width = windowsicons_height,
+                Height = windowsicons_height,
+                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
+                Cursor = Cursors.Hand,
                 Theme = Theme,
                 ApplyThemeOnImage = _applyThemeOnImage,
                 IsFramless = true,
-                 IsShadowAffectedByTheme = false,
-                 IsBorderAffectedByTheme = false,
-                 IsChild = true,
-                 TextImageRelation = TextImageRelation.Overlay,
-                 ImageAlign = ContentAlignment.MiddleCenter,
-                 HideText = true,
-             };
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+                IsChild = true,
+                TextImageRelation = TextImageRelation.Overlay,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                HideText = true,
+            };
             minimizeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minimize.svg";
             minimizeIcon.Click += (s, e) => FindForm().WindowState = FormWindowState.Minimized;
             //rightPanel.Controls.Add(minimizeIcon);
             Controls.Add(minimizeIcon);
             // Maximize button
-             maximizeIcon = new BeepButton
+            maximizeIcon = new BeepButton
             {
-                 Width = windowsicons_height,
-                 Height = windowsicons_height,
-                 MaxImageSize = new Size(windowsicons_height-imageoffset, windowsicons_height-imageoffset),
-                 Cursor = Cursors.Hand,
-                 Theme = Theme,
-                 ApplyThemeOnImage = _applyThemeOnImage,
-                 IsFramless = true,
-                 IsShadowAffectedByTheme = false,
-                 IsBorderAffectedByTheme = false,
-                  IsChild=true,
-                 TextImageRelation = TextImageRelation.Overlay,
-                 ImageAlign = ContentAlignment.MiddleCenter,
-                 HideText = true,
-             };
+                Width = windowsicons_height,
+                Height = windowsicons_height,
+                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
+                Cursor = Cursors.Hand,
+                Theme = Theme,
+                ApplyThemeOnImage = _applyThemeOnImage,
+                IsFramless = true,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+                IsChild = true,
+                TextImageRelation = TextImageRelation.Overlay,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                HideText = true,
+            };
             maximizeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.maximize.svg";
             maximizeIcon.Click += (s, e) =>
             {
                 var form = FindForm();
                 form.WindowState = form.WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized;
             };
-           Controls.Add(maximizeIcon);
+            Controls.Add(maximizeIcon);
             //  rightPanel.Controls.Add(maximizeIcon);
 
             // Close button
-             closeIcon = new BeepButton
+            closeIcon = new BeepButton
             {
-                 Width = windowsicons_height,
-                 Height = windowsicons_height,
-                 MaxImageSize = new Size(windowsicons_height-imageoffset, windowsicons_height-imageoffset),
-                 Cursor = Cursors.Hand,
+                Width = windowsicons_height,
+                Height = windowsicons_height,
+                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
+                Cursor = Cursors.Hand,
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.x.svg",
                 Theme = Theme,
                 ApplyThemeOnImage = _applyThemeOnImage,
                 IsFramless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
-                 IsChild = true,
-                 TextImageRelation = TextImageRelation.Overlay,
-                 ImageAlign = ContentAlignment.MiddleCenter,
-                 HideText = true,
-             };
+                IsChild = true,
+                TextImageRelation = TextImageRelation.Overlay,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                HideText = true,
+            };
             closeIcon.Click += (s, e) => Application.Exit();
             Controls.Add(closeIcon);
-           
+
         }
         // Handle the SideMenu collapse/expand state
         private void HandleSideMenuState(bool isCollapsed)
@@ -410,37 +413,33 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void ShowProfileMenu()
         {
-            //    // Initialize the profile menu with the current theme
-            //    var profileMenu = new BeepDropMenu(theme);
+            // Initialize the profile menu with the current theme
+            var profileMenu = new BeepButtonPopList();
 
-            //    // Add menu rootnodeitems (SimpleMenuItem instances) with text and optional SVG icons
-            //    profileMenu.Items.Add(new SimpleMenuItem { Text = "Profile", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg" });
-            //    profileMenu.Items.Add(new SimpleMenuItem { Text = "Settings", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.down.svg" });
-            //    profileMenu.Items.Add(new SimpleMenuItem { Text = "Logout", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.logout.svg" });
+          
+            // Populate the menu with rootnodeitems
+            profileMenu.Show();  // Adjust the Y-coordinate to place it below
 
-            //    // Populate the menu with rootnodeitems
-            //    profileMenu.PopulateMenu();
-
-            //    // Show the profile menu at the location of the profile icon, just below it
-            //    var iconLocation = profileIcon.PointToScreen(new Point(0, profileIcon.Height));
-            //    profileMenu.Show(ParentNode, profileIcon.Left, profileIcon.Bottom + 10);  // Adjust the Y-coordinate to place it below
-            //}
+            // Show the profile menu at the location of the profile icon, just below it
+            var iconLocation = profileIcon.PointToScreen(new Point(0, profileIcon.Height));
+            //profileMenu.Show(ParentNode, profileIcon.Left, profileIcon.Bottom + 10);  // Adjust the Y-coordinate to place it below
+        
         }
         public override void ApplyTheme()
         {
             BackColor = _currentTheme.TitleBarBackColor;
             searchBox.Theme = Theme;
             searchBox.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-            searchBox.Height=searchBox.PreferredHeight;
+            searchBox.Height = searchBox.PreferredHeight;
             TitleLabel.Theme = Theme;
-           // hamburgerIcon.Theme = Theme;
+            // hamburgerIcon.Theme = Theme;
             profileIcon.Theme = Theme;
             closeIcon.Theme = Theme;
             maximizeIcon.Theme = Theme;
             minimizeIcon.Theme = Theme;
             notificationIcon.Theme = Theme;
 
-         
+
         }
         private void ButtonClicked(object sender, EventArgs e)
         {
@@ -449,7 +448,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //switch (tag)
             //{
             //    case "Notifications":
-                   
+
             //        ShowNotifications();
             //        break;
             //    case "Profile":
@@ -475,7 +474,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    leftEdge += hamburgerIcon.Width + spacing;
             //}
 
-          
+
 
             // Position searchBox (centered horizontally)
             if (searchBox != null && searchBox.Visible)
@@ -489,7 +488,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TitleLabel.Top = DrawingRect.Top + (DrawingRect.Height - TitleLabel.Height) / 2;
                 TitleLabel.Left = leftEdge;
                 // Ensure TitleLabel does not exceed the Searchbox left edge
-                TitleLabel.Width= searchBox.Left - TitleLabel.Left - spacing;
+                TitleLabel.Width = searchBox.Left - TitleLabel.Left - spacing;
                 leftEdge += TitleLabel.Width + spacing;
             }
             // Position closeIcon, maximizeIcon, minimizeIcon, notificationIcon, and profileIcon (right-aligned)
@@ -540,7 +539,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            RearrangeLayout(); // Ensure layout is correct during resizing
+             RearrangeLayout(); // Ensure layout is correct during resizing
         }
     }
 }

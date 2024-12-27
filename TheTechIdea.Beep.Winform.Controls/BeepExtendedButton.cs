@@ -171,14 +171,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = buttonHeight;
             }
             CreateMenuItemPanel();
-            //Size = new System.Drawing.Size(buttonWidth, buttonHeight);
-            Console.WriteLine("Control Created");   
+            BoundProperty= "Text";
         }
         protected override void InitLayout()
         {
             Console.WriteLine("Control InitLayout");
             base.InitLayout();
-           
             UpdateDrawingRect();
             CreateMenuItemPanel();
             _isControlinvalidated = true;

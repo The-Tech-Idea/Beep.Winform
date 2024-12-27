@@ -164,10 +164,29 @@ namespace TheTechIdea.Beep.Vis.Modules
             public Color GradientStartColor { get; set; }
             public Color GradientEndColor { get; set; }
             public LinearGradientMode GradientDirection { get; set; }
-    
+        // Grid Colors
+        public Color GridBackColor { get; set; }
+        public Color GridForeColor { get; set; }
+        public Color GridHeaderBackColor { get; set; }
+        public Color GridHeaderForeColor { get; set; }
+        public Color GridHeaderBorderColor { get; set; }
+        public Color GridHeaderHoverBackColor { get; set; }
+        public Color GridHeaderHoverForeColor { get; set; }
+        public Color GridHeaderSelectedBackColor { get; set; }
+        public Color GridHeaderSelectedForeColor { get; set; }
+        public Color GridHeaderHoverBorderColor { get; set; }
+        public Color GridHeaderSelectedBorderColor { get; set; }
+        public Color GridRowHoverBackColor { get; set; }
+        public Color GridRowHoverForeColor { get; set; }
+        public Color GridRowSelectedBackColor { get; set; }
+        public Color GridRowSelectedForeColor { get; set; }
+        public Color GridRowHoverBorderColor { get; set; }
+        public Color GridRowSelectedBorderColor { get; set; }
+
+
 
         // Side Menu Colors
-            public Color SideMenuBackColor { get; set; }
+        public Color SideMenuBackColor { get; set; }
             public Color SideMenuHoverBackColor { get; set; }
             public Color SideMenuSelectedBackColor { get; set; }
             public Color SideMenuForeColor { get; set; }

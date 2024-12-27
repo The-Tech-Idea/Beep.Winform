@@ -5,7 +5,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 {
     public class BeepContextMenuStrip : BeepListBox
     {
-        private Form popupForm;
+        private BeepPopupForm popupForm;
 
         public event EventHandler<SimpleItem> ItemClicked;
 
@@ -49,12 +49,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 popupForm.Dispose();
             }
 
-            popupForm = new Form
+            popupForm = new BeepPopupForm
             {
-                FormBorderStyle = FormBorderStyle.None,
                 StartPosition = FormStartPosition.Manual,
                 ShowInTaskbar = false,
-                BackColor = this.BackColor,
                 TopMost = true
             };
 

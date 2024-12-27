@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeComponent();
             // this.tabControl1.TabPanels[0].Controls.Add(beepAppBar1);
             this.beepButton2.Click += BeepButton2_Click;
-            beepButton3.Click += BeepButton3_Click;
+           
         }
 
         private void BeepButton3_Click(object? sender, EventArgs e)

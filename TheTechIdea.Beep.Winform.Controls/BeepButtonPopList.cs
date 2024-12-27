@@ -15,19 +15,22 @@ namespace TheTechIdea.Beep.Winform.Controls
 
     public class BeepButtonPopList : BeepControl
     {
-        private BeepButton _triangleButton;   // the existing "triangle" style beep button
-        private BeepCircularButton _circularButton; // a beep "circular" style button
+        public BeepButton TriangleButton { get; set; }   // the existing "triangle" style beep button
+        public BeepCircularButton CircularButton { get; set; }// a beep "circular" style button
 
         private BeepPopupForm _popupForm;
         private BeepListBox _beepListBox;
         private bool _isPopupOpen;
 
-        private int _buttonWidth = 25;
+        private int _buttonWidth = 15;
         private int _maxListHeight = 100;
         private int _maxListWidth = 100;
-        private int _minWidth = 25;
-        private int _minheight = 25;
+        private int _minWidth = 15;
+        private int _minheight = 15;
 
+        private TextImageRelation textImageRelation = TextImageRelation.ImageBeforeText;
+        private ContentAlignment imageAlign = ContentAlignment.MiddleLeft;
+        private ContentAlignment textAlign = ContentAlignment.MiddleCenter;
 
         // Track which shape to use. The default is Triangle.
         private PopListButtonShape _buttonShape = PopListButtonShape.Triangle;
@@ -37,6 +40,53 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected virtual void OnSelectedItemChanged(EventArgs e)
             => SelectedItemChanged?.Invoke(this, e);
 
+        private Size _maxImageSize = new Size(15, 15); // Default max image size
+        [Browsable(true)]
+        [Category("Appearance")]
+        public Size MaxImageSize
+        {
+            get => _maxImageSize;
+            set
+            {
+                _maxImageSize = value;
+                Invalidate(); // Repaint when the max image size changes
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        public TextImageRelation TextImageRelation
+        {
+            get => textImageRelation;
+            set
+            {
+                textImageRelation = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public ContentAlignment ImageAlign
+        {
+            get => imageAlign;
+            set
+            {
+                imageAlign = value;
+                Invalidate();
+            }
+        }
+        private bool _hideText = false;
+        [Browsable(true)]
+        [Category("Behavior")]
+        public bool HideText
+        {
+            get => _hideText;
+            set
+            {
+                _hideText = value;
+                Invalidate(); // Trigger repaint when the state changes
+            }
+        }
         // The beepListBox's items
         [Browsable(true)]
         [Localizable(true)]
@@ -47,10 +97,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _beepListBox.ListItems;
             set => _beepListBox.ListItems = value;
         }
-
         // The item currently chosen by the user
         private SimpleItem _selectedItem;
-
         public SimpleItem SelectedItem
         {
             get => _selectedItem;
@@ -87,10 +135,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _applyThemeOnImage = value;
                 // If you want to reapply theme to the button's image:
-                if (_triangleButton != null)
-                    _triangleButton.ApplyThemeOnImage = value;
-                if (_circularButton != null)
-                    _circularButton.ApplyThemeOnImage = value;
+                if (TriangleButton != null)
+                    TriangleButton.ApplyThemeOnImage = value;
+                if (CircularButton != null)
+                    CircularButton.ApplyThemeOnImage = value;
                 Invalidate();
             }
         }
@@ -103,32 +151,32 @@ namespace TheTechIdea.Beep.Winform.Controls
             get
             {
                 // Return whichever button is visible
-                if (_buttonShape == PopListButtonShape.Triangle && _triangleButton != null)
-                    return _triangleButton.ImagePath ?? string.Empty;
-                if (_buttonShape == PopListButtonShape.Circle && _circularButton != null)
-                    return _circularButton.ImagePath ?? string.Empty;
+                if (_buttonShape == PopListButtonShape.Triangle && TriangleButton != null)
+                    return TriangleButton.ImagePath ?? string.Empty;
+                if (_buttonShape == PopListButtonShape.Circle && CircularButton != null)
+                    return CircularButton.ImagePath ?? string.Empty;
 
                 return string.Empty;
             }
             set
             {
-                if (_buttonShape == PopListButtonShape.Triangle && _triangleButton != null)
+                if (_buttonShape == PopListButtonShape.Triangle && TriangleButton != null)
                 {
-                    _triangleButton.ImagePath = value;
+                    TriangleButton.ImagePath = value;
                     if (ApplyThemeOnImage)
                     {
-                        _triangleButton.Theme = Theme;
-                        _triangleButton.ApplyThemeToSvg();
-                        _triangleButton.ApplyTheme();
+                        TriangleButton.Theme = Theme;
+                        TriangleButton.ApplyThemeToSvg();
+                        TriangleButton.ApplyTheme();
                     }
                 }
-                else if (_buttonShape == PopListButtonShape.Circle && _circularButton != null)
+                else if (_buttonShape == PopListButtonShape.Circle && CircularButton != null)
                 {
-                    _circularButton.ImagePath = value;
+                    CircularButton.ImagePath = value;
                     if (ApplyThemeOnImage)
                     {
-                        _circularButton.Theme = Theme;
-                        _circularButton.ApplyTheme();
+                        CircularButton.Theme = Theme;
+                        CircularButton.ApplyTheme();
                     }
                 }
 
@@ -154,7 +202,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         // -----------------------------------
-
         public BeepButtonPopList()
         {
             if (Width < _minWidth)
@@ -186,6 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _popupForm = new BeepPopupForm();
             
             _popupForm.Controls.Add(_beepListBox);
+            _beepListBox.ShowHilightBox = false;
             _beepListBox.Dock = DockStyle.None;
             //   _popupForm.Deactivate += (s, e) => ClosePopup();
 
@@ -199,17 +247,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void CreateOrSwitchButton()
         {
             // If we already had a button, remove it from Controls
-            if (_triangleButton != null && Controls.Contains(_triangleButton))
-                Controls.Remove(_triangleButton);
-            if (_circularButton != null && Controls.Contains(_circularButton))
-                Controls.Remove(_circularButton);
+            if (TriangleButton != null && Controls.Contains(TriangleButton))
+                Controls.Remove(TriangleButton);
+            if (CircularButton != null && Controls.Contains(CircularButton))
+                Controls.Remove(CircularButton);
 
             if (_buttonShape == PopListButtonShape.Triangle)
             {
                 // Create the "triangle" style beep button if necessary
-                if (_triangleButton == null)
+                if (TriangleButton == null)
                 {
-                    _triangleButton = new BeepButton
+                    TriangleButton = new BeepButton
                     {
                         IsChild = true,
                         Text = "", // or "▼"
@@ -218,35 +266,43 @@ namespace TheTechIdea.Beep.Winform.Controls
                         TextAlign = ContentAlignment.MiddleCenter,
                         TextImageRelation = TextImageRelation.ImageBeforeText,
                         Dock = DockStyle.Fill,
-                        Width = _buttonWidth
-                        
-                        
+                        Width = _buttonWidth,
+                        ShowAllBorders = false,
+                        IsBorderAffectedByTheme = false,
+                        IsRoundedAffectedByTheme = false,
+                        IsShadowAffectedByTheme = false
+
+
                     };
-                    _triangleButton.Click += (s, e) => TogglePopup();
+                    TriangleButton.Click += (s, e) => TogglePopup();
                 }
-                Controls.Add(_triangleButton);
-                _triangleButton.BringToFront();
-                if (_circularButton != null)
-                    _circularButton.Visible = false;
+                Controls.Add(TriangleButton);
+                TriangleButton.BringToFront();
+                if (CircularButton != null)
+                    CircularButton.Visible = false;
             }
             else
             {
                 // Create or show the "circular" beep button
-                if (_circularButton == null)
+                if (CircularButton == null)
                 {
-                    _circularButton = new BeepCircularButton
+                    CircularButton = new BeepCircularButton
                     {
                         IsChild = true,
                         Text = "",
                         Dock = DockStyle.Fill,
-                        Width = _buttonWidth,HideText= true
+                        Width = _buttonWidth,HideText= true,
+                        ShowAllBorders = false,
+                        IsBorderAffectedByTheme = false,
+                        IsRoundedAffectedByTheme = false,
+                        IsShadowAffectedByTheme = false
                     };
-                    _circularButton.Click += (s, e) => TogglePopup();
+                    CircularButton.Click += (s, e) => TogglePopup();
                 }
-                Controls.Add(_circularButton);
-                _circularButton.BringToFront();
-                if (_triangleButton != null)
-                    _triangleButton.Visible = false;
+                Controls.Add(CircularButton);
+                CircularButton.BringToFront();
+                if (TriangleButton != null)
+                    TriangleButton.Visible = false;
             }
 
             Invalidate();
@@ -268,28 +324,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Rebuild beepListBox's layout
             _beepListBox.InitializeMenu();
 
-            int neededHeight = _beepListBox.GetMaxHeight();
+            int neededHeight = _beepListBox.GetMaxHeight()+5;
             int finalHeight = Math.Min(neededHeight, _maxListHeight);
             // possibly also compute width
             int finalWidth = Math.Max(Width, _maxListWidth);
 
-          //  _beepListBox.Width = finalWidth;
-         //   _beepListBox.Height = finalHeight;
-
             // The popup form is sized to fit beepListBox
-            _popupForm.Size = new Size(100, 100);
+            _popupForm.Size = new Size(finalWidth, neededHeight);
             // Position popup just below the main control
             var screenPoint = this.PointToScreen(new Point(0, Height));
             _popupForm.Location = screenPoint;
-            
             _beepListBox.Theme = Theme;
-      
-            
             _beepListBox.ShowAllBorders=false; 
             //_popupForm.BackColor = _currentTheme.BackColor;
             _popupForm.Theme = Theme;
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
-            _popupForm.BorderThickness = 10;
+            _popupForm.BorderThickness = 2;
           
             _popupForm.Show();
             _popupForm.BringToFront();
@@ -309,17 +359,38 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = _minWidth;
             if (Height < _minheight)
                 Height = _minheight;
+            resizeButton();
         }
-
+        private void resizeButton()
+        {
+            if (_buttonShape == PopListButtonShape.Triangle)
+            {
+                if (TriangleButton != null)
+                {
+                    TriangleButton.Width = Width;
+                    TriangleButton.Height = Height;
+                    TriangleButton.MaxImageSize = new Size(Width - 1, Height - 1);
+                }
+            }
+            else
+            {
+                if (CircularButton != null)
+                {
+                    CircularButton.Width = Width;
+                    CircularButton.Height = Height;
+                    
+                }
+            }
+        }
         public override void ApplyTheme()
         {
             base.ApplyTheme();
 
             // Apply the theme to whichever button is in use
-            if (_triangleButton != null)
-                _triangleButton.Theme = Theme;
-            if (_circularButton != null)
-                _circularButton.Theme = Theme;
+            if (TriangleButton != null)
+                TriangleButton.Theme = Theme;
+            if (CircularButton != null)
+                CircularButton.Theme = Theme;
 
             if (_beepListBox != null)
                 _beepListBox.Theme = Theme;

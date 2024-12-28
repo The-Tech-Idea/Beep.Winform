@@ -4,6 +4,9 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
+    [ToolboxItem(true)]
+    [DisplayName("Beep Card")]
+    [Category("Beep Controls")]
     public class BeepListBox : BeepPanel
     {
         public List<BeepButton> _buttons { get; set; } = new List<BeepButton>();
@@ -131,14 +134,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                // InitializeMenu();
             }
         }
-       
-        public bool ShowImage
-        {
-            get { return _shownodeimage; }
-            set { _shownodeimage = value; ChangeImageSettings(); }
-        }
 
-      
+        public event EventHandler SelectedIndexChanged;
+
+        protected virtual void OnSelectedIndexChanged(EventArgs e) => SelectedIndexChanged?.Invoke(this, e);
+
 
         [Browsable(false)]
         public int SelectedIndex
@@ -149,15 +149,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (value >= 0 && value < _buttons.Count)
                 {
                     _selectedIndex = value;
-                  //  HighlightSelectedButton();
+                    //  HighlightSelectedButton();
                     OnSelectedIndexChanged(EventArgs.Empty);
                 }
             }
         }
+        public bool ShowImage
+        {
+            get { return _shownodeimage; }
+            set { _shownodeimage = value; ChangeImageSettings(); }
+        }
 
-        public event EventHandler SelectedIndexChanged;
-
-        protected virtual void OnSelectedIndexChanged(EventArgs e) => SelectedIndexChanged?.Invoke(this, e);
+      
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
@@ -259,15 +262,18 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 };
                 menuItemPanel.Controls.Add(highlightPanel);
+
+                Panel spacingpane = new Panel
+                {
+                    Width = 2,
+                    Dock = DockStyle.Left,
+                    BackColor = _currentTheme.SideMenuBackColor,
+                    Visible = true,
+                };
+                // Add BeepButton and highlight panel to the panel
+                menuItemPanel.Controls.Add(spacingpane);
             }
           
-            Panel spacingpane = new Panel
-            {
-                Width =2,
-                Dock = DockStyle.Left,
-                BackColor = _currentTheme.SideMenuBackColor,
-                Visible = true,
-            };
 
 
             // Initialize BeepButton for icon and text
@@ -311,10 +317,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 button.Theme = Theme;
             }
-            // Add BeepButton and highlight panel to the panel
-            menuItemPanel.Controls.Add(spacingpane);
-       
-     
+           
             menuItemPanel.Controls.Add(button);
             button.BringToFront();
             _buttons.Add(button);
@@ -337,12 +340,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             button.MouseEnter += (s, e) =>
             {
-                menuItemPanel.BackColor = _currentTheme.ButtonHoverBackColor;
+               // menuItemPanel.BackColor = _currentTheme.ButtonHoverBackColor;
                 if (_showHilightBox) highlightPanel.BackColor = _currentTheme.AccentColor;
             };
             button.MouseLeave += (s, e) =>
             {
-                menuItemPanel.BackColor = _currentTheme.PanelBackColor;
+               // menuItemPanel.BackColor = _currentTheme.PanelBackColor;
                 if (_showHilightBox) highlightPanel.BackColor = _currentTheme.SideMenuBackColor;
             };
             button.Click += Button_Click;
@@ -599,11 +602,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseEnter(EventArgs e)
         {
             IsHovered=false;
-            
+          //  base.OnMouseEnter(e);
+
         }
         protected override void OnMouseLeave(EventArgs e)
         {
             IsHovered = false;
+          //  base.OnMouseLeave(e);
         }
       
     }

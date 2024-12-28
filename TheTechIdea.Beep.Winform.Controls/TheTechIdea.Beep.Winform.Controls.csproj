@@ -45,6 +45,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="BeepButtonPopList.cs" />
     <Compile Remove="BeepGlobalThemeManager.cs" />
     <Compile Remove="BeepTabs_old.cs" />
     <Compile Remove="Grid\DesignerForm\CustomDataGridViewDesigner.cs" />

@@ -23,6 +23,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         // New properties and methods for binding
         object DataContext { get; set; } // The source of data for binding
         string BoundProperty { get; set; }
+        string LinkedProperty { get; set; }
         void RefreshBinding();
         void SetBinding(string controlProperty, string dataSourceProperty); // Method to bind a control property
     }

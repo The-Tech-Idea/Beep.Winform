@@ -144,13 +144,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseMove(e);
             if (_inpopupmode) return;
+          
             if (isResizing)
             {
+              
                 HandleResizing();
+                ResumeLayout();
             }
             else if (isDragging)
             {
+                SuspendLayout();
                 HandleDragging();
+                ResumeLayout();
             }
             else
             {
@@ -164,6 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Cursor = Cursors.Default; // Default cursor
                 }
             }
+           
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
@@ -184,6 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void HandleResizing()
         {
+           
             Point diff = Point.Subtract(Cursor.Position, new Size(resizeStartCursorPoint));
             Size newSize = new Size(
                 Math.Max(MinimumSize.Width, resizeStartFormSize.Width + diff.X),
@@ -191,6 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             );
 
             Size = newSize;
+
         }
         private void HandleDragging()
         {

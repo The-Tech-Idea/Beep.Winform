@@ -127,11 +127,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("Sets the speed of the spin in degrees per frame.")]
         public float SpinSpeed { get; set; } = 5f;
 
-
-        [Editor(typeof(TheTechIdea.Beep.Winform.Controls.Editors.ImagePathEditor), typeof(UITypeEditor))]
-        [Description("Select the image file (SVG, PNG, JPG, etc.) to load")]
+        [Browsable(true)]
         [Category("Appearance")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
         public string ImagePath
         {
             get => _imagepath;

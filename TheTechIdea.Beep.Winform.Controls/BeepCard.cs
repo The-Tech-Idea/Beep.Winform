@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms.Design;
 using TheTechIdea.Beep.Vis.Modules;
 
 
@@ -27,23 +28,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         // Properties
 
-        private bool _multiline = false;
+        //private bool _multiline = false;
 
-        // show the inner textbox properties like multiline
-        [Browsable(true)]
-        [Category("Appearance")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public bool Multiline
-        {
-            get => _multiline;
-            set
-            {
-                _multiline = value;
-                paragraphLabel.Multiline = value;
-                RefreshLayout();
+        //// show the inner textbox properties like multiline
+        //[Browsable(true)]
+        //[Category("Appearance")]
+        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        //public bool Multiline
+        //{
+        //    get => _multiline;
+        //    set
+        //    {
+        //        _multiline = value;
+        //        paragraphLabel.Multiline = value;
+        //        RefreshLayout();
 
-            }
-        }
+        //    }
+        //}
 
         [Category("Appearance")]
         [Description("Text displayed as the header of the card.")]
@@ -54,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 headerText = value;
                 headerLabel.Text = value;
-                RefreshLayout();
+              //  RefreshLayout();
             }
         }
 
@@ -67,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 paragraphText = value;
                 paragraphLabel.Text = value;
-                RefreshLayout();
+              //  RefreshLayout();
             }
         }
 
@@ -96,18 +97,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RefreshLayout();
             }
         }
-
-        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(UITypeEditor))]
+        private string imagepath=string.Empty;
+        [Browsable(true)]
         [Category("Appearance")]
-        [Description("ImagePath to display (supports SVG, PNG, JPG).")]
+        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
         public string ImagePath
         {
-            get => imageBox.ImagePath;
+            get => imagepath;
             set
             {
+                
+                imagepath = value;
                 imageBox.ImagePath = value;
                 imageBox.Visible = !string.IsNullOrEmpty(value);
-                RefreshLayout();
+              //  RefreshLayout();
             }
         }
 
@@ -116,11 +120,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("Maximum size of the image displayed on the card.")]
         public int MaxImageSize
         {
-            get => maxImageSize;
+            get => imageBox.Size.Width;
             set
             {
-                maxImageSize = value;
-                RefreshLayout();
+                imageBox.Size=new Size(value,value);
+              //  RefreshLayout();
             }
         }
 
@@ -143,6 +147,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Constructor
         public BeepCard()
         {
+            DoubleBuffered = true;
+            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+            SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
+
             IsChild = false;
             Padding = new Padding(0);
             BoundProperty = "ParagraphText";
@@ -167,14 +175,14 @@ namespace TheTechIdea.Beep.Winform.Controls
           //  _isControlinvalidated = true;
            // Invalidate();
         }
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-            if (_isControlinvalidated)
-            {
-                InitializeComponents(); _isControlinvalidated = false;
-            }
-         }
+        //protected override void OnPaint(PaintEventArgs e)
+        //{
+        //    base.OnPaint(e);
+        //    if (_isControlinvalidated)
+        //    {
+        //        InitializeComponents(); _isControlinvalidated = false;
+        //    }
+        // }
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
@@ -188,6 +196,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Size = new Size(maxImageSize, maxImageSize),
                 Theme = Theme,
+                IsChild = true,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+                ApplyThemeOnImage = false,
+                ImagePath = imagepath,
+                IsFramless = true,
                 Visible = false  // Initially hide image until set
             };
             Controls.Add(imageBox);
@@ -217,7 +231,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                // AutoScroll=true,
-                Multiline = _multiline,
+                Multiline=true,
                 //ScrollBars = System.Windows.Forms.ScrollBars.Both,
                 ReadOnly = true,
                 Text = paragraphText  // Default text
@@ -225,16 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(paragraphLabel);
             paragraphLabel.MouseEnter += (s, e) => { BorderColor = HoverBackColor;  };
             paragraphLabel.MouseLeave += (s, e) => { BorderColor = _currentTheme.BorderColor; };
-            headerLabel.Theme = Theme;
-            paragraphLabel.Theme = Theme;
-            headerLabel.ForeColor = _currentTheme.CardTitleForeColor;
-            headerLabel.Font = BeepThemesManager.ToFont(_currentTheme.HeadlineMedium);
-            headerLabel.BackColor = _currentTheme.CardBackColor;
-            paragraphLabel.ForeColor = _currentTheme.CardTextForeColor;
-            paragraphLabel.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-            paragraphLabel.BackColor = _currentTheme.CardBackColor;
-            BackColor = _currentTheme.CardBackColor;
-            imageBox.Theme = Theme;
+            ApplyTheme();
             RefreshLayout();
         }
 
@@ -243,6 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_currentTheme == null) return;
             headerLabel.Theme = Theme;
+            imageBox.IsFramless = true;
             paragraphLabel.Theme = Theme;
             headerLabel.ForeColor = _currentTheme.CardTitleForeColor;
             headerLabel.Font = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
@@ -260,13 +266,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs eventargs)
         {
             base.OnResize(eventargs);
-            RefreshLayout();
+          //  RefreshLayout();
         }
 
         // Adjust the layout of the image and text
         private void RefreshLayout()
         {
-            Padding = new Padding(0);
+            Padding = new Padding(2);
             int padding = Padding.All;
             UpdateDrawingRect();
 
@@ -301,17 +307,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 case ContentAlignment.TopLeft:
                 case ContentAlignment.MiddleLeft:
+
                     headerX = DrawingRect.Left + padding;
                     imageX = DrawingRect.Right - imageSize.Width - padding;
+                    headerLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top;
+                    imageBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
                     break;
                 case ContentAlignment.TopRight:
                 case ContentAlignment.MiddleRight:
                     headerX = DrawingRect.Right - headerSize.Width - padding;
                     imageX = DrawingRect.Left + padding;
+                    headerLabel.Anchor = AnchorStyles.Right | AnchorStyles.Top;
+                    imageBox.Anchor = AnchorStyles.Top | AnchorStyles.Left;
                     break;
                 default: // Center alignment
                     headerX = DrawingRect.Left + (DrawingRect.Width - headerSize.Width) / 2;
                     imageX = DrawingRect.Right - imageSize.Width - padding;
+                    headerLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top;
+                    imageBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
                     break;
             }
 
@@ -319,50 +332,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             imageBox.Location = new Point(imageX, topRowY);
 
             // Paragraph label
-            int remainingHeightForText = DrawingRect.Bottom - (headerLabel.Bottom + padding);
-
-            if (remainingHeightForText > 0)
-            {
-                paragraphLabel.Size = new Size(availableWidth, remainingHeightForText);
+            int headery =headerLabel.Bottom;
+            int imagey = imageBox.Bottom;
+            int remainingHeightForText = -1;// DrawingRect.Bottom - (headerLabel.Bottom + padding);
+            remainingHeightForText= DrawingRect.Bottom - Math.Max(imagey + padding, headery + padding);
+            int starty = Math.Max(imagey + padding, headery + padding);
+            paragraphLabel.Size = new Size(availableWidth, remainingHeightForText);
 
                 // Align the bottom of the paragraphLabel to the bottom of the DrawingRect
                 paragraphLabel.Location = new Point(
                     DrawingRect.Left + padding,
-                    DrawingRect.Bottom - paragraphLabel.Height - padding
+                   starty
                 );
-
-                paragraphLabel.Visible = true;
-
-                // Ensure paragraph label stays within bounds
-                if (paragraphLabel.Right > DrawingRect.Right || paragraphLabel.Top < headerLabel.Bottom + padding)
-                {
-                    paragraphLabel.Size = new Size(
-                        Math.Min(paragraphLabel.Width, DrawingRect.Width - 2 * padding),
-                        paragraphLabel.Height
-                    );
-
-                    paragraphLabel.Location = new Point(
-                        DrawingRect.Left + padding,
-                        Math.Max(headerLabel.Bottom + padding, DrawingRect.Bottom - paragraphLabel.Height - padding)
-                    );
-                }
-            }
-            else
-            {
-                paragraphLabel.Visible = false;
-            }
+        
+            paragraphLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
         }
-
-        // Custom painting for additional features
-        //protected override void OnPaint(PaintEventArgs e)
-        //{
-        //    base.OnPaint(e);
-        //    e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-
-
-
-        //}
-
         private GraphicsPath RoundedRect(Rectangle bounds, int radius)
         {
             int diameter = radius * 2;

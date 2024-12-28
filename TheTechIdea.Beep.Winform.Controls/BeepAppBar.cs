@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -17,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private BeepButton hamburgerIcon;
         private BeepLabel TitleLabel;
-        private BeepButtonPopList profileIcon;
+        private BeepButton profileIcon;
         private BeepButton notificationIcon;
         private BeepButton closeIcon;
         private BeepButton maximizeIcon;
@@ -191,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             AddUserProfileIcon();
             AddWindowControlIcons();
             RearrangeLayout();
-            ApplyTheme();
+          //  ApplyTheme();
         }
         private void AddHamburgerButton()
         {
@@ -289,7 +290,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void AddUserProfileIcon()
         {
-            profileIcon = new BeepButtonPopList
+            profileIcon = new BeepButton
             {
                 Width = windowsicons_height,
                 Height = windowsicons_height,
@@ -306,8 +307,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsBorderAffectedByTheme = false,
                 HideText = true,
                 Tag = "Profile",
-                ButtonShape = PopListButtonShape.Triangle
-               
+                PopupMode = true
+
             };
             
             // Add menu rootnodeitems (SimpleMenuItem instances) with text and optional SVG icons
@@ -414,7 +415,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void ShowProfileMenu()
         {
             // Initialize the profile menu with the current theme
-            var profileMenu = new BeepButtonPopList();
+            var profileMenu = new BeepButton();
 
           
             // Populate the menu with rootnodeitems
@@ -427,11 +428,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
+            base.ApplyTheme();
+            if (_currentTheme == null) return;
+            if (TitleLabel == null) return;
             BackColor = _currentTheme.TitleBarBackColor;
             searchBox.Theme = Theme;
             searchBox.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
             searchBox.Height = searchBox.PreferredHeight;
             TitleLabel.Theme = Theme;
+            TitleLabel.Font = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
+            TitleLabel.ForeColor = ColorUtils.GetForColor(_currentTheme.TitleBarBackColor, _currentTheme.TitleBarForeColor);
             // hamburgerIcon.Theme = Theme;
             profileIcon.Theme = Theme;
             closeIcon.Theme = Theme;

@@ -20,8 +20,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Size _maxImageSize = new Size(16, 16); // Default max image size
         private bool _hideText = false;
         int offset = 3;
+        private Color _backcolor;
+        public  Color LabelBackColor
+        {
+            get=> _backcolor;
+            set
+            {
+                _backcolor = value;
+                 BackColor = value;
+                Invalidate();
+            }
+        }
 
-
+        private bool _useScaledfont = false;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool UseScaledFont
+        {
+            get => _useScaledfont;
+            set
+            {
+                _useScaledfont = value;
+                Invalidate();  // Trigger repaint
+            }
+        }
         [Browsable(true)]
         [Category("Appearance")]
         public int PreferredHeight
@@ -159,6 +181,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepLabel()
         {
+            DoubleBuffered = true;
+            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+            SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
+
             InitializeComponents();
             ApplyTheme();
             //  SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
@@ -172,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Ensure DrawingRect is updated
             UpdateDrawingRect();
             int textBoxHeight;
-            padding = BorderThickness + offset;
+            padding = BorderThickness ;
             spacing = 0;
             SetFont();
             textBoxHeight = TextRenderer.MeasureText("A", Font).Height + padding + spacing;
@@ -241,31 +267,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             //drawrect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
             // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
-            switch (OverrideFontSize)
+            if (!SetFont())
             {
-                case TypeStyleFontSize.None:
-                    break;
-                case TypeStyleFontSize.Small:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 8, FontWeight.Normal, FontStyle.Regular);
-                    break;
-                case TypeStyleFontSize.Medium:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 10, FontWeight.Normal, FontStyle.Regular);
-                    break;
-                case TypeStyleFontSize.Large:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 12, FontWeight.Normal, FontStyle.Regular);
-                    break;
-                case TypeStyleFontSize.ExtraLarge:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 14, FontWeight.Normal, FontStyle.Regular);
-                    break;
-                case TypeStyleFontSize.ExtraExtraLarge:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 16, FontWeight.Normal, FontStyle.Regular);
-                    break;
-                case TypeStyleFontSize.ExtraExtraExtraLarge:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 18, FontWeight.Normal, FontStyle.Regular);
-                    break;
-            }
+                Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            };
             // Measure and scale the font to fit within the control bounds
-            Font scaledFont = GetScaledFont(g, Text, drawrect.Size, Font);
+            Font scaledFont = Font;// GetScaledFont(g, Text, contentRect.Size, Font);
+            if (UseScaledFont)
+            {
+                scaledFont = GetScaledFont(g, Text, contentRect.Size, Font);
+            }
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
 
             // Limit image size to MaxImageSize
@@ -300,7 +311,7 @@ namespace TheTechIdea.Beep.Winform.Controls
           // Draw the text
             if (!string.IsNullOrEmpty(Text))
             {
-                Color textColor = IsHovered? _currentTheme.HoverLinkColor: _currentTheme.LabelForeColor;
+                Color textColor = IsHovered? _currentTheme.HoverLinkColor: ForeColor;
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
                 TextRenderer.DrawText(g, Text, Font, textRect, textColor, flags);
             }
@@ -451,9 +462,10 @@ namespace TheTechIdea.Beep.Winform.Controls
           //  base.ApplyTheme();
             if (_currentTheme != null)
             {
-                BackColor = _currentTheme.BackgroundColor;
+                BackColor = _currentTheme.LabelBackColor;
+                _backcolor = _currentTheme.LabelBackColor;
                 ForeColor = _currentTheme.LabelForeColor;
-                HoverBackColor = _currentTheme.ButtonHoverBackColor;
+                HoverBackColor = _currentTheme.BackgroundColor;
                 HoverForeColor = _currentTheme.ButtonHoverForeColor;
                 if (IsChild)
                 {

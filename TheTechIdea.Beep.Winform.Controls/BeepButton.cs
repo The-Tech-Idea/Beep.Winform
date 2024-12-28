@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Winform.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -38,6 +39,86 @@ namespace TheTechIdea.Beep.Winform.Controls
         public EventHandler<BeepEventDataArgs> ImageClicked { get; set; }
         private Color tmpbackcolor;
         private Color tmpforcolor;
+
+        #region "Popup List Properties"
+        private BeepPopupForm _popupForm;
+        private BeepListBox _beepListBox;
+        private bool _isPopupOpen;
+        private bool _popupmode = false;
+        private int _maxListHeight = 100;
+        private int _maxListWidth = 100;
+        public event EventHandler SelectedItemChanged;
+        protected virtual void OnSelectedItemChanged(EventArgs e)
+            => SelectedItemChanged?.Invoke(this, e);
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool PopupMode
+        {
+            get => _popupmode;
+            set
+            {
+                _popupmode = value;
+            }
+        }
+
+        [Browsable(true)]
+        [Localizable(true)]
+        [MergableProperty(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public BindingList<SimpleItem> ListItems
+        {
+            get => _beepListBox.ListItems;
+            set => _beepListBox.ListItems = value;
+        }
+        // The item currently chosen by the user
+        private SimpleItem _selectedItem;
+        public SimpleItem SelectedItem
+        {
+            get => _selectedItem;
+            private set
+            {
+                if (_selectedItem != value)
+                {
+                    _selectedItem = value;
+                    OnSelectedItemChanged(EventArgs.Empty);
+                }
+            }
+        }
+
+        [Browsable(false)]
+        public int SelectedIndex
+        {
+            get => _beepListBox.SelectedIndex;
+            set
+            {
+                if (value >= 0 && value < _beepListBox.ListItems.Count)
+                {
+                    _beepListBox.SelectedIndex = value;
+                    SelectedItem = _beepListBox.ListItems[value];
+                }
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool IsPopupOpen
+        {
+            get => _isPopupOpen;
+            set
+            {
+                _isPopupOpen = value;
+                if (_isPopupOpen)
+                {
+                    ShowPopup();
+                }
+                else
+                {
+                    ClosePopup();
+                }
+            }
+        }
+        #endregion "Popup List Properties"
+
 
         private bool _useScaledfont = false;
         [Browsable(true)]
@@ -310,6 +391,36 @@ namespace TheTechIdea.Beep.Winform.Controls
             CanBeHovered = true;
             CanBePressed = true;
             CanBeFocused = true;
+            #region "Popup List Initialization"
+
+            // Initialize the popup form and beepListBox
+            // 1) Create beepListBox
+            _beepListBox = new BeepListBox
+            {
+                TitleText = "Select an item",
+                ShowTitle = false,
+                ShowTitleLine = false,
+                Width = _maxListWidth,
+                Height = _maxListHeight,
+                ShowAllBorders = false,
+                IsBorderAffectedByTheme = false,
+                IsRoundedAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+
+            };
+            _beepListBox.ItemClicked += (sender, item) =>
+            {
+                SelectedItem = item;
+                ClosePopup();
+            };
+            IsChild = true;
+            // 2) Create a borderless popup form
+            _popupForm = new BeepPopupForm();
+
+            _popupForm.Controls.Add(_beepListBox);
+            _beepListBox.ShowHilightBox = false;
+            _beepListBox.Dock = DockStyle.None;
+            #endregion "Popup List Initialization"
         }
         private void InitializeComponents()
         {
@@ -333,6 +444,52 @@ namespace TheTechIdea.Beep.Winform.Controls
                                        //  Controls.Add(beepImage);
         }
         #endregion "Constructor"
+        #region "Popup List Methods"
+
+        private void TogglePopup()
+        {
+            if (_isPopupOpen)
+                ClosePopup();
+            else
+                ShowPopup();
+        }
+        private void ShowPopup()
+        {
+            if (_isPopupOpen) return;
+            _isPopupOpen = true;
+            int _maxListHeight=Width;
+            int _maxListWidth=100;
+            // Rebuild beepListBox's layout
+            _beepListBox.InitializeMenu();
+
+            int neededHeight = _beepListBox.GetMaxHeight() + 5;
+            int finalHeight = Math.Min(neededHeight, _maxListHeight);
+            // possibly also compute width
+            int finalWidth = Math.Max(Width, _maxListWidth);
+
+            // The popup form is sized to fit beepListBox
+            _popupForm.Size = new Size(finalWidth, neededHeight);
+            // Position popup just below the main control
+            var screenPoint = this.PointToScreen(new Point(0, Height));
+            _popupForm.Location = screenPoint;
+            _beepListBox.Theme = Theme;
+            _beepListBox.ShowAllBorders = false;
+            //_popupForm.BackColor = _currentTheme.BackColor;
+            _popupForm.Theme = Theme;
+            _beepListBox.Dock = DockStyle.Fill; // Manually size and position
+            _popupForm.BorderThickness = 2;
+
+            _popupForm.Show();
+            _popupForm.BringToFront();
+            _popupForm.Invalidate();
+        }
+        private void ClosePopup()
+        {
+            if (!_isPopupOpen) return;
+            _isPopupOpen = false;
+            _popupForm.Hide();
+        }
+        #endregion "Popup List Methods"
         #region "Theme"
         public override void ApplyTheme()
         {
@@ -380,10 +537,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Draw the image and text
             contentRect = DrawingRect;
-            if (!SetFont())
-            {
-                Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-            };
+           // if (!SetFont())
+           // {
+            //    Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+          //  };
             //   DrawBackColor(e, BackColor, _currentTheme.ButtonHoverBackColor);
             DrawImageAndText(e.Graphics);
         }
@@ -645,10 +802,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnClick(EventArgs e)
         {
             base.OnClick(e);
-            if (isSelectedAuto)
+            if (_popupmode)
             {
-                IsSelected = !IsSelected;
+                TogglePopup();
             }
+            else
+            {
+                if (isSelectedAuto)
+                {
+                    IsSelected = !IsSelected;
+                }
+            }
+           
 
         }
         #endregion "Mouse and Click"

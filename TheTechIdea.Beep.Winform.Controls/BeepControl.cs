@@ -767,6 +767,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public Rectangle DrawingRect { get; set; }
         public bool IsCustomeBorder { get;  set; }
         public string BoundProperty { get ; set ; }
+        public string LinkedProperty { get; set; }
 
         #endregion "Public Properties"
 

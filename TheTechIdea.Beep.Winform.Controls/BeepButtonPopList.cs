@@ -228,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SelectedItem = item;
                 ClosePopup();
             };
-
+            IsChild = true;
             // 2) Create a borderless popup form
             _popupForm = new BeepPopupForm();
             
@@ -315,7 +315,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
                 ShowPopup();
         }
-
         private void ShowPopup()
         {
             if (_isPopupOpen) return;
@@ -345,7 +344,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             _popupForm.BringToFront();
             _popupForm.Invalidate();
         }
-
         private void ClosePopup()
         {
             if (!_isPopupOpen) return;
@@ -385,15 +383,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
+            if(TriangleButton== null) return;
 
             // Apply the theme to whichever button is in use
-            if (TriangleButton != null)
-                TriangleButton.Theme = Theme;
+            if (TriangleButton != null) { TriangleButton.Theme = Theme; TriangleButton.IsChild = true; }
+              
+           
             if (CircularButton != null)
+            {
                 CircularButton.Theme = Theme;
-
+                CircularButton.IsChild = true;
+            }
+               
             if (_beepListBox != null)
                 _beepListBox.Theme = Theme;
+            BackColor = _currentTheme.BackColor ;
         }
     }
 }

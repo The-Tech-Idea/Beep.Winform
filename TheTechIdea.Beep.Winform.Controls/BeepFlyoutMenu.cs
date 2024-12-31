@@ -6,7 +6,7 @@ using System.Drawing.Design;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Desktop.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -18,6 +18,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         Left,
         Right
     }
+    [ToolboxItem(true)]
+    [DisplayName("Beep Flyout Menu")]
+    [Category("Beep Controls")]
     public class BeepFlyoutMenu : BeepControl
     {
         private BeepButton _dropDownButton;

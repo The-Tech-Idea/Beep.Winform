@@ -44,13 +44,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();  // Trigger repaint
             }
         }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public int PreferredHeight
-        {
-            get => GetSingleLineHeight();
+        //[Browsable(true)]
+        //[Category("Appearance")]
+        //public int PreferredHeight
+        //{
+        //    get => GetSingleLineHeight();
 
-        }
+        //}
 
         [Browsable(true)]
         [Category("Behavior")]
@@ -186,40 +186,73 @@ namespace TheTechIdea.Beep.Winform.Controls
             SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
 
             InitializeComponents();
-            ApplyTheme();
+          
             //  SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
             AutoSize = false;
             BoundProperty = "Text";
 
         }
-        protected override Size DefaultSize => new Size(100,GetSingleLineHeight());
-        private int GetSingleLineHeight()
+        protected override void InitLayout()
         {
-            // Ensure DrawingRect is updated
+            base.InitLayout();
             UpdateDrawingRect();
-            int textBoxHeight;
-            padding = BorderThickness ;
-            spacing = 0;
-            SetFont();
-            textBoxHeight = TextRenderer.MeasureText("A", Font).Height + padding + spacing;
-            return textBoxHeight;
+           
         }
+        protected override Size DefaultSize
+        {
+            get
+            {
+                // If you need to measure actual text, do:
+                // (But beware that CreateGraphics() in a property can be tricky in some scenarios)
+
+                using (Graphics g = CreateGraphics())
+                {
+                    Size measured = TextRenderer.MeasureText(
+                        g,
+                        string.IsNullOrEmpty(Text) ? "A" : Text, // Fallback to "A" if empty
+                        Font,
+                        new Size(int.MaxValue, int.MaxValue),
+                        TextFormatFlags.SingleLine
+                    );
+                    // Add some margin/padding
+                    return new Size(200, measured.Height + 6);
+                }
+            }
+        }
+
+
+        //private int GetSingleLineHeight()
+        //{
+        //    // Ensure DrawingRect is updated
+        //    UpdateDrawingRect();
+        //    int textBoxHeight;
+
+        //    padding = BorderThickness ;
+        //    spacing = 0;
+
+        //    SetFont();
+        //    textBoxHeight = TextRenderer.MeasureText("A", Font).Height + padding + spacing;
+        //    return textBoxHeight;
+        //}
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
         {
     
                 // Update DrawingRect to get accurate measurements
                 UpdateDrawingRect();
+            //if (_currentTheme != null)
+            //{
+            //    ApplyTheme();
+            //}
+            //int singleLineHeight = GetSingleLineHeight();
 
-                int singleLineHeight = GetSingleLineHeight();
+            //// Set Minimum and Maximum height to enforce fixed height
+            //this.MinimumSize = new Size(0, singleLineHeight);
+            //this.MaximumSize = new Size(0, singleLineHeight);
 
-                // Set Minimum and Maximum height to enforce fixed height
-                this.MinimumSize = new Size(0, singleLineHeight);
-                this.MaximumSize = new Size(0, singleLineHeight);
+            //height = singleLineHeight;
+            //specified &= ~BoundsSpecified.Height; // Remove the Height flag to prevent external changes
 
-                height = singleLineHeight;
-                specified &= ~BoundsSpecified.Height; // Remove the Height flag to prevent external changes
-            
-          
+
 
             base.SetBoundsCore(x, y, width, height, specified);
         }
@@ -239,7 +272,7 @@ namespace TheTechIdea.Beep.Winform.Controls
           //  beepImage.Click += BeepImage_Click;
             Padding = new Padding(0);
             Margin = new Padding(0);
-            IsChild = true;
+          
          
         }
 
@@ -264,7 +297,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             DrawToGraphics(g, contentRect);
         }
         public void DrawToGraphics(Graphics g,Rectangle drawrect)
-        {
+        {// Adjust contentRect for padding
+            contentRect.Inflate(-Padding.Horizontal / 2, -Padding.Vertical / 2);
+
             //drawrect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
             // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
             if (!SetFont())
@@ -320,7 +355,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private TextFormatFlags GetTextFormatFlags(ContentAlignment alignment)
         {
-            TextFormatFlags flags = TextFormatFlags.SingleLine | TextFormatFlags.PreserveGraphicsClipping;
+            TextFormatFlags flags = TextFormatFlags.WordBreak
+                                    | TextFormatFlags.PreserveGraphicsClipping
+                                    | TextFormatFlags.NoPrefix
+                                    | TextFormatFlags.NoPadding;
 
             switch (alignment)
             {
@@ -355,7 +393,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return flags;
         }
-       
+
         private void CalculateLayout(Rectangle contentRect, Size imageSize, Size textSize, out Rectangle imageRect, out Rectangle textRect)
         {
             imageRect = Rectangle.Empty;
@@ -463,24 +501,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentTheme != null)
             {
                 BackColor = _currentTheme.LabelBackColor;
-                _backcolor = _currentTheme.LabelBackColor;
                 ForeColor = _currentTheme.LabelForeColor;
                 HoverBackColor = _currentTheme.BackgroundColor;
                 HoverForeColor = _currentTheme.ButtonHoverForeColor;
-                if (IsChild)
-                {
-                    ForeColor = _currentTheme.LabelForeColor;
+                Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
 
-                }
-
-                try
-                {
-                    Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-                }
-                catch (Exception ex)
-                {
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, _currentTheme.FontSize, FontWeight.Normal, FontStyle.Regular);
-                }
+                //try
+                //{
+                //    Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                //}
+                //catch (Exception ex)
+                //{
+                //    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, _currentTheme.FontSize, FontWeight.Normal, FontStyle.Regular);
+                //}
 
                 ApplyThemeToSvg();
                 Invalidate();
@@ -488,15 +521,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void ApplyThemeToSvg()
         {
-
             if (beepImage != null) // Safely apply theme to beepImage
             {
-
-               
-
                 if (ApplyThemeOnImage)
                 {
-                  
                     beepImage.Theme = Theme;
                     beepImage.BackColor = BackColor;
                     if (IsChild)
@@ -509,10 +537,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     beepImage.ApplyThemeToSvg();
                 }
-
             }
-
-
         }
         // Dynamically calculate the preferred size based on text and image sizes
         public override Size GetPreferredSize(Size proposedSize)

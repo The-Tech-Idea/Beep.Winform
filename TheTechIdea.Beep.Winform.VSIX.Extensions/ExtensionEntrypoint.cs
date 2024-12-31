@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.VSIX.Extensions
         protected override void InitializeServices(IServiceCollection serviceCollection)
         {
             base.InitializeServices(serviceCollection);
-
+            IBeepService beepService = new BeepService();
             // You can configure dependency injection here by adding services to the serviceCollection.
         }
     }

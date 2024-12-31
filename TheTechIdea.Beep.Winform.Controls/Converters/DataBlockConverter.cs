@@ -2,99 +2,96 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Globalization;
 using System.Linq;
-using System.Windows.Forms;
+using TheTechIdea.Beep.Desktop.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls.Converters
 {
     public class DataBlockConverter : TypeConverter
     {
+        private Dictionary<string, BeepDataBlock> _blockMap = new();
         public override bool GetStandardValuesExclusive(ITypeDescriptorContext context) => true;
-
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) => true;
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        {
+            if (sourceType == typeof(string) || sourceType == typeof(BeepDataBlock))
+            {
+                return true;
+            }
+            return base.CanConvertFrom(context, sourceType);
+        }
 
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            if (context?.Container == null) return new StandardValuesCollection(Array.Empty<object>());
+            if (context?.Container == null || context.Instance is not BeepDataBlock currentBlock)
+                return new StandardValuesCollection(Array.Empty<string>());
 
-            var blocks = context.Container.Components
+            // Get all components in the container
+            var designerHost = context.Container as IDesignerHost;
+            var allBlocks = designerHost.Container.Components
                 .OfType<BeepDataBlock>()
-                .Where(block => block != context.Instance) // Exclude the current instance
+                .Where(block => block != currentBlock && !IsChildBlock(currentBlock, block))
                 .ToList();
 
-            blocks.Insert(0, null); // Add null as the first option
+            // Map block names to objects for conversion
+            _blockMap = allBlocks
+                .Where(block => block.Site != null)
+                .ToDictionary(block => block.Name, block => block);
 
-            return new StandardValuesCollection(blocks);
+            // Return the names of the blocks
+            return new StandardValuesCollection(_blockMap.Keys.ToList());
         }
-
-
-        private IContainer GetContainerFromContext(ITypeDescriptorContext context)
+        public override object ConvertFrom(
+     ITypeDescriptorContext context,
+     CultureInfo culture,
+     object value)
         {
-            if (context.Container != null) return context.Container;
+            // If the incoming value is a block, just return it.
+            if (value is BeepDataBlock blockValue)
+                return blockValue;
 
-            // Try to resolve the container from the instance's parent
-            if (context.Instance is Control control && control.TopLevelControl != null)
+            // If it's a string, try to look it up in _blockMap.
+            if (value is string blockName)
             {
-                return control.TopLevelControl.Site?.Container;
+                if (_blockMap != null && _blockMap.TryGetValue(blockName, out var block))
+                {
+                    return block;
+                }
+                else
+                {
+                    // Decide how you want to handle an unknown block name:
+                    // Option A: return null (if your property can be null)
+                    // return null;
+
+                    // Option B: throw a descriptive exception
+                    throw new ArgumentException($"Block named '{blockName}' was not found.");
+                }
             }
-
-            return null;
-        }
-
-        // Override ConvertTo to display the BeepDataBlock as a string (e.g., its Name property)
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-        {
-            if (destinationType == typeof(string))
-                return true;
-            return base.CanConvertTo(context, destinationType);
+            // Otherwise, fall back to the base behavior
+            return base.ConvertFrom(context, culture, value);
         }
 
         public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
         {
-            if (destinationType == typeof(string) && value is BeepDataBlock dataBlock)
+            if (destinationType == typeof(string) && value is BeepDataBlock block)
             {
-                // Return the Name of the data block, or any other identifying property
-                return dataBlock.Name;
+                return block.Name ?? block.ToString();
             }
             return base.ConvertTo(context, culture, value, destinationType);
         }
-
-        // Override ConvertFrom to convert the selected string back to the BeepDataBlock instance
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        private bool IsChildBlock(IBeepDataBlock parentBlock, IBeepDataBlock block)
         {
-            if (sourceType == typeof(string))
-                return true;
-            return base.CanConvertFrom(context, sourceType);
-        }
+            if (parentBlock.ChildBlocks == null || !parentBlock.ChildBlocks.Any())
+                return false;
 
-        public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
-        {
-            if (value is null || value.ToString().Trim() == "")
+            foreach (var child in parentBlock.ChildBlocks)
             {
-                // Allow null to be explicitly set
-                return null;
+                if (child == block || IsChildBlock(child, block))
+                    return true;
             }
 
-            if (value is string name)
-            {
-                var container = context?.Container;
-                if (container != null)
-                {
-                    var block = container.Components
-                        .OfType<BeepDataBlock>()
-                        .FirstOrDefault(b => b.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
-
-                    if (block == null)
-                    {
-                        throw new ArgumentException($"BeepDataBlock with Name '{name}' not found.");
-                    }
-
-                    return block;
-                }
-            }
-
-            return base.ConvertFrom(context, culture, value);
+            return false;
         }
-
     }
 }

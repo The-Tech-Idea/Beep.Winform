@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Desktop.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
+    [ToolboxItem(true)]
+    [DisplayName("Beep Tree")]
+    [Category("Beep Controls")]
     public class BeepTree : BeepControl
     {
         private int nodeseq = 0;

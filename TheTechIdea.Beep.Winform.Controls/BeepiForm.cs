@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 
@@ -10,9 +9,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 {
     public partial class BeepiForm : Form
     {
-        protected int _resizeMargin = 5; // Margin for resizing
+        protected int _resizeMargin = 15; // Margin for resizing
         protected int _borderRadius =5;
-        protected int _borderThickness = 3; // Thickness of the custom border
+        protected int _borderThickness = 6; // Thickness of the custom border
         private Color _borderColor = Color.Red; // Default border color
         private const int ButtonSize = 30;
         private Point lastMousePosition;
@@ -28,7 +27,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
         protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
-
+        public int BorderThickness
+        {
+            get { return _borderThickness; }
+            set { _borderThickness = value; }
+        }
         [Browsable(true)]
         [Category("Appearance")]
         public bool InPopMode
@@ -70,19 +73,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InitializeComponent();
             ishandled = false;
-
-            // Enable double buffering on the form
-            SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw, true);
+          
+            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+            SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
+            UpdateStyles();
             // Apply border and custom form styles
             FormBorderStyle = FormBorderStyle.None;
-            Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
-            Margin = new Padding(_resizeMargin);
+          //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
+          //      Margin = new Padding(_resizeMargin);
             InitializeForm();
         }
         protected override void OnControlAdded(ControlEventArgs e)
         {
            base.OnControlAdded(e);
-            Console.WriteLine($"1 Control Added {e.Control.Text}");
+         //   Console.WriteLine($"1 Control Added {e.Control.Text}");
             AdjustControls();
         }
       
@@ -240,6 +244,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnPaint(e);
             // Enable anti-aliasing for smoother borders
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            e.Graphics.CompositingQuality = CompositingQuality.HighQuality;
+            e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
             // Draw the custom border
             // Skip drawing if border thickness is zero
             if (_borderThickness == 0)
@@ -258,7 +267,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             
                 borderPen.Alignment = PenAlignment.Center;
-                e.Graphics.DrawRectangle(borderPen, borderRectangle);
+                //  e.Graphics.DrawRectangle(borderPen, borderRectangle);
+                e.Graphics.DrawRectangle(
+        borderPen,
+        new Rectangle(0, 0, Width - 1, Height - 1)
+    );
             }
 
           
@@ -272,16 +285,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Region.Dispose();
             }
-
+            int diameter = _borderRadius * 2;
             // Define the rounded region for the form
+            //Region = Region.FromHrgn(CreateRoundRectRgn(
+            //    _borderThickness , // No adjustment for border thickness
+            //    _borderThickness , // No adjustment for border thickness
+            //    Width- _borderThickness,
+            //    Height- _borderThickness,
+            //    diameter,
+            //    diameter
+            //));
             Region = Region.FromHrgn(CreateRoundRectRgn(
-                0, // No adjustment for border thickness
-                0, // No adjustment for border thickness
-                Width,
-                Height,
-                _borderRadius * 2,
-                _borderRadius * 2
-            ));
+    0,
+    0,
+    Width,
+    Height,
+    diameter,
+    diameter
+));
 
         }
         protected override void OnLayout(LayoutEventArgs e)
@@ -343,7 +364,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else if (control.Dock == DockStyle.None)
                 {
-                    Console.WriteLine($"Control is not docked {control.Left}-{adjustedClientArea.Left}");
+                   // Console.WriteLine($"Control is not docked {control.Left}-{adjustedClientArea.Left}");
                     // Non-docked controls are clamped within the adjusted client area
                     control.Left = Math.Max(control.Left, adjustedClientArea.Left+1);
                     control.Top = Math.Max(control.Top, adjustedClientArea.Top+1);

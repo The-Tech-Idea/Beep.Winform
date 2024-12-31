@@ -8,7 +8,9 @@ using TheTechIdea.Beep.Winform.Controls.Helpers;
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
-    [Category("Controls")]
+    [Description("A text box control with Beep styling.")]
+    [DisplayName("Beep TextBox")]
+    [Category("Beep Controls")]
     public class BeepTextBox : BeepControl
     {
         #region "Properties"
@@ -48,7 +50,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
         // show the inner textbox properties like multiline
         [Browsable(true)]
         [Category("Appearance")]
@@ -59,22 +60,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _multiline = value;
                 _innerTextBox.Multiline = value;
-
-                //if (!_multiline)
-                //{
-                //    // Fix the height when not multiline
-                //    int singleLineHeight = GetSingleLineHeight();
-                //    this.MinimumSize = new Size(0, singleLineHeight);
-                //    this.MaximumSize = new Size(0, singleLineHeight);
-                //    Height = singleLineHeight;
-                //}
-                //else
-                //{
-                //    // Allow resizing when multiline
-                //    this.MinimumSize = new Size(0, 0);
-                //    this.MaximumSize = new Size(0, 0);
-                //}
-
                 AdjustTextBoxHeight();
                 Invalidate();
             }
@@ -86,8 +71,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get => _innerTextBox;
         }
-
-
         [Browsable(true)]
         [Category("Appearance")]
         public bool ReadOnly
@@ -157,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         [Browsable(true)]
         [Category("Appearance")]
-        public bool scrollbars
+        public bool ShowScrollbars
         {
             get => _innerTextBox.ScrollBars != ScrollBars.None;
             set
@@ -233,11 +216,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
-
-
-
-
         [Browsable(true)]
         [Category("Appearance")]
         public HorizontalAlignment TextAlignment

@@ -9,10 +9,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Forms
     public partial class DataBlocksCollectionForm : Form
     {
         private readonly CollectionEditor _editor;
-        private readonly List<BeepDataBlock> _existingBlocks; // Existing blocks on the form
-        private readonly List<BeepDataBlock> _selectedBlocks = new List<BeepDataBlock>(); // Selected blocks
+        private readonly List<IBeepDataBlock> _existingBlocks; // Existing blocks on the form
+        private readonly List<IBeepDataBlock> _selectedBlocks = new List<IBeepDataBlock>(); // Selected blocks
 
-        public DataBlocksCollectionForm(CollectionEditor editor, List<BeepDataBlock> existingBlocks)
+        public DataBlocksCollectionForm(CollectionEditor editor, List<IBeepDataBlock> existingBlocks)
         {
             InitializeComponent();
             _editor = editor;
@@ -34,8 +34,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Forms
                 Dock = DockStyle.Fill,
                 CheckOnClick = true,
                 DataSource = _existingBlocks,
-                DisplayMember = "Name", // Assuming BeepDataBlock has a Name property
-                ValueMember = "ID"     // Assuming BeepDataBlock has a unique ID property
+                DisplayMember = "Name", // Assuming IBeepDataBlock has a Name property
+                ValueMember = "ID"     // Assuming IBeepDataBlock has a unique ID property
             };
             this.Controls.Add(blocksList);
 
@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Forms
                 // Gather selected blocks
                 foreach (var item in blocksList.CheckedItems)
                 {
-                    if (item is BeepDataBlock block)
+                    if (item is IBeepDataBlock block)
                         _selectedBlocks.Add(block);
                 }
                 this.DialogResult = DialogResult.OK;
@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Forms
             this.Controls.Add(buttonPanel);
         }
 
-        public List<BeepDataBlock> GetSelectedBlocks()
+        public List<IBeepDataBlock> GetSelectedBlocks()
         {
             return _selectedBlocks;
         }

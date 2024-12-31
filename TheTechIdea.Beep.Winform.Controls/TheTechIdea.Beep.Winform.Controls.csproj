@@ -50,6 +50,7 @@
     <Compile Remove="BeepTabs_old.cs" />
     <Compile Remove="Grid\DesignerForm\CustomDataGridViewDesigner.cs" />
     <Compile Remove="Grid\ExtendedDataGridViewColumnCollectionEditor.cs" />
+    <Compile Remove="Managers\BeepDataBlockManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="BeepiForm.Designer.cs~RF145a38e5.TMP" />
@@ -197,9 +198,7 @@
     <PackageReference Include="TheTechIdea.Beep.MVVM" Version="1.0.18" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="BeepDataBlock.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Update="BeepDataBlock.cs" />
     <Compile Update="Containers\uc_Container.cs" />
     <Compile Update="DataNavigator\BeepbindingNavigator.cs" />
     <Compile Update="Design\Forms\DataBlocksCollectionForm.cs">
@@ -250,6 +249,6 @@
   <ItemGroup>
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Logic\TheTechIdea.Beep.Vis.Logic.csproj" />
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
-    <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Winform.Controls.Common.csproj" />
+    <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Desktop.Controls.Common.csproj" />
   </ItemGroup>
 </Project>

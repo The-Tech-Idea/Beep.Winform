@@ -1,17 +1,13 @@
-﻿
-using Svg;
+﻿using Svg;
 using System.Reflection;
 using System.Collections;
 using System.Resources;
 using System.Xml.Linq;
-
 using System.Drawing.Imaging;
 using System.Diagnostics;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.VisualStudio.Shell;
 using EnvDTE;
-using TheTechIdea.Beep.Winform.Controls.Design.Models;
-using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Desktop.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design
 {
@@ -284,7 +280,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
         }
         public static void PreviewImageFromFile(PictureBox previewPictureBox, SimpleItem menuItem)
         {
-            if (menuItem == null || string.IsNullOrEmpty(menuItem.Image))
+            if (menuItem == null || string.IsNullOrEmpty(menuItem.ImagePath))
             {
                 MessageBox.Show("No valid image path provided.", "Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -292,7 +288,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
 
             try
             {
-                string imagePath = menuItem.Image;
+                string imagePath = menuItem.ImagePath;
 
                 // Dispose any previously loaded image to free resources
                 previewPictureBox.Image?.Dispose();
@@ -468,14 +464,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
                 }
 
                 // Add to _imageResources dictionary
-                _imageResources[fileName] = new SimpleItem { Name = fileName, Image = destPath };
+                _imageResources[fileName] = new SimpleItem { Name = fileName, ImagePath = destPath };
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error embedding image: {ex.Message}", "Embedding Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         public static string CopyFileToProjectResources(Dictionary<string, SimpleItem> _projectResources, string previewFilePath, string projectDirectory)
         {
             if (string.IsNullOrEmpty(previewFilePath))
@@ -493,7 +488,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
                 File.Copy(previewFilePath, destPath, true); // Copy file
                 EmbedFileAsEmbeddedResource(previewFilePath, destPath, projectDirectory);
 
-                _projectResources[Path.GetFileNameWithoutExtension(previewFilePath)] = new SimpleItem { Name = Path.GetFileNameWithoutExtension(previewFilePath), Image = destPath };
+                _projectResources[Path.GetFileNameWithoutExtension(previewFilePath)] = new SimpleItem { Name = Path.GetFileNameWithoutExtension(previewFilePath), ImagePath = destPath };
                 return destPath;
             }
             catch (Exception ex)
@@ -550,7 +545,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
                 MessageBox.Show("Please preview an image before embedding it.", "No Image Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return null;
             }
-
             try
             {
                 // Define the target folder within the project directory
@@ -593,7 +587,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
                 }
 
                 // Add to projectResources dictionary as SimpleMenuItem
-                var simpleMenuItem = new SimpleItem { Name = Path.GetFileNameWithoutExtension(fileName), Image = destPath };
+                var simpleMenuItem = new SimpleItem { Name = Path.GetFileNameWithoutExtension(fileName), ImagePath = destPath };
                 projectResources[Path.GetFileNameWithoutExtension(fileName)] = simpleMenuItem;
 
                 return destPath;
@@ -604,7 +598,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
                 return null;
             }
         }
-
         public static void MoveFileToProjectResources(Dictionary<string, SimpleItem> _localImages, string sourceFilePath, string destinationFolder)
         {
             try
@@ -617,7 +610,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
 
                 File.Copy(sourceFilePath, destinationPath, true);
 
-                _localImages[fileName] = new SimpleItem { Name = fileName, Image = destinationPath };
+                _localImages[fileName] = new SimpleItem { Name = fileName, ImagePath = destinationPath };
                 MessageBox.Show($"File moved to project resource folder: {destinationPath}", "File Moved", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -625,8 +618,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
                 MessageBox.Show($"Error moving file: {ex.Message}", "Move Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-
         #endregion "Moving Images"
         #region "Loading Images"
         public static void LoadResourceFilesToDictionary(Dictionary<string, SimpleItem> _imageResources, string[] possibleFolders)
@@ -650,7 +641,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
                                     SimpleItem item = new SimpleItem
                                     {
                                         Name = resourceKey,
-                                        Image = resxFile // Path to the .resx file
+                                        ImagePath = resxFile // Path to the .resx file
                                     };
                                     _imageResources[resourceKey] = item;
                                 }
@@ -698,7 +689,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
                     SimpleItem item = new SimpleItem
                     {
                         Name = resourceName,
-                        Image = resourcePath // Store the relative path
+                        ImagePath = resourcePath // Store the relative path
                     };
                     _embeddedImages[resourceName] = item;
                 }
@@ -710,7 +701,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
                 MessageBox.Show($"Error loading embedded images: {ex.Message}", "Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         public static void LoadEmbeddedResourcesToDictionary(Dictionary<string, SimpleItem> _embeddedImages)
         {
             _embeddedImages.Clear();
@@ -728,7 +718,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
                     SimpleItem item = new SimpleItem
                     {
                         Name = resourceName,
-                        Image = resourceName // Store the resource name for embedded resources
+                        ImagePath = resourceName // Store the resource name for embedded resources
                     };
                     _embeddedImages[resourceName] = item;
                 }
@@ -790,7 +780,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
         //        }
         //    }
         //}
-
         public static void LoadLocalImagesToDictionary(Dictionary<string, SimpleItem> _localImages)
         {
             _localImages.Clear();
@@ -808,13 +797,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
                     {
                         Name = fileName,
                         Text = fileName,
-                        Image = imagePath // Store the file path for local images
+                        ImagePath = imagePath // Store the file path for local images
                     };
                     _localImages[fileName] = item;
                 }
             }
         }
-
         #endregion "Loading Images"
         #region "PNG or SVG to ICO"
         public static Icon ConvertSvgToIcon(string svgPath, int iconSize = 64)
@@ -891,7 +879,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
         }
 
         #endregion "PNG or SVG to ICO"
-       
         public static void LoadImageToPictureBox(PictureBox PreviewpictureBox,string path)
         {
             // Clear previous image

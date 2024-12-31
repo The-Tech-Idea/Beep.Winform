@@ -14,7 +14,7 @@ using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Tree;
-using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Desktop.Controls.Common;
 using static TheTechIdea.Beep.Utilities.Util;
 
 namespace TheTechIdea.Beep.Winform.Controls

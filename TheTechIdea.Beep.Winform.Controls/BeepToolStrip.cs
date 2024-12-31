@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Drawing.Design;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Desktop.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -15,7 +15,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         Horizontal,
         Vertical
     }
-
+    [ToolboxItem(true)]
+    [DisplayName("Beep ToolStrip")]
+    [Category("Beep Controls")]
     public class BeepToolStrip : BeepControl
     {
         private FlowLayoutPanel _stripPanel;

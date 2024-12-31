@@ -5,7 +5,7 @@ using System.ComponentModel.Design;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
-namespace TheTechIdea.Beep.Winform.Controls
+namespace TheTechIdea.Beep.Winform.Controls.Managers
 {
     [DesignerCategory("Component")]
     public class BeepUIManager : Component
@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             BeepiForm.Icon = ImageTools.ConvertSvgToIcon(beepimage.svgDocument, 64);
                         }
                     }
-              
+
                 }
             }
 
@@ -94,7 +94,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Set the title of the form.")]
-
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ApplyThemeOnImage
         {
@@ -148,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     if (beepimage != null)
                     {
-                        if (beepimage.svgDocument!=null)
+                        if (beepimage.svgDocument != null)
                         {
                             _beepiForm.Icon = ImageTools.ConvertSvgToIcon(beepimage.svgDocument, 64);
                         }
@@ -165,13 +164,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _beepSideMenu;
             set
             {
-                _beepSideMenu = value; 
+                _beepSideMenu = value;
                 if (BeepiForm != null)
                 {
                     _beepSideMenu.BeepForm = BeepiForm;
-                   
+
                 }
-                if(_beepSideMenu!= null)
+                if (_beepSideMenu != null)
                 {
                     _beepSideMenu.Title = Title;
                     _beepSideMenu.LogoImage = LogoImage;
@@ -182,9 +181,19 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
         }
+        private BeepMenuBar _beepMenuBar;
         [Browsable(true)]
         [Category("Appearance")]
-
+        public BeepMenuBar BeepMenuBar
+        {
+            get => _beepMenuBar;
+            set
+            {
+                _beepMenuBar = value;
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowBorder
         {
@@ -194,7 +203,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showShadow = false;
         [Browsable(true)]
         [Category("Appearance")]
-
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowShadow
         {
@@ -204,7 +212,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isrounded = false;
         [Browsable(true)]
         [Category("Appearance")]
-
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool IsRounded
         {
@@ -214,7 +221,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Enable or disable BeepForm styling for the form.")]
-
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         bool ApplyBeepFormStyle
         {
@@ -372,7 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private Form FindParentForm()
         {
-            if (this.Container is ISite site && site.Container != null)
+            if (Container is ISite site && site.Container != null)
             {
                 // Traverse up the container hierarchy to find a form
                 IContainer container = site.Container;

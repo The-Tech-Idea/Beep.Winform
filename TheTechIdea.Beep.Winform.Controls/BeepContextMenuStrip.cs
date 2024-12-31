@@ -1,8 +1,12 @@
-﻿using TheTechIdea.Beep.Winform.Controls.Common;
+﻿using System.ComponentModel;
+using TheTechIdea.Beep.Desktop.Controls.Common;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
+    [ToolboxItem(true)]
+    [DisplayName("Beep Context Menu")]
+    [Category("Beep Controls")]
     public class BeepContextMenuStrip : BeepListBox
     {
         private BeepPopupForm popupForm;

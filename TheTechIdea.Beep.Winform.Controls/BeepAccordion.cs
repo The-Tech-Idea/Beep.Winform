@@ -7,12 +7,16 @@ using System.Drawing.Design;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Desktop.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
+    [ToolboxItem(true)]
+    [ToolboxBitmap(typeof(BeepAccordion), "BeepAccordion.bmp")]
+    [Description("A collapsible accordion control with a logo and menu items.")]
+    [DisplayName("Beep Accordion")]
     public class BeepAccordion : BeepControl
     {
         private bool isCollapsed = false;

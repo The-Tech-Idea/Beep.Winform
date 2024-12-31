@@ -12,6 +12,7 @@ using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using System.Diagnostics;
+using TheTechIdea.Beep.Report;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -242,8 +243,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             { get { return _guidID; }set { _guidID = value; } }
         public int Id {  get { return _id; }set { _id = value; } }
 
+
+       
+
         protected bool _isChild;
         protected Color parentbackcolor;
+        private Color _tempbackcolor;
+
         [Browsable(true)]
         [Category("Appearance")]
         public int ShadowOffset
@@ -279,10 +285,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _isChild = value;
                 if (this.Parent != null)
                 {
-                    parentbackcolor = this.Parent.BackColor;
-
+                    if (value)
+                    {
+                        parentbackcolor = this.Parent.BackColor;
+                        _tempbackcolor = BackColor;
+                        BackColor = parentbackcolor;
+                    }
+                    else
+                    {
+                        BackColor = _tempbackcolor;
+                    }
                 }
-                BackColor = parentbackcolor;
+              
                 Invalidate();  // Trigger repaint
             }
         }
@@ -768,7 +782,35 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool IsCustomeBorder { get;  set; }
         public string BoundProperty { get ; set ; }
         public string LinkedProperty { get; set; }
+        public string DataSourceProperty { get; set; } // The property of the data source
+        public void SetValue(object value)
+        {
+            var controlProperty = GetType().GetProperty(BoundProperty);
+            controlProperty?.SetValue(this, value);
 
+            if (DataContext != null && !string.IsNullOrEmpty(DataSourceProperty))
+            {
+                var dataSourceProperty = DataContext.GetType().GetProperty(DataSourceProperty);
+                dataSourceProperty?.SetValue(DataContext, value);
+            }
+        }
+        public object GetValue()
+        {
+            var controlProperty = GetType().GetProperty(BoundProperty);
+            return controlProperty?.GetValue(this);
+        }
+        public void ClearValue() => SetValue(null);
+        public virtual bool HasFilterValue() => !string.IsNullOrEmpty(BoundProperty) && GetValue() != null;
+        public AppFilter ToFilter()
+        {
+            return new AppFilter
+            {
+                FieldName = BoundProperty,
+                FilterValue = GetValue().ToString(),
+                Operator = "=",
+                valueType = "string"
+            };
+        }
         #endregion "Public Properties"
 
         public BeepControl()
@@ -799,49 +841,69 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Method to initialize tooltip with default settings
 
         #region "Data Binding"
+
         // Override property binding management when DataContext changes
         protected override void OnBindingContextChanged(EventArgs e)
         {
             base.OnBindingContextChanged(e);
             UpdateBindings();
         }
+
         // Clear and recreate bindings when DataContext changes
         protected virtual void UpdateBindings()
         {
-            OnDataContextChanged();
-        }
-        // RefreshBindings method: Force an update to each binding in the control
-        public virtual void RefreshBinding()
-        {
-            foreach (Binding binding in DataBindings)
+            if (DataContext != null)
             {
-                // Refresh each binding to re-evaluate the property on the new DataContext
-                binding.ReadValue();
+                ReapplyBindings();
             }
-
-            // Optionally trigger a repaint to reflect changes in the UI
-            Invalidate();
+            else
+            {
+                // Clear all bindings if DataContext is null
+                DataBindings.Clear();
+            }
         }
-     
 
-        public virtual bool ValidateData(out string messege)
+        // RefreshBindings method: Force an update to each binding in the control
+        public void RefreshBinding()
         {
-            messege = "ok";
+            if (DataContext != null && !string.IsNullOrEmpty(DataSourceProperty))
+            {
+                var dataSourceProperty = DataContext.GetType().GetProperty(DataSourceProperty);
+                var controlProperty = GetType().GetProperty(BoundProperty);
+
+                if (dataSourceProperty != null && controlProperty != null)
+                {
+                    var value = dataSourceProperty.GetValue(DataContext);
+                    controlProperty.SetValue(this, value);
+                }
+            }
+        }
+
+        // Method to validate data, with a default implementation
+        public virtual bool ValidateData(out string message)
+        {
+            message = "ok";
             return true;
         }
+
         // Method to be called whenever DataContext changes
         protected virtual void OnDataContextChanged()
         {
-            // Clear and refresh the original bindings to avoid stale references
-            _originalBindings.Clear();
-            _originalBindings.AddRange(DataBindings.Cast<Binding>());
+            ReapplyBindings();
+        }
+
+        // Reapply bindings with updated DataContext
+        private void ReapplyBindings()
+        {
+            // Cache original bindings to reapply with the updated DataContext
+            var originalBindings = DataBindings.Cast<Binding>().ToList();
+
             // Clear existing bindings
             DataBindings.Clear();
 
-            // Reapply each original binding with the new DataContext
-            foreach (var originalBinding in _originalBindings)
+            // Reapply each original binding with the updated DataContext
+            foreach (var originalBinding in originalBindings)
             {
-                // Create a new binding with the updated DataContext
                 var newBinding = new Binding(
                     originalBinding.PropertyName,
                     DataContext,
@@ -855,8 +917,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     NullValue = originalBinding.NullValue
                 };
 
-                
-
                 // Add the new binding to the control's DataBindings collection
                 DataBindings.Add(newBinding);
             }
@@ -864,27 +924,42 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Refresh the control to display updated values
             Invalidate();
         }
-        // Cache event handlers for Format and Parse events
-       
-        // Event handler to manage data binding changes, if needed
+
+        // Event handler to manage data binding changes dynamically
         protected void DataBindings_CollectionChanged(object sender, CollectionChangeEventArgs e)
         {
-            // Adjust bindings as needed (e.g., add/remove bindings dynamically)
             if (DataContext != null)
             {
                 UpdateBindings();
             }
         }
+
+        // Set binding for a specific control property to a data source property
         public virtual void SetBinding(string controlProperty, string dataSourceProperty)
         {
             if (DataContext == null)
                 throw new InvalidOperationException("DataContext is not set.");
 
-            var binding = new Binding(controlProperty, DataContext, dataSourceProperty);
-            this.DataBindings.Add(binding);
+            // Check if a binding already exists for the property
+            var existingBinding = DataBindings[controlProperty];
+            if (existingBinding != null)
+            {
+                DataBindings.Remove(existingBinding);
+            }
+
+            // Add a new binding
+            var binding = new Binding(controlProperty, DataContext, dataSourceProperty)
+            {
+                DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged
+            };
+
+            DataBindings.Add(binding);
+
+            // Track bound properties for later reference
+            BoundProperty = controlProperty;
+            DataSourceProperty = dataSourceProperty;
         }
-    
-    #endregion "Data Binding"
+        #endregion
         #region "Theme"
         public virtual void ApplyTheme()
         {
@@ -1021,10 +1096,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnPaint(e);
 
             var g = e.Graphics;
-            g.SmoothingMode = SmoothingMode.HighQuality;
+            
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-          //  e.Graphics.Clear(BackColor);
+            g.TextContrast = 12;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.CompositingQuality = CompositingQuality.HighQuality;
+            //  e.Graphics.Clear(BackColor);
 
             shadowOffset = ShowShadow ? 3 : 0;
 
@@ -1038,7 +1117,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width - _borderThickness * shadowOffset,
                 Height - _borderThickness * shadowOffset
             );
-
+            if (IsChild)
+            {
+                BackColor = parentbackcolor;
+            }
+            using (SolidBrush brush = new SolidBrush(Parent.BackColor))
+            {
+                e.Graphics.FillRectangle(brush, outerRectangle);
+            }
             // Adjust for border thickness
             if (!_isframless && ShowAllBorders && BorderThickness > 0)
             {
@@ -1052,22 +1138,30 @@ namespace TheTechIdea.Beep.Winform.Controls
                     DrawShadowUsingRectangle(g);
                 }
             }
+            
+            //if (IsChild)
+            //{
+            //    if (IsHovered)
+            //    {
+            //        if (UseGradientBackground)
+            //        {
+            //            using (var brush = new LinearGradientBrush(borderRectangle, GradientStartColor, GradientEndColor, GradientDirection))
+            //            {
+            //                e.Graphics.FillRectangle(brush, borderRectangle);
+            //            }
+            //        }
+            //        else
+            //        {
+            //            using (var brush = new SolidBrush(IsHovered ? HoverBackColor : BackColor))
+            //            {
+            //                e.Graphics.FillRectangle(brush, borderRectangle);
+            //            }
+            //        }
+            //    }
+            //}
+            //else
+            //{
 
-            if (IsChild)
-            {
-                if (Parent != null)
-                {
-                    parentbackcolor = Parent.BackColor;
-                    BackColor = parentbackcolor;
-                }
-                //  BackColor = Color.Transparent;
-                using (SolidBrush brush = new SolidBrush(IsHovered ? HoverBackColor:parentbackcolor))
-                {
-                    e.Graphics.FillRectangle(brush, outerRectangle);
-                }
-            }
-            else
-            {
                 // Draw background
                 if (IsRounded)
                 {
@@ -1106,19 +1200,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         }
                     }
                 }
-            }
-            if (IsHovered)
-            {
-                if (IsRounded)
-                {
-
-
-                }
-                else
-                {
-
-                }
-            }
+           // }
+          
             if (!_isframless)
             {
                 if (IsCustomeBorder)
@@ -1570,9 +1653,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);
-            BorderColor = _currentTheme.HoverLinkColor;
+         //   BorderColor = _currentTheme.HoverLinkColor;
             IsHovered = true;
-            ShowToolTipIfExists();
+          //  ShowToolTipIfExists();
             //Invalidate();
         }
         protected override void OnMouseMove(MouseEventArgs e)
@@ -1584,22 +1667,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-            BorderColor = _currentTheme.BorderColor;
-            IsPressed = false;
-            IsFocused = false;
+          //  BorderColor = _currentTheme.BorderColor;
+         //   IsPressed = false;
+          //  IsFocused = false;
             IsHovered = false;
-            HideToolTip(); // Hide tooltip on mouse leave
+           // HideToolTip(); // Hide tooltip on mouse leave
                            // Invalidate();
         }
 
         protected override void OnGotFocus(EventArgs e)
         {
+            IsFocused = true;
             base.OnGotFocus(e);
             // Invalidate();
         }
 
         protected override void OnLostFocus(EventArgs e)
         {
+            IsFocused = false;
             base.OnLostFocus(e);
             // Invalidate();
         }
@@ -1614,7 +1699,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-            BorderColor = _currentTheme.ActiveBorderColor;
+           // BorderColor = _currentTheme.ActiveBorderColor;
             if (e.Button == MouseButtons.Left)
             {
                 IsPressed = true;
@@ -1623,6 +1708,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             IsPressed = false;
             // Invalidate();
+        }
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            IsPressed = false;
+            base.OnMouseUp(e);
         }
         #endregion "Mouse events"
         #region "Animation"

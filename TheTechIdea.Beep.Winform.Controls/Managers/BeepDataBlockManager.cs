@@ -4,10 +4,10 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 
-namespace TheTechIdea.Beep.Winform.Controls
+namespace TheTechIdea.Beep.Winform.Controls.Managers
 {
    
-    public class DataBlockManager :IDisposable
+    public class DataBlockManager :Component,IDisposable
     {
         protected IUnitofWork _data;
         public bool IsInQueryMode { get; private set; } = false;

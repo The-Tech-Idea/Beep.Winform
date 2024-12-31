@@ -4,8 +4,8 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Common;
-// using TheTechIdea.Beep.Winform.Controls.Common; // if needed
+using TheTechIdea.Beep.Desktop.Controls.Common;
+// using TheTechIdea.Beep.Desktop.Controls.Common; // if needed
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -16,6 +16,10 @@ namespace TheTechIdea.Beep.Winform.Controls
     ///  - Allows expansion to show beepListBox, then repositions if user changes width
     ///  - Ensures button & text box remain the same height
     /// </summary>
+    /// 
+    [ToolboxItem(true)]
+    [DisplayName("Beep ComboBox")]
+    [Category("Beep Controls")]
     public class BeepComboBox : BeepControl
     {
         private BeepTextBox _comboTextBox;

@@ -5,7 +5,7 @@ using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
 
 
-namespace TheTechIdea.Beep.Winform.Controls.Common
+namespace TheTechIdea.Beep.Desktop.Controls.Common
 {
     [Serializable]
     public class SimpleItem
@@ -67,6 +67,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
         public  string keyCombination { get; set; } //KeyCombination
         public string AssemblyClassDefinitionID { get; set; }
         public string BranchID { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
         public override string ToString()
         {
             return Name; // Display this value in the PropertyGrid

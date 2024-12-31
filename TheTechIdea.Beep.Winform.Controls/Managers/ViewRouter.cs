@@ -1,6 +1,6 @@
 ﻿using System.Web;
-
-public class ViewRouter
+namespace TheTechIdea.Beep.Winform.Controls.Managers;
+public partial class ViewRouter
 {
 
     private readonly object _historyLock = new object();

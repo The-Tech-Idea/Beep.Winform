@@ -17,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [ToolboxBitmap(typeof(BeepCircularButton))] //, "BeepCircularButton.bmp"
     [Category("Beep Controls")]
+    [DisplayName("Beep Circular Button")]
     public class BeepCircularButton : BeepControl
     {
         private BeepImage beepImage;
@@ -163,6 +164,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowShadow = false,
             };
             IsChild= true;
+            IsShadowAffectedByTheme = false;
+           // IsBorderAffectedByTheme = false;
+            IsRoundedAffectedByTheme = false;
+            IsCustomeBorder=true;
             ApplyTheme();
             beepImage.MouseHover += BeepImage_MouseHover;
             beepImage.MouseLeave += BeepImage_MouseLeave;

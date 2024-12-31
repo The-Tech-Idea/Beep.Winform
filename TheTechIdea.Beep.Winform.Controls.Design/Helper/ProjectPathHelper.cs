@@ -1,8 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using EnvDTE;
+using Microsoft.VisualStudio.Shell;
+using TheTechIdea.Beep.Editor;
+using VSLangProj;
+
+
 namespace TheTechIdea.Beep.Winform.Controls.Design.Helper;
 public static class ProjectPathHelper
 {
@@ -45,7 +51,7 @@ public static class ProjectPathHelper
     /// <summary>
     /// Retrieves the calling project's path using the stack trace.
     /// </summary>
-    private static string GetCallingProjectPath()
+    public static string GetCallingProjectPath()
     {
         var stackTrace = new StackTrace();
         foreach (var frame in stackTrace.GetFrames())
@@ -65,7 +71,7 @@ public static class ProjectPathHelper
     /// <summary>
     /// Retrieves the project path by locating the nearest .csproj file.
     /// </summary>
-    private static string GetProjectPathFromCsproj()
+    public static string GetProjectPathFromCsproj()
     {
         string currentDirectory = Directory.GetCurrentDirectory();
         DirectoryInfo directoryInfo = new DirectoryInfo(currentDirectory);
@@ -88,7 +94,7 @@ public static class ProjectPathHelper
     /// </summary>
     /// <param name="serviceProvider">The service provider to access Visual Studio services.</param>
     /// <returns>The project path of the referencing project.</returns>
-    private static string GetReferencingProjectPath(IServiceProvider serviceProvider)
+    public static string GetReferencingProjectPath(IServiceProvider serviceProvider)
     {
         if (serviceProvider == null)
         {
@@ -120,7 +126,7 @@ public static class ProjectPathHelper
     /// </summary>
     /// <param name="dte">The Visual Studio DTE object.</param>
     /// <returns>The active project.</returns>
-    private static EnvDTE.Project GetActiveProject(EnvDTE.DTE dte)
+    public static EnvDTE.Project GetActiveProject(EnvDTE.DTE dte)
     {
         if (dte.Solution == null || dte.Solution.Projects == null)
         {
@@ -139,7 +145,7 @@ public static class ProjectPathHelper
 
         return null;
     }
-    private static string GetProjectPath(string GetMyPath)
+    public static string GetProjectPath(string GetMyPath)
     {
 
         string projectPath = null;
@@ -157,4 +163,7 @@ public static class ProjectPathHelper
         return GetProjectPath(from);
 
     }
+    #region "Project Helper"
+   
+    #endregion  "Project Helper"
 }

@@ -19,7 +19,7 @@
 		<Title>TheTechIdea.Beep.Winform.Extensions</Title>
 		<Product>TheTechIdea.Beep.Winform.Extensions</Product>
 		<AssemblyName>TheTechIdea.Beep.Winform.Extensions</AssemblyName>
-		<Version>1.0.3</Version>
+		<Version>1.0.4</Version>
 	</PropertyGroup>
 	<Target Name="CopyPackage" AfterTargets="Pack">
 		<Copy SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="..\..\..\LocalNugetFiles" />

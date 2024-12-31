@@ -311,7 +311,7 @@
             MessegeTextBox.RightoffsetForDrawingRect = 0;
             MessegeTextBox.SavedGuidID = null;
             MessegeTextBox.SavedID = null;
-            MessegeTextBox.scrollbars = false;
+            MessegeTextBox.ShowScrollbars = false;
             MessegeTextBox.ScrollBars = ScrollBars.None;
             MessegeTextBox.SelectionStart = 0;
             MessegeTextBox.ShadowColor = Color.Black;

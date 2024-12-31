@@ -13,8 +13,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Fields and Properties
         private int _starCount = 5;
         private int _selectedRating = 0;
-        private int _starSize = 24;
-        private int _spacing = 5;
+        private int _starSize = 24; // Default size of stars
+        private int _spacing = 5;  // Default spacing between stars
         private Color _filledStarColor = Color.Gold;
         private Color _emptyStarColor = Color.Gray;
 
@@ -117,10 +117,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepStarRating()
         {
             DoubleBuffered = true;
-            Width = (_starSize + _spacing) * _starCount;
-            Height = _starSize + 10;
+            MinimumSize = new Size(120, 30); // Enforce a reasonable minimum size
             Cursor = Cursors.Hand;
-            BoundProperty= "SelectedRating";
+            BoundProperty = "SelectedRating";
         }
         #endregion
 
@@ -131,22 +130,35 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
+            // Ensure DrawingRect is valid
+            if (DrawingRect.Width <= 0 || DrawingRect.Height <= 0)
+                return;
+
+            // Calculate dynamic star size based on DrawingRect size
+            int availableWidth = DrawingRect.Width - (Spacing * (_starCount - 1));
+            int dynamicStarSize = Math.Max(10, Math.Min(availableWidth / _starCount, DrawingRect.Height - 10));
+            int starSize = Math.Min(_starSize, dynamicStarSize); // Use the smaller of fixed or dynamic size
+
+            // Center stars within DrawingRect
+            int startX = DrawingRect.Left + (DrawingRect.Width - (starSize * _starCount + Spacing * (_starCount - 1))) / 2;
+            int startY = DrawingRect.Top + (DrawingRect.Height - starSize) / 2;
+
+            // Draw stars
             for (int i = 0; i < _starCount; i++)
             {
-                DrawStar(e.Graphics, i, i < _selectedRating ? _filledStarColor : _emptyStarColor);
+                DrawStar(e.Graphics, startX + i * (starSize + Spacing), startY, starSize, i < _selectedRating ? _filledStarColor : _emptyStarColor);
             }
         }
-        private void DrawStar(Graphics graphics, int index, Color color)
-        {
-            int x = index * (_starSize + _spacing);
-            int y = (Height - _starSize) / 2;
 
+        private void DrawStar(Graphics graphics, int x, int y, int size, Color color)
+        {
             using (Brush brush = new SolidBrush(color))
             {
-                PointF[] starPoints = CalculateStarPoints(x, y, _starSize / 2, _starSize / 4, 5);
+                PointF[] starPoints = CalculateStarPoints(x + size / 2, y + size / 2, size / 2, size / 4, 5);
                 graphics.FillPolygon(brush, starPoints);
             }
         }
+
         private PointF[] CalculateStarPoints(float centerX, float centerY, float outerRadius, float innerRadius, int numPoints)
         {
             PointF[] points = new PointF[numPoints * 2];
@@ -165,17 +177,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             return points;
         }
         #endregion
+
         #region Interaction
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
-            int starIndex = e.X / (_starSize + _spacing);
+
+            // Calculate dynamic star size based on DrawingRect
+            int availableWidth = DrawingRect.Width - (Spacing * (_starCount - 1));
+            int dynamicStarSize = Math.Max(10, Math.Min(availableWidth / _starCount, DrawingRect.Height - 10));
+            int starSize = Math.Min(_starSize, dynamicStarSize); // Use the smaller of fixed or dynamic size
+
+            int startX = DrawingRect.Left + (DrawingRect.Width - (starSize * _starCount + Spacing * (_starCount - 1))) / 2;
+
+            int starIndex = (e.X - startX) / (starSize + Spacing);
             if (starIndex >= 0 && starIndex < _starCount)
             {
                 SelectedRating = starIndex + 1;
             }
         }
         #endregion
+
         #region "Theme"
         public override void ApplyTheme()
         {

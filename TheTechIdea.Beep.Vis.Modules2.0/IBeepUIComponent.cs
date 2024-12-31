@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using TheTechIdea.Beep.Report;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
@@ -20,11 +21,18 @@ namespace TheTechIdea.Beep.Vis.Modules
         int Id { get; set; }
         string[] Items { get; set; }
         bool ValidateData(out string  messege);
+     
         // New properties and methods for binding
         object DataContext { get; set; } // The source of data for binding
-        string BoundProperty { get; set; }
+        string BoundProperty { get; set; } // The property of the Control to bind to  DataSourceProperty
+        string DataSourceProperty { get; set; } // The property of the data source
         string LinkedProperty { get; set; }
         void RefreshBinding();
+        void SetValue(object value);
+        object GetValue();
+        void ClearValue();
+        bool HasFilterValue();
+        AppFilter ToFilter();
         void SetBinding(string controlProperty, string dataSourceProperty); // Method to bind a control property
     }
 }

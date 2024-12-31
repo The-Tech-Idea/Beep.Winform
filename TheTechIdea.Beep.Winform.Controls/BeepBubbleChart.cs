@@ -8,6 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [ToolboxBitmap(typeof(BeepBubbleChart))]
     [DisplayName("Beep Bubble Chart")]
+    [Description("A chart control that displays data points as bubbles.")]
     public class BeepBubbleChart : BeepChartBase
     {
         // Bubble chart-specific properties can be added here if needed

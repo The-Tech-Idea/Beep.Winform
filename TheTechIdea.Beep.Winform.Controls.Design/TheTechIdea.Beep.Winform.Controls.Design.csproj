@@ -13,12 +13,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MessagePack" Version="3.1.1" />
+    <PackageReference Include="Microsoft.IO.Redist" Version="6.1.0" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.12.40392" />
     <PackageReference Include="Microsoft.WinForms.Designer.SDK" Version="1.6.0" />
     <PackageReference Include="Svg" Version="3.4.7" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.8" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.27" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Winform.Controls.Common.csproj" />
+    <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Desktop.Controls.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

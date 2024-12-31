@@ -5,6 +5,9 @@ using System.Drawing.Drawing2D;
 namespace TheTechIdea.Beep.Winform.Controls
 {
     // Non-generic base class with a default type of bool
+    [ToolboxItem(true)]
+    [DisplayName("Beep CheckBox")]
+    [Category("Beep Controls")]
     public class BeepCheckBox : BeepCheckBox<bool>
     {
         public BeepCheckBox()

@@ -11,14 +11,13 @@ using System.Linq;
 using System.Resources;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using Svg;
+
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Helper
 {
     public static class DesignResourceHelper
     {
-
         public static List<string> ResourcesImages = new List<string>();
         // populate ImageList from Resrources.resx
         public static void PopulateImageListFromResx(ImageList imageList)
@@ -52,8 +51,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Helper
                 }
             }
         }
-
-
         /// <summary>
         /// Reads all image resources (bitmaps and SVGs) from the user's Resources.resx file.
         /// </summary>
@@ -87,7 +84,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Helper
 
             return resourceNames;
         }
-
         /// <summary>
         /// Adds or updates a resource in the user's Resources.resx file.
         /// </summary>
@@ -123,8 +119,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Helper
                 MessageBox.Show($"Error adding or updating resource: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-
         /// <summary>
         /// Retrieves the path to the Resources.resx file in the user's project.
         /// </summary>
@@ -133,7 +127,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Helper
             string projectPath = ProjectPathHelper.GetProjectPath();
             return Path.Combine(projectPath, "Properties", "Resources.resx");
         }
-
         /// <summary>
         /// Copies an image file to the user's Resources folder and returns the destination path.
         /// </summary>
@@ -157,7 +150,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Helper
                 return null;
             }
         }
-
         /// <summary>
         /// Embeds an image file as an EmbeddedResource in the user's project file (.csproj).
         /// </summary>
@@ -205,12 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Helper
                 MessageBox.Show($"Error embedding file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-
         #region "Support Methods"
-    
-
-
         public static Bitmap GetBitmapFromSvg(string svgPath)
         {
             if (string.IsNullOrEmpty(svgPath) || !File.Exists(svgPath))
@@ -229,8 +216,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Helper
                 return null;
             }
         }
-
-
         public static object GetResource(string resourceName)
         {
             try
@@ -259,7 +244,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Helper
 
             return null;
         }
-
         #endregion "Support Methods"
 
     }

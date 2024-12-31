@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Controls
+﻿using TheTechIdea.Beep.Winform.Controls.Managers;
+
+namespace TheTechIdea.Beep.Winform.Controls
 {
     partial class BeepiForm
     {

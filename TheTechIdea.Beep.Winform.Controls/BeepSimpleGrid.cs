@@ -4,7 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Grid;
 using System.Drawing.Design;
 using System.Windows.Forms.Design;
 using TheTechIdea.Beep.Winform.Controls.Editors;
-using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Desktop.Controls.Common;
 
 
 
@@ -298,27 +298,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.MouseUp += BeepGrid_MouseUp;
             ApplyThemeToChilds = false;
             this.Rows.ListChanged += Rows_ListChanged;
-            
-        }
-        protected override void InitLayout()
-        {
-            base.InitLayout();
-
-            if (DataNavigator == null)
-            {
-                DataNavigator = new BeepDataNavigator();
-                Console.WriteLine("Data Navigator is Null");
-
-            }
+            DataNavigator = new BeepDataNavigator();
             Controls.Add(DataNavigator);
             DataNavigator.ShowAllBorders = false;
             DataNavigator.ShowShadow = false;
             DataNavigator.IsBorderAffectedByTheme = false;
-            DataNavigator.IsChild = true;
             DataNavigator.IsShadowAffectedByTheme = false;
-            DataNavigator.ApplyThemeToChilds = false;
+            DataNavigator.ApplyThemeToChilds = true;
             DataNavigator.Theme = Theme;
 
+
+        }
+        protected override void InitLayout()
+        {
+            base.InitLayout();
+        
         }
         private void Rows_ListChanged(object sender, ListChangedEventArgs e)
         {
@@ -506,6 +500,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (DataNavigator != null)
             {
+                _currentTheme.ButtonBackColor = _currentTheme.GridBackColor;
+                _currentTheme.ButtonForeColor = _currentTheme.GridForeColor;
                 DataNavigator.Theme = Theme;
             }
 
@@ -600,7 +596,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DrawBottomAggregationRow(Graphics g, Rectangle bottomagregationPanelRect)
         {
-            using (var pen = new Pen(_currentTheme.BorderColor))
+            using (var pen = new Pen(_currentTheme.GridLineColor))
             {
 
 
@@ -610,7 +606,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DrawFooterRow(Graphics g, Rectangle footerPanelRect)
         {
-            using (var pen = new Pen(_currentTheme.BorderColor))
+            using (var pen = new Pen(_currentTheme.GridLineColor))
             {
 
 
@@ -620,15 +616,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DrawNavigationRow(Graphics g, Rectangle navigatorPanelRect)
         {
-           
-            DataNavigator.Location = new Point(navigatorPanelRect.Left+2, navigatorPanelRect.Top+2);
-            DataNavigator.Size = new Size(navigatorPanelRect.Width-2, navigatorPanelHeight-2);
-            DataNavigator.IsFramless = true;
+          
+
+            DataNavigator.Location = new Point(navigatorPanelRect.Left, navigatorPanelRect.Top+1);
+            DataNavigator.Size = new Size(navigatorPanelRect.Width, navigatorPanelHeight);
+         
             
             // DataNavigator.Invalidate();
             //DataNavigator.BringToFront();
             // draw line between header and grid
-            using (var pen = new Pen(_currentTheme.BorderColor))
+            using (var pen = new Pen(_currentTheme.GridLineColor))
             {
                 g.DrawLine(pen, navigatorPanelRect.Left, navigatorPanelRect.Top, navigatorPanelRect.Right, navigatorPanelRect.Top);
             }
@@ -734,7 +731,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 xOffset += Columns[i].Width;
             }
             // draw line between header and grid
-            using (var pen = new Pen(_currentTheme.BorderColor))
+            using (var pen = new Pen(_currentTheme.GridLineColor))
             {
                 g.DrawLine(pen, drawingBounds.Left, drawingBounds.Top + _defaultcolumnheaderheight, drawingBounds.Right, drawingBounds.Top + _defaultcolumnheaderheight);
             }
@@ -772,7 +769,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             int xOffset = drawingBounds.Left+XOffset;
             int yOffset = drawingBounds.Top +ColumnHeight;
-            using (var pen = new Pen(_currentTheme.BorderColor))
+            using (var pen = new Pen(_currentTheme.GridLineColor))
             {
                 for (int i = 0; i < Columns.Count-1; i++)
                 {

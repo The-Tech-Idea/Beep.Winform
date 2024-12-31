@@ -1,11 +1,11 @@
 ﻿using System;
 using System.CodeDom;
 using System.ComponentModel;
-using System.ComponentModel.Design;
 using System.ComponentModel.Design.Serialization;
-using System.Drawing.Design;
-using System.Windows.Forms;
+using Microsoft.DotNet.DesignTools.Editors;
 using System.Windows.Forms.Design;
+using System.Drawing.Design;
+using Microsoft.DotNet.DesignTools.Serialization;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
 {

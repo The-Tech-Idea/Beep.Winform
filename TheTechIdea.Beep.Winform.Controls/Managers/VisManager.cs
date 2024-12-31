@@ -18,7 +18,7 @@ using DialogResult = TheTechIdea.Beep.Vis.Modules.DialogResult;
 
 namespace TheTechIdea.Beep.Winform.Controls.Managers
 {
-    public class VisManager : IVisManager
+    public partial class VisManager : IVisManager
     {
         //public VisManager(IDMEEditor editor)
         //{

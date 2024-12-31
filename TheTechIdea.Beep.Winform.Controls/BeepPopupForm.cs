@@ -1,6 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
+﻿
 using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -10,13 +8,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Timer _closeTimer;
         private int _hoverTimeout = 3000; // Time in milliseconds (2 seconds)
         private bool ison= false;
+
+        public event EventHandler OnLeave;
         public BeepPopupForm()
         {
             StartPosition = FormStartPosition.Manual;
             ShowInTaskbar = false;
             TopMost = true;
             InPopMode = true;
-            _borderThickness = 2;
+            _borderThickness = 1;
 
             // Initialize the close timer
             _closeTimer = new Timer();
@@ -29,19 +29,74 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         }
 
-        public int BorderThickness
+      
+        public void AdjustControls()
         {
-            get { return _borderThickness; }
-            set { _borderThickness = value; }
-        }
+            Rectangle adjustedClientArea = GetAdjustedClientRectangle();
 
+            foreach (Control control in Controls)
+            {
+                if (control.Dock == DockStyle.Fill)
+                {
+                    control.Bounds = adjustedClientArea;
+                }
+                else if (control.Dock == DockStyle.Top)
+                {
+                    control.Bounds = new Rectangle(
+                        adjustedClientArea.Left,
+                        adjustedClientArea.Top,
+                        adjustedClientArea.Width,
+                        control.Height
+                    );
+                    adjustedClientArea.Y += control.Height;
+                    adjustedClientArea.Height -= control.Height;
+                }
+                else if (control.Dock == DockStyle.Bottom)
+                {
+                    control.Bounds = new Rectangle(
+                        adjustedClientArea.Left,
+                        adjustedClientArea.Bottom - control.Height,
+                        adjustedClientArea.Width,
+                        control.Height
+                    );
+                    adjustedClientArea.Height -= control.Height;
+                }
+                else if (control.Dock == DockStyle.Left)
+                {
+                    control.Bounds = new Rectangle(
+                        adjustedClientArea.Left,
+                        adjustedClientArea.Top,
+                        control.Width,
+                        adjustedClientArea.Height
+                    );
+                    adjustedClientArea.X += control.Width;
+                    adjustedClientArea.Width -= control.Width;
+                }
+                else if (control.Dock == DockStyle.Right)
+                {
+                    control.Bounds = new Rectangle(
+                        adjustedClientArea.Right - control.Width,
+                        adjustedClientArea.Top,
+                        control.Width,
+                        adjustedClientArea.Height
+                    );
+                    adjustedClientArea.Width -= control.Width;
+                }
+                else if (control.Dock == DockStyle.None)
+                {
+                    // Console.WriteLine($"Control is not docked {control.Left}-{adjustedClientArea.Left}");
+                    // Non-docked controls are clamped within the adjusted client area
+                    control.Left = Math.Max(control.Left, adjustedClientArea.Left + 1);
+                    control.Top = Math.Max(control.Top, adjustedClientArea.Top + 1);
+                    control.Width = Math.Min(control.Width, adjustedClientArea.Width - control.Left + adjustedClientArea.Left);
+                    control.Height = Math.Min(control.Height, adjustedClientArea.Height - control.Top + adjustedClientArea.Top);
+                }
+            }
+        }
         protected override void OnControlAdded(ControlEventArgs e)
         {
             base.OnControlAdded(e);
-            Control control = e.Control;
-            control.MouseEnter += Control_MouseEnter;
-            control.MouseLeave += Control_MouseLeave;
-            Console.WriteLine($"2 Control Added {e.Control.Text}");
+            //   Console.WriteLine($"1 Control Added {e.Control.Text}");
             AdjustControls();
         }
 
@@ -83,12 +138,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Stop the timer and close the form
             _closeTimer.Stop();
-            Close();
+            OnLeave?.Invoke(this, e);
         }
         protected override void OnClosed(EventArgs e)
         {
             _closeTimer.Stop();
             base.OnClosed(e);
+        }
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+            if (Visible)
+            {
+                AdjustControls();
+            }
+          
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Drawing.Design;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Editors;
-using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Desktop.Controls.Common;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -26,7 +26,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool isCollapsed = false;
         private Timer animationTimer;
         private BeepButton toggleButton;
-        private BeepLabel logo;
+        private BeepImage logo;
+        private BeepLabel _titleLabel;
+        private BeepLabel _descriptionLabel;
         int drawRectX;
         int drawRectY;
         int drawRectWidth;
@@ -158,20 +160,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _title = value;
-                if (logo != null) { logo.Text = value; Invalidate(); }
+                if (_titleLabel != null) { _titleLabel.Text = value; Invalidate(); }
             }
         }
 
         #endregion "Properties"
-
-
         public BeepSideMenu()
         {
-            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
-            {
-                Width = 300;
-                Height = 300;
-            }
+           SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
+
             ApplyThemeToChilds = false;
             DoubleBuffered = true;
             Width = expandedWidth;
@@ -187,17 +184,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
             IsFramless = true;
-            ShowAllBorders = true;
+            ShowAllBorders = false;
             ShowShadow = false;
-            logo = new BeepLabel
+            logo = new BeepImage
             {
                 //  Padding = new Padding( 10, 0, 10, 0),
                 Size = ButtonSize,
-                //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
-                MaxImageSize = new Size(30, 30),
-                TextAlign = ContentAlignment.MiddleCenter,
-                ImageAlign = ContentAlignment.MiddleLeft,
-                TextImageRelation = TextImageRelation.ImageBeforeText,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
                 ShowAllBorders = false,
@@ -211,6 +203,43 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             Controls.Add(logo);
             logo.ImagePath = this.LogoImage;
+            _titleLabel = new BeepLabel
+            {
+                // Padding = new Padding( 10, 0, 10, 0),
+                Size = new Size(ButtonSize.Width, 20),
+                Text = Title,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                ShowAllBorders = false,
+                ShowShadow = false,
+                IsChild = true,
+                CanBeHovered = false,
+                CanBeFocused = false,
+                UseScaledFont = true,
+                TextAlign = ContentAlignment.MiddleCenter,
+                OverrideFontSize = TypeStyleFontSize.Small,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                Location = new Point(DrawingRect.X, logo.Bottom)
+            };
+            Controls.Add(_titleLabel);
+            _descriptionLabel = new BeepLabel
+            {
+                // Padding = new Padding( 10, 0, 10, 0),
+                Size = new Size(ButtonSize.Width, 20),
+                Text = "",
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                ShowAllBorders = false,
+                ShowShadow = false,
+                IsChild = true,
+                CanBeHovered = false,
+                CanBeFocused = false,
+                UseScaledFont = true,
+                TextAlign = ContentAlignment.MiddleCenter,
+                OverrideFontSize = TypeStyleFontSize.Small,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                Location = new Point(DrawingRect.X, _titleLabel.Bottom)
+            };
             toggleButton = new BeepButton
             {
                 // Padding = new Padding( 10, 0, 10, 0),
@@ -228,7 +257,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 CanBeFocused = false,
 
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                Location = new Point(DrawingRect.X, logo.Bottom)
+                Location = new Point(DrawingRect.X, _titleLabel.Bottom)
             };
             toggleButton.Click += ToggleButton_Click;
             Controls.Add(toggleButton);
@@ -236,42 +265,40 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            if(!isCollapsed &&( Width > expandedWidth) && !isAnimating)
-                expandedWidth = Width;
-          
-            Invalidate();
         }
         protected override void InitLayout()
         {
             base.InitLayout();
-            Width = expandedWidth;
-            Height = 200;
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 300;
+                Height = 300;
+            }
             Dock = DockStyle.Left;
             BackColor = Color.FromArgb(51, 51, 51);
             ForeColor = Color.White;
             Font = new Font("Segoe UI", 9);
             Init();
-            IsChild = false;
             ApplyTheme();
             if(!isCollapsed) OnMenuCollapseExpand?.Invoke(false);
             menuItems.ListChanged += MenuItems_ListChanged;
         }
-
         private void Init()
         {
-      
-
             InitializeMenu();
         }
-
         private void ToggleButton_Click(object sender, EventArgs e)
         {
+            // Save the current width as expandedWidth before collapsing
+            if (!isCollapsed)
+            {
+                expandedWidth = Width;
+            }
+
             isCollapsed = !isCollapsed;
-            UpdateDrawingRect();
             StartMenuAnimation();
             OnMenuCollapseExpand?.Invoke(isCollapsed);
         }
-
         private void StartMenuAnimation()
         {
 
@@ -285,98 +312,111 @@ namespace TheTechIdea.Beep.Winform.Controls
             animationTimer.Start();
             _isExpanedWidthSet = false;
         }
-
         private void AnimationTimer_Tick(object sender, EventArgs e)
         {
             int targetWidth = isCollapsed ? collapsedWidth : expandedWidth;
             int currentWidth = Width;
-            if (isCollapsed && !_isExpanedWidthSet)
-            {
-                _tWidth = Width;
-                _isExpanedWidthSet = true;
-            }
-            currentWidth += isCollapsed ? -animationStep : animationStep;
 
-            if ((isCollapsed && currentWidth <= targetWidth) || (!isCollapsed && currentWidth >= targetWidth))
+            // Adjust the width incrementally during animation
+            if (isCollapsed)
             {
-                currentWidth = targetWidth;
-                animationTimer.Stop();
-                isAnimating = false;
-
+                currentWidth -= animationStep;
+                if (currentWidth <= targetWidth) // Stop collapsing when target is reached
+                {
+                    currentWidth = targetWidth;
+                    animationTimer.Stop();
+                    isAnimating = false;
+                }
             }
-            if (isAnimating)
-                Width = currentWidth;
             else
             {
-                if (!isCollapsed)
+                currentWidth += animationStep;
+                if (currentWidth >= targetWidth) // Stop expanding when target is reached
                 {
-                    Width = _tWidth;
-                }
-                else
-                {
-                    Width = currentWidth;
+                    currentWidth = targetWidth;
+                    animationTimer.Stop();
+                    isAnimating = false;
                 }
             }
 
-           
-            AdjustControlWidths(currentWidth);
-            Invalidate();
-        }
+            // Update the control width dynamically
+            Width = currentWidth;
 
+            // Dynamically adjust control widths and positions during animation
+            AdjustControlWidths(currentWidth);
+
+            Invalidate(); // Repaint the control to ensure smooth animation
+        }
         private void AdjustControlWidths(int width)
         {
-            int padding = 5; // Add padding to prevent overlap with the border
-            int buttonWidth = width - (2 * padding); // Adjust for left and right padding
-
+            int padding = 5; // Add consistent padding
+            int buttonWidth = width - (2 * padding); // Calculate the new width for child controls
+            int nexty = 0;
+            // Update logo dimensions and position
             logo.Width = buttonWidth;
+            logo.Location = new Point(padding, padding);
+            nexty = logo.Bottom + padding;
+            if (_titleLabel.Text.Length > 0)
+            {
+
+                _titleLabel.Width = buttonWidth;
+                _titleLabel.Location = new Point(padding, nexty);
+                nexty = _titleLabel.Bottom + padding;
+            }
+          
+            if(_descriptionLabel.Text.Length > 0)
+            {
+                _descriptionLabel.Width = buttonWidth;
+                _descriptionLabel.Location = new Point(padding, nexty);
+                nexty = _descriptionLabel.Bottom + padding;
+            }
+            // Update toggleButton dimensions and position
             toggleButton.Width = buttonWidth;
-
-            logo.Location = new Point(padding, padding); // Position logo with padding
-            toggleButton.Location = new Point(padding, logo.Bottom + padding); // Position toggle button below the logo with padding
-
-            int yOffset = toggleButton.Bottom + padding; // Start placing menu rootnodeitems below the toggle button
+            toggleButton.Location = new Point(padding, nexty);
+            nexty = toggleButton.Bottom + padding;
+            // Update menu items dynamically
+            int yOffset = nexty;
 
             foreach (Control control in Controls)
             {
                 if (control is Panel menuItemPanel && menuItemPanel.Tag is SimpleItem)
                 {
-                    menuItemPanel.Width = buttonWidth; // Adjust width for padding
-                    menuItemPanel.Location = new Point(padding, yOffset); // Adjust position to prevent overlap
-                    yOffset += menuItemPanel.Height + padding; // Add spacing between menu rootnodeitems
+                    menuItemPanel.Width = buttonWidth; // Update width dynamically
+                    menuItemPanel.Location = new Point(padding, yOffset); // Position below the previous control
+                    yOffset += menuItemPanel.Height + padding; // Add consistent spacing
+                }
+            }
 
+            // Update text and image visibility based on collapsed/expanded state
+            //logo.Text = isCollapsed ? "" : _title;
+            _titleLabel.Visible = !isCollapsed;
+            _descriptionLabel.Visible = !isCollapsed;
+            foreach (Control control in Controls)
+            {
+                if (control is Panel menuItemPanel && menuItemPanel.Tag is SimpleItem)
+                {
                     foreach (Control subControl in menuItemPanel.Controls)
                     {
                         if (subControl is BeepButton button)
                         {
-                            button.Width = buttonWidth; // Adjust button width
-                            button.HideText = isCollapsed; // Toggle text visibility
-                            button.TextImageRelation = isCollapsed ? TextImageRelation.Overlay : TextImageRelation.ImageBeforeText;
+                            button.HideText = isCollapsed; // Hide text when collapsed
+                            button.TextImageRelation = isCollapsed
+                                ? TextImageRelation.Overlay
+                                : TextImageRelation.ImageBeforeText;
                         }
                     }
                 }
             }
-
-            // Update the menu's width to reflect the collapsed/expanded state
-            Width = width;
-            logo.Text = isCollapsed ? "" : _title;
-            logo.TextImageRelation = isCollapsed ? TextImageRelation.Overlay : TextImageRelation.ImageBeforeText;
         }
-
         private void MenuItems_ListChanged(object sender, ListChangedEventArgs e)
         {
             InitializeMenu();
         }
-
         private void InitializeMenu()
         {
             UpdateDrawingRect();
 
-            drawRectX = DrawingRect.X + 2;
-            drawRectY = DrawingRect.Y + 2;
-            drawRectWidth = DrawingRect.Width - 4;
-            drawRectHeight = DrawingRect.Height - 2;
-
-            // Remove existing menu item panels
+            // Clear existing menu item panels
             foreach (var control in Controls.OfType<Panel>().Where(c => c.Tag is SimpleItem).ToList())
             {
                 Controls.Remove(control);
@@ -386,70 +426,62 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (menuItems == null || menuItems.Count == 0)
                 return;
 
-            int yOffset = toggleButton.Bottom + drawRectY;
+            int padding = 5;
+            int yOffset = toggleButton.Bottom + padding;
 
             foreach (var item in menuItems)
             {
                 var menuItemPanel = CreateMenuItemPanel(item, false);
-                menuItemPanel.Top = yOffset;
-                menuItemPanel.Left = drawRectX;
-                menuItemPanel.Width = drawRectWidth;
-                menuItemPanel.Height = menuItemHeight;
-                menuItemPanel.Tag = item;
-                menuItemPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+                menuItemPanel.Width = DrawingRect.Width - (2 * padding);
+                menuItemPanel.Location = new Point(DrawingRect.X + padding, yOffset);
                 Controls.Add(menuItemPanel);
-                yOffset += menuItemPanel.Height;
 
-                // Handle child rootnodeitems
+                yOffset += menuItemPanel.Height + padding;
+
+                // Add child menu items (if any)
                 if (item.Children != null && item.Children.Count > 0)
                 {
                     foreach (var childItem in item.Children)
                     {
                         var childPanel = CreateMenuItemPanel(childItem, true);
-                        childPanel.Top = yOffset;
-                        childPanel.Left = drawRectX;
-                        childPanel.Width = DrawingRect.Width-2;
-                        childPanel.Visible = false;
+                        childPanel.Width = DrawingRect.Width - (2 * padding);
+                        childPanel.Location = new Point(DrawingRect.X + (padding * 2), yOffset);
+                        childPanel.Visible = false; // Initially hidden
                         Controls.Add(childPanel);
-                        yOffset += childPanel.Height;
+
+                        yOffset += childPanel.Height + padding;
                     }
                 }
             }
         }
-
         private Panel CreateMenuItemPanel(SimpleItem item, bool isChild)
         {
+            int padding = 5;
+
             var menuItemPanel = new Panel
             {
                 Height = menuItemHeight,
-                Padding = new Padding(0, 0, 0, 0),
+                Padding = new Padding(0),
                 Tag = item,
-                BackColor = _currentTheme.SideMenuBackColor,
-
+                BackColor = _currentTheme.SideMenuBackColor
             };
 
-            Panel highlightPanel = new Panel
+            var highlightPanel = new Panel
             {
                 Width = HilightPanelSize,
                 Dock = DockStyle.Left,
                 BackColor = _currentTheme.SideMenuBackColor,
                 Visible = true
             };
-            Panel spacingpane = new Panel
-            {
-                Width = 2,
-                Dock = DockStyle.Left,
-                BackColor = _currentTheme.SideMenuBackColor,
-                Visible = true,
-            };
-            BeepButton button = new BeepButton
+
+            var button = new BeepButton
             {
                 Dock = DockStyle.Fill,
                 Text = item.Text,
                 ImagePath = item.ImagePath,
                 MaxImageSize = new Size(30, 30),
                 TextImageRelation = TextImageRelation.ImageBeforeText,
-                TextAlign = !isCollapsed ? ContentAlignment.MiddleCenter : ContentAlignment.MiddleLeft,
+                TextAlign = isCollapsed ? ContentAlignment.MiddleLeft : ContentAlignment.MiddleCenter,
                 ImageAlign = ContentAlignment.MiddleLeft,
                 Theme = Theme,
                 IsChild = true,
@@ -457,12 +489,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 ShowAllBorders = false,
                 ShowShadow = false,
-                IsSideMenuChild = true,
                 BorderSize = 0,
-
                 Tag = item,
-                ApplyThemeOnImage = false,
-
+                ApplyThemeOnImage = false
             };
 
             button.MouseEnter += (s, e) =>
@@ -476,25 +505,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                 highlightPanel.BackColor = _currentTheme.SideMenuBackColor;
             };
             button.Click += (s, e) => OnMenuItemClick(item);
-            menuItemPanel.Controls.Add(spacingpane);
+
             menuItemPanel.Controls.Add(highlightPanel);
             menuItemPanel.Controls.Add(button);
-            button.BringToFront();
+
             return menuItemPanel;
         }
-
         private void OnMenuItemClick(SimpleItem item)
         {
             MessageBox.Show($"Selected item: {item.Text}");
             CollapseMenu();
         }
-
         private void CollapseMenu()
         {
             if (!isCollapsed)
                 ToggleMenu();
         }
-
         public void ToggleMenu()
         {
             isCollapsed = !isCollapsed;
@@ -507,8 +533,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             
         }
-
-    
         public override void ApplyTheme()
         {
           //  if (!_isControlinvalidated) return;
@@ -521,6 +545,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             toggleButton.ApplyThemeToSvg();
             logo.BackColor = _currentTheme.SideMenuBackColor;
             logo.ForeColor = _currentTheme.SideMenuForeColor;
+            _titleLabel.ForeColor = _currentTheme.SideMenuForeColor;
+            _descriptionLabel.ForeColor = _currentTheme.SideMenuForeColor;
             foreach (Control control in Controls)
             {
                 if (control is Panel menuItemPanel && menuItemPanel.Tag is SimpleItem)

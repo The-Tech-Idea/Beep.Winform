@@ -4,13 +4,15 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Desktop.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [ToolboxBitmap(typeof(Button))]
     [Category("Controls")]
+    [Description("A button control with an image and text.")]
+    [DisplayName("Beep Button")]
     public class BeepButton : BeepControl
     {
         #region "Properties"
@@ -61,7 +63,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _popupmode = value;
             }
         }
-
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
@@ -85,7 +86,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
         [Browsable(false)]
         public int SelectedIndex
         {
@@ -107,19 +107,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _isPopupOpen = value;
-                if (_isPopupOpen)
+                if (_popupForm != null)
                 {
-                    ShowPopup();
+                    if (_isPopupOpen)
+                    {
+                        ShowPopup();
+                    }
+                    else
+                    {
+                        ClosePopup();
+                    }
                 }
-                else
-                {
-                    ClosePopup();
-                }
+      
             }
         }
         #endregion "Popup List Properties"
-
-
         private bool _useScaledfont = false;
         [Browsable(true)]
         [Category("Appearance")]
@@ -132,8 +134,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();  // Trigger repaint
             }
         }
-
-
         private bool isSelectedAuto = true;
         // Public properties
         [Browsable(true)]
@@ -147,7 +147,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();  // Trigger repaint
             }
         }
-
         [Browsable(true)]
         [Category("Appearance")]
         public int BorderSize
@@ -204,7 +203,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();  // Trigger repaint
             }
         }
-
         [Browsable(true)]
         [Category("Appearance")]
         public Color SelectedBorderColor
@@ -216,9 +214,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();  // Trigger repaint
             }
         }
-
-
-
         [Browsable(true)]
         [Category("Appearance")]
         public TextImageRelation TextImageRelation
@@ -230,7 +225,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
         [Browsable(true)]
         [Category("Appearance")]
         public ContentAlignment ImageAlign
@@ -242,7 +236,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
         [Browsable(true)]
         [Category("Appearance")]
         public ContentAlignment TextAlign
@@ -278,7 +271,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
         // New Properties
         [Browsable(true)]
         [Category("Appearance")]
@@ -293,7 +285,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();  // Trigger repaint
             }
         }
-
         [Browsable(true)]
         [Category("Behavior")]
         public bool IsSelected
@@ -305,7 +296,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_isSelected)
                 {
                     tmpbackcolor = BackColor;
-                    tmpforcolor=ForeColor;
+                    tmpforcolor = ForeColor;
                     BackColor = _currentTheme.ButtonActiveBackColor;
                     ForeColor = _currentTheme.ButtonActiveForeColor;
                 }
@@ -317,7 +308,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Repaint to reflect selection state
             }
         }
-
         [Browsable(true)]
         [Category("Appearance")]
         public Size MaxImageSize
@@ -329,7 +319,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Repaint when the max image size changes
             }
         }
-
         [Browsable(true)]
         [Category("Appearance")]
         public FlatStyle FlatStyle
@@ -341,7 +330,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Trigger repaint based on the FlatStyle
             }
         }
-
         [Browsable(true)]
         [Category("Appearance")]
         public bool FlatAppearance
@@ -353,7 +341,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Trigger repaint based on the flat appearance
             }
         }
-
         // New Property for Hover Persistence using Theme
         [Browsable(true)]
         [Category("Behavior")]
@@ -367,8 +354,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         private bool _hideText = false;
-       
-
         [Browsable(true)]
         [Category("Behavior")]
         public bool HideText
@@ -380,7 +365,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Trigger repaint when the state changes
             }
         }
-
         #endregion "Properties"
         #region "Constructor"
         // Constructor
@@ -392,9 +376,36 @@ namespace TheTechIdea.Beep.Winform.Controls
             CanBePressed = true;
             CanBeFocused = true;
             #region "Popup List Initialization"
-
+            IsChild= false;
             // Initialize the popup form and beepListBox
             // 1) Create beepListBox
+        
+            #endregion "Popup List Initialization"
+        }
+        private void InitializeComponents()
+        {
+
+            beepImage = new BeepImage
+            {
+                Dock = DockStyle.None, // We'll manually position it
+                Margin = new Padding(0),
+                Location = new Point(0, 0), // Set initial position (will adjust in layout)
+                Size = _maxImageSize // Set the size based on the max image size
+            };
+            beepImage.MouseHover += BeepImage_MouseHover;
+            beepImage.MouseEnter += BeepImage_MouseEnter;
+            //   beepImage.MouseLeave += BeepImage_MouseLeave;
+            IsChild = false;
+            beepImage.Click += BeepImage_Click;
+            Padding = new Padding(0);
+            Margin = new Padding(0);
+            Size = new Size(120, 40);  // Default size
+            InitListbox();
+                                       //  Controls.Add(beepImage);
+        }
+        private void InitListbox()
+        {
+            // Rebuild beepListBox's layout
             _beepListBox = new BeepListBox
             {
                 TitleText = "Select an item",
@@ -413,39 +424,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SelectedItem = item;
                 ClosePopup();
             };
-            IsChild = true;
-            // 2) Create a borderless popup form
-            _popupForm = new BeepPopupForm();
-
-            _popupForm.Controls.Add(_beepListBox);
-            _beepListBox.ShowHilightBox = false;
-            _beepListBox.Dock = DockStyle.None;
-            #endregion "Popup List Initialization"
-        }
-        private void InitializeComponents()
-        {
-
-            beepImage = new BeepImage
-            {
-                Dock = DockStyle.None, // We'll manually position it
-                Margin = new Padding(0),
-                Location = new Point(0, 0), // Set initial position (will adjust in layout)
-                Size = _maxImageSize // Set the size based on the max image size
-            };
-            beepImage.MouseHover += BeepImage_MouseHover;
-            beepImage.MouseLeave += BeepImage_MouseLeave;
-            beepImage.MouseEnter += BeepImage_MouseEnter;
-            //   beepImage.MouseLeave += BeepImage_MouseLeave;
-            IsChild = false;
-            beepImage.Click += BeepImage_Click;
-            Padding = new Padding(0);
-            Margin = new Padding(0);
-            Size = new Size(120, 40);  // Default size
-                                       //  Controls.Add(beepImage);
         }
         #endregion "Constructor"
         #region "Popup List Methods"
-
         private void TogglePopup()
         {
             if (_isPopupOpen)
@@ -456,28 +437,43 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void ShowPopup()
         {
             if (_isPopupOpen) return;
+            // Always create a new instance from scratch
+            _popupForm = new BeepPopupForm();
+            _popupForm.OnLeave += (sender, e) =>
+            {
+                _isPopupOpen = false;
+                ClosePopup();
+            };
             _isPopupOpen = true;
             int _maxListHeight=Width;
             int _maxListWidth=100;
-            // Rebuild beepListBox's layout
+
+            //    InitListbox();
+            // 2) Create a borderless popup form
+            //  _popupForm = new BeepPopupForm();
+            _popupForm.BorderThickness = 1;
+            _popupForm.Controls.Add(_beepListBox);
+            _beepListBox.ShowHilightBox = false;
+            _beepListBox.Dock = DockStyle.None;
+            _beepListBox.MenuItemHeight = 15;
             _beepListBox.InitializeMenu();
 
-            int neededHeight = _beepListBox.GetMaxHeight() + 5;
+            int neededHeight = _beepListBox.GetMaxHeight() ;
             int finalHeight = Math.Min(neededHeight, _maxListHeight);
             // possibly also compute width
             int finalWidth = Math.Max(Width, _maxListWidth);
 
             // The popup form is sized to fit beepListBox
-            _popupForm.Size = new Size(finalWidth, neededHeight);
+            _popupForm.Size = new Size(finalWidth, neededHeight+5);
             // Position popup just below the main control
-            var screenPoint = this.PointToScreen(new Point(0, Height));
+            var screenPoint = this.PointToScreen(new Point(0, Height+5));
             _popupForm.Location = screenPoint;
             _beepListBox.Theme = Theme;
             _beepListBox.ShowAllBorders = false;
             //_popupForm.BackColor = _currentTheme.BackColor;
             _popupForm.Theme = Theme;
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
-            _popupForm.BorderThickness = 2;
+        
 
             _popupForm.Show();
             _popupForm.BringToFront();
@@ -485,7 +481,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void ClosePopup()
         {
-            if (!_isPopupOpen) return;
+            if (_isPopupOpen) return;
             _isPopupOpen = false;
             _popupForm.Hide();
         }
@@ -777,19 +773,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Mouse and Click"
         private void BeepImage_MouseHover(object? sender, EventArgs e)
         {
-            IsHovered = true;
+         
             //  BackColor = _currentTheme.ButtonHoverBackColor;
             base.OnMouseHover(e);
 
         }
-        private void BeepImage_MouseLeave(object? sender, EventArgs e)
-        {
-            IsHovered = false;
-            base.OnMouseLeave(e);
-        }
+       
         private void BeepImage_MouseEnter(object? sender, EventArgs e)
         {
-            IsHovered = true;
+         
             base.OnMouseEnter(e);
         }
         private void BeepImage_Click(object? sender, EventArgs e)

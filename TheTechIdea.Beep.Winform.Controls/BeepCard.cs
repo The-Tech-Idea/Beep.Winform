@@ -266,13 +266,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs eventargs)
         {
             base.OnResize(eventargs);
-          //  RefreshLayout();
+            RefreshLayout();
         }
 
         // Adjust the layout of the image and text
         private void RefreshLayout()
         {
-            Padding = new Padding(2);
+            Padding = new Padding(8); // Add more padding to avoid edge overlap
             int padding = Padding.All;
             UpdateDrawingRect();
 
@@ -289,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size headerSize = TextRenderer.MeasureText(headerLabel.Text, headerLabel.Font);
             headerLabel.Size = headerSize;
 
-            // ImagePath size and alignment
+            // Image size and alignment
             Size imageSize = new Size(
                 Math.Min(maxImageSize, availableWidth / 2),
                 Math.Min(maxImageSize, availableHeight / 2)
@@ -298,7 +298,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Determine top row layout (header + image)
             int topRowHeight = Math.Max(headerSize.Height, imageSize.Height);
-            int topRowY = DrawingRect.Top + padding;
+            int topRowY = DrawingRect.Top + padding; // Adjust the starting Y position for the row
 
             // Position header and image based on alignment
             int headerX, imageX;
@@ -307,46 +307,46 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 case ContentAlignment.TopLeft:
                 case ContentAlignment.MiddleLeft:
-
                     headerX = DrawingRect.Left + padding;
                     imageX = DrawingRect.Right - imageSize.Width - padding;
-                    headerLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    imageBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
                     break;
+
                 case ContentAlignment.TopRight:
                 case ContentAlignment.MiddleRight:
                     headerX = DrawingRect.Right - headerSize.Width - padding;
                     imageX = DrawingRect.Left + padding;
-                    headerLabel.Anchor = AnchorStyles.Right | AnchorStyles.Top;
-                    imageBox.Anchor = AnchorStyles.Top | AnchorStyles.Left;
                     break;
+
                 default: // Center alignment
                     headerX = DrawingRect.Left + (DrawingRect.Width - headerSize.Width) / 2;
                     imageX = DrawingRect.Right - imageSize.Width - padding;
-                    headerLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    imageBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
                     break;
             }
 
-            headerLabel.Location = new Point(headerX, topRowY);
-            imageBox.Location = new Point(imageX, topRowY);
+            // Adjust headerLabel's vertical position for better alignment with imageBox
+            int headerY = topRowY + (topRowHeight - headerSize.Height) / 2; // Center-align vertically with imageBox
+            headerLabel.Location = new Point(headerX, headerY);
 
-            // Paragraph label
-            int headery =headerLabel.Bottom;
-            int imagey = imageBox.Bottom;
-            int remainingHeightForText = -1;// DrawingRect.Bottom - (headerLabel.Bottom + padding);
-            remainingHeightForText= DrawingRect.Bottom - Math.Max(imagey + padding, headery + padding);
-            int starty = Math.Max(imagey + padding, headery + padding);
-            paragraphLabel.Size = new Size(availableWidth, remainingHeightForText);
+            // Adjust imageBox's vertical position to match the row
+            int imageY = topRowY + (topRowHeight - imageSize.Height) / 2; // Center-align vertically with headerLabel
+            imageBox.Location = new Point(imageX, imageY);
 
-                // Align the bottom of the paragraphLabel to the bottom of the DrawingRect
-                paragraphLabel.Location = new Point(
-                    DrawingRect.Left + padding,
-                   starty
-                );
-        
+            // Position paragraph label below the top row
+            int contentTop = Math.Max(headerLabel.Bottom, imageBox.Bottom) + padding;
+
+            // Calculate remaining height for paragraphLabel
+            int remainingHeight = DrawingRect.Bottom - contentTop - padding;
+            paragraphLabel.Size = new Size(availableWidth, Math.Max(0, remainingHeight));
+
+            paragraphLabel.Location = new Point(
+                DrawingRect.Left + padding,
+                contentTop
+            );
+
             paragraphLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
         }
+
+
         private GraphicsPath RoundedRect(Rectangle bounds, int radius)
         {
             int diameter = radius * 2;

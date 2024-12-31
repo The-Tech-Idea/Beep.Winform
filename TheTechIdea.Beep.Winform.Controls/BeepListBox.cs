@@ -1,14 +1,16 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using System.ComponentModel;
-using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Desktop.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
-    [DisplayName("Beep Card")]
+    [DisplayName("Beep ListBox")]
     [Category("Beep Controls")]
     public class BeepListBox : BeepPanel
     {
+        #region "Properties"
         public List<BeepButton> _buttons { get; set; } = new List<BeepButton>();
         private Dictionary<SimpleItem, BeepCheckBox> _itemCheckBoxes = new Dictionary<SimpleItem, BeepCheckBox>();
         public event EventHandler<SimpleItem> ItemClicked;
@@ -30,6 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // ---------------- NEW PRIVATE FIELD to store original height -------------
         private int _originalHeight = 0;
         private bool _showHilightBox= true;
+        private int LastItemBottomY = 0;
 
         // ---------------- NEW PROPERTY: Collapsed -------------
         private bool _collapsed = false;
@@ -159,9 +162,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             get { return _shownodeimage; }
             set { _shownodeimage = value; ChangeImageSettings(); }
         }
-
-      
-
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int MenuItemHeight
@@ -170,12 +170,40 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _menuItemHeight = value;
+                ButtonSize = new Size(ButtonSize.Width, _menuItemHeight);
+                _imagesize = MenuItemHeight - 2;
                 Invalidate();
             }
         }
+        private int _imagesize = 18;
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int ImageSize
+        {
+            get => _imagesize;
+            set
+            {
+                if(value > 0)
+                {
+                    if(value>=MenuItemHeight)
+                    {
+                        _imagesize = MenuItemHeight-2;
+                    }
+                    else
+                    {
+                        _imagesize = value;
+                    }
+                    _imagesize = value;
+                    Invalidate();
+                }
+              
+            }
+        }
+        #endregion "Properties"
+        #region "Constructor"
         public BeepListBox()
         {
-            
+
             if (items == null)
             {
                 items = new SimpleItemCollection();
@@ -187,14 +215,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             items.ListChanged += Items_ListChanged;
-            this.Invalidated += BeepListBox_Invalidated;
+         //   this.Invalidated += BeepListBox_Invalidated;
             InitLayout();
-           BoundProperty= "SelectedItem";
-        }
-        
-        private void BeepListBox_Invalidated(object? sender, InvalidateEventArgs e)
-        {
-            _isControlinvalidated = true;
+            BoundProperty = "SelectedItem";
         }
 
         protected override void InitLayout()
@@ -203,53 +226,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeMenu();
             ApplyTheme();
             TitleText = "List Box";
-          
+
 
         }
-        protected override void OnSizeChanged(EventArgs e)
-        {
-            base.OnSizeChanged(e);
-           // InitializeMenu();
-        }
+        #endregion "Constructor"
+        #region "Menu Creation"
         private void Items_ListChanged(object sender, ListChangedEventArgs e) => InitializeMenu();
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            // DrawingRect.Inflate(-2, -2);
-            // Get the dimensions of DrawingRect
-         
-
-            base.OnPaint(e);
-            
-            if (_isControlinvalidated)
-            {
-               
-                InitializeMenu();
-                _isControlinvalidated=false;
-            }
-          
-        }
-       
-
-        public void GetDimensions()
-        {
-            UpdateDrawingRect();
-         //   Rectangle rectangle=new Rectangle(DrawingRect.X, DrawingRect.Y, DrawingRect.Width, DrawingRect.Height);
-            drawRectX = DrawingRect.Left+ BorderThickness;
-            drawRectY = DrawingRect.Top+ BorderThickness;
-            drawRectWidth = DrawingRect.Width;
-            drawRectHeight = DrawingRect.Height;
-        }
         private Panel CreateMenuItemPanel(SimpleItem item, bool isChild)
         {
             var menuItemPanel = new Panel
             {
                 Height = ButtonSize.Height,
-              //  Padding = new Padding(isChild ? 20 : 10, 0, 0, 0),
+                //  Padding = new Padding(isChild ? 20 : 10, 0, 0, 0),
                 Visible = true,
                 Tag = item, // Store the SimpleMenuItem for reference
             };
-            Panel highlightPanel=new Panel();
+            Panel highlightPanel = new Panel();
             // Create the left-side highlight panel
             if (_showHilightBox)
             {
@@ -273,7 +265,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Add BeepButton and highlight panel to the panel
                 menuItemPanel.Controls.Add(spacingpane);
             }
-          
+
 
 
             // Initialize BeepButton for icon and text
@@ -282,9 +274,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Dock = DockStyle.Fill,
                 Text = item.Text,
                 ImagePath = item.ImagePath,
-                MaxImageSize = new Size(20,ButtonSize.Height),
+                MaxImageSize = new Size(_imagesize, _imagesize),
                 TextImageRelation = TextImageRelation.ImageBeforeText,
-                TextAlign = ContentAlignment.MiddleCenter ,
+                TextAlign = ContentAlignment.MiddleCenter,
                 ImageAlign = ContentAlignment.MiddleLeft,
                 Theme = Theme,
                 IsChild = true,
@@ -294,8 +286,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowShadow = false,
                 IsSideMenuChild = true,
                 BorderSize = 0,
-                OverrideFontSize= TypeStyleFontSize.Medium,
+               // OverrideFontSize = TypeStyleFontSize.Small,
                 Tag = item,
+                UseScaledFont=true,
                 ApplyThemeOnImage = false,
             };
 
@@ -311,13 +304,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     //throw;
                 }
-               
+
             }
             if (_currentTheme != null)
             {
                 button.Theme = Theme;
             }
-           
+
             menuItemPanel.Controls.Add(button);
             button.BringToFront();
             _buttons.Add(button);
@@ -340,12 +333,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             button.MouseEnter += (s, e) =>
             {
-               // menuItemPanel.BackColor = _currentTheme.ButtonHoverBackColor;
+               base.OnMouseEnter(e);
+                // menuItemPanel.BackColor = _currentTheme.ButtonHoverBackColor;
                 if (_showHilightBox) highlightPanel.BackColor = _currentTheme.AccentColor;
             };
             button.MouseLeave += (s, e) =>
             {
-               // menuItemPanel.BackColor = _currentTheme.PanelBackColor;
+                base.OnMouseLeave(e);
+                // menuItemPanel.BackColor = _currentTheme.PanelBackColor;
                 if (_showHilightBox) highlightPanel.BackColor = _currentTheme.SideMenuBackColor;
             };
             button.Click += Button_Click;
@@ -390,7 +385,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             int yOffset = drawRectY + TitleBottomY; // Start placing rootnodeitems below the iconPanel
 
-            foreach (var item in items.Where(p => p.ItemType== MenuItemType.Main))
+            foreach (var item in items.Where(p => p.ItemType == MenuItemType.Main))
             {
                 var menuItemPanel = CreateMenuItemPanel(item, false);
                 if (menuItemPanel != null)
@@ -400,10 +395,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                     menuItemPanel.Left = drawRectX;
                     menuItemPanel.Width = ButtonSize.Width;
                     menuItemPanel.Height = ButtonSize.Height;
+                    menuItemPanel.Tag = item;
+                    item.X = menuItemPanel.Left;
+                    item.Y = menuItemPanel.Top;
+                    item.Width = menuItemPanel.Width;
+                    item.Height = menuItemPanel.Height;
                     menuItemPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
                     this.Controls.Add(menuItemPanel);
 
-                    yOffset += menuItemPanel.Height+ spacing;
+                    yOffset += menuItemPanel.Height + spacing;
 
                     //Add child rootnodeitems(if any) below the parent menu item
                     if (item.Children != null && item.Children.Count > 0)
@@ -423,9 +423,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                             yOffset += childPanel.Height;
                         }
                     }
+                    LastItemBottomY = yOffset;
                 }
             }
         }
+        #endregion "Menu Creation"
+        #region "Menu events Handling"
         protected virtual void MenuItemButton_Click(object? sender, EventArgs e)
         {
             ListItemClicked(sender);
@@ -440,6 +443,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SelectedIndex = _buttons.IndexOf(clickedButton);
             ItemClicked?.Invoke(this, (SimpleItem)ListItems[SelectedIndex]);
         }
+        #endregion "Menu events Handling"
+        #region "Getting and Setting Items"
+        public void GetDimensions()
+        {
+            UpdateDrawingRect();
+            //   Rectangle rectangle=new Rectangle(DrawingRect.X, DrawingRect.Y, DrawingRect.Width, DrawingRect.Height);
+            drawRectX = DrawingRect.Left + BorderThickness;
+            drawRectY = DrawingRect.Top + BorderThickness;
+            drawRectWidth = DrawingRect.Width;
+            drawRectHeight = DrawingRect.Height;
+        }
         private void ChangeImageSettings()
         {
             foreach (var item in _buttons)
@@ -450,7 +464,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     item.TextImageRelation = TextImageRelation.ImageBeforeText;
                     item.ImageAlign = ContentAlignment.MiddleLeft;
                     item.TextAlign = ContentAlignment.MiddleCenter;
-                    item.ImagePath =s.ImagePath  ;
+                    item.ImagePath = s.ImagePath;
                 }
                 else
                 {
@@ -459,7 +473,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     item.TextAlign = ContentAlignment.MiddleLeft;
                     item.ImagePath = null;
                 }
-               
+
             }
 
         }
@@ -483,7 +497,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SelectedIndex = items.IndexOf(items.Where(c => c.Text == itemtext && c.Value == itemvalue).FirstOrDefault());
         }
-        public  int GetMaxWidth()
+        public int GetMaxWidth()
         {
             int maxwidth = 0;
             foreach (var item in items)
@@ -506,26 +520,41 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Add spacing between items
             if (items.Count > 1)
             {
-                totalHeight += (items.Count ) * spacing;
+                totalHeight += (items.Count) * spacing;
             }
 
             // Optionally, add padding (if required)
-             int padding = 1; // Example padding
-             totalHeight += padding*2;
-
-           Console.WriteLine($"GetMaxHeight: Total height calculated as {totalHeight} pixels.");
+            int padding = 3; // Example padding
+            totalHeight += padding * 2;
+            totalHeight=Math.Max(totalHeight, LastItemBottomY+ (padding * 2));
+            Console.WriteLine($"GetMaxHeight: Total height calculated as {totalHeight} pixels.");
 
             return totalHeight;
         }
+        #endregion "Getting and Setting Items"
+        #region "Layout and Theme"
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            // DrawingRect.Inflate(-2, -2);
+            // Get the dimensions of DrawingRect
 
-        // ------------ NEW FUNCTION -------------
-        /// <summary>
-        /// Shrinks the control to only show the top portion
-        /// (title area, optional line). Stores the old height,
-        /// so we can restore it if Collapsed = false.
-        /// Called automatically by Collapsed property when set to true.
-        /// </summary>
-        public void CollapseToTitleLine(int extraMargin =0)
+
+            base.OnPaint(e);
+
+            if (_isControlinvalidated)
+            {
+
+                InitializeMenu();
+                _isControlinvalidated = false;
+            }
+
+        }
+
+        private void BeepListBox_Invalidated(object? sender, InvalidateEventArgs e)
+        {
+            _isControlinvalidated = true;
+        }
+        public void CollapseToTitleLine(int extraMargin = 0)
         {
             // Force OnPaint to ensure TitleBottomY is updated
             this.Invalidate();
@@ -538,7 +567,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 this.Height = TitleBottomY + extraMargin;
             }
         }
-        // ---------------------------------------
         public override void ApplyTheme()
         {
             base.ApplyTheme();
@@ -546,7 +574,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //base.ApplyTheme();
             // Apply theme to the main menu panel (background gradient or solid color)
             BackColor = _currentTheme.BackgroundColor;
-          
+
             _currentTheme.ButtonBackColor = _currentTheme.BackgroundColor;
             // Apply theme to each item (button and highlight panel)
             foreach (Control control in this.Controls)
@@ -563,7 +591,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             case BeepButton button:
                                 button.Theme = Theme;
-                                button.Font = BeepThemesManager.ToFont(_currentTheme.BodyStyle);
+                                button.Font = BeepThemesManager.ToFont(_currentTheme.OrderedList);
+                                button.UseScaledFont = true;
+                                button.ForeColor = ColorUtils.GetForColor(BackColor, _currentTheme.ButtonForeColor);
                                 break;
 
                             case Panel highlightPanel:
@@ -573,43 +603,26 @@ namespace TheTechIdea.Beep.Winform.Controls
                         }
                     }
 
-                    // Apply hover effects based on theme colors
-                    //menuItemPanel.MouseEnter -= (s, e) =>
-                    //{
-                    //    menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
-                    //};
-                    //menuItemPanel.MouseLeave -= (s, e) =>
-                    //{
-                    //    menuItemPanel.BackColor = _currentTheme.PanelBackColor;
-                    //};
-
-                    //menuItemPanel.MouseEnter += (s, e) =>
-                    //{
-                    //    menuItemPanel.BackColor = _currentTheme.SelectedRowBackColor;
-                    //};
-                    //menuItemPanel.MouseLeave += (s, e) =>
-                    //{
-                    //    menuItemPanel.BackColor = _currentTheme.PanelBackColor;
-                    //};
+                  
                 }
             }
-
-         
-
             Invalidate();
-            // Optionally, apply any additional theming for the overall side menu layout here (e.g., scrollbars, borders, or custom UI components)
+            // Optionally, apply any additional theming for the overall side menu layout here (e.g., ShowScrollbars, borders, or custom UI components)
         }
-        protected override void OnMouseEnter(EventArgs e)
-        {
-            IsHovered=false;
-          //  base.OnMouseEnter(e);
-
-        }
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            IsHovered = false;
-          //  base.OnMouseLeave(e);
-        }
+        //protected override void OnMouseEnter(EventArgs e)
+        //{
+        //    IsHovered = false;
+        //    //  base.OnMouseEnter(e);
+        //}
+        //protected override void OnMouseLeave(EventArgs e)
+        //{
+        //    IsHovered = false;
+        //    //  base.OnMouseLeave(e);
+        //}
+        #endregion "Layout and Theme"
+    
+        // ---------------------------------------
+     
       
     }
 }

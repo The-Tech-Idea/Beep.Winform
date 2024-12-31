@@ -1,8 +1,12 @@
-﻿using TheTechIdea.Beep.Editor;
+﻿using System.ComponentModel;
+using TheTechIdea.Beep.Editor;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
+    [ToolboxItem(true)]
+    [DisplayName("Beep Data Navigator")]
+    [Category("Beep Controls")]
     public class BeepDataNavigator : BeepControl
     {
         public BeepButton btnFirst, btnPrevious, btnNext, btnLast, btnInsert, btnDelete, btnSave, btnCancel;
@@ -126,8 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CreateNavigator();
             IsShadowAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
-            ApplyThemeToChilds = false;
-            IsChild = false;
+            //ApplyThemeToChilds = true;
             txtPosition.IsFramless = true;
             txtPosition.MouseEnter += TxtPosition_MouseEnter;
             txtPosition.MouseHover += TxtPosition_MouseHover;
@@ -310,98 +313,60 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ArrangeControls()
         {
-            int noOfButtons = 12;
-          
-            GetDimensions();
-            if(ShowSendEmail)
+            // Ensure DrawingRect is updated
+            UpdateDrawingRect();
+
+            // Calculate total width for visible buttons
+            int visibleButtons = 0;
+            foreach (var control in Controls)
             {
-                btnEmail.Visible = true;
-             
+                if (control is BeepButton button && button.Visible)
+                {
+                    visibleButtons++;
+                }
             }
-            else
-            {
-                noOfButtons -= 1;
-                btnEmail.Visible = false;
-            }
-            if(ShowPrint)
-            {
-                btnPrint.Visible = true;
-              
-            }
-            else
-            {
-                noOfButtons -= 1;
-                btnPrint.Visible = false;
-            }
-            // Calculate total width of all controls
-            int totalButtonWidth = (ButtonWidth + buttonSpacing) * noOfButtons; // Width for 8 buttons
+
+            int totalButtonWidth = (ButtonWidth + buttonSpacing) * visibleButtons;
             int totalLabelWidth = TextRenderer.MeasureText(txtPosition.Text, txtPosition.Font).Width + 10; // Add padding
             int totalWidth = totalButtonWidth + totalLabelWidth + buttonSpacing;
 
-            // Center the controls horizontally
-            int centerX = drawRectX + (drawRectWidth - totalWidth) / 2;
+            // Center the buttons and txtPosition horizontally within DrawingRect
+            int centerX = DrawingRect.Left + (DrawingRect.Width - totalWidth) / 2;
 
-            // Center the controls vertically, considering YOffset
-            int centerY = drawRectY + (YOffset);
+            // Align controls vertically within DrawingRect
+            int centerY = DrawingRect.Top + (DrawingRect.Height - ButtonHeight) / 2;
 
-            // Arrange navigation buttons
+            // Arrange buttons sequentially
             int currentX = centerX;
-            btnQuery.Location = new Point(currentX, centerY);
-            currentX = btnQuery.Right + buttonSpacing;
-            btnFilter.Location = new Point(currentX, centerY);
-            currentX = btnFilter.Right + buttonSpacing;
-            btnFirst.Location = new Point(currentX, centerY);
-            currentX = btnFirst.Right + buttonSpacing;
 
-            btnPrevious.Location = new Point(currentX, centerY);
-            currentX = btnPrevious.Right + buttonSpacing;
-
-            btnNext.Location = new Point(currentX, centerY);
-            currentX = btnNext.Right + buttonSpacing;
-
-            btnLast.Location = new Point(currentX, centerY);
-            currentX = btnLast.Right + buttonSpacing;
-
-            // Arrange CRUD buttons
-            btnInsert.Location = new Point(currentX, centerY);
-            currentX = btnInsert.Right + buttonSpacing;
-
-            btnDelete.Location = new Point(currentX, centerY);
-            currentX = btnDelete.Right + buttonSpacing;
-
-            btnSave.Location = new Point(currentX, centerY);
-            currentX = btnSave.Right + buttonSpacing;
-
-            btnCancel.Location = new Point(currentX, centerY);
-            currentX = btnCancel.Right + buttonSpacing;
-
-            // Arrange txtPosition
-            txtPosition.Size = txtPosition.GetPreferredSize(new Size(totalLabelWidth, txtPosition.Height));
-            // Center the text vertically, considering smaller height for the label
-            int textCenterY = drawRectY + (drawRectHeight - txtPosition.Height) / 2;
-
-            txtPosition.Location = new Point(currentX, textCenterY);
-            currentX = txtPosition.Right + buttonSpacing;
-            if (ShowSendEmail)
+            foreach (var control in Controls)
             {
-               btnEmail.Location = new Point(currentX, centerY);
+                if (control is BeepButton button && button.Visible)
+                {
+                    button.Size = new Size(ButtonWidth, ButtonHeight);
+                    button.Location = new Point(currentX, centerY);
+                    currentX += ButtonWidth + buttonSpacing;
+                }
             }
-            if (ShowPrint)
-            {
-                if (ShowSendEmail)
-                {
-                    currentX = btnEmail.Right + buttonSpacing;
-                }
-                else
-                {
-                    currentX = txtPosition.Right + buttonSpacing;
-                }
 
+            // Arrange txtPosition (Position label)
+            txtPosition.Size = txtPosition.GetPreferredSize(new Size(totalLabelWidth, ButtonHeight));
+            txtPosition.Location = new Point(currentX, centerY);
+            currentX += txtPosition.Width + buttonSpacing;
+
+            // Handle optional buttons like Email and Print
+            if (ShowSendEmail && btnEmail.Visible)
+            {
+                btnEmail.Location = new Point(currentX, centerY);
+                currentX += ButtonWidth + buttonSpacing;
+            }
+
+            if (ShowPrint && btnPrint.Visible)
+            {
                 btnPrint.Location = new Point(currentX, centerY);
             }
-        
-           
         }
+
 
         #region "Event Handlers"
 

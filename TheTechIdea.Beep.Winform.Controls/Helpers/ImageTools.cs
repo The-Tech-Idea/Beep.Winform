@@ -8,7 +8,7 @@ using System.Xml.Linq;
 using System.Drawing.Imaging;
 using System.Diagnostics;
 
-using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Desktop.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls.Helpers
 {

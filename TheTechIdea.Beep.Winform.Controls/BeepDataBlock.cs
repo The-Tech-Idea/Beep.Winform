@@ -1,380 +1,300 @@
-﻿using System.ComponentModel;
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Linq;
 using TheTechIdea.Beep.DataBase;
+using TheTechIdea.Beep.Desktop.Controls.Common;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
-using TheTechIdea.Beep.Winform.Controls.Editors;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [ToolboxBitmap(typeof(BeepDataBlock))]
     [Category("Beep Controls")]
-    public class BeepDataBlock : BeepControl
+    [DisplayName("Beep Data Block")]
+    public class BeepDataBlock : BeepControl, IDisposable, IBeepDataBlock
     {
-        protected IUnitofWork _data;
+        public DataBlockMode BlockMode { get;  set; } = DataBlockMode.CRUD;
+        public Dictionary<string, IBeepUIComponent> UIComponents { get; set; } = new();
+        public List<IBeepDataBlock> ChildBlocks { get; set; } = new();
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [Category("Master-Detail")]
+        [Description("Gets or sets the parent block for this block.")]
+        [TypeConverter(typeof(DataBlockConverter))]
+        [DisplayName("Parent Block")]
+        public IBeepDataBlock ParentBlock { get; set; }
         public bool IsInQueryMode { get; private set; } = false;
 
-        public IEntityStructure Structure => Data != null ? Data.EntityStructure : null;
+        private IUnitofWork _data;
+        private Dictionary<IBeepUIComponent, Binding[]> _preservedBindings = new();
+        private bool _disposed;
 
-        public List<IBeepUIComponent> UIComponents { get; set; } = new List<IBeepUIComponent>();
+        public IEntityStructure EntityStructure { get; private set; }
+        public List<EntityField> Fields => EntityStructure?.Fields;
+
+
+        public dynamic MasterRecord { get; private set; }
+
+        [Browsable(true)]
+        [Category("Master-Detail")]
+        public string MasterKeyPropertyName { get; set; }
+
+        [Browsable(true)]
+        [Category("Master-Detail")]
+        public string ForeignKeyPropertyName { get; set; }
 
         [Browsable(true)]
         [Category("Data")]
-        [TypeConverter(typeof(UnitOfWorkConverter))]
+        public List<RelationShipKeys> Relationships { get; set; } = new();
+        //[TypeConverter(typeof(UnitOfWorkClassesConverter))]
+        //[Browsable(true)]
+        //[Category("Data")]
+        //[Description("Gets or sets the data context for data binding.")]
+        //[DisplayName("Data Context / ViewModel")]
+        //public new  object DataContext
+        //{
+        //    get => _dataContext;
+        //    set
+        //    {
+        //        _dataContext = value;
+        //        OnDataContextChanged();
+        //    }
+        //}
+        private object _dataContext;
+
+        [TypeConverter(typeof(UnitOfWorksConverter))]
+        [Browsable(true)]
+        [Category("Data")]
         public IUnitofWork Data
         {
-            get { return _data; }
+            get => _data;
             set
             {
                 if (_data != value)
                 {
                     if (_data != null)
-                    {
                         _data.Units.CurrentChanged -= Units_CurrentChanged;
-                    }
 
                     _data = value;
+
                     if (_data != null)
-                    {
                         _data.Units.CurrentChanged += Units_CurrentChanged;
-                    }
-                    Refresh();
+
+                    EntityStructure = _data?.EntityStructure;
+                    InitializeEntityRelationships();
                 }
             }
-        }
-
-        private BeepDataNavigator _dataNavigator;
-
-        [Browsable(true)]
-        [Category("Data Navigator")]
-        public BeepDataNavigator DataNavigator
-        {
-            get { return _dataNavigator; }
-            set
-            {
-                if (_dataNavigator != value)
-                {
-                    if (_dataNavigator != null)
-                    {
-                        _dataNavigator.UnitOfWork = Data;
-                    }
-
-                    _dataNavigator = value;
-                    if (_dataNavigator != null)
-                    {
-                        _dataNavigator.UnitOfWork = Data;
-                    }
-                    Refresh();
-                }
-            }
-        }
-
-        private dynamic _masterRecord;
-        private string _foreignKeyPropertyName;
-        private string _masterKeyPropertyName;
-
-        private List<BeepDataBlock> _childBlocks = new List<BeepDataBlock>();
-
-        [Browsable(true)]
-        [Category("Data Blocks")]
-        public List<BeepDataBlock> ChildBlocks => _childBlocks;
-
-        private BeepDataBlock _parentBlock;
-
-
-
-        [Browsable(true)]
-        [Category("Data Blocks")]
-        [TypeConverter(typeof(DataBlockConverter))]
-        public BeepDataBlock ParentBlock
-        {
-            get => _parentBlock;
-            set
-            {
-                if (_parentBlock == value) return;
-
-                if (_parentBlock != null)
-                {
-                    // Remove this block from the parent's children
-                    _parentBlock.ChildBlocks.Remove(this);
-
-                    // Unsubscribe from the parent's events
-                    if (_parentBlock.Data?.Units != null)
-                    {
-                        _parentBlock.Data.Units.CurrentChanged -= Parent_CurrentChanged;
-                    }
-                }
-
-                _parentBlock = value;
-
-                if (_parentBlock != null)
-                {
-                    // Add this block to the new parent's children
-                    _parentBlock.ChildBlocks.Add(this);
-
-                    // Subscribe to the parent's events
-                    if (_parentBlock.Data?.Units != null)
-                    {
-                        _parentBlock.Data.Units.CurrentChanged += Parent_CurrentChanged;
-                    }
-                }
-
-                // Refresh the current block to reflect the change
-                Refresh();
-            }
-        }
-
-
-        [Browsable(true)]
-        [Category("Data Blocks")]
-        public string ParentKeyPropertyName
-        {
-            get => _masterKeyPropertyName;
-            set => _masterKeyPropertyName = value;
-        }
-
-        [Browsable(true)]
-        [Category("Data Blocks")]
-        public string ForeignKeyPropertyName
-        {
-            get => _foreignKeyPropertyName;
-            set => _foreignKeyPropertyName = value;
         }
 
         public BeepDataBlock()
         {
-            ShowShadow = false;
-            IsRounded = false;
-            InitializeComponent();
-            InitializeDataNavigator();
+            IsShadowAffectedByTheme = false;
+            IsRoundedAffectedByTheme = false;
+            IsBorderAffectedByTheme = false;
         }
 
-        private void InitializeComponent()
+        private void InitializeEntityRelationships()
         {
-            this.AutoScroll = true;
-            this.BackColor = Color.White;
-        }
-
-        private void InitializeDataNavigator()
-        {
-            _dataNavigator = new BeepDataNavigator
+            if (EntityStructure != null)
             {
-                Dock = DockStyle.Bottom,
-                Height = 40,
-                ShowShadow = false,
-                IsRounded = false
-            };
+                Relationships.Clear();
 
-            _dataNavigator.UnitOfWork = Data;
-
-            _dataNavigator.NewRecordCreated += DataNavigator_NewRecordCreated;
-            _dataNavigator.SaveCalled += DataNavigator_SaveCalled;
-            _dataNavigator.DeleteCalled += DataNavigator_DeleteCalled;
-
-            this.Controls.Add(_dataNavigator);
-        }
-        public void RemoveParentBlock()
-        {
-            if (_parentBlock != null)
-            {
-                // Unsubscribe from ParentBlock's CurrentChanged event
-                if (_parentBlock.Data?.Units != null)
+                foreach (var relationship in EntityStructure.Relations)
                 {
-                    _parentBlock.Data.Units.CurrentChanged -= Parent_CurrentChanged;
+                    var keys = new RelationShipKeys
+                    {
+                        RelatedEntityID = relationship.RelatedEntityID,
+                        RelatedEntityColumnID = relationship.RelatedEntityColumnID,
+                        EntityColumnID = relationship.EntityColumnID
+                    };
+                    Relationships.Add(keys);
                 }
 
-                // Remove this block from the ParentBlock's child list
-                _parentBlock.ChildBlocks.Remove(this);
-
-                // Clear the parent reference
-                _parentBlock = null;
-
-                // Reset the master record and refresh
-                _masterRecord = null;
-                _masterKeyPropertyName = null;
-                _foreignKeyPropertyName = null;
-                Refresh();
+                MasterKeyPropertyName = string.Join(", ", Relationships.Select(r => r.RelatedEntityColumnID));
+                ForeignKeyPropertyName = string.Join(", ", Relationships.Select(r => r.EntityColumnID));
             }
         }
-
-        public void AddChildBlock(BeepDataBlock childBlock, string masterKeyPropertyName, string foreignKeyPropertyName)
+        protected virtual void OnDataContextChanged()
         {
-            if (childBlock.ParentBlock != null)
+            Data = null;
+
+            // If DataContext is set, let UnitOfWorksConverter populate the dropdown for the Data property
+            var unitOfWorkProperties = DataContext?.GetType()
+                .GetProperties()
+                .Where(p => ProjectHelper.IsUnitOfWorkType(p.PropertyType))
+                .ToList();
+
+            if (unitOfWorkProperties?.Count > 0)
             {
-                // Remove the child from its current parent
-                childBlock.RemoveParentBlock();
+                // Automatically select the first IUnitofWork, or leave it null for user selection
+                Data = unitOfWorkProperties.First().GetValue(DataContext) as IUnitofWork;
+            }
+        }
+        public void SwitchBlockMode(DataBlockMode newMode)
+        {
+            if (newMode == BlockMode)
+                return;
+
+            if (BlockMode == DataBlockMode.CRUD)
+                HandleDataChanges();
+
+            BlockMode = newMode;
+
+            foreach (var component in UIComponents.Values)
+            {
+                if (component is Control winFormsControl)
+                {
+                    if (newMode == DataBlockMode.Query)
+                    {
+                        _preservedBindings[component] = winFormsControl.DataBindings.Cast<Binding>().ToArray();
+                        winFormsControl.DataBindings.Clear();
+                        component.ClearValue();
+                        component.ShowToolTip("Enter query criteria");
+                    }
+                    else if (newMode == DataBlockMode.CRUD)
+                    {
+                        if (_preservedBindings.ContainsKey(component))
+                        {
+                            foreach (var binding in _preservedBindings[component])
+                                winFormsControl.DataBindings.Add(binding);
+
+                            _preservedBindings.Remove(component);
+                        }
+
+                        component.RefreshBinding();
+                        component.HideToolTip();
+                    }
+                }
             }
 
-            // Add this block as the parent
-            _childBlocks.Add(childBlock);
-            childBlock.ParentBlock = this;
-            childBlock._masterKeyPropertyName = masterKeyPropertyName;
-            childBlock._foreignKeyPropertyName = foreignKeyPropertyName;
-
-            // Set the master record for the child block
-            childBlock.SetMasterRecord(Data?.Units.Current, masterKeyPropertyName, foreignKeyPropertyName);
+            foreach (var childBlock in ChildBlocks)
+            {
+                childBlock.SwitchBlockMode(newMode);
+            }
         }
-
-        public void SetMasterRecord(dynamic masterRecord, string masterKeyPropertyName, string foreignKeyPropertyName)
+        public void HandleDataChanges()
         {
-            _masterRecord = masterRecord;
-            _masterKeyPropertyName = masterKeyPropertyName;
-            _foreignKeyPropertyName = foreignKeyPropertyName;
+            foreach (var component in UIComponents.Values)
+            {
+                if (component.ValidateData(out string message))
+                {
+                    Console.WriteLine($"Validated {component.GuidID}: {message}");
+                }
+                else
+                {
+                    Console.WriteLine($"Validation failed for {component.GuidID}: {message}");
+                }
+            }
 
+            foreach (var childBlock in ChildBlocks)
+            {
+                childBlock.HandleDataChanges();
+            }
+
+            if (_data?.IsDirty == true)
+            {
+                _data.Commit().Wait();
+            }
+        }
+        public void SetMasterRecord(dynamic masterRecord)
+        {
+            MasterRecord = masterRecord;
             ApplyMasterDetailFilter();
-            Refresh();
         }
-
-        private void Parent_CurrentChanged(object sender, EventArgs e)
-        {
-            if (_parentBlock?.Data?.Units?.Current != null)
-            {
-                UpdateDataFromParent();
-                NotifyChildBlocksOfMasterChange();
-            }
-            else
-            {
-                // If ParentBlock or its data is removed, reset this block
-                _masterRecord = null;
-                Refresh();
-            }
-        }
-        private void addthisblockaschild(BeepDataBlock parentBlock)
-        {
-            if (parentBlock == null)
-            {
-                throw new ArgumentNullException(nameof(parentBlock), "ParentBlock cannot be null.");
-            }
-
-            parentBlock.AddChildBlock(this, parentBlock.ParentKeyPropertyName, this._foreignKeyPropertyName);
-        }
-
-        private void UpdateDataFromParent()
-        {
-            if (ParentBlock != null && !string.IsNullOrEmpty(ParentKeyPropertyName) && !string.IsNullOrEmpty(ForeignKeyPropertyName))
-            {
-                var masterRecord = ParentBlock.Data?.Units.Current;
-                SetMasterRecord(masterRecord, ParentKeyPropertyName, ForeignKeyPropertyName);
-            }
-        }
-
-        private void ValidateParentBlock(BeepDataBlock parentBlock)
-        {
-            if (parentBlock != null && parentBlock == this)
-            {
-                throw new InvalidOperationException("A block cannot be its own parent.");
-            }
-        }
-
-        private void OnParentBlockChanged()
-        {
-            Refresh();
-        }
-
-        private void NotifyChildBlocksOfMasterChange()
-        {
-            var masterRecord = Data?.Units.Current;
-            foreach (var childBlock in _childBlocks)
-            {
-                childBlock.SetMasterRecord(masterRecord, _masterKeyPropertyName, _foreignKeyPropertyName);
-            }
-        }
-
         private void ApplyMasterDetailFilter()
         {
-            if (_masterRecord == null || string.IsNullOrEmpty(_foreignKeyPropertyName) || string.IsNullOrEmpty(_masterKeyPropertyName))
+            if (MasterRecord == null || Relationships == null || !Relationships.Any())
             {
-                Data.Units.RemoveFilter();
+                Data?.Units.RemoveFilter();
             }
             else
             {
-                var masterKeyValue = GetPropertyValue(_masterRecord, _masterKeyPropertyName);
+                var masterKeyValues = Relationships.Select(r => GetPropertyValue(MasterRecord, r.RelatedEntityColumnID)).ToArray();
 
                 Func<dynamic, bool> filterPredicate = entity =>
                 {
-                    var value = GetPropertyValue(entity, _foreignKeyPropertyName);
-                    return value != null && value.Equals(masterKeyValue);
+                    var foreignKeyValues = Relationships.Select(r => GetPropertyValue(entity, r.EntityColumnID)).ToArray();
+                    return masterKeyValues.SequenceEqual(foreignKeyValues);
                 };
 
-                Data.Units.ApplyFilter(filterPredicate);
+                Data?.Units.ApplyFilter(filterPredicate);
             }
 
-            Data.Units.MoveFirst();
+            Data?.Units.MoveFirst();
         }
-
         private object GetPropertyValue(dynamic entity, string propertyName)
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
-
-            var property = entity.GetType().GetProperty(propertyName);
-            if (property == null)
-                throw new InvalidOperationException($"Property '{propertyName}' not found on type '{entity.GetType().Name}'.");
-
-            return property.GetValue(entity);
+            try
+            {
+                var property = entity?.GetType().GetProperty(propertyName);
+                return property?.GetValue(entity);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error accessing property '{propertyName}': {ex.Message}");
+                return null;
+            }
         }
-
-        private void DataNavigator_NewRecordCreated(object sender, BeepEventDataArgs e) { }
-
-        private void DataNavigator_SaveCalled(object sender, BeepEventDataArgs e) { }
-
-        private void DataNavigator_DeleteCalled(object sender, BeepEventDataArgs e) { }
-        public void RemoveChildBlock(BeepDataBlock childBlock)
+        private void Units_CurrentChanged(object sender, EventArgs e)
         {
-            if (_childBlocks.Contains(childBlock))
+            foreach (var childBlock in ChildBlocks)
+            {
+                childBlock.SetMasterRecord(Data?.Units.Current);
+            }
+        }
+        public void RemoveChildBlock(IBeepDataBlock childBlock)
+        {
+            if (ChildBlocks.Contains(childBlock))
             {
                 // Remove the child block
-                _childBlocks.Remove(childBlock);
+                ChildBlocks.Remove(childBlock);
 
-                // Clear the child's parent reference
-                childBlock.RemoveParentBlock();
                 // Clear the child's parent reference
                 childBlock.ParentBlock = null;
             }
         }
-
-        private void Units_CurrentChanged(object sender, EventArgs e)
+        public void RemoveParentBlock()
         {
-            NotifyChildBlocksOfMasterChange();
-        }
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
+            if (ParentBlock != null)
             {
-                // Notify the parent to remove this block
-                if (_parentBlock != null)
-                {
-                    _parentBlock.ChildBlocks.Remove(this);
-                    _parentBlock = null;
-                }
+                // Remove this block from the parent’s child list
+                ParentBlock.ChildBlocks.Remove(this);
 
-                // Notify all child blocks to remove their reference to this block
-                foreach (var childBlock in ChildBlocks.ToList())
-                {
-                    childBlock.ParentBlock = null; // This will also remove the child from this block's list
-                }
+                // Clear the parent reference
+                ParentBlock = null;
 
-                // Clear child blocks
-                ChildBlocks.Clear();
+                // Clear master record and relationship properties
+                MasterRecord = null;
+                MasterKeyPropertyName = null;
+                ForeignKeyPropertyName = null;
+            }
+        }
+        public void Dispose()
+        {
+            if (_disposed) return;
 
-                // Unsubscribe from events
-                if (Data?.Units != null)
-                {
-                    Data.Units.CurrentChanged -= Units_CurrentChanged;
-                }
+            _disposed = true;
 
-                if (_dataNavigator != null)
-                {
-                    _dataNavigator.NewRecordCreated -= DataNavigator_NewRecordCreated;
-                    _dataNavigator.SaveCalled -= DataNavigator_SaveCalled;
-                    _dataNavigator.DeleteCalled -= DataNavigator_DeleteCalled;
-                }
+            ParentBlock?.RemoveChildBlock(this);
+
+            foreach (var child in ChildBlocks.ToList())
+            {
+                child.RemoveParentBlock();
             }
 
-            base.Dispose(disposing);
-        }
+            if (_data != null)
+            {
+                _data.Units.CurrentChanged -= Units_CurrentChanged;
+            }
 
+            GC.SuppressFinalize(this);
+        }
     }
+
 }

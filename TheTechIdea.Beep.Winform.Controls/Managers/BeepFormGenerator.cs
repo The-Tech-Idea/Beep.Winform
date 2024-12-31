@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 
 
-namespace TheTechIdea.Beep.Winform.Controls
+namespace TheTechIdea.Beep.Winform.Controls.Managers
 {
     public static class BeepFormGenerator
     {
@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 form.ForeColor = state.ForeColor;
                 form.Region = null;
 
-               // form.Controls.Remove(titlePanel);
+                // form.Controls.Remove(titlePanel);
 
                 // Restore color and border properties
                 form.BackColor = state.BackColor;
@@ -98,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             form.Region = Region.FromHrgn(roundedRegion);
         }
 
-     
+
 
         private static void RepositionControls(Form form)
         {
@@ -157,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             form.BackColor = theme.BackgroundColor;
             Console.WriteLine("Form BackColor: " + form.BackColor);
-           
+
             //closeButton.BackColor = theme.BackgroundColor;
             //closeButton.ForeColor = theme.ButtonForeColor;
             //maximizeButton.BackColor = theme.BackgroundColor;

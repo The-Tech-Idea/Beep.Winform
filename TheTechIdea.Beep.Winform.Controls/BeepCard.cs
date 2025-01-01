@@ -213,6 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 Theme = Theme,
+                Height=23,
                 IsFramless = true,
                 IsChild = true,
                 IsShadowAffectedByTheme = false,
@@ -247,10 +248,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             if (_currentTheme == null) return;
-            headerLabel.Theme = Theme;
+           // headerLabel.Theme = Theme;
             imageBox.IsFramless = true;
-            paragraphLabel.Theme = Theme;
-            headerLabel.ForeColor = _currentTheme.CardTitleForeColor;
+           // paragraphLabel.Theme = Theme;
+            headerLabel.ForeColor = _currentTheme.CardHeaderStyle.TextColor;
             headerLabel.Font = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
             headerLabel.BackColor = _currentTheme.CardBackColor;
             paragraphLabel.ForeColor = _currentTheme.CardTextForeColor;
@@ -261,14 +262,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isControlinvalidated = true;
             Invalidate();
         }
-
         // Handle layout adjustments
         protected override void OnResize(EventArgs eventargs)
         {
             base.OnResize(eventargs);
             RefreshLayout();
         }
-
         // Adjust the layout of the image and text
         private void RefreshLayout()
         {
@@ -345,8 +344,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             paragraphLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
         }
-
-
         private GraphicsPath RoundedRect(Rectangle bounds, int radius)
         {
             int diameter = radius * 2;

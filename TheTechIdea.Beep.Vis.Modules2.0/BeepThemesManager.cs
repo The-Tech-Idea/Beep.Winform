@@ -2998,7 +2998,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontFamily = "Segoe UI",
                 FontSize = 22f,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(34, 139, 34),  // Forest Green
+                TextColor = Color.White,  // Forest Green
             },
             CardparagraphStyle = new TypographyStyle
             {
@@ -3188,7 +3188,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             SideMenuHoverBackColor = Color.FromArgb(240, 230, 140),        // Khaki
             SideMenuSelectedBackColor = Color.FromArgb(85, 107, 47),       // Olive Drab
-            SideMenuForeColor = Color.FromArgb(34, 85, 34),
+            SideMenuForeColor = Color.White,
             SideMenuHoverForeColor = Color.FromArgb(34, 85, 34),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(107, 142, 35),            // Olive Green
@@ -3606,7 +3606,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontFamily = "Segoe UI",
                 FontSize = 22f,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(205, 92, 92),  // Indian Red
+                TextColor = Color.White,  // Indian Red
             },
             CardparagraphStyle = new TypographyStyle
             {
@@ -4206,14 +4206,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             GridRowSelectedForeColor = Color.White,
             GridRowHoverBorderColor = Color.Brown,
             GridRowSelectedBorderColor = Color.Sienna,
-            CardBackColor = Color.FromArgb(181, 101, 29),
+            CardBackColor = Color.SandyBrown,
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
                 FontSize = 22f,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(85, 107, 47),  // Dark Olive Green
+                TextColor = Color.White,  // Dark Olive Green
             },
             CardparagraphStyle = new TypographyStyle
             {
@@ -4402,7 +4402,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             SideMenuHoverBackColor = Color.FromArgb(222, 184, 135),      // Burlywood
             SideMenuSelectedBackColor = Color.FromArgb(160, 82, 45),     // Sienna
-            SideMenuForeColor = Color.FromArgb(85, 85, 85),
+            SideMenuForeColor = Color.White,
             SideMenuHoverForeColor = Color.FromArgb(85, 85, 85),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(160, 82, 45),           // Sienna
@@ -4419,8 +4419,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             DashboardBackColor = Color.FromArgb(245, 245, 220),          // Beige
             DashboardCardBackColor = Color.White,
             DashboardCardHoverBackColor = Color.FromArgb(222, 184, 135), // Burlywood
-            CardTitleForeColor = Color.FromArgb(85, 85, 85),
-            CardTextForeColor = Color.FromArgb(139, 69, 19),             // Saddle Brown
+            CardTitleForeColor = Color.White,
+            CardTextForeColor = Color.White,             // Saddle Brown
 
             // **Data Visualization (Charts)**
             ChartBackColor = Color.White,
@@ -4431,7 +4431,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Sidebar and Menu Colors**
             SidebarIconColor = Color.FromArgb(85, 85, 85),
             SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(85, 85, 85),
+            SidebarTextColor = Color.White,
             SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
@@ -9743,10 +9743,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarMaxBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // **Minimize Button**
-            TitleBarMinHoverColor = Color.FromArgb(30, 136, 229),       // Darker Blue
+            TitleBarMinHoverColor = Color.FromArgb(30, 136, 229), // Darker Blue
             TitleBarMinHoverTextColor = Color.White,
             TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(33, 150, 243),      // Blue
+            TitleBarMinActiveColor = Color.FromArgb(33, 150, 243), // Blue
             TitleBarMinActiveTextColor = Color.White,
             TitleBarMinActiveIconColor = Color.White,
             TitleBarMinInactiveColor = Color.FromArgb(245, 245, 245),
@@ -9773,19 +9773,19 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarMinimizeBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // **General Colors**
-            TitleForColor = Color.White,         // Dark Gray
+            TitleForColor = Color.FromArgb(33, 33, 33), // Fix: actual Dark Gray
             TitleBarForColor = Color.FromArgb(33, 33, 33),
-            DescriptionForColor = Color.FromArgb(66, 66, 66),   // Medium Gray
-            BeforeForColor = Color.FromArgb(33, 150, 243),      // Blue
-            LatestForColor = Color.White,       // Green
-            BackColor = Color.FromArgb(255, 255, 255),          // White
+            DescriptionForColor = Color.FromArgb(66, 66, 66), // Medium Gray
+            BeforeForColor = Color.FromArgb(33, 150, 243),    // Blue
+            LatestForColor = Color.FromArgb(76, 175, 80),     // Fix: actual Green
+            BackColor = Color.White,                          // White
 
             // **Button Colors**
-            ButtonBackColor = Color.FromArgb(33, 150, 243),     // Blue
+            ButtonBackColor = Color.FromArgb(33, 150, 243), // Blue
             ButtonForeColor = Color.White,
-            ButtonHoverBackColor = Color.FromArgb(30, 136, 229),  // Darker Blue on hover
+            ButtonHoverBackColor = Color.FromArgb(30, 136, 229), // Darker Blue on hover
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(25, 118, 210),  // Even Darker Blue
+            ButtonActiveBackColor = Color.FromArgb(25, 118, 210), // Even Darker Blue
             ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
@@ -9801,14 +9801,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             PanelBackColor = Color.White,
 
             // **Grid Colors** (Secondary Grid Properties)
-            HeaderBackColor = Color.FromArgb(245, 245, 245),      // Light Gray
-            HeaderForeColor = Color.FromArgb(33, 33, 33),         // Dark Gray
-            GridLineColor = Color.FromArgb(224, 224, 224),        // Light Gray
+            HeaderBackColor = Color.FromArgb(245, 245, 245), // Light Gray
+            HeaderForeColor = Color.FromArgb(33, 33, 33),    // Dark Gray
+            GridLineColor = Color.FromArgb(224, 224, 224),   // Light Gray
             RowBackColor = Color.White,
-            RowForeColor = Color.FromArgb(33, 33, 33),           // Dark Gray
-            AltRowBackColor = Color.FromArgb(250, 250, 250),      // Very Light Gray
-            SelectedRowBackColor = Color.FromArgb(33, 150, 243),  // Primary Blue
-            SelectedRowForeColor = Color.White,                   // White Text for Selected Rows
+            RowForeColor = Color.FromArgb(33, 33, 33),       // Dark Gray
+            AltRowBackColor = Color.FromArgb(250, 250, 250), // Very Light Gray
+            SelectedRowBackColor = Color.FromArgb(33, 150, 243), // Primary Blue
+            SelectedRowForeColor = Color.White,
 
             // **ComboBox Colors**
             ComboBoxBackColor = Color.White,
@@ -9824,29 +9824,29 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Border Colors**
             BorderColor = Color.FromArgb(224, 224, 224),
-            ActiveBorderColor = Color.FromArgb(33, 150, 243),      // Blue
+            ActiveBorderColor = Color.FromArgb(33, 150, 243), // Blue
             InactiveBorderColor = Color.FromArgb(224, 224, 224),
             BorderSize = 1,
 
             // **Link Colors**
-            LinkColor = Color.FromArgb(33, 150, 243),              // Blue
-            VisitedLinkColor = Color.FromArgb(25, 118, 210),       // Darker Blue
-            HoverLinkColor = Color.FromArgb(30, 136, 229),         // Slightly Lighter Blue
+            LinkColor = Color.FromArgb(33, 150, 243), // Blue
+            VisitedLinkColor = Color.FromArgb(25, 118, 210), // Darker Blue
+            HoverLinkColor = Color.FromArgb(30, 136, 229),   // Slightly Lighter Blue
             LinkHoverColor = Color.FromArgb(30, 136, 229),
             LinkIsUnderline = true,
 
             // **ToolTip Colors**
-            ToolTipBackColor = Color.FromArgb(66, 66, 66),         // Medium Gray
+            ToolTipBackColor = Color.FromArgb(66, 66, 66), // Medium Gray
             ToolTipForeColor = Color.White,
 
             // **ScrollBar Colors**
             ScrollBarBackColor = Color.White,
-            ScrollBarThumbColor = Color.FromArgb(189, 189, 189),   // Gray
-            ScrollBarTrackColor = Color.FromArgb(224, 224, 224),   // Light Gray
+            ScrollBarThumbColor = Color.FromArgb(189, 189, 189), // Gray
+            ScrollBarTrackColor = Color.FromArgb(224, 224, 224), // Light Gray
 
             // **Status Bar Colors**
-            StatusBarBackColor = Color.FromArgb(245, 245, 245),    // Light Gray
-            StatusBarForeColor = Color.FromArgb(33, 33, 33),       // Dark Gray
+            StatusBarBackColor = Color.FromArgb(245, 245, 245), // Light Gray
+            StatusBarForeColor = Color.FromArgb(33, 33, 33),    // Dark Gray
 
             // **Tab Colors**
             TabBackColor = Color.White,
@@ -9857,18 +9857,18 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.White,
             DialogForeColor = Color.FromArgb(33, 33, 33),
-            DialogButtonBackColor = Color.FromArgb(33, 150, 243),  // Blue
+            DialogButtonBackColor = Color.FromArgb(33, 150, 243), // Blue
             DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
-            GradientStartColor = Color.FromArgb(255, 255, 255),   // White
-            GradientEndColor = Color.FromArgb(245, 245, 245),     // Light Gray
+            GradientStartColor = Color.White,
+            GradientEndColor = Color.FromArgb(245, 245, 245), // Light Gray
             GradientDirection = LinearGradientMode.Vertical,
 
-            // **Side Menu Colors**
-            SideMenuBackColor = Color.DeepSkyBlue,     // Blue
-            SideMenuHoverBackColor = Color.FromArgb(245, 245, 245),
-            SideMenuSelectedBackColor = Color.FromArgb(33, 150, 243),
+            // **Side Menu Colors** (Fixed for consistency with a Light Theme)
+            SideMenuBackColor = Color.White,                     // White background
+            SideMenuHoverBackColor = Color.FromArgb(245, 245, 245), // Slight contrast on hover
+            SideMenuSelectedBackColor = Color.FromArgb(33, 150, 243), // Primary Blue
             SideMenuForeColor = Color.FromArgb(33, 33, 33),
             SideMenuHoverForeColor = Color.FromArgb(33, 33, 33),
             SideMenuSelectedForeColor = Color.White,
@@ -9877,7 +9877,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(33, 150, 243), // Semi-transparent Blue
+            TitleBarBackColor = Color.FromArgb(33, 150, 243), // Blue
             TitleBarForeColor = Color.White,
             TitleBarHoverBackColor = Color.FromArgb(240, 240, 240),
             TitleBarHoverForeColor = Color.FromArgb(33, 33, 33),
@@ -9891,9 +9891,9 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Data Visualization (Charts)**
             ChartBackColor = Color.White,
-            ChartLineColor = Color.FromArgb(33, 150, 243),         // Blue
-            ChartFillColor = Color.FromArgb(100, 33, 150, 243),    // Semi-transparent Blue
-            ChartAxisColor = Color.FromArgb(117, 117, 117),        // Gray
+            ChartLineColor = Color.FromArgb(33, 150, 243),       // Blue
+            ChartFillColor = Color.FromArgb(100, 33, 150, 243),  // Semi-transparent Blue
+            ChartAxisColor = Color.FromArgb(117, 117, 117),      // Gray
 
             // **Sidebar and Menu Colors**
             SidebarIconColor = Color.FromArgb(33, 33, 33),
@@ -9908,9 +9908,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             NavigationHoverForeColor = Color.FromArgb(33, 33, 33),
 
             // **Badge and Highlight Colors**
-            BadgeBackColor = Color.FromArgb(229, 57, 53),        // Red
+            BadgeBackColor = Color.FromArgb(229, 57, 53), // Red
             BadgeForeColor = Color.White,
-            HighlightBackColor = Color.FromArgb(33, 150, 243),    // Changed from Yellow to Primary Blue
+            HighlightBackColor = Color.FromArgb(33, 150, 243), // Primary Blue highlight
 
             // **Font Properties**
             FontFamily = "Segoe UI",
@@ -9933,320 +9933,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Text Colors**
             PrimaryTextColor = Color.FromArgb(33, 33, 33),
             SecondaryTextColor = Color.FromArgb(66, 66, 66),
-            AccentTextColor = Color.FromArgb(33, 150, 243),
+            AccentTextColor = Color.FromArgb(33, 150, 243), // Primary Blue
 
-            // **Typography Styles**
-
-            // Heading Styles
-            Heading1 = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 32f,
-                LineHeight = 1.2f,
-                LetterSpacing = 0f,
-                FontWeight = FontWeight.Bold,
-                FontStyle = FontStyle.Bold,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-            Heading2 = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 28f,
-                LineHeight = 1.3f,
-                LetterSpacing = 0f,
-                FontWeight = FontWeight.Bold,
-                FontStyle = FontStyle.Bold,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-            Heading3 = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 24f,
-                LineHeight = 1.4f,
-                LetterSpacing = 0f,
-                FontWeight = FontWeight.Bold,
-                FontStyle = FontStyle.Bold,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-            Heading4 = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 20f,
-                LineHeight = 1.5f,
-                LetterSpacing = 0f,
-                FontWeight = FontWeight.SemiBold,
-                FontStyle = FontStyle.Regular,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-            Heading5 = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 18f,
-                LineHeight = 1.6f,
-                LetterSpacing = 0f,
-                FontWeight = FontWeight.SemiBold,
-                FontStyle = FontStyle.Regular,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-            Heading6 = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 16f,
-                LineHeight = 1.7f,
-                LetterSpacing = 0f,
-                FontWeight = FontWeight.SemiBold,
-                FontStyle = FontStyle.Regular,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-
-            // Paragraph Style
-            Paragraph = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 14f,
-                LineHeight = 1.8f,
-                LetterSpacing = 0f,
-                FontWeight = FontWeight.Regular,
-                FontStyle = FontStyle.Regular,
-                TextColor = Color.FromArgb(66, 66, 66),
-            },
-
-            // Additional Typography Styles
-            Blockquote = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 14f,
-                FontStyle = FontStyle.Italic,
-                FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(66, 66, 66),
-            },
-            BlockquoteBorderColor = Color.FromArgb(189, 189, 189),
-            BlockquoteBorderWidth = 1f,
-            BlockquotePadding = 8f,
-
-            InlineCode = new TypographyStyle
-            {
-                FontFamily = "Consolas",
-                FontSize = 14f,
-                FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-            InlineCodeBackgroundColor = Color.FromArgb(245, 245, 245),
-            InlineCodePadding = 4f,
-
-            CodeBlock = new TypographyStyle
-            {
-                FontFamily = "Consolas",
-                FontSize = 14f,
-                FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-            CodeBlockBackgroundColor = Color.FromArgb(245, 245, 245),
-            CodeBlockBorderColor = Color.FromArgb(224, 224, 224),
-            CodeBlockBorderWidth = 1f,
-            CodeBlockPadding = 8f,
-
-            UnorderedList = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 14f,
-                FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-            OrderedList = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 14f,
-                FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-            ListItemSpacing = 4f,
-            ListIndentation = 16f,
-
-            SmallText = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 12f,
-                FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(117, 117, 117),
-            },
-            StrongText = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 14f,
-                FontStyle = FontStyle.Bold,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-            EmphasisText = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 14f,
-                FontStyle = FontStyle.Italic,
-                FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(66, 66, 66),
-            },
-
-            // Display Styles
-            DisplayLarge = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 40f,
-                FontStyle = FontStyle.Bold,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(0, 120, 215), // Accent Blue
-            },
-            DisplayMedium = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 34f,
-                FontStyle = FontStyle.Bold,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(0, 120, 215), // Accent Blue
-            },
-            DisplaySmall = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 28f,
-                FontStyle = FontStyle.Bold,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(0, 120, 215), // Accent Blue
-            },
-
-            // Headlines
-            HeadlineLarge = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 24f,
-                FontStyle = FontStyle.Bold,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-            HeadlineMedium = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 20f,
-                FontStyle = FontStyle.Bold,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-            HeadlineSmall = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 18f,
-                FontStyle = FontStyle.Bold,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-
-            // Titles
-            TitleLarge = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 22f,
-                FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.SemiBold,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-            TitleMedium = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 16f,
-                FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.SemiBold,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-            TitleSmall = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 14f,
-                FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.SemiBold,
-                TextColor = Color.FromArgb(33, 33, 33),
-            },
-
-            // Body Texts
-            BodyLarge = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 16f,
-                FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(66, 66, 66),
-            },
-            BodyMedium = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 14f,
-                FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(66, 66, 66),
-            },
-            BodySmall = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 12f,
-                FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(66, 66, 66),
-            },
-
-            // Labels
-            LabelLarge = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 14f,
-                FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(0, 0, 0), // Black
-            },
-            LabelMedium = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 12f,
-                FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(0, 0, 0), // Black
-            },
-            LabelSmall = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 10f,
-                FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(0, 0, 0), // Black
-            },
-
-            // **Color Palette**
-            PrimaryColor = Color.FromArgb(33, 150, 243),        // Blue
-            SecondaryColor = Color.FromArgb(76, 175, 80),       // Green
-            AccentColor = Color.FromArgb(229, 57, 53),          // Red
-
-            SurfaceColor = Color.White,
-            ErrorColor = Color.FromArgb(229, 57, 53),           // Red
-            WarningColor = Color.FromArgb(255, 185, 0),         // Amber (Consider changing to align with palette)
-            SuccessColor = Color.FromArgb(76, 175, 80),         // Green
-            OnPrimaryColor = Color.White,
-            OnBackgroundColor = Color.FromArgb(33, 33, 33),
-
-            // **Spacing and Layout**
-            PaddingSmall = 4,
-            PaddingMedium = 8,
-            PaddingLarge = 16,
-            BorderRadius = 4,
-
-            // **Imagery and Iconography**
-            IconSet = "LightIcons",
-            ApplyThemeToIcons = true,
-
-            // **Effects and Decorations**
-            ShadowColor = Color.FromArgb(100, 0, 0, 0), // Semi-transparent black
-            ShadowOpacity = 0.1f,
+            // **Theme Variant**
+            IsDarkTheme = false,
 
             // **Animation and Transitions**
             AnimationDurationShort = 150,  // in milliseconds
@@ -10257,10 +9947,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Accessibility**
             HighContrastMode = false,
             FocusIndicatorColor = Color.FromArgb(33, 150, 243),
-
-            // **Theme Variant**
-            IsDarkTheme = false,
         };
+
+
         public static BeepTheme PastelTheme => new BeepTheme
         {
             GridBackColor = Color.MistyRose,
@@ -15171,14 +14860,14 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontFamily = "Segoe UI",
                 FontSize = 22f,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(230, 230, 230) // Light Gray
+                TextColor = Color.DarkGray // Light Gray
             },
             CardparagraphStyle = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
                 FontSize = 14f,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(220, 220, 220) // Light Gray
+                TextColor =Color.DimGray // Light Gray
             },
 
             // **UI Elements**
@@ -15263,7 +14952,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarMinimizeBorderInactiveColor = Color.FromArgb(255, 255, 255),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(230, 230, 230),
+            TitleForColor = Color.DarkSlateGray,
             TitleBarForColor = Color.FromArgb(230, 230, 230),
             DescriptionForColor = Color.FromArgb(220, 220, 220),
             BeforeForColor = Color.FromArgb(0, 0, 0),          // Was semi-transparent black; now opaque black
@@ -15772,7 +15461,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontFamily = "Segoe UI",
                 FontSize = 22f,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.White,
+                TextColor = Color.CadetBlue,
 
             },
             CardparagraphStyle = new TypographyStyle
@@ -15873,7 +15562,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             BackColor = Color.White,
 
             // **Button Colors**
-            ButtonBackColor = Color.FromArgb(52, 152, 219),
+            ButtonBackColor = Color.LightSkyBlue,
             ButtonForeColor = Color.White,
             ButtonHoverBackColor = Color.FromArgb(41, 128, 185),
             ButtonHoverForeColor = Color.White,
@@ -15964,7 +15653,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             SideMenuHoverBackColor = Color.FromArgb(189, 195, 199),
             SideMenuSelectedBackColor = Color.FromArgb(52, 152, 219),
-            SideMenuForeColor = Color.FromArgb(44, 62, 80),
+            SideMenuForeColor = Color.CadetBlue,
             SideMenuHoverForeColor = Color.FromArgb(44, 62, 80),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(189, 195, 199),
@@ -15972,7 +15661,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(41, 128, 185),
+            TitleBarBackColor = Color.LightGray,
             TitleBarForeColor = Color.White,
             TitleBarHoverBackColor = Color.FromArgb(52, 152, 219),
             TitleBarHoverForeColor = Color.White,
@@ -16379,10 +16068,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
-                FontFamily = "OCR A Extended",
-                FontSize = 22f,
+                FontFamily = "Consolas",
+                FontSize = 20f,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(0, 255, 255),         // Neon Cyan
+                TextColor = Color.Blue,         // Neon Cyan
 
             },
             CardparagraphStyle = new TypographyStyle
@@ -17085,8 +16774,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarMinimizeBorderInactiveColor = Color.FromArgb(255, 123, 104, 238),
 
             // **General Colors**
-            TitleForColor = Color.White,
-            TitleBarForColor = Color.White,
+            TitleForColor = Color.FromArgb(255, 75, 0, 130),
+            TitleBarForColor = Color.FromArgb(255, 75, 0, 130),
             DescriptionForColor = Color.WhiteSmoke,
             BeforeForColor = Color.FromArgb(255, 255, 140, 0),       // Dark Orange
             LatestForColor = Color.FromArgb(255, 0, 255, 127),       // Spring Green
@@ -17193,7 +16882,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(255, 75, 0, 130),
+            TitleBarBackColor = Color.CornflowerBlue,
             TitleBarForeColor = Color.White,
             TitleBarHoverBackColor = Color.FromArgb(255, 138, 43, 226),
             TitleBarHoverForeColor = Color.White,
@@ -18829,6 +18518,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme LuxuryGoldTheme => new BeepTheme
         {
+            // **Grid Colors**
             GridBackColor = Color.Black,
             GridForeColor = Color.Gold,
             GridHeaderBackColor = Color.Black,
@@ -18846,15 +18536,15 @@ namespace TheTechIdea.Beep.Vis.Modules
             GridRowSelectedForeColor = Color.Black,
             GridRowHoverBorderColor = Color.Gold,
             GridRowSelectedBorderColor = Color.DarkGoldenrod,
-            CardBackColor = Color.FromArgb(212, 175, 55),
+
             // **Card Styles**
+            CardBackColor = Color.FromArgb(212, 175, 55),
             CardHeaderStyle = new TypographyStyle
             {
                 FontFamily = "Times New Roman",
                 FontSize = 22f,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(255, 212, 175),        // Metallic Gold
-
+                TextColor = Color.White, // Metallic Gold
             },
             CardparagraphStyle = new TypographyStyle
             {
@@ -18862,15 +18552,14 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontWeight = FontWeight.Regular,
                 TextColor = Color.WhiteSmoke,
-
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(255, 192, 0, 0),         // Dark Red
-            MaxButtonColor = Color.FromArgb(255, 0, 128, 0),           // Dark Green
-            MinButtonColor = Color.FromArgb(255, 218, 165, 32),        // Goldenrod
-            TitleBarColor = Color.FromArgb(255, 15, 15, 15),           // Very Dark Gray
-            TitleBarTextColor = Color.FromArgb(255, 212, 175),         // Metallic Gold
+            CloseButtonColor = Color.FromArgb(255, 192, 0, 0), // Dark Red
+            MaxButtonColor = Color.FromArgb(255, 0, 128, 0),   // Dark Green
+            MinButtonColor = Color.FromArgb(255, 218, 165, 32), // Goldenrod
+            TitleBarColor = Color.FromArgb(255, 15, 15, 15),    // Very Dark Gray
+            TitleBarTextColor = Color.FromArgb(255, 212, 175),  // Metallic Gold
             TitleBarIconColor = Color.FromArgb(255, 212, 175),
             TitleBarHoverColor = Color.FromArgb(255, 25, 25, 25),
             TitleBarHoverTextColor = Color.FromArgb(255, 212, 175),
@@ -18902,7 +18591,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarCloseBorderInactiveColor = Color.FromArgb(255, 128, 128, 128),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(255, 0, 100, 0),    // Dark Green
+            TitleBarMaxHoverColor = Color.FromArgb(255, 0, 100, 0),  // Dark Green
             TitleBarMaxHoverTextColor = Color.White,
             TitleBarMaxHoverIconColor = Color.White,
             TitleBarMaxActiveColor = Color.FromArgb(255, 0, 128, 0),
@@ -18947,12 +18636,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarMinimizeBorderInactiveColor = Color.FromArgb(255, 128, 128, 128),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(255, 212, 175),           // Metallic Gold
+            TitleForColor = Color.FromArgb(255, 212, 175), // Metallic Gold
             TitleBarForColor = Color.FromArgb(255, 212, 175),
             DescriptionForColor = Color.WhiteSmoke,
             BeforeForColor = Color.FromArgb(255, 212, 175),
             LatestForColor = Color.FromArgb(255, 212, 175),
-            BackColor = Color.FromArgb(255, 20, 20, 20),             // Dark Background
+            BackColor = Color.FromArgb(255, 20, 20, 20), // Dark Background
 
             // **Button Colors**
             ButtonBackColor = Color.FromArgb(255, 35, 35, 35),
@@ -18966,16 +18655,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             TextBoxBackColor = Color.FromArgb(255, 30, 30, 30),
             TextBoxForeColor = Color.WhiteSmoke,
 
-
             // **Label Colors**
             LabelBackColor = Color.FromArgb(255, 20, 20, 20),
             LabelForeColor = Color.WhiteSmoke,
 
             // **Panel Colors**
-            PanelBackColor = Color.FromArgb(255, 22, 22, 22), // Slightly lighter than the dark background for distinction
+            PanelBackColor = Color.FromArgb(255, 22, 22, 22), // Slightly lighter than the dark background
 
-
-            // **Grid Colors**
+            // **Grid Colors (Secondary Grid Properties)**
             HeaderBackColor = Color.FromArgb(255, 35, 35, 35),
             HeaderForeColor = Color.FromArgb(255, 212, 175),
             GridLineColor = Color.FromArgb(255, 212, 175),
@@ -18989,7 +18676,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             ComboBoxBackColor = Color.FromArgb(255, 30, 30, 30),
             ComboBoxForeColor = Color.WhiteSmoke,
 
-
             // **CheckBox Colors**
             CheckBoxBackColor = Color.FromArgb(255, 20, 20, 20),
             CheckBoxForeColor = Color.WhiteSmoke,
@@ -19000,14 +18686,14 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Border Colors**
             BorderColor = Color.FromArgb(255, 212, 175),
-            ActiveBorderColor = Color.FromArgb(255, 255, 215, 0),     // Gold
+            ActiveBorderColor = Color.FromArgb(255, 255, 215, 0), // Gold
             InactiveBorderColor = Color.FromArgb(255, 128, 128, 128),
             BorderSize = 2,
 
             // **Link Colors**
             LinkColor = Color.FromArgb(255, 212, 175),
-            VisitedLinkColor = Color.FromArgb(255, 184, 134, 11),     // Dark Goldenrod
-            HoverLinkColor = Color.FromArgb(255, 255, 215, 0),        // Gold
+            VisitedLinkColor = Color.FromArgb(255, 184, 134, 11),   // Dark Goldenrod
+            HoverLinkColor = Color.FromArgb(255, 255, 215, 0),      // Gold
             LinkHoverColor = Color.FromArgb(255, 255, 215, 0),
             LinkIsUnderline = true,
 
@@ -19041,11 +18727,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             GradientEndColor = Color.FromArgb(255, 35, 35, 35),
             GradientDirection = LinearGradientMode.Vertical,
 
-            // **Side Menu Colors**
-            SideMenuBackColor = Color.FromArgb(255, 30, 30, 30), // Slightly darker than PanelBackColor, complements the gold accents
-
-            SideMenuHoverBackColor = Color.FromArgb(255, 30, 30, 30),
-            SideMenuSelectedBackColor = Color.FromArgb(255, 212, 175),
+            // **Side Menu Colors** (Revised Hover/Selected)
+            SideMenuBackColor = Color.DarkGray,           // Darker side menu background
+            SideMenuHoverBackColor = Color.Gray,          // Slightly lighter on hover
+            SideMenuSelectedBackColor = Color.FromArgb(255, 212, 175), // Metallic Gold
             SideMenuForeColor = Color.WhiteSmoke,
             SideMenuHoverForeColor = Color.WhiteSmoke,
             SideMenuSelectedForeColor = Color.Black,
@@ -19085,9 +18770,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             NavigationHoverForeColor = Color.WhiteSmoke,
 
             // **Badge and Highlight Colors**
-            BadgeBackColor = Color.FromArgb(255, 212, 175),          // Metallic Gold
+            BadgeBackColor = Color.FromArgb(255, 212, 175),      // Metallic Gold
             BadgeForeColor = Color.Black,
-            HighlightBackColor = Color.FromArgb(255, 255, 215, 0),   // Gold
+            HighlightBackColor = Color.FromArgb(255, 255, 215, 0), // Gold
 
             // **Font Properties**
             FontFamily = "Segoe UI",
@@ -19112,9 +18797,36 @@ namespace TheTechIdea.Beep.Vis.Modules
             SecondaryTextColor = Color.LightGray,
             AccentTextColor = Color.FromArgb(255, 212, 175),
 
-            // **Typography Styles**
+            // **Additional Typography Styles** -----------------------------
+            // The missing multi-level headings, display styles, code blocks, etc.
 
-            // Heading Styles
+            // Display Styles
+            DisplayLarge = new TypographyStyle
+            {
+                FontFamily = "Times New Roman",
+                FontSize = 40f,
+                FontStyle = FontStyle.Bold,
+                FontWeight = FontWeight.Bold,
+                TextColor = Color.FromArgb(255, 212, 175), // Metallic Gold
+            },
+            DisplayMedium = new TypographyStyle
+            {
+                FontFamily = "Times New Roman",
+                FontSize = 34f,
+                FontStyle = FontStyle.Bold,
+                FontWeight = FontWeight.Bold,
+                TextColor = Color.WhiteSmoke,
+            },
+            DisplaySmall = new TypographyStyle
+            {
+                FontFamily = "Times New Roman",
+                FontSize = 28f,
+                FontStyle = FontStyle.Bold,
+                FontWeight = FontWeight.Bold,
+                TextColor = Color.LightGray,
+            },
+
+            // Heading Styles (1-6). If you want different fonts for gold headings, adjust accordingly.
             Heading1 = new TypographyStyle
             {
                 FontFamily = "Times New Roman",
@@ -19188,7 +18900,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 TextColor = Color.WhiteSmoke,
             },
 
-            // Additional Typography Styles
+            // Blockquote Style
             Blockquote = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
@@ -19201,17 +18913,19 @@ namespace TheTechIdea.Beep.Vis.Modules
             BlockquoteBorderWidth = 2f,
             BlockquotePadding = 8f,
 
+            // Inline Code Style
             InlineCode = new TypographyStyle
             {
                 FontFamily = "Consolas",
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(255, 255, 215, 0),    // Gold
+                TextColor = Color.FromArgb(255, 255, 215, 0), // Gold
             },
             InlineCodeBackgroundColor = Color.FromArgb(255, 30, 30, 30),
             InlineCodePadding = 4f,
 
+            // Code Block Style
             CodeBlock = new TypographyStyle
             {
                 FontFamily = "Consolas",
@@ -19225,6 +18939,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             CodeBlockBorderWidth = 2f,
             CodeBlockPadding = 8f,
 
+            // List Styles
             UnorderedList = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
@@ -19244,6 +18959,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ListItemSpacing = 4f,
             ListIndentation = 16f,
 
+            // Additional Text Variants
             SmallText = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
@@ -19268,59 +18984,6 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontWeight = FontWeight.Regular,
                 TextColor = Color.WhiteSmoke,
             },
-
-            // Display Styles
-            DisplayLarge = new TypographyStyle
-            {
-                FontFamily = "Times New Roman",
-                FontSize = 40f,
-                FontStyle = FontStyle.Bold,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(255, 212, 175),
-            },
-            DisplayMedium = new TypographyStyle
-            {
-                FontFamily = "Times New Roman",
-                FontSize = 34f,
-                FontStyle = FontStyle.Bold,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.WhiteSmoke,
-            },
-            DisplaySmall = new TypographyStyle
-            {
-                FontFamily = "Times New Roman",
-                FontSize = 28f,
-                FontStyle = FontStyle.Bold,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.LightGray,
-            },
-
-            // Headlines
-            HeadlineLarge = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 24f,
-                FontStyle = FontStyle.Bold,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.WhiteSmoke,
-            },
-            HeadlineMedium = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 20f,
-                FontStyle = FontStyle.Bold,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.WhiteSmoke,
-            },
-            HeadlineSmall = new TypographyStyle
-            {
-                FontFamily = "Segoe UI",
-                FontSize = 18f,
-                FontStyle = FontStyle.Bold,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.WhiteSmoke,
-            },
-
             // Titles
             TitleLarge = new TypographyStyle
             {
@@ -19328,7 +18991,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 22f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.SemiBold,
-                TextColor = Color.WhiteSmoke,
+                TextColor = Color.Black,
             },
             TitleMedium = new TypographyStyle
             {
@@ -19336,7 +18999,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 16f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.SemiBold,
-                TextColor = Color.WhiteSmoke,
+                TextColor = Color.Black,
             },
             TitleSmall = new TypographyStyle
             {
@@ -19344,10 +19007,9 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.SemiBold,
-                TextColor = Color.WhiteSmoke,
+                TextColor = Color.Black,
             },
-
-            // Body Texts
+            // Body Styles
             BodyLarge = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
@@ -19399,15 +19061,15 @@ namespace TheTechIdea.Beep.Vis.Modules
                 TextColor = Color.FromArgb(255, 212, 175),
             },
 
-            // **Color Palette**
-            PrimaryColor = Color.FromArgb(255, 212, 175),             // Metallic Gold
+            // **Color Palette** (additional properties)
+            PrimaryColor = Color.FromArgb(255, 212, 175),  // Metallic Gold
             SecondaryColor = Color.WhiteSmoke,
-            AccentColor = Color.FromArgb(255, 255, 215, 0),           // Gold
-            BackgroundColor = Color.FromArgb(255, 20, 20, 20),        // Dark Background
+            AccentColor = Color.FromArgb(255, 255, 215, 0), // Gold
+            BackgroundColor = Color.FromArgb(255, 20, 20, 20),
             SurfaceColor = Color.FromArgb(255, 30, 30, 30),
-            ErrorColor = Color.FromArgb(255, 192, 0, 0),              // Dark Red
-            WarningColor = Color.FromArgb(255, 218, 165, 32),         // Goldenrod
-            SuccessColor = Color.FromArgb(255, 0, 128, 0),            // Dark Green
+            ErrorColor = Color.FromArgb(255, 192, 0, 0),   // Dark Red
+            WarningColor = Color.FromArgb(255, 218, 165, 32), // Goldenrod
+            SuccessColor = Color.FromArgb(255, 0, 128, 0), // Dark Green
             OnPrimaryColor = Color.Black,
             OnBackgroundColor = Color.WhiteSmoke,
 
@@ -19426,7 +19088,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ShadowOpacity = 0.2f,
 
             // **Animation and Transitions**
-            AnimationDurationShort = 150,  // in milliseconds
+            AnimationDurationShort = 150, // in milliseconds
             AnimationDurationMedium = 300,
             AnimationDurationLong = 500,
             AnimationEasingFunction = "ease-in-out",
@@ -19438,6 +19100,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Theme Variant**
             IsDarkTheme = true,
         };
+
+
         #endregion "Themes"
         #region "Theme Management"
         public static EnumBeepThemes GetThemeToEnum(BeepTheme theme)
@@ -19807,59 +19471,34 @@ namespace TheTechIdea.Beep.Vis.Modules
         #region "Font Management"
         public static Font ToFont(TypographyStyle style)
         {
+            if (style == null)
+            {
+                // Fallback to default font if style is null
+                return new Font("Segoe UI", 12f, FontStyle.Regular);
+            }
+
+            // Ensure the font family is valid and installed
+            string fontFamily = IsFontInstalled(style.FontFamily) ? style.FontFamily : "Segoe UI";
+
+            // Map FontWeight to a proportional font size adjustment
+            float adjustedFontSize = style.FontSize * GetFontWeightMultiplier(style.FontWeight);
+
+            // Create the font style from provided values
+            FontStyle fontStyle = style.FontStyle;
+
+            // Add underline and strikeout styles if applicable
+            if (style.IsUnderlined) fontStyle |= FontStyle.Underline;
+            if (style.IsStrikeout) fontStyle |= FontStyle.Strikeout;
+
             try
             {
-                if (style != null)
-                {
-                    // Check if the font family is installed
-                    string fontFamily = style.FontFamily;
-                    if (!IsFontInstalled(fontFamily))
-                    {
-                        // Fallback to default font family
-                        fontFamily = "Segoe UI";
-                    }
-
-                    // Initialize fontStyle with Regular
-                    FontStyle fontStyle = FontStyle.Regular;
-
-                    // Map FontWeight to FontStyle
-                    if (style.FontWeight == FontWeight.Bold || style.FontWeight == FontWeight.SemiBold || style.FontWeight == FontWeight.Medium)
-                    {
-                        fontStyle |= FontStyle.Bold;
-                    }
-
-                    // Map FontStyle
-                    if (style.FontStyle == FontStyle.Italic)
-                    {
-                        fontStyle |= FontStyle.Italic;
-                    }
-
-                    // Map Underline and Strikeout if applicable
-                    if (style.IsUnderlined)
-                    {
-                        fontStyle |= FontStyle.Underline;
-                    }
-                    if (style.IsStrikeout)
-                    {
-                        fontStyle |= FontStyle.Strikeout;
-                    }
-
-                    // Create and return the desired font
-                    return new Font(fontFamily, style.FontSize, fontStyle);
-                }
-                else
-                {
-                    // If style is null, return a default font
-                    return new Font("Segoe UI", 12f, FontStyle.Regular);
-                }
+                // Create and return the font
+                return new Font(fontFamily, adjustedFontSize, fontStyle);
             }
-            catch (ArgumentException ex)
+            catch (ArgumentException)
             {
-                // Optionally log the exception
-                // LogException(ex);
-
-                // Fallback to default system font if the specified font is unavailable
-                return new Font("Segoe UI", style?.FontSize ?? 12f, FontStyle.Regular);
+                // Fallback to default system font in case of an error
+                return new Font("Segoe UI", adjustedFontSize, FontStyle.Regular);
             }
         }
 
@@ -19870,6 +19509,23 @@ namespace TheTechIdea.Beep.Vis.Modules
             {
                 return fontsCollection.Families.Any(f => f.Name.Equals(fontFamily, StringComparison.InvariantCultureIgnoreCase));
             }
+        }
+        // Function to calculate a multiplier based on FontWeight
+        private static float GetFontWeightMultiplier(FontWeight weight)
+        {
+            return weight switch
+            {
+                FontWeight.Thin => 0.9f,       // Slightly smaller
+                FontWeight.ExtraLight => 0.95f,
+                FontWeight.Light => 0.97f,
+                FontWeight.Normal or FontWeight.Regular => 1.0f, // Combine cases
+                FontWeight.Medium => 1.05f,
+                FontWeight.SemiBold => 1.1f,
+                FontWeight.Bold => 1.15f,     // Slightly larger
+                FontWeight.ExtraBold => 1.2f,
+                FontWeight.Black => 1.25f,    // Heaviest weight, larger size
+                _ => 1.0f                     // Default multiplier for unknown values
+            };
         }
 
         public static Font ToFont(string fontFamily, float fontSize, FontWeight fontWeight, FontStyle fontStyle)

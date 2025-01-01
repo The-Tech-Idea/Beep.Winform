@@ -9,7 +9,7 @@ namespace  TheTechIdea.Beep.Desktop.Design.Extensions
     internal class BeepDataToolWindowContent : RemoteUserControl
     {
         private readonly IBeepService _beepservice;
-
+        private BeepDataSourcesWinformControl ctl;
         /// <summary>
         /// Initializes a new instance of the <see cref="BeepDataToolWindowContent" /> class.
         /// </summary>
@@ -18,6 +18,8 @@ namespace  TheTechIdea.Beep.Desktop.Design.Extensions
         {
             // Use this constructor to pass in any required data context.
             _beepservice = beepService;
+            ctl=new BeepDataSourcesWinformControl(_beepservice);
+            
         }
     }
 }

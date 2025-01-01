@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event Action<bool> OnMenuCollapseExpand;
 
        
-        private Size ButtonSize = new Size(200, 40);
+        private Size _buttonSize = new Size(200, 20);
         public BeepiForm BeepForm { get; set; }
         private bool isCollapsed = false;
         private Timer animationTimer;
@@ -44,6 +44,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         bool _isExpanedWidthSet = false;
         int  _tWidth;
         #region "Properties"
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the width of the button.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Size ButtonSize
+        {
+            get { return _buttonSize; }
+            set { _buttonSize = value; }
+        }
+
         private BeepAppBar _beepappbar;
         [Browsable(true)]
         [Category("Appearance")]
@@ -177,7 +187,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Padding = new Padding(5);
             DoubleBuffered = true;
             //  Width = expandedWidth;
-            ButtonSize = new Size(DrawingRect.Width, 40);
+            _buttonSize = new Size(DrawingRect.Width, menuItemHeight);
             _isControlinvalidated = true;
             animationTimer = new Timer { Interval = 10 };
             animationTimer.Tick += AnimationTimer_Tick;
@@ -189,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             logo = new BeepImage
             {
                 //  Padding = new Padding( 10, 0, 10, 0),
-                Size = ButtonSize,
+                Size = _buttonSize,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
                 ShowAllBorders = false,
@@ -206,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel = new BeepLabel
             {
                 // Padding = new Padding( 10, 0, 10, 0),
-                Size = new Size(ButtonSize.Width, 20),
+                Size = new Size(_buttonSize.Width, 20),
                 Text = Title,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
@@ -225,7 +235,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _descriptionLabel = new BeepLabel
             {
                 // Padding = new Padding( 10, 0, 10, 0),
-                Size = new Size(ButtonSize.Width, 20),
+                Size = new Size(_buttonSize.Width, 20),
                 Text = "",
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
@@ -243,7 +253,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             toggleButton = new BeepButton
             {
                 // Padding = new Padding( 10, 0, 10, 0),
-                Size = new Size(ButtonSize.Width, ButtonSize.Height),
+                Size = new Size(_buttonSize.Width, _buttonSize.Height),
                 Text = "",
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.hamburger.svg",
                 MaxImageSize = new Size(24, 24),
@@ -400,9 +410,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                         if (subControl is BeepButton button)
                         {
                             button.HideText = isCollapsed; // Hide text when collapsed
+                            button.ImageAlign = isCollapsed ? ContentAlignment.MiddleCenter : ContentAlignment.MiddleLeft;
                             button.TextImageRelation = isCollapsed
                                 ? TextImageRelation.Overlay
                                 : TextImageRelation.ImageBeforeText;
+                        }
+                        if (subControl is Panel panel)
+                        {
+                           // panel.Width = isCollapsed ? 0:5;
+                          string tag = panel.Tag.ToString();
+                            if (tag == "HiLight")
+                            {
+                                panel.Width = isCollapsed ? 0 : 5;
+                            }else
+                            {
+                                panel.Width = isCollapsed ? 0 : 2;
+                            }
+                          
                         }
                     }
                 }
@@ -471,33 +495,44 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = HilightPanelSize,
                 Dock = DockStyle.Left,
                 BackColor = _currentTheme.SideMenuBackColor,
-                Visible = true
+                Visible = true,
+                Tag="HiLight"
+                
             };
-
+            Panel spacingpane = new Panel
+            {
+                Width = 2,
+                Dock = DockStyle.Left,
+                BackColor = _currentTheme.SideMenuBackColor,
+                Visible = true,
+                Tag = "Spacing"
+            };
+            // Add BeepButton and highlight panel to the panel
+          
             var button = new BeepButton
             {
                 Dock = DockStyle.Fill,
                 Text = item.Text,
                 ImagePath = item.ImagePath,
-                MaxImageSize = new Size(30, 30),
+                MaxImageSize = new Size(ButtonSize.Width-2, ButtonSize.Height-2),
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 TextAlign = isCollapsed ? ContentAlignment.MiddleLeft : ContentAlignment.MiddleCenter,
                 ImageAlign = ContentAlignment.MiddleLeft,
                 Theme = Theme,
                 IsChild = true,
+                IsSideMenuChild = true,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
                 ShowAllBorders = false,
                 ShowShadow = false,
-                BorderSize = 0,
                 Tag = item,
                 ApplyThemeOnImage = false
             };
 
             button.MouseEnter += (s, e) =>
             {
-                menuItemPanel.BackColor = _currentTheme.ButtonHoverBackColor;
-                highlightPanel.BackColor = _currentTheme.AccentColor;
+                menuItemPanel.BackColor = _currentTheme.SideMenuHoverBackColor;
+                highlightPanel.BackColor = _currentTheme.SideMenuHoverBackColor;
             };
             button.MouseLeave += (s, e) =>
             {
@@ -507,7 +542,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             button.Click += (s, e) => OnMenuItemClick(item);
 
             menuItemPanel.Controls.Add(highlightPanel);
+            menuItemPanel.Controls.Add(spacingpane);
+            spacingpane.BringToFront();
             menuItemPanel.Controls.Add(button);
+            button.BringToFront();
 
             return menuItemPanel;
         }
@@ -529,7 +567,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             OnMenuCollapseExpand?.Invoke(isCollapsed);
             if (BeepAppBar != null)
             {
-                BeepAppBar.ShowLogoIcon = isCollapsed;
+                BeepAppBar.ShowTitle = isCollapsed;
+                BeepAppBar.ShowLogoIcon=false;
             }
             
         }
@@ -560,6 +599,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             button.BackColor = _currentTheme.SideMenuBackColor;
                             button.ForeColor = _currentTheme.SideMenuForeColor;
                         }
+                       
                     }
                 }
             }

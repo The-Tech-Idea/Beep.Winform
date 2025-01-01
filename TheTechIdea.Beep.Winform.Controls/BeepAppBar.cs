@@ -3,6 +3,7 @@ using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Desktop.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using System.Runtime.InteropServices;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -90,7 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                //  RearrangeLayout();
             }
         }
-        public bool ShowLogoIcon
+        public bool ShowTitle
         {
             get
             {
@@ -157,7 +158,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                //  RearrangeLayout();
             }
         }
-
+        public bool ShowLogoIcon
+        {
+            get => _logo.Visible;
+            set
+            {
+                _logo.Visible = value;
+                //  RearrangeLayout();
+            }
+        }
 
         private BeepTextBox searchBox;
         bool _applyThemeOnImage = false;
@@ -270,7 +279,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
                 Height = 23,   // <-- Set an explicit default height
                 TextAlign = ContentAlignment.MiddleLeft,
-                ImageAlign = ContentAlignment.MiddleLeft,
+               // ImageAlign = ContentAlignment.MiddleLeft,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
@@ -476,8 +485,108 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-          //  RearrangeLayout(); // Ensure layout is correct during resizing
+            RearrangeLayout(); // Ensure layout is correct during resizing
         }
+        // Import the Win32 API for posting messages
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern bool PostMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+
+        private const int WM_MOUSEMOVE = 0x0200;
+        private const int WM_LBUTTONDOWN = 0x0201;
+        private const int WM_LBUTTONUP = 0x0202;
+        private const int WM_RBUTTONDOWN = 0x0204;
+        private const int WM_RBUTTONUP = 0x0205;
+        // etc. (add more as needed)
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            // 1. Get parent form
+            var form = FindForm();
+            if (form == null) return;
+
+            // 2. Convert control-relative coords to form coords
+            var screenCoords = PointToScreen(e.Location);
+            var formCoords = form.PointToClient(screenCoords);
+            int lParam = (formCoords.Y << 16) | (formCoords.X & 0xFFFF);
+
+            // 3. Pick the correct down message
+            int msg;
+            if (e.Button == MouseButtons.Left)
+                msg = WM_LBUTTONDOWN;
+            else if (e.Button == MouseButtons.Right)
+                msg = WM_RBUTTONDOWN;
+            else
+                return; // Skip for other buttons, or add more logic
+
+            // 4. Post the message
+            PostMessage(form.Handle, msg, IntPtr.Zero, (IntPtr)lParam);
+        }
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+
+            var form = FindForm();
+            if (form == null) return;
+
+            var screenCoords = PointToScreen(e.Location);
+            var formCoords = form.PointToClient(screenCoords);
+            int lParam = (formCoords.Y << 16) | (formCoords.X & 0xFFFF);
+
+            int msg;
+            if (e.Button == MouseButtons.Left)
+                msg = WM_LBUTTONUP;
+            else if (e.Button == MouseButtons.Right)
+                msg = WM_RBUTTONUP;
+            else
+                return;
+
+            PostMessage(form.Handle, msg, IntPtr.Zero, (IntPtr)lParam);
+        }
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            var form = FindForm();
+            if (form == null) return;
+
+            var screenCoords = PointToScreen(e.Location);
+            var formCoords = form.PointToClient(screenCoords);
+            int lParam = (formCoords.Y << 16) | (formCoords.X & 0xFFFF);
+
+            // Always WM_MOUSEMOVE for move
+            PostMessage(form.Handle, WM_MOUSEMOVE, IntPtr.Zero, (IntPtr)lParam);
+        }
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            // Let the control handle its own click logic first
+            base.OnMouseClick(e);
+
+            // Attempt to find the parent form
+            var form = this.FindForm();
+            if (form == null)
+                return;
+
+            // We only demonstrate left-click here. 
+            // For right-click or middle-click, you'd send WM_RBUTTONDOWN / WM_RBUTTONUP etc.
+            if (e.Button == MouseButtons.Left)
+            {
+                // Convert from this control's coords to screen coords
+                var screenCoords = PointToScreen(e.Location);
+
+                // Then convert screen coords to parent-form-relative coords
+                var formCoords = form.PointToClient(screenCoords);
+
+                // Encode those coordinates into the lParam for the Win32 message
+                int lParam = (formCoords.Y << 16) | (formCoords.X & 0xFFFF);
+
+                // Post both a "down" and an "up" message to simulate a full click
+                PostMessage(form.Handle, WM_LBUTTONDOWN, IntPtr.Zero, (IntPtr)lParam);
+                PostMessage(form.Handle, WM_LBUTTONUP, IntPtr.Zero, (IntPtr)lParam);
+            }
+        }
+
         #endregion "Event Handlers"
         #region "Layout and Theme"
         public override void ApplyTheme()
@@ -489,6 +598,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.TitleBarForeColor;
             _logo.Theme = Theme;
             TitleLabel.UseScaledFont = true;
+            TitleLabel.Font = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
             TitleLabel.ForeColor = _currentTheme.TitleBarForeColor;
             TitleLabel.BackColor = _currentTheme.TitleBarBackColor;
             // searchBox.Theme = Theme;
@@ -497,7 +607,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // searchBox.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
             //searchBox.Height = searchBox.PreferredHeight;
           //  TitleLabel.Theme = Theme;
-           // TitleLabel.Font = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
+          
            
             //   TitleLabel.ForeColor = ColorUtils.GetForColor(_currentTheme.TitleBarBackColor, _currentTheme.TitleBarForeColor);
             // hamburgerIcon.Theme = Theme;
@@ -521,7 +631,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             int padding = 2; // Padding between controls and edges
             int spacing = 5; // Spacing between controls
-
+            UpdateDrawingRect();
             // Calculate available areas in DrawingRect
             int leftEdge = DrawingRect.Left + padding;
             int rightEdge = DrawingRect.Right - padding;
@@ -541,21 +651,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _logo.Left = leftEdge;
                 leftEdge += _logo.Width + spacing;
             }
-            if (TitleLabel != null && TitleLabel.Visible)
-            {
-                var prefSize = TitleLabel.GetPreferredSize(Size.Empty);
-                TitleLabel.Anchor = AnchorStyles.Left;
-                TitleLabel.Height = prefSize.Height;
-                // Vertically center within the app bar
-                TitleLabel.Top = DrawingRect.Top + (DrawingRect.Height - TitleLabel.Height) / 2;
-             
-                TitleLabel.Left = leftEdge;
-                leftEdge += TitleLabel.Width + spacing;
-             
-
-            }
-
-
+           
             // Position closeIcon, maximizeIcon, minimizeIcon, notificationIcon, and profileIcon (right-aligned)
             if (closeIcon != null && closeIcon.Visible)
             {
@@ -606,6 +702,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 searchBox.Width = SearchBoxWidth; // Ensure searchBox occupies at most one-third of the width
                 searchBox.Top = DrawingRect.Top + (DrawingRect.Height - searchBox.Height) / 2;
                 searchBox.Left = rightEdge- SearchBoxWidth-spacing;
+            }
+            if (TitleLabel != null && TitleLabel.Visible)
+            {
+                var prefSize = TitleLabel.GetPreferredSize(Size.Empty);
+                TitleLabel.Anchor = AnchorStyles.Left;
+                TitleLabel.Height = prefSize.Height;
+                // Vertically center within the app bar
+                TitleLabel.Top = DrawingRect.Top + (DrawingRect.Height - TitleLabel.Height) / 2;
+
+                TitleLabel.Left = leftEdge;
+                TitleLabel.Width = searchBox.Left - leftEdge - spacing;
+                leftEdge += TitleLabel.Width + spacing;
+
+
             }
         }
         #endregion "Layout and Theme"

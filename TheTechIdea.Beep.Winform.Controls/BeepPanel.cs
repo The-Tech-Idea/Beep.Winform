@@ -157,6 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepPanel()
         {
             ApplyTheme();
+            IsChild = false;
             this.Size = new Size(400, 300);
         }
         #endregion
@@ -164,16 +165,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             // We'll keep your logic, no changes
-            BackColor = _currentTheme.BackgroundColor;
+            BackColor = _currentTheme.PanelBackColor;
             ForeColor = _currentTheme.TitleForColor;
-
+            Font = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
             foreach (Control ctrl in Controls)
             {
                 // if you want to apply theme to child controls, do so here
             }
             Invalidate();
         }
-
         protected override void OnPaint(PaintEventArgs e)
         {
             // base draws the beepcontrol background/border if any
@@ -188,23 +188,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawTitle(e.Graphics);
             }
         }
-
         protected override void OnControlAdded(ControlEventArgs e)
         {
             base.OnControlAdded(e);
             // If you need to re-layout child controls, do so
         }
-
         private void DrawTitle(Graphics g)
         {
             // Use a title font from your theme, or fallback
-            Font fontToUse = BeepThemesManager.ToFont(_currentTheme?.TitleSmall) ?? Font;
-
+         
             // Update DrawingRect before measuring or positioning
             UpdateDrawingRect();
 
             // measure how big the text is
-            SizeF titleSize = g.MeasureString(_titleText, fontToUse);
+            SizeF titleSize = g.MeasureString(_titleText, Font);
 
             // We'll define a "textTop" for vertical. It's typically DrawingRect.Top + some padding
             float textTop = DrawingRect.Top + padding;
@@ -229,7 +226,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw the title text
             using (Brush brush = new SolidBrush(_currentTheme.TitleForColor))
             {
-                g.DrawString(_titleText, fontToUse, brush, textLeft, textTop);
+                g.DrawString(_titleText, Font, brush, textLeft, textTop);
             }
 
             // The bottom of the drawn text

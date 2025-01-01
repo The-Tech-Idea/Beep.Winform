@@ -34,80 +34,71 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeDialog();
             TitleText = "Dialog Title";
         }
-
         public string PrimaryButtonText
         {
             get => _primaryButton.Text;
             set => _primaryButton.Text = value;
         }
-
         public string SecondaryButtonText
         {
             get => _secondaryButton.Text;
             set => _secondaryButton.Text = value;
         }
-
         public Color PrimaryButtonColor
         {
             get => _primaryButton.BackColor;
             set => _primaryButton.BackColor = value;
         }
-
         public Color SecondaryButtonColor
         {
             get => _secondaryButton.BackColor;
             set => _secondaryButton.BackColor = value;
         }
-
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            int padding = BorderThickness + 10;
+
+            Arrange();
+        }
+        private void Arrange()
+        {
+            int offset = 10; // some padding offset inside DrawingRect
+            Rectangle rect = DrawingRect;
+
+            // Position the close button inside DrawingRect
             if (_closeButton != null)
             {
-                _closeButton.Location = new Point(Width - _closeButton.Width - 10, padding);
+                int centery = TitleBottomY + (_closeButton.Height / 2);
+                _closeButton.Location = new Point(DrawingRect.Width - 30,  centery- TitleBottomY );
             }
 
-            // Reposition _buttonPanel within DrawingRect on resize
+            // Position the button panel at the bottom of the DrawingRect
             if (_buttonPanel != null)
             {
-
-                _buttonPanel.Location = new Point(padding, DrawingRect.Bottom - _buttonPanel.Height - padding);
-                _buttonPanel.Width = Width - padding * 2; ;// DrawingRect.Width - _borderThickness * 3;
-
+                _buttonPanel.Location = new Point(
+                    rect.Left + offset,
+                    rect.Bottom - offset - _buttonPanel.Height
+                );
+                _buttonPanel.Width = rect.Width - offset * 2;
             }
-
         }
-
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
             //  DrawButtonSeparatorLine(e.Graphics);
         }
-
-        private void DrawButtonSeparatorLine(Graphics graphics)
-        {
-            int lineY = _buttonPanel.Top - 5;
-            using (var pen = new Pen(_currentTheme?.BorderColor ?? Color.Gray, TitleLineThickness))
-            {
-                graphics.DrawLine(pen, DrawingRect.Left + BorderThickness, lineY, DrawingRect.Right - BorderThickness, lineY);
-            }
-        }
-
-        public void ShowDialog(Control ctl, Action submit, Action cancel, string Title)
+          public void ShowDialog(Control ctl, Action submit, Action cancel, string Title)
         {
             ShowCustomControl(ctl, Title);
             PrimaryButtonClicked += (s, e) => submit?.Invoke();
             SecondaryButtonClicked += (s, e) => cancel?.Invoke();
         }
-
         public void ShowDialog(Control ctl, Action ok, string Title)
         {
             ShowCustomControl(ctl, Title);
             PrimaryButtonClicked += (s, e) => ok?.Invoke();
             _secondaryButton.Visible = false;
         }
-
         private void ShowCustomControl(Control ctl, string Title)
         {
             _customControl = ctl;
@@ -124,7 +115,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleText = Title;
             BringToFront();
         }
-
         #region Dialog Templates
 
         public void ShowConfirmationDialog(string message, Action confirmAction, Action cancelAction)
@@ -190,8 +180,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion
-
-
         private void InitializeDialog()
         {
             // Initialize controls as before
@@ -206,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowTitleLine = false,
                 ShowShadow = false,
                 Height = 60,
-                Padding = new Padding(10),
+                Padding = new Padding(5),
             };
             _buttonPanel.Location = new Point(DrawingRect.X + BorderThickness, DrawingRect.Bottom - _buttonPanel.Height - BorderThickness);
             _buttonPanel.Width = DrawingRect.Width - BorderThickness * 2;
@@ -216,9 +204,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             _primaryButton = new BeepButton
             {
                 Text = "OK",
-                BackColor = Color.Blue,
+              
                 Dock = DockStyle.Right,
                 Width = 80,
+             
                 Margin = new Padding(10)
             };
             _primaryButton.Click += (s, e) => PrimaryButtonClicked?.Invoke(this, EventArgs.Empty);
@@ -226,9 +215,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             _secondaryButton = new BeepButton
             {
                 Text = "Cancel",
-                BackColor = Color.Gray,
+              
                 Dock = DockStyle.Left,
                 Width = 80,
+               
                 Margin = new Padding(10)
             };
             _secondaryButton.Click += (s, e) => SecondaryButtonClicked?.Invoke(this, EventArgs.Empty);
@@ -240,21 +230,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             _closeButton = new BeepButton
             {
                 Text = "X",
-                Size = new Size(14, 14),
+                IsChild=true,
+                Size = new Size(20, 20),
+                IsFramless = true,
+                UseScaledFont = true,
+                TextAlign = ContentAlignment.MiddleCenter,
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                Location = new Point(Width - 35, 10),
-                ForeColor = _currentTheme?.TitleForColor ?? Color.Black
+                Location = new Point(Width - 25, 5),
             };
             _closeButton.Click += (s, e) => Hide();
             Controls.Add(_closeButton);
-
+            Arrange();
             // Apply theme after initializing all components
             ApplyTheme();
         }
-
         public override void ApplyTheme()
         {
-            //base.ApplyTheme();
+            base.ApplyTheme();
             if (_currentTheme == null) return;
 
             // MessageBox.Show("Applying Theme");
@@ -264,50 +256,35 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 //     MessageBox.Show("Applying Theme to button 1");
                 _primaryButton.Theme = Theme;
-                _primaryButton.BackColor = _currentTheme.ButtonBackColor;
-                _primaryButton.ForeColor = _currentTheme.PrimaryTextColor;
+              //  _primaryButton.BackColor = _currentTheme.ButtonBackColor;
+             //   _primaryButton.ForeColor = _currentTheme.PrimaryTextColor;
             }
             // MessageBox.Show("Applying Theme 1");
             if (_secondaryButton != null)
             {
                 //      MessageBox.Show("Applying Theme to button 2");
                 _secondaryButton.Theme = Theme;
-                _secondaryButton.BackColor = _currentTheme.ButtonBackColor;
-                _secondaryButton.ForeColor = _currentTheme.SecondaryTextColor;
+            //    _secondaryButton.BackColor = _currentTheme.ButtonBackColor;
+            //    _secondaryButton.ForeColor = _currentTheme.SecondaryTextColor;
             }
             // MessageBox.Show("Applying Theme 2");
             if (_closeButton != null)
             {
                 //   MessageBox.Show("Applying Theme to button 3");
                 _closeButton.Theme = Theme;
-                _closeButton.BackColor = Color.Red;
-                _closeButton.ForeColor = _currentTheme.CloseButtonColor != Color.Empty ? _currentTheme.CloseButtonColor : _closeButton.ForeColor;
+            //    _closeButton.BackColor = Color.Red;
+                _closeButton.ForeColor = _currentTheme.CloseButtonColor ;
             }
             // MessageBox.Show("Applying Theme 3");
             // Additional background colors, title lines, etc.
-            BackColor = _currentTheme.BackgroundColor != Color.Empty ? _currentTheme.BackgroundColor : BackColor;
-            try
-            {
-                if (_buttonPanel != null)
-                {
-                    //       MessageBox.Show("Applying Theme to button panel");
-                    _buttonPanel.Theme = Theme;
-                    _buttonPanel.ApplyTheme();
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+            BackColor = _currentTheme.PanelBackColor;
+            _buttonPanel.Theme = Theme;
+            Arrange();
 
             //  MessageBox.Show("Applying Theme 4");
             ////base.ApplyTheme();
             // Invalidate(); // Redraw to apply theme changes
         }
-
-
-
     }
 }
 

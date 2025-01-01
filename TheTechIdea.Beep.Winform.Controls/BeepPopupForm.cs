@@ -28,9 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             MouseLeave += BeepPopupForm_MouseLeave;
 
         }
-
-      
-        public void AdjustControls()
+        public  override void AdjustControls()
         {
             Rectangle adjustedClientArea = GetAdjustedClientRectangle();
 
@@ -99,7 +97,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             //   Console.WriteLine($"1 Control Added {e.Control.Text}");
             AdjustControls();
         }
-
         private void Control_MouseLeave(object? sender, EventArgs e)
         {
             base.OnMouseLeave(e);
@@ -109,13 +106,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
            
         }
-
         private void Control_MouseEnter(object? sender, EventArgs e)
         {
             base.OnMouseEnter(e);
             _closeTimer.Stop();
         }
-
         private void BeepPopupForm_MouseEnter(object sender, EventArgs e)
         {
             // Restart the timer whenever the mouse enters the form
@@ -124,7 +119,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             _closeTimer.Stop();
            
         }
-
         private void BeepPopupForm_MouseLeave(object sender, EventArgs e)
         {
             // Start the timer when the mouse leaves the form
@@ -133,7 +127,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _closeTimer.Start();
             }
         }
-
         private void CloseTimer_Tick(object sender, EventArgs e)
         {
             // Stop the timer and close the form

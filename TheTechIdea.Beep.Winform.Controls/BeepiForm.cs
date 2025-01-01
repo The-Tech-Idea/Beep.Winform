@@ -9,9 +9,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 {
     public partial class BeepiForm : Form
     {
-        protected int _resizeMargin = 15; // Margin for resizing
+        #region "Fields"
+        protected int _resizeMargin = 5; // Margin for resizing
         protected int _borderRadius =5;
-        protected int _borderThickness = 6; // Thickness of the custom border
+        protected int _borderThickness = 3; // Thickness of the custom border
         private Color _borderColor = Color.Red; // Default border color
         private const int ButtonSize = 30;
         private Point lastMousePosition;
@@ -27,6 +28,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
         protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
+        #endregion "Fields"
+        #region "Properties"
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The radius of the form's border.")]
+        [DefaultValue(3)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public int BorderThickness
         {
             get { return _borderThickness; }
@@ -56,7 +65,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ApplyTheme();
             }
         }
-
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Sets the color of the form's border.")]
@@ -69,33 +77,32 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Redraw the form when the color changes
             }
         }
+        #endregion "Properties"
         public BeepiForm()
         {
             InitializeComponent();
             ishandled = false;
-          
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
             UpdateStyles();
+            
             // Apply border and custom form styles
             FormBorderStyle = FormBorderStyle.None;
           //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
           //      Margin = new Padding(_resizeMargin);
             InitializeForm();
         }
+        #region "Layout Events"
         protected override void OnControlAdded(ControlEventArgs e)
         {
-           base.OnControlAdded(e);
-         //   Console.WriteLine($"1 Control Added {e.Control.Text}");
+            base.OnControlAdded(e);
+            //   Console.WriteLine($"1 Control Added {e.Control.Text}");
             AdjustControls();
         }
-      
-
         protected override void InitLayout()
         {
             base.InitLayout();
         }
-
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
@@ -105,7 +112,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ishandled = true;
             }
         }
-
         private void InitializeForm()
         {
             if (ishandled) return;
@@ -115,12 +121,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             FormBorderStyle = FormBorderStyle.None;
             this.Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
 
-          //  Margin = new Padding(5);
+            //  Margin = new Padding(5);
             // Apply initial theme
             ApplyTheme();
         }
-
-      
+        #endregion "Layout Events"
         #region Window Resizing
         protected override void OnMouseDown(MouseEventArgs e)
         {
@@ -160,6 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SuspendLayout();
                 HandleDragging();
                 ResumeLayout();
+
             }
             else
             {
@@ -184,6 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 isResizing = false;
                 isDragging = false;
+                Cursor = Cursors.Default; // Default cursor
             }
         }
 
@@ -267,11 +274,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             
                 borderPen.Alignment = PenAlignment.Center;
-                //  e.Graphics.DrawRectangle(borderPen, borderRectangle);
-                e.Graphics.DrawRectangle(
-        borderPen,
-        new Rectangle(0, 0, Width - 1, Height - 1)
-    );
+                  e.Graphics.DrawRectangle(borderPen, borderRectangle);
+    //            e.Graphics.DrawRectangle(
+    //    borderPen,
+    //    new Rectangle(0, 0, Width - 1, Height - 1)
+    //);
             }
 
           
@@ -303,14 +310,18 @@ namespace TheTechIdea.Beep.Winform.Controls
     diameter,
     diameter
 ));
-
+            Invalidate();
         }
         protected override void OnLayout(LayoutEventArgs e)
         {
             base.OnLayout(e);
-       //     AdjustControls();
+            //if (_borderThickness > 0)
+            //{
+            //    Padding = new Padding(_borderThickness);
+            //    AdjustControls();
+            //}
         }
-        public void AdjustControls()
+        public virtual void AdjustControls()
         {
             Rectangle adjustedClientArea = GetAdjustedClientRectangle();
 
@@ -375,13 +386,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public Rectangle GetAdjustedClientRectangle()
         {
+            int adjustedWidth = Math.Max(0, ClientSize.Width - (2 * _borderThickness));
+            int adjustedHeight = Math.Max(0, ClientSize.Height - (2 * _borderThickness));
+
             return new Rectangle(
-                _borderThickness ,
-                _borderThickness ,
-                ClientSize.Width - (2 * _borderThickness),
-                ClientSize.Height - (2 * _borderThickness )
+                _borderThickness,
+                _borderThickness,
+                adjustedWidth,
+                adjustedHeight
             );
         }
+
         protected override CreateParams CreateParams
         {
             get
@@ -391,39 +406,37 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return cp;
             }
         }
-        protected new  Rectangle DisplayRectangle
+        protected new Rectangle DisplayRectangle
         {
             get
             {
-                // Adjust for the custom borders
-                int adjustedWidth = ClientSize.Width - (_borderThickness * 2);
-                int adjustedHeight = ClientSize.Height - (_borderThickness * 2);
+                // Calculate adjusted width and height
+                int adjustedWidth = Math.Max(0, ClientSize.Width - (_borderThickness * 2));
+                int adjustedHeight = Math.Max(0, ClientSize.Height - (_borderThickness * 2));
 
-                // Ensure the dockable area respects the borders
+                // Create and return the adjusted rectangle
                 return new Rectangle(
                     _borderThickness,
                     _borderThickness,
-                    Math.Max(0, adjustedWidth),
-                    Math.Max(0, adjustedHeight)
+                    adjustedWidth,
+                    adjustedHeight
                 );
             }
         }
+
         public override Size GetPreferredSize(Size proposedSize)
         {
-            // Adjust size based on border thickness
-            int adjustedWidth = proposedSize.Width - (_borderThickness * 2);
-            int adjustedHeight = proposedSize.Height - (_borderThickness * 2);
+            // Ensure the adjusted size respects minimum size constraints
+            int adjustedWidth = Math.Max(proposedSize.Width - (_borderThickness * 2), MinimumSize.Width);
+            int adjustedHeight = Math.Max(proposedSize.Height - (_borderThickness * 2), MinimumSize.Height);
 
             return new Size(adjustedWidth, adjustedHeight);
         }
+
         [DllImport("gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
         private static extern IntPtr CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
-
         [DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();
-
-       
-
         #endregion
     }
 }

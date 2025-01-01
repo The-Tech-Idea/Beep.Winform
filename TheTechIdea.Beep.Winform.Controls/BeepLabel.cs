@@ -302,10 +302,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             //drawrect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
             // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
-            if (!SetFont())
-            {
-                Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-            };
+            //if (!SetFont())
+            //{
+            //    Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            //};
             // Measure and scale the font to fit within the control bounds
             Font scaledFont = Font;// GetScaledFont(g, Text, contentRect.Size, Font);
             if (UseScaledFont)
@@ -544,11 +544,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             //if (AutoSize)
             //{
-            if (!SetFont())
-            {
-                Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-            };
-               
+              
                 Size textSize = TextRenderer.MeasureText(Text, Font);
                 Size imageSize = beepImage?.HasImage == true ? beepImage.GetImageSize() : Size.Empty;
 

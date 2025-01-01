@@ -333,7 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             if (BeepAppBar != null)
             {
-                BeepAppBar.ShowLogoIcon = show;
+                BeepAppBar.ShowTitle = show;
             }
         }
         public override ISite Site
@@ -488,7 +488,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             {
                 BeepAppBar.Title = Title;
                 BeepSideMenu.Title = Title;
-                BeepAppBar.ShowLogoIcon = obj;
+                BeepAppBar.ShowTitle = obj;
+                BeepAppBar.ShowLogoIcon = false;
             }
 
         }

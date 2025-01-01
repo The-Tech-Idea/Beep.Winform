@@ -18,6 +18,7 @@ namespace TheTechIdea.Beep.Desktop.Design.Extensions
                 Text = $"Hello {parameter as string}!";
                 return Task.CompletedTask;
             });
+            
         }
 
         private string _name = string.Empty;

@@ -463,17 +463,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             int finalWidth = Math.Max(Width, _maxListWidth);
 
             // The popup form is sized to fit beepListBox
-            _popupForm.Size = new Size(finalWidth, neededHeight+5);
+            _popupForm.Size = new Size(finalWidth, neededHeight);
             // Position popup just below the main control
-            var screenPoint = this.PointToScreen(new Point(0, Height+5));
+            var screenPoint = this.PointToScreen(new Point(-(finalWidth / 2), Height+5));
             _popupForm.Location = screenPoint;
             _beepListBox.Theme = Theme;
             _beepListBox.ShowAllBorders = false;
             //_popupForm.BackColor = _currentTheme.BackColor;
             _popupForm.Theme = Theme;
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
-        
-
             _popupForm.Show();
             _popupForm.BringToFront();
             _popupForm.Invalidate();
@@ -772,7 +770,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Mouse and Click"
         private void BeepImage_MouseHover(object? sender, EventArgs e)
         {
-         
             //  BackColor = _currentTheme.ButtonHoverBackColor;
             base.OnMouseHover(e);
 

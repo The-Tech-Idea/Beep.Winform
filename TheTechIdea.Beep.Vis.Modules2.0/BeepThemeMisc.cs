@@ -10,13 +10,17 @@ namespace TheTechIdea.Beep.Vis.Modules
 
     public class TypographyStyle
     {
-        public string FontFamily { get; set; }
-        public float FontSize { get; set; }
+        public TypographyStyle()
+        {
+            
+        }
+        public string FontFamily { get; set; }= "Arial";
+        public float FontSize { get; set; }= 12; // In points
         public float LineHeight { get; set; } // Line height multiplier
         public float LetterSpacing { get; set; } // In points
-        public FontWeight FontWeight { get; set; }
-        public FontStyle FontStyle { get; set; }
-        public Color TextColor { get; set; }
+        public FontWeight FontWeight { get; set; } = FontWeight.Normal;
+        public FontStyle FontStyle { get; set; }= FontStyle.Regular;
+        public Color TextColor { get; set; }= Color.Black;
         public bool IsUnderlined { get; set; } = false;
         public bool IsStrikeout { get; set; } = false;
     }

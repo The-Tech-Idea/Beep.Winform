@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Desktop.Design.Extensions
         private readonly BeepNuggetDataConnectersWindowContent content ;
         private readonly IBeepService _beepservice;
 
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="BeepNuggetDataConnectersWindow" /> class.
         /// </summary>

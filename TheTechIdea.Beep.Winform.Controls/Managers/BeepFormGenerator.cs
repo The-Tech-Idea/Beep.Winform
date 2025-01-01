@@ -102,9 +102,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
         private static void RepositionControls(Form form)
         {
-            //closeButton.Location = new Point(titlePanel.Width - ButtonSize - 10, 10);
-            //maximizeButton.Location = new Point(closeButton.Left - ButtonSize - 10, 10);
-            //minimizeButton.Location = new Point(maximizeButton.Left - ButtonSize - 10, 10);
+            //closeButton.Location = new Point(titlePanel.Width - _buttonSize - 10, 10);
+            //maximizeButton.Location = new Point(closeButton.Left - _buttonSize - 10, 10);
+            //minimizeButton.Location = new Point(maximizeButton.Left - _buttonSize - 10, 10);
         }
 
         private static void AttachDragMove(Form form)

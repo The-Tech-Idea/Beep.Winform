@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _menuItemHeight = value;
-              //  ButtonSize = new Size(ButtonSize.Width, _menuItemHeight);
+              //  _buttonSize = new Size(_buttonSize.Width, _menuItemHeight);
                 _imagesize = MenuItemHeight - 2;
                 Invalidate();
             }

@@ -8042,7 +8042,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuBackColor = Color.FromArgb(25, 25, 112), // Midnight Blue
             SideMenuHoverBackColor = Color.FromArgb(72, 61, 139),
             SideMenuSelectedBackColor = Color.FromArgb(75, 0, 130),
-            SideMenuForeColor = Color.FromArgb(0, 0, 0),
+            SideMenuForeColor = Color.Gold,
             SideMenuHoverForeColor = Color.FromArgb(255, 215, 0),
             SideMenuSelectedForeColor = Color.FromArgb(255, 215, 0),
             SideMenuBorderColor = Color.FromArgb(218, 165, 32),

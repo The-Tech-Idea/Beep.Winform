@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event Action<bool> OnMenuCollapseExpand;
 
        
-        private Size _buttonSize = new Size(200, 20);
+        private Size _buttonSize = new Size(100, 20);
         public BeepiForm BeepForm { get; set; }
         private bool isCollapsed = false;
         private Timer animationTimer;

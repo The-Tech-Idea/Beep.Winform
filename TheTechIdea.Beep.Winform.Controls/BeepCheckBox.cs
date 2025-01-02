@@ -18,7 +18,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             CurrentValue = false;
         }
     }
-
     // Generic class for flexibility
     public class BeepCheckBox<T> : BeepControl
     {
@@ -28,7 +27,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Checked,
             Indeterminate
         }
-
         public enum TextAlignment
         {
             Right,
@@ -36,14 +34,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             Above,
             Below
         }
-
         public enum CheckMarkShape
         {
             Square,
             Circle,
             CustomSvg
         }
-
         private CheckBoxState _state = CheckBoxState.Unchecked;
         private T _checkedValue;
         private T _uncheckedValue;
@@ -54,15 +50,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler? StateChanged;
         public BeepCheckBox()
         {
-
-
-            Padding = new Padding(1, 1,1, 1);
-
+             Padding = new Padding(1, 1,1, 1);
             _beepImage = new BeepImage
             {
                 Theme = Theme
             };
             BoundProperty= "State";
+            ShowAllBorders = false;
             ApplyTheme();
         }
         protected override void InitLayout()

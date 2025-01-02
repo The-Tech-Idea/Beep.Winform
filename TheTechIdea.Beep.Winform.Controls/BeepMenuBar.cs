@@ -133,6 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _popupForm = new BeepPopupForm();
             BoundProperty = "SelectedItem";
             IsFramless = true;
+            IsRounded = false;
             InitMenu();
         }
 
@@ -361,7 +362,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     button.IsSelected = false;
             }
         }
-
         private void Btn_Click(object? sender, EventArgs e)
         {
          
@@ -386,7 +386,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SelectedIndex = items.IndexOf(item);
             }
         }
-
         private void Maindropdownmenu_SelectedIndexChanged(object? sender, EventArgs e)
         {
             

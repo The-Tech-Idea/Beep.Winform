@@ -471,6 +471,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.ShowAllBorders = false;
             //_popupForm.BackColor = _currentTheme.BackColor;
             _popupForm.Theme = Theme;
+            
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
             _popupForm.Show();
             _popupForm.BringToFront();

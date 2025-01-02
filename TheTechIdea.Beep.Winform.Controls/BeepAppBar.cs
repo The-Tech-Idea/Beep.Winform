@@ -197,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowAllBorders = false;
             ShowShadow = false;
             IsFramless = true;
-          
+            IsRounded=false;
             // ApplyTheme();
         }
         protected override void InitLayout()

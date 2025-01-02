@@ -98,7 +98,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         // ------------------------------------------------------
-
         public SimpleItem SelectedItem
         {
             get => _selectedItem;
@@ -126,7 +125,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
-        
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public BindingList<SimpleItem> ListItems
         {
@@ -137,12 +135,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                // InitializeMenu();
             }
         }
-
         public event EventHandler SelectedIndexChanged;
-
         protected virtual void OnSelectedIndexChanged(EventArgs e) => SelectedIndexChanged?.Invoke(this, e);
-
-
         [Browsable(false)]
         public int SelectedIndex
         {
@@ -199,6 +193,19 @@ namespace TheTechIdea.Beep.Winform.Controls
               
             }
         }
+        private bool _isItemChilds= true;
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public bool IsItemChilds
+        {
+            get => _isItemChilds;
+            set
+            {
+                _isItemChilds = value;
+                _isControlinvalidated = true;
+                Invalidate();
+            }
+        }
         #endregion "Properties"
         #region "Constructor"
         public BeepListBox()
@@ -219,15 +226,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitLayout();
             BoundProperty = "SelectedItem";
         }
-
         protected override void InitLayout()
         {
             base.InitLayout();
             InitializeMenu();
             ApplyTheme();
             TitleText = "List Box";
-
-
         }
         #endregion "Constructor"
         #region "Menu Creation"
@@ -288,7 +292,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BorderSize = 0,
                // OverrideFontSize = TypeStyleFontSize.Small,
                 Tag = item,
-                UseScaledFont=true,
+                IsChild = _isItemChilds,
+                UseScaledFont =true,
                 ApplyThemeOnImage = false,
             };
 
@@ -382,7 +387,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 return;
             }
-
             int yOffset = drawRectY + TitleBottomY; // Start placing rootnodeitems below the iconPanel
 
             foreach (var item in items.Where(p => p.ItemType == MenuItemType.Main))
@@ -451,8 +455,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             //   Rectangle rectangle=new Rectangle(DrawingRect.X, DrawingRect.Y, DrawingRect.Width, DrawingRect.Height);
             drawRectX = DrawingRect.Left + BorderThickness;
             drawRectY = DrawingRect.Top + BorderThickness;
-            drawRectWidth = DrawingRect.Width;
-            drawRectHeight = DrawingRect.Height;
+            drawRectWidth = DrawingRect.Width-(BorderThickness*2);
+            drawRectHeight = DrawingRect.Height - (BorderThickness * 2);
         }
         private void ChangeImageSettings()
         {
@@ -548,10 +552,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _isControlinvalidated = false;
             }
 
-        }
-        private void BeepListBox_Invalidated(object? sender, InvalidateEventArgs e)
-        {
-            _isControlinvalidated = true;
         }
         public void CollapseToTitleLine(int extraMargin = 0)
         {

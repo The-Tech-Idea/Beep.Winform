@@ -1,17 +1,10 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
-using System.Drawing;
-
-using Svg;
 using Timer = System.Windows.Forms.Timer;
 using System.Drawing.Design;
-using System.Windows.Forms.Design;
-
 using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.Converters;
-using TheTechIdea.Beep.Winform.Controls.Editors;
-using System.Diagnostics;
 using TheTechIdea.Beep.Report;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -452,7 +445,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (BorderThickness == 0) { 
                     _borderThickness = 1;
                 }
+                _isControlinvalidated = true;
                 Invalidate(); // Redraw when all borders are set at once
+              
             }
         }
 
@@ -466,6 +461,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _borderRadius = value;
+                _isControlinvalidated = true;
                 Invalidate();
             }
         }
@@ -476,6 +472,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _borderThickness = value;
+                _isControlinvalidated = true;
                 Invalidate();
             }
         }
@@ -486,6 +483,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _borderStyle = value;
+                _isControlinvalidated = true;
                 Invalidate();
             }
         }
@@ -506,6 +504,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _isRounded = value;
+                _isControlinvalidated = true;
                 Invalidate();
             }
         }
@@ -517,6 +516,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _useGradientBackground = value;
+                _isControlinvalidated = true;
                 Invalidate();
             }
         }
@@ -566,6 +566,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     shadowOffset = 0;
                 }
+                _isControlinvalidated = true;
                 Invalidate();
             }
         }
@@ -586,6 +587,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _shadowOpacity = value;
+                _isControlinvalidated = true;
                 Invalidate();
             }
         }
@@ -1125,11 +1127,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 e.Graphics.FillRectangle(brush, outerRectangle);
             }
-            // Adjust for border thickness
-            if (!_isframless && ShowAllBorders && BorderThickness > 0)
-            {
-                borderRectangle.Inflate(-BorderThickness, -BorderThickness);
-            }
 
             if (!_isframless)
             {
@@ -1138,35 +1135,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                     DrawShadowUsingRectangle(g);
                 }
             }
-            
-            //if (IsChild)
-            //{
-            //    if (IsHovered)
-            //    {
-            //        if (UseGradientBackground)
-            //        {
-            //            using (var brush = new LinearGradientBrush(borderRectangle, GradientStartColor, GradientEndColor, GradientDirection))
-            //            {
-            //                e.Graphics.FillRectangle(brush, borderRectangle);
-            //            }
-            //        }
-            //        else
-            //        {
-            //            using (var brush = new SolidBrush(IsHovered ? HoverBackColor : BackColor))
-            //            {
-            //                e.Graphics.FillRectangle(brush, borderRectangle);
-            //            }
-            //        }
-            //    }
-            //}
-            //else
-            //{
-
-                // Draw background
-                if (IsRounded)
+            // Adjust for border thickness
+            if (!_isframless && ShowAllBorders && BorderThickness > 0)
+            {
+                borderRectangle.Inflate(-BorderThickness, -BorderThickness);
+            }
+            // Draw background shound be called before drawing border
+            if (IsRounded)
+            {
+                using (GraphicsPath path = GetRoundedRectPath(borderRectangle, BorderRadius))
                 {
-                    using (GraphicsPath path = GetRoundedRectPath(borderRectangle, BorderRadius))
-                    {
                         if (UseGradientBackground)
                         {
                             using (var brush = new LinearGradientBrush(borderRectangle, GradientStartColor, GradientEndColor, GradientDirection))
@@ -1199,9 +1177,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                             e.Graphics.FillRectangle(brush, borderRectangle);
                         }
                     }
-                }
-           // }
-          
+            }
+            // Drawing the Border Isframeless mean no border
             if (!_isframless)
             {
                 if (IsCustomeBorder)

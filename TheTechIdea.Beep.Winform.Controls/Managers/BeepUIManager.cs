@@ -510,6 +510,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             {
                 themeProperty.SetValue(control, isrounded);
             }
+            if (control.Controls.Count > 0 && !HasThemeProperty(control))
+            {
+                foreach (Control child in control.Controls)
+                {
+                    ApplyRoundedToControl(child, isrounded);
+                }
+            }
 
         }
         public void ApplyBorderToControl(Control control, bool showborder)
@@ -518,9 +525,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             if (themeProperty != null)
             {
                 themeProperty.SetValue(control, showborder);
+                BeepControl beepControl = (BeepControl)control;
+                beepControl.Invalidate();
+            }
+            if(control.Controls.Count > 0 && !HasThemeProperty(control))
+            {
+                foreach (Control child in control.Controls)
+                {
+                    ApplyBorderToControl(child, showborder);
+                }
             }
 
         }
+        public void ApplyShadowToControl(Control control, bool showshadow)
+        {
+            var themeProperty = TypeDescriptor.GetProperties(control)["ShowShadow"];
+            if (themeProperty != null)
+            {
+                themeProperty.SetValue(control, showshadow);
+            }
+            if (control.Controls.Count > 0 && !HasThemeProperty(control))
+            {
+                foreach (Control child in control.Controls)
+                {
+                    ApplyBorderToControl(child, showshadow);
+                }
+            }
+
+        }
+
         public void ApplyThemeOnImageControl(Control control, bool _applyonimage)
         {
             var ImageProperty = TypeDescriptor.GetProperties(control)["LogoImage"];
@@ -577,16 +610,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
             ApplyThemeOnImageControl(control, _applyThemeOnImage);
         }
-        public void ApplyShadowToControl(Control control, bool showshadow)
-        {
-            var themeProperty = TypeDescriptor.GetProperties(control)["ShowShadow"];
-            if (themeProperty != null)
-            {
-                themeProperty.SetValue(control, showshadow);
-            }
-
-        }
-
+     
         // Recursively apply the theme to all controls on the form and child containers
         private void ApplyThemeToAllBeepControls(Control container)
         {

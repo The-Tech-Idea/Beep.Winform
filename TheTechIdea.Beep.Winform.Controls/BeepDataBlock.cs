@@ -19,6 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Data Block")]
     public class BeepDataBlock : BeepControl, IDisposable, IBeepDataBlock
     {
+        public event EventHandler<UnitofWorkParams> EventDataChanged;
         public DataBlockMode BlockMode { get;  set; } = DataBlockMode.CRUD;
         public Dictionary<string, IBeepUIComponent> UIComponents { get; set; } = new();
         public List<IBeepDataBlock> ChildBlocks { get; set; } = new();
@@ -79,12 +80,44 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_data != value)
                 {
                     if (_data != null)
+                    {
                         _data.Units.CurrentChanged -= Units_CurrentChanged;
+                        _data.PreUpdate -= HandleDataChanges;
+                        _data.PreInsert -= HandleDataChanges;
+                        _data.PreDelete -= HandleDataChanges;
+                        _data.PreQuery -= HandleDataChanges;
+                        _data.PreCreate -= HandleDataChanges;
+                        _data.PreCommit -= HandleDataChanges;
+                        _data.PostUpdate -= HandleDataChanges;
+                        _data.PostInsert -= HandleDataChanges;
+                        _data.PostDelete -= HandleDataChanges;
+                        _data.PostQuery -= HandleDataChanges;
+                        _data.PostCreate -= HandleDataChanges;
+                        _data.PostCommit -= HandleDataChanges;
+
+                    }
+                        
+                        
 
                     _data = value;
 
                     if (_data != null)
+                    {
                         _data.Units.CurrentChanged += Units_CurrentChanged;
+                        _data.PreUpdate += HandleDataChanges;
+                        _data.PreInsert += HandleDataChanges;
+                        _data.PreDelete += HandleDataChanges;
+                        _data.PreQuery += HandleDataChanges;
+                        _data.PreCreate += HandleDataChanges;
+                        _data.PreCommit += HandleDataChanges;
+                        _data.PostUpdate += HandleDataChanges;
+                        _data.PostInsert   += HandleDataChanges;
+                        _data.PostDelete += HandleDataChanges;
+                        _data.PostQuery += HandleDataChanges;
+                        _data.PostCreate += HandleDataChanges;
+                        _data.PostCommit += HandleDataChanges;
+                    }
+                      
 
                     EntityStructure = _data?.EntityStructure;
                     InitializeEntityRelationships();
@@ -92,6 +125,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        private void HandleDataChanges(object? sender, UnitofWorkParams e)
+        {
+            if(BlockMode== DataBlockMode.CRUD)
+            {
+                EventDataChanged?.Invoke(sender, e);
+            }
+        }
         public BeepDataBlock()
         {
             IsShadowAffectedByTheme = false;

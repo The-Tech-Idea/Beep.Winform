@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Drawing;
 using TheTechIdea.Beep.Report;
+using TheTechIdea.Beep.Utilities;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
@@ -9,6 +10,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Existing properties and methods
         EnumBeepThemes Theme { get; set; }
+        public string Name { get; set; }
         void ApplyTheme();
         void ApplyTheme(EnumBeepThemes theme);
         void ApplyTheme(BeepTheme theme);
@@ -17,7 +19,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         void ShowToolTip(string text);
         void HideToolTip();
         IBeepUIComponent Form { get; set; }
-        string GuidID { get; }
+        string GuidID { get; set; }
+        string BlockID { get; set; }
+        string FieldID { get; set; }
         int Id { get; set; }
         string[] Items { get; set; }
         bool ValidateData(out string  messege);
@@ -33,6 +37,11 @@ namespace TheTechIdea.Beep.Vis.Modules
         void ClearValue();
         bool HasFilterValue();
         AppFilter ToFilter();
+        int Left { get; set; }
+        int Top { get; set; }
+        int Width { get; set; }
+        int Height { get; set; }    
+        DbFieldCategory Category { get; set; }
         void SetBinding(string controlProperty, string dataSourceProperty); // Method to bind a control property
     }
 }

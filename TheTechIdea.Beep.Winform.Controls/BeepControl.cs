@@ -226,8 +226,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         public bool IsCancelButton { get { return _isCancelButton; } set { _isCancelButton = value; Invalidate(); } }
- 
+
+        [Browsable(true)]
+        [Category("Data")]
         public string FieldID { get; set; }
+        [Browsable(true)]
+        [Category("Data")]
         public string BlockID { get; set; }
         public string SavedID { get; set; }
         public string SavedGuidID { get; set; }
@@ -782,8 +786,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         public IBeepUIComponent Form { get; set; }
         public Rectangle DrawingRect { get; set; }
         public bool IsCustomeBorder { get;  set; }
+        [Browsable(true)]
+        [Category("Data")]
         public string BoundProperty { get ; set ; }
+        [Browsable(true)]
+        [Category("Data")]
         public string LinkedProperty { get; set; }
+        [Browsable(true)]
+        [Category("Data")]
         public string DataSourceProperty { get; set; } // The property of the data source
         public void SetValue(object value)
         {

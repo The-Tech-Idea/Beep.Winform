@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace TheTechIdea.Beep.Winform.Controls.Helpers;
+namespace TheTechIdea.Beep.Vis.Logic;
 public static class ProjectPathHelper
 {
     /// <summary>

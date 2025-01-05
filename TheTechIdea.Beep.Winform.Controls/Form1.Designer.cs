@@ -29,10 +29,12 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            DataBase.EntityStructure entityStructure1 = new DataBase.EntityStructure();
             beepAppBar1 = new BeepAppBar();
             beepMenuBar1 = new BeepMenuBar();
             beepSideMenu1 = new BeepSideMenu();
             panel1 = new Panel();
+            beepDataBlock1 = new BeepDataBlock();
             beepPanel1 = new BeepPanel();
             beepProgressBar1 = new BeepProgressBar();
             beepLabel1 = new BeepLabel();
@@ -355,6 +357,7 @@
             // panel1
             // 
             panel1.BackColor = Color.FromArgb(40, 248, 255);
+            panel1.Controls.Add(beepDataBlock1);
             panel1.Controls.Add(beepPanel1);
             panel1.Controls.Add(beepProgressBar1);
             panel1.Controls.Add(beepLabel1);
@@ -369,6 +372,129 @@
             panel1.Size = new Size(788, 695);
             panel1.TabIndex = 11;
             panel1.Paint += panel1_Paint;
+            // 
+            // beepDataBlock1
+            // 
+            beepDataBlock1.ActiveBackColor = Color.FromArgb(255, 0, 255);
+            beepDataBlock1.AnimationDuration = 500;
+            beepDataBlock1.AnimationType = DisplayAnimationType.None;
+            beepDataBlock1.ApplyThemeToChilds = true;
+            beepDataBlock1.BlockID = null;
+            beepDataBlock1.BlockMode = Desktop.Controls.Common.DataBlockMode.CRUD;
+            beepDataBlock1.BorderColor = Color.FromArgb(138, 43, 226);
+            beepDataBlock1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            beepDataBlock1.BorderRadius = 1;
+            beepDataBlock1.BorderStyle = BorderStyle.FixedSingle;
+            beepDataBlock1.BorderThickness = 1;
+            beepDataBlock1.BottomoffsetForDrawingRect = 0;
+            beepDataBlock1.BoundProperty = null;
+            beepDataBlock1.CanBeFocused = true;
+            beepDataBlock1.CanBeHovered = false;
+            beepDataBlock1.CanBePressed = true;
+            beepDataBlock1.ChildBlocks = (List<Desktop.Controls.Common.IBeepDataBlock>)resources.GetObject("beepDataBlock1.ChildBlocks");
+            beepDataBlock1.DataContext = null;
+            beepDataBlock1.DataSourceProperty = null;
+            beepDataBlock1.DisabledBackColor = Color.Gray;
+            beepDataBlock1.DisabledForeColor = Color.Empty;
+            beepDataBlock1.DrawingRect = new Rectangle(1, 1, 274, 257);
+            beepDataBlock1.Easing = EasingType.Linear;
+            entityStructure1.Caption = null;
+            entityStructure1.Category = null;
+            entityStructure1.Created = false;
+            entityStructure1.CustomBuildQuery = null;
+            entityStructure1.DatabaseType = Utilities.DataSourceType.NONE;
+            entityStructure1.DatasourceEntityName = null;
+            entityStructure1.DataSourceID = null;
+            entityStructure1.DefaultChartType = null;
+            entityStructure1.Description = null;
+            entityStructure1.Drawn = false;
+            entityStructure1.Editable = false;
+            entityStructure1.EndRow = 0;
+            entityStructure1.EntityName = "Address";
+            entityStructure1.EntityPath = null;
+            entityStructure1.GuidID = "51c73fc9-51d5-4dbe-a763-ece7cfea4c66";
+            entityStructure1.Id = 0;
+            entityStructure1.IsCreated = false;
+            entityStructure1.IsIdentity = false;
+            entityStructure1.IsLoaded = false;
+            entityStructure1.IsSaved = false;
+            entityStructure1.IsSynced = false;
+            entityStructure1.KeyToken = null;
+            entityStructure1.OriginalEntityName = null;
+            entityStructure1.ParentId = 0;
+            entityStructure1.SchemaOrOwnerOrDatabase = null;
+            entityStructure1.Show = false;
+            entityStructure1.StartRow = 0;
+            entityStructure1.StatusDescription = null;
+            entityStructure1.ViewID = 0;
+            entityStructure1.Viewtype = Utilities.ViewType.Table;
+            beepDataBlock1.FieldID = null;
+            beepDataBlock1.FocusBackColor = Color.White;
+            beepDataBlock1.FocusBorderColor = Color.Gray;
+            beepDataBlock1.FocusForeColor = Color.Black;
+            beepDataBlock1.FocusIndicatorColor = Color.Blue;
+            beepDataBlock1.ForeignKeyPropertyName = "";
+            beepDataBlock1.Form = null;
+            beepDataBlock1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
+            beepDataBlock1.GradientEndColor = Color.FromArgb(0, 0, 255);
+            beepDataBlock1.GradientStartColor = Color.FromArgb(255, 0, 0);
+            beepDataBlock1.GuidID = "554c5909-55dc-4fb5-a9ed-9549180cb65d";
+            beepDataBlock1.HoverBackColor = Color.FromArgb(255, 20, 147);
+            beepDataBlock1.HoverBorderColor = Color.FromArgb(75, 0, 130);
+            beepDataBlock1.HoveredBackcolor = Color.Wheat;
+            beepDataBlock1.HoverForeColor = Color.Black;
+            beepDataBlock1.Id = -1;
+            beepDataBlock1.InactiveBackColor = Color.Gray;
+            beepDataBlock1.InactiveBorderColor = Color.Gray;
+            beepDataBlock1.InactiveForeColor = Color.Black;
+            beepDataBlock1.IsAcceptButton = false;
+            beepDataBlock1.IsBorderAffectedByTheme = false;
+            beepDataBlock1.IsCancelButton = false;
+            beepDataBlock1.IsChild = false;
+            beepDataBlock1.IsCustomeBorder = false;
+            beepDataBlock1.IsDefault = false;
+            beepDataBlock1.IsFocused = false;
+            beepDataBlock1.IsFramless = false;
+            beepDataBlock1.IsHovered = false;
+            beepDataBlock1.IsPressed = false;
+            beepDataBlock1.IsRounded = true;
+            beepDataBlock1.IsRoundedAffectedByTheme = false;
+            beepDataBlock1.IsShadowAffectedByTheme = false;
+            beepDataBlock1.LeftoffsetForDrawingRect = 0;
+            beepDataBlock1.LinkedProperty = null;
+            beepDataBlock1.Location = new Point(398, 357);
+            beepDataBlock1.MasterKeyPropertyName = "";
+            beepDataBlock1.Name = "beepDataBlock1";
+            beepDataBlock1.OverrideFontSize = TypeStyleFontSize.None;
+            beepDataBlock1.ParentBackColor = Color.Empty;
+            beepDataBlock1.ParentBlock = null;
+            beepDataBlock1.PressedBackColor = Color.FromArgb(255, 0, 255);
+            beepDataBlock1.PressedBorderColor = Color.Gray;
+            beepDataBlock1.PressedForeColor = Color.Black;
+            beepDataBlock1.RightoffsetForDrawingRect = 0;
+            beepDataBlock1.SavedGuidID = null;
+            beepDataBlock1.SavedID = null;
+            beepDataBlock1.SelectedEntityType = typeof(Container.Model.UserManagement.Address);
+            beepDataBlock1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
+            beepDataBlock1.ShadowOffset = 0;
+            beepDataBlock1.ShadowOpacity = 0.5F;
+            beepDataBlock1.ShowAllBorders = true;
+            beepDataBlock1.ShowBottomBorder = true;
+            beepDataBlock1.ShowFocusIndicator = false;
+            beepDataBlock1.ShowLeftBorder = true;
+            beepDataBlock1.ShowRightBorder = true;
+            beepDataBlock1.ShowShadow = false;
+            beepDataBlock1.ShowTopBorder = true;
+            beepDataBlock1.Size = new Size(276, 259);
+            beepDataBlock1.SlideFrom = SlideDirection.Left;
+            beepDataBlock1.StaticNotMoving = false;
+            beepDataBlock1.TabIndex = 22;
+            beepDataBlock1.Text = "beepDataBlock1";
+            beepDataBlock1.Theme = Vis.Modules.EnumBeepThemes.GradientBurstTheme;
+            beepDataBlock1.ToolTipText = "";
+            beepDataBlock1.TopoffsetForDrawingRect = 0;
+            beepDataBlock1.UIComponents = (Dictionary<string, Vis.Modules.IBeepUIComponent>)resources.GetObject("beepDataBlock1.UIComponents");
+            beepDataBlock1.UseGradientBackground = false;
             // 
             // beepPanel1
             // 
@@ -392,7 +518,7 @@
             beepPanel1.DataSourceProperty = null;
             beepPanel1.DisabledBackColor = Color.Gray;
             beepPanel1.DisabledForeColor = Color.Empty;
-            beepPanel1.DrawingRect = new Rectangle(0, 0, 210, 214);
+            beepPanel1.DrawingRect = new Rectangle(0, 0, 159, 104);
             beepPanel1.Easing = EasingType.Linear;
             beepPanel1.FieldID = null;
             beepPanel1.FocusBackColor = Color.Gray;
@@ -429,7 +555,7 @@
             beepPanel1.IsShadowAffectedByTheme = true;
             beepPanel1.LeftoffsetForDrawingRect = 0;
             beepPanel1.LinkedProperty = null;
-            beepPanel1.Location = new Point(388, 351);
+            beepPanel1.Location = new Point(6, 469);
             beepPanel1.Name = "beepPanel1";
             beepPanel1.OverrideFontSize = TypeStyleFontSize.None;
             beepPanel1.ParentBackColor = Color.Empty;
@@ -452,7 +578,7 @@
             beepPanel1.ShowTitleLine = true;
             beepPanel1.ShowTitleLineinFullWidth = true;
             beepPanel1.ShowTopBorder = false;
-            beepPanel1.Size = new Size(210, 214);
+            beepPanel1.Size = new Size(159, 104);
             beepPanel1.SlideFrom = SlideDirection.Left;
             beepPanel1.StaticNotMoving = false;
             beepPanel1.TabIndex = 21;
@@ -684,7 +810,7 @@
             beepDialogBox1.DataSourceProperty = null;
             beepDialogBox1.DisabledBackColor = Color.Gray;
             beepDialogBox1.DisabledForeColor = Color.Empty;
-            beepDialogBox1.DrawingRect = new Rectangle(0, 0, 189, 248);
+            beepDialogBox1.DrawingRect = new Rectangle(0, 0, 189, 134);
             beepDialogBox1.Easing = EasingType.Linear;
             beepDialogBox1.FieldID = null;
             beepDialogBox1.FocusBackColor = Color.Gray;
@@ -748,7 +874,7 @@
             beepDialogBox1.ShowTitleLine = true;
             beepDialogBox1.ShowTitleLineinFullWidth = true;
             beepDialogBox1.ShowTopBorder = false;
-            beepDialogBox1.Size = new Size(189, 248);
+            beepDialogBox1.Size = new Size(189, 134);
             beepDialogBox1.SlideFrom = SlideDirection.Left;
             beepDialogBox1.StaticNotMoving = false;
             beepDialogBox1.TabIndex = 18;
@@ -989,7 +1115,7 @@
             beepListBox1.DataSourceProperty = null;
             beepListBox1.DisabledBackColor = Color.Gray;
             beepListBox1.DisabledForeColor = Color.Empty;
-            beepListBox1.DrawingRect = new Rectangle(0, 0, 157, 339);
+            beepListBox1.DrawingRect = new Rectangle(0, 0, 157, 193);
             beepListBox1.Easing = EasingType.Linear;
             beepListBox1.FieldID = null;
             beepListBox1.FocusBackColor = Color.Gray;
@@ -1060,7 +1186,7 @@
             beepListBox1.ShowTitleLine = true;
             beepListBox1.ShowTitleLineinFullWidth = true;
             beepListBox1.ShowTopBorder = false;
-            beepListBox1.Size = new Size(157, 339);
+            beepListBox1.Size = new Size(157, 193);
             beepListBox1.SlideFrom = SlideDirection.Left;
             beepListBox1.StaticNotMoving = false;
             beepListBox1.TabIndex = 14;
@@ -1201,5 +1327,6 @@
         private BeepLabel beepLabel1;
         private BeepPanel beepPanel1;
         private BeepProgressBar beepProgressBar1;
+        private BeepDataBlock beepDataBlock1;
     }
 }

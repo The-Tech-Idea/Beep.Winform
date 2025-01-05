@@ -7,23 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Editor;
 
-namespace TheTechIdea.Beep.Winform.Controls.Helpers
+namespace TheTechIdea.Beep.Vis.Logic
 {
     public static class ProjectHelper
     {
-        public static List<Type> GetProjectTypes(IServiceProvider serviceProvider)
-        {
-            var typeDiscoverySvc = (ITypeDiscoveryService)serviceProvider
-                .GetService(typeof(ITypeDiscoveryService));
-            var types = typeDiscoverySvc.GetTypes(typeof(object), true)
-                .Cast<Type>()
-                .Where(item =>
-                    item.IsPublic &&
-                    typeof(Form).IsAssignableFrom(item) &&
-                    !item.FullName.StartsWith("System")
-                ).ToList();
-            return types;
-        }
+       
         public static Type GetTypeFromName(IServiceProvider serviceProvider, string typeName)
         {
             ITypeResolutionService typeResolutionSvc = (ITypeResolutionService)serviceProvider
@@ -92,25 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         //    // Filter components that encapsulate IUnitofWork in their properties or fields
         //    return components.Where(c => HasUnitOfWorkPropertyOrField(c)).ToList();
         //}
-        public static List<Type> GetUnitOfWorkEncapsulatingTypesDesignTime(IServiceProvider serviceProvider)
-        {
-            // Retrieve the type discovery service from the design-time context
-            var typeDiscoveryService = (ITypeDiscoveryService)serviceProvider.GetService(typeof(ITypeDiscoveryService));
-
-            if (typeDiscoveryService == null)
-                return new List<Type>();
-
-            // Use the type discovery service to get all relevant types
-            var allTypes = typeDiscoveryService.GetTypes(typeof(object), true).Cast<Type>();
-
-            // Filter types that contain properties of type IUnitOfWork
-            var unitOfWorkTypes = GetProjectTypes(serviceProvider)
-                .Where(type => HasUnitOfWorkPropertyOrField(type))
-                .Where(type => type.IsPublic && !type.FullName.StartsWith("System"))
-                .ToList();
-
-            return unitOfWorkTypes;
-        }
+      
         private static bool HasUnitOfWorkPropertyOrField(object obj)
         {
             if (obj == null) return false;

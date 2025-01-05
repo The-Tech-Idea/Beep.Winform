@@ -1,7 +1,7 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 
 
-namespace TheTechIdea.Beep.Winform.Controls.Helpers
+namespace TheTechIdea.Beep.Vis.Logic
 {
     public class FileStorage : IFileStorage
     {

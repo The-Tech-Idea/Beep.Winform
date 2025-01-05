@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using TheTechIdea.Beep.Desktop.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Vis.Logic;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

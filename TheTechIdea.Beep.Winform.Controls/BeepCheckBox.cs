@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Data;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Report;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -319,8 +320,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 OnStateChanged(); // Update CurrentValue and redraw
             }
         }
-
-
         private void OnStateChanged()
         {
             CurrentValue = State == CheckBoxState.Checked ? CheckedValue : UncheckedValue;
@@ -328,7 +327,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             StateChanged?.Invoke(this, EventArgs.Empty);
             Invalidate(); // Redraw the control
         }
-
         public override void ApplyTheme()
         {
             if (Theme != null)
@@ -339,5 +337,56 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
+        #region "IBeepComponent Implementation"
+        public new string BoundProperty { get; set; } = "State";
+        public new string DataSourceProperty { get; set; }
+        public new string LinkedProperty { get; set; }
+        public new void RefreshBinding()
+        {
+            if (DataContext != null)
+            {
+                if (BoundProperty != null && BoundProperty != "")
+                {
+                    if (BoundProperty == "State")
+                    {
+                        if (DataContext.GetType().GetProperty(DataSourceProperty) != null)
+                        {
+                            CurrentValue = (T)DataContext.GetType().GetProperty(DataSourceProperty).GetValue(DataContext);
+                        }
+                    }
+                }
+            }
+        }
+        public new void SetValue(object value)
+        {
+            if (value != null)
+            {
+                CurrentValue = (T)value;
+            }
+        }
+        public new object GetValue()
+        {
+            return CurrentValue;
+        }
+        public new void ClearValue()
+        {
+            CurrentValue = default;
+        }
+        public new bool HasFilterValue()
+        {
+            return CurrentValue != null;
+        }
+        public new AppFilter ToFilter()
+        {
+            return new AppFilter
+            {
+                FieldName = BoundProperty,
+                FilterValue = State.ToString(),
+                Operator = "="
+            };
+        }
+      
+
+        #endregion "IBeepComponent Implementation"
     }
 }

@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Desktop.Controls.Common;
+using TheTechIdea.Beep.Utilities;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -806,6 +807,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         }
         #endregion "Mouse and Click"
+        #region "Binding and Control Type"
+        public DbFieldCategory Category { get; set; } = DbFieldCategory.Boolean;
+
+        public void SetBinding(string controlProperty, string dataSourceProperty)
+        {
+            // Implementation for setting up data binding
+            this.DataBindings.Add(controlProperty, DataContext, dataSourceProperty, true, DataSourceUpdateMode.OnPropertyChanged);
+        }
+        #endregion "Binding and Control Type"
     }
 
 

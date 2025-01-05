@@ -3,6 +3,10 @@ using System;
 using System.ComponentModel;
 
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using System.Text.RegularExpressions;
+using System.Net.Mail;
+using System.Globalization;
+using TheTechIdea.Beep.Vis.Logic;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -272,11 +276,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _innerTextBox.Text;
             set
             {
-                _innerTextBox.Text = ControlExtensions.GetFormattedText(value, MaskFormat); //ApplyMaskFormat(value);
-                Invalidate();
+                if (!_isApplyingMask)
+                {
+                    _innerTextBox.Text = value;
+                    ApplyMaskFormat();
+                    Invalidate();
+                }
             }
         }
-
         [Browsable(true)]
         [Category("Behavior")]
         [Description("Restrict input to digits only.")]
@@ -313,17 +320,130 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Specify the mask or format for text display (e.g., Currency, Percentage).")]
-        public string MaskFormat
+        [Description("Specify the mask or format for text display.")]
+        public TextBoxMaskFormat MaskFormat
         {
-            get => _maskFormat;
+            get => _maskFormatEnum;
             set
             {
-                _maskFormat = value;
-                Text = _innerTextBox.Text; // Reapply formatting
+                _maskFormatEnum = value;
+                ApplyMaskFormat();
+                Invalidate();
             }
         }
 
+        private TextBoxMaskFormat _maskFormatEnum = TextBoxMaskFormat.None;
+        // Optional: For custom mask formats
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Specify a custom mask format.")]
+        public string CustomMask
+        {
+            get => _customMask;
+            set
+            {
+                _customMask = value;
+                if (MaskFormat == TextBoxMaskFormat.Custom)
+                {
+                    ApplyMaskFormat();
+                }
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Specify the custom date and time format for display.")]
+        public string DateFormat
+        {
+            get => _dateFormat;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    _dateFormat = "MM/dd/yyyy"; // Default format
+                }
+                else
+                {
+                    // Validate the format string
+                    try
+                    {
+                        DateTime.Now.ToString(value, CultureInfo.CurrentCulture);
+                        _dateFormat = value;
+                    }
+                    catch (FormatException)
+                    {
+                        throw new FormatException($"The date format '{value}' is invalid.");
+                    }
+                }
+                ApplyMaskFormat();
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Specify the custom time format for display.")]
+        public string TimeFormat
+        {
+            get => _timeFormat;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    _timeFormat = "HH:mm:ss"; // Default time format (24-hour)
+                }
+                else
+                {
+                    // Validate the format string
+                    try
+                    {
+                        DateTime.Now.ToString(value, CultureInfo.CurrentCulture);
+                        _timeFormat = value;
+                    }
+                    catch (FormatException)
+                    {
+                        throw new FormatException($"The time format '{value}' is invalid.");
+                    }
+                }
+                ApplyTimeFormat();
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Specify the custom date and time format for display.")]
+        public string DateTimeFormat
+        {
+            get => _dateTimeFormat;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    _dateTimeFormat = $"{_dateFormat} {_timeFormat}"; // Default combined format
+                }
+                else
+                {
+                    // Validate the format string
+                    try
+                    {
+                        // Attempt to format the current date and time with the provided format
+                        DateTime.Now.ToString(value, CultureInfo.CurrentCulture);
+                        _dateTimeFormat = value;
+                    }
+                    catch (FormatException)
+                    {
+                        throw new FormatException($"The date and time format '{value}' is invalid.");
+                    }
+                }
+                ApplyMaskFormat(); // Reapply formatting with the new DateTimeFormat
+                Invalidate(); // Refresh the control to reflect changes
+            }
+        }
+        private string _dateTimeFormat = "MM/dd/yyyy HH:mm:ss"; // Default combined format
+
+        private string _timeFormat = "HH:mm:ss"; // Default format
+        private string _dateFormat = "MM/dd/yyyy HH:mm:ss"; // Default format
+
+        private string _customMask = string.Empty;
         [Browsable(true)]
         [Category("Appearance")]
         public TextImageRelation TextImageRelation
@@ -400,11 +520,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion "Properties"
-
+        #region "Constructors"
         public BeepTextBox()
         {
             InitializeComponents();
-          
+
             AutoSize = false;
             IsChild = true;
             BoundProperty = "Text";
@@ -414,16 +534,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             AdjustTextBoxHeight();
             PositionInnerTextBoxAndImage();
-          
+
             //AdjustTextBoxHeight();
             //PositionInnerTextBoxAndImage();
         }
-
+        #endregion "Constructors"
+        #region "Initialization"
         protected override void OnLayout(LayoutEventArgs levent)
         {
             base.OnLayout(levent);
         }
-        protected override Size DefaultSize => new Size (200, GetSingleLineHeight());
+        protected override Size DefaultSize => new Size(200, GetSingleLineHeight());
 
         public int SelectionStart { get => _innerTextBox.SelectionStart; set { _innerTextBox.SelectionStart = value; } }
 
@@ -434,28 +555,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void InitLayout()
         {
             base.InitLayout();
-           
-        }
 
-        private void BeepTextBox_Invalidated(object? sender, InvalidateEventArgs e)
-        {
-            _isControlinvalidated=true;
-           // Invalidate();
-        }
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-            //if (_isControlinvalidated) {
-            //    if (ShowAllBorders) { _innerTextBox.BorderStyle = BorderStyle.None; } else { _innerTextBox.BorderStyle = BorderStyle.FixedSingle; }
-            //    _isControlinvalidated = false;
-            //}
         }
         private void InitializeComponents()
         {
             _innerTextBox = new TextBox
             {
                 BorderStyle = System.Windows.Forms.BorderStyle.None,
-               // Multiline = true,
+                // Multiline = true,
                 //ScrollBars= ScrollBars.Both
             };
             // IsCustomeBorder=true;   
@@ -466,15 +573,31 @@ namespace TheTechIdea.Beep.Winform.Controls
             _innerTextBox.MouseLeave += OnMouseLeave;
             _innerTextBox.TextChanged += (s, e) => Invalidate(); // Repaint to apply formatting
             Controls.Add(_innerTextBox);
-        
+
             beepImage = new BeepImage { Size = _maxImageSize, Dock = DockStyle.None, Margin = new Padding(0) };
-     //       Console.WriteLine("InitializeComponents");
+            //       Console.WriteLine("InitializeComponents");
             //AdjustTextBoxHeight();
             //PositionInnerTextBoxAndImage();
 
         }
+        #endregion "Initialization"
+        #region "Paint and Invalidate"
+        private void BeepTextBox_Invalidated(object? sender, InvalidateEventArgs e)
+        {
+            _isControlinvalidated = true;
+            // Invalidate();
+        }
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            //if (_isControlinvalidated) {
+            //    if (ShowAllBorders) { _innerTextBox.BorderStyle = BorderStyle.None; } else { _innerTextBox.BorderStyle = BorderStyle.FixedSingle; }
+            //    _isControlinvalidated = false;
+            //}
+        }
+        #endregion "Paint and Invalidate"
         #region "Size and Position"
-       // protected override Size DefaultSize => GetDefaultSize();
+        // protected override Size DefaultSize => GetDefaultSize();
         private int GetSingleLineHeight()
         {
             // Ensure DrawingRect is updated
@@ -638,19 +761,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion "Size and Position"
-        //public override void DrawCustomBorder(PaintEventArgs e)
-        //{
-        //    if(!ShowAllBorders) 
-        //    { _innerTextBox.BorderStyle = BorderStyle.None; } 
-        //    else { _innerTextBox.BorderStyle = BorderStyle.FixedSingle; }
-        //}
+        #region "Mouse Events"
         private void OnMouseEnter(object? sender, EventArgs e)
         {
             base.OnMouseEnter(e);
             BorderColor = HoverBackColor;
             Invalidate();
         }
-
         private void OnMouseLeave(object? sender, EventArgs e)
         {
             base.OnMouseLeave(e);
@@ -658,36 +775,175 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
-       
+        #endregion "Mouse Events"
+        #region "Key Events"
         private void InnerTextBox_TextChanged(object sender, EventArgs e)
         {
-            Text = _innerTextBox.Text;
-            Invalidate();
-        }
-
-        private void InnerTextBox_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if ((OnlyDigits && !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar)) ||
-                (OnlyCharacters && !char.IsLetter(e.KeyChar) && !char.IsControl(e.KeyChar)))
+            if (!_isApplyingMask)
             {
-                e.Handled = true;
+                _isApplyingMask = true;
+                ApplyMaskFormat();
+                _isApplyingMask = false;
+
+                Text = _innerTextBox.Text;
+                Invalidate();
             }
         }
-     
-
-
-        public override void ApplyTheme()
+        private void InnerTextBox_KeyPress(object sender, KeyPressEventArgs e)
         {
-            //base.ApplyTheme();
-            _innerTextBox.BackColor = _currentTheme.TextBoxBackColor;
-            _innerTextBox.ForeColor = _currentTheme.TextBoxForeColor;
-            Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-            BackColor =_currentTheme.BackColor  ;
-            beepImage.ApplyTheme();
-            Invalidate();
-        }
+            // Retrieve the current culture's decimal and group separators
+            string decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+            string groupSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
 
-   
+            // Handle input restrictions based on OnlyDigits and OnlyCharacters
+            if (OnlyDigits)
+            {
+                // Allow digits, control characters, decimal separator, and group separator
+                if (!char.IsDigit(e.KeyChar) &&
+                    !char.IsControl(e.KeyChar) &&
+                    e.KeyChar.ToString() != decimalSeparator &&
+                    e.KeyChar.ToString() != groupSeparator)
+                {
+                    e.Handled = true;
+                    return;
+                }
+
+                // If decimal separator is pressed, allow only one occurrence
+                if (e.KeyChar.ToString() == decimalSeparator && _innerTextBox.Text.Contains(decimalSeparator))
+                {
+                    e.Handled = true;
+                    return;
+                }
+            }
+            else if (OnlyCharacters)
+            {
+                // Allow only letters and control characters
+                if (!char.IsLetter(e.KeyChar) &&
+                    !char.IsControl(e.KeyChar))
+                {
+                    e.Handled = true;
+                    return;
+                }
+            }
+
+            // Additional restrictions based on MaskFormat
+            switch (MaskFormat)
+            {
+                case TextBoxMaskFormat.Currency:
+                case TextBoxMaskFormat.Percentage:
+                case TextBoxMaskFormat.Decimal:
+                    // Allow only one decimal separator based on current culture
+                    if (e.KeyChar.ToString() == decimalSeparator && _innerTextBox.Text.Contains(decimalSeparator))
+                    {
+                        e.Handled = true;
+                    }
+                    break;
+
+                case TextBoxMaskFormat.PhoneNumber:
+                    // Allow digits, control characters, and specific phone number symbols
+                    if (!char.IsDigit(e.KeyChar) &&
+                        !char.IsControl(e.KeyChar) &&
+                        e.KeyChar != '(' &&
+                        e.KeyChar != ')' &&
+                        e.KeyChar != '-' &&
+                        e.KeyChar != ' ' &&
+                        e.KeyChar != '+')
+                    {
+                        e.Handled = true;
+                    }
+                    break;
+
+                case TextBoxMaskFormat.Email:
+                    // Allow standard email characters: letters, digits, and specific symbols
+                    if (!char.IsLetterOrDigit(e.KeyChar) &&
+                        !char.IsControl(e.KeyChar) &&
+                        e.KeyChar != '@' &&
+                        e.KeyChar != '.' &&
+                        e.KeyChar != '_' &&
+                        e.KeyChar != '-' &&
+                        e.KeyChar != '+')
+                    {
+                        e.Handled = true;
+                    }
+                    break;
+
+                case TextBoxMaskFormat.URL:
+                    // Allow standard URL characters: letters, digits, and specific symbols
+                    if (!char.IsLetterOrDigit(e.KeyChar) &&
+                        !char.IsControl(e.KeyChar) &&
+                        e.KeyChar != '/' &&
+                        e.KeyChar != ':' &&
+                        e.KeyChar != '.' &&
+                        e.KeyChar != '?' &&
+                        e.KeyChar != '#' &&
+                        e.KeyChar != '&' &&
+                        e.KeyChar != '=' &&
+                        e.KeyChar != '%' &&
+                        e.KeyChar != '-' &&
+                        e.KeyChar != '_' &&
+                        e.KeyChar != '~' &&
+                        e.KeyChar != ':')
+                    {
+                        e.Handled = true;
+                    }
+                    break;
+
+                case TextBoxMaskFormat.IPAddress:
+                    // Allow digits, control characters, and dots
+                    if (!char.IsDigit(e.KeyChar) &&
+                        !char.IsControl(e.KeyChar) &&
+                        e.KeyChar != '.')
+                    {
+                        e.Handled = true;
+                    }
+                    else if (e.KeyChar == '.' && _innerTextBox.Text.EndsWith("."))
+                    {
+                        // Prevent consecutive dots
+                        e.Handled = true;
+                    }
+                    break;
+
+                case TextBoxMaskFormat.CreditCard:
+                    // Allow only digits, control characters, and spaces
+                    if (!char.IsDigit(e.KeyChar) &&
+                        !char.IsControl(e.KeyChar) &&
+                        e.KeyChar != ' ')
+                    {
+                        e.Handled = true;
+                    }
+                    break;
+
+                case TextBoxMaskFormat.Hexadecimal:
+                    // Allow only hexadecimal characters and control characters
+                    if (!Uri.IsHexDigit(e.KeyChar) &&
+                        !char.IsControl(e.KeyChar))
+                    {
+                        e.Handled = true;
+                    }
+                    break;
+
+                case TextBoxMaskFormat.Custom:
+                    // Implement custom mask restrictions if necessary
+                    // Example: Allow only specific characters or enforce a pattern
+                    // This depends on how CustomMask is defined and intended to be used
+                    break;
+
+                case TextBoxMaskFormat.None:
+                default:
+                    // No additional restrictions
+                    break;
+            }
+        }
+        internal void ScrollToCaret()
+        {
+            _innerTextBox.ScrollToCaret();
+        }
+        internal void AppendText(string v)
+        {
+            _innerTextBox.AppendText(v);
+        }
+        #endregion "Key Events"
+        #region "Search Events"
         private void OnSearchKeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter) OnSearchTriggered();
@@ -695,14 +951,307 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler SearchTriggered;
         protected virtual void OnSearchTriggered() => SearchTriggered?.Invoke(this, EventArgs.Empty);
 
-        internal void ScrollToCaret()
+        #endregion "Search Events"
+        #region "Masking Logic"
+        private void ApplyMaskFormat()
         {
-            _innerTextBox.ScrollToCaret();
+            switch (MaskFormat)
+            {
+                case TextBoxMaskFormat.Currency:
+                    ApplyCurrencyFormat();
+                    break;
+                case TextBoxMaskFormat.Percentage:
+                    ApplyPercentageFormat();
+                    break;
+                case TextBoxMaskFormat.Date:
+                    ApplyDateFormat();
+                    break;
+                case TextBoxMaskFormat.Time:
+                    ApplyTimeFormat();
+                    break;
+                case TextBoxMaskFormat.PhoneNumber:
+                    ApplyPhoneNumberFormat();
+                    break;
+                case TextBoxMaskFormat.Email:
+                    // Email format doesn't alter display but can trigger validation
+                    break;
+                case TextBoxMaskFormat.SocialSecurityNumber:
+                    ApplySSNFormat();
+                    break;
+                case TextBoxMaskFormat.ZipCode:
+                    ApplyZipCodeFormat();
+                    break;
+                case TextBoxMaskFormat.IPAddress:
+                    ApplyIPAddressFormat();
+                    break;
+                case TextBoxMaskFormat.CreditCard:
+                    ApplyCreditCardFormat();
+                    break;
+                case TextBoxMaskFormat.Hexadecimal:
+                    // Hexadecimal input is handled via KeyPress restrictions
+                    break;
+                case TextBoxMaskFormat.URL:
+                    // URL format doesn't alter display but can trigger validation
+                    break;
+                case TextBoxMaskFormat.TimeSpan:
+                    ApplyTimeSpanFormat();
+                    break;
+                case TextBoxMaskFormat.Decimal:
+                    ApplyDecimalFormat();
+                    break;
+                case TextBoxMaskFormat.CurrencyWithoutSymbol:
+                    ApplyCurrencyWithoutSymbolFormat();
+                    break;
+                case TextBoxMaskFormat.DateTime:
+                    ApplyDateTimeFormat();
+                    break;
+                case TextBoxMaskFormat.Year:
+                    ApplyYearFormat();
+                    break;
+                case TextBoxMaskFormat.MonthYear:
+                    ApplyMonthYearFormat();
+                    break;
+                case TextBoxMaskFormat.Custom:
+                    ApplyCustomFormat();
+                    break;
+                case TextBoxMaskFormat.Alphanumeric:
+                case TextBoxMaskFormat.Numeric:
+                case TextBoxMaskFormat.Password:
+                case TextBoxMaskFormat.None:
+                default:
+                    // No formatting applied
+                    break;
+            }
+        }
+        private void ApplyCurrencyFormat()
+        {
+            if (decimal.TryParse(_innerTextBox.Text, out decimal value))
+            {
+                _innerTextBox.Text = value.ToString("C2"); // Currency format with 2 decimal places
+                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+            }
+        }
+        private void ApplyPercentageFormat()
+        {
+            if (decimal.TryParse(_innerTextBox.Text, out decimal value))
+            {
+                _innerTextBox.Text = value.ToString("P2"); // Percentage format with 2 decimal places
+                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+            }
+        }
+        private void ApplyDateFormat()
+        {
+            if (DateTime.TryParse(_innerTextBox.Text, out DateTime date))
+            {
+                _innerTextBox.Text = date.ToString(_dateFormat, CultureInfo.CurrentCulture); // Use custom date format
+                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+            }
+        }
+        private void ApplyTimeFormat()
+        {
+            if (DateTime.TryParse(_innerTextBox.Text, out DateTime time))
+            {
+                _innerTextBox.Text = time.ToString(_timeFormat, CultureInfo.CurrentCulture); // Use custom time format
+                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+            }
+        }
+        private void ApplyDateTimeFormat()
+        {
+            if (DateTime.TryParse(_innerTextBox.Text, out DateTime dateTime))
+            {
+                _innerTextBox.Text = dateTime.ToString(_dateTimeFormat);
+                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+            }
+        }
+        private void ApplyPhoneNumberFormat()
+        {
+            // Simple formatting for U.S. phone numbers
+            string digits = Regex.Replace(_innerTextBox.Text, @"\D", "");
+            if (digits.Length >= 10)
+            {
+                _innerTextBox.Text = Regex.Replace(digits, @"(\d{3})(\d{3})(\d{4})", "($1) $2-$3");
+                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+            }
+        }
+        private void ApplySSNFormat()
+        {
+            // Formats SSN as XXX-XX-XXXX
+            string digits = Regex.Replace(_innerTextBox.Text, @"\D", "");
+            if (digits.Length >= 9)
+            {
+                _innerTextBox.Text = Regex.Replace(digits, @"(\d{3})(\d{2})(\d{4})", "$1-$2-$3");
+                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+            }
+        }
+        private void ApplyZipCodeFormat()
+        {
+            // Formats ZIP code as XXXXX or XXXXX-XXXX
+            string digits = Regex.Replace(_innerTextBox.Text, @"\D", "");
+            if (digits.Length == 5)
+            {
+                _innerTextBox.Text = digits;
+            }
+            else if (digits.Length == 9)
+            {
+                _innerTextBox.Text = Regex.Replace(digits, @"(\d{5})(\d{4})", "$1-$2");
+            }
+            _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+        }
+        private void ApplyIPAddressFormat()
+        {
+            // Simple IPv4 formatting
+            string digits = Regex.Replace(_innerTextBox.Text, @"\D", "");
+            if (digits.Length > 12) digits = digits.Substring(0, 12); // Max 12 digits for IPv4
+
+            string ip = "";
+            for (int i = 0; i < digits.Length; i++)
+            {
+                ip += digits[i];
+                if ((i + 1) % 3 == 0 && i < digits.Length - 1)
+                {
+                    ip += ".";
+                }
+            }
+
+            _innerTextBox.Text = ip;
+            _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+        }
+        private void ApplyCreditCardFormat()
+        {
+            // Formats credit card numbers as XXXX XXXX XXXX XXXX
+            string digits = Regex.Replace(_innerTextBox.Text, @"\D", "");
+            digits = digits.Length > 16 ? digits.Substring(0, 16) : digits;
+
+            string formatted = Regex.Replace(digits, @"(\d{4})(?=\d)", "$1 ");
+            _innerTextBox.Text = formatted.Trim();
+            _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+        }
+        private void ApplyTimeSpanFormat()
+        {
+            if (TimeSpan.TryParse(_innerTextBox.Text, out TimeSpan ts))
+            {
+                _innerTextBox.Text = ts.ToString(@"hh\:mm\:ss");
+                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+            }
+        }
+        private void ApplyDecimalFormat()
+        {
+            if (decimal.TryParse(_innerTextBox.Text, out decimal value))
+            {
+                _innerTextBox.Text = value.ToString("N2"); // Numeric format with 2 decimal places
+                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+            }
+        }
+        private void ApplyCurrencyWithoutSymbolFormat()
+        {
+            if (decimal.TryParse(_innerTextBox.Text, out decimal value))
+            {
+                _innerTextBox.Text = value.ToString("N2"); // Numeric format without currency symbol
+                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+            }
+        }
+        private void ApplyYearFormat()
+        {
+            if (int.TryParse(_innerTextBox.Text, out int year))
+            {
+                _innerTextBox.Text = year.ToString("D4"); // Ensure 4-digit year
+                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+            }
+        }
+        private void ApplyMonthYearFormat()
+        {
+            // Formats as MM/yyyy
+            string digits = Regex.Replace(_innerTextBox.Text, @"\D", "");
+            if (digits.Length >= 6)
+            {
+                _innerTextBox.Text = Regex.Replace(digits, @"(\d{2})(\d{4})", "$1/$2");
+            }
+            _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+        }
+        private void ApplyCustomFormat()
+        {
+            if (!string.IsNullOrEmpty(CustomMask))
+            {
+                // Implement custom formatting based on CustomMask
+                // This could involve regex-based formatting or other rules
+                // For demonstration, let's assume CustomMask is a format string with placeholders
+                try
+                {
+                    // Example: "AAA-9999" where A=Letter and 9=Digit
+                    string formatted = "";
+                    int digitIndex = 0, letterIndex = 0;
+                    foreach (char maskChar in CustomMask)
+                    {
+                        if (maskChar == 'A' && letterIndex < _innerTextBox.Text.Length && char.IsLetter(_innerTextBox.Text[letterIndex]))
+                        {
+                            formatted += char.ToUpper(_innerTextBox.Text[letterIndex++]);
+                        }
+                        else if (maskChar == '9' && digitIndex < _innerTextBox.Text.Length && char.IsDigit(_innerTextBox.Text[digitIndex]))
+                        {
+                            formatted += _innerTextBox.Text[digitIndex++];
+                        }
+                        else
+                        {
+                            formatted += maskChar;
+                        }
+                    }
+
+                    _innerTextBox.Text = formatted;
+                    _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error applying custom mask: {ex.Message}");
+                }
+            }
+        }
+        private bool _isApplyingMask = false;
+        #endregion "Masking Logic"
+        #region "IBeepComponent Implementation"
+        public new void RefreshBinding()
+        {
+            base.RefreshBinding();
+        }
+        public bool ValidateData(out string message)
+        {
+            return EntityHelper.ValidateData(this.MaskFormat, this.Text, this.CustomMask, out message);
+        }
+        public void Clear()
+        {
+            _innerTextBox.Clear();
+        }
+        public void Focus()
+        {
+            _innerTextBox.Focus();
+        }
+        public void SelectAll()
+        {
+            _innerTextBox.SelectAll();
         }
 
-        internal void AppendText(string v)
+        #endregion "IBeepComponent Implementation"
+
+        #region "Format Strings"
+
+        // Define format strings for various MaskFormats
+        private string _currencyFormat = "C2";       // Currency with 2 decimal places
+        private string _percentageFormat = "P2";     // Percentage with 2 decimal places
+        private string _decimalFormat = "N2";        // Number with 2 decimal places
+        private string _monthYearFormat = "MM/yyyy"; // Month and Year format
+
+        #endregion "Format Strings"
+        #region "Theme and Style"
+        public override void ApplyTheme()
         {
-           _innerTextBox.AppendText(v);
+            //base.ApplyTheme();
+            _innerTextBox.BackColor = _currentTheme.TextBoxBackColor;
+            _innerTextBox.ForeColor = _currentTheme.TextBoxForeColor;
+            Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+            BackColor = _currentTheme.BackColor;
+            beepImage.ApplyTheme();
+            Invalidate();
         }
+        #endregion "Theme and Style"
+
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Desktop.Controls.Common;
+using TheTechIdea.Beep.Utilities;
 // using TheTechIdea.Beep.Desktop.Controls.Common; // if needed
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -277,5 +278,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             _comboTextBox.BackColor = _currentTheme.BackColor;
             _comboTextBox.ForeColor = _currentTheme.TitleForColor;
         }
+        #region "Binding and Control Type"
+        public DbFieldCategory Category { get; set; } = DbFieldCategory.Numeric;
+
+        public void SetBinding(string controlProperty, string dataSourceProperty)
+        {
+            // Implementation for setting up data binding
+            this.DataBindings.Add(controlProperty, DataContext, dataSourceProperty, true, DataSourceUpdateMode.OnPropertyChanged);
+        }
+        #endregion "Binding and Control Type"
     }
 }

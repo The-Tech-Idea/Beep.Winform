@@ -1,6 +1,7 @@
 ﻿
 using System.Runtime.CompilerServices;
 using TheTechIdea.Beep.Desktop.Controls.Common;
+using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 

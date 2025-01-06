@@ -6,6 +6,7 @@ using System.Drawing.Design;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Report;
+using TheTechIdea.Beep.Utilities;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -155,9 +156,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         public int BottomoffsetForDrawingRect { get { return _bottomoffsetForDrawingRect; } set { _bottomoffsetForDrawingRect = value; Invalidate(); } }
-
-
-
         [Browsable(true)]
         [Category("Appearance")]
         public int TopoffsetForDrawingRect { get { return _topoffsetForDrawingRect; } set { _topoffsetForDrawingRect = value;Invalidate(); } }
@@ -227,21 +225,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         public bool IsCancelButton { get { return _isCancelButton; } set { _isCancelButton = value; Invalidate(); } }
 
-        [Browsable(true)]
-        [Category("Data")]
-        public string FieldID { get; set; }
-        [Browsable(true)]
-        [Category("Data")]
-        public string BlockID { get; set; }
+    
         public string SavedID { get; set; }
         public string SavedGuidID { get; set; }
-        public string [] Items { get { return _items; } set { _items = value; } }
-        public string GuidID
-            { get { return _guidID; }set { _guidID = value; } }
-        public int Id {  get { return _id; }set { _id = value; } }
-
-
-       
+    
 
         protected bool _isChild;
         protected Color parentbackcolor;
@@ -363,10 +350,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
         }
-        // Theme Properties
-        protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
-        protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
-        // Border control properties
+     // Border control properties
         // Custom DashStyle for the border
         [Browsable(true)]
         [Category("Appearance")]
@@ -747,21 +731,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
-        [Browsable(true)]
-        [TypeConverter(typeof(ThemeEnumConverter))]
-        public EnumBeepThemes Theme
-        {
-            get => _themeEnum;
-            set
-            {
-                _themeEnum = value;
-                _currentTheme = BeepThemesManager.GetTheme(value);
-          //      this.ApplyTheme();
-                ApplyTheme();
-            }
-        }
-        protected object _dataContext;
+        // Theme Properties
+      
+     
 
         // Track Format and Parse event handlers for reattachment
         protected Dictionary<Binding, EventHandler<ConvertEventArgs>> formatHandlers = new();
@@ -769,66 +741,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected List<Binding> _originalBindings = new List<Binding>();
         protected Color _disabledForeColor;
         private bool _isAnimating;
-      
 
-        [Browsable(true)]
-        [Category("Data")]
-        [Description("Gets or sets the data context for data binding.")]
-        public object DataContext
-        {
-            get => _dataContext;
-            set
-            {
-                _dataContext = value;
-                OnDataContextChanged();
-            }
-        }
-        public IBeepUIComponent Form { get; set; }
+     
+    
         public Rectangle DrawingRect { get; set; }
         public bool IsCustomeBorder { get;  set; }
-        [Browsable(true)]
-        [Category("Data")]
-        public string BoundProperty { get ; set ; }
-        [Browsable(true)]
-        [Category("Data")]
-        public string LinkedProperty { get; set; }
-        [Browsable(true)]
-        [Category("Data")]
-        public string DataSourceProperty { get; set; } // The property of the data source
-        public void SetValue(object value)
-        {
-            var controlProperty = GetType().GetProperty(BoundProperty);
-            controlProperty?.SetValue(this, value);
 
-            if (DataContext != null && !string.IsNullOrEmpty(DataSourceProperty))
-            {
-                var dataSourceProperty = DataContext.GetType().GetProperty(DataSourceProperty);
-                dataSourceProperty?.SetValue(DataContext, value);
-            }
-        }
-        public object GetValue()
-        {
-            var controlProperty = GetType().GetProperty(BoundProperty);
-            return controlProperty?.GetValue(this);
-        }
-        public void ClearValue() => SetValue(null);
-        public virtual bool HasFilterValue() => !string.IsNullOrEmpty(BoundProperty) && GetValue() != null;
-        public AppFilter ToFilter()
-        {
-            return new AppFilter
-            {
-                FieldName = BoundProperty,
-                FilterValue = GetValue().ToString(),
-                Operator = "=",
-                valueType = "string"
-            };
-        }
         #endregion "Public Properties"
-
+        #region "Constructors"
         public BeepControl()
         {
             DoubleBuffered = true;
-            SetStyle( ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
             InitializeTooltip();
             ShowAllBorders = true;
@@ -838,6 +762,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             DataBindings.CollectionChanged += DataBindings_CollectionChanged;
 
         }
+        #endregion "Constructors"
+        #region "Feature Management"
         protected void BeepControl_LocationChanged(object? sender, EventArgs e)
         {
             if (StaticNotMoving)
@@ -851,7 +777,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // UpdateScrollBars();
         }
         // Method to initialize tooltip with default settings
-
+        #endregion "Feature Management"
         #region "Data Binding"
 
         // Override property binding management when DataContext changes
@@ -874,7 +800,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DataBindings.Clear();
             }
         }
-
         // RefreshBindings method: Force an update to each binding in the control
         public void RefreshBinding()
         {
@@ -890,14 +815,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
-        // Method to validate data, with a default implementation
-        public virtual bool ValidateData(out string message)
-        {
-            message = "ok";
-            return true;
-        }
-
         // Method to be called whenever DataContext changes
         protected virtual void OnDataContextChanged()
         {
@@ -946,32 +863,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        // Set binding for a specific control property to a data source property
-        public virtual void SetBinding(string controlProperty, string dataSourceProperty)
-        {
-            if (DataContext == null)
-                throw new InvalidOperationException("DataContext is not set.");
-
-            // Check if a binding already exists for the property
-            var existingBinding = DataBindings[controlProperty];
-            if (existingBinding != null)
-            {
-                DataBindings.Remove(existingBinding);
-            }
-
-            // Add a new binding
-            var binding = new Binding(controlProperty, DataContext, dataSourceProperty)
-            {
-                DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged
-            };
-
-            DataBindings.Add(binding);
-
-            // Track bound properties for later reference
-            BoundProperty = controlProperty;
-            DataSourceProperty = dataSourceProperty;
-        }
-        #endregion
+       #endregion
         #region "Theme"
         public virtual void ApplyTheme()
         {
@@ -1071,7 +963,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Log or debug the dimensions if needed
           //  Debug.WriteLine($"DrawingRect: {DrawingRect}");
         }
-
         public virtual bool SetFont()
         {
             bool retval = true;
@@ -1101,7 +992,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             return retval;
         }
-
         protected override void OnPaint(PaintEventArgs e)
         {
             SuspendLayout();
@@ -1825,8 +1715,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return startRect;
         }
-
-
         public void ShowWithDropdownAnimation(Control parentControl = null)
         {
             if (AnimationType == DisplayAnimationType.None)
@@ -1943,43 +1831,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion "Animation"
-        #region "ToolTip"
-        protected void InitializeTooltip()
-        {
-            _toolTip = new ToolTip
-            {
-                AutoPopDelay = 5000,
-                InitialDelay = 500,
-                ReshowDelay = 500,
-                ShowAlways = true // Always show the tooltip, even if the control is not active
-            };
-        }
-        // Apply theme properties to the control and children
-        public void ShowToolTip(string text)
-        {
-            ToolTipText = text;
-            if (!string.IsNullOrEmpty(ToolTipText))
-            {
-                _toolTip.Show(ToolTipText, this, PointToClient(MousePosition), 3000); // Show tooltip for 3 seconds
-            }
-
-        }
-
-        public void HideToolTip()
-        {
-            _toolTip.Hide(this);
-
-        }
-        protected void ShowToolTipIfExists()
-        {
-            if (!string.IsNullOrEmpty(ToolTipText))
-            {
-                ShowToolTip(ToolTipText);
-            }
-        }
-        #endregion "ToolTip"
         #region "Util"
-
         public override string ToString()
         {
             return GetType().Name.Replace("Control", "").Replace("Beep", "Beep ");
@@ -1990,14 +1842,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             return new Size(Width, Height);
 
         }
-
-
         public virtual void Print(Graphics graphics)
         {
             // Draw the control on the provided graphics object
             OnPrint(new PaintEventArgs(graphics, ClientRectangle));
         }
-
         public float GetScaleFactor(SizeF imageSize, Size targetSize)
         {
             float scaleX = targetSize.Width / imageSize.Width;
@@ -2110,9 +1959,229 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Return the calculated size
             return new Size(width, height);
         }
-
-       
         #endregion "Util"
+        #region "IBeepUIComoponent"
+        #region "ToolTip"
+        protected void InitializeTooltip()
+        {
+            _toolTip = new ToolTip
+            {
+                AutoPopDelay = 5000,
+                InitialDelay = 500,
+                ReshowDelay = 500,
+                ShowAlways = true // Always show the tooltip, even if the control is not active
+            };
+        }
+        // Apply theme properties to the control and children
+        public void ShowToolTip(string text)
+        {
+            ToolTipText = text;
+            if (!string.IsNullOrEmpty(ToolTipText))
+            {
+                _toolTip.Show(ToolTipText, this, PointToClient(MousePosition), 3000); // Show tooltip for 3 seconds
+            }
+
+        }
+
+        public void HideToolTip()
+        {
+            _toolTip.Hide(this);
+
+        }
+        protected void ShowToolTipIfExists()
+        {
+            if (!string.IsNullOrEmpty(ToolTipText))
+            {
+                ShowToolTip(ToolTipText);
+            }
+        }
+        #endregion "ToolTip"
+        public event EventHandler<BeepComponentEventArgs> PropertyChanged; // Event to notify that a property has changed
+        public string[] Items { get { return _items; } set { _items = value; } }
+
+        protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
+        protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
+
+        [Browsable(true)]
+        [TypeConverter(typeof(ThemeEnumConverter))]
+        public EnumBeepThemes Theme
+        {
+            get => _themeEnum;
+            set
+            {
+                _themeEnum = value;
+                _currentTheme = BeepThemesManager.GetTheme(value);
+                //      this.ApplyTheme();
+                ApplyTheme();
+            }
+        }
+
+        public string GuidID
+        { get { return _guidID; } set { _guidID = value; } }
+        public int Id { get { return _id; } set { _id = value; } }
+
+        protected object _dataContext;
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("Gets or sets the data context for data binding.")]
+        public new object DataContext
+        {
+            get => _dataContext;
+            set
+            {
+                _dataContext = value;
+                OnDataContextChanged();
+            }
+        }
+
+        public IBeepUIComponent Form { get; set; }
+        [Browsable(true)]
+        [Category("Data")]
+        public   string ComponentName
+        {
+            get => base.Name;
+            set
+            {
+                base.Name = value;
+                PropertyChanged?.Invoke(this, new BeepComponentEventArgs(this, "Name", string.Empty, value));
+            }
+
+        }
+        public event EventHandler<BeepComponentEventArgs> PropertyValidate; // Event to notify that a property is being validated
+        [Browsable(true)]
+        [Category("Data")]
+        public string FieldID { get; set; }
+        [Browsable(true)]
+        [Category("Data")]
+        public string BlockID { get; set; }
+        private DbFieldCategory _category = DbFieldCategory.String;
+        [Browsable(true)]
+        [Category("Data")]
+        public DbFieldCategory Category
+        {
+            get => _category;
+            set
+            {
+                _category = value;
+            }
+        }
+        private string _boundProperty;
+        [Browsable(true)]
+        [Category("Data")]
+        public string BoundProperty
+        {
+            get => _boundProperty;
+            set
+            {
+                _boundProperty = value;
+                if (DataContext != null)
+                {
+                    SetBinding(_boundProperty, DataSourceProperty);
+                }
+            }
+        }
+        private string _linkedproperty;  // this is the property that store the name of another property in the Record data linked to this control 
+        [Browsable(true)]
+        [Category("Data")]
+        public string LinkedProperty
+        {
+            get => _linkedproperty;
+            set
+            {
+                _linkedproperty = value;
+                
+            }
+        }
+        private string _datasourceproperty;
+        [Browsable(true)]
+        [Category("Data")]
+        public string DataSourceProperty 
+        {
+            get => _datasourceproperty;
+            set
+            {
+                _datasourceproperty = value;
+                if (DataContext != null)
+                {
+                    SetBinding(BoundProperty, _datasourceproperty);
+                }
+            }
+
+
+        } // The property of the data source
+        public void SetValue(object value)
+        {
+            var controlProperty = GetType().GetProperty(BoundProperty);
+            controlProperty?.SetValue(this, value);
+
+            if (DataContext != null && !string.IsNullOrEmpty(DataSourceProperty))
+            {
+                var dataSourceProperty = DataContext.GetType().GetProperty(DataSourceProperty);
+                dataSourceProperty?.SetValue(DataContext, value);
+            }
+        }
+        public object GetValue()
+        {
+            var controlProperty = GetType().GetProperty(BoundProperty);
+            return controlProperty?.GetValue(this);
+        }
+        public void ClearValue() => SetValue(null);
+        public virtual bool HasFilterValue() => !string.IsNullOrEmpty(BoundProperty) && GetValue() != null;
+        public AppFilter ToFilter()
+        {
+            return new AppFilter
+            {
+                FieldName = BoundProperty,
+                FilterValue = GetValue().ToString(),
+                Operator = "=",
+                valueType = "string"
+            };
+        }
+        // Set binding for a specific control property to a data source property
+        public virtual void SetBinding(string controlProperty, string dataSourceProperty)
+        {
+            if (DataContext == null)
+                throw new InvalidOperationException("DataContext is not set.");
+
+            // Check if a binding already exists for the property
+            var existingBinding = DataBindings[controlProperty];
+            if (existingBinding != null)
+            {
+                DataBindings.Remove(existingBinding);
+            }
+
+            // Add a new binding
+            var binding = new Binding(controlProperty, DataContext, dataSourceProperty)
+            {
+                DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged
+            };
+
+            DataBindings.Add(binding);
+
+            // Track bound properties for later reference
+            BoundProperty = controlProperty;
+            DataSourceProperty = dataSourceProperty;
+        }
+
+        // Method to validate data, with a default implementation
+        public virtual bool ValidateData(out string message)
+        {
+            var x = new BeepComponentEventArgs(this, BoundProperty, _linkedproperty, GetValue());
+            PropertyValidate?.Invoke(this,x);
+            if (x.Cancel)
+            {
+                message = x.Message;
+                return false;
+            }
+            else
+            {
+                message = string.Empty; return true;
+            }           
+            
+        }
+
+     
+        #endregion "IBeepUIComoponent"
     }
 
 }

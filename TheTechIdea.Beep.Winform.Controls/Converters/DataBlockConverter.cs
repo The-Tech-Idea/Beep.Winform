@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Globalization;
-using System.Linq;
-using TheTechIdea.Beep.Desktop.Controls.Common;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Converters
 {

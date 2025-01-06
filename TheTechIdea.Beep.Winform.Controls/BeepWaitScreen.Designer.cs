@@ -294,7 +294,6 @@
             MessegeTextBox.IsShadowAffectedByTheme = true;
             MessegeTextBox.LeftoffsetForDrawingRect = 0;
             MessegeTextBox.Location = new Point(12, 91);
-            MessegeTextBox.MaskFormat = "";
             MessegeTextBox.Modified = false;
             MessegeTextBox.Multiline = true;
             MessegeTextBox.Name = "MessegeTextBox";

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
 
@@ -10,7 +11,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Existing properties and methods
         EnumBeepThemes Theme { get; set; }
-        public string Name { get; set; }
+        public string ComponentName { get; set; }
         void ApplyTheme();
         void ApplyTheme(EnumBeepThemes theme);
         void ApplyTheme(BeepTheme theme);
@@ -43,5 +44,26 @@ namespace TheTechIdea.Beep.Vis.Modules
         int Height { get; set; }    
         DbFieldCategory Category { get; set; }
         void SetBinding(string controlProperty, string dataSourceProperty); // Method to bind a control property
+        event EventHandler<BeepComponentEventArgs> PropertyChanged; // Event to notify that a property has changed
+        event EventHandler<BeepComponentEventArgs> PropertyValidate; // Event to notify that a property is being validated
+        
+    }
+    public class BeepComponentEventArgs : EventArgs
+    {
+        public BeepComponentEventArgs(IBeepUIComponent component, string propertyName,string linkedproperty,object val)
+        {
+            Component = component;
+            PropertyName = propertyName;
+            PropertyValue = val;
+             LinkedProperty= linkedproperty;
+        }
+        public IBeepUIComponent Component { get; }
+        public string PropertyName { get; set; }
+        public object PropertyValue { get; set; }
+        public string LinkedProperty { get; set; }
+
+        public override string ToString() { return $"{Component.ComponentName} {PropertyName} {PropertyValue}"; }
+        public bool Cancel { get; set; } = false;
+        public string Message { get; set; }
     }
 }

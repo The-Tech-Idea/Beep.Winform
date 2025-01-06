@@ -177,12 +177,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Properties"
         public BeepSideMenu()
         {
-           SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
+         //  SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
 
             ApplyThemeToChilds = false;
             DoubleBuffered = true;
             Width = expandedWidth;
-            SendToBack();
+         
             IsChild = false;
             Padding = new Padding(5);
             DoubleBuffered = true;
@@ -271,6 +271,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             toggleButton.Click += ToggleButton_Click;
             Controls.Add(toggleButton);
+            SendToBack();
         }
         protected override void OnResize(EventArgs e)
         {

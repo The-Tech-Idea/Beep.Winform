@@ -1,8 +1,9 @@
-﻿using TheTechIdea.Beep.DataBase;
+﻿using System.Collections.Generic;
+using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Desktop.Controls.Common
+namespace TheTechIdea.Beep.Vis.Modules
 {
     public enum DataBlockMode
     {

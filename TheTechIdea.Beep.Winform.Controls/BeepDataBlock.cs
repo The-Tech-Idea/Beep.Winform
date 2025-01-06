@@ -1,13 +1,7 @@
-﻿using Microsoft.VisualBasic.Logging;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
+﻿using System.ComponentModel;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Beep.Desktop.Controls.Common;
+
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Logic;
@@ -146,6 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion "Properties"
+        #region "Constructors"
         public BeepDataBlock()
         {
             UIComponents = EntityHelper.GetAllAvailableUIComponents();
@@ -156,9 +151,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             Components.ListChanged += Components_ListChanged;
 
             // Load existing components or initialize new ones
-            InitializeControls();
+         //   InitializeControls();
         }
-
+        #endregion "Constructors"
         #region "Event Handlers"
         private void HandleDataChanges(object? sender, UnitofWorkParams e)
         {
@@ -445,7 +440,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     var component = GetUIComponent(componentType);
 
                     // Configure the component's properties based on the existing component
-                    component.Name = existingComponent.Name;
+                    component.ComponentName = existingComponent.Name;
                     component.Left = existingComponent.Left;
                     component.Top = existingComponent.Top;
                     component.Width = existingComponent.Width;
@@ -529,7 +524,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Add to UIComponents dictionary
                     UIComponents[componentInstance.GuidID] = componentInstance;
 
-                    Console.WriteLine("Component {ComponentName} of type {TypeName} instantiated and added to UIComponents.", componentInstance.Name, type.FullName);
+                    Console.WriteLine("Component {ComponentName} of type {TypeName} instantiated and added to UIComponents.", componentInstance.ComponentName, type.FullName);
                 }
 
                 return componentInstance;
@@ -557,7 +552,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 // Set component properties based on BeepComponents data
-                control.Name = component.Name;
+                control.ComponentName = component.Name;
                 control.Left = component.Left;
                 control.Top = component.Top;
                 control.Width = component.Width;

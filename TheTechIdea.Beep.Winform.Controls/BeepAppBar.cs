@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Desktop.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
 using System.Runtime.InteropServices;
 
 
@@ -599,7 +598,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _logo.Theme = Theme;
             TitleLabel.UseScaledFont = true;
             TitleLabel.Font = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
-            TitleLabel.ForeColor = _currentTheme.TitleBarForeColor;
+            TitleLabel.ForeColor = _currentTheme.SideMenuForeColor;
             TitleLabel.BackColor = _currentTheme.TitleBarBackColor;
             // searchBox.Theme = Theme;
             searchBox.ForeColor = _currentTheme.TitleBarForeColor;

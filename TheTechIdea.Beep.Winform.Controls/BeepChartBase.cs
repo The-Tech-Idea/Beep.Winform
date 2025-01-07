@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Text;
-using System.Windows.Forms;
-using TheTechIdea.Beep.Desktop.Controls.Common;
+﻿using System.ComponentModel;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -14,6 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxBitmap(typeof(BeepChartBase))]
     [DefaultProperty("ChartDataSeries")]
     [DisplayName("Beep Chart")]
+    [Description("A chart control that displays data points.")]
     public class BeepChartBase : BeepControl
     {
 

@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Desktop.Common;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Managers
@@ -58,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     {
                         if (beepimage.svgDocument != null)
                         {
-                            BeepiForm.Icon = ImageTools.ConvertSvgToIcon(beepimage.svgDocument, 64);
+                            BeepiForm.Icon = ImageConverters.ConvertSvgToIcon(beepimage.svgDocument, 64);
                         }
                     }
 
@@ -149,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     {
                         if (beepimage.svgDocument != null)
                         {
-                            _beepiForm.Icon = ImageTools.ConvertSvgToIcon(beepimage.svgDocument, 64);
+                            _beepiForm.Icon = ImageConverters.ConvertSvgToIcon(beepimage.svgDocument, 64);
                         }
                     }
                 }

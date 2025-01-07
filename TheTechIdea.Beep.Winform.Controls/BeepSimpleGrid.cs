@@ -4,12 +4,16 @@ using TheTechIdea.Beep.Winform.Controls.Grid;
 using System.Drawing.Design;
 using System.Windows.Forms.Design;
 using TheTechIdea.Beep.Winform.Controls.Editors;
-using TheTechIdea.Beep.Desktop.Controls.Common;
+using TheTechIdea.Beep.Desktop.Common;
 
 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
+    [ToolboxItem(true)]
+    [Category("Data")]
+    [Description("A grid control that displays data in a simple table format.")]
+    [DisplayName("Beep Simple Grid")]
     public class BeepSimpleGrid : BeepControl
     {
         #region "Properties"  

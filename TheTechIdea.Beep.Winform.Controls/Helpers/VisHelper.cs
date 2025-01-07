@@ -64,9 +64,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             foreach (var file in ls)
             {
                 Image image = null;
-                if (file.Assembly != null)
+                if (file.AssemblyFullName != null && file.AssemblyLocation!=null)
                 {
-                    using (Stream stream = file.Assembly.GetManifestResourceStream(file.Path))
+                    Assembly assembly = Assembly.LoadFrom(file.AssemblyLocation);
+                    using (Stream stream = assembly.GetManifestResourceStream(file.Path))
                     {
                         if (stream != null)
                         {
@@ -295,7 +296,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                                     Name = fileName + extension,
                                     Ext = extension,
                                     Path = resource,
-                                    Assembly = assembly
+                                    AssemblyLocation = assembly.Location,
+                                    AssemblyFullName = assembly.FullName
                                 });
                                 if (extension == ".ico")
                                 {
@@ -449,7 +451,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     ImageConfiguration cfg = ImgAssemblies.FirstOrDefault(ImgAssemblies => ImgAssemblies.Name.Equals(imagename, StringComparison.InvariantCultureIgnoreCase));
                     if (cfg != null)
                     {
-                        img = GetImageFromFullName(cfg.Assembly, cfg.Path);
+                        img = GetImageFromFullName(LoadAssembly(cfg), cfg.Path);
                     }
                     else
                     {
@@ -465,6 +467,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             {
                 return null;
             }
+        }
+        private Assembly LoadAssembly(ImageConfiguration imageConfiguration)
+        {
+            Assembly assembly = null;
+            if (imageConfiguration.AssemblyLocation != null)
+            {
+                assembly = Assembly.LoadFrom(imageConfiguration.AssemblyLocation);
+            }
+            else
+            {
+                assembly = Assembly.GetExecutingAssembly();
+            }
+            return assembly;
         }
         public object GetImage(string pimagename, int size)
         {
@@ -503,7 +518,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     ImageConfiguration cfg = ImgAssemblies.FirstOrDefault(ImgAssemblies => ImgAssemblies.Name.Equals(imagename, StringComparison.InvariantCultureIgnoreCase));
                     if (cfg != null)
                     {
-                        img = GetImageFromFullName(cfg.Assembly, cfg.Path);
+                        img = GetImageFromFullName(LoadAssembly(cfg), cfg.Path);
                     }
                     else
                     {
@@ -526,10 +541,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             {
                 var file = ImgAssemblies[index];
 
-                if (file.Assembly != null)
+                if (file.AssemblyLocation != null)
                 {
+                    Assembly assembly = LoadAssembly(file);
                     // Get the resource stream from the assembly
-                    using (Stream stream = file.Assembly.GetManifestResourceStream(file.Path))
+                    using (Stream stream = assembly.GetManifestResourceStream(file.Path))
                     {
                         if (stream != null)
                         {
@@ -595,9 +611,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             if (imageConfiguration != null)
             {
-                if (imageConfiguration.Assembly != null)
+                if (imageConfiguration.AssemblyFullName != null)
                 {
-                    return GetImageFromFullName(imageConfiguration.Assembly, imageConfiguration.Path);
+                   
+                    return GetImageFromFullName(LoadAssembly(imageConfiguration), imageConfiguration.Path);
                 }
                 else
                 {

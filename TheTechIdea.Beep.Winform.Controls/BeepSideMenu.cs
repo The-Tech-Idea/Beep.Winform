@@ -1,13 +1,8 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
+﻿using System.ComponentModel;
 using System.Drawing.Design;
 using Timer = System.Windows.Forms.Timer;
-using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Editors;
-using TheTechIdea.Beep.Desktop.Controls.Common;
+using TheTechIdea.Beep.Desktop.Common;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -15,6 +10,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [ToolboxBitmap(typeof(BeepSideMenu))]
     [Category("Beep Controls")]
+    [Description("A side menu control that can be collapsed or expanded.")]
+    [DisplayName("Beep Side Menu")]
     public partial class BeepSideMenu : BeepControl
     {
         public event PropertyChangedEventHandler PropertyChanged;

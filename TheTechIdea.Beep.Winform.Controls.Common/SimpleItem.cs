@@ -5,7 +5,7 @@ using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
 
 
-namespace TheTechIdea.Beep.Desktop.Controls.Common
+namespace TheTechIdea.Beep.Desktop.Common
 {
     [Serializable]
     public class SimpleItem

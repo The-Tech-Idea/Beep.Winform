@@ -1,19 +1,14 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Desktop.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Desktop.Common;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [DisplayName("Beep Extended Button")]
     [Category("Beep Controls")]
+    [Description("A control that displays a button with an extended button.")]
     public class BeepExtendedButton:BeepControl
     {
         private BeepButton extendButton;

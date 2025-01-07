@@ -2,8 +2,7 @@
 using System.Globalization;
 using TheTechIdea.Beep.Utilities;
 
-namespace TheTechIdea.Beep.Winform.Controls.Helpers
-{
+namespace TheTechIdea.Beep.Winform.Controls.Helpers;
     public static class ControlExtensions
     {
         public static void DoubleBuffered(this Control control, bool enable)
@@ -241,4 +240,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
 
     }
-}
+

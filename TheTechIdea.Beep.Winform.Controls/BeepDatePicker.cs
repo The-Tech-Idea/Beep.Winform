@@ -1,14 +1,14 @@
-﻿using System;
+﻿
 using System.ComponentModel;
-using System.Drawing;
 using System.Globalization;
-using System.Windows.Forms;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [DisplayName("Beep Date Picker")]
+    [Description("A control that allows users to select a date from a calendar.")]
     public class BeepDatePicker : BeepControl
     {
         #region "Properties"

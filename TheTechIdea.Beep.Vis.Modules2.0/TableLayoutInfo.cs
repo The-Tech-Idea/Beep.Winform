@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
 
-namespace TheTechIdea.Beep.Winform.Controls.TableLayout
+
+namespace TheTechIdea.Beep.Vis.Modules
 {
     public class TableLayoutInfo
     {

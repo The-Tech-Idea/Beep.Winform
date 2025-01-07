@@ -82,14 +82,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolBar
             try
             {
                 ToolStrip.ImageScalingSize = new Size(24, 24);
-              //  ToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
-                //  toolbarstrip.Location = new System.Drawing.Point(342, 0);
-            //    ToolStrip.Name = "TreetoolStrip";
-                // toolbarstrip.Size = new System.Drawing.Size(32, 580);
-              //  ToolStrip.Text = "toolStrip1";
-             //   ToolStrip.Stretch = true;
-
-                //toolbarstrip.TextDirection = System.Windows.Forms.ToolStripTextDirection.;
                 ToolStrip.ImageList = GetImageList();
                 List< AssemblyClassDefinition > classes = new List< AssemblyClassDefinition >();
                 if(!IsHorizentalBar)
@@ -155,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolBar
 
         public void Run(params object[] args)
         {
-            throw new NotImplementedException();
+            
         }
         #endregion
     }

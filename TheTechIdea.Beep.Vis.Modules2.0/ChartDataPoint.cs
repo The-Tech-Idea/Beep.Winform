@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
 
-namespace TheTechIdea.Beep.Desktop.Controls.Common
+namespace TheTechIdea.Beep.Vis.Modules
 {
     [Serializable]
+    
     public class ChartDataSeries : List<ChartDataPoint>
     {
         public Color Color { get; set; } = Color.Blue; // Default color for this series

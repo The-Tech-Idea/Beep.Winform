@@ -1,10 +1,14 @@
-﻿using TheTechIdea.Beep.DataBase;
+﻿using System.ComponentModel;
+using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Report;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-
+    [ToolboxItem(true)]
+    [Category("Data")]
+    [Description("A control that allows users to query and filter data.")]
+    [DisplayName("Beep Query and Filter")]
     public class BeepQueryandFilter : BeepControl
     {
         private TableLayoutPanel tableLayoutPanel;

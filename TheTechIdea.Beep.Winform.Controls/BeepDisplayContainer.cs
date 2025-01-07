@@ -1,10 +1,15 @@
-﻿using TheTechIdea.Beep.Addin;
+﻿using System.ComponentModel;
+using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
+    [ToolboxItem(true)]
+    [ToolboxBitmap(typeof(BeepDisplayContainer))]
+    [DisplayName("Beep Display Container")]
+    [Description("A container control that displays multiple addins as tabs.")]
     public class BeepDisplayContainer : BeepTabs, IDisplayContainer
     {
         private Dictionary<string, TabPage> _controls = new Dictionary<string, TabPage>();

@@ -12,6 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [DisplayName("Beep Card")]
     [Category("Beep Controls")]
+    [Description("A card control that displays an image, header, and paragraph.")]
     public class BeepCard : BeepControl
     {
         #region "Properties"

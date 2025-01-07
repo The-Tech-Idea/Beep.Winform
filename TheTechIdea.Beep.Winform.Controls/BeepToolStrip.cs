@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
+﻿using System.ComponentModel;
 using System.Drawing.Design;
-using System.Windows.Forms;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Desktop.Controls.Common;
+using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -18,6 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [DisplayName("Beep ToolStrip")]
     [Category("Beep Controls")]
+    [Description("A control that displays a collection of buttons in a toolbar format.")]
     public class BeepToolStrip : BeepControl
     {
         private FlowLayoutPanel _stripPanel;

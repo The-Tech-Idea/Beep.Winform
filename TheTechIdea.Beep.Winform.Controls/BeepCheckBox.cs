@@ -9,6 +9,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [DisplayName("Beep CheckBox")]
     [Category("Beep Controls")]
+    [Description("A checkbox control with customizable appearance.")]
     public class BeepCheckBox : BeepCheckBox<bool>
     {
         public BeepCheckBox()

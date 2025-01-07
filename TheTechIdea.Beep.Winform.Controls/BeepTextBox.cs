@@ -1,10 +1,6 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
-using System;
 using System.ComponentModel;
-
-using TheTechIdea.Beep.Winform.Controls.Helpers;
 using System.Text.RegularExpressions;
-using System.Net.Mail;
 using System.Globalization;
 using TheTechIdea.Beep.Vis.Logic;
 

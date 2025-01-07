@@ -1,23 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
+﻿using System.ComponentModel;
 using System.Drawing.Design;
-
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Desktop.Controls.Common;
+using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Winform.Controls.Editors;
-using TheTechIdea.Beep.Winform.Controls.Models;
-
-
-
-
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [DisplayName("Beep List of Values Box")]
+    [Description("A control that displays a list of values.")]
     public class BeepListofValuesBox : BeepControl
     {
         private TextBox _keyTextBox;

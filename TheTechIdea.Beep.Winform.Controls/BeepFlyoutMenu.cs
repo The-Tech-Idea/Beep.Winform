@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel;
-using System.Drawing;
 using System.Drawing.Design;
-using System.Linq;
-using System.Windows.Forms;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Desktop.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Editors;
-using TheTechIdea.Beep.Winform.Controls.Models;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using TheTechIdea.Beep.Desktop.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -21,6 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [DisplayName("Beep Flyout Menu")]
     [Category("Beep Controls")]
+    [Description("A flyout menu control that displays a list of items.")]
     public class BeepFlyoutMenu : BeepControl
     {
         private BeepButton _dropDownButton;

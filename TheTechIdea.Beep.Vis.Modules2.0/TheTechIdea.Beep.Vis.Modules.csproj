@@ -16,6 +16,10 @@
 	  <LangVersion>12.0</LangVersion>
 	  <Title>TheTechIdea.Beep.Vis.Modules</Title>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="ُnums.cs" />
+  </ItemGroup>
 	
   <ItemGroup>
     <None Include="..\..\InstallationScripts\LogoGFx\128\SimpleODM.png">

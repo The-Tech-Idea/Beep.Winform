@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.DataBase;
-
+using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Logic;
@@ -15,6 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxBitmap(typeof(BeepDataBlock))]
     [Category("Beep Controls")]
     [DisplayName("Beep Data Block")]
+    [Description("A data block control that displays and manages data.")]
     public partial class BeepDataBlock : BeepControl, IDisposable, IBeepDataBlock
     {
         #region "Fields"

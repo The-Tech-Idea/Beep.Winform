@@ -1,13 +1,12 @@
-﻿using System;
+﻿
 using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [DisplayName("Beep Star Rating")]
     [Category("Beep Controls")]
+    [Description("A control that allows users to rate items using stars.")]
     public class BeepStarRating : BeepControl
     {
         #region Fields and Properties

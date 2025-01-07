@@ -1,8 +1,4 @@
-﻿
-using System;
-using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
+﻿using System.ComponentModel;
 using TheTechIdea.Beep.Editor;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -10,6 +6,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [DisplayName("Beep Functions Panel")]
     [Category("Beep Controls")]
+    [Description("A panel control that displays common functions as buttons.")]
     public class BeepFunctionsPanel : BeepControl
     {
         public BeepButton btnRefresh, btnSearch, btnFilter, btnSort, btnPrint, btnExport, btnClose, btnHelp, btnSettings, btnAbout, btnExit;

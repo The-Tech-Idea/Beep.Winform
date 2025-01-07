@@ -8,7 +8,7 @@ using System.Xml.Linq;
 using System.Drawing.Imaging;
 using System.Diagnostics;
 
-using TheTechIdea.Beep.Desktop.Controls.Common;
+using TheTechIdea.Beep.Desktop.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls.Helpers
 {
@@ -731,23 +731,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
             }
         }
-        public static string GetCallingProjectPath()
-        {
-            var stackTrace = new StackTrace();
-            var frames = stackTrace.GetFrames();
-
-            foreach (var frame in frames)
-            {
-                var method = frame.GetMethod();
-                var declaringType = method.DeclaringType;
-                if (declaringType != null && !declaringType.Assembly.FullName.Contains("Design"))
-                {
-                    return Path.GetDirectoryName(declaringType.Assembly.Location);
-                }
-            }
-
-            throw new Exception("Calling project not found in stack trace.");
-        }
+      
         //public static void LoadProjectImagesToDictionary(Dictionary<string, SimpleItem> _projectImages)
         //{
         //    _projectImages.Clear();
@@ -868,7 +852,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
 
         #endregion "PNG or SVG to ICO"
-       
         public static void LoadImageToPictureBox(PictureBox PreviewpictureBox,string path)
         {
             // Clear previous image

@@ -53,6 +53,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     }
     [ToolboxItem(true)]
     [Category("Beep Controls")]
+    [DisplayName("Beep Control")]
+    [Description("A control that provides a base for all Beep UI components.")]
     public class BeepControl : ContainerControl,  IBeepUIComponent
     {
         #region "protected Properties"

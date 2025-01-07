@@ -6,6 +6,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [DisplayName("Beep Dialog")]
     [Category("Beep Controls")]
+    [Description("A dialog box control that displays a message and buttons.")]
     public class BeepDialogBox : BeepPanel
     {
         private BeepImage _iconImage = new BeepImage();

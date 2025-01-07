@@ -7,6 +7,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [DisplayName("Beep Data Navigator")]
     [Category("Beep Controls")]
+    [Description("A data navigator control for CRUD operations.")]
     public class BeepDataNavigator : BeepControl
     {
         public BeepButton btnFirst, btnPrevious, btnNext, btnLast, btnInsert, btnDelete, btnSave, btnCancel;

@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace TheTechIdea.Beep.Vis.Logic;
+namespace TheTechIdea.Beep.Desktop.Common;
 public static class ProjectPathHelper
 {
     /// <summary>

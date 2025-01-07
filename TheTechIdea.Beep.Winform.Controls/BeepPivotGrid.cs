@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
+    [ToolboxItem(true)]
+    [Category("Data")]
+    [Description("A grid control that displays data in a pivot table format.")]
+    [DisplayName("Beep Pivot Grid")]
     public class BeepPivotGrid : BeepSimpleGrid
     {
         public int RowHeaderWidth { get; set; } = 100;

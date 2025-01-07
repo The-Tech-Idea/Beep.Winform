@@ -1,6 +1,6 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using System.ComponentModel;
-using TheTechIdea.Beep.Desktop.Controls.Common;
+using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Logic;
 
@@ -9,6 +9,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [DisplayName("Beep ListBox")]
     [Category("Beep Controls")]
+    [Description("A list box control that displays a list of items.")]
+
     public class BeepListBox : BeepPanel
     {
         #region "Properties"

@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
+﻿using System.ComponentModel;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -18,6 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [Description("ProgressBar with text")]
+    [DisplayName("Beep ProgressBar")]
     public class BeepProgressBar : BeepControl
     {
         private int _value = 0;

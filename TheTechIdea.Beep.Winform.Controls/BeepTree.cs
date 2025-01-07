@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Desktop.Controls.Common;
+using TheTechIdea.Beep.Desktop.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [DisplayName("Beep Tree")]
     [Category("Beep Controls")]
+    [Description("A control that displays hierarchical data in a tree format.")]
     public class BeepTree : BeepControl
     {
         private int nodeseq = 0;

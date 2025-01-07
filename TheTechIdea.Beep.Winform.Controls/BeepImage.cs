@@ -18,6 +18,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [ToolboxBitmap(typeof(BeepImage))]
     [Category("Beep Controls")]
+    [DisplayName("Beep Image")]
+    [Description("A control that displays an image (SVG, PNG, JPG, BMP).")]
     [Designer(typeof(TheTechIdea.Beep.Winform.Controls.Design.BeepImageDesigner))]
     public class BeepImage : BeepControl
     {

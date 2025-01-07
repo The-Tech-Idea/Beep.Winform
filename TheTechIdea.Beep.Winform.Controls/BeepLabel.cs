@@ -1,9 +1,7 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
-using System;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-using Svg;
 
 
 
@@ -11,6 +9,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [Category("Controls")]
+    [DisplayName("Beep Label")]
+    [Description("A label control with support for images.")]
     public class BeepLabel : BeepControl
     {
         #region "Properties"

@@ -1,14 +1,13 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
-using System;
 using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
 using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [Category("Containers")]
+    [Description("A panel with a title and optional line below the title.")]
+    [DisplayName("Beep Panel")]
     public class BeepPanel : BeepControl
     {
         // We'll keep everything the same, only adjusting the logic in DrawTitle and DrawTitleLine

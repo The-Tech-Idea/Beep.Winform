@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel;
-using System.Configuration;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Desktop.Controls.Common;
+using TheTechIdea.Beep.Desktop.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [DisplayName("Beep Dropdown Menu")]
     [Category("Beep Controls")]
+    [Description("A dropdown menu control that displays a list of items.")]
     public class BeepDropDownMenu : BeepListBox
     {
         private BeepButton _dropDownButton;

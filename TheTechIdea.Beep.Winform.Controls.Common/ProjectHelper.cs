@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using TheTechIdea.Beep.Editor;
 
-namespace TheTechIdea.Beep.Vis.Logic
+namespace TheTechIdea.Beep.Desktop.Common
 {
     public static class ProjectHelper
     {
@@ -56,8 +55,7 @@ namespace TheTechIdea.Beep.Vis.Logic
         public static bool IsUnitOfWorkType(Type type)
         {
             return type == typeof(IUnitofWork) ||
-                   type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IUnitofWork<>)) ||
-                   (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(UnitofWork<>));
+                   type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IUnitofWork<>)); //||            (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(UnitofWork<>));
         }
         public static List<IComponent> GetUnitOfWorkComponents(IDesignerHost host)
         {

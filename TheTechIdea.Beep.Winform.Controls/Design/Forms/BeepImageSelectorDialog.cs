@@ -1,7 +1,8 @@
 ﻿
 using System.Runtime.CompilerServices;
-using TheTechIdea.Beep.Desktop.Controls.Common;
+using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Vis.Logic;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -29,9 +30,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
         private bool _isinPreview = false;
         private string previewFilePath = string.Empty; // Store the file path of the selected image for later embedding
 
-        private Dictionary<string, SimpleItem> _embeddedImages = new Dictionary<string, SimpleItem>();
+        private Dictionary<string, ImageConfiguration> _embeddedImages = new Dictionary<string, ImageConfiguration>();
 
-       private Dictionary<string, SimpleItem> _selectedEmbeddedImages = new Dictionary<string, SimpleItem>();
+       private Dictionary<string, ImageConfiguration> _selectedEmbeddedImages = new Dictionary<string, ImageConfiguration>();
         private bool _isImageFromlistSelected;
 
         public string CurrentResourceType { get; set; }
@@ -45,18 +46,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
             CurrentResourceType = "Local";
 
             // Load all resource dictionaries
-            ImageTools.LoadLocalImagesToDictionary(_embeddedImages);
+            //ProjectResourceEmbedder.LoadLocalImagesToDictionary(_embeddedImages);
 
 
             // Populate ImagelistBox and display the specified image
             PopulateImagelistBoxFromDictionary();
         }
       
-        public void SetEmbeddedImages(Dictionary<string, SimpleItem> embeddedImages)
+        public void SetEmbeddedImages(Dictionary<string, ImageConfiguration> embeddedImages)
         {
             _embeddedImages = embeddedImages;
         }
-        public void SetSelectedEmbeddedImages(Dictionary<string, SimpleItem> selectedEmbeddedImages)
+        public void SetSelectedEmbeddedImages(Dictionary<string, ImageConfiguration> selectedEmbeddedImages)
         {
             _selectedEmbeddedImages = selectedEmbeddedImages;
         }
@@ -67,8 +68,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
         private void Init(string imagePath)
         {
             // Set default radio button and initialize ImagelistBox
-           
-            ImageTools.PreviewImage(PreviewpictureBox, imagePath);
+
+            ImagePreviewer.PreviewImage(PreviewpictureBox, imagePath);
 
             
         }
@@ -88,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
             if(ImagelistBox.SelectedItems.Count > 0)
             {
                 SelectedImage = (SimpleItem)ImagelistBox.SelectedItem;
-                ImageTools.PreviewImageFromFile(PreviewpictureBox,SelectedImage);
+                ImagePreviewer.PreviewImage(PreviewpictureBox,SelectedImage.ImagePath);
                 SelectedImagePath = SelectedImage.ImagePath;
                 this.Close();
             }
@@ -107,24 +108,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
                 string selectedImage = ImagelistBox.SelectedItem.ToString();
 
                 _isinPreview = true;
-                ImageTools.PreviewImage(PreviewpictureBox, ImagelistBox.SelectedItem.ToString());
+                ImagePreviewer.PreviewImage(PreviewpictureBox, ImagelistBox.SelectedItem.ToString());
             }
 
         }
         private void ImportImageandEmbeddIt()
         {
-            ImageTools.CopyAndEmbedFileToProjectResources(_embeddedImages,previewFilePath, ProjectPathHelper.GetMyPath());
+          //  ProjectResourceEmbedder.CopyAndEmbedFileToProjectResources(_embeddedImages,previewFilePath, ProjectPathHelper.GetMyPath());
         }
         private void PopulateImagelistBoxFromDictionary()
         {
-            ImageTools.LoadEmbeddedImagesToDictionary(_embeddedImages, ProjectPathHelper.GetMyPath());
+           // ImageListHelper.LoadEmbeddedImagesToDictionary(_embeddedImages, ProjectPathHelper.GetMyPath());
             ImagelistBox.Items.Clear();
             _isinPreview = false;
             ImagelistBox.DisplayMember = "Name";
             ImagelistBox.ValueMember = "Id";
             foreach (var item in _embeddedImages)
             {
-                SimpleItem x = item.Value;
+                ImageConfiguration x = item.Value;
                 ImagelistBox.Items.Add(x); // Add embedded resource names
             }
         }
@@ -133,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
         {
             _isImageFromlistSelected = false;
             SelectedImagePath = initialPath;
-            ImageTools.PreviewImage(PreviewpictureBox, SelectedImagePath);
+            ImagePreviewer.PreviewImage(PreviewpictureBox, SelectedImagePath);
             return SelectedImagePath;
 
         }

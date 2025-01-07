@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheTechIdea.Beep.Desktop.Controls.Common
+namespace TheTechIdea.Beep.Desktop.Common
 {
     public class TreeCommands
     {

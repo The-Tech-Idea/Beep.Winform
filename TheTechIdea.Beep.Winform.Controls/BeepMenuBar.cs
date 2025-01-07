@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel;
+using TheTechIdea.Beep.Desktop.Common;
 
-using TheTechIdea.Beep.Desktop.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
-using TheTechIdea.Beep.Winform.Controls.TableLayout;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [DisplayName("Beep Menu Bar")]
     [Category("Beep Controls")]
+    [Description("A menu bar control that displays a list of items.")]
     public class BeepMenuBar : BeepControl
     {
         private BindingList<SimpleItem> items = new BindingList<SimpleItem>();

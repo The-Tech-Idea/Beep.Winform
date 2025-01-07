@@ -18,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxBitmap(typeof(BeepCircularButton))] //, "BeepCircularButton.bmp"
     [Category("Beep Controls")]
     [DisplayName("Beep Circular Button")]
+    [Description("A circular button control with an optional image and text.")]
     public class BeepCircularButton : BeepControl
     {
         private BeepImage beepImage;

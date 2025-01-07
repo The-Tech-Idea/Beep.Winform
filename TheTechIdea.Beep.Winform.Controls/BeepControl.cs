@@ -2182,7 +2182,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             
         }
 
-     
+        public virtual void Draw(Graphics graphics, RectangleF rectangle)
+        {
+            // Draw the control on the provided graphics object
+
+           
+        }
         #endregion "IBeepUIComoponent"
     }
 

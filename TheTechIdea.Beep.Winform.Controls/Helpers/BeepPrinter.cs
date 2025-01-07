@@ -224,9 +224,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         {
             foreach (T t in list)
             {
-                if (t is DGVPrinter.ImbeddedImage)
+                if (t is BeepPrinter.ImbeddedImage)
                 {
-                    DGVPrinter.ImbeddedImage ii = (DGVPrinter.ImbeddedImage)Convert.ChangeType(t, typeof(DGVPrinter.ImbeddedImage));
+                    BeepPrinter.ImbeddedImage ii = (BeepPrinter.ImbeddedImage)Convert.ChangeType(t, typeof(BeepPrinter.ImbeddedImage));
                     // Fix - DrawImageUnscaled was actually scaling the images!!?! Oh well...
                     //g.DrawImageUnscaled(ii.theImage, ii.upperleft(pagewidth, pageheight, margins));
                     g.DrawImage(ii.theImage,
@@ -244,7 +244,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
     /// Data Grid View Printer. Print functions for a datagridview, since MS
     /// didn't see fit to do it.
     /// </summary>
-    public class DGVPrinter
+    public class BeepPrinter
     {
         public enum Alignment { NotSet, Left, Right, Center }
         public enum Location { Header, Footer, Absolute }
@@ -438,7 +438,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
                 enablelogging = value;
                 if (enablelogging)
                 {
-                    Logger = new LogManager(DME,".", "DGVPrinter");
+                    Logger = new LogManager(DME,".", "BeepPrinter");
                 }
             }
         }
@@ -1646,9 +1646,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         // Constructor
         //---------------------------------------------------------------------
         /// <summary>
-        /// Constructor for DGVPrinter
+        /// Constructor for BeepPrinter
         /// </summary>
-        public DGVPrinter(IDMEEditor dMEEditor)
+        public BeepPrinter(IDMEEditor dMEEditor)
         {
             // create print document
             printDoc = new PrintDocument();
@@ -1714,9 +1714,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         public void PrintDataGridView(DataGridView dgv)
         {
             if (EnableLogging) Logger.LogInfoMsg("PrintDataGridView process started");
-            if (null == dgv) throw new Exception("Null Parameter passed to DGVPrinter.");
+            if (null == dgv) throw new Exception("Null Parameter passed to BeepPrinter.");
             if (!(typeof(DataGridView).IsInstanceOfType(dgv)))
-                throw new Exception("Invalid Parameter passed to DGVPrinter.");
+                throw new Exception("Invalid Parameter passed to BeepPrinter.");
 
             // save the datagridview we're printing
             this.dgv = dgv;
@@ -1736,9 +1736,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         public void PrintPreviewDataGridView(DataGridView dgv)
         {
             if (EnableLogging) Logger.LogInfoMsg("PrintPreviewDataGridView process started");
-            if (null == dgv) throw new Exception("Null Parameter passed to DGVPrinter.");
+            if (null == dgv) throw new Exception("Null Parameter passed to BeepPrinter.");
             if (!(typeof(DataGridView).IsInstanceOfType(dgv)))
-                throw new Exception("Invalid Parameter passed to DGVPrinter.");
+                throw new Exception("Invalid Parameter passed to BeepPrinter.");
 
             // save the datagridview we're printing
             this.dgv = dgv;
@@ -1799,9 +1799,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         public void PrintNoDisplay(DataGridView dgv)
         {
             if (EnableLogging) Logger.LogInfoMsg("PrintNoDisplay process started");
-            if (null == dgv) throw new Exception("Null Parameter passed to DGVPrinter.");
+            if (null == dgv) throw new Exception("Null Parameter passed to BeepPrinter.");
             if (!(dgv is DataGridView))
-                throw new Exception("Invalid Parameter passed to DGVPrinter.");
+                throw new Exception("Invalid Parameter passed to BeepPrinter.");
 
             // save the grid we're printing
             this.dgv = dgv;
@@ -1822,9 +1822,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         public void PrintPreviewNoDisplay(DataGridView dgv)
         {
             if (EnableLogging) Logger.LogInfoMsg("PrintPreviewNoDisplay process started");
-            if (null == dgv) throw new Exception("Null Parameter passed to DGVPrinter.");
+            if (null == dgv) throw new Exception("Null Parameter passed to BeepPrinter.");
             if (!(dgv is DataGridView))
-                throw new Exception("Invalid Parameter passed to DGVPrinter.");
+                throw new Exception("Invalid Parameter passed to BeepPrinter.");
 
             // save the grid we're printing
             this.dgv = dgv;
@@ -1869,7 +1869,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
             if (EnableLogging) Logger.LogInfoMsg("EmbeddedPrint process started");
             // verify we've been set up properly
             if ((null == dgv))
-                throw new Exception("Null Parameter passed to DGVPrinter.");
+                throw new Exception("Null Parameter passed to BeepPrinter.");
 
             // set the embedded print flag
             EmbeddedPrinting = true;
@@ -1916,7 +1916,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
             if (EnableLogging) Logger.LogInfoMsg("EmbeddedPrintMultipageSetup process started");
             // verify we've been set up properly
             if ((null == dgv))
-                throw new Exception("Null Parameter passed to DGVPrinter.");
+                throw new Exception("Null Parameter passed to BeepPrinter.");
 
             // set the embedded print flag
             EmbeddedPrinting = true;

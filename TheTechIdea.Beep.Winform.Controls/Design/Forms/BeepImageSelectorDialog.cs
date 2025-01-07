@@ -83,7 +83,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
             // Set up radio button event handlers
             
         }
-
         private void SelectImage()
         {
             if(ImagelistBox.SelectedItems.Count > 0)
@@ -98,7 +97,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
                 MessageBox.Show("Please select an image to continue", "No image selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-
         private void PreviewResourceFromImageList()
         {
             _isImageFromlistSelected = true;
@@ -129,7 +127,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
                 ImagelistBox.Items.Add(x); // Add embedded resource names
             }
         }
-
         public string PreviewImage(string initialPath)
         {
             _isImageFromlistSelected = false;

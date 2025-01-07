@@ -54,17 +54,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public ImageList ImageList24 { get; set; }
         public ImageList ImageList64 { get; set; }
         public ImageList ImageList128 { get; set; }
-        public List<Icon>   Icons { get; set; } = new List<Icon>();
+        public List<Icon> Icons { get; set; } = new List<Icon>();
         public object LogoBigImage { get; set; }
         public object LogoSmallImage { get; set; }
-     
+
         int index = -1; // Explicit index for the files
         public void FillImageList(List<ImageConfiguration> ls)
         {
             foreach (var file in ls)
             {
                 Image image = null;
-                if (file.AssemblyFullName != null && file.AssemblyLocation!=null)
+                if (file.AssemblyFullName != null && file.AssemblyLocation != null)
                 {
                     Assembly assembly = Assembly.LoadFrom(file.AssemblyLocation);
                     using (Stream stream = assembly.GetManifestResourceStream(file.Path))
@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                             ImageList128.Images.Add(file.Name, image); // Add image to the ImageList
                             break;
                         default:
-                           // ImageList32.Images.Add(file.Name, image); // Add image to the ImageList
+                            // ImageList32.Images.Add(file.Name, image); // Add image to the ImageList
                             break;
                     }
                 }
@@ -143,14 +143,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
         public void RefreshTreeView()
         {
-            
+
         }
-        public List<ImageConfiguration> GetGraphicFilesLocations(string path )
+        public List<ImageConfiguration> GetGraphicFilesLocations(string path)
         {
             var result = new List<ImageConfiguration>();
             // Add extensions to look for
             string[] extensions = { ".png", ".ico" };
-            if(string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path))
             {
                 return result;
             }
@@ -173,7 +173,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                                 Ext = extension,
                                 Path = path
                             });
-                            if(extension==".ico")
+                            if (extension == ".ico")
                             {
                                 using (Icon icon = new Icon(file))
                                 {
@@ -224,7 +224,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                                         Console.WriteLine($"File not found: {iconPath}");
                                     }
                                 }
-                                
+
                             }
                         }
                     }
@@ -262,15 +262,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             {
                 if (assembly.FullName.ToUpper().Contains("HALALLIB"))
                 {
-                   Debug.WriteLine(assembly.FullName);
+                    Debug.WriteLine(assembly.FullName);
                 }
                 // Get all embedded resources
                 string[] resources = assembly.GetManifestResourceNames();
-              
+
                 foreach (string resource in resources)
                 {
                     // Check if the resource name contains any of the specified namespaces
-                    if(namesspaces!=null)
+                    if (namesspaces != null)
                     {
                         if (!namesspaces.Any(ns => resource.Contains(ns, StringComparison.OrdinalIgnoreCase)))
                         {
@@ -278,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                         }
 
                     }
-               
+
                     foreach (string extension in extensions)
                     {
                         if (resource.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
@@ -310,7 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                                     }
                                 }
                                 // Check for LogoBigImage based on LogoUrl
-                                if (!string.IsNullOrEmpty(Vismanager.LogoUrl) && Vismanager.LogoUrl.Contains(fileName , StringComparison.OrdinalIgnoreCase))
+                                if (!string.IsNullOrEmpty(Vismanager.LogoUrl) && Vismanager.LogoUrl.Contains(fileName, StringComparison.OrdinalIgnoreCase))
                                 {
                                     using (Stream stream = assembly.GetManifestResourceStream(resource))
                                     {
@@ -398,7 +398,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
         public int GetImageIndex(string pimagename)
         {
-            if(pimagename==null)
+            if (pimagename == null)
             {
                 return -1;
             }
@@ -413,23 +413,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             {
                 imgindx = ImageList32.Images.IndexOfKey(imagename);
             }
-            if(imgindx==-1)
+            if (imgindx == -1)
             {
-               if( ImageList32.Images.ContainsKey(imagename))
+                if (ImageList32.Images.ContainsKey(imagename))
                 {
                     imgindx = ImageList32.Images.IndexOfKey(imagename);
                 }
             }
-            if(imgindx==-1)
+            if (imgindx == -1)
             {
                 ImageConfiguration img = ImgAssemblies.FirstOrDefault(p => p.Name.ToLower().Equals(imagename, StringComparison.InvariantCultureIgnoreCase));
                 if (img != null)
                 {
-                    imgindx =img.Index;
+                    imgindx = img.Index;
                 }
-                
+
             }
-         
+
             return imgindx;
 
 
@@ -443,7 +443,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 int idx = GetImageIndex(imagename);
                 if (idx > -1)
                 {
-                   
+
                     img = ImageList32.Images[idx];
                 }
                 else
@@ -604,8 +604,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             {
                 return null;
             }
-            ImageConfiguration imageConfiguration=null;//= ImgAssemblies.FirstOrDefault(p => p.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
-            if(imageConfiguration==null)
+            ImageConfiguration imageConfiguration = null;//= ImgAssemblies.FirstOrDefault(p => p.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+            if (imageConfiguration == null)
             {
                 imageConfiguration = ImgAssemblies.FirstOrDefault(p => p.Path.ToLower().Equals(name.ToLower(), StringComparison.InvariantCultureIgnoreCase));
             }
@@ -613,7 +613,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             {
                 if (imageConfiguration.AssemblyFullName != null)
                 {
-                   
+
                     return GetImageFromFullName(LoadAssembly(imageConfiguration), imageConfiguration.Path);
                 }
                 else
@@ -653,7 +653,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             //    }
             //}
 
-           // return null; // Return null if the name is not found
+            // return null; // Return null if the name is not found
         }
         public Image GetImageFromFile(string fullname)
         {
@@ -665,7 +665,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             {
                 return null;
             }
-            if(File.Exists(fullname)==false)
+            if (File.Exists(fullname) == false)
             {
                 return null;
             }

@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         {
             dataGridViewToPrint = dataGridView;
       
-            DGVPrinter printer =new DGVPrinter(dMEEditor);
+            BeepPrinter printer =new BeepPrinter(dMEEditor);
             printer.Title = title;
 
             printer.SubTitle = subtitle;

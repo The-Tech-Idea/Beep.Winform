@@ -4,7 +4,7 @@ using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep.Utilities;
-using TheTechIdea.Beep.Winform.Controls.Tree;
+using TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView;
 
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolBar
     [AddinAttribute(Caption = "Beep", Name = "ToolbarControl", misc = "Control")]
     public class ToolbarControl :  IDM_Addin
     {
-        public ToolbarControl(IDMEEditor pDMEEditor, TreeControl ptreeControl)
+        public ToolbarControl(IDMEEditor pDMEEditor, TreeViewControl ptreeControl)
         {
             DMEEditor = pDMEEditor;
             Treecontrol = ptreeControl;
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolBar
         }
         public ToolStrip ToolStrip { get; set; }
         public TreeView TreeV { get; set; }
-        private TreeControl Treecontrol { get; set; }
+        private TreeViewControl Treecontrol { get; set; }
         public string ParentName { get ; set ; }
         public string ObjectName { get ; set ; }
         public string ObjectType { get; set; } 
@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolBar
           public bool IsHorizentalBar { get ; set ; }=false;
         public IVisManager vismanager { get; set; }
         public List<ToolStripButton> menuitems { get; set; } = new List<ToolStripButton>();
-        public string GuidID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string GuidID { get  ; set  ; }
 
         ImageList imageList;
         public void Run(IPassedArgs pPassedarg)
@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolBar
             VisHelper visHelper = (VisHelper)vismanager.visHelper;
           
 
-            return visHelper.ImageList32;
+           return imageList;
         }
         public void SetConfig(IDMEEditor pbl, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
         {

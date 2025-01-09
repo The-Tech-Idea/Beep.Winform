@@ -1,29 +1,36 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.DataView;
-using TheTechIdea.Beep.Vis.Logic;
+using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.ConfigUtil;
-using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.Vis.Logic;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
-namespace TheTechIdea.Beep.Vis.Tree
+namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
 {
-    public class TreeBranchHandler : ITreeBranchHandler
+    public partial class BeepTreeBranchHandler : ITreeBranchHandler
     {
-        public TreeBranchHandler(IBeepService beepService, ITree ptreeControl)
+        private IBeepService service;
+        private BeepTreeControl beepTreeControl;
+
+        public BeepTreeBranchHandler(IBeepService service, BeepTreeControl beepTreeControl)
         {
-            BeepService = beepService;
-            DMEEditor = beepService.DMEEditor;
-            VisManager = beepService.vis;
-            Tree = ptreeControl;
+            this.service = service;
+            this.beepTreeControl = beepTreeControl;
+            Tree= (ITree)beepTreeControl;
         }
-        public IBeepService BeepService { get; }
-        public IVisManager VisManager { get; }
+
         public IDMEEditor DMEEditor { get ; set ; }
-        public ITree Tree { get; private set; }
+        public ITree Tree { get; set; }
+
         public IErrorsInfo AddBranch(IBranch ParentBranch, IBranch Branch)
         {
             try
@@ -33,15 +40,22 @@ namespace TheTechIdea.Beep.Vis.Tree
                     ParentBranch = Tree.Branches.Where(x => x.BranchID == 0).FirstOrDefault();
                 }
                 AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == Branch.ToString()).FirstOrDefault()!;
-                Branch.Name = cls.PackageName;
-                Branch.BranchID = Branch.ID;
-                Branch.TreeEditor = Tree;
-                Branch.ParentBranchID = ParentBranch.BranchID;
-                Branch.Level = ParentBranch.Level + 1;
-                Branch.Visutil = ParentBranch.Visutil;
+                SimpleItem parentitem= beepTreeControl.GetNodeByGuidID(ParentBranch.GuidID);
+                int parentidx = beepTreeControl.Nodes.IndexOf(parentitem);
+                parentitem = beepTreeControl.Nodes[parentidx];
+                SimpleItem node1 = new SimpleItem();
+                node1.Text = Branch.BranchText;
+                node1.Name = Branch.Name;
+                node1.Id = Branch.ID;
+                node1.ImagePath = Branch.IconImageName;
+                node1.GuidId = Branch.GuidID;
+                node1.ParentID = Branch.ParentBranchID;
+                node1.Children = new BindingList<SimpleItem>();
+                node1.Children = ControlExtensions.GetChildBranch(beepTreeControl,Branch);
+                ControlExtensions.AddBranchToTree(beepTreeControl, parentitem, node1, Branch);
                 DMEEditor.AddLogMessage($"AddBranch -{Branch.BranchText}");
-                MethodHandler.CreateMenuMethods(Branch);
-                MethodHandler.CreateGlobalMenu(Branch);
+                //MethodHandler.CreateMenuMethods(Branch);
+                //MethodHandler.CreateGlobalMenu(Branch);
                 Branch.DMEEditor = DMEEditor;
                 Tree.Branches.Add(Branch);
                 if (!DMEEditor.ConfigEditor.objectTypes.Any(i => i.ObjectType == Branch.BranchClass && i.ObjectName == Branch.BranchType.ToString() + "_" + Branch.BranchClass))
@@ -87,7 +101,7 @@ namespace TheTechIdea.Beep.Vis.Tree
         }
         public string CheckifBranchExistinCategory(string BranchName, string pRootName)
         {
-            List<CategoryFolder> ls = DMEEditor.ConfigEditor.CategoryFolders.Where(x => x.RootName == pRootName ).ToList();
+            List<CategoryFolder> ls = DMEEditor.ConfigEditor.CategoryFolders.Where(x => x.RootName == pRootName).ToList();
             foreach (CategoryFolder item in ls)
             {
                 foreach (string f in item.items)
@@ -178,7 +192,7 @@ namespace TheTechIdea.Beep.Vis.Tree
         {
             try
             {
-               
+
                 string foldername = CheckifBranchExistinCategory(CurrentBranch.BranchText, CurrentBranch.BranchClass);
                 if (foldername != null)
                 {
@@ -239,7 +253,7 @@ namespace TheTechIdea.Beep.Vis.Tree
         {
             try
             {
-                
+                BeepTreeNode BranchNode = (BeepTreeNode)beepTreeControl.GetBeepTreeNode(Branch.GuidID);
                 string foldername = CheckifBranchExistinCategory(Branch.BranchText, Branch.BranchClass);
                 if (foldername != null)
                 {
@@ -247,7 +261,13 @@ namespace TheTechIdea.Beep.Vis.Tree
                 }
                 RemoveChildBranchs(Branch);
                 Tree.Branches.Remove(Branch);
-                
+                if(BranchNode.ParentNode != null)
+                {
+                    BranchNode.ParentNode.RemoveNode(BranchNode);
+                }else
+                {
+                    beepTreeControl.NodesControls.Remove(BranchNode);
+                }
                 // DMEEditor.AddLogMessage("Success", "removed node and childs", DateTime.Now, 0, null, Errors.Ok);
             }
             catch (Exception ex)
@@ -269,7 +289,7 @@ namespace TheTechIdea.Beep.Vis.Tree
                 DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
             };
             return DMEEditor.ErrorObject;
-           
+
         }
         public IErrorsInfo RemoveCategoryBranch(int id)
         {
@@ -277,7 +297,7 @@ namespace TheTechIdea.Beep.Vis.Tree
             {
                 IBranch CategoryBranch = GetBranch(id);
                 IBranch RootBranch = GetBranch(CategoryBranch.ParentBranchID);
-               
+
                 var ls = Tree.Branches.Where(x => x.ParentBranchID == id).ToList();
                 if (ls.Count() > 0)
                 {
@@ -339,24 +359,24 @@ namespace TheTechIdea.Beep.Vis.Tree
         }
         public bool RemoveEntityFromCategory(string root, string foldername, string entityname)
         {
-           
-                try
-                {
-                    CategoryFolder f = DMEEditor.ConfigEditor.CategoryFolders.Where(x => x.RootName == root && x.FolderName == foldername).FirstOrDefault();
-                    if (f != null)
-                    {
-                        f.items.Remove(entityname);
-                    }
 
-                    return true;
-                }
-                catch (Exception ex)
+            try
+            {
+                CategoryFolder f = DMEEditor.ConfigEditor.CategoryFolders.Where(x => x.RootName == root && x.FolderName == foldername).FirstOrDefault();
+                if (f != null)
                 {
-                    string mes = "";
-                    DMEEditor.AddLogMessage(ex.Message, "Could not remove entity from category" + mes, DateTime.Now, -1, mes, Errors.Failed);
-                    return false;
-                };
-          
+                    f.items.Remove(entityname);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                string mes = "";
+                DMEEditor.AddLogMessage(ex.Message, "Could not remove entity from category" + mes, DateTime.Now, -1, mes, Errors.Failed);
+                return false;
+            };
+
         }
         public IErrorsInfo SendActionFromBranchToBranch(IBranch ToBranch, IBranch CurrentBranch, string ActionType)
         {

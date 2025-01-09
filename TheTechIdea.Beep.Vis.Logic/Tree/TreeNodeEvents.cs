@@ -1,13 +1,12 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using System.Drawing;
-using TheTechIdea.Beep;
-using TheTechIdea.Beep.Vis;
-using TheTechIdea.Beep.Utilities;
+
 using TheTechIdea.Beep.Editor;
+using System;
 
 namespace TheTechIdea.Beep.Vis.Tree
 {
-    public class TreeNodeEvents
+    public class TreeNodeEvents:EventArgs
     {
         string TreeEvent { get; set; }
         string TreeOP { get; set; }

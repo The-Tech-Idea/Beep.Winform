@@ -16,9 +16,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         IDMEEditor DMEEditor { get; set; }
         List<int> SelectedBranchs { get; set; }
         PassedArgs args { get; set; }
-        int SeqID { get; }
+        int SeqID { get; set; }
         List<IBranch> Branches { get; set; }
         List<Tuple<IBranch, string>> GenerBranchs { get; set;   }
+        List<MenuList> Menus { get; set; }
         IVisManager VisManager { get; set; }
         int SelectedBranchID { get; set; }
         void RefreshTree();
@@ -41,7 +42,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         IErrorsInfo RunMethod(object branch, string MethodName);
         IErrorsInfo CreateRootTree();
         IErrorsInfo CreateFunctionExtensions(MethodsClass item);
-        string Filterstring { set; }
+        string Filterstring { get; set; }
         IErrorsInfo TurnonOffCheckBox(IPassedArgs Passedarguments);
         object GetTreeNodeByID(int id);
         void RemoveNode(int id);

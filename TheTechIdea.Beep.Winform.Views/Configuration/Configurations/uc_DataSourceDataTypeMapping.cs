@@ -57,7 +57,7 @@ namespace Beep.Config.Winform.Configurations
         public bool IsRunning { get; set; }
         public bool IsNew { get; set; }
         string selectedCategoryValue;
-        TreeControl tree;
+        TreeViewControl tree;
         IBranch branch;
         DataTypeMappingViewModel viewModel;
        

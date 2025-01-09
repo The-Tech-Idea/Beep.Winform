@@ -1,7 +1,5 @@
 ﻿using System.Reflection;
 using TheTechIdea.Beep.Vis.Modules;
-
-using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Vis;
@@ -14,24 +12,24 @@ using static TheTechIdea.Beep.Utilities.Util;
 
 
 
-namespace TheTechIdea.Beep.Winform.Controls.Tree
+namespace TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView
 {
-    [AddinAttribute(Caption = "Beep", Name = "TreeControl", misc = "Control")]
-    public class TreeControl : IDM_Addin, ITree
+    [Addin(Caption = "Beep", Name = "TreeControl", misc = "Control")]
+    public class TreeViewControl : IDM_Addin, ITree
     {
         public event EventHandler<IPassedArgs> PreShowItem;
         public event EventHandler<IPassedArgs> PreCallModule;
         public event EventHandler<IBranch> RefreshBranch;
-        public  event EventHandler<IBranch> RefreshChildBranchs;
-        public  event EventHandler<IBranch> RefreshParentBranch;
-        public  event EventHandler<IBranch> RefreshBranchIcon;
+        public event EventHandler<IBranch> RefreshChildBranchs;
+        public event EventHandler<IBranch> RefreshParentBranch;
+        public event EventHandler<IBranch> RefreshBranchIcon;
         public event EventHandler<IBranch> RefreshBranchText;
         public List<Tuple<IBranch, string>> GenerBranchs { get; set; } = new List<Tuple<IBranch, string>>();
-        public TreeControl()
+        public TreeViewControl()
         {
 
         }
-        public TreeControl(IDMEEditor pDMEEditor, IVisManager pVismanager)
+        public TreeViewControl(IDMEEditor pDMEEditor, IVisManager pVismanager)
         {
             DMEEditor = pDMEEditor;
             VisManager = pVismanager;
@@ -84,17 +82,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
         public TreeNodeDragandDropHandler treeNodeDragandDropHandler { get; set; }
         public ITreeBranchHandler treeBranchHandler { get; set; }
         ErrorsInfo ErrorsandMesseges;
-        VisHelper visHelper;
+        // VisHelper visHelper;
         ImageList imageList;
         private ImageList GetImageList()
         {
-            visHelper = (VisHelper)VisManager.visHelper;
-           
+            // visHelper = (VisHelper)VisManager.visHelper;
 
-            return visHelper.ImageList32;
+
+            return imageList;//visHelper.ImageList32;
 
         }
-        
+
         public IErrorsInfo CreateFunctionExtensions(MethodsClass item)
         {
             ContextMenuStrip nodemenu = new ContextMenuStrip();
@@ -163,7 +161,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 {
                     if (GenreBrAssembly != null)
                     {
-                        
+
                         Type adc = DMEEditor.assemblyHandler.GetType(GenreBrAssembly.PackageName);
                         ConstructorInfo ctor = adc.GetConstructors().Where(o => o.GetParameters().Length == 0).FirstOrDefault()!;
                         if (ctor != null)
@@ -205,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                                                 {
                                                     CreateNode(id, Genrebr, TreeV);
                                                 }
-                                              
+
                                             }
                                         }
                                     }
@@ -216,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                                             CreateNode(id, Genrebr, TreeV);
                                         }
                                     }
-                                    
+
                                     GenerBranchs.Add(new Tuple<IBranch, string>(Genrebr, GenreBrAssembly.classProperties.menu));
                                 }
                             }
@@ -232,7 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 {
                     Type adc = DMEEditor.assemblyHandler.GetType(cls.PackageName);
                     ConstructorInfo ctor = adc.GetConstructors().Where(o => o.GetParameters().Length == 0).FirstOrDefault()!;
-                   
+
                     if (ctor != null)
                     {
                         ObjectActivator<IBranch> createdActivator = GetActivator<IBranch>(ctor);
@@ -275,7 +273,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                                             }
                                             else
                                                 Genrebr = null;
-                                            
+
                                             if (Genrebr != null)
                                             {
                                                 if (Genrebr.Visible)
@@ -291,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                                                 {
                                                     CreateNode(id, br, TreeV);
                                                 }
-                                                
+
                                             }
                                         }
                                     }
@@ -370,7 +368,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             br.DMEEditor = DMEEditor;
             if (!DMEEditor.ConfigEditor.objectTypes.Any(i => i.ObjectType == br.BranchClass && i.ObjectName == br.BranchType.ToString() + "_" + br.BranchClass))
             {
-                DMEEditor.ConfigEditor.objectTypes.Add(new TheTechIdea.Beep.Workflow.ObjectTypes { ObjectType = br.BranchClass, ObjectName = br.BranchType.ToString() + "_" + br.BranchClass });
+                DMEEditor.ConfigEditor.objectTypes.Add(new Workflow.ObjectTypes { ObjectType = br.BranchClass, ObjectName = br.BranchType.ToString() + "_" + br.BranchClass });
             }
             try
             {
@@ -380,7 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             {
 
             }
-        
+
             Branches.Add(br);
             br.CreateChildNodes();
         }
@@ -432,7 +430,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                             }
                             else
                             {
-                                if ((item.PointType == br.BranchType) && (br.BranchClass.Equals(item.ClassType, StringComparison.InvariantCultureIgnoreCase)))
+                                if (item.PointType == br.BranchType && br.BranchClass.Equals(item.ClassType, StringComparison.InvariantCultureIgnoreCase))
                                 {
                                     ContextMenuStrip ls = (ContextMenuStrip)menuList.Menu;
                                     ToolStripItem st = ls.Items.Add(item.Caption);
@@ -662,7 +660,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
 
 
         }
-        public IErrorsInfo RunMethod(Object branch, string MethodName)
+        public IErrorsInfo RunMethod(object branch, string MethodName)
         {
 
             try
@@ -721,7 +719,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
         {
 
         }
-    
+
         public void SetConfig(IDMEEditor pbl, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
         {
             return;
@@ -731,10 +729,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             TreeV.CheckBoxes = false;
             RefreshImageList();
 
-          
-          
-         // TreeV.SelectedImageIndex = VisManager.visHelper.GetImageIndex(SelectIcon);
-          
+
+
+            // TreeV.SelectedImageIndex = VisManager.visHelper.GetImageIndex(SelectIcon);
+
         }
         public IErrorsInfo TurnonOffCheckBox(IPassedArgs Passedarguments)
         {
@@ -786,7 +784,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             }
 
 
-            return null;// TreeV.Nodes.Cast<TreeNode>().Where(n => n.Tag.ToString() == tag).FirstOrDefault();
+            return null;// TreeV.NodesControls.Cast<TreeNode>().Where(n => n.Tag.ToString() == tag).FirstOrDefault();
         }
         public TreeNode GetTreeNodeByCaption(string Caption, TreeNodeCollection p_Nodes)
         {
@@ -856,9 +854,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
         {
             // ContextMenuStrip n = (ContextMenuStrip)e.;
             TreeNode n = TreeV.SelectedNode;
-         
+
             IBranch br = (IBranch)n.Tag;
-           
+
             if (br != null)
             {
                 SelectedBranchID = br.ID;
@@ -869,23 +867,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                     {
                         DMEEditor.Passedarguments.DatasourceName = br.DataSourceName;
                     }
-                   
+
                 }
 
                 VisManager.Helpers.GetValues(DMEEditor.Passedarguments);
                 VisManager.Helpers.pbr = br;
-              
+
                 string clicks = "";
                 if (e.Button == MouseButtons.Right)
                 {
-                    
+
                     if (IsMenuCreated(br))
                     {
                         MenuList menuList = GetMenuList(br);
                         ContextMenuStrip ls = (ContextMenuStrip)menuList.Menu;
                         ls.Show(Cursor.Position);
                     }
-                    
+
                 }
                 else
                 {
@@ -917,9 +915,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
 
         #endregion
         #region "Filter Nodes"
-        public string Filterstring { set { FilterString_TextChanged(value); } }
+        private string _filterstring = string.Empty;
+        public string Filterstring {
+            get { return _filterstring; }
+            set { _filterstring = value; FilterString_TextChanged(value); } 
+        }
 
-        public string GuidID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string GuidID { get; set; }
+        int ITree.SeqID { get ; set ; }
 
         private TreeView TreeCache = new TreeView();
         private bool IsFiltering = false;
@@ -941,8 +944,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
 
                     //blocks repainting tree till all objects loaded
 
-                    this.TreeV.BeginUpdate();
-                    this.TreeV.Nodes.Clear();
+                    TreeV.BeginUpdate();
+                    TreeV.Nodes.Clear();
                     if (value != string.Empty)
                     {
                         foreach (TreeNode _parentNode in TreeCache.Nodes)
@@ -959,7 +962,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                         IsFiltering = false;
                     }
                     //enables redrawing tree after all objects have been added
-                    this.TreeV.EndUpdate();
+                    TreeV.EndUpdate();
                 }
             }
 
@@ -970,7 +973,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             {
                 if (_childNode.Text.StartsWith(value, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    this.TreeV.Nodes.Add((TreeNode)_childNode.Clone());
+                    TreeV.Nodes.Add((TreeNode)_childNode.Clone());
                 }
                 if (_childNode.Nodes.Count > 0)
                 {
@@ -1018,7 +1021,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
         }
         public void RefreshTree(string branchname)
         {
-            IBranch branch= Branches.Where(p => p.BranchText == branchname).FirstOrDefault();
+            IBranch branch = Branches.Where(p => p.BranchText == branchname).FirstOrDefault();
             if (branch != null)
             {
                 RefreshTree(branch);
@@ -1026,12 +1029,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
         }
         public void RefreshImageList()
         {
-            visHelper = (VisHelper)VisManager.visHelper;
+            // visHelper = (VisHelper)VisManager.visHelper;
             TreeV.ImageList = new ImageList();
             //  TreeV.StateImageList = new ImageList();
             TreeV.ImageList = GetImageList();
-            
-         //   TreeV.StateImageList = visHelper.ImageList32;
+
+            //   TreeV.StateImageList = visHelper.ImageList32;
         }
         #endregion
         #region "new methods"
@@ -1057,8 +1060,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             if (n != null)
             {
                 branch.IconImageName = iconname;
-               
-                refreshBranch( n,branch);
+
+                refreshBranch(n, branch);
             }
         }
         public void ChangeBranchText(int branchid, string text)
@@ -1084,7 +1087,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             {
                 branch.BranchText = text;
                 n.Text = text;
-                refreshBranch(n,branch);
+                refreshBranch(n, branch);
             }
         }
 
@@ -1121,7 +1124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             }
             return null;
         }
-        private void refreshBranch(TreeNode n,IBranch br)
+        private void refreshBranch(TreeNode n, IBranch br)
         {
             if (br != null)
             {

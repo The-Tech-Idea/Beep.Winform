@@ -176,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Views.Configuration
         //private void EntitiesBindingSource_AddingNew(object sender, AddingNewEventArgs e)
         //{
         //    //EntityStructure entityStructure = new EntityStructure();
-        //    //entityStructure.Drawn = false;
+        //    //entityStructure.IsDrawn = false;
         //    //entityStructure.Editable = true;
         //    //e.NewObject = entityStructure;
         //}

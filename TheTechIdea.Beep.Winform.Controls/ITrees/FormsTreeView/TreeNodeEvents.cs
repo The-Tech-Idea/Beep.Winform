@@ -5,9 +5,9 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 
-namespace TheTechIdea.Beep.Winform.Controls.Tree
+namespace TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView
 {
-    public class TreeNodeEvents
+    public class TreeNodeEvents:EventArgs
     {
         string TreeEvent { get; set; }
         string TreeOP { get; set; }
@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
         public int StartselectBranchID { get; set; } = 0;
         public int SelectBranchID { get; set; } = 0;
         public int SelectedBranchID { get; set; } = 0;
-        public TreeNodeEvents(IDMEEditor pDMEEditor, TreeControl ptreeControl)
+        public TreeNodeEvents(IDMEEditor pDMEEditor, TreeViewControl ptreeControl)
         {
             DMEEditor = pDMEEditor;
             treeControl = ptreeControl;
@@ -36,15 +36,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
 
         }
         public IDMEEditor DMEEditor { get; set; }
-        public TreeControl treeControl { get; set; }
+        public TreeViewControl treeControl { get; set; }
         private ITree Tree { get; set; }
-        private TreeControl Treecontrol { get; set; }
+        private TreeViewControl Treecontrol { get; set; }
         private IVisManager visManager { get; set; }
         public System.Windows.Forms.TreeView TreeV { get; set; }
         private bool IsSelecting = false;
 
         #region "Node Handling Functions"
-       
+
         private void TreeV_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.LControlKey)
@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 TreeOP = "UnSelect";
                 StartselectBranchID = 0;
                 IBranch br = (IBranch)TreeV.SelectedNode.Tag;
-                int BranchID =br.ID;
+                int BranchID = br.ID;
                 TreeV.BeginUpdate();
                 if (TreeV.SelectedNode.BackColor == SelectBackColor)
                 {
@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
 
                     IBranch startbr = Tree.Branches.Where(x => x.BranchID == StartselectBranchID).FirstOrDefault();
                     IBranch endbr = Tree.Branches.Where(x => x.BranchID == SelectedBranchID).FirstOrDefault();
-                    if ((startbr != endbr) || (startbr.ParentBranchID == endbr.ParentBranchID) || (startbr.BranchClass == endbr.BranchClass))
+                    if (startbr != endbr || startbr.ParentBranchID == endbr.ParentBranchID || startbr.BranchClass == endbr.BranchClass)
                     {
 
                         TreeNode startnode;
@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                     }
                     IBranch startbr = Tree.Branches.Where(x => x.BranchID == StartselectBranchID).FirstOrDefault();
                     IBranch endbr = Tree.Branches.Where(x => x.BranchID == SelectedBranchID).FirstOrDefault();
-                    if ((startbr != endbr) || (startbr.ParentBranchID == endbr.ParentBranchID) || (startbr.BranchClass == endbr.BranchClass))
+                    if (startbr != endbr || startbr.ParentBranchID == endbr.ParentBranchID || startbr.BranchClass == endbr.BranchClass)
                     {
 
                         TreeNode startnode;
@@ -206,8 +206,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             TreeV.SelectedNode = e.Node;
             IBranch br = (IBranch)e.Node.Tag;
             int BranchID = br.ID;
-            string BranchText =br.BranchText;
-           
+            string BranchText = br.BranchText;
+
             SelectedBranchID = BranchID;
             if (br != null)
             {
@@ -225,7 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                         DataSource = null,
                         EventType = TreeEvent
                     };
-                 
+
                 }
                 else
                 {
@@ -246,11 +246,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
         }
         private void TreeView1_AfterCheck(object sender, TreeViewEventArgs e)
         {
-            
+
             try
             {
                 IBranch br = (IBranch)e.Node.Tag;
-               
+
                 CheckNodes(e.Node, e.Node.Checked);
                 if (br.BranchType == EnumPointType.Entity)
                 {
@@ -275,7 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 DMEEditor.AddLogMessage("Fail", $"Error in Showing View on Tree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
 
             }
-           
+
 
         }
         private void CheckNodes(TreeNode node, bool check)
@@ -327,7 +327,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
         {
             SelectedNode = e.Node;
             IBranch br = (IBranch)e.Node.Tag;
-            SelectedBranchID =br.ID;
+            SelectedBranchID = br.ID;
             NodeEvent(e);
         }
         #endregion

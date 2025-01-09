@@ -27,8 +27,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         public string ObjectType { get; set; }
         public string BranchClass { get; set; } 
         public string branchname { get; set; }
+        public List<string> ClassDefinitionsIDs { get; set; } = new List<string>(); // use AssemblyClassDefinition GuidID
         public List<MenuItem> Items { get; set; } = new List<MenuItem>();
-        public List<AssemblyClassDefinition> classDefinitions { get; set; } = new List<AssemblyClassDefinition>();
+        [JsonIgnore]
+        public List<AssemblyClassDefinition> classDefinitions { get; set; } = new List<AssemblyClassDefinition>(); // use AssemblyClassDefinition GuidID 
     }
     [Serializable]
     public class MenuItem
@@ -51,11 +53,14 @@ namespace TheTechIdea.Beep.Vis.Modules
         public string Uri { get; set; }
         [JsonIgnore]
         public IPassedArgs Parameters { get; set; }
-        
+        [JsonIgnore]
         public CommandAttribute MethodAttribute { get; set; }
         public string imagename { get; set; }
 
-        public AssemblyClassDefinition classDefinition { get; set; }
+        public string ClassDefinitionID { get; set; }
+        [JsonIgnore]
+        public AssemblyClassDefinition ClassDefinition { get; set; }
+        [JsonIgnore]
         public KeyCombination keyCombination { get; set; }
         public List<MenuItem> Children { get; set; } = new List<MenuItem>();
 

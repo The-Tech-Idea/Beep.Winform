@@ -44,7 +44,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         public ITreeBranchHandler treeBranchHandler { get; set; }
         public string Filterstring { get; set; }
         public ErrorsInfo ErrorsandMesseges { get; private set; }
-       
+        int ITree.SeqID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public List<MenuList> Menus { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         #endregion "Properties"
         #region "Events"   
         public event EventHandler<IPassedArgs> PreCallModule;
@@ -360,7 +362,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             Branches.Add(br);
-            AddNode(n);
+            //AddRootNode(n);
             br.CreateChildNodes();
         }
         #endregion "Create Branch Methods"
@@ -641,7 +643,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 {
                                     BeepContextMenuStrip ls = (BeepContextMenuStrip)menuList.Menu;
 
-                                    SimpleItem st = new SimpleItem() { Branchname = item.Caption, Name = item.Caption };
+                                    SimpleItem st = new SimpleItem() { BranchName = item.Caption, Name = item.Caption };
                                     ls.ListItems.Add(st);
                                     ls.Name = br.ToString();
                                     if (item.iconimage != null)
@@ -660,7 +662,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 if ((item.PointType == br.BranchType) && (br.BranchClass.Equals(item.ClassType, StringComparison.InvariantCultureIgnoreCase)))
                                 {
                                     BeepContextMenuStrip ls = (BeepContextMenuStrip)menuList.Menu;
-                                    SimpleItem st = new SimpleItem() { Branchname = item.Caption, Name = item.Caption };
+                                    SimpleItem st = new SimpleItem() { BranchName = item.Caption, Name = item.Caption };
                                     ls.ListItems.Add(st);
                                     ls.Name = br.ToString();
                                     if (item.iconimage != null)
@@ -719,7 +721,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     foreach (var item in cls.Methods.Where(y => y.Hidden == false))
                     {
                         ls = (BeepContextMenuStrip)menuList.Menu;
-                        SimpleItem st = new SimpleItem() { Branchname = item.Caption, Name = item.Caption };
+                        SimpleItem st = new SimpleItem() { BranchName = item.Caption, Name = item.Caption };
                         ls.ListItems.Add(st);
                         ls.Name = branch.ToString();
                      //   ls.ItemClicked -= Nodemenu_ItemClicked;

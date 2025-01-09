@@ -4,9 +4,10 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.ConfigUtil;
-using TheTechIdea.Beep.Winform.Controls.Tree;
+
 using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView;
 
 namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
 {
@@ -17,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
         public IPassedArgs Passedargs { get; set; }
       
         private FunctionandExtensionsHelpers ExtensionsHelpers;
-        public EditMenuFunctions(IDMEEditor pdMEEditor, IVisManager pvisManager, TreeControl ptreeControl)
+        public EditMenuFunctions(IDMEEditor pdMEEditor, IVisManager pvisManager, TreeViewControl ptreeControl)
         {
             DMEEditor = pdMEEditor;
          

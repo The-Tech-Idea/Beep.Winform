@@ -180,11 +180,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Reset TitleBottomY each time we paint. We'll recalc it if we draw a title.
             _titleBottomY = startyoffset;
-
+            UpdateDrawingRect();
             // If ShowTitle is true and TitleText is not empty, draw the title
             if (_showTitle && !string.IsNullOrEmpty(_titleText))
             {
-                DrawTitle(e.Graphics);
+                DrawTitle(e.Graphics,DrawingRect);
             }
         }
         protected override void OnControlAdded(ControlEventArgs e)
@@ -192,12 +192,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnControlAdded(e);
             // If you need to re-layout child controls, do so
         }
-        private void DrawTitle(Graphics g)
+        private void DrawTitle(Graphics g,Rectangle rectangle)
         {
             // Use a title font from your theme, or fallback
          
             // Update DrawingRect before measuring or positioning
-            UpdateDrawingRect();
+            
 
             // measure how big the text is
             SizeF titleSize = g.MeasureString(_titleText, Font);
@@ -259,6 +259,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // no line => just set TitleBottomY to textBottom plus some padding
                 _titleBottomY = (int)(textBottomY + padding);
+            }
+        }
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            DrawTitle(graphics, rectangle);
+            foreach (Control ctrl in Controls)
+            {
+                if (ctrl is IBeepUIComponent)
+                    ((IBeepUIComponent)ctrl).Draw(graphics, rectangle);
+               
             }
         }
     }

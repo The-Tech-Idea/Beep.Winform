@@ -12,6 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepDatePicker : BeepControl
     {
         #region "Properties"
+        private bool _isToggling = false;
         private TextBox _textBox;
         private Button _calendarButton;
         private MonthCalendar _monthCalendar;
@@ -177,7 +178,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(_calendarButton);
             AdjustLayout();
         }
-
         private void TextBox_TextChanged(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(_textBox.Text) && DateTime.TryParse(_textBox.Text, out DateTime result))
@@ -185,7 +185,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _monthCalendar.SetDate(result);
             }
         }
-
         private void UpdateTextBoxFromCalendar()
         {
             _textBox.Text = _monthCalendar.SelectionStart.ToString(_customDateFormat);
@@ -205,9 +204,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             _textBox.Text = _monthCalendar.SelectionStart.ToString(_customDateFormat);
             _popupForm.Hide();
         }
-
-        private bool _isToggling = false;
-
         private void CalendarButton_Click(object sender, EventArgs e)
         {
             if (_isToggling) return;
@@ -227,15 +223,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Task.Delay(200).ContinueWith(_ => _isToggling = false);
         }
-
         private void PositionPopupForm()
         {
             var screenLocation = PointToScreen(new Point(0, Height));
             _popupForm.Location = new Point(screenLocation.X, screenLocation.Y);
         }
-
-
-
         public override void ApplyTheme()
         {
             base.ApplyTheme();
@@ -255,7 +247,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
            
         }
-
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -268,9 +259,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
            
         }
-      
-
-
         private void AdjustLayout()
         {
             if (DrawingRect == Rectangle.Empty)
@@ -294,15 +282,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Hide DatePicker off the screen
            // _datePicker.Location = new Point(-Width, -Height);
         }
-        private void AdjustSizeToTextBox()
+        public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-            if(_textBox != null)
+            if (!string.IsNullOrEmpty(Text))
             {
-                Height = _textBox.PreferredHeight + (padding * 2);
+                Color textColor = ForeColor;
+                TextRenderer.DrawText(graphics, Text, Font, rectangle, textColor);
             }
-          
-            OnResize(EventArgs.Empty); // Trigger layout adjustment
+
         }
-       
+
     }
 }

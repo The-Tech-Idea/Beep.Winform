@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Desktop.Common;
 
-namespace TheTechIdea.Beep.Winform.Controls.Tree
+namespace TheTechIdea.Beep.Winform.Controls.ITrees
 {
     public static class BeepTreeDataGenerator
     {

@@ -503,58 +503,75 @@ namespace TheTechIdea.Beep.Desktop.Common
       List<ImageConfiguration> configs,
       int desiredWidth,
       int desiredHeight,
-      bool getOnlyRightSize = true)
+      bool getOnlyRightSize = true,
+      ImageScaleMode scaleMode = ImageScaleMode.KeepAspectRatio)
         {
-            // 1) Initialize a fresh ImageList
+            // 1) Filter configurations upfront if getOnlyRightSize is true
+            var filteredConfigs = getOnlyRightSize
+                ? configs.Where(cfg => cfg.Size.Width == desiredWidth && cfg.Size.Height == desiredHeight).ToList()
+                : configs;
+
+            // 2) Initialize a fresh ImageList
             ImageList imgList = new ImageList
             {
                 ColorDepth = ColorDepth.Depth32Bit,
                 ImageSize = new Size(desiredWidth, desiredHeight)
             };
 
-            // 2) Iterate over each config item
-            foreach (var cfg in configs)
+            // 3) Iterate over the filtered configurations
+            foreach (var cfg in filteredConfigs)
             {
                 try
                 {
-                    // Attempt to load the image (from embedded resource or local file)
-                    Image image = LoadImageFromConfig(cfg);
-                    if (image == null)
+                    // Attempt to load the image (from embedded resource, local file, or other source)
+                    Image originalImage = LoadImageFromConfig(cfg);
+                    if (originalImage == null)
                         continue;
 
-                    int w = image.Width;
-                    int h = image.Height;
+                    Image scaledImage = originalImage;
 
-                    // 3) Decide how to handle dimension mismatches
-                    if (w != desiredWidth || h != desiredHeight)
+                    // 4) Resize the image if necessary (when getOnlyRightSize is false)
+                    if (!getOnlyRightSize &&
+                        (originalImage.Width != desiredWidth || originalImage.Height != desiredHeight))
                     {
-                        if (getOnlyRightSize)
+                        if (cfg.IsSVG)
                         {
-                            // Skip images that do NOT exactly match
-                            // the desiredWidth/desiredHeight
-                            image.Dispose();
-                            continue;
+                            // Scale SVG using ScaleSvgImage logic
+                            var svgDocument = SvgDocument.Open<SvgDocument>(new MemoryStream(File.ReadAllBytes(cfg.Path)));
+                            Bitmap bmp = new Bitmap(desiredWidth, desiredHeight);
+                            using (Graphics g = Graphics.FromImage(bmp))
+                            {
+                                g.Clear(Color.Transparent);
+                                ImageConverters.ScaleSvgImage(g, svgDocument, new Rectangle(0, 0, desiredWidth, desiredHeight), 0, scaleMode);
+                            }
+                            scaledImage = bmp;
                         }
                         else
                         {
-                            // Resize the image to the requested dimensions
-                            Image resized = new Bitmap(image, new Size(desiredWidth, desiredHeight));
-                            image.Dispose(); // free the old
-                            image = resized;
+                            // Scale raster images using ScaleRegularImage logic
+                            Bitmap bmp = new Bitmap(desiredWidth, desiredHeight);
+                            using (Graphics g = Graphics.FromImage(bmp))
+                            {
+                                g.Clear(Color.Transparent);
+                                ImageConverters.ScaleRegularImage(g, originalImage, new Rectangle(0, 0, desiredWidth, desiredHeight), 0, scaleMode);
+                            }
+                            scaledImage = bmp;
                         }
+
+                        // Dispose the original image if resized
+                        originalImage.Dispose();
                     }
 
-                    // 4) Add to the ImageList with a unique key (e.g., the config's name)
-                    imgList.Images.Add(cfg.Name, image);
+                    // 5) Add the scaled image to the ImageList with a unique key
+                    imgList.Images.Add(cfg.Name, scaledImage);
 
-                    // If you prefer, you can dispose 'image' here after adding:
-                    // image.Dispose();
-
+                    // Optionally dispose of the scaled image after adding it to the ImageList
+                    scaledImage.Dispose();
                 }
                 catch (Exception ex)
                 {
-                    // Log or handle exceptions (File not found, assembly load fail, etc.)
-                    Console.WriteLine($"Failed to load image for {cfg.Name}: {ex.Message}");
+                    // Log or handle exceptions (e.g., file not found, invalid format, etc.)
+                    Console.WriteLine($"Failed to load or process image for {cfg.Name}: {ex.Message}");
                 }
             }
 

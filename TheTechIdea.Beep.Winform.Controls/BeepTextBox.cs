@@ -1204,10 +1204,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isApplyingMask = false;
         #endregion "Masking Logic"
         #region "IBeepComponent Implementation"
-        public new void RefreshBinding()
-        {
-            base.RefreshBinding();
-        }
+      
         public bool ValidateData(out string message)
         {
             return EntityHelper.ValidateData(this.MaskFormat, this.Text, this.CustomMask, out message);
@@ -1224,6 +1221,39 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _innerTextBox.SelectAll();
         }
+        public bool SetFocus()
+        {
+            return _innerTextBox.Focus();
+        }
+        public override void SetValue(object value)
+        {
+            Text = value.ToString();
+
+        }
+        public override object GetValue()
+        {
+            return Text;
+
+        }
+        public override void ClearValue()
+        {
+            Text = "";
+
+        }
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            // Draw Image and Text
+            if (beepImage.Visible)
+            {
+                beepImage.Draw(graphics, rectangle);
+            }
+            // Draw Text
+            if (!string.IsNullOrEmpty(Text))
+            {
+                TextRenderer.DrawText(graphics, Text, Font, rectangle, ForeColor, TextFormatFlags.Left);
+            }
+        }
+
 
         #endregion "IBeepComponent Implementation"
 

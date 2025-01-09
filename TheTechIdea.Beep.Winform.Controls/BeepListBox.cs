@@ -622,9 +622,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    //  base.OnMouseLeave(e);
         //}
         #endregion "Layout and Theme"
-    
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            // Draw the main panel background
+            
+        }
         // ---------------------------------------
-     
-      
+
+
     }
 }

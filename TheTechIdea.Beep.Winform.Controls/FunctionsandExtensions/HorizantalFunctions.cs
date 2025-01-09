@@ -1,12 +1,13 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Vis;
-using TheTechIdea.Beep.Winform.Controls.Tree;
+using TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView;
 using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Addin;
+
 using TheTechIdea.Beep.ConfigUtil;
+
 
 namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
 {
@@ -19,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
 
 
         private FunctionandExtensionsHelpers ExtensionsHelpers;
-        public HorizantalFunctions(IDMEEditor pdMEEditor, IVisManager pvisManager, TreeControl ptreeControl)
+        public HorizantalFunctions(IDMEEditor pdMEEditor, IVisManager pvisManager, TreeViewControl ptreeControl)
         {
             DMEEditor = pdMEEditor;
 

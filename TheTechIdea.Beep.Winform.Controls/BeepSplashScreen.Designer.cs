@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Controls
+﻿using TheTechIdea.Beep.Vis.Modules;
+
+namespace TheTechIdea.Beep.Winform.Controls
 {
     partial class BeepSplashScreen
     {

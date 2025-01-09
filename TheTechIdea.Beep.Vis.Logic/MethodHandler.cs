@@ -84,7 +84,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                         mi.ObjectType = item.ObjectType;
                         mi.BranchClass = item.ClassType;
                         mi.PointType = item.PointType;
-                        mi.classDefinition = cls;
+                        mi.ClassDefinition = cls;
                         mi.Category = item.Category;
                         mi.imagename = item.iconimage;
                         mi.MethodAttribute = item.CommandAttr;
@@ -156,7 +156,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                                 mi.ObjectType = item.ObjectType;
                                 mi.BranchClass = item.ClassType;
                                 mi.PointType = item.PointType;
-                                mi.classDefinition = cls;
+                                mi.ClassDefinition = cls;
                                 mi.MethodAttribute = item.CommandAttr;
                                 mi.imagename = item.iconimage;
                                 menuList.Items.Add(mi);
@@ -173,7 +173,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                                 mi.ObjectType = item.ObjectType;
                                 mi.BranchClass = item.ClassType;
                                 mi.PointType = item.PointType;
-                                mi.classDefinition = cls;
+                                mi.ClassDefinition = cls;
                                 mi.imagename = item.iconimage;
                                 mi.MethodAttribute = item.CommandAttr;
                                 menuList.Items.Add(mi);
@@ -254,7 +254,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                         MethodsClass methodsClass;
                         try
                         {
-                            methodsClass = item.classDefinition.Methods.Where(x => x.Caption == item.MethodName).FirstOrDefault();
+                            methodsClass = item.ClassDefinition.Methods.Where(x => x.Caption == item.MethodName).FirstOrDefault();
                         }
                         catch (Exception)
                         {
@@ -318,7 +318,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                         MethodsClass methodsClass;
                         try
                         {
-                            methodsClass = item.classDefinition.Methods.Where(x => x.Caption == item.MethodName).FirstOrDefault();
+                            methodsClass = item.ClassDefinition.Methods.Where(x => x.Caption == item.MethodName).FirstOrDefault();
                         }
                         catch (Exception)
                         {
@@ -562,7 +562,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                                     mi.ObjectType = item.ObjectType;
                                     mi.BranchClass = item.ClassType;
                                     mi.PointType = item.PointType;
-                                    mi.classDefinition = cls;
+                                    mi.ClassDefinition = cls;
                                     mi.MethodAttribute = item.CommandAttr;
                                     mi.imagename = item.iconimage;
                                     menuList.Items.Add(mi);
@@ -579,7 +579,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                                     mi.ObjectType = item.ObjectType;
                                     mi.BranchClass = item.ClassType;
                                     mi.PointType = item.PointType;
-                                    mi.classDefinition = cls;
+                                    mi.ClassDefinition = cls;
                                     mi.imagename = item.iconimage;
                                     mi.MethodAttribute = item.CommandAttr;
                                     menuList.Items.Add(mi);

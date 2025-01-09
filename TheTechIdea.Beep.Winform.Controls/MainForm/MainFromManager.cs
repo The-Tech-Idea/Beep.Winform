@@ -3,7 +3,7 @@ using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls.MenuBar;
 using TheTechIdea.Beep.Winform.Controls.ToolBar;
-using TheTechIdea.Beep.Winform.Controls.Tree;
+using TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MainForm
         ToolbarControl BeepVerticaltoolbarControl;
         ToolbarControl BeepHorizantaltoolbarControl;
         MenuControl BeepmenuControl;
-        TreeControl BeepTreeControl;
+        TreeViewControl BeepTreeControl;
 
 
         PassedArgs args = new PassedArgs();
@@ -201,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MainForm
             try
             {
                 Visutil.Container = MainSplitPanel.Container;
-                BeepTreeControl = (TreeControl)Visutil.Tree;
+                BeepTreeControl = (TreeViewControl)Visutil.Tree;
                 BeepVerticaltoolbarControl = (ToolbarControl)Visutil.ToolStrip;
                 BeepHorizantaltoolbarControl = (ToolbarControl)Visutil.SecondaryToolStrip;
                 BeepmenuControl = (MenuControl)Visutil.MenuStrip;

@@ -5,7 +5,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Vis;
-using TheTechIdea.Beep.Winform.Controls.Tree;
+using TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView;
 using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Winform.Controls.KeyManagement;
@@ -22,24 +22,24 @@ namespace TheTechIdea.Beep.Winform.Controls.MenuBar
         {
                 
         }
-        public MenuControl(IDMEEditor pDMEEditor, TreeControl ptreeControl)
+        public MenuControl(IDMEEditor pDMEEditor, TreeViewControl ptreeControl)
         {
             SetMenuControl(pDMEEditor, ptreeControl);
 
         }
-        public void  SetMenuControl(IDMEEditor pDMEEditor, TreeControl ptreeControl)
+        public void  SetMenuControl(IDMEEditor pDMEEditor, TreeViewControl ptreeControl)
         {
             DMEEditor = pDMEEditor;
             Treecontrol = ptreeControl;
             vismanager =Treecontrol.VisManager;
             TreeV = Treecontrol.TreeV;
-           // CreateToolbar();
+           // GetMethods();
 
         }
         
         public TreeView TreeV { get; set; }
         public MenuStrip MenuStrip { get; set; }
-        private TreeControl Treecontrol { get; set; }
+        private TreeViewControl Treecontrol { get; set; }
       
         public string ParentName { get ; set ; }
         public string ObjectName { get ; set ; }
@@ -62,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MenuBar
     //    public List<ToolStripMenuItem> menuitems { get; set; } = new List<ToolStripMenuItem>();
         VisHelper visHelper { get { return (VisHelper)vismanager.visHelper; }  }
 
-        public string GuidID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string GuidID { get  ; set  ; }
 
         public void Run(IPassedArgs pPassedarg)
         {
@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MenuBar
             VisHelper visHelper=(VisHelper)vismanager.visHelper;
            
            
-                    return visHelper.ImageList32;
+                    return imageList;
           
         }
         public void SetConfig(IDMEEditor pbl, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
@@ -240,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MenuBar
         }
         private void RunConfigFunction(object sender, EventArgs e)
         {
-          //  Treecontrol.RunFunction(sender, e);
+          //  Treecontrol.RunFunctionFromExtensions(sender, e);
             ToolStripMenuItem menuItem = (ToolStripMenuItem)sender;
             PassedArgs Passedarguments = new PassedArgs
             {  // Obj= obj,

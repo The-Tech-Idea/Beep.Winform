@@ -49,7 +49,7 @@ namespace Beep.Config.Winform.DataConnections
         public IVisManager Visutil { get; set; }
                public string GuidID { get ; set; }=Guid.NewGuid().ToString();
 
-        TreeControl tree;
+        TreeViewControl tree;
         IBranch branch;
         public void RaiseObjectSelected()
         {

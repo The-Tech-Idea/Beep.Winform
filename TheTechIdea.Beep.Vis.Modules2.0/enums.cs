@@ -160,7 +160,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             Triangle
         }
 
+    public enum ImageScaleMode
+    {
+        None,
+        Stretch,
+        KeepAspectRatio,
+        KeepAspectRatioByWidth,
+        KeepAspectRatioByHeight
+    }
 
-    
 
 }

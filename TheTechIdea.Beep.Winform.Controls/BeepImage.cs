@@ -1,15 +1,12 @@
-﻿using System;
-using System.ComponentModel;
-using System.Drawing;
+﻿using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing.Design;
-using System.Reflection;
 using Svg;
 using System.Drawing.Text;
-using System.Windows.Forms.Design;
 using Timer = System.Windows.Forms.Timer;
-using TheTechIdea.Beep.Winform.Controls.Editors;
-using TheTechIdea.Beep.Winform.Controls.Design;
+using System.Reflection;
+using TheTechIdea.Beep.Vis.Modules;
+
 
 
 
@@ -20,20 +17,20 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep Image")]
     [Description("A control that displays an image (SVG, PNG, JPG, BMP).")]
-    [Designer(typeof(TheTechIdea.Beep.Winform.Controls.Design.BeepImageDesigner))]
+    //[Designer(typeof(TheTechIdea.Beep.Winform.Controls.Design.BeepImageDesigner))]
     public class BeepImage : BeepControl
     {
-       
-  
-       
-       // private ImageSelectorImporterForm form;
+
+
+
+        // private ImageSelectorImporterForm form;
         public SvgDocument svgDocument { get; private set; }
         private Image regularImage;
         private bool isSvg = false;
         private string _advancedImagePath;
         // Property for the image path (SVG, PNG, JPG, BMP)
         protected string _imagepath;
-        
+
         public BeepImage()
         { // Enable double buffering and optimized painting
             SetStyle(ControlStyles.OptimizedDoubleBuffer |
@@ -45,6 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 100;
                 Height = 100;
             }
+            BoundProperty = "ImagePath";
             // ImageSelector.SetSelector();
         }
 
@@ -53,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private float _manualRotationAngle = 0; // Manual rotation angle
         private bool _allowManualRotation = true; // Allows toggling between manual and spinning
-        
+
 
         public float ManualRotationAngle
         {
@@ -138,10 +136,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _imagepath;
             set
             {
-               
+
 
                 _imagepath = value;
-               // Console.WriteLine("Loading ImagePath");
+                // Console.WriteLine("Loading ImagePath");
                 if (!string.IsNullOrEmpty(_imagepath))
                 {
                     //Use ImageSelector to select and process the image path
@@ -154,10 +152,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     //    }
 
                     //}
-                 //   isinit = false;
-                   // Console.WriteLine("Loading ImagePath");
+                    //   isinit = false;
+                    // Console.WriteLine("Loading ImagePath");
                     LoadImage(_imagepath);  // Use the final processed path for the image
-                  //  Console.WriteLine("Apply Theme to  ImagePath");
+                                            //  Console.WriteLine("Apply Theme to  ImagePath");
                     ApplyTheme();
                     Invalidate();
                 }
@@ -226,7 +224,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             return Size.Empty;
         }
 
-      
+
         /// <summary>
         /// Gets or sets the image displayed in the control.
         /// Supports both regular images and SVG files.
@@ -272,11 +270,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 PressedForeColor = _currentTheme.ButtonActiveForeColor; // Pressed foreground color
                 FocusBackColor = _currentTheme.ButtonActiveBackColor; // Focus background color
                 FocusForeColor = _currentTheme.ButtonActiveForeColor; // Focus foreground color
-                
-               // ForeColor = _currentTheme.ButtonForeColor; // Default foreground color
-               
-                
-                if(_applyThemeOnImage)
+
+                // ForeColor = _currentTheme.ButtonForeColor; // Default foreground color
+
+
+                if (_applyThemeOnImage)
                 {
                     ApplyThemeToSvg();
                 }
@@ -284,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        public  void ApplyThemeToSvg()
+        public void ApplyThemeToSvg()
         {
 
             if (svgDocument != null && _currentTheme != null)
@@ -306,10 +304,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else
                 {
                     fillColor = BackColor;
-                    strokeColor = ForeColor    ;
+                    strokeColor = ForeColor;
                 }
                 // Apply colors recursively to all elements
-               // ApplyColorsToElement(svgDocument, fillColor, strokeColor);
+                // ApplyColorsToElement(svgDocument, fillColor, strokeColor);
                 // Apply the selected colors to the SVG elements
                 foreach (var element in svgDocument.Descendants())
                 {
@@ -325,7 +323,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Invalidate the control to trigger a repaint after applying the theme
                 Invalidate();
-            }      
+            }
 
         }
         private void ApplyColorsToElement(SvgElement element, Color fillColor, Color strokeColor)
@@ -347,135 +345,71 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Do nothing to prevent flicker, or customize as needed
         }
 
-      public void DrawImage(Graphics g, Rectangle imageRect)
-{
-    g.SmoothingMode = SmoothingMode.AntiAlias;
-    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-    g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-
-    // Save the current transformation state
-    var originalTransform = g.Transform;
-
-    try
-    {
-        float effectiveRotation = _manualRotationAngle + (IsSpinning ? _rotationAngle : 0);
-        PointF center = new PointF(imageRect.X + imageRect.Width / 2f, imageRect.Y + imageRect.Height / 2f);
-
-        // Apply rotation transformations
-        g.TranslateTransform(center.X, center.Y);
-        g.RotateTransform(effectiveRotation);
-        g.TranslateTransform(-center.X, -center.Y);
-
-        if (isSvg && svgDocument != null)
+        public void DrawImage(Graphics g, Rectangle imageRect)
         {
-            var imageSize = svgDocument.GetDimensions();
-            var scaledBounds = GetScaledBounds(new SizeF(imageSize.Width, imageSize.Height), imageRect);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            // Save the current transformation state
+            var originalTransform = g.Transform;
 
-            if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
+            try
             {
-                g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
-                g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
-                svgDocument.Draw(g);
+                float effectiveRotation = _manualRotationAngle + (IsSpinning ? _rotationAngle : 0);
+                PointF center = new PointF(imageRect.X + imageRect.Width / 2f, imageRect.Y + imageRect.Height / 2f);
+
+                // Apply rotation transformations
+                g.TranslateTransform(center.X, center.Y);
+                g.RotateTransform(effectiveRotation);
+                g.TranslateTransform(-center.X, -center.Y);
+
+                if (isSvg && svgDocument != null)
+                {
+                    var imageSize = svgDocument.GetDimensions();
+                    var scaledBounds = GetScaledBounds(new SizeF(imageSize.Width, imageSize.Height), imageRect);
+
+                    if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
+                    {
+                        g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
+                        g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
+                        svgDocument.Draw(g);
+                    }
+                }
+                else if (regularImage != null)
+                {
+                    var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), imageRect);
+
+                    if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
+                    {
+                        g.DrawImage(
+                            regularImage,
+                            new Rectangle((int)scaledBounds.X, (int)scaledBounds.Y, (int)scaledBounds.Width, (int)scaledBounds.Height),
+                            0,
+                            0,
+                            regularImage.Width,
+                            regularImage.Height,
+                            GraphicsUnit.Pixel
+                        );
+                    }
+                }
+            }
+            finally
+            {
+                // Restore the original transformation state
+                g.Transform = originalTransform;
             }
         }
-        else if (regularImage != null)
-        {
-            var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), imageRect);
 
-            if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
-            {
-                g.DrawImage(
-                    regularImage,
-                    new Rectangle((int)scaledBounds.X, (int)scaledBounds.Y, (int)scaledBounds.Width, (int)scaledBounds.Height),
-                    0,
-                    0,
-                    regularImage.Width,
-                    regularImage.Height,
-                    GraphicsUnit.Pixel
-                );
-            }
-        }
-    }
-    finally
-    {
-        // Restore the original transformation state
-        g.Transform = originalTransform;
-    }
-}
-
-
-
-        //public void DrawImage(Graphics g, Rectangle imageRect)
-        //{
-        //    g.SmoothingMode = SmoothingMode.AntiAlias;
-        //    g.SmoothingMode = SmoothingMode.HighQuality;
-        //    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-        //    g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-        //    if (isSvg && svgDocument != null)
-        //    {
-        //        var imageSize = svgDocument.GetDimensions();
-        //        var scaledBounds = GetScaledBounds(new SizeF(imageSize.Width, imageSize.Height), imageRect);
-
-        //        if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
-        //        {
-        //            // Apply scaling and positioning
-        //            g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
-        //            g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
-
-        //            svgDocument.Draw(g);
-        //            g.ResetTransform(); // Reset transformations
-        //        }
-        //    }
-        //    else if (regularImage != null)
-        //    {
-        //        // Calculate scaled bounds for the raster image
-        //        var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), imageRect);
-
-        //        // Ensure the bounds are valid
-        //        if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
-        //        {
-        //            // Draw the raster image within the scaled bounds
-        //            g.DrawImage(regularImage, scaledBounds);
-        //        }
-        //    }
-        //}
-
-
-        //protected override void OnPaint(PaintEventArgs e)
-        //{
-        //    base.OnPaint(e);
-
-        //    e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-
-        //    if (isSvg && svgDocument != null)
-        //    {
-        //        // Get scaled bounds for the SVG
-        //        var imageSize = svgDocument.GetDimensions();
-        //        var scaledBounds = GetScaledBounds(new SizeF(imageSize.Width, imageSize.Height), DrawingRect);
-
-        //        // Apply scaling and positioning
-        //        e.Graphics.TranslateTransform(scaledBounds.X, scaledBounds.Y);
-        //        e.Graphics.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
-
-        //        // Draw the SVG
-        //        svgDocument.Draw(e.Graphics);
-        //        e.Graphics.ResetTransform(); // Reset transformations
-        //    }
-        //    else if (regularImage != null)
-        //    {
-        //        // Get scaled bounds for the regular image
-        //        var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), DrawingRect);
-
-        //        // Draw the regular image
-        //        e.Graphics.DrawImage(regularImage, scaledBounds);
-        //    }
-        //}
 
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            DrawingRect.Inflate(-1,-1); // Adjust for border thickness
+            DrawingRect.Inflate(-1, -1); // Adjust for border thickness
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
             // Use spin functionality if enabled
             DrawImage(
@@ -500,14 +434,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (IsEmbeddedResource(path))
                 {
                     // Attempt to load from embedded resources
-                    retval= LoadImageFromEmbeddedResource(path);
+                    retval = LoadImageFromEmbeddedResource(path);
                 }
                 else
                 {
                     if (File.Exists(path))
                     {
                         // Load from file system
-                        retval= LoadImageFromFile(path);
+                        retval = LoadImageFromFile(path);
                     }
                 }
             }
@@ -516,7 +450,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Console.WriteLine($"Error loading image: {ex.Message}");
                 return false;
             }
-           return retval;
+            return retval;
         }
         /// <summary>
         /// Load an image from the file system (SVG, PNG, JPG, BMP)
@@ -528,19 +462,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             switch (extension)
             {
                 case ".svg":
-                    retval= LoadSvg(path);
+                    retval = LoadSvg(path);
                     break;
                 case ".png":
                 case ".jpg":
                 case ".jpeg":
                 case ".bmp":
-                    retval= LoadRegularImage(path);
+                    retval = LoadRegularImage(path);
                     break;
                 default:
                     Console.WriteLine("Unsupported image format. Supported formats are: SVG, PNG, JPG, BMP.");
                     break;
             }
-            
+
             return retval;
         }
         public bool IsEmbeddedResource(string path)
@@ -654,11 +588,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             regularImage = null;
             svgDocument = null;
         }
-      
+
         #endregion "Image Drawing Methods"
         #region "Designer Support"
 
-      
+
         public float GetScaleFactor(SizeF imageSize, Size targetSize)
         {
             float scaleX = targetSize.Width / imageSize.Width;
@@ -707,7 +641,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //                    return selectedPath;  // Valid path obtained
         //                }
         //            }
-                
+
         //    }
         //    catch (Exception ex)
         //    {
@@ -780,7 +714,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 return;
             }
-             base.OnMouseLeave(e);
+            base.OnMouseLeave(e);
         }
 
         protected override void OnMouseLeave(EventArgs e)
@@ -790,7 +724,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
             base.OnMouseLeave(e);
-          
+
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -799,8 +733,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (e.Button == MouseButtons.Left)
             {
                 IsPressed = true;
-               // ApplyTheme();  // Reapply theme to reflect pressed state
-               // Invalidate();
+                // ApplyTheme();  // Reapply theme to reflect pressed state
+                // Invalidate();
             }
             base.OnMouseDown(e);
         }
@@ -813,8 +747,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             base.OnMouseUp(e);
             IsPressed = false;
-          //  ApplyTheme();  // Reapply theme to reflect released state
-         //   Invalidate();
+            //  ApplyTheme();  // Reapply theme to reflect released state
+            //   Invalidate();
         }
 
         #endregion
@@ -861,6 +795,33 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         #endregion "Spin and Animations"
+        #region "IBeep UI Component Implementation"
+        public override void SetValue(object value)
+        {
+            if (value != null)
+            {
+                ImagePath = value.ToString();
+            }
+        }
+        public override object GetValue()
+        {
+            return ImagePath;
+        }
+        public override void ClearValue()
+        {
+            ImagePath = "";
+        }
+        public override bool ValidateData(out string messege)
+        {
+            messege = "";
+            return true;
+        }
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            Draw(graphics, rectangle);
+        }
+
+        #endregion "IBeep UI Component Implementation"
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -872,12 +833,5 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
     }
-    public enum ImageScaleMode
-    {
-        None,
-        Stretch,
-        KeepAspectRatio,
-        KeepAspectRatioByWidth,
-        KeepAspectRatioByHeight
-    }
+   
 }

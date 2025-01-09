@@ -28,7 +28,7 @@ namespace Beep.Config.Winform.Configurations
         }
 
       
-        TreeControl tree;
+        TreeViewControl tree;
         IBranch branch;
         // public event EventHandler<PassedArgs> OnObjectSelected;
         #region "IAddinVisSchema"

@@ -51,7 +51,7 @@ namespace Beep.Config.Winform.DataConnections
         public bool IsRunning { get; set; }
         public bool IsNew { get; set; }
         public DataConnectionViewModel ViewModel { get; set; }
-        TreeControl tree;
+        TreeViewControl tree;
         IBranch Rootbranch;
         public void Run(IPassedArgs pPassedarg)
         {

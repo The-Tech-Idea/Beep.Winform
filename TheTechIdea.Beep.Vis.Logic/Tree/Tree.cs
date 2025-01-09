@@ -2,10 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TheTechIdea.Beep.Container.Services;
-using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Tree;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
@@ -29,9 +26,8 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
         bool isTreeCreate = false;
 
         #endregion
-
         #region "Properties"
-        
+        public List<MenuList> Menus { get; set; } = new List<MenuList>();
         public List<Tuple<IBranch, string>> GenerBranchs { get; set; } = new List<Tuple<IBranch, string>>();
         public string CategoryIcon { get; set; }="Category.png";
         public string SelectIcon { get; set; }="Select.png";
@@ -41,7 +37,7 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
         public List<int> SelectedBranchs { get; set; } = new List<int>();
         public PassedArgs args { get; set; }
         int _Seqid = 0;
-        public int SeqID { get { return _Seqid++; } }
+        public int SeqID { get { return _Seqid++; } set { } }
         public List<IBranch> Branches { get; set; } = new List<IBranch>();
         public IVisHelper visHelper { get; set; }
         public IVisManager VisManager { get; set; }
@@ -103,12 +99,10 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
             }
             
         }
-
         public void RefreshTree()
         {
            CreateRootTree();
         }
-
         public void RefreshTree(IBranch branch)
         {
            int idx=Branches.FindIndex(x => x.ID == branch.ID);
@@ -117,7 +111,6 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
                 Branches[idx] = branch;
             }
         }
-
         public void RefreshTree(int branchid)
         {
             int idx = Branches.FindIndex(x => x.ID == branchid);
@@ -126,7 +119,6 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
                
             }
         }
-
         public void RefreshTree(string branchname)
         {
             int idx = Branches.FindIndex(x => x.BranchText == branchname);
@@ -135,7 +127,6 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
 
             }
         }
-
         public void RemoveNode(int id)
         {
             int idx = Branches.FindIndex(x => x.ID == id);
@@ -144,7 +135,6 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
                 Branches.RemoveAt(idx);
             }
         }
-
         public IErrorsInfo RunMethod(object branch, string MethodName)
         {
             try
@@ -158,12 +148,10 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
             return DMEEditor.ErrorObject;
            
         }
-
         public IErrorsInfo TurnonOffCheckBox(IPassedArgs Passedarguments)
         {
             throw new NotImplementedException();
         }
-
         public void ChangeBranchIcon(int branchid, string iconname)
         {
             IBranch br = Branches.Where(p => p.ID == branchid).FirstOrDefault();
@@ -201,12 +189,10 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
                 ChangeBranchText(br, text);
             }
         }
-
         public void ChangeBranchText(IBranch branch, string text)
         {
             throw new NotImplementedException();
         }
-
         public IBranch GetBranchByGuidID(string guidid)
         {
             int idx = Branches.FindIndex(x => x.GuidID == guidid);
@@ -219,7 +205,6 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
                 return null;
             }
         }
-
         public IBranch GetBranchByEntityGuidID(string guidid)
         {
             int idx = Branches.FindIndex(x => x.EntityGuidID == guidid);
@@ -232,7 +217,6 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
                 return null;
             }
         }
-
         public IBranch GetBranchByMiscGuidID(string guidid)
         {
             int idx = Branches.FindIndex(x => x.MiscStringID == guidid);

@@ -270,7 +270,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void UpdateDisplayValue()
         {
-            var selectedItem = _items.FirstOrDefault(i => i.Id == SelectedKey);
+            var selectedItem = _items.FirstOrDefault(i => i.GuidId == SelectedKey);
             SelectedDisplayValue = selectedItem?.DisplayField ?? string.Empty;
         }
 
@@ -328,7 +328,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_dropdownListBox.SelectedItem is SimpleItem selectedItem)
             {
-                SelectedKey = selectedItem.Id;
+                SelectedKey = selectedItem.GuidId;
                 _popupForm.Hide();
             }
         }

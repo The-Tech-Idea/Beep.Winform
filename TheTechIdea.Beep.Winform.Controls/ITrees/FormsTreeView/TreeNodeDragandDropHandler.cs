@@ -9,16 +9,16 @@ using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Utilities;
 using Point = System.Drawing.Point;
 
-namespace TheTechIdea.Beep.Winform.Controls.Tree
+namespace TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView
 {
-    public class TreeNodeDragandDropHandler 
+    public class TreeNodeDragandDropHandler
     {
-        public TreeNodeDragandDropHandler(IDMEEditor pDMEEditor, TreeControl ptreeControl)
+        public TreeNodeDragandDropHandler(IDMEEditor pDMEEditor, TreeViewControl ptreeControl)
         {
             DMEEditor = pDMEEditor;
             treeControl = ptreeControl;
             TreeV = ptreeControl.TreeV;
-          
+
 
             TreeV.DragDrop += Tree_DragDrop;
             TreeV.DragEnter += Tree_DragEnter;
@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
 
         }
         public IDMEEditor DMEEditor { get; set; }
-        public TreeControl treeControl { get; set; }
+        public TreeViewControl treeControl { get; set; }
 
         public System.Windows.Forms.TreeView TreeV { get; set; }
         #region "Drag and Drop"
@@ -52,16 +52,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
 
         }
 
-        private void Tree_DragEnter(object sender, System.Windows.Forms.DragEventArgs e)
+        private void Tree_DragEnter(object sender, DragEventArgs e)
         {
             e.Effect = e.AllowedEffect;
         }
 
-        private void Tree_DragDrop(object sender, System.Windows.Forms.DragEventArgs e)
+        private void Tree_DragDrop(object sender, DragEventArgs e)
         {
             // Retrieve the client coordinates of the drop location.
             Point targetPoint = TreeV.PointToClient(new Point(e.X, e.Y));
-           
+
             // Retrieve the node at the drop location.
             TreeNode targetNode = TreeV.GetNodeAt(targetPoint);
             TreeNode draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
@@ -74,8 +74,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 }
                 IBranch targetBranch = (IBranch)targetNode.Tag;
                 // Retrieve the node that was dragged.
-             
-               
+
+
                 string targetBranchClass = targetBranch.GetType().Name;
                 string dragedBranchClass = dragedBranch.GetType().Name;
                 Function2FunctionAction functionAction = DMEEditor.ConfigEditor.Function2Functions.Where(x => x.FromClass == dragedBranchClass && x.ToClass == targetBranchClass && x.Event == "DragandDrop").FirstOrDefault();
@@ -95,15 +95,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
 
                             break;
 
-                           
+
                         case EnumPointType.Category:
-                          //  if (dragedBranch.BranchClass == "VIEW")
-                           // {
-                                if (dragedBranch.BranchType == EnumPointType.DataPoint)
-                                {
-                                    treeControl.treeBranchHandler.MoveBranchToCategory(targetBranch, dragedBranch);
-                                };
-                           // };
+                            //  if (dragedBranch.BranchClass == "VIEW")
+                            // {
+                            if (dragedBranch.BranchType == EnumPointType.DataPoint)
+                            {
+                                treeControl.treeBranchHandler.MoveBranchToCategory(targetBranch, dragedBranch);
+                            };
+                            // };
                             break;
                         case EnumPointType.DataPoint:
                         case EnumPointType.Entity:
@@ -192,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 }
             }
 
-           
+
             //if (targetBranch.BranchType == EnumBranchType.Root)
             //{
             //    // Confirm that the node at the drop location is not 
@@ -210,14 +210,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             //            //  Visutil.ShowTableonTree(MainNode, v.id, tabid, true);
 
             //            //draggedNode.Remove();
-            //            //targetNode.Nodes.Add(draggedNode);
+            //            //targetNode.NodesControls.Add(draggedNode);
             //        }
 
             //        // If it is a copy operation, clone the dragged node 
             //        // and add it to the node at the drop location.
             //        //else if (e.Effect == DragDropEffects.Copy)
             //        //{
-            //        //    targetNode.Nodes.Add((TreeNode)draggedNode.Clone());
+            //        //    targetNode.NodesControls.Add((TreeNode)draggedNode.Clone());
             //        //}
 
             //        // Expand the node at the location 
@@ -239,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             //    if (CurrentNode.nodeType == "EN")
             //    {
             // Move the dragged node when the left mouse button is used.
-            System.Windows.Forms.IDataObject x = new System.Windows.Forms.DataObject();
+            IDataObject x = new DataObject();
 
             TreeNode n = (TreeNode)e.Item;
             if (e.Button == MouseButtons.Left)
@@ -251,12 +251,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                     case EnumPointType.Root:
                         break;
                     case EnumPointType.DataPoint:
-                       TreeV.DoDragDrop(e.Item, System.Windows.Forms.DragDropEffects.Move);
+                        TreeV.DoDragDrop(e.Item, DragDropEffects.Move);
                         break;
                     case EnumPointType.Category:
                         break;
                     case EnumPointType.Entity:
-                        TreeV.DoDragDrop(e.Item, System.Windows.Forms.DragDropEffects.Move);
+                        TreeV.DoDragDrop(e.Item, DragDropEffects.Move);
                         break;
                     default:
                         break;
@@ -278,10 +278,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
 
         }
 
-        private void Tree_DragOver(object sender, System.Windows.Forms.DragEventArgs e)
+        private void Tree_DragOver(object sender, DragEventArgs e)
         {
             // Retrieve the client coordinates of the mouse position.
-            System.Drawing.Point targetPoint = TreeV.PointToClient(new System.Drawing.Point(e.X, e.Y));
+            Point targetPoint = TreeV.PointToClient(new Point(e.X, e.Y));
 
             // Select the node at the mouse position.
             TreeV.SelectedNode = TreeV.GetNodeAt(targetPoint);

@@ -35,7 +35,7 @@ namespace Beep.Winform.Vis.Wizards
         public IPassedArgs Passedarg { get ; set ; }
         public IVisManager visManager { get; set; }
         public IWizardManager Wizard { get; set; }
-        public string GuidID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string GuidID { get  ; set  ; }
 
         public void Run(IPassedArgs pPassedarg)
         {

@@ -60,7 +60,7 @@ namespace Beep.Config.Winform.DataConnections
         public string BranchClass { get; set; } = "ADDIN";
         #endregion "IAddinVisSchema"
        // UnitofWork<ConnectionProperties> DBWork { get; set; }
-        TreeControl tree;
+        TreeViewControl tree;
         IBranch branch;
        // string selectedCategory;
         int selectedCategoryValue;
@@ -82,7 +82,7 @@ namespace Beep.Config.Winform.DataConnections
             DMEEditor = pDMEEditor;
             //     DataSourceCategoryType = args[0];
             ErrorObject = per;
-            tree = (TreeControl)Visutil.Tree;
+            tree = (TreeViewControl)Visutil.Tree;
             if (tree != null)
             {
                 branch = tree.Branches[tree.Branches.FindIndex(x => x.BranchClass == "RDBMS" && x.BranchType == EnumPointType.Root)];

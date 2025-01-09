@@ -85,13 +85,21 @@ namespace TheTechIdea.Beep.Desktop.Common.Printer
 
         private void DrawControl(Control control, Graphics g, float scale)
         {
-            // Calculate bounds relative to container
-            RectangleF scaledBounds = new RectangleF(
-                control.Left * scale,
-                control.Top * scale,
-                control.Width * scale,
-                control.Height * scale
+            // Calculate bounds relative to container as Rectangle
+            //Rectangle scaledrect = new Rectangle(
+            //    (int)(control.Left * scale),
+            //    (int)(control.Top * scale),
+            //    (int)(control.Width * scale),
+            //    (int)(control.Height * scale)
+            //);
+
+            Rectangle scaledBounds = new Rectangle(
+                (int)(control.Left * scale),
+                (int)(control.Top * scale),
+                (int)(control.Width * scale),
+                (int)(control.Height * scale)
             );
+
 
             // Draw the control background
             using (Brush backgroundBrush = new SolidBrush(control.BackColor))

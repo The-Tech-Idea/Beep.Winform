@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
@@ -12,9 +13,10 @@ namespace TheTechIdea.Beep.Desktop.Common
     {
         public SimpleItem()
         {
-            Id = Guid.NewGuid().ToString();
+            GuidId = Guid.NewGuid().ToString();
         }
-        public string Id { get; set; }
+        public int Id { get; set; }
+        public string GuidId { get; set; }
         public string Name { get; set; }
         public string Text { get; set; }
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
@@ -53,24 +55,36 @@ namespace TheTechIdea.Beep.Desktop.Common
         public string MenuID { get; set; }
         public string ActionID { get; set; }
         public string ReferenceID { get; set; }
+        public int ParentID { get; set; }
         public string OwnerReferenceID { get; set; }
         public string OtherReferenceID { get; set; }
         //  public List<ToolStripMenuItem> Items { get; set; } //ToolStripMenuItem
         public EnumPointType PointType { get; set; }
         public string ObjectType { get; set; }
         public string BranchClass { get; set; }
-        public string Branchname { get; set; }
+        public string BranchName { get; set; }
+        public string MethodName { get; set; }
         public MenuItemType ItemType { get; set; }
         public DatasourceCategory Category { get; set; }
         public string Uri { get; set; }
-        public string MethodName { get; set; }
-        public  string keyCombination { get; set; } //KeyCombination
+        public  string KeyCombination { get; set; } //KeyCombination
         public string AssemblyClassDefinitionID { get; set; }
+        public string ClassDefinitionID { get; set; }
         public string BranchID { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
+        
+        public string ContainerGuidID { get; set; }
+        public int ContainerID { get; set; }
+
+        public string RootContainerGuidID { get; set; }
+
+        public int RootContainerID { get; set; }
+        public bool IsDrawn { get; set; } = false;
+        public string ComposedID { get; set; } // this helps to identify the item in the tree , so that RootnodeID.childid.childid.childid and so on
+
         public override string ToString()
         {
             return Name; // Display this value in the PropertyGrid

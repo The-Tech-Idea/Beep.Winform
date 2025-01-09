@@ -3,6 +3,7 @@ using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Desktop.Common;
 using System.Runtime.InteropServices;
+using TheTechIdea.Beep.Report;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -718,7 +719,89 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion "Layout and Theme"
+        #region "IBeepUIComoponent Distinct Control Implementation"
+        public void SetValue(object value)
+        {
+            var controlProperty = GetType().GetProperty(BoundProperty);
+            controlProperty?.SetValue(this, value);
 
+            if (DataContext != null && !string.IsNullOrEmpty(DataSourceProperty))
+            {
+                var dataSourceProperty = DataContext.GetType().GetProperty(DataSourceProperty);
+                dataSourceProperty?.SetValue(DataContext, value);
+            }
+        }
+        public object GetValue()
+        {
+            var controlProperty = GetType().GetProperty(BoundProperty);
+            return controlProperty?.GetValue(this);
+        }
+        public void ClearValue() => SetValue(null);
+        public virtual bool HasFilterValue() => !string.IsNullOrEmpty(BoundProperty) && GetValue() != null;
+        public AppFilter ToFilter()
+        {
+            return new AppFilter
+            {
+                FieldName = BoundProperty,
+                FilterValue = GetValue().ToString(),
+                Operator = "=",
+                valueType = "string"
+            };
+        }
+        // Set binding for a specific control property to a data source property
+        public virtual void SetBinding(string controlProperty, string dataSourceProperty)
+        {
+            if (DataContext == null)
+                throw new InvalidOperationException("DataContext is not set.");
+
+            // Check if a binding already exists for the property
+            var existingBinding = DataBindings[controlProperty];
+            if (existingBinding != null)
+            {
+                DataBindings.Remove(existingBinding);
+            }
+
+            // Add a new binding
+            var binding = new Binding(controlProperty, DataContext, dataSourceProperty)
+            {
+                DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged
+            };
+
+            DataBindings.Add(binding);
+
+            // Track bound properties for later reference
+            BoundProperty = controlProperty;
+            DataSourceProperty = dataSourceProperty;
+        }
+
+        // Method to validate data, with a default implementation
+        public virtual bool ValidateData(out string message)
+        {
+            base.ValidateData(out message);
+            var x = new BeepComponentEventArgs(this, BoundProperty, LinkedProperty, GetValue());
+          
+            if (x.Cancel)
+            {
+                message = x.Message;
+                return false;
+            }
+            else
+            {
+                message = string.Empty; return true;
+            }
+
+        }
+
+        public virtual void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            // Draw the control on the provided graphics object
+
+            base.Draw(graphics, rectangle);
+
+
+
+        }
+        #endregion "IBeepUIComoponent Distinct Control Implementation"
 
     }
 }

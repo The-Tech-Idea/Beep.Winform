@@ -2,7 +2,7 @@
 using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls.Template;
-using TheTechIdea.Beep.Winform.Controls.Tree;
+using TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView;
 using TheTechIdea.Beep.Winform.Controls.MenuBar;
 using TheTechIdea.Beep.Winform.Controls.ToolBar;
 using TheTechIdea.Beep.Vis.Modules;
@@ -17,13 +17,13 @@ namespace TheTechIdea.Beep.Winform.Controls.MainForm
     [AddinAttribute(Caption = "Main Form", Name = "Frm_Main", misc = "Config", menu = "Configuration", addinType = AddinType.Form, displayType = DisplayType.Popup)]
     public partial class Frm_Main : frm_Addin, IMainForm
     {
-        TreeControl ApptreeControl;
+        TreeViewControl ApptreeControl;
         MenuControl AppmenuControl;
         ToolbarControl ApptoolbarControl;
         ToolbarControl BeepVerticaltoolbarControl;
         ToolbarControl BeepHorizantaltoolbarControl;
         MenuControl BeepmenuControl;
-        TreeControl BeepTreeControl;
+        TreeViewControl BeepTreeControl;
         PassedArgs args = new PassedArgs();
         Progress<PassedArgs> progress;
         bool _hideLog = true;
@@ -318,12 +318,12 @@ namespace TheTechIdea.Beep.Winform.Controls.MainForm
             {
                 //StartStopLog(false);
                 Visutil.Container = uc_MainSplitPanel1.Container;
-                BeepTreeControl = (TreeControl)Visutil.Tree;
+                BeepTreeControl = (TreeViewControl)Visutil.Tree;
                 BeepVerticaltoolbarControl = (ToolbarControl)Visutil.ToolStrip;
                 BeepHorizantaltoolbarControl = (ToolbarControl)Visutil.SecondaryToolStrip;
                 BeepmenuControl = (MenuControl)Visutil.MenuStrip;
 
-                ApptreeControl = (TreeControl)Visutil.SecondaryTree;
+                ApptreeControl = (TreeViewControl)Visutil.SecondaryTree;
                 AppmenuControl = (MenuControl)Visutil.SecondaryMenuStrip;
                 ApptoolbarControl = (ToolbarControl)Visutil.SecondaryToolStrip;
 

@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
         bool isfinish = false;
         public FunctionandExtensionsHelpers ExtensionsHelpers { get; set; }
         public Progress<PassedArgs> Progress { get; set; }
-        public string GuidID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string GuidID { get  ; set  ; }
 
       
         private void SetupProgress()

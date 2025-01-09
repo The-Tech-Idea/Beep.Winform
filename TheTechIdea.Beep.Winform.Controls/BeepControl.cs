@@ -1524,7 +1524,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.CloseFigure();
             return path;
         }
-
+    
         #endregion "Painting"
 
         #endregion "Drawing Methods"
@@ -2036,7 +2036,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        public IBeepUIComponent Form { get; set; }
+        public virtual IBeepUIComponent Form { get; set; }
         [Browsable(true)]
         [Category("Data")]
         public   string ComponentName
@@ -2052,10 +2052,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepComponentEventArgs> PropertyValidate; // Event to notify that a property is being validated
         [Browsable(true)]
         [Category("Data")]
-        public string FieldID { get; set; }
+        public virtual string FieldID { get; set; }
         [Browsable(true)]
         [Category("Data")]
-        public string BlockID { get; set; }
+        public virtual string BlockID { get; set; }
         private DbFieldCategory _category = DbFieldCategory.String;
         [Browsable(true)]
         [Category("Data")]
@@ -2070,7 +2070,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _boundProperty;
         [Browsable(true)]
         [Category("Data")]
-        public string BoundProperty
+        public virtual string BoundProperty
         {
             get => _boundProperty;
             set
@@ -2085,7 +2085,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _linkedproperty;  // this is the property that store the name of another property in the Record data linked to this control 
         [Browsable(true)]
         [Category("Data")]
-        public string LinkedProperty
+        public virtual string LinkedProperty
         {
             get => _linkedproperty;
             set
@@ -2097,7 +2097,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _datasourceproperty;
         [Browsable(true)]
         [Category("Data")]
-        public string DataSourceProperty 
+        public virtual string DataSourceProperty 
         {
             get => _datasourceproperty;
             set
@@ -2111,7 +2111,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         } // The property of the data source
-        public void SetValue(object value)
+        #region "IBeepUIComoponent Distinct Control Implementation"
+        public virtual void SetValue(object value)
         {
             var controlProperty = GetType().GetProperty(BoundProperty);
             controlProperty?.SetValue(this, value);
@@ -2122,12 +2123,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 dataSourceProperty?.SetValue(DataContext, value);
             }
         }
-        public object GetValue()
+        public virtual object GetValue()
         {
             var controlProperty = GetType().GetProperty(BoundProperty);
             return controlProperty?.GetValue(this);
         }
-        public void ClearValue() => SetValue(null);
+        public virtual void ClearValue() => SetValue(null);
         public virtual bool HasFilterValue() => !string.IsNullOrEmpty(BoundProperty) && GetValue() != null;
         public AppFilter ToFilter()
         {
@@ -2182,12 +2183,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             
         }
 
-        public virtual void Draw(Graphics graphics, RectangleF rectangle)
+        public virtual void Draw(Graphics graphics, Rectangle rectangle)
         {
             // Draw the control on the provided graphics object
 
            
         }
+        #endregion "IBeepUIComoponent Distinct Control Implementation"
         #endregion "IBeepUIComoponent"
     }
 

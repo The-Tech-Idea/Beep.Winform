@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
             ImagelistBox.Items.Clear();
             _isinPreview = false;
             ImagelistBox.DisplayMember = "Name";
-            ImagelistBox.ValueMember = "Id";
+            ImagelistBox.ValueMember = "GuidId";
             foreach (var item in _embeddedImages)
             {
                 ImageConfiguration x = item.Value;

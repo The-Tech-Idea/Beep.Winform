@@ -5,7 +5,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Utilities;
-using TheTechIdea.Beep.Winform.Controls.Tree;
+using TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView;
 using TheTechIdea.Beep.Winform.Controls.MenuBar;
 using TheTechIdea.Beep.Winform.Controls.ToolBar;
 using TheTechIdea.Beep.Winform.Controls.Managers.Wizards;
@@ -114,13 +114,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             DMEEditor = pdmeeditor;
          
 
-            Tree = new TreeControl(DMEEditor, this);
-            ToolStrip = new ToolbarControl(DMEEditor, (TreeControl)Tree);
-            MenuStrip = new MenuControl(DMEEditor, (TreeControl)Tree);
+            Tree = new TreeViewControl(DMEEditor, this);
+            ToolStrip = new ToolbarControl(DMEEditor, (TreeViewControl)Tree);
+            MenuStrip = new MenuControl(DMEEditor, (TreeViewControl)Tree);
 
-            SecondaryTree = new TreeControl(DMEEditor, this);
-            SecondaryToolStrip = new ToolbarControl(DMEEditor, (TreeControl)Tree);
-            SecondaryMenuStrip = new MenuControl(DMEEditor, (TreeControl)Tree);
+            SecondaryTree = new TreeViewControl(DMEEditor, this);
+            SecondaryToolStrip = new ToolbarControl(DMEEditor, (TreeViewControl)Tree);
+            SecondaryMenuStrip = new MenuControl(DMEEditor, (TreeViewControl)Tree);
 
             Controlmanager = new ControlManager(DMEEditor, this);
             wizardManager = new WizardManager(DMEEditor,this);
@@ -131,9 +131,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 DMEEditor.Passedarguments.Objects = new List<ObjectItem>();
 
             }
-            Helpers = new FunctionandExtensionsHelpers(DMEEditor, this,(TreeControl)Tree);
+            Helpers = new FunctionandExtensionsHelpers(DMEEditor, this,(TreeViewControl)Tree);
             DMEEditor.Passedarguments.Objects = CreateArgsParameterForVisUtil(DMEEditor.Passedarguments.Objects);
-            visHelper = new TheTechIdea.Beep.Winform.Controls.Helpers.VisHelper(DMEEditor, this);
+          //  visHelper = new TheTechIdea.Beep.Winform.Controls.Helpers.VisHelper(DMEEditor, this);
             a = new PassedArgs();
              MyTree = (ITree)Tree;
             MyTree.PreShowItem += MyTree_PreShowItem;

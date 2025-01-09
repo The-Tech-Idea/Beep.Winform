@@ -6,25 +6,25 @@ using TheTechIdea.Beep.DataView;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Utilities;
+
 using TheTechIdea.Beep.Addin;
 
-namespace TheTechIdea.Beep.Winform.Controls.Tree
+namespace TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView
 {
     public class TreeBranchHandler : ITreeBranchHandler
     {
-        public TreeBranchHandler(IDMEEditor pDMEEditor, ITree ptreeControl, TreeControl treecontrol)
+        public TreeBranchHandler(IDMEEditor pDMEEditor, ITree ptreeControl, TreeViewControl treecontrol)
         {
             DMEEditor = pDMEEditor;
-            Tree=ptreeControl;
-            visManager =Tree.VisManager;
+            Tree = ptreeControl;
+            visManager = Tree.VisManager;
             Treecontrol = treecontrol;
             TreeV = treecontrol.TreeV;
             CreateDelagates();
 
         }
         public System.Windows.Forms.TreeView TreeV { get; set; }
-        private TreeControl Treecontrol { get; set; }
+        private TreeViewControl Treecontrol { get; set; }
         public IDMEEditor DMEEditor { get; set; }
         private ITree Tree { get; set; }
         private IVisManager visManager { get; set; }
@@ -38,15 +38,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             try
             {
                 Treecontrol.TreeV.BeginUpdate();
-                Branch.BranchID= Branch.ID;
-                  AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == Branch.ToString()).FirstOrDefault()!;
+                Branch.BranchID = Branch.ID;
+                AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == Branch.ToString()).FirstOrDefault()!;
                 Branch.Name = cls.PackageName;
 
                 TreeNode p = Treecontrol.GetTreeNodeByID(ParentBranch.BranchID, TreeV.Nodes);
-               
+
                 TreeNode n = p.Nodes.Add(Branch.BranchText);
                 int imgidx = visManager.visHelper.GetImageIndex(Branch.IconImageName);
-                if(imgidx==-1)
+                if (imgidx == -1)
                 {
                     imgidx = visManager.visHelper.GetImageIndexFromConnectioName(Branch.BranchText);
                 }
@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 Tree.Branches.Add(Branch);
                 if (!DMEEditor.ConfigEditor.objectTypes.Any(i => i.ObjectType == Branch.BranchClass && i.ObjectName == Branch.BranchType.ToString() + "_" + Branch.BranchClass))
                 {
-                    DMEEditor.ConfigEditor.objectTypes.Add(new TheTechIdea.Beep.Workflow.ObjectTypes { ObjectType = Branch.BranchClass, ObjectName = Branch.BranchType.ToString() + "_" + Branch.BranchClass });
+                    DMEEditor.ConfigEditor.objectTypes.Add(new Workflow.ObjectTypes { ObjectType = Branch.BranchClass, ObjectName = Branch.BranchType.ToString() + "_" + Branch.BranchClass });
                 }
                 if (Branch.BranchType == EnumPointType.Entity)
                 {
@@ -145,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 {
                     p.ExpandAll();
                 }
-                
+
                 Treecontrol.TreeV.EndUpdate();
             }
             catch (Exception ex)
@@ -159,7 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
         public string CheckifBranchExistinCategory(string BranchName, string pRootName)
         {
             //bool retval = false;
-            List<CategoryFolder> ls = DMEEditor.ConfigEditor.CategoryFolders.Where(x => x.RootName == pRootName ).ToList();
+            List<CategoryFolder> ls = DMEEditor.ConfigEditor.CategoryFolders.Where(x => x.RootName == pRootName).ToList();
             foreach (CategoryFolder item in ls)
             {
                 foreach (string f in item.items)
@@ -198,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             {
                 TreeNode n = Treecontrol.GetTreeNodeByID(Branch.BranchID, TreeV.Nodes);
                 string foldername = CheckifBranchExistinCategory(Branch.BranchText, Branch.BranchClass);
-                if (foldername!=null)
+                if (foldername != null)
                 {
                     RemoveEntityFromCategory(Branch.BranchClass, foldername, Branch.BranchText);
                 }
@@ -238,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                             {
                                 RemoveBranch(item);
                             }
-                            if(Tree.SelectedBranchs.Contains(item.BranchID))
+                            if (Tree.SelectedBranchs.Contains(item.BranchID))
                             {
                                 Tree.SelectedBranchs.Remove(item.BranchID);
                             }
@@ -246,9 +246,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                         }
 
                         branch.ChildBranchs.Clear();
-                     
+
                     }
-              
+
                 }
                 TreeNode curnode = Treecontrol.CurrentNode;
                 IBranch br = (IBranch)curnode.Tag;
@@ -296,12 +296,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 {
                     RemoveEntityFromCategory(ParentBranch.BranchClass, foldername, CurrentBranch.BranchText);
                 }
-                if(CurrentBranchNode!= null)
+                if (CurrentBranchNode != null)
                 {
                     TreeV.Nodes.Remove(CurrentBranchNode);
 
                 }
-              
+
                 CategoryFolder CurFodler = DMEEditor.ConfigEditor.CategoryFolders.Where(y => y.RootName == ParentBranch.BranchClass).FirstOrDefault();
                 if (CurFodler != null)
                 {
@@ -319,7 +319,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                         NewFolder.items.Add(CurrentBranch.BranchText);
                     }
                 }
-                if ((ParentBranch.BranchType == EnumPointType.Entity) && (ParentBranch.BranchClass == "VIEW" && CurrentBranch.BranchClass == "VIEW") && (ParentBranch.DataSourceName == CurrentBranch.DataSourceName))
+                if (ParentBranch.BranchType == EnumPointType.Entity && ParentBranch.BranchClass == "VIEW" && CurrentBranch.BranchClass == "VIEW" && ParentBranch.DataSourceName == CurrentBranch.DataSourceName)
                 {
                     DataViewDataSource vds = (DataViewDataSource)DMEEditor.GetDataSource(CurrentBranch.DataSourceName);
                     if (vds.Entities[vds.EntityListIndex(ParentBranch.MiscID)].Id == vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId)
@@ -362,7 +362,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             return DMEEditor.ErrorObject;
 
         }
-        public IErrorsInfo AddCategory(IBranch Rootbr,string foldername)
+        public IErrorsInfo AddCategory(IBranch Rootbr, string foldername)
         {
             try
             {
@@ -374,7 +374,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 {
                     if (foldername.Length > 0)
                     {
-                       if(!DMEEditor.ConfigEditor.CategoryFolders.Where(p=>p.RootName.Equals(Rootbr.BranchClass,StringComparison.InvariantCultureIgnoreCase) && p.ParentName.Equals(Rootbr.BranchText, StringComparison.InvariantCultureIgnoreCase) && p.FolderName.Equals(foldername, StringComparison.InvariantCultureIgnoreCase)).Any())
+                        if (!DMEEditor.ConfigEditor.CategoryFolders.Where(p => p.RootName.Equals(Rootbr.BranchClass, StringComparison.InvariantCultureIgnoreCase) && p.ParentName.Equals(Rootbr.BranchText, StringComparison.InvariantCultureIgnoreCase) && p.FolderName.Equals(foldername, StringComparison.InvariantCultureIgnoreCase)).Any())
                         {
                             CategoryFolder x = DMEEditor.ConfigEditor.AddFolderCategory(foldername, Rootbr.BranchClass, Rootbr.BranchText);
                             Rootbr.CreateCategoryNode(x);
@@ -459,9 +459,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             TreeV.NodeMouseDoubleClick += TreeView1_NodeMouseDoubleClick;
             TreeV.AfterCheck += TreeView1_AfterCheck;
 
-          
+
             TreeV.AfterSelect += TreeV_AfterSelect;
-         
+
         }
         private void TreeV_KeyDown(object sender, KeyEventArgs e)
         {
@@ -470,7 +470,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 Treecontrol.TreeOP = "UnSelect";
                 Treecontrol.StartselectBranchID = 0;
                 IBranch br = (IBranch)TreeV.SelectedNode.Tag;
-               int BranchID = br.ID;
+                int BranchID = br.ID;
                 TreeV.BeginUpdate();
                 if (TreeV.SelectedNode.BackColor == Treecontrol.SelectBackColor)
                 {
@@ -499,7 +499,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
 
                     IBranch startbr = Treecontrol.Branches.Where(x => x.BranchID == Treecontrol.StartselectBranchID).FirstOrDefault();
                     IBranch endbr = Treecontrol.Branches.Where(x => x.BranchID == Treecontrol.SelectedBranchID).FirstOrDefault();
-                    if ((startbr != endbr) || (startbr.ParentBranchID == endbr.ParentBranchID) || (startbr.BranchClass == endbr.BranchClass))
+                    if (startbr != endbr || startbr.ParentBranchID == endbr.ParentBranchID || startbr.BranchClass == endbr.BranchClass)
                     {
 
                         TreeNode startnode;
@@ -522,7 +522,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                             TreeV.BeginUpdate();
                             n.BackColor = Treecontrol.SelectBackColor;
                             IBranch nbr = (IBranch)n.Tag;
-                          
+
                             Treecontrol.SelectedBranchs.Add(nbr.ID);
                             if (n == endnode)
                             {
@@ -552,7 +552,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                     }
                     IBranch startbr = Treecontrol.Branches.Where(x => x.BranchID == Treecontrol.StartselectBranchID).FirstOrDefault();
                     IBranch endbr = Treecontrol.Branches.Where(x => x.BranchID == Treecontrol.SelectedBranchID).FirstOrDefault();
-                    if ((startbr != endbr) || (startbr.ParentBranchID == endbr.ParentBranchID) || (startbr.BranchClass == endbr.BranchClass))
+                    if (startbr != endbr || startbr.ParentBranchID == endbr.ParentBranchID || startbr.BranchClass == endbr.BranchClass)
                     {
 
                         TreeNode startnode;
@@ -600,7 +600,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             //switch (e.Action)
             //{
             //    case TreeViewAction.ByKeyboard:
-          //  e.Node.SelectedImageIndex = e.Node.ImageIndex;
+            //  e.Node.SelectedImageIndex = e.Node.ImageIndex;
             Treecontrol.LastSelectedNode = e.Node;
             if (Treecontrol.TreeOP != "StartSelect")
             {
@@ -628,7 +628,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             IBranch br = (IBranch)e.Node.Tag;
             int BranchID = br.ID;
             string BranchText = e.Node.Text;
-           
+
             Treecontrol.SelectedBranchID = BranchID;
 
 
@@ -648,20 +648,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                         DataSource = null,
                         EventType = Treecontrol.TreeEvent
                     };
-               
+
                 }
                 else
                 {
 
 
-                    
+
                     Treecontrol.TreeOP = "NONE";
                 }
 
                 if (e.Button == MouseButtons.Right)
                 {
                     //BeepMouseEventArgs e1 = new BeepMouseEventArgs(new BeepMouseButtons()  e.Button, e.Clicks,e.X,e.Y,e.Delta );
-                  
+
                     //MethodHandler.Nodemenu_MouseClick(br, e);
                     Treecontrol.Nodemenu_MouseClick(e);
                 }
@@ -670,29 +670,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
 
 
         }
-        bool IsCheckingNodes=false;
+        bool IsCheckingNodes = false;
         private void TreeView1_AfterCheck(object sender, TreeViewEventArgs e)
         {
-            
+
             try
             {
                 if (!IsCheckingNodes)
                 {
                     IBranch br = (IBranch)e.Node.Tag;
                     IsCheckingNodes = true;
-                    
 
-                        if (e.Node.Checked)
-                        {
-                            Treecontrol.SelectedBranchs.Add(br.BranchID);
-                          
-                        }
-                        else
-                            Treecontrol.SelectedBranchs.Remove(br.BranchID);
+
+                    if (e.Node.Checked)
+                    {
+                        Treecontrol.SelectedBranchs.Add(br.BranchID);
+
+                    }
+                    else
+                        Treecontrol.SelectedBranchs.Remove(br.BranchID);
 
                     CheckNodes(e.Node, e.Node.Checked);
                 }
-               
+
                 //else {
                 //    if (br.BranchType == EnumPointType.ChartDataPoint)
                 //    {
@@ -719,8 +719,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 //    }
 
                 //}
-               
-                
+
+
 
             }
             catch (Exception ex)
@@ -729,14 +729,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 DMEEditor.AddLogMessage("Fail", $"Error in Showing View on Tree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
 
             }
-           
+
 
         }
         private void CheckNodes(TreeNode node, bool check)
         {
             try
             {
-                IsCheckingNodes=true;
+                IsCheckingNodes = true;
                 SetChildrenChecked(node, node.Checked);
                 IsCheckingNodes = false;
             }
@@ -754,13 +754,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
             {
                 item.Checked = checkedState;
                 IBranch br = (IBranch)item.Tag;
-                
+
                 if (item.Checked)
-                    {
-                        Treecontrol.SelectedBranchs.Add(Convert.ToInt32(br.BranchID));
-                    }
-                    else
-                        Treecontrol.SelectedBranchs.Remove(Convert.ToInt32(br.BranchID));
+                {
+                    Treecontrol.SelectedBranchs.Add(Convert.ToInt32(br.BranchID));
+                }
+                else
+                    Treecontrol.SelectedBranchs.Remove(Convert.ToInt32(br.BranchID));
                 //}
                 SetChildrenChecked(item, item.Checked);
             }
@@ -781,14 +781,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
         {
             Treecontrol.SelectedNode = e.Node;
             IBranch br = (IBranch)e.Node.Tag;
-            Treecontrol.SelectedBranchID =br.ID;
+            Treecontrol.SelectedBranchID = br.ID;
             NodeEvent(e);
         }
         public IErrorsInfo MoveBranchToCategory(IBranch CategoryBranch, IBranch CurrentBranch)
         {
             try
             {
-                TreeNode CategoryBranchNode= Treecontrol.GetTreeNodeByID(CategoryBranch.BranchID, TreeV.Nodes);
+                TreeNode CategoryBranchNode = Treecontrol.GetTreeNodeByID(CategoryBranch.BranchID, TreeV.Nodes);
                 TreeNode ParentBranchNode = Treecontrol.GetTreeNodeByID(CurrentBranch.ParentBranchID, TreeV.Nodes);
                 TreeNode CurrentBranchNode = Treecontrol.GetTreeNodeByID(CurrentBranch.BranchID, TreeV.Nodes);
                 string currentParentFoelder = CheckifBranchExistinCategory(CurrentBranch.BranchText, CurrentBranch.BranchClass);
@@ -799,7 +799,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                     RemoveEntityFromCategory(ParentBranch.BranchClass, currentParentFoelder, CurrentBranch.BranchText);
                 }
                 TreeV.Nodes.Remove(CurrentBranchNode);
-                CategoryFolder CurFodler = DMEEditor.ConfigEditor.CategoryFolders.Where(y => y.RootName == CategoryBranch.BranchClass && y.FolderName==CategoryBranch.BranchText).FirstOrDefault();
+                CategoryFolder CurFodler = DMEEditor.ConfigEditor.CategoryFolders.Where(y => y.RootName == CategoryBranch.BranchClass && y.FolderName == CategoryBranch.BranchText).FirstOrDefault();
                 if (CurFodler != null)
                 {
                     if (CurFodler.items.Contains(CurrentBranch.BranchText) == false)
@@ -816,7 +816,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                         NewFolder.items.Add(CurrentBranch.BranchText);
                     }
                 }
-                if ((CategoryBranch.BranchType == EnumPointType.Entity) && (CategoryBranch.BranchClass == "VIEW" && CurrentBranch.BranchClass == "VIEW") && (CategoryBranch.DataSourceName == CurrentBranch.DataSourceName))
+                if (CategoryBranch.BranchType == EnumPointType.Entity && CategoryBranch.BranchClass == "VIEW" && CurrentBranch.BranchClass == "VIEW" && CategoryBranch.DataSourceName == CurrentBranch.DataSourceName)
                 {
                     DataViewDataSource vds = (DataViewDataSource)DMEEditor.GetDataSource(CurrentBranch.DataSourceName);
                     if (vds.Entities[vds.EntityListIndex(CategoryBranch.MiscID)].Id == vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId)
@@ -834,7 +834,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tree
                 CategoryBranchNode.Nodes.Add(CurrentBranchNode);
 
                 DMEEditor.ConfigEditor.SaveCategoryFoldersValues();
-            
+
 
                 DMEEditor.AddLogMessage("Success", "Moved Branch successfully", DateTime.Now, 0, null, Errors.Ok);
             }

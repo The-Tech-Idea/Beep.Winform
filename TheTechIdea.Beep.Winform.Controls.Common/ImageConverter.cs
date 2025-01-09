@@ -1,5 +1,6 @@
 ﻿using System.Drawing.Imaging;
 using Svg;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Desktop.Common
 {
@@ -102,6 +103,130 @@ namespace TheTechIdea.Beep.Desktop.Common
 
             // Construct the Icon from the in-memory .ico structure
             return new Icon(icoStream);
+        }
+        public static float GetScaleFactor(SizeF imageSize, Size targetSize, ImageScaleMode scaleMode)
+        {
+            float scaleX = targetSize.Width / imageSize.Width;
+            float scaleY = targetSize.Height / imageSize.Height;
+
+            return scaleMode switch
+            {
+                ImageScaleMode.Stretch => Math.Min(scaleX, scaleY), // Fit within bounds, stretching as needed
+                ImageScaleMode.KeepAspectRatio => Math.Min(scaleX, scaleY), // Maintain aspect ratio
+                ImageScaleMode.KeepAspectRatioByWidth => scaleX,
+                ImageScaleMode.KeepAspectRatioByHeight => scaleY,
+                _ => 1.0f // Default to no scaling
+            };
+        }
+        public static RectangleF GetScaledBounds(SizeF imageSize, Rectangle targetRect, ImageScaleMode scaleMode)
+        {
+            float scaleFactor = GetScaleFactor(imageSize, targetRect.Size, scaleMode);
+
+            float newWidth = imageSize.Width * scaleFactor;
+            float newHeight = imageSize.Height * scaleFactor;
+
+            float xOffset = targetRect.X + (targetRect.Width - newWidth) / 2;  // Center horizontally
+            float yOffset = targetRect.Y + (targetRect.Height - newHeight) / 2; // Center vertically
+
+            return new RectangleF(xOffset, yOffset, newWidth, newHeight);
+        }
+        public static Image ScaleSvgImage(Graphics g, SvgDocument svgDocument, Rectangle imageRect, float _manualRotationAngle,ImageScaleMode scaleMode)
+        {
+            var originalTransform = g.Transform;
+            try
+            {
+               
+                float effectiveRotation = _manualRotationAngle;
+                PointF center = new PointF(imageRect.X + imageRect.Width / 2f, imageRect.Y + imageRect.Height / 2f);
+
+                // Apply rotation transformations
+                g.TranslateTransform(center.X, center.Y);
+                g.RotateTransform(effectiveRotation);
+                g.TranslateTransform(-center.X, -center.Y);
+
+                if (svgDocument != null)
+                {
+                    var imageSize = svgDocument.GetDimensions();
+                    var scaledBounds = GetScaledBounds(new SizeF(imageSize.Width, imageSize.Height), imageRect, scaleMode);
+
+                    if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
+                    {
+                        g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
+                        g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
+                        svgDocument.Draw(g);
+                    }
+                    // create new scaled image from svg document
+                    Bitmap bmp = new Bitmap((int)scaledBounds.Width, (int)scaledBounds.Height);
+                    using (Graphics g2 = Graphics.FromImage(bmp))
+                    {
+                        g2.Clear(Color.Transparent);
+                        g2.TranslateTransform(-scaledBounds.X, -scaledBounds.Y);
+                        g2.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
+                        svgDocument.Draw(g2);
+                    }
+
+                }
+
+            }
+            finally
+            {
+                // Restore the original transformation state
+                g.Transform = originalTransform;
+            }
+            return null;
+        }
+        public static Image ScaleRegularImage(Graphics g, Image regularImage, Rectangle imageRect, float _manualRotationAngle, ImageScaleMode scaleMode)
+        {
+            var originalTransform = g.Transform;
+            try
+            {
+                float effectiveRotation = _manualRotationAngle;
+                PointF center = new PointF(imageRect.X + imageRect.Width / 2f, imageRect.Y + imageRect.Height / 2f);
+
+                // Apply rotation transformations
+                g.TranslateTransform(center.X, center.Y);
+                g.RotateTransform(effectiveRotation);
+                g.TranslateTransform(-center.X, -center.Y);
+                if (regularImage != null)
+                {
+                    var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), imageRect, scaleMode);
+
+                    if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
+                    {
+                        g.DrawImage(
+                            regularImage,
+                            new Rectangle((int)scaledBounds.X, (int)scaledBounds.Y, (int)scaledBounds.Width, (int)scaledBounds.Height),
+                            0,
+                            0,
+                            regularImage.Width,
+                            regularImage.Height,
+                            GraphicsUnit.Pixel
+                        );
+                        // create new scaled image from regular image
+                        Bitmap bmp = new Bitmap((int)scaledBounds.Width, (int)scaledBounds.Height);
+                        using (Graphics g2 = Graphics.FromImage(bmp))
+                        {
+                            g2.Clear(Color.Transparent);
+                            g2.DrawImage(
+                                regularImage,
+                                new Rectangle(0, 0, (int)scaledBounds.Width, (int)scaledBounds.Height),
+                                0,
+                                0,
+                                regularImage.Width,
+                                regularImage.Height,
+                                GraphicsUnit.Pixel
+                            );
+                        }
+                        return bmp;
+                    }
+                }
+            }
+            finally
+            {
+                // Restore the original transformation state
+                g.Transform = originalTransform;
+            }
+            return null;
         }
     }
 }

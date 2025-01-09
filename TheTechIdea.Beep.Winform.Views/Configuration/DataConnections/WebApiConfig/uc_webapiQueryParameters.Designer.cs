@@ -127,12 +127,12 @@ namespace Beep.Config.Winform.DataConnections
             this.dataGridView1.Size = new System.Drawing.Size(809, 261);
             this.dataGridView1.TabIndex = 46;
             // 
-            // Id
+            // GuidId
             // 
             this.Id.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.Id.DataPropertyName = "Id";
-            this.Id.HeaderText = "Id";
-            this.Id.Name = "Id";
+            this.Id.DataPropertyName = "GuidId";
+            this.Id.HeaderText = "GuidId";
+            this.Id.Name = "GuidId";
             this.Id.Width = 40;
             // 
             // ParentId

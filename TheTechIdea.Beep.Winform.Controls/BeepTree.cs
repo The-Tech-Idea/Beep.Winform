@@ -1153,6 +1153,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Create a copy of currently selected nodes, as modifying IsSelected will trigger NodeDeselected
             // events that modify SelectedNodes
+             if (SelectedNodes == null) return;
+            if (SelectedNodes.Count == 0) return;
             var currentlySelected = SelectedNodes.ToList();
 
             foreach (var node in currentlySelected)

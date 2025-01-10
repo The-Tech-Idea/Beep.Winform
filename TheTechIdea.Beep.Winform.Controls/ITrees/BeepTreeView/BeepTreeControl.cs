@@ -123,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             try
             {
                 ControlExtensions.GetBranchs(this, DMEEditor);
-
+                
             }
             catch (Exception ex)
             {

@@ -1,9 +1,10 @@
 ﻿
 using System.ComponentModel;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Vis.Modules;
+
 using TheTechIdea.Beep.Desktop.Common;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -13,11 +14,111 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A control that displays hierarchical data in a tree format.")]
     public class BeepTree : BeepControl
     {
+        #region "Events"
+        public event EventHandler<BeepMouseEventArgs> NodeClicked;
+        public event EventHandler<BeepMouseEventArgs> NodeRightClicked;
+        public event EventHandler<BeepMouseEventArgs> NodeDoubleClicked;
+        public event EventHandler<BeepMouseEventArgs> NodeExpanded;
+        public event EventHandler<BeepMouseEventArgs> NodeCollapsed;
+        public event EventHandler<BeepMouseEventArgs> NodeSelected;
+        public event EventHandler<BeepMouseEventArgs> NodeDeselected;
+        public event EventHandler<BeepMouseEventArgs> ShowMenu;
+        #endregion  "Events"
+        #region "Popup List Properties"
+        private BeepPopupForm _popupForm;
+        private BeepListBox _beepListBox;
+        private bool _isPopupOpen;
+        private bool _popupmode = false;
+        private int _maxListHeight = 100;
+        private int _maxListWidth = 100;
+        public event EventHandler SelectedItemChanged;
+        protected virtual void OnSelectedItemChanged(EventArgs e)
+            => SelectedItemChanged?.Invoke(this, e);
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool PopupMode
+        {
+            get => _popupmode;
+            set
+            {
+                _popupmode = value;
+            }
+        }
+        public BindingList<SimpleItem> CurrentMenutems { get; set; }
+        // The item currently chosen by the user
+        private SimpleItem _selectedItem;
+        public SimpleItem SelectedItem
+        {
+            get => _selectedItem;
+            private set
+            {
+                if (_selectedItem != value)
+                {
+                    _selectedItem = value;
+                    OnSelectedItemChanged(EventArgs.Empty);
+                }
+            }
+        }
+        [Browsable(false)]
+        public int SelectedIndex
+        {
+            get => _beepListBox.SelectedIndex;
+            set
+            {
+                if (value >= 0 && value < _beepListBox.ListItems.Count)
+                {
+                    _beepListBox.SelectedIndex = value;
+                    SelectedItem = _beepListBox.ListItems[value];
+                }
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool IsPopupOpen
+        {
+            get => _isPopupOpen;
+            set
+            {
+                _isPopupOpen = value;
+                if (_popupForm != null)
+                {
+                    if (_isPopupOpen)
+                    {
+                        ShowPopup();
+                    }
+                    else
+                    {
+                        ClosePopup();
+                    }
+                }
+
+            }
+        }
+        #endregion "Popup List Properties"
+        #region "Properties"
+        #region "Nodes State"
+        public BeepTreeNode LastNodeMenuShown { get; set; }
+        public BeepTreeNode LastNodeClicked { get; set; }
+        public BeepTreeNode LastNodeRightClicked { get; set; }
+        public BeepTreeNode LastNodeSelected { get; set; }
+        public BeepTreeNode LastNodeDragged { get; set; }
+        public BeepTreeNode LastNodeDropped { get; set; }
+        public BeepTreeNode LastNodeDraggedOver { get; set; }
+        public BeepTreeNode LastNodeDraggedEnter { get; set; }
+        public BeepTreeNode LastNodeDraggedLeave { get; set; }
+        public BeepTreeNode LastNodeDraggedDrop { get; set; }
+        public BeepTreeNode LastNodeDraggedOverLeave { get; set; }
+        public BeepTreeNode LastNodeDraggedOverEnter { get; set; }
+        public BeepTreeNode LastNodeDraggedOverDrop { get; set; }
+        public BeepTreeNode LastNodeDraggedOverLeaveEnter { get; set; }
+        #endregion "Nodes State"
+        private BeepTreeNode _lastSelectedNode = null;
         public int Nodeseq { get; set; } = 0;
         private bool _isUpdatingTree = false;
         // Define the number of nodes to keep rendered above and below the viewport
         private const int BufferSize = 20;
-     
+
         // Keep track of visible nodes
         private List<BeepTreeNode> visibleNodes = new List<BeepTreeNode>();
         public int NodeWidth { get; set; } = 100;
@@ -26,17 +127,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Dictionary<int, Panel> _nodePanels = new Dictionary<int, Panel>();
         private bool _shownodeimage = true;
         private int defaultHeight = 100;
-        public event EventHandler<BeepEventDataArgs> NodeClicked;
-        public event EventHandler<BeepEventDataArgs> NodeRightClicked;
-        public event EventHandler<BeepEventDataArgs> NodeDoubleClicked;
-        public event EventHandler<BeepEventDataArgs> NodeExpanded;
-        public event EventHandler<BeepEventDataArgs> NodeCollapsed;
-        public event EventHandler<BeepEventDataArgs> NodeSelected;
-        public event EventHandler<BeepEventDataArgs> NodeDeselected;
+
         private int _nodeHeight = 40;
         private BeepFlyoutMenu BeepFlyoutMenu;
 
-        private Dictionary<string,SimpleItem> _menus = new Dictionary<string,SimpleItem>();
+        private Dictionary<string, SimpleItem> _menus = new Dictionary<string, SimpleItem>();
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
@@ -110,7 +205,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
-      //  [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
+        //  [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public BindingList<SimpleItem> Nodes
         {
@@ -118,7 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 rootnodeitems = value;
-               // InitializeTreeFromMenuItems();
+                InitializeTreeFromMenuItems();
             }
         }
         [Browsable(true)]
@@ -132,9 +227,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         public bool ShowCheckBox { get; private set; }
+        #endregion "Properties"
+        #region "Constructors"
         public BeepTree()
         {
-            SetStyle(ControlStyles.ResizeRedraw| ControlStyles.SupportsTransparentBackColor| ControlStyles.AllPaintingInWmPaint| ControlStyles.EnableNotifyMessage| ControlStyles.OptimizedDoubleBuffer, true);
+            SetStyle(ControlStyles.ResizeRedraw | ControlStyles.SupportsTransparentBackColor | ControlStyles.AllPaintingInWmPaint | ControlStyles.EnableNotifyMessage | ControlStyles.OptimizedDoubleBuffer, true);
             this.Name = "BeepTree";
             if (rootnodeitems == null)
             {
@@ -160,28 +257,49 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.NodeClicked += OnNodeClicked;
             this.NodeSelected += OnNodeSelected;
             this.NodeDeselected += OnNodeDeselected;
+            InitListbox();
         }
-        #region "Node Clicked"
-        private void OnNodeRightClicked(object sender, BeepEventDataArgs e)
+        protected override void InitLayout()
         {
-            NodeRightClicked?.Invoke(sender, e);
+            base.InitLayout();
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 200;
+                Height = defaultHeight;
+            }
+            InitializeTreeFromMenuItems();
+            RearrangeTree();
+            
         }
+        #endregion "Constructors"
+        #region "Node Clicked"
+        private void OnNodeRightClicked(object sender, BeepMouseEventArgs e)
+        {
+            var clickedNode = sender as BeepTreeNode;
+            if (clickedNode == null) return;
+            var a = DynamicMenuManager.GetMenuItemsList((SimpleItem)clickedNode.Tag);
+            if (a == null) return;
+            CurrentMenutems = new BindingList<SimpleItem>(a);
+            if ( (clickedNode != LastNodeMenuShown) && CurrentMenutems.Count>0)
+            {
+                LastNodeMenuShown = clickedNode;
+                ShowPopup();
+            }
 
-        private void OnNodeDoubleClicked(object sender, BeepEventDataArgs e)
+        }
+        private void OnNodeDoubleClicked(object sender, BeepMouseEventArgs e)
         {
             NodeDoubleClicked?.Invoke(sender, e);
         }
-        private void OnNodeExpanded(object sender, BeepEventDataArgs e)
+        private void OnNodeExpanded(object sender, BeepMouseEventArgs e)
         {
             NodeExpanded?.Invoke(sender, e);
         }
-
-        private void OnNodeCollapsed(object sender, BeepEventDataArgs e)
+        private void OnNodeCollapsed(object sender, BeepMouseEventArgs e)
         {
             NodeCollapsed?.Invoke(sender, e);
         }
-
-        private void OnNodeDeselected(object? sender, BeepEventDataArgs e)
+        private void OnNodeDeselected(object? sender, BeepMouseEventArgs e)
         {
             var node = sender as BeepTreeNode;
             if (node == null) return;
@@ -190,8 +308,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (SelectedNodes.Contains(node))
                 SelectedNodes.Remove(node);
         }
-
-        private void OnNodeSelected(object? sender, BeepEventDataArgs e)
+        private void OnNodeSelected(object? sender, BeepMouseEventArgs e)
         {
             var node = sender as BeepTreeNode;
             if (node == null) return;
@@ -199,15 +316,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Add to SelectedNodes if not already present
             if (!SelectedNodes.Contains(node))
                 SelectedNodes.Add(node);
-        }
 
-        private BeepTreeNode _lastSelectedNode = null;
 
-        private void OnNodeClicked(object sender, BeepEventDataArgs e)
-        {
+
             var clickedNode = sender as BeepTreeNode;
             if (clickedNode == null) return;
-
             // If checkboxes are used for selection, the node’s CheckBox_StateChanged event will handle it.
             // If not, handle selection here.
 
@@ -268,32 +381,29 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
+        }
+        private void OnNodeClicked(object sender, BeepMouseEventArgs e)
+        {
+            var clickedNode = sender as BeepTreeNode;
+            if (clickedNode == null) return;
+          
+            if (IsPopupOpen && (clickedNode!=LastNodeMenuShown))
+            {
+                ClosePopup();
+              
+            }
             // Refresh the UI if necessary
             Invalidate();
         }
-
-     
         #endregion "Node Clicked"
         #region Event Handlers
         #endregion Event Handlers
-        protected override void InitLayout()
-        {
-            base.InitLayout();
-            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
-            {
-                Width = 200;
-                Height = defaultHeight;
-            }
-            InitializeTreeFromMenuItems();
-            RearrangeTree();
-        }
         public void ToggleNode(BeepTreeNode node)
         {
             node.IsExpanded = !node.IsExpanded;
             node.RearrangeNode();
             RearrangeTree(); // Adjust layout based on expanded/collapsed state
         }
-
         #region "Root Nodes Creation"
         public void SyncChildNodes(BeepTreeNode node)
         {
@@ -309,7 +419,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
         private void Items_ListChanged(object? sender, ListChangedEventArgs e)
         {
             if (_isUpdatingTree)
@@ -401,19 +510,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RearrangeTree();
             }
         }
-      
-        public void RemoveNode(SimpleItem simpleItem)
-        {
-            if (simpleItem == null)
-            {
-                return;
-            }
-            var node = _beeptreeRootnodes.FirstOrDefault(n => n.Tag == simpleItem);
-            if (node != null)
-            {
-                RemoveNode(node);
-            }
-        }
         private void HandleItemChanged(int index)
         {
             if (index < 0 || index >= rootnodeitems.Count || index >= _beeptreeRootnodes.Count)
@@ -470,10 +566,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         // function to generate a tree node from a parameters
         public BeepTreeNode CreateTreeNode(string name, string imagepath, string BranchGuid, string typename, BeepTreeNode parent)
         {
-
             try
             {
-
                 int seq = -1;
                 if (parent != null)
                 {
@@ -510,7 +604,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 node.NodeClicked += (sender, e) => NodeClicked?.Invoke(sender, e);
                 node.NodeRightClicked += (sender, e) => NodeRightClicked?.Invoke(sender, e);
                 node.NodeDoubleClicked += (sender, e) => NodeDoubleClicked?.Invoke(sender, e);
-                node.ShowMenu += (sender, e) => ShowFlyoutMenu(node, new Point(node.Left, node.Top));
+                node.ShowMenu += (sender, e) => ShowFlyoutMenu(sender,e);
                 node.NodeExpanded += (sender, e) => NodeExpanded?.Invoke(sender, e);
                 node.NodeCollapsed += (sender, e) => NodeCollapsed?.Invoke(sender, e);
                 node.NodeSelected += (sender, e) => NodeSelected?.Invoke(sender, e);
@@ -557,7 +651,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Name = menuItem.Text ?? $"Node{seq}",
                     NodeLevelID = parent == null ? seq.ToString() : parent.NodeLevelID + "_" + parent.ChildNodesSeq,
                     Text = menuItem.Text,
-                    ImagePath = menuItem.ImagePath,
+                    ImagePath =  menuItem.ImagePath,
                     ParentNode = parent,
                     Tree = this,
                     NodeSeq = Nodeseq,
@@ -571,7 +665,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right,
                     Theme = this.Theme,
                     Tag = menuItem,
-                   
+                    GuidID=menuItem.GuidId,
                     NodeDataType = menuItem.GetType().Name,
                     Level = parent?.Level + 1 ?? 1
                 };
@@ -579,7 +673,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 node.NodeClicked += OnNodeClicked;
                 node.NodeRightClicked += OnNodeRightClicked;
                 node.NodeDoubleClicked += NodeDoubleClicked;
-                node.ShowMenu += (sender, e) => ShowFlyoutMenu(node, new Point(node.Left, node.Top));
+               // node.ShowBeepMenu += (sender, e) => ShowFlyoutMenu(node, new Point(node.Left, node.Top));
                 node.NodeExpanded += OnNodeExpanded;
                 node.NodeCollapsed += OnNodeCollapsed;
                 node.NodeSelected += OnNodeSelected;
@@ -626,8 +720,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             return panel;
         }
 
-        #endregion "Root Nodes Creation"
-
         /// <summary>
         /// Populates the tree from a hierarchical data structure.
         /// </summary>
@@ -635,9 +727,67 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void PopulateTree(IEnumerable<SimpleItem> data)
         {
             Nodes.Clear();
-            foreach (var item in data.Where(p=>p.ParentItem==null))
+            foreach (var item in data.Where(p => p.ParentItem == null))
             {
                 Nodes.Add(item);
+            }
+        }
+        public async Task LoadTreeAsync(IEnumerable<SimpleItem> data)
+        {
+
+            await Task.Run(() =>
+            {
+                _dontRearrange = true;
+                SuspendLayout(); // Suspend layout updates
+                // Perform data processing here
+                var nodes = CreateTreeNodes(data);
+
+                // Return the processed nodes
+                return nodes;
+            }).ContinueWith(nodes =>
+            {
+
+
+                ResumeLayout(); // Resume layout updates
+                RearrangeTree();
+                _dontRearrange = false;
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+
+        }
+        private List<BeepTreeNode> CreateTreeNodes(IEnumerable<SimpleItem> data)
+        {
+            List<BeepTreeNode> nodes = new List<BeepTreeNode>();
+            foreach (var item in data.Where(p => p.ParentItem == null))
+            {
+                var node = CreateTreeNodeFromMenuItem(item, null);
+                if (node != null)
+                {
+                    Nodes.Add(item);
+                    //Panel panel = AddRootNode(node);
+                    //panel.Tag = node.GuidID;
+                    //item.ContainerGuidID = node.GuidID;
+                    //item.RootContainerGuidID = node.GuidID;
+                }
+            }
+            return nodes;
+        }
+        private BeepTreeNode GetBeepTreeNodeFromPanel(int seq)
+        {
+
+            return _beeptreeRootnodes.FirstOrDefault(p => p.NodeSeq == seq);
+        }
+        #endregion "Root Nodes Creation"
+        #region "Remove Nodes"
+        public void RemoveNode(SimpleItem simpleItem)
+        {
+            if (simpleItem == null)
+            {
+                return;
+            }
+            var node = _beeptreeRootnodes.FirstOrDefault(n => n.Tag == simpleItem);
+            if (node != null)
+            {
+                RemoveNode(node);
             }
         }
         public void ClearNodes()
@@ -659,7 +809,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     RemoveNode(node);
                 }
             }
-          
+
         }
         public void RemoveNode(int NodeIndex)
         {
@@ -676,6 +826,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _nodePanels.Remove(node.NodeSeq);
             RearrangeTree();
         }
+        #endregion "Remove Nodes"
         #region "Find and Filter"
         public IEnumerable<BeepTreeNode> Traverse()
         {
@@ -977,114 +1128,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             foreach (SimpleItem item in Nodes)
             {
                 if (item.Name == guidID) return item;
-               
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             }
             return null;
         }
@@ -1163,49 +1206,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion "Theme"
-        public async Task LoadTreeAsync(IEnumerable<SimpleItem> data)
-        {
-          
-            await Task.Run(() =>
-            {_dontRearrange = true;
-                SuspendLayout(); // Suspend layout updates
-                // Perform data processing here
-                var nodes = CreateTreeNodes(data);
-              
-                // Return the processed nodes
-                return nodes;
-            }).ContinueWith(nodes =>
-            {
-                
-               
-                ResumeLayout(); // Resume layout updates
-                RearrangeTree();
-                _dontRearrange = false;
-            }, TaskScheduler.FromCurrentSynchronizationContext());
-           
-        }
-        private List<BeepTreeNode> CreateTreeNodes(IEnumerable<SimpleItem> data)
-        {
-            List<BeepTreeNode> nodes = new List<BeepTreeNode>();
-            foreach (var item in data.Where(p=>p.ParentItem==null))
-            {
-                var node = CreateTreeNodeFromMenuItem(item, null);
-                if (node != null)
-                {
-                    Nodes.Add(item);
-                    //Panel panel = AddRootNode(node);
-                    //panel.Tag = node.GuidID;
-                    //item.ContainerGuidID = node.GuidID;
-                    //item.RootContainerGuidID = node.GuidID;
-                }
-            }
-            return nodes;
-        }
-        private BeepTreeNode GetBeepTreeNodeFromPanel(int seq)
-        {
-           
-            return _beeptreeRootnodes.FirstOrDefault(p=>p.NodeSeq==seq);
-        }
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -1265,6 +1265,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 item.ShowNodeImage = _shownodeimage;
                 item.MaxImageSize = nodeimagesize;
+                if (nodeimagesize == 0)
+                {
+                    nodeimagesize = NodeHeight - 2;
+                }
+                if (nodeimagesize >= NodeHeight)
+                {
+                    NodeHeight = NodeHeight + 2;
+                }
                 item.ChangeNodeImageSettings(); // Ensure the node redraws with the updated setting
             }
         }
@@ -1278,50 +1286,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             catch { /* Ignore logging errors */ }
         }
         #region "Flyout Menu"
-        public void ShowMenu(BeepTreeNode node,BeepEventDataArgs e)
+      
+        public void ShowFlyoutMenu(object sender , EventArgs e)
         {
-            
-            SimpleItem item;
-            IBranch branch;
-            string menuid = "";
-            if (node.Tag is SimpleItem)
-            {
-                item = (SimpleItem)node.Tag;
-                menuid = item.MenuID;
-            }
-            else
-            {
-                branch = (IBranch)node.Tag;
-                menuid = branch.MenuID;
-            }
-            List<SimpleItem> menu = _menus.Where(c => c.Key == menuid).Select(c => c.Value).ToList();
-            BeepFlyoutMenu.ListItems = new BindingList<SimpleItem>(menu);
-            BeepFlyoutMenu.Show();
-        }
-        public void ShowFlyoutMenu(BeepTreeNode node, Point location)
-        {
-            SimpleItem item;
-            IBranch branch;
-            string menuid = "";
+            var clickedNode = sender as BeepTreeNode;
+            if (clickedNode == null) return;
+            List<SimpleItem> menuList = DynamicMenuManager.GetMenuItemsList(clickedNode.Tag as SimpleItem);
+
+            CurrentMenutems = new BindingList<SimpleItem>(menuList);
             if (BeepFlyoutMenu == null)
             {
                 BeepFlyoutMenu = new BeepFlyoutMenu();
-                
             }
             // 
-            if(node.Tag is SimpleItem)
-            {
-                item = (SimpleItem)node.Tag;
-                menuid = item.MenuID;
-
-            }
-            else
-            {
-                branch = (IBranch)node.Tag;
-                menuid = branch.MenuID;
-            }
-            List<SimpleItem> menu = _menus.Where(c => c.Key == menuid).Select(c => c.Value).ToList();
-            BeepFlyoutMenu.ListItems = new BindingList<SimpleItem>(menu);
+            BeepFlyoutMenu.ListItems = CurrentMenutems;
             BeepFlyoutMenu.MenuClicked += MenuItemClicked;
             BeepFlyoutMenu.Show();
         }
@@ -1370,7 +1348,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (!_nodePanels.TryGetValue(node.NodeSeq, out var panel))
                     continue;
                 // Position the panel
-           //     panel.Location = new Point(5, startY);
+                //     panel.Location = new Point(5, startY);
+                if (node.Height != NodeHeight)
+                {
+                    node.Height = NodeHeight;
+                    panel.Height = NodeHeight;
+                }
                 panel.Width = this.Width - 10; // Adjust panel width based on tree width
                 node.RearrangeNode(); // Adjust the node's internal layout
                 startY += panel.Height; // Increment Y position based on panel's height
@@ -1392,7 +1375,122 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.ShowCheckBox = show; 
             // if you keep a similar property in the BeepTree itself.
         }
-       
+        #region "Popup List Methods"
+        protected void TogglePopup()
+        {
+            if (_isPopupOpen)
+                ClosePopup();
+            else
+                ShowPopup();
+        }
+        private Point GetScreenCoordinates(Control control)
+        {
+            Point screenCoordinates = control.Location;
+
+            // Traverse up the parent hierarchy to accumulate the positions
+            while (control.Parent != null)
+            {
+                control = control.Parent;
+                screenCoordinates.Offset(control.Location);
+            }
+
+            // Add the form's screen location
+            if (control is Form form)
+            {
+                screenCoordinates.Offset(form.DesktopBounds.Location);
+            }
+
+            return screenCoordinates;
+        }
+
+        protected void ShowPopup()
+        {
+            if (_isPopupOpen)
+            {
+                ClosePopup();
+               return;
+            }
+            // Always create a new instance from scratch
+            _popupForm = new BeepPopupForm();
+            _popupForm.OnLeave += (sender, e) =>
+            {
+                _isPopupOpen = false;
+                ClosePopup();
+            };
+            _isPopupOpen = true;
+            int _maxListHeight = Width;
+            int _maxListWidth = 100;
+
+               InitListbox();
+            // 2) Create a borderless popup form
+            //  _popupForm = new BeepPopupForm();
+            _popupForm.BorderThickness = 1;
+            _popupForm.Controls.Add(_beepListBox);
+            _beepListBox.ShowHilightBox = false;
+            _beepListBox.Dock = DockStyle.None;
+            _beepListBox.MenuItemHeight = NodeHeight;
+            _beepListBox.ListItems = CurrentMenutems;
+            _beepListBox.InitializeMenu();
+
+            int neededHeight = _beepListBox.GetMaxHeight();
+            int finalHeight = Math.Min(neededHeight, _maxListHeight);
+            // possibly also compute width
+            int finalWidth = Math.Max(Width, _maxListWidth);
+ 
+            // The popup form is sized to fit beepListBox
+            _popupForm.Size = new Size(finalWidth, finalHeight);
+            // Position popup just below the main control
+            // get node position  from LastNodeMenuShown
+            Point ctlpoint = LastNodeMenuShown.PointToScreen(Point.Empty);
+             Point point=new Point(ctlpoint.X+Width, ctlpoint.Y);
+
+            var screenPoint = point;// this.PointToScreen(ctlpoint);// new Point(-(finalWidth / 2), Height + 5));
+            _popupForm.Location = screenPoint;
+            _beepListBox.Theme = Theme;
+            _beepListBox.ShowAllBorders = false;
+            //_popupForm.BackColor = _currentTheme.BackColor;
+            _popupForm.Theme = Theme;
+
+            _beepListBox.Dock = DockStyle.Fill; // Manually size and position
+            _popupForm.Show();
+            _popupForm.BringToFront();
+            _popupForm.Invalidate();
+        }
+        private void ClosePopup()
+        {
+           
+            _isPopupOpen = false;
+            if(_popupForm != null)
+            {
+                _popupForm.Close();
+                LastNodeMenuShown = null;
+            }
+                
+        }
+        private void InitListbox()
+        {
+            // Rebuild beepListBox's layout
+            _beepListBox = new BeepListBox
+            {
+                TitleText = "Select an item",
+                ShowTitle = false,
+                ShowTitleLine = false,
+                Width = _maxListWidth,
+                Height = _maxListHeight,
+                ShowAllBorders = false,
+                IsBorderAffectedByTheme = false,
+                IsRoundedAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                
+            };
+            _beepListBox.Theme = Theme;
+            _beepListBox.ItemClicked += (sender, item) =>
+            {
+                SelectedItem = item;
+                ClosePopup();
+            };
+        }
+        #endregion "Popup List Methods"
 
     }
 

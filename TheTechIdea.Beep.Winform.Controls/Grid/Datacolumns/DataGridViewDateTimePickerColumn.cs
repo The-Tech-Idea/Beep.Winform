@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
 {
     // Custom DataGridView Column that uses a DateTimePicker as its editing control
+    [ToolboxItem(false)]
     public class BeepDataGridViewDateTimePickerColumn : DataGridViewColumn
     {
         public BeepDataGridViewDateTimePickerColumn() : base(new DataGridViewDateTimePickerCell())

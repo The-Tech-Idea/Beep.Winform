@@ -8,11 +8,12 @@ using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
+using System.ComponentModel;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Basic
 {
-    
+    [ToolboxItem(false)]
     public partial class uc_Addin : UserControl, IDM_Addin
     {
         public uc_Addin()

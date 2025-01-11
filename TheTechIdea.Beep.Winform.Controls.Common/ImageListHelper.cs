@@ -306,11 +306,7 @@ namespace TheTechIdea.Beep.Desktop.Common
 
 
         #endregion
-        /// <summary>
-        /// Scans a .csproj file for <EmbeddedResource Include="..."> entries that 
-        /// have an image-related extension (png, jpg, jpeg, bmp, ico, svg, etc.).
-        /// Returns a list of newly discovered ImageConfiguration objects.
-        /// </summary>
+     
         public static List<ImageConfiguration> GetEmbeddedGraphicsInProj(string projectDirectory)
         {
             var results = new List<ImageConfiguration>();
@@ -1096,7 +1092,23 @@ namespace TheTechIdea.Beep.Desktop.Common
                 return null;
             }
         }
-
+        public static string GetImagePathFromName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return null;
+            var cfg = ImgAssemblies
+                .FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase)
+                                  || (c.Path?.Equals(name, StringComparison.OrdinalIgnoreCase) ?? false));
+            if (cfg != null)
+            {
+                return cfg.Path;
+            }
+            return null;
+        }
+        public static List<string> GetImageNames()
+        {
+            return ImgAssemblies.Select(x => x.Name).ToList();
+        }
         #endregion "Get Images"
 
     }

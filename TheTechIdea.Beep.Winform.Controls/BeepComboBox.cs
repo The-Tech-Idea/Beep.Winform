@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected virtual void OnSelectedIndexChanged(EventArgs e)
             => SelectedIndexChanged?.Invoke(this, e);
 
-        // Delegate beepListBox ListItems
+        // Delegate beepListBox CurrentMenutems
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]

@@ -5,6 +5,7 @@ using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
 {
+    [ToolboxItem(false)]
     public class DataGridViewProgressBarCell : DataGridViewTextBoxCell
     {
         public DataGridViewProgressBarCell()

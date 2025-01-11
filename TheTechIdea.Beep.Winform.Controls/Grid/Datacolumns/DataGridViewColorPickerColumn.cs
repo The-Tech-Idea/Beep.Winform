@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
 {
+    
     public class BeepDataGridViewColorPickerColumn : DataGridViewColumn
     {
         public BeepDataGridViewColorPickerColumn() : base(new DataGridViewColorPickerCell())
@@ -68,6 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
             }
         }
     }
+    [ToolboxItem(false)]
     public class DataGridViewColorPickerEditingControl : UserControl, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;

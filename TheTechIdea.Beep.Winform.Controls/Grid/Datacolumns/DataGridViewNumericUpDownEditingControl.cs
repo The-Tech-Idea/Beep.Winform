@@ -3,6 +3,7 @@ using System.ComponentModel;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
 {
+    [ToolboxItem(false)]
     public class BeepDataGridViewNumericUpDownColumn : DataGridViewColumn
     {
         public BeepDataGridViewNumericUpDownColumn() : base(new DataGridViewNumericUpDownCell())

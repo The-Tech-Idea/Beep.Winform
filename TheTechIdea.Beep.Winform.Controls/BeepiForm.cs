@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
+using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 
@@ -22,6 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Point dragStartFormPoint;
         private Point resizeStartCursorPoint;
         private Size resizeStartFormSize;
+        private readonly IBeepService beepservices;
         private bool ishandled = false;
         private bool _inpopupmode = false;
 
@@ -78,6 +80,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion "Properties"
+        public BeepiForm(IBeepService beepService)
+        {
+            InitializeComponent();
+            beepservices = beepService;
+            ishandled = false;
+            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+            SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
+            UpdateStyles();
+
+            // Apply border and custom form styles
+            FormBorderStyle = FormBorderStyle.None;
+            //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
+            //      Margin = new Padding(_resizeMargin);
+            InitializeForm();
+        }
         public BeepiForm()
         {
             InitializeComponent();

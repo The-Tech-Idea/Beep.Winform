@@ -6,7 +6,7 @@ using System.Windows.Forms;
 namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
 {
     [ToolboxBitmap(typeof(BeepDataGridViewMultiColumnColumn), "DataGridViewImageColumn.bmp")]
-    [ToolboxItem(true)]
+    [ToolboxItem(false)]
     public class BeepDataGridViewMultiColumnColumn : DataGridViewColumn
     {
         public BeepDataGridViewMultiColumnColumn() : base(new DataGridViewMultiColumnCell())

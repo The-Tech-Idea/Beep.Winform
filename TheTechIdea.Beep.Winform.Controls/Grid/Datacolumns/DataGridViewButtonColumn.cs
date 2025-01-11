@@ -7,7 +7,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
 {
     //[ToolboxBitmap(typeof(BeepDataGridViewButtonColumn), "DataGridViewButtonColumn.bmp")]
     //[ToolboxItem(true)]
-  
+    [ToolboxItem(false)]
     public class BeepDataGridViewButtonColumn : DataGridViewColumn
     {
         public BeepDataGridViewButtonColumn()

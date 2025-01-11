@@ -15,7 +15,7 @@ using TheTechIdea.Beep.Vis;
 
 
 using TheTechIdea;
-using TheTechIdea.Beep.Winform.Controls.Tree;
+using TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView;
 
 
 namespace Beep.Config.Winform.DataConnections

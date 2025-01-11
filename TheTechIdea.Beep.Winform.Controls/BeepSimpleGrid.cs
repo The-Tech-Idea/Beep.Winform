@@ -279,7 +279,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //[MergableProperty(false)]
 
         //[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        //public BindingList<SimpleItem> ListItems
+        //public BindingList<SimpleItem> CurrentMenutems
         //{
         //    get => items;
         //    set

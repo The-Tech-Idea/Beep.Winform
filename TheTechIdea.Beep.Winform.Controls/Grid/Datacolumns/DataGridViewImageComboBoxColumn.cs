@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
 {
+    [ToolboxItem(false)]
     public class BeepDataGridViewImageComboBoxColumn : DataGridViewColumn
     {
         public BeepDataGridViewImageComboBoxColumn() : base(new DataGridViewImageComboBoxCell())

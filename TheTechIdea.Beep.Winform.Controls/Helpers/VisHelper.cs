@@ -1,15 +1,21 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
-using Microsoft.Extensions.DependencyModel;
-using System.Collections;
-using System.Reflection;
-using System.Diagnostics;
-using TheTechIdea.Beep.DriversConfigurations;
+using TheTechIdea.Beep.Desktop.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls.Helpers
 {
     public class VisHelper : IVisHelper
     {
+
+        public VisHelper()
+        {
+            
+        }
+        public VisHelper(IDMEEditor editor, IVisManager vismanager)
+        {
+            DMEEditor = editor;
+            Vismanager = vismanager;
+        }
         public IDMEEditor DMEEditor { get  ; set  ; }
         public IVisManager Vismanager { get  ; set  ; }
         public List<ImageConfiguration> ImgAssemblies { get  ; set  ; }
@@ -18,57 +24,62 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
         public List<ImageConfiguration> GetGraphicFilesLocations(string path)
         {
-            throw new NotImplementedException();
+             ImageListHelper.GetGraphicFilesLocations(path);
+            ImgAssemblies = ImageListHelper.ImgAssemblies;
+
+            return ImgAssemblies;
         }
 
         public List<ImageConfiguration> GetGraphicFilesLocationsFromEmbedded(string[] namespacestoinclude)
         {
-            throw new NotImplementedException();
+             ImageListHelper.GetGraphicFilesLocationsFromEmbedded(namespacestoinclude);
+            ImgAssemblies = ImageListHelper.ImgAssemblies;
+            return ImgAssemblies;
         }
 
         public object GetImage(string imagename)
         {
-            throw new NotImplementedException();
+            return ImageListHelper.GetImage(imagename);
         }
 
         public object GetImage(string imagename, int size)
         {
-            throw new NotImplementedException();
+           return ImageListHelper.GetImage(imagename, size);
         }
 
         public object GetImageFromIndex(int index)
         {
-            throw new NotImplementedException();
+            return ImageListHelper.GetImageFromIndex(index);
         }
 
         public object GetImageFromName(string name)
         {
-            throw new NotImplementedException();
+            return  ImageListHelper.GetImageFromName(name);
         }
 
         public int GetImageIndex(string name)
         {
-            throw new NotImplementedException();
+            return ImageListHelper.GetImageIndex(name);
         }
 
         public int GetImageIndexFromConnectioName(string Connectioname)
         {
-            throw new NotImplementedException();
+           return ImageListHelper.GetImageIndexFromConnectioName(Connectioname);
         }
 
         public List<string> GetImageNames()
         {
-            throw new NotImplementedException();
+            return ImageListHelper.GetImageNames();
         }
 
         public object GetResource(string resource)
         {
-            throw new NotImplementedException();
+            return ImageListHelper.GetImageFromName(resource);
         }
 
         public void RefreshTreeView()
         {
-            throw new NotImplementedException();
+           
         }
     }
 

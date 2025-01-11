@@ -6,7 +6,7 @@ using System.Windows.Forms;
 namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
 {
     // DataGridViewSliderColumn class
-    [ToolboxItem(true)]
+    [ToolboxItem(false)]
     public class BeepDataGridViewSliderColumn : DataGridViewColumn
     {
         // Constructor

@@ -1,9 +1,12 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns;
-     public class BeepDataGridViewRatingColumn : DataGridViewColumn
+
+[ToolboxItem(false)]
+public class BeepDataGridViewRatingColumn : DataGridViewColumn
 {
     public BeepDataGridViewRatingColumn()
         : base(new DataGridViewRatingCell()) // Set the cell template to our custom rating cell

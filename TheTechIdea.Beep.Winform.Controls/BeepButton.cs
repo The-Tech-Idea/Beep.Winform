@@ -396,7 +396,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage.MouseEnter += BeepImage_MouseEnter;
             //   beepImage.MouseLeave += BeepImage_MouseLeave;
             IsChild = false;
-            beepImage.Click += BeepImage_Click;
+            beepImage.MouseDown += BeepImage_MouseDown;
             Padding = new Padding(0);
             Margin = new Padding(0);
             Size = new Size(120, 40);  // Default size
@@ -480,7 +480,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void ClosePopup()
         {
-            if (_isPopupOpen) return;
+            if (!_isPopupOpen) return;
             _isPopupOpen = false;
             _popupForm.Hide();
         }
@@ -776,22 +776,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnMouseHover(e);
 
         }
-       
         private void BeepImage_MouseEnter(object? sender, EventArgs e)
         {
          
             base.OnMouseEnter(e);
         }
-        private void BeepImage_Click(object? sender, EventArgs e)
+      
+        private void BeepImage_MouseDown(object? sender, MouseEventArgs e)
         {
+            base.OnMouseDown(e);
+
             var ev = new BeepEventDataArgs("ImageClicked", this);
 
             ImageClicked?.Invoke(this, ev);
-            base.OnClick(e);
         }
-        protected override void OnClick(EventArgs e)
+        protected override void OnMouseDown(MouseEventArgs e)
         {
-            base.OnClick(e);
+            base.OnMouseDown(e);
             if (_popupmode)
             {
                 TogglePopup();
@@ -803,9 +804,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     IsSelected = !IsSelected;
                 }
             }
-           
-
+        
         }
+      
         #endregion "Mouse and Click"
         #region "Binding and Control Type"
         public DbFieldCategory Category { get; set; } = DbFieldCategory.Boolean;

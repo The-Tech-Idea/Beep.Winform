@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Printing;
 using System.Text;
 
@@ -7,26 +8,54 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public class BeepMouseEventArgs : EventArgs
     {
-        private readonly BeepMouseButtons button;
+        public enum BeepMouseButtons
+        {
+            Left,
+            Right,
+            Middle,
+            XButton1,
+            XButton2
+        }
+        public string EventName 
+        {
+            get { return eventname; }
+            set { eventname = value; }
 
-        private readonly int clicks;
+        }
+        private  BeepMouseButtons button;
 
-        private readonly int x;
+        private  int clicks;
 
-        private readonly int y;
+        private  int x;
 
-        private readonly int delta;
+        private  int y;
+
+        private  int delta;
         public bool Handled { get; set; }
-        private readonly object data;
-        private readonly string eventname;
-        private readonly object sender;
+        private  object data;
+        private string eventname;
+        private  object sender;
+        public object Data
+        {
+            get { return data; }
+            set { data = value; }
+        }
+        public object Sender
+        {
+            get { return sender; }
+            set { sender = value; }
+        }
         //
         // Summary:
         //     Gets which mouse button was pressed.
         //
         // Returns:
         //     One of the System.Windows.Forms.MouseButtons values.
-        public BeepMouseButtons Button => button;
+        public BeepMouseButtons Button
+        {
+            get { return button; }
+            set { button = value; }
+        }
 
         //
         // Summary:
@@ -35,7 +64,12 @@ namespace TheTechIdea.Beep.Vis.Modules
         // Returns:
         //     An System.Int32 that contains the number of times the mouse button was pressed
         //     and released.
-        public int Clicks => clicks;
+        public int Clicks 
+        {
+            get { return clicks; }
+            set { clicks = value; }
+
+        }
 
         //
         // Summary:
@@ -43,7 +77,11 @@ namespace TheTechIdea.Beep.Vis.Modules
         //
         // Returns:
         //     The x-coordinate of the mouse, in pixels.
-        public int X => x;
+        public int X
+        {
+            get { return x; }
+            set { x = value; }
+        }
 
         //
         // Summary:
@@ -51,7 +89,11 @@ namespace TheTechIdea.Beep.Vis.Modules
         //
         // Returns:
         //     The y-coordinate of the mouse, in pixels.
-        public int Y => y;
+        public int Y
+        {
+            get { return y; }
+            set { y = value; }
+        }
 
         //
         // Summary:
@@ -61,7 +103,11 @@ namespace TheTechIdea.Beep.Vis.Modules
         // Returns:
         //     A signed count of the number of detents the mouse wheel has rotated, multiplied
         //     by the WHEEL_DELTA constant.
-        public int Delta => delta;
+        public int Delta
+        {
+            get { return delta; }
+            set { delta = value; }
+        }
 
         //
         // Summary:
@@ -70,7 +116,13 @@ namespace TheTechIdea.Beep.Vis.Modules
         // Returns:
         //     A System.Drawing.Point that contains the x- and y- mouse coordinates, in pixels,
         //     relative to the upper-left corner of the form.
-        public System.Drawing.Point Location => new System.Drawing.Point(x, y);
+        private Point _location;
+        public System.Drawing.Point Location
+        {
+            get { return _location; }
+            set { _location = value; }
+            
+       }
 
         //
         // Summary:
@@ -92,36 +144,34 @@ namespace TheTechIdea.Beep.Vis.Modules
         //
         //   delta:
         //     A signed count of the number of detents the wheel has rotated.
-        public BeepMouseEventArgs(BeepMouseButtons button, int clicks, int x, int y, int delta)
+        public BeepMouseEventArgs(string evname, BeepMouseButtons mouseButtons, int clicks, int x, int y, int delta)
         {
-            this.button = button;
+            this.button = mouseButtons;
             this.clicks = clicks;
             this.x = x;
             this.y = y;
             this.delta = delta;
+            this.eventname = evname;
         }
-        public BeepMouseEventArgs(BeepMouseButtons button, int clicks, int x, int y, int delta, object data)
+        public BeepMouseEventArgs(string evname, BeepMouseButtons mouseButtons, int clicks, int x, int y, int delta, object data)
         {
-            this.button = button;
+            this.button = mouseButtons;
             this.clicks = clicks;
             this.x = x;
             this.y = y;
             this.delta = delta;
             this.data = data;
+            this.eventname = evname;
         }
-        public BeepMouseEventArgs(BeepMouseButtons button, int clicks, int x, int y, int delta, bool handled)
-        {
-            this.button = button;
-            this.clicks = clicks;
-            this.x = x;
-            this.y = y;
-            this.delta = delta;
-            this.Handled = handled;
-        }
+       
         public BeepMouseEventArgs(string evname,object senderobj)
         {
             this.eventname = evname;
             this.sender = senderobj;
+        }
+
+        public BeepMouseEventArgs()
+        {
         }
     }
 }

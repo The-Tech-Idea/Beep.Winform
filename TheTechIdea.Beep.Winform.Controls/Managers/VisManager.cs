@@ -15,6 +15,7 @@ using TheTechIdea.Beep.Vis.Logic;
 using System.Data;
 using System.Runtime.InteropServices;
 using DialogResult = TheTechIdea.Beep.Vis.Modules.DialogResult;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Managers
 {
@@ -133,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
             Helpers = new FunctionandExtensionsHelpers(DMEEditor, this,(TreeViewControl)Tree);
             DMEEditor.Passedarguments.Objects = CreateArgsParameterForVisUtil(DMEEditor.Passedarguments.Objects);
-          //  visHelper = new TheTechIdea.Beep.Winform.Controls.Helpers.VisHelper(DMEEditor, this);
+            visHelper = new VisHelper(DMEEditor, this);
             a = new PassedArgs();
              MyTree = (ITree)Tree;
             MyTree.PreShowItem += MyTree_PreShowItem;

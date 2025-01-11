@@ -7,53 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Winform.Controls
-{// We assume BeepButton, BeepTheme, and related classes are in your namespace.
- // using TheTechIdea.Beep.Winform.Controls; // Adjust namespace as needed
-    public enum HeaderLocation
-    {
-        Top,
-        Bottom,
-        Left,
-        Right
-    }
-
-    // A TabControl that hides the default tab headers
-    [DesignerCategory("Code")]
-    [ToolboxItem(false)]
-    public class TabControlWithoutTabs : TabControl
-    {
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
-        // Custom event that notifies when TabPages change
-        public event EventHandler TabPagesChanged;
-        protected override void WndProc(ref Message m)
-        {
-            // TCM_ADJUSTRECT message = 0x1328
-            if (m.Msg == 0x1328 && !DesignMode)
-            {
-                // Return zero rect to hide tabs
-                m.Result = IntPtr.Zero;
-                return;
-            }
-            base.WndProc(ref m);
-        }
-        protected override void OnControlAdded(ControlEventArgs e)
-        {
-            base.OnControlAdded(e);
-            // A tab (TabPage) was added
-            TabPagesChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected override void OnControlRemoved(ControlEventArgs e)
-        {
-            base.OnControlRemoved(e);
-            // A tab (TabPage) was removed
-            TabPagesChanged?.Invoke(this, EventArgs.Empty);
-        }
-    }
-
+{
+    // We assume BeepButton, BeepTheme, and related classes are in your namespace.
+    // using TheTechIdea.Beep.Winform.Controls; // Adjust namespace as needed
     [DefaultProperty("TabPages")]
-    [DesignerCategory("Code")]
     [ToolboxItem(true)]
     [DisplayName("Beep Tabs")]
     [Category("Beep Controls")]
@@ -298,4 +255,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
     }
+    public enum HeaderLocation
+    {
+        Top,
+        Bottom,
+        Left,
+        Right
+    }
+
+   
 }

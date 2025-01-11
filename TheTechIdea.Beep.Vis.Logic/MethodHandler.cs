@@ -433,7 +433,7 @@ namespace TheTechIdea.Beep.Vis.Logic
             if (br != null)
             {
                 string clicks = "";
-                if (e.Button == BeepMouseButtons.Right)
+                if (e.Button == BeepMouseEventArgs.BeepMouseButtons.Right)
                 {
                     if (IsMenuCreated(br))
                     {
@@ -933,5 +933,6 @@ namespace TheTechIdea.Beep.Vis.Logic
 
 
         }
+        
     }
 }

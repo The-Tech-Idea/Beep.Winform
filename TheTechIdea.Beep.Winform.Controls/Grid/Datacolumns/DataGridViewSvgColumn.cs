@@ -7,7 +7,7 @@ using Svg;
 namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
 {
     [ToolboxBitmap(typeof(BeepDataGridViewSvgColumn), "DataGridViewImageColumn.bmp")]
-    [ToolboxItem(true)]
+    [ToolboxItem(false)]
     public class BeepDataGridViewSvgColumn : DataGridViewImageColumn
     {
         public BeepDataGridViewSvgColumn()

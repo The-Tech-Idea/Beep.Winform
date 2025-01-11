@@ -18,6 +18,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public int Id { get; set; }
         public string GuidId { get; set; }
         public string Name { get; set; }
+        public string MenuName { get; set; }
         public string Text { get; set; }
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load")]
@@ -63,6 +64,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public string ObjectType { get; set; }
         public string BranchClass { get; set; }
         public string BranchName { get; set; }
+        public EnumPointType BranchType { get; set; }
         public string MethodName { get; set; }
         public MenuItemType ItemType { get; set; }
         public DatasourceCategory Category { get; set; }
@@ -95,8 +97,37 @@ namespace TheTechIdea.Beep.Desktop.Common
     {
         public SimpleItemCollection() : base() { }
         public SimpleItemCollection(BindingList<SimpleItem> list) : base(list) { }
+        public BindingList<SimpleItem> Items { get; set; } = new BindingList<SimpleItem>();
+        public EnumPointType PointType { get; set; }
+        public string ObjectType { get; set; }
+        public string BranchClass { get; set; }
+        public string BranchName { get; set; }
 
+        public List<string> ClassDefinitionsIDs { get; set; } = new List<string>(); // use AssemblyClassDefinition GuidID
     }
-   
+    public class SimpleMenuList
+    {
+        public SimpleMenuList(string objectType, string branchClass, EnumPointType branchType)
+        {
+            ObjectType = objectType;
+            BranchClass = branchClass;
+            BranchType = branchType;
+        }
+        public SimpleMenuList()
+        {
+            
+        }
+        public string GuidID { get; set; }
+        public string Name { get; set; }
+        public string MenuName { get; set; }
+        public BindingList<SimpleItem> Items { get; set; } = new BindingList<SimpleItem>();
+        public EnumPointType PointType { get; set; }
+        public string ObjectType { get; set; }
+        public string BranchClass { get; set; }
+        public string BranchName { get; set; }
+
+        public List<string> ClassDefinitionsIDs { get; set; } = new List<string>(); // use AssemblyClassDefinition GuidID
+        public EnumPointType BranchType { get; }
+    }
 
 }

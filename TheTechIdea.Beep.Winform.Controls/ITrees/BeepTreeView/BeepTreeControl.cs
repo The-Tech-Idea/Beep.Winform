@@ -1,34 +1,59 @@
-﻿using TheTechIdea.Beep.Addin;
+﻿using System.ComponentModel;
+using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
+using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
 {
+    [ToolboxItem(true)]
+    [DisplayName("Beep Tree Control")]
+    [Category("Beep Controls")]
+    [Description("A control that displays hierarchical data in a tree format.")]
     public partial class BeepTreeControl : BeepTree,ITree
     {
+        public BeepTreeControl()
+        {
+            
+        }
         public BeepTreeControl(IBeepService service)
         {
             BeepService = service;
-            DMEEditor = service.DMEEditor;
+           
+          
+        }
+        public void init(IBeepService service)
+        {
             VisManager = service.vis;
+            DMEEditor = service.DMEEditor;
             treeBranchHandler = new BeepTreeBranchHandler(service, this);
             DropHandler = new BeepTreeNodeDragandDropHandler(service, this);
+            this.NodeRightClicked += BeepTreeControl_NodeRightClicked;
+            this.NodeClicked += BeepTreeControl_NodeClicked;
+            
         }
+
+       
         #region "Properties"
+      
         public string CategoryIcon { get; set; }= "Category.svg";
         public string SelectIcon { get; set; } = "Select.svg";
         public string TreeType { get; set; } = "Beep";
         public IBranch CurrentBranch { get; set; }
-        public IBeepService BeepService { get; }
+        public IBeepService BeepService { get; set; }
         public IDMEEditor DMEEditor { get; set; }
         public List<int> SelectedBranchs { get; set; } = new List<int>();
         public PassedArgs args { get; set; }
         public int SeqID { get; set; }
         public List<IBranch> Branches { get; set; }=new List<IBranch>();
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public List<Tuple<IBranch, string>> GenerBranchs { get; set; } = new List<Tuple<IBranch, string>>();
         public List<MenuList> Menus { get; set; } = new List<MenuList>();
         public IVisManager VisManager { get; set; }
@@ -60,8 +85,38 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
            
         }
         public ITreeBranchHandler treeBranchHandler { get; set; }
-        public BeepTreeNodeDragandDropHandler DropHandler { get; }
-
+        public BeepTreeNodeDragandDropHandler DropHandler { get; set; }
+        private void BeepTreeControl_NodeClicked(object? sender, BeepMouseEventArgs e)
+        {
+            BeepTreeNode node = (BeepTreeNode)sender;
+            IBranch br =Branches.FirstOrDefault(c => c.GuidID == node.GuidID);
+            if (IsPopupOpen)
+            {
+                TogglePopup();
+            }
+        }
+        private void BeepTreeControl_NodeRightClicked(object? sender, BeepMouseEventArgs e)
+        {
+            BeepTreeNode node = (BeepTreeNode)sender;
+            IBranch br = Branches.FirstOrDefault(c => c.GuidID == node.GuidID);
+          //  if (MethodHandler.IsMenuCreated(br))
+          //  {
+          ////      MenuList menuList = MethodHandler.GetMenuList(br);
+          //      var clickedNode = sender as BeepTreeNode;
+          //      if (clickedNode == null) return;
+          //      //if(LastNodeMenuShown!=clickedNode)
+          //      //{
+          //      //    LastNodeMenuShown = clickedNode;
+          //      //}else
+          //      //{
+          //      //  return;
+          //      //}
+          //      List<SimpleItem> menuList = ControlExtensions.GetMenuItemsList(this, br.GuidID);
+          //      CurrentMenutems =new BindingList<SimpleItem>(menuList);
+          //      if (menuList.Count > 0)
+          //          TogglePopup();
+          //  }
+        }
         #endregion "Handlers"
         #region "Change Branch Properties"
         public void ChangeBranchIcon(int branchid, string iconname)
@@ -119,11 +174,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         }
         public IErrorsInfo CreateRootTree()
         {
-
             try
             {
-                ControlExtensions.GetBranchs(this, DMEEditor);
-                
+                var items = ControlExtensions.CreateTreeTuple(this, DMEEditor);
+                Branches = items.Item1;
+                GenerBranchs = items.Item2;
+                Nodes = ControlExtensions.GetBranchs(this, items);
+                Branches.AddRange(GenerBranchs.Select(c => c.Item1).ToList());
+
             }
             catch (Exception ex)
             {

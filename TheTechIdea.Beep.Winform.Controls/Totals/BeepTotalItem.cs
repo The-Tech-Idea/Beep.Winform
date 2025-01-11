@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Basic;
 
 namespace TheTechIdea.Beep.Winform.Controls.Totals
 {
+    [ToolboxItem(false)]
     public partial class BeepTotalItem : uc_Addin
     {
         public BeepTotalItem()

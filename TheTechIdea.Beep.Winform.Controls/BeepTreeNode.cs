@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Winform.Controls.Properties;
+using static TheTechIdea.Beep.Winform.Controls.Native.WinApi;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -13,44 +14,44 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region "Events"
 
-        public EventHandler<BeepEventDataArgs> LeftButtonClicked;
-        public EventHandler<BeepEventDataArgs> RighButtonClicked;
-        public EventHandler<BeepEventDataArgs> MiddleButtonClicked;
-        public EventHandler<BeepEventDataArgs> NodeClicked;
-        public EventHandler<BeepEventDataArgs> NodeDoubleClicked;
-        public EventHandler<BeepEventDataArgs> NodeSelected;
-        public EventHandler<BeepEventDataArgs> NodeDeselected;
-        public EventHandler<BeepEventDataArgs> NodeExpanded;
-        public EventHandler<BeepEventDataArgs> NodeCollapsed;
-        public EventHandler<BeepEventDataArgs> NodeChecked;
-        public EventHandler<BeepEventDataArgs> NodeUnchecked;
-        public EventHandler<BeepEventDataArgs> NodeVisible;
-        public EventHandler<BeepEventDataArgs> NodeInvisible;
-        public EventHandler<BeepEventDataArgs> NodeReadOnly;
-        public EventHandler<BeepEventDataArgs> NodeEditable;
-        public EventHandler<BeepEventDataArgs> NodeDeletable;
-        public EventHandler<BeepEventDataArgs> NodeDirty;
-        public EventHandler<BeepEventDataArgs> NodeModified;
-        public EventHandler<BeepEventDataArgs> NodeDeleted;
-        public EventHandler<BeepEventDataArgs> NodeAdded;
-        public EventHandler<BeepEventDataArgs> NodeExpandedAll;
-        public EventHandler<BeepEventDataArgs> NodeCollapsedAll;
-        public EventHandler<BeepEventDataArgs> NodeCheckedAll;
-        public EventHandler<BeepEventDataArgs> NodeUncheckedAll;
-        public EventHandler<BeepEventDataArgs> NodeVisibleAll;
-        public EventHandler<BeepEventDataArgs> NodeInvisibleAll;
-        public EventHandler<BeepEventDataArgs> NodeRightClicked;
-        public EventHandler<BeepEventDataArgs> NodeLeftClicked;
-        public EventHandler<BeepEventDataArgs> NodeMiddleClicked;
-        public EventHandler<BeepEventDataArgs> NodeMouseEnter;
-        public EventHandler<BeepEventDataArgs> NodeMouseLeave;
-        public EventHandler<BeepEventDataArgs> NodeMouseHover;
-        public EventHandler<BeepEventDataArgs> NodeMouseWheel;
-        public EventHandler<BeepEventDataArgs> NodeMouseUp;
-        public EventHandler<BeepEventDataArgs> NodeMouseDown;
-        public EventHandler<BeepEventDataArgs> NodeMouseMove;
+        public EventHandler<BeepMouseEventArgs> LeftButtonClicked;
+        public EventHandler<BeepMouseEventArgs> RighButtonClicked;
+        public EventHandler<BeepMouseEventArgs> MiddleButtonClicked;
+        public EventHandler<BeepMouseEventArgs> NodeClicked;
+        public EventHandler<BeepMouseEventArgs> NodeDoubleClicked;
+        public EventHandler<BeepMouseEventArgs> NodeSelected;
+        public EventHandler<BeepMouseEventArgs> NodeDeselected;
+        public EventHandler<BeepMouseEventArgs> NodeExpanded;
+        public EventHandler<BeepMouseEventArgs> NodeCollapsed;
+        public EventHandler<BeepMouseEventArgs> NodeChecked;
+        public EventHandler<BeepMouseEventArgs> NodeUnchecked;
+        public EventHandler<BeepMouseEventArgs> NodeVisible;
+        public EventHandler<BeepMouseEventArgs> NodeInvisible;
+        public EventHandler<BeepMouseEventArgs> NodeReadOnly;
+        public EventHandler<BeepMouseEventArgs> NodeEditable;
+        public EventHandler<BeepMouseEventArgs> NodeDeletable;
+        public EventHandler<BeepMouseEventArgs> NodeDirty;
+        public EventHandler<BeepMouseEventArgs> NodeModified;
+        public EventHandler<BeepMouseEventArgs> NodeDeleted;
+        public EventHandler<BeepMouseEventArgs> NodeAdded;
+        public EventHandler<BeepMouseEventArgs> NodeExpandedAll;
+        public EventHandler<BeepMouseEventArgs> NodeCollapsedAll;
+        public EventHandler<BeepMouseEventArgs> NodeCheckedAll;
+        public EventHandler<BeepMouseEventArgs> NodeUncheckedAll;
+        public EventHandler<BeepMouseEventArgs> NodeVisibleAll;
+        public EventHandler<BeepMouseEventArgs> NodeInvisibleAll;
+        public EventHandler<BeepMouseEventArgs> NodeRightClicked;
+        public EventHandler<BeepMouseEventArgs> NodeLeftClicked;
+        public EventHandler<BeepMouseEventArgs> NodeMiddleClicked;
+        public EventHandler<BeepMouseEventArgs> NodeMouseEnter;
+        public EventHandler<BeepMouseEventArgs> NodeMouseLeave;
+        public EventHandler<BeepMouseEventArgs> NodeMouseHover;
+        public EventHandler<BeepMouseEventArgs> NodeMouseWheel;
+        public EventHandler<BeepMouseEventArgs> NodeMouseUp;
+        public EventHandler<BeepMouseEventArgs> NodeMouseDown;
+        public EventHandler<BeepMouseEventArgs> NodeMouseMove;
 
-        public EventHandler<BeepEventDataArgs> ShowMenu;
+        public EventHandler<BeepMouseEventArgs> ShowMenu;
         #endregion "Events"
         #region "Properties"
         private BeepTree _tree;
@@ -101,9 +102,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int childnodesSeq = 0;
 
         private bool _ischildDrawn = false;
-        public  string GuidID => _guidid;
+        public string GuidID
+        {
+            get { return _guidid; }
+            set { _guidid = value; }
+        }
         private int _parentid;
-        public int NodeHeight { get; set; } =22;
+        public int NodeHeight
+        {
+            get => Tree==null ? 20:Tree.NodeHeight;
+        }
         public int NodeWidth { get; set; } = 100;
         public int SmallNodeHeight { get; set; } = 10;
         private int nodeimagesize = 10;
@@ -574,160 +582,169 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Constructors"
         #region "Events Methods"
-        private void NodeMainMiddlebutton_Click(object sender, EventArgs e)
-        {
-            e.Equals(MouseButtons.Right);
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeClicked", this);
-            NodeClicked?.Invoke(this, args);
-
-
-        }
-        private void Nodeleftbutton_Click(object sender, EventArgs e)
-        {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeleftbuttonClicked", this);
-            NodeLeftClicked?.Invoke(this, args);
-        }
-        private void Noderightbutton_Click(object sender, EventArgs e)
-        {
-            BeepEventDataArgs args = new BeepEventDataArgs("NoderightbuttonClicked", this);
-            NodeRightClicked?.Invoke(this, args);
-           
-        }
-        private void NodeMainMiddlebutton_DoubleClick(object sender, EventArgs e)
-        {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonDoubleClicked", this);
-            NodeDoubleClicked?.Invoke(this, args);
-        }
-        private void NodeMainMiddlebutton_MouseEnter(object sender, EventArgs e)
-        {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonMouseEnter", this);
-            NodeMouseEnter?.Invoke(this, args);
-            HilightNode();
-
-        }
-        private void NodeMainMiddlebutton_MouseLeave(object sender, EventArgs e)
-        {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonMouseLeave", this);
-            NodeMouseLeave?.Invoke(this, args);
-            UnHilightNode();
-        }
-        private void NodeMainMiddlebutton_MouseHover(object sender, EventArgs e)
-        {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonMouseHover", this);
-            NodeMouseHover?.Invoke(this, args);
-            HilightNode();
-
-        }
-        private void NodeMainMiddlebutton_MouseWheel(object sender, EventArgs e)
-        {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonMouseWheel", this);
-            NodeMouseWheel?.Invoke(this, args);
-        }
-        private void NodeMainMiddlebutton_MouseUp(object sender, EventArgs e)
-        {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonMouseUp", this);
-            NodeMouseUp?.Invoke(this, args);
-        }
-        private void NodeMainMiddlebutton_MouseDown(object sender, MouseEventArgs e)
-        {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonMouseDown", this);
-            NodeMouseDown?.Invoke(this, args);
-            if (e.Button == MouseButtons.Left)
-            {
-                DoDragDrop(this, DragDropEffects.Move);
-            }
-            base.OnMouseDown(e);
-        }
+        #region "MiddleButton"
         private void NodeMainMiddlebutton_MouseMove(object sender, EventArgs e)
         {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeMainButtonMouseMove", this);
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseMove", this);
             NodeMouseMove?.Invoke(this, args);
             if (e.Equals(MouseButtons.Right))
             {
-                BeepEventDataArgs args1 = new BeepEventDataArgs("NodeMainButtonRightClicked", this);
+                BeepMouseEventArgs args1 = new BeepMouseEventArgs("RightClick", this);
                 NodeRightClicked?.Invoke(this, args1);
-                if(ShowMenu != null)
+                if (ShowMenu != null)
                 {
                     ShowMenu?.Invoke(this, args1);
                 }
             }
             if (e.Equals(MouseButtons.Left))
             {
-                BeepEventDataArgs args1 = new BeepEventDataArgs("NodeMainButtonLeftClicked", this);
+                BeepMouseEventArgs args1 = new BeepMouseEventArgs("LeftClick", e);
+                args1.Location = new Point(MousePosition.X, MousePosition.Y);
                 NodeLeftClicked?.Invoke(this, args1);
             }
         }
+        private void NodeMainMiddlebutton_Click(object sender, EventArgs e)
+        {
+        }
+        private void NodeMainMiddlebutton_DoubleClick(object sender, EventArgs e)
+        {
+            BeepMouseEventArgs args = new BeepMouseEventArgs("DoubleClick", this);
+            NodeDoubleClicked?.Invoke(this, args);
+        }
+        private void NodeMainMiddlebutton_MouseEnter(object sender, EventArgs e)
+        {
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseEnter", this);
+            NodeMouseEnter?.Invoke(this, args);
+            HilightNode();
+
+        }
+        private void NodeMainMiddlebutton_MouseLeave(object sender, EventArgs e)
+        {
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseLeave", this);
+            NodeMouseLeave?.Invoke(this, args);
+            UnHilightNode();
+        }
+        private void NodeMainMiddlebutton_MouseHover(object sender, EventArgs e)
+        {
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseHover", this);
+            NodeMouseHover?.Invoke(this, args);
+            HilightNode();
+
+        }
+        private void NodeMainMiddlebutton_MouseWheel(object sender, EventArgs e)
+        {
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseWheel", this);
+            NodeMouseWheel?.Invoke(this, args);
+        }
+        private void NodeMainMiddlebutton_MouseUp(object sender, EventArgs e)
+        {
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseUp", this);
+            NodeMouseUp?.Invoke(this, args);
+        }
+        private void NodeMainMiddlebutton_MouseDown(object sender, MouseEventArgs e)
+        {
+          
+            BeepMouseEventArgs args=  MiscFunctions.GetMouseEventArgs("MouseDown", e);
+            NodeMouseDown?.Invoke(this, args);
+            if (e.Button == MouseButtons.Left)
+            {
+               // NodeClicked?.Invoke(this, new BeepMouseEventArgs("Click", this));
+                DoDragDrop(this, DragDropEffects.Move);
+            }
+            else
+            {
+                    args = MiscFunctions.GetMouseEventArgs("RightClick", e);
+                    NodeRightClicked?.Invoke(this, args);
+                    ShowMenu?.Invoke(this, args);
+            }
+            base.OnMouseDown(e);
+        }
+        #endregion "MiddleButton"
+        #region "LeftButton"
+        private void Nodeleftbutton_Click(object sender, EventArgs e)
+        {
+            BeepMouseEventArgs args = new BeepMouseEventArgs("LeftClick", this);
+            NodeLeftClicked?.Invoke(this, args);
+        }
         private void Nodeleftbutton_MouseEnter(object sender, EventArgs e)
         {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeleftbuttonMouseEnter", this);
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseEnter", this);
             NodeMouseEnter?.Invoke(this, args);
         }
         private void Nodeleftbutton_MouseLeave(object sender, EventArgs e)
         {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeleftbuttonMouseLeave", this);
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseLeave", this);
             NodeMouseLeave?.Invoke(this, args);
         }
         private void Nodeleftbutton_MouseHover(object sender, EventArgs e)
         {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeleftbuttonMouseHover", this);
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseHover", this);
             NodeMouseHover?.Invoke(this, args);
         }
         private void Nodeleftbutton_MouseWheel(object sender, EventArgs e)
         {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeleftbuttonMouseWheel", this);
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseWheel", this);
             NodeMouseWheel?.Invoke(this, args);
         }
         private void Nodeleftbutton_MouseUp(object sender, EventArgs e)
         {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeleftbuttonMouseUp", this);
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseUp", this);
             NodeMouseUp?.Invoke(this, args);
         }
         private void Nodeleftbutton_MouseDown(object sender, EventArgs e)
         {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeleftbuttonMouseDown", this);
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseDown", this);
             NodeMouseDown?.Invoke(this, args);
         }
         private void Nodeleftbutton_MouseMove(object sender, EventArgs e)
         {
-            BeepEventDataArgs args = new BeepEventDataArgs("NodeleftbuttonMouseMove", this);
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseMove", this);
             NodeMouseMove?.Invoke(this, args);
+        }
+        #endregion  "LeftButton"
+        #region "RightButton"
+        private void Noderightbutton_Click(object sender, EventArgs e)
+        {
+            BeepMouseEventArgs args = new BeepMouseEventArgs("Right", this);
+            NodeRightClicked?.Invoke(this, args);
+
         }
         private void Noderightbutton_MouseEnter(object sender, EventArgs e)
         {
-            BeepEventDataArgs args = new BeepEventDataArgs("NoderightbuttonMouseEnter", this);
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseEnter", this);
             NodeMouseEnter?.Invoke(this, args);
         }
         private void Noderightbutton_MouseLeave(object sender, EventArgs e)
         {
-            BeepEventDataArgs args = new BeepEventDataArgs("NoderightbuttonMouseLeave", this);
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseLeave", this);
             NodeMouseLeave?.Invoke(this, args);
         }
         private void Noderightbutton_MouseHover(object sender, EventArgs e)
         {
-            BeepEventDataArgs args = new BeepEventDataArgs("NoderightbuttonMouseHover", this);
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseHover", this);
             NodeMouseHover?.Invoke(this, args);
         }
         private void Noderightbutton_MouseWheel(object sender, EventArgs e)
         {
-            BeepEventDataArgs args = new BeepEventDataArgs("NoderightbuttonMouseWheel", this);
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseWheel", this);
             NodeMouseWheel?.Invoke(this, args);
         }
         private void Noderightbutton_MouseUp(object sender, EventArgs e)
         {
-            BeepEventDataArgs args = new BeepEventDataArgs("NoderightbuttonMouseUp", this);
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseUp", this);
             NodeMouseUp?.Invoke(this, args);
         }
         private void Noderightbutton_MouseDown(object sender, EventArgs e)
         {
-            BeepEventDataArgs args = new BeepEventDataArgs("NoderightbuttonMouseDown", this);
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseDown", this);
             NodeMouseDown?.Invoke(this, args);
         }
         private void Noderightbutton_MouseMove(object sender, EventArgs e)
         {
-            BeepEventDataArgs args = new BeepEventDataArgs("NoderightbuttonMouseMove", this);
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseMove", this);
             NodeMouseMove?.Invoke(this, args);
         }
-
+        #endregion "RightButton"
         #endregion "Events Methods"
         #region "Painting Methods"
         int startx = 0;
@@ -764,7 +781,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             starty = DrawingRect.Top;
             IsExpanded=false;
             NodeWidth = DrawingRect.Width;
-            NodeHeight = DrawingRect.Height;
            // LogMessage($"init2");
             _checkBox = new BeepCheckBox
             {
@@ -819,16 +835,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // this.Height = DrawingRect.Height; ;
                 //  this.Width = DrawingRect.Width;
                 //  _childrenPanel.Width = cachedWidth;
-                NodeHeight=cachedHeight;
+                
                 int toggelbuttonsize = 14;
-                if (MaxImageSize == 0)
-                {
-                    MaxImageSize = NodeHeight-2;
-                }
-                if(MaxImageSize >= NodeHeight)
-                {
-                    NodeHeight = NodeHeight + 2;
-                }
+               
                
                 int startx = padding; // Horizontal start point
                 int centerY = (NodeHeight - MaxImageSize) / 2; // Center alignment for small buttons
@@ -946,11 +955,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Raise appropriate events without modifying SelectedNodes directly.
                 if (IsSelected)
                 {
-                    NodeSelected?.Invoke(this, new BeepEventDataArgs("NodeSelected", this));
+                    NodeSelected?.Invoke(this, new BeepMouseEventArgs("NodeSelected", this));
                 }
                 else
                 {
-                    NodeDeselected?.Invoke(this, new BeepEventDataArgs("NodeDeselected", this));
+                    NodeDeselected?.Invoke(this, new BeepMouseEventArgs("NodeDeselected", this));
                 }
             }
         }
@@ -1095,9 +1104,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     NodeMainMiddlebutton.ImagePath = _imageKey;
                 }
+              //  NodeMainMiddlebutton.PopupMode = true;
                 NodeMainMiddlebutton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
                 NodeMainMiddlebutton.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-                NodeMainMiddlebutton.UseScaledFont = false;
+                NodeMainMiddlebutton.UseScaledFont = true;
                 NodeMainMiddlebutton.IsChild = true;
                 NodeMainMiddlebutton.IsFramless = true;
                 NodeMainMiddlebutton.IsRounded = false;
@@ -1107,7 +1117,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                // NodeMainMiddlebutton.Size = new System.Drawing.Size(NodeWidth - 2 * NodeHeight, NodeHeight);
                 //   NodeMainMiddlebutton.Font=BeepThemesManager.ToFont(_currentTheme.LabelSmall);
 
-
+              //  NodeMainMiddlebutton.
                 NodeMainMiddlebutton.Click += NodeMainMiddlebutton_Click;
                 NodeMainMiddlebutton.DoubleClick += NodeMainMiddlebutton_DoubleClick;
                 NodeMainMiddlebutton.MouseEnter += NodeMainMiddlebutton_MouseEnter;
@@ -1139,6 +1149,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsRounded = false,
                 MaxImageSize = new System.Drawing.Size(SmallNodeHeight - 2, SmallNodeHeight - 2),
                 Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall),
+                UseScaledFont = true,
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-minus.svg"
             };
 
@@ -1769,10 +1780,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion "Filter and Find"
-
-        private void RaiseEvent(EventHandler<BeepEventDataArgs> handler, string eventName)
+        #region "Menu "
+        public void ShowContextMenu(MenuList menuList)
         {
-            handler?.Invoke(this, new BeepEventDataArgs(eventName, this));
+            NodeMainMiddlebutton.ListItems.Clear();
+            //foreach (var item1 in menuList.Items)
+            //{
+            //    // add as listitem   CurrentMenutems.Add(new SimpleItem { Text = "Profile", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg" });
+            //    SimpleItem listitem = new SimpleItem { Text = item1.Text, ImagePath = item1.imagename, AssemblyClassDefinitionID = item1.ClassDefinitionID, GuidId = item1.ID };
+            //    NodeMainMiddlebutton.CurrentMenutems.Add(listitem);
+
+            //}
+            //Tree.
+            BeepMouseEventArgs args = new BeepMouseEventArgs("ShowBeepMenu", this);
+            ShowMenu?.Invoke(this, args);
+        }
+        #endregion "Menu"
+        private void RaiseEvent(EventHandler<BeepMouseEventArgs> handler, string eventName)
+        {
+            handler?.Invoke(this, new BeepMouseEventArgs(eventName, this));
         }
 
         // Example usage:

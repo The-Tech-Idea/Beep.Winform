@@ -1542,7 +1542,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnMouseMove(e);
 
         }
-
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
@@ -1560,19 +1559,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnGotFocus(e);
             // Invalidate();
         }
-
         protected override void OnLostFocus(EventArgs e)
         {
             IsFocused = false;
             base.OnLostFocus(e);
             // Invalidate();
         }
-
         protected override void OnClick(EventArgs e)
         {
-            IsPressed = true;
+           
+          
             base.OnClick(e);
-            IsPressed = false;
+          
             //  Invalidate();
         }
         protected override void OnMouseDown(MouseEventArgs e)
@@ -1585,7 +1583,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsFocused = true;
 
             }
-            IsPressed = false;
+            
             // Invalidate();
         }
         protected override void OnMouseUp(MouseEventArgs e)

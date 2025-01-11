@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
 {
+    [ToolboxItem(false)]
     public class BeepDataGridViewSwitchColumn : DataGridViewColumn
     {
         public BeepDataGridViewSwitchColumn() : base(new DataGridViewSwitchCell())

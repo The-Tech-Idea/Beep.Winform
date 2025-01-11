@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.DataBase;
@@ -13,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewC
         Query,
         List
     }
-
+    [ToolboxItem(false)]
     public class BeepDataGridViewComboBoxColumn : System.Windows.Forms.DataGridViewComboBoxColumn
     {
         public string ParentColumn { get; set; } // The parent column for cascading
@@ -163,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewC
             }
         }
     }
-
+    [ToolboxItem(false)]
     public class DataGridViewExtendedComboBoxEditingControl : ComboBox, IDataGridViewEditingControl
     {
         private DataGridView _dataGridView;

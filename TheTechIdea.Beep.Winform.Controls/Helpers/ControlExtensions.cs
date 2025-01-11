@@ -257,26 +257,58 @@ public static class ControlExtensions
     public static BindingList<SimpleItem> GetBranchs(this ITree tree,IDMEEditor DMEEditor)
     {
         BindingList<SimpleItem> simpleItems = new BindingList<SimpleItem>();
-        tree.CreateTreeTuple(DMEEditor);
-        foreach (var item in tree.GenerBranchs)
+        var res=  tree.CreateTreeTuple(DMEEditor);
+        tree.GenerBranchs = res.Item2;
+        tree.Branches = res.Item1;
+        foreach (var item in res.Item2)
         {
             SimpleItem node = new SimpleItem();
             IBranch br = item.Item1;
             node.Text = br.BranchText;
             node.Name = br.Name;
             node.Id = br.ID; 
-            node.ImagePath = br.IconImageName;
+            node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
             node.GuidId = br.GuidID;
             node.ParentID = 0;
             node.Children = new BindingList<SimpleItem>();
             node.Children = GetChildBranch(tree, br);
-            MethodHandler.CreateMenuMethods(br);
+            DynamicMenuManager.CreateMenuMethods(tree.DMEEditor,br);
             if (br.ObjectType != null && br.BranchClass != null)
             {
-                MethodHandler.CreateGlobalMenu(br);
+                DynamicMenuManager.CreateGlobalMenu(tree.DMEEditor, br);
             }
             simpleItems.Add(node);
         }
+        
+        return simpleItems;
+    }
+    public static BindingList<SimpleItem> GetBranchs(this ITree tree, Tuple<List<IBranch>, List<Tuple<IBranch, string>>> res)
+    {
+        BindingList<SimpleItem> simpleItems = new BindingList<SimpleItem>();
+        foreach (var item in res.Item2)
+        {
+            SimpleItem node = new SimpleItem();
+            IBranch br = item.Item1;
+            node.Text = br.BranchText;
+            node.Name = br.Name;
+            node.Id = br.ID;
+            node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
+            node.GuidId = br.GuidID;
+            node.ParentID = 0;
+            node.ObjectType = br.ObjectType;
+            node.BranchClass = br.BranchClass;
+            node.BranchType = br.BranchType;
+            node.AssemblyClassDefinitionID = br.MiscStringID; ;
+            node.Children = new BindingList<SimpleItem>();
+            node.Children = GetChildBranch(tree, br);
+            DynamicMenuManager.CreateMenuMethods(tree.DMEEditor,br);
+            if (br.ObjectType != null && br.BranchClass != null)
+            {
+                DynamicMenuManager.CreateGlobalMenu(tree.DMEEditor, br);
+            }
+            simpleItems.Add(node);
+        }
+
         return simpleItems;
     }
     public static BindingList<SimpleItem> GetChildBranch(this ITree tree,IBranch br)
@@ -288,14 +320,18 @@ public static class ControlExtensions
             node1.Text = item1.BranchText;
             node1.Name = item1.Name;
             node1.Id = item1.ID;
-            node1.ImagePath = item1.IconImageName;
+            node1.ImagePath = ImageListHelper.GetImagePathFromName(item1.IconImageName);
             node1.GuidId = item1.GuidID;
+            node1.ObjectType = br.ObjectType;
+            node1.BranchClass = br.BranchClass;
+            node1.BranchType = br.BranchType;
+            node1.AssemblyClassDefinitionID = br.MiscStringID; ;
             node1.ParentID = item1.ParentBranchID;
             node1.Children = new BindingList<SimpleItem>();
-            CreateMenuMethods(tree,br);
+            DynamicMenuManager.CreateMenuMethods(tree.DMEEditor, br);
             if (br.ObjectType != null && br.BranchClass != null)
             {
-                CreateGlobalMenu(tree,br);
+                DynamicMenuManager.CreateGlobalMenu(tree.DMEEditor, br);
             }
             Childitems.Add(node1);
             if (item1.ChildBranchs.Count > 0)
@@ -307,13 +343,12 @@ public static class ControlExtensions
     }
     public static BindingList<SimpleItem> AddBranchToTree(this ITree tree, SimpleItem parent,SimpleItem child,IBranch br)
     {
-      
-       CreateMenuMethods(tree, br);
-       CreateGlobalMenu(tree, br);
+
+        DynamicMenuManager.CreateMenuMethods(tree.DMEEditor, br);
+        DynamicMenuManager.CreateGlobalMenu(tree.DMEEditor, br);
         parent.Children.Add(child);
         return parent.Children;
     }
-
     public static Tuple <List<IBranch>,List<Tuple<IBranch, string>>> CreateTreeTuple(this ITree tree, IDMEEditor DMEEditor)
     {
         var Branches = new List<IBranch>();
@@ -385,7 +420,7 @@ public static class ControlExtensions
                             br.BranchID = id;
                             br.BranchText = cls.classProperties.Caption;
                             br.DMEEditor = DMEEditor;
-                            Genrebr.MiscStringID = cls.GuidID;
+                            br.MiscStringID = cls.GuidID;
                             if (cls.classProperties.ObjectType != null)
                             {
 
@@ -399,28 +434,18 @@ public static class ControlExtensions
                                 if (Genrebr != null)
                                 {
                                     Genrebr.ChildBranchs.Add(br);
-                                    if (br.ObjectType != null && br.BranchClass != null)
-                                    {
-                                        // Console.WriteLine($"{CreateNode}- br.BranchText");
-                                      //  CreateMenuMethods(br);
-                                    //    CreateGlobalMenu(br);
-
-                                    }
-                                  //  br.CreateChildNodes();
-
                                 }
                                 else
                                 {
                                     br.ParentBranch = null;
                                     br.ParentBranchID = -1;
                                     br.ParentGuidID = string.Empty;
-                                  //  CreateNode(id, br);
-                                  //  br.CreateChildNodes();
                                 }
 
                             }
 
                         }
+                        Branches.Add(br);
                     }
                     catch (Exception ex)
                     {
@@ -783,6 +808,21 @@ public static class ControlExtensions
 
         return retval;
     }
+    public static List<SimpleItem> GetMenuItemsList(this ITree tree, string brGuidID)
+    {
+        IBranch br = tree.Branches.Where(p => p.GuidID == brGuidID).FirstOrDefault();
+        List<SimpleItem> retval = new List<SimpleItem>();
+        var ls = tree.Menus.Where(p => p.ObjectType != null && p.BranchClass.Equals(br.BranchClass, StringComparison.InvariantCultureIgnoreCase)
+            && p.ObjectType.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase)
+            && p.PointType == br.BranchType).FirstOrDefault();
+       
+        foreach (var item1 in ls.Items)
+        {
+            SimpleItem listitem = new SimpleItem { Text = item1.Text, ImagePath = item1.imagename, AssemblyClassDefinitionID = item1.ClassDefinitionID, GuidId = item1.ID };
+            retval.Add(listitem);
+        }
+        return retval;
+    }
     public static IErrorsInfo CreateGlobalMenu(this ITree tree,IBranch br)
     {
         try
@@ -925,7 +965,7 @@ public static class ControlExtensions
         if (br != null)
         {
             string clicks = "";
-            if (e.Button == BeepMouseButtons.Right)
+            if (e.Button == BeepMouseEventArgs.BeepMouseButtons.Right)
             {
                 if (tree.IsMenuCreated(br))
                 {
@@ -1013,6 +1053,32 @@ public static class ControlExtensions
             tree.DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
         };
         return tree.DMEEditor.ErrorObject;
+    }
+    public static ContextMenuStrip CreateContextMenu(this ITree tree, IBranch br)
+    {
+        ContextMenuStrip nodemenu = new ContextMenuStrip();
+        try
+        {
+            if (br != null)
+            {
+                if (tree.IsMenuCreated(br))
+                {
+                    MenuList menuList = tree.GetMenuList(br);
+                    foreach (MenuItem item in menuList.Items)
+                    {
+                        ToolStripItem st = nodemenu.Items.Add(item.Text);
+                        st.Tag = item;
+                       // st.Click += tree.Nodemenu_ItemClicked;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            string mes = $"Could not add method from Extension {br.Name} to menu ";
+            tree.DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+        };
+        return nodemenu;
     }
     #endregion "ITree Extensions"
     public static IErrorsInfo CreateFunctionExtensions(this ITree tree,MethodsClass item)

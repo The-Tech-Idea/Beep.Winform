@@ -2,8 +2,10 @@
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
+using System.ComponentModel;
 namespace TheTechIdea.Beep.Winform.Controls.Wait
 {
+    [ToolboxItem(false)]
     public partial class BeepWait : Form, IWaitForm
     {
 

@@ -72,6 +72,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public  string KeyCombination { get; set; } //KeyCombination
         public string AssemblyClassDefinitionID { get; set; }
         public string ClassDefinitionID { get; set; }
+        public string PackageName { get; set; }
         public string BranchID { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
@@ -103,7 +104,6 @@ namespace TheTechIdea.Beep.Desktop.Common
         public string BranchClass { get; set; }
         public string BranchName { get; set; }
 
-        public List<string> ClassDefinitionsIDs { get; set; } = new List<string>(); // use AssemblyClassDefinition GuidID
     }
     public class SimpleMenuList
     {
@@ -125,8 +125,6 @@ namespace TheTechIdea.Beep.Desktop.Common
         public string ObjectType { get; set; }
         public string BranchClass { get; set; }
         public string BranchName { get; set; }
-
-        public List<string> ClassDefinitionsIDs { get; set; } = new List<string>(); // use AssemblyClassDefinition GuidID
         public EnumPointType BranchType { get; }
     }
 

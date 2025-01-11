@@ -117,10 +117,8 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // Add methods to the menu if they are not already present
-                if (!menuCollection.ClassDefinitionsIDs.Any(p => p.Equals(cls.PackageName, StringComparison.InvariantCultureIgnoreCase)))
+                if (!menuCollection.Items.Any(p => p.PackageName.Equals(cls.PackageName, StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    menuCollection.ClassDefinitionsIDs.Add(cls.PackageName);
-
                     foreach (var item in cls.Methods.Where(y => !y.Hidden))
                     {
                         // Create a new menu item for each method
@@ -133,8 +131,9 @@ namespace TheTechIdea.Beep.Desktop.Common
                             BranchClass = item.ClassType,
                             PointType = item.PointType,
                             Category = item.Category,
-                            ImagePath = ImageListHelper.GetImagePathFromName( item.iconimage),
-                            Value = item.CommandAttr
+                            BranchName = item.Name,
+                            PackageName = cls.PackageName,
+                            ImagePath = ImageListHelper.GetImagePathFromName(item.iconimage)
                         };
 
                         // Add the new item to the menu
@@ -175,25 +174,49 @@ namespace TheTechIdea.Beep.Desktop.Common
 
                 foreach (var cls in extensions)
                 {
-                    if (!menuCollection.ClassDefinitionsIDs.Contains(cls.PackageName, StringComparer.InvariantCultureIgnoreCase))
+                    if (!menuCollection.Items.Any(p => p.PackageName.Equals(cls.PackageName, StringComparison.InvariantCultureIgnoreCase)))
                     {
-                        menuCollection.ClassDefinitionsIDs.Add(cls.PackageName);
                         foreach (var item in cls.Methods)
                         {
-                            if (item.PointType == br.BranchType &&
-                                (string.IsNullOrEmpty(item.ClassType) || br.BranchClass.Equals(item.ClassType, StringComparison.InvariantCultureIgnoreCase)))
+                            if (string.IsNullOrEmpty(item.ClassType))
                             {
-                                menuCollection.Items.Add(new SimpleItem
+                                if (item.PointType == br.BranchType)
                                 {
-                                    Name = item.Caption,
-                                    MethodName = item.Name,
-                                    Text = item.Caption,
-                                    ObjectType = item.ObjectType,
-                                    BranchClass = item.ClassType,
-                                    PointType = item.PointType,
-                                    Value = item.CommandAttr,
-                                    ImagePath = item.iconimage
-                                });
+                                    menuCollection.Items.Add(new SimpleItem
+                                    {
+                                        Name = item.Caption,
+                                        MethodName = item.Name,
+                                        Text = item.Caption,
+                                        ObjectType = item.ObjectType,
+                                        BranchClass = item.ClassType,
+                                        PointType = item.PointType,
+                                        Value = item.CommandAttr,
+                                        BranchName = item.Name,
+                                        PackageName = cls.PackageName,
+                                        ImagePath = ImageListHelper.GetImagePathFromName(item.iconimage)
+
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                if (item.PointType == br.BranchType && br.BranchClass.Equals(item.ClassType, StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    menuCollection.Items.Add(new SimpleItem
+                                    {
+                                        Name = item.Caption,
+                                        MethodName = item.Name,
+                                        Text = item.Caption,
+                                        ObjectType = item.ObjectType,
+                                        BranchClass = item.ClassType,
+                                        PointType = item.PointType,
+                                        Value = item.CommandAttr,
+                                        BranchName = item.Name,
+                                        PackageName = cls.PackageName,
+                                        ImagePath = ImageListHelper.GetImagePathFromName(item.iconimage)
+
+                                    });
+                                }
                             }
                         }
                     }

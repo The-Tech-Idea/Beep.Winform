@@ -276,7 +276,7 @@ namespace Beep.Config.Winform.DataConnections
             // comboBox1
             // 
             comboBox1.DataBindings.Add(new Binding("SelectedValue", dataConnectionsBindingSource, "OracleSIDorService", true));
-            comboBox1.DataBindings.Add(new Binding("SelectedItem", dataConnectionsBindingSource, "OracleSIDorService", true));
+            comboBox1.DataBindings.Add(new Binding("SelectedMenuItem", dataConnectionsBindingSource, "OracleSIDorService", true));
             comboBox1.FormattingEnabled = true;
             comboBox1.ItemHeight = 23;
             comboBox1.Items.AddRange(new object[] { "SID", "SERVICE_NAME" });

@@ -12,6 +12,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         string CategoryIcon { get; set; }
         string SelectIcon { get; set; }
         string TreeType { get; set; }
+        string ObjectType { get; set; }
         IBranch CurrentBranch { get; set; }
         IDMEEditor DMEEditor { get; set; }
         List<int> SelectedBranchs { get; set; }

@@ -219,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                         case Type type when type.IsEnum:
                             inputControl = new ComboBox();
                             ((ComboBox)inputControl).DataSource = Enum.GetValues(type);
-                            ((ComboBox)inputControl).DataBindings.Add(new Binding("SelectedItem", Ts, field.fieldname, true, DataSourceUpdateMode.OnPropertyChanged));
+                            ((ComboBox)inputControl).DataBindings.Add(new Binding("SelectedMenuItem", Ts, field.fieldname, true, DataSourceUpdateMode.OnPropertyChanged));
                             break;
                         case Type type when type == typeof(Guid):
                             inputControl = new TextBox();
@@ -461,7 +461,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                     case Type type when type.IsEnum:
                         inputControl = new ComboBox();
                         ((ComboBox)inputControl).DataSource = Enum.GetValues(type);
-                        ((ComboBox)inputControl).DataBindings.Add(new Binding("SelectedItem", bindingSource, field.fieldname, true, DataSourceUpdateMode.OnPropertyChanged));
+                        ((ComboBox)inputControl).DataBindings.Add(new Binding("SelectedMenuItem", bindingSource, field.fieldname, true, DataSourceUpdateMode.OnPropertyChanged));
                         break;
                     case Type type when type == typeof(Guid):
                         inputControl = new TextBox();

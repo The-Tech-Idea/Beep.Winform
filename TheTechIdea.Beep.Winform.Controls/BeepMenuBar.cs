@@ -129,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             items.ListChanged += Items_ListChanged;
             this.Invalidated += BeepListBox_Invalidated;
             _popupForm = new BeepPopupForm();
-            BoundProperty = "SelectedItem";
+            BoundProperty = "SelectedMenuItem";
             IsFramless = true;
             IsRounded = false;
             InitMenu();
@@ -163,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             maindropdownmenu.Top = this.Bottom;
             maindropdownmenu.Left = this.Left;
             maindropdownmenu.Visible = false;
-            maindropdownmenu.BoundProperty = "SelectedItem";
+            maindropdownmenu.BoundProperty = "SelectedMenuItem";
             maindropdownmenu.SelectedIndexChanged += Maindropdownmenu_SelectedIndexChanged;
             this.Controls.Add(maindropdownmenu);
 

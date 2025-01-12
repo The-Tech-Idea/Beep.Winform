@@ -77,6 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView
         public TreeNode SelectedNode { get; set; }
         public int StartselectBranchID { get; set; }
         public Color SelectBackColor { get; set; }
+        
         public List<MenuList> Menus { get; set; } = new List<MenuList>();
         public List<int> SelectedBranchs { get; set; } = new List<int>();
         public TreeNodeDragandDropHandler treeNodeDragandDropHandler { get; set; }

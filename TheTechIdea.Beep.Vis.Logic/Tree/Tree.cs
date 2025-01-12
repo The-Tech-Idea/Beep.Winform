@@ -34,6 +34,7 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
         public string TreeType { get; set; }="Beep";
         public IBranch CurrentBranch { get; set; }
         public IDMEEditor DMEEditor { get; set; }
+        public string ObjectType { get; set; }= "Beep";
         public List<int> SelectedBranchs { get; set; } = new List<int>();
         public PassedArgs args { get; set; }
         int _Seqid = 0;

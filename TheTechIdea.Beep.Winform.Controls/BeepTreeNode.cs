@@ -4,7 +4,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Winform.Controls.Properties;
-using static TheTechIdea.Beep.Winform.Controls.Native.WinApi;
+
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -102,6 +102,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int childnodesSeq = 0;
 
         private bool _ischildDrawn = false;
+        private ContentAlignment textAlign= ContentAlignment.MiddleLeft;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        public ContentAlignment TextAlignment
+        {
+            get => textAlign;
+            set
+            {
+                textAlign = value;
+                ChangeTextAlignment();
+                Invalidate();
+            }
+        }
         public string GuidID
         {
             get { return _guidid; }
@@ -851,8 +865,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_toggleButton != null)
                 {
                     _toggleButton.Location = new Point(startx, (NodeHeight - toggelbuttonsize) / 2); // Center vertically
-                    _toggleButton.Size = new Size(NodeHeight, NodeHeight);
-                    _toggleButton.MaxImageSize =new Size(toggelbuttonsize, toggelbuttonsize);
+                    _toggleButton.Size = new Size(toggelbuttonsize, toggelbuttonsize);
+                    _toggleButton.MaxImageSize =new Size(toggelbuttonsize-1, toggelbuttonsize-1);
                     startx += _toggleButton.Width + padding;
                 }
 
@@ -1106,7 +1120,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
               //  NodeMainMiddlebutton.PopupMode = true;
                 NodeMainMiddlebutton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-                NodeMainMiddlebutton.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+                NodeMainMiddlebutton.TextAlign = TextAlignment;
                 NodeMainMiddlebutton.UseScaledFont = true;
                 NodeMainMiddlebutton.IsChild = true;
                 NodeMainMiddlebutton.IsFramless = true;
@@ -1209,13 +1223,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void ToggleExpansion()
         {
+            
             if (_toggleButton != null)
             {
                 _toggleButton.ImagePath = _isExpanded ? "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-minus.svg" : "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-plus.svg";
             }
             else return;
-            RearrangeNode();
-            //Tree?.RearrangeTree();
+            if (Nodes.Count > 0)
+            {
+                Tree?.RearrangeTree();
+            }
+         //   RearrangeNode();
+           
         }
         #endregion "Painting Methods"
         #region "Theme Methods"
@@ -1800,10 +1819,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             handler?.Invoke(this, new BeepMouseEventArgs(eventName, this));
         }
-
         // Example usage:
-      
-
+        private void ChangeTextAlignment()
+        {
+            NodeMainMiddlebutton.TextAlign = textAlign;
+            // change all text alignment of all nodes
+            foreach (var node in  _childrenPanel.Controls)
+            {
+                if (node is BeepTreeNode)
+                {
+                    BeepTreeNode n = (BeepTreeNode)node;
+                    n.TextAlignment = textAlign;
+                }
+            }
+        }
         private void LogMessage(string message)
         {
             try

@@ -127,5 +127,14 @@ namespace TheTechIdea.Beep.Desktop.Common
         public string BranchName { get; set; }
         public EnumPointType BranchType { get; }
     }
+    public class SelectedItemChangedEventArgs : EventArgs
+    {
+        public SimpleItem SelectedItem { get; }
+
+        public SelectedItemChangedEventArgs(SimpleItem selectedItem)
+        {
+            SelectedItem = selectedItem;
+        }
+    }
 
 }

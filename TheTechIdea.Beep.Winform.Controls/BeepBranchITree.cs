@@ -26,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DMEEditor=services.DMEEditor; 
         }
         #region "Properties"
+        public string ObjectType { get; set; } = "Beep";
         public string CategoryIcon { get; set; }= "folder";
         public string SelectIcon { get; set; } = "select";
         public string TreeType { get; set; }

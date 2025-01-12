@@ -9,13 +9,11 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
-using TheTechIdea.Beep.Winform.Controls.Managers;
 using static TheTechIdea.Beep.Utilities.Util;
 using TheTechIdea.Beep.Addin;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Xml.Linq;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
+
 
 namespace TheTechIdea.Beep.Winform.Controls.Helpers;
 public static class ControlExtensions
@@ -269,6 +267,7 @@ public static class ControlExtensions
             node.Id = br.ID; 
             node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
             node.GuidId = br.GuidID;
+            node.PointType = br.BranchType;
             node.ParentID = 0;
             node.Children = new BindingList<SimpleItem>();
             node.Children = GetChildBranch(tree, br);
@@ -279,7 +278,25 @@ public static class ControlExtensions
             }
             simpleItems.Add(node);
         }
-        
+        foreach (var item in tree.Branches.Where(p=>p.BranchType== EnumPointType.Root))
+        {
+            SimpleItem node = new SimpleItem();
+            IBranch br = item;
+            node.Text = br.BranchText;
+            node.Name = br.Name;
+            node.Id = br.ID;
+            node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
+            node.GuidId = br.GuidID;
+            node.ParentID = 0;
+            node.Children = new BindingList<SimpleItem>();
+            node.Children = GetChildBranch(tree, br);
+            DynamicMenuManager.CreateMenuMethods(tree.DMEEditor, br);
+            if (br.ObjectType != null && br.BranchClass != null)
+            {
+                DynamicMenuManager.CreateGlobalMenu(tree.DMEEditor, br);
+            }
+            simpleItems.Add(node);
+        }
         return simpleItems;
     }
     public static BindingList<SimpleItem> GetBranchs(this ITree tree, Tuple<List<IBranch>, List<Tuple<IBranch, string>>> res)
@@ -298,6 +315,7 @@ public static class ControlExtensions
             node.ObjectType = br.ObjectType;
             node.BranchClass = br.BranchClass;
             node.BranchType = br.BranchType;
+            node.PointType = br.BranchType;
             node.AssemblyClassDefinitionID = br.MiscStringID; ;
             node.Children = new BindingList<SimpleItem>();
             node.Children = GetChildBranch(tree, br);
@@ -308,7 +326,27 @@ public static class ControlExtensions
             }
             simpleItems.Add(node);
         }
-
+        foreach (var item in tree.Branches.Where(p => p.BranchType == EnumPointType.Root && p.ParentBranch==null))
+        {
+            SimpleItem node = new SimpleItem();
+            IBranch br = item;
+            node.Text = br.BranchText;
+            node.Name = br.Name;
+            node.Id = br.ID;
+            node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
+            node.GuidId = br.GuidID;
+            node.PointType = br.BranchType;
+            node.ParentID = 0;
+            node.Children = new BindingList<SimpleItem>();
+            node.Children = GetChildBranch(tree, br);
+            DynamicMenuManager.CreateMenuMethods(tree.DMEEditor, br);
+            if (br.ObjectType != null && br.BranchClass != null)
+            {
+                DynamicMenuManager.CreateGlobalMenu(tree.DMEEditor, br);
+            }
+            simpleItems.Add(node);
+        }
+        
         return simpleItems;
     }
     public static BindingList<SimpleItem> GetChildBranch(this ITree tree,IBranch br)
@@ -322,24 +360,62 @@ public static class ControlExtensions
             node1.Id = item1.ID;
             node1.ImagePath = ImageListHelper.GetImagePathFromName(item1.IconImageName);
             node1.GuidId = item1.GuidID;
-            node1.ObjectType = br.ObjectType;
-            node1.BranchClass = br.BranchClass;
-            node1.BranchType = br.BranchType;
-            node1.AssemblyClassDefinitionID = br.MiscStringID; ;
-            node1.ParentID = item1.ParentBranchID;
+            node1.ObjectType = item1.ObjectType;
+            node1.BranchClass = item1.BranchClass;
+            node1.BranchType = item1.BranchType;
+            node1.PointType = item1.BranchType;
+            node1.AssemblyClassDefinitionID = item1.MiscStringID; ;
+            node1.ParentID = br.ID;
             node1.Children = new BindingList<SimpleItem>();
-            DynamicMenuManager.CreateMenuMethods(tree.DMEEditor, br);
+            node1.Children = GetChildBranch(tree, item1);
+            DynamicMenuManager.CreateMenuMethods(tree.DMEEditor, item1);
             if (br.ObjectType != null && br.BranchClass != null)
             {
-                DynamicMenuManager.CreateGlobalMenu(tree.DMEEditor, br);
+                DynamicMenuManager.CreateGlobalMenu(tree.DMEEditor, item1);
             }
             Childitems.Add(node1);
-            if (item1.ChildBranchs.Count > 0)
-            {
-                GetChildBranch(tree, item1);
-            }
         }
         return Childitems;
+    }
+    public static BindingList<SimpleItem> GetSimpleItemsFromExecuteCreateChildsMethods(this ITree tree, IBranch br)
+    {
+        BindingList<SimpleItem> Childitems = new BindingList<SimpleItem>();
+        IErrorsInfo retval = new ErrorsInfo();
+        try
+        { 
+            br.CreateChildNodes();
+            Childitems= GetChildBranch(tree, br);
+            retval.Flag = Errors.Ok;
+            retval.Message = "Childs Created";
+        }
+        catch (Exception ex)
+        {
+            retval.Flag = Errors.Failed;
+            retval.Message = ex.Message;
+        }
+        return Childitems;
+    }
+    public static IErrorsInfo AddBranch(this ITree tree, IBranch ParentBranch, IBranch Branch)
+    {
+        IErrorsInfo retval = new ErrorsInfo();
+        try
+        {
+            ParentBranch.ChildBranchs.Add(Branch);
+            Branch.ParentBranch = ParentBranch;
+            Branch.ParentBranchID = ParentBranch.ID;
+            Branch.ParentGuidID = ParentBranch.GuidID;
+            Branch.DMEEditor = tree.DMEEditor;
+            SimpleItem item= tree.CreateNode(Branch.ID, Branch);
+           
+            retval.Flag = Errors.Ok;
+            retval.Message = "Branch Added";
+        }
+        catch (Exception ex)
+        {
+            retval.Flag = Errors.Failed;
+            retval.Message = ex.Message;
+        }
+        return retval;
     }
     public static BindingList<SimpleItem> AddBranchToTree(this ITree tree, SimpleItem parent,SimpleItem child,IBranch br)
     {
@@ -347,6 +423,30 @@ public static class ControlExtensions
         DynamicMenuManager.CreateMenuMethods(tree.DMEEditor, br);
         DynamicMenuManager.CreateGlobalMenu(tree.DMEEditor, br);
         parent.Children.Add(child);
+        return parent.Children;
+    }
+    public static BindingList<SimpleItem> AddBranchToTree(this ITree tree, SimpleItem parent, IBranch br)
+    {
+        br.CreateChildNodes();
+        SimpleItem node = new SimpleItem();
+        node.Text = br.BranchText;
+        node.Name = br.Name;
+        node.Id = br.ID;
+        node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
+        node.GuidId = br.GuidID;
+        node.ParentID = parent.Id;
+        node.ObjectType = br.ObjectType;
+        node.BranchClass = br.BranchClass;
+        node.BranchType = br.BranchType;
+        node.AssemblyClassDefinitionID = br.MiscStringID; ;
+        node.Children = new BindingList<SimpleItem>();
+        node.Children = GetChildBranch(tree, br);
+        DynamicMenuManager.CreateMenuMethods(tree.DMEEditor, br);
+        if (br.ObjectType != null && br.BranchClass != null)
+        {
+            DynamicMenuManager.CreateGlobalMenu(tree.DMEEditor, br);
+        }
+        parent.Children.Add(node);
         return parent.Children;
     }
     public static Tuple <List<IBranch>,List<Tuple<IBranch, string>>> CreateTreeTuple(this ITree tree, IDMEEditor DMEEditor)
@@ -389,6 +489,16 @@ public static class ControlExtensions
                                // CreateNode(id, Genrebr);
                                 //else CreateNode(id, Genrebr);
                                 Genrebr.MiscStringID = GenreBrAssembly.GuidID;
+                           
+                                try
+                                {
+                                    Genrebr.SetConfig(tree, tree.DMEEditor, Genrebr.ParentBranch, Genrebr.BranchText, Genrebr.ID, Genrebr.BranchType, null);
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
+                              //  Genrebr.CreateChildNodes();
                                 GenerBranchs.Add(new Tuple<IBranch, string>(Genrebr, GenreBrAssembly.classProperties.menu));
                             }
                         }
@@ -433,6 +543,15 @@ public static class ControlExtensions
                                     Genrebr = null;
                                 if (Genrebr != null)
                                 {
+                                    try
+                                    {
+                                        br.ParentBranch = Genrebr;
+                                        br.SetConfig(tree, tree.DMEEditor, Genrebr, br.BranchText, br.ID, br.BranchType, null);
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
                                     Genrebr.ChildBranchs.Add(br);
                                 }
                                 else
@@ -440,12 +559,21 @@ public static class ControlExtensions
                                     br.ParentBranch = null;
                                     br.ParentBranchID = -1;
                                     br.ParentGuidID = string.Empty;
+                                    try
+                                    {
+                                        br.ParentBranch = Genrebr;
+                                        br.SetConfig(tree, tree.DMEEditor, br.ParentBranch, br.BranchText, br.ID, br.BranchType, null);
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
                                 }
 
                             }
-
+                          //  br.CreateChildNodes();
+                            Branches.Add(br);
                         }
-                        Branches.Add(br);
                     }
                     catch (Exception ex)
                     {
@@ -713,33 +841,100 @@ public static class ControlExtensions
 
         return tree.Branches;
     }
-    public static IBranch CreateNode(this ITree tree,  int id, IBranch br)
+    public static SimpleItem CreateNodeAndChilds(this ITree tree,  int id, IBranch br)
     {
+       
         try
         {
-            br.TreeEditor = tree;
-            br.Visutil = tree.VisManager;
-            br.BranchID = id;
-            br.ID = id;
-            //n.ContextMenuStrip = 
-            tree.DMEEditor.AddLogMessage($"CreateNode -{br.BranchText}");
-            CreateMenuMethods(tree,br);
+            SimpleItem node = new SimpleItem();
+            node.Text = br.BranchText;
+            node.Name = br.Name;
+            node.Id = id;
+            node.BranchClass = br.BranchClass;
+            node.BranchName = br.Name;
+            node.BranchType = br.BranchType;
+            node.ObjectType = br.ObjectType;
+            node.AssemblyClassDefinitionID = br.MiscStringID;
+            node.ClassDefinitionID = br.MiscStringID;
+            node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
+            node.GuidId = br.GuidID;
+            node.ParentID = 0;
+            node.Children = new BindingList<SimpleItem>();
+            node.Children = GetChildBranch(tree, br);
+            DynamicMenuManager.CreateMenuMethods(tree.DMEEditor, br);
             if (br.ObjectType != null && br.BranchClass != null)
             {
-                // Console.WriteLine($"{CreateNode}- br.BranchText");
-                CreateMenuMethods(tree,br);
-                CreateGlobalMenu(tree, br);
-
+                DynamicMenuManager.CreateGlobalMenu(tree.DMEEditor, br);
             }
-
             br.DMEEditor = tree.DMEEditor;
             if (!tree.DMEEditor.ConfigEditor.objectTypes.Any(i => i.ObjectType == br.BranchClass && i.ObjectName == br.BranchType.ToString() + "_" + br.BranchClass))
             {
                 tree.DMEEditor.ConfigEditor.objectTypes.Add(new TheTechIdea.Beep.Workflow.ObjectTypes { ObjectType = br.BranchClass, ObjectName = br.BranchType.ToString() + "_" + br.BranchClass });
             }
-          
+            try
+            {
+                br.SetConfig(tree, tree.DMEEditor, br.ParentBranch, br.BranchText, br.ID, br.BranchType, null);
+            }
+            catch (Exception ex)
+            {
+
+            }
             tree.Branches.Add(br);
-            return br;
+            br.CreateChildNodes();
+            return node;
+        }
+        catch (Exception ex)
+        {
+            tree.DMEEditor.ErrorObject.Ex = ex;
+            tree.DMEEditor.ErrorObject.Flag = Errors.Failed;
+            tree.DMEEditor.AddLogMessage("Error", $"Creating Branch Node {br.BranchText} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+            return null;
+        }
+
+
+    }
+    public static SimpleItem CreateNode(this ITree tree, int id, IBranch br)
+    {
+      
+        try
+        {
+            SimpleItem node = new SimpleItem();
+            node.Text = br.BranchText;
+            node.Name = br.Name;
+            node.Id = id;
+            node.BranchClass = br.BranchClass;
+            node.BranchName = br.Name;
+            node.BranchType = br.BranchType;
+            node.ObjectType = br.ObjectType;
+            node.PointType = br.BranchType;
+            node.AssemblyClassDefinitionID = br.MiscStringID;
+            node.ClassDefinitionID = br.MiscStringID;
+            node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
+            node.GuidId = br.GuidID;
+            node.ParentID = 0;
+            node.Children = new BindingList<SimpleItem>();
+            node.Children = GetChildBranch(tree, br);
+            DynamicMenuManager.CreateMenuMethods(tree.DMEEditor, br);
+            if (br.ObjectType != null && br.BranchClass != null)
+            {
+                DynamicMenuManager.CreateGlobalMenu(tree.DMEEditor, br);
+            }
+            br.DMEEditor = tree.DMEEditor;
+            if (!tree.DMEEditor.ConfigEditor.objectTypes.Any(i => i.ObjectType == br.BranchClass && i.ObjectName == br.BranchType.ToString() + "_" + br.BranchClass))
+            {
+                tree.DMEEditor.ConfigEditor.objectTypes.Add(new TheTechIdea.Beep.Workflow.ObjectTypes { ObjectType = br.BranchClass, ObjectName = br.BranchType.ToString() + "_" + br.BranchClass });
+            }
+            try
+            {
+                br.SetConfig(tree, tree.DMEEditor, br.ParentBranch, br.BranchText, br.ID, br.BranchType, null);
+            }
+            catch (Exception ex)
+            {
+
+            }
+            //tree.Branches.Add(br);
+            //br.CreateChildNodes();
+            return node;
         }
         catch (Exception ex)
         {

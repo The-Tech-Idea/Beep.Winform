@@ -227,7 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             items.ListChanged += Items_ListChanged;
          //   this.Invalidated += BeepListBox_Invalidated;
             InitLayout();
-            BoundProperty = "SelectedItem";
+            BoundProperty = "SelectedMenuItem";
         }
         protected override void InitLayout()
         {

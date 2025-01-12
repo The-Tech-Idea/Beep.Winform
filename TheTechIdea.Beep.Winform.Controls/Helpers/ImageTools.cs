@@ -318,7 +318,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
         public static void PreviewLocalResource(PictureBox PreviewpictureBox, string resourceName)
         {
-          //  string filePath = ImagelistBox.SelectedItem.ToString();
+          //  string filePath = ImagelistBox.SelectedMenuItem.ToString();
             if (File.Exists(resourceName))
             {
                 try
@@ -350,7 +350,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
         public static void PreviewProjectResxResource(PictureBox PreviewpictureBox, string resourceName)
         {
-          //  string resourceName = ImagelistBox.SelectedItem.ToString();
+          //  string resourceName = ImagelistBox.SelectedMenuItem.ToString();
             string selectedResxFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, resourceName ?? "");
 
             try
@@ -383,9 +383,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
         public static void PreviewEmbeddedResource(PictureBox PreviewpictureBox,string resourceName)
         {
-            //if (ResourcesPathcomboBox.SelectedItem == null) return;
+            //if (ResourcesPathcomboBox.SelectedMenuItem == null) return;
 
-            //string resourceName = ResourcesPathcomboBox.SelectedItem.ToString();
+            //string resourceName = ResourcesPathcomboBox.SelectedMenuItem.ToString();
             Assembly assembly = Assembly.GetExecutingAssembly();
 
             // Format resource name to match fully qualified embedded resource names

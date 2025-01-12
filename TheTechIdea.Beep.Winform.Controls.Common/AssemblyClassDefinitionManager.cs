@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
+
 
 namespace TheTechIdea.Beep.Desktop.Common
 {
@@ -45,5 +42,22 @@ namespace TheTechIdea.Beep.Desktop.Common
         {
             return DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.GuidID == Guid).FirstOrDefault();
         }
+        public static List<AssemblyClassDefinition> GetAssemblyClassDefinitionForMenu(string ObjectType="Beep")
+        {
+            return DMEEditor.ConfigEditor.GlobalFunctions.Where(o => o.classProperties != null && o.classProperties.ObjectType != null && (o.classProperties.Showin == ShowinType.Menu || o.classProperties.Showin == ShowinType.Both) && o.classProperties.ObjectType.Equals(ObjectType, StringComparison.CurrentCultureIgnoreCase)).OrderBy(p => p.Order).ToList();
+        }
+        public static List<AssemblyClassDefinition> GetAssemblyClassDefinitionVerticalToolbar(string ObjectType = "Beep")
+        {
+            return DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.componentType == "IFunctionExtension" && x.classProperties != null && x.classProperties.ObjectType != null && (x.classProperties.Showin == ShowinType.HorZToolbar) && x.classProperties.ObjectType.Equals(ObjectType, StringComparison.InvariantCultureIgnoreCase)).OrderBy(p => p.Order).ToList();
+        }
+        public static List<AssemblyClassDefinition> GetAssemblyClassDefinitionToolbar(string ObjectType = "Beep")
+        {
+            return DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.componentType == "IFunctionExtension" && x.classProperties != null && x.classProperties.ObjectType != null && (x.classProperties.Showin == ShowinType.Toolbar || x.classProperties.Showin == ShowinType.Both) && x.classProperties.ObjectType.Equals(ObjectType, StringComparison.InvariantCultureIgnoreCase)).OrderBy(p => p.Order).ToList();
+        }
+        public static List<AddinTreeStructure> GetAssemblyClassDefinitionAddins(string ObjectType = "Beep")
+        {
+            return DMEEditor.ConfigEditor.AddinTreeStructure;
+        }
+        
     }
 }

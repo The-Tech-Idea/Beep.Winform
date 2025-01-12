@@ -1,4 +1,5 @@
 ﻿
+using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
@@ -282,8 +283,8 @@ namespace TheTechIdea.Beep.Desktop.Common
                             mi.ObjectType = item.ObjectType;
                             mi.BranchClass = item.ClassType;
                             mi.PointType = item.PointType;
-                            mi.ClassDefinitionID=cls.classProperties.GuidID;
-                            mi.ImagePath =ImageListHelper.GetImagePathFromName( item.iconimage);
+                            mi.ClassDefinitionID = cls.classProperties.GuidID;
+                            mi.ImagePath = ImageListHelper.GetImagePathFromName(item.iconimage);
                             menuList.Items.Add(mi);
                         }
                     }
@@ -314,9 +315,99 @@ namespace TheTechIdea.Beep.Desktop.Common
             return tree.DMEEditor.ErrorObject;
 
         }
+        public static List<SimpleItem> CreateToolBarMenuItems(IDMEEditor DMEEditor, string ObjectType = "Beep", bool IsHorizantal = true)
+        {
+            List<SimpleItem> ret = new List<SimpleItem>();
+            try
+            {
+                var extensions = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionToolbar(ObjectType);
+                if (!IsHorizantal)
+                {
+                    extensions = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionVerticalToolbar(ObjectType);
+                }
+                foreach (var item in extensions)
+                {
+                    for (int i = 0; i < item.Methods.Count; i++)
+                    {
+                        SimpleItem mi = new SimpleItem();
+                        mi.Name = item.Methods[i].Caption;
+                        mi.Text = item.Methods[i].Caption;
+                        mi.MethodName = item.Methods[i].Name;
+                        mi.ObjectType = item.Methods[i].ObjectType;
+                        mi.BranchClass = item.Methods[i].ClassType;
+                        mi.PointType = item.Methods[i].PointType;
+                        mi.Value = item.Methods[i].CommandAttr;
+                        mi.BranchName = item.Methods[i].Name;
+                        mi.PackageName = item.PackageName;
+                        mi.ImagePath = ImageListHelper.GetImagePathFromName(item.Methods[i].iconimage);
+                        ret.Add(mi);
+                    }
+                   
+                }
 
 
+            }
+            catch (Exception ex)
+            {
+                DMEEditor.AddLogMessage(ex.Message, "Error creating toolbar menu", DateTime.Now, -1, "CreateToolBarMethods", Errors.Failed);
+            }
+            return ret;
+        }
+        public static List<SimpleItem> CreateConfigAdminMenuItem(IDMEEditor DMEEditor, string ObjectType = "Beep")
+        {
+            List < SimpleItem > ret = new List<SimpleItem>();
+            try
+            {
+                foreach (AddinTreeStructure item in AssemblyClassDefinitionManager.GetAssemblyClassDefinitionAddins())
+                {
+                    SimpleItem mi = new SimpleItem();
+                    mi.Name = item.NodeName;
+                    mi.Text = item.NodeName;
+                    mi.MethodName = item.className;
+                    mi.AssemblyClassDefinitionID = item.GuidID;
+                    mi.ObjectType = item.ObjectType;
+                    mi.PackageName = item.PackageName;
+                    mi.MenuID = item.menu;
+                    mi.ImagePath =ImageListHelper.GetImagePathFromName(item.Imagename);
+                    ret.Add(mi);
+                }
+            }
+            catch (Exception ex)
+            {
+                DMEEditor.AddLogMessage(ex.Message, "Error creating addins", DateTime.Now, -1, "CreateConfigAdminMenu", Errors.Failed);
+            }
+            return ret;
+        }
+        public static List<SimpleItem> CreateMenuItems(IDMEEditor DMEEditor, string ObjectType = "Beep")
+        {
+            List<SimpleItem> ret = new List<SimpleItem>();
+            try
+            {
+                var extensions = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionForMenu(ObjectType);
+                foreach (var item in extensions)
+                {
+                    for (int i = 0; i < item.Methods.Count; i++)
+                    {
+                        SimpleItem mi = new SimpleItem();
+                        mi.Name = item.Methods[i].Caption;
+                        mi.Text = item.Methods[i].Caption;
+                        mi.MethodName = item.Methods[i].Name;
+                        mi.ObjectType = item.Methods[i].ObjectType;
+                        mi.BranchClass = item.Methods[i].ClassType;
+                        mi.PointType = item.Methods[i].PointType;
+                        mi.Value = item.Methods[i].CommandAttr;
+                        mi.BranchName = item.Methods[i].Name;
+                        mi.PackageName = item.PackageName;
+                        mi.ImagePath = ImageListHelper.GetImagePathFromName(item.Methods[i].iconimage);
+                        ret.Add(mi);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                DMEEditor.AddLogMessage(ex.Message, "Error creating menu items", DateTime.Now, -1, "CreateMenuItems", Errors.Failed);
+            }
+            return ret;
+        }
     }
-
-
 }

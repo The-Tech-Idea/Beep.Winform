@@ -59,12 +59,12 @@ namespace Beep.Config.Winform.Functions
             InstallFoldercomboBox.ValueMember = "GuidID";
             this.databaseTextBox.DataBindings.Add("Text", ViewModel, "DatabaseName", true, DataSourceUpdateMode.OnPropertyChanged);
             this.passwordTextBox.DataBindings.Add("Text", ViewModel, "Password", true, DataSourceUpdateMode.OnPropertyChanged);
-            this.InstallFoldercomboBox.DataBindings.Add("SelectedItem", ViewModel, "selectedFolder", true, DataSourceUpdateMode.OnPropertyChanged);
+            this.InstallFoldercomboBox.DataBindings.Add("SelectedMenuItem", ViewModel, "selectedFolder", true, DataSourceUpdateMode.OnPropertyChanged);
            // this.InstallFoldercomboBox.DataBindings.Add("Text", ViewModel, "installFolderName", true, DataSourceUpdateMode.OnPropertyChanged);
             // this.InstallFoldercomboBox.DataBindings.Add("SelectedValue", ViewModel, "InstallFolderGuid", true, DataSourceUpdateMode.OnPropertyChanged);
             //this.EmbeddedDatabaseTypecomboBox.DataBindings.Add("SelectedValue", ViewModel, "EmbeddedDatabaseTypeGuid", true, DataSourceUpdateMode.OnPropertyChanged);
             //this.EmbeddedDatabaseTypecomboBox.DataBindings.Add("Text", ViewModel, "EmbeddedDatabaseType", true, DataSourceUpdateMode.OnPropertyChanged);
-            this.EmbeddedDatabaseTypecomboBox.DataBindings.Add("SelectedItem", ViewModel, "SelectedEmbeddedDatabaseType", true, DataSourceUpdateMode.OnPropertyChanged);
+            this.EmbeddedDatabaseTypecomboBox.DataBindings.Add("SelectedMenuItem", ViewModel, "SelectedEmbeddedDatabaseType", true, DataSourceUpdateMode.OnPropertyChanged);
             this.CreateDBbutton.Click += CreateDBbutton_Click;
         }
         private void CreateDBbutton_Click(object sender, EventArgs e)

@@ -9,8 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Vis.Logic;
-using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -26,6 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void BeepButton1_Click(object? sender, EventArgs e)
         {
+            
           beepTreeControl1.CreateRootTree();
            
         }

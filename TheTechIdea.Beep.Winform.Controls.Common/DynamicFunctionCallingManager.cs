@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             else
                 method.Invoke(fc, null);
         }
-        private static bool IsMethodApplicabletoNode(AssemblyClassDefinition cls, IBranch br)
+        public static bool IsMethodApplicabletoNode(AssemblyClassDefinition cls, IBranch br)
         {
             if (cls.classProperties == null)
             {

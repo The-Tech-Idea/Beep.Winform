@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
+using TheTechIdea.Beep.Vis.Modules;
+using DialogResult=TheTechIdea.Beep.Vis.Modules.DialogResult;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -15,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton _secondaryButton = new BeepButton();
         private BeepButton _closeButton = new BeepButton();
         private Control _customControl = new BeepButton();
-
+        private DialogResult dialogResult ;
         public event EventHandler PrimaryButtonClicked;
         public event EventHandler SecondaryButtonClicked;
         public event EventHandler CloseButtonClicked;
@@ -35,6 +37,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeDialog();
             TitleText = "Dialog Title";
         }
+        public DialogResult DialogResult
+        {
+            get => dialogResult;
+            set
+            {
+                dialogResult = value;
+              
+            }
+
+        }
+
         public string PrimaryButtonText
         {
             get => _primaryButton.Text;
@@ -179,6 +192,50 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextAlign = ContentAlignment.MiddleCenter
             }, okAction, Title);
         }
+        public void SetButtonOptions(DialogButtons buttonOptions)
+        {
+           
+
+            // Configure buttons based on the specified option
+            switch (buttonOptions)
+            {
+                case DialogButtons.Ok:
+                    ConfigureButton(_primaryButton, "OK", DialogResult.OK);
+                    break;
+
+                case DialogButtons.OkCancel:
+                    ConfigureButton(_primaryButton, "OK", DialogResult.OK);
+                    ConfigureButton(_secondaryButton, "Cancel", DialogResult.Cancel);
+                    break;
+
+                case DialogButtons.YesNo:
+                    ConfigureButton(_primaryButton, "Yes", DialogResult.Yes);
+                    ConfigureButton(_secondaryButton, "No", DialogResult.No);
+                    break;
+
+                case DialogButtons.YesNoCancel:
+                    ConfigureButton(_primaryButton, "Yes", DialogResult.Yes);
+                    ConfigureButton(_secondaryButton, "No", DialogResult.No);
+                    ConfigureButton(_closeButton, "Cancel", DialogResult.Cancel);
+                    break;
+
+                case DialogButtons.None:
+                    // No buttons to add
+                    break;
+            }
+
+            // Re-arrange dialog after setting buttons
+            Arrange();
+        }
+
+        // Helper method to configure a button
+        private void ConfigureButton(BeepButton button, string text, DialogResult result)
+        {
+            button.Text = text;
+            button.Click += (s, e) => DialogResult = result;
+            button.Visible = true;
+            
+        }
 
         #endregion
         private void InitializeDialog()
@@ -256,17 +313,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_primaryButton != null)
             {
                 //     MessageBox.Show("Applying Theme to button 1");
-                _primaryButton.Theme = Theme;
-              //  _primaryButton.BackColor = _currentTheme.ButtonBackColor;
-             //   _primaryButton.ForeColor = _currentTheme.PrimaryTextColor;
+             //   _primaryButton.Theme = Theme;
+               _primaryButton.BackColor = _currentTheme.ButtonBackColor;
+                _primaryButton.ForeColor = _currentTheme.PrimaryTextColor;
             }
             // MessageBox.Show("Applying Theme 1");
             if (_secondaryButton != null)
             {
                 //      MessageBox.Show("Applying Theme to button 2");
                 _secondaryButton.Theme = Theme;
-            //    _secondaryButton.BackColor = _currentTheme.ButtonBackColor;
-            //    _secondaryButton.ForeColor = _currentTheme.SecondaryTextColor;
+                _secondaryButton.BackColor = _currentTheme.ButtonBackColor;
+                _secondaryButton.ForeColor = _currentTheme.SecondaryTextColor;
             }
             // MessageBox.Show("Applying Theme 2");
             if (_closeButton != null)
@@ -278,7 +335,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             // MessageBox.Show("Applying Theme 3");
             // Additional background colors, title lines, etc.
-            BackColor = _currentTheme.PanelBackColor;
+             BackColor = _currentTheme.PanelBackColor;
             _buttonPanel.Theme = Theme;
             Arrange();
 
@@ -286,6 +343,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             ////base.ApplyTheme();
             // Invalidate(); // Redraw to apply theme changes
         }
+        public enum DialogButtons
+        {
+            None,
+            Ok,
+            OkCancel,
+            YesNo,
+            YesNoCancel
+        }
+
     }
 }
 

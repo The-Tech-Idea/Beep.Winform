@@ -10,7 +10,6 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using System.ComponentModel;
 
-
 namespace TheTechIdea.Beep.Winform.Controls.Basic
 {
     [ToolboxItem(false)]
@@ -51,11 +50,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
         bool isstopped = false;
         bool isloading = false;
         bool isfinish = false;
+
+        public event EventHandler OnStart;
+        public event EventHandler OnStop;
+        public event EventHandler<ErrorEventArgs> OnError;
+
         public FunctionandExtensionsHelpers ExtensionsHelpers { get; set; }
         public Progress<PassedArgs> Progress { get; set; }
         public string GuidID { get  ; set  ; }
+        public AddinDetails Details { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public Dependencies Dependencies { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-      
         private void SetupProgress()
         {
             
@@ -153,6 +158,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
         public virtual void Run(IPassedArgs pPassedarg)
         {
 
+        }
+
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Suspend()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Resume()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetErrorDetails()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(IPassedArgs pPassedarg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Configure(Dictionary<string, object> settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnNavigatedTo(Dictionary<string, object> parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetError(string message)
+        {
+            throw new NotImplementedException();
         }
     }
 }

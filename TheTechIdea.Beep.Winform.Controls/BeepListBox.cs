@@ -138,8 +138,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                // InitializeMenu();
             }
         }
-        public event EventHandler SelectedIndexChanged;
-        protected virtual void OnSelectedIndexChanged(EventArgs e) => SelectedIndexChanged?.Invoke(this, e);
+        public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
+        protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
+        {
+            SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
+        }
         [Browsable(false)]
         public int SelectedIndex
         {
@@ -150,7 +153,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _selectedIndex = value;
                     //  HighlightSelectedButton();
-                    OnSelectedIndexChanged(EventArgs.Empty);
+                    _selectedItem = (SimpleItem)_buttons[_selectedIndex].Tag;
+                    OnSelectedItemChanged(_selectedItem); //
                 }
             }
         }
@@ -609,7 +613,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
             Invalidate();
-            // Optionally, apply any additional theming for the overall side menu layout here (e.g., ShowScrollbars, borders, or custom UI components)
+            // Optionally, apply any additional theming for the overall side menu layout here (e.g., ShowVerticalScrollBar, borders, or custom UI components)
         }
         //protected override void OnMouseEnter(EventArgs e)
         //{

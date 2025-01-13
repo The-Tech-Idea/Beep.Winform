@@ -1,13 +1,5 @@
 ﻿using System.Collections.Generic;
-using TheTechIdea;
-using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Report;
-using TheTechIdea.Beep.Utilities;
-using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Addin;
-using TheTechIdea.Beep.ConfigUtil;
-
-using System;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
@@ -15,7 +7,6 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         string SelectFile(string filter);
         string DialogCombo(string text, List<object> comboSource, string DisplyMember, string ValueMember);
-        object GenerateEntityonControl(string entityname, object record, int width, string datasourceid, TransActionType TranType,  IPassedArgs passedArgs = null);
         DialogResult InputBox(string title, string promptText, ref string value);
         DialogResult InputLargeBox(string title, string promptText, ref string value);
         DialogResult InputBoxYesNo(string title, string promptText);
@@ -29,9 +20,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         string SelectFolderDialog();
         bool ShowAlert(string title, string message, string icon);
         void ShowMessege(string title, string message, string icon);
-        List<AppFilter>  CreateEntityFilterControls(EntityStructure entityStructure, List<DefaultValue> dsdefaults, IPassedArgs passedArgs = null);
-        List<AppFilter>  CreateFieldsFilterControls(List<EntityField> Fields, List<AppFilter> Filters, List<DefaultValue> dsdefaults, IPassedArgs passedArgs = null);
-        event EventHandler<IPassedArgs> PreCallModule;
-        event EventHandler<IPassedArgs> PreShowItem;
+      //  List<AppFilter>  CreateEntityFilterControls(EntityStructure entityStructure, List<DefaultValue> dsdefaults, IPassedArgs passedArgs = null);
+        //List<AppFilter>  CreateFieldsFilterControls(List<EntityField> Fields, List<AppFilter> Filters, List<DefaultValue> dsdefaults, IPassedArgs passedArgs = null);
+        //object GenerateEntityonControl(string entityname, object record, int width, string datasourceid, TransActionType TranType,  IPassedArgs passedArgs = null);
+
     }
 }

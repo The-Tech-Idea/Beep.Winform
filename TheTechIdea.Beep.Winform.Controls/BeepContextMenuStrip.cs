@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BackColor = Color.WhiteSmoke;  // Default background, will be overridden by theme
             ApplyTheme(); // apply current theme
 
-            SelectedIndexChanged += BeepContextMenuStrip_SelectedIndexChanged;
+            SelectedItemChanged += BeepContextMenuStrip_SelectedIndexChanged;
         }
 
         private void BeepContextMenuStrip_SelectedIndexChanged(object sender, EventArgs e)
@@ -81,8 +81,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             popupForm.Deactivate += (s, e) => { Hide(); };
 
             // Show popup
-            popupForm.Show();
-            popupForm.BringToFront();
+            popupForm.ShowPopup(this, location); 
+            
         }
 
         /// <summary>

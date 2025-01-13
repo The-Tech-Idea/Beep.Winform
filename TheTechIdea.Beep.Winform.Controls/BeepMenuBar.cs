@@ -164,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             maindropdownmenu.Left = this.Left;
             maindropdownmenu.Visible = false;
             maindropdownmenu.BoundProperty = "SelectedMenuItem";
-            maindropdownmenu.SelectedIndexChanged += Maindropdownmenu_SelectedIndexChanged;
+            maindropdownmenu.SelectedItemChanged += Maindropdownmenu_SelectedIndexChanged;
             this.Controls.Add(maindropdownmenu);
 
             // Handle the case where there are no items
@@ -246,7 +246,7 @@ namespace TheTechIdea.Beep.Winform.Controls
           
             // Rebuild beepListBox's layout
             _beepListBox.InitializeMenu();
-            _beepListBox.SelectedIndexChanged += (sender, e) =>
+            _beepListBox.SelectedItemChanged += (sender, e) =>
             {
                 SimpleItem selectedItem = (SimpleItem)_beepListBox.SelectedItem;
                 if (selectedItem != null)
@@ -277,10 +277,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _popupForm.Controls.Add(_beepListBox);
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
             _popupForm.BorderThickness = 0;
-            
-            _popupForm.Show();
-            _popupForm.BringToFront();
-            _popupForm.Invalidate();
+
+            _popupForm.ShowPopup(this, screenPoint);
         }
         private void ShowChildPopup(SimpleItem item, Point point)
         {
@@ -302,7 +300,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.ListItems = item.Children;
             // Rebuild beepListBox's layout
             _beepListBox.InitializeMenu();
-            _beepListBox.SelectedIndexChanged += (sender, e) =>
+            _beepListBox.SelectedItemChanged += (sender, e) =>
             {
                 SimpleItem selectedItem = (SimpleItem)_beepListBox.SelectedItem;
                 if (selectedItem != null)
@@ -333,9 +331,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
             _childpopupForm.BorderThickness = 2;
 
-            _childpopupForm.Show();
-            _childpopupForm.BringToFront();
-            _childpopupForm.Invalidate();
+            _childpopupForm.ShowPopup(this, screenPoint);
+          
         }
         private void ClosePopup()
         {

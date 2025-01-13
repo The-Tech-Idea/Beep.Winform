@@ -1,15 +1,17 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
-using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Desktop.Common;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Managers
 {
     [DesignerCategory("Component")]
-    public class BeepUIManager : Component
+    [ToolboxItem(true)]
+    [Category("Beep Controls")]
+    [Description("A manager for BeepForm controls.")]
+    [DisplayName("Beep Form UI Manager")]
+    public class BeepFormUIManager : Component
     {
         #region "Properties"
         private bool _applyBeepFormStyle = false;
@@ -19,14 +21,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         private BeepImage beepimage = new BeepImage();
         public event Action<EnumBeepThemes> OnThemeChanged;
 
-        private ViewRouter _viewrouter;
-        [Browsable(true)]
-        [Category("Appearance")]
-        public ViewRouter ViewRouter
-        {
-            get => _viewrouter;
-            set => _viewrouter = value;
-        }
         //private EnumBeepThemes _globalTheme = EnumBeepThemes.DefaultTheme;
         // LogoImage property to set the logo image of the form
         private string _logoImage = "";
@@ -265,7 +259,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         }
         #endregion "Properties"
         #region "Constructors"
-        public BeepUIManager(IContainer container)
+        public BeepFormUIManager(IContainer container)
         {
             container.Add(this);
             // OnThemeChanged += theme => Theme = theme;

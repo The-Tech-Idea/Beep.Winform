@@ -120,11 +120,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     if (_isPopupOpen)
                     {
-                        ShowPopup();
+                      //  ShowPopup();
                     }
                     else
                     {
-                        ClosePopup();
+                       // ClosePopup();
                     }
                 }
 
@@ -1459,11 +1459,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected void ShowPopup()
         {
-            if (_isPopupOpen)
-            {
+
                 ClosePopup();
-               return;
-            }
+
             // Always create a new instance from scratch
             _popupForm = new BeepPopupForm();
             _popupForm.OnLeave += (sender, e) =>
@@ -1474,8 +1472,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isPopupOpen = true;
             int _maxListHeight = Width;
             int _maxListWidth = 100;
-
-               InitListbox();
+            _popupForm.TriggerControl=this;
+            //InitListbox();
             // 2) Create a borderless popup form
             //  _popupForm = new BeepPopupForm();
             _popupForm.BorderThickness = 1;
@@ -1506,20 +1504,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             _popupForm.Theme = Theme;
 
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
-            _popupForm.Show();
-            _popupForm.BringToFront();
-            _popupForm.Invalidate();
+            _popupForm.ShowPopup(LastNodeMenuShown, screenPoint);
         }
         private void ClosePopup()
         {
            
             _isPopupOpen = false;
-            if(_popupForm != null)
+            if (_popupForm != null)
             {
-                _popupForm.Close();
-                LastNodeMenuShown = null;
+                _popupForm.Hide();
+              //  LastNodeMenuShown = null;
+
             }
-                
+
+
         }
         private void InitListbox()
         {

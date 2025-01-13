@@ -184,7 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowTitle = false,
             };
             _menu.Theme = Theme;
-            _menu.SelectedIndexChanged += (s, e) =>
+            _menu.SelectedItemChanged += (s, e) =>
             {
                 SelectedIndex = _menu.SelectedIndex;
                 if (SelectedIndex >= 0)

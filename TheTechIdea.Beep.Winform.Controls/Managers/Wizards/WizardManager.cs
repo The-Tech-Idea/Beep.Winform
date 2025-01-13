@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers.Wizards
             State = new WizardState(this);
             Nodes = new LinkedList<IWizardNode>();
             DMEEditor = pDMEEditor;
-            visManager = (VisManager)pvisManager;
+            visManager = pvisManager;
             WizardParentForm = new BeepForm();
             ColorsTemplate=new ColorTemplate();
             ColorsTemplate.ForColor = Color.White;
@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers.Wizards
         }
         public string Title { get;set;}
         public string Description { get;set;}
-        public VisManager visManager { get; set; }
+        public IVisManager visManager { get; set; }
         public IDMEEditor DMEEditor { get; set; }
         public int StartLeft { get; set; } = 3;
         public int StartTop { get; set; } = 70;

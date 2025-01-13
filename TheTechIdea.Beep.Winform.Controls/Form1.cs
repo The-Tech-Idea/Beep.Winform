@@ -27,7 +27,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             
           beepTreeControl1.CreateRootTree();
-           
+            BeepFileDialog beepFileDialog = new BeepFileDialog();
+        //    beepFileDialog.ShowDialog();
+
         }
 
         public Form1():base()

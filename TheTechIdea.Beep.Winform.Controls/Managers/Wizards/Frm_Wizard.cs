@@ -36,6 +36,37 @@ namespace Beep.Winform.Vis.Wizards
         public IVisManager visManager { get; set; }
         public IWizardManager Wizard { get; set; }
         public string GuidID { get  ; set  ; }
+        public AddinDetails Details { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public Dependencies Dependencies { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public event EventHandler OnStart;
+        public event EventHandler OnStop;
+        public event EventHandler<ErrorEventArgs> OnError;
+
+        public void Configure(Dictionary<string, object> settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetErrorDetails()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnNavigatedTo(Dictionary<string, object> parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Resume()
+        {
+            throw new NotImplementedException();
+        }
 
         public void Run(IPassedArgs pPassedarg)
         {
@@ -43,6 +74,16 @@ namespace Beep.Winform.Vis.Wizards
         }
 
         public void Run(params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(IPassedArgs pPassedarg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(params object[] args)
         {
             throw new NotImplementedException();
         }
@@ -58,6 +99,16 @@ namespace Beep.Winform.Vis.Wizards
                 visManager = (IVisManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
             }
            
+        }
+
+        public void SetError(string message)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Suspend()
+        {
+            throw new NotImplementedException();
         }
     }
 }

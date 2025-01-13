@@ -137,10 +137,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             var a = DynamicMenuManager.GetMenuItemsList((SimpleItem)clickedNode.Tag);
             if (a == null) return;
             CurrentMenutems = new BindingList<SimpleItem>(a);
-            if ((clickedNode != LastNodeMenuShown) && CurrentMenutems.Count > 0)
+            if ( CurrentMenutems.Count > 0)
             {
                 LastNodeMenuShown = clickedNode;
-                ShowPopup();
+                TogglePopup();
             }
         }
         #endregion "Handlers"

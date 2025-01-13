@@ -7,13 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [Description("A wait screen for pending or running functions.")]
-    public partial class BeepWaitScreen : BeepiForm
+    public partial class BeepWaitScreen : BeepiForm,IWaitForm
     {
         public BeepWaitScreen()
         {
@@ -85,15 +88,173 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnFormClosing(e);
             StopSpinner();
         }
+        #region "IWaitForm Implementation"
+
+        /// <summary>
+        /// Applies the current theme to the wait screen controls.
+        /// </summary>
         public override void ApplyTheme()
         {
             base.ApplyTheme();
+            LogoImage.Theme = Theme;
+            MessegeTextBox.Theme = Theme;
+            TitleLabel1.Theme = Theme;
             if (_spinnerImage == null) return;
             _spinnerImage.ApplyThemeOnImage = true;
             _spinnerImage.Theme = Theme;
-            MessegeTextBox.Theme = Theme;
-            TitleLabel1.Theme = Theme;
-
+           
+          // Apply additional theming as needed
         }
+
+        /// <summary>
+        /// Sets the text of the message textbox.
+        /// </summary>
+        /// <param name="text">Text to set.</param>
+        public void SetText(string text)
+        {
+            if (MessegeTextBox.InvokeRequired)
+            {
+                MessegeTextBox.BeginInvoke((MethodInvoker)(() => MessegeTextBox.Text = text));
+            }
+            else
+            {
+                MessegeTextBox.Text = text;
+            }
+        }
+
+        /// <summary>
+        /// Sets the title of the wait screen.
+        /// </summary>
+        /// <param name="title">Title text.</param>
+        public void SetTitle(string title)
+        {
+            if (TitleLabel1.InvokeRequired)
+            {
+                TitleLabel1.BeginInvoke((MethodInvoker)(() => TitleLabel1.Text = title));
+            }
+            else
+            {
+                TitleLabel1.Text = title;
+            }
+        }
+
+        /// <summary>
+        /// Sets both the title and the message of the wait screen.
+        /// </summary>
+        /// <param name="title">Title text.</param>
+        /// <param name="text">Message text.</param>
+        public void SetTitle(string title, string text)
+        {
+            SetTitle(title);
+            SetText(text);
+        }
+
+        /// <summary>
+        /// Sets the spinner image using the provided image path.
+        /// </summary>
+        /// <param name="image">Image path or resource identifier.</param>
+        public void SetImage(string image)
+        {
+            if (_spinnerImage == null) return;
+
+            if (_spinnerImage.InvokeRequired)
+            {
+                _spinnerImage.BeginInvoke((MethodInvoker)(() => _spinnerImage.ImagePath = image));
+            }
+            else
+            {
+                _spinnerImage.ImagePath = image;
+            }
+        }
+
+        /// <summary>
+        /// Shows the wait form with the provided arguments.
+        /// </summary>
+        /// <param name="passedArgs">Arguments for display.</param>
+        /// <returns>Operation result.</returns>
+        public IErrorsInfo Show(PassedArgs passedArgs)
+        {
+            var result = new ErrorsInfo();
+            try
+            {
+                if (passedArgs?.Messege != null)
+                {
+                    SetText(passedArgs.Messege);
+                }
+
+                if (passedArgs?.Title != null)
+                {
+                    SetTitle(passedArgs.Title);
+                }
+
+                if (passedArgs?.ImagePath != null)
+                {
+                    SetImage(passedArgs.ImagePath);
+                }
+
+                Show();
+
+                result.Flag = Errors.Ok;
+                result.Message = "Wait form displayed successfully.";
+            }
+            catch (Exception ex)
+            {
+                string methodName = nameof(Show);
+                //DMEEditor.AddLogMessage("Beep", $"{methodName} - {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+                result.Flag = Errors.Failed;
+                result.Message = ex.Message;
+                result.Ex = ex;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Closes the wait form.
+        /// </summary>
+        /// <returns>Operation result.</returns>
+        IErrorsInfo IWaitForm.Close()
+        {
+            var result = new ErrorsInfo();
+            try
+            {
+                if (InvokeRequired)
+                {
+                    BeginInvoke((MethodInvoker)(() => this.Close()));
+                }
+                else
+                {
+                    Close();
+                }
+
+                result.Flag = Errors.Ok;
+                result.Message = "Wait form closed successfully.";
+            }
+            catch (Exception ex)
+            {
+                string methodName = nameof(Close);
+                //DMEEditor.AddLogMessage("Beep", $"{methodName} - {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+                result.Flag = Errors.Failed;
+                result.Message = ex.Message;
+                result.Ex = ex;
+            }
+            return result;
+        }
+
+        #endregion "IWaitForm Implementation"
+
+        #region "Additional Helper Methods"
+
+        /// <summary>
+        /// Handles updating the theme when needed.
+        /// </summary>
+        /// <param name="newTheme">New theme to apply.</param>
+        public void ChangeTheme(EnumBeepThemes newTheme)
+        {
+            Theme = newTheme;
+            ApplyTheme();
+        }
+
+        #endregion "Additional Helper Methods"
+
     }
 }

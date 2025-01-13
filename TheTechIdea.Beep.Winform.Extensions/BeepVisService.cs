@@ -1,8 +1,9 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using Microsoft.Extensions.DependencyInjection;
 using TheTechIdea.Beep.Container.Services;
-using TheTechIdea.Beep.Winform.Controls.Managers;
 using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Winform.Controls.Managers;
 
 namespace TheTechIdea.Beep.Winform.Extensions
 {

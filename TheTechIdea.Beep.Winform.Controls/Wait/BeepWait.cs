@@ -81,6 +81,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wait
             return new ErrorsInfo();
         }
 
+        public void UpdateProgress(int progress, string message = null)
+        {
+            throw new NotImplementedException();
+        }
+
         IErrorsInfo IWaitForm.Close()
         {
             try

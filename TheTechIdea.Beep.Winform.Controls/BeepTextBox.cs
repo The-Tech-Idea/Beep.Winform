@@ -26,6 +26,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _multiline = false;
         int padding = 4;
         int offset = 1;
+
+        private bool _showverticalscrollbar = false;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool ShowVerticalScrollBar
+        {
+            get => _showverticalscrollbar;
+            set
+            {
+                _showverticalscrollbar = value;
+                if (value)
+                {
+                    _innerTextBox.ScrollBars = ScrollBars.Vertical;
+                }
+                else
+                {
+                    _innerTextBox.ScrollBars = ScrollBars.None;
+                }
+                Invalidate();
+            }
+        }
+
         [Browsable(true)]
         [Category("Appearance")]
         public int PreferredHeight
@@ -569,7 +591,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _innerTextBox.MouseLeave += OnMouseLeave;
             _innerTextBox.TextChanged += (s, e) => Invalidate(); // Repaint to apply formatting
             Controls.Add(_innerTextBox);
-
+            _innerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
             beepImage = new BeepImage { Size = _maxImageSize, Dock = DockStyle.None, Margin = new Padding(0) };
             //       Console.WriteLine("InitializeComponents");
             //AdjustTextBoxHeight();
@@ -617,26 +639,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
         {
-            // If not multiline => force single-line height logic
-            if (!_multiline)
-            {
-                UpdateDrawingRect();
+            // Enforce minimum and maximum size for the BeepTextBox
+            int minWidth = 50;  // Example minimum width
+            int minHeight = SingleLineHeight; // Minimum height for single-line mode
+            int maxHeight = _multiline ? int.MaxValue : SingleLineHeight; // Allow dynamic height for multiline
 
-                int singleLineHeight = GetSingleLineHeight();
-                this.MinimumSize = new Size(0, singleLineHeight);
-                this.MaximumSize = new Size(0, singleLineHeight);
+            width = Math.Max(width, minWidth);
+            height = Math.Clamp(height, minHeight, maxHeight);
 
-                height = singleLineHeight;
-                specified &= ~BoundsSpecified.Height;
-            }
-            else
-            {
-                // multiline => allow resizing freely
-                // We'll do final alignment in OnResize
-            }
-
+            // Call the base implementation to apply changes
             base.SetBoundsCore(x, y, width, height, specified);
         }
+
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -653,7 +668,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // (this ensures the text box is inside the beepcontrol border)
                 int fillWidth = DrawingRect.Width - (padding * 2);
                 int fillHeight = DrawingRect.Height - (padding * 2);
-
+                _innerTextBox.Multiline = true;
                 if (fillWidth < 1) fillWidth = 1;
                 if (fillHeight < 1) fillHeight = 1;
 
@@ -664,6 +679,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // single line
                 _innerTextBox.Multiline = false;
+                _innerTextBox.ScrollBars = ScrollBars.None;
                 // Just keep the text box's native preferred height
                 _innerTextBox.Height = _innerTextBox.PreferredHeight;
 
@@ -678,30 +694,27 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void PositionInnerTextBoxAndImage()
         {
-            // If there's an image, place it. Otherwise, text box fills.
-            // For multiline, we typically skip the image logic or hide it if you don't want an image in multiline.
-
             if (_multiline)
             {
-                // typically skip image or hide it
+                // Hide the image for multiline mode
                 if (!string.IsNullOrEmpty(ImagePath))
                 {
-                    beepImage.Visible = false; // or adapt if you want an image for multiline
+                    beepImage.Visible = false;
                 }
                 return;
             }
 
-            // Single-line code
+            // Single-line mode
             bool hasImage = !string.IsNullOrEmpty(ImagePath);
+            beepImage.Visible = hasImage;
+
             if (!hasImage)
             {
-                beepImage.Visible = false;
+                _innerTextBox.Dock = DockStyle.Fill;
                 return;
             }
 
-            beepImage.Visible = true;
-
-            // scale image if needed
+            // Adjust image size if necessary
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
             if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
             {
@@ -715,44 +728,38 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             beepImage.Size = imageSize;
 
-            // compute textBox final height from _innerTextBox if needed
+            // Compute textBox final height from _innerTextBox if needed
             int textBoxHeight = _innerTextBox.Height;
             int controlHeight = DrawingRect.Height;
 
-            // center image & text box
+            // Center image & text box vertically
             int imageY = DrawingRect.Y + (controlHeight - beepImage.Height) / 2;
-            int textBoxY = _innerTextBox.Location.Y; // should already be centered in AdjustTextBoxHeight
+            int textBoxY = _innerTextBox.Location.Y; // Already centered in AdjustTextBoxHeight
 
             if (_textImageRelation == TextImageRelation.ImageBeforeText)
             {
-                // place image at left
+                // Place image on the left
                 beepImage.Location = new Point(DrawingRect.X + padding, imageY);
 
-                // place text box to the right
+                // Place text box to the right
                 int textBoxX = beepImage.Right + spacing;
-                int textBoxWidth = (DrawingRect.Right - textBoxX) - padding;
-                if (textBoxWidth < 1) textBoxWidth = 1;
-
+                int textBoxWidth = DrawingRect.Width - textBoxX - padding;
                 _innerTextBox.Location = new Point(textBoxX, textBoxY);
                 _innerTextBox.Width = textBoxWidth;
             }
             else if (_textImageRelation == TextImageRelation.TextBeforeImage)
             {
-                // text box first
-                int textBoxWidth = (DrawingRect.Width - beepImage.Width - spacing - (padding * 2));
-                if (textBoxWidth < 1) textBoxWidth = 1;
-                _innerTextBox.Width = textBoxWidth;
-
-                // reposition text box to left
+                // Place text box on the left
                 _innerTextBox.Location = new Point(DrawingRect.X + padding, textBoxY);
+                _innerTextBox.Width = DrawingRect.Width - beepImage.Width - spacing - (padding * 2);
 
-                // image after text
+                // Place image to the right
                 int imageX = _innerTextBox.Right + spacing;
                 beepImage.Location = new Point(imageX, imageY);
             }
             else
             {
-                // e.g. overlay or something else => skip or hide image
+                // Other relations can be handled here
                 beepImage.Visible = false;
             }
         }

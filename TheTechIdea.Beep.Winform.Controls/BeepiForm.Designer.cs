@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            beepuiManager1 = new BeepUIManager(components);
+            beepuiManager1 = new BeepFormUIManager(components);
             SuspendLayout();
             // 
             // beepuiManager1
@@ -45,7 +45,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepuiManager1.ShowShadow = false;
             beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.FlatDesignTheme;
             beepuiManager1.Title = "Beep Form";
-            beepuiManager1.ViewRouter = null;
             // 
             // BeepiForm
             // 
@@ -60,6 +59,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion
-        public BeepUIManager beepuiManager1;
+        public BeepFormUIManager beepuiManager1;
     }
 }

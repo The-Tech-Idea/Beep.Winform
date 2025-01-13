@@ -14,14 +14,14 @@ namespace TheTechIdea.Beep.Vis.Modules
         IDMEEditor DMEEditor { get; set; }
         ErrorsInfo ErrorsandMesseges { get; set; }
         IControlManager Controlmanager { get; set; }
-        IDM_Addin ToolStrip { get; set; }
-        IDM_Addin SecondaryToolStrip { get; set; }
-        IDM_Addin Tree { get; set; }
-        IDM_Addin SecondaryTree { get; set; }
-        IDM_Addin MenuStrip { get; set; }
-        IDM_Addin SecondaryMenuStrip { get; set; }
+        IBeepUIComponent ToolStrip { get; set; }
+        IBeepUIComponent SecondaryToolStrip { get; set; }
+        IBeepUIComponent Tree { get; set; }
+        IBeepUIComponent SecondaryTree { get; set; }
+        IBeepUIComponent MenuStrip { get; set; }
+        IBeepUIComponent SecondaryMenuStrip { get; set; }
         IDM_Addin CurrentDisplayedAddin { get; set; }
-        IDM_Addin MainDisplay { get; set; }
+        IBeepUIComponent MainDisplay { get; set; }
         bool IsDataModified { get; set; }
         bool IsShowingMainForm { get; set; }
         bool IsShowingWaitForm { get; set; }
@@ -31,7 +31,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         bool IsinCaptureMenuMode { get; set; }
         int TreeIconSize { get; set; }
         bool TreeExpand { get; set; }
-        IFunctionandExtensionsHelpers Helpers { get; set; }
         IDisplayContainer Container { get; set; }
         int SecondaryTreeIconSize { get; set; }
         bool SecondaryTreeExpand { get; set; }
@@ -42,14 +41,13 @@ namespace TheTechIdea.Beep.Vis.Modules
         string IconUrl { get;set; }
          bool ShowLogWindow { get ; set ; }
          bool ShowTreeWindow { get ; set; }
+         bool ShowSideBarWindow { get; set; }
         int Width { get; set; }
         int Height { get; set; }
         List<IDM_Addin> Addins { get; set; }
         IWaitForm WaitForm { get; set; }
         IErrorsInfo LoadSetting();
         IErrorsInfo SaveSetting();
-        IVisHelper visHelper { get; set; }
-        IErrorsInfo ShowMainPage();
         IErrorsInfo CallAddinRun();
         IErrorsInfo CloseAddin();
         IErrorsInfo PrintGrid(IPassedArgs passedArgs);
@@ -59,13 +57,19 @@ namespace TheTechIdea.Beep.Vis.Modules
         IErrorsInfo PasstoWaitForm(PassedArgs Passedarguments);
         IErrorsInfo CloseWaitForm();
         IErrorsInfo ShowHome();
+        IErrorsInfo ShowAdmin();
+        IErrorsInfo ShowProfile();
+        IErrorsInfo ShowLogin();
 
         event EventHandler<KeyCombination> KeyPressed;
         IErrorsInfo PressKey(KeyCombination keyCombination);
         string HomePageTitle { get; set; }
         string HomePageName { get; set; }
         string HomePageDescription { get; set; }
-        
+        void NavigateBack();
+        void NavigateForward();
+        void NavigateTo(string routeName, Dictionary<string, object> parameters = null);
+        string BreadCrumb { get; }
         IProfile DefaultProfile { get; set; }
         List<IBeepPrivilege> Privileges { get; set; }
         List<IBeepUser>    Users { get; set; }
@@ -84,6 +88,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         void Notify(object data);
         void Email(object data);
         void Ticket(object data);
+
 
     }
 }

@@ -7,7 +7,6 @@ using TheTechIdea.Beep.ConfigUtil;
 
 using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView;
 
 namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
 {
@@ -18,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
         public IPassedArgs Passedargs { get; set; }
       
         private FunctionandExtensionsHelpers ExtensionsHelpers;
-        public EditMenuFunctions(IDMEEditor pdMEEditor, IVisManager pvisManager, TreeViewControl ptreeControl)
+        public EditMenuFunctions(IDMEEditor pdMEEditor, IVisManager pvisManager, ITree ptreeControl)
         {
             DMEEditor = pdMEEditor;
          

@@ -11,6 +11,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         void SetTitle(string title);
         void SetTitle(string title, string text);
         void SetImage(string image);
+        void UpdateProgress(int progress, string message = null);
         IErrorsInfo Show(PassedArgs Passedarguments);
         IErrorsInfo Close();
     }

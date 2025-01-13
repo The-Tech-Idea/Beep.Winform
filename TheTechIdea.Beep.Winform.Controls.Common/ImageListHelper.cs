@@ -33,7 +33,6 @@ namespace TheTechIdea.Beep.Desktop.Common
         private static int index = -1;
 
         #region "Local File Discovery"
-
         /// <summary>
         /// Scans the given folder (path) for .png or .ico images,
         /// creates ImageConfiguration for each, adds them to ImgAssemblies,
@@ -152,11 +151,7 @@ namespace TheTechIdea.Beep.Desktop.Common
 
             return result;
         }
-
-
-
         #endregion
-
         #region "Embedded Resource Discovery"
 
         /// <summary>
@@ -301,10 +296,6 @@ namespace TheTechIdea.Beep.Desktop.Common
 
             return result;
         }
-
-
-
-
         #endregion
      
         public static List<ImageConfiguration> GetEmbeddedGraphicsInProj(string projectDirectory)

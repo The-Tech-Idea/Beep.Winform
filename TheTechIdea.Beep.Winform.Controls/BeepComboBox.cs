@@ -33,14 +33,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _buttonWidth = 25;
         private int _maxListHeight = 200;
         private int _padding = 2;
-        private int _extraspace = 6; // extra space for the dropdown button
+        private int _extraspace = 1; // extra space for the dropdown button
 
         // If you like, define a min or max width
         private int _minWidth = 80;
 
-        public event EventHandler SelectedIndexChanged;
-        protected virtual void OnSelectedIndexChanged(EventArgs e)
-            => SelectedIndexChanged?.Invoke(this, e);
+
+
+        public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
+        protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
+        {
+            SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
+        }
 
         // Delegate beepListBox CurrentMenutems
         [Browsable(true)]
@@ -56,7 +60,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Possibly _beepListBox.InitializeMenu();
             }
         }
-
+        public SimpleItem SelectedItem
+        {
+            get => _beepListBox.SelectedItem;
+            set
+            {
+                _beepListBox.SelectedItem = value;
+            }
+        }
         [Browsable(false)]
         public int SelectedIndex
         {
@@ -67,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _beepListBox.SelectedIndex = value;
                     _comboTextBox.Text = _beepListBox.ListItems[value].Text;
-                    OnSelectedIndexChanged(EventArgs.Empty);
+                    OnSelectedItemChanged(_beepListBox.SelectedItem); //
                 }
             }
         }
@@ -94,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // 3) Create & add dropDownButton
             _dropDownButton = new BeepButton { 
-                IsChild = true ,
+                IsChild = true,
                 IsBorderAffectedByTheme=false,
                 IsRoundedAffectedByTheme=false,
                 IsShadowAffectedByTheme=false,
@@ -111,8 +122,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 4) Create beepListBox
             _beepListBox = new BeepListBox
             {
-                IsChild = true,
-                Visible = false
+                IsChild = false,
+                Visible = false,
+                ShowAllBorders = false,
+                ShowShadow = false,
+                IsBorderAffectedByTheme = false,
+                IsRoundedAffectedByTheme = false,
+                ImageSize =  20,
+                ShowTitle= false,
             };
             _beepListBox.ItemClicked += (sender, item) =>
             {
@@ -151,6 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void Expand()
         {
             _isExpanded = true;
+            this.BringToFront();
             int neededHeight = _beepListBox.GetMaxHeight();
             int finalListHeight = Math.Min(neededHeight, _maxListHeight);
 
@@ -276,7 +294,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    if (_comboTextBox != null) _comboTextBox.Theme = Theme;
             if (_dropDownButton != null) _dropDownButton.Theme = Theme;
             if (_beepListBox != null) _beepListBox.Theme = Theme;
-            _comboTextBox.BackColor = _currentTheme.BackColor;
+            BackColor = _currentTheme.PanelBackColor;
+            _comboTextBox.BackColor = _currentTheme.PanelBackColor;
             _comboTextBox.ForeColor = _currentTheme.TitleForColor;
         }
         #region "Binding and Control Type"

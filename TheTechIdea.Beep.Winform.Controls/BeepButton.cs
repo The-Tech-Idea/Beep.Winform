@@ -49,9 +49,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _popupmode = false;
         private int _maxListHeight = 100;
         private int _maxListWidth = 100;
-        public event EventHandler SelectedItemChanged;
-        protected virtual void OnSelectedItemChanged(EventArgs e)
-            => SelectedItemChanged?.Invoke(this, e);
+        public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
+        protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
+        {
+            SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
+        }
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -82,7 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_selectedItem != value)
                 {
                     _selectedItem = value;
-                    OnSelectedItemChanged(EventArgs.Empty);
+                    OnSelectedItemChanged(_selectedItem); //
                 }
             }
         }
@@ -441,13 +443,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             _popupForm = new BeepPopupForm();
             _popupForm.OnLeave += (sender, e) =>
             {
-                _isPopupOpen = false;
                 ClosePopup();
             };
             _isPopupOpen = true;
+            _popupForm.TriggerControl = this;
             int _maxListHeight=Width;
             int _maxListWidth=100;
-
+           
             //    InitListbox();
             // 2) Create a borderless popup form
             //  _popupForm = new BeepPopupForm();
@@ -474,13 +476,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             _popupForm.Theme = Theme;
             
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
-            _popupForm.Show();
-            _popupForm.BringToFront();
-            _popupForm.Invalidate();
+            _popupForm.ShowPopup(this,screenPoint);
+          //  _popupForm.BringToFront();
+         //   _popupForm.Invalidate();
         }
         private void ClosePopup()
         {
-            if (!_isPopupOpen) return;
+           
             _isPopupOpen = false;
             _popupForm.Hide();
         }

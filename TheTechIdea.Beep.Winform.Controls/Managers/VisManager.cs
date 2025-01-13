@@ -5,9 +5,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Utilities;
-using TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView;
-using TheTechIdea.Beep.Winform.Controls.MenuBar;
-using TheTechIdea.Beep.Winform.Controls.ToolBar;
+
 using TheTechIdea.Beep.Winform.Controls.Managers.Wizards;
 using TheTechIdea.Beep.Winform.Controls.Template;
 using TheTechIdea.Beep.Winform.Controls.Wait;
@@ -42,66 +40,81 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public IBeepUser User { get; set; }
         public string LogoUrl { get; set; }
         string tt;
-        public string Title { get { return tt; }
-            set { tt = value; } }
+        public string Title
+        {
+            get { return tt; }
+            set { tt = value; }
+        }
         public string IconUrl { get; set; }
         public IDMEEditor DMEEditor { get; set; }
-        public IDM_Addin MenuStrip { get; set; }
-        public IDM_Addin ToolStrip { get; set; }
-        public IDM_Addin Tree { get; set; }
+        public IBeepUIComponent MenuStrip { get; set; }
+        public IBeepUIComponent ToolStrip { get; set; }
+        public IBeepUIComponent Tree { get; set; }
         public ITree MyTree { get; set; }
-        public bool WaitFormShown { get; set;}=false;
-        public IDM_Addin SecondaryTree { get; set; }
-        public IDM_Addin SecondaryToolStrip { get ; set ; }
-        public IDM_Addin SecondaryMenuStrip { get; set ; }
+        public bool WaitFormShown { get; set; } = false;
+        public IBeepUIComponent SecondaryTree { get; set; }
+        public IBeepUIComponent SecondaryToolStrip { get; set; }
+        public IBeepUIComponent SecondaryMenuStrip { get; set; }
         public List<ObjectItem> objects { get; set; } = new List<ObjectItem>();
         public bool IsBeepDataOn { get; set; } = true;
         public bool IsAppOn { get; set; } = true;
         public int TreeIconSize { get; set; } = 32;
         public bool TreeExpand { get; set; } = false;
         public int SecondaryTreeIconSize { get; set; } = 32;
-        public bool SecondaryTreeExpand { get; set; }=false;
+        public bool SecondaryTreeExpand { get; set; } = false;
         public bool IsDevModeOn { get; set; } = false;
+        public bool ShowSideBarWindow { get; set; }
         public string AppObjectsName { get; set; }
-        public string BeepObjectsName { get; set; }="Beep";
+        public string BeepObjectsName { get; set; } = "Beep";
         public IVisHelper visHelper { get; set; }
-        public List<AddinsShownData> addinsShowns { get; set; }=new List<AddinsShownData>();
+        public List<AddinsShownData> addinsShowns { get; set; } = new List<AddinsShownData>();
         public List<IDM_Addin> Addins { get; set; } = new List<IDM_Addin>();
         public IControlManager Controlmanager { get; set; }
         public ControlManager _controlManager { get { return (ControlManager)Controlmanager; } }
         public ErrorsInfo ErrorsandMesseges { get; set; }
         public IDM_Addin CurrentDisplayedAddin { get; set; }
-        public IDM_Addin MainDisplay { get; set; }
+        public IBeepUIComponent MainDisplay { get; set; }
         public IFunctionandExtensionsHelpers Helpers { get; set; }
         bool _isLogOn = false;
-        public bool  IsLogOn { get { return _isLogOn; } 
-            set { _isLogOn = value; 
-                LogOnOffWindows(value); } }
+        public bool IsLogOn
+        {
+            get { return _isLogOn; }
+            set
+            {
+                _isLogOn = value;
+                LogOnOffWindows(value);
+            }
+        }
         public bool IsDataModified { get; set; }
         bool _showLogWindow = false;
         bool _showTreeWindow = true;
         public bool IsShowingWaitForm { get; set; }
-        public bool ShowLogWindow { get => _showLogWindow; set {
-                SetLogWindows(value); } }
+        public bool ShowLogWindow
+        {
+            get => _showLogWindow; set
+            {
+                SetLogWindows(value);
+            }
+        }
         IMainForm MainDisplayForm;
         private void SetLogWindows(bool val)
         {
-            MainDisplayForm= (IMainForm)MainForm;
-            _showLogWindow=val;
-            MainDisplayForm.IsLogPanelShown=val;
+            MainDisplayForm = (IMainForm)MainForm;
+            _showLogWindow = val;
+            MainDisplayForm.IsLogPanelShown = val;
         }
         private void LogOnOffWindows(bool val)
         {
             MainDisplayForm = (IMainForm)MainForm;
             MainDisplayForm.IsLogStarted = val;
-            
+
         }
         public bool ShowTreeWindow { get => _showTreeWindow; set { SetTreeWindow(value); } }
         private void SetTreeWindow(bool val)
         {
             MainDisplayForm = (IMainForm)MainForm;
             _showTreeWindow = val;
-            MainDisplayForm.IsTreeShown=val;
+            MainDisplayForm.IsTreeShown = val;
         }
         public int Width { get; set; } = 1200;
         public int Height { get; set; } = 800;
@@ -113,18 +126,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             IsDataModified = false;
             CurrentDisplayedAddin = null;
             DMEEditor = pdmeeditor;
-         
 
-            Tree = new TreeViewControl(DMEEditor, this);
-            ToolStrip = new ToolbarControl(DMEEditor, (TreeViewControl)Tree);
-            MenuStrip = new MenuControl(DMEEditor, (TreeViewControl)Tree);
 
-            SecondaryTree = new TreeViewControl(DMEEditor, this);
-            SecondaryToolStrip = new ToolbarControl(DMEEditor, (TreeViewControl)Tree);
-            SecondaryMenuStrip = new MenuControl(DMEEditor, (TreeViewControl)Tree);
+            //Tree = new TreeViewControl(DMEEditor, this);
+            //ToolStrip = new ToolbarControl(DMEEditor, (TreeViewControl)Tree);
+            //MenuStrip = new MenuControl(DMEEditor, (TreeViewControl)Tree);
+
+            //SecondaryTree = new TreeViewControl(DMEEditor, this);
+            //SecondaryToolStrip = new ToolbarControl(DMEEditor, (TreeViewControl)Tree);
+            //SecondaryMenuStrip = new MenuControl(DMEEditor, (TreeViewControl)Tree);
 
             Controlmanager = new ControlManager(DMEEditor, this);
-            wizardManager = new WizardManager(DMEEditor,this);
+            wizardManager = new WizardManager(DMEEditor, this);
             if (DMEEditor.Passedarguments == null)
             {
 
@@ -132,68 +145,68 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 DMEEditor.Passedarguments.Objects = new List<ObjectItem>();
 
             }
-            Helpers = new FunctionandExtensionsHelpers(DMEEditor, this,(TreeViewControl)Tree);
+            Helpers = new FunctionandExtensionsHelpers(DMEEditor, this, (ITree)Tree);
             DMEEditor.Passedarguments.Objects = CreateArgsParameterForVisUtil(DMEEditor.Passedarguments.Objects);
             visHelper = new VisHelper(DMEEditor, this);
             a = new PassedArgs();
-             MyTree = (ITree)Tree;
-            MyTree.PreShowItem += MyTree_PreShowItem;
+      //      MyTree = (ITree)Tree;
+      //      MyTree.PreShowItem += MyTree_PreShowItem;
             PostLogin?.Invoke(this, a);
-            
+
         }
 
         private void MyTree_PreShowItem(object? sender, IPassedArgs e)
         {
-           
+
             e.Cancel = false;
             PreShowItem?.Invoke(this, e);
-            
+
 
         }
 
         #region "Winform Implemetation Properties"
         public ImageList Images { get; set; } = new ImageList();
-     
-    //    public List<IFileStorage> ImagesUrls { get; set; } = new List<IFileStorage>();
+
+        //    public List<IFileStorage> ImagesUrls { get; set; } = new List<IFileStorage>();
         BeepWait BeepWaitForm { get; set; }
         public IWaitForm WaitForm { get; set; }
-      
+
         public Form MainForm { get; set; }
         IDisplayContainer container;
         // private Control _container;
-        public IDisplayContainer Container { get { return  container; } set {  container =value;  } } // container.AddinRemoved += Container_AddinRemoved; container.VisManager = this;container.Editor = DMEEditor;
+        public IDisplayContainer Container { get { return container; } set { container = value; } } // container.AddinRemoved += Container_AddinRemoved; container.VisManager = this;container.Editor = DMEEditor;
         //container.AddinChanged += Container_AddinChanged; _controlManager.DisplayPanel = (Control) value;
         #endregion
         public IWizardManager wizardManager { get; set; }
         public bool IsShowingMainForm { get; set; } = false;
-        public bool TurnonOffCheckBox { get  ; set  ; }
-   
+        public bool TurnonOffCheckBox { get; set; }
+
         IDM_Addin MainFormView;
         private bool disposedValue;
-    
+
         private bool CurrentSingltonChecked;
 
         public IErrorsInfo PressKey(KeyCombination keyCombination)
         {
             try
             {
-                    
-                    if (Tree != null)
+
+                if (Tree != null)
+                {
+                    ITree r = (ITree)Tree;
+                    AssemblyClassDefinition s = DMEEditor.ConfigEditor.AppComponents.FirstOrDefault(p => p.GuidID == keyCombination.AssemblyGuid);
+                    MethodsClass methodsClass = null;
+                    if (s != null)
                     {
-                        ITree r = (ITree)Tree;
-                        AssemblyClassDefinition s = DMEEditor.ConfigEditor.AppComponents.FirstOrDefault(p => p.GuidID == keyCombination.AssemblyGuid);
-                        MethodsClass methodsClass = null;
-                        if (s != null)
-                        {
-                            methodsClass = s.Methods.FirstOrDefault(p => p.GuidID == keyCombination.MappedFunction.GuidID);
-                        }
-                        if (methodsClass != null)
-                        {
-                            r.CreateFunctionExtensions(methodsClass);
-                        }
+                        methodsClass = s.Methods.FirstOrDefault(p => p.GuidID == keyCombination.MappedFunction.GuidID);
                     }
-               
-               
+                    if (methodsClass != null)
+                    {
+                        r.CreateFunctionExtensions(methodsClass);
+                    }
+                }
+
+
             }
             catch (Exception ex)
             {
@@ -256,27 +269,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             try
             {
-                PassedArgs E=null;
+                PassedArgs E = null;
                 ErrorsandMesseges = new ErrorsInfo();
                 ErrorsandMesseges = (ErrorsInfo)CheckSystemEntryDataisSet();
-                IsShowingMainForm=true;
+                IsShowingMainForm = true;
                 if (ErrorsandMesseges.Flag == Errors.Ok)
                 {
                     string[] args = { null, null, null };
                     if (DMEEditor.Passedarguments == null)
                     {
                         E = CreateDefaultArgsForVisUtil();
-                    }   
+                    }
                     else
                     {
-                        DMEEditor.Passedarguments.Objects=CreateArgsParameterForVisUtil(DMEEditor.Passedarguments.Objects);
+                        DMEEditor.Passedarguments.Objects = CreateArgsParameterForVisUtil(DMEEditor.Passedarguments.Objects);
                         E = (PassedArgs)DMEEditor.Passedarguments;
                     }
-                    IsShowingMainForm=true;
+                    IsShowingMainForm = true;
                     MainFormView = ShowForm(DMEEditor.ConfigEditor.Config.SystemEntryFormName, DMEEditor, args, E);
-                   
+
                 }
-                IsShowingMainForm=false;
+                IsShowingMainForm = false;
                 ErrorsandMesseges.Flag = Errors.Ok;
                 ErrorsandMesseges.Message = $"Function Executed";
             }
@@ -288,21 +301,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
             return ErrorsandMesseges;
         }
-        public IErrorsInfo ShowPage(string pagename, PassedArgs Passedarguments,DisplayType displayType= DisplayType.InControl, bool Singleton = false)
+        public IErrorsInfo ShowPage(string pagename, PassedArgs Passedarguments, DisplayType displayType = DisplayType.InControl, bool Singleton = false)
         {
             try
             {
                 CurrentSingltonChecked = Singleton;
                 ErrorsandMesseges = new ErrorsInfo();
                 AddinAttribute attrib = new AddinAttribute();
-                
+
                 if (IsDataModified)
                 {
-                    if(Controlmanager.InputBoxYesNo("Beep","Module/Data not Saved, Do you want to continue?")== DialogResult.No)
+                    if (Controlmanager.InputBoxYesNo("Beep", "Module/Data not Saved, Do you want to continue?") == DialogResult.No)
                     {
                         return ErrorsandMesseges;
                     }
-                 
+
                 }
                 CurrentDisplayedAddin = null;
                 IsDataModified = false;
@@ -310,16 +323,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 {
                     Type type = DMEEditor.ConfigEditor.Addins.Where(c => c.className.Equals(pagename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().type;
                     attrib = (AddinAttribute)type.GetCustomAttribute(typeof(AddinAttribute), false);
-                   
+
                     if (attrib != null)
                     {
                         PassedArgs args = new PassedArgs();
                         args.Cancel = false;
                         args.ObjectName = attrib.Name;
                         args.ObjectType = attrib.ObjectType;
-                        args.AddinName=attrib.Name;
+                        args.AddinName = attrib.Name;
                         PreCallModule?.Invoke(this, args);
-                        if(args.Cancel)
+                        if (args.Cancel)
                         {
                             DMEEditor.AddLogMessage("Beep Vis", $"You dont have Access Privilige on {pagename}", DateTime.Now, 0, pagename, Errors.Failed);
                             ErrorsandMesseges.Flag = Errors.Failed;
@@ -330,7 +343,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                         {
                             displayType = DisplayType.Popup;
                         }
-                    
+
 
                         switch (attrib.addinType)
                         {
@@ -391,20 +404,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         }
         private List<ObjectItem> CreateArgsParameterForVisUtil(List<ObjectItem> e)
         {
-            
-            if (!e.Where(c => c.Name.Equals("VISUTIL",StringComparison.InvariantCultureIgnoreCase)).Any())
+
+            if (!e.Where(c => c.Name.Equals("VISUTIL", StringComparison.InvariantCultureIgnoreCase)).Any())
             {
                 ObjectItem v = new ObjectItem { Name = "VISUTIL", obj = this };
                 e.Add(v);
             }
-          
+
             if (objects.Count > 0)
             {
                 foreach (ObjectItem o in objects)
                 {
                     if (!e.Where(c => c.Name.Equals(o.Name, StringComparison.InvariantCultureIgnoreCase)).Any())
                     {
-                        ObjectItem v = new ObjectItem { Name = o.Name, obj = o.obj};
+                        ObjectItem v = new ObjectItem { Name = o.Name, obj = o.obj };
                         e.Add(v);
                     }
                 }
@@ -415,29 +428,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 //    {
                 //        e.Add(item);
                 //    }
-                   
+
                 //}
             }
-           
+
             return e;
         }
         private PassedArgs CreateDefaultArgsForVisUtil()
         {
             List<ObjectItem> items = new List<ObjectItem>(); ;
-            items=CreateArgsParameterForVisUtil(items);
+            items = CreateArgsParameterForVisUtil(items);
 
             PassedArgs E = new PassedArgs { Objects = items };
             return E;
         }
-       
-        private Tuple<AddinsShownData, bool> GetShownData(string formname,Type type)
+
+        private Tuple<AddinsShownData, bool> GetShownData(string formname, Type type)
         {
             UserControl uc = new UserControl();
             bool IsJustAdded = false;
             bool AddinExist = false;
             int idx;
             AddinsShownData shownData = null;
-            if (addinsShowns.Count== 0)
+            if (addinsShowns.Count == 0)
             {
                 addinsShowns.Add(new AddinsShownData() { IsSingleton = CurrentSingltonChecked, IsAdded = true, Name = formname, Type = type.FullName });
                 IsJustAdded = true;
@@ -445,7 +458,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             if (!IsJustAdded)
             {
                 idx = addinsShowns.FindIndex(p => p.Name.Equals(formname, StringComparison.InvariantCultureIgnoreCase));
-                if(idx == -1)
+                if (idx == -1)
                 {
                     addinsShowns.Add(new AddinsShownData() { IsSingleton = CurrentSingltonChecked, IsAdded = true, Name = formname, Type = type.FullName });
                     IsJustAdded = true;
@@ -453,7 +466,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 }
                 else
                 {
-                    AddinExist=true;
+                    AddinExist = true;
                     IsJustAdded = false;
                 }
             }
@@ -476,8 +489,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
                 }
             }
-          
-            if (AddinExist && shownData.IsShown )
+
+            if (AddinExist && shownData.IsShown)
             {
                 if (shownData.IsSingleton && shownData.IsShown)
                 {
@@ -503,7 +516,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     addinsShowns.Remove(addinsShowns[idx]);
                     AddinExist = false;
                 }
-                
+
                 shownData = new AddinsShownData();
             }
             return new(shownData, AddinExist);
@@ -511,12 +524,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         #endregion
         #region "Show Control/Form in Winforms Method"
         //--------------- User Control Show methods
-        public IDM_Addin ShowUserControlInContainer(string usercontrolname,  IDMEEditor pDMEEditor, string[] args, IPassedArgs e)
+        public IDM_Addin ShowUserControlInContainer(string usercontrolname, IDMEEditor pDMEEditor, string[] args, IPassedArgs e)
         {
             // string path = System.IO.Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath) + @"\Addin\";
             if (DMEEditor.ConfigEditor.Addins.Where(c => c.className.Equals(usercontrolname, StringComparison.OrdinalIgnoreCase)).Any())
             {
-                return ShowUserControlDialogOnControl( usercontrolname, (Control)Container, pDMEEditor, args, e);
+                return ShowUserControlDialogOnControl(usercontrolname, (Control)Container, pDMEEditor, args, e);
             }
             else
             {
@@ -528,9 +541,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             if (DMEEditor.ConfigEditor.Addins.Where(c => c.className.Equals(usercontrolname, StringComparison.OrdinalIgnoreCase)).Any())
             {
-               // string path = DMEEditor.ConfigEditor.Addins.Where(c => c.PackageName.Equals(usercontrolname, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().;
+                // string path = DMEEditor.ConfigEditor.Addins.Where(c => c.PackageName.Equals(usercontrolname, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().;
 
-                return ShowUserControlDialog(  usercontrolname, pDMEEditor, args, e);
+                return ShowUserControlDialog(usercontrolname, pDMEEditor, args, e);
             }
             else
             {
@@ -538,11 +551,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
 
         }
-        private IDM_Addin ShowUserControlDialog(  string formname, IDMEEditor pDMEEditor, string[] args, IPassedArgs e)
+        private IDM_Addin ShowUserControlDialog(string formname, IDMEEditor pDMEEditor, string[] args, IPassedArgs e)
         {
             ErrorsandMesseges.Flag = Errors.Ok;
             BeepForm form = new BeepForm();
-           // var path = Path.Combine(dllpath, dllname);
+            // var path = Path.Combine(dllpath, dllname);
             IDM_Addin addin = null;
             if (e == null)
             {
@@ -562,26 +575,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                         e.Objects = new List<ObjectItem>();
                     }
                     e.Objects.AddRange(CreateArgsParameterForVisUtil(DMEEditor.Passedarguments.Objects));
-                    form.Text = addin.AddinName;
-                    addin.SetConfig(pDMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, args, e, ErrorsandMesseges);
-                    form.AddControl(uc,addin.AddinName);
+                    form.Text = addin.Details.AddinName;
+                    // addin.SetConfig(pDMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, args, e, ErrorsandMesseges);
+                    form.AddControl(uc, addin.Details.AddinName);
                     form.Width = uc.Width + 40;
                     form.Height = uc.Height + 40;
                     uc.Dock = DockStyle.Fill;
-               //     CurrentDisplayedAddin = addin;
+                    //     CurrentDisplayedAddin = addin;
                     IsDataModified = false;
-                    form.Title = addin.AddinName;
+                    form.Title = addin.Details.AddinName;
                     form.PreClose -= Form_PreClose;
                     form.PreClose += Form_PreClose;
                     form.AutoSize = true;
                     form.FormBorderStyle = FormBorderStyle.None;
                     form.WindowState = FormWindowState.Normal;
-                 //   form.StartPosition = FormStartPosition.CenterParent;
+                    //   form.StartPosition = FormStartPosition.CenterParent;
                     form.Show(MainForm);
                 }
                 else
                 {
-                    DMEEditor.AddLogMessage("Fail", $"Error Could not Show UserControl { uc.Name}", DateTime.Now, 0, "", Errors.Failed);
+                    DMEEditor.AddLogMessage("Fail", $"Error Could not Show UserControl {uc.Name}", DateTime.Now, 0, "", Errors.Failed);
                 }
             }
             catch (Exception ex)
@@ -599,14 +612,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             a.IsError = e.Cancel;
             PreClose?.Invoke(this, a);
         }
-     
-        private IDM_Addin ShowUserControlDialogOnControl( string formname, Control control, IDMEEditor pDMEEditor, string[] args, IPassedArgs e)
+
+        private IDM_Addin ShowUserControlDialogOnControl(string formname, Control control, IDMEEditor pDMEEditor, string[] args, IPassedArgs e)
         {
             UserControl uc = new UserControl();
             ErrorsandMesseges.Flag = Errors.Ok;
             //Form BeepWaitForm = new Form();
             // var path = Path.Combine(dllpath, dllname);
-           
+
             IDM_Addin addin = null;
             if (e == null)
             {
@@ -616,7 +629,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             {
                 Type type = DMEEditor.ConfigEditor.Addins.Where(c => c.className.Equals(formname, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().type; //dllname.Remove(dllname.IndexOf(".")) + ".Forms." + formname
                 AddinAttribute attrib = (AddinAttribute)type.GetCustomAttribute(typeof(AddinAttribute), false);
-                Tuple<AddinsShownData, bool> Tdata = GetShownData(formname,type);
+                Tuple<AddinsShownData, bool> Tdata = GetShownData(formname, type);
                 AddinsShownData shownData = Tdata.Item1;
                 bool AddinExist = Tdata.Item2;
                 if (AddinExist && CurrentSingltonChecked)
@@ -634,14 +647,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                             if (e.Objects == null)
                             {
                                 e.Objects = new List<ObjectItem>();
-                                e.Objects=CreateArgsParameterForVisUtil(DMEEditor.Passedarguments.Objects);
+                                e.Objects = CreateArgsParameterForVisUtil(DMEEditor.Passedarguments.Objects);
                             }
                             else
                             {
-                                e.Objects=CreateArgsParameterForVisUtil(e.Objects);
+                                e.Objects = CreateArgsParameterForVisUtil(e.Objects);
                             }
-                           
-                            addin.SetConfig(pDMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, args, e, ErrorsandMesseges);
+
+                            // addin.SetConfig(pDMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, args, e, ErrorsandMesseges);
                             CurrentDisplayedAddin = addin;
                             IsDataModified = false;
                             container = (IDisplayContainer)control;
@@ -653,19 +666,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                                 e.Objects.Remove(x);
                             }
                             else
-                                title = addin.AddinName;
+                                title = addin.Details.AddinName;
                             container.AddControl(title, addin, ContainerTypeEnum.TabbedPanel);
                             if (addinsShowns.Count > 0 && CurrentSingltonChecked)
                             {
                                 int idx = addinsShowns.FindIndex(p => p.Name.Equals(formname, StringComparison.InvariantCultureIgnoreCase));
-                                if (idx > -1) 
+                                if (idx > -1)
                                 {
                                     shownData = addinsShowns[idx];
                                 }
                             }
                             shownData.Addin = addin;
                             shownData.IsShown = true;
-                          //  uc.Dock = DockStyle.Fill;
+                            //  uc.Dock = DockStyle.Fill;
                             try
                             {
                                 addin.Run(e);
@@ -676,7 +689,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                         }
                         else
                         {
-                            DMEEditor.AddLogMessage("Fail", $"Error Could not Show UserControl { uc.Name}", DateTime.Now, 0, "", Errors.Failed);
+                            DMEEditor.AddLogMessage("Fail", $"Error Could not Show UserControl {uc.Name}", DateTime.Now, 0, "", Errors.Failed);
                         }
                     }
                     else
@@ -692,7 +705,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                             e.Objects = CreateArgsParameterForVisUtil(e.Objects);
                         }
 
-                        addin.SetConfig(pDMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, args, e, ErrorsandMesseges);
+                        //   addin.Details.SetConfig(pDMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, args, e, ErrorsandMesseges);
                         CurrentDisplayedAddin = addin;
                         IsDataModified = false;
                         if (addinsShowns.Count > 0 && CurrentSingltonChecked)
@@ -723,19 +736,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             if (DMEEditor.ConfigEditor.Addins.Where(c => c.className.Equals(formname, StringComparison.OrdinalIgnoreCase)).Any())
             {
-                return ShowFormDialog( formname, pDMEEditor, args, e);
+                return ShowFormDialog(formname, pDMEEditor, args, e);
             }
             else
             {
                 return null;
             }
         }
-        private IDM_Addin ShowFormDialog( string formname, IDMEEditor pDMEEditor, string[] args, IPassedArgs e)
+        private IDM_Addin ShowFormDialog(string formname, IDMEEditor pDMEEditor, string[] args, IPassedArgs e)
         {
             Form form = null;
             IDM_Addin addin = null;
-           
-           
+
+
             ErrorsandMesseges.Flag = Errors.Ok;
             if (e == null)
             {
@@ -765,24 +778,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     {
                         e.Objects = CreateArgsParameterForVisUtil(e.Objects);
                     }
-                    addin.SetConfig(pDMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, args, e, ErrorsandMesseges);
-                    form.Text = addin.AddinName;
+                    //    addin.SetConfig(pDMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, args, e, ErrorsandMesseges);
+                    form.Text = addin.Details.AddinName;
                     IsDataModified = false;
                     CurrentDisplayedAddin = addin;
-                    form.ShowInTaskbar=true;
+                    form.ShowInTaskbar = true;
                     if (IsShowingMainForm)
                     {
                         MainForm = form;
                         form.Shown += Form_Shown;
                         form.FormClosing += Form_FormClosing;
                         MainForm.StartPosition = FormStartPosition.CenterScreen;
-                      //  MainForm.TopMost = true;
+                        //  MainForm.TopMost = true;
                         MainForm.WindowState = FormWindowState.Normal;
                         MainForm.TopMost = true;
                         form.Width = Width;
                         form.Height = Height;
-                        MainDisplay =addin;
-                        if (!string.IsNullOrEmpty(Title) )
+                        MainDisplay = (IBeepUIComponent)addin;
+                        if (!string.IsNullOrEmpty(Title))
                         {
                             form.Text = Title;
                         }
@@ -793,7 +806,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                         }
                         if (!string.IsNullOrEmpty(HomePageName))
                         {
-                                ShowPage(HomePageName, (PassedArgs)e, DisplayType.InControl, true);
+                            ShowPage(HomePageName, (PassedArgs)e, DisplayType.InControl, true);
                         }
                         IsShowingMainForm = false;
 
@@ -812,15 +825,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                         shownData.IsShown = true;
                         form.StartPosition = FormStartPosition.CenterParent;
                     }
-                 
+
                     try
                     {
                         form.Activate();
                         form.Focus();
                         form.ShowDialog();
-                        
-                     
-                     //   SetForegroundWindow(form.Handle);
+
+
+                        //   SetForegroundWindow(form.Handle);
 
                     }
                     catch (Exception ex)
@@ -830,33 +843,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                         ErrorsandMesseges.Message = $"Error Could not Show Form {form.Name}";
                         DMEEditor.AddLogMessage("Fail", $"Error Could not Show Form {form.Name}", DateTime.Now, 0, "", Errors.Failed);
                     }
-                   
+
 
                 }
                 else
                 {
                     ErrorsandMesseges.Flag = Errors.Failed;
-                    ErrorsandMesseges.Message = $"Error Could not Show Form { form.Name}";
-                    DMEEditor.AddLogMessage("Fail", $"Error Could not Show Form { form.Name}", DateTime.Now, 0, "", Errors.Failed);
+                    ErrorsandMesseges.Message = $"Error Could not Show Form {form.Name}";
+                    DMEEditor.AddLogMessage("Fail", $"Error Could not Show Form {form.Name}", DateTime.Now, 0, "", Errors.Failed);
                 };
             }
             catch (Exception ex)
             {
                 DMEEditor.AddLogMessage("Fail", $"Error While Loading Assembly ({ex.Message})", DateTime.Now, 0, "", Errors.Failed);
             }
-          
+
             return addin;
             //BeepWaitForm.GetType().GetField("")
         }
 
         private void Form_FormClosing(object? sender, FormClosingEventArgs e)
         {
-            IsLogOn=false;  
+            IsLogOn = false;
         }
 
         private void Form_Shown(object? sender, EventArgs e)
         {
-            IsLogOn=true;
+            IsLogOn = true;
             MainDisplayForm.IsLogPanelShown = false;
 
         }
@@ -865,9 +878,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         private IDM_Addin RunAddinClass(string pclassname, IDMEEditor pDMEEditor, string[] args, IPassedArgs e)
         {
             IDM_Addin addin = null;
-           
+
             ErrorsandMesseges.Flag = Errors.Ok;
-          
+
             if (e == null)
             {
                 e = new PassedArgs();
@@ -887,15 +900,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                             e.Objects = CreateArgsParameterForVisUtil(DMEEditor.Passedarguments.Objects);
                         }
                         else
-                       
+
                         {
                             e.Objects = CreateArgsParameterForVisUtil(e.Objects);
                         }
-                        addin.SetConfig(pDMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, args, e, ErrorsandMesseges);
+                        //   addin.SetConfig(pDMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, args, e, ErrorsandMesseges);
                         CurrentDisplayedAddin = addin;
                         IsDataModified = false;
                         addin.Run(e);
-                     
+
                     }
                 }
 
@@ -934,15 +947,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             //}
             //else
             //{
-              //  ctrl.Text = text;
-                ctrl.BeginInvoke(new Action(() => {
-                    ctrl.AppendText(text + Environment.NewLine);
-                    ctrl.SelectionStart = ctrl.Text.Length;
-                    ctrl.ScrollToCaret();
-                }));
+            //  ctrl.Text = text;
+            ctrl.BeginInvoke(new Action(() =>
+            {
+                ctrl.AppendText(text + Environment.NewLine);
+                ctrl.SelectionStart = ctrl.Text.Length;
+                ctrl.ScrollToCaret();
+            }));
             //}
         }
-        private   async  void startwait(PassedArgs Passedarguments)
+        private async void startwait(PassedArgs Passedarguments)
         {
             string[] args = null;
             BeepWaitForm = (BeepWait)Application.OpenForms["BeepWait"];
@@ -950,7 +964,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             {
                 CloseWaitForm();
             }
-            await Task.Run(() => {
+            await Task.Run(() =>
+            {
                 BeepWaitForm = new BeepWait();
                 if (!string.IsNullOrEmpty(Title))
                 {
@@ -965,12 +980,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 //    BeepWaitForm.SetImage(logurl);
                 //}
                 //Debug.WriteLine($"not found logurl");
-                BeepWaitForm.TopMost=true;
-               // Form frm = (Form)MainFormView;
+                BeepWaitForm.TopMost = true;
+                // Form frm = (Form)MainFormView;
                 BeepWaitForm.StartPosition = FormStartPosition.CenterScreen;
-               // BeepWaitForm.ParentNode = frm;
+                // BeepWaitForm.ParentNode = frm;
                 BeepWaitForm.ShowDialog();
-   
+
             });
         }
         public virtual IErrorsInfo ShowWaitForm(PassedArgs Passedarguments)
@@ -983,16 +998,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     IsShowingWaitForm = false;
                     CloseWaitForm();
                 }
-              
+
 
                 ErrorsandMesseges = new ErrorsInfo();
 
                 startwait(Passedarguments);
                 IsShowingWaitForm = true;
-                WaitFormShown =true;
+                WaitFormShown = true;
                 while ((BeepWait)Application.OpenForms["BeepWait"] == null) Application.DoEvents();
                 BeepWaitForm = (BeepWait)Application.OpenForms["BeepWait"];
-               // BeepWaitForm.SetTitle(Title);
+                // BeepWaitForm.SetTitle(Title);
 
             }
             catch (Exception ex)
@@ -1035,12 +1050,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
                 if (BeepWaitForm != null)
                 {
-                   System.Windows.Forms.MethodInvoker action = delegate ()
-                    {
-                        BeepWaitForm.CloseForm();
-                        WaitFormShown = false;
-                        IsShowingWaitForm = false;
-                    };
+                    System.Windows.Forms.MethodInvoker action = delegate ()
+                     {
+                         BeepWaitForm.CloseForm();
+                         WaitFormShown = false;
+                         IsShowingWaitForm = false;
+                     };
 
                     if (BeepWaitForm.InvokeRequired)
                     {
@@ -1060,6 +1075,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
             return ErrorsandMesseges;
         }
+        public IErrorsInfo ShowLogin()
+        {
+            try
+            {
+                // use the view router to show the home page
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return DMEEditor.ErrorObject;
+        }
+        public IErrorsInfo ShowProfile()
+        {
+            try
+            {
+                // use the view router to show the home page
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return DMEEditor.ErrorObject;
+        }
+        public IErrorsInfo ShowAdmin()
+        {
+            try
+            {
+                // use the view router to show the home page
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return DMEEditor.ErrorObject;
+        }
 
         #endregion
         #region "Resource Loaders"
@@ -1070,7 +1127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             try
             {
                 ErrorsandMesseges = new ErrorsInfo();
-               // List<ReportColumn> columns = new List<ReportColumn>();
+                // List<ReportColumn> columns = new List<ReportColumn>();
                 object obj = null;
                 object obj2 = null;
                 DataGridView dv = null;
@@ -1095,9 +1152,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 //f.ReportData = obj;
                 //f.ShowDialog();
                 //DataGrid grid = new DataGrid();
-                 dv= (DataGridView)obj2;
-                 dt = (DataTable)obj;
-               // DataGridPrinting pr = new DataGridPrinting(e.CurrentEntity, dv, dt);
+                dv = (DataGridView)obj2;
+                dt = (DataTable)obj;
+                // DataGridPrinting pr = new DataGridPrinting(e.CurrentEntity, dv, dt);
                 //pr.Print();
 
                 //PrintingSystem printingSystem = new PrintingSystem();
@@ -1118,7 +1175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
             }
             return ErrorsandMesseges;
-           
+
         }
         public IErrorsInfo CallAddinRun()
         {
@@ -1161,13 +1218,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             try
             {
-               
-                    if(!string.IsNullOrEmpty(HomePageName))
-                    {
-                        ShowPage(HomePageName, (PassedArgs)DMEEditor.Passedarguments, DisplayType.InControl, true);
-                    }
-                    
-               
+
+                if (!string.IsNullOrEmpty(HomePageName))
+                {
+                    ShowPage(HomePageName, (PassedArgs)DMEEditor.Passedarguments, DisplayType.InControl, true);
+                }
+
+
             }
             catch (Exception ex)
             {
@@ -1183,7 +1240,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public string HomePageDescription { get; set; }
         public IProfile DefaultProfile { get; set; }
         public List<IBeepPrivilege> Privileges { get; set; } = new List<IBeepPrivilege>();
-        public List<IBeepUser> Users { get; set; }=new List<IBeepUser>();
+        public List<IBeepUser> Users { get; set; } = new List<IBeepUser>();
+
+        public string BreadCrumb { get; set; }
 
         protected virtual void Dispose(bool disposing)
         {
@@ -1205,9 +1264,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     {
                         container.Clear();
                     }
-                   
+
                     MainFormView = null;
-                    
+
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
@@ -1230,26 +1289,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             GC.SuppressFinalize(this);
         }
 
-        public virtual void PrintData( object data)
+        public virtual void PrintData(object data)
         {
-           
+
         }
 
-        public virtual void Notify( object data)
+        public virtual void Notify(object data)
         {
-            
+
         }
 
-        public virtual void Email( object data)
+        public virtual void Email(object data)
         {
-           
+
         }
 
         public virtual void Ticket(object data)
         {
-           
+
         }
 
-     
+        public void NavigateBack()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void NavigateForward()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void NavigateTo(string routeName, Dictionary<string, object> parameters = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

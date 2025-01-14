@@ -12,6 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepMenuBar : BeepControl
     {
         private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
+        private BindingList<SimpleItem> currentMenu = new BindingList<SimpleItem>();
         private int _selectedIndex = -1;
         
         private int _menuItemWidth = 60;
@@ -19,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _menuItemHeight=16;
         private Size ButtonSize = new Size(60, 20);
         private BeepPopupForm _popupForm;
-        private LinkedList<SimpleItem> _ChildmenuItems = new LinkedList<SimpleItem>();
+        
         #region "Properties"
 
         [Browsable(true)]
@@ -27,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [MergableProperty(false)]
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public BindingList<SimpleItem> ListItems
+        public BindingList<SimpleItem> MenuItems
         {
             get => items;
             set
@@ -37,14 +38,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        public event EventHandler SelectedIndexChanged;
-
-        protected virtual void OnSelectedIndexChanged(EventArgs e) => SelectedIndexChanged?.Invoke(this, e);
-
+        public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
+        protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
+        {
+            SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
+        }
         private BeepListBox maindropdownmenu = new BeepListBox();
         private Dictionary<string, BeepButton> menumainbar = new Dictionary<string, BeepButton>();
         private bool _isPopupOpen;
-
+        private SimpleItem _selectedItem;
+        public SimpleItem SelectedItem
+        {
+            get => _selectedItem;
+            private set
+            {
+                if (_selectedItem != value)
+                {
+                    _selectedItem = value;
+                    OnSelectedItemChanged(_selectedItem); //
+                }
+            }
+        }
         [Browsable(false)]
         public int SelectedIndex
         {
@@ -55,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _selectedIndex = value;
                     //  HighlightSelectedButton();
-                    OnSelectedIndexChanged(EventArgs.Empty);
+                    SelectedItem = currentMenu[value];
                 }
             }
         }
@@ -252,12 +266,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (selectedItem != null)
                 {
                     SelectedIndex = items.IndexOf(selectedItem);
+                    currentMenu = _beepListBox.ListItems;
                     // get height of item in beepListBox
-                   if(selectedItem.Children.Count > 0)
-                    {
-                        ShowChildPopup(selectedItem, new Point(_beepListBox.Right, _beepListBox.Top + selectedItem.Y));
-                    }
-                        
+                    //if(selectedItem.Children.Count > 0)
+                    // {
+                    //     ShowChildPopup(selectedItem, new Point(_beepListBox.Right, _beepListBox.Top + selectedItem.Y));
+                    // }
+
                 }
             };
             int neededHeight = _beepListBox.GetMaxHeight() ;
@@ -278,7 +293,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
             _popupForm.BorderThickness = 0;
 
-            _popupForm.ShowPopup(this, screenPoint);
+            _popupForm.ShowPopup(this,BeepPopupFormPosition.Bottom);
         }
         private void ShowChildPopup(SimpleItem item, Point point)
         {
@@ -331,7 +346,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
             _childpopupForm.BorderThickness = 2;
 
-            _childpopupForm.ShowPopup(this, screenPoint);
+            _childpopupForm.ShowPopup(_popupForm, BeepPopupFormPosition.Right);
           
         }
         private void ClosePopup()

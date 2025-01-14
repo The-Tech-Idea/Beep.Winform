@@ -831,6 +831,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isExpanded=false;
        
             RearrangeNode();
+            ApplyTheme();
         }
         public void RearrangeNode()
         {
@@ -1247,27 +1248,26 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NodeMainMiddlebutton.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
 
             }
+            if (Noderightbutton != null)
+            {
+                Noderightbutton.Theme = Theme;
+            }
             if (Nodeleftbutton != null)
             {
                 Nodeleftbutton.Theme = Theme;
-                if (Noderightbutton != null)
-                {
-                    Noderightbutton.Theme = Theme;
-                }
-                foreach (var item in NodesControls)
-                {
-                    item.Theme = Theme;
-                    // item.ApplyTheme();
-                }
-
+            }
+            foreach (var item in NodesControls)
+            {
+                item.Theme = Theme;
+                // item.ApplyTheme();
             }
             if (_checkBox != null)
             {
                 _checkBox.Theme = Theme;
                 _checkBox.ApplyTheme();
             }
-            NodeMainMiddlebutton.ForeColor = _currentTheme.AccentColor;
-            NodeMainMiddlebutton.BackColor = _currentTheme.PanelBackColor;
+           // NodeMainMiddlebutton.ForeColor = _currentTheme.AccentColor;
+           // NodeMainMiddlebutton.BackColor = _currentTheme.PanelBackColor;
             _nodePanel.BackColor = _currentTheme.PanelBackColor;
             _childrenPanel.BackColor = _currentTheme.PanelBackColor;
             this.BackColor = _currentTheme.PanelBackColor;

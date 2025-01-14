@@ -3,6 +3,14 @@ using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
+    public enum BeepPopupFormPosition
+    {
+        Top,
+        Bottom,
+        Left,
+        Right
+    }
+
     public class BeepPopupForm : BeepiForm
     {
         private Timer _timerTriggerLeave;
@@ -116,6 +124,92 @@ namespace TheTechIdea.Beep.Winform.Controls
             return controlBounds.Contains(mousePos);
         }
 
+        #region "Show Functions"
+        // --------------------------------------------------------------------
+        // NEW METHOD: ShowPopup with position
+        // --------------------------------------------------------------------
+        /// <summary>
+        /// Shows the popup form relative to the specified triggering control and
+        /// BeepPopupFormPosition, allowing explicit width and height.
+        /// </summary>
+        /// <param name="triggerControl">The control that triggers the popup.</param>
+        /// <param name="position">Where the popup should appear relative to the control.</param>
+        /// <param name="width">Desired width of the popup.</param>
+        /// <param name="height">Desired height of the popup.</param>
+        public void ShowPopup(Control triggerControl, BeepPopupFormPosition position, int width, int height)
+        {
+            if (triggerControl == null)
+                throw new ArgumentNullException(nameof(triggerControl));
+
+            // First, set the desired size of the popup
+            this.Size = new Size(width, height);
+
+            // Next, calculate location based on position
+            Point location = CalculatePopupLocation(triggerControl, position);
+
+            // Reuse our existing ShowPopup(Control, Point)
+            ShowPopup(triggerControl, location);
+        }
+
+        public void ShowPopup(Control triggerControl, BeepPopupFormPosition position)
+        {
+            if (triggerControl == null)
+                throw new ArgumentNullException(nameof(triggerControl));
+
+            // Determine the popup location based on the provided position
+            Point location = CalculatePopupLocation(triggerControl, position);
+
+            // Reuse the existing ShowPopup method that takes (Control, Point)
+            ShowPopup(triggerControl, location);
+        }
+
+        /// <summary>
+        /// Calculates the popup form location based on the triggerControl’s screen
+        /// coordinates and the specified BeepPopupFormPosition.
+        /// </summary>
+        private Point CalculatePopupLocation(Control triggerControl, BeepPopupFormPosition position)
+        {
+            // Convert trigger control’s (0,0) into screen coordinates
+            Point triggerScreenLocation = triggerControl.PointToScreen(Point.Empty);
+            Size triggerSize = triggerControl.Size;
+
+            // NOTE: If you need to ensure your popup has an updated size
+            // before calculating, you can measure or set it. For example:
+            //   this.Size = new Size(desiredWidth, desiredHeight);
+
+            // Default to bottom as an example
+            Point location = triggerScreenLocation;
+
+            switch (position)
+            {
+                case BeepPopupFormPosition.Top:
+                    location = new Point(
+                        triggerScreenLocation.X,
+                        triggerScreenLocation.Y - this.Height
+                    );
+                    break;
+                case BeepPopupFormPosition.Bottom:
+                    location = new Point(
+                        triggerScreenLocation.X,
+                        triggerScreenLocation.Y + triggerSize.Height
+                    );
+                    break;
+                case BeepPopupFormPosition.Left:
+                    location = new Point(
+                        triggerScreenLocation.X - this.Width,
+                        triggerScreenLocation.Y
+                    );
+                    break;
+                case BeepPopupFormPosition.Right:
+                    location = new Point(
+                        triggerScreenLocation.X + triggerSize.Width,
+                        triggerScreenLocation.Y
+                    );
+                    break;
+            }
+
+            return location;
+        }
 
         /// <summary>
         /// Displays the popup form relative to the specified triggering control and location.
@@ -172,6 +266,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _timerPopupLeave.Stop();
             };
         }
+        #endregion "Show Functions"
+
 
         /// <summary>
         /// Closes the popup form and invokes the OnLeave event.

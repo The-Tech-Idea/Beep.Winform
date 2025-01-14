@@ -92,28 +92,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
     //           ImageList16 = new ImageList();
     //           ImageList16.ColorDepth = ColorDepth.Depth32Bit;
-    //           ImageList16.ImageSize = new Size(24, 24);
+    //           ImageList16.RightButtonSize = new Size(24, 24);
     //           ImageList16.Images.Clear(); // Clear existing images if any
 
 
     //           ImageList32 = new ImageList();
     //           ImageList32.ColorDepth = ColorDepth.Depth32Bit;
-    //           ImageList32.ImageSize = new Size(32, 32);
+    //           ImageList32.RightButtonSize = new Size(32, 32);
     //           ImageList32.Images.Clear(); // Clear existing images if any
 
     //           ImageList24 = new ImageList();
     //           ImageList24.ColorDepth = ColorDepth.Depth32Bit;
-    //           ImageList24.ImageSize = new Size(24, 24);
+    //           ImageList24.RightButtonSize = new Size(24, 24);
     //           ImageList24.Images.Clear(); // Clear existing images if any
 
     //           ImageList64 = new ImageList();
     //           ImageList64.ColorDepth = ColorDepth.Depth32Bit;
-    //           ImageList64.ImageSize = new Size(64, 64);
+    //           ImageList64.RightButtonSize = new Size(64, 64);
     //           ImageList64.Images.Clear(); // Clear existing images if any
 
     //           ImageList128 = new ImageList();
     //           ImageList128.ColorDepth = ColorDepth.Depth32Bit;
-    //           ImageList128.ImageSize = new Size(128, 128);
+    //           ImageList128.RightButtonSize = new Size(128, 128);
     //           ImageList128.Images.Clear(); // Clear existing images if any
 
     //       }

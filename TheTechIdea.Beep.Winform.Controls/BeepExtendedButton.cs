@@ -3,6 +3,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Desktop.Common;
 
 
+
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
@@ -15,13 +16,46 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton button;
         Panel highlightPanel;
         private int buttonWidth = 200;
-        
+        private int extendbuttonWidth = 22;
         private int buttonHeight = 30;
         private int starty = 2;
-        private int startx = 2;
+        private int startx = 0;
 
         private Size _imagesize = new Size(20, 20);
         bool _applyThemeOnImage = false;
+
+        public TextImageRelation TextImageRelation
+        {
+            get => button.TextImageRelation;
+            set
+            {
+                if (button != null) button.TextImageRelation = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public ContentAlignment ImageAlign
+        {
+            get => button.ImageAlign;
+            set
+            {
+                if (button != null) button.ImageAlign = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public ContentAlignment TextAlign
+        {
+            get => button.TextAlign;
+            set
+            {
+                if (button != null)  button.TextAlign = value;
+                Invalidate();
+            }
+        }
+
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -32,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => button.Width;
             set
             {
-                button.Width = value;
+                if (button != null) button.Width = value;
                 UpdateDrawingRect();
                 _isControlinvalidated = true;
                 Invalidate();
@@ -40,19 +74,40 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Change Size of  images inside control")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public int ImageSize
+        public Size MaxImageSize
         {
-            get => _imagesize.Width;
+            get => button.MaxImageSize;
             set
             {
-                _imagesize.Width = value;
-                _imagesize.Height = value;
-                button.MaxImageSize = _imagesize;
-                extendButton.MaxImageSize = _imagesize;
-                _isControlinvalidated = true;
-                Invalidate();
+                _imagesize = value;
+                if(button != null)
+                {
+                    button.MaxImageSize = value;
+                    button.MaxImageSize = _imagesize;
+                    extendButton.MaxImageSize = _imagesize;
+                }
+              
+                Invalidate(); // Repaint when the max image size changes
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Change Size of  images inside control")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int RightButtonSize
+        {
+            get => extendbuttonWidth;
+            set
+            {
+                if(extendButton != null)
+                {
+                    extendbuttonWidth = value;
+                    extendButton.Width = value;
+                    //  extendButton.Height = value;
+                    _isControlinvalidated = true;
+                    Invalidate();
+                }
+        
             }
         }
        
@@ -62,20 +117,30 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _applyThemeOnImage = value;
-                button.ApplyThemeOnImage = value;
-                if (value)
+                if (button != null)
                 {
-
+                    button.ApplyThemeOnImage = value;
+                    extendButton.ApplyThemeOnImage = value;
                     if (ApplyThemeOnImage)
                     {
+                        extendButton.Theme = Theme;
                         button.Theme = Theme;
-
-                        button.ApplyThemeToSvg();
-
                     }
+                    _isControlinvalidated = true;
+                    Invalidate();
                 }
-                _isControlinvalidated = true;
-                Invalidate();
+              
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool UseScaledFont
+        {
+            get => button.UseScaledFont;
+            set
+            {
+                if(button != null)     button.UseScaledFont = value;
+                Invalidate();  // Trigger repaint
             }
         }
         private string _buttonImagePath;
@@ -95,8 +160,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (ApplyThemeOnImage)
                     {
                         button.Theme = Theme;
-                        button.ApplyThemeToSvg();
-                        button.ApplyTheme();
                     }
                     _isControlinvalidated = true;
                     Invalidate(); // Repaint when the image changes
@@ -168,7 +231,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 100;
                 Height = buttonHeight;
             }
-            CreateMenuItemPanel();
+          //  CreateMenuItemPanel();
             BoundProperty= "Text";
         }
         protected override void InitLayout()
@@ -190,12 +253,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             // DrawingRect.Inflate(-2, -10);
             buttonHeight = DrawingRect.Height - 2;
             // Main button setup
+            Console.WriteLine("Control CreateMenuItemPanel");
             button = new BeepButton
             {
-                Size = new Size(DrawingRect.Width - ImageSize -  4, buttonHeight),
+                Size = new Size(DrawingRect.Width - RightButtonSize -  4, buttonHeight),
                 Location = new Point(startx, starty),
                 
-                MaxImageSize = new Size(ImageSize, ImageSize),
+                MaxImageSize = new Size(RightButtonSize, RightButtonSize),
                 Text = this.Text,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -208,7 +272,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsRounded = false,
                 ApplyThemeOnImage = ApplyThemeOnImage
             };
-
+            Console.WriteLine("Control CreateMenuItemPanel 1");
             if (MenuItem != null)
             {
                 button.Text = MenuItem.Text;
@@ -217,15 +281,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                     button.ImagePath = MenuItem.ImagePath;
                 }
             }
-
+            Console.WriteLine("Control CreateMenuItemPanel 2");
             // Extend button setup
             extendButton = new BeepButton
             {
                 HideText = true,
-                Size = new Size(ImageSize + 4, buttonHeight),
+                Size = new Size(RightButtonSize + 4, buttonHeight),
                 Location = new Point(button.Right + 1 , starty),
                
-                MaxImageSize = new Size(ImageSize, ImageSize),
+                MaxImageSize = new Size(RightButtonSize, RightButtonSize),
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 Theme = Theme,
@@ -236,17 +300,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BorderSize = 0,
                 ApplyThemeOnImage = ApplyThemeOnImage
             };
-
+            Console.WriteLine("Control CreateMenuItemPanel 3");
             if (!string.IsNullOrEmpty(_buttonImagePath))
             {
                 button.ImagePath = _buttonImagePath;
             }
-
+            Console.WriteLine("Control CreateMenuItemPanel 4");
             if (!string.IsNullOrEmpty(_extendedbuttonImagePath))
             {
                 extendButton.ImagePath = _extendedbuttonImagePath;
             }
-
+            Console.WriteLine("Control CreateMenuItemPanel 5");
             // Add highlight panel, main button, and extend button to the panel
             Controls.Add(highlightPanel);
             Controls.Add(button);
@@ -258,44 +322,68 @@ namespace TheTechIdea.Beep.Winform.Controls
             //button.MouseHover += (s, e) => { highlightPanel.BackColor = _currentTheme.ButtonHoverBackColor; };
             button.Click += MenuItemButton_Click;
             extendButton.Click += ExtendButton_Click;
-
+            Console.WriteLine("Control CreateMenuItemPanel 6");
             // Add the panel to the control
-           
 
+            rearrangeControls();
+            Console.WriteLine("Control CreateMenuItemPanel 7");
             _isControlinvalidated = false;
         }
 
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-           // Console.WriteLine("Control Invalidated 1 ");
-            if (_isControlinvalidated)
-            {
-               // Console.WriteLine("Control Invalidated 2");
-                Controls.Clear();
-                CreateMenuItemPanel();
-                _isControlinvalidated = false;
-            }
+        //protected override void OnPaint(PaintEventArgs e)
+        //{
+        //    base.OnPaint(e);
+        //   // Console.WriteLine("Control Invalidated 1 ");
+        //    if (_isControlinvalidated)
+        //    {
+        //       // Console.WriteLine("Control Invalidated 2");
+        //        Controls.Clear();
+        //        CreateMenuItemPanel();
+        //        _isControlinvalidated = false;
+        //    }
 
-        }
+        //}
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            UpdateDrawingRect();
-            
-            if (button != null && extendButton != null)
-            {
-                button.Size = new Size(DrawingRect.Width - ImageSize -  4, buttonHeight);
-                button.Location = new Point(startx, starty);
-                extendButton.Size = new Size(ImageSize + 4, buttonHeight);
-                extendButton.Location = new Point(button.Right , starty);
-            }
-
+         
             _isControlinvalidated = true;
+            rearrangeControls();
             Invalidate();
         }
-       
+        private void rearrangeControls()
+        {
+            UpdateDrawingRect();
+            DrawingRect.Inflate(-1, -1);
+            if (button != null && extendButton != null)
+            {
+                buttonHeight = DrawingRect.Height - 2;
+                // We want a small gap (like 2px) between the two buttons:
+                int gapBetweenButtons = 2;
+
+                // Extended button has a known width:
+                int extButtonWidth = RightButtonSize;   // your chosen formula
+                                                  // The main button gets whatever is left in the DrawingRect minus the gap.
+                int mainButtonWidth = DrawingRect.Width - extButtonWidth
+                                      - (startx * 2)  // left & right padding if needed
+                                      - gapBetweenButtons;
+
+                // Make sure mainButtonWidth doesn’t become negative in small resizes
+                if (mainButtonWidth < 0) mainButtonWidth = 0;
+
+                // Now set sizes:
+                button.Size = new Size(mainButtonWidth, buttonHeight);
+                button.Location = new Point(startx, starty);
+
+                extendButton.Size = new Size(extButtonWidth, buttonHeight);
+
+                // Place the extend button to the right of the main button with the gap:
+                extendButton.Location = new Point(button.Right + gapBetweenButtons, starty);
+            }
+
+        }
+
         private void ExtendButton_Click(object? sender, EventArgs e)
         {
             ExtendButtonClick?.Invoke(this, new BeepEventDataArgs("ExentededButtonClick", MenuItem));

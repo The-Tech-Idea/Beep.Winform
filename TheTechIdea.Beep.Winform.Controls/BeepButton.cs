@@ -174,9 +174,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (ApplyThemeOnImage)
                     {
                         beepImage.Theme = Theme;
-
-                        beepImage.ApplyThemeToSvg();
-
                     }
                 }
                 Invalidate();

@@ -269,79 +269,105 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Adjust the layout of the image and text
         private void RefreshLayout()
         {
-            Padding = new Padding(8); // Add more padding to avoid edge overlap
+            // Basic checks & padding
+            Padding = new Padding(2);
             int padding = Padding.All;
             UpdateDrawingRect();
 
-            // Ensure the control has a minimum size to avoid negative or zero size issues
+            // Exit early if control is too small
             if (DrawingRect.Width <= padding * 2 || DrawingRect.Height <= padding * 2)
-            {
-                return; // Skip layout if there's not enough space
-            }
+                return;
 
-            int availableHeight = Math.Max(0, DrawingRect.Height - padding * 2);
             int availableWidth = Math.Max(0, DrawingRect.Width - padding * 2);
+            int availableHeight = Math.Max(0, DrawingRect.Height - padding * 2);
 
-            // Header size and alignment
-            Size headerSize = TextRenderer.MeasureText(headerLabel.Text, headerLabel.Font);
-            headerLabel.Size = headerSize;
+            // 1) Measure the header text to get the row height needed
+            //    (We only really need its height now; for width, we’ll fill instead.)
+            Size measuredHeader = TextRenderer.MeasureText(headerLabel.Text, headerLabel.Font);
+            int headerMeasuredHeight = measuredHeader.Height; // This is the “natural” text height
 
-            // Image size and alignment
+            // 2) Determine the image’s actual size (bounded by maxImageSize, half the row, etc.)
             Size imageSize = new Size(
                 Math.Min(maxImageSize, availableWidth / 2),
                 Math.Min(maxImageSize, availableHeight / 2)
             );
             imageBox.Size = imageSize;
 
-            // Determine top row layout (header + image)
-            int topRowHeight = Math.Max(headerSize.Height, imageSize.Height);
-            int topRowY = DrawingRect.Top + padding; // Adjust the starting Y position for the row
+            // 3) Figure out how tall the top row is (whichever is bigger: the image or the header text)
+            int topRowHeight = Math.Max(headerMeasuredHeight, imageSize.Height);
+            int topRowY = DrawingRect.Top + padding;
 
-            // Position header and image based on alignment
-            int headerX, imageX;
-
-            switch (HeaderAlignment)
+            // --------------------------------------------
+            // EXAMPLE: If HeaderAlignment is Left, place header on the left, image on the right.
+            // --------------------------------------------
+            if (HeaderAlignment == ContentAlignment.TopLeft
+                || HeaderAlignment == ContentAlignment.MiddleLeft)
             {
-                case ContentAlignment.TopLeft:
-                case ContentAlignment.MiddleLeft:
-                    headerX = DrawingRect.Left + padding;
-                    imageX = DrawingRect.Right - imageSize.Width - padding;
-                    break;
+                // (A) Place the image on the right side
+                int imageX = DrawingRect.Right - padding - imageSize.Width;
+                int imageY = topRowY + (topRowHeight - imageSize.Height) / 2;
+                imageBox.Location = new Point(imageX, imageY);
 
-                case ContentAlignment.TopRight:
-                case ContentAlignment.MiddleRight:
-                    headerX = DrawingRect.Right - headerSize.Width - padding;
-                    imageX = DrawingRect.Left + padding;
-                    break;
+                // (B) Make headerLabel fill from the left to just before the image
+                int labelX = DrawingRect.Left + padding;
+                int labelWidth = Math.Max(0, imageX - labelX - 5);
+                // ‘5’ is optional spacing between text & image
+                int labelHeight = headerMeasuredHeight;
 
-                default: // Center alignment
-                    headerX = DrawingRect.Left + (DrawingRect.Width - headerSize.Width) / 2;
-                    imageX = DrawingRect.Right - imageSize.Width - padding;
-                    break;
+                // (C) Vertical positioning for the header
+                int headerY = topRowY + (topRowHeight - labelHeight) / 2;
+
+                // Set the new position & size
+                headerLabel.Location = new Point(labelX, headerY);
+                headerLabel.Size = new Size(labelWidth, labelHeight);
+
+                // Optionally ensure the text itself is left-aligned within that box
+                headerLabel.TextAlign = ContentAlignment.MiddleLeft;
+            }
+            else if (HeaderAlignment == ContentAlignment.TopRight
+                  || HeaderAlignment == ContentAlignment.MiddleRight)
+            {
+                // (A) Place the image on the left side
+                int imageX = DrawingRect.Left + padding;
+                int imageY = topRowY + (topRowHeight - imageSize.Height) / 2;
+                imageBox.Location = new Point(imageX, imageY);
+
+                // (B) Make headerLabel fill from right after the image to the control’s right edge
+                int labelX = imageX + imageSize.Width + 5; // some spacing
+                int labelWidth = Math.Max(0, (DrawingRect.Right - padding) - labelX);
+                int labelHeight = headerMeasuredHeight;
+
+                int headerY = topRowY + (topRowHeight - labelHeight) / 2;
+                headerLabel.Location = new Point(labelX, headerY);
+                headerLabel.Size = new Size(labelWidth, labelHeight);
+
+                headerLabel.TextAlign = ContentAlignment.MiddleRight;
+                // or MiddleLeft if you prefer text pinned left in that region
+            }
+            else
+            {
+                // Example: If you want "Center" alignment, you could do something else:
+                // * Place image somewhere in the row.
+                // * Then let the label fill the remaining space, maybe centered horizontally.
+                // (Implementation depends on your exact needs.)
             }
 
-            // Adjust headerLabel's vertical position for better alignment with imageBox
-            int headerY = topRowY + (topRowHeight - headerSize.Height) / 2; // Center-align vertically with imageBox
-            headerLabel.Location = new Point(headerX, headerY);
-
-            // Adjust imageBox's vertical position to match the row
-            int imageY = topRowY + (topRowHeight - imageSize.Height) / 2; // Center-align vertically with headerLabel
-            imageBox.Location = new Point(imageX, imageY);
-
-            // Position paragraph label below the top row
+            // 4) Next, position the paragraph label below
             int contentTop = Math.Max(headerLabel.Bottom, imageBox.Bottom) + padding;
-
-            // Calculate remaining height for paragraphLabel
             int remainingHeight = DrawingRect.Bottom - contentTop - padding;
+
             paragraphLabel.Size = new Size(availableWidth, Math.Max(0, remainingHeight));
+            paragraphLabel.Location = new Point(DrawingRect.Left + padding, contentTop);
 
-            paragraphLabel.Location = new Point(
-                DrawingRect.Left + padding,
-                contentTop
-            );
+            // 5) Ensure the header is on top if needed
+            headerLabel.BringToFront();
+            Controls.SetChildIndex(headerLabel, 0);
 
-            paragraphLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
+            // 6) Let paragraph label anchor to all sides
+            paragraphLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left
+                                  | AnchorStyles.Right | AnchorStyles.Top;
         }
+
         private GraphicsPath RoundedRect(Rectangle bounds, int radius)
         {
             int diameter = radius * 2;

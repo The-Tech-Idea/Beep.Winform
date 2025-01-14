@@ -26,9 +26,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void BeepButton1_Click(object? sender, EventArgs e)
         {
             
-          beepTreeControl1.CreateRootTree();
-            BeepFileDialog beepFileDialog = new BeepFileDialog();
-        //    beepFileDialog.ShowDialog();
+             beepTreeControl1.CreateRootTree();
+            BeepPopupListForm beepFileDialog = new BeepPopupListForm(beepTreeControl1.Nodes.ToList());
+            // Get the screen position of the control's top-left corner
+            Point screenPoint = beepButton1.PointToScreen(Point.Empty);
+            Point point = new Point(screenPoint.X, screenPoint.Y + beepButton1.Height);
+            beepFileDialog.ShowPopup(beepButton1, beepButton1.Location);
 
         }
 

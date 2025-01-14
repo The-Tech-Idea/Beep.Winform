@@ -603,7 +603,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                IsinCaptureMenuMode = true;
 
                 //tree. = new TreeNodeDragandDropHandler(DMEEditor, this);
-                //tree.treeBranchHandler = new TreeBranchHandler(DMEEditor, this);
+                //tree.Treebranchhandler = new TreeBranchHandler(DMEEditor, this);
                 tree.Branches = new List<IBranch>();
                 IBranch Genrebr = null;
                 // AssemblyClassDefinition GenreBrAssembly = DMEEditor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).FirstOrDefault()!;
@@ -744,7 +744,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                 IsinCaptureMenuMode = true;
                 int SeqID = 0;
                 //tree. = new TreeNodeDragandDropHandler(DMEEditor, this);
-                //tree.treeBranchHandler = new TreeBranchHandler(DMEEditor, this);
+                //tree.Treebranchhandler = new TreeBranchHandler(DMEEditor, this);
                 Branches = new List<IBranch>();
                 GenerBranchs = new List<Tuple<IBranch, string>>();
                 IBranch Genrebr = null;

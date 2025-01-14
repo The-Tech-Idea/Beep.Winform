@@ -11,7 +11,7 @@ using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
+
 using static TheTechIdea.Beep.Utilities.Util;
 
 
@@ -37,17 +37,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         {
             VisManager = service.vis;
             DMEEditor = service.DMEEditor;
-            treeBranchHandler = new BeepTreeBranchHandler(service, this);
+            Treebranchhandler = new BeepTreeBranchHandler(service, this);
             DropHandler = new BeepTreeNodeDragandDropHandler(service, this);
             this.NodeRightClicked += BeepTreeControl_NodeRightClicked;
             this.NodeClicked += BeepTreeControl_NodeClicked;
             this.SelectedItemChanged += BeepTreeControl_SelectedItemChanged;
         }
-
-      
-
-
-
         #region "Properties"
 
         public string ObjectType { get; set; }= "Beep";
@@ -93,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             return DMEEditor.ErrorObject;
            
         }
-        public ITreeBranchHandler treeBranchHandler { get; set; }
+        public ITreeBranchHandler Treebranchhandler { get; set; }
         public BeepTreeNodeDragandDropHandler DropHandler { get; set; }
         public IBranch SelectedBranch { get; private set; }
         public SimpleItem SelectedItem { get; private set; }
@@ -203,7 +198,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             string packagename = "";
             try
             {
-               Branches = new List<IBranch>();
+                Branches = new List<IBranch>();
+                GenerBranchs = new List<Tuple<IBranch, string>>();
+                Nodes.Clear();
+                ClearNodes();
                 IBranch Genrebr = null;
                 foreach (AssemblyClassDefinition GenreBrAssembly in DMEEditor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).OrderBy(x => x.Order))
                 {
@@ -326,8 +324,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                                             {
                                                 if (Genrebr.Visible)
                                                 {
-                                                    treeBranchHandler.AddBranch(Genrebr, br);
-                                                    br!.CreateChildNodes();
+                                                    AddBranch(Genrebr, br);
+                                                    //br!.CreateChildNodes();
                                                 }
 
                                             }
@@ -346,8 +344,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                                 {
                                     if (cls.classProperties.Category != DatasourceCategory.NONE)
                                     {
-                                        treeBranchHandler.AddBranch(Genrebr, br);
-                                        br!.CreateChildNodes();
+                                        AddBranch(Genrebr, br);
+                                        //br!.CreateChildNodes();
                                     }
                                     else
                                     {
@@ -376,7 +374,101 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             };
             return DMEEditor.ErrorObject;
         }
-        private void CreateNode(int id, IBranch br)
+        public IErrorsInfo AddBranch(IBranch ParentBranch, IBranch br)
+        {
+            SimpleItem parentnode = new SimpleItem();
+            try
+            {
+                int id = SeqID;
+                if (ParentBranch.ChildBranchs.Where(x => x.BranchText == br.BranchText).Any())
+                {
+                    DMEEditor.AddLogMessage("Error", "Branch already exist", DateTime.Now, -1, null, Errors.Failed);
+                    return DMEEditor.ErrorObject;
+                }
+                Console.WriteLine($"Adding Branch {br.BranchText} to {ParentBranch.BranchText}");
+                parentnode = GetNode(ParentBranch.Name);
+                if(parentnode == null)
+                {
+                    DMEEditor.AddLogMessage("Error", $"Parent Node not found {ParentBranch.BranchText}", DateTime.Now, -1, null, Errors.Failed);
+                    return DMEEditor.ErrorObject;
+                }
+              
+                br.ParentBranch = ParentBranch;
+                br.ParentBranchID = ParentBranch.ID;
+                br.ParentGuidID = ParentBranch.GuidID;
+                SimpleItem item = ControlExtensions.CreateNode(this, id, br);
+                //n.ContextMenuStrip = 
+                Console.WriteLine(br.BranchText);
+                DynamicMenuManager.CreateMenuMethods(DMEEditor, br);
+                if (br.ObjectType != null && br.BranchClass != null)
+                {
+                    DynamicMenuManager.CreateGlobalMenu(DMEEditor, br);
+                }
+
+                br.DMEEditor = DMEEditor;
+                if (!DMEEditor.ConfigEditor.objectTypes.Any(i => i.ObjectType == br.BranchClass && i.ObjectName == br.BranchType.ToString() + "_" + br.BranchClass))
+                {
+                    DMEEditor.ConfigEditor.objectTypes.Add(new Workflow.ObjectTypes { ObjectType = br.BranchClass, ObjectName = br.BranchType.ToString() + "_" + br.BranchClass });
+                }
+                try
+                {
+                    br.SetConfig(this, DMEEditor, br.ParentBranch, br.BranchText, br.ID, br.BranchType, null);
+                }
+                catch (Exception ex)
+                {
+
+                }
+                br.DMEEditor = DMEEditor;
+                br.Visutil = VisManager;
+                br.TreeEditor = this;
+                parentnode.Children.Add(item);
+                AddBranchToParentInBranchsOnly(ParentBranch, br);
+                if (br.ChildBranchs.Count == 0)
+                {
+                    br.CreateChildNodes();
+                    if (br.ChildBranchs.Count > 0)
+                    {
+                        foreach (var childbr in br.ChildBranchs)
+                        {
+                            AddBranch(br, childbr);
+                            br.ChildBranchs.Add(childbr);
+                        }
+
+                    }
+                }
+                
+
+            }
+            catch (Exception ex)
+            {
+                string mes = "Could not Add Branch to " + ParentBranch.BranchText;
+                DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+            };
+            return DMEEditor.ErrorObject;
+        }
+        public bool AddBranchToParentInBranchsOnly(IBranch ParentBranch, IBranch br)
+        {
+            if (ParentBranch != null)
+            {
+                IBranch parent = Branches.FirstOrDefault(c => c.ID == ParentBranch.ID);
+                if (parent != null)
+                {
+                    if (parent.ChildBranchs.Where(x => x.BranchText == br.BranchText).Any())
+                    {
+                        DMEEditor.AddLogMessage("Error", "Branch already exist", DateTime.Now, -1, null, Errors.Failed);
+                        return false;
+                    }
+                    parent.ChildBranchs.Add(br);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+        public void CreateNode(int id, IBranch br)
         {
             SimpleItem item=ControlExtensions.CreateNode(this,id, br);
             //n.ContextMenuStrip = 
@@ -455,7 +547,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         //}
         #endregion "Create Branches"
         #region "Get Branches"
-        #region "Get Branches"
 
         public IBranch GetBranchByEntityGuidID(string guidid)
         {
@@ -497,8 +588,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         }
 
         #endregion "Get Branches"
-
-        #endregion "Get Branches"
         #region "Refresh Tree"
         public void RefreshImageList()
         {
@@ -525,10 +614,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             throw new NotImplementedException();
         }
         #endregion "Refresh Tree"
+        #region "Remove Node"
+        public void RemoveNode(IBranch br)
+        {
+            throw new NotImplementedException();
+        }
+        public void RemoveNode(string branchname)
+        {
+            throw new NotImplementedException();
+        }
+        public void RemoveNodeByGuidID(string guidid)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion "Remove Node"
         #region "Select Branch "
         #endregion "Select Branch "
         #region "Mouse Events"
-      
+
         #endregion "Mouse Events"
 
 

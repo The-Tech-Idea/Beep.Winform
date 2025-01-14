@@ -330,7 +330,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                 {
                     foreach (IBranch f in ls)
                     {
-                        ExtensionsHelpers.TreeEditor.treeBranchHandler.MoveBranchToParent(RootBranch, f);
+                        ExtensionsHelpers.TreeEditor.Treebranchhandler.MoveBranchToParent(RootBranch, f);
                     }
                 }
 

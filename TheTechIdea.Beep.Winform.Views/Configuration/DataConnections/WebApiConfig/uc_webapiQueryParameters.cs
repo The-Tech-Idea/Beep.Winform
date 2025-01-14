@@ -13,11 +13,6 @@ using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 
-
-using TheTechIdea;
-using TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView;
-
-
 namespace Beep.Config.Winform.DataConnections
 {
     [AddinAttribute(Caption = "WebApi Parameters", Name = "uc_webapiQueryParameters", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.Popup)]
@@ -48,9 +43,16 @@ namespace Beep.Config.Winform.DataConnections
        // public event EventHandler<PassedArgs> OnObjectSelected;
         public IVisManager Visutil { get; set; }
                public string GuidID { get ; set; }=Guid.NewGuid().ToString();
+        public AddinDetails Details { get  ; set  ; }
+        public Dependencies Dependencies { get  ; set  ; }
 
-        TreeViewControl tree;
+        
         IBranch branch;
+
+        public event EventHandler OnStart;
+        public event EventHandler OnStop;
+        public event EventHandler<ErrorEventArgs> OnError;
+
         public void RaiseObjectSelected()
         {
           
@@ -117,6 +119,51 @@ namespace Beep.Config.Winform.DataConnections
         public void Run(params object[] args)
         {
           
+        }
+
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Suspend()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Resume()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetErrorDetails()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(IPassedArgs pPassedarg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Configure(Dictionary<string, object> settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnNavigatedTo(Dictionary<string, object> parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetError(string message)
+        {
+            throw new NotImplementedException();
         }
     }
 }

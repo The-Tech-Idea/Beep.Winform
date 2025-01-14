@@ -1100,23 +1100,45 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             ResumeLayout();
         }
-        protected Font GetScaledFont(Graphics graphics, string text, Size maxSize, Font originalFont)
+        protected Font GetScaledFont(Graphics g, string text, Size maxSize, Font originalFont)
         {
-            Font currentFont = originalFont;
-            Size textSize = TextRenderer.MeasureText(graphics, text, currentFont);
+            // Quickly check if the original font already fits.
+            if (Fits(g, text, originalFont, maxSize))
+                return originalFont;
 
-            // Set a minimum font size to prevent text from becoming unreadable
-            float minFontSize = 6.0f;
+            float minSize = 6.0f;
+            float lower = minSize;
+            float upper = originalFont.Size;
+            float finalSize = lower; // fallback
 
-            // Reduce font size until text fits within maxSize or reaches minimum font size
-            while ((textSize.Width > maxSize.Width || textSize.Height > maxSize.Height) && currentFont.Size > minFontSize)
+            while ((upper - lower) > 0.5f) // 0.5f = desired precision
             {
-                currentFont = new Font(currentFont.FontFamily, currentFont.Size - 0.5f, currentFont.Style);
-                textSize = TextRenderer.MeasureText(graphics, text, currentFont);
+                float mid = (lower + upper) / 2f;
+                using (var testFont = new Font(originalFont.FontFamily, mid, originalFont.Style))
+                {
+                    if (Fits(g, text, testFont, maxSize))
+                    {
+                        finalSize = mid;   // It fits, so remember this as a candidate
+                        upper = mid;       // Keep searching for a possibly smaller upper
+                    }
+                    else
+                    {
+                        lower = mid;       // It's too big, so move the lower bound
+                    }
+                }
             }
 
-            return currentFont;
+            // Return a final font at the best size found
+            return new Font(originalFont.FontFamily, finalSize, originalFont.Style);
         }
+
+        private bool Fits(Graphics g, string text, Font font, Size maxSize)
+        {
+            var measured = TextRenderer.MeasureText(g, text, font);
+            return (measured.Width <= maxSize.Width && measured.Height <= maxSize.Height);
+        }
+
+
         #region "Drawing Methods"
         public virtual void DrawCustomBorder(PaintEventArgs e)
         {

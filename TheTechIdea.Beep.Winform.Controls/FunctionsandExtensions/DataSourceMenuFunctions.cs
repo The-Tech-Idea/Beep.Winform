@@ -103,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                             ExtensionsHelpers.Vismanager.PasstoWaitForm((PassedArgs)Passedarguments);
                             foreach (int item in ExtensionsHelpers.TreeEditor.SelectedBranchs)
                             {
-                                IBranch br = ExtensionsHelpers.TreeEditor.treeBranchHandler.GetBranch(item);
+                                IBranch br = ExtensionsHelpers.TreeEditor.Treebranchhandler.GetBranch(item);
                                 IDataSource srcds = DMEEditor.GetDataSource(br.DataSourceName);
                                 Passedarguments.Messege = $"Fetching Entity  {br.BranchText} structure ...";
                                 ExtensionsHelpers.Vismanager.PasstoWaitForm((PassedArgs)Passedarguments);
@@ -336,7 +336,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                         {
                             foreach (int item in ExtensionsHelpers.TreeEditor.SelectedBranchs)
                             {
-                                IBranch br = ExtensionsHelpers.TreeEditor.treeBranchHandler.GetBranch(item);
+                                IBranch br = ExtensionsHelpers.TreeEditor.Treebranchhandler.GetBranch(item);
                                 if(br!= null)
                                 {
                                     if (br.DataSourceName == Passedarguments.DatasourceName)
@@ -350,7 +350,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                                        
                                         if (DMEEditor.ErrorObject.Flag == Errors.Ok)
                                         {
-                                            ExtensionsHelpers.TreeEditor.treeBranchHandler.RemoveBranch(br);
+                                            ExtensionsHelpers.TreeEditor.Treebranchhandler.RemoveBranch(br);
                                             ExtensionsHelpers.DataSource.Entities.RemoveAt(ExtensionsHelpers.DataSource.Entities.FindIndex(p => p.DatasourceEntityName == ent.DatasourceEntityName && p.DataSourceID == ent.DataSourceID));
                                             DMEEditor.AddLogMessage("Success", $"Droped Entity {ent.EntityName}", DateTime.Now, -1, null, Errors.Ok);
                                         }
@@ -401,10 +401,10 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                         foreach (int item in ExtensionsHelpers.TreeEditor.SelectedBranchs)
                         {
                            
-                            IBranch br = ExtensionsHelpers.TreeEditor.treeBranchHandler.GetBranch(item);
+                            IBranch br = ExtensionsHelpers.TreeEditor.Treebranchhandler.GetBranch(item);
                             if (br != null)
                             {
-                                ExtensionsHelpers.TreeEditor.treeBranchHandler.RemoveBranch(br);
+                                ExtensionsHelpers.TreeEditor.Treebranchhandler.RemoveBranch(br);
                                 bool retval = DMEEditor.ConfigEditor.DataConnectionExist(br.DataSourceName);
                                 if (retval)
                                 {
@@ -470,7 +470,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                     IBranch br = ExtensionsHelpers.pbr;
                     if (br != null)
                     {
-                        ExtensionsHelpers.TreeEditor.treeBranchHandler.RemoveBranch(br);
+                        ExtensionsHelpers.TreeEditor.Treebranchhandler.RemoveBranch(br);
                         bool retval = DMEEditor.ConfigEditor.RemoveConnByGuidID(br.DataSourceConnectionGuidID);
                         if (retval)
                         {
@@ -741,7 +741,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                         {
                             foreach (int item in ExtensionsHelpers.TreeEditor.SelectedBranchs)
                             {
-                                IBranch br = ExtensionsHelpers.TreeEditor.treeBranchHandler.GetBranch(item);
+                                IBranch br = ExtensionsHelpers.TreeEditor.Treebranchhandler.GetBranch(item);
                               
                                  if(br.BranchType!= EnumPointType.Category)
                                  {
@@ -753,7 +753,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                                             if (fds.Category == DatasourceCategory.FILE)
                                             {
                                                 DMEEditor.ConfigEditor.RemoveConnByName(fds.DatasourceName);
-                                                ExtensionsHelpers.TreeEditor.treeBranchHandler.RemoveBranch(br);
+                                                ExtensionsHelpers.TreeEditor.Treebranchhandler.RemoveBranch(br);
                                             }
                                         }
                                     }
@@ -827,7 +827,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                     Passedarguments.ObjectType = ExtensionsHelpers.pbr.BranchClass;
                     Passedarguments.DatasourceName = ExtensionsHelpers.ParentBranch.BranchText;
                     Passedarguments.EventType = "CREATEVIEWBASEDONENTITY";
-                    ExtensionsHelpers.TreeEditor.treeBranchHandler.SendActionFromBranchToBranch(ExtensionsHelpers.ViewRootBranch, ExtensionsHelpers.pbr, "Create View using Table");
+                    ExtensionsHelpers.TreeEditor.Treebranchhandler.SendActionFromBranchToBranch(ExtensionsHelpers.ViewRootBranch, ExtensionsHelpers.pbr, "Create View using Table");
                  //   ExtensionsHelpers.Vismanager.ShowPage("uc_CrudView", (PassedArgs)Passedarguments, DisplayType.InControl);
                 }
                 catch (Exception ex)
@@ -861,7 +861,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                     Passedarguments.ObjectType = ExtensionsHelpers.pbr.BranchClass;
                     Passedarguments.DatasourceName = ExtensionsHelpers.ParentBranch.BranchText;
                     Passedarguments.EventType = "VIEWSTRUCTURE";
-                   // ExtensionsHelpers.TreeEditor.treeBranchHandler.SendActionFromBranchToBranch(ExtensionsHelpers.ViewRootBranch, ExtensionsHelpers.pbr, "Create View using Table");
+                   // ExtensionsHelpers.TreeEditor.Treebranchhandler.SendActionFromBranchToBranch(ExtensionsHelpers.ViewRootBranch, ExtensionsHelpers.pbr, "Create View using Table");
                     ExtensionsHelpers.Vismanager.ShowPage("uc_DataEntityStructureViewer", (PassedArgs)Passedarguments, DisplayType.InControl);
                 }
                 catch (Exception ex)
@@ -895,7 +895,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                     Passedarguments.ObjectType = ExtensionsHelpers.pbr.BranchClass;
                     Passedarguments.DatasourceName = ExtensionsHelpers.ParentBranch.BranchText;
                     Passedarguments.EventType = "VIEWSTRUCTURE";
-                    // ExtensionsHelpers.TreeEditor.treeBranchHandler.SendActionFromBranchToBranch(ExtensionsHelpers.ViewRootBranch, ExtensionsHelpers.pbr, "Create View using Table");
+                    // ExtensionsHelpers.TreeEditor.Treebranchhandler.SendActionFromBranchToBranch(ExtensionsHelpers.ViewRootBranch, ExtensionsHelpers.pbr, "Create View using Table");
                     ExtensionsHelpers.Vismanager.ShowPage("uc_fieldproperty", (PassedArgs)Passedarguments, DisplayType.InControl);
                 }
                 catch (Exception ex)
@@ -970,7 +970,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                             }
                             if (DMEEditor.ErrorObject.Flag == Errors.Ok && !entityexist)
                             {
-                                ExtensionsHelpers.TreeEditor.treeBranchHandler.RemoveBranch(ExtensionsHelpers.pbr);
+                                ExtensionsHelpers.TreeEditor.Treebranchhandler.RemoveBranch(ExtensionsHelpers.pbr);
                                 DataSource.Entities.RemoveAt(DataSource.Entities.FindIndex(p => p.DatasourceEntityName == entity.DatasourceEntityName));
                                 DMEEditor.AddLogMessage("Success", $"Droped Entity {entity.EntityName}", DateTime.Now, -1, null, Errors.Ok);
                             }

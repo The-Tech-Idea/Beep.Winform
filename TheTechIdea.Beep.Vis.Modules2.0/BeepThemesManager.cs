@@ -701,9 +701,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Light,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.White,
             },
 
@@ -1644,9 +1644,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(60, 60, 60),
             },
 
@@ -2262,9 +2262,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(0, 105, 148),
             },
 
@@ -2927,9 +2927,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(85, 85, 85),
             },
 
@@ -3535,9 +3535,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(34, 85, 34),
             },
 
@@ -4142,9 +4142,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(85, 85, 85),
             },
 
@@ -4749,9 +4749,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(85, 85, 85),
             },
 
@@ -5356,9 +5356,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(60, 60, 60),
             },
 
@@ -5962,9 +5962,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(85, 107, 47),
             },
 
@@ -6568,9 +6568,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Comic Sans MS",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(139, 0, 139),
             },
 
@@ -7175,9 +7175,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(60, 60, 60),
             },
 
@@ -7782,9 +7782,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Arial",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(255, 20, 147),
             },
 
@@ -8389,9 +8389,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Times New Roman",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(0, 0, 0),
             },
 
@@ -8998,9 +8998,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(0, 0, 0),
             },
 
@@ -9608,10 +9608,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(255, 255, 255),
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(0, 0, 0),
             },
 
             // **Color Palette**
@@ -10515,9 +10515,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(85, 85, 85),
             },
 
@@ -11127,9 +11127,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(230, 230, 250),
             },
 
@@ -11737,9 +11737,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(255, 255, 0),
             },
 
@@ -12347,9 +12347,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Georgia",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(80, 40, 20),
             },
 
@@ -12958,9 +12958,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(230, 230, 250),
             },
 
@@ -13568,9 +13568,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(102, 51, 0),
             },
 
@@ -14178,9 +14178,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Times New Roman",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(80, 60, 40),
             },
 
@@ -14789,9 +14789,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.Black,
             },
 
@@ -15390,9 +15390,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(30, 30, 30),
             },
 
@@ -16000,9 +16000,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(44, 62, 80),
             },
 
@@ -16610,9 +16610,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Consolas",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(0, 255, 255),
             },
 
@@ -17221,9 +17221,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(255, 75, 0, 130),
             },
 
@@ -17859,9 +17859,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.White,
 
             },
@@ -18471,9 +18471,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.Black,
             },
 
@@ -19055,9 +19055,9 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelSmall = new TypographyStyle
             {
                 FontFamily = "Segoe UI",
-                FontSize = 10f,
+                FontSize = 9f,
                 FontStyle = FontStyle.Regular,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Normal,
                 TextColor = Color.FromArgb(255, 212, 175),
             },
 
@@ -19474,14 +19474,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             if (style == null)
             {
                 // Fallback to default font if style is null
-                return new Font("Segoe UI", 12f, FontStyle.Regular);
+                return new Font("Segoe UI",9f, FontStyle.Regular);
             }
 
             // Ensure the font family is valid and installed
             string fontFamily = IsFontInstalled(style.FontFamily) ? style.FontFamily : "Segoe UI";
 
             // Map FontWeight to a proportional font size adjustment
-            float adjustedFontSize = style.FontSize * GetFontWeightMultiplier(style.FontWeight);
+            float adjustedFontSize = style.FontSize;// * GetFontWeightMultiplier(style.FontWeight);
 
             // Create the font style from provided values
             FontStyle fontStyle = style.FontStyle;
@@ -19501,16 +19501,6 @@ namespace TheTechIdea.Beep.Vis.Modules
                 return new Font("Segoe UI", adjustedFontSize, FontStyle.Regular);
             }
         }
-
-
-        private static bool IsFontInstalled(string fontFamily)
-        {
-            using (InstalledFontCollection fontsCollection = new InstalledFontCollection())
-            {
-                return fontsCollection.Families.Any(f => f.Name.Equals(fontFamily, StringComparison.InvariantCultureIgnoreCase));
-            }
-        }
-        // Function to calculate a multiplier based on FontWeight
         private static float GetFontWeightMultiplier(FontWeight weight)
         {
             return weight switch
@@ -19527,6 +19517,16 @@ namespace TheTechIdea.Beep.Vis.Modules
                 _ => 1.0f                     // Default multiplier for unknown values
             };
         }
+
+        private static bool IsFontInstalled(string fontFamily)
+        {
+            using (InstalledFontCollection fontsCollection = new InstalledFontCollection())
+            {
+                return fontsCollection.Families.Any(f => f.Name.Equals(fontFamily, StringComparison.InvariantCultureIgnoreCase));
+            }
+        }
+        // Function to calculate a multiplier based on FontWeight
+       
 
         public static Font ToFont(string fontFamily, float fontSize, FontWeight fontWeight, FontStyle fontStyle)
         {

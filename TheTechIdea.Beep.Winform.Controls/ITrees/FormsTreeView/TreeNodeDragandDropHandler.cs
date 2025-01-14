@@ -85,11 +85,11 @@
 //                    switch (targetBranch.BranchType)
 //                    {
 //                        case EnumPointType.Root:
-//                            if (treeControl.treeBranchHandler.CheckifBranchExistinCategory(dragedBranch.BranchText, dragedBranch.BranchClass) != null)
+//                            if (treeControl.Treebranchhandler.CheckifBranchExistinCategory(dragedBranch.BranchText, dragedBranch.BranchClass) != null)
 //                            {
 //                                if (dragedBranch.BranchType == EnumPointType.DataPoint)
 //                                {
-//                                    treeControl.treeBranchHandler.MoveBranchToParent(targetBranch, dragedBranch);
+//                                    treeControl.Treebranchhandler.MoveBranchToParent(targetBranch, dragedBranch);
 //                                }
 //                            }
 
@@ -101,7 +101,7 @@
 //                            // {
 //                            if (dragedBranch.BranchType == EnumPointType.DataPoint)
 //                            {
-//                                treeControl.treeBranchHandler.MoveBranchToCategory(targetBranch, dragedBranch);
+//                                treeControl.Treebranchhandler.MoveBranchToCategory(targetBranch, dragedBranch);
 //                            };
 //                            // };
 //                            break;
@@ -111,7 +111,7 @@
 //                            {
 //                                if (dragedBranch.BranchType == EnumPointType.Entity && dragedBranch.DataSourceName == targetBranch.DataSourceName)
 //                                {
-//                                    treeControl.treeBranchHandler.MoveBranchToParent(targetBranch, dragedBranch);
+//                                    treeControl.Treebranchhandler.MoveBranchToParent(targetBranch, dragedBranch);
 //                                }
 //                            }
 
@@ -159,7 +159,7 @@
 //                        case EnumPointType.Category:
 //                            if (dragedBranch.BranchType == EnumPointType.DataPoint)
 //                            {
-//                                treeControl.treeBranchHandler.MoveBranchToParent(targetBranch, dragedBranch);
+//                                treeControl.Treebranchhandler.MoveBranchToParent(targetBranch, dragedBranch);
 //                            }
 
 //                            break;

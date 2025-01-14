@@ -17,7 +17,7 @@ using TheTechIdea.Beep.DriversConfigurations;
 
 using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
 using TheTechIdea.Beep.Winform.Controls.Basic;
-using TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView;
+
 
 
 namespace Beep.Config.Winform.Configurations
@@ -30,7 +30,7 @@ namespace Beep.Config.Winform.Configurations
         public uc_DataSourceDataTypeMapping()
         {
             InitializeComponent();
-            AddinName  = "DataSource DataType Mapping Manager";
+            Details.AddinName  = "DataSource DataType Mapping Manager";
         }
         #region "IAddinVisSchema"
         public string RootNodeName { get; set; } = "DDL";
@@ -58,7 +58,7 @@ namespace Beep.Config.Winform.Configurations
         public bool IsRunning { get; set; }
         public bool IsNew { get; set; }
         string selectedCategoryValue;
-        TreeViewControl tree;
+        
         IBranch branch;
         DataTypeMappingViewModel viewModel;
        

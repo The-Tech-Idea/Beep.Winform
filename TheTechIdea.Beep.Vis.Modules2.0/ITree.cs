@@ -39,14 +39,21 @@ namespace TheTechIdea.Beep.Vis.Modules
         IBranch GetBranchByGuidID(string guidid);
         IBranch GetBranchByEntityGuidID(string guidid);
         IBranch GetBranchByMiscGuidID(string guidid);
-        ITreeBranchHandler treeBranchHandler { get; set; }
+        ITreeBranchHandler Treebranchhandler { get; set; }
         IErrorsInfo RunMethod(object branch, string MethodName);
+        bool AddBranchToParentInBranchsOnly(IBranch ParentBranch, IBranch br);
+        IErrorsInfo AddBranch(IBranch ParentBranch, IBranch br);
+        void CreateNode(int id, IBranch br);
         IErrorsInfo CreateRootTree();
         IErrorsInfo CreateFunctionExtensions(MethodsClass item);
         string Filterstring { get; set; }
         IErrorsInfo TurnonOffCheckBox(IPassedArgs Passedarguments);
         object GetTreeNodeByID(int id);
         void RemoveNode(int id);
+        void RemoveNode(IBranch br);
+        void RemoveNode(string branchname);
+        void RemoveNodeByGuidID(string guidid);
+
         event EventHandler<IPassedArgs> PreCallModule;
         event EventHandler<IPassedArgs> PreShowItem;
         event EventHandler<IBranch> RefreshBranch;

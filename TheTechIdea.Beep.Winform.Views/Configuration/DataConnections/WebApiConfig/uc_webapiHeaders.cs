@@ -52,10 +52,41 @@ namespace Beep.Config.Winform.DataConnections
        // public event EventHandler<PassedArgs> OnObjectSelected;
         public IVisManager Visutil { get; set; }
                public string GuidID { get ; set; }=Guid.NewGuid().ToString();
+        public AddinDetails Details { get  ; set  ; }
+        public Dependencies Dependencies { get  ; set  ; }
+
+        public event EventHandler OnStart;
+        public event EventHandler OnStop;
+        public event EventHandler<ErrorEventArgs> OnError;
+
+        public void Configure(Dictionary<string, object> settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetErrorDetails()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnNavigatedTo(Dictionary<string, object> parameters)
+        {
+            throw new NotImplementedException();
+        }
 
         public void RaiseObjectSelected()
         {
           
+        }
+
+        public void Resume()
+        {
+            throw new NotImplementedException();
         }
 
         public void Run(IPassedArgs pPassedarg)
@@ -66,6 +97,16 @@ namespace Beep.Config.Winform.DataConnections
         public void Run(params object[] args)
         {
           
+        }
+
+        public Task RunAsync(IPassedArgs pPassedarg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(params object[] args)
+        {
+            throw new NotImplementedException();
         }
 
         public void SetConfig(IDMEEditor pbl, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
@@ -84,6 +125,16 @@ namespace Beep.Config.Winform.DataConnections
             BeepbindingNavigator1.SetConfig(DMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, new string[] { }, e, DMEEditor.ErrorObject);
             BeepbindingNavigator1.HightlightColor = Color.Yellow;
 
+        }
+
+        public void SetError(string message)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Suspend()
+        {
+            throw new NotImplementedException();
         }
 
         private void BeepbindingNavigator1_SaveCalled(object sender, BindingSource e)

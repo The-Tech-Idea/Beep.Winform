@@ -34,30 +34,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         public ITree Tree { get; set; }
         public IErrorsInfo AddBranch(IBranch ParentBranch, IBranch Branch)
         {
-            SimpleItem parentnode = new SimpleItem() ;
+           
             try
             {
-                if(ParentBranch.ChildBranchs.Where(x => x.BranchText == Branch.BranchText).Any())
-                {
-                    DMEEditor.AddLogMessage("Error", "Branch already exist", DateTime.Now, -1, null, Errors.Failed);
-                    return DMEEditor.ErrorObject;
-                }
-                parentnode = beepTreeControl.GetNodeByGuidID(ParentBranch.GuidID);
-                ParentBranch.ChildBranchs.Add(Branch);
-                Branch.ParentBranch = ParentBranch;
-                Branch.ParentBranchID = ParentBranch.ID;
-                Branch.ParentGuidID = ParentBranch.GuidID;
-                //DynamicMenuManager.CreateMenuMethods(DMEEditor, Branch);
-                //DynamicMenuManager.CreateGlobalMenu(DMEEditor, Branch);
-                Branch.DMEEditor = DMEEditor;
-                Branch.Visutil = Tree.VisManager;
-                Branch.TreeEditor = Tree;
-                if (parentnode!=null)
-                {
-                    SimpleItem item = ControlExtensions.CreateNode(Tree, Branch.ID, Branch);
-                    parentnode.Children.Add(item);
-                }
-      
+                beepTreeControl.AddBranch(ParentBranch, Branch);
+
             }
             catch (Exception ex)
             {

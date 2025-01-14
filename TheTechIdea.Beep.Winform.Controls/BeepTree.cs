@@ -968,7 +968,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RearrangeTree();
         }
         #endregion "Remove Nodes"
-        #region "Find and Filter"
+        #region "Travsersal"
         public IEnumerable<BeepTreeNode> GetDisplayNodes()
         {
             foreach (var rootNode in _beeptreeRootnodes.Where(n => n.ParentNode == null))
@@ -999,187 +999,114 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        /// <summary>
+        /// Recursively traverses all nodes starting from <c>_beeptreeRootnodes</c>.
+        /// </summary>
         public IEnumerable<BeepTreeNode> Traverse()
         {
-            foreach (var node in _beeptreeRootnodes)
+            // Flatten all root and descendant nodes in a single list
+            var visited = new List<BeepTreeNode>();
+            foreach (var rootNode in _beeptreeRootnodes)
             {
-                yield return node;
-                foreach (var child in node.Traverse())
+                TraverseInternal(rootNode, visited);
+            }
+            return visited;
+        }
+
+        /// <summary>
+        /// Internal recursive traversal helper.
+        /// </summary>
+        private void TraverseInternal(BeepTreeNode node, List<BeepTreeNode> visited)
+        {
+            visited.Add(node);
+
+            // If node is expanded and has children, recurse down
+            if (node.IsExpanded && node.NodesControls.Count > 0)
+            {
+                foreach (var child in node.NodesControls)
                 {
-                    yield return child;
+                    TraverseInternal(child, visited);
                 }
             }
         }
+
+
+        #endregion "Travsersal"
+        #region "Find and Filter"
+
+        #region "Find Tree Node"
         /// <summary>
-        /// Searches for the first node that contains the specified text (case-insensitive).
+        /// Recursively searches for a node matching the predicate within a node hierarchy.
+        /// Dynamically expands nodes if needed.
         /// </summary>
-        /// <param name="searchText">The text to search for.</param>
-        /// <returns>The first matching node, or null if no match is found.</returns>
+        /// <param name="currentNode">The node to start searching from.</param>
+        /// <param name="predicate">The predicate to match.</param>
+        /// <returns>The matching node, or null if no match is found.</returns>
+        private BeepTreeNode FindNodeInHierarchy(BeepTreeNode currentNode, Func<BeepTreeNode, bool> predicate)
+        {
+            if (predicate(currentNode))
+            {
+                // Found the node
+                return currentNode;
+            }
+
+            // If we need to lazy-load children, do it here:
+            // if (currentNode.NodesControls.Count == 0 && currentNode.Tag is SimpleItem menuItem)
+            // {
+            //     CreateChildNodes(currentNode, menuItem);
+            // }
+
+            // Search children
+            foreach (var childNode in currentNode.NodesControls)
+            {
+                var found = FindNodeInHierarchy(childNode, predicate);
+                if (found != null)
+                {
+                    return found;
+                }
+            }
+
+            return null;
+        }
         /// <summary>
-        /// Searches for the first node containing the specified text in its `NodesControls` representation
-        /// and dynamically expands the necessary nodes to display the result.
+        /// Searches for the first node whose text contains <paramref name="searchText"/> (case-insensitive).
+        /// Dynamically expands nodes if needed and highlights the found node.
         /// </summary>
-        /// <param name="searchText">The text to search for.</param>
+        /// <param name="searchText">Substring to match against node text.</param>
         /// <returns>The first matching node, or null if no match is found.</returns>
         public BeepTreeNode SearchNode(string searchText)
         {
-            // Search for the matching item in the NodesControls (backing data)
-            var menuItem = rootnodeitems.FirstOrDefault(item =>
-                !string.IsNullOrEmpty(item.Text) &&
-                item.Text.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+            if (string.IsNullOrWhiteSpace(searchText))
+                return null;
 
-            if (menuItem != null)
-            {
-                // Find the root node containing this item
-                var rootNode = _beeptreeRootnodes.FirstOrDefault(node => node.Tag == menuItem);
-                if (rootNode == null)
-                {
-                    // If the root node is not yet created, create it
-                    //rootNode = CreateTreeNodeFromMenuItem(menuItem, null);
-                    //AddRootNode(rootNode);
-                    Nodes.Add(menuItem);
-                }
-
-                // Expand and render child nodes for the root
-                ExpandRootToFindNode(rootNode, menuItem);
-
-                // Return the matching node
-                var matchingNode = rootNode.Traverse().FirstOrDefault(n => n.Tag == menuItem);
-                if (matchingNode != null)
-                {
-                    HighlightNode(matchingNode);
-                    return matchingNode;
-                }
-            }
-
-            return null;
+            // Reuse the core predicate-based search
+            return FindNode(n =>
+                !string.IsNullOrEmpty(n.Text) &&
+                n.Text.Contains(searchText, StringComparison.OrdinalIgnoreCase));
         }
-        /// <summary>
-        /// Highlights a node and ensures it is scrolled into view.
-        /// </summary>
-        /// <param name="node">The node to highlight.</param>
-        private void HighlightNode(BeepTreeNode node)
-        {
-            if (node == null) return;
 
-            BeepTreeNode current = node.ParentNode;
-            while (current != null)
-            {
-                current.IsExpanded = true;
-                current = current.ParentNode;
-            }
-
-            node.HilightNode();
-
-            var panel = GetBeepTreeNodeFromPanel(node.NodeSeq);
-            if (panel != null)
-            {
-                panel.Focus();
-                VerticalScroll.Value = Math.Min(VerticalScroll.Maximum, panel.Top);
-            }
-        }
         /// <summary>
-        /// Finds the first node whose text exactly matches the specified text.
+        /// Finds the first node whose text exactly matches <paramref name="text"/> (case-sensitive).
+        /// Dynamically expands nodes if needed and highlights the found node.
         /// </summary>
-        /// <param name="text">The text to search for.</param>
-        /// <returns>The first matching node, or null if no match is found.</returns>
-        /// <summary>
-        /// Finds the first node whose text exactly matches the specified text and ensures it is fully expanded and rendered.
-        /// </summary>
-        /// <param name="text">The text to search for.</param>
+        /// <param name="text">Exact text to match.</param>
         /// <returns>The first matching node, or null if no match is found.</returns>
         public BeepTreeNode FindNode(string text)
         {
-            // Search in the backing data (NodesControls) to locate the target menu item
-            var menuItem = rootnodeitems.FirstOrDefault(item =>
-                !string.IsNullOrEmpty(item.Text) &&
-                item.Text.Equals(text, StringComparison.Ordinal));
+            if (string.IsNullOrEmpty(text))
+                return null;
 
-            if (menuItem != null)
-            {
-                // Locate or create the root node corresponding to the menu item
-                var rootNode = _beeptreeRootnodes.FirstOrDefault(node => node.Tag == menuItem);
-                if (rootNode == null)
-                {
-                    //rootNode = CreateTreeNodeFromMenuItem(menuItem, null);
-                    //AddRootNode(rootNode);
-                    Nodes.Add(menuItem);
-                }
-
-                // Expand and render the required child nodes
-                ExpandRootToFindNode(rootNode, menuItem);
-
-                // Return the fully rendered node
-                var matchingNode = rootNode.Traverse().FirstOrDefault(n => n.Tag == menuItem);
-                if (matchingNode != null)
-                {
-                    HighlightNode(matchingNode);
-                    return matchingNode;
-                }
-            }
-
-            return null;
+            // Reuse the core predicate-based search, specifying an exact match
+            return FindNode(n => string.Equals(n.Text, text, StringComparison.Ordinal));
         }
         /// <summary>
-        /// Gets a node by its index in the internal node list.
+        /// Finds all nodes that match <paramref name="predicate"/>.
         /// </summary>
-        /// <param name="index">The index of the node.</param>
-        /// <returns>The node at the specified index, or null if the index is out of range.</returns>
-        private BeepTreeNode GetNodeByIndex(int index)
+        /// <param name="predicate">Condition to test each node.</param>
+        /// <returns>An <see cref="IEnumerable{BeepTreeNode}"/> of matching nodes.</returns>
+        public IEnumerable<BeepTreeNode> FindNodes(Func<BeepTreeNode, bool> predicate)
         {
-            return index >= 0 && index < _beeptreeRootnodes.Count ? _beeptreeRootnodes[index] : null;
-        }
-
-        /// <summary>
-        /// Filters nodes based on the provided predicate.
-        /// NodesControls that match the predicate or have descendants matching the predicate remain visible.
-        /// </summary>
-        /// <param name="predicate">A function to determine if a node should be visible.</param>
-        public void FilterNodes(Func<BeepTreeNode, bool> predicate)
-        {
-            // Traverse all nodes to apply the filter
-            foreach (var node in Traverse())
-            {
-                // Determine visibility based on the predicate
-                bool isVisible = predicate(node);
-
-                // Ensure parent nodes of visible nodes remain visible
-                if (isVisible && node.ParentNode != null)
-                {
-                    var parent = node.ParentNode;
-                    while (parent != null)
-                    {
-                        parent.IsVisible = true;
-                        parent = parent.ParentNode;
-                    }
-                }
-
-                // Update the node's visibility
-                node.IsVisible = isVisible;
-
-                // Dynamically load child nodes if the node is visible and expanded
-                if (node.IsVisible && node.IsExpanded && node.NodesControls.Count == 0 && node.Tag is SimpleItem menuItem)
-                {
-                  //  CreateChildNodes(node, menuItem);
-                }
-            }
-
-            // Rearrange the tree after filtering
-            RearrangeTree();
-        }
-
-        /// <summary>
-        /// Clears the current filter and resets all nodes to be visible.
-        /// </summary>
-        public void ClearFilter()
-        {
-            foreach (var node in Traverse())
-            {
-                node.IsVisible = true;
-            }
-
-            // Rearrange the tree to reflect the changes
-            RearrangeTree();
+            return Traverse().Where(predicate);
         }
 
         /// <summary>
@@ -1203,165 +1130,197 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return null;
         }
+        public BeepTreeNode GetBeepTreeNode(SimpleItem node)
+      => FindNode(n => n.Tag == node);
 
-        /// <summary>
-        /// Recursively searches for a node matching the predicate within a node hierarchy.
-        /// Dynamically expands nodes if needed.
+        public BeepTreeNode GetBeepTreeNode(string nodeName)
+            => FindNode(n => n.Name.Equals(nodeName, StringComparison.OrdinalIgnoreCase));
+
+        public BeepTreeNode GetBeepTreeNodeByGuid(string guidid)
+            => FindNode(n => n.GuidID == guidid);
+        #endregion "Find Tree Node"
+        #region "Filtering"
+        // <summary>
+        /// Filters nodes based on <paramref name="predicate"/>. 
+        /// A node is visible if it or any descendant matches the predicate.
         /// </summary>
-        /// <param name="currentNode">The node to start searching from.</param>
-        /// <param name="predicate">The predicate to match.</param>
-        /// <returns>The matching node, or null if no match is found.</returns>
-        private BeepTreeNode FindNodeInHierarchy(BeepTreeNode currentNode, Func<BeepTreeNode, bool> predicate)
+        /// <param name="predicate">Condition to determine if a node should remain visible.</param>
+        public void FilterNodes(Func<BeepTreeNode, bool> predicate)
         {
-            // Check if the current node matches
-            if (predicate(currentNode))
+            // Mark each node based on the predicate
+            foreach (var node in Traverse())
             {
-                return currentNode;
+                bool isMatch = predicate(node);
+                node.IsVisible = isMatch;
             }
 
-            // Expand the node to ensure children are available
-            if (currentNode.NodesControls.Count == 0 && currentNode.Tag is SimpleItem menuItem)
+            // Keep ancestors visible if a child is visible
+            foreach (var node in Traverse())
             {
-                //CreateChildNodes(currentNode, menuItem);
-            }
-
-            // Search the children recursively
-            foreach (var childNode in currentNode.NodesControls)
-            {
-                var matchingNode = FindNodeInHierarchy(childNode, predicate);
-                if (matchingNode != null)
+                if (node.IsVisible)
                 {
-                    return matchingNode;
+                    var parent = node.ParentNode;
+                    while (parent != null)
+                    {
+                        parent.IsVisible = true;
+                        parent = parent.ParentNode;
+                    }
                 }
             }
 
-            return null;
-        }
+            // Optionally expand visible nodes, or load children if needed
+            // For instance:
+            // foreach (var node in Traverse())
+            // {
+            //     if (node.IsVisible && node.IsExpanded && node.NodesControls.Count == 0 && node.Tag is SimpleItem menuItem)
+            //     {
+            //         CreateChildNodes(node, menuItem);
+            //     }
+            // }
 
+            // Finally redraw or rearrange
+            RearrangeTree();
+        }
 
         /// <summary>
-        /// Finds all nodes that match the specified predicate.
+        /// Clears the current filter and resets all nodes to be visible.
         /// </summary>
-        /// <param name="predicate">A function to test each node for a condition.</param>
-        /// <returns>An enumerable of matching nodes.</returns>
-        public IEnumerable<BeepTreeNode> FindNodes(Func<BeepTreeNode, bool> predicate)
+        public void ClearFilter()
         {
-            return Traverse().Where(predicate);
-        }
-        public BeepTreeNode GetBeepTreeNode(SimpleItem node)
-        {
-            foreach (BeepTreeNode item in _beeptreeRootnodes)
+            foreach (var node in Traverse())
             {
-                if (item.Tag == node) return item;
-                
+                node.IsVisible = true;
             }
-            return null;
 
+            // Rearrange the tree to reflect the changes
+            RearrangeTree();
         }
-        public BeepTreeNode GetBeepTreeNode(string NodeName)
+
+        #endregion "Filtering"
+        #region "Find SimpleItem"
+        /// <summary>
+        /// Recursively traverses the entire hierarchy of SimpleItems.
+        /// </summary>
+        /// <param name="items">A collection of SimpleItem objects (e.g., your root-level Nodes).</param>
+        /// <returns>An enumerable containing all nodes, including nested children.</returns>
+        private IEnumerable<SimpleItem> TraverseAllItems(IEnumerable<SimpleItem> items)
         {
-            foreach (BeepTreeNode item in _beeptreeRootnodes)
+            foreach (var item in items)
             {
-                if (item.Name == NodeName) return item;
-              
+                // Return the current item
+                yield return item;
+
+                // Recursively return all of its children
+                if (item.Children != null && item.Children.Count > 0)
+                {
+                    foreach (var child in TraverseAllItems(item.Children))
+                    {
+                        yield return child;
+                    }
+                }
             }
-            return null;
-
-        }
-        public BeepTreeNode GetBeepTreeNodeByGuid(string guidid)
-        {
-            foreach (BeepTreeNode item in _beeptreeRootnodes)
-            {
-                if (item.GuidID == guidid) return item;
-
-            }
-            return null;
-
         }
 
+        /// <summary>
+        /// Finds a node by its GuidID anywhere in the entire hierarchy.
+        /// </summary>
+        /// <param name="guidID">The GUID string to match (case-sensitive or insensitive, depending on your logic).</param>
+        /// <returns>The matching SimpleItem, or null if not found.</returns>
         public SimpleItem GetNodeByGuidID(string guidID)
         {
-            if (string.IsNullOrEmpty(guidID))
+            if (string.IsNullOrWhiteSpace(guidID))
             {
                 Console.WriteLine("Invalid GuidID provided.");
                 return null;
             }
 
-            SimpleItem FindNodeByGuid(IEnumerable<SimpleItem> nodes, string guid)
-            {
-                foreach (var node in nodes)
-                {
-                    Console.WriteLine($"Checking node: {node.Name}");
+            // Search through all items (root + children)
+            var node = TraverseAllItems(Nodes).FirstOrDefault(n => n.GuidId == guidID);
 
-                    if (node.GuidId == guid)
-                    {
-                        Console.WriteLine($"Match found: {node.Name}");
-                        return node;
-                    }
-
-                    var found = FindNodeByGuid(node.Children, guid);
-                    if (found != null)
-                        return found;
-                }
-                return null;
-            }
-
-            var result = FindNodeByGuid(Nodes, guidID);
-            if (result == null)
+            if (node == null)
             {
                 Console.WriteLine($"Node with GuidID {guidID} not found.");
             }
-            return result;
-        }
-
-
-        public SimpleItem GetNode(string nodeName)
-        {
-            return FindNode(Nodes, item => item.Name == nodeName);
-        }
-
-        public SimpleItem GetNode(int nodeIndex)
-        {
-            int currentIndex = 0;
-            return FindNode(Nodes, _ =>
+            else
             {
-                if (currentIndex == nodeIndex)
-                    return true;
+                Console.WriteLine($"Match found: {node.Name}");
+            }
 
-                currentIndex++;
-                return false;
-            });
+            return node;
         }
 
         /// <summary>
-        /// Recursively searches for a node in the provided list of SimpleItems.
+        /// Finds the first node whose Name matches <paramref name="nodeName"/> (exact match).
         /// </summary>
-        /// <param name="items">The list of SimpleItems to search.</param>
-        /// <param name="predicate">The condition to match the node.</param>
-        /// <returns>The matching SimpleItem, or null if no match is found.</returns>
-        private SimpleItem FindNode(IEnumerable<SimpleItem> items, Func<SimpleItem, bool> predicate)
+        /// <param name="nodeName">Name to search for.</param>
+        /// <returns>The matching SimpleItem, or null if not found.</returns>
+        public SimpleItem GetNode(string nodeName)
         {
-            foreach (var item in items)
-            {
-                // Check the current node
-                if (predicate(item))
-                    return item;
+            if (string.IsNullOrWhiteSpace(nodeName)) return null;
 
-                // Recursively check child nodes
-                var childResult = FindNode(item.Children, predicate);
-                if (childResult != null)
-                    return childResult;
-            }
-
-            return null; // No match found
+            // Search in the entire tree
+            return TraverseAllItems(Nodes)
+                .FirstOrDefault(item => item.Name == nodeName);
         }
 
+        /// <summary>
+        /// Finds the node at a given 'index' in a depth-first traversal order.
+        /// For example, index 0 -> first node returned, index 1 -> second, etc.
+        /// </summary>
+        /// <param name="nodeIndex">The zero-based index in the depth-first sequence.</param>
+        /// <returns>The node at that index, or null if the index is out of range.</returns>
+        public SimpleItem GetNode(int nodeIndex)
+        {
+            if (nodeIndex < 0) return null;
+
+            int currentIndex = 0;
+            // Manually enumerate rather than using LINQ to handle the index
+            foreach (var item in TraverseAllItems(Nodes))
+            {
+                if (currentIndex == nodeIndex)
+                    return item;
+                currentIndex++;
+            }
+
+            // If we exhaust the list, there's no item at 'nodeIndex'
+            return null;
+        }
+
+        #endregion "Find SimpleItem"
         public List<BeepTreeNode> GetNodes()
         {
             return _beeptreeRootnodes;
         }
         #endregion "Find and Filter"
         #region "Theme"
+
+        /// <summary>
+        /// Highlights the given <paramref name="node"/>, expanding ancestors, and scrolling it into view.
+        /// </summary>
+        /// <param name="node">The node to highlight.</param>
+        private void HighlightNode(BeepTreeNode node)
+        {
+            if (node == null) return;
+
+            // Expand all parents
+            var current = node.ParentNode;
+            while (current != null)
+            {
+                current.IsExpanded = true;
+                current = current.ParentNode;
+            }
+
+            // Mark the node as highlighted
+            node.HilightNode();
+
+            // Scroll into view if you have a panel or control logic
+            var panel = GetBeepTreeNodeFromPanel(node.NodeSeq);
+            if (panel != null)
+            {
+                panel.Focus();
+                VerticalScroll.Value = Math.Min(VerticalScroll.Maximum, panel.Top);
+            }
+        }
         /// <summary>
         /// Highlights nodes that match the specified predicate.
         /// </summary>

@@ -204,7 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // If you need to measure actual text, do:
                 // (But beware that CreateGraphics() in a property can be tricky in some scenarios)
-
+             
                 using (Graphics g = CreateGraphics())
                 {
                     Size measured = TextRenderer.MeasureText(
@@ -256,7 +256,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //   beepImage.MouseLeave += BeepImage_MouseLeave;
 
             //  beepImage.Click += BeepImage_Click;
-            Padding = new Padding(0);
+            Padding = new Padding(1);
             Margin = new Padding(0);
 
 
@@ -268,8 +268,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             var g = e.Graphics;
 
             UpdateDrawingRect();
-            // Draw the image and text
             contentRect = DrawingRect;
+            // If you want to ensure at least a 1-pixel margin from the edge:
+            contentRect.Inflate(-1, -1);
+            // Draw the image and text
+            // Also apply the label’s own padding
+            // (Padding already might be set to some default; adapt as desired)
+
+            contentRect.X += Padding.Left;
+            contentRect.Y += Padding.Top;
+            contentRect.Width -= (Padding.Left + Padding.Right);
+            contentRect.Height -= (Padding.Top + Padding.Bottom);
 
             // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
             //  DrawBackColor(e, _currentTheme.BackColor, _currentTheme.ButtonHoverBackColor);
@@ -277,11 +286,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DrawToGraphics(Graphics g)
         {
+           // contentRect.Inflate(-Padding.Horizontal / 2, -Padding.Vertical / 2);
             DrawToGraphics(g, contentRect);
         }
         public void DrawToGraphics(Graphics g, Rectangle drawrect)
         {    // Adjust contentRect for padding
-            contentRect.Inflate(-Padding.Horizontal / 2, -Padding.Vertical / 2);
+           
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
@@ -343,6 +353,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Theme"
         public override void ApplyTheme()
         {
+            Console.WriteLine("1 Label Apply Theme Font");
             //  base.ApplyTheme();
             if (_currentTheme != null)
             {
@@ -350,17 +361,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ForeColor = _currentTheme.LabelForeColor;
                 HoverBackColor = _currentTheme.BackgroundColor;
                 HoverForeColor = _currentTheme.ButtonHoverForeColor;
+               
                 Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-
-                //try
-                //{
-                //    Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-                //}
-                //catch (Exception ex)
-                //{
-                //    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, _currentTheme.FontSize, FontWeight.Normal, FontStyle.Regular);
-                //}
-
+                Console.WriteLine("2 Label Apply Theme Font");
                 ApplyThemeToSvg();
                 Invalidate();
             }

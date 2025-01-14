@@ -58,8 +58,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
         public FunctionandExtensionsHelpers ExtensionsHelpers { get; set; }
         public Progress<PassedArgs> Progress { get; set; }
         public string GuidID { get  ; set  ; }
-        public AddinDetails Details { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public Dependencies Dependencies { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public AddinDetails Details { get  ; set  ; }
+        public Dependencies Dependencies { get  ; set  ; }
 
         private void SetupProgress()
         {

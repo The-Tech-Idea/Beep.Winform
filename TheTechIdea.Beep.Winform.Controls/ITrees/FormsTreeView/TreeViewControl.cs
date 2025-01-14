@@ -81,7 +81,7 @@
 //        public List<MenuList> Menus { get; set; } = new List<MenuList>();
 //        public List<int> SelectedBranchs { get; set; } = new List<int>();
 //        public TreeNodeDragandDropHandler treeNodeDragandDropHandler { get; set; }
-//        public ITreeBranchHandler treeBranchHandler { get; set; }
+//        public ITreeBranchHandler Treebranchhandler { get; set; }
 //        ErrorsInfo ErrorsandMesseges;
 //        // VisHelper visHelper;
 //        ImageList imageList;
@@ -154,7 +154,7 @@
 //                //bool HasConstructor=false;
 //                SetupTreeView();
 //                treeNodeDragandDropHandler = new TreeNodeDragandDropHandler(DMEEditor, this);
-//                treeBranchHandler = new TreeBranchHandler(DMEEditor, this, this);
+//                Treebranchhandler = new TreeBranchHandler(DMEEditor, this, this);
 //                Branches = new List<IBranch>();
 //                IBranch Genrebr = null;
 //                // AssemblyClassDefinition GenreBrAssembly = DMEEditor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).FirstOrDefault()!;
@@ -279,7 +279,7 @@
 //                                            {
 //                                                if (Genrebr.Visible)
 //                                                {
-//                                                    treeBranchHandler.AddBranch(Genrebr, br);
+//                                                    Treebranchhandler.AddBranch(Genrebr, br);
 //                                                    br!.CreateChildNodes();
 //                                                }
 
@@ -299,7 +299,7 @@
 //                                {
 //                                    if (cls.classProperties.Category != DatasourceCategory.NONE)
 //                                    {
-//                                        treeBranchHandler.AddBranch(Genrebr, br);
+//                                        Treebranchhandler.AddBranch(Genrebr, br);
 //                                        br!.CreateChildNodes();
 //                                    }
 //                                    else

@@ -42,15 +42,22 @@ namespace TheTechIdea.ETL
         public IPassedArgs Passedarg { get ; set ; }
       //  private IDMDataView MyDataView;
         public IVisManager Visutil { get; set; }
-        string IDM_Addin.EntityName { get ; set ; }
+        
         public string GuidID { get ; set; }=Guid.NewGuid().ToString();
+        public AddinDetails Details { get  ; set  ; }
+        public Dependencies Dependencies { get  ; set  ; }
 
         DataViewDataSource ds;
         IBranch RootAppBranch;
         IBranch branch;
         EntityStructure entity;
-      //  App app;
-       // public event EventHandler<PassedArgs> OnObjectSelected;
+
+        public event EventHandler OnStart;
+        public event EventHandler OnStop;
+        public event EventHandler<ErrorEventArgs> OnError;
+
+        //  App app;
+        // public event EventHandler<PassedArgs> OnObjectSelected;
 
         public void RaiseObjectSelected()
         {
@@ -229,6 +236,51 @@ namespace TheTechIdea.ETL
         public void Run(params object[] args)
         {
           
+        }
+
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Suspend()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Resume()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetErrorDetails()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(IPassedArgs pPassedarg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Configure(Dictionary<string, object> settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnNavigatedTo(Dictionary<string, object> parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetError(string message)
+        {
+            throw new NotImplementedException();
         }
     }
 }

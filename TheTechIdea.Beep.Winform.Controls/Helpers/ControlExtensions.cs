@@ -314,7 +314,7 @@ public static class ControlExtensions
             node.ParentID = 0;
             node.ObjectType = br.ObjectType;
             node.BranchClass = br.BranchClass;
-            node.BranchType = br.BranchType;
+          
             node.PointType = br.BranchType;
             node.AssemblyClassDefinitionID = br.MiscStringID; ;
             node.Children = new BindingList<SimpleItem>();
@@ -362,7 +362,6 @@ public static class ControlExtensions
             node1.GuidId = item1.GuidID;
             node1.ObjectType = item1.ObjectType;
             node1.BranchClass = item1.BranchClass;
-            node1.BranchType = item1.BranchType;
             node1.PointType = item1.BranchType;
             node1.AssemblyClassDefinitionID = item1.MiscStringID; ;
             node1.ParentID = br.ID;
@@ -395,28 +394,40 @@ public static class ControlExtensions
         }
         return Childitems;
     }
-    public static IErrorsInfo AddBranch(this ITree tree, IBranch ParentBranch, IBranch Branch)
-    {
-        IErrorsInfo retval = new ErrorsInfo();
-        try
-        {
-            ParentBranch.ChildBranchs.Add(Branch);
-            Branch.ParentBranch = ParentBranch;
-            Branch.ParentBranchID = ParentBranch.ID;
-            Branch.ParentGuidID = ParentBranch.GuidID;
-            Branch.DMEEditor = tree.DMEEditor;
-            SimpleItem item= tree.CreateNode(Branch.ID, Branch);
-           
-            retval.Flag = Errors.Ok;
-            retval.Message = "Branch Added";
-        }
-        catch (Exception ex)
-        {
-            retval.Flag = Errors.Failed;
-            retval.Message = ex.Message;
-        }
-        return retval;
-    }
+    //public static IErrorsInfo AddBranch(this ITree tree, IBranch ParentBranch, IBranch Branch)
+    //{
+    //    SimpleItem parentnode = new SimpleItem();
+    //    try
+    //    {
+    //        if (ParentBranch.ChildBranchs.Where(x => x.BranchText == Branch.BranchText).Any())
+    //        {
+    //            DMEEditor.AddLogMessage("Error", "Branch already exist", DateTime.Now, -1, null, Errors.Failed);
+    //            return DMEEditor.ErrorObject;
+    //        }
+    //        parentnode = GetNodeByGuidID(ParentBranch.GuidID);
+    //        ParentBranch.ChildBranchs.Add(Branch);
+    //        Branch.ParentBranch = ParentBranch;
+    //        Branch.ParentBranchID = ParentBranch.ID;
+    //        Branch.ParentGuidID = ParentBranch.GuidID;
+    //        DynamicMenuManager.CreateMenuMethods(DMEEditor, Branch);
+    //        DynamicMenuManager.CreateGlobalMenu(DMEEditor, Branch);
+    //        Branch.DMEEditor = DMEEditor;
+    //        Branch.Visutil = VisManager;
+    //        Branch.TreeEditor = this;
+    //        if (parentnode != null)
+    //        {
+    //            SimpleItem item = ControlExtensions.CreateNode(this, Branch.ID, Branch);
+    //            parentnode.Children.Add(item);
+    //        }
+
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        string mes = "Could not Add Branch to " + ParentBranch.BranchText;
+    //        DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+    //    };
+    //    return DMEEditor.ErrorObject;
+    //}
     public static BindingList<SimpleItem> AddBranchToTree(this ITree tree, SimpleItem parent,SimpleItem child,IBranch br)
     {
 
@@ -437,7 +448,7 @@ public static class ControlExtensions
         node.ParentID = parent.Id;
         node.ObjectType = br.ObjectType;
         node.BranchClass = br.BranchClass;
-        node.BranchType = br.BranchType;
+        node.PointType = br.BranchType;
         node.AssemblyClassDefinitionID = br.MiscStringID; ;
         node.Children = new BindingList<SimpleItem>();
         node.Children = GetChildBranch(tree, br);
@@ -460,7 +471,7 @@ public static class ControlExtensions
            
             int SeqID = 0;
             //tree. = new TreeNodeDragandDropHandler(DMEEditor, this);
-            //tree.treeBranchHandler = new TreeBranchHandler(DMEEditor, this);
+            //tree.Treebranchhandler = new TreeBranchHandler(DMEEditor, this);
           
             IBranch Genrebr = null;
             // AssemblyClassDefinition GenreBrAssembly = DMEEditor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).FirstOrDefault()!;
@@ -726,7 +737,7 @@ public static class ControlExtensions
         {
             tree.SeqID = 0;
             //tree. = new TreeNodeDragandDropHandler(DMEEditor, this);
-            //tree.treeBranchHandler = new TreeBranchHandler(DMEEditor, this);
+            //tree.Treebranchhandler = new TreeBranchHandler(DMEEditor, this);
             tree.Branches = new List<IBranch>();
             tree.GenerBranchs = new List<Tuple<IBranch, string>>();
             IBranch Genrebr = null;
@@ -852,7 +863,7 @@ public static class ControlExtensions
             node.Id = id;
             node.BranchClass = br.BranchClass;
             node.BranchName = br.Name;
-            node.BranchType = br.BranchType;
+            node.PointType = br.BranchType;
             node.ObjectType = br.ObjectType;
             node.AssemblyClassDefinitionID = br.MiscStringID;
             node.ClassDefinitionID = br.MiscStringID;
@@ -904,9 +915,9 @@ public static class ControlExtensions
             node.Id = id;
             node.BranchClass = br.BranchClass;
             node.BranchName = br.Name;
-            node.BranchType = br.BranchType;
             node.ObjectType = br.ObjectType;
             node.PointType = br.BranchType;
+            node.BranchType = br.BranchType;
             node.AssemblyClassDefinitionID = br.MiscStringID;
             node.ClassDefinitionID = br.MiscStringID;
             node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
@@ -932,8 +943,8 @@ public static class ControlExtensions
             {
 
             }
-            //tree.Branches.Add(br);
-            //br.CreateChildNodes();
+     //       tree.Branches.Add(br);
+           // br.CreateChildNodes();
             return node;
         }
         catch (Exception ex)

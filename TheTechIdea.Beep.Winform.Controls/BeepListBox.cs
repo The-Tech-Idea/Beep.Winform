@@ -417,23 +417,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                     yOffset += menuItemPanel.Height + spacing;
 
                     //Add child rootnodeitems(if any) below the parent menu item
-                    if (item.Children != null && item.Children.Count > 0)
-                    {
-                        foreach (var childItem in item.Children)
-                        {
-                            var childPanel = CreateMenuItemPanel(childItem, true);
-                            childPanel.Top = yOffset;
-                            childPanel.Left = drawRectX;
-                            childPanel.Width = ButtonSize.Width;
-                            childPanel.Height = ButtonSize.Height;
-                            childPanel.Visible = false; // Initially hidden
-                            childPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-                            childPanel.BackColor = _currentTheme.SideMenuBackColor;
-                            this.Controls.Add(childPanel);
+                    //if (item.Children != null && item.Children.Count > 0)
+                    //{
+                    //    foreach (var childItem in item.Children)
+                    //    {
+                    //        var childPanel = CreateMenuItemPanel(childItem, true);
+                    //        childPanel.Top = yOffset;
+                    //        childPanel.Left = drawRectX;
+                    //        childPanel.Width = ButtonSize.Width;
+                    //        childPanel.Height = ButtonSize.Height;
+                    //        childPanel.Visible = false; // Initially hidden
+                    //        childPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+                    //        childPanel.BackColor = _currentTheme.SideMenuBackColor;
+                    //        this.Controls.Add(childPanel);
 
-                            yOffset += childPanel.Height;
-                        }
-                    }
+                    //        yOffset += childPanel.Height;
+                    //    }
+                    //}
                     LastItemBottomY = yOffset;
                 }
             }
@@ -451,8 +451,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public virtual void ListItemClicked(object sender)
         {
             if (sender is BeepButton clickedButton)
-                SelectedIndex = _buttons.IndexOf(clickedButton);
-            ItemClicked?.Invoke(this, (SimpleItem)ListItems[SelectedIndex]);
+            {
+                SimpleItem simpleItem = (SimpleItem)clickedButton.Tag;
+                ItemClicked?.Invoke(this, simpleItem);
+            }
         }
         #endregion "Menu events Handling"
         #region "Getting and Setting Items"

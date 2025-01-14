@@ -12,8 +12,6 @@ using TheTechIdea.Beep.DataBase;
 
 using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
 using TheTechIdea.Beep.ConfigUtil;
-using TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView;
-
 
 namespace Beep.Config.Winform.DataConnections
 {
@@ -61,15 +59,23 @@ namespace Beep.Config.Winform.DataConnections
         public string BranchClass { get; set; } = "ADDIN";
         #endregion "IAddinVisSchema"
        // UnitofWork<ConnectionProperties> DBWork { get; set; }
-        TreeViewControl tree;
+        
         IBranch branch;
        // string selectedCategory;
         int selectedCategoryValue;
         DatasourceCategory selectedCategoryItem;
         DataConnectionViewModel viewModel;
+
+        public event EventHandler OnStart;
+        public event EventHandler OnStop;
+        public event EventHandler<ErrorEventArgs> OnError;
+
         public ConnectionProperties cn { get; set; }
         public int id { get; set; }
         public string GuidID { get; set; }
+        public AddinDetails Details { get  ; set  ; }
+        public Dependencies Dependencies { get  ; set  ; }
+
         public void Run(IPassedArgs pPassedarg)
         {
 
@@ -83,13 +89,13 @@ namespace Beep.Config.Winform.DataConnections
             DMEEditor = pDMEEditor;
             //     DataSourceCategoryType = args[0];
             ErrorObject = per;
-            tree = (TreeViewControl)Visutil.Tree;
-            if (tree != null)
-            {
-                branch = tree.Branches[tree.Branches.FindIndex(x => x.BranchClass == "RDBMS" && x.BranchType == EnumPointType.Root)];
-            }
-            else
-                branch = null;
+            //tree = (TreeViewControl)Visutil.Tree;
+            //if (tree != null)
+            //{
+            //    branch = tree.Branches[tree.Branches.FindIndex(x => x.BranchClass == "RDBMS" && x.BranchType == EnumPointType.Root)];
+            //}
+            //else
+            //    branch = null;
             viewModel=new DataConnectionViewModel(DMEEditor,Visutil );
             viewModel.Get();
             //DatasourceCategorycomboBox.DataSource = Enum.GetValues(typeof(DatasourceCategory));
@@ -272,6 +278,51 @@ namespace Beep.Config.Winform.DataConnections
         public void Run(params object[] args)
         {
           
+        }
+
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Suspend()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Resume()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetErrorDetails()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(IPassedArgs pPassedarg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Configure(Dictionary<string, object> settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnNavigatedTo(Dictionary<string, object> parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetError(string message)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -59,7 +59,6 @@ namespace TheTechIdea.Beep.Desktop.Common
         public int ParentID { get; set; }
         public string OwnerReferenceID { get; set; }
         public string OtherReferenceID { get; set; }
-        //  public List<ToolStripMenuItem> Items { get; set; } //ToolStripMenuItem
         public EnumPointType PointType { get; set; }
         public string ObjectType { get; set; }
         public string BranchClass { get; set; }

@@ -7,7 +7,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         private Timer _timerTriggerLeave;
         private Timer _timerPopupLeave;
-        private int _triggerLeaveTimeout = 1000; // 3 seconds
+        private int _triggerLeaveTimeout = 3000; // 3 seconds
         private int _popupLeaveTimeout = 3000; // 3 seconds
 
         public Control TriggerControl { get; set; } // Dynamically set triggering control
@@ -122,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         /// <param name="triggerControl">The control that triggers the popup.</param>
         /// <param name="location">The screen location where the popup should appear.</param>
-        public void ShowPopup(Control triggerControl, Point location)
+        public virtual void ShowPopup(Control triggerControl, Point location)
         {
             // Set the triggering control
             TriggerControl = triggerControl;

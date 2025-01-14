@@ -11,7 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Basic;
 using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Addin;
-using TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView;
+
 
 
 namespace Beep.Config.Winform.DataConnections
@@ -51,7 +51,7 @@ namespace Beep.Config.Winform.DataConnections
         public bool IsRunning { get; set; }
         public bool IsNew { get; set; }
         public DataConnectionViewModel ViewModel { get; set; }
-        TreeViewControl tree;
+        
         IBranch Rootbranch;
         public void Run(IPassedArgs pPassedarg)
         {

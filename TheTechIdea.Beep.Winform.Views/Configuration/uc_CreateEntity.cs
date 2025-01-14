@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Views.Configuration
         public uc_CreateEntity()
         {
             InitializeComponent();
-            AddinName  = "Entity Creator";
+            Details.AddinName  = "Entity Creator";
         }
 
 

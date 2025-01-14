@@ -11,7 +11,7 @@ using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls.Basic;
 using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
 using TheTechIdea.Beep.DriversConfigurations;
-using TheTechIdea.Beep.Winform.Controls.ITrees.FormsTreeView;
+
 
 namespace Beep.Config.Winform.Configurations
 {
@@ -22,11 +22,11 @@ namespace Beep.Config.Winform.Configurations
         public uc_ConnectionDrivers()
         {
             InitializeComponent();
-            AddinName  = "Connection Drivers";
+            Details.AddinName  = "Connection Drivers";
         }
 
       
-        TreeViewControl tree;
+       
         IBranch branch;
         // public event EventHandler<PassedArgs> OnObjectSelected;
         #region "IAddinVisSchema"

@@ -10,13 +10,11 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.ConfigUtil;
 
-
-
 namespace TheTechIdea.Beep.Winform.Views
 {
     [AddinAttribute(Caption = "Function 2 Function", Name = "uc_function2function", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.Popup, ObjectType = "Beep")]
     [AddinVisSchema(BranchID = 1, RootNodeName = "Configuration", Order = 8, ID = 8, BranchText = "Function to Function Mapping", BranchType = EnumPointType.Function, IconImageName = "function2functionconfig.png", BranchClass = "ADDIN", BranchDescription = "Data Sources Connection Drivers Setup Screen")]
-    public partial class uc_function2function : UserControl,IDM_Addin, IAddinVisSchema
+    public partial class uc_function2function : UserControl, IDM_Addin, IAddinVisSchema
     {
         #region "IAddinVisSchema"
         public string RootNodeName { get; set; } = "Configuration";
@@ -60,6 +58,12 @@ namespace TheTechIdea.Beep.Winform.Views
       
         public FunctionToFunctionMappingViewModel ViewModel { get; set; }
                public string GuidID { get ; set; }=Guid.NewGuid().ToString();
+        public AddinDetails Details { get  ; set  ; }
+        public Dependencies Dependencies { get  ; set  ; }
+
+        public event EventHandler OnStart;
+        public event EventHandler OnStop;
+        public event EventHandler<ErrorEventArgs> OnError;
 
         public void RaiseObjectSelected()
         {
@@ -153,6 +157,51 @@ namespace TheTechIdea.Beep.Winform.Views
         public void Run(params object[] args)
         {
           
+        }
+
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Suspend()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Resume()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetErrorDetails()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(IPassedArgs pPassedarg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Configure(Dictionary<string, object> settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnNavigatedTo(Dictionary<string, object> parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetError(string message)
+        {
+            throw new NotImplementedException();
         }
     }
 }

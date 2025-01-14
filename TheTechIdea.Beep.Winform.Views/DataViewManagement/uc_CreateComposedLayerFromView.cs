@@ -16,6 +16,7 @@ using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep.Utilities;
 using DialogResult = TheTechIdea.Beep.Vis.Modules.DialogResult;
 using TheTechIdea.Beep.DriversConfigurations;
+using TheTechIdea.Beep.Desktop.Common;
 
 namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
 {
@@ -45,12 +46,19 @@ namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
         private IDMDataView MyDataView;
         public IVisManager Visutil { get; set; }
                public string GuidID { get ; set; }=Guid.NewGuid().ToString();
+        public AddinDetails Details { get  ; set  ; }
+        public Dependencies Dependencies { get  ; set  ; }
 
         IBranch branch = null;
         IBranch Parentbranch = null;
         DataViewDataSource vds;
         IVisManager visManager;
         List<EntityStructure> ls = new List<EntityStructure>();
+
+        public event EventHandler OnStart;
+        public event EventHandler OnStop;
+        public event EventHandler<ErrorEventArgs> OnError;
+
         public void Run(IPassedArgs pPassedarg)
         {
           
@@ -101,9 +109,9 @@ namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
                 this.CreateEntitiesbutton.Click += CreateEntitiesbutton_Click;
                 this.Okbutton.Click += Okbutton_Click;
                 this.Cancelbutton.Click += Cancelbutton_Click;
-                this.CreateLayerButton.Image = (Image)visManager.visHelper.GetImage("Beep.Winform.Vis.gfx.clear64.png");
-                this.Okbutton.Image= (Image)visManager.visHelper.GetImage("Beep.Winform.Vis.gfx.success32.png");
-                this.Cancelbutton.Image = (Image)visManager.visHelper.GetImage("Beep.Winform.Vis.gfx.stop32.png");
+                this.CreateLayerButton.Image = (Image)ImageListHelper.GetImage("Beep.Winform.Vis.gfx.clear64.png");
+                this.Okbutton.Image= (Image)ImageListHelper.GetImage("Beep.Winform.Vis.gfx.success32.png");
+                this.Cancelbutton.Image = (Image)ImageListHelper.GetImage("Beep.Winform.Vis.gfx.stop32.png");
             }
         }
         #region"Button Events"
@@ -298,6 +306,51 @@ namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
         public void Run(params object[] args)
         {
           
+        }
+
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Suspend()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Resume()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetErrorDetails()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(IPassedArgs pPassedarg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Configure(Dictionary<string, object> settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnNavigatedTo(Dictionary<string, object> parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetError(string message)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }

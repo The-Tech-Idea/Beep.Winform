@@ -36,8 +36,8 @@ namespace Beep.Winform.Vis.Wizards
         public IVisManager visManager { get; set; }
         public IWizardManager Wizard { get; set; }
         public string GuidID { get  ; set  ; }
-        public AddinDetails Details { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public Dependencies Dependencies { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public AddinDetails Details { get  ; set  ; }
+        public Dependencies Dependencies { get  ; set  ; }
 
         public event EventHandler OnStart;
         public event EventHandler OnStop;

@@ -56,7 +56,7 @@ namespace TheTechIdea.Beep.Vis.Logic
             }
             if (Passedarguments.Id > 0)
             {
-                pbr = TreeEditor.treeBranchHandler.GetBranch(Passedarguments.Id);
+                pbr = TreeEditor.Treebranchhandler.GetBranch(Passedarguments.Id);
             }
 
             if (Passedarguments.Objects.Where(i => i.Name == "RootBranch").Any())
@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                 Passedarguments.CurrentEntity = pbr.BranchText;
                 if (pbr.ParentBranchID > 0)
                 {
-                    ParentBranch = TreeEditor.treeBranchHandler.GetBranch(pbr.ParentBranchID);
+                    ParentBranch = TreeEditor.Treebranchhandler.GetBranch(pbr.ParentBranchID);
                     Passedarguments.Objects.Add(new ObjectItem() { Name = "ParentBranch", obj = ParentBranch });
                 }
                 Passedarguments.Objects.Add(new ObjectItem() { Name = "Branch", obj = pbr });

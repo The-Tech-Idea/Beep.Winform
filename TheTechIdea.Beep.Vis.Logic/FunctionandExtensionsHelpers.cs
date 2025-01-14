@@ -98,11 +98,11 @@ namespace TheTechIdea.Beep.Vis.Logic
             }
             if (pbr == null && TreeEditor!=null && TreeEditor.SelectedBranchID>0)
             {
-                pbr= TreeEditor.treeBranchHandler.GetBranch(TreeEditor.SelectedBranchID); 
+                pbr= TreeEditor.Treebranchhandler.GetBranch(TreeEditor.SelectedBranchID); 
             }
             if (Passedarguments.Id > 0 && pbr==null)
             {
-                pbr = TreeEditor.treeBranchHandler.GetBranch(Passedarguments.Id);
+                pbr = TreeEditor.Treebranchhandler.GetBranch(Passedarguments.Id);
             }
 
 
@@ -112,7 +112,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                 //Passedarguments.CurrentEntity = pbr.BranchText;
                 if (pbr.ParentBranchID > 0)
                 {
-                    ParentBranch = TreeEditor.treeBranchHandler.GetBranch(pbr.ParentBranchID);
+                    ParentBranch = TreeEditor.Treebranchhandler.GetBranch(pbr.ParentBranchID);
                     Passedarguments.Objects.Add(new ObjectItem() { Name = "ParentBranch", obj = ParentBranch });
                 }
                 Passedarguments.Objects.Add(new ObjectItem() { Name = "Branch", obj = pbr });
@@ -300,7 +300,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                 foreach (int item in TreeEditor.SelectedBranchs)
                 {
 
-                    IBranch br = TreeEditor.treeBranchHandler.GetBranch(item);
+                    IBranch br = TreeEditor.Treebranchhandler.GetBranch(item);
                     IDataSource srcds = DMEEditor.GetDataSource(br.DataSourceName);
                     if (br.BranchType == EnumPointType.Entity)
                     {
@@ -475,7 +475,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                 }
                 foreach (string d in Directory.GetDirectories(dir))
                 {
-                    TreeEditor.treeBranchHandler.AddCategory(pbr, d);
+                    TreeEditor.Treebranchhandler.AddCategory(pbr, d);
                     // Console.WriteLine(Path.GetFileName(d));
                     DirectorySearch(d);
                 }

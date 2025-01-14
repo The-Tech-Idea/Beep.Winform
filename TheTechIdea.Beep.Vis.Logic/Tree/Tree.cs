@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
             BeepService = beepService;
             DMEEditor = beepService.DMEEditor;
             VisManager= beepService.vis;
-            treeBranchHandler = new TreeBranchHandler(beepService,this);
+            Treebranchhandler = new TreeBranchHandler(beepService,this);
             DropHandler= new TreeNodeDragandDropHandler(beepService, this);
         }
         #region "Other Properties"
@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
         public IVisHelper visHelper { get; set; }
         public IVisManager VisManager { get; set; }
         public int SelectedBranchID { get; set; }
-        public ITreeBranchHandler treeBranchHandler { get; set; }
+        public ITreeBranchHandler Treebranchhandler { get; set; }
         public string Filterstring { set; get; }
         #endregion
         #region "Events"
@@ -229,6 +229,36 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
             {
                 return null;
             }
+        }
+
+        public bool AddBranchToParentInBranchsOnly(IBranch ParentBranch, IBranch br)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IErrorsInfo AddBranch(IBranch ParentBranch, IBranch br)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CreateNode(int id, IBranch br)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveNode(IBranch br)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveNode(string branchname)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveNodeByGuidID(string guidid)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }

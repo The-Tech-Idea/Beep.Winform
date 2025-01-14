@@ -2,12 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using TheTechIdea.Beep;
+
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep.Utilities;
@@ -17,7 +12,6 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Addin;
-
 
 namespace Beep.Config.Winform.Configurations
 {
@@ -49,6 +43,12 @@ namespace Beep.Config.Winform.Configurations
        // public event EventHandler<PassedArgs> OnObjectSelected;
         public IVisManager Visutil { get; set; }
                public string GuidID { get ; set; }=Guid.NewGuid().ToString();
+        public AddinDetails Details { get  ; set  ; }
+        public Dependencies Dependencies { get  ; set  ; }
+
+        public event EventHandler OnStart;
+        public event EventHandler OnStop;
+        public event EventHandler<ErrorEventArgs> OnError;
 
         public void RaiseObjectSelected()
         {
@@ -149,6 +149,51 @@ namespace Beep.Config.Winform.Configurations
         public void Run(params object[] args)
         {
           
+        }
+
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Suspend()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Resume()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetErrorDetails()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(IPassedArgs pPassedarg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunAsync(params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Configure(Dictionary<string, object> settings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnNavigatedTo(Dictionary<string, object> parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetError(string message)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -292,6 +292,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MaxImageSize = new Size(RightButtonSize, RightButtonSize),
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,
+                
                 Theme = Theme,
                 ShowAllBorders = false,
                 ShowShadow = false,

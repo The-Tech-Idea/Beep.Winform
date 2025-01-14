@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 items = value;
-                // InitializeMenu();
+                InitMenu();
             }
         }
 
@@ -132,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (items == null)
             {
-                items = new SimpleItemCollection();
+                items = new BindingList<SimpleItem>();
             }
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
@@ -140,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = 20;
             }
 
-            items.ListChanged += Items_ListChanged;
+         //    items.ListChanged += Items_ListChanged;
             this.Invalidated += BeepListBox_Invalidated;
             _popupForm = new BeepPopupForm();
             BoundProperty = "SelectedMenuItem";
@@ -154,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.InitLayout();
             Dock = DockStyle.Top;
             InitMenu();
-             ApplyTheme();
+            ApplyTheme();
         }
         private void BeepListBox_Invalidated(object? sender, InvalidateEventArgs e)
         {
@@ -166,74 +166,132 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void InitMenu()
         {
+            Console.WriteLine("InitMenu");
             // Clear existing controls and reset the menu bar
-            this.Controls.Clear();
+            Controls.Clear();
             menumainbar.Clear();
+            Console.WriteLine("InitMenu1");
 
-            // Create the dropdown menu
+            // Create the dropdown menu (you already have this logic)
             maindropdownmenu.Visible = false;
             maindropdownmenu.Width = Width;
             maindropdownmenu.Height = Height;
-            maindropdownmenu.Top = this.Bottom;
-            maindropdownmenu.Left = this.Left;
+            maindropdownmenu.Top = Bottom;
+            maindropdownmenu.Left = Left;
             maindropdownmenu.Visible = false;
             maindropdownmenu.BoundProperty = "SelectedMenuItem";
             maindropdownmenu.SelectedItemChanged += Maindropdownmenu_SelectedIndexChanged;
-            this.Controls.Add(maindropdownmenu);
+            Console.WriteLine("InitMenu2");
+
+            Controls.Add(maindropdownmenu);
+            Console.WriteLine("InitMenu3");
 
             // Handle the case where there are no items
             if (items == null || items.Count == 0)
             {
-                return; // Nothing to initialize if there are no items
+                return;
             }
+            Console.WriteLine("InitMenu4");
 
-            // Calculate the total number of buttons and their width
-            int maxButtons = DrawingRect.Width / (_menuItemWidth + 1); // Account for padding
-            if (maxButtons == 0)
+            // This is where we dynamically measure each item
+            List<int> itemWidths = new List<int>();
+            int totalButtonWidth = 0;
+
+            // For measuring text:
+            using (Graphics g = CreateGraphics())
             {
-                maxButtons = 1;
+                // If you want to factor in an icon, define some constant or measure actual icon width
+                // Suppose we add 24 px for icon + spacing, if an icon is present:
+                int iconPlaceholder = 5;
+
+                foreach (SimpleItem item in items)
+                {
+                    // Measure the text
+                    // Option 1: TextRenderer
+                    Size textSize = TextRenderer.MeasureText(g, item.Text ?? string.Empty, this.Font);
+
+                    // Option 2: g.MeasureString() if you prefer:
+                    // var textSizeF = g.MeasureString(item.Text ?? string.Empty, this.Font);
+                    // Size textSize  = textSizeF.ToSize();
+
+                    // Some horizontal padding for the button (left + right)
+                    int horizontalPadding = 20;
+
+                    // If the item has an image path, we incorporate the iconPlaceholder
+                    // If you always want to show space for an icon, just always add iconPlaceholder
+                    int itemWidth = textSize.Width + horizontalPadding;
+                    if (!string.IsNullOrEmpty(item.ImagePath))
+                    {
+                        itemWidth += iconPlaceholder;
+                    }
+
+                    // You can also clamp to some minimum if you like:
+                    // itemWidth = Math.Max(itemWidth, 60);
+
+                    // Save this width
+                    itemWidths.Add(itemWidth);
+                    totalButtonWidth += itemWidth;
+                }
             }
 
-            // Calculate the required width of all buttons
-            int totalButtonWidth = items.Count * (_menuItemWidth + 1);
-
-            // Calculate the starting point for centering buttons
+            // Now that we have a total, we can center them horizontally if desired
+            // (like you already do):
             int startX = DrawingRect.Left + (DrawingRect.Width - totalButtonWidth) / 2;
             int centerY = DrawingRect.Top + (DrawingRect.Height - MenuItemHeight) / 2;
 
+            Console.WriteLine("InitMenu6");
+
             int i = 0;
+            int currentX = startX;
             foreach (SimpleItem item in items)
             {
+                Console.WriteLine("InitMenu7");
+                Console.WriteLine(item.Text);
+
                 // Create a button for each menu item
+                int btnWidth = itemWidths[i];
                 BeepButton btn = new BeepButton
                 {
                     Text = item.Text,
                     Tag = item,
                     ImagePath = item.ImagePath,
-                    Width = _menuItemWidth,
+                    Width = btnWidth,
                     Height = MenuItemHeight,
                     UseScaledFont = true,
-                    MaxImageSize = new System.Drawing.Size(_imagesize, _imagesize),
+                    MaxImageSize = new Size(_imagesize, _imagesize),
                     ImageAlign = ContentAlignment.MiddleLeft,
                     TextAlign = ContentAlignment.MiddleCenter,
                     ApplyThemeOnImage = false,
+                    ApplyThemeToChilds = false,
+                    IsShadowAffectedByTheme= false,
+                    IsBorderAffectedByTheme = false,
+                    IsRoundedAffectedByTheme = false,
                     IsChild = true,
                     ShowAllBorders = false,
                     Anchor = AnchorStyles.None,
-                    Left = startX + (i * (_menuItemWidth + 1)),
-                    Top = centerY
+                    Left = currentX,
+                    Top = centerY,
+                    GuidID = item.GuidId,
                 };
+
+                // Move X pointer to the right by the width of this button
+                currentX += btnWidth;
 
                 // Attach event handler
                 btn.Click -= Btn_Click; // Ensure no duplicate handlers
                 btn.Click += Btn_Click;
+                Console.WriteLine("InitMenu7 1");
 
                 // Add button to controls and dictionary
-                this.Controls.Add(btn);
+                Controls.Add(btn);
                 menumainbar.Add(item.Text, btn);
+
                 i++;
             }
+
+            Console.WriteLine("InitMenu8");
         }
+
 
         private void ShowPopup(SimpleItem item, Point point)
         {
@@ -393,7 +451,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
+                currentMenu = items;
                 SelectedIndex = items.IndexOf(item);
+               
             }
         }
         private void Maindropdownmenu_SelectedIndexChanged(object? sender, EventArgs e)

@@ -183,12 +183,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             DoubleBuffered = true;
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-            SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
+         //   SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
 
             InitializeComponents();
 
             //  SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
-            AutoSize = false;
+            AutoSize = true;
             BoundProperty = "Text";
 
         }
@@ -198,6 +198,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
 
         }
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+            if (AutoSize)
+            {
+                Size textSize = TextRenderer.MeasureText(Text, Font);
+                this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
+            }
+        }
+
         protected override Size DefaultSize
         {
             get
@@ -219,28 +229,28 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
-        {
+        //protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+        //{
 
-            // Update DrawingRect to get accurate measurements
-            UpdateDrawingRect();
-            //if (_currentTheme != null)
-            //{
-            //    ApplyTheme();
-            //}
-            //int singleLineHeight = GetSingleLineHeight();
+        //    // Update DrawingRect to get accurate measurements
+        //    UpdateDrawingRect();
+        //    //if (_currentTheme != null)
+        //    //{
+        //    //    ApplyTheme();
+        //    //}
+        //    //int singleLineHeight = GetSingleLineHeight();
 
-            //// Set Minimum and Maximum height to enforce fixed height
-            //this.MinimumSize = new Size(0, singleLineHeight);
-            //this.MaximumSize = new Size(0, singleLineHeight);
+        //    //// Set Minimum and Maximum height to enforce fixed height
+        //    //this.MinimumSize = new Size(0, singleLineHeight);
+        //    //this.MaximumSize = new Size(0, singleLineHeight);
 
-            //height = singleLineHeight;
-            //specified &= ~BoundsSpecified.Height; // Remove the Height flag to prevent external changes
+        //    //height = singleLineHeight;
+        //    //specified &= ~BoundsSpecified.Height; // Remove the Height flag to prevent external changes
 
 
 
-            base.SetBoundsCore(x, y, width, height, specified);
-        }
+        //    base.SetBoundsCore(x, y, width, height, specified);
+        //}
         #region "Painting"
         private void InitializeComponents()
         {
@@ -270,15 +280,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             contentRect = DrawingRect;
             // If you want to ensure at least a 1-pixel margin from the edge:
-            contentRect.Inflate(-1, -1);
+           // contentRect.Inflate(-1, -1);
             // Draw the image and text
             // Also apply the label’s own padding
             // (Padding already might be set to some default; adapt as desired)
 
-            contentRect.X += Padding.Left;
-            contentRect.Y += Padding.Top;
-            contentRect.Width -= (Padding.Left + Padding.Right);
-            contentRect.Height -= (Padding.Top + Padding.Bottom);
+            //contentRect.X += Padding.Left;
+            //contentRect.Y += Padding.Top;
+            //contentRect.Width -= (Padding.Left + Padding.Right);
+            //contentRect.Height -= (Padding.Top + Padding.Bottom);
 
             // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
             //  DrawBackColor(e, _currentTheme.BackColor, _currentTheme.ButtonHoverBackColor);
@@ -320,7 +330,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Height * scaleFactor));
             }
 
-            Size textSize = TextRenderer.MeasureText(Text, Font);
+            Size textSize = TextRenderer.MeasureText(Text, scaledFont);
 
             // Calculate the layout of image and text
             Rectangle imageRect, textRect;
@@ -353,7 +363,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Theme"
         public override void ApplyTheme()
         {
-            Console.WriteLine("1 Label Apply Theme Font");
+           // Console.WriteLine("1 Label Apply Theme Font");
             //  base.ApplyTheme();
             if (_currentTheme != null)
             {
@@ -361,11 +371,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ForeColor = _currentTheme.LabelForeColor;
                 HoverBackColor = _currentTheme.BackgroundColor;
                 HoverForeColor = _currentTheme.ButtonHoverForeColor;
-               
-                Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-                Console.WriteLine("2 Label Apply Theme Font");
+                // Only apply the theme's font if UseThemeFont is true
+                if (!UseThemeFont)
+                {
+               //     Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                }
+
+                //   Console.WriteLine("2 Label Apply Theme Font");
                 ApplyThemeToSvg();
-                Invalidate();
+               // Invalidate();
             }
         }
         public void ApplyThemeToSvg()

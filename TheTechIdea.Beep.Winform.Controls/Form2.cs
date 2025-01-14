@@ -1,18 +1,25 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public partial class BeepiForm : Form
+    public partial class Form2 : Form
     {
         #region "Fields"
         protected int _resizeMargin = 5; // Margin for resizing
-        protected int _borderRadius =5;
+        protected int _borderRadius = 5;
         protected int _borderThickness = 3; // Thickness of the custom border
         private Color _borderColor = Color.Red; // Default border color
         private const int ButtonSize = 30;
@@ -63,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _themeEnum = value;
                 _currentTheme = BeepThemesManager.GetTheme(value);
-               
+
                 ApplyTheme();
             }
         }
@@ -80,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion "Properties"
-        public BeepiForm(IBeepService beepService)
+        public Form2(IBeepService beepService)
         {
             InitializeComponent();
             beepservices = beepService;
@@ -95,18 +102,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             //      Margin = new Padding(_resizeMargin);
             InitializeForm();
         }
-        public BeepiForm()
+        public Form2()
         {
             InitializeComponent();
             ishandled = false;
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-         //   SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
+          //  SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
             UpdateStyles();
-            
+
             // Apply border and custom form styles
             FormBorderStyle = FormBorderStyle.None;
-          //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
-          //      Margin = new Padding(_resizeMargin);
+            //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
+            //      Margin = new Padding(_resizeMargin);
             InitializeForm();
         }
         #region "Layout Events"
@@ -114,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnControlAdded(e);
             //   Console.WriteLine($"1 Control Added {e.Control.Text}");
-            AdjustControls();
+            //   AdjustControls();
         }
         protected override void InitLayout()
         {
@@ -147,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-            if(_inpopupmode) return;
+            if (_inpopupmode) return;
             if (e.Button == MouseButtons.Left)
             {
                 // Determine if we're resizing or dragging
@@ -170,10 +177,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseMove(e);
             if (_inpopupmode) return;
-          
+
             if (isResizing)
             {
-              
+
                 HandleResizing();
                 ResumeLayout();
             }
@@ -196,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Cursor = Cursors.Default; // Default cursor
                 }
             }
-           
+
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
@@ -218,7 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void HandleResizing()
         {
-           
+
             Point diff = Point.Subtract(Cursor.Position, new Size(resizeStartCursorPoint));
             Size newSize = new Size(
                 Math.Max(MinimumSize.Width, resizeStartFormSize.Width + diff.X),
@@ -237,11 +244,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Theme Application
         public virtual void ApplyTheme()
         {
-            BeepTheme theme = BeepThemesManager.GetTheme(beepuiManager1.Theme);
-            BackColor = theme.BackColor;
+            Theme = EnumBeepThemes.DefaultTheme;
+            BackColor = _currentTheme.BackColor;
             //beepPanel1.Theme = beepuiManager1.Theme;
-            BorderColor = theme.BorderColor;
-            Invalidate();
+            BorderColor = _currentTheme.BorderColor;
+           // Invalidate();
         }
         #endregion
         #region Maximize Toggle
@@ -285,20 +292,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Rectangle borderRectangle = new Rectangle(
                       _borderThickness / 2,
                       _borderThickness / 2,
-                    Width - (_borderThickness ),
-                    Height - (_borderThickness )
+                    Width - (_borderThickness),
+                    Height - (_borderThickness)
                 );
 
-            
+
                 borderPen.Alignment = PenAlignment.Center;
-                  e.Graphics.DrawRectangle(borderPen, borderRectangle);
-    //            e.Graphics.DrawRectangle(
-    //    borderPen,
-    //    new Rectangle(0, 0, Width - 1, Height - 1)
-    //);
+                e.Graphics.DrawRectangle(borderPen, borderRectangle);
+                //            e.Graphics.DrawRectangle(
+                //    borderPen,
+                //    new Rectangle(0, 0, Width - 1, Height - 1)
+                //);
             }
 
-          
+
         }
         protected override void OnResize(EventArgs e)
         {
@@ -392,10 +399,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else if (control.Dock == DockStyle.None)
                 {
-                   // Console.WriteLine($"Control is not docked {control.Left}-{adjustedClientArea.Left}");
+                    // Console.WriteLine($"Control is not docked {control.Left}-{adjustedClientArea.Left}");
                     // Non-docked controls are clamped within the adjusted client area
-                    control.Left = Math.Max(control.Left, adjustedClientArea.Left+1);
-                    control.Top = Math.Max(control.Top, adjustedClientArea.Top+1);
+                    control.Left = Math.Max(control.Left, adjustedClientArea.Left + 1);
+                    control.Top = Math.Max(control.Top, adjustedClientArea.Top + 1);
                     control.Width = Math.Min(control.Width, adjustedClientArea.Width - control.Left + adjustedClientArea.Left);
                     control.Height = Math.Min(control.Height, adjustedClientArea.Height - control.Top + adjustedClientArea.Top);
                 }

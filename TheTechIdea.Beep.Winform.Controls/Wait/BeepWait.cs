@@ -1,21 +1,35 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Editor;
+
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using System.ComponentModel;
+using TheTechIdea.Beep.Desktop.Common;
+
 namespace TheTechIdea.Beep.Winform.Controls.Wait
 {
     [ToolboxItem(false)]
-    public partial class BeepWait : Form, IWaitForm
+    public partial class BeepWait : BeepiForm, IWaitForm
     {
 
         public BeepWait()
         {
             InitializeComponent();
-          //  LogopictureBox.Visible = false;
-
+            //  LogopictureBox.Visible = false;
+            _spinnerImage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.loading.svg";
+            LogopictureBox.ImagePath="TheTechIdea.Beep.Winform.Controls.GFX.PNG.SimpleInfoApps.png";
+          
+            StartSpinner();
         }
-
+        private void StartSpinner()
+        {
+            _spinnerImage.ApplyThemeOnImage = true;
+            _spinnerImage.Theme = Theme;
+            _spinnerImage.IsSpinning = true; // Start spinning
+        }
+        private void StopSpinner()
+        {
+            _spinnerImage.IsSpinning = false; // Stop spinning
+        }
 
         // private ResourceManager resourceManager = new ResourceManager();
         public static void InvokeAction(Control control, MethodInvoker action)
@@ -37,21 +51,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Wait
             {
                 this.Invoke(new Action(Close));
             }
-
+            StopSpinner();
         }
 
         public void SetImage(string image)
         {
             //          Title.Visible= false;
             LogopictureBox.Visible = true;
-            LogopictureBox.SizeMode = PictureBoxSizeMode.Zoom;
-            LogopictureBox.Image = Image.FromFile(image);
+            LogopictureBox.ImagePath = ImageListHelper.GetImagePathFromName(image);
         }
         public void SetImage(Image image)
         {
             //         Title.Visible = false;
             LogopictureBox.Visible = true;
-            LogopictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             LogopictureBox.Image = image;
         }
         public void SetText(string text)
@@ -78,12 +90,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Wait
 
         public IErrorsInfo Show(PassedArgs Passedarguments)
         {
+            StartSpinner();
             return new ErrorsInfo();
         }
 
-        public void UpdateProgress(int progress, string message = null)
+        public void UpdateProgress(int progress, string text = null)
         {
-            throw new NotImplementedException();
+            messege.BeginInvoke(new Action(() =>
+            {
+                messege.AppendText(text + Environment.NewLine);
+                messege.SelectionStart = messege.Text.Length;
+                messege.ScrollToCaret();
+            }));
+
         }
 
         IErrorsInfo IWaitForm.Close()
@@ -95,6 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wait
                 {
                     this.Invoke(new Action(Close));
                 }
+                StopSpinner();
             }
             catch (Exception)
             {

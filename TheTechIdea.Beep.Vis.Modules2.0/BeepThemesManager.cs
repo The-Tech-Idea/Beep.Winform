@@ -7988,11 +7988,11 @@ namespace TheTechIdea.Beep.Vis.Modules
             ComboBoxForeColor = Color.FromArgb(0, 0, 0),
 
             // **CheckBox Colors**
-            CheckBoxBackColor = Color.Transparent,
+            CheckBoxBackColor = Color.White,
             CheckBoxForeColor = Color.FromArgb(0, 0, 0),
 
             // **RadioButton Colors**
-            RadioButtonBackColor = Color.Transparent,
+            RadioButtonBackColor = Color.White,
             RadioButtonForeColor = Color.FromArgb(0, 0, 0),
 
             // **Border Colors**
@@ -14364,7 +14364,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Label Colors**
-            LabelBackColor = Color.Transparent,
+            LabelBackColor = Color.White,
             LabelForeColor = Color.Black,
 
             // **Panel Colors**
@@ -14387,11 +14387,11 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **CheckBox Colors**
-            CheckBoxBackColor = Color.Transparent,
+            CheckBoxBackColor = Color.White,
             CheckBoxForeColor = Color.Black,
 
             // **RadioButton Colors**
-            RadioButtonBackColor = Color.Transparent,
+            RadioButtonBackColor = Color.White,
             RadioButtonForeColor = Color.Black,
 
             // **Border Colors**

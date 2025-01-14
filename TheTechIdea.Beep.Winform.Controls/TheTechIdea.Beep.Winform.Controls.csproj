@@ -119,6 +119,7 @@
     <None Remove="GFX\SVG\yes.svg" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="GFX\PNG\SimpleInfoApps.png" />
     <EmbeddedResource Include="GFX\SVG\033-stakeholder.svg" />
     <EmbeddedResource Include="GFX\SVG\about.svg" />
     <EmbeddedResource Include="GFX\SVG\add.svg" />

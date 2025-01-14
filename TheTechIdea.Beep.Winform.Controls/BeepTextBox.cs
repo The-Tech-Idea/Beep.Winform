@@ -65,8 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     temp.Multiline = false;
                     temp.BorderStyle = BorderStyle.None;
-                    temp.Font = _innerTextBox.Font; // match the font used by the inner text box
-
+                
                     // The system's best guess for single-line text
                     return temp.PreferredHeight;
                 }
@@ -319,23 +318,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _onlyCharacters;
             set => _onlyCharacters = value;
         }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("The font applied to the text displayed by the control.")]
-        public override Font Font
-        {
-            get => base.Font;
-            set
-            {
-                base.Font = value;
-                if (_innerTextBox != null)
-                {
-                    _innerTextBox.Font = value;
-                    AdjustTextBoxHeight(); // Adjust height based on new font size
-                    Invalidate();
-                }
-            }
-        }
+        //[Browsable(true)]
+        //[Category("Appearance")]
+        //[Description("The font applied to the text displayed by the control.")]
+        //public override Font Font
+        //{
+        //    get => base.Font;
+        //    set
+        //    {
+        //        base.Font = value;
+        //        if (_innerTextBox != null)
+        //        {
+        //            _innerTextBox.Font = value;
+        //            AdjustTextBoxHeight(); // Adjust height based on new font size
+        //            Invalidate();
+        //        }
+        //    }
+        //}
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Specify the mask or format for text display.")]
@@ -627,7 +626,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 tempTextBox.Multiline = false;
                 tempTextBox.BorderStyle = BorderStyle.None;
-                tempTextBox.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                tempTextBox.Font = Font;
 
                  textBoxHeight = tempTextBox.PreferredHeight + (padding * 2);
 
@@ -1279,7 +1278,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             //base.ApplyTheme();
             _innerTextBox.BackColor = _currentTheme.TextBoxBackColor;
             _innerTextBox.ForeColor = _currentTheme.TextBoxForeColor;
-            Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+            if (UseThemeFont)
+            {
+                Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+            }
+            
             BackColor = _currentTheme.BackColor;
             beepImage.ApplyTheme();
             Invalidate();

@@ -103,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls
           
             BackColor = Color.FromArgb(51, 51, 51);
             ForeColor = Color.White;
-            Font = new Font("Segoe UI", 9);
+        
             DoubleBuffered = true;
             ApplyThemeToChilds = false;
         }

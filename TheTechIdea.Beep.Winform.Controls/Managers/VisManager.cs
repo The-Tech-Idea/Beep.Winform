@@ -934,7 +934,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         /// <param name="form">The calling BeepWaitForm</param>
         /// <param name="ctrl"></param>
         /// <param name="text"></param>
-        public static void SetText(Form form, TextBox ctrl, string text)
+        public static void SetText(Form form, BeepTextBox ctrl, string text)
         {
             // InvokeRequired required compares the thread ID of the 
             // calling thread to the thread ID of the creating thread. 

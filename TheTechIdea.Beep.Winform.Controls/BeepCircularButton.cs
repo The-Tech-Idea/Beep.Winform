@@ -345,7 +345,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             //base.ApplyTheme();
             //Font=BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-            Font = _currentTheme.GetCaptionFont();
+            if(UseThemeFont)    Font = _currentTheme.GetCaptionFont();
             
             ForeColor = _currentTheme.ButtonForeColor;
             BackColor = _currentTheme.ButtonBackColor;

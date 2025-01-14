@@ -153,8 +153,7 @@
             Savebutton.Name = "Savebutton";
             Savebutton.Size = new Size(34, 27);
             Savebutton.TabIndex = 0;
-            Savebutton.UseCompatibleTextRendering = true;
-            Savebutton.UseVisualStyleBackColor = true;
+          
             // 
             // BeepFilter
             // 

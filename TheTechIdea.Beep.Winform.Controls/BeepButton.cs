@@ -494,15 +494,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.ButtonForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
-            try
+            if(UseThemeFont)
             {
                 Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             }
-            catch (Exception ex)
-            {
-                Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, _currentTheme.FontSize, FontWeight.Normal, FontStyle.Regular);
-            }
-
+         
             ApplyThemeToSvg();
             Invalidate();  // Trigger repaint
         }
@@ -737,10 +733,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             //if (AutoSize)
             //{
-            if (!SetFont())
-            {
-                Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-            };
+            //if (!SetFont())
+            //{
+            //    Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            //};
 
             Size textSize = TextRenderer.MeasureText(Text, Font);
             Size imageSize = beepImage?.HasImage == true ? beepImage.GetImageSize() : Size.Empty;

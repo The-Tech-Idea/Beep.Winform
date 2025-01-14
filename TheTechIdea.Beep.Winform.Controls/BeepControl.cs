@@ -440,8 +440,19 @@ namespace TheTechIdea.Beep.Winform.Controls
               
             }
         }
-
-
+        private bool _useThemeFont = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("If true, the label's font is always set to the theme font.")]
+        public bool UseThemeFont
+        {
+            get => _useThemeFont;
+            set
+            {
+                _useThemeFont = value;
+                Invalidate();
+            }
+        }
         // Border properties
         protected int _borderRadius = 1;
 
@@ -754,8 +765,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepControl()
         {
             DoubleBuffered = true;
-            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-            SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
+            SetStyle(ControlStyles.UserPaint |  ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+
             InitializeTooltip();
             ShowAllBorders = true;
             //  BackColor = Color.Transparent;
@@ -903,13 +914,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             Theme = BeepThemesManager.GetThemeToEnum(theme);
             // set theme to contained controls
-            foreach (Control ctrl in Controls)
-            {
-                if (ctrl is BeepControl)
-                {
-                    ApplyThemeToControl(ctrl);
-                }
-            }
+            //foreach (Control ctrl in Controls)
+            //{
+            //    if (ctrl is BeepControl)
+            //    {
+            //        ApplyThemeToControl(ctrl);
+            //    }
+            //}
         }
         #endregion "Theme"
         #region "Painting"

@@ -147,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             DoubleBuffered = true;
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-            SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
+           // SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
 
             IsChild = false;
             Padding = new Padding(0);

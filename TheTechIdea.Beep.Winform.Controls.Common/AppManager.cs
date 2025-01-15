@@ -177,6 +177,8 @@ namespace TheTechIdea.Beep.Desktop.Common
                 });
                 // Load Assemblies from folders (DataSources,Drivers, Extensions,...)
                 beepservices.LoadAssemblies(progress);
+                // Load Assemblies from folders (DataSources,Drivers, Extensions,...)
+               
                 beepservices.Config_editor.LoadedAssemblies = beepservices.LLoader.Assemblies.Select(c => c.DllLib).ToList();
                 p.Messege = "Loading DLL's Completed";
                 PasstoWaitForm(p);
@@ -192,54 +194,14 @@ namespace TheTechIdea.Beep.Desktop.Common
             {
                 string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
                 DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+                CloseWaitForm();
             }
             return DMEEditor.ErrorObject;
         }
-        public async Task<IErrorsInfo> LoadAddins()
-        {
-            try
-            {
-                // use the view router to navigate back
-
-            }
-            catch (Exception ex)
-            {
-                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
-                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
-            }
-            return DMEEditor.ErrorObject;
-        }
+      
         #endregion "Loading and Initialization"
         #region "Addin Management"
-        public IErrorsInfo CallAddinRun()
-        {
-            try
-            {
-                // use the view router to navigate back
-
-            }
-            catch (Exception ex)
-            {
-                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
-                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
-            }
-            return DMEEditor.ErrorObject;
-        }
-
-        public IErrorsInfo CloseAddin()
-        {
-            try
-            {
-                // use the view router to navigate back
-
-            }
-            catch (Exception ex)
-            {
-                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
-                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
-            }
-            return DMEEditor.ErrorObject;
-        }
+      
         #endregion "Addin Management"
         #region "WaitForm"
 

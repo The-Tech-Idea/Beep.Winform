@@ -46,13 +46,11 @@ namespace TheTechIdea.Beep.Vis.Modules
         int Width { get; set; }
         int Height { get; set; }
         Task<IErrorsInfo> LoadGraphics(string[] namespacestoinclude);
-        Task<IErrorsInfo> LoadAssemblies();
+        Task<IErrorsInfo> LoadAssemblies(string[] namespacestoinclude);
         List<IDM_Addin> Addins { get; set; }
         IWaitForm WaitForm { get; set; }
         IErrorsInfo LoadSetting();
         IErrorsInfo SaveSetting();
-        IErrorsInfo CallAddinRun();
-        IErrorsInfo CloseAddin();
         IErrorsInfo PrintGrid(IPassedArgs passedArgs);
         IDM_Addin ShowUserControlPopUp(string usercontrolname, IDMEEditor pDMEEditor, string[] args, IPassedArgs e);
         IErrorsInfo ShowPage(string pagename,  PassedArgs Passedarguments,  DisplayType displayType = DisplayType.InControl,bool Singleton=false);

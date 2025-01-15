@@ -33,7 +33,7 @@ namespace Beep.Winform.Vis.ETL.CopyEntityandData
         IDataSource dataSource;
         List<EntityStructure> Entities = new List<EntityStructure>(); 
         public List<ETLScriptDet> SyncEntities { get; set; }
-        IVisManager visManager;
+        IAppManager visManager;
         bool IsOk = true;
        // public CopyEntityManager copyEntityManager { get; set; }
         public void Run(IPassedArgs pPassedarg)
@@ -67,7 +67,7 @@ namespace Beep.Winform.Vis.ETL.CopyEntityandData
 
         //    if (e.Objects.Where(c => c.Name == "VISUTIL").Any())
         //    {
-        //        visManager = (IVisManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+        //        visManager = (IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
         //    }
 
         //    this.dataConnectionsBindingSource.DataSource = DMEEditor.ConfigEditor.DataConnections;

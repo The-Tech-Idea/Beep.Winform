@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public List<Tuple<IBranch, string>> GenerBranchs { get; set; } = new List<Tuple<IBranch, string>>();
         public List<MenuList> Menus { get; set; } = new List<MenuList>();
-        public IVisManager VisManager { get; set; }
+        public IAppManager VisManager { get; set; }
         public int SelectedBranchID { get; set; }
         public string Filterstring { get; set; }
         #endregion "Properties"

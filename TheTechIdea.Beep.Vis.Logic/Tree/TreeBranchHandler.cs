@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Vis.Tree
             Tree = ptreeControl;
         }
         public IBeepService BeepService { get; }
-        public IVisManager VisManager { get; }
+        public IAppManager VisManager { get; }
         public IDMEEditor DMEEditor { get ; set ; }
         public ITree Tree { get; private set; }
         public IErrorsInfo AddBranch(IBranch ParentBranch, IBranch Branch)

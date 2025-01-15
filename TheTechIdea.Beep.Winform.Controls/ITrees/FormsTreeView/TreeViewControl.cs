@@ -29,7 +29,7 @@
 //        {
 
 //        }
-//        public TreeViewControl(IDMEEditor pDMEEditor, IVisManager pVismanager)
+//        public TreeViewControl(IDMEEditor pDMEEditor, IAppManager pVismanager)
 //        {
 //            DMEEditor = pDMEEditor;
 //            VisManager = pVismanager;
@@ -53,7 +53,7 @@
 //        #endregion
 //        public string TreeType { get; set; }
 
-//        public IVisManager VisManager { get; set; }
+//        public IAppManager VisManager { get; set; }
 //        public TreeView TreeV { get; set; }
 //        public string CategoryIcon { get; set; } = "Category.png";
 //        public string SelectIcon { get; set; } = "check.png";

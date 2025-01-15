@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers.Wizards
         public event EventHandler<NodeChangeEventHandler> WizardNextNodeEvent;
         public event EventHandler<NodeChangeEventHandler> WizardPreviousNodeEvent;
         public event EventHandler<NodeChangeEventHandler> WizardNodeChangeEvent;
-        public WizardManager(IDMEEditor pDMEEditor, IVisManager pvisManager)
+        public WizardManager(IDMEEditor pDMEEditor, IAppManager pvisManager)
         {
             State = new WizardState(this);
             Nodes = new LinkedList<IWizardNode>();
@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers.Wizards
         }
         public string Title { get;set;}
         public string Description { get;set;}
-        public IVisManager visManager { get; set; }
+        public IAppManager visManager { get; set; }
         public IDMEEditor DMEEditor { get; set; }
         public int StartLeft { get; set; } = 3;
         public int StartTop { get; set; } = 70;

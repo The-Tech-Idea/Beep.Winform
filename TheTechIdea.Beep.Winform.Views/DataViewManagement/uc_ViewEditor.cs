@@ -41,7 +41,7 @@ namespace TheTechIdea.ETL
        
         public IPassedArgs Passedarg { get ; set ; }
       //  private IDMDataView MyDataView;
-        public IVisManager Visutil { get; set; }
+        public IAppManager Visutil { get; set; }
         
         public string GuidID { get ; set; }=Guid.NewGuid().ToString();
         public AddinDetails Details { get  ; set  ; }
@@ -75,7 +75,7 @@ namespace TheTechIdea.ETL
             Logger = plogger;
             ErrorObject = per;
             DMEEditor = pbl;
-            Visutil = (IVisManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+            Visutil = (IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
             if (Passedarg.Objects.Where(i => i.Name == "Branch").Any())
             {
                 branch = (IBranch)e.Objects.Where(c => c.Name == "Branch").FirstOrDefault().obj;

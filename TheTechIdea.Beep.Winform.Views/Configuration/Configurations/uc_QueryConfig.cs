@@ -81,7 +81,7 @@ namespace Beep.Config.Winform.Configurations
             Logger = plogger;
             DMEEditor = pDMEEditor;
             ErrorObject = per;
-            //Visutil = (IVisManager)obj.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+            //Visutil = (IAppManager)obj.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
             foreach (var item in Enum.GetValues(typeof(DataSourceType)))
             {
                 DatabasetypeComboBox.Items.Add(item);

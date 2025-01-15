@@ -316,7 +316,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsBorderAffectedByTheme = false,
             };
 
-            //searchBox.Font = new Font("Segoe UI", 12, FontStyle.Regular);
+            //searchBox.TextFont = new TextFont("Segoe UI", 12, FontStyle.Regular);
             Controls.Add(searchBox);
         }
         private void AddNotificationIcon()
@@ -595,7 +595,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //if (_currentTheme == null) return;
             //if (TitleLabel == null) return;
             BackColor = _currentTheme.TitleBarBackColor;
-            ForeColor = _currentTheme.TitleBarForeColor;
+      //      ForeColor = _currentTheme.TitleBarForeColor;
             _logo.Theme = Theme;
             TitleLabel.UseScaledFont = true;
             TitleLabel.Font = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
@@ -604,7 +604,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // searchBox.Theme = Theme;
             searchBox.ForeColor = _currentTheme.TitleBarForeColor;
             searchBox.BackColor = _currentTheme.TitleBarBackColor;
-            // searchBox.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+            // searchBox.TextFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
             //searchBox.Height = searchBox.PreferredHeight;
           //  TitleLabel.Theme = Theme;
           
@@ -612,6 +612,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //   TitleLabel.ForeColor = ColorUtils.GetForColor(_currentTheme.TitleBarBackColor, _currentTheme.TitleBarForeColor);
             // hamburgerIcon.Theme = Theme;
             profileIcon.Theme = Theme;
+            profileIcon.ApplyThemeOnImage = true;
             closeIcon.Theme = Theme;
             maximizeIcon.Theme = Theme;
             minimizeIcon.Theme = Theme;

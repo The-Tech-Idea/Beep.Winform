@@ -237,7 +237,7 @@ namespace TheTechIdea.Beep.Vis.Logic
 
 
         }
-        public static void FillMethods(IVisManager vis, List<IBranch> branches)
+        public static void FillMethods(IAppManager vis, List<IBranch> branches)
         {
             vis.PostShowItem += Vis_PostShowItem;
             MenuList m = new MenuList();
@@ -299,7 +299,7 @@ namespace TheTechIdea.Beep.Vis.Logic
 
             vis.PostShowItem -= Vis_PostShowItem;
         }
-        public static List<MenuItem> GetMenuItem(IVisManager vis, IBranch br)
+        public static List<MenuItem> GetMenuItem(IAppManager vis, IBranch br)
         {
             vis.IsinCaptureMenuMode = true;
             vis.PostShowItem += Vis_PostShowItem;

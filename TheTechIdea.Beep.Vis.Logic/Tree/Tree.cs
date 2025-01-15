@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Vis.Logic.Tree
         public int SeqID { get { return _Seqid++; } set { } }
         public List<IBranch> Branches { get; set; } = new List<IBranch>();
         public IVisHelper visHelper { get; set; }
-        public IVisManager VisManager { get; set; }
+        public IAppManager VisManager { get; set; }
         public int SelectedBranchID { get; set; }
         public ITreeBranchHandler Treebranchhandler { get; set; }
         public string Filterstring { set; get; }

@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Vis.Tree
 
         public IBeepService BeepService { get; }
         public IDMEEditor DMEEditor { get; set; }
-        public IVisManager VisManager { get; }
+        public IAppManager VisManager { get; }
         public ITree Tree { get; set; }
 
       

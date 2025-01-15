@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
         public IPassedArgs Passedarg { get ; set ; }
         public bool DefaultCreate { get; set ; }
         private IDMDataView MyDataView;
-        public IVisManager Visutil { get; set; }
+        public IAppManager Visutil { get; set; }
                public string GuidID { get ; set; }=Guid.NewGuid().ToString();
         public AddinDetails Details { get  ; set  ; }
         public Dependencies Dependencies { get  ; set  ; }
@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
         IBranch branch = null;
         IBranch Parentbranch = null;
         DataViewDataSource vds;
-        IVisManager visManager;
+        IAppManager visManager;
         List<EntityStructure> ls = new List<EntityStructure>();
 
         public event EventHandler OnStart;
@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
             }
             if (e.Objects.Where(c => c.Name == "VISUTIL").Any())
             {
-                visManager = (IVisManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+                visManager = (IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
             }
             
             if (vds!= null)

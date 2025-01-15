@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         IDM_Addin EntityListContainer { get; set; }
         object CurrentObjectEntity { get; set; }
         EntityStructure CurrentEntityStructure { get; set; }
-        IVisManager VisManager { get; set; }
+        IAppManager VisManager { get; set; }
         IErrorsInfo SetUpMenu();
         IErrorsInfo SetUpTree();
         IErrorsInfo SetUpHorizentalBar();

@@ -11,13 +11,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         {
             
         }
-        public VisHelper(IDMEEditor editor, IVisManager vismanager)
+        public VisHelper(IDMEEditor editor, IAppManager vismanager)
         {
             DMEEditor = editor;
             Vismanager = vismanager;
         }
         public IDMEEditor DMEEditor { get  ; set  ; }
-        public IVisManager Vismanager { get  ; set  ; }
+        public IAppManager Vismanager { get  ; set  ; }
         public List<ImageConfiguration> ImgAssemblies { get  ; set  ; }
         public object LogoBigImage { get  ; set  ; }
         public object LogoSmallImage { get  ; set  ; }
@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
     //   public class VisHelper : IVisHelper
     //   {
-    //       public VisHelper(IDMEEditor pDMEEditor, IVisManager pVismanager)
+    //       public VisHelper(IDMEEditor pDMEEditor, IAppManager pVismanager)
     //       {
     //           DMEEditor = pDMEEditor;
     //           Vismanager = pVismanager;
@@ -121,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     //       public List<ImageConfiguration> ImgAssemblies { get; set; } = new List<ImageConfiguration>();
     //       public List<MenuList> Menus { get; set; } = new List<MenuList>();
     //       public List<string> Images { get; set; } = new List<string>();
-    //       public IVisManager Vismanager { get; set; }
+    //       public IAppManager Vismanager { get; set; }
     //       public ImageList ImageList16 { get; set; }
     //       public ImageList ImageList32 { get; set; }
     //       public ImageList ImageList24 { get; set; }

@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Vis.Logic
  //       {
  //               init();
  //       }
- //       public VisHelper(IDMEEditor pDMEEditor, IVisManager pVismanager)
+ //       public VisHelper(IDMEEditor pDMEEditor, IAppManager pVismanager)
  //       {
  //           DMEEditor = pDMEEditor;
  //           Vismanager = pVismanager;
@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Vis.Logic
  //       public List<ImageConfiguration> ImgAssemblies { get; set; } = new List<ImageConfiguration>();
  //       public List<MenuList> Menus { get; set; } = new List<MenuList>();
  //       public List<string> Images { get; set; } = new List<string>();
- //       public IVisManager Vismanager { get; set; }
+ //       public IAppManager Vismanager { get; set; }
  //       public Dictionary<string,Image> ImageList16 { get; set; }
  //       public Dictionary<string, Image> ImageList32 { get; set; }
  //       public Dictionary<string, Image> ImageList24 { get; set; }

@@ -253,7 +253,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             headerLabel.Font = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
             headerLabel.BackColor = _currentTheme.CardBackColor;
             paragraphLabel.ForeColor = _currentTheme.CardTextForeColor;
-            paragraphLabel.Font = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
+            paragraphLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
             paragraphLabel.BackColor = _currentTheme.CardBackColor;
             BackColor = _currentTheme.CardBackColor;
             imageBox.Theme = Theme;

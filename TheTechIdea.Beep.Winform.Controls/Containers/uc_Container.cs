@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers
         private Panel ContainerPanel=new Panel();
         private TabControl TabContainerPanel = new TabControl();
 
-        public IVisManager VisManager { get; set; }
+        public IAppManager VisManager { get; set; }
         public IDMEEditor Editor { get; set; }
 
         public event EventHandler<ContainerEvents?> AddinAdded ;

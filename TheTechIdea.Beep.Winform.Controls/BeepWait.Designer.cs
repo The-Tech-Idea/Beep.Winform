@@ -1,4 +1,4 @@
-﻿namespace TheTechIdea.Beep.Winform.Controls.Wait
+﻿namespace TheTechIdea.Beep.Winform.Controls
 {
     partial class BeepWait
     {
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            panel2 = new Panel();
+            panel2 = new BeepPanel();
             messege = new BeepTextBox();
             LogopictureBox = new BeepImage();
             _spinnerImage = new BeepImage();
@@ -36,6 +36,7 @@
             label1 = new BeepLabel();
             Title = new BeepLabel();
             panel2.SuspendLayout();
+            Title.SuspendLayout();
             SuspendLayout();
             // 
             // beepuiManager1
@@ -45,20 +46,109 @@
             // 
             // panel2
             // 
-            panel2.BackColor = Color.FromArgb(222, 210, 155);
+            panel2.ActiveBackColor = Color.Gray;
+            panel2.AnimationDuration = 500;
+            panel2.AnimationType = DisplayAnimationType.None;
+            panel2.ApplyThemeToChilds = true;
+            panel2.BackColor = Color.FromArgb(250, 200, 200);
+            panel2.BlockID = null;
+            panel2.BorderColor = Color.Black;
+            panel2.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            panel2.BorderRadius = 1;
             panel2.BorderStyle = BorderStyle.FixedSingle;
+            panel2.BorderThickness = 1;
+            panel2.BottomoffsetForDrawingRect = 0;
+            panel2.BoundProperty = null;
+            panel2.CanBeFocused = true;
+            panel2.CanBeHovered = false;
+            panel2.CanBePressed = true;
+            panel2.Category = Utilities.DbFieldCategory.String;
+            panel2.ComponentName = "panel2";
             panel2.Controls.Add(messege);
-            panel2.Controls.Add(LogopictureBox);
             panel2.Controls.Add(_spinnerImage);
             panel2.Controls.Add(label2);
             panel2.Controls.Add(label1);
             panel2.Controls.Add(Title);
+            panel2.DataContext = null;
+            panel2.DataSourceProperty = null;
+            panel2.DisabledBackColor = Color.Gray;
+            panel2.DisabledForeColor = Color.Empty;
             panel2.Dock = DockStyle.Fill;
+            panel2.DrawingRect = new Rectangle(0, 0, 463, 348);
+            panel2.Easing = EasingType.Linear;
+            panel2.FieldID = null;
+            panel2.FocusBackColor = Color.Gray;
+            panel2.FocusBorderColor = Color.Gray;
+            panel2.FocusForeColor = Color.Black;
+            panel2.FocusIndicatorColor = Color.Blue;
+            panel2.Font = new Font("Segoe UI", 16F);
+            panel2.ForeColor = Color.FromArgb(139, 69, 19);
+            panel2.Form = null;
+            panel2.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
+            panel2.GradientEndColor = Color.Gray;
+            panel2.GradientStartColor = Color.Gray;
+            panel2.GuidID = "375bfef8-a798-4fdf-9ff8-169405f8cdc0";
+            panel2.HoverBackColor = Color.Gray;
+            panel2.HoverBorderColor = Color.Gray;
+            panel2.HoveredBackcolor = Color.Wheat;
+            panel2.HoverForeColor = Color.Black;
+            panel2.Id = -1;
+            panel2.InactiveBackColor = Color.Gray;
+            panel2.InactiveBorderColor = Color.Gray;
+            panel2.InactiveForeColor = Color.Black;
+            panel2.IsAcceptButton = false;
+            panel2.IsBorderAffectedByTheme = true;
+            panel2.IsCancelButton = false;
+            panel2.IsChild = false;
+            panel2.IsCustomeBorder = false;
+            panel2.IsDefault = false;
+            panel2.IsFocused = false;
+            panel2.IsFramless = false;
+            panel2.IsHovered = false;
+            panel2.IsPressed = false;
+            panel2.IsRounded = true;
+            panel2.IsRoundedAffectedByTheme = true;
+            panel2.IsShadowAffectedByTheme = true;
+            panel2.LeftoffsetForDrawingRect = 0;
+            panel2.LinkedProperty = null;
             panel2.Location = new Point(3, 3);
             panel2.Margin = new Padding(4, 3, 4, 3);
             panel2.Name = "panel2";
+            panel2.OverrideFontSize = TypeStyleFontSize.None;
+            panel2.ParentBackColor = Color.Empty;
+            panel2.PressedBackColor = Color.Gray;
+            panel2.PressedBorderColor = Color.Gray;
+            panel2.PressedForeColor = Color.Black;
+            panel2.RightoffsetForDrawingRect = 0;
+            panel2.SavedGuidID = null;
+            panel2.SavedID = null;
+            panel2.ShadowColor = Color.Black;
+            panel2.ShadowOffset = 0;
+            panel2.ShadowOpacity = 0.5F;
+            panel2.ShowAllBorders = false;
+            panel2.ShowBottomBorder = false;
+            panel2.ShowFocusIndicator = false;
+            panel2.ShowLeftBorder = false;
+            panel2.ShowRightBorder = false;
+            panel2.ShowShadow = false;
+            panel2.ShowTitle = false;
+            panel2.ShowTitleLine = false;
+            panel2.ShowTitleLineinFullWidth = true;
+            panel2.ShowTopBorder = false;
             panel2.Size = new Size(463, 348);
+            panel2.SlideFrom = SlideDirection.Left;
+            panel2.StaticNotMoving = false;
             panel2.TabIndex = 3;
+            panel2.Theme = Vis.Modules.EnumBeepThemes.AutumnTheme;
+            panel2.TitleAlignment = ContentAlignment.TopLeft;
+            panel2.TitleBottomY = 0;
+            panel2.TitleLineColor = Color.Gray;
+            panel2.TitleLineThickness = 2;
+            panel2.TitleText = "Panel Title";
+            panel2.ToolTipText = "";
+            panel2.TopoffsetForDrawingRect = 0;
+            panel2.UseGradientBackground = false;
+            panel2.UseThemeFont = true;
             panel2.UseWaitCursor = true;
             // 
             // messege
@@ -100,7 +190,7 @@
             messege.FocusBorderColor = Color.Gray;
             messege.FocusForeColor = Color.Black;
             messege.FocusIndicatorColor = Color.Blue;
-            messege.Font = new Font("Segoe UI", 9F);
+            messege.TextFont = new Font("Segoe UI", 9F);
             messege.Form = null;
             messege.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             messege.GradientEndColor = Color.Gray;
@@ -120,7 +210,7 @@
             // 
             // 
             // 
-            messege.InnerTextBox.BackColor = Color.FromArgb(222, 210, 155);
+            messege.InnerTextBox.BackColor = Color.FromArgb(205, 133, 63);
             messege.InnerTextBox.BorderStyle = BorderStyle.None;
             messege.InnerTextBox.Dock = DockStyle.Fill;
             messege.InnerTextBox.Font = new Font("Segoe UI", 9F);
@@ -202,7 +292,7 @@
             LogopictureBox.AnimationType = DisplayAnimationType.None;
             LogopictureBox.ApplyThemeOnImage = false;
             LogopictureBox.ApplyThemeToChilds = true;
-            LogopictureBox.BackColor = Color.FromArgb(222, 210, 155);
+            LogopictureBox.BackColor = Color.FromArgb(205, 133, 63);
             LogopictureBox.BlockID = null;
             LogopictureBox.BorderColor = Color.FromArgb(210, 105, 30);
             LogopictureBox.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -245,7 +335,7 @@
             LogopictureBox.IsAcceptButton = false;
             LogopictureBox.IsBorderAffectedByTheme = true;
             LogopictureBox.IsCancelButton = false;
-            LogopictureBox.IsChild = false;
+            LogopictureBox.IsChild = true;
             LogopictureBox.IsCustomeBorder = false;
             LogopictureBox.IsDefault = false;
             LogopictureBox.IsFocused = false;
@@ -259,11 +349,11 @@
             LogopictureBox.IsStillImage = false;
             LogopictureBox.LeftoffsetForDrawingRect = 0;
             LogopictureBox.LinkedProperty = null;
-            LogopictureBox.Location = new Point(226, 322);
+            LogopictureBox.Location = new Point(433, 7);
             LogopictureBox.ManualRotationAngle = 0F;
             LogopictureBox.Name = "LogopictureBox";
             LogopictureBox.OverrideFontSize = TypeStyleFontSize.None;
-            LogopictureBox.ParentBackColor = Color.Empty;
+            LogopictureBox.ParentBackColor = Color.FromArgb(205, 133, 63);
             LogopictureBox.PressedBackColor = Color.FromArgb(139, 69, 19);
             LogopictureBox.PressedBorderColor = Color.Gray;
             LogopictureBox.PressedForeColor = Color.White;
@@ -302,7 +392,7 @@
             _spinnerImage.AnimationType = DisplayAnimationType.None;
             _spinnerImage.ApplyThemeOnImage = false;
             _spinnerImage.ApplyThemeToChilds = true;
-            _spinnerImage.BackColor = Color.FromArgb(222, 210, 155);
+            _spinnerImage.BackColor = Color.FromArgb(250, 200, 200);
             _spinnerImage.BlockID = null;
             _spinnerImage.BorderColor = Color.FromArgb(210, 105, 30);
             _spinnerImage.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -321,7 +411,7 @@
             _spinnerImage.DisabledBackColor = Color.Gray;
             _spinnerImage.DisabledForeColor = Color.Empty;
             _spinnerImage.Dock = DockStyle.Top;
-            _spinnerImage.DrawingRect = new Rectangle(0, 0, 461, 103);
+            _spinnerImage.DrawingRect = new Rectangle(0, 0, 463, 103);
             _spinnerImage.Easing = EasingType.Linear;
             _spinnerImage.FieldID = null;
             _spinnerImage.FocusBackColor = Color.FromArgb(139, 69, 19);
@@ -346,7 +436,7 @@
             _spinnerImage.IsAcceptButton = false;
             _spinnerImage.IsBorderAffectedByTheme = true;
             _spinnerImage.IsCancelButton = false;
-            _spinnerImage.IsChild = false;
+            _spinnerImage.IsChild = true;
             _spinnerImage.IsCustomeBorder = false;
             _spinnerImage.IsDefault = false;
             _spinnerImage.IsFocused = false;
@@ -360,11 +450,11 @@
             _spinnerImage.IsStillImage = false;
             _spinnerImage.LeftoffsetForDrawingRect = 0;
             _spinnerImage.LinkedProperty = null;
-            _spinnerImage.Location = new Point(0, 36);
+            _spinnerImage.Location = new Point(0, 39);
             _spinnerImage.ManualRotationAngle = 0F;
             _spinnerImage.Name = "_spinnerImage";
             _spinnerImage.OverrideFontSize = TypeStyleFontSize.None;
-            _spinnerImage.ParentBackColor = Color.Empty;
+            _spinnerImage.ParentBackColor = Color.FromArgb(250, 200, 200);
             _spinnerImage.PressedBackColor = Color.FromArgb(139, 69, 19);
             _spinnerImage.PressedBorderColor = Color.Gray;
             _spinnerImage.PressedForeColor = Color.White;
@@ -382,7 +472,7 @@
             _spinnerImage.ShowRightBorder = false;
             _spinnerImage.ShowShadow = false;
             _spinnerImage.ShowTopBorder = false;
-            _spinnerImage.Size = new Size(461, 103);
+            _spinnerImage.Size = new Size(463, 103);
             _spinnerImage.SlideFrom = SlideDirection.Left;
             _spinnerImage.SpinSpeed = 5F;
             _spinnerImage.StaticNotMoving = false;
@@ -567,7 +657,7 @@
             label1.LabelBackColor = Color.Empty;
             label1.LeftoffsetForDrawingRect = 0;
             label1.LinkedProperty = null;
-            label1.Location = new Point(358, 322);
+            label1.Location = new Point(355, 322);
             label1.Margin = new Padding(0);
             label1.MaxImageSize = new Size(16, 16);
             label1.Name = "label1";
@@ -626,12 +716,13 @@
             Title.CanBePressed = true;
             Title.Category = Utilities.DbFieldCategory.String;
             Title.ComponentName = "Title";
+            Title.Controls.Add(LogopictureBox);
             Title.DataContext = null;
             Title.DataSourceProperty = null;
             Title.DisabledBackColor = Color.Gray;
             Title.DisabledForeColor = Color.Empty;
             Title.Dock = DockStyle.Top;
-            Title.DrawingRect = new Rectangle(1, 1, 459, 34);
+            Title.DrawingRect = new Rectangle(1, 1, 461, 37);
             Title.Easing = EasingType.Linear;
             Title.FieldID = null;
             Title.FocusBackColor = Color.Gray;
@@ -695,7 +786,7 @@
             Title.ShowRightBorder = false;
             Title.ShowShadow = false;
             Title.ShowTopBorder = false;
-            Title.Size = new Size(461, 36);
+            Title.Size = new Size(463, 39);
             Title.SlideFrom = SlideDirection.Left;
             Title.StaticNotMoving = false;
             Title.TabIndex = 8;
@@ -726,11 +817,12 @@
             UseWaitCursor = true;
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
+            Title.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
-        public Panel panel2;
+        public BeepPanel panel2;
         public BeepLabel label1;
         public BeepLabel label2;
         public BeepImage LogopictureBox;

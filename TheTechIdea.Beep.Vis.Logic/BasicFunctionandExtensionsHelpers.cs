@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Vis.Logic
     {
         public IDMEEditor DMEEditor { get; set; }
         public IPassedArgs Passedargs { get; set; }
-        public IVisManager Vismanager { get; set; }
+        public IAppManager Vismanager { get; set; }
         public IControlManager Controlmanager { get; set; }
         public ITree TreeEditor { get; set; }
 
@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Vis.Logic
         public IBranch ParentBranch { get; set; }
         public IBranch ViewRootBranch { get; set; }
         public IBranch DataSourceRootBranch { get; set; }
-        public BasicFunctionandExtensionsHelpers(IDMEEditor pdMEEditor, IVisManager pvisManager, ITree ptreeControl)
+        public BasicFunctionandExtensionsHelpers(IDMEEditor pdMEEditor, IAppManager pvisManager, ITree ptreeControl)
         {
             DMEEditor = pdMEEditor;
             Vismanager = pvisManager;
@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Vis.Logic
         {
             if (Passedarguments.Objects.Where(c => c.Name == "VISUTIL").Any())
             {
-                Vismanager = (IVisManager)Passedarguments.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+                Vismanager = (IAppManager)Passedarguments.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
             }
             if (Passedarguments.Objects.Where(c => c.Name == "TreeControl").Any())
             {

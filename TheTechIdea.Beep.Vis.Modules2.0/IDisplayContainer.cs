@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         bool ShowControl(string TitleText, IDM_Addin control);
         bool IsControlExit(IDM_Addin control);
 
-        //IVisManager VisManager { get; set; }
+        //IAppManager VisManager { get; set; }
         //IDMEEditor Editor { get; set; }
         void Clear();
         event EventHandler<ContainerEvents> AddinAdded;

@@ -682,7 +682,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         }
 
         /// <summary>
-        /// Font for the title. Default is Tahoma, 18pt.
+        /// TextFont for the title. Default is Tahoma, 18pt.
         /// </summary>
         private Font titlefont;
         public Font TitleFont
@@ -821,7 +821,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         }
 
         /// <summary>
-        /// Font for the subtitle. Default is Tahoma, 12pt.
+        /// TextFont for the subtitle. Default is Tahoma, 12pt.
         /// </summary>
         private Font subtitlefont;
         public Font SubTitleFont
@@ -957,7 +957,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         }
 
         /// <summary>
-        /// Font for the footer. Default is Tahoma, 10pt.
+        /// TextFont for the footer. Default is Tahoma, 10pt.
         /// </summary>
         private Font footerfont;
         public Font FooterFont
@@ -1095,7 +1095,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         }
 
         /// <summary>
-        /// Font for the page number, Default is Tahoma, 8pt.
+        /// TextFont for the page number, Default is Tahoma, 8pt.
         /// </summary>
         private Font pagenofont;
         public Font PageNumberFont
@@ -3376,7 +3376,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         /// <param name="g">Graphic context to print in</param>
         /// <param name="pos">Track vertical space used; 'y' location</param>
         /// <param name="text">String to print</param>
-        /// <param name="font">Font to use for printing</param>
+        /// <param name="font">TextFont to use for printing</param>
         /// <param name="color">Color to print in</param>
         /// <param name="format">String format for text</param>
         /// <param name="useroverride">True if the user overrode the alignment or flags</param>

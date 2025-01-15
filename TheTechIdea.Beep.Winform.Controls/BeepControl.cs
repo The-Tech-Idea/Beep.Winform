@@ -450,6 +450,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _useThemeFont = value;
+                ApplyTheme();
                 Invalidate();
             }
         }

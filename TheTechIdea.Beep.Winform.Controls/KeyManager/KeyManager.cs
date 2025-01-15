@@ -18,10 +18,10 @@ namespace TheTechIdea.Beep.Winform.Controls.KeyManagement
         public static IDMEEditor Editor;
 
         public static EventHandler<BeepEventDataArgs> KeyPressed;
-        public static IVisManager Vis { get; private set; }
+        public static IAppManager Vis { get; private set; }
 
         public static ObservableBindingList<KeyCombination> keyMapToFunction = new ObservableBindingList<KeyCombination>();
-        public static void RegisterGlobalKeyHandler(IDMEEditor dMEEditor,IVisManager vis)
+        public static void RegisterGlobalKeyHandler(IDMEEditor dMEEditor,IAppManager vis)
         {
             // Registering global key handler
             Createfolder("keyconfig");

@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Desktop.Common
     {
         // Static references if needed (based on your snippet)
         public static IDMEEditor DMEEditor { get; set; }
-        public static IVisManager Vismanager { get; set; }
+        public static IAppManager Vismanager { get; set; }
 
         // This tracks all discovered images (local or embedded).
         public static List<ImageConfiguration> ImgAssemblies { get; set; } = new List<ImageConfiguration>();

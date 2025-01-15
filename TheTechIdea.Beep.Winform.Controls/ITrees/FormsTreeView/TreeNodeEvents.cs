@@ -39,7 +39,7 @@
 //        public TreeViewControl treeControl { get; set; }
 //        private ITree Tree { get; set; }
 //        private TreeViewControl Treecontrol { get; set; }
-//        private IVisManager visManager { get; set; }
+//        private IAppManager visManager { get; set; }
 //        public System.Windows.Forms.TreeView TreeV { get; set; }
 //        private bool IsSelecting = false;
 

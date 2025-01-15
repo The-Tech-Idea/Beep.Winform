@@ -41,7 +41,7 @@ namespace Beep.Config.Winform.DataConnections
         public IPassedArgs Passedarg { get ; set ; }
         IDataSource ds;
        // public event EventHandler<PassedArgs> OnObjectSelected;
-        public IVisManager Visutil { get; set; }
+        public IAppManager Visutil { get; set; }
                public string GuidID { get ; set; }=Guid.NewGuid().ToString();
         public AddinDetails Details { get  ; set  ; }
         public Dependencies Dependencies { get  ; set  ; }
@@ -69,7 +69,7 @@ namespace Beep.Config.Winform.DataConnections
             Logger = plogger;
             ErrorObject = per;
             DMEEditor = pbl;
-            Visutil = (IVisManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+            Visutil = (IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
             //this.entitiesBindingNavigatorSaveItem.Click += EntitiesBindingNavigatorSaveItem_Click;
             EntityName = e.DatasourceName;
             ds = DMEEditor.GetDataSource(e.DatasourceName);

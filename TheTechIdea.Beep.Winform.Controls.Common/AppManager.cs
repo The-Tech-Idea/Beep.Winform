@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
-using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
@@ -12,7 +11,7 @@ using DialogResult = TheTechIdea.Beep.Vis.Modules.DialogResult;
 
 namespace TheTechIdea.Beep.Desktop.Common
 {
-    public class VisualManager : IVisManager
+    public class AppManager : IAppManager
     {
         #region "Variables"
         private readonly IBeepService beepservices;
@@ -20,7 +19,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         private RoutingManager ViewRouter;
         #endregion "Variables"
         #region "Constructors and Init"
-        public VisualManager(IBeepService service, IRoutingManager viewRouter)
+        public AppManager(IBeepService service, IRoutingManager viewRouter)
         {
             beepservices = service;
             viewrouter = viewRouter;
@@ -271,7 +270,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // Example control GUIDs and property names
-                string controlGuid = "VisualManager"; // You can define a unique identifier as needed
+                string controlGuid = "AppManager"; // You can define a unique identifier as needed
 
                 // Save settings
                 StoreSettings.Set(controlGuid, "Title", Title);
@@ -299,7 +298,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // Example control GUIDs and property names
-                string controlGuid = "VisualManager"; // You can define a unique identifier as needed
+                string controlGuid = "AppManager"; // You can define a unique identifier as needed
 
                 // Load settings
                 Title = StoreSettings.Get<string>(controlGuid, "Title", Title);
@@ -782,7 +781,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
 
         // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~VisualManager()
+        // ~AppManager()
         // {
         //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         //     Dispose(disposing: false);

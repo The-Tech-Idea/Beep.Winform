@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int extendbuttonWidth = 22;
         private int buttonHeight = 30;
         private int starty = 2;
-        private int startx = 0;
+        private int startx = 2;
 
         private Size _imagesize = new Size(20, 20);
         bool _applyThemeOnImage = false;
@@ -259,7 +259,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Size = new Size(DrawingRect.Width - RightButtonSize -  4, buttonHeight),
                 Location = new Point(startx, starty),
                 
-                MaxImageSize = new Size(RightButtonSize, RightButtonSize),
+                MaxImageSize = new Size(RightButtonSize-2, RightButtonSize-2),
                 Text = this.Text,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -286,10 +286,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             extendButton = new BeepButton
             {
                 HideText = true,
-                Size = new Size(RightButtonSize + 4, buttonHeight),
-                Location = new Point(button.Right + 1 , starty),
+                Size = new Size(RightButtonSize , buttonHeight),
+                Location = new Point(DrawingRect.Width-RightButtonSize , starty),
                
-                MaxImageSize = new Size(RightButtonSize, RightButtonSize),
+                MaxImageSize = new Size(RightButtonSize - 2, RightButtonSize-2),
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 
@@ -380,7 +380,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 extendButton.Size = new Size(extButtonWidth, buttonHeight);
 
                 // Place the extend button to the right of the main button with the gap:
-                extendButton.Location = new Point(button.Right + gapBetweenButtons, starty);
+                extendButton.Location = new Point(DrawingRect.Width - RightButtonSize, starty);
             }
 
         }

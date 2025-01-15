@@ -47,7 +47,7 @@ namespace TheTechIdea.ETL
     public IPassedArgs Passedarg { get; set; }
     public IUtil util { get; set; }
         //  public IDataViewEditor ViewEditor { get; set; }
-        public IVisManager Visutil { get; set; }
+        public IAppManager Visutil { get; set; }
         IBranch branch = null;
     IBranch Parentbranch = null;
     public EntityStructure ParentEntity { get; set; } = null;
@@ -76,7 +76,7 @@ namespace TheTechIdea.ETL
         ErrorObject = per;
         DMEEditor = pDMEEditor;
         vds = (DataViewDataSource)DMEEditor.GetDataSource(obj.DMView.DataViewDataSourceID);
-        Visutil = (IVisManager)obj.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+        Visutil = (IAppManager)obj.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
         branch = (IBranch)obj.Objects.Where(c => c.Name == "Branch").FirstOrDefault().obj;
             EntityStructure = (EntityStructure)obj.Objects.Where(c => c.Name == "EntityStructure").FirstOrDefault().obj;
             if (obj.Objects.Where(c => c.Name == "ParentBranch").Any())

@@ -38,7 +38,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region "Public Properties"
-
+        [Browsable(true)]
+        [Category("Appearance")]
+        public Font TitleFont { get; set; } = new Font("Arial", 12, FontStyle.Bold);
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Title Bottom Location Y")]
@@ -166,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // We'll keep your logic, no changes
             BackColor = _currentTheme.PanelBackColor;
             ForeColor = _currentTheme.TitleForColor;
-            Font = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
+            if(UseThemeFont) TitleFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
             foreach (Control ctrl in Controls)
             {
                 // if you want to apply theme to child controls, do so here
@@ -200,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             
 
             // measure how big the text is
-            SizeF titleSize = g.MeasureString(_titleText, Font);
+            SizeF titleSize = g.MeasureString(_titleText, TitleFont);
 
             // We'll define a "textTop" for vertical. It's typically DrawingRect.Top + some padding
             float textTop = DrawingRect.Top + padding;
@@ -225,7 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw the title text
             using (Brush brush = new SolidBrush(_currentTheme.TitleForColor))
             {
-                g.DrawString(_titleText, Font, brush, textLeft, textTop);
+                g.DrawString(_titleText, TitleFont, brush, textLeft, textTop);
             }
 
             // The bottom of the drawn text

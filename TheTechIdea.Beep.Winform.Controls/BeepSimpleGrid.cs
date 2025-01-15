@@ -1018,7 +1018,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     else
                     {
-                        // If not a control, measure text size based on Font and add padding
+                        // If not a control, measure text size based on TextFont and add padding
                         using (Graphics g = this.CreateGraphics())
                         {
                             SizeF textSize = g.MeasureString(cell.UIComponent?.ToString() ?? string.Empty, this.Font);

@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ContentAlignment textAlign = ContentAlignment.MiddleCenter;
         private bool _isSelected = false;
         private Size _maxImageSize = new Size(32, 32); // Default max image size
-        private FlatStyle _flatStyle = FlatStyle.Standard;
+      //  private FlatStyle _flatStyle = FlatStyle.Standard;
         private bool _flatAppearanceEnabled = true;
 
         private bool _isSideMenuChild = false;
@@ -318,28 +318,28 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Repaint when the max image size changes
             }
         }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public FlatStyle FlatStyle
-        {
-            get => _flatStyle;
-            set
-            {
-                _flatStyle = value;
-                Invalidate(); // Trigger repaint based on the FlatStyle
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool FlatAppearance
-        {
-            get => _flatAppearanceEnabled;
-            set
-            {
-                _flatAppearanceEnabled = value;
-                Invalidate(); // Trigger repaint based on the flat appearance
-            }
-        }
+        //[Browsable(true)]
+        //[Category("Appearance")]
+        //public FlatStyle FlatStyle
+        //{
+        //    get => _flatStyle;
+        //    set
+        //    {
+        //        _flatStyle = value;
+        //        Invalidate(); // Trigger repaint based on the FlatStyle
+        //    }
+        //}
+        //[Browsable(true)]
+        //[Category("Appearance")]
+        //public bool FlatAppearance
+        //{
+        //    get => _flatAppearanceEnabled;
+        //    set
+        //    {
+        //        _flatAppearanceEnabled = value;
+        //        Invalidate(); // Trigger repaint based on the flat appearance
+        //    }
+        //}
         // New Property for Hover Persistence using Theme
         [Browsable(true)]
         [Category("Behavior")]
@@ -364,13 +364,32 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Trigger repaint when the state changes
             }
         }
+        private Font _textFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TextFont
+        {
+            get => _textFont;
+            set
+            {
+
+                    _textFont = value;
+                    UseThemeFont = false;
+                    Invalidate();
+                
+
+            }
+        }
         #endregion "Properties"
         #region "Constructor"
         // Constructor
         public BeepButton()
         {
             InitializeComponents();
-            ApplyTheme();
+         
             CanBeHovered = true;
             CanBePressed = true;
             CanBeFocused = true;
@@ -378,7 +397,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsChild= false;
             // Initialize the popup form and beepListBox
             // 1) Create beepListBox
-        
+          
             #endregion "Popup List Initialization"
         }
         private void InitializeComponents()
@@ -391,6 +410,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Location = new Point(0, 0), // Set initial position (will adjust in layout)
                 Size = _maxImageSize // Set the size based on the max image size
             };
+            beepImage.ImageEmbededin= ImageEmbededin.Button;
             beepImage.MouseHover += BeepImage_MouseHover;
             beepImage.MouseEnter += BeepImage_MouseEnter;
             //   beepImage.MouseLeave += BeepImage_MouseLeave;
@@ -487,13 +507,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Theme"
         public override void ApplyTheme()
         {
+            
             BackColor = _currentTheme.ButtonBackColor;
             ForeColor = _currentTheme.ButtonForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
-            if(UseThemeFont)
+            if(_beepListBox != null)   _beepListBox.Theme = Theme;
+            if (UseThemeFont)
             {
-                Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             }
          
             ApplyThemeToSvg();
@@ -504,11 +526,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (beepImage != null) // Safely apply theme to beepImage
             {
+                beepImage.ApplyThemeOnImage = ApplyThemeOnImage;
                 if (ApplyThemeOnImage)
                 {
+                   
+                    beepImage.ImageEmbededin = ImageEmbededin.Button;
                     beepImage.Theme = Theme;
-                    beepImage.BackColor = _currentTheme.BackColor;
-                    beepImage.ForeColor = ForeColor;
                     beepImage.ApplyThemeToSvg();
                 }
 
@@ -522,29 +545,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnPaint(e);
             // Do not call base.OnPaint(e);
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+           // e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             UpdateDrawingRect();
 
             // Draw the image and text
             contentRect = DrawingRect;
            // if (!SetFont())
            // {
-            //    Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            //    TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
           //  };
             //   DrawBackColor(e, BackColor, _currentTheme.ButtonHoverBackColor);
             DrawImageAndText(e.Graphics);
         }
         private void DrawImageAndText(Graphics g)
         {
-            if (!SetFont())
+            Console.WriteLine($"User ThemeFont is {UseThemeFont}");
+            if (!SetFont() && UseThemeFont)
             {
-                Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             };
             // Measure and scale the font to fit within the control bounds
-            Font scaledFont = Font;// GetScaledFont(g, Text, contentRect.Size, Font);
+            Font scaledFont = _textFont;// GetScaledFont(g, Text, contentRect.Size, TextFont);
             if (UseScaledFont)
             {
-                scaledFont = GetScaledFont(g, Text, contentRect.Size, Font);
+                scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
             }
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
 
@@ -597,7 +621,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool hasText = !string.IsNullOrEmpty(Text) && !HideText; // Check if text is available and not hidden
 
             // Adjust contentRect for padding
-            contentRect.Inflate(-Padding.Horizontal / 2, -Padding.Vertical / 2);
+            contentRect.Inflate(- 2, - 2);
 
             if (hasImage && !hasText)
             {
@@ -728,14 +752,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override Size GetPreferredSize(Size proposedSize)
         {
-            //if (AutoSize)
-            //{
-            //if (!SetFont())
-            //{
-            //    Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-            //};
+            if (!SetFont() && UseThemeFont)
+            {
+                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            };
+            // Measure and scale the font to fit within the control bounds
 
-            Size textSize = TextRenderer.MeasureText(Text, Font);
+
+            Size textSize = TextRenderer.MeasureText(Text, _textFont);
             Size imageSize = beepImage?.HasImage == true ? beepImage.GetImageSize() : Size.Empty;
 
             // Scale the image to respect MaxImageSize if needed

@@ -1,6 +1,7 @@
 ﻿
 using System.ComponentModel;
 using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Vis.Modules;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -16,13 +17,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _selectedIndex = -1;
         
         private int _menuItemWidth = 60;
-        private int _imagesize = 14;
-        private int _menuItemHeight=16;
+        private int _imagesize = 32;
+        private int _menuItemHeight=35;
         private Size ButtonSize = new Size(60, 20);
         private BeepPopupForm _popupForm;
-        
-        #region "Properties"
 
+        #region "Properties"
+        private Font _textFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TextFont
+        {
+            get => _textFont;
+            set
+            {
+
+                _textFont = value;
+                UseThemeFont = false;
+                Invalidate();
+                InitMenu();
+
+            }
+        }
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
@@ -167,12 +186,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void InitMenu()
         {
             Console.WriteLine("InitMenu");
-            // Clear existing controls and reset the menu bar
             Controls.Clear();
             menumainbar.Clear();
-            Console.WriteLine("InitMenu1");
 
-            // Create the dropdown menu (you already have this logic)
             maindropdownmenu.Visible = false;
             maindropdownmenu.Width = Width;
             maindropdownmenu.Height = Height;
@@ -181,116 +197,108 @@ namespace TheTechIdea.Beep.Winform.Controls
             maindropdownmenu.Visible = false;
             maindropdownmenu.BoundProperty = "SelectedMenuItem";
             maindropdownmenu.SelectedItemChanged += Maindropdownmenu_SelectedIndexChanged;
-            Console.WriteLine("InitMenu2");
-
             Controls.Add(maindropdownmenu);
-            Console.WriteLine("InitMenu3");
 
-            // Handle the case where there are no items
-            if (items == null || items.Count == 0)
-            {
-                return;
-            }
-            Console.WriteLine("InitMenu4");
+            if (items == null || items.Count == 0) return;
 
-            // This is where we dynamically measure each item
-            List<int> itemWidths = new List<int>();
-            int totalButtonWidth = 0;
+            // Step 1: Create all buttons with an initial "guess" size
+            //         For now, we’ll just do something like the text measurement or a fixed guess.
+            //         We'll refine it later using GetPreferredSize.
+            int initialWidthGuess = 80;  // you can tweak this
+            List<BeepButton> createdButtons = new List<BeepButton>();
 
-            // For measuring text:
             using (Graphics g = CreateGraphics())
             {
-                // If you want to factor in an icon, define some constant or measure actual icon width
-                // Suppose we add 24 px for icon + spacing, if an icon is present:
-                int iconPlaceholder = 5;
-
                 foreach (SimpleItem item in items)
                 {
-                    // Measure the text
-                    // Option 1: TextRenderer
-                    Size textSize = TextRenderer.MeasureText(g, item.Text ?? string.Empty, this.Font);
-
-                    // Option 2: g.MeasureString() if you prefer:
-                    // var textSizeF = g.MeasureString(item.Text ?? string.Empty, this.Font);
-                    // Size textSize  = textSizeF.ToSize();
-
-                    // Some horizontal padding for the button (left + right)
-                    int horizontalPadding = 20;
-
-                    // If the item has an image path, we incorporate the iconPlaceholder
-                    // If you always want to show space for an icon, just always add iconPlaceholder
-                    int itemWidth = textSize.Width + horizontalPadding;
-                    if (!string.IsNullOrEmpty(item.ImagePath))
+                    // Create the button
+                    BeepButton btn = new BeepButton
                     {
-                        itemWidth += iconPlaceholder;
-                    }
+                        Text = item.Text,
+                        Tag = item,
+                        ImagePath = item.ImagePath,
+                        Width = initialWidthGuess,        // temporary guess
+                        Height = MenuItemHeight,           // your known item height
+                        UseScaledFont = false,
+                        MaxImageSize = new Size(_imagesize, _imagesize),
+                        ImageAlign = ContentAlignment.MiddleLeft,
+                        TextAlign = ContentAlignment.MiddleCenter,
+                        ApplyThemeOnImage = false,
+                        ApplyThemeToChilds = false,
+                        IsShadowAffectedByTheme = false,
+                        IsBorderAffectedByTheme = false,
+                        IsRoundedAffectedByTheme = false,
+                        IsChild = true,
+                        ShowAllBorders = false,
+                        Anchor = AnchorStyles.None,
+                        TextFont = _textFont,
+                        UseThemeFont = false,
+                        GuidID = item.GuidId,
+                    };
 
-                    // You can also clamp to some minimum if you like:
-                    // itemWidth = Math.Max(itemWidth, 60);
+                    // Attach your click handler
+                    btn.Click -= Btn_Click; // ensure no duplicates
+                    btn.Click += Btn_Click;
 
-                    // Save this width
-                    itemWidths.Add(itemWidth);
-                    totalButtonWidth += itemWidth;
+                    // Add to Controls
+                    Controls.Add(btn);
+                    menumainbar.Add(item.Text, btn);
+                    createdButtons.Add(btn);
                 }
             }
 
-            // Now that we have a total, we can center them horizontally if desired
-            // (like you already do):
-            int startX = DrawingRect.Left + (DrawingRect.Width - totalButtonWidth) / 2;
-            int centerY = DrawingRect.Top + (DrawingRect.Height - MenuItemHeight) / 2;
+            // Now we have all the buttons in the Controls, each with a guessed width.
+            // Next step: measure them properly.
 
-            Console.WriteLine("InitMenu6");
-
-            int i = 0;
-            int currentX = startX;
-            foreach (SimpleItem item in items)
+            // Step 2: Use GetPreferredSize to see how big each button actually wants to be
+            List<Size> preferredSizes = new List<Size>();
+            foreach (var btn in createdButtons)
             {
-                Console.WriteLine("InitMenu7");
-                Console.WriteLine(item.Text);
-
-                // Create a button for each menu item
-                int btnWidth = itemWidths[i];
-                BeepButton btn = new BeepButton
+                if(!UseThemeFont)
                 {
-                    Text = item.Text,
-                    Tag = item,
-                    ImagePath = item.ImagePath,
-                    Width = btnWidth,
-                    Height = MenuItemHeight,
-                    UseScaledFont = true,
-                    MaxImageSize = new Size(_imagesize, _imagesize),
-                    ImageAlign = ContentAlignment.MiddleLeft,
-                    TextAlign = ContentAlignment.MiddleCenter,
-                    ApplyThemeOnImage = false,
-                    ApplyThemeToChilds = false,
-                    IsShadowAffectedByTheme= false,
-                    IsBorderAffectedByTheme = false,
-                    IsRoundedAffectedByTheme = false,
-                    IsChild = true,
-                    ShowAllBorders = false,
-                    Anchor = AnchorStyles.None,
-                    Left = currentX,
-                    Top = centerY,
-                    GuidID = item.GuidId,
-                };
-
-                // Move X pointer to the right by the width of this button
-                currentX += btnWidth;
-
-                // Attach event handler
-                btn.Click -= Btn_Click; // Ensure no duplicate handlers
-                btn.Click += Btn_Click;
-                Console.WriteLine("InitMenu7 1");
-
-                // Add button to controls and dictionary
-                Controls.Add(btn);
-                menumainbar.Add(item.Text, btn);
-
-                i++;
+                    btn.TextFont = _textFont;
+                }
+                // Pass in Size.Empty or a constraint—depending on your usage
+                Size pref = btn.GetPreferredSize(Size.Empty);
+                pref.Width += 20; // add some padding
+                pref.Height = MenuItemHeight; // or keep MenuItemHeight if that’s what you want
+                preferredSizes.Add(pref);
             }
 
-            Console.WriteLine("InitMenu8");
+            // Step 3: Sum up final widths to compute total
+            int totalButtonWidth = 0;
+            foreach (var size in preferredSizes)
+            {
+                totalButtonWidth += size.Width;
+            }
+
+            // Optionally add small horizontal gaps if you want
+            int gapBetweenButtons = 5; // or 2, 5, etc.
+            totalButtonWidth += gapBetweenButtons * (createdButtons.Count - 1);
+
+            // Step 4: Calculate startX (for centering horizontally in DrawingRect)
+            int startX = DrawingRect.Left + (DrawingRect.Width - totalButtonWidth) / 2;
+            if (startX < 0) startX = 0; // clamp if negative
+            int centerY = DrawingRect.Top + (DrawingRect.Height - MenuItemHeight) / 2;
+
+            // Step 5: Realign the buttons with the new sizes
+            int currentX = startX;
+            for (int i = 0; i < createdButtons.Count; i++)
+            {
+                BeepButton btn = createdButtons[i];
+                Size prefSize = preferredSizes[i];
+                btn.Width = prefSize.Width;
+                btn.Height = MenuItemHeight;// prefSize.Height; // or keep MenuItemHeight if that’s what you want
+                btn.MaxImageSize = new Size(_imagesize, _imagesize);
+                btn.Left = currentX;
+                btn.Top = centerY;
+                currentX += prefSize.Width + gapBetweenButtons;
+                btn.ShowAllBorders= false;
+            }
+
+            Console.WriteLine("InitMenu done.");
         }
+
 
 
         private void ShowPopup(SimpleItem item, Point point)
@@ -464,6 +472,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.ApplyTheme();
             BackColor = _currentTheme.SideMenuBackColor;
+            if (UseThemeFont)
+            {
+                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            }
             foreach (var item in Controls)
             {
                 if (item is BeepButton)

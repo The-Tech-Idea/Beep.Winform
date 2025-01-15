@@ -64,7 +64,7 @@
 //        public IDM_Addin EntityListContainer { get; set; }
 //        public object CurrentObjectEntity { get; set; }
 //        public EntityStructure CurrentEntityStructure { get; set; }
-//        public IVisManager VisManager { get; set; }
+//        public IAppManager VisManager { get; set; }
 //        public string SearchBoxText { get  ; set  ; }
 //        public string SearchBoxAutoCompleteData { get  ; set  ; }
 //        public bool IsSearchBoxAutoComplete { get  ; set  ; }

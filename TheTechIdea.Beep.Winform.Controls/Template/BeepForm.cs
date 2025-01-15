@@ -380,7 +380,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
             // Apply theme to title bar
             Toppanel.BackColor = _theme.TitleBarColor;
             Titlelabel.ForeColor = _theme.TitleForColor;
-            Titlelabel.Font = BeepThemesManager.ToFont(_theme.TitleStyle);  // Assuming you have a method to convert TypographyStyle to Font
+            Titlelabel.Font = BeepThemesManager.ToFont(_theme.TitleStyle);  // Assuming you have a method to convert TypographyStyle to TextFont
 
             // Apply theme to buttons (Close, Max, Min)
             ApplyButtonTheme(Closebutton, _theme.CloseButtonColor, _theme.TitleBarCloseHoverColor, _theme.TitleBarCloseHoverTextColor, _theme.TitleBarCloseActiveColor);
@@ -422,7 +422,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
             };
         }
 
-        // Assuming you have a method to convert TypographyStyle to Font
+        // Assuming you have a method to convert TypographyStyle to TextFont
         private Font ToFont(TypographyStyle style)
         {
             FontStyle fontStyle = FontStyle.Regular;

@@ -7,7 +7,7 @@ using TheTechIdea.Beep.ConfigUtil;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
-    public interface IVisManager: IDisposable
+    public interface IAppManager: IDisposable
     {
         EnumBeepThemes Theme { get; set; }
         bool IsLogOn { get; set; }

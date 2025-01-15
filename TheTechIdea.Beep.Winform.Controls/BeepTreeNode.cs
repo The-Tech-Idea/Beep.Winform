@@ -1130,7 +1130,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NodeMainMiddlebutton.IsBorderAffectedByTheme = false;
                 NodeMainMiddlebutton.MaxImageSize = new System.Drawing.Size(MaxImageSize, MaxImageSize);
                // NodeMainMiddlebutton.Size = new System.Drawing.Size(NodeWidth - 2 * NodeHeight, NodeHeight);
-                //   NodeMainMiddlebutton.Font=BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                //   NodeMainMiddlebutton.TextFont=BeepThemesManager.ToFont(_currentTheme.LabelSmall);
 
               //  NodeMainMiddlebutton.
                 NodeMainMiddlebutton.Click += NodeMainMiddlebutton_Click;
@@ -1268,11 +1268,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
            // NodeMainMiddlebutton.ForeColor = _currentTheme.AccentColor;
            // NodeMainMiddlebutton.BackColor = _currentTheme.PanelBackColor;
-            _nodePanel.BackColor = _currentTheme.PanelBackColor;
-            _childrenPanel.BackColor = _currentTheme.PanelBackColor;
-            this.BackColor = _currentTheme.PanelBackColor;
-            _toggleButton.BackColor = _currentTheme.PanelBackColor;
-            _toggleButton.ForeColor = _currentTheme.AccentColor;
+            _nodePanel.BackColor = _currentTheme.ButtonBackColor;
+            _childrenPanel.BackColor = _currentTheme.ButtonBackColor;
+            this.BackColor = _currentTheme.ButtonBackColor;
+            _toggleButton.BackColor = _currentTheme.ButtonBackColor;
+            _toggleButton.ForeColor = _currentTheme.ButtonForeColor;
             //     Noderightbutton.BackColor = _currentTheme.PanelBackColor;
         }
         public void HilightNode()

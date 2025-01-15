@@ -71,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        [Description("Font of the text on ProgressBar"), Category("Appearance")]
+        [Description("TextFont of the text on ProgressBar"), Category("Appearance")]
         public Font TextFont { get; set; } = new Font(FontFamily.GenericSerif, 11, FontStyle.Bold | FontStyle.Italic);
 
         private SolidBrush _textColourBrush = (SolidBrush)Brushes.Black;

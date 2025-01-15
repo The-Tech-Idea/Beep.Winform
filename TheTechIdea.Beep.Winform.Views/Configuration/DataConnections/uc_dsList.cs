@@ -41,7 +41,7 @@ namespace Beep.Config.Winform.DataConnections
         public string EntityName { get; set; }
         public IPassedArgs Passedarg { get; set; }
         public IUtil util { get; set; }
-        public IVisManager Visutil { get; set; }
+        public IAppManager Visutil { get; set; }
         public IDMEEditor DMEEditor { get; set; }
         #region "IAddinVisSchema"
         public string RootNodeName { get; set; } = "Configuration";
@@ -84,7 +84,7 @@ namespace Beep.Config.Winform.DataConnections
         public void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs obj, IErrorsInfo per)
         {
             Passedarg = obj;
-            Visutil = (IVisManager)obj.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+            Visutil = (IAppManager)obj.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
             Logger = plogger;
             DMEEditor = pDMEEditor;
             //     DataSourceCategoryType = args[0];

@@ -57,7 +57,7 @@
 //        public string EntityName { get ; set ; }
 //        public IPassedArgs Passedarg { get ; set ; }
 //        ImageList imageList;
-//        public  IVisManager vismanager { get; set; }
+//        public  IAppManager vismanager { get; set; }
 //    //    public List<ToolStripMenuItem> menuitems { get; set; } = new List<ToolStripMenuItem>();
 //        VisHelper visHelper { get { return (VisHelper)vismanager.visHelper; }  }
 

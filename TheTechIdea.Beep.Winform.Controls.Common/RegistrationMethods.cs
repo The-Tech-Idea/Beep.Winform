@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public static IServiceCollection RegisterVisualManager(this IServiceCollection services)
         {
            
-            services.AddSingleton<IVisManager, VisualManager>();
+            services.AddSingleton<IAppManager, AppManager>();
             return services;
         }
         public static IServiceCollection RegisterRoutingManager(this IServiceCollection services)

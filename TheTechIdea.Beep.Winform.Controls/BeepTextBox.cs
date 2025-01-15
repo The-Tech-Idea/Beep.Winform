@@ -26,7 +26,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _multiline = false;
         int padding = 4;
         int offset = 1;
+        private Font _textFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TextFont
+        {
+            get => _textFont;
+            set
+            {
 
+                _textFont = value;
+                UseThemeFont = false;
+                Invalidate();
+
+
+            }
+        }
         private bool _showverticalscrollbar = false;
         [Browsable(true)]
         [Category("Appearance")]
@@ -680,7 +698,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _innerTextBox.Multiline = false;
                 _innerTextBox.ScrollBars = ScrollBars.None;
                 // Just keep the text box's native preferred height
-                _innerTextBox.Height = _innerTextBox.PreferredHeight;
+                if(DrawingRect.Height <= _innerTextBox.PreferredHeight)
+                {
+                    int diff = _innerTextBox.PreferredHeight - DrawingRect.Height;
+                    this.Size = new Size(this.Size.Width, DrawingRect.Height+diff);
+                }
+                 _innerTextBox.Height = _innerTextBox.PreferredHeight;
 
                 // horizontally fill entire DrawingRect
                 _innerTextBox.Width = DrawingRect.Width - (padding * 2);
@@ -1280,7 +1303,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _innerTextBox.ForeColor = _currentTheme.TextBoxForeColor;
             if (UseThemeFont)
             {
-                Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                InnerTextBox.Font=_textFont;
             }
             
             BackColor = _currentTheme.BackColor;

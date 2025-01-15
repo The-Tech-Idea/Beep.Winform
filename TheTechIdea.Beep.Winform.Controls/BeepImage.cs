@@ -32,11 +32,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected string _imagepath;
 
         public BeepImage()
-        { // Enable double buffering and optimized painting
-            SetStyle(ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.UserPaint, true);
-            UpdateStyles();
+        { 
+            //// Enable double buffering and optimized painting
+            //SetStyle(ControlStyles.OptimizedDoubleBuffer |
+            //         ControlStyles.AllPaintingInWmPaint |
+            //         ControlStyles.UserPaint, true);
+            //UpdateStyles();
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
                 Width = 100;
@@ -48,6 +49,19 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         #region "Properties"
+
+        private ImageEmbededin _imageEmbededin = ImageEmbededin.Button;
+        [Category("Appearance")]
+        [Description("Indicates where the image is embedded.")]
+        public ImageEmbededin ImageEmbededin
+        {
+            get => _imageEmbededin;
+            set
+            {
+                _imageEmbededin = value;
+                Invalidate();
+            }
+        }
 
         private float _manualRotationAngle = 0; // Manual rotation angle
         private bool _allowManualRotation = true; // Allows toggling between manual and spinning
@@ -121,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
+        
 
         [Category("Behavior")]
         [Description("Sets the speed of the spin in degrees per frame.")]
@@ -289,23 +303,50 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Color fillColor;
                 Color strokeColor;
+                switch (_imageEmbededin)
+                {
+                    case ImageEmbededin.ListBox:
+                    case ImageEmbededin.Form:
+                    case ImageEmbededin.Button:
+                    case ImageEmbededin.ListView:
+                        strokeColor  = _currentTheme.ButtonForeColor;
+                        fillColor = _currentTheme.ButtonBackColor;
+                        break;
+                    case ImageEmbededin.Label:
+                        strokeColor = _currentTheme.LabelForeColor;
+                        fillColor  = _currentTheme.LabelBackColor;
+                        break;
+                    case ImageEmbededin.TextBox:
+                        strokeColor = _currentTheme.TextBoxForeColor;
+                        fillColor  = _currentTheme.TextBoxBackColor;
+                        break;
+                    case ImageEmbededin.ComboBox:
+                        strokeColor  = _currentTheme.ComboBoxForeColor;
+                        fillColor = _currentTheme.ComboBoxBackColor;
+                        break;
+                    case ImageEmbededin.DataGridView:
+                        strokeColor  = _currentTheme.GridForeColor;
+                        fillColor = _currentTheme.GridBackColor;
+                        break;
+                   default:
+                        strokeColor = _currentTheme.ButtonForeColor;
+                        fillColor  = _currentTheme.ButtonBackColor;
+                        break;
 
-                // Determine the appropriate colors based on the current state (hover, pressed, or default)
+
+                }
+                //Determine the appropriate colors based on the current state(hover, pressed, or default)
                 if (IsPressed)
                 {
-                    fillColor = _currentTheme.ButtonActiveBackColor;
-                    strokeColor = _currentTheme.ButtonActiveForeColor;
+                    strokeColor  = _currentTheme.ButtonActiveBackColor;
+                    fillColor = _currentTheme.ButtonActiveForeColor;
                 }
                 else if (IsHovered)
                 {
-                    fillColor = _currentTheme.ButtonHoverBackColor;
-                    strokeColor = _currentTheme.ButtonHoverForeColor;
+                    strokeColor  = _currentTheme.ButtonHoverBackColor;
+                    fillColor = _currentTheme.ButtonHoverForeColor;
                 }
-                else
-                {
-                    fillColor = BackColor;
-                    strokeColor = ForeColor;
-                }
+
                 // Apply colors recursively to all elements
                 // ApplyColorsToElement(svgDocument, fillColor, strokeColor);
                 // Apply the selected colors to the SVG elements
@@ -326,18 +367,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
         }
-        private void ApplyColorsToElement(SvgElement element, Color fillColor, Color strokeColor)
-        {
-            if (element is SvgVisualElement visualElement)
-            {
-                visualElement.Fill = new SvgColourServer(fillColor);
-                visualElement.Stroke = new SvgColourServer(strokeColor);
-            }
-            foreach (var child in element.Children)
-            {
-                ApplyColorsToElement(child, fillColor, strokeColor);
-            }
-        }
+        //private void ApplyColorsToElement(SvgElement element, Color fillColor, Color strokeColor)
+        //{
+        //    if (element is SvgVisualElement visualElement)
+        //    {
+        //        visualElement.Fill = new SvgColourServer(fillColor);
+        //        visualElement.Stroke = new SvgColourServer(strokeColor);
+        //    }
+        //    foreach (var child in element.Children)
+        //    {
+        //        ApplyColorsToElement(child, fillColor, strokeColor);
+        //    }
+        //}
         #endregion "Theme Properties"
         #region "Image Drawing Methods"
         protected override void OnPaintBackground(PaintEventArgs e)
@@ -833,5 +874,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
     }
-   
+   public enum ImageEmbededin
+    {
+        Button,
+        Form,
+        Label,
+        TextBox,
+        ComboBox,
+        ListBox,
+        DataGridView,
+        TreeView,
+        ListView,
+        Panel,
+        GroupBox,
+        TabControl,
+        TabPage,
+        AppBar,
+        SideBar,
+        Menu,
+    }
 }

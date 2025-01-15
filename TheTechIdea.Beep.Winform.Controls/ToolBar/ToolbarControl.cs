@@ -41,7 +41,7 @@
 //        public string EntityName { get ; set ; }
 //        public IPassedArgs Passedarg { get ; set ; }
 //          public bool IsHorizentalBar { get ; set ; }=false;
-//        public IVisManager vismanager { get; set; }
+//        public IAppManager vismanager { get; set; }
 //        public List<ToolStripButton> menuitems { get; set; } = new List<ToolStripButton>();
 //        public string GuidID { get  ; set  ; }
 
@@ -120,7 +120,7 @@
 //                        toolStripButton1.AutoSize = true;
                       
 //                        toolStripButton1.Width = 32;
-//                        toolStripButton1.Font = new Font("Arial", 8, FontStyle.Regular);
+//                        toolStripButton1.TextFont = new TextFont("Arial", 8, FontStyle.Regular);
 //                        toolStripButton1.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.SizeToFit;
 //                        ToolStrip.Items.Add(toolStripButton1);
 

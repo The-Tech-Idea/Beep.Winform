@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         IDM_Addin Toolbarcontrol { get; set; }
         ITree TreeEditor { get; set; }
         IBranch ViewRootBranch { get; set; }
-        IVisManager Vismanager { get; set; }
+        IAppManager Vismanager { get; set; }
 
         Errors AddEntitiesToView(string datasourcename, List<EntityStructure> ls, IPassedArgs Passedarguments);
         CategoryFolder AddtoFolder(string foldername);

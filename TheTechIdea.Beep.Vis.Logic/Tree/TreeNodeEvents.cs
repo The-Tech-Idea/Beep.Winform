@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Vis.Tree
       
         private ITree Tree { get; set; }
         private ITree Treecontrol { get; set; }
-        private IVisManager visManager { get; set; }
+        private IAppManager visManager { get; set; }
      
         private bool IsSelecting = false;
 

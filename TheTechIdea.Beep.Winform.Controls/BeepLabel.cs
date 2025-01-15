@@ -186,7 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls
          //   SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
 
             InitializeComponents();
-
+            beepImage.ImageEmbededin = ImageEmbededin.Label;
             //  SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
             AutoSize = true;
             BoundProperty = "Text";
@@ -309,10 +309,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
             //if (!SetFont())
             //{
-            //    Font = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            //    TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             //};
             // Measure and scale the font to fit within the control bounds
-            Font scaledFont = Font;// GetScaledFont(g, Text, contentRect.Size, Font);
+            Font scaledFont = Font;// GetScaledFont(g, Text, contentRect.Size, TextFont);
             if (UseScaledFont)
             {
                 scaledFont = GetScaledFont(g, Text, contentRect.Size, Font);
@@ -363,7 +363,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Theme"
         public override void ApplyTheme()
         {
-           // Console.WriteLine("1 Label Apply Theme Font");
+           // Console.WriteLine("1 Label Apply Theme TextFont");
             //  base.ApplyTheme();
             if (_currentTheme != null)
             {
@@ -374,10 +374,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Only apply the theme's font if UseThemeFont is true
                 if (!UseThemeFont)
                 {
-               //     Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+               //     TextFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                 }
 
-                //   Console.WriteLine("2 Label Apply Theme Font");
+                //   Console.WriteLine("2 Label Apply Theme TextFont");
                 ApplyThemeToSvg();
                // Invalidate();
             }

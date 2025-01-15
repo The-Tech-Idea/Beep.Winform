@@ -192,7 +192,7 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.0" />
     <PackageReference Include="Svg" Version="3.4.7" />
-    <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.39" />
+    <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.40" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.10" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.34" />
     <PackageReference Include="TheTechIdea.Beep.MVVM" Version="1.0.18" />
@@ -222,7 +222,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Update="Template\BeepForm.cs" />
-    <Compile Update="Wait\BeepWait.cs" />
+    <Compile Update="BeepWait.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Managers\Wizards\Frm_Wizard.resx">
@@ -241,6 +241,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\DataSources\" />
+    <Folder Include="Wait\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GFX\SVG\square-minus.svg" />

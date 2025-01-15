@@ -5,7 +5,7 @@ using TheTechIdea.Beep.ConfigUtil;
 using System.ComponentModel;
 using TheTechIdea.Beep.Desktop.Common;
 
-namespace TheTechIdea.Beep.Winform.Controls.Wait
+namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(false)]
     public partial class BeepWait : BeepiForm, IWaitForm

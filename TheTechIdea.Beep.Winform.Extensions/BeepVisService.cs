@@ -14,16 +14,16 @@ namespace TheTechIdea.Beep.Winform.Extensions
         public static IServiceCollection RegisterVisManager(this IServiceCollection services)
         {
             Services = services;
-            Services.AddSingleton<IVisManager,VisManager>();
+            Services.AddSingleton<IAppManager,VisManager>();
             return Services;
         }
-        public static IVisManager SetBeepReference(this IVisManager ViewManager, IBeepService beepService)
+        public static IAppManager SetBeepReference(this IAppManager ViewManager, IBeepService beepService)
         {
             beepService.vis = ViewManager;
             ViewManager.DMEEditor = beepService.DMEEditor;
             return ViewManager;
         }
-        public static IVisManager SetMainDisplay(this IVisManager ViewManager, string mainform, string title, string iconname, string homePage = null, string homePageDescription = null, string logourl = null)
+        public static IAppManager SetMainDisplay(this IAppManager ViewManager, string mainform, string title, string iconname, string homePage = null, string homePageDescription = null, string logourl = null)
         {
             ViewManager.DMEEditor.ConfigEditor.Config.SystemEntryFormName = mainform;
             ViewManager.Title = title;
@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
             ViewManager.HomePageDescription = homePageDescription;
             return ViewManager;
         }
-        public static IVisManager LoadAssemblies(this IVisManager ViewManager, IBeepService beepService, Progress<PassedArgs> progress)
+        public static IAppManager LoadAssemblies(this IAppManager ViewManager, IBeepService beepService, Progress<PassedArgs> progress)
         {
             // Create A parameter object for Wait Form
 

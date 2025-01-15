@@ -102,7 +102,7 @@
 //            // menuControl1
 //            // 
 //            menuControl1.BackColor = Color.White;
-//            menuControl1.Font = new Font("Segoe UI", 9F);
+//            menuControl1.TextFont = new TextFont("Segoe UI", 9F);
 //            menuControl1.Location = new Point(0, 0);
 //            menuControl1.Name = "menuControl1";
 //            menuControl1.Padding = new Padding(7, 2, 0, 2);
@@ -183,7 +183,7 @@
 //            // Frm_Main
 //            // 
 //            AutoScaleDimensions = new SizeF(7F, 15F);
-//            AutoScaleMode = AutoScaleMode.Font;
+//            AutoScaleMode = AutoScaleMode.TextFont;
 //            ClientSize = new Size(1400, 725);
 //            Controls.Add(uc_MainSplitPanel1);
 //            Controls.Add(toolStripVertical);

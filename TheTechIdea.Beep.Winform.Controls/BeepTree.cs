@@ -799,7 +799,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     IsShadowAffectedByTheme = false,
                     MaxImageSize= NodeImageSize,
                     IsFramless = true,
-                    IsChild = true,
+                    IsChild = false,
                     Size = new Size(this.Width, NodeHeight),
                     Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right,
                     Theme = this.Theme,
@@ -1342,7 +1342,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            BackColor = _currentTheme.PanelBackColor;
+            BackColor = _currentTheme.ButtonBackColor;
             _nodePanels.Values.ToList().ForEach(p => p.BackColor = _currentTheme.PanelBackColor);
             foreach (BeepTreeNode node in _beeptreeRootnodes)
             {

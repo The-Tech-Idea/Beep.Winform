@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Utilities;
 
 using TheTechIdea.Beep.Winform.Controls.Managers.Wizards;
 using TheTechIdea.Beep.Winform.Controls.Template;
-using TheTechIdea.Beep.Winform.Controls.Wait;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Vis.Logic;
 using System.Data;
 using System.Runtime.InteropServices;
@@ -17,7 +17,7 @@ using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Managers
 {
-    public partial class VisManager : IVisManager
+    public partial class VisManager : IAppManager
     {
         //public VisManager(IDMEEditor editor)
         //{

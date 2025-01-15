@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         List<IBranch> ChildBranchs { get; set; }
         IBranch ParentBranch { get;set; }
         ITree TreeEditor { get; set; }
-        IVisManager Visutil { get; set; }
+        IAppManager Visutil { get; set; }
         List<string> BranchActions { get; set; }
         EntityStructure EntityStructure { get; set; }
         string ObjectType { get; set; }

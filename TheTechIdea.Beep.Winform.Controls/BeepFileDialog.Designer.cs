@@ -269,7 +269,7 @@
             _searchBox.FocusBorderColor = Color.Gray;
             _searchBox.FocusForeColor = Color.Black;
             _searchBox.FocusIndicatorColor = Color.Blue;
-            _searchBox.Font = new Font("Segoe UI", 11.5F);
+            _searchBox.TextFont = new Font("Segoe UI", 11.5F);
             _searchBox.Form = null;
             _searchBox.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             _searchBox.GradientEndColor = Color.Gray;
@@ -410,8 +410,7 @@
             _okButton.DrawingRect = new Rectangle(0, 0, 67, 33);
             _okButton.Easing = EasingType.Linear;
             _okButton.FieldID = null;
-            _okButton.FlatAppearance = true;
-            _okButton.FlatStyle = FlatStyle.Standard;
+           
             _okButton.FocusBackColor = Color.Gray;
             _okButton.FocusBorderColor = Color.Gray;
             _okButton.FocusForeColor = Color.Black;
@@ -523,8 +522,7 @@
             _cancelButton.DrawingRect = new Rectangle(0, 0, 72, 33);
             _cancelButton.Easing = EasingType.Linear;
             _cancelButton.FieldID = null;
-            _cancelButton.FlatAppearance = true;
-            _cancelButton.FlatStyle = FlatStyle.Standard;
+           
             _cancelButton.FocusBackColor = Color.Gray;
             _cancelButton.FocusBorderColor = Color.Gray;
             _cancelButton.FocusForeColor = Color.Black;
@@ -646,7 +644,7 @@
             _fileNameTextBox.FocusBorderColor = Color.Gray;
             _fileNameTextBox.FocusForeColor = Color.Black;
             _fileNameTextBox.FocusIndicatorColor = Color.Blue;
-            _fileNameTextBox.Font = new Font("Segoe UI", 11.5F);
+            _fileNameTextBox.TextFont = new Font("Segoe UI", 11.5F);
             _fileNameTextBox.Form = null;
             _fileNameTextBox.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             _fileNameTextBox.GradientEndColor = Color.Gray;

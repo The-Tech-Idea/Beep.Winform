@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         List<IBranch> Branches { get; set; }
         List<Tuple<IBranch, string>> GenerBranchs { get; set;   }
         List<MenuList> Menus { get; set; }
-        IVisManager VisManager { get; set; }
+        IAppManager VisManager { get; set; }
         int SelectedBranchID { get; set; }
         void RefreshTree();
         void RefreshTree(IBranch branch);

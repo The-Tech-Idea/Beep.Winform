@@ -43,7 +43,7 @@ namespace TheTechIdea.ETL
         public DataSet Dset { get; set; }
         public IErrorsInfo ErrorObject { get; set; }
         private IDMDataView MyDataView;
-        public IVisManager Visutil { get; set; }
+        public IAppManager Visutil { get; set; }
         public IPassedArgs Passedarg { get; set; }
         public IUtil util { get; set; }
       //  public IDataViewEditor ViewEditor { get; set; }
@@ -78,7 +78,7 @@ namespace TheTechIdea.ETL
             ErrorObject = per;
             DMEEditor = pDMEEditor;
             vds = (DataViewDataSource)DMEEditor.GetDataSource(obj.DMView.DataViewDataSourceID);
-            Visutil = (IVisManager)obj.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+            Visutil = (IAppManager)obj.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
            
             branch = (IBranch)obj.Objects.Where(c => c.Name == "Branch").FirstOrDefault().obj;
            

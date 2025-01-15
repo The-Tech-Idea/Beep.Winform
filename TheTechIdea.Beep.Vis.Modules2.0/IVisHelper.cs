@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public interface IVisHelper
     {
         IDMEEditor DMEEditor { get; set; }
-        IVisManager Vismanager { get; set; }
+        IAppManager Vismanager { get; set; }
         List<ImageConfiguration> ImgAssemblies { get; set; }
 
        // int GetImageIndex(string imagename);

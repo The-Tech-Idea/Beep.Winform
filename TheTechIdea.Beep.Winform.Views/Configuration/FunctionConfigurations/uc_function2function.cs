@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Views
         public EntityStructure EntityStructure { get ; set ; }
         public string EntityName { get ; set ; }
         public IPassedArgs Passedarg { get ; set ; }
-        public IVisManager Visutil { get; set; }
+        public IAppManager Visutil { get; set; }
        // public event EventHandler<PassedArgs> OnObjectSelected;
       
         public FunctionToFunctionMappingViewModel ViewModel { get; set; }
@@ -81,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Views
             Logger = plogger;
             ErrorObject = per;
             DMEEditor = pbl;
-            Visutil = (IVisManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+            Visutil = (IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
 
             ViewModel = new FunctionToFunctionMappingViewModel(DMEEditor, Visutil);
             this.function2FunctionsBindingSource.DataSource=ViewModel.Function2FunctionActions;

@@ -33,7 +33,7 @@ namespace Beep.Winform.Vis.Wizards
         public EntityStructure EntityStructure { get ; set ; }
         public string EntityName { get ; set ; }
         public IPassedArgs Passedarg { get ; set ; }
-        public IVisManager visManager { get; set; }
+        public IAppManager visManager { get; set; }
         public IWizardManager Wizard { get; set; }
         public string GuidID { get  ; set  ; }
         public AddinDetails Details { get  ; set  ; }
@@ -96,7 +96,7 @@ namespace Beep.Winform.Vis.Wizards
             Passedarg = e;
             if (e.Objects.Where(c => c.Name == "VISUTIL").Any())
             {
-                visManager = (IVisManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+                visManager = (IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
             }
            
         }

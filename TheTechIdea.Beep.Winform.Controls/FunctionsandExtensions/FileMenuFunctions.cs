@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
         private FunctionandExtensionsHelpers ExtensionsHelpers;
 
        
-        public FileMenuFunctions(IDMEEditor pdMEEditor, IVisManager pvisManager, ITree ptreeControl)
+        public FileMenuFunctions(IDMEEditor pdMEEditor, IAppManager pvisManager, ITree ptreeControl)
         {
             DMEEditor = pdMEEditor;
            

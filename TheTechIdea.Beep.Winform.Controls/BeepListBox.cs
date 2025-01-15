@@ -581,7 +581,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentTheme == null) { return; }
             //base.ApplyTheme();
             // Apply theme to the main menu panel (background gradient or solid color)
-            BackColor = _currentTheme.PanelBackColor;
+            BackColor = _currentTheme.ButtonBackColor;
 
           //  _currentTheme.ButtonBackColor = _currentTheme.BackgroundColor;
             // Apply theme to each item (button and highlight panel)
@@ -590,7 +590,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (control is Panel menuItemPanel)
                 {
                     // Apply background color for the menu item panel
-                    menuItemPanel.BackColor = BackColor;
+                    menuItemPanel.BackColor = _currentTheme.ButtonBackColor;
 
                     // Loop through the controls inside the panel (button and highlight panel)
                     foreach (Control subControl in menuItemPanel.Controls)
@@ -601,12 +601,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 button.Theme = Theme;
                                 button.Font = BeepThemesManager.ToFont(_currentTheme.OrderedList);
                                 button.UseScaledFont = true;
-                                button.ForeColor = ColorUtils.GetForColor(BackColor, _currentTheme.ButtonForeColor);
+                               // button.ForeColor = ColorUtils.GetForColor(BackColor, _currentTheme.ButtonForeColor);
                                 break;
 
                             case Panel highlightPanel:
                                 // Apply the highlight color for the side highlight panel
-                                highlightPanel.BackColor = BackColor;
+                                highlightPanel.BackColor = _currentTheme.ButtonBackColor;
                                 break;
                         }
                     }

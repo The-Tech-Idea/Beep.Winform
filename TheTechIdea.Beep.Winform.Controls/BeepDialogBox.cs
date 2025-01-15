@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using TheTechIdea.Beep.Vis.Modules;
+﻿using System.ComponentModel;
 using DialogResult=TheTechIdea.Beep.Vis.Modules.DialogResult;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -101,7 +99,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnPaint(e);
             //  DrawButtonSeparatorLine(e.Graphics);
         }
-          public void ShowDialog(Control ctl, Action submit, Action cancel, string Title)
+
+        #region Dialog Templates
+        public void ShowDialog(Control ctl, Action submit, Action cancel, string Title)
         {
             ShowCustomControl(ctl, Title);
             PrimaryButtonClicked += (s, e) => submit?.Invoke();
@@ -129,8 +129,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleText = Title;
             BringToFront();
         }
-        #region Dialog Templates
-
         public void ShowConfirmationDialog(string message, Action confirmAction, Action cancelAction)
         {
             ShowTitle = false;
@@ -192,50 +190,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextAlign = ContentAlignment.MiddleCenter
             }, okAction, Title);
         }
-        public void SetButtonOptions(DialogButtons buttonOptions)
-        {
-           
 
-            // Configure buttons based on the specified option
-            switch (buttonOptions)
-            {
-                case DialogButtons.Ok:
-                    ConfigureButton(_primaryButton, "OK", DialogResult.OK);
-                    break;
 
-                case DialogButtons.OkCancel:
-                    ConfigureButton(_primaryButton, "OK", DialogResult.OK);
-                    ConfigureButton(_secondaryButton, "Cancel", DialogResult.Cancel);
-                    break;
-
-                case DialogButtons.YesNo:
-                    ConfigureButton(_primaryButton, "Yes", DialogResult.Yes);
-                    ConfigureButton(_secondaryButton, "No", DialogResult.No);
-                    break;
-
-                case DialogButtons.YesNoCancel:
-                    ConfigureButton(_primaryButton, "Yes", DialogResult.Yes);
-                    ConfigureButton(_secondaryButton, "No", DialogResult.No);
-                    ConfigureButton(_closeButton, "Cancel", DialogResult.Cancel);
-                    break;
-
-                case DialogButtons.None:
-                    // No buttons to add
-                    break;
-            }
-
-            // Re-arrange dialog after setting buttons
-            Arrange();
-        }
-
-        // Helper method to configure a button
-        private void ConfigureButton(BeepButton button, string text, DialogResult result)
-        {
-            button.Text = text;
-            button.Click += (s, e) => DialogResult = result;
-            button.Visible = true;
-            
-        }
 
         #endregion
         private void InitializeDialog()

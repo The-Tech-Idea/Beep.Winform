@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Views
 
        // public event EventHandler<PassedArgs> OnObjectSelected;
      
-        public IVisManager Visutil { get; set; }
+        public IAppManager Visutil { get; set; }
                public string GuidID { get ; set; }=Guid.NewGuid().ToString();
         public AddinDetails Details { get  ; set  ; }
         public Dependencies Dependencies { get  ; set  ; }
@@ -86,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Views
             Logger = plogger;
             ErrorObject = per;
             DMEEditor = pbl;
-            Visutil = (IVisManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+            Visutil = (IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
             this.eventsBindingSource.DataSource = DMEEditor.ConfigEditor.Events;
             BeepbindingNavigator1.bindingSource = eventsBindingSource;
             BeepbindingNavigator1.SaveCalled += BeepbindingNavigator1_SaveCalled;

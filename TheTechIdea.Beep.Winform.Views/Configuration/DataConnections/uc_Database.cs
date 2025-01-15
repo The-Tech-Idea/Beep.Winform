@@ -137,7 +137,7 @@ namespace Beep.Config.Winform.DataConnections
         //public void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs obj, IErrorsInfo per)
         //{
         //    Passedarg = obj;
-        //    Visutil = (IVisManager)obj.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+        //    Visutil = (IAppManager)obj.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
         //    Logger = plogger;
         //    DMEEditor = pDMEEditor;
         //    //     DataSourceCategoryType = args[0];

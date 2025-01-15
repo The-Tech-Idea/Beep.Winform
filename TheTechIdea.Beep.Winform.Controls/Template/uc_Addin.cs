@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
         public string EntityName { get; set; }
         public IPassedArgs Passedarg { get; set; }
         public IUtil util { get; set; }
-        public IVisManager Visutil { get; set; }
+        public IAppManager Visutil { get; set; }
         public ITree Tree { get; set; }
         public IDMEEditor DMEEditor { get; set; }
         public IBranch pbr { get; set; }
@@ -138,7 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
         public virtual void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
         {
             Passedarg = e;
-            Visutil = (IVisManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+            Visutil = (IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
             Logger = plogger;
             DMEEditor = pDMEEditor;
             ErrorObject = per;

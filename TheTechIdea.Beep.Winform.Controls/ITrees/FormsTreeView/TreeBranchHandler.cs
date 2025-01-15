@@ -27,7 +27,7 @@
 //        private TreeViewControl Treecontrol { get; set; }
 //        public IDMEEditor DMEEditor { get; set; }
 //        private ITree Tree { get; set; }
-//        private IVisManager visManager { get; set; }
+//        private IAppManager visManager { get; set; }
 //        #region "Branch Handling"
 //        public IErrorsInfo CreateBranch(IBranch Branch)
 //        {

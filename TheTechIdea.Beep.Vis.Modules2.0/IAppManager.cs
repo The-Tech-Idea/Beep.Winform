@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
+using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
@@ -44,6 +45,8 @@ namespace TheTechIdea.Beep.Vis.Modules
          bool ShowSideBarWindow { get; set; }
         int Width { get; set; }
         int Height { get; set; }
+        Task<IErrorsInfo> LoadGraphics(string[] namespacestoinclude);
+        Task<IErrorsInfo> LoadAssemblies();
         List<IDM_Addin> Addins { get; set; }
         IWaitForm WaitForm { get; set; }
         IErrorsInfo LoadSetting();

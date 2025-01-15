@@ -138,15 +138,107 @@ namespace TheTechIdea.Beep.Desktop.Common
         public event EventHandler<IPassedArgs> PostCallModule;
         #endregion "Events"
         #region "Methods"
+        #region "Loading and Initialization"
+        public async Task<IErrorsInfo> LoadGraphics(string[] namespacestoinclude)
+        {
+            try
+            {
+                if (namespacestoinclude == null)
+                {
+                    namespacestoinclude = new string[3] { "BeepEnterprize", "TheTechIdea", "Beep" };
+                }
+                // Load Graphics from Embedded Resources
+                ImageListHelper.GetGraphicFilesLocationsFromEmbedded(namespacestoinclude);
+                // Load Graphics from Folders
+                ImageListHelper.GetGraphicFilesLocations(DMEEditor.ConfigEditor.Config.Folders.Where(x => x.FolderFilesType == FolderFileTypes.GFX).FirstOrDefault().FolderPath);
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return DMEEditor.ErrorObject;
+        }
+        public async Task<IErrorsInfo> LoadAssemblies(string[] namespacestoinclude)
+        {
+            try
+            { //    visManager.SetMainDisplay("Form1", "Beep - The Data Plaform", "SimpleODM.ico", "", "", "");
+                PassedArgs p = new PassedArgs();
+                p.Messege = "Loading DLL's";
+                // Show Wait Form
+                ShowWaitForm(p);
+                // Passing Message to WaitForm
+                PasstoWaitForm(p);
+                // Prepare Async Data Notification from Assembly loader to WaitForm
+                var progress = new Progress<PassedArgs>(percent =>
+                {
+                    p.Messege = percent.Messege;
+                    PasstoWaitForm(p);
+                });
+                // Load Assemblies from folders (DataSources,Drivers, Extensions,...)
+                beepservices.LoadAssemblies(progress);
+                beepservices.Config_editor.LoadedAssemblies = beepservices.LLoader.Assemblies.Select(c => c.DllLib).ToList();
+                p.Messege = "Loading DLL's Completed";
+                PasstoWaitForm(p);
+                // Load Graphics
+                p.Messege = "Loading Graphics";
+                PasstoWaitForm(p);
+                LoadGraphics(namespacestoinclude);
+                p.Messege = "Loading Graphics Completed";
+                PasstoWaitForm(p);
+                CloseWaitForm();
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return DMEEditor.ErrorObject;
+        }
+        public async Task<IErrorsInfo> LoadAddins()
+        {
+            try
+            {
+                // use the view router to navigate back
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return DMEEditor.ErrorObject;
+        }
+        #endregion "Loading and Initialization"
         #region "Addin Management"
         public IErrorsInfo CallAddinRun()
         {
-            throw new NotImplementedException();
+            try
+            {
+                // use the view router to navigate back
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return DMEEditor.ErrorObject;
         }
 
         public IErrorsInfo CloseAddin()
         {
-            throw new NotImplementedException();
+            try
+            {
+                // use the view router to navigate back
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return DMEEditor.ErrorObject;
         }
         #endregion "Addin Management"
         #region "WaitForm"

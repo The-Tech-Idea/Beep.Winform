@@ -10,7 +10,7 @@ using TheTechIdea.Beep.Helpers;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Utilities;
-using DialogResult = TheTechIdea.Beep.Vis.Modules.DialogResult;
+using BeepDialogResult = TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
 
 namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
 {
@@ -169,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                                 
                                 ExtensionsHelpers.Vismanager.CloseWaitForm();
                                 bool getdata=false; 
-                                if (ExtensionsHelpers.Vismanager.Controlmanager.InputBoxYesNo("Beep", "Do you want to Copy Data Also?") == DialogResult.Yes)
+                                if (ExtensionsHelpers.Vismanager.Controlmanager.InputBoxYesNo("Beep", "Do you want to Copy Data Also?") == BeepDialogResult.Yes)
                                 {
                                    getdata = true ;
                                 }
@@ -236,7 +236,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                         //  DataSource.Dataconnection.OpenConnection();
                         if (ExtensionsHelpers.DataSource.ConnectionStatus == System.Data.ConnectionState.Open)
                         {
-                            if (ExtensionsHelpers.Vismanager.Controlmanager.InputBoxYesNo("Beep DM", "Are you sure, this might take some time?") == DialogResult.Yes)
+                            if (ExtensionsHelpers.Vismanager.Controlmanager.InputBoxYesNo("Beep DM", "Are you sure, this might take some time?") == BeepDialogResult.Yes)
                             {
                                 ExtensionsHelpers.pbr.CreateChildNodes();
                                 //TreeEditor.HideWaiting();
@@ -277,7 +277,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                         //if (ExtensionsHelpers.TreeEditor.SelectedBranchs.Count > 0)
                         //{
                             string viewname = null;
-                            if(ExtensionsHelpers.Vismanager.Controlmanager.InputBox("Beep","Please Enter New View Name",ref viewname) == DialogResult.OK)
+                            if(ExtensionsHelpers.Vismanager.Controlmanager.InputBox("Beep","Please Enter New View Name",ref viewname) == BeepDialogResult.OK)
                             {
                                 if (!string.IsNullOrEmpty(viewname))
                                 {
@@ -330,7 +330,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                 try
                 {
                    
-                    if (ExtensionsHelpers.Vismanager.Controlmanager.InputBoxYesNo("Beep DM", "Are you sure you ?") == DialogResult.Yes)
+                    if (ExtensionsHelpers.Vismanager.Controlmanager.InputBoxYesNo("Beep DM", "Are you sure you ?") == BeepDialogResult.Yes)
                     {
                         if (ExtensionsHelpers.TreeEditor.SelectedBranchs.Count > 0)
                         {
@@ -392,7 +392,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
             try
             {
 
-            if (ExtensionsHelpers.Vismanager.Controlmanager.InputBoxYesNo("Beep DM", "Are you sure, you want to delete all selected  connections ?") == DialogResult.Yes)
+            if (ExtensionsHelpers.Vismanager.Controlmanager.InputBoxYesNo("Beep DM", "Are you sure, you want to delete all selected  connections ?") == BeepDialogResult.Yes)
                 {
                     if (ExtensionsHelpers.TreeEditor.SelectedBranchs.Count > 0)
                     {
@@ -465,7 +465,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
             }
             try
             {
-                if (ExtensionsHelpers.Vismanager.Controlmanager.InputBoxYesNo("Beep DM", "Are you sure, you want to delete  connection ?") == DialogResult.Yes)
+                if (ExtensionsHelpers.Vismanager.Controlmanager.InputBoxYesNo("Beep DM", "Are you sure, you want to delete  connection ?") == BeepDialogResult.Yes)
                 {
                     IBranch br = ExtensionsHelpers.pbr;
                     if (br != null)
@@ -932,7 +932,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                     Passedarguments.DatasourceName = ExtensionsHelpers.ParentBranch.BranchText;
                     Passedarguments.EventType = "VIEWSTRUCTURE";
                     IDataSource DataSource = DMEEditor.GetDataSource(ExtensionsHelpers.ParentBranch.BranchText);
-                    if (ExtensionsHelpers.Vismanager.Controlmanager.InputBoxYesNo("Beep DM", "Are you sure you ?") == DialogResult.Yes)
+                    if (ExtensionsHelpers.Vismanager.Controlmanager.InputBoxYesNo("Beep DM", "Are you sure you ?") == BeepDialogResult.Yes)
                     {
 
                         EntityStructure entity = DataSource.GetEntityStructure(ExtensionsHelpers.pbr.BranchText, true);

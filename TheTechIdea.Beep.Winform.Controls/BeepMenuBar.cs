@@ -363,7 +363,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void ShowChildPopup(SimpleItem item, Point point)
         {
-            BeepPopupForm _childpopupForm = new BeepPopupForm();
+            BeepPopupForm _childpopupForm = new BeepPopupForm   ();
             _childpopupForm.OnLeave += (sender, e) =>
             {
                

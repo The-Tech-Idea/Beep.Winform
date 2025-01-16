@@ -10,7 +10,7 @@ using TheTechIdea.Beep.DataView;
 
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Utilities;
-using DialogResult = TheTechIdea.Beep.Vis.Modules.DialogResult;
+using BeepDialogResult = TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
@@ -623,7 +623,7 @@ namespace TheTechIdea.Beep.Vis.Logic
 
             try
             {
-                if (Vismanager.Controlmanager.InputBoxYesNo("Beep AI", $"Would you Like to Copy File {filename} to Local Folders?") == DialogResult.OK)
+                if (Vismanager.Controlmanager.InputBoxYesNo("Beep AI", $"Would you Like to Copy File {filename} to Local Folders?") == BeepDialogResult.OK)
                 {
                     CopyFileToLocal(sourcPath, DMEEditor.ConfigEditor.Config.ProjectDataPath, filename);
                 }

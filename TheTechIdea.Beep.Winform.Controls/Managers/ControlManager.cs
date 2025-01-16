@@ -8,7 +8,8 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
-using DialogResult = TheTechIdea.Beep.Vis.Modules.DialogResult;
+using BeepDialogResult = TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Managers
 {
@@ -32,293 +33,74 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public virtual  BindingSource EntityBindingSource { get; set; }
         public virtual  ErrorsInfo ErrorsandMesseges { get; set; }
         #region "MessegeBox and Dialogs"
-        public virtual DialogResult InputBoxYesNo(string title, string promptText)
+        public virtual BeepDialogResult InputBoxYesNo(string title, string promptText)
         {
-            // Create an instance of the BeepDialogBox
-            BeepDialogBox dialog = new BeepDialogBox();
-
-            // Create a user control to hold the content
-            UserControl control = new UserControl
-            {
-                ClientSize = new Size(375, 60) // Set the size of the user control
-            };
-
-            // Create a label for the prompt text
-            Label label = new Label
-            {
-                Text = promptText,
-                Dock = DockStyle.Fill, // Fill the entire user control
-                TextAlign = ContentAlignment.MiddleCenter, // Center the text
-                AutoSize = false // Prevent the label from resizing
-            };
-
-            // Add the label to the user control
-            control.Controls.Add(label);
-
-            // Set up the dialog
-            dialog.TitleText = title; // Set the title
-            dialog.ShowDialog(control,
-                submit: () => dialog.DialogResult = DialogResult.Yes,
-                cancel: () => dialog.DialogResult = DialogResult.No,
-                Title: title);
-
-            // Show the dialog and return the result
-            return dialog.DialogResult;
+            // Use DialogHelper for InputBoxYesNo
+            return DialogHelper.InputBoxYesNoAsync(title, promptText).GetAwaiter().GetResult();
         }
-        public virtual DialogResult InputBox(string title, string promptText, ref string value)
+
+        public virtual BeepDialogResult InputBox(string title, string promptText, ref string value)
         {
-            // Create the label and textbox
-            Label label = new Label
+            // Use DialogHelper for InputBox
+            var (result, updatedValue) = DialogHelper.InputBoxAsync(title, promptText, value).GetAwaiter().GetResult();
+            if (result == BeepDialogResult.OK)
             {
-                Text = promptText,
-                Width = 200,
-                Height = 14,
-                TextAlign = ContentAlignment.MiddleLeft,
-                Anchor = AnchorStyles.None
-            };
-
-            TextBox textBox = new TextBox
-            {
-                Text = value,
-                Width = 200,
-                Height = 20,
-                Anchor = AnchorStyles.None
-            };
-
-            // Create a container control
-            UserControl control = new UserControl
-            {
-                ClientSize = new Size(375, 60) // Set control size
-            };
-
-            // Calculate center positions
-            int labelX = (control.ClientSize.Width - label.Width) / 2;
-            int labelY = (control.ClientSize.Height / 2) - label.Height - 5; // Above the textbox
-            int textBoxX = (control.ClientSize.Width - textBox.Width) / 2;
-            int textBoxY = (control.ClientSize.Height / 2);
-
-            // Position the label and textbox
-            label.SetBounds(labelX, labelY, label.Width, label.Height);
-            textBox.SetBounds(textBoxX, textBoxY, textBox.Width, textBox.Height);
-
-            // Add controls to the container
-            control.Controls.Add(label);
-            control.Controls.Add(textBox);
-
-            // Create and configure the BeepDialog
-            BeepDialogBox dialog = new BeepDialogBox
-            {
-                TitleText = title // Set dialog title
-            };
-
-            // Add the user control to the dialog and show it
-            dialog.ShowDialog(control,
-                submit: () => dialog.DialogResult = DialogResult.OK,
-                cancel: () => dialog.DialogResult = DialogResult.Cancel,
-                Title: title);
-
-            // Update the value with the user's input
-            if (dialog.DialogResult == DialogResult.OK)
-            {
-                value = textBox.Text;
+                value = updatedValue;
             }
-
-            return dialog.DialogResult;
+            return result;
         }
-        public virtual DialogResult InputLargeBox(string title, string promptText, ref string value)
+
+        public virtual BeepDialogResult InputLargeBox(string title, string promptText, ref string value)
         {
-            // Create the label and textbox
-            Label label = new Label
+            // Use DialogHelper for InputLargeBox
+            var (result, updatedValue) = DialogHelper.InputLargeBoxAsync(title, promptText, value).GetAwaiter().GetResult();
+            if (result == BeepDialogResult.OK)
             {
-                Text = promptText,
-                AutoSize = false,
-                TextAlign = ContentAlignment.MiddleLeft,
-                Width = 380, // Slightly smaller than the control width
-                Height = 20 // Fixed height for the label
-            };
-
-            TextBox textBox = new TextBox
-            {
-                Text = value,
-                Multiline = true, // Enable multiline input
-                ScrollBars = ScrollBars.Vertical, // Add a vertical scrollbar
-                Width = 380, // Slightly smaller than the control width
-                Height = 130 // Reserve space for larger input
-            };
-
-            // Create a user control to host the label and textbox
-            UserControl control = new UserControl
-            {
-                ClientSize = new Size(400, 200) // Larger client size for multiline input
-            };
-
-            // Position the label and textbox with padding
-            int labelX = 10; // Padding from the left
-            int labelY = 10; // Padding from the top
-            int textBoxX = 10; // Same padding as label
-            int textBoxY = labelY + label.Height + 10; // Below the label with spacing
-
-            // Set bounds for the label and textbox
-            label.SetBounds(labelX, labelY, label.Width, label.Height);
-            textBox.SetBounds(textBoxX, textBoxY, textBox.Width, textBox.Height);
-
-            // Add controls to the container
-            control.Controls.Add(label);
-            control.Controls.Add(textBox);
-
-            // Create and configure the BeepDialog
-            BeepDialogBox dialog = new BeepDialogBox
-            {
-                TitleText = title // Set dialog title
-            };
-
-            // Add the user control to the dialog and show it
-            dialog.ShowDialog(control,
-                submit: () => dialog.DialogResult = DialogResult.OK,
-                cancel: () => dialog.DialogResult = DialogResult.Cancel,
-                Title: title);
-
-            // Update the value if the user clicks OK
-            if (dialog.DialogResult == DialogResult.OK)
-            {
-                value = textBox.Text;
+                value = updatedValue;
             }
-
-            return dialog.DialogResult;
+            return result;
         }
+
         public virtual void MsgBox(string title, string promptText)
         {
             try
             {
-                // Create a new instance of BeepDialogBox
-                BeepDialogBox dialog = new BeepDialogBox();
-
-                // Use ShowInfoDialog from BeepDialogBox
-                dialog.ShowInfoDialog(
-                    message: promptText,
-                    okAction: null, // No action needed for OK button
-                    Title: title
-                );
-
-                // Log success
-                DMEEditor.AddLogMessage("Success", "Displayed MsgBox", DateTime.Now, 0, null, Errors.Ok);
+                // Use DialogHelper for MsgBox
+                DialogHelper.ShowMessageBoxAsync(title, promptText).GetAwaiter().GetResult();
+                DMEEditor?.AddLogMessage("Success", "Displayed MsgBox", DateTime.Now, 0, null, Errors.Ok);
             }
             catch (Exception ex)
             {
                 string message = "Could not display MsgBox";
-                DMEEditor.AddLogMessage(ex.Message, message, DateTime.Now, -1, message, Errors.Failed);
+                DMEEditor?.AddLogMessage(ex.Message, message, DateTime.Now, -1, message, Errors.Failed);
             }
         }
-        public virtual DialogResult InputComboBox(string title, string promptText, List<string> itvalues, ref string value)
+
+        public virtual BeepDialogResult InputComboBox(string title, string promptText, List<string> itvalues, ref string value)
         {
             try
             {
-                // Create a BeepDialogBox instance
-                BeepDialogBox dialog = new BeepDialogBox();
-
-                // Create a user control to host the label and ComboBox
-                UserControl control = new UserControl
+                // Use DialogHelper for InputComboBox
+                var (result, updatedValue) = DialogHelper.InputComboBoxAsync(title, promptText, itvalues, value).GetAwaiter().GetResult();
+                if (result == BeepDialogResult.OK)
                 {
-                    ClientSize = new Size(400, 100) // Set the size of the control
-                };
-
-                // Create and configure the label
-                Label label = new Label
-                {
-                    Text = promptText,
-                    Width = control.ClientSize.Width - 20,
-                    Height = 20,
-                    Location = new Point(10, 10), // Padding from the top and left
-                    AutoSize = false,
-                    TextAlign = ContentAlignment.MiddleLeft
-                };
-
-                // Create and configure the ComboBox
-                ComboBox comboBox = new ComboBox
-                {
-                    Text = value, // Set the initial value
-                    Width = control.ClientSize.Width - 20,
-                    Height = 30,
-                    Location = new Point(10, label.Bottom + 10) // Below the label
-                };
-
-                // Populate the ComboBox with items
-                comboBox.Items.AddRange(itvalues.ToArray());
-
-                // Add the label and ComboBox to the user control
-                control.Controls.Add(label);
-                control.Controls.Add(comboBox);
-
-                // Show the dialog with the user control
-                dialog.ShowDialog(control,
-                    submit: () => dialog.DialogResult = DialogResult.OK,
-                    cancel: () => dialog.DialogResult = DialogResult.Cancel,
-                    Title: title
-                );
-
-                // Retrieve the selected value if the dialog result is OK
-                if (dialog.DialogResult == DialogResult.OK)
-                {
-                    value = comboBox.Text;
+                    value = updatedValue;
                 }
-
-                return dialog.DialogResult;
+                return result;
             }
             catch (Exception ex)
             {
                 string message = "Could not display InputComboBox";
-                DMEEditor.AddLogMessage(ex.Message, message, DateTime.Now, -1, message, Errors.Failed);
-                return DialogResult.Cancel;
+                DMEEditor?.AddLogMessage(ex.Message, message, DateTime.Now, -1, message, Errors.Failed);
+                return BeepDialogResult.Cancel;
             }
         }
+
         public virtual string DialogCombo(string text, List<object> comboSource, string displayMember, string valueMember)
         {
-            // Create the label and ComboBox
-            Label label = new Label
-            {
-                Text = text,
-                Width = 460,
-                Height = 20,
-                Location = new Point(20, 20),
-                AutoSize = false,
-                TextAlign = ContentAlignment.MiddleLeft
-            };
-
-            ComboBox comboBox = new ComboBox
-            {
-                DataSource = comboSource,
-                DisplayMember = displayMember,
-                ValueMember = valueMember,
-                Width = 460,
-                Height = 30,
-                Location = new Point(20, label.Bottom + 10)
-            };
-
-            // Create a user control to host the label and ComboBox
-            UserControl control = new UserControl
-            {
-                ClientSize = new Size(500, 200)
-            };
-
-            // Add the label and ComboBox to the user control
-            control.Controls.Add(label);
-            control.Controls.Add(comboBox);
-
-            // Create the dialog instance
-            BeepDialogBox dialog = new BeepDialogBox
-            {
-                TitleText = text // Set the dialog title
-            };
-
-            // Show the dialog with the custom control
-            dialog.ShowDialog(control,
-                submit: () => dialog.DialogResult = DialogResult.OK,
-                cancel: () => dialog.DialogResult = DialogResult.Cancel,
-                Title: text
-            );
-
-            // Return the selected value or null if the dialog is canceled
-            return dialog.DialogResult == DialogResult.OK ? comboBox.SelectedValue?.ToString() : null;
+            // Use DialogHelper for DialogCombo
+            var (result, selectedValue) = DialogHelper.DialogComboAsync(text, comboSource, displayMember, valueMember).GetAwaiter().GetResult();
+            return result == BeepDialogResult.OK ? selectedValue : null;
         }
         public virtual  List<string> LoadFilesDialog(string exts, string dir, string filter)
         {
@@ -339,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             };
 
             openFileDialog1.Multiselect = true;
-            DialogResult result = MapDialogResult(openFileDialog1.ShowDialog());
+            BeepDialogResult result = MapDialogResult(openFileDialog1.ShowDialog());
 
             return openFileDialog1.FileNames.ToList();
         }
@@ -379,7 +161,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             };
             openFileDialog1.InitialDirectory = dir;
 
-            DialogResult result = MapDialogResult(openFileDialog1.ShowDialog());
+            BeepDialogResult result = MapDialogResult(openFileDialog1.ShowDialog());
 
             return openFileDialog1.FileName;
         }
@@ -402,76 +184,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             };
           
 
-            DialogResult result = MapDialogResult(saveFileDialog1.ShowDialog());
+            BeepDialogResult result = MapDialogResult(saveFileDialog1.ShowDialog());
 
             return saveFileDialog1.FileName;
         }
         public virtual string ShowSpecialDirectoriesComboBox()
         {
-            // Create the ComboBox
-            ComboBox comboBox = new ComboBox
-            {
-                DropDownStyle = ComboBoxStyle.DropDownList, // Ensure user can only select items
-                Width = 300,
-                Height = 30
-            };
+            // Prepare the list of special directories
+            var specialDirectories = Enum.GetValues(typeof(Environment.SpecialFolder))
+                                         .Cast<Environment.SpecialFolder>()
+                                         .Select(folder => folder.ToString())
+                                         .ToList();
 
-            // Get all special directories and add them to the ComboBox
-            foreach (var directory in Enum.GetValues(typeof(Environment.SpecialFolder)))
-            {
-                comboBox.Items.Add(directory);
-            }
-
-            // Set the default selected index
-            comboBox.SelectedIndex = 0;
-
-            // Create a label for the dialog
-            Label label = new Label
-            {
-                Text = "Select a special directory:",
-                AutoSize = false,
-                Width = 300,
-                Height = 20,
-                TextAlign = ContentAlignment.MiddleLeft,
-                Location = new Point(10, 10)
-            };
-
-            // Position the ComboBox below the label
-            comboBox.Location = new Point(10, label.Bottom + 10);
-
-            // Create a user control to host the label and ComboBox
-            UserControl control = new UserControl
-            {
-                ClientSize = new Size(350, 100)
-            };
-
-            // Add the label and ComboBox to the user control
-            control.Controls.Add(label);
-            control.Controls.Add(comboBox);
-
-            // Create and configure the dialog
-            BeepDialogBox dialog = new BeepDialogBox
-            {
-                TitleText = "Special Directories"
-            };
-
-            // Show the dialog with the custom control
-            dialog.ShowDialog(control,
-                submit: () => dialog.DialogResult = DialogResult.OK,
-                cancel: () => dialog.DialogResult = DialogResult.Cancel,
-                Title: "Special Directories"
-            );
+            // Use DialogHelper to display the ComboBox
+            var (result, selectedValue) = DialogHelper.InputComboBoxAsync(
+                title: "Special Directories",
+                promptText: "Select a special directory:",
+                items: specialDirectories,
+                selectedValue: specialDirectories.First()
+            ).GetAwaiter().GetResult();
 
             // Return the selected directory path if confirmed
-            if (dialog.DialogResult == DialogResult.OK)
+            if (result == BeepDialogResult.OK && Enum.TryParse(selectedValue, out Environment.SpecialFolder selectedFolder))
             {
-                var selectedDirectory = (Environment.SpecialFolder)comboBox.SelectedItem;
-                return Environment.GetFolderPath(selectedDirectory);
+                return Environment.GetFolderPath(selectedFolder);
             }
 
             // If canceled, return null
             return null;
         }
+
         public virtual string SelectFile(string filter)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -1244,34 +986,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             return lsop;
 
         }
-        private System.Windows.Forms.DialogResult MapDialogResult(DialogResult dialogResult)
+        private System.Windows.Forms.DialogResult MapDialogResult(BeepDialogResult dialogResult)
         {
             System.Windows.Forms.DialogResult retval = System.Windows.Forms.DialogResult.None;
             switch (dialogResult)
             {
 
-                case DialogResult.None:
+                case BeepDialogResult.None:
                     retval = System.Windows.Forms.DialogResult.None;
                     break;
-                case DialogResult.OK:
+                case BeepDialogResult.OK:
                     retval = System.Windows.Forms.DialogResult.OK;
                     break;
-                case DialogResult.Cancel:
+                case BeepDialogResult.Cancel:
                     retval = System.Windows.Forms.DialogResult.Cancel;
                     break;
-                case DialogResult.Abort:
+                case BeepDialogResult.Abort:
                     retval = System.Windows.Forms.DialogResult.Abort;
                     break;
-                case DialogResult.Retry:
+                case BeepDialogResult.Retry:
                     retval = System.Windows.Forms.DialogResult.Retry;
                     break;
-                case DialogResult.Ignore:
+                case BeepDialogResult.Ignore:
                     retval = System.Windows.Forms.DialogResult.Ignore;
                     break;
-                case DialogResult.Yes:
+                case BeepDialogResult.Yes:
                     retval = System.Windows.Forms.DialogResult.Yes;
                     break;
-                case DialogResult.No:
+                case BeepDialogResult.No:
                     retval = System.Windows.Forms.DialogResult.No;
                     break;
                 default:
@@ -1280,38 +1022,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
             return retval;
         }
-        private DialogResult MapDialogResult(System.Windows.Forms.DialogResult dialogResult)
+        private BeepDialogResult MapDialogResult(System.Windows.Forms.DialogResult dialogResult)
         {
-            DialogResult retval = DialogResult.None;
+            BeepDialogResult retval = BeepDialogResult.None;
             switch (dialogResult)
             {
 
                 case System.Windows.Forms.DialogResult.None:
-                    retval = DialogResult.None;
+                    retval = BeepDialogResult.None;
                     break;
                 case System.Windows.Forms.DialogResult.OK:
-                    retval = DialogResult.OK;
+                    retval = BeepDialogResult.OK;
                     break;
                 case System.Windows.Forms.DialogResult.Cancel:
-                    retval = DialogResult.Cancel;
+                    retval = BeepDialogResult.Cancel;
                     break;
                 case System.Windows.Forms.DialogResult.Abort:
-                    retval = DialogResult.Abort;
+                    retval = BeepDialogResult.Abort;
                     break;
                 case System.Windows.Forms.DialogResult.Retry:
-                    retval = DialogResult.Retry;
+                    retval = BeepDialogResult.Retry;
                     break;
                 case System.Windows.Forms.DialogResult.Ignore:
-                    retval = DialogResult.Ignore;
+                    retval = BeepDialogResult.Ignore;
                     break;
                 case System.Windows.Forms.DialogResult.Yes:
-                    retval = DialogResult.Yes;
+                    retval = BeepDialogResult.Yes;
                     break;
                 case System.Windows.Forms.DialogResult.No:
-                    retval = DialogResult.No;
+                    retval = BeepDialogResult.No;
                     break;
                 default:
-                    retval = DialogResult.None;
+                    retval = BeepDialogResult.None;
                     break;
             }
             return retval;

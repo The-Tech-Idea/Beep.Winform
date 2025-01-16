@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
             }
             if (frm_Addin.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                // Access the AppFilters property here after the form is closed with DialogResult.OK
+                // Access the AppFilters property here after the form is closed with BeepDialogResult.OK
                 AppFilters = uc_Search.AppFilters;
 
                 // Do something with filters...

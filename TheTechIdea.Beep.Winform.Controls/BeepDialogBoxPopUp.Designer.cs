@@ -37,6 +37,10 @@
             HeaderPanel.SuspendLayout();
             SuspendLayout();
             // 
+            // beepuiManager1
+            // 
+            beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
+            // 
             // ButtonsPanel
             // 
             ButtonsPanel.ActiveBackColor = Color.Gray;
@@ -44,7 +48,7 @@
             ButtonsPanel.AnimationDuration = 500;
             ButtonsPanel.AnimationType = DisplayAnimationType.None;
             ButtonsPanel.ApplyThemeToChilds = true;
-            ButtonsPanel.BackColor = Color.FromArgb(245, 245, 245);
+            ButtonsPanel.BackColor = Color.DarkGray;
             ButtonsPanel.BlockID = null;
             ButtonsPanel.BorderColor = Color.Black;
             ButtonsPanel.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -70,7 +74,7 @@
             ButtonsPanel.FocusForeColor = Color.Black;
             ButtonsPanel.FocusIndicatorColor = Color.Blue;
             ButtonsPanel.Font = new Font("Segoe UI", 16F);
-            ButtonsPanel.ForeColor = Color.FromArgb(44, 62, 80);
+            ButtonsPanel.ForeColor = Color.White;
             ButtonsPanel.Form = null;
             ButtonsPanel.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             ButtonsPanel.GradientEndColor = Color.Gray;
@@ -127,7 +131,7 @@
             ButtonsPanel.StaticNotMoving = false;
             ButtonsPanel.TabIndex = 0;
             ButtonsPanel.Text = "beepPanel1";
-            ButtonsPanel.Theme = Vis.Modules.EnumBeepThemes.FlatDesignTheme;
+            ButtonsPanel.Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
             ButtonsPanel.TitleAlignment = ContentAlignment.TopLeft;
             ButtonsPanel.TitleBottomY = 0;
             ButtonsPanel.TitleFont = new Font("Segoe UI", 16F);
@@ -146,7 +150,7 @@
             ContentPanel.AnimationDuration = 500;
             ContentPanel.AnimationType = DisplayAnimationType.None;
             ContentPanel.ApplyThemeToChilds = true;
-            ContentPanel.BackColor = Color.FromArgb(245, 245, 245);
+            ContentPanel.BackColor = Color.DarkGray;
             ContentPanel.BlockID = null;
             ContentPanel.BorderColor = Color.Black;
             ContentPanel.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -172,7 +176,7 @@
             ContentPanel.FocusForeColor = Color.Black;
             ContentPanel.FocusIndicatorColor = Color.Blue;
             ContentPanel.Font = new Font("Segoe UI", 16F);
-            ContentPanel.ForeColor = Color.FromArgb(44, 62, 80);
+            ContentPanel.ForeColor = Color.White;
             ContentPanel.Form = null;
             ContentPanel.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             ContentPanel.GradientEndColor = Color.Gray;
@@ -229,7 +233,7 @@
             ContentPanel.StaticNotMoving = false;
             ContentPanel.TabIndex = 1;
             ContentPanel.Text = "beepPanel1";
-            ContentPanel.Theme = Vis.Modules.EnumBeepThemes.FlatDesignTheme;
+            ContentPanel.Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
             ContentPanel.TitleAlignment = ContentAlignment.TopLeft;
             ContentPanel.TitleBottomY = 0;
             ContentPanel.TitleFont = new Font("Segoe UI", 16F);
@@ -248,7 +252,7 @@
             HeaderPanel.AnimationDuration = 500;
             HeaderPanel.AnimationType = DisplayAnimationType.None;
             HeaderPanel.ApplyThemeToChilds = true;
-            HeaderPanel.BackColor = Color.FromArgb(245, 245, 245);
+            HeaderPanel.BackColor = Color.DarkGray;
             HeaderPanel.BlockID = null;
             HeaderPanel.BorderColor = Color.Black;
             HeaderPanel.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -277,7 +281,7 @@
             HeaderPanel.FocusForeColor = Color.Black;
             HeaderPanel.FocusIndicatorColor = Color.Blue;
             HeaderPanel.Font = new Font("Segoe UI", 16F);
-            HeaderPanel.ForeColor = Color.FromArgb(44, 62, 80);
+            HeaderPanel.ForeColor = Color.White;
             HeaderPanel.Form = null;
             HeaderPanel.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             HeaderPanel.GradientEndColor = Color.Gray;
@@ -334,7 +338,7 @@
             HeaderPanel.StaticNotMoving = false;
             HeaderPanel.TabIndex = 2;
             HeaderPanel.Text = "beepPanel1";
-            HeaderPanel.Theme = Vis.Modules.EnumBeepThemes.FlatDesignTheme;
+            HeaderPanel.Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
             HeaderPanel.TitleAlignment = ContentAlignment.TopLeft;
             HeaderPanel.TitleBottomY = 0;
             HeaderPanel.TitleFont = new Font("Segoe UI", 16F);
@@ -353,7 +357,7 @@
             CloseButton.AnimationType = DisplayAnimationType.None;
             CloseButton.ApplyThemeOnImage = false;
             CloseButton.ApplyThemeToChilds = true;
-            CloseButton.BackColor = Color.LightSkyBlue;
+            CloseButton.BackColor = Color.DarkGray;
             CloseButton.BlockID = null;
             CloseButton.BorderColor = Color.Black;
             CloseButton.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -375,7 +379,6 @@
             CloseButton.DrawingRect = new Rectangle(1, 1, 47, 40);
             CloseButton.Easing = EasingType.Linear;
             CloseButton.FieldID = null;
-          
             CloseButton.FocusBackColor = Color.Gray;
             CloseButton.FocusBorderColor = Color.Gray;
             CloseButton.FocusForeColor = Color.Black;
@@ -388,7 +391,7 @@
             CloseButton.GradientStartColor = Color.Gray;
             CloseButton.GuidID = "ec132010-2148-432d-853b-e357af88df17";
             CloseButton.HideText = false;
-            CloseButton.HoverBackColor = Color.FromArgb(41, 128, 185);
+            CloseButton.HoverBackColor = Color.DimGray;
             CloseButton.HoverBorderColor = Color.Gray;
             CloseButton.HoveredBackcolor = Color.Wheat;
             CloseButton.HoverForeColor = Color.White;
@@ -403,7 +406,7 @@
             CloseButton.IsAcceptButton = false;
             CloseButton.IsBorderAffectedByTheme = true;
             CloseButton.IsCancelButton = false;
-            CloseButton.IsChild = false;
+            CloseButton.IsChild = true;
             CloseButton.IsCustomeBorder = false;
             CloseButton.IsDefault = false;
             CloseButton.IsFocused = false;
@@ -425,7 +428,7 @@
             CloseButton.MaxImageSize = new Size(32, 32);
             CloseButton.Name = "CloseButton";
             CloseButton.OverrideFontSize = TypeStyleFontSize.None;
-            CloseButton.ParentBackColor = Color.Empty;
+            CloseButton.ParentBackColor = Color.DarkGray;
             CloseButton.PopupMode = false;
             CloseButton.PressedBackColor = Color.Gray;
             CloseButton.PressedBorderColor = Color.Gray;
@@ -451,8 +454,9 @@
             CloseButton.TabIndex = 2;
             CloseButton.Text = "X";
             CloseButton.TextAlign = ContentAlignment.MiddleCenter;
+            CloseButton.TextFont = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point, 0);
             CloseButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            CloseButton.Theme = Vis.Modules.EnumBeepThemes.FlatDesignTheme;
+            CloseButton.Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
             CloseButton.ToolTipText = "";
             CloseButton.TopoffsetForDrawingRect = 0;
             CloseButton.UseGradientBackground = false;
@@ -461,15 +465,16 @@
             // 
             // DialogIconImage
             // 
-            DialogIconImage.ActiveBackColor = Color.FromArgb(41, 128, 185);
+            DialogIconImage.ActiveBackColor = Color.DimGray;
             DialogIconImage.AllowManualRotation = true;
             DialogIconImage.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             DialogIconImage.AnimationDuration = 500;
             DialogIconImage.AnimationType = DisplayAnimationType.None;
             DialogIconImage.ApplyThemeOnImage = false;
             DialogIconImage.ApplyThemeToChilds = true;
+            DialogIconImage.BackColor = Color.DarkGray;
             DialogIconImage.BlockID = null;
-            DialogIconImage.BorderColor = Color.FromArgb(189, 195, 199);
+            DialogIconImage.BorderColor = Color.White;
             DialogIconImage.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             DialogIconImage.BorderRadius = 1;
             DialogIconImage.BorderStyle = BorderStyle.FixedSingle;
@@ -488,21 +493,22 @@
             DialogIconImage.DrawingRect = new Rectangle(1, 1, 50, 40);
             DialogIconImage.Easing = EasingType.Linear;
             DialogIconImage.FieldID = null;
-            DialogIconImage.FocusBackColor = Color.FromArgb(41, 128, 185);
+            DialogIconImage.FocusBackColor = Color.DimGray;
             DialogIconImage.FocusBorderColor = Color.Gray;
             DialogIconImage.FocusForeColor = Color.White;
             DialogIconImage.FocusIndicatorColor = Color.Blue;
             DialogIconImage.Form = null;
             DialogIconImage.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            DialogIconImage.GradientEndColor = Color.White;
-            DialogIconImage.GradientStartColor = Color.White;
+            DialogIconImage.GradientEndColor = Color.Black;
+            DialogIconImage.GradientStartColor = Color.Black;
             DialogIconImage.GuidID = "6a0575aa-d847-4dd1-8758-a04c9ae1e263";
-            DialogIconImage.HoverBackColor = Color.FromArgb(41, 128, 185);
-            DialogIconImage.HoverBorderColor = Color.FromArgb(52, 152, 219);
+            DialogIconImage.HoverBackColor = Color.DimGray;
+            DialogIconImage.HoverBorderColor = Color.Cyan;
             DialogIconImage.HoveredBackcolor = Color.Wheat;
             DialogIconImage.HoverForeColor = Color.White;
             DialogIconImage.Id = -1;
             DialogIconImage.Image = null;
+            DialogIconImage.ImageEmbededin = ImageEmbededin.Button;
             DialogIconImage.ImagePath = null;
             DialogIconImage.InactiveBackColor = Color.Gray;
             DialogIconImage.InactiveBorderColor = Color.Gray;
@@ -510,7 +516,7 @@
             DialogIconImage.IsAcceptButton = false;
             DialogIconImage.IsBorderAffectedByTheme = true;
             DialogIconImage.IsCancelButton = false;
-            DialogIconImage.IsChild = false;
+            DialogIconImage.IsChild = true;
             DialogIconImage.IsCustomeBorder = false;
             DialogIconImage.IsDefault = false;
             DialogIconImage.IsFocused = false;
@@ -528,8 +534,8 @@
             DialogIconImage.ManualRotationAngle = 0F;
             DialogIconImage.Name = "DialogIconImage";
             DialogIconImage.OverrideFontSize = TypeStyleFontSize.None;
-            DialogIconImage.ParentBackColor = Color.Empty;
-            DialogIconImage.PressedBackColor = Color.FromArgb(41, 128, 185);
+            DialogIconImage.ParentBackColor = Color.DarkGray;
+            DialogIconImage.PressedBackColor = Color.DimGray;
             DialogIconImage.PressedBorderColor = Color.Gray;
             DialogIconImage.PressedForeColor = Color.White;
             DialogIconImage.RightoffsetForDrawingRect = 0;
@@ -552,7 +558,7 @@
             DialogIconImage.StaticNotMoving = false;
             DialogIconImage.TabIndex = 1;
             DialogIconImage.Text = "beepImage1";
-            DialogIconImage.Theme = Vis.Modules.EnumBeepThemes.FlatDesignTheme;
+            DialogIconImage.Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
             DialogIconImage.ToolTipText = "";
             DialogIconImage.TopoffsetForDrawingRect = 0;
             DialogIconImage.UseGradientBackground = false;
@@ -565,7 +571,7 @@
             TitleLabel.AnimationType = DisplayAnimationType.None;
             TitleLabel.ApplyThemeOnImage = false;
             TitleLabel.ApplyThemeToChilds = true;
-            TitleLabel.BackColor = Color.FromArgb(245, 245, 245);
+            TitleLabel.BackColor = Color.DarkGray;
             TitleLabel.BlockID = null;
             TitleLabel.BorderColor = Color.Black;
             TitleLabel.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -591,14 +597,14 @@
             TitleLabel.FocusForeColor = Color.Black;
             TitleLabel.FocusIndicatorColor = Color.Blue;
             TitleLabel.Font = new Font("Segoe UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            TitleLabel.ForeColor = Color.FromArgb(44, 62, 80);
+            TitleLabel.ForeColor = Color.White;
             TitleLabel.Form = null;
             TitleLabel.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             TitleLabel.GradientEndColor = Color.Gray;
             TitleLabel.GradientStartColor = Color.Gray;
             TitleLabel.GuidID = "3590011a-f03c-461e-8a29-158801ea1eba";
             TitleLabel.HideText = false;
-            TitleLabel.HoverBackColor = Color.White;
+            TitleLabel.HoverBackColor = Color.DimGray;
             TitleLabel.HoverBorderColor = Color.Gray;
             TitleLabel.HoveredBackcolor = Color.Wheat;
             TitleLabel.HoverForeColor = Color.White;
@@ -630,7 +636,7 @@
             TitleLabel.Name = "TitleLabel";
             TitleLabel.OverrideFontSize = TypeStyleFontSize.None;
             TitleLabel.Padding = new Padding(1);
-            TitleLabel.ParentBackColor = Color.FromArgb(245, 245, 245);
+            TitleLabel.ParentBackColor = Color.DarkGray;
             TitleLabel.PressedBackColor = Color.Gray;
             TitleLabel.PressedBorderColor = Color.Gray;
             TitleLabel.PressedForeColor = Color.Black;
@@ -654,7 +660,7 @@
             TitleLabel.Text = "Dialog";
             TitleLabel.TextAlign = ContentAlignment.MiddleLeft;
             TitleLabel.TextImageRelation = TextImageRelation.ImageBeforeText;
-            TitleLabel.Theme = Vis.Modules.EnumBeepThemes.FlatDesignTheme;
+            TitleLabel.Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
             TitleLabel.ToolTipText = "";
             TitleLabel.TopoffsetForDrawingRect = 0;
             TitleLabel.UseGradientBackground = false;
@@ -665,12 +671,14 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BorderColor = Color.White;
             ClientSize = new Size(800, 450);
             Controls.Add(HeaderPanel);
             Controls.Add(ContentPanel);
             Controls.Add(ButtonsPanel);
             Name = "BeepDialogBoxPopUp";
             Text = "BeepDialogBoxPopUp";
+            Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
             HeaderPanel.ResumeLayout(false);
             HeaderPanel.PerformLayout();
             ResumeLayout(false);

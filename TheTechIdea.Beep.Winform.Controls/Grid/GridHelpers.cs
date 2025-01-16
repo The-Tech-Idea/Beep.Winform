@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
 
 
-          //  if (DialogResult.OK == printer.DisplayPrintDialog())  // replace DisplayPrintDialog() 
+          //  if (BeepDialogResult.OK == printer.DisplayPrintDialog())  // replace DisplayPrintDialog() 
 
             // with your own print dialog
 

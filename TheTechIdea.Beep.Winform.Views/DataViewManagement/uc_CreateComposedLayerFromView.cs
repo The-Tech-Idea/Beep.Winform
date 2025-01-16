@@ -14,7 +14,7 @@ using TheTechIdea.Beep.DataView;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep.Utilities;
-using DialogResult = TheTechIdea.Beep.Vis.Modules.DialogResult;
+using BeepDialogResult = TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
 using TheTechIdea.Beep.DriversConfigurations;
 using TheTechIdea.Beep.Desktop.Common;
 
@@ -278,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
                 DMEEditor.ETL.Script.id = 1;
                 bool getdata = false;
                 PassedArgs Passedarguments = new PassedArgs();
-                if (visManager.Controlmanager.InputBoxYesNo("Beep", "Do you want to Copy Data Also?") == DialogResult.OK)
+                if (visManager.Controlmanager.InputBoxYesNo("Beep", "Do you want to Copy Data Also?") == BeepDialogResult.OK)
                 {
                     getdata = true;
                 }

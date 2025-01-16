@@ -673,7 +673,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    {
         //        // Attempt to open ImageSelectorImporterForm
         //        form.PreviewImage(_imagepath);
-        //        if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        //        if (form.ShowDialog() == System.Windows.Forms.BeepDialogResult.OK)
         //            {
         //                // If dialog result is OK, capture the selected image path
         //                selectedPath = form.SelectedImagePath;

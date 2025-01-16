@@ -53,10 +53,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="BeepiForm.Designer.cs~RF145a38e5.TMP" />
-    <None Remove="GFX\SVG\033-stakeholder.svg" />
     <None Remove="GFX\SVG\about.svg" />
     <None Remove="GFX\SVG\add.svg" />
     <None Remove="GFX\SVG\addressbook.svg" />
+    <None Remove="GFX\SVG\alarm.svg" />
+    <None Remove="GFX\SVG\alarmclock.svg" />
+    <None Remove="GFX\SVG\alert.svg" />
     <None Remove="GFX\SVG\angle-double-small-down.svg" />
     <None Remove="GFX\SVG\angle-double-small-left.svg" />
     <None Remove="GFX\SVG\angle-double-small-right.svg" />
@@ -84,6 +86,7 @@
     <None Remove="GFX\SVG\help.svg" />
     <None Remove="GFX\SVG\home.svg" />
     <None Remove="GFX\SVG\info.svg" />
+    <None Remove="GFX\SVG\information.svg" />
     <None Remove="GFX\SVG\l.svg" />
     <None Remove="GFX\SVG\lastrecord.svg" />
     <None Remove="GFX\SVG\like.svg" />
@@ -103,6 +106,7 @@
     <None Remove="GFX\SVG\power.svg" />
     <None Remove="GFX\SVG\previous.svg" />
     <None Remove="GFX\SVG\print.svg" />
+    <None Remove="GFX\SVG\question.svg" />
     <None Remove="GFX\SVG\refresh.svg" />
     <None Remove="GFX\SVG\restore.svg" />
     <None Remove="GFX\SVG\search.svg" />
@@ -120,7 +124,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GFX\PNG\SimpleInfoApps.png" />
-    <EmbeddedResource Include="GFX\SVG\033-stakeholder.svg" />
+    <EmbeddedResource Include="GFX\SVG\alarm.svg" />
+    <EmbeddedResource Include="GFX\SVG\alarmclock.svg" />
+    <EmbeddedResource Include="GFX\SVG\alert.svg" />
+    <EmbeddedResource Include="GFX\SVG\information.svg" />
+    <EmbeddedResource Include="GFX\SVG\question.svg" />
+    <EmbeddedResource Include="GFX\SVG\stakeholder.svg" />
     <EmbeddedResource Include="GFX\SVG\about.svg" />
     <EmbeddedResource Include="GFX\SVG\add.svg" />
     <EmbeddedResource Include="GFX\SVG\addressbook.svg" />

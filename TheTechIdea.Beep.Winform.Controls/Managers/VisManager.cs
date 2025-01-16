@@ -8,11 +8,11 @@ using TheTechIdea.Beep.Utilities;
 
 using TheTechIdea.Beep.Winform.Controls.Managers.Wizards;
 using TheTechIdea.Beep.Winform.Controls.Template;
-using TheTechIdea.Beep.Winform.Controls;
+
 using TheTechIdea.Beep.Vis.Logic;
 using System.Data;
 using System.Runtime.InteropServices;
-using DialogResult = TheTechIdea.Beep.Vis.Modules.DialogResult;
+using BeepDialogResult = TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Managers
@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public ControlManager _controlManager { get { return (ControlManager)Controlmanager; } }
         public ErrorsInfo ErrorsandMesseges { get; set; }
         public IDM_Addin CurrentDisplayedAddin { get; set; }
-        public IBeepUIComponent MainDisplay { get; set; }
+        public IDisplayContainer MainDisplay { get; set; }
         public IFunctionandExtensionsHelpers Helpers { get; set; }
         bool _isLogOn = false;
         public bool IsLogOn
@@ -311,7 +311,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
                 if (IsDataModified)
                 {
-                    if (Controlmanager.InputBoxYesNo("Beep", "Module/Data not Saved, Do you want to continue?") == DialogResult.No)
+                    if (Controlmanager.InputBoxYesNo("Beep", "Module/Data not Saved, Do you want to continue?") == BeepDialogResult.No)
                     {
                         return ErrorsandMesseges;
                     }
@@ -794,7 +794,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                         MainForm.TopMost = true;
                         form.Width = Width;
                         form.Height = Height;
-                        MainDisplay = (IBeepUIComponent)addin;
+                        MainDisplay = (IDisplayContainer)addin;
                         if (!string.IsNullOrEmpty(Title))
                         {
                             form.Text = Title;
@@ -1309,17 +1309,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
         }
 
-        public void NavigateBack()
+        public Task<IErrorsInfo> NavigateBack()
         {
             throw new NotImplementedException();
         }
 
-        public void NavigateForward()
+        public Task<IErrorsInfo> NavigateForward()
         {
             throw new NotImplementedException();
         }
 
-        public void NavigateTo(string routeName, Dictionary<string, object> parameters = null)
+        public Task<IErrorsInfo> NavigateTo(string routeName, Dictionary<string, object> parameters = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IErrorsInfo> LoadGraphics(string[] namespacestoinclude)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IErrorsInfo> LoadAssemblies(string[] namespacestoinclude)
         {
             throw new NotImplementedException();
         }

@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
-using DialogResult = TheTechIdea.Beep.Vis.Modules.DialogResult;
+using BeepDialogResult = TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
 
 namespace TheTechIdea.Beep.Desktop.Common
 {
@@ -70,7 +70,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public IBeepUIComponent MenuStrip { get; set; }
         public IBeepUIComponent SecondaryMenuStrip { get; set; }
         public IDM_Addin CurrentDisplayedAddin { get; set; }
-        public IBeepUIComponent MainDisplay { get; set; }
+        public IDisplayContainer MainDisplay { get; set; }
         public IWaitForm WaitForm { get; set; }
         #endregion "Main Controls"
         #region "Helpers"
@@ -443,26 +443,26 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
         #endregion "Notification"
         #region "Navigation"
-        public void NavigateBack()
+        public Task<IErrorsInfo> NavigateBack()
         {
             try
             {
                 // use the view router to navigate back
-
+                ViewRouter.NavigateBack();
             }
             catch (Exception ex)
             {
                 string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
                 DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
             }
-          
+            return Task.FromResult(DMEEditor.ErrorObject);
         }
-        public void NavigateForward()
+        public Task<IErrorsInfo> NavigateForward()
         {
             try
             {
                 // use the view router to navigate forward
-
+                ViewRouter.NavigateForward();
 
             }
             catch (Exception ex)
@@ -470,14 +470,14 @@ namespace TheTechIdea.Beep.Desktop.Common
                 string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
                 DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
             }
-           
+            return Task.FromResult(DMEEditor.ErrorObject);
         }
-        public void NavigateTo(string routeName, Dictionary<string, object> parameters = null)
+        public Task<IErrorsInfo> NavigateTo(string routeName, Dictionary<string, object> parameters = null)
         {
             try
             {
                 // use the view router to navigate to a specific route from List<IDM_Addin> s
-
+                ViewRouter.NavigateTo(routeName, parameters);
 
             }
             catch (Exception ex)
@@ -485,14 +485,14 @@ namespace TheTechIdea.Beep.Desktop.Common
                 string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
                 DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
             }
-            
+            return Task.FromResult(DMEEditor.ErrorObject);
         }
         public IErrorsInfo ShowHome()
         {
             try
             {
                 // use the view router to show the home page
-
+                ViewRouter.NavigateTo(HomePageName);
             }
             catch (Exception ex)
             {
@@ -506,7 +506,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to show the home page
-
+                ViewRouter.NavigateTo("Login");
             }
             catch (Exception ex)
             {
@@ -520,7 +520,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to show the home page
-
+                viewrouter.NavigateTo("Profile");
             }
             catch (Exception ex)
             {
@@ -534,7 +534,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to show the home page
-
+                ViewRouter.NavigateTo("Admin");
             }
             catch (Exception ex)
             {
@@ -554,7 +554,7 @@ namespace TheTechIdea.Beep.Desktop.Common
 
                 if (IsDataModified)
                 {
-                    if (Controlmanager.InputBoxYesNo("Beep", "Module/Data not Saved, Do you want to continue?") == DialogResult.No)
+                    if (Controlmanager.InputBoxYesNo("Beep", "Module/Data not Saved, Do you want to continue?") == BeepDialogResult.No)
                     {
                         return ErrorsandMesseges;
                     }

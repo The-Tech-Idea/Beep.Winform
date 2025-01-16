@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Editors
     //            {
     //                using (MenuItemEditorForm form = new MenuItemEditorForm(menuItems))
     //                {
-    //                    if (editorService.ShowDialog(form) == System.Windows.Forms.DialogResult.OK)
+    //                    if (editorService.ShowDialog(form) == System.Windows.Forms.BeepDialogResult.OK)
     //                    {
     //                        return form.MenuItems; // Return updated MenuItems
     //                    }

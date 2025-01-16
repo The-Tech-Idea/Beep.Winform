@@ -1434,7 +1434,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _popupForm.TriggerControl=this;
             //InitListbox();
             // 2) Create a borderless popup form
-            //  _popupForm = new BeepPopupForm();
+            //  _popupForm = new BeepPopupForm1();
             _popupForm.BorderThickness = 1;
             _popupForm.Controls.Add(_beepListBox);
             _beepListBox.ShowHilightBox = false;

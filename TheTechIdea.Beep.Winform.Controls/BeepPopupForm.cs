@@ -1,17 +1,19 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TheTechIdea.Beep.Container.Services;
+using TheTechIdea.Beep.Vis.Modules;
 using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public enum BeepPopupFormPosition
-    {
-        Top,
-        Bottom,
-        Left,
-        Right
-    }
 
-    public class BeepPopupForm : BeepiForm
+    public partial class BeepPopupForm : BeepiForm
     {
         private Timer _timerTriggerLeave;
         private Timer _timerPopupLeave;
@@ -24,6 +26,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         private MouseLeaveMessageFilter _messageFilter;
 
         public BeepPopupForm()
+        {
+            StartPosition = FormStartPosition.Manual;
+            ShowInTaskbar = false;
+            TopMost = true;
+            InPopMode = true;
+
+            // Initialize timers
+            _timerTriggerLeave = new Timer { Interval = _triggerLeaveTimeout };
+            _timerTriggerLeave.Tick += TimerTriggerLeave_Tick;
+
+            _timerPopupLeave = new Timer { Interval = _popupLeaveTimeout };
+            _timerPopupLeave.Tick += TimerPopupLeave_Tick;
+
+            // Attach mouse enter and leave events to the popup form
+            this.MouseEnter += BeepPopupForm_MouseEnter;
+            this.MouseLeave += BeepPopupForm_MouseLeave;
+        }
+
+        public BeepPopupForm(IBeepService beepService) : base(beepService)
         {
             StartPosition = FormStartPosition.Manual;
             ShowInTaskbar = false;
@@ -351,5 +372,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return false; // Allow other messages to continue processing
         }
+
     }
+   
+
 }

@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         IBeepUIComponent MenuStrip { get; set; }
         IBeepUIComponent SecondaryMenuStrip { get; set; }
         IDM_Addin CurrentDisplayedAddin { get; set; }
-        IBeepUIComponent MainDisplay { get; set; }
+        IDisplayContainer MainDisplay { get; set; }
         bool IsDataModified { get; set; }
         bool IsShowingMainForm { get; set; }
         bool IsShowingWaitForm { get; set; }
@@ -67,9 +67,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         string HomePageTitle { get; set; }
         string HomePageName { get; set; }
         string HomePageDescription { get; set; }
-        void NavigateBack();
-        void NavigateForward();
-        void NavigateTo(string routeName, Dictionary<string, object> parameters = null);
+        Task<IErrorsInfo> NavigateBack();
+        Task<IErrorsInfo> NavigateForward();
+        Task<IErrorsInfo> NavigateTo(string routeName, Dictionary<string, object> parameters = null);
         string BreadCrumb { get; }
         IProfile DefaultProfile { get; set; }
         List<IBeepPrivilege> Privileges { get; set; }

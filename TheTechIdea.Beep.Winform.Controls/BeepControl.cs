@@ -263,6 +263,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         [Browsable(true)]
         [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool IsChild
         {
             get => _isChild;
@@ -1019,7 +1020,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.CompositingQuality = CompositingQuality.HighQuality;
-            //  e.Graphics.Clear(BackColor);
+             e.Graphics.Clear(BackColor);
 
             shadowOffset = ShowShadow ? 3 : 0;
 

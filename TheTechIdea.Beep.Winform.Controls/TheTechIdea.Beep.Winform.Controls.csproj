@@ -112,6 +112,7 @@
     <None Remove="GFX\SVG\search.svg" />
     <None Remove="GFX\SVG\settings.svg" />
     <None Remove="GFX\SVG\share.svg" />
+    <None Remove="GFX\SVG\simpleinfoapps.svg" />
     <None Remove="GFX\SVG\sort.svg" />
     <None Remove="GFX\SVG\sortalphadown.svg" />
     <None Remove="GFX\SVG\sortalphaup.svg" />
@@ -123,12 +124,12 @@
     <None Remove="GFX\SVG\yes.svg" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="GFX\PNG\SimpleInfoApps.png" />
     <EmbeddedResource Include="GFX\SVG\alarm.svg" />
     <EmbeddedResource Include="GFX\SVG\alarmclock.svg" />
     <EmbeddedResource Include="GFX\SVG\alert.svg" />
     <EmbeddedResource Include="GFX\SVG\information.svg" />
     <EmbeddedResource Include="GFX\SVG\question.svg" />
+    <EmbeddedResource Include="GFX\SVG\simpleinfoapps.svg" />
     <EmbeddedResource Include="GFX\SVG\stakeholder.svg" />
     <EmbeddedResource Include="GFX\SVG\about.svg" />
     <EmbeddedResource Include="GFX\SVG\add.svg" />
@@ -249,6 +250,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="GFX\PNG\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Wait\" />
   </ItemGroup>

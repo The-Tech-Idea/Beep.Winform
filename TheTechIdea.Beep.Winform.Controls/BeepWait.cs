@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeComponent();
             //  LogopictureBox.Visible = false;
             _spinnerImage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.loading.svg";
-            LogopictureBox.ImagePath="TheTechIdea.Beep.Winform.Controls.GFX.PNG.SimpleInfoApps.png";
+            LogopictureBox.ImagePath= "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
           
             StartSpinner();
         }

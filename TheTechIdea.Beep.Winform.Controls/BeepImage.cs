@@ -275,7 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Theme Properties"
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+          //  base.ApplyTheme();
             if (_currentTheme != null)
             {
                 HoverBackColor = _currentTheme.ButtonHoverBackColor; // Hover background color
@@ -287,7 +287,39 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // ForeColor = _currentTheme.ButtonForeColor; // Default foreground color
 
+                BackColor = _currentTheme.BackColor;
+                switch (_imageEmbededin)
+                {
+                    case ImageEmbededin.ListBox:
+                    case ImageEmbededin.Form:
+                    case ImageEmbededin.Button:
+                    case ImageEmbededin.ListView:
+                        
+                        BackColor = _currentTheme.ButtonBackColor;
+                        break;
+                    case ImageEmbededin.Label:
 
+                        BackColor = _currentTheme.LabelBackColor;
+                        break;
+                    case ImageEmbededin.TextBox:
+
+                        BackColor = _currentTheme.TextBoxBackColor;
+                        break;
+                    case ImageEmbededin.ComboBox:
+
+                        BackColor = _currentTheme.ComboBoxBackColor;
+                        break;
+                    case ImageEmbededin.DataGridView:
+
+                        BackColor = _currentTheme.GridBackColor;
+                        break;
+                    default:
+                      
+                        BackColor = _currentTheme.BackColor;
+                        break;
+
+
+                }
                 if (_applyThemeOnImage)
                 {
                     ApplyThemeToSvg();
@@ -329,8 +361,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         fillColor = _currentTheme.GridBackColor;
                         break;
                    default:
-                        strokeColor = _currentTheme.ButtonForeColor;
-                        fillColor  = _currentTheme.ButtonBackColor;
+                        strokeColor = _currentTheme.LatestForColor;
+                        fillColor  = _currentTheme.BackColor;
                         break;
 
 
@@ -381,11 +413,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //}
         #endregion "Theme Properties"
         #region "Image Drawing Methods"
-        protected override void OnPaintBackground(PaintEventArgs e)
-        {
-            // Do nothing to prevent flicker, or customize as needed
-        }
-
+      
         public void DrawImage(Graphics g, Rectangle imageRect)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -451,7 +479,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
             e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
             e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-
+            // Fill the background with BackColor
+           
             // Use spin functionality if enabled
             DrawImage(
                 e.Graphics,

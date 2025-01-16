@@ -23,6 +23,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         IBeepUIComponent SecondaryMenuStrip { get; set; }
         IDM_Addin CurrentDisplayedAddin { get; set; }
         IDisplayContainer MainDisplay { get; set; }
+        IPopupDisplayContainer PopupDisplay { get; set; }
         bool IsDataModified { get; set; }
         bool IsShowingMainForm { get; set; }
         bool IsShowingWaitForm { get; set; }

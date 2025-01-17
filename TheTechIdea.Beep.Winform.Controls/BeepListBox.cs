@@ -1,8 +1,7 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using System.ComponentModel;
 using TheTechIdea.Beep.Desktop.Common;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
-using TheTechIdea.Beep.Vis.Logic;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -213,6 +212,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
+        private Font _textFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TextFont
+        {
+            get => _textFont;
+            set
+            {
+
+                _textFont = value;
+                UseThemeFont = false;
+                Invalidate();
+
+
+            }
+        }
         #endregion "Properties"
         #region "Constructor"
         public BeepListBox()
@@ -288,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ImagePath = item.ImagePath,
                 MaxImageSize = new Size(_imagesize, _imagesize),
                 TextImageRelation = TextImageRelation.ImageBeforeText,
-                TextAlign = ContentAlignment.MiddleCenter,
+                TextAlign = ContentAlignment.MiddleLeft,
                 ImageAlign = ContentAlignment.MiddleLeft,
                 Theme = Theme,
                 IsBorderAffectedByTheme = false,
@@ -302,7 +320,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChild = _isItemChilds,
                 UseScaledFont =true,
                 ApplyThemeOnImage = false,
+                UseThemeFont=this.UseThemeFont,
             };
+            if(UseThemeFont == false)
+            {
+                button.TextFont = TextFont;
+            }
 
             // Load the icon if specified
             if (!string.IsNullOrEmpty(item.ImagePath) && File.Exists(item.ImagePath))
@@ -599,7 +622,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             case BeepButton button:
                                 button.Theme = Theme;
-                                button.Font = BeepThemesManager.ToFont(_currentTheme.OrderedList);
+                                if (UseThemeFont)
+                                {
+                                    button.Font = BeepThemesManager.ToFont(_currentTheme.OrderedList);
+                                }
+                                else
+                                {
+                                    button.Font = TextFont;
+                                }
+
                                 button.UseScaledFont = true;
                                // button.ForeColor = ColorUtils.GetForColor(BackColor, _currentTheme.ButtonForeColor);
                                 break;

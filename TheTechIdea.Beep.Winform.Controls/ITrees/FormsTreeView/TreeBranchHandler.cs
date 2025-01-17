@@ -16,8 +16,8 @@
 //        public TreeBranchHandler(IDMEEditor pDMEEditor, ITree ptreeControl, TreeViewControl treecontrol)
 //        {
 //            DMEEditor = pDMEEditor;
-//            Tree = ptreeControl;
-//            visManager = Tree.VisManager;
+//            StandardTree = ptreeControl;
+//            visManager = StandardTree.VisManager;
 //            Treecontrol = treecontrol;
 //            TreeV = treecontrol.TreeV;
 //            CreateDelagates();
@@ -26,7 +26,7 @@
 //        public System.Windows.Forms.TreeView TreeV { get; set; }
 //        private TreeViewControl Treecontrol { get; set; }
 //        public IDMEEditor DMEEditor { get; set; }
-//        private ITree Tree { get; set; }
+//        private ITree StandardTree { get; set; }
 //        private IAppManager visManager { get; set; }
 //        #region "Branch Handling"
 //        public IErrorsInfo CreateBranch(IBranch Branch)
@@ -63,7 +63,7 @@
 
 //                }
 
-//                Branch.TreeEditor = Tree;
+//                Branch.TreeEditor = StandardTree;
 //                Branch.Visutil = visManager;
 //                n.Tag = Branch;
 //                n.Name = Branch.ID.ToString();
@@ -71,7 +71,7 @@
 //                Treecontrol.CreateMenuMethods(Branch);
 //                Treecontrol.CreateGlobalMenu(Branch);
 //                Branch.DMEEditor = DMEEditor;
-//                Tree.Branches.Add(Branch);
+//                StandardTree.Branches.Add(Branch);
 //                if (!DMEEditor.ConfigEditor.objectTypes.Any(i => i.ObjectType == Branch.BranchClass && i.ObjectName == Branch.BranchType.ToString() + "_" + Branch.BranchClass))
 //                {
 //                    DMEEditor.ConfigEditor.objectTypes.Add(new Workflow.ObjectTypes { ObjectType = Branch.BranchClass, ObjectName = Branch.BranchType.ToString() + "_" + Branch.BranchClass });
@@ -203,10 +203,10 @@
 //                    RemoveEntityFromCategory(Branch.BranchClass, foldername, Branch.BranchText);
 //                }
 //                RemoveChildBranchs(Branch);
-//                Tree.Branches.Remove(Branch);
-//                if (Tree.SelectedBranchs.Contains(Branch.BranchID))
+//                StandardTree.Branches.Remove(Branch);
+//                if (StandardTree.SelectedBranchs.Contains(Branch.BranchID))
 //                {
-//                    Tree.SelectedBranchs.Remove(Branch.BranchID);
+//                    StandardTree.SelectedBranchs.Remove(Branch.BranchID);
 //                }
 //                if (n != null)
 //                {
@@ -238,11 +238,11 @@
 //                            {
 //                                RemoveBranch(item);
 //                            }
-//                            if (Tree.SelectedBranchs.Contains(item.BranchID))
+//                            if (StandardTree.SelectedBranchs.Contains(item.BranchID))
 //                            {
-//                                Tree.SelectedBranchs.Remove(item.BranchID);
+//                                StandardTree.SelectedBranchs.Remove(item.BranchID);
 //                            }
-//                            Tree.Branches.Remove(item);
+//                            StandardTree.Branches.Remove(item);
 //                        }
 
 //                        branch.ChildBranchs.Clear();
@@ -278,11 +278,11 @@
 //        }
 //        public IBranch GetBranch(int pID)
 //        {
-//            return Tree.Branches.Where(c => c.BranchID == pID).FirstOrDefault();
+//            return StandardTree.Branches.Where(c => c.BranchID == pID).FirstOrDefault();
 //        }
 //        public IBranch GetBranchByMiscID(int pID)
 //        {
-//            return Tree.Branches.Where(c => c.MiscID == pID).FirstOrDefault();
+//            return StandardTree.Branches.Where(c => c.MiscID == pID).FirstOrDefault();
 //        }
 //        public IErrorsInfo MoveBranchToParent(IBranch ParentBranch, IBranch CurrentBranch)
 //        {
@@ -352,7 +352,7 @@
 
 //            try
 //            {
-//                RemoveBranch(Tree.Branches.Where(x => x.BranchID == id).FirstOrDefault());
+//                RemoveBranch(StandardTree.Branches.Where(x => x.BranchID == id).FirstOrDefault());
 //            }
 //            catch (Exception ex)
 //            {
@@ -399,7 +399,7 @@
 //                IBranch CategoryBranch = GetBranch(id);
 //                IBranch RootBranch = GetBranch(CategoryBranch.ParentBranchID);
 //                TreeNode CategoryBranchNode = Treecontrol.GetTreeNodeByID(CategoryBranch.BranchID, TreeV.Nodes);
-//                var ls = Tree.Branches.Where(x => x.ParentBranchID == id).ToList();
+//                var ls = StandardTree.Branches.Where(x => x.ParentBranchID == id).ToList();
 //                if (ls.Count() > 0)
 //                {
 //                    foreach (IBranch f in ls)
@@ -726,7 +726,7 @@
 //            catch (Exception ex)
 //            {
 
-//                DMEEditor.AddLogMessage("Fail", $"Error in Showing View on Tree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
+//                DMEEditor.AddLogMessage("Fail", $"Error in Showing View on StandardTree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
 
 //            }
 
@@ -742,7 +742,7 @@
 //            }
 //            catch (Exception ex)
 //            {
-//                DMEEditor.AddLogMessage("Fail", $"Error in Setting Check for Node Tree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
+//                DMEEditor.AddLogMessage("Fail", $"Error in Setting Check for Node StandardTree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
 //            }
 
 

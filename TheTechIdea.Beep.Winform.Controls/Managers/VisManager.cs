@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public ControlManager _controlManager { get { return (ControlManager)Controlmanager; } }
         public ErrorsInfo ErrorsandMesseges { get; set; }
         public IDM_Addin CurrentDisplayedAddin { get; set; }
-        public IDisplayContainer MainDisplay { get; set; }
+        public IDM_Addin MainDisplay { get; set; }
         public IPopupDisplayContainer PopupDisplay { get; set; }
         public IFunctionandExtensionsHelpers Helpers { get; set; }
         bool _isLogOn = false;
@@ -98,6 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
         }
         IMainForm MainDisplayForm;
+        IDM_Addin MainFormView;
         private void SetLogWindows(bool val)
         {
             MainDisplayForm = (IMainForm)MainForm;
@@ -129,13 +130,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             DMEEditor = pdmeeditor;
 
 
-            //Tree = new TreeViewControl(DMEEditor, this);
-            //ToolStrip = new ToolbarControl(DMEEditor, (TreeViewControl)Tree);
-            //MenuStrip = new MenuControl(DMEEditor, (TreeViewControl)Tree);
+            //StandardTree = new TreeViewControl(DMEEditor, this);
+            //ToolStrip = new ToolbarControl(DMEEditor, (TreeViewControl)StandardTree);
+            //MenuStrip = new MenuControl(DMEEditor, (TreeViewControl)StandardTree);
 
             //SecondaryTree = new TreeViewControl(DMEEditor, this);
-            //SecondaryToolStrip = new ToolbarControl(DMEEditor, (TreeViewControl)Tree);
-            //SecondaryMenuStrip = new MenuControl(DMEEditor, (TreeViewControl)Tree);
+            //SecondaryToolStrip = new ToolbarControl(DMEEditor, (TreeViewControl)StandardTree);
+            //SecondaryMenuStrip = new MenuControl(DMEEditor, (TreeViewControl)StandardTree);
 
             Controlmanager = new ControlManager(DMEEditor, this);
             wizardManager = new WizardManager(DMEEditor, this);
@@ -150,7 +151,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             DMEEditor.Passedarguments.Objects = CreateArgsParameterForVisUtil(DMEEditor.Passedarguments.Objects);
             visHelper = new VisHelper(DMEEditor, this);
             a = new PassedArgs();
-      //      MyTree = (ITree)Tree;
+      //      MyTree = (ITree)StandardTree;
       //      MyTree.PreShowItem += MyTree_PreShowItem;
             PostLogin?.Invoke(this, a);
 
@@ -182,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public bool IsShowingMainForm { get; set; } = false;
         public bool TurnonOffCheckBox { get; set; }
 
-        IDM_Addin MainFormView;
+     
         private bool disposedValue;
 
         private bool CurrentSingltonChecked;
@@ -795,7 +796,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                         MainForm.TopMost = true;
                         form.Width = Width;
                         form.Height = Height;
-                        MainDisplay = (IDisplayContainer)addin;
+                        MainDisplay = addin;
                         if (!string.IsNullOrEmpty(Title))
                         {
                             form.Text = Title;

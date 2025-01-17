@@ -157,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <param name="position">Where the popup should appear relative to the control.</param>
         /// <param name="width">Desired width of the popup.</param>
         /// <param name="height">Desired height of the popup.</param>
-        public void ShowPopup(Control triggerControl, BeepPopupFormPosition position, int width, int height)
+        public virtual void ShowPopup(Control triggerControl, BeepPopupFormPosition position, int width, int height)
         {
             if (triggerControl == null)
                 throw new ArgumentNullException(nameof(triggerControl));
@@ -172,7 +172,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowPopup(triggerControl, location);
         }
 
-        public void ShowPopup(Control triggerControl, BeepPopupFormPosition position)
+        public virtual void ShowPopup(Control triggerControl, BeepPopupFormPosition position)
         {
             if (triggerControl == null)
                 throw new ArgumentNullException(nameof(triggerControl));
@@ -237,7 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         /// <param name="triggerControl">The control that triggers the popup.</param>
         /// <param name="location">The screen location where the popup should appear.</param>
-        public virtual void ShowPopup(Control triggerControl, Point location)
+        public  virtual void ShowPopup(Control triggerControl, Point location)
         {
             // Set the triggering control
             TriggerControl = triggerControl;
@@ -253,7 +253,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Location = location;
 
             // Show the popup form
-            Show();
+            ShowDialog();
 
             // Attach mouse enter and leave events to all child controls recursively
             AttachMouseEvents(this);

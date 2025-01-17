@@ -169,7 +169,7 @@
 //            CollapseTreetoolStripButton.ImageTransparentColor = Color.Magenta;
 //            CollapseTreetoolStripButton.Name = "CollapseTreetoolStripButton";
 //            CollapseTreetoolStripButton.Size = new Size(34, 36);
-//            CollapseTreetoolStripButton.Text = "Tree Show/Hide";
+//            CollapseTreetoolStripButton.Text = "StandardTree Show/Hide";
 //            // 
 //            // LogWindowstoolStripButton
 //            // 

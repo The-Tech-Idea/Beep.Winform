@@ -22,7 +22,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         IBeepUIComponent MenuStrip { get; set; }
         IBeepUIComponent SecondaryMenuStrip { get; set; }
         IDM_Addin CurrentDisplayedAddin { get; set; }
-        IDisplayContainer MainDisplay { get; set; }
+        IDM_Addin MainDisplay { get; set; }
+        IDisplayContainer Container { get; set; }
         IPopupDisplayContainer PopupDisplay { get; set; }
         bool IsDataModified { get; set; }
         bool IsShowingMainForm { get; set; }
@@ -33,7 +34,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         bool IsinCaptureMenuMode { get; set; }
         int TreeIconSize { get; set; }
         bool TreeExpand { get; set; }
-        IDisplayContainer Container { get; set; }
+      
         int SecondaryTreeIconSize { get; set; }
         bool SecondaryTreeExpand { get; set; }
         string AppObjectsName { get; set; }

@@ -150,14 +150,14 @@
 
 
 
-//                ApptreeControl.TreeV = uc_MainSplitPanel1.Tree;
-//                ApptoolbarControl.TreeV = uc_MainSplitPanel1.Tree;
-//                AppmenuControl.TreeV = uc_MainSplitPanel1.Tree;
+//                ApptreeControl.TreeV = uc_MainSplitPanel1.StandardTree;
+//                ApptoolbarControl.TreeV = uc_MainSplitPanel1.StandardTree;
+//                AppmenuControl.TreeV = uc_MainSplitPanel1.StandardTree;
 
 //                AppmenuControl.vismanager = Visutil;
 //                ApptoolbarControl.vismanager = Visutil;
 
-//                SendMessege(progress, "Loading DHUB Functions and Tree");
+//                SendMessege(progress, "Loading DHUB Functions and StandardTree");
 
 //                ApptreeControl.CreateRootTree();
 
@@ -215,7 +215,7 @@
 //            try
 //            {
 //                BeepmenuControl.ObjectType = Visutil.BeepObjectsName;
-//                BeepmenuControl.TreeV = uc_MainSplitPanel1.Tree;
+//                BeepmenuControl.TreeV = uc_MainSplitPanel1.StandardTree;
 //                BeepmenuControl.vismanager = Visutil;
 //                SendMessege(progress, "Loading Function Extensions Menu for Beep  Data Management");
 
@@ -242,11 +242,11 @@
 //            {
 //                BeepTreeControl.TreeType = Visutil.BeepObjectsName;
 //                BeepTreeControl.ObjectType = Visutil.BeepObjectsName;
-//                BeepTreeControl.TreeV = uc_MainSplitPanel1.Tree;
+//                BeepTreeControl.TreeV = uc_MainSplitPanel1.StandardTree;
 
-//                //  you can change icon size in Tree controls  ex. Apptree.IconsSize = new Size(24, 24);
+//                //  you can change icon size in StandardTree controls  ex. Apptree.IconsSize = new Size(24, 24);
 
-//                SendMessege(progress, "Loading Beep Data Management Functions and Tree");
+//                SendMessege(progress, "Loading Beep Data Management Functions and StandardTree");
 
 //                BeepTreeControl.CreateRootTree();
 //            }
@@ -264,7 +264,7 @@
 //            {
 //                BeepHorizantaltoolbarControl.ObjectType = Visutil.BeepObjectsName;
 //                BeepHorizantaltoolbarControl.IsHorizentalBar = true;
-//                BeepHorizantaltoolbarControl.TreeV = uc_MainSplitPanel1.Tree;
+//                BeepHorizantaltoolbarControl.TreeV = uc_MainSplitPanel1.StandardTree;
 //                BeepHorizantaltoolbarControl.vismanager = Visutil;
 
 
@@ -290,7 +290,7 @@
 //            try
 //            {
 //                BeepVerticaltoolbarControl.ObjectType = Visutil.BeepObjectsName;
-//                BeepVerticaltoolbarControl.TreeV = uc_MainSplitPanel1.Tree;
+//                BeepVerticaltoolbarControl.TreeV = uc_MainSplitPanel1.StandardTree;
 
 //                BeepVerticaltoolbarControl.vismanager = Visutil;
 //                VerticalToolBar = (IDM_Addin)BeepVerticaltoolbarControl;
@@ -318,7 +318,7 @@
 //            {
 //                //StartStopLog(false);
 //                Visutil.Container = uc_MainSplitPanel1.Container;
-//                BeepTreeControl = (TreeViewControl)Visutil.Tree;
+//                BeepTreeControl = (TreeViewControl)Visutil.StandardTree;
 //                BeepVerticaltoolbarControl = (ToolbarControl)Visutil.ToolStrip;
 //                BeepHorizantaltoolbarControl = (ToolbarControl)Visutil.SecondaryToolStrip;
 //                BeepmenuControl = (MenuControl)Visutil.MenuStrip;

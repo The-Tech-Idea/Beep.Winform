@@ -26,8 +26,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         void RefreshTree();
         void RefreshTree(IBranch branch);
         void RefreshTree(int branchid);
-        void RefreshTree(string branchname);
-        void RefreshImageList();
 
         void ChangeBranchIcon(int branchid, string iconname);
         void ChangeBranchIcon(string branchname, string iconname);
@@ -47,7 +45,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         IErrorsInfo CreateRootTree();
         IErrorsInfo CreateFunctionExtensions(MethodsClass item);
         string Filterstring { get; set; }
-        IErrorsInfo TurnonOffCheckBox(IPassedArgs Passedarguments);
+        void TurnonOffCheckBox(bool val);
         object GetTreeNodeByID(int id);
         void RemoveNode(int id);
         void RemoveNode(IBranch br);

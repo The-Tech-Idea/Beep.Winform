@@ -534,7 +534,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     //               }
 
     //               return img;
-    //               // Tree.SelectedImageIndex = GetImageIndex("select.ico");
+    //               // StandardTree.SelectedImageIndex = GetImageIndex("select.ico");
     //           }
     //           catch (Exception)
     //           {
@@ -601,7 +601,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     //               }
 
     //               return img;
-    //               // Tree.SelectedImageIndex = GetImageIndex("select.ico");
+    //               // StandardTree.SelectedImageIndex = GetImageIndex("select.ico");
     //           }
     //           catch (Exception)
     //           {

@@ -184,7 +184,8 @@
             messege.DateTimeFormat = "MM/dd/yyyy HH:mm:ss";
             messege.DisabledBackColor = Color.Gray;
             messege.DisabledForeColor = Color.Empty;
-            messege.DrawingRect = new Rectangle(0, 0, 455, 174);
+            messege.Dock = DockStyle.Top;
+            messege.DrawingRect = new Rectangle(0, 0, 463, 179);
             messege.Easing = EasingType.Linear;
             messege.FieldID = null;
             messege.FocusBackColor = Color.Gray;
@@ -214,11 +215,11 @@
             messege.InnerTextBox.BorderStyle = BorderStyle.None;
             messege.InnerTextBox.Dock = DockStyle.Fill;
             messege.InnerTextBox.Font = new Font("Segoe UI", 9F);
-            messege.InnerTextBox.ForeColor = Color.Black;
+            messege.InnerTextBox.ForeColor = Color.FromArgb(60, 60, 60);
             messege.InnerTextBox.Location = new Point(0, 0);
             messege.InnerTextBox.Multiline = true;
             messege.InnerTextBox.Name = "";
-            messege.InnerTextBox.Size = new Size(455, 174);
+            messege.InnerTextBox.Size = new Size(463, 179);
             messege.InnerTextBox.TabIndex = 0;
             messege.InnerTextBox.UseWaitCursor = true;
             messege.IsAcceptButton = false;
@@ -236,7 +237,7 @@
             messege.IsShadowAffectedByTheme = true;
             messege.LeftoffsetForDrawingRect = 0;
             messege.LinkedProperty = null;
-            messege.Location = new Point(3, 145);
+            messege.Location = new Point(0, 138);
             messege.MaskFormat = Vis.Modules.TextBoxMaskFormat.None;
             messege.Modified = false;
             messege.Multiline = true;
@@ -268,7 +269,7 @@
             messege.ShowShadow = false;
             messege.ShowTopBorder = false;
             messege.ShowVerticalScrollBar = false;
-            messege.Size = new Size(455, 174);
+            messege.Size = new Size(463, 179);
             messege.SlideFrom = SlideDirection.Left;
             messege.StaticNotMoving = false;
             messege.TabIndex = 7;
@@ -352,7 +353,7 @@
             _spinnerImage.IsStillImage = false;
             _spinnerImage.LeftoffsetForDrawingRect = 0;
             _spinnerImage.LinkedProperty = null;
-            _spinnerImage.Location = new Point(0, 36);
+            _spinnerImage.Location = new Point(0, 35);
             _spinnerImage.ManualRotationAngle = 0F;
             _spinnerImage.Name = "_spinnerImage";
             _spinnerImage.OverrideFontSize = TypeStyleFontSize.None;
@@ -483,6 +484,7 @@
             label2.TabIndex = 4;
             label2.Text = "The Tech Idea";
             label2.TextAlign = ContentAlignment.MiddleCenter;
+            label2.TextFont = new Font("Segoe UI", 9F);
             label2.TextImageRelation = TextImageRelation.ImageBeforeText;
             label2.Theme = Vis.Modules.EnumBeepThemes.ZenTheme;
             label2.ToolTipText = "";
@@ -588,6 +590,7 @@
             label1.TabIndex = 3;
             label1.Text = "Powered by Beep";
             label1.TextAlign = ContentAlignment.MiddleCenter;
+            label1.TextFont = new Font("Segoe UI", 9F);
             label1.TextImageRelation = TextImageRelation.ImageBeforeText;
             label1.Theme = Vis.Modules.EnumBeepThemes.ZenTheme;
             label1.ToolTipText = "";
@@ -624,7 +627,7 @@
             Title.DisabledBackColor = Color.Gray;
             Title.DisabledForeColor = Color.Empty;
             Title.Dock = DockStyle.Top;
-            Title.DrawingRect = new Rectangle(1, 1, 461, 34);
+            Title.DrawingRect = new Rectangle(1, 1, 461, 33);
             Title.Easing = EasingType.Linear;
             Title.FieldID = null;
             Title.FocusBackColor = Color.Gray;
@@ -688,12 +691,13 @@
             Title.ShowRightBorder = false;
             Title.ShowShadow = false;
             Title.ShowTopBorder = false;
-            Title.Size = new Size(463, 36);
+            Title.Size = new Size(463, 35);
             Title.SlideFrom = SlideDirection.Left;
             Title.StaticNotMoving = false;
             Title.TabIndex = 8;
             Title.Text = "Beep Data Management";
             Title.TextAlign = ContentAlignment.MiddleCenter;
+            Title.TextFont = new Font("Segoe UI Black", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             Title.TextImageRelation = TextImageRelation.ImageBeforeText;
             Title.Theme = Vis.Modules.EnumBeepThemes.ZenTheme;
             Title.ToolTipText = "";

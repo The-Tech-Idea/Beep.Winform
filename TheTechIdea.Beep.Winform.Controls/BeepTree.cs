@@ -6,21 +6,52 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
-    [DisplayName("Beep Tree")]
+    [DisplayName("Beep StandardTree")]
     [Category("Beep Controls")]
     [Description("A control that displays hierarchical data in a tree format.")]
     public class BeepTree : BeepControl
     {
         #region "Events"
-        public event EventHandler<BeepMouseEventArgs> NodeClicked;
-        public event EventHandler<BeepMouseEventArgs> NodeRightClicked;
-        public event EventHandler<BeepMouseEventArgs> NodeDoubleClicked;
-        public event EventHandler<BeepMouseEventArgs> NodeExpanded;
-        public event EventHandler<BeepMouseEventArgs> NodeCollapsed;
-        public event EventHandler<BeepMouseEventArgs> NodeSelected;
-        public event EventHandler<BeepMouseEventArgs> NodeDeselected;
-        public event EventHandler<BeepMouseEventArgs> ShowMenu;
-        #endregion  "Events"
+
+        public EventHandler<BeepMouseEventArgs> LeftButtonClicked;
+        public EventHandler<BeepMouseEventArgs> RighButtonClicked;
+        public EventHandler<BeepMouseEventArgs> MiddleButtonClicked;
+        public EventHandler<BeepMouseEventArgs> NodeClicked;
+        public EventHandler<BeepMouseEventArgs> NodeDoubleClicked;
+        public EventHandler<BeepMouseEventArgs> NodeSelected;
+        public EventHandler<BeepMouseEventArgs> NodeDeselected;
+        public EventHandler<BeepMouseEventArgs> NodeExpanded;
+        public EventHandler<BeepMouseEventArgs> NodeCollapsed;
+        public EventHandler<BeepMouseEventArgs> NodeChecked;
+        public EventHandler<BeepMouseEventArgs> NodeUnchecked;
+        public EventHandler<BeepMouseEventArgs> NodeVisible;
+        public EventHandler<BeepMouseEventArgs> NodeInvisible;
+        public EventHandler<BeepMouseEventArgs> NodeReadOnly;
+        public EventHandler<BeepMouseEventArgs> NodeEditable;
+        public EventHandler<BeepMouseEventArgs> NodeDeletable;
+        public EventHandler<BeepMouseEventArgs> NodeDirty;
+        public EventHandler<BeepMouseEventArgs> NodeModified;
+        public EventHandler<BeepMouseEventArgs> NodeDeleted;
+        public EventHandler<BeepMouseEventArgs> NodeAdded;
+        public EventHandler<BeepMouseEventArgs> NodeExpandedAll;
+        public EventHandler<BeepMouseEventArgs> NodeCollapsedAll;
+        public EventHandler<BeepMouseEventArgs> NodeCheckedAll;
+        public EventHandler<BeepMouseEventArgs> NodeUncheckedAll;
+        public EventHandler<BeepMouseEventArgs> NodeVisibleAll;
+        public EventHandler<BeepMouseEventArgs> NodeInvisibleAll;
+        public EventHandler<BeepMouseEventArgs> NodeRightClicked;
+        public EventHandler<BeepMouseEventArgs> NodeLeftClicked;
+        public EventHandler<BeepMouseEventArgs> NodeMiddleClicked;
+        public EventHandler<BeepMouseEventArgs> NodeMouseEnter;
+        public EventHandler<BeepMouseEventArgs> NodeMouseLeave;
+        public EventHandler<BeepMouseEventArgs> NodeMouseHover;
+        public EventHandler<BeepMouseEventArgs> NodeMouseWheel;
+        public EventHandler<BeepMouseEventArgs> NodeMouseUp;
+        public EventHandler<BeepMouseEventArgs> NodeMouseDown;
+        public EventHandler<BeepMouseEventArgs> NodeMouseMove;
+
+        public EventHandler<BeepMouseEventArgs> ShowMenu;
+        #endregion "Events"
         #region "Popup List Properties"
         private BeepPopupForm _popupForm;
         private BeepListBox _beepListBox;
@@ -245,9 +276,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _beeptreeRootnodes = value;
             }
         }
-        public bool ShowCheckBox { get; private set; }
+        public bool ShowCheckBox
+        {
+            get
+            {
+                return _beeptreeRootnodes.Any(n => n.ShowCheckBox);
+            }
+            set
+            {
+                SetAllNodesCheckBoxVisibility(value);
+            }
+        }
         #endregion "Properties"
-        #region "Constructors"
+            #region "Constructors"
         public BeepTree()
         {
           //  SetStyle(ControlStyles.ResizeRedraw | ControlStyles.SupportsTransparentBackColor | ControlStyles.AllPaintingInWmPaint | ControlStyles.EnableNotifyMessage | ControlStyles.OptimizedDoubleBuffer, true);
@@ -273,9 +314,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize scroll event handling for virtualization
             this.AutoScroll = true;
             this.VerticalScroll.Visible = true;
-            this.NodeClicked += OnNodeClicked;
-            this.NodeSelected += OnNodeSelected;
-            this.NodeDeselected += OnNodeDeselected;
+            SelectedNodes = new List<BeepTreeNode>();
             InitListbox();
         }
         protected override void InitLayout()
@@ -312,6 +351,33 @@ namespace TheTechIdea.Beep.Winform.Controls
             NodeCollapsed?.Invoke(sender, e);
         }
         private void OnNodeDeselected(object? sender, BeepMouseEventArgs e)
+        {
+            var node = sender as BeepTreeNode;
+            if (node == null) return;
+
+            // Remove from SelectedNodes if present
+            if (SelectedNodes.Contains(node))
+                SelectedNodes.Remove(node);
+        }
+        private void OnNodeChecked(object? sender, BeepMouseEventArgs e)
+        {
+            var node = sender as BeepTreeNode;
+            if (node == null) return;
+
+            // Add to SelectedNodes if not already present
+            if (!SelectedNodes.Contains(node))
+                SelectedNodes.Add(node);
+            NodeChecked?.Invoke(sender, e);
+            if (!AllowMultiSelect)
+            {
+                // Single selection mode
+                DeselectSelectdNodes();          // This will set IsSelected=false on previously selected nodes
+                node.IsSelected = true; // This will raise NodeSelected
+                _lastSelectedNode = node;
+            }
+         
+        }
+        private void OnNodeUnChecked(object? sender, BeepMouseEventArgs e)
         {
             var node = sender as BeepTreeNode;
             if (node == null) return;
@@ -424,13 +490,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             // These are top-level nodes or root nodes in the tree
             foreach (var node in _beeptreeRootnodes)
             {
-                node.ToggleCheckBoxVisibility(show);
+                node.ShowCheckBox=show;
             }
-
-            // Optionally, you can store this setting if needed for future reference
-            // For instance: 
-            this.ShowCheckBox = show;
-            // if you keep a similar property in the BeepTree itself.
+            RearrangeTree(); // Adjust layout based on expanded/collapsed state
+                             // Optionally, you can store this setting if needed for future reference
+                             // For instance: 
+                             //       this.ShowCheckBox = show;
+                             // if you keep a similar property in the BeepTree itself.
         }
 
         /// <summary>
@@ -668,9 +734,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RearrangeTree();
             }
         }
-        private void InitializeTreeFromMenuItems()
+        public void InitializeTreeFromMenuItems()
         {
-            LogMessage("Initialize Tree");
+            LogMessage("Initialize StandardTree");
             ClearNodes(); // Clear existing nodes
             LogMessage("Items Count: " + rootnodeitems.Count);
             _dontRearrange = true;
@@ -808,6 +874,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     NodeDataType = menuItem.GetType().Name,
                     Level = parent?.Level + 1 ?? 1,
                     TextAlignment = textAlign
+                    
 
                 };
                 node.Text = menuItem.Text ?? $"Node{seq}";
@@ -819,8 +886,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 node.NodeCollapsed += OnNodeCollapsed;
                 node.NodeSelected += OnNodeSelected;
                 node.NodeDeselected += OnNodeDeselected;
+                node.NodeChecked += OnNodeChecked;
+                node.NodeUnchecked += OnNodeUnChecked;
                 node.MouseHover += (sender, e) => { node.HilightNode(); };
                 node.MouseLeave += (sender, e) => { node.UnHilightNode(); };
+                node.ShowCheckBox=ShowCheckBox;
                 Console.WriteLine("Node Created: " + node.Text);
                 LogMessage($"Creating Node Childern: {menuItem.Text}, Depth: {depth}");
                 return node;
@@ -833,7 +903,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return new BeepTreeNode();
             }
         }
-      
         // this function to used add root nodes to the tree
         private Panel AddRootNode(BeepTreeNode node)
         {
@@ -925,48 +994,134 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 return;
             }
-            var node = _beeptreeRootnodes.FirstOrDefault(n => n.Tag == simpleItem);
-            if (node != null)
+
+            // Recursively find and remove the SimpleItem from the Nodes hierarchy
+            var parentItem = FindParentNode(rootnodeitems, simpleItem);
+            if (parentItem != null)
             {
-                RemoveNode(node);
+                parentItem.Children.Remove(simpleItem);
             }
-        }
-        public void ClearNodes()
-        {
-            foreach (var panel in _nodePanels)
+            else
             {
-                Controls.Remove(panel.Value);
-            }
-            _nodePanels.Clear();
-        }
-        public void RemoveNode(string NodeName)
-        {
-            // find the node by travers the list and child nodes
-            foreach (var panel in _nodePanels)
-            {
-                BeepTreeNode node = GetBeepTreeNodeFromPanel(panel.Key);
-                if (node.Text == NodeName)
-                {
-                    RemoveNode(node);
-                }
+                // If it's a root node, remove it from the root list
+                rootnodeitems.Remove(simpleItem);
             }
 
-        }
-        public void RemoveNode(int NodeIndex)
-        {
-            if (NodeIndex >= 0 && NodeIndex < _beeptreeRootnodes.Count)
-            {
-                RemoveNode(GetNode(NodeIndex));
-            }
+            // Clean up any associated UI controls
+            RemoveNodeControlsRecursive(_beeptreeRootnodes, simpleItem);
 
-        }
-        private void RemoveNode(BeepTreeNode node)
-        {
-            _beeptreeRootnodes.Remove(node);
-            Controls.Remove(node);
-            _nodePanels.Remove(node.NodeSeq);
+            // Rearrange the tree after changes
             RearrangeTree();
         }
+        private SimpleItem FindParentNode(IEnumerable<SimpleItem> items, SimpleItem target)
+        {
+            foreach (var item in items)
+            {
+                if (item.Children.Contains(target))
+                {
+                    return item;
+                }
+
+                var found = FindParentNode(item.Children, target);
+                if (found != null)
+                {
+                    return found;
+                }
+            }
+            return null;
+        }
+        private void RemoveNodeControlsRecursive(IEnumerable<BeepTreeNode> nodes, SimpleItem simpleItem)
+        {
+            foreach (var node in nodes.ToList())
+            {
+                if (node.Tag == simpleItem)
+                {
+                    // Remove the node and its panel
+                    if (_nodePanels.TryGetValue(node.NodeSeq, out var panel))
+                    {
+                        Controls.Remove(panel);
+                        _nodePanels.Remove(node.NodeSeq);
+                    }
+
+                    _beeptreeRootnodes.Remove(node);
+                }
+                else
+                {
+                    // Recursively check child nodes
+                    RemoveNodeControlsRecursive(node.NodesControls, simpleItem);
+                }
+            }
+        }
+
+        public void ClearNodes()
+        {
+            rootnodeitems.Clear(); // Clear the data
+            foreach (var panel in _nodePanels)
+            {
+                Controls.Remove(panel.Value); // Remove associated UI controls
+            }
+            _nodePanels.Clear();
+            _beeptreeRootnodes.Clear(); // Clear root nodes
+            RearrangeTree(); // Update the layout
+        }
+
+        public void RemoveNode(string NodeName)
+        {
+            // Find the SimpleItem by name
+            var simpleItem = FindNodeByName(rootnodeitems, NodeName);
+            if (simpleItem != null)
+            {
+                RemoveNode(simpleItem);
+            }
+        }
+
+        // Helper to find a node by name in the hierarchy
+        public SimpleItem FindNodeByName(IEnumerable<SimpleItem> items, string name)
+        {
+            foreach (var item in items)
+            {
+                if (item.Text == name)
+                {
+                    return item;
+                }
+
+                var found = FindNodeByName(item.Children, name);
+                if (found != null)
+                {
+                    return found;
+                }
+            }
+            return null;
+        }
+
+        public void RemoveNode(int NodeIndex)
+        {
+            if (NodeIndex >= 0 && NodeIndex < rootnodeitems.Count)
+            {
+                var simpleItem = rootnodeitems[NodeIndex];
+                RemoveNode(simpleItem);
+            }
+        }
+
+        public void RemoveNode(BeepTreeNode node)
+        {
+            // Recursively remove all child nodes
+            foreach (var child in node.NodesControls.ToList())
+            {
+                RemoveNode(child);
+            }
+
+            // Remove the node's panel and itself from the root nodes
+            if (_nodePanels.TryGetValue(node.NodeSeq, out var panel))
+            {
+                Controls.Remove(panel);
+                _nodePanels.Remove(node.NodeSeq);
+            }
+
+            _beeptreeRootnodes.Remove(node);
+            RearrangeTree(); // Update the layout
+        }
+
         #endregion "Remove Nodes"
         #region "Travsersal"
         public IEnumerable<BeepTreeNode> GetDisplayNodes()
@@ -1033,96 +1188,43 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Travsersal"
         #region "Find and Filter"
-
         #region "Find Tree Node"
-        /// <summary>
-        /// Recursively searches for a node matching the predicate within a node hierarchy.
-        /// Dynamically expands nodes if needed.
-        /// </summary>
-        /// <param name="currentNode">The node to start searching from.</param>
-        /// <param name="predicate">The predicate to match.</param>
-        /// <returns>The matching node, or null if no match is found.</returns>
-        private BeepTreeNode FindNodeInHierarchy(BeepTreeNode currentNode, Func<BeepTreeNode, bool> predicate)
-        {
-            if (predicate(currentNode))
-            {
-                // Found the node
-                return currentNode;
-            }
 
-            // If we need to lazy-load children, do it here:
-            // if (currentNode.NodesControls.Count == 0 && currentNode.Tag is SimpleItem menuItem)
-            // {
-            //     CreateChildNodes(currentNode, menuItem);
-            // }
-
-            // Search children
-            foreach (var childNode in currentNode.NodesControls)
-            {
-                var found = FindNodeInHierarchy(childNode, predicate);
-                if (found != null)
-                {
-                    return found;
-                }
-            }
-
-            return null;
-        }
-        /// <summary>
-        /// Searches for the first node whose text contains <paramref name="searchText"/> (case-insensitive).
-        /// Dynamically expands nodes if needed and highlights the found node.
-        /// </summary>
-        /// <param name="searchText">Substring to match against node text.</param>
-        /// <returns>The first matching node, or null if no match is found.</returns>
-        public BeepTreeNode SearchNode(string searchText)
-        {
-            if (string.IsNullOrWhiteSpace(searchText))
-                return null;
-
-            // Reuse the core predicate-based search
-            return FindNode(n =>
-                !string.IsNullOrEmpty(n.Text) &&
-                n.Text.Contains(searchText, StringComparison.OrdinalIgnoreCase));
-        }
-
-        /// <summary>
-        /// Finds the first node whose text exactly matches <paramref name="text"/> (case-sensitive).
-        /// Dynamically expands nodes if needed and highlights the found node.
-        /// </summary>
-        /// <param name="text">Exact text to match.</param>
-        /// <returns>The first matching node, or null if no match is found.</returns>
+        // Finds a node by its text (case-sensitive) in the hierarchy
         public BeepTreeNode FindNode(string text)
         {
             if (string.IsNullOrEmpty(text))
                 return null;
 
-            // Reuse the core predicate-based search, specifying an exact match
             return FindNode(n => string.Equals(n.Text, text, StringComparison.Ordinal));
         }
-        /// <summary>
-        /// Finds all nodes that match <paramref name="predicate"/>.
-        /// </summary>
-        /// <param name="predicate">Condition to test each node.</param>
-        /// <returns>An <see cref="IEnumerable{BeepTreeNode}"/> of matching nodes.</returns>
-        public IEnumerable<BeepTreeNode> FindNodes(Func<BeepTreeNode, bool> predicate)
+
+        // Finds a node by its GUID in the hierarchy
+        public BeepTreeNode GetBeepTreeNodeByGuid(string guidid)
         {
-            return Traverse().Where(predicate);
+            if (string.IsNullOrWhiteSpace(guidid))
+                return null;
+
+            return FindNode(n => string.Equals(n.GuidID, guidid, StringComparison.Ordinal));
         }
 
-        /// <summary>
-        /// Finds the first node matching the specified predicate, dynamically expanding nodes as needed.
-        /// </summary>
-        /// <param name="predicate">A function to determine the node to find.</param>
-        /// <returns>The first matching node, or null if no match is found.</returns>
+        // Finds a node by its name in the hierarchy
+        public BeepTreeNode GetBeepTreeNode(string nodeName)
+        {
+            if (string.IsNullOrWhiteSpace(nodeName))
+                return null;
+
+            return FindNode(n => string.Equals(n.Name, nodeName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Finds a node by a predicate and highlights it
         public BeepTreeNode FindNode(Func<BeepTreeNode, bool> predicate)
         {
             foreach (var rootNode in _beeptreeRootnodes)
             {
-                // Traverse the root node and its children
                 var matchingNode = FindNodeInHierarchy(rootNode, predicate);
                 if (matchingNode != null)
                 {
-                    // Highlight and focus the found node
                     HighlightNode(matchingNode);
                     return matchingNode;
                 }
@@ -1130,15 +1232,61 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return null;
         }
-        public BeepTreeNode GetBeepTreeNode(SimpleItem node)
-      => FindNode(n => n.Tag == node);
 
-        public BeepTreeNode GetBeepTreeNode(string nodeName)
-            => FindNode(n => n.Name.Equals(nodeName, StringComparison.OrdinalIgnoreCase));
+        // Core recursive method to traverse the hierarchy and find a node
+        private BeepTreeNode FindNodeInHierarchy(BeepTreeNode currentNode, Func<BeepTreeNode, bool> predicate)
+        {
+            if (predicate(currentNode))
+                return currentNode;
 
-        public BeepTreeNode GetBeepTreeNodeByGuid(string guidid)
-            => FindNode(n => n.GuidID == guidid);
-        #endregion "Find Tree Node"
+            // Traverse child nodes
+            foreach (var childNode in currentNode.NodesControls)
+            {
+                var foundNode = FindNodeInHierarchy(childNode, predicate);
+                if (foundNode != null)
+                    return foundNode;
+            }
+
+            return null;
+        }
+
+        // Traverse all SimpleItems recursively and find a node by GUID
+        public SimpleItem GetNodeByGuidID(string guidID)
+        {
+            if (string.IsNullOrWhiteSpace(guidID))
+                return null;
+
+            return TraverseAllItems(Nodes).FirstOrDefault(n => n.GuidId == guidID);
+        }
+
+        // Traverse all SimpleItems recursively and find a node by name
+        public SimpleItem GetNode(string nodeName)
+        {
+            if (string.IsNullOrWhiteSpace(nodeName))
+                return null;
+
+            return TraverseAllItems(Nodes).FirstOrDefault(n => n.Name == nodeName);
+        }
+
+        // Traverse all SimpleItems recursively and find a node by index
+        public SimpleItem GetNode(int nodeIndex)
+        {
+            if (nodeIndex < 0)
+                return null;
+
+            int currentIndex = 0;
+            foreach (var item in TraverseAllItems(Nodes))
+            {
+                if (currentIndex == nodeIndex)
+                    return item;
+                currentIndex++;
+            }
+
+            return null;
+        }
+
+
+        #endregion
         #region "Filtering"
         // <summary>
         /// Filters nodes based on <paramref name="predicate"/>. 
@@ -1203,7 +1351,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         /// <param name="items">A collection of SimpleItem objects (e.g., your root-level Nodes).</param>
         /// <returns>An enumerable containing all nodes, including nested children.</returns>
-        private IEnumerable<SimpleItem> TraverseAllItems(IEnumerable<SimpleItem> items)
+        public IEnumerable<SimpleItem> TraverseAllItems(IEnumerable<SimpleItem> items)
         {
             foreach (var item in items)
             {
@@ -1221,70 +1369,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        /// <summary>
-        /// Finds a node by its GuidID anywhere in the entire hierarchy.
-        /// </summary>
-        /// <param name="guidID">The GUID string to match (case-sensitive or insensitive, depending on your logic).</param>
-        /// <returns>The matching SimpleItem, or null if not found.</returns>
-        public SimpleItem GetNodeByGuidID(string guidID)
-        {
-            if (string.IsNullOrWhiteSpace(guidID))
-            {
-                Console.WriteLine("Invalid GuidID provided.");
-                return null;
-            }
-
-            // Search through all items (root + children)
-            var node = TraverseAllItems(Nodes).FirstOrDefault(n => n.GuidId == guidID);
-
-            if (node == null)
-            {
-                Console.WriteLine($"Node with GuidID {guidID} not found.");
-            }
-            else
-            {
-                Console.WriteLine($"Match found: {node.Name}");
-            }
-
-            return node;
-        }
-
-        /// <summary>
-        /// Finds the first node whose Name matches <paramref name="nodeName"/> (exact match).
-        /// </summary>
-        /// <param name="nodeName">Name to search for.</param>
-        /// <returns>The matching SimpleItem, or null if not found.</returns>
-        public SimpleItem GetNode(string nodeName)
-        {
-            if (string.IsNullOrWhiteSpace(nodeName)) return null;
-
-            // Search in the entire tree
-            return TraverseAllItems(Nodes)
-                .FirstOrDefault(item => item.Name == nodeName);
-        }
-
-        /// <summary>
-        /// Finds the node at a given 'index' in a depth-first traversal order.
-        /// For example, index 0 -> first node returned, index 1 -> second, etc.
-        /// </summary>
-        /// <param name="nodeIndex">The zero-based index in the depth-first sequence.</param>
-        /// <returns>The node at that index, or null if the index is out of range.</returns>
-        public SimpleItem GetNode(int nodeIndex)
-        {
-            if (nodeIndex < 0) return null;
-
-            int currentIndex = 0;
-            // Manually enumerate rather than using LINQ to handle the index
-            foreach (var item in TraverseAllItems(Nodes))
-            {
-                if (currentIndex == nodeIndex)
-                    return item;
-                currentIndex++;
-            }
-
-            // If we exhaust the list, there's no item at 'nodeIndex'
-            return null;
-        }
+    
 
         #endregion "Find SimpleItem"
         public List<BeepTreeNode> GetNodes()

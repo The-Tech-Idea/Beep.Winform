@@ -659,6 +659,7 @@
             TitleLabel.TabIndex = 0;
             TitleLabel.Text = "Dialog";
             TitleLabel.TextAlign = ContentAlignment.MiddleLeft;
+            TitleLabel.TextFont = new Font("Segoe UI Black", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             TitleLabel.TextImageRelation = TextImageRelation.ImageBeforeText;
             TitleLabel.Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
             TitleLabel.ToolTipText = "";
@@ -680,7 +681,6 @@
             Text = "BeepDialogBoxPopUp";
             Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
             HeaderPanel.ResumeLayout(false);
-            HeaderPanel.PerformLayout();
             ResumeLayout(false);
         }
 

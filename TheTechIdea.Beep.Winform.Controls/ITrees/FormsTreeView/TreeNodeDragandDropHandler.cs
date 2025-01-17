@@ -269,7 +269,7 @@
 //            // Copy the dragged node when the right mouse button is used.
 //            //else if (e.Button == MouseButtons.Right)
 //            //{
-//            //    Tree.DoDragDrop(e.Item, DragDropEffects.Copy);
+//            //    StandardTree.DoDragDrop(e.Item, DragDropEffects.Copy);
 //            //}
 //            //  }
 

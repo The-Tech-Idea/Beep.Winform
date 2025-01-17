@@ -18,7 +18,7 @@ using static TheTechIdea.Beep.Utilities.Util;
 namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
 {
     [ToolboxItem(true)]
-    [DisplayName("Beep Tree Control")]
+    [DisplayName("Beep StandardTree Control")]
     [Category("Beep Controls")]
     [Description("A control that displays hierarchical data in a tree format.")]
     public partial class BeepTreeControl : BeepTree,ITree
@@ -54,7 +54,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         public IDMEEditor DMEEditor { get; set; }
         public List<int> SelectedBranchs { get; set; } = new List<int>();
         public PassedArgs args { get; set; }
-        public int SeqID { get; set; }
+        int _seq = 0;
+        public int SeqID { get { return _seq++; } set { } }
         public List<IBranch> Branches { get; set; }=new List<IBranch>();
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -140,43 +141,156 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         }
         #endregion "Handlers"
         #region "Change Branch Properties"
-        public void ChangeBranchIcon(int branchid, string iconname)
+
+        public void ChangeBranchIcon(int branchId, string iconName)
         {
-            
+            var branch = GetBranchById(branchId);
+            if (branch != null)
+            {
+                branch.IconImageName = iconName;
+
+                // Update the corresponding SimpleItem in Nodes
+                var simpleItem = GetNodeByGuidID(branch.GuidID);
+                if (simpleItem != null)
+                {
+                    simpleItem.ImagePath = ImageListHelper.GetImagePathFromName(iconName);
+
+                    // Check if the corresponding node is drawn in NodesControls
+                    var node = GetBeepTreeNodeByGuid(branch.GuidID);
+                    if (node != null)
+                    {
+                        node.ImagePath = simpleItem.ImagePath;
+                        node.Invalidate(); // Redraw if necessary
+                    }
+                }
+            }
         }
 
-        public void ChangeBranchIcon(string branchname, string iconname)
+        public void ChangeBranchIcon(string branchName, string iconName)
         {
-            throw new NotImplementedException();
+            var branch = GetBranchByName(branchName);
+            if (branch != null)
+            {
+                branch.IconImageName = iconName;
+
+                // Update the corresponding SimpleItem in Nodes
+                var simpleItem = GetNodeByGuidID(branch.GuidID);
+                if (simpleItem != null)
+                {
+                    simpleItem.ImagePath = ImageListHelper.GetImagePathFromName(iconName);
+
+                    // Check if the corresponding node is drawn in NodesControls
+                    var node = GetBeepTreeNodeByGuid(branch.GuidID);
+                    if (node != null)
+                    {
+                        node.ImagePath = simpleItem.ImagePath;
+                        node.Invalidate(); // Redraw if necessary
+                    }
+                }
+            }
         }
 
-        public void ChangeBranchIcon(IBranch branch, string iconname)
+        public void ChangeBranchIcon(IBranch branch, string iconName)
         {
-            throw new NotImplementedException();
+            if (branch != null)
+            {
+                branch.IconImageName = iconName;
+
+                // Update the corresponding SimpleItem in Nodes
+                var simpleItem = GetNodeByGuidID(branch.GuidID);
+                if (simpleItem != null)
+                {
+                    simpleItem.ImagePath = ImageListHelper.GetImagePathFromName(iconName);
+
+                    // Check if the corresponding node is drawn in NodesControls
+                    var node = GetBeepTreeNodeByGuid(branch.GuidID);
+                    if (node != null)
+                    {
+                        node.ImagePath = simpleItem.ImagePath;
+                        node.Invalidate(); // Redraw if necessary
+                    }
+                }
+            }
         }
 
-        public void ChangeBranchText(int branchid, string text)
+        public void ChangeBranchText(int branchId, string text)
         {
-            throw new NotImplementedException();
+            var branch = GetBranchById(branchId);
+            if (branch != null)
+            {
+                branch.Name = text;
+
+                // Update the corresponding SimpleItem in Nodes
+                var simpleItem = GetNodeByGuidID(branch.GuidID);
+                if (simpleItem != null)
+                {
+                    simpleItem.Text = text;
+
+                    // Check if the corresponding node is drawn in NodesControls
+                    var node = GetBeepTreeNodeByGuid(branch.GuidID);
+                    if (node != null)
+                    {
+                        node.Text = simpleItem.Text;
+                        node.Invalidate(); // Redraw if necessary
+                    }
+                }
+            }
         }
 
-        public void ChangeBranchText(string branchname, string text)
+        public void ChangeBranchText(string branchName, string text)
         {
-            throw new NotImplementedException();
+            var branch = GetBranchByName(branchName);
+            if (branch != null)
+            {
+                branch.Name = text;
+
+                // Update the corresponding SimpleItem in Nodes
+                var simpleItem = GetNodeByGuidID(branch.GuidID);
+                if (simpleItem != null)
+                {
+                    simpleItem.Text = text;
+
+                    // Check if the corresponding node is drawn in NodesControls
+                    var node = GetBeepTreeNodeByGuid(branch.GuidID);
+                    if (node != null)
+                    {
+                        node.Text = simpleItem.Text;
+                        node.Invalidate(); // Redraw if necessary
+                    }
+                }
+            }
         }
 
         public void ChangeBranchText(IBranch branch, string text)
         {
-            throw new NotImplementedException();
+            if (branch != null)
+            {
+                branch.Name = text;
+
+                // Update the corresponding SimpleItem in Nodes
+                var simpleItem = GetNodeByGuidID(branch.GuidID);
+                if (simpleItem != null)
+                {
+                    simpleItem.Text = text;
+
+                    // Check if the corresponding node is drawn in NodesControls
+                    var node = GetBeepTreeNodeByGuid(branch.GuidID);
+                    if (node != null)
+                    {
+                        node.Text = simpleItem.Text;
+                        node.Invalidate(); // Redraw if necessary
+                    }
+                }
+            }
         }
-        public void RemoveNode(int id)
+
+        public void TurnonOffCheckBox(bool val)
         {
-            throw new NotImplementedException();
+            // Update the checkbox visibility for all NodesControls
+            ShowCheckBox = val;
+            RearrangeTree();
         }
-        public IErrorsInfo TurnonOffCheckBox(IPassedArgs Passedarguments)
-        {
-            throw new NotImplementedException();
-        }
+
         #endregion "Change Branch Properties"
         #region "Create Branches"
         public IErrorsInfo CreateFunctionExtensions(MethodsClass item)
@@ -266,7 +380,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                             }
                             catch (Exception ex)
                             {
-                                DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                                DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                             }
                         }
                     }
@@ -360,7 +474,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                         }
                         catch (Exception ex)
                         {
-                            DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                            DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                         }
                     }
                 }
@@ -369,7 +483,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             {
                 DMEEditor.ErrorObject.Ex = ex;
                 DMEEditor.ErrorObject.Flag = Errors.Failed;
-                DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
 
             };
             return DMEEditor.ErrorObject;
@@ -468,6 +582,38 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             }
             return false;
         }
+        public void AddBranch( IBranch br)
+        {
+            int id = SeqID;
+            SimpleItem item = ControlExtensions.CreateNode(this, id, br);
+            //n.ContextMenuStrip = 
+            Console.WriteLine(br.BranchText);
+            DynamicMenuManager.CreateMenuMethods(DMEEditor, br);
+            if (br.ObjectType != null && br.BranchClass != null)
+            {
+                DynamicMenuManager.CreateGlobalMenu(DMEEditor, br);
+            }
+
+            br.DMEEditor = DMEEditor;
+            if (!DMEEditor.ConfigEditor.objectTypes.Any(i => i.ObjectType == br.BranchClass && i.ObjectName == br.BranchType.ToString() + "_" + br.BranchClass))
+            {
+                DMEEditor.ConfigEditor.objectTypes.Add(new Workflow.ObjectTypes { ObjectType = br.BranchClass, ObjectName = br.BranchType.ToString() + "_" + br.BranchClass });
+            }
+            try
+            {
+                br.SetConfig(this, DMEEditor, br.ParentBranch, br.BranchText, br.ID, br.BranchType, null);
+            }
+            catch (Exception ex)
+            {
+
+            }
+            br.DMEEditor = DMEEditor;
+            br.Visutil = VisManager;
+            br.TreeEditor = this;
+            Nodes.Add(item);
+            Branches.Add(br);
+            br.CreateChildNodes();
+        }
         public void CreateNode(int id, IBranch br)
         {
             SimpleItem item=ControlExtensions.CreateNode(this,id, br);
@@ -499,54 +645,58 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             Branches.Add(br);
             br.CreateChildNodes();
         }
-        //public IErrorsInfo CreateRootTree()
-        //{
-        //    IBranch Genrebr;
-        //    try
-        //    {
-        //        var items = ControlExtensions.CreateTreeTuple(this, DMEEditor);
-        //        Branches = items.Item1;
-        //        GenerBranchs = items.Item2;
-        //        Nodes = ControlExtensions.GetBranchs(this, items);
-        //        Branches.AddRange(GenerBranchs.Select(c => c.Item1).ToList());
-        //        foreach (var item in Branches)
-        //        {
-        //            PostScanBranches(item);
-        //        }
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        DMEEditor.AddLogMessage("Error", ex.Message, DateTime.Now, 0, "", Errors.Failed);
-        //    }
-        //    return DMEEditor.ErrorObject;
-        //}
-        //private void PostScanBranches(IBranch branch)
-        //{
-        //    try
-        //    {
-        //        SimpleItem node = GetNodeByGuidID(branch.GuidID);
-        //        if (node == null)
-        //        {
-
-        //        }
-        //        Console.WriteLine(node.ToString());
-        //        ControlExtensions.GetSimpleItemsFromExecuteCreateChildsMethods(this, branch);
-        //        if (branch.ChildBranchs.Count > 0)
-        //        {
-        //            foreach (var item in branch.ChildBranchs)
-        //            {
-        //                PostScanBranches(item);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        DMEEditor.AddLogMessage("Error", ex.Message, DateTime.Now, 0, "", Errors.Failed);
-        //    }
-        //}
+      
         #endregion "Create Branches"
         #region "Get Branches"
+        #region "Branch Retrieval"
+
+        /// <summary>
+        /// Retrieves a branch by its ID, searching recursively through all branches.
+        /// </summary>
+        /// <param name="branchId">The ID of the branch to find.</param>
+        /// <returns>The matching branch, or null if not found.</returns>
+        private IBranch GetBranchById(int branchId)
+        {
+            return FindBranch(Branches, b => b.ID == branchId);
+        }
+
+        /// <summary>
+        /// Retrieves a branch by its name, searching recursively through all branches.
+        /// </summary>
+        /// <param name="branchName">The name of the branch to find.</param>
+        /// <returns>The matching branch, or null if not found.</returns>
+        private IBranch GetBranchByName(string branchName)
+        {
+            return FindBranch(Branches, b => b.Name.Equals(branchName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Recursively searches for a branch matching the specified predicate.
+        /// </summary>
+        /// <param name="branches">The collection of branches to search through.</param>
+        /// <param name="predicate">The condition to match the branch.</param>
+        /// <returns>The matching branch, or null if not found.</returns>
+        private IBranch FindBranch(IEnumerable<IBranch> branches, Func<IBranch, bool> predicate)
+        {
+            foreach (var branch in branches)
+            {
+                if (predicate(branch))
+                {
+                    return branch;
+                }
+
+                // Recursively search child branches
+                var result = FindBranch(branch.ChildBranchs, predicate);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+
+            return null;
+        }
+
+        #endregion "Branch Retrieval"
 
         public IBranch GetBranchByEntityGuidID(string guidid)
         {
@@ -589,45 +739,112 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
 
         #endregion "Get Branches"
         #region "Refresh Tree"
-        public void RefreshImageList()
-        {
-            throw new NotImplementedException();
-        }
+
 
         public void RefreshTree()
         {
-            throw new NotImplementedException();
+            ClearNodes();
+            CreateRootTree();
+            RearrangeTree();
         }
 
         public void RefreshTree(IBranch branch)
         {
-            throw new NotImplementedException();
+            if (branch == null) return;
+
+            var simpleItem = GetNodeByGuidID(branch.GuidID);
+            if (simpleItem != null)
+            {
+                simpleItem.Text = branch.Name;
+                simpleItem.ImagePath = ImageListHelper.GetImagePathFromName( branch.IconImageName);
+
+                var node = GetBeepTreeNodeByGuid(branch.GuidID);
+                if (node != null)
+                {
+                    node.Text = branch.Name;
+                    node.ImagePath = ImageListHelper.GetImagePathFromName(branch.IconImageName);
+                    node.Invalidate();
+                }
+            }
         }
 
         public void RefreshTree(int branchid)
         {
-            throw new NotImplementedException();
+            var branch = GetBranchById(branchid);
+            if (branch != null)
+            {
+                RefreshTree(branch);
+            }
         }
 
         public void RefreshTree(string branchname)
         {
-            throw new NotImplementedException();
+            var branch = GetBranchByName(branchname);
+            if (branch != null)
+            {
+                RefreshTree(branch);
+            }
         }
+
         #endregion "Refresh Tree"
         #region "Remove Node"
+        public void RemoveNode(int id)
+        {
+            // Remove from Nodes (recursively) if it exists
+            var simpleItem = TraverseAllItems(Nodes).FirstOrDefault(n => n.Id == id);
+            if (simpleItem != null)
+            {
+                RemoveNode(simpleItem); // This will handle child nodes and remove controls if needed
+            }
+
+            // Remove from Branches if it exists
+            var branch = Branches.FirstOrDefault(n => n.ID == id);
+            if (branch != null)
+            {
+                Branches.Remove(branch);
+            }
+        }
+
         public void RemoveNode(IBranch br)
         {
-            throw new NotImplementedException();
+            if (br == null) return;
+
+            // Find the corresponding SimpleItem and remove it
+            var simpleItem = TraverseAllItems(Nodes).FirstOrDefault(n => n.GuidId == br.GuidID);
+            if (simpleItem != null)
+            {
+                RemoveNode(simpleItem);
+            }
+
+            // Remove the branch from Branches
+            Branches.Remove(br);
         }
-        public void RemoveNode(string branchname)
+
+        public void RemoveNode(string branchName)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(branchName)) return;
+
+            // Find the corresponding Branch
+            var branch = Branches.FirstOrDefault(b => b.Name.Equals(branchName, StringComparison.OrdinalIgnoreCase));
+            if (branch != null)
+            {
+                RemoveNode(branch); // Reuse the `RemoveNode(IBranch br)` method
+            }
         }
-        public void RemoveNodeByGuidID(string guidid)
+
+        public void RemoveNodeByGuidID(string guidID)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(guidID)) return;
+
+            // Find the corresponding Branch
+            var branch = Branches.FirstOrDefault(b => b.GuidID == guidID);
+            if (branch != null)
+            {
+                RemoveNode(branch); // Reuse the `RemoveNode(IBranch br)` method
+            }
         }
         #endregion "Remove Node"
+
         #region "Select Branch "
         #endregion "Select Branch "
         #region "Mouse Events"

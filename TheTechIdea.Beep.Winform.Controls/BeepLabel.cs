@@ -177,6 +177,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         Rectangle contentRect;
         private int padding;
         private int spacing;
+        private Font _textFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TextFont
+        {
+            get => _textFont;
+            set
+            {
+
+                _textFont = value;
+                UseThemeFont = false;
+                Invalidate();
+
+
+            }
+        }
         #endregion "Properties"
         #region "Constructors"
         public BeepLabel()
@@ -188,7 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeComponents();
             beepImage.ImageEmbededin = ImageEmbededin.Label;
             //  SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
-            AutoSize = true;
+            AutoSize = false;
             BoundProperty = "Text";
 
         }
@@ -198,15 +217,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
 
         }
-        protected override void OnFontChanged(EventArgs e)
-        {
-            base.OnFontChanged(e);
-            if (AutoSize)
-            {
-                Size textSize = TextRenderer.MeasureText(Text, Font);
-                this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
-            }
-        }
+        //protected override void OnFontChanged(EventArgs e)
+        //{
+        //    base.OnFontChanged(e);
+        //    if (AutoSize)
+        //    {
+        //        Size textSize = TextRenderer.MeasureText(Text, _textFont);
+        //        this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
+        //    }
+        //}
 
         protected override Size DefaultSize
         {
@@ -220,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Size measured = TextRenderer.MeasureText(
                         g,
                         string.IsNullOrEmpty(Text) ? "A" : Text, // Fallback to "A" if empty
-                        Font,
+                        _textFont,
                         new Size(int.MaxValue, int.MaxValue),
                         TextFormatFlags.SingleLine
                     );
@@ -312,10 +331,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             //};
             // Measure and scale the font to fit within the control bounds
-            Font scaledFont = Font;// GetScaledFont(g, Text, contentRect.Size, TextFont);
+            Font scaledFont = _textFont;// GetScaledFont(g, Text, contentRect.Size, TextFont);
             if (UseScaledFont)
             {
-                scaledFont = GetScaledFont(g, Text, contentRect.Size, Font);
+                scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
             }
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
 
@@ -353,7 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Color textColor = IsHovered ? _currentTheme.HoverLinkColor : ForeColor;
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-                TextRenderer.DrawText(g, Text, Font, textRect, textColor, flags);
+                TextRenderer.DrawText(g, Text, _textFont, textRect, textColor, flags);
             }
 
             //}
@@ -372,9 +391,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 HoverBackColor = _currentTheme.BackgroundColor;
                 HoverForeColor = _currentTheme.ButtonHoverForeColor;
                 // Only apply the theme's font if UseThemeFont is true
-                if (!UseThemeFont)
+                if (UseThemeFont)
                 {
-               //     TextFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                 }
 
                 //   Console.WriteLine("2 Label Apply Theme TextFont");
@@ -410,7 +429,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //if (AutoSize)
             //{
 
-            Size textSize = TextRenderer.MeasureText(Text, Font);
+            Size textSize = TextRenderer.MeasureText(Text, _textFont);
             Size imageSize = beepImage?.HasImage == true ? beepImage.GetImageSize() : Size.Empty;
 
             // Scale the image to respect MaxImageSize if needed

@@ -515,7 +515,7 @@ public static class ControlExtensions
                         }
                         catch (Exception ex)
                         {
-                            DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                            DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                         }
                     }
                 }
@@ -588,7 +588,7 @@ public static class ControlExtensions
                     }
                     catch (Exception ex)
                     {
-                        DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                        DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                     }
                 }
             }
@@ -597,7 +597,7 @@ public static class ControlExtensions
         {
             DMEEditor.ErrorObject.Ex = ex;
             DMEEditor.ErrorObject.Flag = Errors.Failed;
-            DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+            DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
 
         };
 
@@ -771,7 +771,7 @@ public static class ControlExtensions
                         }
                         catch (Exception ex)
                         {
-                            tree.DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                            tree.DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                         }
                     }
                 }
@@ -836,7 +836,7 @@ public static class ControlExtensions
                     }
                     catch (Exception ex)
                     {
-                        tree.DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                        tree.DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                     }
                 }
             }
@@ -845,7 +845,7 @@ public static class ControlExtensions
         {
             tree.DMEEditor.ErrorObject.Ex = ex;
             tree.DMEEditor.ErrorObject.Flag = Errors.Failed;
-            tree.DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+            tree.DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
 
         };
 

@@ -81,21 +81,21 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
 
         }
         [CommandAttribute(Caption = "Turnon/Off CheckBox's", Name = "Turnon/Off CheckBox", Click = true, iconimage = "check.png", ObjectType = "Beep", PointType = EnumPointType.Global, Showin = ShowinType.Both,Key = BeepKeys.T,Alt =true)]
-        public IErrorsInfo TurnonOffCheckBox(IPassedArgs Passedarguments)
+        public void TurnonOffCheckBox(bool val)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;
             try
             {
-                ExtensionsHelpers.GetValues(Passedarguments);
-                ExtensionsHelpers.TreeEditor.TurnonOffCheckBox(Passedarguments);
-                ExtensionsHelpers.TreeEditor.SelectedBranchs.Clear();
+                //ExtensionsHelpers.GetValues(Passedarguments);
+                //ExtensionsHelpers.TreeEditor.TurnonOffCheckBox(Passedarguments);
+                //ExtensionsHelpers.TreeEditor.SelectedBranchs.Clear();
                 //  DMEEditor.AddLogMessage("Success", $"Turn on/off entities", DateTime.Now, 0, null, Errors.Ok);
             }
             catch (Exception ex)
             {
                 DMEEditor.AddLogMessage("Fail", $"Could not turn on/offf entities {ex.Message}", DateTime.Now, 0, null, Errors.Failed);
             }
-            return DMEEditor.ErrorObject;
+            //return DMEEditor.ErrorObject;
 
         }
         [CommandAttribute(Name = "EditDefaults", Caption = "Edit Default", Click = true, iconimage = "editdefaults.png", ObjectType = "Beep", PointType = EnumPointType.DataPoint, Showin = ShowinType.Menu)]

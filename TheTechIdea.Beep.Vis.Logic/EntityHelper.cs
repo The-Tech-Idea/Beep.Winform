@@ -10,8 +10,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Globalization;
-
 using System.Xml;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Utilities;

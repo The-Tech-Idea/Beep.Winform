@@ -99,7 +99,7 @@
 //            try
 //            {
 //                BeepmenuControl.ObjectType = Visutil.BeepObjectsName;
-//                BeepmenuControl.TreeV = MainSplitPanel.Tree;
+//                BeepmenuControl.TreeV = MainSplitPanel.StandardTree;
 //                BeepmenuControl.vismanager = Visutil;
 //                SendMessege(progress, "Loading Function Extensions Menu for Beep  Data Management");
 
@@ -126,11 +126,11 @@
 //            {
 //                BeepTreeControl.TreeType = Visutil.BeepObjectsName;
 //                BeepTreeControl.ObjectType = Visutil.BeepObjectsName;
-//                BeepTreeControl.TreeV = MainSplitPanel.Tree;
+//                BeepTreeControl.TreeV = MainSplitPanel.StandardTree;
 
-//                //  you can change icon size in Tree controls  ex. Apptree.IconsSize = new Size(24, 24);
+//                //  you can change icon size in StandardTree controls  ex. Apptree.IconsSize = new Size(24, 24);
 
-//                SendMessege(progress, "Loading Beep Data Management Functions and Tree");
+//                SendMessege(progress, "Loading Beep Data Management Functions and StandardTree");
 
 //                BeepTreeControl.CreateRootTree();
 //            }
@@ -148,7 +148,7 @@
 //            {
 //                BeepHorizantaltoolbarControl.ObjectType = Visutil.BeepObjectsName;
 //                BeepHorizantaltoolbarControl.IsHorizentalBar = true;
-//                BeepHorizantaltoolbarControl.TreeV = MainSplitPanel.Tree;
+//                BeepHorizantaltoolbarControl.TreeV = MainSplitPanel.StandardTree;
 //                BeepHorizantaltoolbarControl.vismanager = Visutil;
 
 
@@ -174,7 +174,7 @@
 //            try
 //            {
 //                BeepVerticaltoolbarControl.ObjectType = Visutil.BeepObjectsName;
-//                BeepVerticaltoolbarControl.TreeV = MainSplitPanel.Tree;
+//                BeepVerticaltoolbarControl.TreeV = MainSplitPanel.StandardTree;
 
 //                BeepVerticaltoolbarControl.vismanager = Visutil;
 //                VerticalToolBar = (IDM_Addin)BeepVerticaltoolbarControl;
@@ -201,7 +201,7 @@
 //            try
 //            {
 //                Visutil.Container = MainSplitPanel.Container;
-//                BeepTreeControl = (TreeViewControl)Visutil.Tree;
+//                BeepTreeControl = (TreeViewControl)Visutil.StandardTree;
 //                BeepVerticaltoolbarControl = (ToolbarControl)Visutil.ToolStrip;
 //                BeepHorizantaltoolbarControl = (ToolbarControl)Visutil.SecondaryToolStrip;
 //                BeepmenuControl = (MenuControl)Visutil.MenuStrip;

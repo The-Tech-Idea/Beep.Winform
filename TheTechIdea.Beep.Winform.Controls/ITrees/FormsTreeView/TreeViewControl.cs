@@ -221,7 +221,7 @@
 //                            }
 //                            catch (Exception ex)
 //                            {
-//                                DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+//                                DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
 //                            }
 //                        }
 //                    }
@@ -315,7 +315,7 @@
 //                        }
 //                        catch (Exception ex)
 //                        {
-//                            DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+//                            DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
 //                        }
 //                    }
 //                }
@@ -324,7 +324,7 @@
 //            {
 //                DMEEditor.ErrorObject.Ex = ex;
 //                DMEEditor.ErrorObject.Flag = Errors.Failed;
-//                DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+//                DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
 
 //            };
 //            return DMEEditor.ErrorObject;
@@ -999,7 +999,7 @@
 
 //        }
 //        #endregion
-//        #region "Refresh Tree"
+//        #region "Refresh StandardTree"
 //        public void RefreshTree()
 //        {
 //            TreeV.Nodes.Clear();

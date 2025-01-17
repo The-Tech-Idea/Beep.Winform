@@ -646,7 +646,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                             }
                             catch (Exception ex)
                             {
-                                DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                                DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                             }
                         }
                     }
@@ -716,7 +716,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                         }
                         catch (Exception ex)
                         {
-                            DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                            DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                         }
                     }
                 }
@@ -725,7 +725,7 @@ namespace TheTechIdea.Beep.Vis.Logic
             {
                 DMEEditor.ErrorObject.Ex = ex;
                 DMEEditor.ErrorObject.Flag = Errors.Failed;
-                DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
 
             };
             if (tree.VisManager != null)
@@ -779,7 +779,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                             }
                             catch (Exception ex)
                             {
-                                DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                                DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                             }
                         }
                     }
@@ -844,7 +844,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                         }
                         catch (Exception ex)
                         {
-                            DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                            DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                         }
                     }
                 }
@@ -853,7 +853,7 @@ namespace TheTechIdea.Beep.Vis.Logic
             {
                 DMEEditor.ErrorObject.Ex = ex;
                 DMEEditor.ErrorObject.Flag = Errors.Failed;
-                DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
 
             };
        

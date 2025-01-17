@@ -22,7 +22,7 @@
 //        {
 //            DMEEditor = pDMEEditor;
 //            treeControl = ptreeControl;
-//            Tree = ptreeControl;
+//            StandardTree = ptreeControl;
 //            Treecontrol = ptreeControl;
 //            visManager = Treecontrol.VisManager;
 //            TreeV = Treecontrol.TreeV;
@@ -37,7 +37,7 @@
 //        }
 //        public IDMEEditor DMEEditor { get; set; }
 //        public TreeViewControl treeControl { get; set; }
-//        private ITree Tree { get; set; }
+//        private ITree StandardTree { get; set; }
 //        private TreeViewControl Treecontrol { get; set; }
 //        private IAppManager visManager { get; set; }
 //        public System.Windows.Forms.TreeView TreeV { get; set; }
@@ -80,8 +80,8 @@
 //                if (SelectedBranchID != StartselectBranchID)
 //                {
 
-//                    IBranch startbr = Tree.Branches.Where(x => x.BranchID == StartselectBranchID).FirstOrDefault();
-//                    IBranch endbr = Tree.Branches.Where(x => x.BranchID == SelectedBranchID).FirstOrDefault();
+//                    IBranch startbr = StandardTree.Branches.Where(x => x.BranchID == StartselectBranchID).FirstOrDefault();
+//                    IBranch endbr = StandardTree.Branches.Where(x => x.BranchID == SelectedBranchID).FirstOrDefault();
 //                    if (startbr != endbr || startbr.ParentBranchID == endbr.ParentBranchID || startbr.BranchClass == endbr.BranchClass)
 //                    {
 
@@ -129,8 +129,8 @@
 //                    {
 //                        StartselectBranchID = SelectedBranchID;
 //                    }
-//                    IBranch startbr = Tree.Branches.Where(x => x.BranchID == StartselectBranchID).FirstOrDefault();
-//                    IBranch endbr = Tree.Branches.Where(x => x.BranchID == SelectedBranchID).FirstOrDefault();
+//                    IBranch startbr = StandardTree.Branches.Where(x => x.BranchID == StartselectBranchID).FirstOrDefault();
+//                    IBranch endbr = StandardTree.Branches.Where(x => x.BranchID == SelectedBranchID).FirstOrDefault();
 //                    if (startbr != endbr || startbr.ParentBranchID == endbr.ParentBranchID || startbr.BranchClass == endbr.BranchClass)
 //                    {
 
@@ -154,7 +154,7 @@
 //                            TreeV.BeginUpdate();
 //                            n.BackColor = Color.White;
 //                            IBranch nbr = (IBranch)n.Tag;
-//                            Tree.SelectedBranchs.Remove(nbr.ID);
+//                            StandardTree.SelectedBranchs.Remove(nbr.ID);
 //                            if (n == endnode)
 //                            {
 //                                found = true;
@@ -272,7 +272,7 @@
 //            catch (Exception ex)
 //            {
 
-//                DMEEditor.AddLogMessage("Fail", $"Error in Showing View on Tree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
+//                DMEEditor.AddLogMessage("Fail", $"Error in Showing View on StandardTree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
 
 //            }
 
@@ -286,7 +286,7 @@
 //            }
 //            catch (Exception ex)
 //            {
-//                DMEEditor.AddLogMessage("Fail", $"Error in Setting Check for Node Tree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
+//                DMEEditor.AddLogMessage("Fail", $"Error in Setting Check for Node StandardTree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
 //            }
 
 

@@ -384,7 +384,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool IsChecked
         {
             get { return _isChecked; }
-            set { _isChecked = value; }
+            set { _isChecked = value; _isSelected = value; }
         }
         public bool IsVisible
         {
@@ -874,7 +874,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Position the CheckBox
                 if (_checkBox != null && _showCheckBox)
                 {
-                    _checkBox.Location = new Point(startx, centerY);
+                    _checkBox.Location = new Point(startx, (NodeHeight - toggelbuttonsize) / 2);
+                    _checkBox.Size = new Size(toggelbuttonsize, toggelbuttonsize);
+                    _checkBox.CheckBoxSize = toggelbuttonsize - 1;
                     startx += _checkBox.Width + padding;
                 }
                 //// Position the left button
@@ -954,11 +956,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void ToggleCheckBoxVisibility(bool show)
         {
-            ShowCheckBox = show;
+            _showCheckBox = show;
             foreach (var child in NodesControls)
             {
-                child.ToggleCheckBoxVisibility(show);
+                child.ShowCheckBox=show;
             }
+
         }
         // Synchronize IsSelected with the CheckBox state
         private void CheckBox_StateChanged(object sender, EventArgs e)
@@ -970,11 +973,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Raise appropriate events without modifying SelectedNodes directly.
                 if (IsSelected)
                 {
-                    NodeSelected?.Invoke(this, new BeepMouseEventArgs("NodeSelected", this));
+                    NodeChecked?.Invoke(this, new BeepMouseEventArgs("NodeSelected", this));
                 }
                 else
                 {
-                    NodeDeselected?.Invoke(this, new BeepMouseEventArgs("NodeDeselected", this));
+                    NodeChecked?.Invoke(this, new BeepMouseEventArgs("NodeDeselected", this));
                 }
             }
         }
@@ -1210,7 +1213,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 // Call RearrangeTree only if necessary
-                //Tree?.RearrangeTree();
+                //StandardTree?.RearrangeTree();
             }
             catch (Exception ex)
             {
@@ -1324,6 +1327,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Theme Methods"
         #region "Node Methods"
+        private void ChangeTextAlignment()
+        {
+            NodeMainMiddlebutton.TextAlign = textAlign;
+            // change all text alignment of all nodes
+            foreach (var node in _childrenPanel.Controls)
+            {
+                if (node is BeepTreeNode)
+                {
+                    BeepTreeNode n = (BeepTreeNode)node;
+                    n.TextAlignment = textAlign;
+                }
+            }
+        }
         private void Nodes_ListChanged(object? sender, ListChangedEventArgs e)
         {
             try
@@ -1621,7 +1637,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (isSizeCached && Tree != null && cachedWidth == Tree.Width - 20)
             {
-                // Size is already cached and fits the current Tree width
+                // Size is already cached and fits the current StandardTree width
                 return;
             }
 
@@ -1638,7 +1654,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                    cachedWidth = NodeWidth; // Fallback to default if Tree is not set
+                    cachedWidth = NodeWidth; // Fallback to default if StandardTree is not set
                 }
 
                 cachedHeight = textHeight + (_isExpanded ? ChildNodesHeight : 0);
@@ -1810,7 +1826,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    NodeMainMiddlebutton.CurrentMenutems.Add(listitem);
 
             //}
-            //Tree.
+            //StandardTree.
             BeepMouseEventArgs args = new BeepMouseEventArgs("ShowBeepMenu", this);
             ShowMenu?.Invoke(this, args);
         }
@@ -1820,19 +1836,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             handler?.Invoke(this, new BeepMouseEventArgs(eventName, this));
         }
         // Example usage:
-        private void ChangeTextAlignment()
-        {
-            NodeMainMiddlebutton.TextAlign = textAlign;
-            // change all text alignment of all nodes
-            foreach (var node in  _childrenPanel.Controls)
-            {
-                if (node is BeepTreeNode)
-                {
-                    BeepTreeNode n = (BeepTreeNode)node;
-                    n.TextAlignment = textAlign;
-                }
-            }
-        }
+       
         private void LogMessage(string message)
         {
             try

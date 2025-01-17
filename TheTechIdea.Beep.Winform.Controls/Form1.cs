@@ -8,7 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Container.Services;
+using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Vis.Logic;
+using TheTechIdea.Beep.Vis.Modules;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -29,10 +31,11 @@ namespace TheTechIdea.Beep.Winform.Controls
              beepTreeControl1.CreateRootTree();
             BeepPopupListForm beepFileDialog = new BeepPopupListForm(beepTreeControl1.Nodes.ToList());
             // Get the screen position of the control's top-left corner
-            Point screenPoint = beepButton1.PointToScreen(Point.Empty);
-            Point point = new Point(screenPoint.X, screenPoint.Y + beepButton1.Height);
-            beepFileDialog.ShowPopup(beepButton1, beepButton1.Location);
-
+            //Point screenPoint = beepButton1.PointToScreen(Point.Empty);
+            //Point point = new Point(screenPoint.X, screenPoint.Y + beepButton1.Height);
+            SimpleItem x=beepFileDialog.ShowPopup("Tree",beepButton1, BeepPopupFormPosition.Top);
+            beepTreeControl1.ShowCheckBox=true;
+            //beepTreeControl1.AllowMultiSelect = false;
         }
 
         public Form1():base()

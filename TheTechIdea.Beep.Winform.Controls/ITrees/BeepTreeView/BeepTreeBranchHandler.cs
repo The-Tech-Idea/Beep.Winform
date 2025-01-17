@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+﻿
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
@@ -12,10 +6,8 @@ using TheTechIdea.Beep.DataView;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis;
-using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Managers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
 {
@@ -64,6 +56,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                         {
                             CategoryFolder x = DMEEditor.ConfigEditor.AddFolderCategory(foldername, Rootbr.BranchClass, Rootbr.BranchText);
                             IBranch br=  Rootbr.CreateCategoryNode(x);
+                            if (br != null) {
+                                SimpleItem parent = beepTreeControl.GetNodeByGuidID(Rootbr.GuidID);
+                                if (parent != null) {
+                                    beepTreeControl.AddBranch(Rootbr, br);
+                                }
+                            }
                             DMEEditor.ConfigEditor.SaveCategoryFoldersValues();
                         }
                     }
@@ -94,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         }
         public IErrorsInfo CreateBranch(IBranch Branch)
         {
-            Tree.Branches.Add(Branch);
+            beepTreeControl.AddBranch(Branch);
             return DMEEditor.ErrorObject;
         }
 
@@ -370,13 +368,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                     Tree.SelectedBranchs.Remove(Branch.BranchID);
                 }
                
-                if (BranchNode.ParentNode != null)
-                {
-                    parentitem.Children.Remove(branchitem);
-                }else
-                {
-                    beepTreeControl.Nodes.Remove(branchitem);
-                }
+                beepTreeControl.RemoveNode(branchitem.Id);
 
                 // DMEEditor.AddLogMessage("Success", "removed node and childs", DateTime.Now, 0, null, Errors.Ok);
             }
@@ -418,8 +410,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                     }
                 }
 
-                parentitem.Children.Remove(categoryitem);
-                Tree.Branches.Remove(CategoryBranch);
+                //parentitem.Children.Remove(categoryitem);
+                //Tree.Branches.Remove(CategoryBranch);
+                RemoveBranch(categoryitem.Id);
                 CategoryFolder Folder = DMEEditor.ConfigEditor.CategoryFolders.Where(y => y.FolderName == CategoryBranch.BranchText && y.RootName == CategoryBranch.BranchClass).FirstOrDefault();
                 DMEEditor.ConfigEditor.CategoryFolders.Remove(Folder);
 

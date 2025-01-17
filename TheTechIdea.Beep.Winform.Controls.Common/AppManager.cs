@@ -70,14 +70,12 @@ namespace TheTechIdea.Beep.Desktop.Common
         public IBeepUIComponent MenuStrip { get; set; }
         public IBeepUIComponent SecondaryMenuStrip { get; set; }
         public IDM_Addin CurrentDisplayedAddin { get; set; }
-        public IDisplayContainer MainDisplay { get; set; }
+        public IDM_Addin MainDisplay { get; set; }
         public IPopupDisplayContainer PopupDisplay { get; set; }
-        public IWaitForm WaitForm { get; set; }
-        #endregion "Main Controls"
-        #region "Helpers"
         public IDisplayContainer Container { get; set; }
         public IControlManager Controlmanager { get; set; }
-        #endregion "Helpers"
+        public IWaitForm WaitForm { get; set; }
+        #endregion "Main Controls"
         #region "UI State"
         public bool IsDataModified { get; set; }
         public bool IsShowingMainForm { get; set; }
@@ -128,6 +126,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public IBeepUser User { get; set; }
         #endregion "User and Profile"
         #endregion "Properties"
+      
         #region "Events"
         public event EventHandler<KeyCombination> KeyPressed;
         public event EventHandler<IPassedArgs> PreLogin;
@@ -139,6 +138,9 @@ namespace TheTechIdea.Beep.Desktop.Common
         public event EventHandler<IPassedArgs> PostCallModule;
         #endregion "Events"
         #region "Methods"
+        #region "Helpers"
+
+        #endregion "Helpers"
         #region "Loading and Initialization"
         public async Task<IErrorsInfo> LoadGraphics(string[] namespacestoinclude)
         {

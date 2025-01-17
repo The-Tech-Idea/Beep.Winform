@@ -9,4 +9,13 @@ namespace TheTechIdea.Beep.Vis.Modules
         string FileName { get; set; }
         string Url { get; set; }
     }
+    public class FileStorage : IFileStorage
+    {
+        public FileStorage()
+        {
+        }
+
+        public string FileName { get; set; }
+        public string Url { get; set; }
+    }
 }

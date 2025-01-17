@@ -3,20 +3,21 @@ using BeepDialogResult = TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public partial class BeepDialogBoxPopUp : BeepiForm
+    public partial class BeepDialogBoxPopUp : BeepPopupForm
     {
         public Dictionary<BeepDialogButtons, BeepButton> Buttons { get; private set; } = new();
         public Dictionary<BeepDialogIcon, BeepImage> Icons { get; private set; } = new();
         public BeepDialogResult Result { get; set; }
 
         public event EventHandler<BeepDialogResult> ButtonClicked;
-
-        private Func<object> _dataRetriever;
+        private object _dialogData; // Declare this field here
+        
 
         public BeepDialogBoxPopUp()
         {
             InitializeComponent();
             Result = BeepDialogResult.None;
+            OnLeave += BeepPopupListForm_OnLeave;
             InitializeIcons();
         }
 
@@ -28,28 +29,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             Icons[BeepDialogIcon.Error] = new BeepImage { ImagePath = "TheTechIdea.Beep.Winform.Controls.alert.svg" };
             Icons[BeepDialogIcon.Question] = new BeepImage { ImagePath = "TheTechIdea.Beep.Winform.Controls.question.svg" };
         }
-
-        public void SetDialog<T>(BeepDialogIcon icon, string title, BeepDialogButtonSchema schema, Func<T> dataRetriever = null)
+        private void BeepPopupListForm_OnLeave(object? sender, EventArgs e)
         {
-            // Set icon
-            if (Icons.TryGetValue(icon, out BeepImage dialogIcon) && dialogIcon != null)
-            {
-                DialogIconImage.Image = dialogIcon.Image;
-            }
-            else
-            {
-                DialogIconImage.Image = null; // No icon
-            }
-
-            // Set title
-            TitleLabel.Text = title;
-
-            // Generate buttons based on schema
-            GenerateButtons(schema);
-
-            // Set the data retriever
-            _dataRetriever = dataRetriever == null ? null : new Func<object>(() => dataRetriever());
+            DialogResult = DialogResult.Cancel; // Mark the dialog as "Cancelled"
+            this.Close();
         }
+
+
 
         private void GenerateButtons(BeepDialogButtonSchema schema)
         {
@@ -69,11 +55,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Result = MapDialogResult(buttonType);
                     ButtonClicked?.Invoke(this, Result);
-                    if (Result == BeepDialogResult.OK && _dataRetriever != null)
+
+                    DialogResult = buttonType switch
                     {
-                        var data = _dataRetriever.Invoke();
-                        MessageBox.Show($"Data Returned: {data}"); // Replace with actual handling
-                    }
+                        BeepDialogButtons.Ok => DialogResult.OK,
+                        BeepDialogButtons.Cancel => DialogResult.Cancel,
+                        BeepDialogButtons.Yes => DialogResult.Yes,
+                        BeepDialogButtons.No => DialogResult.No,
+                        BeepDialogButtons.Abort => DialogResult.Abort,
+                        BeepDialogButtons.Retry => DialogResult.Retry,
+                        BeepDialogButtons.Ignore => DialogResult.Ignore,
+                        BeepDialogButtons.Continue => DialogResult.OK,
+                        BeepDialogButtons.Stop => DialogResult.Abort,
+                        _ => DialogResult.None,
+                    };
+
                     Close();
                 };
 
@@ -81,7 +77,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ButtonsPanel.Controls.Add(button);
             }
 
-            // Add buttons based on the schema
             switch (schema)
             {
                 case BeepDialogButtonSchema.Ok:
@@ -114,11 +109,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     AddButton("Continue", BeepDialogButtons.Continue);
                     break;
                 case BeepDialogButtonSchema.Custom:
-                    // Leave for custom handling
+                    // Custom buttons added externally
                     break;
             }
         }
-
         private BeepDialogResult MapDialogResult(BeepDialogButtons buttonType)
         {
             return buttonType switch
@@ -135,17 +129,107 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _ => BeepDialogResult.None,
             };
         }
+        public T ShowDialog<T>()
+        {
+            base.ShowDialog(); // Blocks execution until the form is closed
+            return (T)_dialogData; // Returns the data retrieved via the _dataRetriever
+        }
+        public string ShowDialogInputBox(string prompt, string defaultValue = "")
+        {
+            var inputBox = new TextBox
+            {
+                Text = defaultValue,
+                Dock = DockStyle.Fill,
+                Margin = new Padding(10)
+            };
+            var label = new Label
+            {
+                Text = prompt,
+                Dock = DockStyle.Top,
+                Padding = new Padding(10)
+            };
 
-        public void AddControl(Control control)
+            AddControl(inputBox, label);
+            GenerateButtons(BeepDialogButtonSchema.OkCancel);
+
+            if (base.ShowDialog() == DialogResult.OK)
+            {
+                return inputBox.Text;
+            }
+            return null;
+        }
+        public T ShowDialogComboBox<T>(string prompt, IEnumerable<T> options, T defaultValue = default)
+        {
+            var comboBox = new ComboBox
+            {
+                DataSource = options.ToList(),
+                Dock = DockStyle.Fill,
+                SelectedItem = defaultValue,
+                Margin = new Padding(10)
+            };
+            var label = new Label
+            {
+                Text = prompt,
+                Dock = DockStyle.Top,
+                Padding = new Padding(10)
+            };
+
+            AddControl(comboBox, label);
+            GenerateButtons(BeepDialogButtonSchema.OkCancel);
+
+            if (base.ShowDialog() == DialogResult.OK)
+            {
+                return (T)comboBox.SelectedItem;
+            }
+            return defaultValue;
+        }
+
+        public List<T> ShowDialogListBox<T>(string prompt, IEnumerable<T> options, SelectionMode selectionMode = SelectionMode.One)
+        {
+            var listBox = new ListBox
+            {
+                DataSource = options.ToList(),
+                SelectionMode = selectionMode,
+                Dock = DockStyle.Fill,
+                Margin = new Padding(10)
+            };
+            var label = new Label
+            {
+                Text = prompt,
+                Dock = DockStyle.Top,
+                Padding = new Padding(10)
+            };
+
+            AddControl(listBox, label);
+            GenerateButtons(BeepDialogButtonSchema.OkCancel);
+
+            if (base.ShowDialog() == DialogResult.OK)
+            {
+                return listBox.SelectedItems.Cast<T>().ToList();
+            }
+            return null;
+        }
+        public T ShowDialog<T>(Control control, BeepDialogButtonSchema buttonSchema)
+        {
+            AddControl(control);
+            GenerateButtons(buttonSchema);
+            if (base.ShowDialog() == DialogResult.OK)
+            {
+                return (T)_dialogData;
+            }
+            return default;
+        }
+
+        private void AddControl(params Control[] controls)
         {
             ContentPanel.Controls.Clear();
-            ContentPanel.Controls.Add(control);
-            control.Dock = DockStyle.Fill;
+            foreach (var control in controls)
+            {
+                ContentPanel.Controls.Add(control);
+                control.Dock = DockStyle.Top;
+            }
         }
 
-        public void SetDataRetriever<T>(Func<T> dataRetriever)
-        {
-            _dataRetriever = new Func<object>(() => dataRetriever());
-        }
+
     }
 }

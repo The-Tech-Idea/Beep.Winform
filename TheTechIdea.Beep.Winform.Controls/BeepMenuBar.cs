@@ -14,13 +14,20 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
         private BindingList<SimpleItem> currentMenu = new BindingList<SimpleItem>();
+
+        public BeepButton CurrenItemButton { get; private set; }
+
         private int _selectedIndex = -1;
         
         private int _menuItemWidth = 60;
         private int _imagesize = 32;
         private int _menuItemHeight=35;
         private Size ButtonSize = new Size(60, 20);
-        private BeepPopupForm _popupForm;
+       // private BeepPopupForm _popupForm;
+        private LinkedList<MenuitemTracking> ListForms = new LinkedList<MenuitemTracking>();
+        private bool childmenusisopen = false;
+      
+        
 
         #region "Properties"
         private Font _textFont = new Font("Arial", 10);
@@ -146,6 +153,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
         }
+
+        public BeepPopupListForm CurrentMenuForm { get; private set; }
         #endregion "Properties"
         public BeepMenuBar()
         {
@@ -161,10 +170,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
          //    items.ListChanged += Items_ListChanged;
             this.Invalidated += BeepListBox_Invalidated;
-            _popupForm = new BeepPopupForm();
+           
             BoundProperty = "SelectedMenuItem";
             IsFramless = true;
             IsRounded = false;
+            ListForms= new LinkedList<MenuitemTracking>();
             InitMenu();
         }
 
@@ -187,18 +197,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             Console.WriteLine("InitMenu");
             Controls.Clear();
-            menumainbar.Clear();
-
-            maindropdownmenu.Visible = false;
-            maindropdownmenu.Width = Width;
-            maindropdownmenu.Height = Height;
-            maindropdownmenu.Top = Bottom;
-            maindropdownmenu.Left = Left;
-            maindropdownmenu.Visible = false;
-            maindropdownmenu.BoundProperty = "SelectedMenuItem";
-            maindropdownmenu.SelectedItemChanged += Maindropdownmenu_SelectedIndexChanged;
-            Controls.Add(maindropdownmenu);
-
             if (items == null || items.Count == 0) return;
 
             // Step 1: Create all buttons with an initial "guess" size
@@ -242,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     // Add to Controls
                     Controls.Add(btn);
-                    menumainbar.Add(item.Text, btn);
+                  //  menumainbar.Add(item.Text, btn);
                     createdButtons.Add(btn);
                 }
             }
@@ -298,130 +296,58 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Console.WriteLine("InitMenu done.");
         }
-
-
-
-        private void ShowPopup(SimpleItem item, Point point)
+        private void ShowMainMenuBarList(SimpleItem item, BeepButton button)
         {
-            BeepListBox _beepListBox = new BeepListBox();
-            _beepListBox.ShowTitle = false;
-            _beepListBox.ShowAllBorders = false;
-            _beepListBox.ShowAllBorders = false;
-            _beepListBox.ShowHilightBox  = false;
-            _beepListBox.ShowShadow = false;
-            _beepListBox.Theme = Theme;
-            _beepListBox.MenuItemHeight=MenuItemHeight;
+            ListForms.Clear();
+            MenuitemTracking menuitemTracking = new MenuitemTracking();
+            menuitemTracking.ParentItem = item;
+            menuitemTracking.Menu = new BeepPopupListForm(item.Children.ToList());
+            CurrentMenuForm= menuitemTracking.Menu;
+            menuitemTracking.Menu.Theme = Theme;
+            ListForms.AddLast(menuitemTracking);
+            //menuitemTracking.Menu.IsTimerActive=false;
+            currentMenu = item.Children;
+            menuitemTracking.Menu.SelectedItemChanged += Menu_SelectedItemChanged;
+            //point adjustment
+            Point p = new Point(0, this.Height-button.Height);
+            SimpleItem x = menuitemTracking.Menu.ShowPopup(item.Text, button,p, BeepPopupFormPosition.Bottom);
             
-            _beepListBox.ListItems = item.Children;
-
-            if (_isPopupOpen ) {
-                _popupForm = new BeepPopupForm();
-                _popupForm.OnLeave += (sender, e) =>
-                {
-
-                    _popupForm.Close();
-                };
-            };
-            _isPopupOpen = true;
-          
-            // Rebuild beepListBox's layout
-            _beepListBox.InitializeMenu();
-            _beepListBox.SelectedItemChanged += (sender, e) =>
-            {
-                SimpleItem selectedItem = (SimpleItem)_beepListBox.SelectedItem;
-                if (selectedItem != null)
-                {
-                    SelectedIndex = items.IndexOf(selectedItem);
-                    currentMenu = _beepListBox.ListItems;
-                    // get height of item in beepListBox
-                    //if(selectedItem.Children.Count > 0)
-                    // {
-                    //     ShowChildPopup(selectedItem, new Point(_beepListBox.Right, _beepListBox.Top + selectedItem.Y));
-                    // }
-
-                }
-            };
-            int neededHeight = _beepListBox.GetMaxHeight() ;
-            int finalHeight = neededHeight;
-            // possibly also compute width
-            int finalWidth = _beepListBox.GetMaxWidth()+5;
-
-            // The popup form is sized to fit beepListBox
-            _popupForm.Size = new Size(finalWidth, neededHeight);
-            // Position popup just below the main control
-            var screenPoint = this.PointToScreen(point);
-            _popupForm.Location = screenPoint;
-            _beepListBox.Theme = Theme;
-            _beepListBox.ShowAllBorders = false;
-            //_popupForm.BackColor = _currentTheme.BackColor;
-            _popupForm.Theme = Theme;
-            _popupForm.Controls.Add(_beepListBox);
-            _beepListBox.Dock = DockStyle.Fill; // Manually size and position
-            _popupForm.BorderThickness = 0;
-
-            _popupForm.ShowPopup(this,BeepPopupFormPosition.Bottom);
+           
         }
-        private void ShowChildPopup(SimpleItem item, Point point)
+        private void Menu_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
-            BeepPopupForm _childpopupForm = new BeepPopupForm   ();
-            _childpopupForm.OnLeave += (sender, e) =>
+            SimpleItem x = e.SelectedItem;
+            
+            if (x != null)
             {
-               
-                _childpopupForm.Hide(); 
-            };
-            BeepListBox _beepListBox = new BeepListBox();
-            _beepListBox.ShowTitle = false;
-            _beepListBox.ShowAllBorders = false;
-            _beepListBox.ShowAllBorders = false;
-            _beepListBox.ShowHilightBox = false;
-            _beepListBox.ShowShadow = false;
-            _beepListBox.Theme = Theme;
-            _beepListBox.MenuItemHeight = MenuItemHeight;
-
-            _beepListBox.ListItems = item.Children;
-            // Rebuild beepListBox's layout
-            _beepListBox.InitializeMenu();
-            _beepListBox.SelectedItemChanged += (sender, e) =>
-            {
-                SimpleItem selectedItem = (SimpleItem)_beepListBox.SelectedItem;
-                if (selectedItem != null)
+                SelectedIndex = items.IndexOf(x);
+                currentMenu = x.Children;
+                CurrentMenuForm = sender as BeepPopupListForm;
+                CurrenItemButton = CurrentMenuForm.CurrenItemButton;
+                // Get the button's screen position
+              
+                if (x.Children.Count > 0)
                 {
-                    SelectedIndex = items.IndexOf(selectedItem);
-                    // get height of item in beepListBox
-                    if (selectedItem.Children.Count > 0)
-                    {
-                        ShowChildPopup(selectedItem, new Point(_beepListBox.Right, _beepListBox.Top + selectedItem.Y));
-                    }
+                    Point buttonScreenPosition = CurrenItemButton.PointToScreen(Point.Empty);
+                    Point p = new Point(buttonScreenPosition.X+ CurrentMenuForm.Width, buttonScreenPosition.Y);
+                   ShowChildPopup(x,  p);
                 }
-            };
-            int neededHeight = _beepListBox.GetMaxHeight() ;
-            int finalHeight = neededHeight;
-            // possibly also compute width
-            int finalWidth = _beepListBox.GetMaxWidth() + 5;
 
-            // The popup form is sized to fit beepListBox
-            _childpopupForm.Size = new Size(finalWidth, neededHeight);
-            // Position popup just below the main control
-            var screenPoint = this.PointToScreen(point);
-            _childpopupForm.Location = screenPoint;
-            _beepListBox.Theme = Theme;
-            _beepListBox.ShowAllBorders = false;
-            //_popupForm.BackColor = _currentTheme.BackColor;
-            _childpopupForm.Theme = Theme;
-            _childpopupForm.Controls.Add(_beepListBox);
-            _beepListBox.Dock = DockStyle.Fill; // Manually size and position
-            _childpopupForm.BorderThickness = 2;
-
-            _childpopupForm.ShowPopup(_popupForm, BeepPopupFormPosition.Right);
-          
-        }
-        private void ClosePopup()
-        {
-            if (_popupForm != null)
-            {
-                _popupForm.Close();
             }
-            _isPopupOpen = false;
+        }
+        private void ShowChildPopup(SimpleItem item,  Point location)
+        {
+            MenuitemTracking menuitemTracking = new MenuitemTracking();
+            menuitemTracking.ParentItem = item;
+            menuitemTracking.Menu = new BeepPopupListForm(item.Children.ToList());
+            menuitemTracking.Menu.Theme=Theme;
+            MenuitemTracking LastItem = ListForms.Last.Value;
+            currentMenu = item.Children;
+            CurrentMenuForm = LastItem.Menu;
+            CurrentMenuForm.ChildPopupForm = menuitemTracking.Menu;
+            ListForms.AddLast(menuitemTracking);
+            menuitemTracking.Menu.SelectedItemChanged += Menu_SelectedItemChanged;
+            SimpleItem x = menuitemTracking.Menu.ShowPopup(item.Text,  location, BeepPopupFormPosition.Right);
         }
         private void UnpressAllButtons()
         {
@@ -446,16 +372,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             UnpressAllButtons();
             btn.IsSelected = true;
             SimpleItem item = (SimpleItem)btn.Tag;
-            if (_isPopupOpen)
-            {
-                ClosePopup();
-                 _popupForm = new BeepPopupForm();
-
-            }
+           
             if (item.Children.Count>0)
             {
               
-                ShowPopup(item,new Point(btn.Left,Height+5));
+                ShowMainMenuBarList(item, btn);
             }
             else
             {
@@ -483,11 +404,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     BeepButton btn = (BeepButton)item;
                     btn.Theme = Theme;
                     btn.ApplyThemeOnImage=false;
-                    btn.ForeColor = _currentTheme.SidebarTextColor;
-                    btn.HoverBackColor = _currentTheme.SideMenuHoverBackColor;
-                    btn.BackColor = _currentTheme.SideMenuBackColor;
-                    btn.BorderColor = _currentTheme.SideMenuBorderColor;
-                    btn.HoverForeColor = _currentTheme.SideMenuHoverForeColor;
+                    btn.IsChild = true;
+                    //btn.ForeColor = _currentTheme.SidebarTextColor;
+                    //btn.HoverBackColor = _currentTheme.SideMenuHoverBackColor;
+                    //btn.BackColor = _currentTheme.SideMenuBackColor;
+                    //btn.BorderColor = _currentTheme.SideMenuBorderColor;
+                    //btn.HoverForeColor = _currentTheme.SideMenuHoverForeColor;
                     //btn.ForeColor = ColorUtils.GetForColor(parentbackcolor, btn.ForeColor);
                 }
 
@@ -506,5 +428,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             IsHovered = false;
         }
+    }
+    public class MenuitemTracking
+    {
+        public SimpleItem ParentItem { get; set; }
+        public BeepPopupListForm Menu { get; set; }
     }
 }

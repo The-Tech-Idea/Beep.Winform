@@ -40,17 +40,34 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void GenerateButtons(BeepDialogButtonSchema schema)
         {
             ButtonsPanel.Controls.Clear();
+            ButtonsPanel.ColumnStyles.Clear();
+            ButtonsPanel.RowStyles.Clear();
             Buttons.Clear();
+
+            // Configure ButtonsPanel as a TableLayoutPanel
+            if (ButtonsPanel is TableLayoutPanel tablePanel)
+            {
+                tablePanel.ColumnCount = 0; // Dynamically set based on buttons
+                tablePanel.RowCount = 1; // Single row for buttons
+                tablePanel.Dock = DockStyle.Bottom;
+                tablePanel.AutoSize = false;
+                tablePanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+                tablePanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Single row with 100% height
+            }
+            else
+            {
+                throw new InvalidOperationException("ButtonsPanel must be a TableLayoutPanel for even distribution.");
+            }
 
             void AddButton(string text, BeepDialogButtons buttonType)
             {
                 var button = new BeepButton
                 {
                     Text = text,
-                    Dock = DockStyle.Right,
-                    Margin = new Padding(5),
-                    Width = 100
+                    Dock = DockStyle.Fill,
+                    Margin = new Padding(5), // Optional: Adjust for spacing
                 };
+
                 button.Click += (sender, e) =>
                 {
                     Result = MapDialogResult(buttonType);
@@ -74,9 +91,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 };
 
                 Buttons[buttonType] = button;
-                ButtonsPanel.Controls.Add(button);
+
+                // Add button to the TableLayoutPanel
+                tablePanel.ColumnCount++;
+                tablePanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / tablePanel.ColumnCount));
+                tablePanel.Controls.Add(button, tablePanel.ColumnCount - 1, 0);
             }
 
+            // Add buttons based on schema
             switch (schema)
             {
                 case BeepDialogButtonSchema.Ok:
@@ -113,6 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
         }
+
         private BeepDialogResult MapDialogResult(BeepDialogButtons buttonType)
         {
             return buttonType switch

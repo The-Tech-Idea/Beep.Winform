@@ -1316,7 +1316,81 @@ public static class ControlExtensions
         return tree.DMEEditor.ErrorObject;
 
     }
+    private static Control GetControlCorrectPositiononForm(Control control)
+    {
+        if (control == null)
+            throw new ArgumentNullException(nameof(control));
 
+        // Ensure the control belongs to a form
+        Form form = control.FindForm();
+        if (form == null)
+            throw new InvalidOperationException("The control does not belong to a form.");
+
+        // Start with the control's position and iterate through all parent controls
+        Point positionOnForm = control.Location;
+        Control parent = control.Parent;
+
+        while (parent != null && parent != form)
+        {
+            positionOnForm.Offset(parent.Location);
+            parent = parent.Parent;
+        }
+
+        // At this point, positionOnForm contains the correct position on the form
+
+        // Create a new control with the same size and correct location
+        Control newControl = new Control
+        {
+            Size = control.Size,
+            Location = positionOnForm
+        };
+
+        return newControl;
+    }
+    private static Point GetAdjustmentPoint(Control baseControl, Control targetControl)
+    {
+        if (baseControl == null)
+            throw new ArgumentNullException(nameof(baseControl));
+        if (targetControl == null)
+            throw new ArgumentNullException(nameof(targetControl));
+
+        // Ensure both controls belong to a form
+        Form baseForm = baseControl.FindForm();
+        Form targetForm = targetControl.FindForm();
+        if (baseForm == null || targetForm == null || baseForm != targetForm)
+            throw new InvalidOperationException("Both controls must belong to the same form.");
+
+        // Get the positions of both controls relative to the form
+        Point baseLocation = GetControlCorrectPointPositiononForm(baseControl);
+        Point targetLocation = GetControlCorrectPointPositiononForm(targetControl);
+
+        // Calculate the adjustment point
+        return new Point(targetLocation.X - baseLocation.X, targetLocation.Y - baseLocation.Y);
+    }
+
+    private static  Point GetControlCorrectPointPositiononForm(Control control)
+    {
+        if (control == null)
+            throw new ArgumentNullException(nameof(control));
+
+        // Ensure the control belongs to a form
+        Form form = control.FindForm();
+        if (form == null)
+            throw new InvalidOperationException("The control does not belong to a form.");
+
+        // Start with the control's position and iterate through all parent controls
+        Point positionOnForm = control.Location;
+        Control parent = control.Parent;
+
+        while (parent != null && parent != form)
+        {
+            positionOnForm.Offset(parent.Location);
+            parent = parent.Parent;
+        }
+
+        // Return the calculated position on the form
+        return positionOnForm;
+    }
 }
 
 

@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -456,46 +457,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void ShowPopup()
         {
             if (_isPopupOpen) return;
-            // Always create a new instance from scratch
-            _popupForm = new BeepPopupForm();
-            _popupForm.OnLeave += (sender, e) =>
+            if(ListItems.Count == 0)
             {
-                ClosePopup();
-            };
-            _isPopupOpen = true;
-            _popupForm.TriggerControl = this;
-            int _maxListHeight=Width;
-            int _maxListWidth=100;
-           
-            //    InitListbox();
-            // 2) Create a borderless popup form
-            //  _popupForm = new BeepPopupForm1();
-            _popupForm.BorderThickness = 1;
-            _popupForm.Controls.Add(_beepListBox);
-            _beepListBox.ShowHilightBox = false;
-            _beepListBox.Dock = DockStyle.None;
-            _beepListBox.MenuItemHeight = 15;
-            _beepListBox.InitializeMenu();
-
-            int neededHeight = _beepListBox.GetMaxHeight() ;
-            int finalHeight = Math.Min(neededHeight, _maxListHeight);
-            // possibly also compute width
-            int finalWidth = Math.Max(Width, _maxListWidth);
-
-            // The popup form is sized to fit beepListBox
-            _popupForm.Size = new Size(finalWidth, neededHeight);
-            // Position popup just below the main control
-            var screenPoint = this.PointToScreen(new Point(-(finalWidth / 2), Height+5));
-            _popupForm.Location = screenPoint;
-            _beepListBox.Theme = Theme;
-            _beepListBox.ShowAllBorders = false;
-            //_popupForm.BackColor = _currentTheme.BackColor;
-            _popupForm.Theme = Theme;
+                return;
+            }
+            BeepPopupListForm beepFileDialog = new BeepPopupListForm(ListItems.ToList());
+            beepFileDialog.Theme = Theme;
             
-            _beepListBox.Dock = DockStyle.Fill; // Manually size and position
-            _popupForm.ShowPopup(this,screenPoint);
-          //  _popupForm.BringToFront();
-         //   _popupForm.Invalidate();
+            // Get the screen position of the control's top-left corner
+            //Point screenPoint = beepButton1.PointToScreen(Point.Empty);
+            //Point point = new Point(screenPoint.X, screenPoint.Y + beepButton1.Height);
+            SimpleItem x = beepFileDialog.ShowPopup(Text, this, BeepPopupFormPosition.Right);
         }
         private void ClosePopup()
         {
@@ -512,7 +484,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.ButtonForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
-            if(_beepListBox != null)   _beepListBox.Theme = Theme;
+            ActiveBackColor = _currentTheme.ButtonActiveBackColor;
+           
+            if (_beepListBox != null)   _beepListBox.Theme = Theme;
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);

@@ -28,12 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            ButtonsPanel = new BeepPanel();
             ContentPanel = new BeepPanel();
             HeaderPanel = new BeepPanel();
             CloseButton = new BeepButton();
             DialogIconImage = new BeepImage();
             TitleLabel = new BeepLabel();
+            ButtonsPanel = new TableLayoutPanel();
             HeaderPanel.SuspendLayout();
             SuspendLayout();
             // 
@@ -41,112 +41,9 @@
             // 
             beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
             // 
-            // ButtonsPanel
-            // 
-            ButtonsPanel.ActiveBackColor = Color.Gray;
-            ButtonsPanel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            ButtonsPanel.AnimationDuration = 500;
-            ButtonsPanel.AnimationType = DisplayAnimationType.None;
-            ButtonsPanel.ApplyThemeToChilds = true;
-            ButtonsPanel.BackColor = Color.DarkGray;
-            ButtonsPanel.BlockID = null;
-            ButtonsPanel.BorderColor = Color.Black;
-            ButtonsPanel.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            ButtonsPanel.BorderRadius = 1;
-            ButtonsPanel.BorderStyle = BorderStyle.FixedSingle;
-            ButtonsPanel.BorderThickness = 1;
-            ButtonsPanel.BottomoffsetForDrawingRect = 0;
-            ButtonsPanel.BoundProperty = null;
-            ButtonsPanel.CanBeFocused = true;
-            ButtonsPanel.CanBeHovered = false;
-            ButtonsPanel.CanBePressed = true;
-            ButtonsPanel.Category = Utilities.DbFieldCategory.String;
-            ButtonsPanel.ComponentName = "ButtonsPanel";
-            ButtonsPanel.DataContext = null;
-            ButtonsPanel.DataSourceProperty = null;
-            ButtonsPanel.DisabledBackColor = Color.Gray;
-            ButtonsPanel.DisabledForeColor = Color.Empty;
-            ButtonsPanel.DrawingRect = new Rectangle(1, 1, 786, 71);
-            ButtonsPanel.Easing = EasingType.Linear;
-            ButtonsPanel.FieldID = null;
-            ButtonsPanel.FocusBackColor = Color.Gray;
-            ButtonsPanel.FocusBorderColor = Color.Gray;
-            ButtonsPanel.FocusForeColor = Color.Black;
-            ButtonsPanel.FocusIndicatorColor = Color.Blue;
-            ButtonsPanel.Font = new Font("Segoe UI", 16F);
-            ButtonsPanel.ForeColor = Color.White;
-            ButtonsPanel.Form = null;
-            ButtonsPanel.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            ButtonsPanel.GradientEndColor = Color.Gray;
-            ButtonsPanel.GradientStartColor = Color.Gray;
-            ButtonsPanel.GuidID = "b207d94c-5c91-4361-a315-7f0471bed933";
-            ButtonsPanel.HoverBackColor = Color.Gray;
-            ButtonsPanel.HoverBorderColor = Color.Gray;
-            ButtonsPanel.HoveredBackcolor = Color.Wheat;
-            ButtonsPanel.HoverForeColor = Color.Black;
-            ButtonsPanel.Id = -1;
-            ButtonsPanel.InactiveBackColor = Color.Gray;
-            ButtonsPanel.InactiveBorderColor = Color.Gray;
-            ButtonsPanel.InactiveForeColor = Color.Black;
-            ButtonsPanel.IsAcceptButton = false;
-            ButtonsPanel.IsBorderAffectedByTheme = true;
-            ButtonsPanel.IsCancelButton = false;
-            ButtonsPanel.IsChild = false;
-            ButtonsPanel.IsCustomeBorder = false;
-            ButtonsPanel.IsDefault = false;
-            ButtonsPanel.IsFocused = false;
-            ButtonsPanel.IsFramless = false;
-            ButtonsPanel.IsHovered = false;
-            ButtonsPanel.IsPressed = false;
-            ButtonsPanel.IsRounded = true;
-            ButtonsPanel.IsRoundedAffectedByTheme = true;
-            ButtonsPanel.IsShadowAffectedByTheme = true;
-            ButtonsPanel.LeftoffsetForDrawingRect = 0;
-            ButtonsPanel.LinkedProperty = null;
-            ButtonsPanel.Location = new Point(6, 371);
-            ButtonsPanel.Name = "ButtonsPanel";
-            ButtonsPanel.OverrideFontSize = TypeStyleFontSize.None;
-            ButtonsPanel.ParentBackColor = Color.Empty;
-            ButtonsPanel.PressedBackColor = Color.Gray;
-            ButtonsPanel.PressedBorderColor = Color.Gray;
-            ButtonsPanel.PressedForeColor = Color.Black;
-            ButtonsPanel.RightoffsetForDrawingRect = 0;
-            ButtonsPanel.SavedGuidID = null;
-            ButtonsPanel.SavedID = null;
-            ButtonsPanel.ShadowColor = Color.Black;
-            ButtonsPanel.ShadowOffset = 0;
-            ButtonsPanel.ShadowOpacity = 0.5F;
-            ButtonsPanel.ShowAllBorders = true;
-            ButtonsPanel.ShowBottomBorder = true;
-            ButtonsPanel.ShowFocusIndicator = false;
-            ButtonsPanel.ShowLeftBorder = true;
-            ButtonsPanel.ShowRightBorder = true;
-            ButtonsPanel.ShowShadow = false;
-            ButtonsPanel.ShowTitle = false;
-            ButtonsPanel.ShowTitleLine = true;
-            ButtonsPanel.ShowTitleLineinFullWidth = true;
-            ButtonsPanel.ShowTopBorder = true;
-            ButtonsPanel.Size = new Size(788, 73);
-            ButtonsPanel.SlideFrom = SlideDirection.Left;
-            ButtonsPanel.StaticNotMoving = false;
-            ButtonsPanel.TabIndex = 0;
-            ButtonsPanel.Text = "beepPanel1";
-            ButtonsPanel.Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
-            ButtonsPanel.TitleAlignment = ContentAlignment.TopLeft;
-            ButtonsPanel.TitleBottomY = 0;
-            ButtonsPanel.TitleFont = new Font("Segoe UI", 16F);
-            ButtonsPanel.TitleLineColor = Color.Gray;
-            ButtonsPanel.TitleLineThickness = 2;
-            ButtonsPanel.TitleText = "Panel Title";
-            ButtonsPanel.ToolTipText = "";
-            ButtonsPanel.TopoffsetForDrawingRect = 0;
-            ButtonsPanel.UseGradientBackground = false;
-            ButtonsPanel.UseThemeFont = true;
-            // 
             // ContentPanel
             // 
             ContentPanel.ActiveBackColor = Color.Gray;
-            ContentPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             ContentPanel.AnimationDuration = 500;
             ContentPanel.AnimationType = DisplayAnimationType.None;
             ContentPanel.ApplyThemeToChilds = true;
@@ -168,7 +65,8 @@
             ContentPanel.DataSourceProperty = null;
             ContentPanel.DisabledBackColor = Color.Gray;
             ContentPanel.DisabledForeColor = Color.Empty;
-            ContentPanel.DrawingRect = new Rectangle(1, 1, 786, 267);
+            ContentPanel.Dock = DockStyle.Fill;
+            ContentPanel.DrawingRect = new Rectangle(1, 1, 792, 442);
             ContentPanel.Easing = EasingType.Linear;
             ContentPanel.FieldID = null;
             ContentPanel.FocusBackColor = Color.Gray;
@@ -205,7 +103,7 @@
             ContentPanel.IsShadowAffectedByTheme = true;
             ContentPanel.LeftoffsetForDrawingRect = 0;
             ContentPanel.LinkedProperty = null;
-            ContentPanel.Location = new Point(6, 96);
+            ContentPanel.Location = new Point(3, 3);
             ContentPanel.Name = "ContentPanel";
             ContentPanel.OverrideFontSize = TypeStyleFontSize.None;
             ContentPanel.ParentBackColor = Color.Empty;
@@ -228,7 +126,7 @@
             ContentPanel.ShowTitleLine = true;
             ContentPanel.ShowTitleLineinFullWidth = true;
             ContentPanel.ShowTopBorder = true;
-            ContentPanel.Size = new Size(788, 269);
+            ContentPanel.Size = new Size(794, 444);
             ContentPanel.SlideFrom = SlideDirection.Left;
             ContentPanel.StaticNotMoving = false;
             ContentPanel.TabIndex = 1;
@@ -248,7 +146,6 @@
             // HeaderPanel
             // 
             HeaderPanel.ActiveBackColor = Color.Gray;
-            HeaderPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             HeaderPanel.AnimationDuration = 500;
             HeaderPanel.AnimationType = DisplayAnimationType.None;
             HeaderPanel.ApplyThemeToChilds = true;
@@ -273,7 +170,8 @@
             HeaderPanel.DataSourceProperty = null;
             HeaderPanel.DisabledBackColor = Color.Gray;
             HeaderPanel.DisabledForeColor = Color.Empty;
-            HeaderPanel.DrawingRect = new Rectangle(1, 1, 786, 82);
+            HeaderPanel.Dock = DockStyle.Top;
+            HeaderPanel.DrawingRect = new Rectangle(1, 1, 792, 82);
             HeaderPanel.Easing = EasingType.Linear;
             HeaderPanel.FieldID = null;
             HeaderPanel.FocusBackColor = Color.Gray;
@@ -310,7 +208,7 @@
             HeaderPanel.IsShadowAffectedByTheme = true;
             HeaderPanel.LeftoffsetForDrawingRect = 0;
             HeaderPanel.LinkedProperty = null;
-            HeaderPanel.Location = new Point(6, 6);
+            HeaderPanel.Location = new Point(3, 3);
             HeaderPanel.Name = "HeaderPanel";
             HeaderPanel.OverrideFontSize = TypeStyleFontSize.None;
             HeaderPanel.ParentBackColor = Color.Empty;
@@ -333,7 +231,7 @@
             HeaderPanel.ShowTitleLine = true;
             HeaderPanel.ShowTitleLineinFullWidth = true;
             HeaderPanel.ShowTopBorder = true;
-            HeaderPanel.Size = new Size(788, 84);
+            HeaderPanel.Size = new Size(794, 84);
             HeaderPanel.SlideFrom = SlideDirection.Left;
             HeaderPanel.StaticNotMoving = false;
             HeaderPanel.TabIndex = 2;
@@ -530,7 +428,7 @@
             DialogIconImage.IsStillImage = false;
             DialogIconImage.LeftoffsetForDrawingRect = 0;
             DialogIconImage.LinkedProperty = null;
-            DialogIconImage.Location = new Point(5, 23);
+            DialogIconImage.Location = new Point(11, 23);
             DialogIconImage.ManualRotationAngle = 0F;
             DialogIconImage.Name = "DialogIconImage";
             DialogIconImage.OverrideFontSize = TypeStyleFontSize.None;
@@ -668,15 +566,29 @@
             TitleLabel.UseScaledFont = false;
             TitleLabel.UseThemeFont = false;
             // 
+            // ButtonsPanel
+            // 
+            ButtonsPanel.ColumnCount = 2;
+            ButtonsPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            ButtonsPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            ButtonsPanel.Dock = DockStyle.Bottom;
+            ButtonsPanel.Location = new Point(3, 386);
+            ButtonsPanel.Name = "ButtonsPanel";
+            ButtonsPanel.RowCount = 2;
+            ButtonsPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            ButtonsPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            ButtonsPanel.Size = new Size(794, 61);
+            ButtonsPanel.TabIndex = 0;
+            // 
             // BeepDialogBoxPopUp
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BorderColor = Color.White;
             ClientSize = new Size(800, 450);
+            Controls.Add(ButtonsPanel);
             Controls.Add(HeaderPanel);
             Controls.Add(ContentPanel);
-            Controls.Add(ButtonsPanel);
             Name = "BeepDialogBoxPopUp";
             Text = "BeepDialogBoxPopUp";
             Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
@@ -685,12 +597,11 @@
         }
 
         #endregion
-
-        private BeepPanel ButtonsPanel;
         private BeepPanel ContentPanel;
         private BeepPanel HeaderPanel;
         private BeepLabel TitleLabel;
         private BeepImage DialogIconImage;
         private BeepButton CloseButton;
+        private TableLayoutPanel ButtonsPanel;
     }
 }

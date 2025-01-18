@@ -231,6 +231,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
         }
+
+        public BeepButton CurrenItemButton { get; private set; }
         #endregion "Properties"
         #region "Constructor"
         public BeepListBox()
@@ -475,7 +477,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (sender is BeepButton clickedButton)
             {
+                CurrenItemButton = (BeepButton)sender;
                 SimpleItem simpleItem = (SimpleItem)clickedButton.Tag;
+                SelectedItem = simpleItem;
                 ItemClicked?.Invoke(this, simpleItem);
             }
         }
@@ -630,7 +634,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 {
                                     button.Font = TextFont;
                                 }
-
+                                button.BackColor = _currentTheme.ButtonBackColor;
+                                button.ForeColor = _currentTheme.ButtonForeColor;
+                                button.HoverBackColor = _currentTheme.ButtonHoverBackColor;
+                                button.HoverForeColor = _currentTheme.ButtonHoverForeColor;
                                 button.UseScaledFont = true;
                                // button.ForeColor = ColorUtils.GetForColor(BackColor, _currentTheme.ButtonForeColor);
                                 break;

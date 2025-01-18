@@ -109,6 +109,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
+
+        public BeepButton CurrenItemButton { get { return _beepListBox.CurrenItemButton; } private set { } }
         #endregion "Popup List Properties"
         public BeepPopupListForm(List<SimpleItem> items)
         {
@@ -125,6 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void InitializeMenu(List<SimpleItem> items)
         {
             _beepListBox.ListItems = new BindingList<SimpleItem>(items);
+            _beepListBox.Theme = Theme;
             _beepListBox.InitializeMenu();
             int _maxListHeight = Width;
             int _maxListWidth = 50;
@@ -151,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Position popup just below the main control
 
-            _beepListBox.Theme = Theme;
+           
             _beepListBox.ShowAllBorders = false;
 
             Size = new Size(finalWidth, neededHeight);
@@ -159,20 +162,32 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void BeepPopupListForm_OnLeave(object? sender, EventArgs e)
         {
-            DialogResult = DialogResult.Cancel; // Mark the dialog as "Cancelled"
-            this.Close();
+         //   DialogResult = DialogResult.Cancel; // Mark the dialog as "Cancelled"
+             CurrenItemButton = null;
+            SelectedItem = null;
+          
+
         }
 
         private void BeepListBox_ItemClicked(object? sender, SimpleItem e)
         {
             SelectedItem = e;
-            DialogResult = DialogResult.OK; // Mark the dialog as "OK"
-            Close();
+            if (SelectedItem != null)
+            {
+                CurrenItemButton = _beepListBox.CurrenItemButton;
+            }
+         //   DialogResult = DialogResult.OK; // Mark the dialog as "OK"
+           // Close();
         }
 
         private void BeepListBox_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
             SelectedItem = e.SelectedItem;
+            DialogResult = DialogResult.OK;
+            if(SelectedItem != null)
+            {
+                CurrenItemButton =_beepListBox.CurrenItemButton;
+            }
         }
 
         public SimpleItem ShowPopup(string Title, Control triggerControl, BeepPopupFormPosition position, bool showtitle = false)
@@ -197,8 +212,85 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size = new Size(finalWidth, neededHeight);
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
             base.ShowPopup(triggerControl, position);
+            
             return SelectedItem;
 
         }
+        public SimpleItem ShowPopup(string Title, Control triggerControl, Point pointAdjusment, BeepPopupFormPosition position, bool showtitle = false)
+        {
+            ShowTitle = showtitle;
+            _beepListBox.TitleText = Title;
+            int neededHeight = _beepListBox.GetMaxHeight();
+            int finalHeight = Math.Min(neededHeight, _maxListHeight);
+            // possibly also compute width
+            // get max width of all items
+            foreach (var item in _beepListBox.ListItems)
+            {
+                _maxListWidth = Math.Max(_maxListWidth, TextRenderer.MeasureText(item.Text, _beepListBox.TextFont).Width);
+
+            }
+            int finalWidth = Math.Min(Width, _maxListWidth + 10);
+            if (finalWidth < triggerControl.Width)
+            {
+                finalWidth = triggerControl.Width;
+            }
+            Size = new Size(finalWidth, neededHeight);
+            _beepListBox.Dock = DockStyle.Fill; // Manually size and position
+            base.ShowPopup(triggerControl, position, pointAdjusment);
+
+            return SelectedItem;
+
+        }
+        public SimpleItem ShowPopup(string Title, Point anchorPoint,  BeepPopupFormPosition position, bool showtitle = false)
+        {
+            ShowTitle = showtitle;
+            _beepListBox.TitleText = Title;
+
+            // Calculate the size of the popup
+            int neededHeight = _beepListBox.GetMaxHeight();
+            int finalHeight = Math.Min(neededHeight, _maxListHeight);
+
+            // Calculate max width of items
+            foreach (var item in _beepListBox.ListItems)
+            {
+                _maxListWidth = Math.Max(_maxListWidth, TextRenderer.MeasureText(item.Text, _beepListBox.TextFont).Width);
+            }
+
+            int finalWidth = Math.Min(Width, _maxListWidth + 10);
+
+            // Ensure the popup width is at least as wide as the trigger area
+            if (finalWidth < Width)
+            {
+                finalWidth = Width;
+            }
+
+            Size = new Size(finalWidth, neededHeight);
+            _beepListBox.Dock = DockStyle.Fill; // Fill the popup
+
+            // Adjust position based on alignment and adjustment point
+            Point popupLocation =anchorPoint;
+
+            // Set the location and show the popup
+            Location = popupLocation;
+            Show(); // Show the popup (or ShowDialog if modal behavior is required)
+
+            return SelectedItem;
+        }
+
+        public override void ApplyTheme()
+        {
+            if(Theme == null)
+            {
+                return;
+            }
+            BackColor =_currentTheme.ButtonBackColor;
+            //beepPanel1.Theme = beepuiManager1.Theme;
+            BorderColor = _currentTheme.BorderColor;
+            ForeColor = _currentTheme.ButtonForeColor;
+            if(_beepListBox!=null)      _beepListBox.Theme = Theme;
+
+            Invalidate();
+        }
+
     }
 }

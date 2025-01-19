@@ -83,6 +83,55 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
         }
+        private bool _useScaledfont = false;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool UseScaledFont
+        {
+            get => _useScaledfont;
+            set
+            {
+                _useScaledfont = value;
+                ApplyTheme();
+                Invalidate();  // Trigger repaint
+            }
+        }
+        private Font _textFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TextFont
+        {
+            get => _textFont;
+            set
+            {
+
+                _textFont = value;
+                UseThemeFont = false;
+                Font = value;
+                ChangeFontSettings();
+                Invalidate();
+
+
+            }
+        }
+        private bool _useThemeFont = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("If true, the label's font is always set to the theme font.")]
+        public new bool UseThemeFont
+        {
+            get => _useThemeFont;
+            set
+            {
+                _useThemeFont = value;
+                ApplyTheme();
+                Invalidate();
+            }
+        }
+
 
         private ContentAlignment textAlign= ContentAlignment.MiddleLeft;
 
@@ -310,7 +359,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                           ControlStyles.UserPaint |
                           ControlStyles.AllPaintingInWmPaint, true);
             this.UpdateStyles();
-            Padding = new Padding(5);
+            Padding = new Padding(1);
             // Initialize scroll event handling for virtualization
             this.AutoScroll = true;
             this.VerticalScroll.Visible = true;
@@ -484,6 +533,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
         }
+        private void ChangeFontSettings()
+        {
+            foreach (var item in _beeptreeRootnodes)
+            {
+                item.TextFont = TextFont;
+
+            }
+        }
         public void SetAllNodesCheckBoxVisibility(bool show)
         {
             // Iterate over all nodes that are directly within the _beeptreeRootnodes collection
@@ -600,7 +657,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     node.Height = NodeHeight;
                     panel.Height = NodeHeight;
                 }
-                panel.Width = this.Width - 10; // Adjust panel width based on tree width
+                panel.Width = DrawingRect.Width ; // Adjust panel width based on tree width
                 node.RearrangeNode(); // Adjust the node's internal layout
                 startY += panel.Height; // Increment Y position based on panel's height
             }
@@ -802,7 +859,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Theme = this.Theme,
                     SavedGuidID = BranchGuid,
                     NodeDataType = typename,
-                      Level = parent?.Level + 1 ?? 1 // Increment level for child nodes
+                    UseScaledFont = UseScaledFont,
+                    UseThemeFont = this.UseThemeFont,
+                    Level = parent?.Level + 1 ?? 1 // Increment level for child nodes
                 };
                 node.Text = name ?? $"Node{seq}";
                 node.NodeClicked += (sender, e) => NodeClicked?.Invoke(sender, e);
@@ -873,10 +932,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                     GuidID=menuItem.GuidId,
                     NodeDataType = menuItem.GetType().Name,
                     Level = parent?.Level + 1 ?? 1,
+                    UseThemeFont = this.UseThemeFont,
+                    UseScaledFont = this.UseScaledFont,
                     TextAlignment = textAlign
                     
+                   
 
                 };
+                if(UseThemeFont == false)
+                {
+                    node.TextFont = TextFont;
+                }
+                
                 node.Text = menuItem.Text ?? $"Node{seq}";
                 node.NodeClicked += OnNodeClicked;
                 node.NodeRightClicked += OnNodeRightClicked;
@@ -1431,7 +1498,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             _nodePanels.Values.ToList().ForEach(p => p.BackColor = _currentTheme.PanelBackColor);
             foreach (BeepTreeNode node in _beeptreeRootnodes)
             {
+                node.UseThemeFont = UseThemeFont;
+                node.UseScaledFont = UseScaledFont;
                 node.Theme = Theme;
+                if(UseThemeFont == false)
+                {
+                    node.TextFont = TextFont;
+                }
                 //     node.ApplyTheme();
             }
         }

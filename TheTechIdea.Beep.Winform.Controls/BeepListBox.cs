@@ -628,11 +628,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 button.Theme = Theme;
                                 if (UseThemeFont)
                                 {
+                                    button.UseThemeFont = true;
                                     button.Font = BeepThemesManager.ToFont(_currentTheme.OrderedList);
                                 }
                                 else
                                 {
-                                    button.Font = TextFont;
+                                    button.TextFont = TextFont;
                                 }
                                 button.BackColor = _currentTheme.ButtonBackColor;
                                 button.ForeColor = _currentTheme.ButtonForeColor;

@@ -490,8 +490,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                
             }
-         
+
+            Font = _textFont;
             ApplyThemeToSvg();
             Invalidate();  // Trigger repaint
         }

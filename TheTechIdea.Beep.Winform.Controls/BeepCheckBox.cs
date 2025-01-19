@@ -335,7 +335,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Draw checkbox border
-            using (Pen borderPen = new Pen(_currentTheme.BorderColor, 2))
+            using (Pen borderPen = new Pen(ForeColor, 2))
             {
                 g.DrawRectangle(borderPen, checkBoxRect);
             }

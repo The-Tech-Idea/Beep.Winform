@@ -160,6 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ApplyTheme();
             IsChild = false;
             this.Size = new Size(400, 300);
+           
         }
         #endregion
 

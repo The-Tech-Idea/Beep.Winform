@@ -102,6 +102,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int childnodesSeq = 0;
 
         private bool _ischildDrawn = false;
+
+        private bool _useScaledfont = false;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool UseScaledFont
+        {
+            get => _useScaledfont;
+            set
+            {
+                _useScaledfont = value;
+                ApplyTheme();
+                Invalidate();  // Trigger repaint
+            }
+        }
+
         private ContentAlignment textAlign= ContentAlignment.MiddleLeft;
 
         [Browsable(true)]
@@ -130,7 +145,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public int SmallNodeHeight { get; set; } = 10;
         private int nodeimagesize = 10;
         public int MinimumTextWidth { get; set; } = 100;
-        int padding = 5; // Padding around elements
+        int padding = 1; // Padding around elements
+        int spacing = 3; // Padding around elements
         public string NodeDataType { get; set; } = "SimpleItem";
         public string LocalizedText => Resources.ResourceManager.GetString(Key) ?? Text;
         /// <summary>
@@ -430,6 +446,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get { return _isAdded; }
             set { _isAdded = value; }
+        }
+
+        private Font _textFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TextFont
+        {
+            get => _textFont;
+            set
+            {
+
+                _textFont = value;
+                UseThemeFont = false;
+                Font = value;
+                ApplyTheme();
+                Invalidate();
+
+
+            }
         }
         #endregion "Properties"
         #region "Constructors"
@@ -868,7 +906,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _toggleButton.Location = new Point(startx, (NodeHeight - toggelbuttonsize) / 2); // Center vertically
                     _toggleButton.Size = new Size(toggelbuttonsize, toggelbuttonsize);
                     _toggleButton.MaxImageSize =new Size(toggelbuttonsize-1, toggelbuttonsize-1);
-                    startx += _toggleButton.Width + padding;
+                    startx += _toggleButton.Width + spacing;
                 }
 
                 // Position the CheckBox
@@ -877,14 +915,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _checkBox.Location = new Point(startx, (NodeHeight - toggelbuttonsize) / 2);
                     _checkBox.Size = new Size(toggelbuttonsize, toggelbuttonsize);
                     _checkBox.CheckBoxSize = toggelbuttonsize - 1;
-                    startx += _checkBox.Width + padding;
+                    startx += _checkBox.Width + spacing;
                 }
                 //// Position the left button
                 //if (Nodeleftbutton != null)
                 //{
                 //    Nodeleftbutton.Location = new Point(startx, centerY); // Center vertically
                 //    Nodeleftbutton.Size = new Size(SmallNodeHeight, SmallNodeHeight);
-                //    startx += Nodeleftbutton.Width + padding;
+                //    startx += Nodeleftbutton.Width + spacing;
                 //}
 
                 // Position the main middle button
@@ -893,7 +931,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     NodeMainMiddlebutton.Location = new Point(startx, centerY); // Top aligned
                     NodeMainMiddlebutton.MinimumSize = new Size(MinimumTextWidth, NodeHeight); // Ensure a minimum size
                     NodeMainMiddlebutton.Size = new Size(Math.Max(MinimumTextWidth, _nodePanel.Width - startx - SmallNodeHeight - 2 * padding), NodeHeight);
-                    startx += NodeMainMiddlebutton.Width + padding;
+                    startx += NodeMainMiddlebutton.Width + spacing;
                 }
 
                 // Position the right button
@@ -901,11 +939,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Noderightbutton.Location = new Point(startx, centerY); // Center vertically
                     Noderightbutton.Size = new Size(SmallNodeHeight, SmallNodeHeight);
-                    startx += Noderightbutton.Width + padding;
+                    startx += Noderightbutton.Width + spacing;
                 }
 
                 // Adjust the size of the node panel
-                _nodePanel.Height = NodeHeight + padding ;
+                _nodePanel.Height = NodeHeight + spacing;
               
                 int xlevel = 1;
 
@@ -921,8 +959,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     int childStartY = padding;
                     foreach (var child in NodesControls)
                     {
-                        child.Location = new Point(xlevel * padding, childStartY); // Indent child nodes
-                        child.Width = Width - (xlevel * padding);
+                        child.Location = new Point(xlevel * spacing, childStartY); // Indent child nodes
+                        child.Width = Width - (xlevel * spacing);
                         child.Theme = Theme;
                         child.RearrangeNode();
                         childStartY += child.Height;
@@ -1125,7 +1163,6 @@ namespace TheTechIdea.Beep.Winform.Controls
               //  NodeMainMiddlebutton.PopupMode = true;
                 NodeMainMiddlebutton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
                 NodeMainMiddlebutton.TextAlign = TextAlignment;
-                NodeMainMiddlebutton.UseScaledFont = true;
                 NodeMainMiddlebutton.IsChild = true;
                 NodeMainMiddlebutton.IsFramless = true;
                 NodeMainMiddlebutton.IsRounded = false;
@@ -1248,8 +1285,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (NodeMainMiddlebutton != null)
             {
                 NodeMainMiddlebutton.Theme = Theme;
-                NodeMainMiddlebutton.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-
+                if (UseThemeFont)
+                {
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                }
+                NodeMainMiddlebutton.Font = _textFont; 
+                Font = _textFont;
             }
             if (Noderightbutton != null)
             {
@@ -1274,8 +1315,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _nodePanel.BackColor = _currentTheme.ButtonBackColor;
             _childrenPanel.BackColor = _currentTheme.ButtonBackColor;
             this.BackColor = _currentTheme.ButtonBackColor;
-            _toggleButton.BackColor = _currentTheme.ButtonBackColor;
-            _toggleButton.ForeColor = _currentTheme.ButtonForeColor;
+            _toggleButton.Theme = Theme;
+
             //     Noderightbutton.BackColor = _currentTheme.PanelBackColor;
         }
         public void HilightNode()

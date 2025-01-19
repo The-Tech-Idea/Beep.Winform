@@ -102,7 +102,7 @@
             _specialFoldersComboBox.AnimationDuration = 500;
             _specialFoldersComboBox.AnimationType = DisplayAnimationType.None;
             _specialFoldersComboBox.ApplyThemeToChilds = true;
-            _specialFoldersComboBox.BackColor = Color.White;
+            _specialFoldersComboBox.BackColor = Color.FromArgb(240, 240, 240);
             _specialFoldersComboBox.BlockID = null;
             _specialFoldersComboBox.BorderColor = Color.FromArgb(200, 200, 200);
             _specialFoldersComboBox.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -120,7 +120,7 @@
             _specialFoldersComboBox.DataSourceProperty = null;
             _specialFoldersComboBox.DisabledBackColor = Color.Gray;
             _specialFoldersComboBox.DisabledForeColor = Color.Empty;
-            _specialFoldersComboBox.DrawingRect = new Rectangle(0, 0, 176, 26);
+            _specialFoldersComboBox.DrawingRect = new Rectangle(1, 1, 174, 19);
             _specialFoldersComboBox.Easing = EasingType.Linear;
             _specialFoldersComboBox.FieldID = null;
             _specialFoldersComboBox.FocusBackColor = Color.Black;
@@ -166,17 +166,18 @@
             _specialFoldersComboBox.SavedGuidID = null;
             _specialFoldersComboBox.SavedID = null;
             _specialFoldersComboBox.SelectedIndex = -1;
+            _specialFoldersComboBox.SelectedItem = null;
             _specialFoldersComboBox.ShadowColor = Color.Empty;
             _specialFoldersComboBox.ShadowOffset = 0;
             _specialFoldersComboBox.ShadowOpacity = 0.5F;
-            _specialFoldersComboBox.ShowAllBorders = false;
-            _specialFoldersComboBox.ShowBottomBorder = false;
+            _specialFoldersComboBox.ShowAllBorders = true;
+            _specialFoldersComboBox.ShowBottomBorder = true;
             _specialFoldersComboBox.ShowFocusIndicator = false;
-            _specialFoldersComboBox.ShowLeftBorder = false;
-            _specialFoldersComboBox.ShowRightBorder = false;
+            _specialFoldersComboBox.ShowLeftBorder = true;
+            _specialFoldersComboBox.ShowRightBorder = true;
             _specialFoldersComboBox.ShowShadow = false;
-            _specialFoldersComboBox.ShowTopBorder = false;
-            _specialFoldersComboBox.Size = new Size(176, 26);
+            _specialFoldersComboBox.ShowTopBorder = true;
+            _specialFoldersComboBox.Size = new Size(176, 21);
             _specialFoldersComboBox.SlideFrom = SlideDirection.Left;
             _specialFoldersComboBox.StaticNotMoving = false;
             _specialFoldersComboBox.TabIndex = 0;
@@ -185,6 +186,7 @@
             _specialFoldersComboBox.ToolTipText = "";
             _specialFoldersComboBox.TopoffsetForDrawingRect = 0;
             _specialFoldersComboBox.UseGradientBackground = false;
+            _specialFoldersComboBox.UseThemeFont = true;
             // 
             // splitContainer2
             // 
@@ -226,7 +228,7 @@
             splitContainer4.Panel2.Controls.Add(_fileListView);
             splitContainer4.Panel2.Controls.Add(panel1);
             splitContainer4.Size = new Size(454, 444);
-            splitContainer4.SplitterDistance = 42;
+            splitContainer4.SplitterDistance = 52;
             splitContainer4.TabIndex = 0;
             // 
             // _searchBox
@@ -234,14 +236,12 @@
             _searchBox.AcceptsReturn = false;
             _searchBox.AcceptsTab = false;
             _searchBox.ActiveBackColor = Color.Gray;
-            _searchBox.Anchor = AnchorStyles.None;
             _searchBox.AnimationDuration = 500;
             _searchBox.AnimationType = DisplayAnimationType.None;
             _searchBox.ApplyThemeOnImage = false;
             _searchBox.ApplyThemeToChilds = true;
             _searchBox.AutoCompleteMode = AutoCompleteMode.None;
             _searchBox.AutoCompleteSource = AutoCompleteSource.None;
-            _searchBox.BackColor = Color.White;
             _searchBox.BlockID = null;
             _searchBox.BorderColor = Color.Black;
             _searchBox.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -262,19 +262,19 @@
             _searchBox.DateTimeFormat = "MM/dd/yyyy HH:mm:ss";
             _searchBox.DisabledBackColor = Color.Gray;
             _searchBox.DisabledForeColor = Color.Empty;
-            _searchBox.DrawingRect = new Rectangle(0, 0, 435, 21);
+            _searchBox.DrawingRect = new Rectangle(3, 3, 316, 14);
             _searchBox.Easing = EasingType.Linear;
             _searchBox.FieldID = null;
             _searchBox.FocusBackColor = Color.Gray;
             _searchBox.FocusBorderColor = Color.Gray;
             _searchBox.FocusForeColor = Color.Black;
             _searchBox.FocusIndicatorColor = Color.Blue;
-            _searchBox.TextFont = new Font("Segoe UI", 11.5F);
+            _searchBox.Font = new Font("Segoe UI", 9F);
             _searchBox.Form = null;
             _searchBox.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             _searchBox.GradientEndColor = Color.Gray;
             _searchBox.GradientStartColor = Color.Gray;
-            _searchBox.GuidID = "c2286dff-e802-49af-8c40-f7d3dd0fd4d5";
+            _searchBox.GuidID = "4402ea50-19a3-47ae-b87b-724888a031f5";
             _searchBox.HideSelection = true;
             _searchBox.HoverBackColor = Color.Gray;
             _searchBox.HoverBorderColor = Color.Gray;
@@ -289,15 +289,16 @@
             // 
             // 
             // 
+            _searchBox.InnerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             _searchBox.InnerTextBox.BackColor = Color.White;
-            _searchBox.InnerTextBox.Dock = DockStyle.Fill;
-            _searchBox.InnerTextBox.Font = new Font("Segoe UI", 11.5F);
+            _searchBox.InnerTextBox.BorderStyle = BorderStyle.None;
+            _searchBox.InnerTextBox.Font = new Font("Segoe UI", 9F);
             _searchBox.InnerTextBox.ForeColor = Color.Black;
-            _searchBox.InnerTextBox.Location = new Point(0, 0);
+            _searchBox.InnerTextBox.Location = new Point(5, 2);
             _searchBox.InnerTextBox.Name = "";
-            _searchBox.InnerTextBox.PlaceholderText = "Search";
-            _searchBox.InnerTextBox.Size = new Size(435, 21);
+            _searchBox.InnerTextBox.Size = new Size(312, 16);
             _searchBox.InnerTextBox.TabIndex = 0;
+            _searchBox.InnerTextBox.Text = "beepTextBox1";
             _searchBox.IsAcceptButton = false;
             _searchBox.IsBorderAffectedByTheme = true;
             _searchBox.IsCancelButton = false;
@@ -313,7 +314,7 @@
             _searchBox.IsShadowAffectedByTheme = true;
             _searchBox.LeftoffsetForDrawingRect = 0;
             _searchBox.LinkedProperty = null;
-            _searchBox.Location = new Point(13, 12);
+            _searchBox.Location = new Point(66, 18);
             _searchBox.MaskFormat = Vis.Modules.TextBoxMaskFormat.None;
             _searchBox.Modified = false;
             _searchBox.Multiline = false;
@@ -321,9 +322,10 @@
             _searchBox.OnlyCharacters = false;
             _searchBox.OnlyDigits = false;
             _searchBox.OverrideFontSize = TypeStyleFontSize.None;
+            _searchBox.Padding = new Padding(2);
             _searchBox.ParentBackColor = Color.Empty;
             _searchBox.PasswordChar = '\0';
-            _searchBox.PlaceholderText = "Search";
+            _searchBox.PlaceholderText = "";
             _searchBox.PressedBackColor = Color.Gray;
             _searchBox.PressedBorderColor = Color.Gray;
             _searchBox.PressedForeColor = Color.Black;
@@ -336,20 +338,22 @@
             _searchBox.ShadowColor = Color.Black;
             _searchBox.ShadowOffset = 0;
             _searchBox.ShadowOpacity = 0.5F;
-            _searchBox.ShowAllBorders = false;
-            _searchBox.ShowBottomBorder = false;
+            _searchBox.ShowAllBorders = true;
+            _searchBox.ShowBottomBorder = true;
             _searchBox.ShowFocusIndicator = false;
-            _searchBox.ShowLeftBorder = false;
-            _searchBox.ShowRightBorder = false;
+            _searchBox.ShowLeftBorder = true;
+            _searchBox.ShowRightBorder = true;
             _searchBox.ShowScrollbars = false;
             _searchBox.ShowShadow = false;
-            _searchBox.ShowTopBorder = false;
+            _searchBox.ShowTopBorder = true;
             _searchBox.ShowVerticalScrollBar = false;
-            _searchBox.Size = new Size(435, 21);
+            _searchBox.Size = new Size(322, 20);
             _searchBox.SlideFrom = SlideDirection.Left;
             _searchBox.StaticNotMoving = false;
             _searchBox.TabIndex = 0;
+            _searchBox.Text = "beepTextBox1";
             _searchBox.TextAlignment = HorizontalAlignment.Left;
+            _searchBox.TextFont = new Font("Segoe UI", 9F);
             _searchBox.TextImageRelation = TextImageRelation.ImageBeforeText;
             _searchBox.Theme = Vis.Modules.EnumBeepThemes.MonochromeTheme;
             _searchBox.TimeFormat = "HH:mm:ss";
@@ -357,6 +361,7 @@
             _searchBox.TopoffsetForDrawingRect = 0;
             _searchBox.UseGradientBackground = false;
             _searchBox.UseSystemPasswordChar = false;
+            _searchBox.UseThemeFont = true;
             _searchBox.WordWrap = true;
             // 
             // _fileListView
@@ -365,7 +370,7 @@
             _fileListView.Dock = DockStyle.Fill;
             _fileListView.Location = new Point(0, 0);
             _fileListView.Name = "_fileListView";
-            _fileListView.Size = new Size(454, 348);
+            _fileListView.Size = new Size(454, 338);
             _fileListView.TabIndex = 0;
             _fileListView.UseCompatibleStateImageBehavior = false;
             // 
@@ -376,14 +381,14 @@
             panel1.Controls.Add(_cancelButton);
             panel1.Controls.Add(_fileNameTextBox);
             panel1.Dock = DockStyle.Bottom;
-            panel1.Location = new Point(0, 348);
+            panel1.Location = new Point(0, 338);
             panel1.Name = "panel1";
             panel1.Size = new Size(454, 50);
             panel1.TabIndex = 1;
             // 
             // _okButton
             // 
-            _okButton.ActiveBackColor = Color.Gray;
+            _okButton.ActiveBackColor = Color.FromArgb(200, 200, 200);
             _okButton.AnimationDuration = 500;
             _okButton.AnimationType = DisplayAnimationType.None;
             _okButton.ApplyThemeOnImage = false;
@@ -407,10 +412,9 @@
             _okButton.DataSourceProperty = null;
             _okButton.DisabledBackColor = Color.Gray;
             _okButton.DisabledForeColor = Color.Empty;
-            _okButton.DrawingRect = new Rectangle(0, 0, 67, 33);
+            _okButton.DrawingRect = new Rectangle(1, 1, 65, 31);
             _okButton.Easing = EasingType.Linear;
             _okButton.FieldID = null;
-           
             _okButton.FocusBackColor = Color.Gray;
             _okButton.FocusBorderColor = Color.Gray;
             _okButton.FocusForeColor = Color.Black;
@@ -455,7 +459,7 @@
             _okButton.IsStillButton = false;
             _okButton.LeftoffsetForDrawingRect = 0;
             _okButton.LinkedProperty = null;
-            _okButton.Location = new Point(401, 11);
+            _okButton.Location = new Point(380, 11);
             _okButton.Margin = new Padding(0);
             _okButton.MaxImageSize = new Size(32, 32);
             _okButton.Name = "_okButton";
@@ -473,29 +477,31 @@
             _okButton.ShadowColor = Color.Black;
             _okButton.ShadowOffset = 0;
             _okButton.ShadowOpacity = 0.5F;
-            _okButton.ShowAllBorders = false;
-            _okButton.ShowBottomBorder = false;
+            _okButton.ShowAllBorders = true;
+            _okButton.ShowBottomBorder = true;
             _okButton.ShowFocusIndicator = false;
-            _okButton.ShowLeftBorder = false;
-            _okButton.ShowRightBorder = false;
+            _okButton.ShowLeftBorder = true;
+            _okButton.ShowRightBorder = true;
             _okButton.ShowShadow = false;
-            _okButton.ShowTopBorder = false;
+            _okButton.ShowTopBorder = true;
             _okButton.Size = new Size(67, 33);
             _okButton.SlideFrom = SlideDirection.Left;
             _okButton.StaticNotMoving = false;
             _okButton.TabIndex = 2;
             _okButton.Text = "OK";
             _okButton.TextAlign = ContentAlignment.MiddleCenter;
+            _okButton.TextFont = new Font("Segoe UI", 9F);
             _okButton.TextImageRelation = TextImageRelation.ImageBeforeText;
             _okButton.Theme = Vis.Modules.EnumBeepThemes.MonochromeTheme;
             _okButton.ToolTipText = "";
             _okButton.TopoffsetForDrawingRect = 0;
             _okButton.UseGradientBackground = false;
             _okButton.UseScaledFont = false;
+            _okButton.UseThemeFont = true;
             // 
             // _cancelButton
             // 
-            _cancelButton.ActiveBackColor = Color.Gray;
+            _cancelButton.ActiveBackColor = Color.FromArgb(200, 200, 200);
             _cancelButton.AnimationDuration = 500;
             _cancelButton.AnimationType = DisplayAnimationType.None;
             _cancelButton.ApplyThemeOnImage = false;
@@ -519,10 +525,9 @@
             _cancelButton.DataSourceProperty = null;
             _cancelButton.DisabledBackColor = Color.Gray;
             _cancelButton.DisabledForeColor = Color.Empty;
-            _cancelButton.DrawingRect = new Rectangle(0, 0, 72, 33);
+            _cancelButton.DrawingRect = new Rectangle(1, 1, 70, 31);
             _cancelButton.Easing = EasingType.Linear;
             _cancelButton.FieldID = null;
-           
             _cancelButton.FocusBackColor = Color.Gray;
             _cancelButton.FocusBorderColor = Color.Gray;
             _cancelButton.FocusForeColor = Color.Black;
@@ -585,25 +590,27 @@
             _cancelButton.ShadowColor = Color.Black;
             _cancelButton.ShadowOffset = 0;
             _cancelButton.ShadowOpacity = 0.5F;
-            _cancelButton.ShowAllBorders = false;
-            _cancelButton.ShowBottomBorder = false;
+            _cancelButton.ShowAllBorders = true;
+            _cancelButton.ShowBottomBorder = true;
             _cancelButton.ShowFocusIndicator = false;
-            _cancelButton.ShowLeftBorder = false;
-            _cancelButton.ShowRightBorder = false;
+            _cancelButton.ShowLeftBorder = true;
+            _cancelButton.ShowRightBorder = true;
             _cancelButton.ShowShadow = false;
-            _cancelButton.ShowTopBorder = false;
+            _cancelButton.ShowTopBorder = true;
             _cancelButton.Size = new Size(72, 33);
             _cancelButton.SlideFrom = SlideDirection.Left;
             _cancelButton.StaticNotMoving = false;
             _cancelButton.TabIndex = 1;
             _cancelButton.Text = "Cancel";
             _cancelButton.TextAlign = ContentAlignment.MiddleCenter;
+            _cancelButton.TextFont = new Font("Segoe UI", 9F);
             _cancelButton.TextImageRelation = TextImageRelation.ImageBeforeText;
             _cancelButton.Theme = Vis.Modules.EnumBeepThemes.MonochromeTheme;
             _cancelButton.ToolTipText = "";
             _cancelButton.TopoffsetForDrawingRect = 0;
             _cancelButton.UseGradientBackground = false;
             _cancelButton.UseScaledFont = false;
+            _cancelButton.UseThemeFont = true;
             // 
             // _fileNameTextBox
             // 
@@ -616,7 +623,6 @@
             _fileNameTextBox.ApplyThemeToChilds = true;
             _fileNameTextBox.AutoCompleteMode = AutoCompleteMode.None;
             _fileNameTextBox.AutoCompleteSource = AutoCompleteSource.None;
-            _fileNameTextBox.BackColor = Color.White;
             _fileNameTextBox.BlockID = null;
             _fileNameTextBox.BorderColor = Color.Black;
             _fileNameTextBox.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -637,14 +643,14 @@
             _fileNameTextBox.DateTimeFormat = "MM/dd/yyyy HH:mm:ss";
             _fileNameTextBox.DisabledBackColor = Color.Gray;
             _fileNameTextBox.DisabledForeColor = Color.Empty;
-            _fileNameTextBox.DrawingRect = new Rectangle(0, 0, 313, 21);
+            _fileNameTextBox.DrawingRect = new Rectangle(6, 6, 286, 13);
             _fileNameTextBox.Easing = EasingType.Linear;
             _fileNameTextBox.FieldID = null;
             _fileNameTextBox.FocusBackColor = Color.Gray;
             _fileNameTextBox.FocusBorderColor = Color.Gray;
             _fileNameTextBox.FocusForeColor = Color.Black;
             _fileNameTextBox.FocusIndicatorColor = Color.Blue;
-            _fileNameTextBox.TextFont = new Font("Segoe UI", 11.5F);
+            _fileNameTextBox.Font = new Font("Segoe UI", 9F);
             _fileNameTextBox.Form = null;
             _fileNameTextBox.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             _fileNameTextBox.GradientEndColor = Color.Gray;
@@ -664,15 +670,15 @@
             // 
             // 
             // 
+            _fileNameTextBox.InnerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             _fileNameTextBox.InnerTextBox.BackColor = Color.White;
             _fileNameTextBox.InnerTextBox.BorderStyle = BorderStyle.None;
-            _fileNameTextBox.InnerTextBox.Dock = DockStyle.Fill;
-            _fileNameTextBox.InnerTextBox.Font = new Font("Segoe UI", 11.5F);
+            _fileNameTextBox.InnerTextBox.Font = new Font("Segoe UI", 9F);
             _fileNameTextBox.InnerTextBox.ForeColor = Color.Black;
-            _fileNameTextBox.InnerTextBox.Location = new Point(0, 0);
+            _fileNameTextBox.InnerTextBox.Location = new Point(8, 5);
             _fileNameTextBox.InnerTextBox.Name = "";
             _fileNameTextBox.InnerTextBox.PlaceholderText = "File Name";
-            _fileNameTextBox.InnerTextBox.Size = new Size(313, 21);
+            _fileNameTextBox.InnerTextBox.Size = new Size(293, 16);
             _fileNameTextBox.InnerTextBox.TabIndex = 0;
             _fileNameTextBox.IsAcceptButton = false;
             _fileNameTextBox.IsBorderAffectedByTheme = true;
@@ -689,14 +695,17 @@
             _fileNameTextBox.IsShadowAffectedByTheme = true;
             _fileNameTextBox.LeftoffsetForDrawingRect = 0;
             _fileNameTextBox.LinkedProperty = null;
-            _fileNameTextBox.Location = new Point(79, 15);
+            _fileNameTextBox.Location = new Point(79, 11);
             _fileNameTextBox.MaskFormat = Vis.Modules.TextBoxMaskFormat.None;
+            _fileNameTextBox.MaximumSize = new Size(0, 25);
+            _fileNameTextBox.MinimumSize = new Size(50, 25);
             _fileNameTextBox.Modified = false;
             _fileNameTextBox.Multiline = false;
             _fileNameTextBox.Name = "_fileNameTextBox";
             _fileNameTextBox.OnlyCharacters = false;
             _fileNameTextBox.OnlyDigits = false;
             _fileNameTextBox.OverrideFontSize = TypeStyleFontSize.None;
+            _fileNameTextBox.Padding = new Padding(5);
             _fileNameTextBox.ParentBackColor = Color.Empty;
             _fileNameTextBox.PasswordChar = '\0';
             _fileNameTextBox.PlaceholderText = "File Name";
@@ -712,20 +721,21 @@
             _fileNameTextBox.ShadowColor = Color.Black;
             _fileNameTextBox.ShadowOffset = 0;
             _fileNameTextBox.ShadowOpacity = 0.5F;
-            _fileNameTextBox.ShowAllBorders = false;
-            _fileNameTextBox.ShowBottomBorder = false;
+            _fileNameTextBox.ShowAllBorders = true;
+            _fileNameTextBox.ShowBottomBorder = true;
             _fileNameTextBox.ShowFocusIndicator = false;
-            _fileNameTextBox.ShowLeftBorder = false;
-            _fileNameTextBox.ShowRightBorder = false;
+            _fileNameTextBox.ShowLeftBorder = true;
+            _fileNameTextBox.ShowRightBorder = true;
             _fileNameTextBox.ShowScrollbars = false;
             _fileNameTextBox.ShowShadow = false;
-            _fileNameTextBox.ShowTopBorder = false;
+            _fileNameTextBox.ShowTopBorder = true;
             _fileNameTextBox.ShowVerticalScrollBar = false;
-            _fileNameTextBox.Size = new Size(313, 21);
+            _fileNameTextBox.Size = new Size(298, 25);
             _fileNameTextBox.SlideFrom = SlideDirection.Left;
             _fileNameTextBox.StaticNotMoving = false;
             _fileNameTextBox.TabIndex = 0;
             _fileNameTextBox.TextAlignment = HorizontalAlignment.Left;
+            _fileNameTextBox.TextFont = new Font("Segoe UI", 9F);
             _fileNameTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
             _fileNameTextBox.Theme = Vis.Modules.EnumBeepThemes.MonochromeTheme;
             _fileNameTextBox.TimeFormat = "HH:mm:ss";
@@ -733,6 +743,7 @@
             _fileNameTextBox.TopoffsetForDrawingRect = 0;
             _fileNameTextBox.UseGradientBackground = false;
             _fileNameTextBox.UseSystemPasswordChar = false;
+            _fileNameTextBox.UseThemeFont = false;
             _fileNameTextBox.WordWrap = true;
             // 
             // splitContainer3
@@ -801,7 +812,6 @@
         private BeepComboBox _specialFoldersComboBox;
         private SplitContainer splitContainer2;
         private SplitContainer splitContainer4;
-        private BeepTextBox _searchBox;
         private ListView _fileListView;
         private SplitContainer splitContainer3;
         private CheckBox _folderSelectionModeCheckBox;
@@ -810,5 +820,6 @@
         private BeepButton _okButton;
         private BeepButton _cancelButton;
         private Panel _previewPane;
+        private BeepTextBox _searchBox;
     }
 }

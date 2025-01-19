@@ -3,12 +3,14 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Design;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [ToolboxBitmap(typeof(BeepDisplayContainer))]
     [DisplayName("Beep Display Container")]
+    [Designer(typeof(BeepDisplayContainerDesigner))]
     [Description("A container control that displays multiple addins as tabs.")]
     public class BeepDisplayContainer : BeepTabs, IDisplayContainer
     {
@@ -16,9 +18,22 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepDisplayContainer()
         {
-            
+            if (TabPages.Count == 0)
+            {
+                AddControl("Default Tab", null, ContainerTypeEnum.TabbedPanel);
+            }
         }
-      
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new TabPage SelectedTab
+        {
+            get => base.SelectedTab;
+            set
+            {
+                base.SelectedTab = value;
+                PerformLayout();
+            }
+        }
+
         public event EventHandler<ContainerEvents> AddinAdded;
         public event EventHandler<ContainerEvents> AddinRemoved;
         public event EventHandler<ContainerEvents> AddinMoved;
@@ -27,6 +42,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<IPassedArgs> PreCallModule;
         public event EventHandler<IPassedArgs> PreShowItem;
         public event EventHandler<KeyCombination> KeyPressed;
+        protected override void OnControlAdded(ControlEventArgs e)
+        {
+            base.OnControlAdded(e);
+
+            // Ensure the control being added is properly associated with the design-time environment
+            if (e.Control.Site == null && Site != null)
+            {
+                // Assign the same site as the parent container
+                e.Control.Site = new NestedSite(Site, e.Control);
+            }
+        }
+
 
         public bool AddControl(string TitleText, IDM_Addin control, ContainerTypeEnum pcontainerType)
         {

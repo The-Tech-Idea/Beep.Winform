@@ -40,8 +40,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             ////Point point = new Point(screenPoint.X, screenPoint.Y + beepButton1.Height);
             //SimpleItem x=beepFileDialog.ShowPopup("Tree",beepButton1, BeepPopupFormPosition.Top);
             beepTreeControl1.ShowCheckBox = true;
-            beepListBox1.ListItems = beepTreeControl1.Nodes;
-            beepListBox1.InitializeMenu();
+            //    beepListBox1.ListItems = beepTreeControl1.Nodes;
+            //    beepListBox1.InitializeMenu();
             //beepTreeControl1.AllowMultiSelect = false;
         }
 
@@ -50,9 +50,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
+    
     }
 }

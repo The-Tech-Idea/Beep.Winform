@@ -236,7 +236,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             //base.ApplyTheme();
-            BackColor = _currentTheme.BackgroundColor;;
+            BackColor = _currentTheme.ButtonBackColor;;
             foreach (Control ctrl in Controls)
             { 
                 ApplyThemeToControl(ctrl);

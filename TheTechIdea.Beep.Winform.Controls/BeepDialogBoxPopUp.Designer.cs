@@ -41,7 +41,7 @@
             // 
             beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
             // 
-            // ContentPanel
+            // _contentPanel
             // 
             ContentPanel.ActiveBackColor = Color.Gray;
             ContentPanel.AnimationDuration = 500;
@@ -104,7 +104,7 @@
             ContentPanel.LeftoffsetForDrawingRect = 0;
             ContentPanel.LinkedProperty = null;
             ContentPanel.Location = new Point(3, 3);
-            ContentPanel.Name = "ContentPanel";
+            ContentPanel.Name = "_contentPanel";
             ContentPanel.OverrideFontSize = TypeStyleFontSize.None;
             ContentPanel.ParentBackColor = Color.Empty;
             ContentPanel.PressedBackColor = Color.Gray;

@@ -467,7 +467,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Get the screen position of the control's top-left corner
             //Point screenPoint = beepButton1.PointToScreen(Point.Empty);
             //Point point = new Point(screenPoint.X, screenPoint.Y + beepButton1.Height);
-            SimpleItem x = beepFileDialog.ShowPopup(Text, this, BeepPopupFormPosition.Right);
+            SimpleItem x = beepFileDialog.ShowPopup(Text, this, BeepPopupFormPosition.Bottom);
         }
         private void ClosePopup()
         {

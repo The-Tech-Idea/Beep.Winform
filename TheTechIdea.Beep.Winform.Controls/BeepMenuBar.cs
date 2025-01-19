@@ -392,11 +392,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            BackColor = _currentTheme.SideMenuBackColor;
+            BackColor = _currentTheme.ButtonBackColor;
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             }
+            Font = _textFont;
             foreach (var item in Controls)
             {
                 if (item is BeepButton)
@@ -405,6 +406,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     btn.Theme = Theme;
                     btn.ApplyThemeOnImage=false;
                     btn.IsChild = true;
+                    if(UseThemeFont)
+                    {
+                        btn.TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                    }
+                    else
+                    {
+                        btn.TextFont = _textFont;
+                    }
                     //btn.ForeColor = _currentTheme.SidebarTextColor;
                     //btn.HoverBackColor = _currentTheme.SideMenuHoverBackColor;
                     //btn.BackColor = _currentTheme.SideMenuBackColor;

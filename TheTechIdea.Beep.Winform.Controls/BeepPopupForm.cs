@@ -16,7 +16,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler OnLeave;
         private bool _isClosing = false;
         private MouseLeaveMessageFilter _messageFilter;
-
+        private bool closingbecauseleavingmenu = false;
+        private bool closingbecauseleavingbutton = false;
         public BeepPopupForm ChildPopupForm { get; set; }
        // private bool _isTimerActive = true;
         //public bool IsTimerActive
@@ -69,6 +70,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void BeepPopupForm_MouseEnter(object sender, EventArgs e)
         {
             _timerPopupLeave.Stop();
+            _timerTriggerLeave.Start();
+            closingbecauseleavingbutton = false;
         }
 
         /// <summary>
@@ -81,8 +84,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                
                     _timerPopupLeave.Start();
-               
-                
+                closingbecauseleavingbutton = true;
+
+
             }
         }
 
@@ -92,7 +96,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void TriggerControl_MouseEnter(object sender, EventArgs e)
         {
-            _timerTriggerLeave.Stop();
+           _timerTriggerLeave.Stop();
+            _timerPopupLeave.Stop();
         }
 
         /// <summary>
@@ -127,11 +132,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void TimerPopupLeave_Tick(object sender, EventArgs e)
         {
-          
-                _timerPopupLeave.Stop();
+            _timerPopupLeave.Stop();
+            if (!IsMouseOverControl(this) && !IsMouseOverControl(TriggerControl))
+            {
                 ClosePopup();
                 _isClosing = true;
-          
+
+            }
+           
+              
           
         }
 
@@ -153,14 +162,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 return false;
             }
-            if(control.Parent == null)
-            {
-                return false;
-            }
-            if(_isClosing)
-            {
-                return false;
-            }
+
+
             // Get the screen position of the control's top-left corner
             Point screenPoint = control.PointToScreen(Point.Empty);
 
@@ -436,6 +439,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (ChildPopupForm.Visible)
                 {
                     _timerPopupLeave.Start();
+                    _timerTriggerLeave.Start();
                     return;
                 }
             }

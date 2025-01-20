@@ -23,10 +23,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
                 _control.RegisterControlAsChildForParentControl(_control, _control._contentPanel);
 
                 // Register existing panels in TabPanels
-                foreach (Control panel in _control.TabPanels)
-                {
-                    _control.RegisterControlAsChildForParentControl(_control._contentPanel, panel);
-                }
+                //foreach (Control panel in _control.con)
+                //{
+                //    _control.RegisterControlAsChildForParentControl(_control._contentPanel, panel);
+                //}
             }
         }
 
@@ -108,5 +108,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
                 Console.WriteLine("[Designer] Set default tab 'Tab 1'");
             }
         }
+
     }
 }

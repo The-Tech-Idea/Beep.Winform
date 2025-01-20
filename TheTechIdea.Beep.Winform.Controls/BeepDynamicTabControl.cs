@@ -18,6 +18,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         static int count = 0;
         private readonly FlowLayoutPanel _headerPanel;
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public  Panel _contentPanel { get; private set; }
         private readonly Dictionary<SimpleItem, Panel> _panelMap = new();
         private BindingList<SimpleItem> _tabs = new BindingList<SimpleItem>();
@@ -30,31 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<DynamicTabEventArgs> TabUpdated;
         public event EventHandler<DynamicTabEventArgs> TabButtonClicked;
 
-      
-        [Browsable(false)]
-        [Localizable(true)]
-        [MergableProperty(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public BindingList<Panel> TabPanels
-        {
-            get
-            {
-                return new BindingList<Panel>(_panelMap.Values.ToList());
-            }
-            set
-            {
-                if (value == null) return;
-                // Clear existing tabs
-                ClearTabs();
-                // Add new tabs
-                foreach (var panel in value)
-                {
-                    var item = new SimpleItem { Text = panel.Name };
-                    //_panelMap[item] = panel;
-                   // AddTab(item);
-                }
-            }
-        }
+    
 
         public BeepDynamicTabControl()
         {
@@ -77,14 +55,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Dock = DockStyle.Fill,
                 BackColor = Color.White
             };
-           // RegisterControl(_contentPanel);
-            //NotifyDesigner(this, true);
-            //NotifyDesigner(_contentPanel, true);
-            // Register TabPanels as a child of this control
-            RegisterControlAsChildForParentControl(this, _contentPanel);
-            NotifyDesigner(this, true);
-            //NotifyDesigner(_contentPanel, true);
+
             Controls.Add(_headerPanel);
+            Controls.Add(_contentPanel);
+            NotifyContentPanelControlsPropertyDesigner(this, true);
             UpdateLayout();
             _tabs = new BindingList<SimpleItem>();
             _tabs.ListChanged += OnTabsChanged;
@@ -145,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _headerLocation = value;
 
                     // Notify the designer about the change
-                    NotifyDesigner(this, true);
+                  //  NotifyDesigner(this, true);
                     UpdateLayout();
                 }
             }
@@ -237,6 +211,81 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        private void NotifyContentPanelControlsPropertyDesigner(Control contentPanel, bool adding)
+        {
+            if (contentPanel == null)
+                throw new ArgumentNullException(nameof(contentPanel));
+
+            if (Site?.GetService(typeof(IComponentChangeService)) is IComponentChangeService changeService)
+            {
+                Console.WriteLine("Design-time services available.");
+                // Get the 'Controls' property descriptor
+                var controlsProperty = TypeDescriptor.GetProperties(contentPanel)["Controls"];
+
+                if (controlsProperty == null)
+                    throw new InvalidOperationException("The 'Controls' property could not be found on the ContentPanel.");
+
+                // Notify the designer about the change
+                if (adding)
+                { 
+                    Console.WriteLine("Add Design-time services available. Notifying the designer.");
+                    changeService.OnComponentChanging(contentPanel, controlsProperty);
+                    changeService.OnComponentChanged(contentPanel, controlsProperty, null, null);
+                }
+                else
+                {
+                    Console.WriteLine("Remove Design-time services available. Notifying the designer.");
+                    changeService.OnComponentChanging(contentPanel, controlsProperty);
+                    changeService.OnComponentChanged(contentPanel, controlsProperty, null, null);
+                }
+            }
+            else
+            {
+                // Fallback if no design-time services are available
+                Console.WriteLine("Design-time services not available. Runtime-only change.");
+            }
+        }
+        public void AddControlToContentPanel(Control contentPanel, Control childControl)
+        {
+            if (contentPanel == null || childControl == null)
+                throw new ArgumentNullException();
+
+            // Add the child control to the ContentPanel
+            contentPanel.Controls.Add(childControl);
+
+            // Notify the designer
+            NotifyContentPanelControlsPropertyDesigner(contentPanel, true);
+
+            // Register the control with the designer
+            if (Site?.Container is IContainer container)
+            {
+                if (!container.Components.Cast<IComponent>().Contains(childControl))
+                {
+                    container.Add(childControl, childControl.Name);
+                }
+            }
+        }
+        public void RemoveControlFromContentPanel(Control contentPanel, Control childControl)
+        {
+            if (contentPanel == null || childControl == null)
+                throw new ArgumentNullException();
+
+            // Remove the child control from the ContentPanel
+            contentPanel.Controls.Remove(childControl);
+
+            // Notify the designer
+            NotifyContentPanelControlsPropertyDesigner(contentPanel, false);
+
+            // Unregister the control from the designer
+            if (Site?.Container is IContainer container)
+            {
+                var componentToRemove = container.Components.Cast<IComponent>().FirstOrDefault(c => c == childControl);
+                if (componentToRemove != null)
+                {
+                    container.Remove(componentToRemove);
+                }
+            }
+        }
 
 
 
@@ -319,10 +368,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion "Designer Support"
-
-
-
-
         private void OnTabsChanged(object sender, ListChangedEventArgs e)
         {
             switch (e.ListChangedType)
@@ -347,7 +392,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
         }
-
         private void SynchronizeTabs()
         {
             ClearTabs();
@@ -361,14 +405,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TabAdded?.Invoke(this, new DynamicTabEventArgs(_panelMap[_tabs[i]], i));
             }
         }
-
         private void ClearTabs()
         {
             _headerPanel.Controls.Clear();
             _contentPanel.Controls.Clear();
             _panelMap.Clear();
         }
-
         private void AddTab(SimpleItem item)
         {
             Console.WriteLine($"AddTab {item.Text}");
@@ -394,10 +436,9 @@ namespace TheTechIdea.Beep.Winform.Controls
            
             Console.WriteLine($"Add panel to TabPanels");
             // Add panel to TabPanels (content panel's controls collection)
-            //TabPanels.Add(panel);
+        //    _contentPanel.Controls.Add(panel);
+            AddControlToContentPanel(_contentPanel, panel);
 
-            // Register the panel as a child of TabPanels
-            RegisterControlAsChildForParentControl(_contentPanel, panel);
             Console.WriteLine($"Create Button to panelMap");
             // Create header button for the tab
             var button = CreateTabButton(item, panel);
@@ -407,15 +448,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             _panelMap[item] = panel;
             Console.WriteLine($"Add to panelMap Done");
             // Notify the designer about TabPanels change
-            NotifyDesigner(panel, true);
+            // NotifyDesigner(panel, true);
+            NotifyContentPanelControlsPropertyDesigner(_contentPanel, true);
+
             if (_panelMap.Count == 1)
             {
                 SelectedTab = item; // Automatically select the first tab
             }
         }
-
-
-
         private void RemoveTabByIndex(int index)
         {
             if (index < 0 || index >= _tabs.Count) return;
@@ -424,21 +464,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             RemoveTab(item);
             TabRemoved?.Invoke(this, new DynamicTabEventArgs(_panelMap[item], index));
         }
-
         private void RemoveTab(SimpleItem item)
         {
             if (!_panelMap.TryGetValue(item, out var panel)) return;
 
             // Unregister and remove the panel
-            UnregisterControlAsChildForParentControl(_contentPanel, panel);
-
+            
+           
             // Remove header button
             var button = _headerPanel.Controls.OfType<Button>().FirstOrDefault(b => Equals(b.Tag, item));
             if (button != null)
             {
                 _headerPanel.Controls.Remove(button);
             }
+          //  _contentPanel.Controls.Remove(panel);
+            RemoveControlFromContentPanel(_contentPanel, panel);
 
+            NotifyContentPanelControlsPropertyDesigner(_contentPanel, false);
             // Remove from map
             _panelMap.Remove(item);
 

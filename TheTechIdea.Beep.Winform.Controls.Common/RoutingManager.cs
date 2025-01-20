@@ -41,14 +41,12 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
 
         private Func<Type, IDM_Addin>? _customControlCreator;
-
-        // Constructor
-        public RoutingManager(IDisplayContainer displayContainer, IBeepService beepservices = null, ContainerTypeEnum containerType = ContainerTypeEnum.SinglePanel)
+        public RoutingManager(IBeepService beepservices)
         {
-            _displayContainer = displayContainer ?? throw new ArgumentNullException(nameof(displayContainer));
             Beepservices = beepservices;
-            _containerType = containerType;
         }
+        // Constructor
+       
 
         #region Navigation
         public void NavigateTo(string routeName, Dictionary<string, object> parameters = null)

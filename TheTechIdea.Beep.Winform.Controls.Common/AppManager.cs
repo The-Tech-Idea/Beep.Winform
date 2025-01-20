@@ -16,14 +16,16 @@ namespace TheTechIdea.Beep.Desktop.Common
         #region "Variables"
         private readonly IBeepService beepservices;
         private readonly IRoutingManager viewrouter;
-        private RoutingManager ViewRouter;
+      
         #endregion "Variables"
         #region "Constructors and Init"
         public AppManager(IBeepService service, IRoutingManager viewRouter)
         {
             beepservices = service;
             viewrouter = viewRouter;
-           
+            DMEEditor = beepservices.DMEEditor;
+            init();
+
         }
         public void init()
         {
@@ -56,6 +58,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             Privileges = new List<IBeepPrivilege>();
             Users = new List<IBeepUser>();
             User = new BeepUser();
+            
         }
         #endregion "Constructors and Init"
         #region "Properties"
@@ -451,7 +454,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to navigate back
-                ViewRouter.NavigateBack();
+                viewrouter.NavigateBack();
             }
             catch (Exception ex)
             {
@@ -465,7 +468,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to navigate forward
-                ViewRouter.NavigateForward();
+                viewrouter.NavigateForward();
 
             }
             catch (Exception ex)
@@ -480,7 +483,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to navigate to a specific route from List<IDM_Addin> s
-                ViewRouter.NavigateTo(routeName, parameters);
+                viewrouter.NavigateTo(routeName, parameters);
 
             }
             catch (Exception ex)
@@ -495,7 +498,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to show the home page
-                ViewRouter.NavigateTo(HomePageName);
+                viewrouter.NavigateTo(HomePageName);
             }
             catch (Exception ex)
             {
@@ -509,7 +512,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to show the home page
-                ViewRouter.NavigateTo("Login");
+                viewrouter.NavigateTo("Login");
             }
             catch (Exception ex)
             {
@@ -537,7 +540,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to show the home page
-                ViewRouter.NavigateTo("Admin");
+                viewrouter.NavigateTo("Admin");
             }
             catch (Exception ex)
             {

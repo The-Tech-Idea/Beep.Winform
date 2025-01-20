@@ -2,6 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Addin;
+using Microsoft.Extensions.DependencyModel;
+using System.Collections.Generic;
+using System.Reflection;
 
 
 
@@ -11,7 +14,13 @@ namespace TheTechIdea.Beep.Desktop.Common
     {
         private static IServiceCollection Services;
   
-        public static IServiceCollection RegisterVisManager(this IServiceCollection services)
+        public static IServiceCollection RegisterRouter(this IServiceCollection services)
+        {
+            Services = services;
+            Services.AddSingleton<IRoutingManager, RoutingManager>();
+            return Services;
+        }
+        public static IServiceCollection RegisterAppManager(this IServiceCollection services)
         {
             Services = services;
             Services.AddSingleton<IAppManager,AppManager>();
@@ -44,6 +53,73 @@ namespace TheTechIdea.Beep.Desktop.Common
             return ViewManager;
         }
 
+        public static IServiceCollection RegisterViewModels(this IServiceCollection services)
+        {
+            Services = services;
+
+            // Collect assemblies
+            var assemblies = new List<Assembly>
+    {
+        Assembly.GetExecutingAssembly(),
+        Assembly.GetCallingAssembly(),
+        Assembly.GetEntryAssembly()!
+    };
+
+            var loadedFromContext = DependencyContext.Default.RuntimeLibraries
+                .SelectMany(lib => lib.GetDefaultAssemblyNames(DependencyContext.Default))
+                .Select(Assembly.Load)
+                .ToList();
+            assemblies.AddRange(loadedFromContext);
+
+            assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.FullName.StartsWith("System", StringComparison.OrdinalIgnoreCase)
+                         && !a.FullName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase)));
+
+            // Register types implementing IBeepViewModels
+            var viewModelTypes = assemblies.SelectMany(a => a.GetTypes())
+                .Where(t => typeof(IBeepViewModel).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+            foreach (var viewModelType in viewModelTypes)
+            {
+                Services.AddTransient(typeof(IBeepViewModel), viewModelType);
+            }
+
+            return Services;
+        }
+
+        public static IServiceCollection RegisterViews(this IServiceCollection services)
+        {
+            Services = services;
+
+            // Collect assemblies (reuse same logic as above)
+            var assemblies = new List<Assembly>
+    {
+        Assembly.GetExecutingAssembly(),
+        Assembly.GetCallingAssembly(),
+        Assembly.GetEntryAssembly()!
+    };
+
+            var loadedFromContext = DependencyContext.Default.RuntimeLibraries
+                .SelectMany(lib => lib.GetDefaultAssemblyNames(DependencyContext.Default))
+                .Select(Assembly.Load)
+                .ToList();
+            assemblies.AddRange(loadedFromContext);
+
+            assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.FullName.StartsWith("System", StringComparison.OrdinalIgnoreCase)
+                         && !a.FullName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase)));
+
+            // Register types implementing IDM_Addin
+            var viewTypes = assemblies.SelectMany(a => a.GetTypes())
+                .Where(t => typeof(IDM_Addin).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+            foreach (var viewType in viewTypes)
+            {
+                Services.AddTransient(typeof(IDM_Addin), viewType);
+            }
+
+            return Services;
+        }
 
     }
 }

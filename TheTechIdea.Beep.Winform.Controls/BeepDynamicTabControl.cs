@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Design;
@@ -13,15 +15,15 @@ using TheTechIdea.Beep.Winform.Controls.Design;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-   
+   // [Designer(typeof(DynamicTabControlDesigner))]
     public class BeepDynamicTabControl : BeepPanel
     {
         static int count = 0;
-        private readonly FlowLayoutPanel _headerPanel;
+      
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public  Panel _contentPanel { get; private set; }
-        private readonly Dictionary<SimpleItem, Panel> _panelMap = new();
+     //   public  Panel _contentPanel { get; private set; }
+        public readonly Dictionary<SimpleItem, Panel> _panelMap = new();
         private BindingList<SimpleItem> _tabs = new BindingList<SimpleItem>();
         private SimpleItem _selectedTab;
         private HeaderLocation _headerLocation = HeaderLocation.Top;
@@ -31,37 +33,51 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<DynamicTabEventArgs> TabRemoved;
         public event EventHandler<DynamicTabEventArgs> TabUpdated;
         public event EventHandler<DynamicTabEventArgs> TabButtonClicked;
+        [Browsable(true)]
+        [Localizable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public FlowLayoutPanel HeaderPanel { get; } = new()
+        {
+            AutoSize = true,
+            FlowDirection = FlowDirection.LeftToRight,
+            BackColor = SystemColors.Control,
+            WrapContents = false,
+            Dock = DockStyle.Top
+        };
 
-    
+        [Browsable(true)]
+        [Localizable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public Panel ContentPanel { get; } = new()
+        {
+            Dock = DockStyle.Fill,
+            BackColor = Color.White
+        };
+
 
         public BeepDynamicTabControl()
         {
             AllowDrop = true; // Enable drag-and-drop for the control itself
             ShowTitle = false;
-            DragEnter += BeepDynamicTabControl_DragEnter;
-            DragDrop += BeepDynamicTabControl_DragDrop;
-            // Header panel for tab buttons
-            _headerPanel = new FlowLayoutPanel
-            {
-                AutoSize = true,
-                FlowDirection = FlowDirection.LeftToRight,
-                BackColor = SystemColors.Control,
-                WrapContents = false
-            };
+            //DragEnter += BeepDynamicTabControl_DragEnter;
+            //DragDrop += BeepDynamicTabControl_DragDrop;
+            //// Header panel for tab buttons
 
-            // Content panel for tab contents
-            _contentPanel = new Panel
+            //NotifyContentPanelControlsPropertyDesigner(this, true);
+            //UpdateLayout();
+            if (!Controls.Contains(HeaderPanel))
             {
-                Dock = DockStyle.Fill,
-                BackColor = Color.White
-            };
+                Controls.Add(HeaderPanel);
+            }
 
-            Controls.Add(_headerPanel);
-            Controls.Add(_contentPanel);
-            NotifyContentPanelControlsPropertyDesigner(this, true);
-            UpdateLayout();
+            if (!Controls.Contains(ContentPanel))
+            {
+                Controls.Add(ContentPanel);
+                ContentPanel.BringToFront();
+            }
             _tabs = new BindingList<SimpleItem>();
-            _tabs.ListChanged += OnTabsChanged;
+            _tabs.ListChanged+= OnTabsChanged;
+           
         }
 
         [Browsable(true)]
@@ -125,6 +141,34 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #region "Designer Support"
+        public void RemoveAllControlsFromContentPanel(Control contentPanel)
+        {
+            if (contentPanel == null)
+                throw new ArgumentNullException(nameof(contentPanel));
+
+            // Iterate through all child controls and remove them
+            foreach (Control childControl in contentPanel.Controls.Cast<Control>().ToList())
+            {
+                // Remove the child control from the ContentPanel
+                contentPanel.Controls.Remove(childControl);
+
+                // Notify the designer
+                NotifyContentPanelControlsPropertyDesigner(contentPanel, false);
+
+                // Unregister the control from the designer
+                if (Site?.Container is IContainer container)
+                {
+                    var componentToRemove = container.Components.Cast<IComponent>().FirstOrDefault(c => c == childControl);
+                    if (componentToRemove != null)
+                    {
+                        container.Remove(componentToRemove);
+                    }
+                }
+
+                // Dispose the control to free resources
+                childControl.Dispose();
+            }
+        }
 
         public void UnregisterControlAsChildForParentControl(Control parentControl, Control childControl)
         {
@@ -250,6 +294,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (contentPanel == null || childControl == null)
                 throw new ArgumentNullException();
 
+            // Check if the childControl already exists in the contentPanel
+            //if (contentPanel.Controls.Contains(childControl))
+            //{
+            //    Console.WriteLine($"The control '{childControl.Name}' already exists in the ContentPanel. Skipping addition.");
+            //    return; // Exit if the control already exists
+            //}
             // Add the child control to the ContentPanel
             contentPanel.Controls.Add(childControl);
 
@@ -288,6 +338,68 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
 
+        private void NotifyDesignerVisibilityChange(Control control, bool isVisible)
+        {
+            if (control == null)
+                return;
+
+            if (Site?.GetService(typeof(IComponentChangeService)) is IComponentChangeService changeService)
+            {
+                // Notify the designer that the control is changing
+                changeService.OnComponentChanging(control, null);
+
+                // Change the property
+                control.Visible = isVisible;
+
+                // Notify the designer that the change is complete
+                changeService.OnComponentChanged(control, null, null, null);
+            }
+            else
+            {
+                // Fallback for runtime-only changes
+                control.Visible = isVisible;
+            }
+        }
+        private void UpdatePanelVisibility(Control panel, bool isVisible)
+        {
+            if (panel == null)
+                return;
+
+            if (Site?.GetService(typeof(IComponentChangeService)) is IComponentChangeService changeService)
+            {
+                // Notify the designer about the upcoming change
+                changeService.OnComponentChanging(panel, TypeDescriptor.GetProperties(panel)["Visible"]);
+
+                // Update the property
+                panel.Visible = isVisible;
+                if (isVisible)
+                {
+                    panel.Dock = DockStyle.Fill; // Ensure the panel fills the content area
+                    panel.BringToFront(); // Bring the selected panel to the front
+                }
+                else
+                {
+                    panel.SendToBack(); // Send non-selected panels to the back
+                }
+
+                // Notify the designer that the change is complete
+                changeService.OnComponentChanged(panel, TypeDescriptor.GetProperties(panel)["Visible"], !isVisible, isVisible);
+            }
+            else
+            {
+                // Fallback for runtime-only changes
+                panel.Visible = isVisible;
+                if (isVisible)
+                {
+                    panel.Dock = DockStyle.Fill;
+                    panel.BringToFront();
+                }
+                else
+                {
+                    panel.SendToBack();
+                }
+            }
+        }
 
         private void NotifyDesigner(Control control, bool adding)
         {
@@ -394,7 +506,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void SynchronizeTabs()
         {
-            ClearTabs();
+         //   ClearTabs();
             Console.WriteLine("SynchronizeTabs");
             if (_tabs == null) return;
             Console.WriteLine("SynchronizeTabs 1");
@@ -407,8 +519,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void ClearTabs()
         {
-            _headerPanel.Controls.Clear();
-            _contentPanel.Controls.Clear();
+            HeaderPanel.Controls.Clear();
+             ContentPanel.Controls.Clear();
             _panelMap.Clear();
         }
         private void AddTab(SimpleItem item)
@@ -437,19 +549,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             Console.WriteLine($"Add panel to TabPanels");
             // Add panel to TabPanels (content panel's controls collection)
         //    _contentPanel.Controls.Add(panel);
-            AddControlToContentPanel(_contentPanel, panel);
+            AddControlToContentPanel(ContentPanel, panel);
 
             Console.WriteLine($"Create Button to panelMap");
             // Create header button for the tab
             var button = CreateTabButton(item, panel);
             Console.WriteLine($"Add button to headerPanel");
-            _headerPanel.Controls.Add(button);
+            //HeaderPanel.Controls.Add(button);
+            AddControlToContentPanel(HeaderPanel, button);
             Console.WriteLine($"Add to panelMap");
             _panelMap[item] = panel;
             Console.WriteLine($"Add to panelMap Done");
             // Notify the designer about TabPanels change
             // NotifyDesigner(panel, true);
-            NotifyContentPanelControlsPropertyDesigner(_contentPanel, true);
+       //     NotifyContentPanelControlsPropertyDesigner(ContentPanel, true);
 
             if (_panelMap.Count == 1)
             {
@@ -472,15 +585,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             
            
             // Remove header button
-            var button = _headerPanel.Controls.OfType<Button>().FirstOrDefault(b => Equals(b.Tag, item));
+            var button = HeaderPanel.Controls.OfType<Button>().FirstOrDefault(b => Equals(b.Tag, item));
             if (button != null)
             {
-                _headerPanel.Controls.Remove(button);
+                HeaderPanel.Controls.Remove(button);
             }
           //  _contentPanel.Controls.Remove(panel);
-            RemoveControlFromContentPanel(_contentPanel, panel);
+            RemoveControlFromContentPanel(ContentPanel, panel);
 
-            NotifyContentPanelControlsPropertyDesigner(_contentPanel, false);
+          //  NotifyContentPanelControlsPropertyDesigner(ContentPanel, false);
             // Remove from map
             _panelMap.Remove(item);
 
@@ -497,7 +610,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!_panelMap.TryGetValue(item, out var panel)) return;
 
             // Update header button text
-            var button = _headerPanel.Controls.OfType<Button>().FirstOrDefault(b => Equals(b.Tag, item));
+            var button = HeaderPanel.Controls.OfType<Button>().FirstOrDefault(b => Equals(b.Tag, item));
             if (button != null)
             {
                 button.Text = item.Text;
@@ -506,14 +619,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private Button CreateTabButton(SimpleItem item, Panel panel)
         {
+            Console.WriteLine($"CreateTabButton {item.Name}");
             var button = new Button
             {
-                Text = item.Text,
+                Name= $"HeaderButton{count}",
+                Text = item.Text==null? Name : item.Text,
                 AutoSize = true,
                 Margin = new Padding(2),
                 Tag = item
             };
-
+            Console.WriteLine($"CreateTabButton {item.Name} Done");
             button.MouseDown += (s, e) =>
             {
                 if (e.Button == MouseButtons.Left)
@@ -534,12 +649,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (e.Data.GetData(typeof(Button)) is Button draggedButton)
                 {
-                    var sourceIndex = _headerPanel.Controls.GetChildIndex(draggedButton);
-                    var targetIndex = _headerPanel.Controls.GetChildIndex(button);
+                    var sourceIndex = HeaderPanel.Controls.GetChildIndex(draggedButton);
+                    var targetIndex = HeaderPanel.Controls.GetChildIndex(button);
 
                     // Swap buttons
-                    _headerPanel.Controls.SetChildIndex(draggedButton, targetIndex);
-                    _headerPanel.Controls.SetChildIndex(button, sourceIndex);
+                    HeaderPanel.Controls.SetChildIndex(draggedButton, targetIndex);
+                    HeaderPanel.Controls.SetChildIndex(button, sourceIndex);
 
                     // Update BindingList
                     var temp = _tabs[sourceIndex];
@@ -560,37 +675,38 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void UpdateSelectedTab()
         {
+            if (_selectedTab == null)
+                return;
+
             Console.WriteLine($"UpdateSelectedTab {_selectedTab.Text}");
-            foreach (var kvp in _panelMap)
+
+            foreach (Control control in ContentPanel.Controls)
             {
-                Panel panel = kvp.Value;
-                SimpleItem item = kvp.Key;
-                if (panel != null)
+                if (control is Panel panel)
                 {
-                    if (item != _selectedTab) 
-                    { 
-                        Console.WriteLine($"Hide Panel {item.Text}");
-                        panel.Visible = false;
-                        panel.SendToBack();
+                    if (_panelMap.TryGetValue(_selectedTab, out var selectedPanel) && panel == selectedPanel)
+                    {
+                        Console.WriteLine($"Showing Panel {panel.Name}");
+                        UpdatePanelVisibility(panel, true); // Show the selected panel
                     }
                     else
                     {
-                        Console.WriteLine($"Showing Panel {item.Text}");
-                        panel.Visible = true;
-                        panel.BringToFront();
+                        Console.WriteLine($"Hiding Panel {panel.Name}");
+                        UpdatePanelVisibility(panel, false); // Hide all other panels
                     }
                 }
-                
             }
 
-            HighlightButtonAt(SelectedIndex);
+            HighlightButtonAt(SelectedIndex); // Highlight the corresponding button
         }
+
+
 
         private void HighlightButtonAt(int index)
         {
-            for (int i = 0; i < _headerPanel.Controls.Count; i++)
+            for (int i = 0; i < HeaderPanel.Controls.Count; i++)
             {
-                if (_headerPanel.Controls[i] is Button btn)
+                if (HeaderPanel.Controls[i] is Button btn)
                 {
                     btn.BackColor = (i == index) ? Color.LightBlue : SystemColors.Control;
                 }
@@ -602,26 +718,59 @@ namespace TheTechIdea.Beep.Winform.Controls
             switch (_headerLocation)
             {
                 case HeaderLocation.Top:
-                    _headerPanel.Dock = DockStyle.Top;
-                    _headerPanel.FlowDirection = FlowDirection.LeftToRight;
+                    HeaderPanel.Dock = DockStyle.Top;
+                    HeaderPanel.FlowDirection = FlowDirection.LeftToRight;
                     break;
 
                 case HeaderLocation.Bottom:
-                    _headerPanel.Dock = DockStyle.Bottom;
-                    _headerPanel.FlowDirection = FlowDirection.LeftToRight;
+                    HeaderPanel.Dock = DockStyle.Bottom;
+                    HeaderPanel.FlowDirection = FlowDirection.LeftToRight;
                     break;
 
                 case HeaderLocation.Left:
-                    _headerPanel.Dock = DockStyle.Left;
-                    _headerPanel.FlowDirection = FlowDirection.TopDown;
+                    HeaderPanel.Dock = DockStyle.Left;
+                    HeaderPanel.FlowDirection = FlowDirection.TopDown;
                     break;
 
                 case HeaderLocation.Right:
-                    _headerPanel.Dock = DockStyle.Right;
-                    _headerPanel.FlowDirection = FlowDirection.TopDown;
+                    HeaderPanel.Dock = DockStyle.Right;
+                    HeaderPanel.FlowDirection = FlowDirection.TopDown;
                     break;
             }
         }
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // Dispose child controls
+                foreach (var control in Controls.OfType<Control>().ToList())
+                {
+                    if (control is IDisposable disposableControl)
+                    {
+                        disposableControl.Dispose();
+                    }
+
+                    Controls.Remove(control);
+                }
+                RemoveAllControlsFromContentPanel(ContentPanel);
+                RemoveAllControlsFromContentPanel(HeaderPanel);
+                // Unregister dynamically created panels and buttons
+                //foreach (var panel in _panelMap.Values)
+                //{
+                //    RemoveControlFromContentPanel(ContentPanel, panel);
+                //}
+
+                // Clear panel map
+                _panelMap.Clear();
+
+                // Unregister HeaderPanel and ContentPanel
+                UnregisterControl(HeaderPanel);
+                UnregisterControl(ContentPanel);
+            }
+
+            base.Dispose(disposing);
+        }
+       
 
         #region "Drag and Drop"
 
@@ -641,7 +790,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void Panel_DragEnter(object sender, DragEventArgs e)
         {
             // Allow drop only if the data is a control
-            if (e.Data.GetDataPresent(typeof(Control)))
+            if (e.Data.GetDataPresent(typeof(Control)) ||
+         e.Data.GetDataPresent("System.Windows.Forms.Design.ToolboxItem", false))
             {
                 e.Effect = DragDropEffects.Move;
             }
@@ -653,8 +803,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void Panel_DragDrop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetData(typeof(Control)) is Control control)
+            if (e.Data.GetData(typeof(ToolboxItem)) is Control   )
             {
+                var control = e.Data.GetData(typeof(ToolboxItem)) as Control;
                 // Get the target panel
                 var targetPanel = sender as Panel;
 

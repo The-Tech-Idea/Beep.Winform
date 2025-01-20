@@ -535,7 +535,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DrawImageAndText(Graphics g)
         {
-            Console.WriteLine($"User ThemeFont is {UseThemeFont}");
+           // Console.WriteLine($"User ThemeFont is {UseThemeFont}");
             if (!SetFont() && UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);

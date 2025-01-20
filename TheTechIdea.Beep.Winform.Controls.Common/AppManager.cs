@@ -14,15 +14,17 @@ namespace TheTechIdea.Beep.Desktop.Common
     public class AppManager : IAppManager
     {
         #region "Variables"
+        private readonly IServiceProvider servicelocator;
         private readonly IBeepService beepservices;
         private readonly IRoutingManager viewrouter;
       
         #endregion "Variables"
         #region "Constructors and Init"
-        public AppManager(IBeepService service, IRoutingManager viewRouter)
+        public AppManager(IServiceProvider service)
         {
-            beepservices = service;
-            viewrouter = viewRouter;
+            servicelocator = service;
+            beepservices = (IBeepService)service.GetService(typeof(IBeepService));
+            viewrouter = (IRoutingManager)service.GetService(typeof(IRoutingManager));
             DMEEditor = beepservices.DMEEditor;
             init();
 

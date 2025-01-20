@@ -8,6 +8,8 @@ namespace TheTechIdea.Beep.Desktop.Common
 {
     public partial class RoutingManager : IRoutingManager
     {
+        private readonly IServiceProvider servicelocator;
+
         public IBeepService Beepservices { get; }
         private readonly IDisplayContainer _displayContainer;
         private readonly ContainerTypeEnum _containerType;
@@ -41,9 +43,10 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
 
         private Func<Type, IDM_Addin>? _customControlCreator;
-        public RoutingManager(IBeepService beepservices)
+        public RoutingManager(IServiceProvider service)
         {
-            Beepservices = beepservices;
+            servicelocator= service;
+            Beepservices = (IBeepService)service.GetService(typeof(IBeepService));
         }
         // Constructor
        

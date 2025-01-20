@@ -195,7 +195,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void InitMenu()
         {
-            Console.WriteLine("InitMenu");
+           // Console.WriteLine("InitMenu");
             Controls.Clear();
             if (items == null || items.Count == 0) return;
 
@@ -294,7 +294,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 btn.ShowAllBorders= false;
             }
 
-            Console.WriteLine("InitMenu done.");
+        //    Console.WriteLine("InitMenu done.");
         }
         private void ShowMainMenuBarList(SimpleItem item, BeepButton button)
         {

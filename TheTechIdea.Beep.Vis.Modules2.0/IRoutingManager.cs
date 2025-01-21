@@ -1,7 +1,10 @@
-﻿using TheTechIdea.Beep.Addin;
+﻿using System.Collections.Generic;
+using System;
+using TheTechIdea.Beep.Addin;
 
-namespace TheTechIdea.Beep.Desktop.Common
+namespace TheTechIdea.Beep.Vis.Modules
 {
+    public delegate bool RouteGuard(Dictionary<string, object> parameters);
     public interface IRoutingManager
     {
         string BreadCrumb { get; }
@@ -15,12 +18,31 @@ namespace TheTechIdea.Beep.Desktop.Common
 
         void NavigateBack();
         void NavigateForward();
-        void NavigateTo(string routeName, Dictionary<string, object> parameters = null);
+        void NavigateTo(string routeName, Dictionary<string, object> parameters = null,bool popup = false);
         (string RouteName, Dictionary<string, object> Parameters) ParseRoute(string routeWithParams);
         void RegisterAlias(string alias, string routeName);
         void RegisterRoute(string routeName, Type viewType, RouteGuard guard = null);
         bool SetControlCreator(Func<Type, IDM_Addin> customCreator);
         void SetDefaultRoute(string routeName);
         void SetErrorView(Type errorViewType);
+    }
+    public interface IRouteArgs
+    {
+        string RouteName { get; }
+        Dictionary<string, object> Parameters { get; }
+        bool Cancel { get; set; }
+    }
+
+    public class RouteArgs : IRouteArgs
+    {
+        public string RouteName { get; }
+        public Dictionary<string, object> Parameters { get; }
+        public bool Cancel { get; set; }
+
+        public RouteArgs(string routeName, Dictionary<string, object> parameters)
+        {
+            RouteName = routeName;
+            Parameters = parameters;
+        }
     }
 }

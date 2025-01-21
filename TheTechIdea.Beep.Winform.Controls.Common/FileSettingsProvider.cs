@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Desktop.Common
 {

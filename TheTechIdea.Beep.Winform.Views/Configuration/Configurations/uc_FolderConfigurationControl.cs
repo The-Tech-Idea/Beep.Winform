@@ -18,12 +18,13 @@ using TheTechIdea.Beep.Composite;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Winform.Controls.Basic;
 
 namespace Beep.Config.Winform.Configurations
 {
     [AddinAttribute(Caption = "Folder Configuration Manager", Name = "uc_ConfigurationControl", misc = "Config",menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.Popup, ObjectType = "Beep")]
     [AddinVisSchema(BranchID  = 2 ,RootNodeName = "Configuration", Order=7,ID =1,BranchText = "Folders", BranchType= EnumPointType.Function, IconImageName = "folderconfig.png", BranchClass = "ADDIN")]
-    public partial class uc_FolderConfigurationControl : UserControl, IDM_Addin, IAddinVisSchema
+    public partial class uc_FolderConfigurationControl : uc_Addin, IAddinVisSchema
     {
         public uc_FolderConfigurationControl()
         {

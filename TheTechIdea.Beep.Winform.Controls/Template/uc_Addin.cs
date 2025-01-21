@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using System.ComponentModel;
+using System.Reflection;
 
 namespace TheTechIdea.Beep.Winform.Controls.Basic
 {
@@ -180,29 +181,47 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
             throw new NotImplementedException();
         }
 
-        public Task RunAsync(IPassedArgs pPassedarg)
+        public Task<IErrorsInfo> RunAsync(IPassedArgs pPassedarg)
         {
-            throw new NotImplementedException();
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return Task.FromResult(DMEEditor.ErrorObject);
         }
 
-        public Task RunAsync(params object[] args)
+        public Task<IErrorsInfo> RunAsync(params object[] args)
         {
-            throw new NotImplementedException();
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return Task.FromResult(DMEEditor.ErrorObject);
         }
 
         public void Configure(Dictionary<string, object> settings)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnNavigatedTo(Dictionary<string, object> parameters)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void SetError(string message)
         {
-            throw new NotImplementedException();
+           
         }
     }
 }

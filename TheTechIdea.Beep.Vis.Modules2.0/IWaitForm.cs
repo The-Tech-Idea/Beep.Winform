@@ -1,6 +1,8 @@
 ﻿using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
+using System;
+using System.Threading.Tasks;
 
 
 namespace TheTechIdea.Beep.Vis.Modules
@@ -13,6 +15,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         void SetImage(string image);
         void UpdateProgress(int progress, string message = null);
         IErrorsInfo Show(PassedArgs Passedarguments);
-        IErrorsInfo Close();
+        Task<IErrorsInfo> CloseAsync();
+        void CloseForm();
+        void SafeInvoke(Action action);
     }
 }

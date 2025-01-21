@@ -21,6 +21,7 @@ namespace TheTechIdea.Beep.Desktop.Common.KeyManagement
         void RegisterGlobalKeyHandler();
         AssemblyClassDefinition FindKeyMethod(KeyCombination combination);
         void RunFunctionFromKey(KeyCombination combination);
+        void GlobalKeyDown(object sender, KeyEventArgs e);
         bool IsValidKeyCombination(KeyCombination combination);
         bool AddKeyCombination(KeyCombination combination);
         BeepKeys ConvertSystemKeysToBeepKeys(Keys key);

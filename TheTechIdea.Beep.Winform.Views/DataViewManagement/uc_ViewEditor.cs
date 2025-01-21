@@ -13,11 +13,12 @@ using TheTechIdea.Beep.Composite;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.Winform.Controls.Basic;
 
 namespace TheTechIdea.ETL
 {
     [AddinAttribute(Caption = "View Editor", Name = "uc_ViewEditor", misc = "VIEW", addinType = AddinType.Control, ObjectType = "Beep")]
-    public partial class uc_ViewEditor : UserControl,IDM_Addin
+    public partial class uc_ViewEditor : uc_Addin
     {
         public uc_ViewEditor()
         {

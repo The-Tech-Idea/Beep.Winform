@@ -12,11 +12,12 @@ using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
+using TheTechIdea.Beep.Winform.Controls.Basic;
 
 namespace Beep.Config.Winform.DataConnections
 {
     [AddinAttribute(Caption = "WebApi Parameters", Name = "uc_webapiQueryParameters", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.Popup)]
-    public partial class uc_webapiQueryParameters : UserControl,IDM_Addin
+    public partial class uc_webapiQueryParameters :uc_Addin
     {
         public uc_webapiQueryParameters()
         {

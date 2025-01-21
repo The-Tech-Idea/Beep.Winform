@@ -17,11 +17,12 @@ using TheTechIdea.Beep.Utilities;
 using BeepDialogResult = TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
 using TheTechIdea.Beep.DriversConfigurations;
 using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Winform.Controls.Basic;
 
 namespace TheTechIdea.Beep.Winform.Views.DataViewManagement
 {
     [AddinAttribute(Caption = "Create Composed Layer for Data View", Name = "uc_CreateComposedLayerFromView", misc = "VIEW", addinType = AddinType.Control, ObjectType = "Beep")]
-    public partial class uc_CreateComposedLayerFromView : UserControl,IDM_Addin
+    public partial class uc_CreateComposedLayerFromView : uc_Addin
     {
         public uc_CreateComposedLayerFromView()
         {

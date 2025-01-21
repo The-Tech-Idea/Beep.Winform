@@ -9,12 +9,13 @@ using TheTechIdea.Beep.Utilities;
 
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Winform.Controls.Basic;
 
 namespace TheTechIdea.Beep.Winform.Views
 {
     [AddinAttribute(Caption = "Function 2 Function", Name = "uc_function2function", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.Popup, ObjectType = "Beep")]
     [AddinVisSchema(BranchID = 1, RootNodeName = "Configuration", Order = 8, ID = 8, BranchText = "Function to Function Mapping", BranchType = EnumPointType.Function, IconImageName = "function2functionconfig.png", BranchClass = "ADDIN", BranchDescription = "Data Sources Connection Drivers Setup Screen")]
-    public partial class uc_function2function : UserControl, IDM_Addin, IAddinVisSchema
+    public partial class uc_function2function : uc_Addin, IAddinVisSchema
     {
         #region "IAddinVisSchema"
         public string RootNodeName { get; set; } = "Configuration";

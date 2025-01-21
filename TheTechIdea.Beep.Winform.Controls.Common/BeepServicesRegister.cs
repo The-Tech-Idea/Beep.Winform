@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Addin;
 using Microsoft.Extensions.DependencyModel;
 using System.Collections.Generic;
 using System.Reflection;
+using TheTechIdea.Beep.Desktop.Common.KeyManagement;
 
 
 
@@ -26,6 +27,12 @@ namespace TheTechIdea.Beep.Desktop.Common
             Services.AddSingleton<IAppManager,AppManager>();
             return Services;
         }
+        public static IServiceCollection RegisterKeyHandler(this IServiceCollection services)
+        {
+            Services = services;
+            Services.AddSingleton<IKeyHandlingManager, KeyHandlingManager>();
+            return Services;
+        }
         public static IAppManager SetBeepReference(this IAppManager ViewManager, IBeepService beepService)
         {
             beepService.vis = ViewManager;
@@ -38,7 +45,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             ViewManager.Title = title;
             ViewManager.IconUrl = iconname;
             ViewManager.LogoUrl = logourl;
-            ViewManager.HomePageName = homePage;
+            ViewManager.HomePageName = mainform;
             ViewManager.HomePageDescription = homePageDescription;
             return ViewManager;
         }
@@ -111,7 +118,7 @@ namespace TheTechIdea.Beep.Desktop.Common
 
             // Register types implementing IDM_Addin
             var viewTypes = assemblies.SelectMany(a => a.GetTypes())
-                .Where(t => typeof(IDM_Addin).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+                .Where(t => typeof(IDM_Addin).IsAssignableFrom(t) && !t.IsInterface); //&& !t.IsInterface && !t.IsAbstract
 
             foreach (var viewType in viewTypes)
             {

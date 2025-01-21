@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         #region "Variables"
         private readonly IServiceProvider servicelocator;
         private readonly IBeepService beepservices;
-        private readonly IRoutingManager viewrouter;
+      
       
         #endregion "Variables"
         #region "Constructors and Init"
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         {
             servicelocator = service;
             beepservices = (IBeepService)service.GetService(typeof(IBeepService));
-            viewrouter = (IRoutingManager)service.GetService(typeof(IRoutingManager));
+            RoutingManager = (IRoutingManager)service.GetService(typeof(IRoutingManager));
             DMEEditor = beepservices.DMEEditor;
             init();
 
@@ -79,6 +79,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public IPopupDisplayContainer PopupDisplay { get; set; }
         public IDisplayContainer Container { get; set; }
         public IControlManager Controlmanager { get; set; }
+        public IRoutingManager RoutingManager { get; set; }
         public IWaitForm WaitForm { get; set; }
         #endregion "Main Controls"
         #region "UI State"
@@ -103,7 +104,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public bool ShowTreeWindow { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
-        public string BreadCrumb { get { return viewrouter != null ? viewrouter?.BreadCrumb : string.Empty; } }
+        public string BreadCrumb { get { return RoutingManager != null ? RoutingManager?.BreadCrumb : string.Empty; } }
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
         protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
 
@@ -223,27 +224,28 @@ namespace TheTechIdea.Beep.Desktop.Common
             var result = new ErrorsInfo();
             try
             {
-                if (WaitForm == null)
-                {
-                    throw new InvalidOperationException("WaitForm is not initialized.");
-                }
-
-                if (!string.IsNullOrEmpty(Passedarguments?.Messege))
-                {
-                    WaitForm.SetText(Passedarguments.Messege);
-                }
-
-                if (!string.IsNullOrEmpty(Passedarguments?.Title))
-                {
-                    WaitForm.SetTitle(Passedarguments.Title);
-                }
-
-                if (!string.IsNullOrEmpty(Passedarguments?.ImagePath))
-                {
-                    WaitForm.SetImage(Passedarguments.ImagePath);
-                }
+                
 
                 WaitForm.Show(Passedarguments);
+                //if (WaitForm == null)
+                //{
+                //    throw new InvalidOperationException("WaitForm is not initialized.");
+                //}
+
+                //if (!string.IsNullOrEmpty(Passedarguments?.Messege))
+                //{
+                //    WaitForm.SetText(Passedarguments.Messege);
+                //}
+
+                //if (!string.IsNullOrEmpty(Passedarguments?.Title))
+                //{
+                //    WaitForm.SetTitle(Passedarguments.Title);
+                //}
+
+                //if (!string.IsNullOrEmpty(Passedarguments?.ImagePath))
+                //{
+                //    WaitForm.SetImage(Passedarguments.ImagePath);
+                //}
                 IsShowingWaitForm = true;
 
                 result.Flag = Errors.Ok;
@@ -308,7 +310,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                     throw new InvalidOperationException("WaitForm is not initialized.");
                 }
 
-                WaitForm.Close();
+                WaitForm.CloseAsync();
                 IsShowingWaitForm = false;
 
                 result.Flag = Errors.Ok;
@@ -456,7 +458,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to navigate back
-                viewrouter.NavigateBack();
+                RoutingManager.NavigateBack();
             }
             catch (Exception ex)
             {
@@ -470,7 +472,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to navigate forward
-                viewrouter.NavigateForward();
+                RoutingManager.NavigateForward();
 
             }
             catch (Exception ex)
@@ -485,7 +487,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to navigate to a specific route from List<IDM_Addin> s
-                viewrouter.NavigateTo(routeName, parameters);
+                RoutingManager.NavigateTo(routeName, parameters);
 
             }
             catch (Exception ex)
@@ -500,7 +502,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to show the home page
-                viewrouter.NavigateTo(HomePageName);
+                RoutingManager.NavigateTo(HomePageName, null, true);
             }
             catch (Exception ex)
             {
@@ -514,7 +516,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to show the home page
-                viewrouter.NavigateTo("Login");
+                RoutingManager.NavigateTo("Login",null,true);
             }
             catch (Exception ex)
             {
@@ -528,7 +530,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to show the home page
-                viewrouter.NavigateTo("Profile");
+                RoutingManager.NavigateTo("Profile");
             }
             catch (Exception ex)
             {
@@ -542,7 +544,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             try
             {
                 // use the view router to show the home page
-                viewrouter.NavigateTo("Admin");
+                RoutingManager.NavigateTo("Admin");
             }
             catch (Exception ex)
             {

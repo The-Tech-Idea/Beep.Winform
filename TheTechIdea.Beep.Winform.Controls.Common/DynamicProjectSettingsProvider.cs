@@ -1,5 +1,6 @@
 ﻿using System.Configuration;
 using System.Reflection;
+using TheTechIdea.Beep.Vis.Modules;
 
 
 namespace TheTechIdea.Beep.Desktop.Common

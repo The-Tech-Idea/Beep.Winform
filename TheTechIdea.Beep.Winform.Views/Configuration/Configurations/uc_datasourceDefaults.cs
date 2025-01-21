@@ -12,11 +12,12 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.Winform.Controls.Basic;
 
 namespace Beep.Config.Winform.Configurations
 {
     [AddinAttribute(Caption = "DataConnection Defaults", Name = "uc_datasourceDefaults", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.Popup, ObjectType = "Beep")]
-    public partial class uc_datasourceDefaults : UserControl, IDM_Addin
+    public partial class uc_datasourceDefaults : uc_Addin
     {
         public uc_datasourceDefaults()
         {

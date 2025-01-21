@@ -11,7 +11,7 @@ using TheTechIdea.Beep.Utilities;
 
 namespace Beep.Winform.Vis.Wizards
 {
-    public partial class Frm_Wizard : Form,IDM_Addin
+    public partial class Frm_Wizard : Form
     {
         public Frm_Wizard()
         {

@@ -12,12 +12,13 @@ using TheTechIdea.Beep.DataBase;
 
 using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Winform.Controls.Basic;
 
 namespace Beep.Config.Winform.DataConnections
 {
     [AddinAttribute(Caption = "DataConnections", Name = "uc_dsList", misc = "Config", menu = "Configuration", displayType = DisplayType.Popup, addinType = AddinType.Control, ObjectType = "Beep")]
     [AddinVisSchema(BranchID = 55, RootNodeName = "Configuration", Order = 55, ID = 55, BranchText = "Connection Manager", BranchType = EnumPointType.Function, IconImageName = "connections.ico", BranchClass = "ADDIN", BranchDescription = "Connection Drivers Setup Screen")]
-    public partial class uc_dsList : UserControl, IDM_Addin, IAddinVisSchema
+    public partial class uc_dsList : uc_Addin, IAddinVisSchema
     {
         public uc_dsList()
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Desktop.Common
 {

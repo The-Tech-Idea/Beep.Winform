@@ -180,12 +180,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
             throw new NotImplementedException();
         }
 
-        public Task RunAsync(IPassedArgs pPassedarg)
+        public Task<IErrorsInfo> RunAsync(IPassedArgs pPassedarg)
         {
             throw new NotImplementedException();
         }
 
-        public Task RunAsync(params object[] args)
+        public Task<IErrorsInfo> RunAsync(params object[] args)
         {
             throw new NotImplementedException();
         }

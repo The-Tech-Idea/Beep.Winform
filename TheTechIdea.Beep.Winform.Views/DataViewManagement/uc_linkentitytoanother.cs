@@ -14,11 +14,12 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.Winform.Controls.Basic;
 
 namespace TheTechIdea.ETL
 {
     [AddinAttribute(Caption = "Link Entites in View ", Name = "uc_linkentitytoanother", misc = "VIEW", addinType = AddinType.Control, ObjectType = "Beep")]
-    public partial class uc_linkentitytoanother : UserControl, IDM_Addin
+    public partial class uc_linkentitytoanother : uc_Addin
     {
         public uc_linkentitytoanother()
     {

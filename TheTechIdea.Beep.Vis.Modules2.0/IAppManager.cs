@@ -24,6 +24,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         IDM_Addin CurrentDisplayedAddin { get; set; }
         IDM_Addin MainDisplay { get; set; }
         IDisplayContainer Container { get; set; }
+        IRoutingManager RoutingManager { get; set; }
         IPopupDisplayContainer PopupDisplay { get; set; }
         bool IsDataModified { get; set; }
         bool IsShowingMainForm { get; set; }

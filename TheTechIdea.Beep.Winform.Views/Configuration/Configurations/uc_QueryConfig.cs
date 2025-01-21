@@ -12,12 +12,13 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Editor;
 
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Winform.Controls.Basic;
 
 namespace Beep.Config.Winform.Configurations
 {
     [AddinAttribute(Caption = "Query Configuration", Name = "uc_QueryConfig", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.Popup, ObjectType = "Beep")]
     [AddinVisSchema(BranchID = 5, RootNodeName = "Configuration", Order = 5, ID = 5, BranchText = "Query Setup", BranchType = EnumPointType.Function, IconImageName = "queryconfig.png", BranchClass = "ADDIN", BranchDescription = "Data Sources Connection Drivers Setup Screen")]
-    public partial class uc_QueryConfig : UserControl, IDM_Addin, IAddinVisSchema
+    public partial class uc_QueryConfig : uc_Addin, IAddinVisSchema
     {
         #region "IAddinVisSchema"
         public string RootNodeName { get; set; } = "Configuration";

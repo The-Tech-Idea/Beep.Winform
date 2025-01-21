@@ -1,32 +1,55 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Vis.Modules;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public partial class Form1 : BeepiForm
+    [AddinAttribute(Caption = "Home", Name = "Form1", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.Popup, ObjectType = "Beep")]
+    public partial class Form1 : BeepiForm,IDM_Addin
     {
-        public Form1(IBeepService pBeepService) : base(pBeepService)
+        private readonly IBeepService? beepService;
+
+        public IDMEEditor Editor { get; }
+        public AddinDetails Details { get; set; } = new AddinDetails();
+        public Dependencies Dependencies { get; set; } = new Dependencies();
+        string IDM_Addin.GuidID { get  ; set  ; }
+
+        public Form1(IServiceProvider serviceProvider) 
         {
             InitializeComponent();
-            MethodHandler.DMEEditor = pBeepService.DMEEditor;
-            beepTreeControl1.init(pBeepService);
+            beepService = serviceProvider.GetService<IBeepService>();
+            Dependencies.DMEEditor= beepService.DMEEditor;
+            MethodHandler.DMEEditor = beepService.DMEEditor;
+            beepTreeControl1.init(beepService);
             beepButton1.Click += BeepButton1_Click;
             beepButton2.PopupMode = true;
-
         }
-
+        public Form1() : base()
+        {
+            InitializeComponent();
+            MethodHandler.DMEEditor = Dependencies.DMEEditor;
+            //beepTreeControl1.init(beepService);
+            //beepButton1.Click += BeepButton1_Click;
+            //beepButton2.PopupMode = true;
+        }
 
 
         private void BeepButton1_Click(object? sender, EventArgs e)
@@ -45,11 +68,175 @@ namespace TheTechIdea.Beep.Winform.Controls
             //beepTreeControl1.AllowMultiSelect = false;
         }
 
-        public Form1() : base()
+        void IDM_Addin.Initialize()
         {
-            InitializeComponent();
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                beepService.DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
         }
 
-    
+        void IDM_Addin.Dispose()
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                beepService.DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+        }
+
+        void IDM_Addin.Suspend()
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                beepService.DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            
+        }
+
+        void IDM_Addin.Resume()
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                beepService.DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            
+        }
+
+        string IDM_Addin.GetErrorDetails()
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                beepService.DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+           return beepService.DMEEditor.ErrorObject.Message;
+        }
+
+        void IDM_Addin.Run(IPassedArgs pPassedarg)
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                beepService.DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            
+        }
+
+        void IDM_Addin.Run(params object[] args)
+        {
+           
+        }
+
+        Task<IErrorsInfo> IDM_Addin.RunAsync(IPassedArgs pPassedarg)
+        {
+            try
+            {
+               
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                beepService.DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return  Task.FromResult<IErrorsInfo>(beepService.DMEEditor.ErrorObject);
+        }
+
+        Task<IErrorsInfo> IDM_Addin.RunAsync(params object[] args)
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                beepService.DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return Task.FromResult<IErrorsInfo>(beepService.DMEEditor.ErrorObject);
+        }
+
+        void IDM_Addin.Configure(Dictionary<string, object> settings)
+        {
+            
+        }
+
+        void INavigable.OnNavigatedTo(Dictionary<string, object> parameters)
+        {
+            
+        }
+
+        void IErrorView.SetError(string message)
+        {
+            
+        }
+
+      
+
+        event EventHandler IDM_Addin.OnStart
+        {
+            add
+            {
+               
+            }
+
+            remove
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        event EventHandler IDM_Addin.OnStop
+        {
+            add
+            {
+                
+            }
+
+            remove
+            {
+                
+            }
+        }
+
+        event EventHandler<ErrorEventArgs> IDM_Addin.OnError
+        {
+            add
+            {
+               
+            }
+
+            remove
+            {
+               
+            }
+        }
     }
 }

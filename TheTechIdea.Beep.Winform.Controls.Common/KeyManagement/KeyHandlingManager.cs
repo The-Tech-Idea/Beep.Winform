@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Tools;
 using TheTechIdea.Beep.Vis;
@@ -102,11 +103,19 @@ namespace TheTechIdea.Beep.Desktop.Common.KeyManagement
     { Keys.LMenu, BeepKeys.LeftAlt },
     { Keys.RMenu, BeepKeys.RightAlt },
 };
+        private readonly IServiceProvider servicelocator;
+        private readonly IBeepService? beepservices;
+
+        public IDMEEditor Editor { get; }
 
         public event EventHandler<BeepEventDataArgs> KeyPressed;
 
-        public KeyHandlingManager()
+        public KeyHandlingManager(IServiceProvider service)
         {
+            servicelocator = service;
+            beepservices = (IBeepService)service.GetService(typeof(IBeepService));
+            Editor = beepservices.DMEEditor;
+            RegisterGlobalKeyHandler();
         }
 
         public KeyMapStorage KeyMapStorage { get ; set ; }
@@ -125,27 +134,49 @@ namespace TheTechIdea.Beep.Desktop.Common.KeyManagement
 
         public void LoadKeyMap()
         {
-            throw new NotImplementedException();
+            KeyMapToFunction= KeyMapStorage.Load();
         }
 
         public void SaveKeyMap()
         {
-            throw new NotImplementedException();
+            KeyMapStorage.Save(KeyMapToFunction);
+        }
+        public  void GlobalKeyDown(object sender, KeyEventArgs e)
+        {
+            var combination = new KeyCombination(ConvertSystemKeysToBeepKeys(e.KeyCode), e.Control, e.Alt, e.Shift);
+
+            if (FindKeyMethod( combination) != null)
+            {
+                Console.WriteLine($"{combination.MappedFunction.Name} triggered");
+                // Implement your function call logic based on functionName
+                var x = new BeepEventDataArgs("KeyPressed", combination);
+
+                KeyPressed?.Invoke(null, x);
+                e.Handled = true;
+            }
         }
 
         public void UnregisterGlobalKeyHandler()
         {
-            throw new NotImplementedException();
+            if (GlobalKeyHandler != null)
+            {
+                Application.RemoveMessageFilter(GlobalKeyHandler);
+            }
         }
 
         public void RegisterGlobalKeyHandler()
         {
-            throw new NotImplementedException();
+            //Registering global key handler
+            ProjectHelper.Createfolder("keyconfig");
+            LoadKeyMap();
+            GlobalKeyHandler = new GlobalKeyHandler();
+            Application.AddMessageFilter(GlobalKeyHandler);
+            GlobalKeyHandler.KeyDown += GlobalKeyDown;
         }
 
         public AssemblyClassDefinition FindKeyMethod(KeyCombination combination)
         {
-            throw new NotImplementedException();
+            return Editor.ConfigEditor.AppComponents.FirstOrDefault(p => p.className == combination.ClassName && p.GuidID == combination.AssemblyGuid);
         }
 
         public void RunFunctionFromKey(KeyCombination combination)
@@ -155,24 +186,54 @@ namespace TheTechIdea.Beep.Desktop.Common.KeyManagement
 
         public bool IsValidKeyCombination(KeyCombination combination)
         {
-            throw new NotImplementedException();
+            //Checks if the combination already exists in the dictionary
+                        if (KeyMapToFunction == null)
+            {
+                return false;
+            }
+            if (KeyMapToFunction.Count == 0)
+            {
+                return false;
+            }
+            return !KeyMapToFunction.Any(p => p.Key == combination.Key && p.Control == combination.Control && p.Alt == combination.Alt && p.Shift == combination.Shift);
         }
 
         public bool AddKeyCombination(KeyCombination combination)
         {
-            throw new NotImplementedException();
+            if (IsValidKeyCombination(combination))
+            {
+                KeyMapToFunction?.Add(combination);
+                return true;
+            }
+
+            Console.WriteLine($"Key combination for {combination.Key} with Control: {combination.Control}, Alt: {combination.Alt}, and Shift: {combination.Shift} already exists.");
+            return false;
         }
 
-       
+
 
         public void AddKeyCombination(string key, bool control, bool alt, bool shift, string className, string assemblyGuid, string functionName, string description)
         {
-            throw new NotImplementedException();
+            var combination = new KeyCombination((BeepKeys)Enum.Parse(typeof(BeepKeys), key), control, alt, shift)
+            {
+                ClassName = className,
+                AssemblyGuid = assemblyGuid,
+                MappedFunction = new MethodsClass { Name = functionName },
+                Description = description
+            };
+            AddKeyCombination(combination);
         }
 
         public void AddKeyCombination( IAssemblyHandler assemblyHandler, string key, bool control, bool alt, bool shift, string className, string assemblyGuid, string functionName, string description)
         {
-            throw new NotImplementedException();
+            var combination = new KeyCombination((BeepKeys)Enum.Parse(typeof(BeepKeys), key), control, alt, shift)
+            {
+                ClassName = className,
+                AssemblyGuid = assemblyGuid,
+                MappedFunction = new MethodsClass { Name = functionName },
+                Description = description
+            };
+            AddKeyCombination(combination);
         }
 
         public void RemoveKeyCombination(KeyCombination combination)

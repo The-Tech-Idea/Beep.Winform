@@ -76,6 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public IDM_Addin MainDisplay { get; set; }
         public IPopupDisplayContainer PopupDisplay { get; set; }
         public IFunctionandExtensionsHelpers Helpers { get; set; }
+        public IRoutingManager RoutingManager { get; set; }
         bool _isLogOn = false;
         public bool IsLogOn
         {

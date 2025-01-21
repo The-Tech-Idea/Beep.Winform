@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheTechIdea.Beep.Desktop.Common
+namespace TheTechIdea.Beep.Vis.Modules
 {
     public interface ISettingsProvider
     {

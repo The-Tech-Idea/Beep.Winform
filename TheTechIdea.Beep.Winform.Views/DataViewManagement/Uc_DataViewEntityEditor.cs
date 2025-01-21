@@ -14,11 +14,12 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.Winform.Controls.Basic;
 
 namespace TheTechIdea.ETL
 {
     [AddinAttribute(Caption = "Entity in View Editor ", Name = "Uc_DataViewEntityEditor", misc = "VIEW", addinType = AddinType.Control, ObjectType = "Beep")]
-    public partial class Uc_DataViewEntityEditor : UserControl, IDM_Addin
+    public partial class Uc_DataViewEntityEditor : uc_Addin
     {
         public Uc_DataViewEntityEditor()
         {

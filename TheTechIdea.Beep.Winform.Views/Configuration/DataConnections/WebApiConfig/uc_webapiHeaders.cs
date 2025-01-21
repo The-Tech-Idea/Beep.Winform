@@ -19,11 +19,12 @@ using TheTechIdea.Beep.Addin;
 
 
 using TheTechIdea;
+using TheTechIdea.Beep.Winform.Controls.Basic;
 
 namespace Beep.Config.Winform.DataConnections
 {
     [AddinAttribute(Caption = "WebApi Configuration", Name = "uc_webapiHeaders", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.Popup)]
-    public partial class uc_webapiHeaders : UserControl, IDM_Addin
+    public partial class uc_webapiHeaders : uc_Addin
 
     {
         public uc_webapiHeaders()

@@ -1,4 +1,5 @@
 ﻿using System.Web;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Container.Services;
 
@@ -52,7 +53,7 @@ namespace TheTechIdea.Beep.Desktop.Common
        
 
         #region Navigation
-        public void NavigateTo(string routeName, Dictionary<string, object> parameters = null)
+        public void NavigateTo(string routeName, Dictionary<string, object> parameters = null,bool popup=false)
         {
             try
             {
@@ -93,16 +94,58 @@ namespace TheTechIdea.Beep.Desktop.Common
                 // Create or retrieve the new view
                 IDM_Addin view = _useCustomCreator && _isCustomCreatorSet
                     ? CreateControlUsingCustomCreator(_routes[routeName])
-                    : CreateUsingActivator(_routes[routeName]);
-
+                    : CreateUsingServiceLocator(_routes[routeName]);
+                if (view == null)
+                {               
+                   view= CreateUsingActivator(_routes[routeName]);
+                    if(view !=null)
+                    {
+                        view.Dependencies = new Dependencies();
+                        view.Dependencies.DMEEditor = Beepservices.DMEEditor;
+                        view.Dependencies.ErrorObject = Beepservices.DMEEditor.ErrorObject;
+                        view.Dependencies.Logger = Beepservices.lg;
+                    }
+                   
+                }
+                if (view == null)
+                {
+                    throw new InvalidOperationException($"Failed to create view for route: {routeName}");
+                }
+            
                 if (view is INavigable navigableView)
                 {
                     navigableView.OnNavigatedTo(parameters ?? new Dictionary<string, object>());
                 }
 
-                // Add the new view to the display container
-                _displayContainer.AddControl(routeName, view, _containerType);
-                _currentView = view;
+                if (!popup)
+                {
+                    if (_displayContainer != null) _displayContainer.AddControl(routeName, view, _containerType);
+                }
+                else
+                {
+                    // Show as popup
+                    // Check if view is Form then just show it as popup
+                    if (view is Form)
+                    {
+                        Form form = (Form)view;
+                        form.StartPosition = FormStartPosition.CenterParent;
+                        form.Activate();
+                        form.Focus();
+                        form.ShowDialog();
+                       
+                    }
+                    else
+                    {
+                        // Show as popup
+                        var popupForm = new Form();
+                        Control control = (Control)view;
+                        popupForm.Controls.Add(control);
+                        control.Dock = DockStyle.Fill;
+                        popupForm.ShowDialog();
+                    }
+                    // Add the new view to the display container
+                }
+                    _currentView = view;
 
                 // Trigger PostShowItem event
                 PostShowItem?.Invoke(this, new RouteArgs(routeName, parameters));
@@ -233,6 +276,10 @@ namespace TheTechIdea.Beep.Desktop.Common
         #endregion
 
         #region View Creation
+        private IDM_Addin CreateUsingServiceLocator(Type viewType)
+        {
+            return (IDM_Addin)servicelocator.GetService(viewType);
+        }
         private IDM_Addin CreateUsingActivator(Type viewType)
         {
             return (IDM_Addin)Activator.CreateInstance(viewType);
@@ -257,25 +304,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         #endregion
     }
 
-    public delegate bool RouteGuard(Dictionary<string, object> parameters);
+   
 }
 
-public interface IRouteArgs
-{
-    string RouteName { get; }
-    Dictionary<string, object> Parameters { get; }
-    bool Cancel { get; set; }
-}
 
-public class RouteArgs : IRouteArgs
-{
-    public string RouteName { get; }
-    public Dictionary<string, object> Parameters { get; }
-    public bool Cancel { get; set; }
-
-    public RouteArgs(string routeName, Dictionary<string, object> parameters)
-    {
-        RouteName = routeName;
-        Parameters = parameters;
-    }
-}

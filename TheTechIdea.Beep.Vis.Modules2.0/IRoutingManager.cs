@@ -22,6 +22,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         (string RouteName, Dictionary<string, object> Parameters) ParseRoute(string routeWithParams);
         void RegisterAlias(string alias, string routeName);
         void RegisterRoute(string routeName, Type viewType, RouteGuard guard = null);
+        void RegisterRouteByName(string routeName, string moduleOrAddinName, RouteGuard guard = null);
         bool SetControlCreator(Func<Type, IDM_Addin> customCreator);
         void SetDefaultRoute(string routeName);
         void SetErrorView(Type errorViewType);

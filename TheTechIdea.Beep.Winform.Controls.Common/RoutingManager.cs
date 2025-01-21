@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Web;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Container.Services;
@@ -134,7 +135,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                             Size = new Size(300, 200)
                         };
 
-                      //  testForm.ShowDialog();
+                        testForm.ShowDialog();
 
                         // Ensure the form is initialized and valid
                         if (!form.IsDisposed)
@@ -250,6 +251,36 @@ namespace TheTechIdea.Beep.Desktop.Common
         #endregion
 
         #region Routing
+        private Type FindAddinTypeFromServices(string moduleOrAddinName)
+        {
+            // Retrieve all registered services
+            foreach (var service in servicelocator.GetServices(typeof(IDM_Addin)))
+            {
+                Control addin = (Control)service;
+                if (addin.Name.Contains(moduleOrAddinName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return service.GetType();
+                }
+            }
+
+            return null;
+        }
+        public void RegisterRouteByName(string routeName, string moduleOrAddinName, RouteGuard guard = null)
+        {
+            if (string.IsNullOrWhiteSpace(routeName))
+                throw new ArgumentException("Route name cannot be null or empty.", nameof(routeName));
+
+            if (string.IsNullOrWhiteSpace(moduleOrAddinName))
+                throw new ArgumentException("Module or Add-in name cannot be null or empty.", nameof(moduleOrAddinName));
+
+            // Find the type of the module or add-in from services
+            var type = FindAddinTypeFromServices(moduleOrAddinName);
+            if (type == null)
+                throw new ArgumentException($"No add-in or module found with name: {moduleOrAddinName}");
+
+            // Register the route using the resolved type
+            RegisterRoute(routeName, type, guard);
+        }
         public void RegisterRoute(string routeName, Type viewType, RouteGuard guard = null)
         {
             if (string.IsNullOrWhiteSpace(routeName))
@@ -309,8 +340,24 @@ namespace TheTechIdea.Beep.Desktop.Common
         #region View Creation
         private IDM_Addin CreateUsingServiceLocator(Type viewType)
         {
-            return (IDM_Addin)servicelocator.GetService(viewType);
+            // Retrieve all registered services of type IDM_Addin
+            var services = servicelocator.GetServices(typeof(IDM_Addin));
+            if (services == null)
+                throw new InvalidOperationException("No add-ins are registered in the service locator.");
+
+            // Find the matching add-in instance by type
+            foreach (var service in services)
+            {
+                if (service.GetType() == viewType && service is IDM_Addin addin)
+                {
+                    return addin;
+                }
+            }
+
+            // If no matching instance is found, return null or throw an exception
+            throw new InvalidOperationException($"No add-in found for type: {viewType.FullName}");
         }
+
         private IDM_Addin CreateUsingActivator(Type viewType)
         {
             return (IDM_Addin)Activator.CreateInstance(viewType);

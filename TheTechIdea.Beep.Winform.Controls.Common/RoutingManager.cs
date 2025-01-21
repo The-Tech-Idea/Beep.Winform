@@ -125,27 +125,58 @@ namespace TheTechIdea.Beep.Desktop.Common
                 {
                     // Show as popup
                     // Check if view is Form then just show it as popup
-                    if (view is Form)
+                    if (view is Form form)
                     {
-                        Form form = (Form)view;
-                        form.StartPosition = FormStartPosition.CenterParent;
-                        form.Activate();
-                        form.Focus();
-                        form.ShowDialog();
-                       
+                        var testForm = new Form
+                        {
+                            Text = "Test Form",
+                            StartPosition = FormStartPosition.CenterParent,
+                            Size = new Size(300, 200)
+                        };
+
+                      //  testForm.ShowDialog();
+
+                        // Ensure the form is initialized and valid
+                        if (!form.IsDisposed)
+                        {
+                            if (form.InvokeRequired)
+                            {
+                                form.Invoke(new Action(() =>
+                                {
+                                    ShowPopupForm(form);
+                                }));
+                            }
+                            else
+                            {
+                                ShowPopupForm(form);
+                            }
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("The form is disposed and cannot be shown.");
+                        }
+                    }
+                    else if (view is Control control)
+                    {
+                        var popupForm = new Form
+                        {
+                            StartPosition = FormStartPosition.CenterParent,
+                            AutoSize = true
+                        };
+
+                        popupForm.Controls.Add(control);
+                        control.Dock = DockStyle.Fill;
+
+                        popupForm.ShowDialog();
                     }
                     else
                     {
-                        // Show as popup
-                        var popupForm = new Form();
-                        Control control = (Control)view;
-                        popupForm.Controls.Add(control);
-                        control.Dock = DockStyle.Fill;
-                        popupForm.ShowDialog();
+                        throw new InvalidOperationException("The provided view is not a valid Form or Control.");
                     }
+
                     // Add the new view to the display container
                 }
-                    _currentView = view;
+                _currentView = view;
 
                 // Trigger PostShowItem event
                 PostShowItem?.Invoke(this, new RouteArgs(routeName, parameters));
@@ -302,9 +333,17 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
 
         #endregion
+        private void ShowPopupForm(Form form)
+        {
+            form.StartPosition = FormStartPosition.CenterParent;
+            form.Activate();
+            form.Focus();
+            form.ShowDialog();
+        }
+
     }
 
-   
+
 }
 
 

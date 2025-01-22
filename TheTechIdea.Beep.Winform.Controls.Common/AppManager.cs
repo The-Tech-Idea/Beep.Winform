@@ -497,12 +497,12 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
             return Task.FromResult(DMEEditor.ErrorObject);
         }
-        public IErrorsInfo ShowHome()
+        public Task<IErrorsInfo> ShowHomeAsync()
         {
             try
             {
                 // use the view router to show the home page
-                RoutingManager.NavigateTo(HomePageName, null, true);
+                RoutingManager.NavigateToAsync(HomePageName, null, true);
             }
             catch (Exception ex)
             {
@@ -511,12 +511,12 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
             return DMEEditor.ErrorObject;
         }
-        public IErrorsInfo ShowLogin()
+        public Task<IErrorsInfo> ShowLoginAsync()
         {
             try
             {
                 // use the view router to show the home page
-                RoutingManager.NavigateTo("Login",null,true);
+                RoutingManager.NavigateToAsync("Login",null,true);
             }
             catch (Exception ex)
             {
@@ -525,12 +525,12 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
             return DMEEditor.ErrorObject;
         }
-        public IErrorsInfo ShowProfile()
+        public Task<IErrorsInfo> ShowProfileAsync()
         {
             try
             {
                 // use the view router to show the home page
-                RoutingManager.NavigateTo("Profile");
+                RoutingManager.NavigateToAsync("Profile");
             }
             catch (Exception ex)
             {
@@ -539,12 +539,12 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
             return DMEEditor.ErrorObject;
         }
-        public IErrorsInfo ShowAdmin()
+        public Task<IErrorsInfo> ShowAdminAsync()
         {
             try
             {
                 // use the view router to show the home page
-                RoutingManager.NavigateTo("Admin");
+                RoutingManager.NavigateToAsync("Admin");
             }
             catch (Exception ex)
             {

@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyModel;
 using System.Collections.Generic;
 using System.Reflection;
 using TheTechIdea.Beep.Desktop.Common.KeyManagement;
+using TheTechIdea.Beep.ConfigUtil;
 
 
 
@@ -58,6 +59,45 @@ namespace TheTechIdea.Beep.Desktop.Common
             beepService.Config_editor.LoadedAssemblies = beepService.LLoader.Assemblies.Select(c => c.DllLib).ToList();
 
             return ViewManager;
+        }
+        public static async Task<IErrorsInfo> LoadAssembliesAsync(this IAppManager viewManager, IBeepService beepService, IProgress<PassedArgs> progress)
+        {
+            var result = new ErrorsInfo();
+            try
+            {
+                // Create a parameter object for the Wait Form
+                PassedArgs args = new PassedArgs { Messege = "Loading assemblies..." };
+                progress?.Report(args);
+
+                // Asynchronous loading of assemblies
+                await Task.Run(() =>
+                {
+                    beepService.LoadAssemblies((Progress<PassedArgs>)progress);
+                    beepService.Config_editor.LoadedAssemblies = beepService.LLoader.Assemblies.Select(c => c.DllLib).ToList();
+                }).ConfigureAwait(false); ;
+
+                // Update progress
+                args.Messege = "Assemblies loaded successfully.";
+                progress?.Report(args);
+
+                result.Flag = Errors.Ok;
+                result.Message = "Assemblies loaded successfully.";
+            }
+            catch (Exception ex)
+            {
+                string methodName = nameof(LoadAssembliesAsync);
+                viewManager.DMEEditor.AddLogMessage("Beep", $"in {methodName} Error: {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+
+                result.Flag = Errors.Failed;
+                result.Message = ex.Message;
+                result.Ex = ex;
+
+                // Update progress with error
+                PassedArgs errorArgs = new PassedArgs { Messege = $"Error: {ex.Message}" };
+                progress?.Report(errorArgs);
+            }
+
+            return result;
         }
 
         public static IServiceCollection RegisterViewModels(this IServiceCollection services)

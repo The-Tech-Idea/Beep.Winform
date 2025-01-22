@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System;
 using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.ConfigUtil;
+using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
@@ -16,9 +18,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         event EventHandler<IRouteArgs> PostShowItem;
         event EventHandler<IRouteArgs> PreShowItem;
 
-        void NavigateBack();
-        void NavigateForward();
-        void NavigateTo(string routeName, Dictionary<string, object> parameters = null,bool popup = false);
+        Task<IErrorsInfo> NavigateBackAsync();
+        Task<IErrorsInfo> NavigateForwardAsync();
+        Task<IErrorsInfo> NavigateToAsync(string routeName, Dictionary<string, object> parameters = null,bool popup = false);
         (string RouteName, Dictionary<string, object> Parameters) ParseRoute(string routeWithParams);
         void RegisterAlias(string alias, string routeName);
         void RegisterRoute(string routeName, Type viewType, RouteGuard guard = null);

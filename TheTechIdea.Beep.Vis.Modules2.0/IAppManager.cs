@@ -57,22 +57,24 @@ namespace TheTechIdea.Beep.Vis.Modules
         IErrorsInfo PrintGrid(IPassedArgs passedArgs);
         IDM_Addin ShowUserControlPopUp(string usercontrolname, IDMEEditor pDMEEditor, string[] args, IPassedArgs e);
         IErrorsInfo ShowPage(string pagename,  PassedArgs Passedarguments,  DisplayType displayType = DisplayType.InControl,bool Singleton=false);
+        Task<IErrorsInfo> ShowPageAsync(string pagename, PassedArgs Passedarguments, DisplayType displayType = DisplayType.InControl, bool Singleton = false);
         IErrorsInfo ShowWaitForm(PassedArgs Passedarguments);
         IErrorsInfo PasstoWaitForm(PassedArgs Passedarguments);
+        Task<IErrorsInfo> CloseWaitFormAsync();
         IErrorsInfo CloseWaitForm();
-        IErrorsInfo ShowHome();
-        IErrorsInfo ShowAdmin();
-        IErrorsInfo ShowProfile();
-        IErrorsInfo ShowLogin();
+        Task<IErrorsInfo> ShowHomeAsync();
+        Task<IErrorsInfo> ShowAdminAsync();
+        Task<IErrorsInfo> ShowProfileAsync();
+        Task<IErrorsInfo> ShowLoginAsync();
 
         event EventHandler<KeyCombination> KeyPressed;
         IErrorsInfo PressKey(KeyCombination keyCombination);
         string HomePageTitle { get; set; }
         string HomePageName { get; set; }
         string HomePageDescription { get; set; }
-        Task<IErrorsInfo> NavigateBack();
-        Task<IErrorsInfo> NavigateForward();
-        Task<IErrorsInfo> NavigateTo(string routeName, Dictionary<string, object> parameters = null);
+        Task<IErrorsInfo> NavigateBackAsync();
+        Task<IErrorsInfo> NavigateForwardAsync();
+        Task<IErrorsInfo> NavigateToAsync(string routeName, Dictionary<string, object> parameters = null);
         string BreadCrumb { get; }
         IProfile DefaultProfile { get; set; }
         List<IBeepPrivilege> Privileges { get; set; }

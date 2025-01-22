@@ -1336,5 +1336,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             throw new NotImplementedException();
         }
+
+        public Task<IErrorsInfo> CloseWaitFormAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IErrorsInfo> ShowPageAsync(string pagename, PassedArgs Passedarguments, DisplayType displayType = DisplayType.InControl, bool Singleton = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IErrorsInfo> ShowHomeAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IErrorsInfo> ShowAdminAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IErrorsInfo> ShowProfileAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IErrorsInfo> ShowLoginAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IErrorsInfo> NavigateBackAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IErrorsInfo> NavigateForwardAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IErrorsInfo> NavigateToAsync(string routeName, Dictionary<string, object> parameters = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

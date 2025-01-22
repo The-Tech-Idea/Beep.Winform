@@ -2,6 +2,7 @@
 using System.Web;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
 
 using TheTechIdea.Beep.Vis.Modules;
@@ -11,6 +12,7 @@ namespace TheTechIdea.Beep.Desktop.Common
     public partial class RoutingManager : IRoutingManager
     {
         private readonly IServiceProvider servicelocator;
+        private readonly SemaphoreSlim _navigationLock = new SemaphoreSlim(1, 1);
 
         public IBeepService Beepservices { get; }
         private readonly IDisplayContainer _displayContainer;
@@ -51,27 +53,33 @@ namespace TheTechIdea.Beep.Desktop.Common
             Beepservices = (IBeepService)service.GetService(typeof(IBeepService));
         }
         // Constructor
-       
+
 
         #region Navigation
-        public void NavigateTo(string routeName, Dictionary<string, object> parameters = null,bool popup=false)
+
+        public async Task<IErrorsInfo> NavigateToAsync(string routeName, Dictionary<string, object> parameters = null, bool popup = false)
         {
+            var result = new ErrorsInfo();
             try
             {
                 Navigating?.Invoke(this, routeName);
 
                 if (!_routes.ContainsKey(routeName))
                 {
-                    NavigateToError($"No view registered for route: {routeName}");
-                    return;
+                    await NavigateToErrorAsync($"No view registered for route: {routeName}");
+                    result.Flag = Errors.Failed;
+                    result.Message = $"No view registered for route: {routeName}";
+                    return result;
                 }
 
                 if (_routeGuards.TryGetValue(routeName, out var guard) && guard != null)
                 {
                     if (!guard(parameters ?? new Dictionary<string, object>()))
                     {
-                        NavigateToError($"Access denied for route: {routeName}");
-                        return;
+                        await NavigateToErrorAsync($"Access denied for route: {routeName}");
+                        result.Flag = Errors.Failed;
+                        result.Message = $"Access denied for route: {routeName}";
+                        return result;
                     }
                 }
 
@@ -84,7 +92,12 @@ namespace TheTechIdea.Beep.Desktop.Common
                 // Trigger PreShowItem event
                 var preShowArgs = new RouteArgs(routeName, parameters);
                 PreShowItem?.Invoke(this, preShowArgs);
-                if (preShowArgs.Cancel) return;
+                if (preShowArgs.Cancel)
+                {
+                    result.Flag = Errors.Failed;
+                    result.Message = "Navigation canceled by PreShowItem.";
+                    return result;
+                }
 
                 // Remove the current view in SinglePanel mode
                 if (_containerType == ContainerTypeEnum.SinglePanel && _currentView != null)
@@ -96,23 +109,29 @@ namespace TheTechIdea.Beep.Desktop.Common
                 IDM_Addin view = _useCustomCreator && _isCustomCreatorSet
                     ? CreateControlUsingCustomCreator(_routes[routeName])
                     : CreateUsingServiceLocator(_routes[routeName]);
-                if (view == null)
-                {               
-                   view= CreateUsingActivator(_routes[routeName]);
-                    if(view !=null)
-                    {
-                        view.Dependencies = new Dependencies();
-                        view.Dependencies.DMEEditor = Beepservices.DMEEditor;
-                        view.Dependencies.ErrorObject = Beepservices.DMEEditor.ErrorObject;
-                        view.Dependencies.Logger = Beepservices.lg;
-                    }
-                   
-                }
+
                 if (view == null)
                 {
-                    throw new InvalidOperationException($"Failed to create view for route: {routeName}");
+                    view = CreateUsingActivator(_routes[routeName]);
+                    if (view != null)
+                    {
+                        view.Dependencies = new Dependencies
+                        {
+                            DMEEditor = Beepservices.DMEEditor,
+                            ErrorObject = Beepservices.DMEEditor.ErrorObject,
+                            Logger = Beepservices.lg
+                        };
+                    }
                 }
-            
+
+                if (view == null)
+                {
+                    await NavigateToErrorAsync($"Failed to create view for route: {routeName}");
+                    result.Flag = Errors.Failed;
+                    result.Message = $"Failed to create view for route: {routeName}";
+                    return result;
+                }
+
                 if (view is INavigable navigableView)
                 {
                     navigableView.OnNavigatedTo(parameters ?? new Dictionary<string, object>());
@@ -120,120 +139,172 @@ namespace TheTechIdea.Beep.Desktop.Common
 
                 if (!popup)
                 {
-                    if (_displayContainer != null) _displayContainer.AddControl(routeName, view, _containerType);
+                    _displayContainer?.AddControl(routeName, view, _containerType);
                 }
                 else
                 {
                     // Show as popup
-                    // Check if view is Form then just show it as popup
-                    if (view is Form form)
-                    {
-                        var testForm = new Form
-                        {
-                            Text = "Test Form",
-                            StartPosition = FormStartPosition.CenterParent,
-                            Size = new Size(300, 200)
-                        };
-
-                        testForm.ShowDialog();
-
-                        // Ensure the form is initialized and valid
-                        if (!form.IsDisposed)
-                        {
-                            if (form.InvokeRequired)
-                            {
-                                form.Invoke(new Action(() =>
-                                {
-                                    ShowPopupForm(form);
-                                }));
-                            }
-                            else
-                            {
-                                ShowPopupForm(form);
-                            }
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException("The form is disposed and cannot be shown.");
-                        }
-                    }
-                    else if (view is Control control)
-                    {
-                        var popupForm = new Form
-                        {
-                            StartPosition = FormStartPosition.CenterParent,
-                            AutoSize = true
-                        };
-
-                        popupForm.Controls.Add(control);
-                        control.Dock = DockStyle.Fill;
-
-                        popupForm.ShowDialog();
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("The provided view is not a valid Form or Control.");
-                    }
-
-                    // Add the new view to the display container
+                    await ShowPopupAsync(view);
                 }
+
                 _currentView = view;
 
                 // Trigger PostShowItem event
                 PostShowItem?.Invoke(this, new RouteArgs(routeName, parameters));
                 Navigated?.Invoke(this, routeName);
+
+                result.Flag = Errors.Ok;
+                result.Message = "Navigation successful.";
+                return result;
             }
             catch (Exception ex)
             {
-                NavigateToError($"An error occurred during navigation: {ex.Message}");
+                await NavigateToErrorAsync($"An error occurred during navigation: {ex.Message}");
+                result.Flag = Errors.Failed;
+                result.Message = ex.Message;
+                result.Ex = ex;
+                return result;
             }
         }
 
-        public void NavigateBack()
+        public async Task<IErrorsInfo> NavigateBackAsync()
         {
-            lock (_historyLock)
+            var result = new ErrorsInfo();
+            try
             {
-                if (_navigationHistory.Count <= 1) return;
+                await _navigationLock.WaitAsync();
+                if (_navigationHistory.Count <= 1)
+                {
+                    result.Flag = Errors.Failed;
+                    result.Message = "No previous route to navigate back to.";
+                    return result;
+                }
 
                 _forwardHistory.Push(_navigationHistory.Pop());
                 var previousRoute = _navigationHistory.Peek();
-                NavigateTo(previousRoute);
+                return await NavigateToAsync(previousRoute);
+            }
+            catch (Exception ex)
+            {
+                result.Flag = Errors.Failed;
+                result.Message = ex.Message;
+                result.Ex = ex;
+                return result;
+            }
+            finally
+            {
+                _navigationLock.Release();
             }
         }
 
-        public void NavigateForward()
+        public async Task<IErrorsInfo> NavigateForwardAsync()
         {
-            lock (_historyLock)
+            var result = new ErrorsInfo();
+            try
             {
-                if (_forwardHistory.Count == 0) return;
+                await _navigationLock.WaitAsync();
+                if (_forwardHistory.Count == 0)
+                {
+                    result.Flag = Errors.Failed;
+                    result.Message = "No forward route to navigate to.";
+                    return result;
+                }
 
                 var nextRoute = _forwardHistory.Pop();
-                NavigateTo(nextRoute);
+                return await NavigateToAsync(nextRoute);
+            }
+            catch (Exception ex)
+            {
+                result.Flag = Errors.Failed;
+                result.Message = ex.Message;
+                result.Ex = ex;
+                return result;
+            }
+            finally
+            {
+                _navigationLock.Release();
             }
         }
 
-        private void NavigateToError(string errorMessage)
+
+        private async Task<IErrorsInfo> NavigateToErrorAsync(string errorMessage)
         {
-            if (_errorViewType == null)
-                throw new InvalidOperationException("Error view is not set.");
-
-            var errorView = (IDM_Addin)Activator.CreateInstance(_errorViewType);
-
-            if (errorView is IErrorView error)
+            var result = new ErrorsInfo();
+            try
             {
-                error.SetError(errorMessage);
-            }
+                if (_errorViewType == null)
+                {
+                    throw new InvalidOperationException("Error view is not set.");
+                }
 
-            if (_containerType == ContainerTypeEnum.SinglePanel && _currentView != null)
+                var errorView = (IDM_Addin)Activator.CreateInstance(_errorViewType);
+
+                if (errorView is IErrorView error)
+                {
+                    error.SetError(errorMessage);
+                }
+
+                if (_containerType == ContainerTypeEnum.SinglePanel && _currentView != null)
+                {
+                    _displayContainer.RemoveControl(_currentView.Details.AddinName, _currentView);
+                }
+
+                _displayContainer.AddControl("Error", errorView, _containerType);
+                _currentView = errorView;
+
+                result.Flag = Errors.Ok;
+                result.Message = "Error view displayed.";
+                return result;
+            }
+            catch (Exception ex)
             {
-                _displayContainer.RemoveControl(_currentView.Details.AddinName, _currentView);
+                result.Flag = Errors.Failed;
+                result.Message = ex.Message;
+                result.Ex = ex;
+                return result;
             }
-
-            _displayContainer.AddControl("Error", errorView, _containerType);
-            _currentView = errorView;
         }
+
+        private async Task ShowPopupAsync(IDM_Addin view)
+        {
+            if (view is Form form)
+            {
+                if (!form.IsDisposed)
+                {
+                    // Ensure the dialog is shown on the UI thread
+                    await Task.Yield(); // Ensures asynchronous context is maintained
+                    form.StartPosition = FormStartPosition.CenterParent;
+                    form.ShowDialog();
+                }
+                else
+                {
+                    throw new InvalidOperationException("The form is disposed and cannot be shown.");
+                }
+            }
+            else if (view is Control control)
+            {
+                var popupForm = new Form
+                {
+                    StartPosition = FormStartPosition.CenterParent,
+                    AutoSize = true
+                };
+
+                popupForm.Controls.Add(control);
+                control.Dock = DockStyle.Fill;
+
+                // Ensure the dialog is shown on the UI thread
+                await Task.Yield(); // Ensures asynchronous context is maintained
+                popupForm.ShowDialog();
+            }
+            else
+            {
+                throw new InvalidOperationException("The provided view is not a valid Form or Control.");
+            }
+        }
+
 
         #endregion
+
 
         #region Breadcrumb and History
         public string BreadCrumb

@@ -414,7 +414,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void InitializeDialog()
         {
             // Initialize controls as before
-            //MessageBox.Show("Initializing Dialog");
+            //MessageBox.Config("Initializing Dialog");
             _iconImage = new BeepImage { Size = new Size(48, 48), Visible = false };
             Controls.Add(_iconImage);
 
@@ -491,39 +491,39 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.ApplyTheme();
             if (_currentTheme == null) return;
 
-            // MessageBox.Show("Applying Theme");
+            // MessageBox.Config("Applying Theme");
 
             // Check if each button is not null before applying theme
             if (_primaryButton != null)
             {
-                //     MessageBox.Show("Applying Theme to button 1");
+                //     MessageBox.Config("Applying Theme to button 1");
              //   _primaryButton.Theme = Theme;
                _primaryButton.BackColor = _currentTheme.ButtonBackColor;
                 _primaryButton.ForeColor = _currentTheme.PrimaryTextColor;
             }
-            // MessageBox.Show("Applying Theme 1");
+            // MessageBox.Config("Applying Theme 1");
             if (_secondaryButton != null)
             {
-                //      MessageBox.Show("Applying Theme to button 2");
+                //      MessageBox.Config("Applying Theme to button 2");
                 _secondaryButton.Theme = Theme;
                 _secondaryButton.BackColor = _currentTheme.ButtonBackColor;
                 _secondaryButton.ForeColor = _currentTheme.SecondaryTextColor;
             }
-            // MessageBox.Show("Applying Theme 2");
+            // MessageBox.Config("Applying Theme 2");
             if (_closeButton != null)
             {
-                //   MessageBox.Show("Applying Theme to button 3");
+                //   MessageBox.Config("Applying Theme to button 3");
                 _closeButton.Theme = Theme;
             //    _closeButton.BackColor = Color.Red;
                 _closeButton.ForeColor = _currentTheme.CloseButtonColor ;
             }
-            // MessageBox.Show("Applying Theme 3");
+            // MessageBox.Config("Applying Theme 3");
             // Additional background colors, title lines, etc.
              BackColor = _currentTheme.PanelBackColor;
             _buttonPanel.Theme = Theme;
             Arrange();
 
-            //  MessageBox.Show("Applying Theme 4");
+            //  MessageBox.Config("Applying Theme 4");
             ////base.ApplyTheme();
             // Invalidate(); // Redraw to apply theme changes
         }

@@ -1445,7 +1445,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Find and Filter"
         #region "Theme"
-
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+            _textFont = Font;
+          //  Console.WriteLine("Font Changed");
+            if (AutoSize)
+            {
+                Size textSize = TextRenderer.MeasureText(Text, _textFont);
+                this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
+            }
+        }
         /// <summary>
         /// Highlights the given <paramref name="node"/>, expanding ancestors, and scrolling it into view.
         /// </summary>

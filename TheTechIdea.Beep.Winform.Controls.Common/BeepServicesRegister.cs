@@ -28,6 +28,23 @@ namespace TheTechIdea.Beep.Desktop.Common
             Services.AddSingleton<IAppManager,AppManager>();
             return Services;
         }
+        public static IServiceProvider ConfigureAppManager(this IServiceProvider serviceProvider, Action<AppManager> configure)
+        {
+            var appManager = serviceProvider.GetRequiredService<IAppManager>() as AppManager;
+            if (appManager != null)
+            {
+                configure(appManager); // Configure the AppManager instance
+            }
+
+            return serviceProvider;
+        }
+        public static IServiceProvider ShowHome(this IServiceProvider serviceProvider)
+        {
+            var appManager = serviceProvider.GetRequiredService<IAppManager>() as AppManager;
+           appManager.ShowHome();
+
+            return serviceProvider;
+        }
         public static IServiceCollection RegisterKeyHandler(this IServiceCollection services)
         {
             Services = services;

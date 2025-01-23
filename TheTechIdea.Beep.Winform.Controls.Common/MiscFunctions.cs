@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.DataBase;
@@ -40,6 +44,35 @@ namespace TheTechIdea.Beep.Desktop.Common
             return args;
 
         }
+        public static void SetThemePropertyinControlifexist(Control control, EnumBeepThemes theme)
+        {
+            if (control == null)
+            {
+                throw new ArgumentNullException(nameof(control), "The control parameter cannot be null.");
+            }
+
+            try
+            {
+                // Check if the control itself has a "Theme" property
+                var themeProperty = control.GetType().GetProperty("Theme");
+                if (themeProperty != null && themeProperty.PropertyType == typeof(EnumBeepThemes))
+                {
+                    // Set the "Theme" property on the control
+                    themeProperty.SetValue(control, theme);
+                    Debug.WriteLine($"Theme property set on control: {control.Name}");
+                    return; // Exit after setting the property
+                }
+
+               
+
+                Debug.WriteLine("No 'Theme' property found on the control or its components.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error setting theme property: {ex.Message}");
+            }
+        }
+
         public static Dictionary<string,object> ConvertPassedArgsToParameters(IPassedArgs passedArgs)
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();

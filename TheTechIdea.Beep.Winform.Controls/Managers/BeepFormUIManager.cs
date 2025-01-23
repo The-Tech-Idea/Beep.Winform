@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
     [Category("Beep Controls")]
     [Description("A manager for BeepForm controls.")]
     [DisplayName("Beep Form UI Manager")]
-    public class BeepFormUIManager : Component
+    public class BeepFormUIManager : Component, IBeepFormUIManager
     {
         #region "Properties"
         private bool _applyBeepFormStyle = false;
@@ -262,10 +262,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public BeepFormUIManager(IContainer container)
         {
             container.Add(this);
-            // OnThemeChanged += theme => Theme = theme;
+        //    _form = FindParentForm();
+           // OnThemeChanged += theme => Theme = theme;
             // Set form load event to apply settings at runtime
-
+            // Find the parent form at runtime and initialize
+           
         }
+       
+
         #endregion
         #region "Design-time support"
         private void DetachControlAddedEvent(Control container)
@@ -331,6 +335,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 BeepAppBar.ShowTitle = show;
             }
         }
+        private Form _runtimeForm;
+
+        public void Initialize(Form runtimeForm)
+        {
+            if (runtimeForm == null)
+                throw new ArgumentNullException(nameof(runtimeForm));
+
+            _runtimeForm = runtimeForm;
+            _form = _runtimeForm;
+            // Attach events or apply runtime-specific logic
+            AttachControlAddedEvent(_runtimeForm);
+        }
+
         public override ISite Site
         {
             get => base.Site;
@@ -350,8 +367,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 }
                 else
                 {
-
-
+                    // Runtime logic
+                    if (_runtimeForm != null)
+                    {
+                        _form = _runtimeForm; // Use the explicitly initialized runtime form
+                        AttachControlAddedEvent(_form);
+                    }
                 }
             }
         }
@@ -397,6 +418,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
             return null;
         }
+   
+
         private void Form_Load(object sender, EventArgs e)
         {
             // Console.WriteLine("Form Load event 1");
@@ -523,7 +546,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 BeepControl beepControl = (BeepControl)control;
                 beepControl.Invalidate();
             }
-            if(control.Controls.Count > 0 && !HasThemeProperty(control))
+            if (control.Controls.Count > 0 && !HasThemeProperty(control))
             {
                 foreach (Control child in control.Controls)
                 {
@@ -605,7 +628,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
             ApplyThemeOnImageControl(control, _applyThemeOnImage);
         }
-     
+
         // Recursively apply the theme to all controls on the form and child containers
         private void ApplyThemeToAllBeepControls(Control container)
         {

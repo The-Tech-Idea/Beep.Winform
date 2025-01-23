@@ -880,7 +880,7 @@
 //                    {
 //                        MenuList menuList = GetMenuList(br);
 //                        ContextMenuStrip ls = (ContextMenuStrip)menuList.Menu;
-//                        ls.Show(Cursor.Position);
+//                        ls.Config(Cursor.Position);
 //                    }
 
 //                }

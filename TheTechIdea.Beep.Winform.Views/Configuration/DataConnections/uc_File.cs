@@ -68,7 +68,7 @@ namespace Beep.Config.Winform.DataConnections
             //        if (ViewModel.Connection == null)
             //        {
             //            IsReady = false;
-            //            MessageBox.Show("No Connection Record Passed", "Beep");
+            //            MessageBox.Config("No Connection Record Passed", "Beep");
             //            return;
             //        }
             //    }

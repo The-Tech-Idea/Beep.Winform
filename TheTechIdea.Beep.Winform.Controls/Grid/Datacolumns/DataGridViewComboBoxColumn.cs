@@ -137,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewC
                         editingControl.Items.Add(new KeyValuePair<int, string>(item.ID, item.Display));
                     }
 
-                    editingControl.DisplayMember = "Value";  // Show the Display value in the ComboBox
+                    editingControl.DisplayMember = "Value";  // Config the Display value in the ComboBox
                     editingControl.ValueMember = "Key";  // Use the ID as the underlying value
                 }
             }
@@ -158,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewC
                 if (this.DataSource != null)
                 {
                     control.DataSource = this.DataSource;
-                    control.DisplayMember = "Value";  // Show the Display value in the ComboBox
+                    control.DisplayMember = "Value";  // Config the Display value in the ComboBox
                     control.ValueMember = "Key";  // Use the ID as the underlying value
                 }
             }

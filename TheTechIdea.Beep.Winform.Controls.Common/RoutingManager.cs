@@ -4,7 +4,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
-
+using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Desktop.Common
@@ -14,7 +14,10 @@ namespace TheTechIdea.Beep.Desktop.Common
         private readonly IServiceProvider servicelocator;
         private readonly SemaphoreSlim _navigationLock = new SemaphoreSlim(1, 1);
 
+        public EnumBeepThemes Theme { get; set; }
         public IBeepService Beepservices { get; }
+        public IDMEEditor DMEEditor { get; }
+
         private readonly IDisplayContainer _displayContainer;
         private readonly ContainerTypeEnum _containerType;
 
@@ -50,7 +53,9 @@ namespace TheTechIdea.Beep.Desktop.Common
         public RoutingManager(IServiceProvider service)
         {
             servicelocator= service;
+            
             Beepservices = (IBeepService)service.GetService(typeof(IBeepService));
+            DMEEditor = Beepservices.DMEEditor;
         }
         // Constructor
 
@@ -143,7 +148,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                 }
                 else
                 {
-                    // Show as popup
+                    // Config as popup
                     await ShowPopupAsync(view);
                 }
 
@@ -166,7 +171,6 @@ namespace TheTechIdea.Beep.Desktop.Common
                 return result;
             }
         }
-
         public async Task<IErrorsInfo> NavigateBackAsync()
         {
             var result = new ErrorsInfo();
@@ -196,7 +200,6 @@ namespace TheTechIdea.Beep.Desktop.Common
                 _navigationLock.Release();
             }
         }
-
         public async Task<IErrorsInfo> NavigateForwardAsync()
         {
             var result = new ErrorsInfo();
@@ -225,8 +228,6 @@ namespace TheTechIdea.Beep.Desktop.Common
                 _navigationLock.Release();
             }
         }
-
-
         private async Task<IErrorsInfo> NavigateToErrorAsync(string errorMessage)
         {
             var result = new ErrorsInfo();
@@ -264,7 +265,6 @@ namespace TheTechIdea.Beep.Desktop.Common
                 return result;
             }
         }
-
         private async Task ShowPopupAsync(IDM_Addin view)
         {
             if (view is Form form)
@@ -302,7 +302,272 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
         }
 
+        public IErrorsInfo NavigateTo(string routeName, Dictionary<string, object> parameters = null, bool popup = false)
+        {
+            var result = new ErrorsInfo();
+            try
+            {
+                Navigating?.Invoke(this, routeName);
 
+                if (!_routes.ContainsKey(routeName))
+                {
+                     NavigateToError($"No view registered for route: {routeName}");
+                    result.Flag = Errors.Failed;
+                    result.Message = $"No view registered for route: {routeName}";
+                    return result;
+                }
+
+                if (_routeGuards.TryGetValue(routeName, out var guard) && guard != null)
+                {
+                    if (!guard(parameters ?? new Dictionary<string, object>()))
+                    {
+                         NavigateToError($"Access denied for route: {routeName}");
+                        result.Flag = Errors.Failed;
+                        result.Message = $"Access denied for route: {routeName}";
+                        return result;
+                    }
+                }
+
+                lock (_historyLock)
+                {
+                    _navigationHistory.Push(routeName);
+                    _forwardHistory.Clear();
+                }
+
+                // Trigger PreShowItem event
+                var preShowArgs = new RouteArgs(routeName, parameters);
+                PreShowItem?.Invoke(this, preShowArgs);
+                if (preShowArgs.Cancel)
+                {
+                    result.Flag = Errors.Failed;
+                    result.Message = "Navigation canceled by PreShowItem.";
+                    return result;
+                }
+
+                // Remove the current view in SinglePanel mode
+                if (_containerType == ContainerTypeEnum.SinglePanel && _currentView != null)
+                {
+                    _displayContainer.RemoveControl(_currentView.Details.AddinName, _currentView);
+                }
+
+                // Create or retrieve the new view
+                IDM_Addin view = _useCustomCreator && _isCustomCreatorSet
+                    ? CreateControlUsingCustomCreator(_routes[routeName])
+                    : CreateUsingServiceLocator(_routes[routeName]);
+
+                if (view == null)
+                {
+                    view = CreateUsingActivator(_routes[routeName]);
+                    if (view != null)
+                    {
+                        view.Dependencies = new Dependencies
+                        {
+                            DMEEditor = Beepservices.DMEEditor,
+                            ErrorObject = Beepservices.DMEEditor.ErrorObject,
+                            Logger = Beepservices.lg
+                        };
+                    }
+                }
+
+                if (view == null)
+                {
+                     NavigateToError($"Failed to create view for route: {routeName}");
+                    result.Flag = Errors.Failed;
+                    result.Message = $"Failed to create view for route: {routeName}";
+                    return result;
+                }
+
+                if (view is INavigable navigableView)
+                {
+                    navigableView.OnNavigatedTo(parameters ?? new Dictionary<string, object>());
+                }
+
+                if (!popup)
+                {
+                    _displayContainer?.AddControl(routeName, view, _containerType);
+                }
+                else
+                {
+                    // Config as popup
+                     ShowPopup(view);
+                }
+
+                _currentView = view;
+
+                // Trigger PostShowItem event
+                PostShowItem?.Invoke(this, new RouteArgs(routeName, parameters));
+                Navigated?.Invoke(this, routeName);
+
+                result.Flag = Errors.Ok;
+                result.Message = "Navigation successful.";
+                return result;
+            }
+            catch (Exception ex)
+            {
+                NavigateToError($"An error occurred during navigation: {ex.Message}");
+                result.Flag = Errors.Failed;
+                result.Message = ex.Message;
+                result.Ex = ex;
+                return result;
+            }
+        }
+        public IErrorsInfo NavigateBack()
+        {
+            var result = new ErrorsInfo();
+            try
+            {
+                _navigationLock.Wait();
+                if (_navigationHistory.Count <= 1)
+                {
+                    result.Flag = Errors.Failed;
+                    result.Message = "No previous route to navigate back to.";
+                    return result;
+                }
+
+                _forwardHistory.Push(_navigationHistory.Pop());
+                var previousRoute = _navigationHistory.Peek();
+                return NavigateTo(previousRoute);
+            }
+            catch (Exception ex)
+            {
+                result.Flag = Errors.Failed;
+                result.Message = ex.Message;
+                result.Ex = ex;
+                return result;
+            }
+            finally
+            {
+                _navigationLock.Release();
+            }
+        }
+        public  IErrorsInfo NavigateForward()
+        {
+            var result = new ErrorsInfo();
+            try
+            {
+                 _navigationLock.WaitAsync();
+                if (_forwardHistory.Count == 0)
+                {
+                    result.Flag = Errors.Failed;
+                    result.Message = "No forward route to navigate to.";
+                    return result;
+                }
+
+                var nextRoute = _forwardHistory.Pop();
+                return  NavigateTo(nextRoute);
+            }
+            catch (Exception ex)
+            {
+                result.Flag = Errors.Failed;
+                result.Message = ex.Message;
+                result.Ex = ex;
+                return result;
+            }
+            finally
+            {
+                _navigationLock.Release();
+            }
+        }
+        private IErrorsInfo NavigateToError(string errorMessage)
+        {
+            var result = new ErrorsInfo();
+            try
+            {
+                if (_errorViewType == null)
+                {
+                    throw new InvalidOperationException("Error view is not set.");
+                }
+
+                var errorView = (IDM_Addin)Activator.CreateInstance(_errorViewType);
+
+                if (errorView is IErrorView error)
+                {
+                    error.SetError(errorMessage);
+                }
+
+                if (_containerType == ContainerTypeEnum.SinglePanel && _currentView != null)
+                {
+                    _displayContainer.RemoveControl(_currentView.Details.AddinName, _currentView);
+                }
+
+                _displayContainer.AddControl("Error", errorView, _containerType);
+                _currentView = errorView;
+
+                result.Flag = Errors.Ok;
+                result.Message = "Error view displayed.";
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Flag = Errors.Failed;
+                result.Message = ex.Message;
+                result.Ex = ex;
+                return result;
+            }
+        }
+        private async void ShowPopup(IDM_Addin view)
+        {
+            try
+            {
+               
+
+                if (view is Form form)
+                {
+          
+                    if (!form.IsDisposed)
+                    {
+                        IBeepUIComponent beepUIComponent = (IBeepUIComponent)view;
+                        form.Load += (s, e) =>
+                        {
+                            MiscFunctions.SetThemePropertyinControlifexist( form, Theme);
+                        };
+                        // Ensure this runs on the UI thread
+                        if (form.InvokeRequired)
+                        {
+                            form.Invoke(new Action(() =>
+                            {
+                                form.StartPosition = FormStartPosition.CenterParent;
+                               
+                                form.ShowDialog();
+                            }));
+                        }
+                        else
+                        {
+                            form.StartPosition = FormStartPosition.CenterParent;
+                            beepUIComponent.Theme = Theme;
+                            form.ShowDialog();
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("The form is disposed and cannot be shown.");
+                    }
+                }
+                else if (view is Control control)
+                {
+                    var popupForm = new Form
+                    {
+                        StartPosition = FormStartPosition.CenterParent,
+                        AutoSize = true
+                    };
+
+                    popupForm.Controls.Add(control);
+                    control.Dock = DockStyle.Fill;
+
+                    // Ensure the dialog is shown on the UI thread
+                    popupForm.ShowDialog();
+                }
+                else
+                {
+                    throw new InvalidOperationException("The provided view is not a valid Form or Control.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                DMEEditor.AddLogMessage("Beep", $"Error in ShowPopup: {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+        }
         #endregion
 
 

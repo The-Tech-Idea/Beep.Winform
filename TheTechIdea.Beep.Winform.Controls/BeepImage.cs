@@ -715,8 +715,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    }
         //    catch (Exception ex)
         //    {
-        //        // Show error dialog or handle the exception as needed
-        //        MessageBox.Show($"Error processing image path: {ex.Message}", "Process ImagePath Path Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //        // Config error dialog or handle the exception as needed
+        //        MessageBox.Config($"Error processing image path: {ex.Message}", "Process ImagePath Path Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         //    }
 
         //    // Return empty if no valid path was obtained

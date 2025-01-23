@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Editors
                 return path; // If no editor service is available, return the original value
             }
 
-            // Show the image selector dialog
+            // Config the image selector dialog
             using (var form = new ImageSelectorImporterDialog(path))
             {
                 if (form.ShowDialog() == DialogResult.OK)

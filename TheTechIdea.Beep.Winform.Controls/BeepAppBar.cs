@@ -463,13 +463,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Toggle visibility of logo and hamburger icons in AppNavBar
             if (isCollapsed)
             {
-                // Show logo, hide hamburger
+                // Config logo, hide hamburger
                 TitleLabel.Visible = true;
                 hamburgerIcon.Visible = false;
             }
             else
             {
-                // Show hamburger, hide logo
+                // Config hamburger, hide logo
                 TitleLabel.Visible = false;
                 hamburgerIcon.Visible = true;
             }

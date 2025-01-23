@@ -143,6 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _canbedefault = false;
         #endregion "protected Properties"
         #region "Public Properties"
+        public IContainer Components => this.Components;
         [Browsable(true)]
         [Category("Appearance")]
         public bool CanBeHovered { get { return _canbehovered; } set { _canbehovered = value; } }
@@ -369,7 +370,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Show the top border.")]
+        [Description("Config the top border.")]
         public bool ShowTopBorder
         {
             get => _showTopBorder;
@@ -382,7 +383,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Show the bottom border.")]
+        [Description("Config the bottom border.")]
         public bool ShowBottomBorder
         {
             get => _showBottomBorder;
@@ -395,7 +396,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Show the left border.")]
+        [Description("Config the left border.")]
         public bool ShowLeftBorder
         {
             get => _showLeftBorder;
@@ -408,7 +409,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Show the right border.")]
+        [Description("Config the right border.")]
         public bool ShowRightBorder
         {
             get => _showRightBorder;
@@ -2013,7 +2014,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ToolTipText = text;
             if (!string.IsNullOrEmpty(ToolTipText))
             {
-                _toolTip.Show(ToolTipText, this, PointToClient(MousePosition), 3000); // Show tooltip for 3 seconds
+                _toolTip.Show(ToolTipText, this, PointToClient(MousePosition), 3000); // Config tooltip for 3 seconds
             }
 
         }

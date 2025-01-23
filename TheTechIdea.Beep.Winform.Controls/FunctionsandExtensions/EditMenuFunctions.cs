@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
             ExtensionsHelpers = new FunctionandExtensionsHelpers(DMEEditor, pvisManager, ptreeControl);
         }
 
-        //[CommandAttribute(Caption = "Show Log", Name = "Showlog", Click = true, iconimage = "log.png", ObjectType = "Beep", PointType = EnumPointType.Global, Showin = ShowinType.Both)]
+        //[CommandAttribute(Caption = "Config Log", Name = "Showlog", Click = true, iconimage = "log.png", ObjectType = "Beep", PointType = EnumPointType.Global, Showin = ShowinType.Both)]
         //public IErrorsInfo showlog(IPassedArgs Passedarguments)
         //{
         //    DMEEditor.ErrorObject.Flag = Errors.Ok;
@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
 
         //}
 
-        [CommandAttribute(Caption = "Show/Hide Side Panel", Name = "SidePanelCollapse", Click = true, iconimage = "treeexpand.png", ObjectType = "Beep", PointType = EnumPointType.Global, Showin = ShowinType.Menu,Key =BeepKeys.Q,Alt =true)]
+        [CommandAttribute(Caption = "Config/Hide Side Panel", Name = "SidePanelCollapse", Click = true, iconimage = "treeexpand.png", ObjectType = "Beep", PointType = EnumPointType.Global, Showin = ShowinType.Menu,Key =BeepKeys.Q,Alt =true)]
         public IErrorsInfo SidePanelCollapse(IPassedArgs Passedarguments)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;
@@ -62,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
             return DMEEditor.ErrorObject;
 
         }
-        [CommandAttribute(Caption = "Show/Hide Log Panel", Name = "LogPanelCollapse", Click = true, iconimage = "expandlog.png", ObjectType = "Beep", PointType = EnumPointType.Global, Showin = ShowinType.Menu, Key = BeepKeys.L, Alt = true)]
+        [CommandAttribute(Caption = "Config/Hide Log Panel", Name = "LogPanelCollapse", Click = true, iconimage = "expandlog.png", ObjectType = "Beep", PointType = EnumPointType.Global, Showin = ShowinType.Menu, Key = BeepKeys.L, Alt = true)]
         public IErrorsInfo LogPanelCollapse(IPassedArgs Passedarguments)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;

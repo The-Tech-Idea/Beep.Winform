@@ -331,7 +331,7 @@
 //                //this.Icon = (Icon)Visutil.visHelper.(Visutil.IconUrl);
 //                PassedArgs p = new PassedArgs();
 //                p.ParameterString1 = "Loading DLL's";
-//                // Show Wait Form
+//                // Config Wait Form
 //                Visutil.CloseWaitForm();
 //                Visutil.ShowWaitForm(p);
 //                // Passing Message to WaitForm

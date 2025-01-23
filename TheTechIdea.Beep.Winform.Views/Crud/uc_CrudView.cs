@@ -16,7 +16,7 @@ using TheTechIdea.Beep.Addin;
 
 namespace TheTechIdea.Beep.Winform.Views.Crud
 {
-    [AddinAttribute(Caption = "Show/Edit Table Data", Name = "uc_crudView", misc = "VIEW", addinType = AddinType.Control, ObjectType = "Beep" )]
+    [AddinAttribute(Caption = "Config/Edit Table Data", Name = "uc_crudView", misc = "VIEW", addinType = AddinType.Control, ObjectType = "Beep" )]
     public partial class uc_crudView : uc_Addin
     {
         public uc_crudView()

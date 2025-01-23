@@ -177,9 +177,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         Rectangle contentRect;
         private int padding;
         private int spacing;
-        private Font _textFont = new Font("Arial", 10);
+        private Font _textFont ;
         [Browsable(true)]
-        [MergableProperty(true)]
         [Category("Appearance")]
         [Description("Text Font displayed in the control.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
@@ -191,6 +190,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 _textFont = value;
                 UseThemeFont = false;
+                Font = value;
+               // Console.WriteLine("TextFont Changed");
+                ApplyTheme();
                 Invalidate();
 
 
@@ -200,15 +202,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Constructors"
         public BeepLabel()
         {
-            DoubleBuffered = true;
-            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+           // DoubleBuffered = true;
+         //   SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
          //   SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
 
             InitializeComponents();
             beepImage.ImageEmbededin = ImageEmbededin.Label;
             //  SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
             AutoSize = false;
-            BoundProperty = "Text";
+                        BoundProperty = "Text";
 
         }
         protected override void InitLayout()
@@ -217,15 +219,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
 
         }
-        //protected override void OnFontChanged(EventArgs e)
-        //{
-        //    base.OnFontChanged(e);
-        //    if (AutoSize)
-        //    {
-        //        Size textSize = TextRenderer.MeasureText(Text, _textFont);
-        //        this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
-        //    }
-        //}
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+            _textFont = Font;
+         //   Console.WriteLine("Font Changed");
+            if (AutoSize)
+            {
+                Size textSize = TextRenderer.MeasureText(Text, _textFont);
+                this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
+            }
+        }
 
         protected override Size DefaultSize
         {
@@ -372,7 +376,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Color textColor = IsHovered ? _currentTheme.HoverLinkColor : ForeColor;
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-                TextRenderer.DrawText(g, Text, _textFont, textRect, textColor, flags);
+                TextRenderer.DrawText(g, Text, scaledFont, textRect, textColor, flags);
             }
 
             //}
@@ -390,9 +394,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ForeColor = _currentTheme.LabelForeColor;
                 HoverBackColor = _currentTheme.BackgroundColor;
                 HoverForeColor = _currentTheme.ButtonHoverForeColor;
+             //   Console.WriteLine("1 Label Apply Theme TextFont");
                 // Only apply the theme's font if UseThemeFont is true
                 if (UseThemeFont)
                 {
+               //     Console.WriteLine("2 Label Apply Theme TextFont");
                     _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                 }
 
@@ -506,7 +512,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool hasText = !string.IsNullOrEmpty(Text) && !HideText; // Check if text is available and not hidden
 
             // Adjust contentRect for padding
-            contentRect.Inflate(-Padding.Horizontal / 2, -Padding.Vertical / 2);
+         //   contentRect.Inflate(-Padding.Horizontal / 2, -Padding.Vertical / 2);
 
             if (hasImage && !hasText)
             {

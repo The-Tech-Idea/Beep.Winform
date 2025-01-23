@@ -70,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Show a line below the title.")]
+        [Description("Config a line below the title.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowTitleLine
         {

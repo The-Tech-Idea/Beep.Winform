@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Handle click outside and lose focus to close menu
             popupForm.Deactivate += (s, e) => { Hide(); };
 
-            // Show popup
+            // Config popup
             popupForm.ShowPopup(this, location); 
             
         }

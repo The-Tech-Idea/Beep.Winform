@@ -10,6 +10,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public interface IAppManager: IDisposable
     {
+        event Action<EnumBeepThemes> OnThemeChanged;
         EnumBeepThemes Theme { get; set; }
         bool IsLogOn { get; set; }
         IDMEEditor DMEEditor { get; set; }
@@ -52,6 +53,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         Task<IErrorsInfo> LoadAssemblies(string[] namespacestoinclude);
         List<IDM_Addin> Addins { get; set; }
         IWaitForm WaitForm { get; set; }
+        Type WaitFormType { get; set; }
         IErrorsInfo LoadSetting();
         IErrorsInfo SaveSetting();
         IErrorsInfo PrintGrid(IPassedArgs passedArgs);
@@ -66,12 +68,20 @@ namespace TheTechIdea.Beep.Vis.Modules
         Task<IErrorsInfo> ShowAdminAsync();
         Task<IErrorsInfo> ShowProfileAsync();
         Task<IErrorsInfo> ShowLoginAsync();
+             IErrorsInfo ShowHome();
+        IErrorsInfo ShowAdmin();
+        IErrorsInfo ShowProfile();
+       IErrorsInfo ShowLogin();
 
         event EventHandler<KeyCombination> KeyPressed;
         IErrorsInfo PressKey(KeyCombination keyCombination);
         string HomePageTitle { get; set; }
         string HomePageName { get; set; }
         string HomePageDescription { get; set; }
+        IErrorsInfo NavigateBack();
+        IErrorsInfo NavigateForward();
+        IErrorsInfo NavigateTo(string routeName, Dictionary<string, object> parameters = null);
+
         Task<IErrorsInfo> NavigateBackAsync();
         Task<IErrorsInfo> NavigateForwardAsync();
         Task<IErrorsInfo> NavigateToAsync(string routeName, Dictionary<string, object> parameters = null);

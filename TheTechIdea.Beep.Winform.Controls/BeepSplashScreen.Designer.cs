@@ -47,6 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _logoImage.AnimationType = DisplayAnimationType.None;
             _logoImage.ApplyThemeOnImage = false;
             _logoImage.ApplyThemeToChilds = true;
+            _logoImage.BackColor = Color.LightSkyBlue;
             _logoImage.BlockID = null;
             _logoImage.BorderColor = Color.FromArgb(189, 195, 199);
             _logoImage.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -55,10 +56,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             _logoImage.BorderThickness = 1;
             _logoImage.BottomoffsetForDrawingRect = 0;
             _logoImage.BoundProperty = null;
+            _logoImage.CanBeFocused = true;
+            _logoImage.CanBeHovered = false;
+            _logoImage.CanBePressed = true;
+            _logoImage.Category = Utilities.DbFieldCategory.String;
+            _logoImage.ComponentName = "_logoImage";
             _logoImage.DataContext = null;
+            _logoImage.DataSourceProperty = null;
             _logoImage.DisabledBackColor = Color.Gray;
             _logoImage.DisabledForeColor = Color.Empty;
-            _logoImage.DrawingRect = new Rectangle(0, 0, 442, 394);
+            _logoImage.DrawingRect = new Rectangle(0, 0, 443, 395);
             _logoImage.Easing = EasingType.Linear;
             _logoImage.FieldID = null;
             _logoImage.FocusBackColor = Color.FromArgb(41, 128, 185);
@@ -69,12 +76,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             _logoImage.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             _logoImage.GradientEndColor = Color.White;
             _logoImage.GradientStartColor = Color.White;
+            _logoImage.GuidID = "664a5370-11d7-486c-aa04-d713199ea5e8";
             _logoImage.HoverBackColor = Color.FromArgb(41, 128, 185);
             _logoImage.HoverBorderColor = Color.FromArgb(52, 152, 219);
             _logoImage.HoveredBackcolor = Color.Wheat;
             _logoImage.HoverForeColor = Color.White;
             _logoImage.Id = -1;
             _logoImage.Image = null;
+            _logoImage.ImageEmbededin = ImageEmbededin.Button;
             _logoImage.ImagePath = null;
             _logoImage.InactiveBackColor = Color.Gray;
             _logoImage.InactiveBorderColor = Color.Gray;
@@ -95,6 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _logoImage.IsSpinning = false;
             _logoImage.IsStillImage = false;
             _logoImage.LeftoffsetForDrawingRect = 0;
+            _logoImage.LinkedProperty = null;
             _logoImage.Location = new Point(129, 95);
             _logoImage.ManualRotationAngle = 0F;
             _logoImage.Name = "_logoImage";
@@ -123,10 +133,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             _logoImage.StaticNotMoving = false;
             _logoImage.TabIndex = 0;
             _logoImage.Text = "beepImage1";
-            _logoImage.Theme = Vis.Modules.EnumBeepThemes.FlatDesignTheme;
+            _logoImage.Theme = EnumBeepThemes.FlatDesignTheme;
             _logoImage.ToolTipText = "";
             _logoImage.TopoffsetForDrawingRect = 0;
             _logoImage.UseGradientBackground = false;
+            _logoImage.UseThemeFont = true;
             // 
             // _titleLabel
             // 
@@ -139,29 +150,36 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.BlockID = null;
             _titleLabel.BorderColor = Color.Black;
             _titleLabel.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            _titleLabel.BorderRadius = 5;
+            _titleLabel.BorderRadius = 1;
             _titleLabel.BorderStyle = BorderStyle.FixedSingle;
             _titleLabel.BorderThickness = 1;
             _titleLabel.BottomoffsetForDrawingRect = 0;
             _titleLabel.BoundProperty = "Text";
+            _titleLabel.CanBeFocused = true;
+            _titleLabel.CanBeHovered = false;
+            _titleLabel.CanBePressed = true;
+            _titleLabel.Category = Utilities.DbFieldCategory.String;
+            _titleLabel.ComponentName = "_titleLabel";
             _titleLabel.DataContext = null;
+            _titleLabel.DataSourceProperty = null;
             _titleLabel.DisabledBackColor = Color.Gray;
             _titleLabel.DisabledForeColor = Color.Empty;
-            _titleLabel.DrawingRect = new Rectangle(0, 0, 414, 26);
+            _titleLabel.DrawingRect = new Rectangle(1, 1, 441, 52);
             _titleLabel.Easing = EasingType.Linear;
             _titleLabel.FieldID = null;
             _titleLabel.FocusBackColor = Color.Gray;
             _titleLabel.FocusBorderColor = Color.Gray;
             _titleLabel.FocusForeColor = Color.Black;
             _titleLabel.FocusIndicatorColor = Color.Blue;
-            _titleLabel.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            _titleLabel.Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
             _titleLabel.ForeColor = Color.FromArgb(44, 62, 80);
             _titleLabel.Form = null;
             _titleLabel.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             _titleLabel.GradientEndColor = Color.Gray;
             _titleLabel.GradientStartColor = Color.Gray;
+            _titleLabel.GuidID = "a235d68c-f2d6-433e-8c36-dbb7b51bc63e";
             _titleLabel.HideText = false;
-            _titleLabel.HoverBackColor = Color.FromArgb(41, 128, 185);
+            _titleLabel.HoverBackColor = Color.White;
             _titleLabel.HoverBorderColor = Color.Gray;
             _titleLabel.HoveredBackcolor = Color.Wheat;
             _titleLabel.HoverForeColor = Color.White;
@@ -174,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.IsAcceptButton = false;
             _titleLabel.IsBorderAffectedByTheme = true;
             _titleLabel.IsCancelButton = false;
-            _titleLabel.IsChild = true;
+            _titleLabel.IsChild = false;
             _titleLabel.IsCustomeBorder = false;
             _titleLabel.IsDefault = false;
             _titleLabel.IsFocused = false;
@@ -184,15 +202,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.IsRounded = false;
             _titleLabel.IsRoundedAffectedByTheme = true;
             _titleLabel.IsShadowAffectedByTheme = true;
+            _titleLabel.LabelBackColor = Color.Empty;
             _titleLabel.LeftoffsetForDrawingRect = 0;
-            _titleLabel.Location = new Point(135, 37);
+            _titleLabel.LinkedProperty = null;
+            _titleLabel.Location = new Point(129, 24);
             _titleLabel.Margin = new Padding(0);
             _titleLabel.MaxImageSize = new Size(16, 16);
-            _titleLabel.MaximumSize = new Size(0, 27);
-            _titleLabel.MinimumSize = new Size(0, 27);
             _titleLabel.Name = "_titleLabel";
             _titleLabel.OverrideFontSize = TypeStyleFontSize.None;
-            _titleLabel.ParentBackColor = Color.White;
+            _titleLabel.Padding = new Padding(1);
+            _titleLabel.ParentBackColor = Color.Empty;
             _titleLabel.PressedBackColor = Color.Gray;
             _titleLabel.PressedBorderColor = Color.Gray;
             _titleLabel.PressedForeColor = Color.Black;
@@ -209,17 +228,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.ShowRightBorder = false;
             _titleLabel.ShowShadow = false;
             _titleLabel.ShowTopBorder = false;
-            _titleLabel.Size = new Size(415, 27);
+            _titleLabel.Size = new Size(443, 54);
             _titleLabel.SlideFrom = SlideDirection.Left;
             _titleLabel.StaticNotMoving = false;
             _titleLabel.TabIndex = 1;
             _titleLabel.Text = "beepLabel1";
             _titleLabel.TextAlign = ContentAlignment.MiddleCenter;
+            _titleLabel.TextFont = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
             _titleLabel.TextImageRelation = TextImageRelation.ImageBeforeText;
-            _titleLabel.Theme = Vis.Modules.EnumBeepThemes.FlatDesignTheme;
+            _titleLabel.Theme = EnumBeepThemes.FlatDesignTheme;
             _titleLabel.ToolTipText = "";
             _titleLabel.TopoffsetForDrawingRect = 0;
             _titleLabel.UseGradientBackground = false;
+            _titleLabel.UseScaledFont = false;
+            _titleLabel.UseThemeFont = false;
             // 
             // BeepSplashScreen
             // 

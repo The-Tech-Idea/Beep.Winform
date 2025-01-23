@@ -163,7 +163,6 @@
             messege.ApplyThemeToChilds = true;
             messege.AutoCompleteMode = AutoCompleteMode.None;
             messege.AutoCompleteSource = AutoCompleteSource.None;
-            messege.BackColor = Color.FromArgb(250, 250, 250);
             messege.BlockID = null;
             messege.BorderColor = Color.Black;
             messege.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -185,13 +184,14 @@
             messege.DisabledBackColor = Color.Gray;
             messege.DisabledForeColor = Color.Empty;
             messege.Dock = DockStyle.Top;
-            messege.DrawingRect = new Rectangle(0, 0, 463, 179);
+            messege.DrawingRect = new Rectangle(2, 2, 459, 177);
             messege.Easing = EasingType.Linear;
             messege.FieldID = null;
             messege.FocusBackColor = Color.Gray;
             messege.FocusBorderColor = Color.Gray;
             messege.FocusForeColor = Color.Black;
             messege.FocusIndicatorColor = Color.Blue;
+            messege.Font = new Font("Segoe UI", 9F);
             messege.Form = null;
             messege.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             messege.GradientEndColor = Color.Gray;
@@ -211,15 +211,16 @@
             // 
             // 
             // 
+            messege.InnerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             messege.InnerTextBox.BackColor = Color.White;
             messege.InnerTextBox.BorderStyle = BorderStyle.None;
-            messege.InnerTextBox.Dock = DockStyle.Fill;
             messege.InnerTextBox.Font = new Font("Segoe UI", 9F);
             messege.InnerTextBox.ForeColor = Color.FromArgb(60, 60, 60);
-            messege.InnerTextBox.Location = new Point(0, 0);
+            messege.InnerTextBox.Location = new Point(4, 4);
             messege.InnerTextBox.Multiline = true;
             messege.InnerTextBox.Name = "";
-            messege.InnerTextBox.Size = new Size(463, 179);
+            messege.InnerTextBox.ScrollBars = ScrollBars.Vertical;
+            messege.InnerTextBox.Size = new Size(455, 173);
             messege.InnerTextBox.TabIndex = 0;
             messege.InnerTextBox.UseWaitCursor = true;
             messege.IsAcceptButton = false;
@@ -245,6 +246,7 @@
             messege.OnlyCharacters = false;
             messege.OnlyDigits = false;
             messege.OverrideFontSize = TypeStyleFontSize.None;
+            messege.Padding = new Padding(2);
             messege.ParentBackColor = Color.Empty;
             messege.PasswordChar = '\0';
             messege.PlaceholderText = "";
@@ -255,7 +257,7 @@
             messege.RightoffsetForDrawingRect = 0;
             messege.SavedGuidID = null;
             messege.SavedID = null;
-            messege.ScrollBars = ScrollBars.None;
+            messege.ScrollBars = ScrollBars.Vertical;
             messege.SelectionStart = 0;
             messege.ShadowColor = Color.Black;
             messege.ShadowOffset = 0;
@@ -265,11 +267,11 @@
             messege.ShowFocusIndicator = false;
             messege.ShowLeftBorder = false;
             messege.ShowRightBorder = false;
-            messege.ShowScrollbars = false;
+            messege.ShowScrollbars = true;
             messege.ShowShadow = false;
             messege.ShowTopBorder = false;
             messege.ShowVerticalScrollBar = false;
-            messege.Size = new Size(463, 179);
+            messege.Size = new Size(463, 181);
             messege.SlideFrom = SlideDirection.Left;
             messege.StaticNotMoving = false;
             messege.TabIndex = 7;
@@ -634,7 +636,7 @@
             Title.FocusBorderColor = Color.Gray;
             Title.FocusForeColor = Color.Black;
             Title.FocusIndicatorColor = Color.Blue;
-            Title.Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            Title.Font = new Font("Segoe UI Black", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             Title.ForeColor = Color.FromArgb(60, 60, 60);
             Title.Form = null;
             Title.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
@@ -823,7 +825,6 @@
             TopMost = true;
             UseWaitCursor = true;
             panel2.ResumeLayout(false);
-            panel2.PerformLayout();
             Title.ResumeLayout(false);
             ResumeLayout(false);
         }

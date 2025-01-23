@@ -391,7 +391,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Set the popup form location
             Location = location;
 
-            // Show the popup form
+            // Config the popup form
             Show();
 
             // Attach mouse enter and leave events to all child controls recursively

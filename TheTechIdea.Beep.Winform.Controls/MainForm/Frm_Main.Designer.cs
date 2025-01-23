@@ -169,7 +169,7 @@
 //            CollapseTreetoolStripButton.ImageTransparentColor = Color.Magenta;
 //            CollapseTreetoolStripButton.Name = "CollapseTreetoolStripButton";
 //            CollapseTreetoolStripButton.Size = new Size(34, 36);
-//            CollapseTreetoolStripButton.Text = "StandardTree Show/Hide";
+//            CollapseTreetoolStripButton.Text = "StandardTree Config/Hide";
 //            // 
 //            // LogWindowstoolStripButton
 //            // 
@@ -178,7 +178,7 @@
 //            LogWindowstoolStripButton.ImageTransparentColor = Color.Magenta;
 //            LogWindowstoolStripButton.Name = "LogWindowstoolStripButton";
 //            LogWindowstoolStripButton.Size = new Size(34, 36);
-//            LogWindowstoolStripButton.Text = "Log Window Show/Hide";
+//            LogWindowstoolStripButton.Text = "Log Window Config/Hide";
 //            // 
 //            // Frm_Main
 //            // 

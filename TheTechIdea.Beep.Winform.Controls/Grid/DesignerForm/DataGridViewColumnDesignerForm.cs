@@ -87,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DesignerForm
 
         private void ListBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-         //   MessageBox.Show($"Before: Selected Index: {selectedcolumnindex}");
+         //   MessageBox.Config($"Before: Selected Index: {selectedcolumnindex}");
             // The rootnodeitems in listBox1 are DataGridViewColumn objects.
             DataGridViewColumn selectedColumn = listBox1.SelectedItem as DataGridViewColumn;
 
@@ -132,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DesignerForm
                 MessageBox.Show("Handle error, e.g., set ColumnTypecomboBox.SelectedIndex to -1 or display an error");
                 // Handle error, e.g., set ColumnTypecomboBox.SelectedIndex to -1 or display an error
             }
-          //  MessageBox.Show($"After: Selected Index: {selectedcolumnindex}");
+          //  MessageBox.Config($"After: Selected Index: {selectedcolumnindex}");
             IsChanged = true; // Reset the flag after changing the index
         }
 

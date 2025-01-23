@@ -1,14 +1,17 @@
-﻿using System.ComponentModel;
+﻿using Newtonsoft.Json.Linq;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 using TheTechIdea.Beep.Container.Services;
+using TheTechIdea.Beep.Report;
+using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public partial class BeepiForm : Form
+    public partial class BeepiForm : Form,IBeepUIComponent
     {
         #region "Fields"
         protected int _resizeMargin = 5; // Margin for resizing
@@ -27,9 +30,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool ishandled = false;
         private bool _inpopupmode = false;
 
-
+        public IContainer Components => components;
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
         protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
+
+        public event EventHandler<BeepComponentEventArgs> PropertyChanged;
+        public event EventHandler<BeepComponentEventArgs> PropertyValidate;
         #endregion "Fields"
         #region "Properties"
 
@@ -63,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _themeEnum = value;
                 _currentTheme = BeepThemesManager.GetTheme(value);
-                
+               // beepuiManager1.Theme = value;
                 ApplyTheme();
             }
         }
@@ -94,6 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
             //      Margin = new Padding(_resizeMargin);
             InitializeForm();
+           
         }
         public BeepiForm()
         {
@@ -119,6 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void InitLayout()
         {
             base.InitLayout();
+
         }
         protected override void OnHandleCreated(EventArgs e)
         {
@@ -127,6 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 InitializeForm();
                 ishandled = true;
+             
             }
         }
         private void InitializeForm()
@@ -137,9 +146,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Apply border and custom form styles
             FormBorderStyle = FormBorderStyle.None;
             this.Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
-
+          //  beepuiManager1 = new Managers.BeepFormUIManager(this.components);
             //  Margin = new Padding(5);
-            // Apply initial theme
+            // Apply initial theme\
+               beepuiManager1.Initialize(this);
+                beepuiManager1.Theme = BeepThemesManager.CurrentTheme;
             ApplyTheme();
         }
         #endregion "Layout Events"
@@ -237,10 +248,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Theme Application
         public virtual void ApplyTheme()
         {
-            BeepTheme theme = BeepThemesManager.GetTheme(beepuiManager1.Theme);
-            BackColor = theme.BackColor;
+          
+            
+           // beepuiManager1.Theme = Theme;
+            //  BeepTheme theme = BeepThemesManager.GetTheme(beepuiManager1.Theme);
+            BackColor = _currentTheme.BackColor;
             //beepPanel1.Theme = beepuiManager1.Theme;
-            BorderColor = theme.BorderColor;
+            BorderColor = _currentTheme.BorderColor;
+         
             Invalidate();
         }
         #endregion
@@ -441,6 +456,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        public string ComponentName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public IBeepUIComponent Form { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string GuidID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string BlockID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string FieldID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int Id { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string[] Items { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string BoundProperty { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string DataSourceProperty { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string LinkedProperty { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public DbFieldCategory Category { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public override Size GetPreferredSize(Size proposedSize)
         {
             // Ensure the adjusted size respects minimum size constraints
@@ -454,6 +481,76 @@ namespace TheTechIdea.Beep.Winform.Controls
         private static extern IntPtr CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
         [DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();
+
+        public void ApplyTheme(EnumBeepThemes theme)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ApplyTheme(BeepTheme theme)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Size GetSize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ShowToolTip(string text)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HideToolTip()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ValidateData(out string messege)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RefreshBinding()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetValue(object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetValue()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ClearValue()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool HasFilterValue()
+        {
+            throw new NotImplementedException();
+        }
+
+        public AppFilter ToFilter()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetBinding(string controlProperty, string dataSourceProperty)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }

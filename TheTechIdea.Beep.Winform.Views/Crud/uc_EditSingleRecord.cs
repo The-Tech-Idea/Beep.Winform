@@ -13,7 +13,7 @@ using TheTechIdea.Beep.ConfigUtil;
 
 namespace TheTechIdea.Beep.Winform.Views.Crud
 {
-    [AddinAttribute(Caption = "Show/Edit Data", Name = "uc_EditSingleRecord", misc = "VIEW", addinType = AddinType.Control, ObjectType = "Beep")]
+    [AddinAttribute(Caption = "Config/Edit Data", Name = "uc_EditSingleRecord", misc = "VIEW", addinType = AddinType.Control, ObjectType = "Beep")]
 
     public partial class uc_EditSingleRecord : uc_Addin
     {

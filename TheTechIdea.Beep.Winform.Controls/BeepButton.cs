@@ -477,6 +477,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Popup List Methods"
         #region "Theme"
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+            _textFont = Font;
+          //  Console.WriteLine("Font Changed");
+            if (AutoSize)
+            {
+                Size textSize = TextRenderer.MeasureText(Text, _textFont);
+                this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
+            }
+        }
         public override void ApplyTheme()
         {
             

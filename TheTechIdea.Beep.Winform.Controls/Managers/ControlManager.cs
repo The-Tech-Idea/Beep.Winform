@@ -248,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     BalloonTipText = message
                 };
 
-                // Show the balloon tip
+                // Config the balloon tip
                 notifyIcon.ShowBalloonTip(3000);
 
                 // Dispose of the NotifyIcon after the balloon tip is displayed

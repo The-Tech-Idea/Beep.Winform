@@ -1175,7 +1175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         }
 
         /// <summary>
-        /// Show the total page number as n of total 
+        /// Config the total page number as n of total 
         /// </summary>
         private bool showtotalpagenumber = false;
         public bool ShowTotalPageNumber

@@ -281,7 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 parentForm.Controls.Add(_menu);
             }
             //Console.WriteLine($"control {this.Left} menu {_menu.Left}");
-            //MessageBox.Show($"control {this.Left} menu {_menu.Left}");
+            //MessageBox.Config($"control {this.Left} menu {_menu.Left}");
             _menu.Visible = true;
             _menu.BringToFront();
             //_menu.ShowWithAnimation(  DisplayAnimationType.SlideAndFade, this);

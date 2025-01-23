@@ -487,7 +487,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void FilterButton_Click(object sender, EventArgs e)
         {
-            // Show filter form when filter button is clicked
+            // Config filter form when filter button is clicked
             ShowFilterForm();
         }
         #endregion "Header Layout"

@@ -12,6 +12,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public static class BeepThemesManager
     {
+        public static EnumBeepThemes CurrentTheme { get; set; } = EnumBeepThemes.DefaultTheme;
         static BeepThemesManager()
         {
             try

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
@@ -16,8 +17,9 @@ namespace TheTechIdea.Beep.Desktop.Common
         #region "Variables"
         private readonly IServiceProvider servicelocator;
         private readonly IBeepService beepservices;
-      
-      
+
+        Form beepWaitForm;
+     
         #endregion "Variables"
         #region "Constructors and Init"
         public AppManager(IServiceProvider service)
@@ -81,6 +83,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public IControlManager Controlmanager { get; set; }
         public IRoutingManager RoutingManager { get; set; }
         public IWaitForm WaitForm { get; set; }
+        public Type WaitFormType { get; set; }
         #endregion "Main Controls"
         #region "UI State"
         public bool IsDataModified { get; set; }
@@ -115,7 +118,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             {
                 _themeEnum = value;
                 _currentTheme = BeepThemesManager.GetTheme(value);
-                //      this.ApplyTheme();
+                OnThemeChanged?.Invoke(_themeEnum);
                 ApplyTheme();
             }
         }
@@ -132,8 +135,9 @@ namespace TheTechIdea.Beep.Desktop.Common
         public IBeepUser User { get; set; }
         #endregion "User and Profile"
         #endregion "Properties"
-      
+
         #region "Events"
+        public event Action<EnumBeepThemes> OnThemeChanged;
         public event EventHandler<KeyCombination> KeyPressed;
         public event EventHandler<IPassedArgs> PreLogin;
         public event EventHandler<IPassedArgs> PostLogin;
@@ -174,7 +178,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             { //    visManager.SetMainDisplay("Form1", "Beep - The Data Plaform", "SimpleODM.ico", "", "", "");
                 PassedArgs p = new PassedArgs();
                 p.Messege = "Loading DLL's";
-                // Show Wait Form
+                // Config Wait Form
                 ShowWaitForm(p);
                 // Passing Message to WaitForm
                 PasstoWaitForm(p);
@@ -222,30 +226,12 @@ namespace TheTechIdea.Beep.Desktop.Common
         public IErrorsInfo ShowWaitForm(PassedArgs Passedarguments)
         {
             var result = new ErrorsInfo();
+           // beepWaitForm = (Form)WaitForm;
             try
             {
-                
-
-                WaitForm.Show(Passedarguments);
-                //if (WaitForm == null)
-                //{
-                //    throw new InvalidOperationException("WaitForm is not initialized.");
-                //}
-
-                //if (!string.IsNullOrEmpty(Passedarguments?.Messege))
-                //{
-                //    WaitForm.SetText(Passedarguments.Messege);
-                //}
-
-                //if (!string.IsNullOrEmpty(Passedarguments?.Title))
-                //{
-                //    WaitForm.SetTitle(Passedarguments.Title);
-                //}
-
-                //if (!string.IsNullOrEmpty(Passedarguments?.ImagePath))
-                //{
-                //    WaitForm.SetImage(Passedarguments.ImagePath);
-                //}
+              //  WaitForm.Config(Passedarguments);
+                startwait(Passedarguments);
+              
                 IsShowingWaitForm = true;
 
                 result.Flag = Errors.Ok;
@@ -270,37 +256,167 @@ namespace TheTechIdea.Beep.Desktop.Common
         public IErrorsInfo PasstoWaitForm(PassedArgs Passedarguments)
         {
             var result = new ErrorsInfo();
+          //  beepWaitForm = (Form)WaitForm;
             try
             {
-                if (WaitForm == null)
+               beepWaitForm = Application.OpenForms["BeepWait"];
+                if (beepWaitForm != null)
                 {
-                    throw new InvalidOperationException("WaitForm is not initialized.");
-                }
+                    // Check if WaitForm is initialized
+                    if (WaitForm == null)
+                    {
+                        throw new InvalidOperationException("WaitForm is not initialized.");
+                    }
 
-                if (!string.IsNullOrEmpty(Passedarguments?.Messege))
-                {
-                    WaitForm.UpdateProgress(Passedarguments.Progress , Passedarguments.Messege);
-                }
+                    // Check if WaitForm is disposed
+                    if (beepWaitForm.IsDisposed)
+                    {
+                        throw new InvalidOperationException("WaitForm is disposed.");
+                    }
 
+                    // Ensure the form's handle is created
+                    if (!beepWaitForm.IsHandleCreated)
+                    {
+                        Debug.WriteLine("WaitForm handle not created. Forcing handle creation.");
+                        var forceHandle = beepWaitForm.Handle; // Force handle creation
+                    }
+
+                    // Update progress on the UI thread
+                   // waitForm.Progress.(Passedarguments.Progress, Passedarguments.Messege);
+
+                    SendMessege(WaitForm.Progress, Passedarguments.Messege);
+
+
+                }
                 result.Flag = Errors.Ok;
                 result.Message = "Progress passed to wait form successfully.";
             }
             catch (Exception ex)
             {
                 string methodName = nameof(PasstoWaitForm);
-                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error: {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+                DMEEditor.AddLogMessage("Beep", $"In {methodName} Error: {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
                 result.Flag = Errors.Failed;
                 result.Message = ex.Message;
                 result.Ex = ex;
             }
             return result;
         }
+        private void SendMessege(IProgress<PassedArgs> progress,  string messege = null)
+        {
 
+            if (progress != null)
+            {
+                PassedArgs ps = new PassedArgs { EventType = "Update", Messege = messege, ErrorCode = DMEEditor.ErrorObject.Message };
+                progress.Report(ps);
+            }
+
+        }
+        private async void startwait(PassedArgs Passedarguments)
+        {
+            string[] args = null;
+          
+            if (IsShowingWaitForm)
+            {
+                return;
+            }
+            await Task.Run(() =>
+            {
+                if(WaitFormType == null && WaitForm!=null)
+                {
+                    WaitFormType = WaitForm.GetType();
+                }
+
+                 beepWaitForm = (Form)Activator.CreateInstance(WaitFormType);
+                MiscFunctions.SetThemePropertyinControlifexist(beepWaitForm, Theme);
+                WaitForm = (IWaitForm)beepWaitForm;
+                if (!string.IsNullOrEmpty(Title))
+                {
+                    WaitForm.SetTitle( Title);
+                }
+                //Debug.WriteLine($"not found logurl");
+                beepWaitForm.TopMost = true;
+                // Form frm = (Form)MainFormView;
+                beepWaitForm.StartPosition = FormStartPosition.CenterScreen;
+            // beepWaitForm.ParentNode = frm;
+            IsShowingWaitForm = true;
+                WaitForm.SetImage("simpleinfoapps.svg");
+                //LogopictureBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
+
+                beepWaitForm.ShowDialog();
+
+            });
+            // delay for 2 seconds
+            await Task.Delay(2000);
+        }
         /// <summary>
         /// Closes the wait form.
         /// </summary>
         /// <returns>Operation result with status.</returns>
         public IErrorsInfo CloseWaitForm()
+        {
+           // beepWaitForm = (Form)WaitForm;
+            var result = new ErrorsInfo();
+            try
+            {
+                //// Check if WaitForm is initialized
+                //if (WaitForm == null)
+                //{
+                //    throw new InvalidOperationException("WaitForm is not initialized.");
+                //}
+
+                //// Check if WaitForm is disposed
+                //if (beepWaitForm.IsDisposed)
+                //{
+                //    throw new InvalidOperationException("WaitForm is disposed.");
+                //}
+
+                //// Ensure the form's handle is created
+                //if (!beepWaitForm.IsHandleCreated)
+                //{
+                //    Debug.WriteLine("WaitForm handle not created. Forcing handle creation.");
+                //    var forceHandle = beepWaitForm.Handle; // Force handle creation
+                //}
+
+                beepWaitForm = Application.OpenForms["BeepWait"];
+
+                if (beepWaitForm != null)
+                {
+                    System.Windows.Forms.MethodInvoker action = delegate ()
+                    {
+                        WaitForm.CloseForm();
+                        IsShowingWaitForm = false;
+                       
+                    };
+
+                    if (beepWaitForm.InvokeRequired)
+                    {
+                        beepWaitForm.Invoke(action);
+                    }
+                    else
+                    {
+                        action();
+                    }
+                }
+
+                result.Flag = Errors.Ok;
+                result.Message = "Wait form closed successfully.";
+            }
+            catch (Exception ex)
+            {
+                string methodName = nameof(CloseWaitForm);
+                DMEEditor.AddLogMessage("Beep", $"In {methodName} Error: {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+                result.Flag = Errors.Failed;
+                result.Message = ex.Message;
+                result.Ex = ex;
+            }
+            return result;
+        }
+       
+        /// <summary>
+        /// Closes the wait form.
+        /// </summary>
+        /// <returns>Operation result with status.</returns>
+        public Task<IErrorsInfo> CloseWaitFormAsync()
         {
             var result = new ErrorsInfo();
             try
@@ -324,9 +440,8 @@ namespace TheTechIdea.Beep.Desktop.Common
                 result.Message = ex.Message;
                 result.Ex = ex;
             }
-            return result;
+            return Task.FromResult(DMEEditor.ErrorObject);
         }
-
         #endregion "WaitForm"
         #region "Settings Management"
         public IErrorsInfo SaveSetting()
@@ -453,7 +568,8 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
         #endregion "Notification"
         #region "Navigation"
-        public Task<IErrorsInfo> NavigateBack()
+        #region "Sync Methods"
+        public IErrorsInfo NavigateBack()
         {
             try
             {
@@ -465,9 +581,9 @@ namespace TheTechIdea.Beep.Desktop.Common
                 string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
                 DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
             }
-            return Task.FromResult(DMEEditor.ErrorObject);
+            return DMEEditor.ErrorObject;
         }
-        public Task<IErrorsInfo> NavigateForward()
+        public IErrorsInfo NavigateForward()
         {
             try
             {
@@ -480,12 +596,18 @@ namespace TheTechIdea.Beep.Desktop.Common
                 string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
                 DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
             }
-            return Task.FromResult(DMEEditor.ErrorObject);
+            return DMEEditor.ErrorObject;
         }
-        public Task<IErrorsInfo> NavigateTo(string routeName, Dictionary<string, object> parameters = null)
+        public IErrorsInfo NavigateTo(string routeName, Dictionary<string, object> parameters = null)
         {
             try
             {
+                beepWaitForm = (Form)WaitForm;
+                // Ensure the WaitForm is fully closed before proceeding
+                if (WaitForm != null && !beepWaitForm.IsDisposed)
+                {
+                     WaitForm.CloseAsync(); // Wait for the WaitForm to close
+                }
                 // use the view router to navigate to a specific route from List<IDM_Addin> s
                 RoutingManager.NavigateTo(routeName, parameters);
 
@@ -495,14 +617,14 @@ namespace TheTechIdea.Beep.Desktop.Common
                 string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
                 DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
             }
-            return Task.FromResult(DMEEditor.ErrorObject);
+            return DMEEditor.ErrorObject;
         }
-        public Task<IErrorsInfo> ShowHomeAsync()
+        public IErrorsInfo ShowHome()
         {
             try
             {
                 // use the view router to show the home page
-                RoutingManager.NavigateToAsync(HomePageName, null, true);
+                RoutingManager.NavigateTo(HomePageName, null, true);
             }
             catch (Exception ex)
             {
@@ -511,12 +633,12 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
             return DMEEditor.ErrorObject;
         }
-        public Task<IErrorsInfo> ShowLoginAsync()
+        public IErrorsInfo ShowLogin()
         {
             try
             {
                 // use the view router to show the home page
-                RoutingManager.NavigateToAsync("Login",null,true);
+                RoutingManager.NavigateToAsync("Login", null, true);
             }
             catch (Exception ex)
             {
@@ -525,7 +647,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
             return DMEEditor.ErrorObject;
         }
-        public Task<IErrorsInfo> ShowProfileAsync()
+        public IErrorsInfo ShowProfile()
         {
             try
             {
@@ -539,7 +661,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
             return DMEEditor.ErrorObject;
         }
-        public Task<IErrorsInfo> ShowAdminAsync()
+        public IErrorsInfo ShowAdmin()
         {
             try
             {
@@ -553,12 +675,11 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
             return DMEEditor.ErrorObject;
         }
-     
         public IErrorsInfo ShowPage(string pagename, PassedArgs Passedarguments, DisplayType displayType = DisplayType.InControl, bool Singleton = false)
         {
             try
             {
-               
+
                 ErrorsandMesseges = new ErrorsInfo();
                 AddinAttribute attrib = new AddinAttribute();
 
@@ -632,7 +753,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                 ErrorsandMesseges.Flag = Errors.Ok;
                 ErrorsandMesseges.Message = $"Function Executed";
             }
-       
+
             catch (Exception ex)
             {
                 string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
@@ -640,7 +761,6 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
             return DMEEditor.ErrorObject;
         }
-
         private IDM_Addin ShowForm(string pagename, IDMEEditor dMEEditor, string[] strings, PassedArgs passedarguments)
         {
             IDM_Addin addin = null;
@@ -721,8 +841,198 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
 
             return addin;
-            //BeepWaitForm.GetType().GetField("")
+            //beepWaitForm.GetType().GetField("")
         }
+        #endregion "Sync Methods"
+        #region "Async Methods"
+        public Task<IErrorsInfo> NavigateBackAsync()
+        {
+            try
+            {
+                // use the view router to navigate back
+                NavigateBack();
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return Task.FromResult(DMEEditor.ErrorObject);
+        }
+        public Task<IErrorsInfo> NavigateForwardAsync()
+        {
+            try
+            {
+                // use the view router to navigate forward
+                NavigateForward();
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return Task.FromResult(DMEEditor.ErrorObject);
+        }
+        public Task<IErrorsInfo> NavigateToAsync(string routeName, Dictionary<string, object> parameters = null)
+        {
+            try
+            {
+                // use the view router to navigate to a specific route from List<IDM_Addin> s
+                NavigateTo(routeName, parameters);
+
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return Task.FromResult(DMEEditor.ErrorObject);
+        }
+        public Task<IErrorsInfo> ShowHomeAsync()
+        {
+            try
+            {
+                // use the view router to show the home page
+                RoutingManager.NavigateToAsync(HomePageName, null, true);
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return Task.FromResult(DMEEditor.ErrorObject);
+        }
+        public Task<IErrorsInfo> ShowLoginAsync()
+        {
+            try
+            {
+                // use the view router to show the home page
+                RoutingManager.NavigateToAsync("Login", null, true);
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return Task.FromResult(DMEEditor.ErrorObject);
+        }
+        public Task<IErrorsInfo> ShowProfileAsync()
+        {
+            try
+            {
+                // use the view router to show the home page
+                RoutingManager.NavigateToAsync("Profile");
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return Task.FromResult(DMEEditor.ErrorObject);
+        }
+        public Task<IErrorsInfo> ShowAdminAsync()
+        {
+            try
+            {
+                // use the view router to show the home page
+                RoutingManager.NavigateToAsync("Admin");
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return Task.FromResult(DMEEditor.ErrorObject);
+        }
+        public Task<IErrorsInfo> ShowPageAsync(string pagename, PassedArgs Passedarguments, DisplayType displayType = DisplayType.InControl, bool Singleton = false)
+        {
+            try
+            {
+
+                ErrorsandMesseges = new ErrorsInfo();
+                AddinAttribute attrib = new AddinAttribute();
+
+                if (IsDataModified)
+                {
+                    if (Controlmanager.InputBoxYesNo("Beep", "Module/Data not Saved, Do you want to continue?") == BeepDialogResult.No)
+                    {
+                        return Task.FromResult(DMEEditor.ErrorObject); ;
+                    }
+
+                }
+                CurrentDisplayedAddin = null;
+                IsDataModified = false;
+                if (DMEEditor.ConfigEditor.Addins.Where(c => c.className.Equals(pagename, StringComparison.OrdinalIgnoreCase)).Any())
+                {
+                    Type type = DMEEditor.ConfigEditor.Addins.Where(c => c.className.Equals(pagename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().type;
+                    attrib = (AddinAttribute)type.GetCustomAttribute(typeof(AddinAttribute), false);
+
+                    if (attrib != null)
+                    {
+                        PassedArgs args = new PassedArgs();
+                        args.Cancel = false;
+                        args.ObjectName = attrib.Name;
+                        args.ObjectType = attrib.ObjectType;
+                        args.AddinName = attrib.Name;
+                        PreCallModule?.Invoke(this, args);
+                        if (args.Cancel)
+                        {
+                            DMEEditor.AddLogMessage("Beep Vis", $"You dont have Access Privilige on {pagename}", DateTime.Now, 0, pagename, Errors.Failed);
+                            ErrorsandMesseges.Flag = Errors.Failed;
+                            ErrorsandMesseges.Message = $"Function Access Denied";
+                            return Task.FromResult(DMEEditor.ErrorObject);;
+                        }
+                        if (attrib.displayType == DisplayType.Popup)
+                        {
+                            displayType = DisplayType.Popup;
+                        }
+
+
+                        switch (attrib.addinType)
+                        {
+                            case AddinType.Form:
+                                ShowForm(pagename, DMEEditor, new string[] { }, Passedarguments);
+                                break;
+                            case AddinType.Control:
+                                if (displayType == DisplayType.InControl)
+                                {
+                                    ShowUserControlInContainer(pagename, DMEEditor, new string[] { }, Passedarguments);
+                                }
+                                else
+                                {
+                                    ShowUserControlPopUp(pagename, DMEEditor, new string[] { }, Passedarguments);
+                                }
+                                break;
+                            case AddinType.Class:
+                                GetAddinClass(pagename, DMEEditor, new string[] { }, Passedarguments);
+                                break;
+                            case AddinType.Page:
+                                break;
+                            case AddinType.Link:
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    else
+                        DMEEditor.AddLogMessage("Beep Vis", $"Could Find Attrib for Addin {pagename}", DateTime.Now, 0, pagename, Errors.Failed);
+                }
+                else
+                    DMEEditor.AddLogMessage("Beep Vis", $"Could Find  Addin {pagename}", DateTime.Now, 0, pagename, Errors.Failed);
+                ErrorsandMesseges.Flag = Errors.Ok;
+                ErrorsandMesseges.Message = $"Function Executed";
+            }
+
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return Task.FromResult(DMEEditor.ErrorObject);
+        }
+        #endregion "Async Methods"
+
         //--------------------------------------------------
         #endregion "Navigation"
         #region "Printing and Exporting"
@@ -788,6 +1098,8 @@ namespace TheTechIdea.Beep.Desktop.Common
 
 
                 }
+                RoutingManager.Theme = Theme;
+                BeepThemesManager.CurrentTheme=Theme;
             }
             catch (Exception ex)
             {
@@ -796,6 +1108,8 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
             
         }
+      
+
         #endregion "Theme Management"
         #region "Events Handling"
         /// <summary>
@@ -826,7 +1140,6 @@ namespace TheTechIdea.Beep.Desktop.Common
             
         }
         #endregion "Events Handling"
-
         #region "Dispose"
         private bool disposedValue;
         protected virtual void Dispose(bool disposing)

@@ -535,7 +535,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
                     }
                 }
 
-               // MessageBox.Show("ImagePath embedded in resources successfully.", "Embedding Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+               // MessageBox.Config("ImagePath embedded in resources successfully.", "Embedding Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 SelectedImagePath = destPath;
                 ImagePath = destPath;
                 // Refresh the resources list
@@ -565,7 +565,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.UIEditor
                 string destPath = Path.Combine(resourcesFolder, Path.GetFileName(previewFilePath));
                 File.Copy(previewFilePath, destPath, true); // Overwrite if exists
                 EmbedFileAsEmbeddedResource(filePath: destPath); // Embed the file in the .csproj file
-              //  MessageBox.Show("File copied to project resources folder successfully.", "Copy Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+              //  MessageBox.Config("File copied to project resources folder successfully.", "Copy Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 SelectedImagePath = destPath;
                 ImagePath = destPath;
                 return destPath;

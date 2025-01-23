@@ -687,7 +687,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (_panelMap.TryGetValue(_selectedTab, out var selectedPanel) && panel == selectedPanel)
                     {
                         Console.WriteLine($"Showing Panel {panel.Name}");
-                        UpdatePanelVisibility(panel, true); // Show the selected panel
+                        UpdatePanelVisibility(panel, true); // Config the selected panel
                     }
                     else
                     {

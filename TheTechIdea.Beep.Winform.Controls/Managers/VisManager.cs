@@ -35,6 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public event EventHandler<IPassedArgs> PostShowItem;
         public event EventHandler<IPassedArgs> PostCallModule;
         public event EventHandler<KeyCombination> KeyPressed;
+        public event Action<EnumBeepThemes> OnThemeChanged;
 
         public EnumBeepThemes Theme { get; set; }
         public IBeepUser User { get; set; }
@@ -1246,6 +1247,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public List<IBeepUser> Users { get; set; } = new List<IBeepUser>();
 
         public string BreadCrumb { get; set; }
+        public Type WaitFormType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         protected virtual void Dispose(bool disposing)
         {
@@ -1378,6 +1380,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         }
 
         public Task<IErrorsInfo> NavigateToAsync(string routeName, Dictionary<string, object> parameters = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        IErrorsInfo IAppManager.NavigateBack()
+        {
+            throw new NotImplementedException();
+        }
+
+        IErrorsInfo IAppManager.NavigateForward()
+        {
+            throw new NotImplementedException();
+        }
+
+        IErrorsInfo IAppManager.NavigateTo(string routeName, Dictionary<string, object> parameters)
         {
             throw new NotImplementedException();
         }

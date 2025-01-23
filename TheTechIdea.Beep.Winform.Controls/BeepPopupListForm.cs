@@ -94,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [MergableProperty(true)]
         [Category("Appearance")]
-        [Description("Show Title of the control.")]
+        [Description("Config Title of the control.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowTitle
         {
@@ -272,7 +272,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Set the location and show the popup
             Location = popupLocation;
-            Show(); // Show the popup (or ShowDialog if modal behavior is required)
+            Show(); // Config the popup (or ShowDialog if modal behavior is required)
 
             return SelectedItem;
         }

@@ -145,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MainForm
             isloading = false;
             isfinish = false;
             tokenSource.Cancel();
-            // MessageBox.Show("Job Stopped");
+            // MessageBox.Config("Job Stopped");
 
         }
         void update(string messege)

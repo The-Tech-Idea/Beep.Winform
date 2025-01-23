@@ -9,6 +9,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public delegate bool RouteGuard(Dictionary<string, object> parameters);
     public interface IRoutingManager
     {
+        EnumBeepThemes Theme { get; set; }
         string BreadCrumb { get; }
         IDM_Addin CurrentControl { get; }
         bool UseCustomCreator { get; set; }
@@ -18,6 +19,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         event EventHandler<IRouteArgs> PostShowItem;
         event EventHandler<IRouteArgs> PreShowItem;
 
+        IErrorsInfo NavigateBack();
+        IErrorsInfo NavigateForward();
+        IErrorsInfo NavigateTo(string routeName, Dictionary<string, object> parameters = null, bool popup = false);
         Task<IErrorsInfo> NavigateBackAsync();
         Task<IErrorsInfo> NavigateForwardAsync();
         Task<IErrorsInfo> NavigateToAsync(string routeName, Dictionary<string, object> parameters = null,bool popup = false);

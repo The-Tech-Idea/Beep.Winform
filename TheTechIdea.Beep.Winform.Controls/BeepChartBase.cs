@@ -207,7 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (hoveredDataPoint != null && hoveredDataPoint != lastHoveredDataPoint)
             {
-                // Show tooltip for the hovered data point
+                // Config tooltip for the hovered data point
                 dataPointToolTip.Show(hoveredDataPoint.ToolTip, this, e.Location.X + 15, e.Location.Y + 15);
                 lastHoveredDataPoint = hoveredDataPoint;
             }

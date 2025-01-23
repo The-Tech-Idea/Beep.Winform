@@ -3,22 +3,26 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using System.ComponentModel;
 using TheTechIdea.Beep.Desktop.Common;
-using System.Threading.Tasks;
-using System.Drawing;
-using System;
-using System.Windows.Forms;
+using System.Diagnostics;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(false)]
     public partial class BeepWait : BeepiForm, IWaitForm
     {
+        public  Progress<PassedArgs> Progress { get; } = new Progress<PassedArgs>();
         public BeepWait()
         {
             InitializeComponent();
+            Progress.ProgressChanged += (sender, args) =>
+            {
+                    UpdateProgress(args.Progress, args.Messege);
+            };
             _spinnerImage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.loading.svg";
             LogopictureBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
             StartSpinner();
+        
         }
 
         private void StartSpinner()
@@ -28,6 +32,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _spinnerImage.ApplyThemeOnImage = true;
                 _spinnerImage.Theme = Theme;
                 _spinnerImage.IsSpinning = true;
+                _spinnerImage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.loading.svg";
+                LogopictureBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
+
             });
         }
 
@@ -38,16 +45,28 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void SafeInvoke(Action action)
         {
-            if (this.IsHandleCreated)
+            if (this.IsDisposed)
             {
-                if (this.InvokeRequired)
-                {
-                    this.Invoke(action);
-                }
-                else
-                {
-                    action();
-                }
+                Debug.WriteLine("Form is disposed. Action skipped.");
+                return;
+            }
+
+            // Force handle creation if it doesn't exist
+            if (!this.IsHandleCreated)
+            {
+                Debug.WriteLine("Form handle not created. Forcing handle creation.");
+                var forceHandle = this.Handle; // Force handle creation
+            }
+
+            if (this.InvokeRequired)
+            {
+                Debug.WriteLine("Invoking action on UI thread.");
+                this.Invoke(action);
+            }
+            else
+            {
+                Debug.WriteLine("Executing action directly.");
+                action();
             }
         }
 
@@ -112,13 +131,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             });
         }
 
-        public IErrorsInfo Show(PassedArgs Passedarguments)
+        public IErrorsInfo Config(PassedArgs Passedarguments)
         {
   
             this.TopMost = true;
             this.ShowInTaskbar = false;
             this.StartPosition = FormStartPosition.CenterScreen;
-            base.Show();
+         
             SafeInvoke(() =>
             {
                 StartSpinner();
@@ -140,15 +159,37 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void UpdateProgress(int progress, string text = null)
         {
-            SafeInvoke(() =>
-            {
+            // Ensure the method is thread-safe
+            //SafeInvoke(() =>
+            //{
+                Debug.WriteLine($"UpdateProgress called with text: {text}");
                 if (!string.IsNullOrEmpty(text))
                 {
-                    messege.AppendText(text + Environment.NewLine);
-                    messege.SelectionStart = messege.Text.Length;
-                    messege.ScrollToCaret();
+                    if (messege == null)
+                    {
+                        Debug.WriteLine("messege control is null.");
+                        return;
+                    }
+                    if (messege.IsDisposed)
+                    {
+                        Debug.WriteLine("messege control is disposed.");
+                        return;
+                    }
+                Debug.WriteLine("started");
+                    messege.BeginInvoke(new Action(() =>
+                    {
+                        messege.AppendText(text + Environment.NewLine);
+                        messege.SelectionStart = messege.Text.Length;
+                        messege.ScrollToCaret();
+                        messege.Refresh(); // Force redraw
+                   }));
+                Debug.WriteLine("finshed ");
+                    //messege.AppendText(text + Environment.NewLine);
+                    //messege.SelectionStart = messege.Text.Length;
+                    //messege.ScrollToCaret();
+                    //messege.Refresh(); // Force redraw
                 }
-            });
+            //});
         }
 
         public async Task<IErrorsInfo> CloseAsync()
@@ -171,7 +212,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        public override void ApplyTheme()
+        {
+             base.ApplyTheme();
+            if (_spinnerImage == null) return;
+            _spinnerImage.ApplyThemeOnImage = true;
+            _spinnerImage.Theme = Theme;
+            BackColor = _currentTheme.BackColor;
+            ForeColor = _currentTheme.LatestForColor;
+            messege.Theme = Theme;
+            Title.Theme = Theme;
 
+
+
+        }
         public static void InvokeAction(Control control, MethodInvoker action)
         {
             if (control.InvokeRequired)

@@ -265,13 +265,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public BeepFormUIManager(IContainer container)
         {
             container.Add(this);
-        //    _form = FindParentForm();
-           // OnThemeChanged += theme => Theme = theme;
+            //    _form = FindParentForm();
+            // OnThemeChanged += theme => Theme = theme;
             // Set form load event to apply settings at runtime
             // Find the parent form at runtime and initialize
-           
+            // Ensure the designer-added BeepFormUIManager is initialized
+
+            BeepThemesManager.ThemeChanged -= BeepThemesManager_ThemeChanged;
+            BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
         }
-       
+
+        private void BeepThemesManager_ThemeChanged(object? sender, EventArgs e)
+        {
+            if (_form != null)
+            {
+                if (Theme != BeepThemesManager.CurrentTheme)
+                {
+                    Theme = BeepThemesManager.CurrentTheme;
+                    ApplyThemeToAllBeepControls(_form); // Apply the initial theme
+                    BeepiForm.ApplyTheme();
+                }
+               
+            }
+        }
+
 
         #endregion
         #region "Design-time support"
@@ -346,10 +363,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 throw new ArgumentNullException(nameof(runtimeForm));
 
             _runtimeForm = runtimeForm;
-            _form = _runtimeForm;
-            // Attach events or apply runtime-specific logic
-            AttachControlAddedEvent(_runtimeForm);
+            _form = runtimeForm;
+            BeepiForm = runtimeForm as BeepiForm;
+
+            // Attach to runtime-specific events
+        //    _form.Load += Form_Load;
+            AttachControlAddedEvent(_form);
+            if (Theme != BeepThemesManager.CurrentTheme)
+            {
+                Theme = BeepThemesManager.CurrentTheme;
+            }
+          
+            ApplyThemeToAllBeepControls(_form); // Apply the initial theme
+            BeepiForm.ApplyTheme();
+            BeepThemesManager.ThemeChanged -= BeepThemesManager_ThemeChanged;
+            BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
         }
+
 
         public override ISite Site
         {
@@ -359,26 +389,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 base.Site = value;
                 if (value?.DesignMode == true)
                 {
+                    // Design-time logic
                     IDesignerHost host = value.GetService(typeof(IDesignerHost)) as IDesignerHost;
-                    if (host != null)
-                    {
-                        _form = host.RootComponent as Form;
-                        AttachControlAddedEvent(_form); // Attach to control added events
-
-
-                    }
+                    _form = host?.RootComponent as Form;
+                    AttachControlAddedEvent(_form);
                 }
-                else
+                else if (_runtimeForm != null)
                 {
                     // Runtime logic
-                    if (_runtimeForm != null)
-                    {
-                        _form = _runtimeForm; // Use the explicitly initialized runtime form
-                        AttachControlAddedEvent(_form);
-                    }
+                    _form = _runtimeForm;
+                    AttachControlAddedEvent(_form);
+                }
+                else if (_form != null)
+                {
+                    // Ensure HandleCreated logic
+                    _form.HandleCreated -= OnHandleCreated;
+                    _form.HandleCreated += OnHandleCreated;
                 }
             }
         }
+
+        private void OnHandleCreated(object sender, EventArgs e)
+        {
+            _form = sender as Form;
+            BeepiForm = _form as BeepiForm;
+        //    ApplyBeepFormTheme();
+        }
+
         private void BeepUIManager_ParentChanged(object sender, EventArgs e)
         {
             FindFormAtRuntime();
@@ -395,6 +432,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 }
             }
         }
+
         private Form FindParentForm()
         {
             if (Container is ISite site && site.Container != null)
@@ -605,14 +643,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
             if (BeepiForm != null)
             {
-                BeepAppBar.LogoImage = LogoImage;
-                BeepAppBar.Title = Title;
+                if (BeepAppBar != null)
+                {
+                    BeepAppBar.LogoImage = LogoImage;
+                    BeepAppBar.Title = Title;
+                }
+                if (BeepSideMenu != null)
+                {
+                    BeepSideMenu.LogoImage = LogoImage;
+                    BeepSideMenu.Title = Title;
+                }
             }
-            if (BeepSideMenu != null)
-            {
-                BeepSideMenu.LogoImage = LogoImage;
-                BeepSideMenu.Title = Title;
-            }
+         
 
             if (GetPropertyFromControl(control, "IsBorderAffectedByTheme"))
             {
@@ -637,6 +679,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             if (container == null) return;
             container.BackColor = BeepThemesManager.GetTheme(_theme).BackgroundColor;
+           
             // Apply theme to the container itself
             ApplyThemeToControl(container);
             if (HasApplyThemeToChildsProperty(container))

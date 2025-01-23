@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public Dependencies Dependencies { get; set; } = new Dependencies();
         string IDM_Addin.GuidID { get  ; set  ; }
 
-        public Form1(IServiceProvider serviceProvider) 
+        public Form1(IServiceProvider serviceProvider) : base()
         {
             InitializeComponent();
             beepService = serviceProvider.GetService<IBeepService>();
@@ -43,15 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepButton1.Click += BeepButton1_Click;
             beepButton2.PopupMode = true;
         }
-        public Form1() : base()
-        {
-            InitializeComponent();
-            MethodHandler.DMEEditor = Dependencies.DMEEditor;
-            //beepTreeControl1.init(beepService);
-            //beepButton1.Click += BeepButton1_Click;
-            //beepButton2.PopupMode = true;
-        }
-
+      
 
         private void BeepButton1_Click(object? sender, EventArgs e)
         {
@@ -64,6 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ////Point point = new Point(screenPoint.X, screenPoint.Y + beepButton1.Height);
             //SimpleItem x=beepFileDialog.ShowPopup("Tree",beepButton1, BeepPopupFormPosition.Top);
             beepTreeControl1.ShowCheckBox = true;
+            BeepThemesManager.CurrentTheme = EnumBeepThemes.WinterTheme;
             //    beepListBox1.ListItems = beepTreeControl1.Nodes;
             //    beepListBox1.InitializeMenu();
             //beepTreeControl1.AllowMultiSelect = false;
@@ -239,5 +232,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                
             }
         }
+       
     }
 }

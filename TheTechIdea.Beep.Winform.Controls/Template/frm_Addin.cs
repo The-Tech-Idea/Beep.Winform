@@ -204,5 +204,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
         {
             throw new NotImplementedException();
         }
+
+        public void ApplyTheme()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

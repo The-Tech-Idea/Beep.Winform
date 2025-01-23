@@ -111,9 +111,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                 }
 
                 // Create or retrieve the new view
-                IDM_Addin view = _useCustomCreator && _isCustomCreatorSet
-                    ? CreateControlUsingCustomCreator(_routes[routeName])
-                    : CreateUsingServiceLocator(_routes[routeName]);
+                IDM_Addin view = GetAddin(routeName);
 
                 if (view == null)
                 {
@@ -351,9 +349,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                 }
 
                 // Create or retrieve the new view
-                IDM_Addin view = _useCustomCreator && _isCustomCreatorSet
-                    ? CreateControlUsingCustomCreator(_routes[routeName])
-                    : CreateUsingServiceLocator(_routes[routeName]);
+                IDM_Addin view = GetAddin(routeName);
 
                 if (view == null)
                 {
@@ -528,14 +524,14 @@ namespace TheTechIdea.Beep.Desktop.Common
                             {
                                 form.StartPosition = FormStartPosition.CenterParent;
                                
-                                form.ShowDialog();
+                                form.Show();
                             }));
                         }
                         else
                         {
                             form.StartPosition = FormStartPosition.CenterParent;
                             beepUIComponent.Theme = Theme;
-                            form.ShowDialog();
+                            form.Show();
                         }
                     }
                     else
@@ -555,7 +551,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                     control.Dock = DockStyle.Fill;
 
                     // Ensure the dialog is shown on the UI thread
-                    popupForm.ShowDialog();
+                    popupForm.Show();
                 }
                 else
                 {
@@ -587,7 +583,15 @@ namespace TheTechIdea.Beep.Desktop.Common
         #endregion
 
         #region Routing
-        private Type FindAddinTypeFromServices(string moduleOrAddinName)
+        public IDM_Addin GetAddin(string routeName)
+        {
+            // Create or retrieve the new view
+            IDM_Addin view = _useCustomCreator && _isCustomCreatorSet
+                ? CreateControlUsingCustomCreator(_routes[routeName])
+                : CreateUsingServiceLocator(_routes[routeName]);
+            return view;
+        }
+        public Type FindAddinTypeFromServices(string moduleOrAddinName)
         {
             // Retrieve all registered services
             foreach (var service in servicelocator.GetServices(typeof(IDM_Addin)))

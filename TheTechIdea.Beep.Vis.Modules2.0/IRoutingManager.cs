@@ -32,6 +32,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         bool SetControlCreator(Func<Type, IDM_Addin> customCreator);
         void SetDefaultRoute(string routeName);
         void SetErrorView(Type errorViewType);
+        Type FindAddinTypeFromServices(string moduleOrAddinName);
+        IDM_Addin GetAddin(string moduleOrAddinName);
     }
     public interface IRouteArgs
     {

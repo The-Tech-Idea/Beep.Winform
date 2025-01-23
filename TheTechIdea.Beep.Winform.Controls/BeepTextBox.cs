@@ -1337,10 +1337,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             //base.ApplyTheme();
             _innerTextBox.BackColor = _currentTheme.TextBoxBackColor;
             _innerTextBox.ForeColor = _currentTheme.TextBoxForeColor;
+            
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-                InnerTextBox.Font=_textFont;
+                if (Handle != null)
+                {
+                    InnerTextBox.BeginInvoke(new Action(() => InnerTextBox.Font = _textFont));
+                }
+             
+                //InnerTextBox.Font=_textFont;
                 Font=_textFont;
             }
             

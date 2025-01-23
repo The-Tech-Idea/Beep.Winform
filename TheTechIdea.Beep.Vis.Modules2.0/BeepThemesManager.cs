@@ -1,4 +1,5 @@
 ﻿
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -12,52 +13,15 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public static class BeepThemesManager
     {
-        public static EnumBeepThemes CurrentTheme { get; set; } = EnumBeepThemes.DefaultTheme;
+       
+        
         static BeepThemesManager()
         {
             try
             {
-//                // Initialization code
-//                EnumToThemeMap = new Dictionary<EnumBeepThemes, BeepTheme>
-//{
-//    { EnumBeepThemes.DefaultTheme, DefaultTheme },
-//    { EnumBeepThemes.WinterTheme, WinterTheme },
-//    { EnumBeepThemes.CandyTheme, CandyTheme },
-//    { EnumBeepThemes.ZenTheme, ZenTheme },
-//    { EnumBeepThemes.RetroTheme, RetroTheme },
-//    { EnumBeepThemes.RoyalTheme, RoyalTheme },
-//    { EnumBeepThemes.HighlightTheme, HighlightTheme },
-//    { EnumBeepThemes.DarkTheme, DarkTheme },
-//    { EnumBeepThemes.LightTheme, LightTheme },
-//    { EnumBeepThemes.PastelTheme, PastelTheme },
-//    { EnumBeepThemes.MidnightTheme, MidnightTheme },
-//    { EnumBeepThemes.SpringTheme, SpringTheme },
-//    { EnumBeepThemes.NeonTheme, NeonTheme },
-//    { EnumBeepThemes.RusticTheme, RusticTheme },
-//    { EnumBeepThemes.GalaxyTheme, GalaxyTheme },
-//    { EnumBeepThemes.DesertTheme, DesertTheme },
-//    { EnumBeepThemes.VintageTheme, VintageTheme },
-//    { EnumBeepThemes.ModernDarkTheme, ModernDarkTheme },
-//    { EnumBeepThemes.MaterialDesignTheme, MaterialDesignTheme },
-//    { EnumBeepThemes.NeumorphismTheme, NeumorphismTheme },
-//    { EnumBeepThemes.GlassmorphismTheme, GlassmorphismTheme },
-//    { EnumBeepThemes.FlatDesignTheme, FlatDesignTheme },
-//    { EnumBeepThemes.CyberpunkNeonTheme, CyberpunkNeonTheme },
-//    { EnumBeepThemes.GradientBurstTheme, GradientBurstTheme },
-//    { EnumBeepThemes.HighContrastTheme, HighContrastTheme },
-//    { EnumBeepThemes.MonochromeTheme, MonochromeTheme },
-//    { EnumBeepThemes.LuxuryGoldTheme, LuxuryGoldTheme },
-//    { EnumBeepThemes.OceanTheme, OceanTheme },
-//    { EnumBeepThemes.SunsetTheme, SunsetTheme },
-//    { EnumBeepThemes.ForestTheme, ForestTheme },
-//    { EnumBeepThemes.EarthyTheme, EarthyTheme },
-//    { EnumBeepThemes.AutumnTheme, AutumnTheme },
-//    // Add any additional themes here...
-//};
+                
 
-
-
-              //  Console.WriteLine("BeepThemesManager initialized successfully.");
+                //  Console.WriteLine("BeepThemesManager initialized successfully.");
             }
             catch (Exception ex)
             {
@@ -19604,22 +19568,42 @@ namespace TheTechIdea.Beep.Vis.Modules
         #endregion "Theme Save/Load"
         #region "Functions"
 
+        public static EnumBeepThemes CurrentTheme
+        {
+            get
+            {
+                return _currentTheme;
+            }
+            set
+            {
+                if (_currentTheme != value)
+                {
+                    EnumBeepThemes oldTheme = _currentTheme;
+                    _currentTheme = value;
+                    ThemeChangeEventsArgs x = new() { NewTheme = _currentTheme, OldTheme = oldTheme };
+                    ThemeChanged?.Invoke(null, x);
+                   
+                }
+            }
+        }
+        private static EnumBeepThemes _currentTheme = EnumBeepThemes.DefaultTheme;
 
-        private static BeepTheme _currentTheme = DefaultTheme;
-
-        public static BeepTheme GetCurrentTheme()
+        public static EnumBeepThemes GetCurrentTheme()
         {
             return _currentTheme;
         }
-        public static event EventHandler ThemeChanged;
+        public static event EventHandler<ThemeChangeEventsArgs> ThemeChanged;
 
-        public static void SetCurrentTheme(BeepTheme theme)
+        public static void SetCurrentTheme(EnumBeepThemes theme)
         {
             if (_currentTheme != theme)
             {
+                EnumBeepThemes oldTheme = _currentTheme;
                 _currentTheme = theme;
-                ThemeChanged?.Invoke(null, EventArgs.Empty);
+                ThemeChangeEventsArgs x = new() { NewTheme = _currentTheme, OldTheme = oldTheme };
+                ThemeChanged?.Invoke(null, x);
             }
+        
         }
 
 
@@ -19628,17 +19612,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             return Enum.IsDefined(typeof(EnumBeepThemes), themeName);
         }
 
-        //public static bool ThemeExists(EnumBeepThemes theme)
-        //{
-        //    return EnumToThemeMap.ContainsKey(theme);
-        //}
-
-        //public static bool ThemeExists(BeepTheme theme)
-        //{
-        //    return ThemeToEnumMap.ContainsKey(theme);
-        //}
       
-
         public static string GetGuidFromTheme(BeepTheme theme)
         {
             return theme?.ThemeGuid ?? DefaultTheme.ThemeGuid;
@@ -19647,6 +19621,11 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
 
+    }
+    public class ThemeChangeEventsArgs : EventArgs
+    {
+        public EnumBeepThemes OldTheme { get; set; }
+        public EnumBeepThemes NewTheme { get; set; }
     }
     public enum EnumBeepThemes
     {

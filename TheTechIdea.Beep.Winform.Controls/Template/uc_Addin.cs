@@ -223,5 +223,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
         {
            
         }
+        public void ApplyTheme()
+        {
+            
+        }
     }
 }

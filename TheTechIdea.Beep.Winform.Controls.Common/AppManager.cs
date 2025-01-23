@@ -623,8 +623,12 @@ namespace TheTechIdea.Beep.Desktop.Common
         {
             try
             {
-                // use the view router to show the home page
-                RoutingManager.NavigateTo(HomePageName, null, true);
+               
+                MainDisplay=RoutingManager.GetAddin(HomePageName);
+                Addins.Add(MainDisplay);
+                ApplyTheme();
+                ShowPopup(MainDisplay);
+                
             }
             catch (Exception ex)
             {
@@ -843,6 +847,71 @@ namespace TheTechIdea.Beep.Desktop.Common
             return addin;
             //beepWaitForm.GetType().GetField("")
         }
+        private async void ShowPopup(IDM_Addin view)
+        {
+            try
+            {
+
+
+                if (view is Form form)
+                {
+
+                    if (!form.IsDisposed)
+                    {
+                        
+                        form.Shown += (s, e) =>
+                        {
+                            Theme = Theme;
+                            
+                        };
+                        // Ensure this runs on the UI thread
+                        if (form.InvokeRequired)
+                        {
+                            form.Invoke(new Action(() =>
+                            {
+                                form.StartPosition = FormStartPosition.CenterScreen;
+                                
+                                form.ShowDialog();
+                            }));
+                        }
+                        else
+                        {
+                            form.StartPosition = FormStartPosition.CenterScreen;
+                          
+                            form.ShowDialog();
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("The form is disposed and cannot be shown.");
+                    }
+                }
+                else if (view is Control control)
+                {
+                    var popupForm = new Form
+                    {
+                        StartPosition = FormStartPosition.CenterScreen,
+                        AutoSize = true
+                    };
+
+                    popupForm.Controls.Add(control);
+                    control.Dock = DockStyle.Fill;
+
+                    // Ensure the dialog is shown on the UI thread
+                    popupForm.ShowDialog();
+                }
+                else
+                {
+                    throw new InvalidOperationException("The provided view is not a valid Form or Control.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                DMEEditor.AddLogMessage("Beep", $"Error in ShowPopup: {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+        }
+       
         #endregion "Sync Methods"
         #region "Async Methods"
         public Task<IErrorsInfo> NavigateBackAsync()

@@ -176,13 +176,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                         return;
                     }
                 Debug.WriteLine("started");
-                    messege.BeginInvoke(new Action(() =>
-                    {
-                        messege.AppendText(text + Environment.NewLine);
-                        messege.SelectionStart = messege.Text.Length;
-                        messege.ScrollToCaret();
-                        messege.Refresh(); // Force redraw
-                   }));
+                InvokeAction(messege, () => {
+                    messege.AppendText(text + Environment.NewLine);
+                    messege.SelectionStart = messege.Text.Length;
+                    messege.ScrollToCaret();
+                    //messege.Refresh(); // Force redraw
+                });
+                //messege.BeginInvoke(new Action(() =>
+                //    {
+                //        messege.AppendText(text + Environment.NewLine);
+                //        messege.SelectionStart = messege.Text.Length;
+                //        messege.ScrollToCaret();
+                //        messege.Refresh(); // Force redraw
+                //   }));
                 Debug.WriteLine("finshed ");
                     //messege.AppendText(text + Environment.NewLine);
                     //messege.SelectionStart = messege.Text.Length;
@@ -217,11 +223,16 @@ namespace TheTechIdea.Beep.Winform.Controls
              base.ApplyTheme();
             if (_spinnerImage == null) return;
             _spinnerImage.ApplyThemeOnImage = true;
-            _spinnerImage.Theme = Theme;
+           // _spinnerImage.Theme = Theme;
             BackColor = _currentTheme.BackColor;
             ForeColor = _currentTheme.LatestForColor;
-            messege.Theme = Theme;
-            Title.Theme = Theme;
+            //messege.Theme = Theme;
+            //Title.Theme = Theme;
+            InvokeAction(Title, () => Title.Theme = Theme);
+            InvokeAction(messege, () => messege.Theme = Theme);
+            InvokeAction(_spinnerImage, () => _spinnerImage.Theme = Theme);
+            InvokeAction(LogopictureBox, () => LogopictureBox.Theme = Theme);
+
 
 
 

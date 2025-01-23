@@ -8,10 +8,11 @@ using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Winform.Controls.Managers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public partial class BeepiForm : Form,IBeepUIComponent
+    public partial class BeepiForm : Form
     {
         #region "Fields"
         protected int _resizeMargin = 5; // Margin for resizing
@@ -43,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         [Description("The radius of the form's border.")]
         [DefaultValue(3)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int BorderThickness
         {
             get { return _borderThickness; }
@@ -62,15 +63,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         [Browsable(true)]
         [TypeConverter(typeof(ThemeConverter))]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public EnumBeepThemes Theme
         {
             get => _themeEnum;
             set
             {
-                _themeEnum = value;
-                _currentTheme = BeepThemesManager.GetTheme(value);
-               // beepuiManager1.Theme = value;
-                ApplyTheme();
+                if (value != _themeEnum)
+                {
+                    _themeEnum = value;
+                    _currentTheme = BeepThemesManager.GetTheme(value);
+                    beepuiManager1.Theme = value;
+                    ApplyTheme();
+                }
             }
         }
         [Browsable(true)]
@@ -100,6 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
             //      Margin = new Padding(_resizeMargin);
             InitializeForm();
+
            
         }
         public BeepiForm()
@@ -146,13 +152,37 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Apply border and custom form styles
             FormBorderStyle = FormBorderStyle.None;
             this.Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
-          //  beepuiManager1 = new Managers.BeepFormUIManager(this.components);
-            //  Margin = new Padding(5);
-            // Apply initial theme\
-               beepuiManager1.Initialize(this);
-                beepuiManager1.Theme = BeepThemesManager.CurrentTheme;
-            ApplyTheme();
+                                                          //  beepuiManager1 = new Managers.BeepFormUIManager(this.components);
+                                                          //  Margin = new Padding(5);
+                                                          // Apply initial theme\
+
+                beepuiManager1?.Initialize(this); // Explicitly initialize the manager with the form
+
+                Theme = BeepThemesManager.CurrentTheme;
+                beepuiManager1.Theme = Theme;
+                        BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
+    //        ApplyTheme();
         }
+
+        private void BeepThemesManager_ThemeChanged(object? sender, ThemeChangeEventsArgs e)
+        {
+            Theme = e.NewTheme;
+        }
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+
+
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => Theme = BeepThemesManager.CurrentTheme));
+            }
+            else
+            {
+                Theme = BeepThemesManager.CurrentTheme;
+            }
+        }
+
         #endregion "Layout Events"
         #region Window Resizing
         protected override void OnMouseDown(MouseEventArgs e)
@@ -250,12 +280,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
           
             
-           // beepuiManager1.Theme = Theme;
+     //       beepuiManager1.Theme = Theme;
             //  BeepTheme theme = BeepThemesManager.GetTheme(beepuiManager1.Theme);
             BackColor = _currentTheme.BackColor;
             //beepPanel1.Theme = beepuiManager1.Theme;
             BorderColor = _currentTheme.BorderColor;
-         
+          
             Invalidate();
         }
         #endregion
@@ -456,17 +486,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        public string ComponentName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public IBeepUIComponent Form { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string GuidID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string BlockID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string FieldID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public int Id { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string[] Items { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string BoundProperty { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string DataSourceProperty { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string LinkedProperty { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public DbFieldCategory Category { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public override Size GetPreferredSize(Size proposedSize)
         {
@@ -482,75 +501,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();
 
-        public void ApplyTheme(EnumBeepThemes theme)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ApplyTheme(BeepTheme theme)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Size GetSize()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ShowToolTip(string text)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void HideToolTip()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool ValidateData(out string messege)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RefreshBinding()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetValue(object value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public object GetValue()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ClearValue()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool HasFilterValue()
-        {
-            throw new NotImplementedException();
-        }
-
-        public AppFilter ToFilter()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Draw(Graphics graphics, Rectangle rectangle)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetBinding(string controlProperty, string dataSourceProperty)
-        {
-            throw new NotImplementedException();
-        }
+     
         #endregion
     }
 }

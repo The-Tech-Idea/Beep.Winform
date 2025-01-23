@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Autofac;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using TheTechIdea.Beep.Addin;
@@ -15,6 +16,7 @@ namespace TheTechIdea.Beep.Desktop.Common
     public class AppManager : IAppManager
     {
         #region "Variables"
+        private readonly IComponentContext _autofacContext; // Autofac container
         private readonly IServiceProvider servicelocator;
         private readonly IBeepService beepservices;
 
@@ -30,6 +32,17 @@ namespace TheTechIdea.Beep.Desktop.Common
             DMEEditor = beepservices.DMEEditor;
             init();
 
+        }
+        // Constructor for Autofac
+        public AppManager(IComponentContext autofacContext)
+        {
+            _autofacContext = autofacContext; // Autofac container
+
+            // Resolve dependencies using Autofac
+            beepservices = _autofacContext.Resolve<IBeepService>();
+            RoutingManager = _autofacContext.Resolve<IRoutingManager>();
+            DMEEditor = beepservices.DMEEditor;
+            init();
         }
         public void init()
         {
@@ -175,7 +188,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public async Task<IErrorsInfo> LoadAssemblies(string[] namespacestoinclude)
         {
             try
-            { //    visManager.SetMainDisplay("Form1", "Beep - The Data Plaform", "SimpleODM.ico", "", "", "");
+            { //    AppManager.SetMainDisplay("Form1", "Beep - The Data Plaform", "SimpleODM.ico", "", "", "");
                 PassedArgs p = new PassedArgs();
                 p.Messege = "Loading DLL's";
                 // Config Wait Form

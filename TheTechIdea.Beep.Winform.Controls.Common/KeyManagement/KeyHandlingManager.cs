@@ -110,12 +110,13 @@ namespace TheTechIdea.Beep.Desktop.Common.KeyManagement
 
         public event EventHandler<BeepEventDataArgs> KeyPressed;
 
-        public KeyHandlingManager(IServiceProvider service)
+        public KeyHandlingManager(IBeepService service)
         {
-            servicelocator = service;
-            beepservices = (IBeepService)service.GetService(typeof(IBeepService));
+
+            beepservices = service; // (IBeepService)service.GetService(typeof(IBeepService));
             Editor = beepservices.DMEEditor;
             RegisterGlobalKeyHandler();
+            
         }
 
         public KeyMapStorage KeyMapStorage { get ; set ; }
@@ -167,7 +168,8 @@ namespace TheTechIdea.Beep.Desktop.Common.KeyManagement
         public void RegisterGlobalKeyHandler()
         {
             //Registering global key handler
-            ProjectHelper.Createfolder("keyconfig");
+          string path=  ProjectHelper.Createfolder("keyconfig");
+            KeyMapStorage = new KeyMapStorage(path);
             LoadKeyMap();
             GlobalKeyHandler = new GlobalKeyHandler();
             Application.AddMessageFilter(GlobalKeyHandler);

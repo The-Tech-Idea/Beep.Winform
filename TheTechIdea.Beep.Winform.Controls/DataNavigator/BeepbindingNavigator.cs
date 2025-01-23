@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         public EntityStructure EntityStructure { get ; set ; }
         public string EntityName { get ; set ; }
         public IPassedArgs Passedarg { get ; set ; }
-       // VisManager visManager;
+       // VisManager AppManager;
        // ImportDataManager importDataManager;
         public  BindingSource bindingSource { get; set; }
         public bool VerifyDelete { get; set; } = true;
@@ -86,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
 
             //if (e.Objects.Where(c => c.Name == "VISUTIL").Any())
             //{
-            //    visManager = (VisManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+            //    AppManager = (VisManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
             //}
             //if (e.Objects.Where(c => c.Name == "ImportDataManager").Any())
             //{

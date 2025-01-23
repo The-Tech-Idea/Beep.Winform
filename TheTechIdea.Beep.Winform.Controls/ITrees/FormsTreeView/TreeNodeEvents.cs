@@ -24,7 +24,7 @@
 //            treeControl = ptreeControl;
 //            StandardTree = ptreeControl;
 //            Treecontrol = ptreeControl;
-//            visManager = Treecontrol.VisManager;
+//            AppManager = Treecontrol.VisManager;
 //            TreeV = Treecontrol.TreeV;
 //            TreeV.AllowDrop = true;
 //            TreeV.NodeMouseClick += TreeView1_NodeMouseClick;
@@ -39,7 +39,7 @@
 //        public TreeViewControl treeControl { get; set; }
 //        private ITree StandardTree { get; set; }
 //        private TreeViewControl Treecontrol { get; set; }
-//        private IAppManager visManager { get; set; }
+//        private IAppManager AppManager { get; set; }
 //        public System.Windows.Forms.TreeView TreeV { get; set; }
 //        private bool IsSelecting = false;
 

@@ -7,6 +7,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using TheTechIdea.Beep.Desktop.Common.KeyManagement;
 using TheTechIdea.Beep.ConfigUtil;
+using Microsoft.Extensions.Hosting;
+using System;
+using TheTechIdea.Beep.Container;
+using TheTechIdea.Beep.Utilities;
 
 
 
@@ -15,7 +19,11 @@ namespace TheTechIdea.Beep.Desktop.Common
     public static class BeepServicesRegister
     {
         private static IServiceCollection Services;
-  
+        public static IServiceProvider Provider;
+        public static IBeepService beepService { get; private set; }
+        public static IAppManager AppManager { get; private set; }
+        public static IKeyHandlingManager keyhandler { get; private set; }
+
         public static IServiceCollection RegisterRouter(this IServiceCollection services)
         {
             Services = services;
@@ -35,15 +43,14 @@ namespace TheTechIdea.Beep.Desktop.Common
             {
                 configure(appManager); // Configure the AppManager instance
             }
-
+            Provider= serviceProvider;
             return serviceProvider;
         }
-        public static IServiceProvider ShowHome(this IServiceProvider serviceProvider)
+        public static void ShowHome()
         {
-            var appManager = serviceProvider.GetRequiredService<IAppManager>() as AppManager;
-           appManager.ShowHome();
 
-            return serviceProvider;
+            AppManager.ShowHome();
+
         }
         public static IServiceCollection RegisterKeyHandler(this IServiceCollection services)
         {
@@ -184,6 +191,50 @@ namespace TheTechIdea.Beep.Desktop.Common
 
             return Services;
         }
+        /// <summary>
+        ///  Register Services
+        /// </summary>
+        /// <param name="builder"></param>
+        public static void RegisterServices(HostApplicationBuilder builder)
+        {
+            // Register beep services
+            builder.Services.RegisterBeep(AppContext.BaseDirectory, null, BeepConfigType.Application, true);
+            builder.Services.RegisterRouter();
+            builder.Services.RegisterKeyHandler();
+            builder.Services.RegisterViewModels();
+            builder.Services.RegisterViews();
+            builder.Services.RegisterAppManager();
+            // Add additional service registrations here
+        }
+        /// <summary>
+        /// Initialize and Configure Services
+        /// </summary>
+        /// <param name="host"></param>
+        public static void ConfigureServices(IHost host)
+        {
+            Provider = host.Services;
+           
+            // Extracted service retrieval and initial configuration into a separate method
+            beepService = host.Services.GetService<IBeepService>()!;
+            AppManager = host.Services.GetService<IAppManager>()!;
+            keyhandler = host.Services.GetService<IKeyHandlingManager>()!;
+            // Assuming these method calls setup and configure the services as necessary
+            //Connect Winform Visula Manager to My Beep Service
+            //if Web or other UI use the appropriate VisManager
 
+            // SetupVisManager();
+        }
+        /// <summary>
+        /// Dispose Services
+        /// </summary>
+        /// <param name="services"></param>
+        public static void DisposeServices(IServiceProvider services)
+        {
+            keyhandler.UnregisterGlobalKeyHandler();
+            AppManager.Dispose();
+            beepService.DMEEditor.Dispose();
+            beepService?.Dispose();
+            // Add additional dispose logic as necessary
+        }
     }
 }

@@ -67,7 +67,7 @@ namespace Beep.Winform.Vis.ETL.CopyEntityandData
 
         //    if (e.Objects.Where(c => c.Name == "VISUTIL").Any())
         //    {
-        //        visManager = (IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+        //        AppManager = (IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
         //    }
 
         //    this.dataConnectionsBindingSource.DataSource = DMEEditor.ConfigEditor.DataConnections;

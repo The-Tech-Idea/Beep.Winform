@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Desktop.Common
 
             return hasUnitOfWorkProperty || hasUnitOfWorkField;
         }
-        public static void Createfolder(string foldername)
+        public static string Createfolder(string foldername)
         {
 
             if (!Directory.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "TheTechIdea", "Beep")))
@@ -113,6 +113,7 @@ namespace TheTechIdea.Beep.Desktop.Common
 
                 }
             }
+            return Path.Combine(BeepDataPath, foldername);
         }
 
     }

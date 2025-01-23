@@ -31,10 +31,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public IDMEEditor Editor { get; }
 
 
-        public Form1(IServiceProvider serviceProvider) : base()
+        public Form1(IBeepService service) : base()
         {
             InitializeComponent();
-            beepService = serviceProvider.GetService<IBeepService>();
+            beepService = service; // serviceProvider.GetService<IBeepService>();
             Dependencies.DMEEditor= beepService.DMEEditor;
             MethodHandler.DMEEditor = beepService.DMEEditor;
             beepTreeControl1.init(beepService);

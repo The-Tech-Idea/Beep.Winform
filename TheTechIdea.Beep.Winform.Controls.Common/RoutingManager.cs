@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Autofac;
+using Microsoft.Extensions.DependencyInjection;
 using System.Web;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
@@ -11,7 +12,8 @@ namespace TheTechIdea.Beep.Desktop.Common
 {
     public partial class RoutingManager : IRoutingManager
     {
-        private readonly IServiceProvider servicelocator;
+        private readonly IServiceProvider _serviceProvider; // Microsoft DI
+        private readonly IComponentContext _autofacContext; // Autofac container
         private readonly SemaphoreSlim _navigationLock = new SemaphoreSlim(1, 1);
 
         public EnumBeepThemes Theme { get; set; }
@@ -52,9 +54,16 @@ namespace TheTechIdea.Beep.Desktop.Common
         private Func<Type, IDM_Addin>? _customControlCreator;
         public RoutingManager(IServiceProvider service)
         {
-            servicelocator= service;
+            _serviceProvider = service;
             
             Beepservices = (IBeepService)service.GetService(typeof(IBeepService));
+            DMEEditor = Beepservices.DMEEditor;
+        }
+        public RoutingManager(IComponentContext autofacContext)
+        {
+            _autofacContext = autofacContext; // Autofac container
+
+            Beepservices = _autofacContext.Resolve<IBeepService>();
             DMEEditor = Beepservices.DMEEditor;
         }
         // Constructor
@@ -583,28 +592,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         #endregion
 
         #region Routing
-        public IDM_Addin GetAddin(string routeName)
-        {
-            // Create or retrieve the new view
-            IDM_Addin view = _useCustomCreator && _isCustomCreatorSet
-                ? CreateControlUsingCustomCreator(_routes[routeName])
-                : CreateUsingServiceLocator(_routes[routeName]);
-            return view;
-        }
-        public Type FindAddinTypeFromServices(string moduleOrAddinName)
-        {
-            // Retrieve all registered services
-            foreach (var service in servicelocator.GetServices(typeof(IDM_Addin)))
-            {
-                Control addin = (Control)service;
-                if (addin.Name.Contains(moduleOrAddinName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return service.GetType();
-                }
-            }
-
-            return null;
-        }
+     
         public void RegisterRouteByName(string routeName, string moduleOrAddinName, RouteGuard guard = null)
         {
             if (string.IsNullOrWhiteSpace(routeName))
@@ -678,10 +666,73 @@ namespace TheTechIdea.Beep.Desktop.Common
         #endregion
 
         #region View Creation
+        public IDM_Addin GetAddin(string routeName)
+        {
+            // Create or retrieve the new view
+            IDM_Addin view = _useCustomCreator && _isCustomCreatorSet
+                ? CreateControlUsingCustomCreator(_routes[routeName])
+                : ResolveAddin(_routes[routeName]);
+            return view;
+        }
+        private IDM_Addin ResolveAddin(Type viewType)
+        {
+            if (_autofacContext != null)
+            {
+                // Use Autofac to resolve the view
+                return _autofacContext.ResolveKeyed<IDM_Addin>(viewType.Name); // Resolve by type name
+            }
+            else if (_serviceProvider != null)
+            {
+                // Use Microsoft DI to resolve the view
+                return CreateUsingServiceLocator(viewType);
+            }
+            throw new InvalidOperationException("No dependency injection container is available.");
+        }
+        public Type FindAddinTypeFromServices(string moduleOrAddinName)
+        {
+            if (_autofacContext != null)
+            {
+                try
+                {
+                    // Resolve the IDM_Addin by key (type name)
+                    var addin = _autofacContext.ResolveKeyed<IDM_Addin>(moduleOrAddinName);
+
+                    if (addin != null)
+                    {
+                        return addin.GetType();
+                    }
+                }
+                catch (Autofac.Core.Registration.ComponentNotRegisteredException)
+                {
+                    // Handle the case where the key is not registered
+                    Console.WriteLine($"Addin with key '{moduleOrAddinName}' is not registered.");
+                }
+                catch (Exception ex)
+                {
+                    // Handle other exceptions
+                    Console.WriteLine($"Error resolving addin: {ex.Message}");
+                }
+            }
+            else if (_serviceProvider != null)
+            {
+                // Retrieve all registered services
+                foreach (var service in _serviceProvider.GetServices(typeof(IDM_Addin)))
+                {
+                    Control addin = (Control)service;
+                    if (addin.Name.Contains(moduleOrAddinName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return service.GetType();
+                    }
+                }
+            }
+           
+
+            return null;
+        }
         private IDM_Addin CreateUsingServiceLocator(Type viewType)
         {
             // Retrieve all registered services of type IDM_Addin
-            var services = servicelocator.GetServices(typeof(IDM_Addin));
+            var services = _serviceProvider.GetServices(typeof(IDM_Addin));
             if (services == null)
                 throw new InvalidOperationException("No add-ins are registered in the service locator.");
 
@@ -720,14 +771,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
 
         #endregion
-        private void ShowPopupForm(Form form)
-        {
-            form.StartPosition = FormStartPosition.CenterParent;
-            form.Activate();
-            form.Focus();
-            form.ShowDialog();
-        }
-
+      
     }
 
 

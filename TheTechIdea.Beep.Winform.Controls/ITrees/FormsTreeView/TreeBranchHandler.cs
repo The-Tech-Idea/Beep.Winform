@@ -17,7 +17,7 @@
 //        {
 //            DMEEditor = pDMEEditor;
 //            StandardTree = ptreeControl;
-//            visManager = StandardTree.VisManager;
+//            AppManager = StandardTree.VisManager;
 //            Treecontrol = treecontrol;
 //            TreeV = treecontrol.TreeV;
 //            CreateDelagates();
@@ -27,7 +27,7 @@
 //        private TreeViewControl Treecontrol { get; set; }
 //        public IDMEEditor DMEEditor { get; set; }
 //        private ITree StandardTree { get; set; }
-//        private IAppManager visManager { get; set; }
+//        private IAppManager AppManager { get; set; }
 //        #region "Branch Handling"
 //        public IErrorsInfo CreateBranch(IBranch Branch)
 //        {
@@ -45,10 +45,10 @@
 //                TreeNode p = Treecontrol.GetTreeNodeByID(ParentBranch.BranchID, TreeV.Nodes);
 
 //                TreeNode n = p.Nodes.Add(Branch.BranchText);
-//                int imgidx = visManager.visHelper.GetImageIndex(Branch.IconImageName);
+//                int imgidx = AppManager.visHelper.GetImageIndex(Branch.IconImageName);
 //                if (imgidx == -1)
 //                {
-//                    imgidx = visManager.visHelper.GetImageIndexFromConnectioName(Branch.BranchText);
+//                    imgidx = AppManager.visHelper.GetImageIndexFromConnectioName(Branch.BranchText);
 //                }
 //                if (imgidx == -1)
 //                {
@@ -64,7 +64,7 @@
 //                }
 
 //                Branch.TreeEditor = StandardTree;
-//                Branch.Visutil = visManager;
+//                Branch.Visutil = AppManager;
 //                n.Tag = Branch;
 //                n.Name = Branch.ID.ToString();
 //                Console.WriteLine(Branch.BranchText);
@@ -141,7 +141,7 @@
 //                    }
 
 //                }
-//                if (visManager.TreeExpand)
+//                if (AppManager.TreeExpand)
 //                {
 //                    p.ExpandAll();
 //                }

@@ -130,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers.Wizards
                 _SelectedIndex = node.Index;
                 HilightPanel.Top = node.Wizardbutton.Top;
             }
-            // visManager.ShowPage(ctl.Name, (PassedArgs)DMEEditor.Passedarguments, DisplayType.InControl);
+            // AppManager.ShowPage(ctl.Name, (PassedArgs)DMEEditor.Passedarguments, DisplayType.InControl);
             DisplayPanel.SendToBack();
           
             return retval;

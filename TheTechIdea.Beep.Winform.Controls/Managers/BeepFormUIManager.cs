@@ -179,6 +179,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         private BeepMenuBar _beepMenuBar;
         [Browsable(true)]
         [Category("Appearance")]
+        private BeepFunctionsPanel beepFunctionsPanel1;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public BeepFunctionsPanel BeepFunctionsPanel
+        {
+            get => beepFunctionsPanel1;
+            set => beepFunctionsPanel1 = value;
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
         public BeepMenuBar BeepMenuBar
         {
             get => _beepMenuBar;
@@ -249,14 +259,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 ApplyThemeToAllBeepControls(_form); // Apply to all existing controls recursively
             }
         }
-        private BeepFunctionsPanel beepFunctionsPanel1;
-        [Browsable(true)]
-        [Category("Appearance")]
-        public BeepFunctionsPanel BeepFunctionsPanel
-        {
-            get => beepFunctionsPanel1;
-            set => beepFunctionsPanel1 = value;
-        }
+      
         #endregion "Properties"
         #region "Constructors"
         public BeepFormUIManager(IContainer container)

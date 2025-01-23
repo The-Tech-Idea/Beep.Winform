@@ -112,6 +112,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepButton CurrenItemButton { get { return _beepListBox.CurrenItemButton; } private set { } }
         #endregion "Popup List Properties"
+        public BeepPopupListForm()
+        {
+            InitializeComponent();
+
+        }
         public BeepPopupListForm(List<SimpleItem> items)
         {
             InitializeComponent();

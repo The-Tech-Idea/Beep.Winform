@@ -1,8 +1,12 @@
 ﻿using Newtonsoft.Json.Linq;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
@@ -12,7 +16,7 @@ using TheTechIdea.Beep.Winform.Controls.Managers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public partial class BeepiForm : Form
+    public partial class BeepiForm : Form,IDM_Addin
     {
         #region "Fields"
         protected int _resizeMargin = 5; // Margin for resizing
@@ -31,12 +35,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool ishandled = false;
         private bool _inpopupmode = false;
 
-        public IContainer Components => components;
+      
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
         protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
 
-        public event EventHandler<BeepComponentEventArgs> PropertyChanged;
-        public event EventHandler<BeepComponentEventArgs> PropertyValidate;
+     
+       
         #endregion "Fields"
         #region "Properties"
 
@@ -104,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             FormBorderStyle = FormBorderStyle.None;
             //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
             //      Margin = new Padding(_resizeMargin);
-            InitializeForm();
+            Initialize();
 
            
         }
@@ -118,9 +122,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             // Apply border and custom form styles
             FormBorderStyle = FormBorderStyle.None;
-          //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
-          //      Margin = new Padding(_resizeMargin);
-            InitializeForm();
+            //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
+            //      Margin = new Padding(_resizeMargin);
+            Initialize();
         }
         #region "Layout Events"
         protected override void OnControlAdded(ControlEventArgs e)
@@ -139,30 +143,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnHandleCreated(e);
             if (!ishandled)
             {
-                InitializeForm();
+                Initialize();
                 ishandled = true;
              
             }
         }
-        private void InitializeForm()
-        {
-            if (ishandled) return;
-            ishandled = true;
-
-            // Apply border and custom form styles
-            FormBorderStyle = FormBorderStyle.None;
-            this.Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
-                                                          //  beepuiManager1 = new Managers.BeepFormUIManager(this.components);
-                                                          //  Margin = new Padding(5);
-                                                          // Apply initial theme\
-
-                beepuiManager1?.Initialize(this); // Explicitly initialize the manager with the form
-
-                Theme = BeepThemesManager.CurrentTheme;
-                beepuiManager1.Theme = Theme;
-                        BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
-    //        ApplyTheme();
-        }
+       
 
         private void BeepThemesManager_ThemeChanged(object? sender, ThemeChangeEventsArgs e)
         {
@@ -486,7 +472,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-
         public override Size GetPreferredSize(Size proposedSize)
         {
             // Ensure the adjusted size respects minimum size constraints
@@ -501,7 +486,108 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();
 
-     
+
+
+
         #endregion
+        #region "IDM_Addin"
+        public event EventHandler OnStart;
+        public event EventHandler OnStop;
+        public event EventHandler<ErrorEventArgs> OnError;
+        public AddinDetails Details { get; set; } = new AddinDetails();
+        public Dependencies Dependencies { get; set; }=new Dependencies();
+        public string GuidID { get; set; }
+
+        public virtual void Initialize()
+        {
+            if (ishandled) return;
+            ishandled = true;
+            GuidID = Guid.NewGuid().ToString();
+            // Apply border and custom form styles
+            FormBorderStyle = FormBorderStyle.None;
+            this.Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
+                                                          //  beepuiManager1 = new Managers.BeepFormUIManager(this.components);
+                                                          //  Margin = new Padding(5);
+                                                          // Apply initial theme\
+
+            beepuiManager1?.Initialize(this); // Explicitly initialize the manager with the form
+
+            Theme = BeepThemesManager.CurrentTheme;
+            beepuiManager1.Theme = Theme;
+            BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
+
+        }
+
+        public virtual void Suspend()
+        {
+             
+        }
+
+        public virtual void Resume()
+        {
+             
+        }
+
+        public virtual string GetErrorDetails()
+        {
+             return "";
+        }
+
+        public void Run(IPassedArgs pPassedarg)
+        {
+             
+        }
+
+        public virtual void Run(params object[] args)
+        {
+             
+        }
+
+        public virtual  Task<IErrorsInfo> RunAsync(IPassedArgs pPassedarg)
+        {
+            try
+            {
+                // use the view router to navigate back
+              
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+               Dependencies.DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return Task.FromResult(Dependencies.DMEEditor.ErrorObject);
+        }
+
+        public virtual Task<IErrorsInfo> RunAsync(params object[] args)
+        {
+            try
+            {
+                // use the view router to navigate back
+               
+            }
+            catch (Exception ex)
+            {
+                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
+                Dependencies.DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
+            return Task.FromResult(Dependencies.DMEEditor.ErrorObject);
+
+        }
+
+        public virtual void Configure(Dictionary<string, object> settings)
+        {
+             
+        }
+
+        public virtual void OnNavigatedTo(Dictionary<string, object> parameters)
+        {
+             
+        }
+
+        public virtual void SetError(string message)
+        {
+             
+        }
+        #endregion "IDM_Addin"
     }
 }

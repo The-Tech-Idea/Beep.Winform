@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Text = TitleText,
                 Tag = control,
-                BackColor = _currentTheme.PanelBackColor
+                //BackColor = _currentTheme.PanelBackColor
             };
 
             // Add control to the TabPage

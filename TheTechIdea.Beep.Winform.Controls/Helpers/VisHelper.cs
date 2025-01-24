@@ -11,13 +11,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         {
             
         }
-        public VisHelper(IDMEEditor editor, IAppManager vismanager)
+        public VisHelper(IDMEEditor editor, Vis.Modules.IAppManager vismanager)
         {
             DMEEditor = editor;
             Vismanager = vismanager;
         }
         public IDMEEditor DMEEditor { get  ; set  ; }
-        public IAppManager Vismanager { get  ; set  ; }
+        public Vis.Modules.IAppManager Vismanager { get  ; set  ; }
         public List<ImageConfiguration> ImgAssemblies { get  ; set  ; }
         public object LogoBigImage { get  ; set  ; }
         public object LogoSmallImage { get  ; set  ; }

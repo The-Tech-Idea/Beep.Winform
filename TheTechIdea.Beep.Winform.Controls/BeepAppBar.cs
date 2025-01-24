@@ -370,7 +370,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = this.Theme,
                 Text = string.Empty,
 
-                IsChild = true,
+                IsChild = false,
                 PlaceholderText = "Search...",
                // ApplyThemeOnImage = _applyThemeOnImage,
                 IsFramless = true,
@@ -589,8 +589,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (tag == "Profile")
             {
                 // Handle profile button click
-                arg.SelectedItem = (sender as BeepButton).SelectedItem;
-                arg.Selectedstring = (sender as BeepButton).SelectedItem.Text;
+                if((sender as BeepButton).SelectedItem != null)
+                {
+                    arg.SelectedItem = (sender as BeepButton).SelectedItem;
+                    arg.Selectedstring = (sender as BeepButton).SelectedItem.Text;
+                }
+           
             }
             if(tag== "SearchButton")
             {

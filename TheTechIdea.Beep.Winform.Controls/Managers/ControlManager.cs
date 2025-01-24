@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 {
     public   class ControlManager : IControlManager
     {
-        public   ControlManager(IDMEEditor pdmeeditor, IAppManager pVismanager)
+        public   ControlManager(IDMEEditor pdmeeditor, Vis.Modules.IAppManager pVismanager)
         {
             DMEEditor = pdmeeditor;
             Vismanager = pVismanager;
@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public virtual  event EventHandler<IPassedArgs> PreCallModule;
         public virtual  event EventHandler<IPassedArgs> PreShowItem;
         public virtual  IDMEEditor DMEEditor { get; set; }
-        public virtual  IAppManager Vismanager { get; set; }
+        public virtual Vis.Modules.IAppManager Vismanager { get; set; }
         //private VisManager vismanager { get; set; }
         public virtual  Control DisplayPanel { get; set; }
         public virtual  Control CrudFilterPanel { get; set; }

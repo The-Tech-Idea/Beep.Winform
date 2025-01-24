@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
         public string EntityName { get; set; }
         public IPassedArgs Passedarg { get; set; }
         public IUtil util { get; set; }
-        public IAppManager Visutil { get; set; }
+        public Vis.Modules.IAppManager Visutil { get; set; }
         public ITree Tree { get; set; }
         public IDMEEditor DMEEditor { get; set; }
         public IBranch pbr { get; set; }
@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
         public virtual void SetConfig(IDMEEditor pbl, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
         {
             Passedarg = e;
-            Visutil = (IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+            Visutil = (Vis.Modules.IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
             Logger = plogger;
             DMEEditor = pbl;
             ErrorObject = per;

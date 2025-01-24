@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
 
 
         private FunctionandExtensionsHelpers ExtensionsHelpers;
-        public HorizantalFunctions(IDMEEditor pdMEEditor, IAppManager pvisManager, ITree ptreeControl)
+        public HorizantalFunctions(IDMEEditor pdMEEditor, Vis.Modules.IAppManager pvisManager, ITree ptreeControl)
         {
             DMEEditor = pdMEEditor;
 

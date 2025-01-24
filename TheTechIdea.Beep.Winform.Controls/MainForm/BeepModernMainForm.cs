@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MainForm
         public EntityStructure EntityStructure { get; set; }
         public string EntityName { get; set; }
         public IPassedArgs Passedarg { get; set; }
-        public IAppManager Visutil { get; set; }
+        public Vis.Modules.IAppManager Visutil { get; set; }
         public ITree Tree { get; set; }
 
         public IBranch pbr { get; set; }
@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MainForm
         public IDM_Addin EntityListContainer { get  ; set  ; }
         public object CurrentObjectEntity { get  ; set  ; }
         public EntityStructure CurrentEntityStructure { get  ; set  ; }
-        public IAppManager VisManager { get  ; set  ; }
+        public Vis.Modules.IAppManager VisManager { get  ; set  ; }
 
         public virtual void Run(IPassedArgs pPassedarg)
         {
@@ -158,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MainForm
         public virtual void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
         {
             Passedarg = e;
-            Visutil = (IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
+            Visutil = (Vis.Modules.IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
             Logger = plogger;
             DMEEditor = pDMEEditor;
             ErrorObject = per;

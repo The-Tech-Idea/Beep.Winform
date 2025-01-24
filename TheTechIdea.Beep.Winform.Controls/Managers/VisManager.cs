@@ -17,7 +17,7 @@ using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Managers
 {
-    public partial class VisManager : IAppManager
+    public partial class VisManager : Vis.Modules.IAppManager
     {
         //public VisManager(IDMEEditor editor)
         //{
@@ -1384,17 +1384,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             throw new NotImplementedException();
         }
 
-        IErrorsInfo IAppManager.NavigateBack()
+        IErrorsInfo Vis.Modules.IAppManager.NavigateBack()
         {
             throw new NotImplementedException();
         }
 
-        IErrorsInfo IAppManager.NavigateForward()
+        IErrorsInfo Vis.Modules.IAppManager.NavigateForward()
         {
             throw new NotImplementedException();
         }
 
-        IErrorsInfo IAppManager.NavigateTo(string routeName, Dictionary<string, object> parameters)
+        IErrorsInfo Vis.Modules.IAppManager.NavigateTo(string routeName, Dictionary<string, object> parameters)
         {
             throw new NotImplementedException();
         }

@@ -1,147 +1,27 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.Design;
+using System.Drawing.Design;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Windows.Forms.Design;
 using TheTechIdea.Beep.Winform.Controls.Design;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     // A TabControl that hides the default tab headers
-    [System.Security.Permissions.PermissionSet(System.Security.Permissions.SecurityAction.Demand, Name = "FullTrust")]
-    [System.Security.Permissions.PermissionSet(System.Security.Permissions.SecurityAction.InheritanceDemand, Name = "FullTrust")]
-    [Designer(typeof(TabControlWithoutTabsDesigner))]
-    [ToolboxItem(false)]
-    public class TabControlWithoutTabs : TabControl
-    {
-        // Constructor to initialize the control
-        public TabControlWithoutTabs() : base()
-        {
-            AllowDrop = true; // Enable drag-and-drop by default
+   // [Designer(typeof(TabControlWithoutTabsDesigner))]
+   
 
-            // Set the size of the control to match the first TabPage
-            if (TabPages.Count > 0)
-            {
-                Size = TabPages[0].Size;
-            }
-        }
-
-        // Event triggered when TabPages are added or removed
-        public event EventHandler TabPagesChanged;
-
-        // Struct for P/Invoke to hide the tab headers
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
-
-        /// <summary>
-        /// Overrides the default window procedure to hide tab headers.
-        /// </summary>
-        /// <param name="m">The Windows Message being processed.</param>
-        protected override void WndProc(ref Message m)
-        {
-            const int TCM_ADJUSTRECT = 0x1328;
-
-            if (m.Msg == TCM_ADJUSTRECT && !DesignMode)
-            {
-                // Return zero rect to hide the tabs
-                m.Result = IntPtr.Zero;
-                return;
-            }
-
-            base.WndProc(ref m);
-        }
-
-        /// <summary>
-        /// Called when a control (TabPage) is added to the TabControl.
-        /// </summary>
-        protected override void OnControlAdded(ControlEventArgs e)
-        {
-            base.OnControlAdded(e);
-
-            if (e.Control is TabPage tabPage)
-            {
-                // Resize TabControl to match the new TabPage size
-                if (!DesignMode)
-                {
-                    Size = tabPage.Size;
-                }
-            }
-
-            // Trigger the TabPagesChanged event
-            TabPagesChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        /// <summary>
-        /// Called when a control (TabPage) is removed from the TabControl.
-        /// </summary>
-        protected override void OnControlRemoved(ControlEventArgs e)
-        {
-            base.OnControlRemoved(e);
-
-            // Trigger the TabPagesChanged event
-            TabPagesChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        /// <summary>
-        /// Allows drag-and-drop operations on the selected TabPage.
-        /// </summary>
-        protected override void OnDragOver(DragEventArgs drgevent)
-        {
-            base.OnDragOver(drgevent);
-
-            // Only allow drag-and-drop if a TabPage is selected
-            if (SelectedTab != null)
-            {
-                drgevent.Effect = DragDropEffects.Move;
-            }
-            else
-            {
-                drgevent.Effect = DragDropEffects.None;
-            }
-        }
-
-        /// <summary>
-        /// Handles dropping a control onto the selected TabPage.
-        /// </summary>
-        protected override void OnDragDrop(DragEventArgs drgevent)
-        {
-            base.OnDragDrop(drgevent);
-
-            if (SelectedTab != null && drgevent.Data.GetData(typeof(Control)) is Control droppedControl)
-            {
-                // Add the control to the selected TabPage
-                SelectedTab.Controls.Add(droppedControl);
-
-                // Position the control at the drop point
-                Point dropPoint = SelectedTab.PointToClient(new Point(drgevent.X, drgevent.Y));
-                droppedControl.Location = dropPoint;
-            }
-        }
-
-       
-        public event EventHandler<TabPage> TabPageLoading;
-
-        protected override void OnSelectedIndexChanged(EventArgs e)
-        {
-            base.OnSelectedIndexChanged(e);
-
-            if (TabPages[SelectedIndex].Tag == null) // Check if content is not yet loaded
-            {
-                TabPageLoading?.Invoke(this, TabPages[SelectedIndex]);
-                TabPages[SelectedIndex].Tag = "Loaded"; // Mark as loaded
-            }
-        }
-
-    }
-    // We assume Beepbutton, BeepTheme, and related classes are in your namespace.
-    // using TheTechIdea.Beep.Winform.Controls; // Adjust namespace as needed
     [DefaultProperty("TabPages")]
     [ToolboxItem(true)]
     [DisplayName("Beep Tabs")]
     [Category("Beep Controls")]
+ //   [Designer(typeof(BeepTabsDesigner))] // Use ControlDesigner or a custom designer
     public class BeepTabs : BeepControl
     {
         private FlowLayoutPanel _headerPanel;
-        private TabControlWithoutTabs _tabControl;
+        private TabControlWithoutHeader _tabControl;
         private HeaderLocation _headerLocation = HeaderLocation.Top;
         public event EventHandler<TabEventArgs> TabSelected;
         public event EventHandler<TabEventArgs> TabButtonClicked;
@@ -194,14 +74,32 @@ namespace TheTechIdea.Beep.Winform.Controls
         public TabPage SelectedTab
         {
             get => _tabControl.SelectedTab;
-            set => _tabControl.SelectedTab = value;
+            set
+            {
+                if (value != null && _tabControl.TabPages.Contains(value))
+                {
+                    _tabControl.SelectedTab = value;
+                    HighlightButtonAt(_tabControl.TabPages.IndexOf(value)); // Ensure UI reflects the selected tab
+                    OnTabSelected(value, _tabControl.TabPages.IndexOf(value)); // Trigger the event
+                }
+            }
         }
+
 
         public int SelectedIndex
         {
             get => _tabControl.SelectedIndex;
-            set => _tabControl.SelectedIndex = value;
+            set
+            {
+                if (value >= 0 && value < _tabControl.TabPages.Count)
+                {
+                    _tabControl.SelectedIndex = value;
+                    HighlightButtonAt(value); // Update header button highlights
+                    OnTabSelected(_tabControl.TabPages[value], value); // Trigger the event
+                }
+            }
         }
+
 
         public BeepTabs()
         {
@@ -218,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BackColor = SystemColors.Control
             };
 
-            _tabControl = new TabControlWithoutTabs
+            _tabControl = new TabControlWithoutHeader
             {
                 //Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
                 //Bounds = new Rectangle(DrawingRect.Left, _headerPanel.Height+DrawingRect.Top, DrawingRect.Width, DrawingRect.Height - _headerPanel.Height)
@@ -227,17 +125,132 @@ namespace TheTechIdea.Beep.Winform.Controls
             _tabControl.AllowDrop = true;
             // Hook into the TabPagesChanged event
             _tabControl.TabPagesChanged += (s, e) => RefreshHeaders();
-            _tabControl.SelectedIndexChanged += (s, e) =>
-            {
-                HighlightButtonAt(_tabControl.SelectedIndex);
-                OnTabSelected(_tabControl.SelectedTab, _tabControl.SelectedIndex);
-            };
+            _tabControl.SelectedIndexChanged += TabControl_SelectedIndexChanged;
             Controls.Add(_tabControl);
             Controls.Add(_headerPanel);
-
-            this.MinimumSize = new Size(200, 100);
-           
+            this.AllowDrop = true;
+            // Hook into drag-and-drop events
+            this.DragEnter += BeepTabs_DragEnter;
+            this.DragOver += BeepTabs_DragOver;
+            this.DragDrop += BeepTabs_DragDrop;
         }
+        private void TabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Refresh the designer when the selected tab changes
+            var host = this.GetService(typeof(IDesignerHost)) as IDesignerHost;
+            if (host != null)
+            {
+                host.Activate();
+            }
+            HighlightButtonAt(_tabControl.SelectedIndex);
+            OnTabSelected(_tabControl.SelectedTab, _tabControl.SelectedIndex);
+            RefreshSelectedTab();
+        }
+        // Handle DragEnter event
+        // Handle DragEnter event
+        private void BeepTabs_DragEnter(object sender, DragEventArgs e)
+        {
+            // Check if the dragged data is a toolbox item
+            if (IsToolboxItem(e.Data))
+            {
+                e.Effect = DragDropEffects.Copy; // Allow copying the toolbox item
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None; // Disallow other types of data
+            }
+        }
+
+        // Handle DragOver event
+        private void BeepTabs_DragOver(object sender, DragEventArgs e)
+        {
+            // Check if the dragged data is a toolbox item
+            if (IsToolboxItem(e.Data))
+            {
+                e.Effect = DragDropEffects.Copy; // Allow copying the toolbox item
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None; // Disallow other types of data
+            }
+        }
+
+        // Handle DragDrop event
+        private void BeepTabs_DragDrop(object sender, DragEventArgs e)
+        {
+            if (IsToolboxItem(e.Data))
+            {
+                // Get the IDesignerHost service
+                var designerHost = this.GetService(typeof(IDesignerHost)) as IDesignerHost;
+                if (designerHost == null)
+                {
+                    Console.WriteLine("Designer host is null. Cannot create component.");
+                    return;
+                }
+
+                // Get the ToolboxItem from the dragged data
+                var toolboxItem = GetToolboxItem(e.Data);
+                if (toolboxItem == null)
+                {
+                    Console.WriteLine("ToolboxItem is null. Cannot create component.");
+                    return;
+                }
+
+                // Create the components from the ToolboxItem
+                var components = toolboxItem.CreateComponents();
+                if (components == null || components.Count() == 0)
+                {
+                    Console.WriteLine("No components created from ToolboxItem.");
+                    return;
+                }
+
+                // Find the first Control in the created components
+                var control = components.OfType<Control>().FirstOrDefault();
+                if (control == null)
+                {
+                    Console.WriteLine("No Control component created from ToolboxItem.");
+                    return;
+                }
+
+                Console.WriteLine("Control created successfully");
+
+                // Add the control to the selected TabPage
+                if (_tabControl.SelectedTab != null)
+                {
+                    _tabControl.SelectedTab.Controls.Add(control);
+
+                    // Position the control at the drop point
+                    Point dropPoint = _tabControl.SelectedTab.PointToClient(new Point(e.X, e.Y));
+                    control.Location = dropPoint;
+
+                    Console.WriteLine("Control added to TabPage");
+                }
+            }
+        }
+
+        // Check if the dragged data is a toolbox item
+        private bool IsToolboxItem(IDataObject data)
+        {
+            // Check for the ToolboxItem format
+            return data.GetDataPresent(typeof(ToolboxItem)) || data.GetDataPresent("CF_TOOLBOXITEM");
+        }
+
+        // Get the toolbox item from the dragged data
+        private ToolboxItem GetToolboxItem(IDataObject data)
+        {
+            if (data.GetDataPresent(typeof(ToolboxItem)))
+            {
+                return data.GetData(typeof(ToolboxItem)) as ToolboxItem;
+            }
+            else if (data.GetDataPresent("CF_TOOLBOXITEM"))
+            {
+                return data.GetData("CF_TOOLBOXITEM") as ToolboxItem;
+            }
+            return null;
+        }
+
+
+
         // Triggered when a tab is selected
         protected virtual void OnTabSelected(TabPage selectedTab, int selectedIndex)
         {
@@ -283,6 +296,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
         }
+        private void RefreshSelectedTab()
+{
+    HighlightButtonAt(_tabControl.SelectedIndex);
+    _headerPanel.Invalidate(); // Redraw headers
+    _tabControl.Invalidate(); // Redraw tab content
+}
 
         protected override void OnHandleCreated(EventArgs e)
         {

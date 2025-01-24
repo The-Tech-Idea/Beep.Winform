@@ -534,6 +534,36 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public new bool IsChild
+        {
+            get => _isChild;
+            set
+            {
+                _isChild = value;
+                if (this.Parent != null)
+                {
+                    if (value)
+                    {
+                        beepImage.IsChild = value;
+                        parentbackcolor = this.Parent.BackColor;
+                        _tempbackcolor = BackColor;
+                        BackColor = parentbackcolor;
+                        beepImage.BackColor = parentbackcolor;
+                    }
+                    else
+                    {
+                        beepImage.IsChild = value;
+                        beepImage.BackColor = _tempbackcolor;
+                        BackColor = _tempbackcolor;
+                    }
+                }
+
+                Invalidate();  // Trigger repaint
+            }
+        }
         #endregion "Image Properties"
         #region "AutoCompelete Properties"
 
@@ -637,7 +667,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowAllBorders = false,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
-                IsChild = true,
+                IsChild = false,
                 MaxImageSize = _maxImageSize, Dock = DockStyle.None, Margin = new Padding(0) 
             
             };
@@ -1354,7 +1384,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage.BackColor = _currentTheme.TextBoxBackColor;
             beepImage.ForeColor = _currentTheme.TextBoxForeColor;
             beepImage.BorderColor = _currentTheme.BorderColor;
-            if(ApplyThemeOnImage)
+            beepImage.HoverBackColor = _currentTheme.ButtonHoverBackColor;
+            beepImage.HoverForeColor = _currentTheme.ButtonHoverForeColor;
+            beepImage.PressedBackColor = _currentTheme.SelectedRowBackColor;
+            beepImage.PressedForeColor = _currentTheme.SelectedRowForeColor;
+            if (ApplyThemeOnImage)
             {
                 beepImage.ImageEmbededin = ImageEmbededin.TextBox;
                 beepImage.ApplyThemeToSvg();

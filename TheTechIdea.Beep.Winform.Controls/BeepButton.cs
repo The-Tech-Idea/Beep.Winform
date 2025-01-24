@@ -150,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();  // Trigger repaint
             }
         }
-        private bool isSelectedAuto = true;
+        private bool isSelectedAuto = false;
         // Public properties
         [Browsable(true)]
         [Category("Appearance")]
@@ -397,6 +397,38 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
         }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public new bool IsChild
+        {
+            get => _isChild;
+            set
+            {
+                _isChild = value;
+                if (this.Parent != null)
+                {
+                    if (value)
+                    {
+                        beepImage.IsChild = value;
+                        parentbackcolor = this.Parent.BackColor;
+                        _tempbackcolor = BackColor;
+                        BackColor = parentbackcolor;
+                        beepImage.BackColor = parentbackcolor;
+                    }
+                    else
+                    {
+                        beepImage.IsChild = value;
+                        beepImage.BackColor = _tempbackcolor;
+                        BackColor = _tempbackcolor;
+                    }
+                }
+
+                Invalidate();  // Trigger repaint
+            }
+        }
+        private ControlHitTest beepImageHitTest;
+
         #endregion "Properties"
         #region "Constructor"
         // Constructor
@@ -411,8 +443,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsChild= false;
             // Initialize the popup form and beepListBox
             // 1) Create beepListBox
-          
+
             #endregion "Popup List Initialization"
+           
         }
         private void InitializeComponents()
         {
@@ -603,7 +636,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                 beepImage.MaximumSize = imageSize;
                 beepImage.Size = imageRect.Size;
                 beepImage.DrawImage(g, imageRect);
-
+                if(beepImageHitTest == null)
+                {
+                    beepImageHitTest = new ControlHitTest(imageRect, Point.Empty)
+                    {
+                        Name = "BeepImageRect",
+                        ActionName = "ImageClicked",
+                        HitAction = () =>
+                        {
+                            // Raise your ImageClicked event
+                            var ev = new BeepEventDataArgs("ImageClicked", this);
+                            ImageClicked?.Invoke(this, ev);
+                        }
+                    };
+                  
+                }
+                else
+                {
+                    beepImageHitTest.TargetRect = imageRect;
+                }
+              
+                AddHitTest(beepImageHitTest);
             }
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
@@ -831,7 +884,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         
         }
-      
+       
         #endregion "Mouse and Click"
         #region "Binding and Control Type"
         public DbFieldCategory Category { get; set; } = DbFieldCategory.Boolean;

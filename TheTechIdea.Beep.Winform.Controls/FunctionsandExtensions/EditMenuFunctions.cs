@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
         public IPassedArgs Passedargs { get; set; }
       
         private FunctionandExtensionsHelpers ExtensionsHelpers;
-        public EditMenuFunctions(IDMEEditor pdMEEditor, IAppManager pvisManager, ITree ptreeControl)
+        public EditMenuFunctions(IDMEEditor pdMEEditor, Vis.Modules.IAppManager pvisManager, ITree ptreeControl)
         {
             DMEEditor = pdMEEditor;
          

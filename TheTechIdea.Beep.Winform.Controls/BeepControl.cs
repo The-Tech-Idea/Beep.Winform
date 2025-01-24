@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep Control")]
     [Description("A control that provides a base for all Beep UI components.")]
-    public class BeepControl : ContainerControl,  IBeepUIComponent
+    public class BeepControl : ContainerControl, IBeepUIComponent
     {
         #region "protected Properties"
         Point originalLocation;
@@ -65,8 +65,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected bool _staticnotmoving = false;
         protected ToolTip _toolTip;
         protected bool _showAllBorders = true;
-        protected Color _focusIndicatorColor  = Color.Blue;
-        protected bool _showFocusIndicator=false;
+        protected Color _focusIndicatorColor = Color.Blue;
+        protected bool _showFocusIndicator = false;
         protected bool _showTopBorder;
         protected bool _showBottomBorder;
         protected bool _showLeftBorder;
@@ -94,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected Color _pressedForeColor = Color.Black;
         protected Color _focusForeColor = Color.Black;
         protected Color _inactiveForeColor = Color.Black;
-        
+
         protected Color _activeBackColor = Color.Gray;
         protected Color _disabledBackColor = Color.Gray;
         protected string _tooltipText = string.Empty;
@@ -118,20 +118,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected int _animationDuration = 500;
         protected string _guidID = Guid.NewGuid().ToString();
         protected int _id = -1;
-        protected string [] _items = new string[0];
+        protected string[] _items = new string[0];
         protected bool _isHovered = false;
         protected bool _isPressed = false;
         protected bool _isFocused = false;
         protected bool _isDefault = false;
         protected bool _isAcceptButton = false;
         protected bool _isCancelButton = false;
-       protected bool _isframless = false;
+        protected bool _isframless = false;
         protected Color _hoveredBackcolor = Color.Wheat;
-        protected TypeStyleFontSize  _overridefontsize= TypeStyleFontSize.None;
+        protected TypeStyleFontSize _overridefontsize = TypeStyleFontSize.None;
         protected string _text = string.Empty;
         protected bool _isborderaffectedbytheme = true;
         protected bool _isshadowaffectedbytheme = true;
-        private bool _isroundedffectedbytheme=true;
+        private bool _isroundedffectedbytheme = true;
         private bool _applythemetochilds = true;
         private int _topoffsetForDrawingRect = 0;
         private int _leftoffsetForDrawingRect = 0;
@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _canbedefault = false;
         #endregion "protected Properties"
         #region "Public Properties"
-    //    public IContainer Components => this.Components;
+        //    public IContainer Components => this.Components;
         [Browsable(true)]
         [Category("Appearance")]
         public bool CanBeHovered { get { return _canbehovered; } set { _canbehovered = value; } }
@@ -161,7 +161,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public int BottomoffsetForDrawingRect { get { return _bottomoffsetForDrawingRect; } set { _bottomoffsetForDrawingRect = value; Invalidate(); } }
         [Browsable(true)]
         [Category("Appearance")]
-        public int TopoffsetForDrawingRect { get { return _topoffsetForDrawingRect; } set { _topoffsetForDrawingRect = value;Invalidate(); } }
+        public int TopoffsetForDrawingRect { get { return _topoffsetForDrawingRect; } set { _topoffsetForDrawingRect = value; Invalidate(); } }
         [Browsable(true)]
         [Category("Appearance")]
         public int LeftoffsetForDrawingRect { get { return _leftoffsetForDrawingRect; } set { _leftoffsetForDrawingRect = value; Invalidate(); } }
@@ -202,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         [Browsable(true)]
         [Category("Appearance")]
-        public bool IsFramless { get { return _isframless; } set { _isframless = value;Invalidate(); } }
+        public bool IsFramless { get { return _isframless; } set { _isframless = value; Invalidate(); } }
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -228,14 +228,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         public bool IsCancelButton { get { return _isCancelButton; } set { _isCancelButton = value; Invalidate(); } }
 
-    
+
         public string SavedID { get; set; }
         public string SavedGuidID { get; set; }
-    
+
 
         protected bool _isChild;
         protected Color parentbackcolor;
-        private Color _tempbackcolor;
+        protected Color _tempbackcolor;
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -284,7 +284,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         BackColor = _tempbackcolor;
                     }
                 }
-              
+
                 Invalidate();  // Trigger repaint
             }
         }
@@ -354,7 +354,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
         }
-     // Border control properties
+        // Border control properties
         // Custom DashStyle for the border
         [Browsable(true)]
         [Category("Appearance")]
@@ -434,12 +434,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowBottomBorder = value;
                 ShowLeftBorder = value;
                 ShowRightBorder = value;
-                if (BorderThickness == 0) { 
+                if (BorderThickness == 0)
+                {
                     _borderThickness = 1;
                 }
                 _isControlinvalidated = true;
                 Invalidate(); // Redraw when all borders are set at once
-              
+
             }
         }
         private bool _useThemeFont = true;
@@ -562,7 +563,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showShadow = value;
-                if(_showShadow)
+                if (_showShadow)
                 {
                     shadowOffset = _tmpShadowOffset;
                 }
@@ -748,8 +749,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         // Theme Properties
-      
-     
+
+
 
         // Track Format and Parse event handlers for reattachment
         protected Dictionary<Binding, EventHandler<ConvertEventArgs>> formatHandlers = new();
@@ -758,24 +759,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected Color _disabledForeColor;
         private bool _isAnimating;
 
-     
-    
+
+
         public Rectangle DrawingRect { get; set; }
-        public bool IsCustomeBorder { get;  set; }
+        public bool IsCustomeBorder { get; set; }
 
         #endregion "Public Properties"
         #region "Constructors"
         public BeepControl()
         {
             DoubleBuffered = true;
-            SetStyle(ControlStyles.UserPaint |  ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-
+            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+            this.SetStyle(ControlStyles.ContainerControl, true);
             InitializeTooltip();
             ShowAllBorders = true;
             //  BackColor = Color.Transparent;
             Padding = new Padding(0);
             UpdateDrawingRect();
-            
+
             DataBindings.CollectionChanged += DataBindings_CollectionChanged;
 
         }
@@ -880,7 +881,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-       #endregion
+        #endregion
         #region "Theme"
         public virtual void ApplyTheme()
         {
@@ -949,8 +950,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             UpdateDrawingRect();
             // Adjust size based on border thickness
-            int adjustedWidth = DrawingRect.Width ;
-            int adjustedHeight = DrawingRect.Height ;
+            int adjustedWidth = DrawingRect.Width;
+            int adjustedHeight = DrawingRect.Height;
 
             return new Size(adjustedWidth, adjustedHeight);
         }
@@ -978,7 +979,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             );
 
             // Log or debug the dimensions if needed
-          //  Debug.WriteLine($"DrawingRect: {DrawingRect}");
+            //  Debug.WriteLine($"DrawingRect: {DrawingRect}");
         }
         public virtual bool SetFont()
         {
@@ -1015,14 +1016,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnPaint(e);
 
             var g = e.Graphics;
-            
+
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             g.TextContrast = 12;
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.CompositingQuality = CompositingQuality.HighQuality;
-             e.Graphics.Clear(BackColor);
+            e.Graphics.Clear(BackColor);
 
             shadowOffset = ShowShadow ? 3 : 0;
 
@@ -1062,38 +1063,38 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 using (GraphicsPath path = GetRoundedRectPath(borderRectangle, BorderRadius))
                 {
-                        if (UseGradientBackground)
-                        {
-                            using (var brush = new LinearGradientBrush(borderRectangle, GradientStartColor, GradientEndColor, GradientDirection))
-                            {
-                                e.Graphics.FillPath(brush, path);
-                            }
-                        }
-                        else
-                        {
-                            using (var brush = new SolidBrush(IsHovered ? HoverBackColor:BackColor))
-                            {
-                                e.Graphics.FillPath(brush, path);
-                            }
-                        }
-                    }
-                }
-                else
-                {
                     if (UseGradientBackground)
                     {
                         using (var brush = new LinearGradientBrush(borderRectangle, GradientStartColor, GradientEndColor, GradientDirection))
                         {
-                            e.Graphics.FillRectangle(brush, borderRectangle);
+                            e.Graphics.FillPath(brush, path);
                         }
                     }
                     else
                     {
-                        using (var brush = new SolidBrush(IsHovered ? HoverBackColor:BackColor))
+                        using (var brush = new SolidBrush(IsHovered ? HoverBackColor : BackColor))
                         {
-                            e.Graphics.FillRectangle(brush, borderRectangle);
+                            e.Graphics.FillPath(brush, path);
                         }
                     }
+                }
+            }
+            else
+            {
+                if (UseGradientBackground)
+                {
+                    using (var brush = new LinearGradientBrush(borderRectangle, GradientStartColor, GradientEndColor, GradientDirection))
+                    {
+                        e.Graphics.FillRectangle(brush, borderRectangle);
+                    }
+                }
+                else
+                {
+                    using (var brush = new SolidBrush(IsHovered ? HoverBackColor : BackColor))
+                    {
+                        e.Graphics.FillRectangle(brush, borderRectangle);
+                    }
+                }
             }
             // Drawing the Border Isframeless mean no border
             if (!_isframless)
@@ -1268,7 +1269,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (IsHovered)
             {
                 color = _currentTheme.HoverLinkColor;
-               // brder = _borderThickness + 1;
+                // brder = _borderThickness + 1;
             }
 
             using (var pen = new Pen(color, brder))
@@ -1519,8 +1520,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    path.AddRectangle(rect);
             //}
 
-           // return path;
-           return GetEllipticalRoundedRectPath(rect, radius, radius);
+            // return path;
+            return GetEllipticalRoundedRectPath(rect, radius, radius);
         }
         /// <summary>
         /// Creates a GraphicsPath for a rectangle with elliptical corners
@@ -1561,7 +1562,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.CloseFigure();
             return path;
         }
-    
+
         #endregion "Painting"
 
         #endregion "Drawing Methods"
@@ -1569,9 +1570,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);
-         //   BorderColor = _currentTheme.HoverLinkColor;
+            //   BorderColor = _currentTheme.HoverLinkColor;
             IsHovered = true;
-          //  ShowToolTipIfExists();
+            //  ShowToolTipIfExists();
             //Invalidate();
         }
         protected override void OnMouseMove(MouseEventArgs e)
@@ -1582,12 +1583,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-          //  BorderColor = _currentTheme.BorderColor;
-         //   IsPressed = false;
-          //  IsFocused = false;
+            //  BorderColor = _currentTheme.BorderColor;
+            //   IsPressed = false;
+            //  IsFocused = false;
             IsHovered = false;
-           // HideToolTip(); // Hide tooltip on mouse leave
-                           // Invalidate();
+            // HideToolTip(); // Hide tooltip on mouse leave
+            // Invalidate();
         }
 
         protected override void OnGotFocus(EventArgs e)
@@ -1604,23 +1605,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnClick(EventArgs e)
         {
-           
-          
+
+
             base.OnClick(e);
-          
+
             //  Invalidate();
         }
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-           // BorderColor = _currentTheme.ActiveBorderColor;
+            // BorderColor = _currentTheme.ActiveBorderColor;
             if (e.Button == MouseButtons.Left)
             {
+                // Perform the hit test
+                HitTest(e.Location);
                 IsPressed = true;
                 IsFocused = true;
 
             }
-            
+
             // Invalidate();
         }
         protected override void OnMouseUp(MouseEventArgs e)
@@ -1637,7 +1640,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         /// 
 
-        public void ShowWithAnimation( DisplayAnimationType animationType,Control parentControl = null)
+        public void ShowWithAnimation(DisplayAnimationType animationType, Control parentControl = null)
         {
             AnimationType = animationType;
             if (AnimationType == DisplayAnimationType.None)
@@ -1645,7 +1648,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Visible = true;
                 return;
             }
-            if (Visible==false)
+            if (Visible == false)
             {
                 Visible = true;
             }
@@ -1813,7 +1816,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 elapsedTime += _animationTimer.Interval;
                 float progress = Math.Min(1.0f, (float)elapsedTime / AnimationDuration);
-                progress = ApplyEasing( progress);
+                progress = ApplyEasing(progress);
 
                 // Handle fade and slide animations
                 if (AnimationType == DisplayAnimationType.Fade || AnimationType == DisplayAnimationType.SlideAndFade)
@@ -1949,7 +1952,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return new RectangleF(xOffset, yOffset, newWidth, newHeight);
         }
-        public Size GetSuitableSizeForTextandImage(Size imageSize,Size MaxImageSize, TextImageRelation TextImageRelation)
+        public Size GetSuitableSizeForTextandImage(Size imageSize, Size MaxImageSize, TextImageRelation TextImageRelation)
         {
             // Measure the text size based on the current font
             Size textSize = TextRenderer.MeasureText(Text, Font);
@@ -2074,7 +2077,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public virtual IBeepUIComponent Form { get; set; }
         [Browsable(true)]
         [Category("Data")]
-        public   string ComponentName
+        public string ComponentName
         {
             get => base.Name;
             set
@@ -2126,13 +2129,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _linkedproperty = value;
-                
+
             }
         }
         private string _datasourceproperty;
         [Browsable(true)]
         [Category("Data")]
-        public virtual string DataSourceProperty 
+        public virtual string DataSourceProperty
         {
             get => _datasourceproperty;
             set
@@ -2205,7 +2208,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public virtual bool ValidateData(out string message)
         {
             var x = new BeepComponentEventArgs(this, BoundProperty, _linkedproperty, GetValue());
-            PropertyValidate?.Invoke(this,x);
+            PropertyValidate?.Invoke(this, x);
             if (x.Cancel)
             {
                 message = x.Message;
@@ -2214,19 +2217,114 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
             {
                 message = string.Empty; return true;
-            }           
-            
+            }
+
         }
 
         public virtual void Draw(Graphics graphics, Rectangle rectangle)
         {
             // Draw the control on the provided graphics object
 
-           
+
         }
         #endregion "IBeepUIComoponent Distinct Control Implementation"
         #endregion "IBeepUIComoponent"
-    }
+        #region "HitTest and HitList"
+        public event EventHandler<ControlHitTestArgs> OnControlHitTest;
+        public List<ControlHitTest> HitList { get; set; } = new List<ControlHitTest>();
+        public void AddHitTest(ControlHitTest hitTest)
+        {
+            // Find if there's a match by comparing TargetRect or any unique property you prefer
+            var index = HitList.FindIndex(x => x.TargetRect == hitTest.TargetRect);
+            if (index >= 0)
+            {
+                // Update the existing entry with new data
+                HitList[index] = hitTest;
+            }
+            else
+            {
+                // Otherwise, add as a new entry
+                HitList.Add(hitTest);
+            }
+        }
 
+        public void RemoveHitTest(ControlHitTest hitTest)
+        {
+            HitList.Remove(hitTest);
+        }
+        public void ClearHitList()
+        {
+            HitList.Clear();
+        }
+        public void UpdateHitTest(ControlHitTest hitTest)
+        {
+            var index = HitList.FindIndex(x => x.TargetRect == hitTest.TargetRect);
+            if (index >= 0)
+            {
+                HitList[index] = hitTest;
+            }
+
+        }
+        public void HitTest(Point location)
+        {
+            foreach (var hitTest in HitList)
+            {
+                hitTest.IsHit = hitTest.TargetRect.Contains(location);
+                if (hitTest.IsHit)
+                {
+                    OnControlHitTest?.Invoke(this, new ControlHitTestArgs(hitTest));
+                    if(hitTest.HitAction != null)
+                    {
+                        hitTest.HitAction.Invoke();
+                    }
+                    break;
+                }
+            }
+        }
+
+        #endregion "HitTest and HitList"
+    }
+    public class ControlHitTest
+    {
+        public string Name { get; set; }
+        public string GuidID { get; set; }= Guid.NewGuid().ToString();
+        public Rectangle TargetRect { get; set; }
+        public Action HitAction { get; set; }
+        public string ActionName { get; set; }
+        public bool IsHit
+        {
+            get; set;
+        }
+        public bool IsVisible { get; set; } = true;
+        public bool IsEnabled { get; set; } = true;
+        public bool IsSelected { get; set; }
+        public bool IsPressed { get; set; }
+        public bool IsHovered { get; set; }
+        public bool IsFocused { get; set; }
+
+        public ControlHitTest()
+        {
+        }
+        public ControlHitTest(Rectangle rect)
+        {
+            TargetRect = rect;
+        }
+        public ControlHitTest(Rectangle rect, Point location)
+        {
+            TargetRect = rect;
+            IsHit = TargetRect.Contains(location);
+        }
+
+
+    }
+    public class ControlHitTestArgs : EventArgs
+    {
+        public ControlHitTest HitTest { get; set; }
+        public ControlHitTestArgs(ControlHitTest hitTest)
+        {
+            HitTest = hitTest;
+        }
+
+    }
 }
 

@@ -36,15 +36,11 @@
             beepButton2 = new BeepButton();
             beepButton1 = new BeepButton();
             beepTreeControl1 = new ITrees.BeepTreeView.BeepTreeControl();
-            beepDynamicTabControl1 = new BeepDynamicTabControl();
-            Panel1 = new Panel();
-            Panel3 = new Panel();
-            Panel2 = new Panel();
-            HeaderButton1 = new Button();
-            HeaderButton2 = new Button();
-            HeaderButton3 = new Button();
-            beepDynamicTabControl1.ContentPanel.SuspendLayout();
-            beepDynamicTabControl1.HeaderPanel.SuspendLayout();
+            beepTabs1 = new BeepTabs();
+            tabPage2 = new TabPage();
+            tabPage1 = new TabPage();
+            tabPage3 = new TabPage();
+            tabPage4 = new TabPage();
             SuspendLayout();
             // 
             // beepuiManager1
@@ -373,6 +369,7 @@
             beepTextBox3.ApplyThemeToChilds = true;
             beepTextBox3.AutoCompleteMode = AutoCompleteMode.None;
             beepTextBox3.AutoCompleteSource = AutoCompleteSource.None;
+            beepTextBox3.BackColor = Color.White;
             beepTextBox3.BlockID = null;
             beepTextBox3.BorderColor = Color.Black;
             beepTextBox3.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -393,7 +390,7 @@
             beepTextBox3.DateTimeFormat = "MM/dd/yyyy HH:mm:ss";
             beepTextBox3.DisabledBackColor = Color.Gray;
             beepTextBox3.DisabledForeColor = Color.Empty;
-            beepTextBox3.DrawingRect = new Rectangle(3, 3, 288, 46);
+            beepTextBox3.DrawingRect = new Rectangle(3, 3, 330, 53);
             beepTextBox3.Easing = EasingType.Linear;
             beepTextBox3.FieldID = null;
             beepTextBox3.FocusBackColor = Color.Gray;
@@ -425,9 +422,9 @@
             beepTextBox3.InnerTextBox.BorderStyle = BorderStyle.None;
             beepTextBox3.InnerTextBox.Font = new Font("Segoe UI Black", 26.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             beepTextBox3.InnerTextBox.ForeColor = Color.Black;
-            beepTextBox3.InnerTextBox.Location = new Point(26, 2);
+            beepTextBox3.InnerTextBox.Location = new Point(26, 3);
             beepTextBox3.InnerTextBox.Name = "";
-            beepTextBox3.InnerTextBox.Size = new Size(260, 48);
+            beepTextBox3.InnerTextBox.Size = new Size(302, 48);
             beepTextBox3.InnerTextBox.TabIndex = 0;
             beepTextBox3.InnerTextBox.Text = "beepTextBox3";
             beepTextBox3.IsAcceptButton = false;
@@ -455,7 +452,7 @@
             beepTextBox3.OnlyDigits = false;
             beepTextBox3.OverrideFontSize = TypeStyleFontSize.None;
             beepTextBox3.Padding = new Padding(2);
-            beepTextBox3.ParentBackColor = Color.Empty;
+            beepTextBox3.ParentBackColor = Color.White;
             beepTextBox3.PasswordChar = '\0';
             beepTextBox3.PlaceholderText = "";
             beepTextBox3.PressedBackColor = Color.Gray;
@@ -479,7 +476,7 @@
             beepTextBox3.ShowShadow = false;
             beepTextBox3.ShowTopBorder = true;
             beepTextBox3.ShowVerticalScrollBar = false;
-            beepTextBox3.Size = new Size(294, 52);
+            beepTextBox3.Size = new Size(336, 59);
             beepTextBox3.SlideFrom = SlideDirection.Left;
             beepTextBox3.StaticNotMoving = false;
             beepTextBox3.TabIndex = 21;
@@ -862,213 +859,143 @@
             beepTreeControl1.UseThemeFont = true;
             beepTreeControl1.VisManager = null;
             // 
-            // beepDynamicTabControl1
+            // beepTabs1
             // 
-            beepDynamicTabControl1.ActiveBackColor = Color.Gray;
-            beepDynamicTabControl1.AllowDrop = true;
-            beepDynamicTabControl1.AnimationDuration = 500;
-            beepDynamicTabControl1.AnimationType = DisplayAnimationType.None;
-            beepDynamicTabControl1.ApplyThemeToChilds = true;
-            beepDynamicTabControl1.BackColor = Color.FromArgb(245, 245, 245);
-            beepDynamicTabControl1.BlockID = null;
-            beepDynamicTabControl1.BorderColor = Color.Black;
-            beepDynamicTabControl1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            beepDynamicTabControl1.BorderRadius = 1;
-            beepDynamicTabControl1.BorderStyle = BorderStyle.FixedSingle;
-            beepDynamicTabControl1.BorderThickness = 1;
-            beepDynamicTabControl1.BottomoffsetForDrawingRect = 0;
-            beepDynamicTabControl1.BoundProperty = null;
-            beepDynamicTabControl1.CanBeFocused = true;
-            beepDynamicTabControl1.CanBeHovered = false;
-            beepDynamicTabControl1.CanBePressed = true;
-            beepDynamicTabControl1.Category = Utilities.DbFieldCategory.String;
-            beepDynamicTabControl1.ComponentName = "beepDynamicTabControl1";
+            beepTabs1.ActiveBackColor = Color.Gray;
+            beepTabs1.AllowDrop = true;
+            beepTabs1.AnimationDuration = 500;
+            beepTabs1.AnimationType = DisplayAnimationType.None;
+            beepTabs1.ApplyThemeToChilds = true;
+            beepTabs1.BackColor = Color.White;
+            beepTabs1.BlockID = null;
+            beepTabs1.BorderColor = Color.Black;
+            beepTabs1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            beepTabs1.BorderRadius = 1;
+            beepTabs1.BorderStyle = BorderStyle.FixedSingle;
+            beepTabs1.BorderThickness = 1;
+            beepTabs1.BottomoffsetForDrawingRect = 0;
+            beepTabs1.BoundProperty = null;
+            beepTabs1.CanBeFocused = true;
+            beepTabs1.CanBeHovered = false;
+            beepTabs1.CanBePressed = true;
+            beepTabs1.Category = Utilities.DbFieldCategory.String;
+            beepTabs1.ComponentName = "beepTabs1";
+            beepTabs1.DataContext = null;
+            beepTabs1.DataSourceProperty = null;
+            beepTabs1.DisabledBackColor = Color.Gray;
+            beepTabs1.DisabledForeColor = Color.Empty;
+            beepTabs1.DrawingRect = new Rectangle(3, 3, 335, 293);
+            beepTabs1.Easing = EasingType.Linear;
+            beepTabs1.FieldID = null;
+            beepTabs1.FocusBackColor = Color.Gray;
+            beepTabs1.FocusBorderColor = Color.Gray;
+            beepTabs1.FocusForeColor = Color.Black;
+            beepTabs1.FocusIndicatorColor = Color.Blue;
+            beepTabs1.Form = null;
+            beepTabs1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
+            beepTabs1.GradientEndColor = Color.Gray;
+            beepTabs1.GradientStartColor = Color.Gray;
+            beepTabs1.GuidID = "e6e7c257-f5c4-42c8-9357-f270008fcf6f";
+            beepTabs1.HeaderButtonHeight = 30;
+            beepTabs1.HeaderButtonWidth = 60;
+            beepTabs1.HeaderLocation = HeaderLocation.Top;
+            beepTabs1.HoverBackColor = Color.Gray;
+            beepTabs1.HoverBorderColor = Color.Gray;
+            beepTabs1.HoveredBackcolor = Color.Wheat;
+            beepTabs1.HoverForeColor = Color.Black;
+            beepTabs1.Id = -1;
+            beepTabs1.InactiveBackColor = Color.Gray;
+            beepTabs1.InactiveBorderColor = Color.Gray;
+            beepTabs1.InactiveForeColor = Color.Black;
+            beepTabs1.IsAcceptButton = false;
+            beepTabs1.IsBorderAffectedByTheme = true;
+            beepTabs1.IsCancelButton = false;
+            beepTabs1.IsChild = false;
+            beepTabs1.IsCustomeBorder = false;
+            beepTabs1.IsDefault = false;
+            beepTabs1.IsFocused = false;
+            beepTabs1.IsFramless = false;
+            beepTabs1.IsHovered = false;
+            beepTabs1.IsPressed = false;
+            beepTabs1.IsRounded = false;
+            beepTabs1.IsRoundedAffectedByTheme = true;
+            beepTabs1.IsShadowAffectedByTheme = true;
+            beepTabs1.LeftoffsetForDrawingRect = 0;
+            beepTabs1.LinkedProperty = null;
+            beepTabs1.Location = new Point(400, 378);
+            beepTabs1.Name = "beepTabs1";
+            beepTabs1.OverrideFontSize = TypeStyleFontSize.None;
+            beepTabs1.Padding = new Padding(2);
+            beepTabs1.ParentBackColor = Color.Empty;
+            beepTabs1.PressedBackColor = Color.Gray;
+            beepTabs1.PressedBorderColor = Color.Gray;
+            beepTabs1.PressedForeColor = Color.Black;
+            beepTabs1.RightoffsetForDrawingRect = 0;
+            beepTabs1.SavedGuidID = null;
+            beepTabs1.SavedID = null;
+            beepTabs1.SelectedIndex = 1;
+            beepTabs1.SelectedTab = tabPage2;
+            beepTabs1.ShadowColor = Color.BlanchedAlmond;
+            beepTabs1.ShadowOffset = 0;
+            beepTabs1.ShadowOpacity = 0.5F;
+            beepTabs1.ShowAllBorders = true;
+            beepTabs1.ShowBottomBorder = true;
+            beepTabs1.ShowFocusIndicator = false;
+            beepTabs1.ShowLeftBorder = true;
+            beepTabs1.ShowRightBorder = true;
+            beepTabs1.ShowShadow = false;
+            beepTabs1.ShowTopBorder = true;
+            beepTabs1.Size = new Size(341, 299);
+            beepTabs1.SlideFrom = SlideDirection.Left;
+            beepTabs1.StaticNotMoving = false;
+            beepTabs1.TabIndex = 22;
+            beepTabs1.TabPages.AddRange(new TabPage[] { tabPage1, tabPage2, tabPage3, tabPage4 });
+            beepTabs1.Text = "beepTabs1";
+            beepTabs1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepTabs1.ToolTipText = "";
+            beepTabs1.TopoffsetForDrawingRect = 0;
+            beepTabs1.UseGradientBackground = false;
+            beepTabs1.UseThemeFont = true;
             // 
+            // tabPage2
             // 
+            tabPage2.Location = new Point(0, 0);
+            tabPage2.Name = "tabPage2";
+            tabPage2.Size = new Size(335, 263);
+            tabPage2.TabIndex = 1;
+            tabPage2.Tag = "Loaded";
+            tabPage2.Text = "tabPage2";
             // 
-            beepDynamicTabControl1.ContentPanel.BackColor = Color.White;
-            beepDynamicTabControl1.ContentPanel.Controls.Add(Panel3);
-            beepDynamicTabControl1.ContentPanel.Controls.Add(Panel1);
-            beepDynamicTabControl1.ContentPanel.Controls.Add(Panel2);
-            beepDynamicTabControl1.ContentPanel.Dock = DockStyle.Fill;
-            beepDynamicTabControl1.ContentPanel.Location = new Point(0, 29);
-            beepDynamicTabControl1.ContentPanel.Name = "";
-            beepDynamicTabControl1.ContentPanel.Size = new Size(475, 271);
-            beepDynamicTabControl1.ContentPanel.TabIndex = 1;
-            beepDynamicTabControl1.DataContext = null;
-            beepDynamicTabControl1.DataSourceProperty = null;
-            beepDynamicTabControl1.DisabledBackColor = Color.Gray;
-            beepDynamicTabControl1.DisabledForeColor = Color.Empty;
-            beepDynamicTabControl1.DrawingRect = new Rectangle(1, 1, 473, 298);
-            beepDynamicTabControl1.Easing = EasingType.Linear;
-            beepDynamicTabControl1.FieldID = null;
-            beepDynamicTabControl1.FocusBackColor = Color.Gray;
-            beepDynamicTabControl1.FocusBorderColor = Color.Gray;
-            beepDynamicTabControl1.FocusForeColor = Color.Black;
-            beepDynamicTabControl1.FocusIndicatorColor = Color.Blue;
-            beepDynamicTabControl1.ForeColor = Color.Black;
-            beepDynamicTabControl1.Form = null;
-            beepDynamicTabControl1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepDynamicTabControl1.GradientEndColor = Color.Gray;
-            beepDynamicTabControl1.GradientStartColor = Color.Gray;
-            beepDynamicTabControl1.GuidID = "c0ad7c04-8d5b-445e-a72f-bd994fd61755";
-            beepDynamicTabControl1.HeaderLocation = HeaderLocation.Top;
+            // tabPage1
             // 
+            tabPage1.Location = new Point(0, 0);
+            tabPage1.Name = "tabPage1";
+            tabPage1.Size = new Size(335, 263);
+            tabPage1.TabIndex = 0;
+            tabPage1.Text = "tabPage1";
             // 
+            // tabPage3
             // 
-            beepDynamicTabControl1.HeaderPanel.AutoSize = true;
-            beepDynamicTabControl1.HeaderPanel.BackColor = Color.White;
-            beepDynamicTabControl1.HeaderPanel.Controls.Add(HeaderButton1);
-            beepDynamicTabControl1.HeaderPanel.Controls.Add(HeaderButton2);
-            beepDynamicTabControl1.HeaderPanel.Controls.Add(HeaderButton3);
-            beepDynamicTabControl1.HeaderPanel.Dock = DockStyle.Top;
-            beepDynamicTabControl1.HeaderPanel.Location = new Point(0, 0);
-            beepDynamicTabControl1.HeaderPanel.Name = "";
-            beepDynamicTabControl1.HeaderPanel.Size = new Size(475, 29);
-            beepDynamicTabControl1.HeaderPanel.TabIndex = 0;
-            beepDynamicTabControl1.HeaderPanel.WrapContents = false;
-            beepDynamicTabControl1.HoverBackColor = Color.Gray;
-            beepDynamicTabControl1.HoverBorderColor = Color.Gray;
-            beepDynamicTabControl1.HoveredBackcolor = Color.Wheat;
-            beepDynamicTabControl1.HoverForeColor = Color.Black;
-            beepDynamicTabControl1.Id = -1;
-            beepDynamicTabControl1.InactiveBackColor = Color.Gray;
-            beepDynamicTabControl1.InactiveBorderColor = Color.Gray;
-            beepDynamicTabControl1.InactiveForeColor = Color.Black;
-            beepDynamicTabControl1.IsAcceptButton = false;
-            beepDynamicTabControl1.IsBorderAffectedByTheme = true;
-            beepDynamicTabControl1.IsCancelButton = false;
-            beepDynamicTabControl1.IsChild = false;
-            beepDynamicTabControl1.IsCustomeBorder = false;
-            beepDynamicTabControl1.IsDefault = false;
-            beepDynamicTabControl1.IsFocused = false;
-            beepDynamicTabControl1.IsFramless = false;
-            beepDynamicTabControl1.IsHovered = false;
-            beepDynamicTabControl1.IsPressed = false;
-            beepDynamicTabControl1.IsRounded = false;
-            beepDynamicTabControl1.IsRoundedAffectedByTheme = true;
-            beepDynamicTabControl1.IsShadowAffectedByTheme = true;
-            beepDynamicTabControl1.LeftoffsetForDrawingRect = 0;
-            beepDynamicTabControl1.LinkedProperty = null;
-            beepDynamicTabControl1.Location = new Point(372, 340);
-            beepDynamicTabControl1.Name = "beepDynamicTabControl1";
-            beepDynamicTabControl1.OverrideFontSize = TypeStyleFontSize.None;
-            beepDynamicTabControl1.ParentBackColor = Color.Empty;
-            beepDynamicTabControl1.PressedBackColor = Color.Gray;
-            beepDynamicTabControl1.PressedBorderColor = Color.Gray;
-            beepDynamicTabControl1.PressedForeColor = Color.Black;
-            beepDynamicTabControl1.RightoffsetForDrawingRect = 0;
-            beepDynamicTabControl1.SavedGuidID = null;
-            beepDynamicTabControl1.SavedID = null;
-            beepDynamicTabControl1.SelectedTab = (Desktop.Common.SimpleItem)resources.GetObject("beepDynamicTabControl1.SelectedTab");
-            beepDynamicTabControl1.ShadowColor = Color.Black;
-            beepDynamicTabControl1.ShadowOffset = 0;
-            beepDynamicTabControl1.ShadowOpacity = 0.5F;
-            beepDynamicTabControl1.ShowAllBorders = true;
-            beepDynamicTabControl1.ShowBottomBorder = true;
-            beepDynamicTabControl1.ShowFocusIndicator = false;
-            beepDynamicTabControl1.ShowLeftBorder = true;
-            beepDynamicTabControl1.ShowRightBorder = true;
-            beepDynamicTabControl1.ShowShadow = false;
-            beepDynamicTabControl1.ShowTitle = false;
-            beepDynamicTabControl1.ShowTitleLine = true;
-            beepDynamicTabControl1.ShowTitleLineinFullWidth = true;
-            beepDynamicTabControl1.ShowTopBorder = true;
-            beepDynamicTabControl1.Size = new Size(475, 300);
-            beepDynamicTabControl1.SlideFrom = SlideDirection.Left;
-            beepDynamicTabControl1.StaticNotMoving = false;
-            beepDynamicTabControl1.TabIndex = 22;
-            beepDynamicTabControl1.Tabs = (System.ComponentModel.BindingList<Desktop.Common.SimpleItem>)resources.GetObject("beepDynamicTabControl1.Tabs");
-            beepDynamicTabControl1.Text = "beepDynamicTabControl1";
-            beepDynamicTabControl1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
-            beepDynamicTabControl1.TitleAlignment = ContentAlignment.TopLeft;
-            beepDynamicTabControl1.TitleBottomY = 0;
-            beepDynamicTabControl1.TitleFont = new Font("Segoe UI", 16F);
-            beepDynamicTabControl1.TitleLineColor = Color.Gray;
-            beepDynamicTabControl1.TitleLineThickness = 2;
-            beepDynamicTabControl1.TitleText = "Panel Title";
-            beepDynamicTabControl1.ToolTipText = "";
-            beepDynamicTabControl1.TopoffsetForDrawingRect = 0;
-            beepDynamicTabControl1.UseGradientBackground = false;
-            beepDynamicTabControl1.UseThemeFont = true;
+            tabPage3.Location = new Point(0, 0);
+            tabPage3.Name = "tabPage3";
+            tabPage3.Size = new Size(335, 263);
+            tabPage3.TabIndex = 2;
+            tabPage3.Text = "tabPage3";
             // 
-            // Panel1
+            // tabPage4
             // 
-            Panel1.AllowDrop = true;
-            Panel1.BackColor = Color.White;
-            Panel1.Dock = DockStyle.Fill;
-            Panel1.Location = new Point(0, 0);
-            Panel1.Name = "Panel1";
-            Panel1.Size = new Size(475, 271);
-            Panel1.TabIndex = 0;
-            // 
-            // Panel3
-            // 
-            Panel3.AllowDrop = true;
-            Panel3.BackColor = Color.White;
-            Panel3.Dock = DockStyle.Fill;
-            Panel3.ForeColor = SystemColors.Window;
-            Panel3.Location = new Point(0, 0);
-            Panel3.Name = "Panel3";
-            Panel3.Size = new Size(475, 271);
-            Panel3.TabIndex = 2;
-            // 
-            // Panel2
-            // 
-            Panel2.AllowDrop = true;
-            Panel2.BackColor = Color.White;
-            Panel2.Dock = DockStyle.Fill;
-            Panel2.Location = new Point(0, 0);
-            Panel2.Name = "Panel2";
-            Panel2.Size = new Size(475, 271);
-            Panel2.TabIndex = 1;
-            Panel2.Visible = false;
-            // 
-            // HeaderButton1
-            // 
-            HeaderButton1.AutoSize = true;
-            HeaderButton1.BackColor = SystemColors.Control;
-            HeaderButton1.Location = new Point(2, 2);
-            HeaderButton1.Margin = new Padding(2);
-            HeaderButton1.Name = "HeaderButton1";
-            HeaderButton1.Size = new Size(155, 25);
-            HeaderButton1.TabIndex = 0;
-            HeaderButton1.Tag = resources.GetObject("HeaderButton1.Tag");
-            HeaderButton1.Text = "beepDynamicTabControl1";
-            HeaderButton1.UseVisualStyleBackColor = false;
-            // 
-            // HeaderButton2
-            // 
-            HeaderButton2.AutoSize = true;
-            HeaderButton2.BackColor = SystemColors.Control;
-            HeaderButton2.Location = new Point(161, 2);
-            HeaderButton2.Margin = new Padding(2);
-            HeaderButton2.Name = "HeaderButton2";
-            HeaderButton2.Size = new Size(155, 25);
-            HeaderButton2.TabIndex = 1;
-            HeaderButton2.Tag = resources.GetObject("HeaderButton2.Tag");
-            HeaderButton2.Text = "beepDynamicTabControl1";
-            HeaderButton2.UseVisualStyleBackColor = false;
-            // 
-            // HeaderButton3
-            // 
-            HeaderButton3.AutoSize = true;
-            HeaderButton3.BackColor = SystemColors.Control;
-            HeaderButton3.Location = new Point(320, 2);
-            HeaderButton3.Margin = new Padding(2);
-            HeaderButton3.Name = "HeaderButton3";
-            HeaderButton3.Size = new Size(155, 25);
-            HeaderButton3.TabIndex = 2;
-            HeaderButton3.Tag = resources.GetObject("HeaderButton3.Tag");
-            HeaderButton3.Text = "beepDynamicTabControl1";
-            HeaderButton3.UseVisualStyleBackColor = false;
+            tabPage4.Location = new Point(0, 0);
+            tabPage4.Name = "tabPage4";
+            tabPage4.Size = new Size(335, 263);
+            tabPage4.TabIndex = 3;
+            tabPage4.Text = "tabPage4";
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(864, 790);
-            Controls.Add(beepDynamicTabControl1);
+            Controls.Add(beepTabs1);
             Controls.Add(beepTextBox3);
             Controls.Add(beepButton2);
             Controls.Add(beepButton1);
@@ -1079,9 +1006,6 @@
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
             Text = "Form1";
-            beepDynamicTabControl1.ContentPanel.ResumeLayout(false);
-            beepDynamicTabControl1.HeaderPanel.ResumeLayout(false);
-            beepDynamicTabControl1.HeaderPanel.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -1095,12 +1019,10 @@
         private BeepButton beepButton1;
         private ITrees.BeepTreeView.BeepTreeControl beepTreeControl1;
         private Label label1;
-        private BeepDynamicTabControl beepDynamicTabControl1;
-        private Panel Panel1;
-        private Panel Panel2;
-        private Panel Panel3;
-        private Button HeaderButton1;
-        private Button HeaderButton2;
-        private Button HeaderButton3;
+        private BeepTabs beepTabs1;
+        private TabPage tabPage1;
+        private TabPage tabPage2;
+        private TabPage tabPage3;
+        private TabPage tabPage4;
     }
 }

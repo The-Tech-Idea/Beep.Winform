@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
         bool isPrimarykeyMissing;
         [ObservableProperty]
         int fieldheight;
-        public EntityControlViewModel(IDMEEditor Editor, IAppManager visManager) : base(Editor, visManager)
+        public EntityControlViewModel(IDMEEditor Editor, Vis.Modules.IAppManager visManager) : base(Editor, visManager)
         {
             Fieldheight = 25;
         }

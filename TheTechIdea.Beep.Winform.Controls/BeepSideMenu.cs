@@ -505,7 +505,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Visible = true,
                 Tag = "Spacing"
             };
-            // Add BeepButton and highlight panel to the panel
+            // Add Beepbutton and highlight panel to the panel
           
             var button = new BeepButton
             {

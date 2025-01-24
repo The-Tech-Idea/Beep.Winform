@@ -14,12 +14,15 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A custom AppBar control for Beep applications.")]
     public class BeepAppBar : BeepControl
     {
+        #region "Events"
+        public EventHandler<BeepMouseEventArgs> Clicked;
+        public EventHandler<BeepAppBarEventsArgs> OnButtonClicked;
+        public EventHandler<BeepAppBarEventsArgs> OnSearchBoxSelected;
+        #endregion "Events"
         #region "Properties"
-
+        #region "Fields"
         private int windowsicons_height = 15;
         private int defaultHeight = 32;
-
-
         private BeepButton hamburgerIcon;
         private BeepLabel TitleLabel;
         private BeepButton profileIcon;
@@ -27,45 +30,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton closeIcon;
         private BeepButton maximizeIcon;
         private BeepButton minimizeIcon;
-        private BeepSideMenu _sidemenu;
+        private BeepButton themeIcon;
+       
+
         private BeepImage _logo;
-        private BeepButton themedropdown;
-        private int imageoffset = 4;
-        public BeepSideMenu SideMenu { get { return _sidemenu; } set { _sidemenu = value; if (_sidemenu != null) { _sidemenu.OnMenuCollapseExpand += HandleSideMenuState; } } }
+    
 
-
-        public EventHandler<BeepMouseEventArgs> Clicked;
-
-        private string _logoImage = "";
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Set the logo image of the form.")]
-        [DefaultValue("")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
-        public string LogoImage
-        {
-            get => _logoImage;
-            set
-            {
-                _logoImage = value;
-                if(_logo != null)
-                {
-                    if (!string.IsNullOrEmpty(_logoImage))
-                    {
-
-                        _logo.ImagePath = _logoImage;
-                    }
-                    else
-                    {
-
-                        _logo.ImagePath = _logoImage;
-                    }
-                }
-                    
-            }
-        }
-
+        private int imageoffset = 1;
+        #endregion "Fields"
+        //public BeepSideMenu SideMenu { get { return _sidemenu; } set { _sidemenu = value; if (_sidemenu != null) { _sidemenu.OnMenuCollapseExpand += HandleSideMenuState; } } }
+        #region "Title and Text Properties"
+        public int TitleLabelWidth { get; private set; } = 200;
+        public int SearchBoxWidth { get; private set; } = 150;
         // title property to set the title of the form
         private string _title = "Beep Form";
         [Browsable(true)]
@@ -82,35 +58,58 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TitleLabel.Text = _title;
             }
         }
+
+        public bool ShowTitle
+        {
+            get
+            {
+                return TitleLabel.Visible;
+            }
+            set
+            {
+                HideShowLogo(value);
+                HideShowTitle(value);
+                //  RearrangeLayout();
+            }
+        }
+        #endregion  "Title and Text Properties"
+        #region "Image and Icon Properties"
+        private string _logoImage = "";
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the logo image of the form.")]
+        [DefaultValue("")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        public string LogoImage
+        {
+            get => _logoImage;
+            set
+            {
+                _logoImage = value;
+                if (_logo != null)
+                {
+                    if (!string.IsNullOrEmpty(_logoImage))
+                    {
+
+                        _logo.ImagePath = _logoImage;
+                    }
+                    else
+                    {
+
+                        _logo.ImagePath = _logoImage;
+                    }
+                }
+
+            }
+        }
         public bool ShowHamburgerIcon
         {
             get => hamburgerIcon.Visible;
             set
             {
                 hamburgerIcon.Visible = value;
-               //  RearrangeLayout();
-            }
-        }
-        public bool ShowTitle
-        {
-            get
-            {
-             return   TitleLabel.Visible;
-            }
-            set
-            {
-              HideShowLogo(value);
-              HideShowTitle(value);
                 //  RearrangeLayout();
-            }
-        }
-        public bool ShowSearchBox
-        {
-            get => searchBox.Visible;
-            set
-            {
-                searchBox.Visible = value;
-               //  RearrangeLayout();
             }
         }
         public bool ShowNotificationIcon
@@ -119,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 notificationIcon.Visible = value;
-               //  RearrangeLayout();
+                //  RearrangeLayout();
             }
         }
         public bool ShowProfileIcon
@@ -128,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 profileIcon.Visible = value;
-               //  RearrangeLayout();
+                //  RearrangeLayout();
             }
         }
         public bool ShowCloseIcon
@@ -137,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 closeIcon.Visible = value;
-               //  RearrangeLayout();
+                //  RearrangeLayout();
             }
         }
         public bool ShowMaximizeIcon
@@ -146,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 maximizeIcon.Visible = value;
-               //  RearrangeLayout();
+                //  RearrangeLayout();
             }
         }
         public bool ShowMinimizeIcon
@@ -155,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 minimizeIcon.Visible = value;
-               //  RearrangeLayout();
+                //  RearrangeLayout();
             }
         }
         public bool ShowLogoIcon
@@ -183,9 +182,70 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
-        public int TitleLabelWidth { get; private set; }= 200;
-        public int SearchBoxWidth { get; private set; }= 150;
+        #endregion "Image and Icon Properties"
+        #region "SearchBox AutoComplete Properties"
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool ShowSearchBox
+        {
+            get => searchBox.Visible;
+            set
+            {
+                searchBox.Visible = value;
+                //  RearrangeLayout();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public string SearchBoxPlaceholder
+        {
+            get => searchBox.PlaceholderText;
+            set => searchBox.PlaceholderText = value;
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public string SearchBoxText
+        {
+            get => searchBox.Text;
+            set => searchBox.Text = value;
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("AutoComplete displayed in the control.")]
+        public AutoCompleteMode AutoCompleteMode
+        {
+            get => searchBox.AutoCompleteMode;
+            set
+            {
+                searchBox.AutoCompleteMode = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("AutoComplete displayed in the control.")]
+        public AutoCompleteSource AutoCompleteSource
+        {
+            get => searchBox.AutoCompleteSource;
+            set
+            {
+                searchBox.AutoCompleteSource = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("AutoComplete Custom Source .")]
+        public AutoCompleteStringCollection AutoCompleteCustomSource
+        {
+            get => searchBox.AutoCompleteCustomSource;
+            set
+            {
+                searchBox.AutoCompleteCustomSource = value;
+                Invalidate();
+            }
+        }
+        #endregion "SearchBox AutoComplete Properties"
         #endregion "Properties"
         #region "Constructor"
         public BeepAppBar()
@@ -222,6 +282,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             AddUserProfileIcon();
             AddWindowControlIcons();
             AddLogoImage();
+          
+            AddThemeIcon();
             RearrangeLayout();
         }
         private void AddLogoImage()
@@ -266,7 +328,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Visible = true // Initially hidden
 
             };
-            hamburgerIcon.Click += (s, e) => SideMenu?.ToggleMenu();
+          //  hamburgerIcon.Click += (s, e) => SideMenu?.ToggleMenu();
             Controls.Add(hamburgerIcon);
         }
         private void AddTitleLabel()
@@ -310,14 +372,28 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 IsChild = true,
                 PlaceholderText = "Search...",
-                ApplyThemeOnImage = _applyThemeOnImage,
+               // ApplyThemeOnImage = _applyThemeOnImage,
                 IsFramless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
+                ImageAlign= ContentAlignment.MiddleRight,
+                TextImageRelation = TextImageRelation.TextBeforeImage,
+                TextAlignment = HorizontalAlignment.Left,
+                Tag = "Search"
             };
-
-            //searchBox.TextFont = new TextFont("Segoe UI", 12, FontStyle.Regular);
+            searchBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            searchBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            searchBox.Click += ButtonClicked;
+            searchBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg";
             Controls.Add(searchBox);
+        }
+        public void SetSearchBoxAutoCompleteSource(AutoCompleteStringCollection source)
+        {
+            searchBox.AutoCompleteCustomSource = source;
+        }
+        public void AddToSearchBoxAutoCompleteSource(List<string> source)
+        {
+            searchBox.AutoCompleteCustomSource.AddRange(source.ToArray());
         }
         private void AddNotificationIcon()
         {
@@ -341,6 +417,52 @@ namespace TheTechIdea.Beep.Winform.Controls
             notificationIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg";
             notificationIcon.Click += ButtonClicked;
             Controls.Add(notificationIcon);
+        }
+        private void AddThemeIcon()
+        {
+            themeIcon = new BeepButton
+            {
+                Width = windowsicons_height,
+                Height = windowsicons_height,
+                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
+                Cursor = Cursors.Hand,
+                Theme = Theme,
+                ApplyThemeOnImage = true,
+                IsFramless = true,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+                IsChild = true,
+                TextImageRelation = TextImageRelation.Overlay,
+                ImageAlign = ContentAlignment.MiddleLeft,
+                HideText = true,
+                PopupMode = true,
+                Tag = "Theme"
+            };
+            // fill themeicons as list from beepthememanager themes enum
+            foreach (string themename in BeepThemesManager.GetThemesNames())
+            {
+                themeIcon.ListItems.Add(new SimpleItem { Text = themename });
+            }
+
+
+            themeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.theme.svg";
+            themeIcon.Click += ButtonClicked;
+            themeIcon.SelectedItemChanged += ThemeIcon_SelectedItemChanged;
+            Controls.Add(themeIcon);
+        }
+     
+        private void ThemeIcon_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
+        {
+            if (e.SelectedItem!= null)
+            {
+                if (!string.IsNullOrEmpty(e.SelectedItem.Text))
+                {
+                    string selectedthemename = e.SelectedItem.Text;
+                    EnumBeepThemes selectedthem = BeepThemesManager.GetEnumFromTheme(selectedthemename);
+                    BeepThemesManager.CurrentTheme = selectedthem;
+                }
+                
+            }
         }
         private void AddUserProfileIcon()
         {
@@ -371,8 +493,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             profileIcon.ListItems.Add(new SimpleItem { Text = "Logout", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.power.svg" });
 
             profileIcon.Click += ButtonClicked;
+            profileIcon.SelectedItemChanged += ProfileIcon_SelectedItemChanged;
             Controls.Add(profileIcon);
         }
+
+        private void ProfileIcon_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
+        {
+           
+        }
+
         private void AddWindowControlIcons()
         {
             // Minimize button
@@ -456,6 +585,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             string tag = (sender as BeepButton).Tag.ToString();
             Clicked?.Invoke(this, new BeepMouseEventArgs(tag, sender));
+            var arg = new BeepAppBarEventsArgs(tag, sender as BeepButton);
+            if (tag == "Profile")
+            {
+                // Handle profile button click
+                arg.SelectedItem = (sender as BeepButton).SelectedItem;
+                arg.Selectedstring = (sender as BeepButton).SelectedItem.Text;
+            }
+            if(tag== "SearchButton")
+            {
+                arg.Selectedstring = searchBox.Text;
+                OnSearchBoxSelected?.Invoke(this, arg);
+            }
+            OnButtonClicked?.Invoke(this,arg);
+            if (tag == "Notifications")
+            {
+                ShowNotifications();
+            }
+            
 
         }
         private void HandleSideMenuState(bool isCollapsed)
@@ -602,13 +749,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleLabel.ForeColor = _currentTheme.SideMenuForeColor;
             TitleLabel.BackColor = _currentTheme.TitleBarBackColor;
             // searchBox.Theme = Theme;
-            searchBox.ForeColor = _currentTheme.TitleBarForeColor;
-            searchBox.BackColor = _currentTheme.TitleBarBackColor;
+          //  searchBox.ForeColor = _currentTheme.TitleBarForeColor;
+          //  searchBox.BackColor = _currentTheme.TitleBarBackColor;
+         
             // searchBox.TextFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
             //searchBox.Height = searchBox.PreferredHeight;
-          //  TitleLabel.Theme = Theme;
-          
-           
+            //  TitleLabel.Theme = Theme;
+
+
             //   TitleLabel.ForeColor = ColorUtils.GetForColor(_currentTheme.TitleBarBackColor, _currentTheme.TitleBarForeColor);
             // hamburgerIcon.Theme = Theme;
             profileIcon.Theme = Theme;
@@ -617,6 +765,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             maximizeIcon.Theme = Theme;
             minimizeIcon.Theme = Theme;
             notificationIcon.Theme = Theme;
+            themeIcon.Theme = Theme;
+            searchBox.Theme = Theme;
             Invalidate();
 
         }
@@ -693,7 +843,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 profileIcon.Left = rightEdge - profileIcon.Width;
                 rightEdge -= profileIcon.Width + spacing;
             }
-
+            if (themeIcon != null && themeIcon.Visible)
+            {
+                themeIcon.Anchor = AnchorStyles.Right;
+                themeIcon.Top = DrawingRect.Top + (DrawingRect.Height - themeIcon.Height) / 2;
+                themeIcon.Left = rightEdge - themeIcon.Width;
+                rightEdge -= themeIcon.Width + spacing;
+            }
+            
             int totalwidthforrightbuttons = (windowsicons_height + spacing) * 5;
             // Position searchBox (centered horizontally)
             if (searchBox != null && searchBox.Visible)
@@ -803,6 +960,24 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         }
         #endregion "IBeepUIComoponent Distinct Control Implementation"
+     
+    }
+    public class BeepAppBarEventsArgs : EventArgs
+    {
+        public string ButtonName { get; set; }
+        public BeepButton Beepbutton { get; set; }
+        public Dictionary<string,object> Parameters { get; set; }
+        public string Selectedstring { get; set; }
+        public SimpleItem SelectedItem { get; set; }
 
+        public BeepAppBarEventsArgs(string buttonname)
+        {
+            ButtonName = buttonname;
+        }
+        public BeepAppBarEventsArgs(string buttonname,BeepButton button)
+        {
+            Beepbutton = button;
+            ButtonName = buttonname;
+        }
     }
 }

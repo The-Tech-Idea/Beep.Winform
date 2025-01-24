@@ -368,7 +368,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
             // Attach to runtime-specific events
         //    _form.Load += Form_Load;
-            AttachControlAddedEvent(_form);
+        //    AttachControlAddedEvent(_form);
             if (Theme != BeepThemesManager.CurrentTheme)
             {
                 Theme = BeepThemesManager.CurrentTheme;

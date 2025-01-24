@@ -42,7 +42,6 @@
             // beepuiManager1
             // 
             beepuiManager1.ShowBorder = false;
-            beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.ZenTheme;
             // 
             // panel2
             // 
@@ -50,7 +49,7 @@
             panel2.AnimationDuration = 500;
             panel2.AnimationType = DisplayAnimationType.None;
             panel2.ApplyThemeToChilds = true;
-            panel2.BackColor = Color.FromArgb(240, 240, 240);
+            panel2.BackColor = Color.FromArgb(245, 245, 245);
             panel2.BlockID = null;
             panel2.BorderColor = Color.Black;
             panel2.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -82,7 +81,7 @@
             panel2.FocusForeColor = Color.Black;
             panel2.FocusIndicatorColor = Color.Blue;
             panel2.Font = new Font("Segoe UI", 16F);
-            panel2.ForeColor = Color.FromArgb(60, 60, 60);
+            panel2.ForeColor = Color.Black;
             panel2.Form = null;
             panel2.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             panel2.GradientEndColor = Color.Gray;
@@ -139,7 +138,7 @@
             panel2.SlideFrom = SlideDirection.Left;
             panel2.StaticNotMoving = false;
             panel2.TabIndex = 3;
-            panel2.Theme = Vis.Modules.EnumBeepThemes.ZenTheme;
+            panel2.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
             panel2.TitleAlignment = ContentAlignment.TopLeft;
             panel2.TitleBottomY = 0;
             panel2.TitleFont = new Font("Segoe UI", 16F);
@@ -215,7 +214,7 @@
             messege.InnerTextBox.BackColor = Color.White;
             messege.InnerTextBox.BorderStyle = BorderStyle.None;
             messege.InnerTextBox.Font = new Font("Segoe UI", 9F);
-            messege.InnerTextBox.ForeColor = Color.FromArgb(60, 60, 60);
+            messege.InnerTextBox.ForeColor = Color.Black;
             messege.InnerTextBox.Location = new Point(4, 4);
             messege.InnerTextBox.Multiline = true;
             messege.InnerTextBox.Name = "";
@@ -240,6 +239,7 @@
             messege.LinkedProperty = null;
             messege.Location = new Point(0, 138);
             messege.MaskFormat = Vis.Modules.TextBoxMaskFormat.None;
+            messege.MaxImageSize = new Size(16, 16);
             messege.Modified = false;
             messege.Multiline = true;
             messege.Name = "messege";
@@ -278,7 +278,7 @@
             messege.TextAlignment = HorizontalAlignment.Left;
             messege.TextFont = new Font("Segoe UI", 9F);
             messege.TextImageRelation = TextImageRelation.ImageBeforeText;
-            messege.Theme = Vis.Modules.EnumBeepThemes.ZenTheme;
+            messege.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
             messege.TimeFormat = "HH:mm:ss";
             messege.ToolTipText = "";
             messege.TopoffsetForDrawingRect = 0;
@@ -318,19 +318,19 @@
             _spinnerImage.DrawingRect = new Rectangle(0, 0, 463, 103);
             _spinnerImage.Easing = EasingType.Linear;
             _spinnerImage.FieldID = null;
-            _spinnerImage.FocusBackColor = Color.FromArgb(180, 180, 180);
+            _spinnerImage.FocusBackColor = Color.FromArgb(0, 120, 215);
             _spinnerImage.FocusBorderColor = Color.Gray;
-            _spinnerImage.FocusForeColor = Color.FromArgb(60, 60, 60);
+            _spinnerImage.FocusForeColor = Color.White;
             _spinnerImage.FocusIndicatorColor = Color.Blue;
             _spinnerImage.Form = null;
             _spinnerImage.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             _spinnerImage.GradientEndColor = Color.FromArgb(255, 255, 255);
             _spinnerImage.GradientStartColor = Color.FromArgb(255, 255, 255);
             _spinnerImage.GuidID = "8b76c261-b88a-4f49-b900-1818beb66b95";
-            _spinnerImage.HoverBackColor = Color.FromArgb(200, 200, 200);
+            _spinnerImage.HoverBackColor = Color.FromArgb(230, 230, 230);
             _spinnerImage.HoverBorderColor = Color.FromArgb(65, 105, 225);
             _spinnerImage.HoveredBackcolor = Color.Wheat;
-            _spinnerImage.HoverForeColor = Color.FromArgb(60, 60, 60);
+            _spinnerImage.HoverForeColor = Color.Black;
             _spinnerImage.Id = -1;
             _spinnerImage.Image = null;
             _spinnerImage.ImageEmbededin = ImageEmbededin.Button;
@@ -360,9 +360,9 @@
             _spinnerImage.Name = "_spinnerImage";
             _spinnerImage.OverrideFontSize = TypeStyleFontSize.None;
             _spinnerImage.ParentBackColor = Color.FromArgb(245, 245, 245);
-            _spinnerImage.PressedBackColor = Color.FromArgb(180, 180, 180);
+            _spinnerImage.PressedBackColor = Color.FromArgb(0, 120, 215);
             _spinnerImage.PressedBorderColor = Color.Gray;
-            _spinnerImage.PressedForeColor = Color.FromArgb(60, 60, 60);
+            _spinnerImage.PressedForeColor = Color.White;
             _spinnerImage.RightoffsetForDrawingRect = 0;
             _spinnerImage.SavedGuidID = null;
             _spinnerImage.SavedID = null;
@@ -383,7 +383,7 @@
             _spinnerImage.StaticNotMoving = false;
             _spinnerImage.TabIndex = 5;
             _spinnerImage.Text = "beepImage1";
-            _spinnerImage.Theme = Vis.Modules.EnumBeepThemes.ZenTheme;
+            _spinnerImage.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
             _spinnerImage.ToolTipText = "";
             _spinnerImage.TopoffsetForDrawingRect = 0;
             _spinnerImage.UseGradientBackground = false;
@@ -424,17 +424,17 @@
             label2.FocusForeColor = Color.Black;
             label2.FocusIndicatorColor = Color.Blue;
             label2.Font = new Font("Segoe UI", 9F);
-            label2.ForeColor = Color.FromArgb(60, 60, 60);
+            label2.ForeColor = Color.Black;
             label2.Form = null;
             label2.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             label2.GradientEndColor = Color.Gray;
             label2.GradientStartColor = Color.Gray;
             label2.GuidID = "2079cf69-9749-4a75-a09e-b14b4b829d17";
             label2.HideText = false;
-            label2.HoverBackColor = Color.FromArgb(250, 250, 250);
+            label2.HoverBackColor = Color.White;
             label2.HoverBorderColor = Color.Gray;
             label2.HoveredBackcolor = Color.Wheat;
-            label2.HoverForeColor = Color.FromArgb(60, 60, 60);
+            label2.HoverForeColor = Color.Black;
             label2.Id = -1;
             label2.ImageAlign = ContentAlignment.MiddleLeft;
             label2.ImagePath = null;
@@ -488,7 +488,7 @@
             label2.TextAlign = ContentAlignment.MiddleCenter;
             label2.TextFont = new Font("Segoe UI", 9F);
             label2.TextImageRelation = TextImageRelation.ImageBeforeText;
-            label2.Theme = Vis.Modules.EnumBeepThemes.ZenTheme;
+            label2.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
             label2.ToolTipText = "";
             label2.TopoffsetForDrawingRect = 0;
             label2.UseGradientBackground = false;
@@ -530,17 +530,17 @@
             label1.FocusForeColor = Color.Black;
             label1.FocusIndicatorColor = Color.Blue;
             label1.Font = new Font("Segoe UI", 9F);
-            label1.ForeColor = Color.FromArgb(60, 60, 60);
+            label1.ForeColor = Color.Black;
             label1.Form = null;
             label1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             label1.GradientEndColor = Color.Gray;
             label1.GradientStartColor = Color.Gray;
             label1.GuidID = "05c50703-03f3-4e4d-bce6-c1b3fb402107";
             label1.HideText = false;
-            label1.HoverBackColor = Color.FromArgb(250, 250, 250);
+            label1.HoverBackColor = Color.White;
             label1.HoverBorderColor = Color.Gray;
             label1.HoveredBackcolor = Color.Wheat;
-            label1.HoverForeColor = Color.FromArgb(60, 60, 60);
+            label1.HoverForeColor = Color.Black;
             label1.Id = -1;
             label1.ImageAlign = ContentAlignment.MiddleLeft;
             label1.ImagePath = null;
@@ -594,7 +594,7 @@
             label1.TextAlign = ContentAlignment.MiddleCenter;
             label1.TextFont = new Font("Segoe UI", 9F);
             label1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            label1.Theme = Vis.Modules.EnumBeepThemes.ZenTheme;
+            label1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
             label1.ToolTipText = "";
             label1.TopoffsetForDrawingRect = 0;
             label1.UseGradientBackground = false;
@@ -637,17 +637,17 @@
             Title.FocusForeColor = Color.Black;
             Title.FocusIndicatorColor = Color.Blue;
             Title.Font = new Font("Segoe UI Black", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            Title.ForeColor = Color.FromArgb(60, 60, 60);
+            Title.ForeColor = Color.Black;
             Title.Form = null;
             Title.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             Title.GradientEndColor = Color.Gray;
             Title.GradientStartColor = Color.Gray;
             Title.GuidID = "b3a5330f-524d-4013-a2e6-ef719c7f17fc";
             Title.HideText = false;
-            Title.HoverBackColor = Color.FromArgb(250, 250, 250);
+            Title.HoverBackColor = Color.White;
             Title.HoverBorderColor = Color.Gray;
             Title.HoveredBackcolor = Color.Wheat;
-            Title.HoverForeColor = Color.FromArgb(60, 60, 60);
+            Title.HoverForeColor = Color.Black;
             Title.Id = -1;
             Title.ImageAlign = ContentAlignment.MiddleLeft;
             Title.ImagePath = null;
@@ -701,7 +701,7 @@
             Title.TextAlign = ContentAlignment.MiddleCenter;
             Title.TextFont = new Font("Segoe UI Black", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             Title.TextImageRelation = TextImageRelation.ImageBeforeText;
-            Title.Theme = Vis.Modules.EnumBeepThemes.ZenTheme;
+            Title.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
             Title.ToolTipText = "";
             Title.TopoffsetForDrawingRect = 0;
             Title.UseGradientBackground = false;
@@ -738,19 +738,19 @@
             LogopictureBox.DrawingRect = new Rectangle(0, 0, 25, 25);
             LogopictureBox.Easing = EasingType.Linear;
             LogopictureBox.FieldID = null;
-            LogopictureBox.FocusBackColor = Color.FromArgb(180, 180, 180);
+            LogopictureBox.FocusBackColor = Color.FromArgb(0, 120, 215);
             LogopictureBox.FocusBorderColor = Color.Gray;
-            LogopictureBox.FocusForeColor = Color.FromArgb(60, 60, 60);
+            LogopictureBox.FocusForeColor = Color.White;
             LogopictureBox.FocusIndicatorColor = Color.Blue;
             LogopictureBox.Form = null;
             LogopictureBox.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             LogopictureBox.GradientEndColor = Color.FromArgb(255, 255, 255);
             LogopictureBox.GradientStartColor = Color.FromArgb(255, 255, 255);
             LogopictureBox.GuidID = "406bd223-e60d-4992-ab0e-02ec79e3ced7";
-            LogopictureBox.HoverBackColor = Color.FromArgb(200, 200, 200);
+            LogopictureBox.HoverBackColor = Color.FromArgb(230, 230, 230);
             LogopictureBox.HoverBorderColor = Color.FromArgb(65, 105, 225);
             LogopictureBox.HoveredBackcolor = Color.Wheat;
-            LogopictureBox.HoverForeColor = Color.FromArgb(60, 60, 60);
+            LogopictureBox.HoverForeColor = Color.Black;
             LogopictureBox.Id = -1;
             LogopictureBox.Image = null;
             LogopictureBox.ImageEmbededin = ImageEmbededin.Button;
@@ -780,9 +780,9 @@
             LogopictureBox.Name = "LogopictureBox";
             LogopictureBox.OverrideFontSize = TypeStyleFontSize.None;
             LogopictureBox.ParentBackColor = Color.White;
-            LogopictureBox.PressedBackColor = Color.FromArgb(180, 180, 180);
+            LogopictureBox.PressedBackColor = Color.FromArgb(0, 120, 215);
             LogopictureBox.PressedBorderColor = Color.Gray;
-            LogopictureBox.PressedForeColor = Color.FromArgb(60, 60, 60);
+            LogopictureBox.PressedForeColor = Color.White;
             LogopictureBox.RightoffsetForDrawingRect = 0;
             LogopictureBox.SavedGuidID = null;
             LogopictureBox.SavedID = null;
@@ -803,7 +803,7 @@
             LogopictureBox.StaticNotMoving = false;
             LogopictureBox.TabIndex = 6;
             LogopictureBox.Text = "beepImage1";
-            LogopictureBox.Theme = Vis.Modules.EnumBeepThemes.ZenTheme;
+            LogopictureBox.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
             LogopictureBox.ToolTipText = "";
             LogopictureBox.TopoffsetForDrawingRect = 0;
             LogopictureBox.UseGradientBackground = false;
@@ -814,14 +814,12 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            BorderColor = Color.FromArgb(200, 200, 200);
             ClientSize = new Size(469, 354);
             Controls.Add(panel2);
             Margin = new Padding(4, 3, 4, 3);
             Name = "BeepWait";
             ShowInTaskbar = false;
             Text = "BeepWait";
-            Theme = Vis.Modules.EnumBeepThemes.ZenTheme;
             TopMost = true;
             UseWaitCursor = true;
             panel2.ResumeLayout(false);

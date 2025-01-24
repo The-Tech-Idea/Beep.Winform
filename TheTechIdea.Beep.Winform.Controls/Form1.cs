@@ -54,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ////Point point = new Point(screenPoint.X, screenPoint.Y + beepButton1.Height);
             //SimpleItem x=beepFileDialog.ShowPopup("Tree",beepButton1, BeepPopupFormPosition.Top);
             beepTreeControl1.ShowCheckBox = true;
-            BeepThemesManager.CurrentTheme = EnumBeepThemes.WinterTheme;
+           // BeepThemesManager.CurrentTheme = EnumBeepThemes.WinterTheme;
             //    beepListBox1.ListItems = beepTreeControl1.Nodes;
             //    beepListBox1.InitializeMenu();
             //beepTreeControl1.AllowMultiSelect = false;

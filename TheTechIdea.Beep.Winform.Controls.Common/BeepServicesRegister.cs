@@ -23,7 +23,6 @@ namespace TheTechIdea.Beep.Desktop.Common
         public static IBeepService beepService { get; private set; }
         public static IAppManager AppManager { get; private set; }
         public static IKeyHandlingManager keyhandler { get; private set; }
-
         public static IServiceCollection RegisterRouter(this IServiceCollection services)
         {
             Services = services;
@@ -123,7 +122,6 @@ namespace TheTechIdea.Beep.Desktop.Common
 
             return result;
         }
-
         public static IServiceCollection RegisterViewModels(this IServiceCollection services)
         {
             Services = services;
@@ -157,7 +155,6 @@ namespace TheTechIdea.Beep.Desktop.Common
 
             return Services;
         }
-
         public static IServiceCollection RegisterViews(this IServiceCollection services)
         {
             Services = services;

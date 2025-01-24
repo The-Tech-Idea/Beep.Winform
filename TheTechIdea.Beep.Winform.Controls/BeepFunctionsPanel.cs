@@ -240,12 +240,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             foreach (Control ctrl in Controls)
             { 
                 ApplyThemeToControl(ctrl);
-                //if (ctrl is BeepButton)
+                //if (ctrl is Beepbutton)
                 //{
-                //    ((BeepButton)ctrl).Theme = Theme;
+                //    ((Beepbutton)ctrl).Theme = Theme;
                 //    if (ApplyThemeOnImage)
                 //    {
-                //        ((BeepButton)ctrl).ApplyThemeOnImage=true;
+                //        ((Beepbutton)ctrl).ApplyThemeOnImage=true;
                 //    }
 
                 //}

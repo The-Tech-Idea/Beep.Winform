@@ -132,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
     }
-    // We assume BeepButton, BeepTheme, and related classes are in your namespace.
+    // We assume Beepbutton, BeepTheme, and related classes are in your namespace.
     // using TheTechIdea.Beep.Winform.Controls; // Adjust namespace as needed
     [DefaultProperty("TabPages")]
     [ToolboxItem(true)]

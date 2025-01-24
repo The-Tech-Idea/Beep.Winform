@@ -203,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (items == null || items.Count == 0)
                 return;
 
-            // Create a BeepButton for each item in CurrentMenutems
+            // Create a Beepbutton for each item in CurrentMenutems
             foreach (var item in items)
             {
                 var itemButton = new BeepButton

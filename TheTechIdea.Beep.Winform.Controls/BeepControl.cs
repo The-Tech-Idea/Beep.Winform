@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _canbedefault = false;
         #endregion "protected Properties"
         #region "Public Properties"
-        public IContainer Components => this.Components;
+    //    public IContainer Components => this.Components;
         [Browsable(true)]
         [Category("Appearance")]
         public bool CanBeHovered { get { return _canbehovered; } set { _canbehovered = value; } }
@@ -183,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         [Category("Appearance")]
-        [Description("The text associated with the BeepButton.")]
+        [Description("The text associated with the Beepbutton.")]
         public override string Text
         {
             get => _text;
@@ -775,6 +775,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  BackColor = Color.Transparent;
             Padding = new Padding(0);
             UpdateDrawingRect();
+            
             DataBindings.CollectionChanged += DataBindings_CollectionChanged;
 
         }

@@ -293,14 +293,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     BackColor = _currentTheme.SideMenuBackColor,
                     Visible = true,
                 };
-                // Add BeepButton and highlight panel to the panel
+                // Add Beepbutton and highlight panel to the panel
                 menuItemPanel.Controls.Add(spacingpane);
                 spacingpane.BringToFront(); 
             }
 
 
 
-            // Initialize BeepButton for icon and text
+            // Initialize Beepbutton for icon and text
             BeepButton button = new BeepButton
             {
                 Dock = DockStyle.Fill,
@@ -481,6 +481,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SimpleItem simpleItem = (SimpleItem)clickedButton.Tag;
                 SelectedItem = simpleItem;
                 ItemClicked?.Invoke(this, simpleItem);
+                SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(simpleItem));
             }
         }
         #endregion "Menu events Handling"
@@ -566,7 +567,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Optionally, add padding (if required)
             int padding = 3; // Example padding
             totalHeight += padding * 2;
-            totalHeight=Math.Max(totalHeight, LastItemBottomY+ (padding * 2));
+            totalHeight = totalHeight;// LastItemBottomY + (padding * 2);//Math.Max(totalHeight,);
             Console.WriteLine($"GetMaxHeight: Total height calculated as {totalHeight} pixels.");
 
             return totalHeight;

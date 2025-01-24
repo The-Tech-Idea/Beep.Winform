@@ -162,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls
            
             _beepListBox.ShowAllBorders = false;
 
-            Size = new Size(finalWidth, neededHeight);
+             Size = new Size(finalWidth, neededHeight);
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
         }
         private void BeepPopupListForm_OnLeave(object? sender, EventArgs e)

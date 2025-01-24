@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region "Properties"
         private TextBox _innerTextBox;
-        private BeepImage beepImage;
+        private BeepButton beepImage;
         private string _maskFormat = "";
         private bool _onlyDigits = false;
         private bool _onlyCharacters = false;
@@ -269,30 +269,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("AutoComplete displayed in the control.")]
-        public AutoCompleteMode AutoCompleteMode
-        {
-            get => _innerTextBox.AutoCompleteMode;
-            set
-            {
-                _innerTextBox.AutoCompleteMode = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("AutoComplete displayed in the control.")]
-        public AutoCompleteSource AutoCompleteSource
-        {
-            get => _innerTextBox.AutoCompleteSource;
-            set
-            {
-                _innerTextBox.AutoCompleteSource = value;
-                Invalidate();
-            }
-        }
+      
         [Browsable(true)]
         [Category("Appearance")]
         [Description("PlaceholderText  in the control.")]
@@ -321,6 +298,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        #region "Format and Masking"
         [Browsable(true)]
         [Category("Behavior")]
         [Description("Restrict input to digits only.")]
@@ -338,23 +316,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _onlyCharacters;
             set => _onlyCharacters = value;
         }
-        //[Browsable(true)]
-        //[Category("Appearance")]
-        //[Description("The font applied to the text displayed by the control.")]
-        //public override Font Font
-        //{
-        //    get => base.Font;
-        //    set
-        //    {
-        //        base.Font = value;
-        //        if (_innerTextBox != null)
-        //        {
-        //            _innerTextBox.Font = value;
-        //            AdjustTextBoxHeight(); // Adjust height based on new font size
-        //            Invalidate();
-        //        }
-        //    }
-        //}
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Specify the mask or format for text display.")]
@@ -481,6 +442,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _dateFormat = "MM/dd/yyyy HH:mm:ss"; // Default format
 
         private string _customMask = string.Empty;
+        #endregion "Format and Masking"
+        #region "Image Properties"
+        [Browsable(true)]
+        [Category("Appearance")]
+        public Size MaxImageSize
+        {
+            get => _maxImageSize;
+            set
+            {
+                _maxImageSize = value;
+                beepImage.Size = value;
+                beepImage.MaxImageSize = new Size(value.Width-1,value.Height-1);
+                PositionInnerTextBoxAndImage();
+                Invalidate();
+            }
+        }
         [Browsable(true)]
         [Category("Appearance")]
         public TextImageRelation TextImageRelation
@@ -520,8 +497,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (ApplyThemeOnImage)
                     {
                         beepImage.ApplyThemeOnImage = true;
-                        beepImage.Theme = Theme;
-
+                        //  beepImage.Theme = Theme;
+                        ApplyTheme();
                     }
                 }
                 Invalidate();
@@ -538,7 +515,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (beepImage == null)
                 {
-                    beepImage = new BeepImage();
+                    beepImage = new BeepButton();
 
                 }
                 if (beepImage != null)
@@ -546,16 +523,58 @@ namespace TheTechIdea.Beep.Winform.Controls
                     beepImage.ImagePath = value;
                     if (ApplyThemeOnImage)
                     {
-                        beepImage.Theme = Theme;
+                       // beepImage.Theme = Theme;
                         beepImage.ApplyThemeOnImage = true;
-                        beepImage.ApplyThemeToSvg();
-                        beepImage.ApplyTheme();
+                     //   beepImage.ApplyThemeToSvg();
+                        ApplyTheme();
                     }
                     Invalidate(); // Repaint when the image changes
                                   // UpdateSize();
+                    PositionInnerTextBoxAndImage();
                 }
             }
         }
+        #endregion "Image Properties"
+        #region "AutoCompelete Properties"
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("AutoComplete displayed in the control.")]
+        public AutoCompleteMode AutoCompleteMode
+        {
+            get => _innerTextBox.AutoCompleteMode;
+            set
+            {
+                _innerTextBox.AutoCompleteMode = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("AutoComplete displayed in the control.")]
+        public AutoCompleteSource AutoCompleteSource
+        {
+            get => _innerTextBox.AutoCompleteSource;
+            set
+            {
+                _innerTextBox.AutoCompleteSource = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("AutoComplete Custom Source .")]
+        public AutoCompleteStringCollection AutoCompleteCustomSource
+        {
+            get => _innerTextBox.AutoCompleteCustomSource;
+            set
+            {
+                _innerTextBox.AutoCompleteCustomSource = value;
+                Invalidate();
+            }
+        }
+     
+        #endregion "AutoCompelete Properties"
         #endregion "Properties"
         #region "Constructors"
         public BeepTextBox()
@@ -612,10 +631,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             _innerTextBox.TextChanged += (s, e) => Invalidate(); // Repaint to apply formatting
             Controls.Add(_innerTextBox);
             _innerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
-            beepImage = new BeepImage { Size = _maxImageSize, Dock = DockStyle.None, Margin = new Padding(0) };
+            beepImage = new BeepButton() 
+            {
+                Size = _maxImageSize,
+                ShowAllBorders = false,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                IsChild = true,
+                MaxImageSize = _maxImageSize, Dock = DockStyle.None, Margin = new Padding(0) 
+            
+            };
+            Controls.Add(beepImage);
             //       Console.WriteLine("InitializeComponents");
             //AdjustTextBoxHeight();
-            //PositionInnerTextBoxAndImage();
+            PositionInnerTextBoxAndImage();
 
         }
         #endregion "Initialization"
@@ -669,6 +698,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             AdjustTextBoxHeight();
             PositionInnerTextBoxAndImage();
+            
         }
         private void AdjustTextBoxHeight()
         {
@@ -713,98 +743,68 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void PositionInnerTextBoxAndImage()
         {
-            // Single-line or Multiline mode
-            if (_multiline)
-            {
-                // Hide the image for multiline mode
-                if (!string.IsNullOrEmpty(ImagePath))
-                {
-                    beepImage.Visible = false;
-                }
-
-                // Position the innerTextBox to fill the DrawingRect with padding
-                _innerTextBox.Location = new Point(DrawingRect.X + padding, DrawingRect.Y + padding);
-                _innerTextBox.Size = new Size(DrawingRect.Width - (padding * 2), DrawingRect.Height - (padding * 2));
-
-                // Set Anchor to ensure resizing behavior
-                _innerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
-                return;
-            }
-
-            // Single-line mode with image
             bool hasImage = !string.IsNullOrEmpty(ImagePath);
             beepImage.Visible = hasImage;
-            int textBoxHeight;
-            int textBoxY;
-            if (!hasImage)
+
+            if (hasImage)
             {
-                // Position _innerTextBox vertically centered within DrawingRect
-                 textBoxHeight = _innerTextBox.PreferredHeight;
-                 textBoxY = DrawingRect.Y + (DrawingRect.Height - textBoxHeight) / 2;
+                Size imageSize = beepImage.Size;
 
-                _innerTextBox.Location = new Point(DrawingRect.X + padding, textBoxY);
-                _innerTextBox.Size = new Size(DrawingRect.Width - (padding * 2), textBoxHeight);
+                // Scale the image if it exceeds the maximum size
+                if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
+                {
+                    float scaleFactor = Math.Min(
+                        (float)_maxImageSize.Width / imageSize.Width,
+                        (float)_maxImageSize.Height / imageSize.Height
+                    );
+                    imageSize = new Size(
+                        (int)(imageSize.Width * scaleFactor),
+                        (int)(imageSize.Height * scaleFactor));
+                }
 
-                // Set Anchor to handle resizing width
-                _innerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-                return;
-            }
+                beepImage.Size = imageSize;
+                // Reduce the image size by 1 pixel to prevent clipping
+                beepImage.MaxImageSize = new Size(imageSize.Width - 1, imageSize.Height - 1);
 
-            // Image and Text alignment
-            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
+                int imageY = DrawingRect.Y + (DrawingRect.Height - beepImage.Height) / 2;
+                int textBoxY = DrawingRect.Y;
+                int textBoxHeight = _multiline
+                    ? DrawingRect.Height - (padding * 2) // Use full height for multiline
+                    : _innerTextBox.PreferredHeight;
 
-            // Scale image size to respect the max image size
-            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
-            {
-                float scaleFactor = Math.Min(
-                    (float)_maxImageSize.Width / imageSize.Width,
-                    (float)_maxImageSize.Height / imageSize.Height
-                );
-                imageSize = new Size(
-                    (int)(imageSize.Width * scaleFactor),
-                    (int)(imageSize.Height * scaleFactor));
-            }
-            beepImage.Size = imageSize;
-
-            // Center image & text box vertically
-            int imageY = DrawingRect.Y + (DrawingRect.Height - beepImage.Height) / 2;
-             textBoxHeight = _innerTextBox.PreferredHeight;
-             textBoxY = DrawingRect.Y + (DrawingRect.Height - textBoxHeight) / 2;
-
-            if (_textImageRelation == TextImageRelation.ImageBeforeText)
-            {
-                // Place image on the left
-                beepImage.Location = new Point(DrawingRect.X + padding, imageY);
-
-                // Place text box to the right
-                int textBoxX = beepImage.Right + spacing;
-                int textBoxWidth = DrawingRect.Width - textBoxX - padding;
-
-                _innerTextBox.Location = new Point(textBoxX, textBoxY);
-                _innerTextBox.Size = new Size(textBoxWidth, textBoxHeight);
-
-                // Set Anchor to handle resizing width
-                _innerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            }
-            else if (_textImageRelation == TextImageRelation.TextBeforeImage)
-            {
-                // Place text box on the left
-                _innerTextBox.Location = new Point(DrawingRect.X + padding, textBoxY);
-                _innerTextBox.Size = new Size(DrawingRect.Width - imageSize.Width - spacing - (padding * 2), textBoxHeight);
-
-                // Place image to the right
-                int imageX = _innerTextBox.Right + spacing;
-                beepImage.Location = new Point(imageX, imageY);
-
-                // Set Anchor to handle resizing width
-                _innerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+                if (_textImageRelation == TextImageRelation.ImageBeforeText)
+                {
+                    // Image on the left
+                    beepImage.Location = new Point(DrawingRect.X + padding, imageY);
+                    int textBoxX = beepImage.Right + spacing;
+                    _innerTextBox.Location = new Point(textBoxX, textBoxY);
+                    _innerTextBox.Size = new Size(DrawingRect.Width - textBoxX - padding, textBoxHeight);
+                }
+                else if (_textImageRelation == TextImageRelation.TextBeforeImage)
+                {
+                    // Text on the left, image on the right
+                    _innerTextBox.Location = new Point(DrawingRect.X + padding, textBoxY);
+                    _innerTextBox.Size = new Size(DrawingRect.Width - imageSize.Width - spacing - (padding * 2), textBoxHeight);
+                    beepImage.Location = new Point(_innerTextBox.Right + spacing, imageY);
+                }
             }
             else
             {
-                beepImage.Visible = false;
-                _innerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+                // No image: Adjust the text box
+                int textBoxHeight = _multiline
+                    ? DrawingRect.Height - (padding * 2) // Full height for multiline
+                    : _innerTextBox.PreferredHeight;
+
+                int textBoxY = _multiline
+                    ? DrawingRect.Y + padding // Start at the top for multiline
+                    : DrawingRect.Y + (DrawingRect.Height - textBoxHeight) / 2; // Center vertically for single-line
+
+                _innerTextBox.Location = new Point(DrawingRect.X + padding, textBoxY);
+                _innerTextBox.Size = new Size(DrawingRect.Width - (padding * 2), textBoxHeight);
             }
         }
+
+
 
 
         #endregion "Size and Position"
@@ -1350,8 +1350,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Font=_textFont;
             }
             
-            BackColor = _currentTheme.BackColor;
-            beepImage.ApplyTheme();
+            BackColor = _currentTheme.TextBoxBackColor;
+            beepImage.BackColor = _currentTheme.TextBoxBackColor;
+            beepImage.ForeColor = _currentTheme.TextBoxForeColor;
+            beepImage.BorderColor = _currentTheme.BorderColor;
+            if(ApplyThemeOnImage)
+            {
+                beepImage.ImageEmbededin = ImageEmbededin.TextBox;
+                beepImage.ApplyThemeToSvg();
+            }
+           
             Invalidate();
         }
         #endregion "Theme and Style"

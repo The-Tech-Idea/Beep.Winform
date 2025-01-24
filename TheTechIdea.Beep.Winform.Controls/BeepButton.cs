@@ -5,7 +5,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Utilities;
-using TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public EventHandler<BeepEventDataArgs> ImageClicked { get; set; }
         private Color tmpbackcolor;
         private Color tmpforcolor;
-
+      
         #region "Popup List Properties"
         private BeepPopupForm _popupForm;
         private BeepListBox _beepListBox;
@@ -125,6 +125,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion "Popup List Properties"
+        private ImageEmbededin _imageEmbededin = ImageEmbededin.Button;
+        [Category("Appearance")]
+        [Description("Indicates where the image is embedded.")]
+        public ImageEmbededin ImageEmbededin
+        {
+            get => _imageEmbededin;
+            set
+            {
+                _imageEmbededin = value;
+                beepImage.ImageEmbededin = value;
+                Invalidate();
+            }
+        }
         private bool _useScaledfont = false;
         [Browsable(true)]
         [Category("Appearance")]
@@ -462,12 +475,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
             BeepPopupListForm beepFileDialog = new BeepPopupListForm(ListItems.ToList());
+           
             beepFileDialog.Theme = Theme;
-            
+            beepFileDialog.SelectedItemChanged += (sender, item) =>
+            {
+                SelectedItem = item.SelectedItem;
+       //         ClosePopup();
+            };
             // Get the screen position of the control's top-left corner
             //Point screenPoint = beepButton1.PointToScreen(Point.Empty);
             //Point point = new Point(screenPoint.X, screenPoint.Y + beepButton1.Height);
             SimpleItem x = beepFileDialog.ShowPopup(Text, this, BeepPopupFormPosition.Bottom);
+           
         }
         private void ClosePopup()
         {

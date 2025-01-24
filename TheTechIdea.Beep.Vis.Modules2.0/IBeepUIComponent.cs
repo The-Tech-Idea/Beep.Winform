@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         int Id { get; set; }
         string[] Items { get; set; }
         bool ValidateData(out string  messege);
-         IContainer Components { get; }
+     //    IContainer Components { get; }
         // New properties and methods for binding
         object DataContext { get; set; } // The source of data for binding
         string BoundProperty { get; set; } // The property of the Control to bind to  DataSourceProperty

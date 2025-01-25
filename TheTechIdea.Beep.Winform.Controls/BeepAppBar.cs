@@ -366,14 +366,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             searchBox = new BeepTextBox
             {
                 Width = 200,
-                Height = 23,
+                Height = 25,
                 Theme = this.Theme,
                 Text = string.Empty,
 
                 IsChild = false,
                 PlaceholderText = "Search...",
                // ApplyThemeOnImage = _applyThemeOnImage,
-                IsFramless = true,
+                IsFramless = false,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ImageAlign= ContentAlignment.MiddleRight,
@@ -770,7 +770,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             minimizeIcon.Theme = Theme;
             notificationIcon.Theme = Theme;
             themeIcon.Theme = Theme;
-            searchBox.Theme = Theme;
+          //  searchBox.Theme = Theme;
+            searchBox.ForeColor = _currentTheme.SideMenuForeColor;
+            searchBox.BackColor = _currentTheme.TitleBarBackColor;
+            searchBox.ShowAllBorders = true;
+           // searchBox.Invalidate();
             Invalidate();
 
         }

@@ -210,18 +210,7 @@
             // 
             // 
             // 
-            messege.InnerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            messege.InnerTextBox.BackColor = Color.White;
-            messege.InnerTextBox.BorderStyle = BorderStyle.None;
-            messege.InnerTextBox.Font = new Font("Segoe UI", 9F);
-            messege.InnerTextBox.ForeColor = Color.Black;
-            messege.InnerTextBox.Location = new Point(4, 4);
-            messege.InnerTextBox.Multiline = true;
-            messege.InnerTextBox.Name = "";
-            messege.InnerTextBox.ScrollBars = ScrollBars.Vertical;
-            messege.InnerTextBox.Size = new Size(455, 173);
-            messege.InnerTextBox.TabIndex = 0;
-            messege.InnerTextBox.UseWaitCursor = true;
+         
             messege.IsAcceptButton = false;
             messege.IsBorderAffectedByTheme = true;
             messege.IsCancelButton = false;

@@ -38,8 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             Dependencies.DMEEditor= beepService.DMEEditor;
             MethodHandler.DMEEditor = beepService.DMEEditor;
             beepTreeControl1.init(beepService);
-            beepButton1.Click += BeepButton1_Click;
-            beepButton2.PopupMode = true;
+          //  beepButton1.Click += BeepButton1_Click;
+         //   beepButton2.PopupMode = true;
         }
       
 
@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
 
             beepTreeControl1.CreateRootTree();
-            beepButton2.ListItems = beepTreeControl1.Nodes;
+           // beepButton2.ListItems = beepTreeControl1.Nodes;
             //BeepPopupListForm beepFileDialog = new BeepPopupListForm(beepTreeControl1.Nodes.ToList());
             //// Get the screen position of the control's top-left corner
             ////Point screenPoint = beepButton1.PointToScreen(Point.Empty);

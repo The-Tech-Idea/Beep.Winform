@@ -11,6 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DefaultProperty("TabPages")]
     [DisplayName("Beep Tabs WithoutHeader")]
     [Category("Beep Controls")]
+   // [Designer(typeof(BeepTabsDesigner))] // Use ControlDesigner or a custom designer
     public class TabControlWithoutHeader : TabControl
     {
         // Constructor to initialize the control
@@ -19,10 +20,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             AllowDrop = true; // Enable drag-and-drop by default
 
             // Set the size of the control to match the first TabPage
-            if (TabPages.Count > 0)
-            {
-                Size = TabPages[0].Size;
-            }
+            //if (TabPages.Count > 0)
+            //{
+            //    Size = TabPages[0].Size;
+            //}
         }
 
         // Event triggered when TabPages are added or removed
@@ -40,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             const int TCM_ADJUSTRECT = 0x1328;
 
-            if (m.Msg == TCM_ADJUSTRECT && !DesignMode)
+            if (m.Msg == TCM_ADJUSTRECT )
             {
                 // Return zero rect to hide the tabs
                 m.Result = IntPtr.Zero;
@@ -57,19 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnControlAdded(e);
 
-            if (e.Control is TabPage tabPage)
-            {
-                // Ensure the TabPage is recognized as a design-time container
-                var host = this.GetService(typeof(IDesignerHost)) as IDesignerHost;
-                if (host != null)
-                {
-                    var container = host.Container;
-                    if (container != null)
-                    {
-                        container.Add(tabPage);
-                    }
-                }
-            }
+          
         }
 
         /// <summary>
@@ -87,16 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public event EventHandler<TabPage> TabPageLoading;
 
-        protected override void OnSelectedIndexChanged(EventArgs e)
-        {
-            base.OnSelectedIndexChanged(e);
-
-            if (TabPages[SelectedIndex].Tag == null) // Check if content is not yet loaded
-            {
-                TabPageLoading?.Invoke(this, TabPages[SelectedIndex]);
-                TabPages[SelectedIndex].Tag = "Loaded"; // Mark as loaded
-            }
-        }
+        
 
     }
 }

@@ -26,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get=> _backcolor;
             set
             {
+                base.BackColor = value;
                 _backcolor = value;
                  BackColor = value;
                 Invalidate();
@@ -192,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 UseThemeFont = false;
                 Font = value;
                // Console.WriteLine("TextFont Changed");
-                ApplyTheme();
+             //   ApplyTheme();
                 Invalidate();
 
 
@@ -280,6 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             beepImage = new BeepImage
             {
+                IsChild = true,
                 Dock = DockStyle.None, // We'll manually position it
                 Margin = new Padding(0),
                 Location = new Point(0, 0), // Set initial position (will adjust in layout)
@@ -392,7 +394,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 BackColor = _currentTheme.LabelBackColor;
                 ForeColor = _currentTheme.LabelForeColor;
-                HoverBackColor = _currentTheme.BackgroundColor;
+                HoverBackColor = _currentTheme.ButtonHoverBackColor;
                 HoverForeColor = _currentTheme.ButtonHoverForeColor;
              //   Console.WriteLine("1 Label Apply Theme TextFont");
                 // Only apply the theme's font if UseThemeFont is true
@@ -401,7 +403,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                //     Console.WriteLine("2 Label Apply Theme TextFont");
                     _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                 }
-
+                Font = _textFont;
+                if (IsChild)
+                {
+                    BackColor = TempBackColor;
+                }
                 //   Console.WriteLine("2 Label Apply Theme TextFont");
                 ApplyThemeToSvg();
                // Invalidate();

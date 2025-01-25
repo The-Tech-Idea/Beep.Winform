@@ -77,8 +77,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _themeEnum = value;
                     _currentTheme = BeepThemesManager.GetTheme(value);
-                    beepuiManager1.Theme = value;
-                    ApplyTheme();
+                 //   beepuiManager1.Theme = value;
+                  //  ApplyTheme();
                 }
             }
         }

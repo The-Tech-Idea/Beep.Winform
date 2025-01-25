@@ -406,11 +406,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _isChild = value;
+                base.IsChild = value;
+               
                 if (this.Parent != null)
                 {
                     if (value)
                     {
-                        beepImage.IsChild = value;
                         parentbackcolor = this.Parent.BackColor;
                         _tempbackcolor = BackColor;
                         BackColor = parentbackcolor;
@@ -421,9 +422,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                         beepImage.IsChild = value;
                         beepImage.BackColor = _tempbackcolor;
                         BackColor = _tempbackcolor;
+                       // ApplyTheme();
                     }
                 }
-
+               
                 Invalidate();  // Trigger repaint
             }
         }
@@ -452,6 +454,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             beepImage = new BeepImage
             {
+                IsChild = true,
                 Dock = DockStyle.None, // We'll manually position it
                 Margin = new Padding(0),
                 Location = new Point(0, 0), // Set initial position (will adjust in layout)
@@ -461,7 +464,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage.MouseHover += BeepImage_MouseHover;
             beepImage.MouseEnter += BeepImage_MouseEnter;
             //   beepImage.MouseLeave += BeepImage_MouseLeave;
-            IsChild = false;
             beepImage.MouseDown += BeepImage_MouseDown;
             Padding = new Padding(0);
             Margin = new Padding(0);
@@ -555,7 +557,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
                 
             }
-
+            if (IsChild)
+            {
+                BackColor= TempBackColor ;
+            }
             Font = _textFont;
             ApplyThemeToSvg();
             Invalidate();  // Trigger repaint

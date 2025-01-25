@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using TheTechIdea.Beep.Desktop.Common;
+using System.Diagnostics;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Managers
@@ -247,16 +248,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Select the theme to apply to all Beep controls.")]
-        [DefaultValue(EnumBeepThemes.DefaultTheme)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public EnumBeepThemes Theme
         {
             get => _theme;
             set
             {
-                _theme = value;
-                OnThemeChanged?.Invoke(_theme);
-                ApplyThemeToAllBeepControls(_form); // Apply to all existing controls recursively
+              //  Debug.WriteLine($"Theme Changed {value.ToString()} - {_theme.ToString()}");
+                if (_theme != value)
+                {
+                    _theme = value;
+                    OnThemeChanged?.Invoke(_theme);
+                    ApplyThemeToAllBeepControls(_form);
+                }
             }
         }
       
@@ -274,7 +278,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             BeepThemesManager.ThemeChanged -= BeepThemesManager_ThemeChanged;
             BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
         }
-
         private void BeepThemesManager_ThemeChanged(object? sender, EventArgs e)
         {
             if (_form != null)
@@ -288,8 +291,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                
             }
         }
-
-
         #endregion
         #region "Design-time support"
         private void DetachControlAddedEvent(Control container)
@@ -367,15 +368,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             BeepiForm = runtimeForm as BeepiForm;
 
             // Attach to runtime-specific events
-        //    _form.Load += Form_Load;
-        //    AttachControlAddedEvent(_form);
-            if (Theme != BeepThemesManager.CurrentTheme)
-            {
-                Theme = BeepThemesManager.CurrentTheme;
-            }
-          
-            ApplyThemeToAllBeepControls(_form); // Apply the initial theme
-            BeepiForm.ApplyTheme();
+            //    _form.Load += Form_Load;
+            //    AttachControlAddedEvent(_form);
+           // BeepiForm.ApplyTheme();
             BeepThemesManager.ThemeChanged -= BeepThemesManager_ThemeChanged;
             BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
         }

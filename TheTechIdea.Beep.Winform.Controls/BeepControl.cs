@@ -249,8 +249,35 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Redraw if shadow offset changes
             }
         }
-
-
+        //ParentControl
+        private Control parentcontrol;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public Control ParentControl
+        {
+            get => parentcontrol;
+            set
+            {
+                parentcontrol = value;
+                if (value != null)
+                {
+                    parentbackcolor = value.BackColor;
+                }
+                Invalidate();  // Trigger repaint
+            }
+        }
+            //TempBackColor
+            [Browsable(true)]
+        [Category("Appearance")]
+        public Color TempBackColor
+        {
+            get => _tempbackcolor;
+            set
+            {
+                _tempbackcolor = value;
+               // Invalidate();  // Trigger repaint
+            }
+        }
         [Browsable(true)]
         [Category("Appearance")]
         public Color ParentBackColor
@@ -259,7 +286,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 parentbackcolor = value;
-                Invalidate();  // Trigger repaint
+               // Invalidate();  // Trigger repaint
             }
         }
         [Browsable(true)]
@@ -770,7 +797,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             DoubleBuffered = true;
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-            this.SetStyle(ControlStyles.ContainerControl, true);
             InitializeTooltip();
             ShowAllBorders = true;
             //  BackColor = Color.Transparent;
@@ -898,6 +924,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShadowColor = _currentTheme.ShadowColor;
                 GradientStartColor = _currentTheme.GradientStartColor;
                 GradientEndColor = _currentTheme.GradientEndColor;
+                if (IsChild)
+                {
+                    BackColor = TempBackColor;
+                }
             }
             catch (Exception ex)
             {

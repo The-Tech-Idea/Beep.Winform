@@ -289,16 +289,7 @@
             // 
             // 
             // 
-            _searchBox.InnerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            _searchBox.InnerTextBox.BackColor = Color.White;
-            _searchBox.InnerTextBox.BorderStyle = BorderStyle.None;
-            _searchBox.InnerTextBox.Font = new Font("Segoe UI", 9F);
-            _searchBox.InnerTextBox.ForeColor = Color.Black;
-            _searchBox.InnerTextBox.Location = new Point(5, 2);
-            _searchBox.InnerTextBox.Name = "";
-            _searchBox.InnerTextBox.Size = new Size(312, 16);
-            _searchBox.InnerTextBox.TabIndex = 0;
-            _searchBox.InnerTextBox.Text = "beepTextBox1";
+           
             _searchBox.IsAcceptButton = false;
             _searchBox.IsBorderAffectedByTheme = true;
             _searchBox.IsCancelButton = false;
@@ -670,16 +661,7 @@
             // 
             // 
             // 
-            _fileNameTextBox.InnerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            _fileNameTextBox.InnerTextBox.BackColor = Color.White;
-            _fileNameTextBox.InnerTextBox.BorderStyle = BorderStyle.None;
-            _fileNameTextBox.InnerTextBox.Font = new Font("Segoe UI", 9F);
-            _fileNameTextBox.InnerTextBox.ForeColor = Color.Black;
-            _fileNameTextBox.InnerTextBox.Location = new Point(8, 5);
-            _fileNameTextBox.InnerTextBox.Name = "";
-            _fileNameTextBox.InnerTextBox.PlaceholderText = "File Name";
-            _fileNameTextBox.InnerTextBox.Size = new Size(293, 16);
-            _fileNameTextBox.InnerTextBox.TabIndex = 0;
+            
             _fileNameTextBox.IsAcceptButton = false;
             _fileNameTextBox.IsBorderAffectedByTheme = true;
             _fileNameTextBox.IsCancelButton = false;

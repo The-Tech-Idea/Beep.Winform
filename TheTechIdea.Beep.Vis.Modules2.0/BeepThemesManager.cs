@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
@@ -691,7 +692,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             BorderRadius = 4,
             IconSet = "ModernIcons",
             ApplyThemeToIcons = true,
-            ShadowColor = Color.Black,
+            ShadowColor = Color.FromArgb(255, 0, 0, 0),
             ShadowOpacity = 0.5f,
             AnimationDurationShort = 150,  // in milliseconds
             AnimationDurationMedium = 300,
@@ -709,7 +710,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             GridHeaderForeColor = Color.FromArgb(33, 33, 33),
             GridHeaderBorderColor = Color.Silver,
             GridHeaderHoverBackColor = Color.FromArgb(224, 224, 224), // Medium Gray
-            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderSelectedBackColor = Color.FromArgb(0, 121, 107), // Teal
             GridHeaderSelectedForeColor = Color.White,
             GridHeaderHoverBorderColor = Color.Gray,
@@ -883,7 +884,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             WarningColor = Color.FromArgb(255, 152, 0),           // Material Orange 500
             SuccessColor = Color.FromArgb(76, 175, 80),           // Material Green 500
             OnPrimaryColor = Color.White,
-            OnBackgroundColor = Color.Black,
+            OnBackgroundColor = Color.FromArgb(255, 0, 0, 0),
             
             // **Button Colors**
             ButtonBackColor = Color.White,       // PrimaryColor
@@ -895,33 +896,33 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
-            TextBoxForeColor = Color.Black,
+            TextBoxForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Label Colors**
             LabelBackColor = Color.White,
-            LabelForeColor = Color.Black,
+            LabelForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(245, 245, 245),
-            HeaderForeColor = Color.Black,
+            HeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridLineColor = Color.LightGray,
             RowBackColor = Color.White,
-            RowForeColor = Color.Black,
+            RowForeColor = Color.FromArgb(255, 0, 0, 0),
             AltRowBackColor = Color.FromArgb(250, 250, 250),
             SelectedRowBackColor = Color.FromArgb(224, 224, 224),
-            SelectedRowForeColor = Color.Black,
+            SelectedRowForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **ComboBox Colors**
             ComboBoxBackColor = Color.White,
-            ComboBoxForeColor = Color.Black,
+            ComboBoxForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **CheckBox Colors**
             CheckBoxBackColor = Color.White,
-            CheckBoxForeColor = Color.Black,
+            CheckBoxForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **RadioButton Colors**
             RadioButtonBackColor = Color.White,
-            RadioButtonForeColor = Color.Black,
+            RadioButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Border Colors**
             BorderColor = Color.LightGray,
@@ -949,13 +950,13 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Tab Control Colors**
             TabBackColor = Color.White,
-            TabForeColor = Color.Black,
+            TabForeColor = Color.FromArgb(255, 0, 0, 0),
             ActiveTabBackColor = Color.FromArgb(33, 150, 243), // PrimaryColor
             ActiveTabForeColor = Color.White,
 
             // **Dialog Box Colors**
             DialogBackColor = Color.White,
-            DialogForeColor = Color.Black,
+            DialogForeColor = Color.FromArgb(255, 0, 0, 0),
             DialogButtonBackColor = Color.FromArgb(33, 150, 243), // PrimaryColor
             DialogButtonForeColor = Color.White,
 
@@ -964,7 +965,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverBackColor = Color.FromArgb(224, 224, 224),      // Slightly darker for hover state
             SideMenuSelectedBackColor = Color.FromArgb(200, 200, 200),   // More distinct for selection
             SideMenuForeColor = Color.FromArgb(33, 33, 33),              // Dark Gray for readability
-            SideMenuHoverForeColor = Color.Black,                        // Bold text color for hover
+            SideMenuHoverForeColor = Color.FromArgb(255, 0, 0, 0),                        // Bold text color for hover
             SideMenuSelectedForeColor = Color.FromArgb(33, 150, 243),    // Highlighted text for selected state
             SideMenuBorderColor = Color.LightGray,
             SideMenuIconColor = Color.Gray,
@@ -991,16 +992,16 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.Gray,
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.Black,
+            SidebarIconColor = Color.FromArgb(255, 0, 0, 0),
             SidebarSelectedIconColor = Color.FromArgb(33, 150, 243), // PrimaryColor
-            SidebarTextColor = Color.Black,
+            SidebarTextColor = Color.FromArgb(255, 0, 0, 0),
             SidebarSelectedTextColor = Color.FromArgb(33, 150, 243),
 
             // **Navigation Colors**
             NavigationBackColor = Color.White,
-            NavigationForeColor = Color.Black,
+            NavigationForeColor = Color.FromArgb(255, 0, 0, 0),
             NavigationHoverBackColor = Color.FromArgb(245, 245, 245),
-            NavigationHoverForeColor = Color.Black,
+            NavigationHoverForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Badge and Highlight Colors**
             BadgeBackColor = Color.FromArgb(33, 150, 243), // PrimaryColor
@@ -1026,7 +1027,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             FontStyleItalic = FontStyle.Italic,
 
             // **Text Colors**
-            PrimaryTextColor = Color.Black,
+            PrimaryTextColor = Color.FromArgb(255, 0, 0, 0),
             SecondaryTextColor = Color.DarkGray,
             AccentTextColor = Color.FromArgb(33, 150, 243), // PrimaryColor
 
@@ -1034,7 +1035,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             // (Already included above with Heading1, Heading2, ..., LabelSmall)
 
             // **Additional UI Element Colors**
-            TitleForColor = Color.Black,
+            TitleForColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarForColor = Color.White,
             DescriptionForColor = Color.FromArgb(117, 117, 117), // Light Gray
             BeforeForColor = Color.FromArgb(117, 117, 117),
@@ -1075,20 +1076,20 @@ namespace TheTechIdea.Beep.Vis.Modules
         public static BeepTheme NeumorphismTheme => new BeepTheme
         {
             GridBackColor = Color.White,
-            GridForeColor = Color.Black,
+            GridForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBackColor = Color.Gainsboro,
-            GridHeaderForeColor = Color.Black,
+            GridHeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBorderColor = Color.LightGray,
             GridHeaderHoverBackColor = Color.WhiteSmoke,
-            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderSelectedBackColor = Color.LightGray,
-            GridHeaderSelectedForeColor = Color.Black,
+            GridHeaderSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderHoverBorderColor = Color.LightGray,
             GridHeaderSelectedBorderColor = Color.Gray,
             GridRowHoverBackColor = Color.WhiteSmoke,
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.LightGray,
-            GridRowSelectedForeColor = Color.Black,
+            GridRowSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowHoverBorderColor = Color.LightGray,
             GridRowSelectedBorderColor = Color.Gray,
             CardBackColor = Color.FromArgb(240, 240, 240),
@@ -1098,7 +1099,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontFamily = "Segoe UI",
                 FontSize = 20f,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(0, 0, 0),  // Black
+                TextColor =Color.FromArgb(255, 0, 0, 0),  // Black
             },
             CardparagraphStyle = new TypographyStyle
             {
@@ -3069,7 +3070,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonHoverBackColor = Color.FromArgb(0, 128, 0),              // Green
             ButtonHoverForeColor = Color.White,
             ButtonActiveBackColor = Color.FromArgb(0, 100, 0),             // Dark Green
-            ButtonActiveForeColor = Color.Black,
+            ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
@@ -5493,7 +5494,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Button Colors**
             ButtonBackColor = Color.FromArgb(144, 238, 144),        // Light Green
-            ButtonForeColor = Color.Black,
+            ButtonForeColor = Color.FromArgb(255, 0, 0, 0),
             ButtonHoverBackColor = Color.FromArgb(60, 179, 113),    // Medium Sea Green
             ButtonHoverForeColor = Color.White,
             ButtonActiveBackColor = Color.FromArgb(46, 139, 87),    // Sea Green
@@ -6582,18 +6583,18 @@ namespace TheTechIdea.Beep.Vis.Modules
         public static BeepTheme ZenTheme => new BeepTheme
         {
             GridBackColor = Color.FromArgb(245, 245, 245), // Light Gray
-            GridForeColor = Color.Black,
+            GridForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBackColor = Color.FromArgb(220, 220, 220), // Soft Gray
-            GridHeaderForeColor = Color.Black,
+            GridHeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBorderColor = Color.Silver,
             GridHeaderHoverBackColor = Color.FromArgb(200, 200, 200), // Darker Gray
-            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderSelectedBackColor = Color.FromArgb(180, 180, 180), // Deeper Gray
             GridHeaderSelectedForeColor = Color.White,
             GridHeaderHoverBorderColor = Color.Silver,
             GridHeaderSelectedBorderColor = Color.Gray,
             GridRowHoverBackColor = Color.WhiteSmoke,
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.FromArgb(150, 150, 150), // Gray Tone
             GridRowSelectedForeColor = Color.White,
             GridRowHoverBorderColor = Color.Silver,
@@ -7188,18 +7189,18 @@ namespace TheTechIdea.Beep.Vis.Modules
         public static BeepTheme RetroTheme => new BeepTheme
         {
             GridBackColor = Color.FromArgb(250, 235, 215), // Antique White
-            GridForeColor = Color.Black,
+            GridForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBackColor = Color.FromArgb(240, 230, 140), // Khaki
-            GridHeaderForeColor = Color.Black,
+            GridHeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBorderColor = Color.Olive,
             GridHeaderHoverBackColor = Color.FromArgb(218, 165, 32), // Goldenrod
-            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderSelectedBackColor = Color.FromArgb(184, 134, 11), // Dark Goldenrod
             GridHeaderSelectedForeColor = Color.White,
             GridHeaderHoverBorderColor = Color.Olive,
             GridHeaderSelectedBorderColor = Color.DarkGoldenrod,
             GridRowHoverBackColor = Color.FromArgb(245, 222, 179), // Wheat
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.DarkGoldenrod,
             GridRowSelectedForeColor = Color.White,
             GridRowHoverBorderColor = Color.Olive,
@@ -7308,22 +7309,22 @@ namespace TheTechIdea.Beep.Vis.Modules
             DescriptionForColor = Color.FromArgb(255, 20, 147),    // Deep Pink
             BeforeForColor = Color.FromArgb(0, 191, 255),          // Deep Sky Blue
             LatestForColor = Color.FromArgb(255, 105, 180),        // Hot Pink
-            BackColor = Color.FromArgb(0, 0, 0),                   // Black background
-
+            BackColor =Color.FromArgb(255, 0, 0, 0),                   // Black background
+            
             // **Button Colors**
             ButtonBackColor = Color.FromArgb(255, 20, 147),        // Deep Pink
             ButtonForeColor = Color.White,
             ButtonHoverBackColor = Color.FromArgb(0, 255, 255),    // Aqua
-            ButtonHoverForeColor = Color.Black,
+            ButtonHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             ButtonActiveBackColor = Color.FromArgb(255, 255, 0),   // Yellow
-            ButtonActiveForeColor = Color.Black,
+            ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **TextBox Colors**
-            TextBoxBackColor = Color.Black,
+            TextBoxBackColor = Color.FromArgb(255, 0, 0, 0),
             TextBoxForeColor = Color.FromArgb(0, 255, 127),        // Spring Green
 
             // **Label Colors**
-            LabelBackColor = Color.Black,
+            LabelBackColor = Color.FromArgb(255, 0, 0, 0),
             LabelForeColor = Color.FromArgb(255, 255, 0),          // Yellow
 
             // **Panel Colors**
@@ -7335,22 +7336,22 @@ namespace TheTechIdea.Beep.Vis.Modules
             HeaderBackColor = Color.FromArgb(75, 0, 130),          // Indigo
             HeaderForeColor = Color.FromArgb(255, 255, 0),
             GridLineColor = Color.FromArgb(0, 255, 255),           // Aqua
-            RowBackColor = Color.Black,
+            RowBackColor = Color.FromArgb(255, 0, 0, 0),
             RowForeColor = Color.FromArgb(255, 255, 0),
             AltRowBackColor = Color.FromArgb(75, 0, 130),
             SelectedRowBackColor = Color.FromArgb(255, 20, 147),   // Deep Pink
             SelectedRowForeColor = Color.White,
 
             // **ComboBox Colors**
-            ComboBoxBackColor = Color.Black,
+            ComboBoxBackColor = Color.FromArgb(255, 0, 0, 0),
             ComboBoxForeColor = Color.FromArgb(0, 255, 255),       // Aqua
 
             // **CheckBox Colors**
-            CheckBoxBackColor = Color.Black,
+            CheckBoxBackColor = Color.FromArgb(255, 0, 0, 0),
             CheckBoxForeColor = Color.FromArgb(255, 255, 0),
 
             // **RadioButton Colors**
-            RadioButtonBackColor = Color.Black,
+            RadioButtonBackColor = Color.FromArgb(255, 0, 0, 0),
             RadioButtonForeColor = Color.FromArgb(255, 20, 147),
 
             // **Border Colors**
@@ -7371,16 +7372,16 @@ namespace TheTechIdea.Beep.Vis.Modules
             ToolTipForeColor = Color.White,
 
             // **ScrollBar Colors**
-            ScrollBarBackColor = Color.Black,
+            ScrollBarBackColor = Color.FromArgb(255, 0, 0, 0),
             ScrollBarThumbColor = Color.FromArgb(255, 105, 180),   // Hot Pink
             ScrollBarTrackColor = Color.FromArgb(75, 0, 130),
 
             // **Status Bar Colors**
             StatusBarBackColor = Color.FromArgb(0, 255, 127),      // Spring Green
-            StatusBarForeColor = Color.Black,
+            StatusBarForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Tab Colors**
-            TabBackColor = Color.Black,
+            TabBackColor = Color.FromArgb(255, 0, 0, 0),
             TabForeColor = Color.FromArgb(0, 255, 255),            // Aqua
             ActiveTabBackColor = Color.FromArgb(255, 20, 147),     // Deep Pink
             ActiveTabForeColor = Color.White,
@@ -7389,10 +7390,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogBackColor = Color.FromArgb(75, 0, 130),
             DialogForeColor = Color.White,
             DialogButtonBackColor = Color.FromArgb(0, 255, 127),
-            DialogButtonForeColor = Color.Black,
+            DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Gradient Properties**
-            GradientStartColor = Color.Black,
+            GradientStartColor = Color.FromArgb(255, 0, 0, 0),
             GradientEndColor = Color.FromArgb(75, 0, 130),
             GradientDirection = LinearGradientMode.ForwardDiagonal,
 
@@ -7414,14 +7415,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarHoverForeColor = Color.White,
 
             // **Dashboard Colors**
-            DashboardBackColor = Color.Black,
+            DashboardBackColor = Color.FromArgb(255, 0, 0, 0),
             DashboardCardBackColor = Color.FromArgb(75, 0, 130),
             DashboardCardHoverBackColor = Color.FromArgb(148, 0, 211),
             CardTitleForeColor = Color.FromArgb(255, 255, 0),      // Yellow
             CardTextForeColor = Color.FromArgb(0, 255, 255),       // Aqua
 
             // **Data Visualization (Charts)**
-            ChartBackColor = Color.Black,
+            ChartBackColor = Color.FromArgb(255, 0, 0, 0),
             ChartLineColor = Color.FromArgb(0, 255, 255),          // Aqua
             ChartFillColor = Color.FromArgb(100, 0, 255, 255),     // Semi-transparent Aqua
             ChartAxisColor = Color.FromArgb(255, 255, 0),          // Yellow
@@ -7433,7 +7434,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
-            NavigationBackColor = Color.Black,
+            NavigationBackColor = Color.FromArgb(255, 0, 0, 0),
             NavigationForeColor = Color.FromArgb(0, 255, 255),
             NavigationHoverBackColor = Color.FromArgb(75, 0, 130),
             NavigationHoverForeColor = Color.FromArgb(0, 255, 255),
@@ -7574,7 +7575,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontWeight = FontWeight.Regular,
                 TextColor = Color.FromArgb(0, 255, 127),
             },
-            CodeBlockBackgroundColor = Color.FromArgb(0, 0, 0),     // Black
+            CodeBlockBackgroundColor =Color.FromArgb(255, 0, 0, 0),     // Black
             CodeBlockBorderColor = Color.FromArgb(255, 20, 147),    // Deep Pink
             CodeBlockBorderWidth = 2f,
             CodeBlockPadding = 8f,
@@ -7757,8 +7758,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             PrimaryColor = Color.FromArgb(255, 20, 147),         // Deep Pink
             SecondaryColor = Color.FromArgb(0, 255, 255),        // Aqua
             AccentColor = Color.FromArgb(255, 255, 0),           // Yellow
-            BackgroundColor = Color.FromArgb(0, 0, 0),           // Black
-            SurfaceColor = Color.Black,
+            BackgroundColor =Color.FromArgb(255, 0, 0, 0),           // Black
+            SurfaceColor = Color.FromArgb(255, 0, 0, 0),
             ErrorColor = Color.FromArgb(220, 20, 60),            // Crimson
             WarningColor = Color.FromArgb(255, 69, 0),           // Orange Red
             SuccessColor = Color.FromArgb(0, 255, 127),          // Spring Green
@@ -7806,7 +7807,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             GridHeaderHoverBorderColor = Color.Blue,
             GridHeaderSelectedBorderColor = Color.FromArgb(0, 0, 205),
             GridRowHoverBackColor = Color.LightSteelBlue,
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.MediumBlue,
             GridRowSelectedForeColor = Color.White,
             GridRowHoverBorderColor = Color.Blue,
@@ -7927,7 +7928,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
-            TextBoxForeColor = Color.FromArgb(0, 0, 0),              // Black
+            TextBoxForeColor =Color.FromArgb(255, 0, 0, 0),              // Black
 
             // **Label Colors**
             LabelBackColor = Color.FromArgb(75, 0, 130),
@@ -7943,22 +7944,22 @@ namespace TheTechIdea.Beep.Vis.Modules
             HeaderForeColor = Color.FromArgb(255, 215, 0),
             GridLineColor = Color.FromArgb(218, 165, 32),
             RowBackColor = Color.White,
-            RowForeColor = Color.FromArgb(0, 0, 0),
+            RowForeColor =Color.FromArgb(255, 0, 0, 0),
             AltRowBackColor = Color.FromArgb(248, 248, 255),
             SelectedRowBackColor = Color.FromArgb(85, 26, 139),
             SelectedRowForeColor = Color.FromArgb(255, 215, 0),
 
             // **ComboBox Colors**
             ComboBoxBackColor = Color.White,
-            ComboBoxForeColor = Color.FromArgb(0, 0, 0),
+            ComboBoxForeColor =Color.FromArgb(255, 0, 0, 0),
 
             // **CheckBox Colors**
             CheckBoxBackColor = Color.White,
-            CheckBoxForeColor = Color.FromArgb(0, 0, 0),
+            CheckBoxForeColor =Color.FromArgb(255, 0, 0, 0),
 
             // **RadioButton Colors**
             RadioButtonBackColor = Color.White,
-            RadioButtonForeColor = Color.FromArgb(0, 0, 0),
+            RadioButtonForeColor =Color.FromArgb(255, 0, 0, 0),
 
             // **Border Colors**
             BorderColor = Color.FromArgb(218, 165, 32),
@@ -7988,13 +7989,13 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Tab Colors**
             TabBackColor = Color.FromArgb(248, 248, 255),
-            TabForeColor = Color.FromArgb(0, 0, 0),
+            TabForeColor =Color.FromArgb(255, 0, 0, 0),
             ActiveTabBackColor = Color.FromArgb(75, 0, 130),
             ActiveTabForeColor = Color.FromArgb(255, 215, 0),
 
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(248, 248, 255),
-            DialogForeColor = Color.FromArgb(0, 0, 0),
+            DialogForeColor =Color.FromArgb(255, 0, 0, 0),
             DialogButtonBackColor = Color.FromArgb(75, 0, 130),
             DialogButtonForeColor = Color.FromArgb(255, 215, 0),
 
@@ -8011,7 +8012,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(255, 215, 0),
             SideMenuSelectedForeColor = Color.FromArgb(255, 215, 0),
             SideMenuBorderColor = Color.FromArgb(218, 165, 32),
-            SideMenuIconColor = Color.FromArgb(0, 0, 0),
+            SideMenuIconColor =Color.FromArgb(255, 0, 0, 0),
             SideMenuSelectedIconColor = Color.FromArgb(255, 215, 0),
 
             // **Title Bar Colors**
@@ -8031,23 +8032,23 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartBackColor = Color.White,
             ChartLineColor = Color.FromArgb(75, 0, 130),
             ChartFillColor = Color.FromArgb(100, 75, 0, 130), // Semi-transparent Indigo
-            ChartAxisColor = Color.FromArgb(0, 0, 0),
+            ChartAxisColor =Color.FromArgb(255, 0, 0, 0),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(0, 0, 0),
+            SidebarIconColor =Color.FromArgb(255, 0, 0, 0),
             SidebarSelectedIconColor = Color.FromArgb(255, 215, 0),
-            SidebarTextColor = Color.FromArgb(0, 0, 0),
+            SidebarTextColor =Color.FromArgb(255, 0, 0, 0),
             SidebarSelectedTextColor = Color.FromArgb(255, 215, 0),
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(248, 248, 255),
-            NavigationForeColor = Color.FromArgb(0, 0, 0),
+            NavigationForeColor =Color.FromArgb(255, 0, 0, 0),
             NavigationHoverBackColor = Color.FromArgb(240, 248, 255),
-            NavigationHoverForeColor = Color.FromArgb(0, 0, 0),
+            NavigationHoverForeColor =Color.FromArgb(255, 0, 0, 0),
 
             // **Badge and Highlight Colors**
             BadgeBackColor = Color.FromArgb(218, 165, 32),
-            BadgeForeColor = Color.FromArgb(0, 0, 0),
+            BadgeForeColor =Color.FromArgb(255, 0, 0, 0),
             HighlightBackColor = Color.FromArgb(184, 134, 11),
 
             // **Font Properties**
@@ -8069,7 +8070,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             FontStyleItalic = FontStyle.Italic,
 
             // **Text Colors**
-            PrimaryTextColor = Color.FromArgb(0, 0, 0),
+            PrimaryTextColor =Color.FromArgb(255, 0, 0, 0),
             SecondaryTextColor = Color.FromArgb(25, 25, 112),
             AccentTextColor = Color.FromArgb(75, 0, 130),
 
@@ -8146,7 +8147,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 LetterSpacing = 0f,
                 FontWeight = FontWeight.Regular,
                 FontStyle = FontStyle.Regular,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
 
             // Additional Typography Styles
@@ -8168,7 +8169,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             InlineCodeBackgroundColor = Color.FromArgb(240, 248, 255), // Alice Blue
             InlineCodePadding = 4f,
@@ -8179,7 +8180,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             CodeBlockBackgroundColor = Color.FromArgb(240, 248, 255),
             CodeBlockBorderColor = Color.FromArgb(218, 165, 32),
@@ -8192,7 +8193,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             OrderedList = new TypographyStyle
             {
@@ -8200,7 +8201,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             ListItemSpacing = 4f,
             ListIndentation = 16f,
@@ -8211,7 +8212,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 12f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             StrongText = new TypographyStyle
             {
@@ -8219,7 +8220,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             EmphasisText = new TypographyStyle
             {
@@ -8227,7 +8228,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Italic,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
 
             // Display Styles
@@ -8315,7 +8316,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 16f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             BodyMedium = new TypographyStyle
             {
@@ -8323,7 +8324,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             BodySmall = new TypographyStyle
             {
@@ -8331,7 +8332,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 12f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
 
             // Labels
@@ -8341,7 +8342,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             LabelMedium = new TypographyStyle
             {
@@ -8349,7 +8350,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 12f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             LabelSmall = new TypographyStyle
             {
@@ -8357,7 +8358,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 9f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Normal,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
 
             // **Color Palette**
@@ -8370,7 +8371,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             WarningColor = Color.FromArgb(184, 134, 11),         // Dark Goldenrod
             SuccessColor = Color.FromArgb(0, 100, 0),            // Dark Green
             OnPrimaryColor = Color.FromArgb(255, 215, 0),
-            OnBackgroundColor = Color.FromArgb(0, 0, 0),
+            OnBackgroundColor =Color.FromArgb(255, 0, 0, 0),
 
             // **Spacing and Layout**
             PaddingSmall = 4,
@@ -8403,18 +8404,18 @@ namespace TheTechIdea.Beep.Vis.Modules
         {
             // **Grid Colors**
             GridBackColor = Color.WhiteSmoke,
-            GridForeColor = Color.Black,
+            GridForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBackColor = Color.Yellow,                    // Bright Yellow for headers
-            GridHeaderForeColor = Color.Black,                    // Black text for contrast
+            GridHeaderForeColor = Color.FromArgb(255, 0, 0, 0),                    // Black text for contrast
             GridHeaderBorderColor = Color.Gray,                    // Changed from DarkOrange to Gray
             GridHeaderHoverBackColor = Color.Gold,                 // Gold for hover effect
-            GridHeaderHoverForeColor = Color.Black,                // Black text remains for readability
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),                // Black text remains for readability
             GridHeaderSelectedBackColor = Color.FromArgb(0, 120, 215), // Highlight Blue instead of DarkOrange
             GridHeaderSelectedForeColor = Color.White,             // White text on blue background
             GridHeaderHoverBorderColor = Color.Gray,               // Changed from DarkOrange to Gray
             GridHeaderSelectedBorderColor = Color.FromArgb(0, 120, 215), // Highlight Blue instead of DarkOrange
             GridRowHoverBackColor = Color.LightGray,               // Light Gray for row hover
-            GridRowHoverForeColor = Color.Black,                   // Black text for readability
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),                   // Black text for readability
             GridRowSelectedBackColor = Color.FromArgb(0, 120, 215), // Highlight Blue instead of DarkOrange
             GridRowSelectedForeColor = Color.White,                // White text on blue background
             GridRowHoverBorderColor = Color.Gray,                  // Changed from DarkOrange to Gray
@@ -8537,7 +8538,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
-            TextBoxForeColor = Color.FromArgb(0, 0, 0),           // Black
+            TextBoxForeColor =Color.FromArgb(255, 0, 0, 0),           // Black
             BackgroundColor = Color.White,
 
             // **Label Colors**
@@ -8552,22 +8553,22 @@ namespace TheTechIdea.Beep.Vis.Modules
             HeaderForeColor = Color.FromArgb(33, 33, 33),         // Dark Gray
             GridLineColor = Color.FromArgb(204, 204, 204),        // Gray Lines
             RowBackColor = Color.White,
-            RowForeColor = Color.FromArgb(0, 0, 0),               // Black Text
+            RowForeColor =Color.FromArgb(255, 0, 0, 0),               // Black Text
             AltRowBackColor = Color.FromArgb(240, 240, 240),      // Alternate Row Light Gray
             SelectedRowBackColor = Color.FromArgb(0, 153, 188),   // Cyan for Selected Rows
             SelectedRowForeColor = Color.White,                   // White Text for Selected Rows
 
             // **ComboBox Colors**
             ComboBoxBackColor = Color.White,
-            ComboBoxForeColor = Color.FromArgb(0, 0, 0),
+            ComboBoxForeColor =Color.FromArgb(255, 0, 0, 0),
 
             // **CheckBox Colors**
             CheckBoxBackColor = Color.White,
-            CheckBoxForeColor = Color.FromArgb(0, 0, 0),
+            CheckBoxForeColor =Color.FromArgb(255, 0, 0, 0),
 
             // **RadioButton Colors**
             RadioButtonBackColor = Color.White,
-            RadioButtonForeColor = Color.FromArgb(0, 0, 0),
+            RadioButtonForeColor =Color.FromArgb(255, 0, 0, 0),
 
             // **Border Colors**
             BorderColor = Color.FromArgb(224, 224, 224),
@@ -8597,13 +8598,13 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Tab Colors**
             TabBackColor = Color.White,
-            TabForeColor = Color.FromArgb(0, 0, 0),
+            TabForeColor =Color.FromArgb(255, 0, 0, 0),
             ActiveTabBackColor = Color.FromArgb(0, 120, 215),
             ActiveTabForeColor = Color.White,
 
             // **Dialog Box Colors**
             DialogBackColor = Color.White,
-            DialogForeColor = Color.FromArgb(0, 0, 0),
+            DialogForeColor =Color.FromArgb(255, 0, 0, 0),
             DialogButtonBackColor = Color.FromArgb(0, 120, 215),
             DialogButtonForeColor = Color.White,
 
@@ -8616,11 +8617,11 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuBackColor = Color.FromArgb(0, 120, 215), // Highlight Blue
             SideMenuHoverBackColor = Color.FromArgb(240, 240, 240),
             SideMenuSelectedBackColor = Color.FromArgb(0, 120, 215),
-            SideMenuForeColor = Color.FromArgb(0, 0, 0),
-            SideMenuHoverForeColor = Color.FromArgb(0, 0, 0),
+            SideMenuForeColor =Color.FromArgb(255, 0, 0, 0),
+            SideMenuHoverForeColor =Color.FromArgb(255, 0, 0, 0),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(224, 224, 224),
-            SideMenuIconColor = Color.FromArgb(0, 0, 0),
+            SideMenuIconColor =Color.FromArgb(255, 0, 0, 0),
             SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
@@ -8643,16 +8644,16 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(117, 117, 117),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(0, 0, 0),
+            SidebarIconColor =Color.FromArgb(255, 0, 0, 0),
             SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(0, 0, 0),
+            SidebarTextColor =Color.FromArgb(255, 0, 0, 0),
             SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.White,
-            NavigationForeColor = Color.FromArgb(0, 0, 0),
+            NavigationForeColor =Color.FromArgb(255, 0, 0, 0),
             NavigationHoverBackColor = Color.FromArgb(240, 240, 240),
-            NavigationHoverForeColor = Color.FromArgb(0, 0, 0),
+            NavigationHoverForeColor =Color.FromArgb(255, 0, 0, 0),
 
             // **Badge and Highlight Colors**
             BadgeBackColor = Color.FromArgb(232, 17, 35),         // Red
@@ -8678,7 +8679,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             FontStyleItalic = FontStyle.Italic,
 
             // **Text Colors**
-            PrimaryTextColor = Color.FromArgb(0, 0, 0),
+            PrimaryTextColor =Color.FromArgb(255, 0, 0, 0),
             SecondaryTextColor = Color.FromArgb(50, 50, 50),
             AccentTextColor = Color.FromArgb(0, 120, 215),
 
@@ -8788,7 +8789,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             CodeBlockBackgroundColor = Color.FromArgb(240, 240, 240),
             CodeBlockBorderColor = Color.FromArgb(204, 204, 204),
@@ -8801,7 +8802,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             OrderedList = new TypographyStyle
             {
@@ -8809,7 +8810,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             ListItemSpacing = 4f,
             ListIndentation = 16f,
@@ -8828,7 +8829,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             EmphasisText = new TypographyStyle
             {
@@ -8950,7 +8951,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             LabelMedium = new TypographyStyle
             {
@@ -8958,7 +8959,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 12f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
             LabelSmall = new TypographyStyle
             {
@@ -8966,7 +8967,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 9f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Normal,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
 
             // **Color Palette**
@@ -8979,7 +8980,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             WarningColor = Color.FromArgb(255, 185, 0),          // Orange
             SuccessColor = Color.FromArgb(16, 124, 16),          // Green
             OnPrimaryColor = Color.White,
-            OnBackgroundColor = Color.FromArgb(0, 0, 0),
+            OnBackgroundColor =Color.FromArgb(255, 0, 0, 0),
 
             // **Spacing and Layout**
             PaddingSmall = 4,
@@ -9010,7 +9011,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme DarkTheme => new BeepTheme
         {
-            GridBackColor = Color.Black,
+            GridBackColor = Color.FromArgb(255, 0, 0, 0),
             GridForeColor = Color.White,
             GridHeaderBackColor = Color.Gray,
             GridHeaderForeColor = Color.White,
@@ -9576,7 +9577,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 9f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Normal,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor =Color.FromArgb(255, 0, 0, 0),
             },
 
             // **Color Palette**
@@ -9622,18 +9623,18 @@ namespace TheTechIdea.Beep.Vis.Modules
         {
             // **Grid Colors**
             GridBackColor = Color.WhiteSmoke,
-            GridForeColor = Color.Black,
+            GridForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBackColor = Color.White,
-            GridHeaderForeColor = Color.Black,
+            GridHeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBorderColor = Color.Silver,
             GridHeaderHoverBackColor = Color.Gainsboro,
-            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderSelectedBackColor = Color.FromArgb(33, 150, 243), // Primary Blue
             GridHeaderSelectedForeColor = Color.White,
             GridHeaderHoverBorderColor = Color.Gray,
             GridHeaderSelectedBorderColor = Color.FromArgb(33, 150, 243), // Primary Blue
             GridRowHoverBackColor = Color.LightGray,
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.FromArgb(33, 150, 243), // Primary Blue
             GridRowSelectedForeColor = Color.White,
             GridRowHoverBorderColor = Color.Gray,
@@ -11139,21 +11140,21 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme NeonTheme => new BeepTheme
         {
-            GridBackColor = Color.Black,
+            GridBackColor = Color.FromArgb(255, 0, 0, 0),
             GridForeColor = Color.Lime,
             GridHeaderBackColor = Color.Fuchsia,
-            GridHeaderForeColor = Color.Black,
+            GridHeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBorderColor = Color.Lime,
             GridHeaderHoverBackColor = Color.Cyan,
-            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderSelectedBackColor = Color.Magenta,
-            GridHeaderSelectedForeColor = Color.Black,
+            GridHeaderSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderHoverBorderColor = Color.Lime,
             GridHeaderSelectedBorderColor = Color.Lime,
             GridRowHoverBackColor = Color.Cyan,
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.Magenta,
-            GridRowSelectedForeColor = Color.Black,
+            GridRowSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowHoverBorderColor = Color.Lime,
             GridRowSelectedBorderColor = Color.Lime,
             CardBackColor = Color.FromArgb(255, 0, 255),
@@ -11178,7 +11179,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             CloseButtonColor = Color.FromArgb(255, 0, 0),       // Neon Red
             MaxButtonColor = Color.FromArgb(255, 255, 0),       // Neon Yellow
             MinButtonColor = Color.FromArgb(0, 255, 255),       // Neon Cyan
-            TitleBarColor = Color.FromArgb(0, 0, 0),            // Black
+            TitleBarColor =Color.FromArgb(255, 0, 0, 0),            // Black
             TitleBarTextColor = Color.FromArgb(255, 0, 255),    // Neon Magenta
             TitleBarIconColor = Color.FromArgb(255, 0, 255),
             TitleBarHoverColor = Color.FromArgb(30, 30, 30),    // Dark Gray
@@ -11212,11 +11213,11 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // Maximize Button
             TitleBarMaxHoverColor = Color.FromArgb(173, 255, 47),       // Neon Greenish
-            TitleBarMaxHoverTextColor = Color.Black,
-            TitleBarMaxHoverIconColor = Color.Black,
+            TitleBarMaxHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMaxHoverIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMaxActiveColor = Color.FromArgb(255, 255, 0),       // Neon Yellow
-            TitleBarMaxActiveTextColor = Color.Black,
-            TitleBarMaxActiveIconColor = Color.Black,
+            TitleBarMaxActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMaxActiveIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMaxInactiveColor = Color.FromArgb(15, 15, 15),
             TitleBarMaxInactiveTextColor = Color.FromArgb(128, 128, 0),
             TitleBarMaxInactiveIconColor = Color.FromArgb(128, 128, 0),
@@ -11227,11 +11228,11 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // Minimize Button
             TitleBarMinHoverColor = Color.FromArgb(0, 255, 127),        // Neon Green
-            TitleBarMinHoverTextColor = Color.Black,
-            TitleBarMinHoverIconColor = Color.Black,
+            TitleBarMinHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinHoverIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMinActiveColor = Color.FromArgb(0, 255, 255),       // Neon Cyan
-            TitleBarMinActiveTextColor = Color.Black,
-            TitleBarMinActiveIconColor = Color.Black,
+            TitleBarMinActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinActiveIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMinInactiveColor = Color.FromArgb(15, 15, 15),
             TitleBarMinInactiveTextColor = Color.FromArgb(0, 128, 128),
             TitleBarMinInactiveIconColor = Color.FromArgb(0, 128, 128),
@@ -11242,11 +11243,11 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // Minimize Button (Alternative Properties)
             TitleBarMinimizeHoverColor = Color.FromArgb(0, 255, 127),
-            TitleBarMinimizeHoverTextColor = Color.Black,
-            TitleBarMinimizeHoverIconColor = Color.Black,
+            TitleBarMinimizeHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMinimizeActiveColor = Color.FromArgb(0, 255, 255),
-            TitleBarMinimizeActiveTextColor = Color.Black,
-            TitleBarMinimizeActiveIconColor = Color.Black,
+            TitleBarMinimizeActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinimizeActiveIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMinimizeInactiveColor = Color.FromArgb(15, 15, 15),
             TitleBarMinimizeInactiveTextColor = Color.FromArgb(0, 128, 128),
             TitleBarMinimizeInactiveIconColor = Color.FromArgb(0, 128, 128),
@@ -11261,15 +11262,15 @@ namespace TheTechIdea.Beep.Vis.Modules
             DescriptionForColor = Color.FromArgb(128, 255, 0),   // Neon Green
             BeforeForColor = Color.FromArgb(255, 255, 0),        // Neon Yellow
             LatestForColor = Color.FromArgb(0, 255, 255),        // Neon Cyan
-            BackColor = Color.FromArgb(0, 0, 0),                 // Black
+            BackColor =Color.FromArgb(255, 0, 0, 0),                 // Black
 
             // **Button Colors**
             ButtonBackColor = Color.FromArgb(55, 15, 50),      // Neon Cyan
             ButtonForeColor = Color.FromArgb(128, 255, 0),
             ButtonHoverBackColor = Color.FromArgb(0, 255, 127),  // Neon Green
-            ButtonHoverForeColor = Color.Black,
+            ButtonHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             ButtonActiveBackColor = Color.FromArgb(255, 20, 147), // Neon Pink
-            ButtonActiveForeColor = Color.Black,
+            ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(15, 15, 15),
@@ -11277,7 +11278,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Label Colors**
-            LabelBackColor = Color.FromArgb(0, 0, 0),
+            LabelBackColor =Color.FromArgb(255, 0, 0, 0),
             LabelForeColor = Color.FromArgb(128, 255, 0),
 
             // **Panel Colors**
@@ -11292,7 +11293,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             RowForeColor = Color.FromArgb(128, 255, 0),
             AltRowBackColor = Color.FromArgb(30, 30, 30),
             SelectedRowBackColor = Color.FromArgb(255, 0, 255),
-            SelectedRowForeColor = Color.Black,
+            SelectedRowForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **ComboBox Colors**
             ComboBoxBackColor = Color.FromArgb(15, 15, 15),
@@ -11300,11 +11301,11 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **CheckBox Colors**
-            CheckBoxBackColor = Color.FromArgb(0, 0, 0),
+            CheckBoxBackColor =Color.FromArgb(255, 0, 0, 0),
             CheckBoxForeColor = Color.FromArgb(128, 255, 0),
 
             // **RadioButton Colors**
-            RadioButtonBackColor = Color.FromArgb(0, 0, 0),
+            RadioButtonBackColor =Color.FromArgb(255, 0, 0, 0),
             RadioButtonForeColor = Color.FromArgb(128, 255, 0),
 
             // **Border Colors**
@@ -11325,7 +11326,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ToolTipForeColor = Color.FromArgb(255, 0, 255),
 
             // **ScrollBar Colors**
-            ScrollBarBackColor = Color.FromArgb(0, 0, 0),
+            ScrollBarBackColor =Color.FromArgb(255, 0, 0, 0),
             ScrollBarThumbColor = Color.FromArgb(0, 255, 255),
             ScrollBarTrackColor = Color.FromArgb(15, 15, 15),
 
@@ -11334,7 +11335,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             StatusBarForeColor = Color.FromArgb(0, 255, 255),
 
             // **Tab Colors**
-            TabBackColor = Color.FromArgb(0, 0, 0),
+            TabBackColor =Color.FromArgb(255, 0, 0, 0),
             TabForeColor = Color.FromArgb(128, 255, 0),
             ActiveTabBackColor = Color.FromArgb(30, 30, 30),
             ActiveTabForeColor = Color.FromArgb(255, 0, 255),
@@ -11343,10 +11344,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogBackColor = Color.FromArgb(15, 15, 15),
             DialogForeColor = Color.FromArgb(128, 255, 0),
             DialogButtonBackColor = Color.FromArgb(0, 255, 255),
-            DialogButtonForeColor = Color.Black,
+            DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Gradient Properties**
-            GradientStartColor = Color.FromArgb(0, 0, 0),
+            GradientStartColor =Color.FromArgb(255, 0, 0, 0),
             GradientEndColor = Color.FromArgb(30, 30, 30),
             GradientDirection = LinearGradientMode.Vertical,
 
@@ -11369,14 +11370,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarHoverForeColor = Color.FromArgb(255, 0, 255),
 
             // **Dashboard Colors**
-            DashboardBackColor = Color.FromArgb(0, 0, 0),
+            DashboardBackColor =Color.FromArgb(255, 0, 0, 0),
             DashboardCardBackColor = Color.FromArgb(15, 15, 15),
             DashboardCardHoverBackColor = Color.FromArgb(30, 30, 30),
             CardTitleForeColor = Color.FromArgb(0, 255, 255),
             CardTextForeColor = Color.FromArgb(128, 255, 0),
 
             // **Data Visualization (Charts)**
-            ChartBackColor = Color.FromArgb(0, 0, 0),
+            ChartBackColor =Color.FromArgb(255, 0, 0, 0),
             ChartLineColor = Color.FromArgb(255, 0, 255),
             ChartFillColor = Color.FromArgb(100, 255, 0, 255), // Semi-transparent Neon Magenta
             ChartAxisColor = Color.FromArgb(128, 255, 0),
@@ -11388,14 +11389,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SidebarSelectedTextColor = Color.FromArgb(255, 0, 255),
 
             // **Navigation Colors**
-            NavigationBackColor = Color.FromArgb(0, 0, 0),
+            NavigationBackColor =Color.FromArgb(255, 0, 0, 0),
             NavigationForeColor = Color.FromArgb(128, 255, 0),
             NavigationHoverBackColor = Color.FromArgb(15, 15, 15),
             NavigationHoverForeColor = Color.FromArgb(0, 255, 255),
 
             // **Badge and Highlight Colors**
             BadgeBackColor = Color.FromArgb(255, 0, 255),       // Neon Magenta
-            BadgeForeColor = Color.Black,
+            BadgeForeColor = Color.FromArgb(255, 0, 0, 0),
             HighlightBackColor = Color.FromArgb(255, 255, 0),   // Neon Yellow
 
             // **Font Properties**
@@ -11712,12 +11713,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             PrimaryColor = Color.FromArgb(0, 255, 255),          // Neon Cyan
             SecondaryColor = Color.FromArgb(128, 255, 0),        // Neon Green
             AccentColor = Color.FromArgb(255, 0, 255),           // Neon Magenta
-            BackgroundColor = Color.FromArgb(0, 0, 0),           // Black
+            BackgroundColor =Color.FromArgb(255, 0, 0, 0),           // Black
             SurfaceColor = Color.FromArgb(15, 15, 15),
             ErrorColor = Color.FromArgb(255, 0, 0),              // Neon Red
             WarningColor = Color.FromArgb(255, 255, 0),          // Neon Yellow
             SuccessColor = Color.FromArgb(0, 255, 0),            // Neon Green
-            OnPrimaryColor = Color.Black,
+            OnPrimaryColor = Color.FromArgb(255, 0, 0, 0),
             OnBackgroundColor = Color.FromArgb(128, 255, 0),
 
             // **Spacing and Layout**
@@ -11755,13 +11756,13 @@ namespace TheTechIdea.Beep.Vis.Modules
             GridHeaderForeColor = Color.White,
             GridHeaderBorderColor = Color.Sienna,
             GridHeaderHoverBackColor = Color.SandyBrown,
-            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderSelectedBackColor = Color.Peru,
             GridHeaderSelectedForeColor = Color.White,
             GridHeaderHoverBorderColor = Color.Sienna,
             GridHeaderSelectedBorderColor = Color.Chocolate,
             GridRowHoverBackColor = Color.SandyBrown,
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.Chocolate,
             GridRowSelectedForeColor = Color.White,
             GridRowHoverBorderColor = Color.Sienna,
@@ -12359,7 +12360,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme GalaxyTheme => new BeepTheme
         {
-            GridBackColor = Color.Black,
+            GridBackColor = Color.FromArgb(255, 0, 0, 0),
             GridForeColor = Color.White,
             GridHeaderBackColor = Color.FromArgb(25, 25, 112), // Midnight Blue
             GridHeaderForeColor = Color.White,
@@ -12971,18 +12972,18 @@ namespace TheTechIdea.Beep.Vis.Modules
         public static BeepTheme DesertTheme => new BeepTheme
         {
             GridBackColor = Color.FromArgb(255, 244, 214), // Sand
-            GridForeColor = Color.Black,
+            GridForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBackColor = Color.FromArgb(210, 180, 140), // Tan
-            GridHeaderForeColor = Color.Black,
+            GridHeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBorderColor = Color.SandyBrown,
             GridHeaderHoverBackColor = Color.FromArgb(244, 164, 96), // Sandy Brown
-            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderSelectedBackColor = Color.FromArgb(210, 105, 30), // Chocolate
             GridHeaderSelectedForeColor = Color.White,
             GridHeaderHoverBorderColor = Color.SandyBrown,
             GridHeaderSelectedBorderColor = Color.Chocolate,
             GridRowHoverBackColor = Color.FromArgb(244, 164, 96),
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.FromArgb(210, 105, 30),
             GridRowSelectedForeColor = Color.White,
             GridRowHoverBorderColor = Color.SandyBrown,
@@ -13581,18 +13582,18 @@ namespace TheTechIdea.Beep.Vis.Modules
         public static BeepTheme VintageTheme => new BeepTheme
         {
             GridBackColor = Color.FromArgb(245, 222, 179), // Wheat
-            GridForeColor = Color.Black,
+            GridForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBackColor = Color.BurlyWood,
-            GridHeaderForeColor = Color.Black,
+            GridHeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBorderColor = Color.SaddleBrown,
             GridHeaderHoverBackColor = Color.Tan,
-            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderSelectedBackColor = Color.Peru,
             GridHeaderSelectedForeColor = Color.White,
             GridHeaderHoverBorderColor = Color.SaddleBrown,
             GridHeaderSelectedBorderColor = Color.Chocolate,
             GridRowHoverBackColor = Color.Tan,
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.Peru,
             GridRowSelectedForeColor = Color.White,
             GridRowHoverBorderColor = Color.SaddleBrown,
@@ -14191,18 +14192,18 @@ namespace TheTechIdea.Beep.Vis.Modules
         public static BeepTheme DefaultTheme => new BeepTheme
         {
             GridBackColor = Color.White,
-            GridForeColor = Color.Black,
+            GridForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBackColor = Color.LightGray,
-            GridHeaderForeColor = Color.Black,
+            GridHeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBorderColor = Color.Silver,
             GridHeaderHoverBackColor = Color.Gainsboro,
-            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderSelectedBackColor = Color.FromArgb(0, 120, 215),
             GridHeaderSelectedForeColor = Color.White,
             GridHeaderHoverBorderColor = Color.Gray,
             GridHeaderSelectedBorderColor = Color.FromArgb(0, 120, 215),
             GridRowHoverBackColor = Color.Gainsboro,
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.FromArgb(0, 120, 215),
             GridRowSelectedForeColor = Color.White,
             GridRowHoverBorderColor = Color.Gray,
@@ -14214,7 +14215,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontFamily = "Segoe UI",
                 FontSize = 22f,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
 
             },
             CardparagraphStyle = new TypographyStyle
@@ -14222,7 +14223,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontFamily = "Segoe UI",
                 FontSize = 14f,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // **UI Elements**
@@ -14230,14 +14231,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             MaxButtonColor = Color.FromArgb(0, 120, 215),        // Maximize Button Blue
             MinButtonColor = Color.FromArgb(0, 120, 215),        // Minimize Button Blue
             TitleBarColor = Color.FromArgb(230, 230, 230),       // Light Gray
-            TitleBarTextColor = Color.Black,
-            TitleBarIconColor = Color.Black,
+            TitleBarTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarHoverColor = Color.FromArgb(210, 210, 210),
-            TitleBarHoverTextColor = Color.Black,
-            TitleBarHoverIconColor = Color.Black,
+            TitleBarHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarHoverIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarActiveColor = Color.FromArgb(210, 210, 210),
-            TitleBarActiveTextColor = Color.Black,
-            TitleBarActiveIconColor = Color.Black,
+            TitleBarActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarActiveIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarInactiveColor = Color.FromArgb(230, 230, 230),
             TitleBarInactiveTextColor = Color.Gray,
             TitleBarInactiveIconColor = Color.Gray,
@@ -14263,8 +14264,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // Maximize Button
             TitleBarMaxHoverColor = Color.FromArgb(204, 228, 247),
-            TitleBarMaxHoverTextColor = Color.Black,
-            TitleBarMaxHoverIconColor = Color.Black,
+            TitleBarMaxHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMaxHoverIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMaxActiveColor = Color.FromArgb(0, 120, 215),
             TitleBarMaxActiveTextColor = Color.White,
             TitleBarMaxActiveIconColor = Color.White,
@@ -14278,8 +14279,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // Minimize Button
             TitleBarMinHoverColor = Color.FromArgb(204, 228, 247),
-            TitleBarMinHoverTextColor = Color.Black,
-            TitleBarMinHoverIconColor = Color.Black,
+            TitleBarMinHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinHoverIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMinActiveColor = Color.FromArgb(0, 120, 215),
             TitleBarMinActiveTextColor = Color.White,
             TitleBarMinActiveIconColor = Color.White,
@@ -14293,8 +14294,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // Minimize Button (Alternative Properties)
             TitleBarMinimizeHoverColor = Color.FromArgb(204, 228, 247),
-            TitleBarMinimizeHoverTextColor = Color.Black,
-            TitleBarMinimizeHoverIconColor = Color.Black,
+            TitleBarMinimizeHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMinimizeActiveColor = Color.FromArgb(0, 120, 215),
             TitleBarMinimizeActiveTextColor = Color.White,
             TitleBarMinimizeActiveIconColor = Color.White,
@@ -14307,8 +14308,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarMinimizeBorderInactiveColor = Color.FromArgb(200, 200, 200),
 
             // **General Colors**
-            TitleForColor = Color.Black,
-            TitleBarForColor = Color.Black,
+            TitleForColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarForColor = Color.FromArgb(255, 0, 0, 0),
             DescriptionForColor = Color.Gray,
             BeforeForColor = Color.FromArgb(0, 120, 215),     // Blue Accent
             LatestForColor = Color.FromArgb(0, 120, 215),
@@ -14317,20 +14318,20 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Button Colors**
             ButtonBackColor = Color.FromArgb(240, 240, 240),
-            ButtonForeColor = Color.Black,
+            ButtonForeColor = Color.FromArgb(255, 0, 0, 0),
             ButtonHoverBackColor = Color.FromArgb(230, 230, 230),
-            ButtonHoverForeColor = Color.Black,
+            ButtonHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             ButtonActiveBackColor = Color.FromArgb(0, 120, 215),
             ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
-            TextBoxForeColor = Color.Black,
+            TextBoxForeColor = Color.FromArgb(255, 0, 0, 0),
 
 
             // **Label Colors**
             LabelBackColor = Color.White,
-            LabelForeColor = Color.Black,
+            LabelForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Panel Colors**
             PanelBackColor = Color.FromArgb(245, 245, 245), // Light Gray
@@ -14338,26 +14339,26 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(240, 240, 240),
-            HeaderForeColor = Color.Black,
+            HeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridLineColor = Color.FromArgb(200, 200, 200),
             RowBackColor = Color.White,
-            RowForeColor = Color.Black,
+            RowForeColor = Color.FromArgb(255, 0, 0, 0),
             AltRowBackColor = Color.FromArgb(248, 248, 248),
             SelectedRowBackColor = Color.FromArgb(204, 228, 247),
-            SelectedRowForeColor = Color.Black,
+            SelectedRowForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **ComboBox Colors**
             ComboBoxBackColor = Color.White,
-            ComboBoxForeColor = Color.Black,
+            ComboBoxForeColor = Color.FromArgb(255, 0, 0, 0),
 
 
             // **CheckBox Colors**
             CheckBoxBackColor = Color.White,
-            CheckBoxForeColor = Color.Black,
+            CheckBoxForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **RadioButton Colors**
             RadioButtonBackColor = Color.White,
-            RadioButtonForeColor = Color.Black,
+            RadioButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Border Colors**
             BorderColor = Color.FromArgb(200, 200, 200),
@@ -14374,7 +14375,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **ToolTip Colors**
             ToolTipBackColor = Color.FromArgb(255, 255, 225),
-            ToolTipForeColor = Color.Black,
+            ToolTipForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **ScrollBar Colors**
             ScrollBarBackColor = Color.FromArgb(240, 240, 240),
@@ -14383,19 +14384,19 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Status Bar Colors**
             StatusBarBackColor = Color.FromArgb(240, 240, 240),
-            StatusBarForeColor = Color.Black,
+            StatusBarForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Tab Colors**
             TabBackColor = Color.FromArgb(240, 240, 240),
-            TabForeColor = Color.Black,
+            TabForeColor = Color.FromArgb(255, 0, 0, 0),
             ActiveTabBackColor = Color.White,
-            ActiveTabForeColor = Color.Black,
+            ActiveTabForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Dialog Box Colors**
             DialogBackColor = Color.White,
-            DialogForeColor = Color.Black,
+            DialogForeColor = Color.FromArgb(255, 0, 0, 0),
             DialogButtonBackColor = Color.FromArgb(240, 240, 240),
-            DialogButtonForeColor = Color.Black,
+            DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Gradient Properties**
             GradientStartColor = Color.White,
@@ -14407,43 +14408,43 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             SideMenuHoverBackColor = Color.FromArgb(230, 230, 230),
             SideMenuSelectedBackColor = Color.FromArgb(0, 120, 215),
-            SideMenuForeColor = Color.Black,
-            SideMenuHoverForeColor = Color.Black,
+            SideMenuForeColor = Color.FromArgb(255, 0, 0, 0),
+            SideMenuHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(200, 200, 200),
-            SideMenuIconColor = Color.Black,
+            SideMenuIconColor = Color.FromArgb(255, 0, 0, 0),
             SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
             TitleBarBackColor = Color.FromArgb(230, 230, 230),
-            TitleBarForeColor = Color.Black,
+            TitleBarForeColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarHoverBackColor = Color.FromArgb(210, 210, 210),
-            TitleBarHoverForeColor = Color.Black,
+            TitleBarHoverForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.White,
             DashboardCardBackColor = Color.WhiteSmoke,
             DashboardCardHoverBackColor = Color.FromArgb(248, 248, 248),
-            CardTitleForeColor = Color.Black,
+            CardTitleForeColor = Color.FromArgb(255, 0, 0, 0),
             CardTextForeColor = Color.Gray,
 
             // **Data Visualization (Charts)**
             ChartBackColor = Color.White,
             ChartLineColor = Color.FromArgb(0, 120, 215),
             ChartFillColor = Color.FromArgb(100, 0, 120, 215), // Semi-transparent Blue
-            ChartAxisColor = Color.Black,
+            ChartAxisColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.Black,
+            SidebarIconColor = Color.FromArgb(255, 0, 0, 0),
             SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.Black,
+            SidebarTextColor = Color.FromArgb(255, 0, 0, 0),
             SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.White,
-            NavigationForeColor = Color.Black,
+            NavigationForeColor = Color.FromArgb(255, 0, 0, 0),
             NavigationHoverBackColor = Color.FromArgb(230, 230, 230),
-            NavigationHoverForeColor = Color.Black,
+            NavigationHoverForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Badge and Highlight Colors**
             BadgeBackColor = Color.FromArgb(0, 120, 215),
@@ -14469,7 +14470,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             FontStyleItalic = FontStyle.Italic,
 
             // **Text Colors**
-            PrimaryTextColor = Color.Black,
+            PrimaryTextColor = Color.FromArgb(255, 0, 0, 0),
             SecondaryTextColor = Color.Gray,
             AccentTextColor = Color.FromArgb(0, 120, 215),
 
@@ -14484,7 +14485,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 LetterSpacing = 0f,
                 FontWeight = FontWeight.Bold,
                 FontStyle = FontStyle.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             Heading2 = new TypographyStyle
             {
@@ -14494,7 +14495,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 LetterSpacing = 0f,
                 FontWeight = FontWeight.Bold,
                 FontStyle = FontStyle.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             Heading3 = new TypographyStyle
             {
@@ -14504,7 +14505,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 LetterSpacing = 0f,
                 FontWeight = FontWeight.Bold,
                 FontStyle = FontStyle.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             Heading4 = new TypographyStyle
             {
@@ -14514,7 +14515,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 LetterSpacing = 0f,
                 FontWeight = FontWeight.SemiBold,
                 FontStyle = FontStyle.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             Heading5 = new TypographyStyle
             {
@@ -14524,7 +14525,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 LetterSpacing = 0f,
                 FontWeight = FontWeight.SemiBold,
                 FontStyle = FontStyle.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             Heading6 = new TypographyStyle
             {
@@ -14534,7 +14535,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 LetterSpacing = 0f,
                 FontWeight = FontWeight.SemiBold,
                 FontStyle = FontStyle.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // Paragraph Style
@@ -14546,7 +14547,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 LetterSpacing = 0f,
                 FontWeight = FontWeight.Regular,
                 FontStyle = FontStyle.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // Additional Typography Styles
@@ -14579,7 +14580,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             CodeBlockBackgroundColor = Color.FromArgb(248, 248, 248),
             CodeBlockBorderColor = Color.FromArgb(200, 200, 200),
@@ -14592,7 +14593,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             OrderedList = new TypographyStyle
             {
@@ -14600,7 +14601,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             ListItemSpacing = 4f,
             ListIndentation = 16f,
@@ -14619,7 +14620,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             EmphasisText = new TypographyStyle
             {
@@ -14627,7 +14628,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Italic,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // Display Styles
@@ -14637,7 +14638,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 40f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             DisplayMedium = new TypographyStyle
             {
@@ -14645,7 +14646,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 34f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             DisplaySmall = new TypographyStyle
             {
@@ -14653,7 +14654,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 28f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // Headlines
@@ -14663,7 +14664,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 24f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             HeadlineMedium = new TypographyStyle
             {
@@ -14671,7 +14672,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 20f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             HeadlineSmall = new TypographyStyle
             {
@@ -14679,7 +14680,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 18f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // Titles
@@ -14689,7 +14690,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 22f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.SemiBold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             TitleMedium = new TypographyStyle
             {
@@ -14697,7 +14698,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 16f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.SemiBold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             TitleSmall = new TypographyStyle
             {
@@ -14705,7 +14706,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.SemiBold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // Body Texts
@@ -14715,7 +14716,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 16f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             BodyMedium = new TypographyStyle
             {
@@ -14723,7 +14724,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             BodySmall = new TypographyStyle
             {
@@ -14731,7 +14732,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 12f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // Labels
@@ -14741,7 +14742,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             LabelMedium = new TypographyStyle
             {
@@ -14749,7 +14750,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 12f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             LabelSmall = new TypographyStyle
             {
@@ -14757,7 +14758,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 9f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Normal,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // **Color Palette**
@@ -14770,7 +14771,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             WarningColor = Color.FromArgb(255, 185, 0),          // Yellow
             SuccessColor = Color.FromArgb(16, 124, 16),          // Green
             OnPrimaryColor = Color.White,
-            OnBackgroundColor = Color.Black,
+            OnBackgroundColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Spacing and Layout**
             PaddingSmall = 4,
@@ -14802,18 +14803,18 @@ namespace TheTechIdea.Beep.Vis.Modules
         public static BeepTheme GlassmorphismTheme => new BeepTheme
         {
             GridBackColor = Color.FromArgb(128, 255, 255, 255), // Semi-transparent White
-            GridForeColor = Color.Black,
+            GridForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBackColor = Color.FromArgb(128, 240, 240, 240), // Semi-transparent Light Gray
-            GridHeaderForeColor = Color.Black,
+            GridHeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBorderColor = Color.Gray,
             GridHeaderHoverBackColor = Color.FromArgb(200, 240, 240, 240),
-            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderSelectedBackColor = Color.FromArgb(128, 0, 120, 215), // Semi-transparent Blue
             GridHeaderSelectedForeColor = Color.White,
             GridHeaderHoverBorderColor = Color.Gray,
             GridHeaderSelectedBorderColor = Color.FromArgb(0, 120, 215),
             GridRowHoverBackColor = Color.FromArgb(150, 240, 240, 240),
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.FromArgb(128, 0, 120, 215),
             GridRowSelectedForeColor = Color.White,
             GridRowHoverBorderColor = Color.Gray,
@@ -14920,7 +14921,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleForColor = Color.DarkSlateGray,
             TitleBarForColor = Color.FromArgb(230, 230, 230),
             DescriptionForColor = Color.FromArgb(220, 220, 220),
-            BeforeForColor = Color.FromArgb(0, 0, 0),          // Was semi-transparent black; now opaque black
+            BeforeForColor =Color.FromArgb(255, 0, 0, 0),          // Was semi-transparent black; now opaque black
             LatestForColor = Color.FromArgb(255, 255, 255),    // Was semi-transparent white; now opaque white
             BackColor = Color.FromArgb(245, 245, 245),
 
@@ -15384,7 +15385,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ApplyThemeToIcons = true,
 
             // **Effects and Decorations**
-            ShadowColor = Color.FromArgb(0, 0, 0), // Opaque black (no transparency)
+            ShadowColor =Color.FromArgb(255, 0, 0, 0), // Opaque black (no transparency)
             ShadowOpacity = 0.1f,
 
             // **Animation and Transitions**
@@ -15403,7 +15404,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public static BeepTheme FlatDesignTheme => new BeepTheme
         {
             GridBackColor = Color.White,
-            GridForeColor = Color.Black,
+            GridForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBackColor = Color.FromArgb(0, 120, 215),
             GridHeaderForeColor = Color.White,
             GridHeaderBorderColor = Color.Gray,
@@ -15414,7 +15415,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             GridHeaderHoverBorderColor = Color.Gray,
             GridHeaderSelectedBorderColor = Color.FromArgb(0, 100, 200),
             GridRowHoverBackColor = Color.LightGray,
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.FromArgb(0, 120, 215),
             GridRowSelectedForeColor = Color.White,
             GridRowHoverBorderColor = Color.Gray,
@@ -16012,21 +16013,21 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme CyberpunkNeonTheme => new BeepTheme
         {
-            GridBackColor = Color.Black,
+            GridBackColor = Color.FromArgb(255, 0, 0, 0),
             GridForeColor = Color.Lime,
             GridHeaderBackColor = Color.Fuchsia,
-            GridHeaderForeColor = Color.Black,
+            GridHeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBorderColor = Color.Yellow,
             GridHeaderHoverBackColor = Color.FromArgb(255, 20, 147), // Deep Pink
-            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderSelectedBackColor = Color.Cyan,
-            GridHeaderSelectedForeColor = Color.Black,
+            GridHeaderSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderHoverBorderColor = Color.Yellow,
             GridHeaderSelectedBorderColor = Color.Fuchsia,
             GridRowHoverBackColor = Color.FromArgb(0, 255, 255), // Cyan
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.Magenta,
-            GridRowSelectedForeColor = Color.Black,
+            GridRowSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowHoverBorderColor = Color.Yellow,
             GridRowSelectedBorderColor = Color.Magenta,
             CardBackColor = Color.FromArgb(0, 255, 255),
@@ -16085,11 +16086,11 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // Maximize Button
             TitleBarMaxHoverColor = Color.FromArgb(50, 255, 50),
-            TitleBarMaxHoverTextColor = Color.Black,
-            TitleBarMaxHoverIconColor = Color.Black,
+            TitleBarMaxHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMaxHoverIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMaxActiveColor = Color.FromArgb(0, 255, 0),
-            TitleBarMaxActiveTextColor = Color.Black,
-            TitleBarMaxActiveIconColor = Color.Black,
+            TitleBarMaxActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMaxActiveIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMaxInactiveColor = Color.FromArgb(15, 15, 15),
             TitleBarMaxInactiveTextColor = Color.FromArgb(100, 100, 100),
             TitleBarMaxInactiveIconColor = Color.FromArgb(100, 100, 100),
@@ -16142,7 +16143,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonHoverBackColor = Color.FromArgb(60, 60, 60),
             ButtonHoverForeColor = Color.FromArgb(0, 255, 255),
             ButtonActiveBackColor = Color.FromArgb(0, 255, 255),
-            ButtonActiveForeColor = Color.Black,
+            ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(30, 30, 30),
@@ -16165,7 +16166,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             RowForeColor = Color.FromArgb(0, 255, 255),
             AltRowBackColor = Color.FromArgb(25, 25, 25),
             SelectedRowBackColor = Color.FromArgb(0, 255, 255),
-            SelectedRowForeColor = Color.Black,
+            SelectedRowForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **ComboBox Colors**
             ComboBoxBackColor = Color.FromArgb(30, 30, 30),
@@ -16216,7 +16217,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogBackColor = Color.FromArgb(20, 20, 20),
             DialogForeColor = Color.FromArgb(0, 255, 255),
             DialogButtonBackColor = Color.FromArgb(0, 255, 255),
-            DialogButtonForeColor = Color.Black,
+            DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(20, 20, 20),
@@ -16230,10 +16231,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuSelectedBackColor = Color.FromArgb(0, 255, 255),
             SideMenuForeColor = Color.FromArgb(0, 255, 255),
             SideMenuHoverForeColor = Color.FromArgb(0, 255, 255),
-            SideMenuSelectedForeColor = Color.Black,
+            SideMenuSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             SideMenuBorderColor = Color.FromArgb(0, 255, 255),
             SideMenuIconColor = Color.FromArgb(0, 255, 255),
-            SideMenuSelectedIconColor = Color.Black,
+            SideMenuSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Title Bar Colors**
             TitleBarBackColor = Color.FromArgb(15, 15, 15),
@@ -16256,9 +16257,9 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Sidebar and Menu Colors**
             SidebarIconColor = Color.FromArgb(0, 255, 255),
-            SidebarSelectedIconColor = Color.Black,
+            SidebarSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
             SidebarTextColor = Color.FromArgb(0, 255, 255),
-            SidebarSelectedTextColor = Color.Black,
+            SidebarSelectedTextColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(25, 25, 25),
@@ -16268,7 +16269,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Badge and Highlight Colors**
             BadgeBackColor = Color.FromArgb(255, 85, 255),        // Neon Magenta
-            BadgeForeColor = Color.Black,
+            BadgeForeColor = Color.FromArgb(255, 0, 0, 0),
             HighlightBackColor = Color.FromArgb(0, 255, 255),     // Neon Cyan
 
             // **Font Properties**
@@ -16590,7 +16591,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ErrorColor = Color.FromArgb(255, 0, 0),                // Bright Red
             WarningColor = Color.FromArgb(255, 255, 0),            // Neon Yellow
             SuccessColor = Color.FromArgb(0, 255, 0),              // Bright Green
-            OnPrimaryColor = Color.Black,
+            OnPrimaryColor = Color.FromArgb(255, 0, 0, 0),
             OnBackgroundColor = Color.FromArgb(0, 255, 255),
 
             // **Spacing and Layout**
@@ -16623,18 +16624,18 @@ namespace TheTechIdea.Beep.Vis.Modules
         public static BeepTheme GradientBurstTheme => new BeepTheme
         {
             GridBackColor = Color.FromArgb(255, 255, 240), // Ivory
-            GridForeColor = Color.Black,
+            GridForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBackColor = Color.FromArgb(255, 182, 193), // Light Pink
-            GridHeaderForeColor = Color.Black,
+            GridHeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBorderColor = Color.Purple,
             GridHeaderHoverBackColor = Color.FromArgb(144, 238, 144), // Light Green
-            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderSelectedBackColor = Color.FromArgb(0, 191, 255), // Deep Sky Blue
             GridHeaderSelectedForeColor = Color.White,
             GridHeaderHoverBorderColor = Color.Purple,
             GridHeaderSelectedBorderColor = Color.Orange,
             GridRowHoverBackColor = Color.FromArgb(255, 222, 173), // Navajo White
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.FromArgb(240, 128, 128), // Light Coral
             GridRowSelectedForeColor = Color.White,
             GridRowHoverBorderColor = Color.Purple,
@@ -17232,21 +17233,21 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme HighContrastTheme => new BeepTheme
         {
-            GridBackColor = Color.Black,
+            GridBackColor = Color.FromArgb(255, 0, 0, 0),
             GridForeColor = Color.White,
             GridHeaderBackColor = Color.Gray,
             GridHeaderForeColor = Color.White,
             GridHeaderBorderColor = Color.Yellow,
             GridHeaderHoverBackColor = Color.FromArgb(128, 128, 128), // Dim Gray
-            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderSelectedBackColor = Color.Yellow,
-            GridHeaderSelectedForeColor = Color.Black,
+            GridHeaderSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderHoverBorderColor = Color.Yellow,
             GridHeaderSelectedBorderColor = Color.Yellow,
             GridRowHoverBackColor = Color.FromArgb(64, 64, 64), // Dark Gray
             GridRowHoverForeColor = Color.White,
             GridRowSelectedBackColor = Color.Yellow,
-            GridRowSelectedForeColor = Color.Black,
+            GridRowSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowHoverBorderColor = Color.Yellow,
             GridRowSelectedBorderColor = Color.Yellow,
             CardBackColor = Color.FromArgb(255, 215, 0),
@@ -17272,16 +17273,16 @@ namespace TheTechIdea.Beep.Vis.Modules
             CloseButtonColor = Color.Red,
             MaxButtonColor = Color.Green,
             MinButtonColor = Color.Yellow,
-            TitleBarColor = Color.Black,
+            TitleBarColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarTextColor = Color.White,
             TitleBarIconColor = Color.White,
             TitleBarHoverColor = Color.FromArgb(255, 30, 30, 30),
             TitleBarHoverTextColor = Color.White,
             TitleBarHoverIconColor = Color.White,
-            TitleBarActiveColor = Color.Black,
+            TitleBarActiveColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarActiveTextColor = Color.White,
             TitleBarActiveIconColor = Color.White,
-            TitleBarInactiveColor = Color.Black,
+            TitleBarInactiveColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarInactiveTextColor = Color.Gray,
             TitleBarInactiveIconColor = Color.Gray,
             TitleBarBorderColor = Color.White,
@@ -17296,7 +17297,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarCloseActiveColor = Color.Red,
             TitleBarCloseActiveTextColor = Color.White,
             TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.Black,
+            TitleBarCloseInactiveColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarCloseInactiveTextColor = Color.Gray,
             TitleBarCloseInactiveIconColor = Color.Gray,
             TitleBarCloseBorderColor = Color.White,
@@ -17306,12 +17307,12 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // Maximize Button
             TitleBarMaxHoverColor = Color.FromArgb(255, 0, 200, 0),
-            TitleBarMaxHoverTextColor = Color.Black,
-            TitleBarMaxHoverIconColor = Color.Black,
+            TitleBarMaxHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMaxHoverIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMaxActiveColor = Color.Green,
-            TitleBarMaxActiveTextColor = Color.Black,
-            TitleBarMaxActiveIconColor = Color.Black,
-            TitleBarMaxInactiveColor = Color.Black,
+            TitleBarMaxActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMaxActiveIconColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMaxInactiveColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMaxInactiveTextColor = Color.Gray,
             TitleBarMaxInactiveIconColor = Color.Gray,
             TitleBarMaxBorderColor = Color.White,
@@ -17321,12 +17322,12 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // Minimize Button
             TitleBarMinHoverColor = Color.FromArgb(255, 200, 200, 0),
-            TitleBarMinHoverTextColor = Color.Black,
-            TitleBarMinHoverIconColor = Color.Black,
+            TitleBarMinHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinHoverIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMinActiveColor = Color.Yellow,
-            TitleBarMinActiveTextColor = Color.Black,
-            TitleBarMinActiveIconColor = Color.Black,
-            TitleBarMinInactiveColor = Color.Black,
+            TitleBarMinActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinActiveIconColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinInactiveColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMinInactiveTextColor = Color.Gray,
             TitleBarMinInactiveIconColor = Color.Gray,
             TitleBarMinBorderColor = Color.White,
@@ -17336,12 +17337,12 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // Minimize Button (Alternative Properties)
             TitleBarMinimizeHoverColor = Color.FromArgb(255, 200, 200, 0),
-            TitleBarMinimizeHoverTextColor = Color.Black,
-            TitleBarMinimizeHoverIconColor = Color.Black,
+            TitleBarMinimizeHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMinimizeActiveColor = Color.Yellow,
-            TitleBarMinimizeActiveTextColor = Color.Black,
-            TitleBarMinimizeActiveIconColor = Color.Black,
-            TitleBarMinimizeInactiveColor = Color.Black,
+            TitleBarMinimizeActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinimizeActiveIconColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinimizeInactiveColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMinimizeInactiveTextColor = Color.Gray,
             TitleBarMinimizeInactiveIconColor = Color.Gray,
             TitleBarMinimizeBorderColor = Color.White,
@@ -17355,7 +17356,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             DescriptionForColor = Color.White,
             BeforeForColor = Color.White,
             LatestForColor = Color.White,
-            BackColor = Color.Black,
+            BackColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Button Colors**
             ButtonBackColor = Color.DimGray ,
@@ -17371,33 +17372,33 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Label Colors**
-            LabelBackColor = Color.Black,
+            LabelBackColor = Color.FromArgb(255, 0, 0, 0),
             LabelForeColor = Color.White,
 
             // **Panel Colors**
             PanelBackColor = Color.DarkGray,
 
             // **Grid Colors**
-            HeaderBackColor = Color.Black,
+            HeaderBackColor = Color.FromArgb(255, 0, 0, 0),
             HeaderForeColor = Color.White,
             GridLineColor = Color.White,
-            RowBackColor = Color.Black,
+            RowBackColor = Color.FromArgb(255, 0, 0, 0),
             RowForeColor = Color.White,
             AltRowBackColor = Color.FromArgb(255, 30, 30, 30),
             SelectedRowBackColor = Color.White,
-            SelectedRowForeColor = Color.Black,
+            SelectedRowForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **ComboBox Colors**
-            ComboBoxBackColor = Color.Black,
+            ComboBoxBackColor = Color.FromArgb(255, 0, 0, 0),
             ComboBoxForeColor = Color.White,
 
 
             // **CheckBox Colors**
-            CheckBoxBackColor = Color.Black,
+            CheckBoxBackColor = Color.FromArgb(255, 0, 0, 0),
             CheckBoxForeColor = Color.White,
 
             // **RadioButton Colors**
-            RadioButtonBackColor = Color.Black,
+            RadioButtonBackColor = Color.FromArgb(255, 0, 0, 0),
             RadioButtonForeColor = Color.White,
 
             // **Border Colors**
@@ -17414,33 +17415,33 @@ namespace TheTechIdea.Beep.Vis.Modules
             LinkIsUnderline = true,
 
             // **ToolTip Colors**
-            ToolTipBackColor = Color.Black,
+            ToolTipBackColor = Color.FromArgb(255, 0, 0, 0),
             ToolTipForeColor = Color.White,
 
             // **ScrollBar Colors**
-            ScrollBarBackColor = Color.Black,
+            ScrollBarBackColor = Color.FromArgb(255, 0, 0, 0),
             ScrollBarThumbColor = Color.White,
             ScrollBarTrackColor = Color.Gray,
 
             // **Status Bar Colors**
-            StatusBarBackColor = Color.Black,
+            StatusBarBackColor = Color.FromArgb(255, 0, 0, 0),
             StatusBarForeColor = Color.White,
 
             // **Tab Colors**
-            TabBackColor = Color.Black,
+            TabBackColor = Color.FromArgb(255, 0, 0, 0),
             TabForeColor = Color.White,
             ActiveTabBackColor = Color.White,
-            ActiveTabForeColor = Color.Black,
+            ActiveTabForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Dialog Box Colors**
             DialogBackColor = Color.Gray,
             DialogForeColor = Color.White,
             DialogButtonBackColor = Color.White,
-            DialogButtonForeColor = Color.Black,
+            DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Gradient Properties**
-            GradientStartColor = Color.Black,
-            GradientEndColor = Color.Black,
+            GradientStartColor = Color.FromArgb(255, 0, 0, 0),
+            GradientEndColor = Color.FromArgb(255, 0, 0, 0),
             GradientDirection = LinearGradientMode.Vertical,
 
             // **Side Menu Colors**
@@ -17449,11 +17450,11 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverBackColor = Color.White,
             SideMenuSelectedBackColor = Color.White,
             SideMenuForeColor = Color.White,
-            SideMenuHoverForeColor = Color.Black,
-            SideMenuSelectedForeColor = Color.Black,
+            SideMenuHoverForeColor = Color.FromArgb(255, 0, 0, 0),
+            SideMenuSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             SideMenuBorderColor = Color.White,
             SideMenuIconColor = Color.White,
-            SideMenuSelectedIconColor = Color.Black,
+            SideMenuSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Title Bar Colors**
             TitleBarBackColor = Color.FromArgb(255, 35, 35, 30),
@@ -17462,33 +17463,33 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarHoverForeColor = Color.White,
 
             // **Dashboard Colors**
-            DashboardBackColor = Color.Black,
-            DashboardCardBackColor = Color.Black,
+            DashboardBackColor = Color.FromArgb(255, 0, 0, 0),
+            DashboardCardBackColor = Color.FromArgb(255, 0, 0, 0),
             DashboardCardHoverBackColor = Color.White,
             CardTitleForeColor = Color.White,
             CardTextForeColor = Color.White,
 
             // **Data Visualization (Charts)**
-            ChartBackColor = Color.Black,
+            ChartBackColor = Color.FromArgb(255, 0, 0, 0),
             ChartLineColor = Color.White,
             ChartFillColor = Color.White,
             ChartAxisColor = Color.White,
 
             // **Sidebar and Menu Colors**
             SidebarIconColor = Color.White,
-            SidebarSelectedIconColor = Color.Black,
+            SidebarSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
             SidebarTextColor = Color.White,
-            SidebarSelectedTextColor = Color.Black,
+            SidebarSelectedTextColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Navigation Colors**
-            NavigationBackColor = Color.Black,
+            NavigationBackColor = Color.FromArgb(255, 0, 0, 0),
             NavigationForeColor = Color.White,
             NavigationHoverBackColor = Color.White,
-            NavigationHoverForeColor = Color.Black,
+            NavigationHoverForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Badge and Highlight Colors**
             BadgeBackColor = Color.White,
-            BadgeForeColor = Color.Black,
+            BadgeForeColor = Color.FromArgb(255, 0, 0, 0),
             HighlightBackColor = Color.Yellow,
 
             // **Font Properties**
@@ -17620,7 +17621,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 TextColor = Color.White,
 
             },
-            InlineCodeBackgroundColor = Color.Black,
+            InlineCodeBackgroundColor = Color.FromArgb(255, 0, 0, 0),
             InlineCodePadding = 4f,
 
             CodeBlock = new TypographyStyle
@@ -17632,7 +17633,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 TextColor = Color.White,
 
             },
-            CodeBlockBackgroundColor = Color.Black,
+            CodeBlockBackgroundColor = Color.FromArgb(255, 0, 0, 0),
             CodeBlockBorderColor = Color.White,
             CodeBlockBorderWidth = 2f,
             CodeBlockPadding = 8f,
@@ -17832,11 +17833,11 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **Color Palette**
-            PrimaryColor = Color.Black,
+            PrimaryColor = Color.FromArgb(255, 0, 0, 0),
             SecondaryColor = Color.White,
             AccentColor = Color.Yellow,
             BackgroundColor = Color.DimGray,
-            SurfaceColor = Color.Black,
+            SurfaceColor = Color.FromArgb(255, 0, 0, 0),
             ErrorColor = Color.Red,
             WarningColor = Color.Yellow,
             SuccessColor = Color.Green,
@@ -17873,18 +17874,18 @@ namespace TheTechIdea.Beep.Vis.Modules
         public static BeepTheme MonochromeTheme => new BeepTheme
         {
             GridBackColor = Color.White,
-            GridForeColor = Color.Black,
+            GridForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderBackColor = Color.Gray,
             GridHeaderForeColor = Color.White,
             GridHeaderBorderColor = Color.DarkGray,
             GridHeaderHoverBackColor = Color.DimGray,
             GridHeaderHoverForeColor = Color.White,
             GridHeaderSelectedBackColor = Color.Silver,
-            GridHeaderSelectedForeColor = Color.Black,
+            GridHeaderSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderHoverBorderColor = Color.DarkGray,
             GridHeaderSelectedBorderColor = Color.Silver,
             GridRowHoverBackColor = Color.LightGray,
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.Gray,
             GridRowSelectedForeColor = Color.White,
             GridRowHoverBorderColor = Color.DarkGray,
@@ -17896,7 +17897,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontFamily = "Segoe UI",
                 FontSize = 22f,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
 
             },
             CardparagraphStyle = new TypographyStyle
@@ -17904,7 +17905,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontFamily = "Segoe UI",
                 FontSize = 14f,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
 
             },
 
@@ -17913,14 +17914,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             MaxButtonColor = Color.FromArgb(128, 128, 128),  // Medium Gray
             MinButtonColor = Color.FromArgb(192, 192, 192),  // Light Gray
             TitleBarColor = Color.FromArgb(230, 230, 230),   // Very Light Gray
-            TitleBarTextColor = Color.Black,
-            TitleBarIconColor = Color.Black,
+            TitleBarTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarHoverColor = Color.FromArgb(210, 210, 210),
-            TitleBarHoverTextColor = Color.Black,
-            TitleBarHoverIconColor = Color.Black,
+            TitleBarHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarHoverIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarActiveColor = Color.FromArgb(220, 220, 220),
-            TitleBarActiveTextColor = Color.Black,
-            TitleBarActiveIconColor = Color.Black,
+            TitleBarActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarActiveIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarInactiveColor = Color.FromArgb(240, 240, 240),
             TitleBarInactiveTextColor = Color.DarkGray,
             TitleBarInactiveIconColor = Color.DarkGray,
@@ -17990,8 +17991,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             TitleBarMinimizeBorderInactiveColor = Color.FromArgb(220, 220, 220),
 
             // **General Colors**
-            TitleForColor = Color.Black,
-            TitleBarForColor = Color.Black,
+            TitleForColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarForColor = Color.FromArgb(255, 0, 0, 0),
             DescriptionForColor = Color.DarkGray,
             BeforeForColor = Color.Gray,
             LatestForColor = Color.Gray,
@@ -17999,20 +18000,20 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Button Colors**
             ButtonBackColor = Color.FromArgb(230, 230, 230),
-            ButtonForeColor = Color.Black,
+            ButtonForeColor = Color.FromArgb(255, 0, 0, 0),
             ButtonHoverBackColor = Color.FromArgb(210, 210, 210),
-            ButtonHoverForeColor = Color.Black,
+            ButtonHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             ButtonActiveBackColor = Color.FromArgb(200, 200, 200),
-            ButtonActiveForeColor = Color.Black,
+            ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
-            TextBoxForeColor = Color.Black,
+            TextBoxForeColor = Color.FromArgb(255, 0, 0, 0),
 
 
             // **Label Colors**
             LabelBackColor = Color.White,
-            LabelForeColor = Color.Black,
+            LabelForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Panel Colors**
             PanelBackColor = Color.FromArgb(240, 240, 240), // A soft gray tone distinct from white
@@ -18020,26 +18021,26 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Grid Colors**
             HeaderBackColor = Color.FromArgb(245, 245, 245),
-            HeaderForeColor = Color.Black,
+            HeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridLineColor = Color.FromArgb(200, 200, 200),
             RowBackColor = Color.White,
-            RowForeColor = Color.Black,
+            RowForeColor = Color.FromArgb(255, 0, 0, 0),
             AltRowBackColor = Color.FromArgb(245, 245, 245),
             SelectedRowBackColor = Color.FromArgb(230, 230, 230),
-            SelectedRowForeColor = Color.Black,
+            SelectedRowForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **ComboBox Colors**
             ComboBoxBackColor = Color.White,
-            ComboBoxForeColor = Color.Black,
+            ComboBoxForeColor = Color.FromArgb(255, 0, 0, 0),
 
 
             // **CheckBox Colors**
             CheckBoxBackColor = Color.White,
-            CheckBoxForeColor = Color.Black,
+            CheckBoxForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **RadioButton Colors**
             RadioButtonBackColor = Color.White,
-            RadioButtonForeColor = Color.Black,
+            RadioButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Border Colors**
             BorderColor = Color.FromArgb(200, 200, 200),
@@ -18050,13 +18051,13 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Link Colors**
             LinkColor = Color.Gray,
             VisitedLinkColor = Color.DarkGray,
-            HoverLinkColor = Color.Black,
-            LinkHoverColor = Color.Black,
+            HoverLinkColor = Color.FromArgb(255, 0, 0, 0),
+            LinkHoverColor = Color.FromArgb(255, 0, 0, 0),
             LinkIsUnderline = true,
 
             // **ToolTip Colors**
             ToolTipBackColor = Color.FromArgb(245, 245, 245),
-            ToolTipForeColor = Color.Black,
+            ToolTipForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **ScrollBar Colors**
             ScrollBarBackColor = Color.FromArgb(245, 245, 245),
@@ -18065,19 +18066,19 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Status Bar Colors**
             StatusBarBackColor = Color.FromArgb(245, 245, 245),
-            StatusBarForeColor = Color.Black,
+            StatusBarForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Tab Colors**
             TabBackColor = Color.FromArgb(245, 245, 245),
-            TabForeColor = Color.Black,
+            TabForeColor = Color.FromArgb(255, 0, 0, 0),
             ActiveTabBackColor = Color.White,
-            ActiveTabForeColor = Color.Black,
+            ActiveTabForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Dialog Box Colors**
             DialogBackColor = Color.White,
-            DialogForeColor = Color.Black,
+            DialogForeColor = Color.FromArgb(255, 0, 0, 0),
             DialogButtonBackColor = Color.FromArgb(230, 230, 230),
-            DialogButtonForeColor = Color.Black,
+            DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Gradient Properties**
             GradientStartColor = Color.White,
@@ -18089,43 +18090,43 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             SideMenuHoverBackColor = Color.FromArgb(230, 230, 230),
             SideMenuSelectedBackColor = Color.FromArgb(210, 210, 210),
-            SideMenuForeColor = Color.Black,
-            SideMenuHoverForeColor = Color.Black,
-            SideMenuSelectedForeColor = Color.Black,
+            SideMenuForeColor = Color.FromArgb(255, 0, 0, 0),
+            SideMenuHoverForeColor = Color.FromArgb(255, 0, 0, 0),
+            SideMenuSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             SideMenuBorderColor = Color.FromArgb(200, 200, 200),
-            SideMenuIconColor = Color.Black,
-            SideMenuSelectedIconColor = Color.Black,
+            SideMenuIconColor = Color.FromArgb(255, 0, 0, 0),
+            SideMenuSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Title Bar Colors**
             TitleBarBackColor = Color.FromArgb(230, 230, 230),
-            TitleBarForeColor = Color.Black,
+            TitleBarForeColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarHoverBackColor = Color.FromArgb(210, 210, 210),
-            TitleBarHoverForeColor = Color.Black,
+            TitleBarHoverForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.White,
             DashboardCardBackColor = Color.FromArgb(245, 245, 245),
             DashboardCardHoverBackColor = Color.FromArgb(230, 230, 230),
-            CardTitleForeColor = Color.Black,
+            CardTitleForeColor = Color.FromArgb(255, 0, 0, 0),
             CardTextForeColor = Color.DarkGray,
 
             // **Data Visualization (Charts)**
             ChartBackColor = Color.White,
             ChartLineColor = Color.Gray,
             ChartFillColor = Color.FromArgb(100, 128, 128, 128), // Semi-transparent Gray
-            ChartAxisColor = Color.Black,
+            ChartAxisColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.Black,
-            SidebarSelectedIconColor = Color.Black,
-            SidebarTextColor = Color.Black,
-            SidebarSelectedTextColor = Color.Black,
+            SidebarIconColor = Color.FromArgb(255, 0, 0, 0),
+            SidebarSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
+            SidebarTextColor = Color.FromArgb(255, 0, 0, 0),
+            SidebarSelectedTextColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Navigation Colors**
             NavigationBackColor = Color.White,
-            NavigationForeColor = Color.Black,
+            NavigationForeColor = Color.FromArgb(255, 0, 0, 0),
             NavigationHoverBackColor = Color.FromArgb(245, 245, 245),
-            NavigationHoverForeColor = Color.Black,
+            NavigationHoverForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Badge and Highlight Colors**
             BadgeBackColor = Color.Gray,
@@ -18151,7 +18152,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             FontStyleItalic = FontStyle.Italic,
 
             // **Text Colors**
-            PrimaryTextColor = Color.Black,
+            PrimaryTextColor = Color.FromArgb(255, 0, 0, 0),
             SecondaryTextColor = Color.DarkGray,
             AccentTextColor = Color.Gray,
 
@@ -18166,7 +18167,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 LetterSpacing = 0f,
                 FontWeight = FontWeight.Bold,
                 FontStyle = FontStyle.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             Heading2 = new TypographyStyle
             {
@@ -18176,7 +18177,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 LetterSpacing = 0f,
                 FontWeight = FontWeight.Bold,
                 FontStyle = FontStyle.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             Heading3 = new TypographyStyle
             {
@@ -18186,7 +18187,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 LetterSpacing = 0f,
                 FontWeight = FontWeight.Bold,
                 FontStyle = FontStyle.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             Heading4 = new TypographyStyle
             {
@@ -18196,7 +18197,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 LetterSpacing = 0f,
                 FontWeight = FontWeight.SemiBold,
                 FontStyle = FontStyle.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             Heading5 = new TypographyStyle
             {
@@ -18206,7 +18207,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 LetterSpacing = 0f,
                 FontWeight = FontWeight.SemiBold,
                 FontStyle = FontStyle.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             Heading6 = new TypographyStyle
             {
@@ -18216,7 +18217,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 LetterSpacing = 0f,
                 FontWeight = FontWeight.SemiBold,
                 FontStyle = FontStyle.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // Paragraph Style
@@ -18228,7 +18229,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 LetterSpacing = 0f,
                 FontWeight = FontWeight.Regular,
                 FontStyle = FontStyle.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // Additional Typography Styles
@@ -18250,7 +18251,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             InlineCodeBackgroundColor = Color.FromArgb(245, 245, 245),
             InlineCodePadding = 4f,
@@ -18261,7 +18262,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             CodeBlockBackgroundColor = Color.FromArgb(245, 245, 245),
             CodeBlockBorderColor = Color.Gray,
@@ -18274,7 +18275,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             OrderedList = new TypographyStyle
             {
@@ -18282,7 +18283,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             ListItemSpacing = 4f,
             ListIndentation = 16f,
@@ -18301,7 +18302,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             EmphasisText = new TypographyStyle
             {
@@ -18309,7 +18310,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Italic,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // Display Styles
@@ -18319,7 +18320,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 40f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             DisplayMedium = new TypographyStyle
             {
@@ -18327,7 +18328,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 34f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             DisplaySmall = new TypographyStyle
             {
@@ -18335,7 +18336,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 28f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // Headlines
@@ -18345,7 +18346,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 24f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             HeadlineMedium = new TypographyStyle
             {
@@ -18353,7 +18354,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 20f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             HeadlineSmall = new TypographyStyle
             {
@@ -18361,7 +18362,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 18f,
                 FontStyle = FontStyle.Bold,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // Titles
@@ -18371,7 +18372,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 22f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.SemiBold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             TitleMedium = new TypographyStyle
             {
@@ -18379,7 +18380,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 16f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.SemiBold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             TitleSmall = new TypographyStyle
             {
@@ -18387,7 +18388,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.SemiBold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // Body Texts
@@ -18397,7 +18398,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 16f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             BodyMedium = new TypographyStyle
             {
@@ -18405,7 +18406,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             BodySmall = new TypographyStyle
             {
@@ -18413,7 +18414,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 12f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Regular,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // Labels
@@ -18423,7 +18424,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             LabelMedium = new TypographyStyle
             {
@@ -18431,7 +18432,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 12f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             LabelSmall = new TypographyStyle
             {
@@ -18439,11 +18440,11 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 9f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.Normal,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
 
             // **Color Palette**
-            PrimaryColor = Color.Black,
+            PrimaryColor = Color.FromArgb(255, 0, 0, 0),
             SecondaryColor = Color.Gray,
             AccentColor = Color.DarkGray,
             BackgroundColor = Color.White,
@@ -18452,7 +18453,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             WarningColor = Color.DarkOrange,
             SuccessColor = Color.DarkGreen,
             OnPrimaryColor = Color.White,
-            OnBackgroundColor = Color.Black,
+            OnBackgroundColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Spacing and Layout**
             PaddingSmall = 4,
@@ -18484,21 +18485,21 @@ namespace TheTechIdea.Beep.Vis.Modules
         public static BeepTheme LuxuryGoldTheme => new BeepTheme
         {
             // **Grid Colors**
-            GridBackColor = Color.Black,
+            GridBackColor = Color.FromArgb(255, 0, 0, 0),
             GridForeColor = Color.Gold,
-            GridHeaderBackColor = Color.Black,
+            GridHeaderBackColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderForeColor = Color.Gold,
             GridHeaderBorderColor = Color.DarkGoldenrod,
             GridHeaderHoverBackColor = Color.Gold,
-            GridHeaderHoverForeColor = Color.Black,
+            GridHeaderHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderSelectedBackColor = Color.FromArgb(128, 128, 0), // Olive
-            GridHeaderSelectedForeColor = Color.Black,
+            GridHeaderSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             GridHeaderHoverBorderColor = Color.Gold,
             GridHeaderSelectedBorderColor = Color.DarkGoldenrod,
             GridRowHoverBackColor = Color.Gold,
-            GridRowHoverForeColor = Color.Black,
+            GridRowHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowSelectedBackColor = Color.FromArgb(128, 128, 0),
-            GridRowSelectedForeColor = Color.Black,
+            GridRowSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             GridRowHoverBorderColor = Color.Gold,
             GridRowSelectedBorderColor = Color.DarkGoldenrod,
 
@@ -18572,11 +18573,11 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // Minimize Button
             TitleBarMinHoverColor = Color.FromArgb(255, 184, 134, 11), // Dark Goldenrod
-            TitleBarMinHoverTextColor = Color.Black,
-            TitleBarMinHoverIconColor = Color.Black,
+            TitleBarMinHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinHoverIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMinActiveColor = Color.FromArgb(255, 218, 165, 32), // Goldenrod
-            TitleBarMinActiveTextColor = Color.Black,
-            TitleBarMinActiveIconColor = Color.Black,
+            TitleBarMinActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinActiveIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMinInactiveColor = Color.FromArgb(255, 15, 15, 15),
             TitleBarMinInactiveTextColor = Color.FromArgb(255, 128, 128, 128),
             TitleBarMinInactiveIconColor = Color.FromArgb(255, 128, 128, 128),
@@ -18587,11 +18588,11 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // Minimize Button (Alternative Properties)
             TitleBarMinimizeHoverColor = Color.FromArgb(255, 184, 134, 11),
-            TitleBarMinimizeHoverTextColor = Color.Black,
-            TitleBarMinimizeHoverIconColor = Color.Black,
+            TitleBarMinimizeHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMinimizeActiveColor = Color.FromArgb(255, 218, 165, 32),
-            TitleBarMinimizeActiveTextColor = Color.Black,
-            TitleBarMinimizeActiveIconColor = Color.Black,
+            TitleBarMinimizeActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            TitleBarMinimizeActiveIconColor = Color.FromArgb(255, 0, 0, 0),
             TitleBarMinimizeInactiveColor = Color.FromArgb(255, 15, 15, 15),
             TitleBarMinimizeInactiveTextColor = Color.FromArgb(255, 128, 128, 128),
             TitleBarMinimizeInactiveIconColor = Color.FromArgb(255, 128, 128, 128),
@@ -18614,7 +18615,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonHoverBackColor = Color.FromArgb(255, 50, 50, 50),
             ButtonHoverForeColor = Color.FromArgb(255, 212, 175),
             ButtonActiveBackColor = Color.FromArgb(255, 212, 175),
-            ButtonActiveForeColor = Color.Black,
+            ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(255, 30, 30, 30),
@@ -18635,7 +18636,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             RowForeColor = Color.WhiteSmoke,
             AltRowBackColor = Color.FromArgb(255, 30, 30, 30),
             SelectedRowBackColor = Color.FromArgb(255, 212, 175),
-            SelectedRowForeColor = Color.Black,
+            SelectedRowForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **ComboBox Colors**
             ComboBoxBackColor = Color.FromArgb(255, 30, 30, 30),
@@ -18685,7 +18686,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogBackColor = Color.FromArgb(255, 20, 20, 20),
             DialogForeColor = Color.WhiteSmoke,
             DialogButtonBackColor = Color.FromArgb(255, 212, 175),
-            DialogButtonForeColor = Color.Black,
+            DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(255, 20, 20, 20),
@@ -18698,10 +18699,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuSelectedBackColor = Color.FromArgb(255, 212, 175), // Metallic Gold
             SideMenuForeColor = Color.WhiteSmoke,
             SideMenuHoverForeColor = Color.WhiteSmoke,
-            SideMenuSelectedForeColor = Color.Black,
+            SideMenuSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             SideMenuBorderColor = Color.FromArgb(255, 212, 175),
             SideMenuIconColor = Color.WhiteSmoke,
-            SideMenuSelectedIconColor = Color.Black,
+            SideMenuSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Title Bar Colors**
             TitleBarBackColor = Color.FromArgb(255, 15, 15, 15),
@@ -18724,9 +18725,9 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Sidebar and Menu Colors**
             SidebarIconColor = Color.WhiteSmoke,
-            SidebarSelectedIconColor = Color.Black,
+            SidebarSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
             SidebarTextColor = Color.WhiteSmoke,
-            SidebarSelectedTextColor = Color.Black,
+            SidebarSelectedTextColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(255, 25, 25, 25),
@@ -18736,7 +18737,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // **Badge and Highlight Colors**
             BadgeBackColor = Color.FromArgb(255, 212, 175),      // Metallic Gold
-            BadgeForeColor = Color.Black,
+            BadgeForeColor = Color.FromArgb(255, 0, 0, 0),
             HighlightBackColor = Color.FromArgb(255, 255, 215, 0), // Gold
 
             // **Font Properties**
@@ -18956,7 +18957,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 22f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.SemiBold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             TitleMedium = new TypographyStyle
             {
@@ -18964,7 +18965,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 16f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.SemiBold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             TitleSmall = new TypographyStyle
             {
@@ -18972,7 +18973,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontSize = 14f,
                 FontStyle = FontStyle.Regular,
                 FontWeight = FontWeight.SemiBold,
-                TextColor = Color.Black,
+                TextColor = Color.FromArgb(255, 0, 0, 0),
             },
             // Body Styles
             BodyLarge = new TypographyStyle
@@ -19035,7 +19036,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ErrorColor = Color.FromArgb(255, 192, 0, 0),   // Dark Red
             WarningColor = Color.FromArgb(255, 218, 165, 32), // Goldenrod
             SuccessColor = Color.FromArgb(255, 0, 128, 0), // Dark Green
-            OnPrimaryColor = Color.Black,
+            OnPrimaryColor = Color.FromArgb(255, 0, 0, 0),
             OnBackgroundColor = Color.WhiteSmoke,
 
             // **Spacing and Layout**
@@ -19578,6 +19579,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             {
                 if (_currentTheme != value)
                 {
+                  //  Debug.WriteLine("Theme Changed to 1" + value.ToString());
                     EnumBeepThemes oldTheme = _currentTheme;
                     _currentTheme = value;
                     ThemeChangeEventsArgs x = new() { NewTheme = _currentTheme, OldTheme = oldTheme };
@@ -19593,11 +19595,11 @@ namespace TheTechIdea.Beep.Vis.Modules
             return _currentTheme;
         }
         public static event EventHandler<ThemeChangeEventsArgs> ThemeChanged;
-
         public static void SetCurrentTheme(EnumBeepThemes theme)
         {
             if (_currentTheme != theme)
             {
+             //   Debug.WriteLine("Theme Changed to 2" + theme.ToString());
                 EnumBeepThemes oldTheme = _currentTheme;
                 _currentTheme = theme;
                 ThemeChangeEventsArgs x = new() { NewTheme = _currentTheme, OldTheme = oldTheme };
@@ -19605,8 +19607,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             }
         
         }
-
-
         public static bool ThemeExists(string themeName)
         {
             return Enum.IsDefined(typeof(EnumBeepThemes), themeName);

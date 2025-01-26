@@ -141,7 +141,6 @@
             panel2.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
             panel2.TitleAlignment = ContentAlignment.TopLeft;
             panel2.TitleBottomY = 0;
-            panel2.TitleFont = new Font("Segoe UI", 16F);
             panel2.TitleLineColor = Color.Gray;
             panel2.TitleLineThickness = 2;
             panel2.TitleText = "Panel Title";

@@ -16146,13 +16146,13 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **TextBox Colors**
-            TextBoxBackColor = Color.FromArgb(30, 30, 30),
+            TextBoxBackColor = Color.Gray,
             TextBoxForeColor = Color.FromArgb(0, 255, 255),
 
 
             // **Label Colors**
             LabelBackColor = Color.FromArgb(20, 20, 20),
-            LabelForeColor = Color.FromArgb(0, 255, 255),
+            LabelForeColor = Color.White,
 
             // **Panel Colors**
             PanelBackColor = Color.FromArgb(35, 35, 35), // Slightly lighter dark gray

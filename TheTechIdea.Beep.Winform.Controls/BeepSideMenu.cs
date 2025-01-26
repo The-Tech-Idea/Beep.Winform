@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         int drawRectY;
         int drawRectWidth;
         int drawRectHeight;
-        private SimpleItemCollection menuItems = new SimpleItemCollection();
+        private BindingList<SimpleItem> menuItems = new BindingList<SimpleItem>();
         private int _highlightPanelSize = 5;
         private int menuItemHeight = 40;
         private bool ApplyThemeOnImage = false;
@@ -129,13 +129,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         [MergableProperty(false)]
         [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public SimpleItemCollection Items
+        public BindingList<SimpleItem> Items
         {
             get => menuItems;
             set
             {
                 menuItems = value;
-                //InitializeMenu();
+               // InitializeMenu();
             }
         }
         [Browsable(true)]
@@ -582,8 +582,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             toggleButton.ApplyThemeToSvg();
             logo.BackColor = _currentTheme.SideMenuBackColor;
             logo.ForeColor = _currentTheme.SideMenuForeColor;
-            _titleLabel.ForeColor = _currentTheme.SideMenuForeColor;
-            _descriptionLabel.ForeColor = _currentTheme.SideMenuForeColor;
+            _titleLabel.ForeColor = _currentTheme.TitleBarForeColor;
+            _descriptionLabel.ForeColor = _currentTheme.TitleBarForeColor;
             foreach (Control control in Controls)
             {
                 if (control is Panel menuItemPanel && menuItemPanel.Tag is SimpleItem)

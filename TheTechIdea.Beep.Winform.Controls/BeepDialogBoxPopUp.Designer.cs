@@ -134,7 +134,6 @@
             ContentPanel.Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
             ContentPanel.TitleAlignment = ContentAlignment.TopLeft;
             ContentPanel.TitleBottomY = 0;
-            ContentPanel.TitleFont = new Font("Segoe UI", 16F);
             ContentPanel.TitleLineColor = Color.Gray;
             ContentPanel.TitleLineThickness = 2;
             ContentPanel.TitleText = "Panel Title";
@@ -239,7 +238,6 @@
             HeaderPanel.Theme = Vis.Modules.EnumBeepThemes.HighContrastTheme;
             HeaderPanel.TitleAlignment = ContentAlignment.TopLeft;
             HeaderPanel.TitleBottomY = 0;
-            HeaderPanel.TitleFont = new Font("Segoe UI", 16F);
             HeaderPanel.TitleLineColor = Color.Gray;
             HeaderPanel.TitleLineThickness = 2;
             HeaderPanel.TitleText = "Panel Title";

@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         _originalHeight = this.Height;
                         _showtitlelinetemp= ShowTitleLine;
                         // Collapse to title line (just top area)
-                        CollapseToTitleLine(0);
+                        CollapseToTitleLine(5);
                         ShowTitleLine = false;
                     }
                     else
@@ -641,12 +641,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 if (UseThemeFont)
                                 {
                                     button.UseThemeFont = true;
-                                    button.Font = BeepThemesManager.ToFont(_currentTheme.OrderedList);
+                                   _textFont = BeepThemesManager.ToFont(_currentTheme.OrderedList);
+                                    button.Font = _textFont;
                                 }
                                 else
                                 {
-                                    button.TextFont = TextFont;
+                                    button.UseThemeFont = false;
+                                    button.TextFont = _textFont;
                                 }
+                                Font = _textFont;
+                                
                                 button.BackColor = _currentTheme.ButtonBackColor;
                                 button.ForeColor = _currentTheme.ButtonForeColor;
                                 button.HoverBackColor = _currentTheme.ButtonHoverBackColor;

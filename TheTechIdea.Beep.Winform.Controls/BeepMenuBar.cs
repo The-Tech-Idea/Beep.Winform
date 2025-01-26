@@ -52,7 +52,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
-
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public BindingList<SimpleItem> MenuItems
         {
@@ -177,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ListForms= new LinkedList<MenuitemTracking>();
             InitMenu();
         }
-
+        protected override Size DefaultSize => new Size(200, 20);
         protected override void InitLayout()
         {
             base.InitLayout();
@@ -230,14 +229,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                         ShowAllBorders = false,
                         Anchor = AnchorStyles.None,
                         TextFont = _textFont,
-                        UseThemeFont = false,
-                        GuidID = item.GuidId,
+                        UseThemeFont = true,
+                        AutoSize = true,
+                        GuidID = item.GuidId
                     };
+                    
 
                     // Attach your click handler
                     btn.Click -= Btn_Click; // ensure no duplicates
                     btn.Click += Btn_Click;
-
+                  
                     // Add to Controls
                     Controls.Add(btn);
                   //  menumainbar.Add(item.Text, btn);
@@ -250,6 +251,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Step 2: Use GetPreferredSize to see how big each button actually wants to be
             List<Size> preferredSizes = new List<Size>();
+            int prefHeight = 0;
             foreach (var btn in createdButtons)
             {
                 if(!UseThemeFont)
@@ -259,8 +261,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Pass in Size.Empty or a constraint—depending on your usage
                 Size pref = btn.GetPreferredSize(Size.Empty);
                 pref.Width += 20; // add some padding
-                pref.Height = MenuItemHeight; // or keep MenuItemHeight if that’s what you want
+                pref.Height = pref.Height; // or keep MenuItemHeight if that’s what you want
                 preferredSizes.Add(pref);
+                prefHeight = pref.Height;
             }
 
             // Step 3: Sum up final widths to compute total
@@ -277,7 +280,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Step 4: Calculate startX (for centering horizontally in DrawingRect)
             int startX = DrawingRect.Left + (DrawingRect.Width - totalButtonWidth) / 2;
             if (startX < 0) startX = 0; // clamp if negative
-            int centerY = DrawingRect.Top + (DrawingRect.Height - MenuItemHeight) / 2;
+            int centerY = DrawingRect.Top + (DrawingRect.Height - prefHeight) / 2;
 
             // Step 5: Realign the buttons with the new sizes
             int currentX = startX;
@@ -286,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BeepButton btn = createdButtons[i];
                 Size prefSize = preferredSizes[i];
                 btn.Width = prefSize.Width;
-                btn.Height = MenuItemHeight;// prefSize.Height; // or keep MenuItemHeight if that’s what you want
+                btn.Height = prefHeight;// prefSize.Height; // or keep MenuItemHeight if that’s what you want
                 btn.MaxImageSize = new Size(_imagesize, _imagesize);
                 btn.Left = currentX;
                 btn.Top = centerY;
@@ -406,7 +409,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BackColor = _currentTheme.ButtonBackColor;
             if (UseThemeFont)
             {
-                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
             }
             Font = _textFont;
             foreach (var item in Controls)
@@ -419,18 +422,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                     btn.IsChild = true;
                     if(UseThemeFont)
                     {
-                        btn.TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                        btn.UseThemeFont = true;
+                        btn.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                     
                     }
                     else
                     {
                         btn.TextFont = _textFont;
                     }
-                    //btn.ForeColor = _currentTheme.SidebarTextColor;
-                    //btn.HoverBackColor = _currentTheme.SideMenuHoverBackColor;
-                    //btn.BackColor = _currentTheme.SideMenuBackColor;
-                    //btn.BorderColor = _currentTheme.SideMenuBorderColor;
-                    //btn.HoverForeColor = _currentTheme.SideMenuHoverForeColor;
-                    //btn.ForeColor = ColorUtils.GetForColor(parentbackcolor, btn.ForeColor);
+      
                 }
 
             }

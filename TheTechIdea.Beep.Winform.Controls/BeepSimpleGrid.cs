@@ -5,6 +5,8 @@ using System.Drawing.Design;
 using System.Windows.Forms.Design;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Desktop.Common;
+using System.Windows.Forms;
+using System.Diagnostics;
 
 
 
@@ -17,10 +19,89 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepSimpleGrid : BeepControl
     {
         #region "Properties"  
+        #region "Title Properties"
+        private TextImageRelation textImageRelation= TextImageRelation.ImageAboveText;
+        private string _titletext= "Simple BeepGrid";
+        [Browsable(true)]
+        [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public string TitleText
+        {
+            get { return _titletext; }
+            set
+            {
+                _titletext = value;
+                if (titleLabel != null)
+                {
+                    titleLabel.Text = value;
+                }
+                Invalidate(); // Repaint on change
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("ImagePath alignment relative to text (Left or Right).")]
+        public TextImageRelation TextImageRelation
+        {
+            get => textImageRelation;
+            set
+            {
+                textImageRelation = value;
+                if(titleLabel != null)
+                {
+                    titleLabel.TextImageRelation = value;
+                }
+                Invalidate(); // Repaint on change
+               
+            }
+        }
+        private Font _textFont;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TitleTextFont
+        {
+            get => _textFont;
+            set
+            {
+
+                _textFont = value;
+                if (titleLabel != null)
+                {
+                    titleLabel.TextFont = _textFont;
+                }
+                  
+                // Font = value;;
+                Invalidate();
+
+
+            }
+        }
+        private Font _columnHeadertextFont= new Font("Arial", 8);
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control. for Column Headers")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font ColumnHeaderFont
+        {
+            get => _columnHeadertextFont;
+            set
+            {
+
+                _columnHeadertextFont = value;
+                UseThemeFont = false;
+                // Font = value;;
+                Invalidate();
+
+
+            }
+        }
+        #endregion "Title Properties"
         int bottomPanelY;
         int botomspacetaken = 0;
         int topPanelY ;
-     
+        Rectangle gridRect;
         public int _rowHeight = 12; // Default row height
        // private List<int> _columnWidths = new List<int> { 100, 100, 100 }; // Default column widths
 
@@ -258,8 +339,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _imagepath;
             set
             {
-
-
                 _imagepath = value;
                 // Console.WriteLine("Loading ImagePath");
                 if (!string.IsNullOrEmpty(_imagepath))
@@ -268,10 +347,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ApplyTheme();
                     Invalidate();
                 }
-               
-                    
                     Invalidate();
-               
             }
         }
         //[Browsable(true)]
@@ -311,6 +387,31 @@ namespace TheTechIdea.Beep.Winform.Controls
             DataNavigator.ApplyThemeToChilds = true;
             DataNavigator.Theme = Theme;
 
+                // Draw the Title Label (BeepLabel) within drawingBounds
+
+                titleLabel = new BeepLabel
+                {
+                    Text = string.IsNullOrEmpty(Title) ? "Beep Grid" : Title,
+                    TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
+                   // Location = new Point(headerPanelBorderRect.Left + 1, headerPanelBorderRect.Top + 1), // Adjust Y as needed
+                    Theme = Theme,
+                    ImageAlign = System.Drawing.ContentAlignment.MiddleLeft,
+                    TextImageRelation = TextImageRelation.ImageBeforeText,
+                    MaxImageSize = new Size(20, 20),
+                    ShowAllBorders = false,
+                    ShowShadow = false,
+                    //ShowBottomBorder =true,
+                    //ShowTopBorder = true,
+                    IsChild = true,
+                    IsShadowAffectedByTheme = false,
+                    IsBorderAffectedByTheme = false,
+                };
+
+              //  titleLabel.Size = new Size(headerPanelBorderRect.Width - 2, headerPanelBorderRect.Height - 2);
+                titleLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+                titleLabel.BackColor = _currentTheme.BackColor;
+                //Controls.Add(titleLabel);
+            
 
         }
         protected override void InitLayout()
@@ -326,14 +427,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _verticalScrollOffset = 0; // Track vertical scroll
         private int _horizontalScrollOffset = 0; // Track horizontal scroll
 
-        private (int firstRowIndex, int lastRowIndex) GetVisibleRows()
-        {
-            int firstRowIndex = _verticalScrollOffset / _rowHeight;
-            int visibleRowCount = DrawingRect.Height / _rowHeight;
-            int lastRowIndex = Math.Min(firstRowIndex + visibleRowCount, Rows.Count - 1);
-            return (firstRowIndex, lastRowIndex);
-        }
-
+    
         private (int firstColumnIndex, int lastColumnIndex) GetVisibleColumns()
         {
             int xOffset = _horizontalScrollOffset;
@@ -418,9 +512,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     var cell = row.Cells[colIndex];
                     var cellControl = GetControlForCell(cell);
-
+                    cellControl.SetBounds(
+    xOffset - _horizontalScrollOffset, // Account for horizontal scroll
+    yOffset - _verticalScrollOffset,   // Account for vertical scroll
+    Columns[colIndex].Width,
+    _rowHeight
+);
                     // Position the control
-                    cellControl.SetBounds(xOffset, yOffset, Columns[colIndex].Width, _rowHeight);
+                 //   cellControl.SetBounds(xOffset, yOffset, Columns[colIndex].Width, _rowHeight);
 
                     // Update content if necessary
                     UpdateControlContent(cellControl, cell);
@@ -484,6 +583,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _imagepath;
         private int defaultHeight=100;
         private BindingList<SimpleItem> items;
+       
 
         private void FilterButton_Click(object sender, EventArgs e)
         {
@@ -508,9 +608,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _currentTheme.ButtonForeColor = _currentTheme.GridForeColor;
                 DataNavigator.Theme = Theme;
             }
-
-
-             Invalidate(); // Repaint the grid after applying the theme
+            if (UseThemeFont)
+            {
+                //     Console.WriteLine("2 Label Apply Theme TextFont");
+                _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
+                titleLabel.UseThemeFont = true;
+            }
+            titleLabel.Font = _textFont;
+            Invalidate(); // Repaint the grid after applying the theme
         }
         #endregion "Theme"
         #region "Paint"
@@ -526,6 +631,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             var drawingBounds =DrawingRect;
           //  drawingBounds.Inflate(-1, -1); // Adjust for border
+           // int headerfontheight = 0;
+            if (titleLabel != null)
+            {
+                headerPanelHeight = titleLabel.GetPreferredSize(Size.Empty).Height;
+            }
              headerPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Top , drawingBounds.Width , headerPanelHeight);
              bottomPanelY = drawingBounds.Bottom;
              botomspacetaken = 0;
@@ -566,24 +676,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Draw Header Panel and Title
                 DrawHeaderPanel(g, headerPanelRect);
             }
-            else
-            {
-                // hide header
-                headerPanelRect = new Rectangle(-100, -100, drawingBounds.Width, headerPanelHeight);
-                DrawHeaderPanel(g, headerPanelRect);
-            }
+            //else
+            //{
+            //    // hide header
+            //    headerPanelRect = new Rectangle(-100, -100, drawingBounds.Width, headerPanelHeight);
+            //    DrawHeaderPanel(g, headerPanelRect);
+            //}
 
             // Draw Column Headers
-          
+
             if (_showColumnHeaders)
             {
-                topPanelY += ColumnHeight;
-                botomspacetaken += ColumnHeight;
                 columnsheaderPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width, ColumnHeight);
                 PaintColumnHeaders(g, columnsheaderPanelRect);
+                topPanelY += ColumnHeight; // Move after drawing
+                botomspacetaken += ColumnHeight;
             }
-            var gridRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width, drawingBounds.Height - botomspacetaken);
-
+            int availableHeight = drawingBounds.Height - topPanelY - botomspacetaken;
+             gridRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width, availableHeight);
             // Draw Rows
             PaintRows(g, gridRect);
             if (_showverticalgridlines)
@@ -637,23 +747,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void PaintRows(Graphics graphics, Rectangle drawingBounds)
         {
+            var (firstRowIndex, lastRowIndex) = GetVisibleRows();
             int rowStartY = drawingBounds.Top;
-
-            for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
+            int xOffset = gridRect.Left + XOffset; // Apply the same offset
+            for (int rowIndex = firstRowIndex; rowIndex <= lastRowIndex; rowIndex++)
             {
                 var row = Rows[rowIndex];
                 var rowRect = new Rectangle(drawingBounds.Left, rowStartY, drawingBounds.Width, _rowHeight);
-
-                // Use PaintRow to draw each individual row
                 PaintRow(graphics, row, rowRect);
-
-                // Update rowStartY to position the next row below the current one
-                rowStartY += rowRect.Height;
+                rowStartY += _rowHeight;
             }
+        }
+
+        private (int firstRowIndex, int lastRowIndex) GetVisibleRows()
+        {
+            int firstRowIndex = Math.Max(0, _verticalScrollOffset / _rowHeight);
+            int visibleRowCount = (int)Math.Ceiling((double)gridRect.Height / _rowHeight);
+            int lastRowIndex = Math.Min(firstRowIndex + visibleRowCount, Rows.Count - 1);
+            return (firstRowIndex, lastRowIndex);
         }
         private void DrawHeaderPanel(Graphics g, Rectangle drawingBounds)
         {
-            var headerPanelBorderRect = new Rectangle(drawingBounds.Left, drawingBounds.Top, drawingBounds.Width, headerPanelHeight);
+            var headerPanelBorderRect = drawingBounds;
             // Set up header panel rectangle based on drawingBounds
             // Rectangle headerPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Top, drawingBounds.Width, headerPanelHeight);
 
@@ -668,43 +783,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 g.DrawLine(borderPen, headerPanelBorderRect.Left, headerPanelBorderRect.Bottom, headerPanelBorderRect.Right, headerPanelBorderRect.Bottom);
             }
-
-            if (titleLabel == null)
-            {
-                // Draw the Title Label (BeepLabel) within drawingBounds
-
-                titleLabel = new BeepLabel
-                {
-                    Text = string.IsNullOrEmpty(Title) ? "Beep Grid" : Title,
-                    TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
-                    Location = new Point(headerPanelBorderRect.Left + 1, headerPanelBorderRect.Top + 1), // Adjust Y as needed
-                    Theme = Theme,
-                    ImageAlign = System.Drawing.ContentAlignment.MiddleLeft,
-                    TextImageRelation = TextImageRelation.ImageBeforeText,
-                    MaxImageSize = new Size(20, 20),
-                    ShowAllBorders = false,
-                    ShowShadow = false,
-                    //ShowBottomBorder =true,
-                    //ShowTopBorder = true,
-                    IsChild = true,
-                    IsShadowAffectedByTheme = false,
-                    IsBorderAffectedByTheme = false,
-                };
-
-                titleLabel.Size = new Size(headerPanelBorderRect.Width - 2, headerPanelBorderRect.Height - 2);
-                titleLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
-                titleLabel.BackColor = _currentTheme.BackColor;
-                Controls.Add(titleLabel);
-            }
-          
-            if (!string.IsNullOrEmpty(_imagepath))
-            {
-                titleLabel.ImagePath = _imagepath;
-            }
-            titleLabel.Location = new Point(headerPanelBorderRect.Left + 1, headerPanelBorderRect.Top + 1);
+            titleLabel.ImageAlign = ContentAlignment.MiddleLeft;
+            titleLabel.TextAlign = ContentAlignment.MiddleCenter;
+            titleLabel.TextImageRelation = TextImageRelation.ImageBeforeText;
+           // Location = new Point(headerPanelBorderRect.Left + 1, headerPanelBorderRect.Top + 1); // Adjust Y as needed
+            titleLabel.Size = new Size(headerPanelBorderRect.Width - 2, headerPanelBorderRect.Height - 2);
+            titleLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+            titleLabel.BackColor = _currentTheme.BackColor;
+            //if (!string.IsNullOrEmpty(_imagepath))
+            //{
+            //    titleLabel.ImagePath = _imagepath;
+            //}
+            //titleLabel.Location = new Point(headerPanelBorderRect.Left + 1, headerPanelBorderRect.Top + 1);
             // Add controls to BeepSimpleGrid
-
+            titleLabel.Text = TitleText;
+         //   Debug.WriteLine($"Drawing Title {TitleText}");
             titleLabel.Theme = Theme;
+          
+            //    Debug.WriteLine($"Drawing Title {headerPanelBorderRect.Left}- {headerPanelBorderRect.Top}-{headerPanelBorderRect.Width}-{headerPanelBorderRect.Height}");
+            titleLabel.DrawToGraphics(g, headerPanelBorderRect);
         }
         private void PaintColumnHeaders(Graphics g, Rectangle drawingBounds)
         {
@@ -725,7 +822,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 using (var textBrush = new SolidBrush(_currentTheme.ButtonForeColor))
                 {
-                    g.DrawString(headerText, Font, textBrush, columnRect, new StringFormat
+                    g.DrawString(headerText, _columnHeadertextFont, textBrush, columnRect, new StringFormat
                     {
                         Alignment = StringAlignment.Center,
                         LineAlignment = StringAlignment.Center
@@ -1214,21 +1311,18 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Events"
         #region "Scroll"
-        protected override void OnScroll(ScrollEventArgs e)
+        protected override void OnScroll(ScrollEventArgs se)
         {
-            base.OnScroll(e);
-
-            // Update offsets for virtualization
-            if (e.ScrollOrientation == ScrollOrientation.VerticalScroll)
+            base.OnScroll(se);
+            if (se.ScrollOrientation == ScrollOrientation.VerticalScroll)
             {
-                _verticalScrollOffset = e.NewValue;
+                _verticalScrollOffset = se.NewValue;
             }
-            else if (e.ScrollOrientation == ScrollOrientation.HorizontalScroll)
+            else if (se.ScrollOrientation == ScrollOrientation.HorizontalScroll)
             {
-                _horizontalScrollOffset = e.NewValue;
+                _horizontalScrollOffset = se.NewValue;
             }
-
-            RenderVisibleCells(); // Re-render visible cells based on scroll position
+            Invalidate();
         }
 
         #endregion "Scroll"

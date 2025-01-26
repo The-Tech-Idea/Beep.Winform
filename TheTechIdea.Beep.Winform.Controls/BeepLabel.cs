@@ -410,7 +410,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 //   Console.WriteLine("2 Label Apply Theme TextFont");
                 ApplyThemeToSvg();
-               // Invalidate();
+                Invalidate();
+                Refresh();
             }
         }
         public void ApplyThemeToSvg()

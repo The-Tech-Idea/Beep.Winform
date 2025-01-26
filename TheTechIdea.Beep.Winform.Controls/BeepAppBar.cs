@@ -42,6 +42,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Title and Text Properties"
         public int TitleLabelWidth { get; private set; } = 200;
         public int SearchBoxWidth { get; private set; } = 150;
+        private Font _textFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TextFont
+        {
+            get => _textFont;
+            set
+            {
+
+                _textFont = value;
+                Font = _textFont;
+                UseThemeFont = false;
+                Invalidate();
+
+
+            }
+        }
         // title property to set the title of the form
         private string _title = "Beep Form";
         [Browsable(true)]
@@ -743,26 +763,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
            // base.ApplyTheme();
-            //if (_currentTheme == null) return;
-            //if (TitleLabel == null) return;
+            if (_currentTheme == null) return;
+            if (TitleLabel == null) return;
             BackColor = _currentTheme.TitleBarBackColor;
-      //      ForeColor = _currentTheme.TitleBarForeColor;
+
             _logo.Theme = Theme;
-            TitleLabel.UseScaledFont = true;
-            TitleLabel.Font = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
-            TitleLabel.ForeColor = _currentTheme.SideMenuForeColor;
-            TitleLabel.BackColor = _currentTheme.TitleBarBackColor;
-            // searchBox.Theme = Theme;
-          //  searchBox.ForeColor = _currentTheme.TitleBarForeColor;
-          //  searchBox.BackColor = _currentTheme.TitleBarBackColor;
-         
-            // searchBox.TextFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-            //searchBox.Height = searchBox.PreferredHeight;
-            //  TitleLabel.Theme = Theme;
-
-
-            //   TitleLabel.ForeColor = ColorUtils.GetForColor(_currentTheme.TitleBarBackColor, _currentTheme.TitleBarForeColor);
-            // hamburgerIcon.Theme = Theme;
+            TitleLabel.Theme = Theme;
+            //TitleLabel.ForeColor = _currentTheme.TitleBarForeColor;
+            //TitleLabel.BackColor = _currentTheme.TitleBarBackColor;
+            if (UseThemeFont)
+            {
+                TitleLabel.UseThemeFont = true;
+                _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
+            }
+            TitleLabel.Font = _textFont;
             profileIcon.Theme = Theme;
             profileIcon.ApplyThemeOnImage = true;
             closeIcon.Theme = Theme;
@@ -770,13 +784,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             minimizeIcon.Theme = Theme;
             notificationIcon.Theme = Theme;
             themeIcon.Theme = Theme;
-          //  searchBox.Theme = Theme;
-            searchBox.ForeColor = _currentTheme.SideMenuForeColor;
-            searchBox.BackColor = _currentTheme.TitleBarBackColor;
-            searchBox.ShowAllBorders = true;
-           // searchBox.Invalidate();
+            searchBox.Theme = Theme;
+            
+          
+            searchBox.Invalidate();
+            searchBox.Refresh();
+            TitleLabel.Invalidate();
+            TitleLabel.Refresh();
+            RearrangeLayout();
             Invalidate();
-
         }
         public void HideShowLogo(bool val)
         {

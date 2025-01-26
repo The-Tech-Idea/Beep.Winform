@@ -332,28 +332,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Repaint when the max image size changes
             }
         }
-        //[Browsable(true)]
-        //[Category("Appearance")]
-        //public FlatStyle FlatStyle
-        //{
-        //    get => _flatStyle;
-        //    set
-        //    {
-        //        _flatStyle = value;
-        //        Invalidate(); // Trigger repaint based on the FlatStyle
-        //    }
-        //}
-        //[Browsable(true)]
-        //[Category("Appearance")]
-        //public bool FlatAppearance
-        //{
-        //    get => _flatAppearanceEnabled;
-        //    set
-        //    {
-        //        _flatAppearanceEnabled = value;
-        //        Invalidate(); // Trigger repaint based on the flat appearance
-        //    }
-        //}
+       
         // New Property for Hover Persistence using Theme
         [Browsable(true)]
         [Category("Behavior")]
@@ -378,6 +357,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Trigger repaint when the state changes
             }
         }
+        private bool _autoSize = false;
+        [Browsable(true)]
+        [Category("Behavior")]
+        public bool AutoSize
+        {
+            get => _autoSize;
+            set
+            {
+                _autoSize = value;
+                Invalidate(); // Trigger repaint when the state changes
+                PerformLayout();
+            }
+        }
+
+           
         private Font _textFont = new Font("Arial", 10);
         [Browsable(true)]
         [MergableProperty(true)]
@@ -407,22 +401,26 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _isChild = value;
                 base.IsChild = value;
-               
+                Control parent = null;
                 if (this.Parent != null)
+                {
+                    parent = this.Parent;
+                }
+                if (parent != null)
                 {
                     if (value)
                     {
-                        parentbackcolor = this.Parent.BackColor;
+                        parentbackcolor = parent.BackColor;
                         _tempbackcolor = BackColor;
                         BackColor = parentbackcolor;
                         beepImage.BackColor = parentbackcolor;
                     }
                     else
                     {
-                        beepImage.IsChild = value;
+                       
                         beepImage.BackColor = _tempbackcolor;
                         BackColor = _tempbackcolor;
-                       // ApplyTheme();
+                        ApplyTheme();
                     }
                 }
                
@@ -467,7 +465,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage.MouseDown += BeepImage_MouseDown;
             Padding = new Padding(0);
             Margin = new Padding(0);
-            Size = new Size(120, 40);  // Default size
+       
             InitListbox();
                                        //  Controls.Add(beepImage);
         }
@@ -559,7 +557,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (IsChild)
             {
-                BackColor= TempBackColor ;
+                BackColor= _currentTheme.ButtonBackColor;
             }
             Font = _textFont;
             ApplyThemeToSvg();
@@ -585,6 +583,38 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Theme"
         #region "Paint"
+        protected override void OnLayout(LayoutEventArgs e)
+        {
+            base.OnLayout(e);
+
+            if (_autoSize)
+            {
+                // Compute what size we *should* be.
+                Size preferred = GetPreferredSize(Size.Empty);
+
+                // Update the actual Size if it differs
+                if (Size != preferred)
+                {
+                    this.Size = preferred;
+                }
+            }
+        }
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            if (_autoSize)
+            {
+                // Compute what size we *should* be.
+                Size preferred = GetPreferredSize(Size.Empty);
+
+                // Update the actual Size if it differs
+                if (Size != preferred)
+                {
+                    this.Size = preferred;
+                }
+            }
+            UpdateDrawingRect();
+        }
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);

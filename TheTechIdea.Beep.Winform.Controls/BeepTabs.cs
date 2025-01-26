@@ -131,6 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //this.DragOver += BeepTabs_DragOver;
             //this.DragDrop += BeepTabs_DragDrop;
         }
+        protected override Size DefaultSize => new Size(200, 200);
         private void TabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Refresh the designer when the selected tab changes

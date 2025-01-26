@@ -1148,6 +1148,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected Font GetScaledFont(Graphics g, string text, Size maxSize, Font originalFont)
         {
+            if(originalFont==null)
+            {
+                originalFont= Font;
+            }
+
             // Quickly check if the original font already fits.
             if (Fits(g, text, originalFont, maxSize))
                 return originalFont;

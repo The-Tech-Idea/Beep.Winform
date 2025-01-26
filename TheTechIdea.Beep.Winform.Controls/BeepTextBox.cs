@@ -83,14 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get
             {
-                using (TextBox temp = new TextBox())
-                {
-                    temp.Multiline = false;
-                    temp.BorderStyle = BorderStyle.None;
-                
-                    // The system's best guess for single-line text
-                    return temp.PreferredHeight;
-                }
+               return GetSingleLineHeight();
             }
         }
         // show the inner textbox properties like multiline
@@ -552,19 +545,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     parent = this.Parent;
                 }
-
-                //if (parent == null)
-                //{
-                //    parent = ParentControl;
-                //}
-              //  Debug.WriteLine($"Fetching PArent ");
                 if (parent != null)
                 {
-                 //   Debug.WriteLine($"Got PArent ");
                     if (value)
                     {
-                 //       Debug.WriteLine($"setting Child  ");
-                     //   beepImage.IsChild = value;
                         parentbackcolor = parent.BackColor;
                         TempBackColor = _innerTextBox.BackColor;
                         BackColor = parentbackcolor;
@@ -573,8 +557,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     else
                     {
-                   //     Debug.WriteLine($"Removing child PArent ");
-                       // beepImage.IsChild = value;
                         beepImage.BackColor = _tempbackcolor;
                         BackColor = _tempbackcolor;
                         _innerTextBox.BackColor = _tempbackcolor;
@@ -1483,17 +1465,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage.IsFramless = true;
             if (IsChild)
             {
-                BackColor = TempBackColor;
+                BackColor = _currentTheme.TextBoxBackColor;
             }
             if (ApplyThemeOnImage)
             {
-                beepImage.ImageEmbededin = ImageEmbededin.TextBox;
+               // beepImage.ImageEmbededin = ImageEmbededin.TextBox;
                 beepImage.ApplyThemeToSvg();
             }
             //  Refresh();           // Forcing the current control to refresh
             //   Parent?.Refresh();   // Ensuring the parent is also updated
             _innerTextBox.Invalidate();
+            beepImage.Invalidate();
             Invalidate();
+            Refresh();
         }
         #endregion "Theme and Style"
 

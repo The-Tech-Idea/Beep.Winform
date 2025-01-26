@@ -38,9 +38,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region "Public Properties"
+        private Font _textFont = new Font("Arial", 10);
         [Browsable(true)]
+        [MergableProperty(true)]
         [Category("Appearance")]
-        public Font TitleFont { get; set; } = new Font("Arial", 12, FontStyle.Bold);
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TextFont
+        {
+            get => _textFont;
+            set
+            {
+
+                _textFont = value;
+                UseThemeFont = false;
+                Font = _textFont;
+             
+                Invalidate();
+
+
+            }
+        }
+      
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Title Bottom Location Y")]
@@ -163,13 +182,49 @@ namespace TheTechIdea.Beep.Winform.Controls
            
         }
         #endregion
+        private int GetSingleLineHeight()
+        {
+            // Ensure DrawingRect is updated
+            UpdateDrawingRect();
+            int textBoxHeight;
+            //  padding = BorderThickness + offset;
+            //spacing = 1;
+            using (TextBox tempTextBox = new TextBox())
+            {
+                tempTextBox.Multiline = false;
+                tempTextBox.BorderStyle = BorderStyle.None;
+                tempTextBox.Font = Font;
+                tempTextBox.Refresh();
+                textBoxHeight = tempTextBox.PreferredHeight + (padding * 2);
 
+                // Calculate the total height, including borders and padding
+            }
+            //    Console.WriteLine($" GetSingleLineHeight : {textBoxHeight}");
+
+            return textBoxHeight;
+        }
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+            _textFont = Font;
+            //    Console.WriteLine("Font Changed");
+            if (AutoSize)
+            {
+                Size textSize = TextRenderer.MeasureText(Text, _textFont);
+            //    this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
+            }
+        }
         public override void ApplyTheme()
         {
             // We'll keep your logic, no changes
             BackColor = _currentTheme.PanelBackColor;
             ForeColor = _currentTheme.TitleForColor;
-            if(UseThemeFont) TitleFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
+            if (UseThemeFont)
+            {
+                _textFont = BeepThemesManager.ToFont(_currentTheme.TitleSmall);
+                Font = _textFont;
+            }
+            //if (UseThemeFont) TitleFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
             foreach (Control ctrl in Controls)
             {
                 // if you want to apply theme to child controls, do so here
@@ -203,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             
 
             // measure how big the text is
-            SizeF titleSize = g.MeasureString(_titleText, TitleFont);
+            SizeF titleSize = g.MeasureString(_titleText, _textFont);
 
             // We'll define a "textTop" for vertical. It's typically DrawingRect.Top + some padding
             float textTop = DrawingRect.Top + padding;
@@ -228,7 +283,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw the title text
             using (Brush brush = new SolidBrush(_currentTheme.TitleForColor))
             {
-                g.DrawString(_titleText, TitleFont, brush, textLeft, textTop);
+                g.DrawString(_titleText, _textFont, brush, textLeft, textTop);
             }
 
             // The bottom of the drawn text

@@ -35,31 +35,34 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InitializeComponent();
             beepService = service; // serviceProvider.GetService<IBeepService>();
-            Dependencies.DMEEditor= beepService.DMEEditor;
+            Dependencies.DMEEditor = beepService.DMEEditor;
             MethodHandler.DMEEditor = beepService.DMEEditor;
             beepTreeControl1.init(beepService);
-          //  beepButton1.Click += BeepButton1_Click;
-         //   beepButton2.PopupMode = true;
+            //  beepButton1.Click += BeepButton1_Click;
+            //   beepButton2.PopupMode = true;
         }
-      
+
 
         private void BeepButton1_Click(object? sender, EventArgs e)
         {
 
             beepTreeControl1.CreateRootTree();
-           // beepButton2.ListItems = beepTreeControl1.Nodes;
+            // beepButton2.ListItems = beepTreeControl1.Nodes;
             //BeepPopupListForm beepFileDialog = new BeepPopupListForm(beepTreeControl1.Nodes.ToList());
             //// Get the screen position of the control's top-left corner
             ////Point screenPoint = beepButton1.PointToScreen(Point.Empty);
             ////Point point = new Point(screenPoint.X, screenPoint.Y + beepButton1.Height);
             //SimpleItem x=beepFileDialog.ShowPopup("Tree",beepButton1, BeepPopupFormPosition.Top);
             beepTreeControl1.ShowCheckBox = true;
-           // BeepThemesManager.CurrentTheme = EnumBeepThemes.WinterTheme;
+            // BeepThemesManager.CurrentTheme = EnumBeepThemes.WinterTheme;
             //    beepListBox1.ListItems = beepTreeControl1.Nodes;
             //    beepListBox1.InitializeMenu();
             //beepTreeControl1.AllowMultiSelect = false;
         }
-   
-       
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

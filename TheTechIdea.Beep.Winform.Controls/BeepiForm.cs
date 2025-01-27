@@ -16,11 +16,11 @@ using TheTechIdea.Beep.Winform.Controls.Managers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public partial class BeepiForm : Form,IDM_Addin
+    public partial class BeepiForm : Form, IDM_Addin
     {
         #region "Fields"
         protected int _resizeMargin = 5; // Margin for resizing
-        protected int _borderRadius =5;
+        protected int _borderRadius = 5;
         protected int _borderThickness = 3; // Thickness of the custom border
         private Color _borderColor = Color.Red; // Default border color
         private const int ButtonSize = 30;
@@ -35,10 +35,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool ishandled = false;
         private bool _inpopupmode = false;
 
-      
+
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
         protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
-        private bool _applythemetochilds=true;
+        private bool _applythemetochilds = true;
 
 
 
@@ -46,9 +46,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Properties"
         [Browsable(true)]
         [Category("Appearance")]
-        public bool ApplyThemeToChilds { 
+        public bool ApplyThemeToChilds
+        {
             get { return _applythemetochilds; }
-            set { _applythemetochilds = value; } 
+            set { _applythemetochilds = value; }
         }
 
         [Browsable(true)]
@@ -84,8 +85,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _themeEnum = value;
                     _currentTheme = BeepThemesManager.GetTheme(value);
-                   beepuiManager1.Theme = value;
-                  //  ApplyTheme();
+                    //beepuiManager1.Theme = value;
+                     ApplyTheme();
                 }
             }
         }
@@ -105,45 +106,45 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Constructors"
         public BeepiForm(IBeepService beepService)
         {
-         //   Debug.WriteLine("BeepiForm Constructor 1");
+            //   Debug.WriteLine("BeepiForm Constructor 1");
             InitializeComponent();
             beepservices = beepService;
             ishandled = false;
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-         //   SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
+            //   SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
             UpdateStyles();
 
             // Apply border and custom form styles
             FormBorderStyle = FormBorderStyle.None;
             //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
             //      Margin = new Padding(_resizeMargin);
-       //     Debug.WriteLine("BeepiForm Constructor 11");
-            Initialize();
+            //     Debug.WriteLine("BeepiForm Constructor 11");
+           // Initialize();
 
-           
+
         }
         public BeepiForm()
         {
-           // Debug.WriteLine("BeepiForm Constructor 2");
+            // Debug.WriteLine("BeepiForm Constructor 2");
             InitializeComponent();
             ishandled = false;
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-         //   SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
+            //   SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
             UpdateStyles();
-            
+
             // Apply border and custom form styles
             FormBorderStyle = FormBorderStyle.None;
             //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
             //      Margin = new Padding(_resizeMargin);
-          //  Debug.WriteLine("BeepiForm Constructor 22");
-            Initialize();
+            //  Debug.WriteLine("BeepiForm Constructor 22");
+           // Initialize();
         }
         protected override void OnActivated(EventArgs e)
         {
             base.OnActivated(e);
-           
+
         }
-        
+
         #endregion "Constructors"
         #region "Layout Events"
         protected override void OnControlAdded(ControlEventArgs e)
@@ -164,19 +165,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             //{
             //    Initialize();
             //    ishandled = true;
-             
+
             //}
         }
-       
 
-        private void BeepThemesManager_ThemeChanged(object? sender, ThemeChangeEventsArgs e)
-        {
-            Theme = e.NewTheme;
-        }
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
-
+            beepuiManager1.Initialize(this); // Explicitly initialize the manager with the form
+            
 
             //if (InvokeRequired)
             //{
@@ -193,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-            if(_inpopupmode) return;
+            if (_inpopupmode) return;
             if (e.Button == MouseButtons.Left)
             {
                 // Determine if we're resizing or dragging
@@ -216,10 +213,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseMove(e);
             if (_inpopupmode) return;
-          
+
             if (isResizing)
             {
-              
+
                 HandleResizing();
                 ResumeLayout();
             }
@@ -242,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Cursor = Cursors.Default; // Default cursor
                 }
             }
-           
+
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
@@ -264,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void HandleResizing()
         {
-           
+
             Point diff = Point.Subtract(Cursor.Position, new Size(resizeStartCursorPoint));
             Size newSize = new Size(
                 Math.Max(MinimumSize.Width, resizeStartFormSize.Width + diff.X),
@@ -283,14 +280,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Theme Application
         public virtual void ApplyTheme()
         {
-          
-            
-     //       beepuiManager1.Theme = Theme;
+
+
+                  beepuiManager1.Theme = Theme;
             //  BeepTheme theme = BeepThemesManager.GetTheme(beepuiManager1.Theme);
             BackColor = _currentTheme.BackColor;
             //beepPanel1.Theme = beepuiManager1.Theme;
             BorderColor = _currentTheme.BorderColor;
-          
+
             Invalidate();
         }
         #endregion
@@ -335,20 +332,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Rectangle borderRectangle = new Rectangle(
                       _borderThickness / 2,
                       _borderThickness / 2,
-                    Width - (_borderThickness ),
-                    Height - (_borderThickness )
+                    Width - (_borderThickness),
+                    Height - (_borderThickness)
                 );
 
-            
+
                 borderPen.Alignment = PenAlignment.Center;
-                  e.Graphics.DrawRectangle(borderPen, borderRectangle);
-    //            e.Graphics.DrawRectangle(
-    //    borderPen,
-    //    new Rectangle(0, 0, Width - 1, Height - 1)
-    //);
+                e.Graphics.DrawRectangle(borderPen, borderRectangle);
+                //            e.Graphics.DrawRectangle(
+                //    borderPen,
+                //    new Rectangle(0, 0, Width - 1, Height - 1)
+                //);
             }
 
-          
+
         }
         protected override void OnResize(EventArgs e)
         {
@@ -442,10 +439,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else if (control.Dock == DockStyle.None)
                 {
-                   // Console.WriteLine($"Control is not docked {control.Left}-{adjustedClientArea.Left}");
+                    // Console.WriteLine($"Control is not docked {control.Left}-{adjustedClientArea.Left}");
                     // Non-docked controls are clamped within the adjusted client area
-                    control.Left = Math.Max(control.Left, adjustedClientArea.Left+1);
-                    control.Top = Math.Max(control.Top, adjustedClientArea.Top+1);
+                    control.Left = Math.Max(control.Left, adjustedClientArea.Left + 1);
+                    control.Top = Math.Max(control.Top, adjustedClientArea.Top + 1);
                     control.Width = Math.Min(control.Width, adjustedClientArea.Width - control.Left + adjustedClientArea.Left);
                     control.Height = Math.Min(control.Height, adjustedClientArea.Height - control.Top + adjustedClientArea.Top);
                 }
@@ -505,19 +502,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();
 
-
-
-
         #endregion
         #region "IDM_Addin"
         public event EventHandler OnStart;
         public event EventHandler OnStop;
         public event EventHandler<ErrorEventArgs> OnError;
         public AddinDetails Details { get; set; } = new AddinDetails();
-        public Dependencies Dependencies { get; set; }=new Dependencies();
+        public Dependencies Dependencies { get; set; } = new Dependencies();
         public string GuidID { get; set; }
 
-        
+
         public virtual void Initialize()
         {
             if (ishandled) return;
@@ -530,51 +524,50 @@ namespace TheTechIdea.Beep.Winform.Controls
                                                           //  Margin = new Padding(5);
                                                           // Apply initial theme\
 
-            beepuiManager1?.Initialize(this); // Explicitly initialize the manager with the form
 
-          // Theme = BeepThemesManager.CurrentTheme;
-         //   ApplyTheme();
+            // Theme = BeepThemesManager.CurrentTheme;
+            //   ApplyTheme();
             //    beepuiManager1.Theme = Theme;
-         //   BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
+            //   BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
 
         }
 
         public virtual void Suspend()
         {
-             
+
         }
 
         public virtual void Resume()
         {
-             
+
         }
 
         public virtual string GetErrorDetails()
         {
-             return "";
+            return "";
         }
 
         public void Run(IPassedArgs pPassedarg)
         {
-             
+
         }
 
         public virtual void Run(params object[] args)
         {
-             
+
         }
 
-        public virtual  Task<IErrorsInfo> RunAsync(IPassedArgs pPassedarg)
+        public virtual Task<IErrorsInfo> RunAsync(IPassedArgs pPassedarg)
         {
             try
             {
                 // use the view router to navigate back
-              
+
             }
             catch (Exception ex)
             {
                 string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
-               Dependencies.DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+                Dependencies.DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
             }
             return Task.FromResult(Dependencies.DMEEditor.ErrorObject);
         }
@@ -584,7 +577,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             try
             {
                 // use the view router to navigate back
-               
+
             }
             catch (Exception ex)
             {
@@ -597,18 +590,25 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public virtual void Configure(Dictionary<string, object> settings)
         {
-             
+
         }
 
         public virtual void OnNavigatedTo(Dictionary<string, object> parameters)
         {
-             
+
         }
 
         public virtual void SetError(string message)
         {
-             
+
         }
         #endregion "IDM_Addin"
+
+        private void BeepiForm_Load(object sender, EventArgs e)
+        {
+
+         //   beepuiManager1.Initialize(this); // Explicitly initialize the manager with the form
+           // beepuiManager1.Theme=BeepThemesManager.CurrentTheme; // Apply the theme to the form
+        }
     }
 }

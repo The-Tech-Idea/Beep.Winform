@@ -281,15 +281,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         }
         private void BeepThemesManager_ThemeChanged(object? sender, EventArgs e)
         {
+            ApplyThemeToForm();
+        }
+        public void ApplyThemeToForm()
+        {
             if (_form != null)
             {
-                if (Theme != BeepThemesManager.CurrentTheme)
-                {
+
                     Theme = BeepThemesManager.CurrentTheme;
                     ApplyThemeToAllBeepControls(_form); // Apply the initial theme
                     BeepiForm.ApplyTheme();
-                }
-               
+          
             }
         }
         #endregion
@@ -376,6 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             Theme = BeepThemesManager.CurrentTheme;
       //     Debug.WriteLine($"Form Load event 3 {BeepThemesManager.CurrentTheme.ToString()}");
             BeepiForm.ApplyTheme();
+            ApplyThemeToForm();
             BeepThemesManager.ThemeChanged -= BeepThemesManager_ThemeChanged;
             BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
         }

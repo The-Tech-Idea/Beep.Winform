@@ -37,8 +37,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             // beepuiManager1
             // 
             beepuiManager1.ApplyThemeOnImage = false;
+            beepuiManager1.BeepAppBar = null;
             beepuiManager1.BeepFunctionsPanel = null;
             beepuiManager1.BeepiForm = null;
+            beepuiManager1.BeepMenuBar = null;
+            beepuiManager1.BeepSideMenu = null;
             beepuiManager1.IsRounded = true;
             beepuiManager1.LogoImage = "";
             beepuiManager1.ShowBorder = true;
@@ -55,6 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Name = "BeepiForm";
             StartPosition = FormStartPosition.CenterParent;
             Text = "Beep i Form";
+            Load += BeepiForm_Load;
             ResumeLayout(false);
         }
 

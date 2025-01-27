@@ -258,6 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 if (_theme != value)
                 {
                     _theme = value;
+                   
                     OnThemeChanged?.Invoke(_theme);
                     ApplyThemeToAllBeepControls(_form);
                 }
@@ -368,9 +369,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             BeepiForm = runtimeForm as BeepiForm;
 
             // Attach to runtime-specific events
-            //    _form.Load += Form_Load;
+               //_form.Load += Form_Load;
             //    AttachControlAddedEvent(_form);
-           // BeepiForm.ApplyTheme();
+         //   Debug.WriteLine("Form Load event 2");
+            BeepiForm.Theme = BeepThemesManager.CurrentTheme    ;
+            Theme = BeepThemesManager.CurrentTheme;
+      //     Debug.WriteLine($"Form Load event 3 {BeepThemesManager.CurrentTheme.ToString()}");
+            BeepiForm.ApplyTheme();
             BeepThemesManager.ThemeChanged -= BeepThemesManager_ThemeChanged;
             BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
         }

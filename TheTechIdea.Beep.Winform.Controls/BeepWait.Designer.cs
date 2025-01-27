@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BeepWait));
             panel2 = new BeepPanel();
             messege = new BeepTextBox();
             _spinnerImage = new BeepImage();
@@ -80,8 +81,8 @@
             panel2.FocusBorderColor = Color.Gray;
             panel2.FocusForeColor = Color.Black;
             panel2.FocusIndicatorColor = Color.Blue;
-            panel2.Font = new Font("Segoe UI", 16F);
-            panel2.ForeColor = Color.Black;
+            panel2.Font = new Font("Segoe UI", 14F);
+            panel2.ForeColor = Color.FromArgb(0, 0, 0);
             panel2.Form = null;
             panel2.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             panel2.GradientEndColor = Color.Gray;
@@ -115,6 +116,7 @@
             panel2.Name = "panel2";
             panel2.OverrideFontSize = TypeStyleFontSize.None;
             panel2.ParentBackColor = Color.Empty;
+            panel2.ParentControl = null;
             panel2.PressedBackColor = Color.Gray;
             panel2.PressedBorderColor = Color.Gray;
             panel2.PressedForeColor = Color.Black;
@@ -138,6 +140,8 @@
             panel2.SlideFrom = SlideDirection.Left;
             panel2.StaticNotMoving = false;
             panel2.TabIndex = 3;
+            panel2.TempBackColor = Color.Empty;
+            panel2.TextFont = new Font("Segoe UI", 14F);
             panel2.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
             panel2.TitleAlignment = ContentAlignment.TopLeft;
             panel2.TitleBottomY = 0;
@@ -206,10 +210,6 @@
             messege.InactiveBackColor = Color.Gray;
             messege.InactiveBorderColor = Color.Gray;
             messege.InactiveForeColor = Color.Black;
-            // 
-            // 
-            // 
-         
             messege.IsAcceptButton = false;
             messege.IsBorderAffectedByTheme = true;
             messege.IsCancelButton = false;
@@ -236,6 +236,7 @@
             messege.OverrideFontSize = TypeStyleFontSize.None;
             messege.Padding = new Padding(2);
             messege.ParentBackColor = Color.Empty;
+            messege.ParentControl = null;
             messege.PasswordChar = '\0';
             messege.PlaceholderText = "";
             messege.PressedBackColor = Color.Gray;
@@ -263,6 +264,7 @@
             messege.SlideFrom = SlideDirection.Left;
             messege.StaticNotMoving = false;
             messege.TabIndex = 7;
+            messege.TempBackColor = Color.Empty;
             messege.TextAlignment = HorizontalAlignment.Left;
             messege.TextFont = new Font("Segoe UI", 9F);
             messege.TextImageRelation = TextImageRelation.ImageBeforeText;
@@ -318,7 +320,7 @@
             _spinnerImage.HoverBackColor = Color.FromArgb(230, 230, 230);
             _spinnerImage.HoverBorderColor = Color.FromArgb(65, 105, 225);
             _spinnerImage.HoveredBackcolor = Color.Wheat;
-            _spinnerImage.HoverForeColor = Color.Black;
+            _spinnerImage.HoverForeColor = Color.FromArgb(0, 0, 0);
             _spinnerImage.Id = -1;
             _spinnerImage.Image = null;
             _spinnerImage.ImageEmbededin = ImageEmbededin.Button;
@@ -348,6 +350,7 @@
             _spinnerImage.Name = "_spinnerImage";
             _spinnerImage.OverrideFontSize = TypeStyleFontSize.None;
             _spinnerImage.ParentBackColor = Color.FromArgb(245, 245, 245);
+            _spinnerImage.ParentControl = null;
             _spinnerImage.PressedBackColor = Color.FromArgb(0, 120, 215);
             _spinnerImage.PressedBorderColor = Color.Gray;
             _spinnerImage.PressedForeColor = Color.White;
@@ -370,6 +373,7 @@
             _spinnerImage.SpinSpeed = 5F;
             _spinnerImage.StaticNotMoving = false;
             _spinnerImage.TabIndex = 5;
+            _spinnerImage.TempBackColor = Color.Empty;
             _spinnerImage.Text = "beepImage1";
             _spinnerImage.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
             _spinnerImage.ToolTipText = "";
@@ -412,17 +416,17 @@
             label2.FocusForeColor = Color.Black;
             label2.FocusIndicatorColor = Color.Blue;
             label2.Font = new Font("Segoe UI", 9F);
-            label2.ForeColor = Color.Black;
+            label2.ForeColor = Color.FromArgb(0, 0, 0);
             label2.Form = null;
             label2.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             label2.GradientEndColor = Color.Gray;
             label2.GradientStartColor = Color.Gray;
             label2.GuidID = "2079cf69-9749-4a75-a09e-b14b4b829d17";
             label2.HideText = false;
-            label2.HoverBackColor = Color.White;
+            label2.HoverBackColor = Color.FromArgb(230, 230, 230);
             label2.HoverBorderColor = Color.Gray;
             label2.HoveredBackcolor = Color.Wheat;
-            label2.HoverForeColor = Color.Black;
+            label2.HoverForeColor = Color.FromArgb(0, 0, 0);
             label2.Id = -1;
             label2.ImageAlign = ContentAlignment.MiddleLeft;
             label2.ImagePath = null;
@@ -452,6 +456,7 @@
             label2.OverrideFontSize = TypeStyleFontSize.None;
             label2.Padding = new Padding(1);
             label2.ParentBackColor = Color.FromArgb(240, 240, 240);
+            label2.ParentControl = null;
             label2.PressedBackColor = Color.Gray;
             label2.PressedBorderColor = Color.Gray;
             label2.PressedForeColor = Color.Black;
@@ -472,6 +477,7 @@
             label2.SlideFrom = SlideDirection.Left;
             label2.StaticNotMoving = false;
             label2.TabIndex = 4;
+            label2.TempBackColor = Color.Empty;
             label2.Text = "The Tech Idea";
             label2.TextAlign = ContentAlignment.MiddleCenter;
             label2.TextFont = new Font("Segoe UI", 9F);
@@ -518,17 +524,17 @@
             label1.FocusForeColor = Color.Black;
             label1.FocusIndicatorColor = Color.Blue;
             label1.Font = new Font("Segoe UI", 9F);
-            label1.ForeColor = Color.Black;
+            label1.ForeColor = Color.FromArgb(0, 0, 0);
             label1.Form = null;
             label1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             label1.GradientEndColor = Color.Gray;
             label1.GradientStartColor = Color.Gray;
             label1.GuidID = "05c50703-03f3-4e4d-bce6-c1b3fb402107";
             label1.HideText = false;
-            label1.HoverBackColor = Color.White;
+            label1.HoverBackColor = Color.FromArgb(230, 230, 230);
             label1.HoverBorderColor = Color.Gray;
             label1.HoveredBackcolor = Color.Wheat;
-            label1.HoverForeColor = Color.Black;
+            label1.HoverForeColor = Color.FromArgb(0, 0, 0);
             label1.Id = -1;
             label1.ImageAlign = ContentAlignment.MiddleLeft;
             label1.ImagePath = null;
@@ -558,6 +564,7 @@
             label1.OverrideFontSize = TypeStyleFontSize.None;
             label1.Padding = new Padding(1);
             label1.ParentBackColor = Color.FromArgb(240, 240, 240);
+            label1.ParentControl = null;
             label1.PressedBackColor = Color.Gray;
             label1.PressedBorderColor = Color.Gray;
             label1.PressedForeColor = Color.Black;
@@ -578,6 +585,7 @@
             label1.SlideFrom = SlideDirection.Left;
             label1.StaticNotMoving = false;
             label1.TabIndex = 3;
+            label1.TempBackColor = Color.Empty;
             label1.Text = "Powered by Beep";
             label1.TextAlign = ContentAlignment.MiddleCenter;
             label1.TextFont = new Font("Segoe UI", 9F);
@@ -625,17 +633,17 @@
             Title.FocusForeColor = Color.Black;
             Title.FocusIndicatorColor = Color.Blue;
             Title.Font = new Font("Segoe UI Black", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            Title.ForeColor = Color.Black;
+            Title.ForeColor = Color.FromArgb(0, 0, 0);
             Title.Form = null;
             Title.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             Title.GradientEndColor = Color.Gray;
             Title.GradientStartColor = Color.Gray;
             Title.GuidID = "b3a5330f-524d-4013-a2e6-ef719c7f17fc";
             Title.HideText = false;
-            Title.HoverBackColor = Color.White;
+            Title.HoverBackColor = Color.FromArgb(230, 230, 230);
             Title.HoverBorderColor = Color.Gray;
             Title.HoveredBackcolor = Color.Wheat;
-            Title.HoverForeColor = Color.Black;
+            Title.HoverForeColor = Color.FromArgb(0, 0, 0);
             Title.Id = -1;
             Title.ImageAlign = ContentAlignment.MiddleLeft;
             Title.ImagePath = null;
@@ -665,6 +673,7 @@
             Title.OverrideFontSize = TypeStyleFontSize.None;
             Title.Padding = new Padding(1);
             Title.ParentBackColor = Color.Empty;
+            Title.ParentControl = null;
             Title.PressedBackColor = Color.Gray;
             Title.PressedBorderColor = Color.Gray;
             Title.PressedForeColor = Color.Black;
@@ -685,6 +694,7 @@
             Title.SlideFrom = SlideDirection.Left;
             Title.StaticNotMoving = false;
             Title.TabIndex = 8;
+            Title.TempBackColor = Color.Empty;
             Title.Text = "Beep Data Management";
             Title.TextAlign = ContentAlignment.MiddleCenter;
             Title.TextFont = new Font("Segoe UI Black", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -738,7 +748,7 @@
             LogopictureBox.HoverBackColor = Color.FromArgb(230, 230, 230);
             LogopictureBox.HoverBorderColor = Color.FromArgb(65, 105, 225);
             LogopictureBox.HoveredBackcolor = Color.Wheat;
-            LogopictureBox.HoverForeColor = Color.Black;
+            LogopictureBox.HoverForeColor = Color.FromArgb(0, 0, 0);
             LogopictureBox.Id = -1;
             LogopictureBox.Image = null;
             LogopictureBox.ImageEmbededin = ImageEmbededin.Button;
@@ -768,6 +778,7 @@
             LogopictureBox.Name = "LogopictureBox";
             LogopictureBox.OverrideFontSize = TypeStyleFontSize.None;
             LogopictureBox.ParentBackColor = Color.White;
+            LogopictureBox.ParentControl = null;
             LogopictureBox.PressedBackColor = Color.FromArgb(0, 120, 215);
             LogopictureBox.PressedBorderColor = Color.Gray;
             LogopictureBox.PressedForeColor = Color.White;
@@ -790,6 +801,7 @@
             LogopictureBox.SpinSpeed = 5F;
             LogopictureBox.StaticNotMoving = false;
             LogopictureBox.TabIndex = 6;
+            LogopictureBox.TempBackColor = Color.White;
             LogopictureBox.Text = "beepImage1";
             LogopictureBox.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
             LogopictureBox.ToolTipText = "";

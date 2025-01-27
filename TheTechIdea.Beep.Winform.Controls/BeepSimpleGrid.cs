@@ -90,7 +90,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
 
                 _columnHeadertextFont = value;
-                UseThemeFont = false;
+               // UseThemeFont = false;
+                using (BeepLabel lbl = new BeepLabel())
+                {
+                    lbl.TextFont = _columnHeadertextFont;
+                    lbl.Text = "A";
+                    ColumnHeight = lbl.GetPreferredSize(Size.Empty).Height;
+                }
                 // Font = value;;
                 Invalidate();
 
@@ -687,6 +693,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_showColumnHeaders)
             {
+             
                 columnsheaderPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width, ColumnHeight);
                 PaintColumnHeaders(g, columnsheaderPanelRect);
                 topPanelY += ColumnHeight; // Move after drawing
@@ -783,6 +790,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 g.DrawLine(borderPen, headerPanelBorderRect.Left, headerPanelBorderRect.Bottom, headerPanelBorderRect.Right, headerPanelBorderRect.Bottom);
             }
+
+                titleLabel.TextFont = _textFont;
+
             titleLabel.ImageAlign = ContentAlignment.MiddleLeft;
             titleLabel.TextAlign = ContentAlignment.MiddleCenter;
             titleLabel.TextImageRelation = TextImageRelation.ImageBeforeText;

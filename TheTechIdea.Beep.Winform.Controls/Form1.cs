@@ -12,13 +12,13 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
-using TheTechIdea.Beep.Desktop.Common;
+
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Vis.Modules;
-using static TheTechIdea.Beep.Winform.Controls.Native.WinApi;
+
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -40,6 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepTreeControl1.init(beepService);
             //  beepButton1.Click += BeepButton1_Click;
             //   beepButton2.PopupMode = true;
+            
         }
 
 
@@ -60,9 +61,5 @@ namespace TheTechIdea.Beep.Winform.Controls
             //beepTreeControl1.AllowMultiSelect = false;
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
     }
 }

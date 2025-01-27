@@ -29,109 +29,8 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form2));
-            beepMenuBar1 = new BeepMenuBar();
             beepSimpleGrid1 = new BeepSimpleGrid();
             SuspendLayout();
-            // 
-            // beepMenuBar1
-            // 
-            beepMenuBar1.ActiveBackColor = Color.FromArgb(0, 120, 215);
-            beepMenuBar1.AnimationDuration = 500;
-            beepMenuBar1.AnimationType = DisplayAnimationType.None;
-            beepMenuBar1.ApplyThemeToChilds = true;
-            beepMenuBar1.BackColor = Color.FromArgb(240, 240, 240);
-            beepMenuBar1.BlockID = null;
-            beepMenuBar1.BorderColor = Color.FromArgb(200, 200, 200);
-            beepMenuBar1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            beepMenuBar1.BorderRadius = 1;
-            beepMenuBar1.BorderStyle = BorderStyle.FixedSingle;
-            beepMenuBar1.BorderThickness = 1;
-            beepMenuBar1.BottomoffsetForDrawingRect = 0;
-            beepMenuBar1.BoundProperty = "SelectedMenuItem";
-            beepMenuBar1.CanBeFocused = true;
-            beepMenuBar1.CanBeHovered = false;
-            beepMenuBar1.CanBePressed = true;
-            beepMenuBar1.Category = Utilities.DbFieldCategory.String;
-            beepMenuBar1.ComponentName = "beepMenuBar1";
-            beepMenuBar1.DataContext = null;
-            beepMenuBar1.DataSourceProperty = null;
-            beepMenuBar1.DisabledBackColor = Color.Gray;
-            beepMenuBar1.DisabledForeColor = Color.Empty;
-            beepMenuBar1.Dock = DockStyle.Top;
-            beepMenuBar1.DrawingRect = new Rectangle(1, 1, 860, 18);
-            beepMenuBar1.Easing = EasingType.Linear;
-            beepMenuBar1.FieldID = null;
-            beepMenuBar1.FocusBackColor = Color.White;
-            beepMenuBar1.FocusBorderColor = Color.Gray;
-            beepMenuBar1.FocusForeColor = Color.Black;
-            beepMenuBar1.FocusIndicatorColor = Color.Blue;
-            beepMenuBar1.Font = new Font("Segoe UI", 9F);
-            beepMenuBar1.Form = null;
-            beepMenuBar1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepMenuBar1.GradientEndColor = Color.FromArgb(230, 230, 230);
-            beepMenuBar1.GradientStartColor = Color.White;
-            beepMenuBar1.GuidID = "cecc3e95-014e-4770-9adc-c5cc4f41da85";
-            beepMenuBar1.HoverBackColor = Color.FromArgb(230, 230, 230);
-            beepMenuBar1.HoverBorderColor = Color.FromArgb(0, 120, 215);
-            beepMenuBar1.HoveredBackcolor = Color.Wheat;
-            beepMenuBar1.HoverForeColor = Color.Black;
-            beepMenuBar1.Id = -1;
-            beepMenuBar1.ImageSize = 33;
-            beepMenuBar1.InactiveBackColor = Color.Gray;
-            beepMenuBar1.InactiveBorderColor = Color.Gray;
-            beepMenuBar1.InactiveForeColor = Color.Black;
-            beepMenuBar1.IsAcceptButton = false;
-            beepMenuBar1.IsBorderAffectedByTheme = true;
-            beepMenuBar1.IsCancelButton = false;
-            beepMenuBar1.IsChild = false;
-            beepMenuBar1.IsCustomeBorder = false;
-            beepMenuBar1.IsDefault = false;
-            beepMenuBar1.IsFocused = false;
-            beepMenuBar1.IsFramless = true;
-            beepMenuBar1.IsHovered = false;
-            beepMenuBar1.IsPressed = false;
-            beepMenuBar1.IsRounded = false;
-            beepMenuBar1.IsRoundedAffectedByTheme = true;
-            beepMenuBar1.IsShadowAffectedByTheme = true;
-            beepMenuBar1.LeftoffsetForDrawingRect = 0;
-            beepMenuBar1.LinkedProperty = null;
-            beepMenuBar1.Location = new Point(0, 0);
-            beepMenuBar1.Margin = new Padding(0);
-            beepMenuBar1.MenuItemHeight = 35;
-            beepMenuBar1.MenuItemWidth = 60;
-            beepMenuBar1.Name = "beepMenuBar1";
-            beepMenuBar1.OverrideFontSize = TypeStyleFontSize.None;
-            beepMenuBar1.ParentBackColor = Color.Empty;
-            beepMenuBar1.ParentControl = null;
-            beepMenuBar1.PressedBackColor = Color.FromArgb(0, 120, 215);
-            beepMenuBar1.PressedBorderColor = Color.Gray;
-            beepMenuBar1.PressedForeColor = Color.Black;
-            beepMenuBar1.RightoffsetForDrawingRect = 0;
-            beepMenuBar1.SavedGuidID = null;
-            beepMenuBar1.SavedID = null;
-            beepMenuBar1.SelectedIndex = -1;
-            beepMenuBar1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
-            beepMenuBar1.ShadowOffset = 0;
-            beepMenuBar1.ShadowOpacity = 0.5F;
-            beepMenuBar1.ShowAllBorders = true;
-            beepMenuBar1.ShowBottomBorder = true;
-            beepMenuBar1.ShowFocusIndicator = false;
-            beepMenuBar1.ShowLeftBorder = true;
-            beepMenuBar1.ShowRightBorder = true;
-            beepMenuBar1.ShowShadow = false;
-            beepMenuBar1.ShowTopBorder = true;
-            beepMenuBar1.Size = new Size(862, 20);
-            beepMenuBar1.SlideFrom = SlideDirection.Left;
-            beepMenuBar1.StaticNotMoving = false;
-            beepMenuBar1.TabIndex = 6;
-            beepMenuBar1.TempBackColor = Color.Empty;
-            beepMenuBar1.Text = "beepMenuBar1";
-            beepMenuBar1.TextFont = new Font("Segoe UI", 9F);
-            beepMenuBar1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
-            beepMenuBar1.ToolTipText = "";
-            beepMenuBar1.TopoffsetForDrawingRect = 0;
-            beepMenuBar1.UseGradientBackground = false;
-            beepMenuBar1.UseThemeFont = true;
             // 
             // beepSimpleGrid1
             // 
@@ -139,7 +38,7 @@
             beepSimpleGrid1.AnimationDuration = 500;
             beepSimpleGrid1.AnimationType = DisplayAnimationType.None;
             beepSimpleGrid1.ApplyThemeToChilds = false;
-            beepSimpleGrid1.BackColor = Color.FromArgb(0, 0, 0);
+            beepSimpleGrid1.BackColor = Color.FromArgb(255, 255, 240);
             beepSimpleGrid1.BlockID = null;
             beepSimpleGrid1.BorderColor = Color.Black;
             beepSimpleGrid1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -153,8 +52,8 @@
             beepSimpleGrid1.CanBeHovered = false;
             beepSimpleGrid1.CanBePressed = true;
             beepSimpleGrid1.Category = Utilities.DbFieldCategory.String;
-            beepSimpleGrid1.ColumnHeaderFont = new Font("Arial", 8F);
-            beepSimpleGrid1.ColumnHeight = 12;
+            beepSimpleGrid1.ColumnHeaderFont = new Font("Arial", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            beepSimpleGrid1.ColumnHeight = 23;
             beepSimpleGrid1.Columns.Add((Grid.BeepGridColumnConfig)resources.GetObject("beepSimpleGrid1.Columns"));
             beepSimpleGrid1.Columns.Add((Grid.BeepGridColumnConfig)resources.GetObject("beepSimpleGrid1.Columns1"));
             beepSimpleGrid1.Columns.Add((Grid.BeepGridColumnConfig)resources.GetObject("beepSimpleGrid1.Columns2"));
@@ -174,7 +73,7 @@
             beepSimpleGrid1.FocusForeColor = Color.Black;
             beepSimpleGrid1.FocusIndicatorColor = Color.Blue;
             beepSimpleGrid1.Font = new Font("Segoe UI", 16F);
-            beepSimpleGrid1.ForeColor = Color.White;
+            beepSimpleGrid1.ForeColor = Color.FromArgb(0, 0, 0);
             beepSimpleGrid1.Form = null;
             beepSimpleGrid1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepSimpleGrid1.GradientEndColor = Color.Gray;
@@ -246,14 +145,14 @@
             beepSimpleGrid1.TempBackColor = Color.Empty;
             beepSimpleGrid1.Text = "beepSimpleGrid1";
             beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepSimpleGrid1.Theme = Vis.Modules.EnumBeepThemes.DarkTheme;
+            beepSimpleGrid1.Theme = Vis.Modules.EnumBeepThemes.GradientBurstTheme;
             beepSimpleGrid1.Title = "BeepSimpleGrid Title";
             beepSimpleGrid1.TitleText = "Simple Beep Grid";
-            beepSimpleGrid1.TitleTextFont = new Font("Segoe UI", 20.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            beepSimpleGrid1.TitleTextFont = new Font("Segoe UI", 16F);
             beepSimpleGrid1.ToolTipText = "";
             beepSimpleGrid1.TopoffsetForDrawingRect = 0;
             beepSimpleGrid1.UseGradientBackground = false;
-            beepSimpleGrid1.UseThemeFont = true;
+            beepSimpleGrid1.UseThemeFont = false;
             beepSimpleGrid1.XOffset = 0;
             // 
             // Form2
@@ -262,14 +161,12 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(862, 507);
             Controls.Add(beepSimpleGrid1);
-            Controls.Add(beepMenuBar1);
             Name = "Form2";
             Text = "Form2";
             ResumeLayout(false);
         }
 
         #endregion
-        private BeepMenuBar beepMenuBar1;
         private BeepSimpleGrid beepSimpleGrid1;
     }
 }

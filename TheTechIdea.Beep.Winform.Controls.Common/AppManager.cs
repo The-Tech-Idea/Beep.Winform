@@ -123,7 +123,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public string BreadCrumb { get { return RoutingManager != null ? RoutingManager?.BreadCrumb : string.Empty; } }
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
         protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
-
+        private bool _isThemeApplied = false;
         public EnumBeepThemes Theme
         {
             get => _themeEnum;
@@ -131,7 +131,12 @@ namespace TheTechIdea.Beep.Desktop.Common
             {
                 _themeEnum = value;
                 _currentTheme = BeepThemesManager.GetTheme(value);
-                OnThemeChanged?.Invoke(_themeEnum);
+                //  OnThemeChanged?.Invoke(_themeEnum);
+
+
+                    BeepThemesManager.CurrentTheme = value;
+                    _isThemeApplied = true;
+
                 ApplyTheme();
             }
         }
@@ -639,6 +644,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                
                 MainDisplay=RoutingManager.GetAddin(HomePageName);
                 Addins.Add(MainDisplay);
+                MiscFunctions.SetThemePropertyinControlifexist((Control)MainDisplay, Theme);
                 ApplyTheme();
                 ShowPopup(MainDisplay);
                 
@@ -1181,7 +1187,7 @@ namespace TheTechIdea.Beep.Desktop.Common
 
                 }
                 RoutingManager.Theme = Theme;
-                BeepThemesManager.CurrentTheme=Theme;
+               
             }
             catch (Exception ex)
             {

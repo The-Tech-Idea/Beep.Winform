@@ -26,8 +26,8 @@ namespace TheTechIdea.Beep.Winform.Controls
        // private BeepPopupForm _popupForm;
         private LinkedList<MenuitemTracking> ListForms = new LinkedList<MenuitemTracking>();
         private bool childmenusisopen = false;
-      
-        
+
+        public static BeepPopupForm ActivePopupForm { get; private set; }
 
         #region "Properties"
         private Font _textFont = new Font("Arial", 10);
@@ -333,12 +333,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Point buttonScreenPosition = CurrenItemButton.PointToScreen(Point.Empty);
                     Point p = new Point(buttonScreenPosition.X+ CurrentMenuForm.Width, buttonScreenPosition.Y);
-                   ShowChildPopup(x,  p);
+                   ShowChildPopup(CurrentMenuForm,x,  p);
                 }
 
             }
         }
-        private void ShowChildPopup(SimpleItem item,  Point location)
+        private void ShowChildPopup(BeepPopupListForm parent,SimpleItem item,  Point location)
         {
             MenuitemTracking menuitemTracking = new MenuitemTracking();
             menuitemTracking.ParentItem = item;
@@ -346,12 +346,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             menuitemTracking.Menu.Theme=Theme;
             MenuitemTracking LastItem = ListForms.Last.Value;
             currentMenu = item.Children;
-            CurrentMenuForm = LastItem.Menu;
-            CurrentMenuForm.ChildPopupForm = menuitemTracking.Menu;
+           // CurrentMenuForm = LastItem.Menu;
+            parent.SetChildPopupForm( menuitemTracking.Menu);
             ListForms.AddLast(menuitemTracking);
             menuitemTracking.Menu.SelectedItemChanged += Menu_SelectedItemChanged;
             SimpleItem x = menuitemTracking.Menu.ShowPopup(item.Text,  location, BeepPopupFormPosition.Right);
         }
+     
         private void UnpressAllButtons()
         {
             foreach (var button in menumainbar.Values)

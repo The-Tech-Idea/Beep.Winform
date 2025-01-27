@@ -7,18 +7,32 @@ namespace TheTechIdea.Beep.Winform.Controls
 
     public partial class BeepPopupForm : BeepiForm
     {
+
+        // Timer for handling auto-close
+        private Timer _closeTimer;
+        private int _closeTimeout = 1000; // Time in milliseconds
+        private bool _isClosing = false;
+
         private Timer _timerTriggerLeave;
         private Timer _timerPopupLeave;
-        private int _triggerLeaveTimeout = 3000; // 3 seconds
+        private int _triggerLeaveTimeout = 1000; // 3 seconds
         private int _popupLeaveTimeout = 3000; // 3 seconds
 
         public Control TriggerControl { get; set; } // Dynamically set triggering control
         public event EventHandler OnLeave;
-        private bool _isClosing = false;
+        
         private MouseLeaveMessageFilter _messageFilter;
         private bool closingbecauseleavingmenu = false;
         private bool closingbecauseleavingbutton = false;
-        public BeepPopupForm ChildPopupForm { get; set; }
+        private BeepPopupForm _childpopupform=null;
+        public static BeepPopupForm ActivePopupForm { get; private set; }
+        public event EventHandler OnClose;
+        public BeepPopupForm ParentPopupForm { get; set; }
+        public BeepPopupForm ChildPopupForm
+        {
+            get { return _childpopupform; }
+            set { _childpopupform = value; }
+        }
        // private bool _isTimerActive = true;
         //public bool IsTimerActive
         //{
@@ -31,17 +45,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowInTaskbar = false;
             TopMost = true;
             InPopMode = true;
-
+            // Initialize the close timer
+           _closeTimer = new Timer { Interval = _closeTimeout };
+              _closeTimer.Tick += CloseTimer_Tick;
             // Initialize timers
-            _timerTriggerLeave = new Timer { Interval = _triggerLeaveTimeout };
-            _timerTriggerLeave.Tick += TimerTriggerLeave_Tick;
+            //_timerTriggerLeave = new Timer { Interval = _triggerLeaveTimeout };
+            //_timerTriggerLeave.Tick += TimerTriggerLeave_Tick;
 
-            _timerPopupLeave = new Timer { Interval = _popupLeaveTimeout };
-            _timerPopupLeave.Tick += TimerPopupLeave_Tick;
+            //_timerPopupLeave = new Timer { Interval = _popupLeaveTimeout };
+            //_timerPopupLeave.Tick += TimerPopupLeave_Tick;
 
             // Attach mouse enter and leave events to the popup form
             this.MouseEnter += BeepPopupForm_MouseEnter;
             this.MouseLeave += BeepPopupForm_MouseLeave;
+          
         }
 
         public BeepPopupForm(IBeepService beepService) : base(beepService)
@@ -50,132 +67,269 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowInTaskbar = false;
             TopMost = true;
             InPopMode = true;
+            // Initialize the close timer
+        _closeTimer = new Timer { Interval = _closeTimeout };
+        _closeTimer.Tick += CloseTimer_Tick;
+            //// Initialize timers
+            //_timerTriggerLeave = new Timer { Interval = _triggerLeaveTimeout };
+            //_timerTriggerLeave.Tick += TimerTriggerLeave_Tick;
 
-            // Initialize timers
-            _timerTriggerLeave = new Timer { Interval = _triggerLeaveTimeout };
-            _timerTriggerLeave.Tick += TimerTriggerLeave_Tick;
-
-            _timerPopupLeave = new Timer { Interval = _popupLeaveTimeout };
-            _timerPopupLeave.Tick += TimerPopupLeave_Tick;
+            //_timerPopupLeave = new Timer { Interval = _popupLeaveTimeout };
+            //_timerPopupLeave.Tick += TimerPopupLeave_Tick;
 
             // Attach mouse enter and leave events to the popup form
             this.MouseEnter += BeepPopupForm_MouseEnter;
             this.MouseLeave += BeepPopupForm_MouseLeave;
+           
         }
-
+        #region "Timer Events"
         /// <summary>
-        /// Handles MouseEnter event for the popup form.
-        /// Stops the popup leave timer when mouse is over the popup.
+        /// Set this popup form as the active form.
         /// </summary>
-        private void BeepPopupForm_MouseEnter(object sender, EventArgs e)
+        public void SetAsActive()
         {
-            _timerPopupLeave.Stop();
-            _timerTriggerLeave.Start();
-            closingbecauseleavingbutton = false;
+            // Stop the timer on the previously active popup
+            if (ActivePopupForm != null && ActivePopupForm != this)
+            {
+                ActivePopupForm.StopTimers();
+            }
+
+            // Set this popup as the active form and start its timer
+            ActivePopupForm = this;
+            StartTimers();
         }
 
         /// <summary>
-        /// Handles MouseLeave event for the popup form.
-        /// Starts the popup leave timer if the mouse is not over the trigger control.
+        /// Start the close timer.
+        /// </summary>
+        public void StartTimers() => _closeTimer.Start();
+
+        /// <summary>
+        /// Stop the close timer.
+        /// </summary>
+        public void StopTimers() => _closeTimer.Stop();
+
+        /// <summary>
+        /// Handle the timer tick to close the cascade.
+        /// </summary>
+        private void CloseTimer_Tick(object sender, EventArgs e)
+        {
+            _closeTimer.Stop();
+
+            // If the mouse is still within the combined region of the cascade, restart the timer
+            if (IsMouseOverTriggerOrPopup() || (ChildPopupForm != null && IsMouseOverControl(ChildPopupForm)))
+            {
+                StartTimers();
+                return;
+            }
+
+            // Close the entire cascade if the mouse has left
+            CloseCascade();
+        }
+
+
+        /// <summary>
+        /// Close this popup and all child popups in the cascade.
+        /// </summary>
+        public void CloseCascade()
+        {
+            if (_isClosing) return;
+
+            _isClosing = true;
+
+            // Detach mouse events from the trigger control
+            if (TriggerControl != null)
+            {
+                TriggerControl.MouseEnter -= TriggerControl_MouseEnter;
+                TriggerControl.MouseLeave -= TriggerControl_MouseLeave;
+            }
+
+            // Close child popup first
+            if (ChildPopupForm != null && ChildPopupForm.Visible)
+            {
+                ChildPopupForm.CloseCascade();
+            }
+
+            // Close this popup
+            Close();
+
+            // Update the active popup to the parent, if any
+            if (ActivePopupForm == this)
+            {
+                ActivePopupForm = ParentPopupForm;
+            }
+        }
+
+        /// <summary>
+        /// Show the popup form at the specified location triggered by a control.
+        /// </summary>
+        public void ShowPopup(Control triggerControl, Point location)
+        {
+            if (triggerControl == null)
+                throw new ArgumentNullException(nameof(triggerControl));
+
+            TriggerControl = triggerControl;
+
+            // Attach mouse events to the trigger control
+            TriggerControl.MouseEnter -= TriggerControl_MouseEnter;
+            TriggerControl.MouseEnter += TriggerControl_MouseEnter;
+
+            TriggerControl.MouseLeave -= TriggerControl_MouseLeave;
+            TriggerControl.MouseLeave += TriggerControl_MouseLeave;
+
+            // Set the popup location and mark it as active
+            Location = location;
+            SetAsActive();
+            Show();
+        }
+
+        /// <summary>
+        /// Set the child popup form and establish the relationship.
+        /// </summary>
+        public void SetChildPopupForm(BeepPopupForm childPopupForm)
+        {
+            if (ChildPopupForm != null)
+            {
+                ChildPopupForm.FormClosed -= ChildPopupForm_FormClosed;
+            }
+
+            ChildPopupForm = childPopupForm;
+
+            if (ChildPopupForm != null)
+            {
+                ChildPopupForm.ParentPopupForm = this;
+                ChildPopupForm.FormClosed += ChildPopupForm_FormClosed;
+            }
+        }
+
+        /// <summary>
+        /// Handle the child form closure to remove it from the relationship.
+        /// </summary>
+        private void ChildPopupForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            ChildPopupForm = null; // Clear reference to the closed child
+        }
+
+        /// <summary>
+        /// Mouse enter event to stop timers.
+        /// </summary>
+        private void BeepPopupForm_MouseEnter(object sender, EventArgs e) => StopTimers();
+
+        /// <summary>
+        /// Mouse leave event to start timers if the mouse is outside the cascade.
         /// </summary>
         private void BeepPopupForm_MouseLeave(object sender, EventArgs e)
         {
-            if (!IsMouseOverControl(TriggerControl))
+            // If the mouse is over the child popup, do nothing
+            if (ChildPopupForm != null && IsMouseOverControl(ChildPopupForm))
             {
-               
-                    _timerPopupLeave.Start();
-                closingbecauseleavingbutton = true;
-
-
+                StopTimers();
+                return;
             }
+
+            // If the mouse is over the parent popup (when this is a child), close this form
+            if (ParentPopupForm != null && IsMouseOverControl(ParentPopupForm))
+            {
+                StopTimers();
+                ParentPopupForm.SetAsActive();
+                return;
+            }
+
+            // If the mouse is over the trigger control, do nothing
+            if (IsMouseOverControl(TriggerControl))
+            {
+                StopTimers();
+                return;
+            }
+
+            // Start the timer to close the popup if the mouse leaves the entire cascade
+            StartTimers();
         }
 
+
         /// <summary>
-        /// Handles MouseEnter event for the trigger control.
-        /// Stops the trigger leave timer when mouse is over the trigger.
+        /// Mouse enter event for the trigger control to stop timers.
         /// </summary>
-        private void TriggerControl_MouseEnter(object sender, EventArgs e)
-        {
-           _timerTriggerLeave.Stop();
-            _timerPopupLeave.Stop();
-        }
+        private void TriggerControl_MouseEnter(object sender, EventArgs e) => StopTimers();
 
         /// <summary>
-        /// Handles MouseLeave event for the trigger control.
-        /// Starts the trigger leave timer when mouse leaves the trigger.
+        /// Mouse leave event for the trigger control to start timers.
         /// </summary>
         private void TriggerControl_MouseLeave(object sender, EventArgs e)
         {
-          
-                _timerPopupLeave.Start();
-           
-        }
-
-        /// <summary>
-        /// Timer tick event handler for trigger leave.
-        /// Closes the popup if the mouse is not over the popup form.
-        /// </summary>
-        private void TimerTriggerLeave_Tick(object sender, EventArgs e)
-        {
-            _timerTriggerLeave.Stop();
             if (!IsMouseOverControl(this))
             {
-                 ClosePopup();
-                    _isClosing = true;
-              
+                StartTimers(); // Start the timer if the mouse is not over the popup
             }
         }
 
         /// <summary>
-        /// Timer tick event handler for popup leave.
-        /// Closes the popup after the timeout.
+        /// Determine if the mouse is currently over the combined region of the trigger and popup.
         /// </summary>
-        private void TimerPopupLeave_Tick(object sender, EventArgs e)
+        public bool IsMouseOverTriggerOrPopup()
         {
-            _timerPopupLeave.Stop();
-            if (!IsMouseOverControl(this) && !IsMouseOverControl(TriggerControl))
-            {
-                ClosePopup();
-                _isClosing = true;
+            if (TriggerControl == null || !TriggerControl.IsHandleCreated || TriggerControl.IsDisposed)
+                return IsMouseOverControl(this);
 
-            }
-           
-              
-          
+            // Get bounds of the trigger control
+            Rectangle triggerBounds = new Rectangle(TriggerControl.PointToScreen(Point.Empty), TriggerControl.Size);
+
+            // Get bounds of the popup form
+            Rectangle popupBounds = new Rectangle(this.PointToScreen(Point.Empty), this.Size);
+
+            // Combine the trigger and popup bounds
+            Rectangle combinedBounds = Rectangle.Union(triggerBounds, popupBounds);
+
+            // Check if the mouse is in the combined bounds or over a child popup
+            return combinedBounds.Contains(Cursor.Position) || (ChildPopupForm != null && IsMouseOverControl(ChildPopupForm));
         }
 
+
         /// <summary>
-        /// Determines if the mouse is currently over the specified control.
+        /// Determine if the mouse is currently over the specified control.
         /// </summary>
         public bool IsMouseOverControl(Control control)
         {
-            if (control == null) return false;
-            if(control.IsDisposed)
-            {
+            if (control == null || control.IsDisposed || !control.IsHandleCreated || !control.Visible)
                 return false;
-            }
-            if(control.IsHandleCreated == false)
-            {
-                return false;
-            }
-            if(control.Visible == false)
-            {
-                return false;
-            }
 
-
-            // Get the screen position of the control's top-left corner
-            Point screenPoint = control.PointToScreen(Point.Empty);
-
-            // Create a rectangle representing the entire control in screen coordinates
-            Rectangle controlBounds = new Rectangle(screenPoint, control.Size);
-
-            // Get the current mouse position
+            Rectangle controlBounds = new Rectangle(control.PointToScreen(Point.Empty), control.Size);
             Point mousePos = Cursor.Position;
 
-            // Check if the mouse is within the control's bounds
             return controlBounds.Contains(mousePos);
         }
+        #endregion  "Timer Events"
+        ///// <summary>
+        ///// Determines if the mouse is currently over the specified control.
+        ///// </summary>
+        //public bool IsMouseOverControl(Control control)
+        //{
+        //    if (control == null || control.IsDisposed || !control.IsHandleCreated || !control.Visible)
+        //        return false;
+
+        //    // Get the control's bounds in screen coordinates
+        //    Rectangle controlBounds = new Rectangle(control.PointToScreen(Point.Empty), control.Size);
+
+        //    // Get the mouse position
+        //    Point mousePos = Cursor.Position;
+
+        //    // Check if the mouse is within the control's bounds
+        //    if (!controlBounds.Contains(mousePos))
+        //        return false;
+
+        //    // Check if the control is covered by another window
+        //    IntPtr hwnd = WindowFromPoint(mousePos);
+        //    return hwnd == control.Handle || IsChild(control.Handle, hwnd);
+        //}
+
+        //[System.Runtime.InteropServices.DllImport("user32.dll")]
+        //private static extern IntPtr WindowFromPoint(Point pt);
+
+        //[System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+        //[return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+        //private static extern bool IsChild(IntPtr hWndParent, IntPtr hWnd);
+
+
 
         #region "Show Functions"
         // --------------------------------------------------------------------
@@ -373,76 +527,94 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         /// <param name="triggerControl">The control that triggers the popup.</param>
         /// <param name="location">The screen location where the popup should appear.</param>
-        public virtual void ShowPopup(Control triggerControl, Point location)
-        {
-            // Set the triggering control
-            TriggerControl = triggerControl;
+        //public virtual void ShowPopup(Control triggerControl, Point location)
+        //{
+        //    // Set the triggering control
+        //    TriggerControl = triggerControl;
 
-            // Attach mouse enter and leave events to the triggering control
-            if (TriggerControl != null)
-            {
+        //    // Attach mouse enter and leave events to the triggering control
+        //    if (TriggerControl != null)
+        //    {
      
-                    TriggerControl.MouseEnter += TriggerControl_MouseEnter;
-                    TriggerControl.MouseLeave += TriggerControl_MouseLeave;
+        //            TriggerControl.MouseEnter += TriggerControl_MouseEnter;
+        //            TriggerControl.MouseLeave += TriggerControl_MouseLeave;
               
                 
-            }
+        //    }
 
-            // Set the popup form location
-            Location = location;
+        //    // Set the popup form location
+        //    Location = location;
 
-            // Config the popup form
-            Show();
+        //    // Config the popup form
+        //    Show();
 
-            // Attach mouse enter and leave events to all child controls recursively
-            AttachMouseEvents(this);
+        //    // Attach mouse enter and leave events to all child controls recursively
+        //    AttachMouseEvents(this);
 
-            // Create and add the message filter after TriggerControl is set
-            _messageFilter = new MouseLeaveMessageFilter(this, TriggerControl, _timerTriggerLeave, _timerPopupLeave);
-            Application.AddMessageFilter(_messageFilter);
+        //    // Create and add the message filter after TriggerControl is set
+        //    _messageFilter = new MouseLeaveMessageFilter(this, TriggerControl, _timerTriggerLeave, _timerPopupLeave);
+        //    Application.AddMessageFilter(_messageFilter);
 
-            // Start the trigger leave timer initially
-                 _timerTriggerLeave.Start();
+        //    // Start the trigger leave timer initially
+        //         _timerTriggerLeave.Start();
 
-            // Cleanup when the form closes
-            FormClosed += (s, e) =>
-            {
-                // Remove the message filter
-                if (_messageFilter != null)
-                {
-                    Application.RemoveMessageFilter(_messageFilter);
-                    _messageFilter = null;
-                }
+        //    // Cleanup when the form closes
+        //    FormClosed += (s, e) =>
+        //    {
+        //        // Remove the message filter
+        //        if (_messageFilter != null)
+        //        {
+        //            Application.RemoveMessageFilter(_messageFilter);
+        //            _messageFilter = null;
+        //        }
 
-                // Detach mouse events from the triggering control
-                if (TriggerControl != null)
-                {
-                    TriggerControl.MouseEnter -= TriggerControl_MouseEnter;
-                    TriggerControl.MouseLeave -= TriggerControl_MouseLeave;
-                }
+        //        // Detach mouse events from the triggering control
+        //        if (TriggerControl != null)
+        //        {
+        //            TriggerControl.MouseEnter -= TriggerControl_MouseEnter;
+        //            TriggerControl.MouseLeave -= TriggerControl_MouseLeave;
+        //        }
 
-                // Stop both timers
-                _timerTriggerLeave.Stop();
-                _timerPopupLeave.Stop();
-            };
-        }
+        //        // Stop both timers
+        //        _timerTriggerLeave.Stop();
+        //        _timerPopupLeave.Stop();
+        //    };
+        //}
         #endregion "Show Functions"
 
 
         /// <summary>
         /// Closes the popup form and invokes the OnLeave event.
         /// </summary>
+        //private void ClosePopup()
+        //{
+        //    OnLeave?.Invoke(this, EventArgs.Empty);
+        //    if (ChildPopupForm != null)
+        //    {
+        //        if (ChildPopupForm.Visible)
+        //        {
+        //            _timerPopupLeave.Start();
+        //           // _timerTriggerLeave.Start();
+        //            return;
+        //        }
+        //    }
+        //    _isClosing = true;
+        //    Close();
+        //}
         private void ClosePopup()
         {
-            if (ChildPopupForm != null)
+            if (_isClosing) return;
+
+            _isClosing = true;
+
+            // Close the child popup first
+            if (ChildPopupForm != null && ChildPopupForm.Visible)
             {
-                if (ChildPopupForm.Visible)
-                {
-                    _timerPopupLeave.Start();
-                    _timerTriggerLeave.Start();
-                    return;
-                }
+                ChildPopupForm.ClosePopup();
+                return;
             }
+
+            // Close this form
             OnLeave?.Invoke(this, EventArgs.Empty);
             Close();
         }

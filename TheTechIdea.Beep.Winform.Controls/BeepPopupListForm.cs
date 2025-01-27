@@ -123,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _beepListBox.SelectedItemChanged += BeepListBox_SelectedItemChanged;
             _beepListBox.ItemClicked += BeepListBox_ItemClicked;
-            OnLeave += BeepPopupListForm_OnLeave;
+       //     OnLeave += BeepPopupListForm_OnLeave;
             if (items.Count > 0)
             {
                 InitializeMenu(items);
@@ -165,14 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls
              Size = new Size(finalWidth, neededHeight);
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
         }
-        private void BeepPopupListForm_OnLeave(object? sender, EventArgs e)
-        {
-         //   DialogResult = DialogResult.Cancel; // Mark the dialog as "Cancelled"
-             CurrenItemButton = null;
-            SelectedItem = null;
-          
-
-        }
+     
 
         private void BeepListBox_ItemClicked(object? sender, SimpleItem e)
         {

@@ -320,14 +320,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                // OverrideFontSize = TypeStyleFontSize.Small,
                 Tag = item,
                 IsChild = _isItemChilds,
-                UseScaledFont =true,
+                UseScaledFont =false,
                 ApplyThemeOnImage = false,
                 UseThemeFont=this.UseThemeFont,
             };
-            if(UseThemeFont == false)
-            {
-                button.TextFont = TextFont;
-            }
+            //if(UseThemeFont == false)
+            //{
+                button.TextFont =BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+          //  }
 
             // Load the icon if specified
             if (!string.IsNullOrEmpty(item.ImagePath) && File.Exists(item.ImagePath))

@@ -111,6 +111,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         public BeepButton CurrenItemButton { get { return _beepListBox.CurrenItemButton; } private set { } }
+
+        public int Menuitemheight { get; private set; } = 15;
         #endregion "Popup List Properties"
         public BeepPopupListForm()
         {
@@ -143,7 +145,17 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _beepListBox.ShowHilightBox = false;
             _beepListBox.Dock = DockStyle.None;
-            _beepListBox.MenuItemHeight = 15;
+            //using (BeepButton btn = new BeepButton())
+            //{
+            //    if (!_beepListBox.UseThemeFont)
+            //    {
+            //        btn.TextFont = _textFont;
+            //    }else
+            //        btn.TextFont = _beepListBox.Font;
+
+            //    Menuitemheight = _beepListBox.GetPreferredSize(Size.Empty).Height;
+            //}
+            _beepListBox.MenuItemHeight = Menuitemheight;
 
 
             int neededHeight = _beepListBox.GetMaxHeight();

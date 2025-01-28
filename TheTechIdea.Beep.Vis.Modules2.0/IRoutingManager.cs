@@ -22,6 +22,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         IErrorsInfo NavigateBack();
         IErrorsInfo NavigateForward();
         IErrorsInfo NavigateTo(string routeName, Dictionary<string, object> parameters = null, bool popup = false);
+        Task<IErrorsInfo> NavigateUriAsync(string uri, bool popup = false);
         Task<IErrorsInfo> NavigateBackAsync();
         Task<IErrorsInfo> NavigateForwardAsync();
         Task<IErrorsInfo> NavigateToAsync(string routeName, Dictionary<string, object> parameters = null,bool popup = false);

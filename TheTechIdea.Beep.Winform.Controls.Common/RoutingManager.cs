@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using System.Web;
-using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
@@ -15,7 +14,14 @@ namespace TheTechIdea.Beep.Desktop.Common
         private readonly IServiceProvider _serviceProvider; // Microsoft DI
         private readonly IComponentContext _autofacContext; // Autofac container
         private readonly SemaphoreSlim _navigationLock = new SemaphoreSlim(1, 1);
-
+        // For example, hold a list of route definitions:
+        private readonly List<RouteDefinition> _routeDefinitions = new()
+    {
+        new RouteDefinition("Home", "/"),
+        new RouteDefinition("CustomerOrders", "/customers/{customerId}/orders/{orderId}"),
+        new RouteDefinition("Products", "/products/{productId}")
+        // ... add as many as needed
+    };
         public EnumBeepThemes Theme { get; set; }
         public IBeepService Beepservices { get; }
         public IDMEEditor DMEEditor { get; }
@@ -67,9 +73,64 @@ namespace TheTechIdea.Beep.Desktop.Common
             DMEEditor = Beepservices.DMEEditor;
         }
         // Constructor
-
-
         #region Navigation
+        public async Task<IErrorsInfo> NavigateUriAsync(string uri, bool popup = false)
+        {
+            // 1) Parse the incoming URI
+            var match = RouteParser.Parse(uri, _routeDefinitions);
+            if (match == null)
+            {
+                // If no route is matched, decide how you want to handle it:
+                // e.g. navigate to an error page or return an error
+                var result = new ErrorsInfo
+                {
+                    Flag = Errors.Failed,
+                    Message = $"No matching route for {uri}"
+                };
+                return result;
+            }
+
+            // 2) Combine route parameters and query parameters into a single dictionary
+            var parameters = new Dictionary<string, object>();
+            foreach (var kvp in match.RouteParameters)
+                parameters[kvp.Key] = kvp.Value;  // e.g. { "customerId" : "123" }
+            foreach (var kvp in match.QueryParameters)
+                parameters[kvp.Key] = kvp.Value;  // e.g. { "sort" : "asc", "page" : "2" }
+
+            // 3) Now we have the "logical route name" from the parser
+            //    which matches the keys in your existing _routes dictionary.
+            string routeName = match.RouteName;
+
+            // 4) Call your existing navigate method
+            return await NavigateToAsync(routeName, parameters, popup);
+        }
+        // using Caster to cast parameters
+        //public async Task<IErrorsInfo> NavigateUriAsync(string uri, bool popup = false)
+        //{
+        //    // 1) Parse with RouteParser => yields routeName, routeParams (string->string), queryParams (string->string)
+        //    var match = RouteParser.Parse(uri, _routeDefinitions);
+        //    if (match == null)
+        //    {
+        //        // handle no match
+        //        return new ErrorsInfo { Flag = Errors.Failed, Message = $"No matching route for {uri}" };
+        //    }
+
+        //    // 2) Merge routeParams + queryParams
+        //    var rawParams = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        //    foreach (var kvp in match.RouteParameters)
+        //        rawParams[kvp.Key] = kvp.Value;
+        //    foreach (var kvp in match.QueryParameters)
+        //        rawParams[kvp.Key] = kvp.Value;
+
+        //    // 3) Cast them. (Assumes you have a `caster` set up with known param types)
+        //    var typedParams = caster.CastParameters(rawParams);
+
+        //    // 4) Now navigate. typedParams is string->object
+        //    //    so pass it to your existing NavigateToAsync
+        //    return await NavigateToAsync(match.RouteName,
+        //        typedParams.ToDictionary(k => k.Key, k => k.Value),
+        //        popup);
+        //}
 
         public async Task<IErrorsInfo> NavigateToAsync(string routeName, Dictionary<string, object> parameters = null, bool popup = false)
         {
@@ -574,8 +635,6 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
         }
         #endregion
-
-
         #region Breadcrumb and History
         public string BreadCrumb
         {
@@ -590,7 +649,6 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
         }
         #endregion
-
         #region Routing
      
         public void RegisterRouteByName(string routeName, string moduleOrAddinName, RouteGuard guard = null)
@@ -664,7 +722,6 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
 
         #endregion
-
         #region View Creation
         public IDM_Addin GetAddin(string routeName)
         {
@@ -771,7 +828,101 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
 
         #endregion
-      
+        public T BindParameters<T>(Dictionary<string, string> rawParams) where T : new()
+        {
+            T obj = new T();
+            foreach (var prop in typeof(T).GetProperties())
+            {
+                if (rawParams.TryGetValue(prop.Name, out var rawValue))
+                {
+                    // Attempt parse
+                    object? parsedValue = ConvertToType(rawValue, prop.PropertyType);
+                    prop.SetValue(obj, parsedValue);
+                }
+            }
+            return obj;
+        }
+        private static object? ConvertToType(string rawValue, Type targetType)
+        {
+            // Special case: if the rawValue is null or empty,
+            // decide how you want to handle that for non-nullable types.
+            if (string.IsNullOrEmpty(rawValue))
+            {
+                // If the targetType is a nullable type, you might return null.
+                // Otherwise, you might return a default value or throw an exception.
+                if (IsNullableType(targetType))
+                    return null;
+                else
+                    throw new ArgumentNullException($"No value provided for non-nullable type: {targetType}");
+            }
+
+            // 1. Direct type checks for common scenarios
+            if (targetType == typeof(string))
+            {
+                return rawValue; // no conversion needed
+            }
+            else if (targetType == typeof(int) || targetType == typeof(int?))
+            {
+                if (int.TryParse(rawValue, out var intValue))
+                    return intValue;
+                throw new FormatException($"Cannot convert '{rawValue}' to int.");
+            }
+            else if (targetType == typeof(Guid) || targetType == typeof(Guid?))
+            {
+                if (Guid.TryParse(rawValue, out var guidValue))
+                    return guidValue;
+                throw new FormatException($"Cannot convert '{rawValue}' to Guid.");
+            }
+            else if (targetType == typeof(DateTime) || targetType == typeof(DateTime?))
+            {
+                if (DateTime.TryParse(rawValue, out var dateValue))
+                    return dateValue;
+                throw new FormatException($"Cannot convert '{rawValue}' to DateTime.");
+            }
+            else if (targetType == typeof(bool) || targetType == typeof(bool?))
+            {
+                if (bool.TryParse(rawValue, out var boolValue))
+                    return boolValue;
+                throw new FormatException($"Cannot convert '{rawValue}' to bool.");
+            }
+
+            // 2. Fallback: try .NET's System.Convert.ChangeType
+            try
+            {
+                return System.Convert.ChangeType(rawValue, Nullable.GetUnderlyingType(targetType) ?? targetType);
+            }
+            catch (Exception ex)
+            {
+                throw new FormatException($"Cannot convert '{rawValue}' to {targetType}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Utility helper to check if a given type is nullable (e.g., int?).
+        /// </summary>
+        private static bool IsNullableType(Type t)
+        {
+            return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
+        //public class CustomerOrdersParameters
+        //{
+        //    public int CustomerId { get; set; }
+        //    public int OrderId { get; set; }
+        //    public DateTime? StartDate { get; set; }
+        //}
+
+        //public void OnNavigatedTo(Dictionary<string, object> parameters)
+        //{
+        //    // Convert to string->string
+        //    var raw = parameters.ToDictionary(x => x.Key, x => x.Value?.ToString() ?? "");
+        //    var bound = BindParameters<CustomerOrdersParameters>(raw);
+
+        //    // bound.CustomerId is an int
+        //    // bound.OrderId is an int
+        //    // bound.StartDate is a DateTime?
+        //}
+
     }
 
 

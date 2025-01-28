@@ -5,12 +5,17 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Desktop.Common
 {
     public partial class RoutingManager : IRoutingManager
     {
+        #region "Fields"
+        private Func<Type, IDM_Addin>? _customControlCreator;
+        private bool _isCustomCreatorSet = false;
+        private bool _useCustomCreator = false;
         private readonly IServiceProvider _serviceProvider; // Microsoft DI
         private readonly IComponentContext _autofacContext; // Autofac container
         private readonly SemaphoreSlim _navigationLock = new SemaphoreSlim(1, 1);
@@ -18,14 +23,8 @@ namespace TheTechIdea.Beep.Desktop.Common
         private readonly List<RouteDefinition> _routeDefinitions = new()
     {
         new RouteDefinition("Home", "/"),
-        new RouteDefinition("CustomerOrders", "/customers/{customerId}/orders/{orderId}"),
-        new RouteDefinition("Products", "/products/{productId}")
         // ... add as many as needed
     };
-        public EnumBeepThemes Theme { get; set; }
-        public IBeepService Beepservices { get; }
-        public IDMEEditor DMEEditor { get; }
-
         private readonly IDisplayContainer _displayContainer;
         private readonly ContainerTypeEnum _containerType;
 
@@ -40,28 +39,27 @@ namespace TheTechIdea.Beep.Desktop.Common
         private string _defaultRoute;
         private IDM_Addin _currentView;
         private Type _errorViewType;
-
+        #endregion "Fields"
+        #region "Properties"
+        public EnumBeepThemes Theme { get; set; }
+        public IBeepService Beepservices { get; }
+        public IDMEEditor DMEEditor { get; }
         public event EventHandler<string> Navigating;
         public event EventHandler<string> Navigated;
         public event EventHandler<IRouteArgs> PreShowItem;
         public event EventHandler<IRouteArgs> PostShowItem;
-
-        private bool _isCustomCreatorSet = false;
-        private bool _useCustomCreator = false;
-
         public IDM_Addin CurrentControl => _currentView;
-
         public bool UseCustomCreator
         {
             get => _useCustomCreator;
             set => _useCustomCreator = value;
         }
-
-        private Func<Type, IDM_Addin>? _customControlCreator;
+        #endregion "Properties"
+        #region "Constructors"
         public RoutingManager(IServiceProvider service)
         {
             _serviceProvider = service;
-            
+
             Beepservices = (IBeepService)service.GetService(typeof(IBeepService));
             DMEEditor = Beepservices.DMEEditor;
         }
@@ -72,7 +70,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             Beepservices = _autofacContext.Resolve<IBeepService>();
             DMEEditor = Beepservices.DMEEditor;
         }
-        // Constructor
+        #endregion "Constructors"
         #region Navigation
         public async Task<IErrorsInfo> NavigateUriAsync(string uri, bool popup = false)
         {
@@ -131,7 +129,6 @@ namespace TheTechIdea.Beep.Desktop.Common
         //        typedParams.ToDictionary(k => k.Key, k => k.Value),
         //        popup);
         //}
-
         public async Task<IErrorsInfo> NavigateToAsync(string routeName, Dictionary<string, object> parameters = null, bool popup = false)
         {
             var result = new ErrorsInfo();
@@ -369,7 +366,6 @@ namespace TheTechIdea.Beep.Desktop.Common
                 throw new InvalidOperationException("The provided view is not a valid Form or Control.");
             }
         }
-
         public IErrorsInfo NavigateTo(string routeName, Dictionary<string, object> parameters = null, bool popup = false)
         {
             var result = new ErrorsInfo();
@@ -828,6 +824,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
 
         #endregion
+        #region "Parameter Binding and Handling"
         public T BindParameters<T>(Dictionary<string, string> rawParams) where T : new()
         {
             T obj = new T();
@@ -904,7 +901,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         {
             return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
-
+        #endregion "Parameter Binding and Handling"
         //public class CustomerOrdersParameters
         //{
         //    public int CustomerId { get; set; }

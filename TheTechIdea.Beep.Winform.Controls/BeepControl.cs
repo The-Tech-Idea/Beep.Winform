@@ -2076,7 +2076,18 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
         protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
-
+        public event EventHandler<BeepComponentEventArgs> OnSelected;
+        public event EventHandler<BeepComponentEventArgs> OnValidate;
+        public event EventHandler<BeepComponentEventArgs> OnValueChanged;
+        public event EventHandler<BeepComponentEventArgs> OnLinkedValueChanged;
+        public bool IsSelected { get; set; }
+        public bool IsDeleted { get; set; }
+        public bool IsNew { get; set; }
+        public bool IsDirty { get; set; }
+        public bool IsReadOnly { get; set; }
+        public bool IsEditable { get; set; }
+        public bool IsVisible { get; set; }
+        public object Oldvalue { get; }
         [Browsable(true)]
         [TypeConverter(typeof(ThemeEnumConverter))]
         public EnumBeepThemes Theme

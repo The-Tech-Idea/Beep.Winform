@@ -35,19 +35,31 @@ namespace TheTechIdea.Beep.Vis.Modules
         void RefreshBinding();
         void SetValue(object value);
         object GetValue();
+        object Oldvalue { get; }
         void ClearValue();
         bool HasFilterValue();
         AppFilter ToFilter();
         int Left { get; set; }
         int Top { get; set; }
         int Width { get; set; }
-        int Height { get; set; }    
+        int Height { get; set; }
+        public bool IsSelected { get; set; }
+        public bool IsDeleted { get; set; }
+        public bool IsNew { get; set; }
+        public bool IsDirty { get; set; }
+        public bool IsReadOnly { get; set; }
+        public bool IsEditable { get; set; }
+        public bool IsVisible { get; set; }
         DbFieldCategory Category { get; set; }
         void Draw(Graphics graphics,Rectangle rectangle);
         void SetBinding(string controlProperty, string dataSourceProperty); // Method to bind a control property
         event EventHandler<BeepComponentEventArgs> PropertyChanged; // Event to notify that a property has changed
         event EventHandler<BeepComponentEventArgs> PropertyValidate; // Event to notify that a property is being validated
-        
+        public event EventHandler<BeepComponentEventArgs> OnSelected;
+        public event EventHandler<BeepComponentEventArgs> OnValidate;
+        public event EventHandler<BeepComponentEventArgs> OnValueChanged;
+        public event EventHandler<BeepComponentEventArgs> OnLinkedValueChanged;
+       
     }
     public class BeepComponentEventArgs : EventArgs
     {

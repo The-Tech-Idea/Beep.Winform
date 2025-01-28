@@ -7,6 +7,8 @@ using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Desktop.Common;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Reflection;
+using static TheTechIdea.Beep.Winform.Controls.BeepGridRowPainter;
 
 
 
@@ -466,6 +468,62 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion "Virtualization"
+     
+        #region "Header Layout"
+        protected int headerPanelHeight = 20; // Height of the header panel
+        protected int bottomagregationPanelHeight = 12; // Height of the bottom panel for agregation
+        protected int footerPanelHeight = 12; // Height of the Footer panel
+        protected int navigatorPanelHeight = 20; // Height of the navigator panel
+
+        private Rectangle footerPanelRect; // Rectangle for the header panel
+        private Rectangle headerPanelRect; // Rectangle for the header panel
+        private Rectangle columnsheaderPanelRect; // Rectangle for the header panel
+        private Rectangle bottomagregationPanelRect; // Rectangle for the header panel
+        private Rectangle navigatorPanelRect; // Rectangle for the header panel
+
+        private Rectangle filterButtonRect; // Rectangle for the filter button area
+        private BeepLabel titleLabel;
+        private BeepButton filterButton;
+        private int _buttonssize = 25;
+        private string _imagepath;
+        private int defaultHeight=100;
+        private BindingList<SimpleItem> items;
+       
+
+        private void FilterButton_Click(object sender, EventArgs e)
+        {
+            // Config filter form when filter button is clicked
+            ShowFilterForm();
+        }
+        #endregion "Header Layout"
+        #region "Theme"
+        public override void ApplyTheme()
+        {
+            //base.ApplyTheme();
+            this.BackColor = _currentTheme.GridBackColor;
+            this.ForeColor = _currentTheme.GridForeColor;
+            if (titleLabel != null) 
+            {
+                titleLabel.Theme = Theme;
+            }
+
+            if (DataNavigator != null)
+            {
+                _currentTheme.ButtonBackColor = _currentTheme.GridBackColor;
+                _currentTheme.ButtonForeColor = _currentTheme.GridForeColor;
+                DataNavigator.Theme = Theme;
+            }
+            if (UseThemeFont)
+            {
+                //     Console.WriteLine("2 Label Apply Theme TextFont");
+                _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
+                titleLabel.UseThemeFont = true;
+            }
+            titleLabel.Font = _textFont;
+            Invalidate(); // Repaint the grid after applying the theme
+        }
+        #endregion "Theme"
+        #region "Paint"
         #region "Dynamic Control Pooling"
         private Dictionary<string, Control> controlPool = new(); // Pool of controls by Cell ID
 
@@ -525,7 +583,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     _rowHeight
 );
                     // Position the control
-                 //   cellControl.SetBounds(xOffset, yOffset, Columns[colIndex].Width, _rowHeight);
+                    //   cellControl.SetBounds(xOffset, yOffset, Columns[colIndex].Width, _rowHeight);
 
                     // Update content if necessary
                     UpdateControlContent(cellControl, cell);
@@ -560,7 +618,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else if (control is BeepCheckBox checkBox)
             {
-               // checkBox.CheckedValue = (bool)cell.UIComponent.BoundProperty;
+                // get property value from cell
+                PropertyInfo propertyInfo = cell.UIComponent.GetType().GetProperty(cell.UIComponent.BoundProperty);
+                if (propertyInfo != null)
+                {
+                    var value = propertyInfo.GetValue(cell.UIComponent);
+                    if (value != null)
+                    {
+                        if (value is bool)
+                        {
+                            checkBox.CheckedValue = (bool)value;
+                        }
+                        else
+                        {
+                            checkBox.Text = value.ToString();
+                        }
+                    }
+
+                }
             }
             else
             {
@@ -570,62 +645,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion "Dynamic Control Pooling"
-        #region "Header Layout"
-        protected int headerPanelHeight = 20; // Height of the header panel
-        protected int bottomagregationPanelHeight = 12; // Height of the bottom panel for agregation
-        protected int footerPanelHeight = 12; // Height of the Footer panel
-        protected int navigatorPanelHeight = 20; // Height of the navigator panel
-
-        private Rectangle footerPanelRect; // Rectangle for the header panel
-        private Rectangle headerPanelRect; // Rectangle for the header panel
-        private Rectangle columnsheaderPanelRect; // Rectangle for the header panel
-        private Rectangle bottomagregationPanelRect; // Rectangle for the header panel
-        private Rectangle navigatorPanelRect; // Rectangle for the header panel
-
-        private Rectangle filterButtonRect; // Rectangle for the filter button area
-        private BeepLabel titleLabel;
-        private BeepButton filterButton;
-        private int _buttonssize = 25;
-        private string _imagepath;
-        private int defaultHeight=100;
-        private BindingList<SimpleItem> items;
-       
-
-        private void FilterButton_Click(object sender, EventArgs e)
-        {
-            // Config filter form when filter button is clicked
-            ShowFilterForm();
-        }
-        #endregion "Header Layout"
-        #region "Theme"
-        public override void ApplyTheme()
-        {
-            //base.ApplyTheme();
-            this.BackColor = _currentTheme.GridBackColor;
-            this.ForeColor = _currentTheme.GridForeColor;
-            if (titleLabel != null) 
-            {
-                titleLabel.Theme = Theme;
-            }
-
-            if (DataNavigator != null)
-            {
-                _currentTheme.ButtonBackColor = _currentTheme.GridBackColor;
-                _currentTheme.ButtonForeColor = _currentTheme.GridForeColor;
-                DataNavigator.Theme = Theme;
-            }
-            if (UseThemeFont)
-            {
-                //     Console.WriteLine("2 Label Apply Theme TextFont");
-                _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
-                titleLabel.UseThemeFont = true;
-            }
-            titleLabel.Font = _textFont;
-            Invalidate(); // Repaint the grid after applying the theme
-        }
-        #endregion "Theme"
-        #region "Paint"
         #region "Drawin on DrawingRectangle"
+
         protected override void OnPaint(PaintEventArgs e)
         {
            // Controls.Clear();
@@ -765,7 +786,85 @@ namespace TheTechIdea.Beep.Winform.Controls
                 rowStartY += _rowHeight;
             }
         }
+        private void PaintRow(Graphics graphics, BeepGridRow row, Rectangle rowRect)
+        {
+            //rowRect.Inflate(-1, -1);
+            // Ensure we only draw within the grid's DrawingRect area
+            int yOffset = DrawingRect.Top + headerPanelHeight;
+            int xOffset = DrawingRect.Left + XOffset;
 
+            // Set the row height based on the default row height or the height of the tallest control in the row
+            int maxCellHeight = _rowHeight;
+
+            for (int i = 0; i < row.Cells.Count; i++)
+            {
+                var cell = row.Cells[i];
+                int cellWidth = Columns[i].Width;
+
+                // Define the cell rectangle within the grid's drawing boundaries
+                var cellRect = new Rectangle(xOffset, yOffset, cellWidth, _rowHeight);
+                PaintCell(graphics, cell, cellRect);
+
+                // Adjust row height based on the cell’s preferred height if it contains a control
+                if (cell.UIComponent is Control control)
+                {
+                    int controlHeight = control.PreferredSize.Height;
+                    if (controlHeight > maxCellHeight)
+                    {
+                        maxCellHeight = controlHeight;
+                    }
+                }
+
+                // Move to the next cell horizontally
+                xOffset += cellWidth;
+            }
+
+            // Update row rectangle with the calculated height and draw the row background
+            rowRect.Height = maxCellHeight;
+            using (var rowBrush = new SolidBrush(BackColor))
+            {
+                graphics.FillRectangle(rowBrush, rowRect);
+            }
+
+            //// Draw row borders if needed (optional)
+            //if (ShowAllBorders)
+            //{
+            //    using (var pen = new Pen(_currentTheme.BorderColor))
+            //    {
+            //        graphics.DrawRectangle(pen, rowRect);
+            //    }
+            //}if(ShowBottomBorder && ShowAllBorders==false)
+            //{
+            //    using (var pen = new Pen(_currentTheme.BorderColor))
+            //    {
+            //        graphics.DrawLine(pen, rowRect.Left, rowRect.Bottom, rowRect.Right, rowRect.Bottom);
+            //    }
+            //}
+            //if (ShowLeftBorder && ShowAllBorders == false) 
+            //{
+            //    using (var pen = new Pen(_currentTheme.BorderColor))
+            //    {
+            //        graphics.DrawLine(pen, rowRect.Left, rowRect.Top, rowRect.Left, rowRect.Bottom);
+            //    }
+
+            //}
+            //if (ShowRightBorder && ShowAllBorders == false)
+            //{
+            //    using (var pen = new Pen(_currentTheme.BorderColor))
+            //    {
+            //        graphics.DrawLine(pen, rowRect.Right, rowRect.Top, rowRect.Right, rowRect.Bottom);
+            //    }
+
+            //}
+            //if (ShowTopBorder && ShowAllBorders == false)
+            //{
+            //    using (var pen = new Pen(_currentTheme.BorderColor))
+            //    {
+            //        graphics.DrawLine(pen, rowRect.Left, rowRect.Top, rowRect.Right, rowRect.Top);
+            //    }
+
+            //}
+        }
         private (int firstRowIndex, int lastRowIndex) GetVisibleRows()
         {
             int firstRowIndex = Math.Max(0, _verticalScrollOffset / _rowHeight);
@@ -997,85 +1096,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
             };
         }
-        private void PaintRow(Graphics graphics, BeepGridRow row, Rectangle rowRect)
-        {
-            //rowRect.Inflate(-1, -1);
-            // Ensure we only draw within the grid's DrawingRect area
-            int yOffset = DrawingRect.Top+headerPanelHeight ;
-            int xOffset = DrawingRect.Left + XOffset;
-
-            // Set the row height based on the default row height or the height of the tallest control in the row
-            int maxCellHeight = _rowHeight;
-
-            for (int i = 0; i < row.Cells.Count; i++)
-            {
-                var cell = row.Cells[i];
-                int cellWidth = Columns[i].Width;
-
-                // Define the cell rectangle within the grid's drawing boundaries
-                var cellRect = new Rectangle(xOffset, yOffset, cellWidth, _rowHeight);
-                PaintCell(graphics, cell, cellRect);
-
-                // Adjust row height based on the cell’s preferred height if it contains a control
-                if (cell.UIComponent is Control control)
-                {
-                    int controlHeight = control.PreferredSize.Height;
-                    if (controlHeight > maxCellHeight)
-                    {
-                        maxCellHeight = controlHeight;
-                    }
-                }
-
-                // Move to the next cell horizontally
-                xOffset += cellWidth;
-            }
-
-            // Update row rectangle with the calculated height and draw the row background
-            rowRect.Height = maxCellHeight;
-            using (var rowBrush = new SolidBrush(BackColor))
-            {
-                graphics.FillRectangle(rowBrush, rowRect);
-            }
-
-            //// Draw row borders if needed (optional)
-            //if (ShowAllBorders)
-            //{
-            //    using (var pen = new Pen(_currentTheme.BorderColor))
-            //    {
-            //        graphics.DrawRectangle(pen, rowRect);
-            //    }
-            //}if(ShowBottomBorder && ShowAllBorders==false)
-            //{
-            //    using (var pen = new Pen(_currentTheme.BorderColor))
-            //    {
-            //        graphics.DrawLine(pen, rowRect.Left, rowRect.Bottom, rowRect.Right, rowRect.Bottom);
-            //    }
-            //}
-            //if (ShowLeftBorder && ShowAllBorders == false) 
-            //{
-            //    using (var pen = new Pen(_currentTheme.BorderColor))
-            //    {
-            //        graphics.DrawLine(pen, rowRect.Left, rowRect.Top, rowRect.Left, rowRect.Bottom);
-            //    }
-
-            //}
-            //if (ShowRightBorder && ShowAllBorders == false)
-            //{
-            //    using (var pen = new Pen(_currentTheme.BorderColor))
-            //    {
-            //        graphics.DrawLine(pen, rowRect.Right, rowRect.Top, rowRect.Right, rowRect.Bottom);
-            //    }
-
-            //}
-            //if (ShowTopBorder && ShowAllBorders == false)
-            //{
-            //    using (var pen = new Pen(_currentTheme.BorderColor))
-            //    {
-            //        graphics.DrawLine(pen, rowRect.Left, rowRect.Top, rowRect.Right, rowRect.Top);
-            //    }
-
-            //}
-        }
+      
         #endregion "Paint"
         #region Resizing Logic
         protected override void OnResize(EventArgs e)
@@ -1476,85 +1497,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Layout Load and Save"
     }
 
-    // Represents a single row in the grid
-    public class BeepGridRow
-    {
-        public BeepGridRow()
-        {
-            Id = Guid.NewGuid().ToString();
-        }
-
-        public string Id { get; set; }
-        public int Index { get; set; }
-        public int DisplayIndex { get; set; }
-        public BindingList<BeepGridCell> Cells { get; set; } = new BindingList<BeepGridCell>();
-        private string _columnname; // used for to store the display header of column
-      
-        private string _rowname; // used for to store the display header  of row
-        public string RowName
-        {
-            get { return _rowname; }
-            set { _rowname = value; }
-        }
-        private string _rowNameField; // used for store the name of field that has value to display as row head
-        public string RowNameField
-        {
-            get { return string.IsNullOrEmpty(_rowNameField) ? RowName : _rowNameField; ; }
-            set { _rowNameField = value; }
-        }
-        public int Height { get; set; } = 30; // Default row height
-
-        // Row Events
-        public event EventHandler<BeepGridRowEventArgs> RowClick;
-        public event EventHandler<BeepGridRowEventArgs> RowValidate;
-        public event EventHandler<BeepGridRowEventArgs> RowDelete;
-        public event EventHandler<BeepGridRowEventArgs> RowAdd;
-        public event EventHandler<BeepGridRowEventArgs> RowUpdate;
-
-        public void ApplyTheme(BeepTheme theme)
-        {
-            foreach (var cell in Cells)
-            {
-                cell.ApplyTheme(theme);
-            }
-        }
-    }
-
-    // Represents a single cell in the grid
-    public class BeepGridCell
-    {
-        public BeepGridCell()
-        {
-            Id = Guid.NewGuid().ToString();
-        }
-
-        public string Id { get; set; }
-        public int Index { get; set; }
-        public int DisplayIndex { get; set; }
-        public IBeepUIComponent UIComponent { get; set; }
-
-        public void ApplyTheme(BeepTheme theme)
-        {
-            if (UIComponent != null)
-            {
-                UIComponent.ApplyTheme(theme);
-            }
-        }
-    }
-
-    // Custom event args for row events
-    public class BeepGridRowEventArgs : EventArgs
-    {
-        public BeepGridRow Row { get; }
-        public BeepGridRowEventArgs(BeepGridRow row) => Row = row;
-    }
-
-    // Custom event args for cell events
-    public class BeepGridCellEventArgs : EventArgs
-    {
-        public BeepGridCell Cell { get; }
-        public BeepGridCellEventArgs(BeepGridCell cell) => Cell = cell;
-    }
 
     public enum GridDataSourceType
     {

@@ -2,6 +2,7 @@
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Desktop.Common

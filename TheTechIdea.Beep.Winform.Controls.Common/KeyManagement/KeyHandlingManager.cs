@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Tools;
 using TheTechIdea.Beep.Vis;
 

@@ -3,6 +3,7 @@ using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Vis.Modules;

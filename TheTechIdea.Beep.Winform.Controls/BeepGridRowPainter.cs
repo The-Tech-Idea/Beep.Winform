@@ -99,53 +99,53 @@ namespace TheTechIdea.Beep.Winform.Controls
             YOffset = yOffset;
             Rows = rows;
             DataSource = dataSource;
-            Columns = columns;
+         
         }
-        public BeepGridRowPainter(BeepSimpleGrid grid ,List<BeepGridColumnConfig> columns, object dataSource)
+        public BeepGridRowPainter(BeepSimpleGrid grid , object dataSource)
         {
             Grid = grid;
-            Columns = columns;
+         
             DataSource = dataSource;
 
         }
-        public BeepGridRowPainter(BeepSimpleGrid grid, List<BeepGridColumnConfig> columns, object dataSource, Rectangle drawingRect)
+        public BeepGridRowPainter(BeepSimpleGrid grid,  object dataSource, Rectangle drawingRect)
         {
             Grid = grid;
-            Columns = columns;
+        
             DataSource = dataSource;
             DrawingRect = drawingRect;
         }
-        public BeepGridRowPainter(BeepSimpleGrid grid, List<BeepGridColumnConfig> columns, object dataSource, Rectangle drawingRect, int rowHeight)
+        public BeepGridRowPainter(BeepSimpleGrid grid,  object dataSource, Rectangle drawingRect, int rowHeight)
         {
             Grid = grid;
-            Columns = columns;
+         
             DataSource = dataSource;
             DrawingRect = drawingRect;
             RowHeight = rowHeight;
         }
-        public BeepGridRowPainter(BeepSimpleGrid grid, List<BeepGridColumnConfig> columns, object dataSource, Rectangle drawingRect, int rowHeight, int gridHeight)
+        public BeepGridRowPainter(BeepSimpleGrid grid, object dataSource, Rectangle drawingRect, int rowHeight, int gridHeight)
         {
             Grid = grid;
-            Columns = columns;
+          
             DataSource = dataSource;
             DrawingRect = drawingRect;
             RowHeight = rowHeight;
             GridHeight = gridHeight;
         }
-        public BeepGridRowPainter(BeepSimpleGrid grid, List<BeepGridColumnConfig> columns, object dataSource, Rectangle drawingRect, int rowHeight, int gridHeight, int gridWidth)
+        public BeepGridRowPainter(BeepSimpleGrid grid,  object dataSource, Rectangle drawingRect, int rowHeight, int gridHeight, int gridWidth)
         {
             Grid = grid;
-            Columns = columns;
+          
             DataSource = dataSource;
             DrawingRect = drawingRect;
             RowHeight = rowHeight;
             GridHeight = gridHeight;
             GridWidth = gridWidth;
         }
-        public BeepGridRowPainter(BeepSimpleGrid grid, List<BeepGridColumnConfig> columns, object dataSource, Rectangle drawingRect, int rowHeight, int gridHeight, int gridWidth, int xOffset)
+        public BeepGridRowPainter(BeepSimpleGrid grid,  object dataSource, Rectangle drawingRect, int rowHeight, int gridHeight, int gridWidth, int xOffset)
         {
             Grid = grid;
-            Columns = columns;
+         
             DataSource = dataSource;
             DrawingRect = drawingRect;
             RowHeight = rowHeight;
@@ -153,10 +153,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             GridWidth = gridWidth;
             XOffset = xOffset;
         }
-        public BeepGridRowPainter(BeepSimpleGrid grid, List<BeepGridColumnConfig> columns, object dataSource, Rectangle drawingRect, int rowHeight, int gridHeight, int gridWidth, int xOffset, int yOffset)
+        public BeepGridRowPainter(BeepSimpleGrid grid,  object dataSource, Rectangle drawingRect, int rowHeight, int gridHeight, int gridWidth, int xOffset, int yOffset)
         {
             Grid = grid;
-            Columns = columns;
+           
             DataSource = dataSource;
             DrawingRect = drawingRect;
             RowHeight = rowHeight;
@@ -166,16 +166,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             YOffset = yOffset;
         }
         #endregion "Constructors"
-
-        public List<BeepGridColumnConfig> Columns
-        {
-            get => _columns;
-            set
-            {
-                _columns = value;
-
-            }
-        }
         #region "Propoerties needed for the grid"
         public Object DataSource { get; set; }
         public int XOffset { get; set; }
@@ -186,14 +176,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepSimpleGrid Grid { get; }
         public Rectangle DrawingRect { get; set; }
         #endregion "Propoerties needed for the grid"
-
+        public List<BeepGridColumnConfig> Columns
+        {
+            get => Grid.Columns;
+            
+        }
         private Dictionary<string, Control> controlPool = new(); // Pool of controls by Cell ID
         public BindingList<BeepGridRow> Rows { get; set; } = new BindingList<BeepGridRow>();
         public BeepGridRow CurrentRow { get; set; }
         public BeepGridCell CurrentCell { get; set; }
         public BeepGridCell CurrentCellInEdit { get; set; }
         public BeepGridRow CurrentRowInEdit { get; set; }
-
         #region "Events Delegates"
         // Row Events
         public event EventHandler<BeepGridRowEventArgs> OnRowSelected;

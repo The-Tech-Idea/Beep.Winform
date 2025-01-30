@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Grid;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -167,26 +166,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Constructors"
         #region "Propoerties needed for the grid"
-        public Object DataSource { get; set; }
+         public Object DataSource { get; set; }
         public int XOffset { get; set; }
         public int YOffset { get; set; }
         public int RowHeight { get; set; } = 30;
         public int GridHeight { get; set; }
         public int GridWidth { get; set; }
         public BeepSimpleGrid Grid { get; }
+        private BeepTheme _currentTheme => BeepThemesManager.GetTheme(Grid!=null? Grid.Theme : EnumBeepThemes.DefaultTheme );
         public Rectangle DrawingRect { get; set; }
         #endregion "Propoerties needed for the grid"
+        public BindingList<BeepGridRow> Rows { get; set; } = new BindingList<BeepGridRow>();
+        public BeepGridRow CurrentRow { get; set; }
+        public BeepGridCell CurrentCell { get; set; }
+        public BeepGridCell CurrentCellInEdit { get; set; }
+        public BeepGridRow CurrentRowInEdit { get; set; }
         public List<BeepGridColumnConfig> Columns
         {
             get => Grid.Columns;
             
         }
         private Dictionary<string, Control> controlPool = new(); // Pool of controls by Cell ID
-        public BindingList<BeepGridRow> Rows { get; set; } = new BindingList<BeepGridRow>();
-        public BeepGridRow CurrentRow { get; set; }
-        public BeepGridCell CurrentCell { get; set; }
-        public BeepGridCell CurrentCellInEdit { get; set; }
-        public BeepGridRow CurrentRowInEdit { get; set; }
+       
         #region "Events Delegates"
         // Row Events
         public event EventHandler<BeepGridRowEventArgs> OnRowSelected;
@@ -265,6 +266,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
                 }
                 PaintRow(g, row, yOffset, visibleColumns.firstColumnIndex, visibleColumns.lastColumnIndex);
+                if (Grid.ShowHorizontalGridLines)
+                {
+                    Pen pen = new Pen(_currentTheme.GridLineColor);
+                    g.DrawLine(pen, DrawingRect.Left, yOffset + row.Height, DrawingRect.Right, yOffset + row.Height);
+                }
                 yOffset += row.Height;
             }
         }
@@ -563,6 +569,93 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Rows.Add(row);
             }
         }
+        public void AddRow(params object[] values)
+        {
+            // Make sure the number of incoming values matches the number of columns
+            if (values.Length != Columns.Count)
+                throw new ArgumentException("Number of values does not match number of columns.");
+
+            // Create a new BeepGridRow
+            var row = new BeepGridRow();
+
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                // Create a cell
+                var cell = new BeepGridCell
+                {
+                    Index = i,
+                    // For simplicity, let's just stick a BeepLabel in each cell
+                    UIComponent = new BeepLabel
+                    {
+                        Text = values[i]?.ToString() ?? string.Empty
+                    }
+                };
+                // Add the cell to the row
+                row.Cells.Add(cell);
+            }
+
+            // Finally, add the newly created row to our grid's Rows collection
+            Rows.Add(row);
+
+            // Optionally force a redraw
+            Grid.Invalidate();
+        }
+        public void AddRow(Dictionary<string, object> dataByColumnName)
+        {
+            // Create a new row
+            var row = new BeepGridRow();
+
+            foreach (var columnConfig in Columns)
+            {
+                // For each configured column, check if dictionary has a matching key
+                object cellValue = null;
+
+                // You might check either the ColumnName or ColumnCaption,
+                // depending on how you prefer to identify the column in the dictionary.
+                // Let's assume dictionary keys match the ColumnCaption for now.
+                if (dataByColumnName.ContainsKey(columnConfig.ColumnCaption))
+                    cellValue = dataByColumnName[columnConfig.ColumnCaption];
+
+                // Create the cell
+                var cell = new BeepGridCell
+                {
+                    UIComponent = new BeepLabel { Text = cellValue?.ToString() ?? string.Empty }
+                };
+
+                // Add the cell
+                row.Cells.Add(cell);
+            }
+
+            // Add to grid
+            Rows.Add(row);
+            Grid.Invalidate();
+        }
+        public void AddRowFromObject<T>(T item)
+        {
+            var row = new BeepGridRow();
+
+            // For each BeepGridColumnConfig in the grid
+            foreach (var columnConfig in Columns)
+            {
+                // If the column’s ColumnCaption matches a property in T,
+                // or if you have a different convention, handle it here
+                var property = typeof(T).GetProperty(columnConfig.ColumnCaption);
+                object value = property != null ? property.GetValue(item) : null;
+
+                // Create the cell
+                var cell = new BeepGridCell
+                {
+                    UIComponent = new BeepLabel { Text = value?.ToString() ?? string.Empty }
+                };
+
+                // Add the cell
+                row.Cells.Add(cell);
+            }
+
+            Rows.Add(row);
+            Grid.Invalidate();
+        }
+
 
         #endregion "Data Binding and Handling"
         #region "Dynamic Control Pooling"
@@ -685,7 +778,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             };
         }
-
         private void UpdateControlContent(Control control, BeepGridCell cell)
         {
             if (control is BeepLabel label && cell.UIComponent is BeepLabel)
@@ -736,105 +828,46 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion "Dynamic Control Pooling"
-    }
-    #region "Beep Grid Data Classes"
-    // Represents a single row in the grid
-    public class BeepGridRow
-    {
-        public BeepGridRow()
+        #region "Draw Borders"
+        private void DrawColumnBorders(Graphics g, Rectangle drawingBounds)
         {
-            Id = Guid.NewGuid().ToString();
-        }
 
-        public string Id { get; set; }
-        public int Index { get; set; }
-        public int DisplayIndex { get; set; }
-        public BindingList<BeepGridCell> Cells { get; set; } = new BindingList<BeepGridCell>();
-        public object RowData { get; set; }
-        public bool IsSelected { get; set; }
-        public bool IsDeleted { get; set; }
-        public bool IsNew { get; set; }
-        public bool IsDirty { get; set; }
-        public bool IsReadOnly { get; set; }
-        public bool IsEditable { get; set; }
-        public bool IsVisible { get; set; }
-
-        public int Width { get; set; } = 100; // Default cell width
-        public int Height { get; set; } = 30; // Default cell height
-
-        // Row Events
-        public event EventHandler<BeepGridRowEventArgs> OnRowSelected;
-        public event EventHandler<BeepGridRowEventArgs> OnRowValidate;
-        public event EventHandler<BeepGridRowEventArgs> OnRowDelete;
-        public event EventHandler<BeepGridRowEventArgs> OnRowAdded;
-        public event EventHandler<BeepGridRowEventArgs> OnRowUpdate;
-        //Cell Events
-        public event EventHandler<BeepGridCellEventArgs> OnCellSelected;
-        public event EventHandler<BeepGridCellEventArgs> OnCellValidate;
-
-
-        public void ApplyTheme(BeepTheme theme)
-        {
-            foreach (var cell in Cells)
+            int xOffset = drawingBounds.Left + XOffset;
+            int yOffset = drawingBounds.Top + YOffset;
+            using (var pen = new Pen(_currentTheme.GridLineColor))
             {
-                cell.ApplyTheme(theme);
+                for (int i = 0; i < Columns.Count - 1; i++)
+                {
+                    xOffset += Columns[i].Width;
+                    g.DrawLine(pen, xOffset, yOffset, xOffset, drawingBounds.Bottom);
+                }
             }
         }
-    }
-
-    // Represents a single cell in the grid
-    public class BeepGridCell
-    {
-        public BeepGridCell()
+        private void DrawRowsBorders(Graphics g, Rectangle drawingBounds)
         {
-            Id = Guid.NewGuid().ToString();
-        }
-
-        public string Id { get; set; }
-        public int Index { get; set; }
-        public int DisplayIndex { get; set; }
-        private int Colidx { get; set; } // used for to store the display header of column
-        private int _rowIdx; // used for to store the display header  of row
-        public int RowIdx
-        {
-            get { return _rowIdx; }
-            set { _rowIdx = value; }
-        }
-        public int Width { get; set; } = 100; // Default cell width
-        public int Height { get; set; } = 30; // Default cell height
-        public bool IsSelected { get; set; }
-        public bool IsDirty { get; set; }
-        public bool IsReadOnly { get; set; }
-        public bool IsEditable { get; set; }
-        public bool IsVisible { get; set; }
-        public event EventHandler<BeepGridCellEventArgs> OnCellSelected;
-        public event EventHandler<BeepGridCellEventArgs> OnCellValidate;
-
-        public IBeepUIComponent UIComponent { get; set; }
-
-        public void ApplyTheme(BeepTheme theme)
-        {
-            if (UIComponent != null)
+            int yOffset = drawingBounds.Top + YOffset;
+            using (var pen = new Pen(_currentTheme.BorderColor))
             {
-                UIComponent.ApplyTheme(theme);
+                for (int i = 0; i < Rows.Count; i++)
+                {
+                    yOffset += Grid._rowHeight;
+                    g.DrawLine(pen, drawingBounds.Left, yOffset, drawingBounds.Right, yOffset);
+                }
             }
         }
-    }
+        #endregion "Draw Borders"
+        #region "Theme Management"
+        public void ApplyTheme(BeepTheme theme)
+        {
+            foreach (var row in Rows)
+            {
+                row.ApplyTheme(theme);
+            }
+        }
+        #endregion "Theme Management"
 
-    // Custom event args for row events
-    public class BeepGridRowEventArgs : EventArgs
-    {
-        public BeepGridRow Row { get; }
-        public BeepGridRowEventArgs(BeepGridRow row) => Row = row;
-    }
 
-    // Custom event args for cell events
-    public class BeepGridCellEventArgs : EventArgs
-    {
-        public BeepGridCell Cell { get; }
-
-        public BeepGridCellEventArgs(BeepGridCell cell) => Cell = cell;
     }
-    #endregion "Beep Grid Data Classes"
+  
 
 }

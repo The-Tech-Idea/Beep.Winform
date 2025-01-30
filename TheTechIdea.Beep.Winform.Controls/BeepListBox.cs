@@ -421,7 +421,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             int yOffset = drawRectY + TitleBottomY; // Start placing rootnodeitems below the iconPanel
 
-            foreach (var item in items.Where(p => p.ItemType == MenuItemType.Main))
+            foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main))
             {
                 var menuItemPanel = CreateMenuItemPanel(item, false);
                 if (menuItemPanel != null)

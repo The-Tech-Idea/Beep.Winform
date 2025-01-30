@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Create and configure a BeepLabel for the row header
                 var headerLabel = new BeepLabel
                 {
-                    Text = row.RowName ?? "Row",
+                    Text = row.Index.ToString() ?? "Row",
                     Location = new Point(headerRect.X, headerRect.Y),
                     Size = headerRect.Size,
                     TextAlign = ContentAlignment.MiddleCenter,

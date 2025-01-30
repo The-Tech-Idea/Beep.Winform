@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep Control")]
     [Description("A control that provides a base for all Beep UI components.")]
-    public class BeepControl : ContainerControl, IBeepUIComponent
+    public class BeepControl : ContainerControl, IBeepUIComponent,IDisposable
     {
         #region "protected Properties"
         Point originalLocation;
@@ -446,9 +446,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Redraw when this property changes
             }
         }
-        public new virtual bool Enabled { get; set; } = true;
-        // ShowAllBorders Property
-        [Browsable(true)]
+        public new virtual bool Enabled
+        {
+            get => base.Enabled;
+            set
+            {
+                base.Enabled = value;
+                Invalidate(); // Redraw when the enabled state changes
+            }
+        }
+            // ShowAllBorders Property
+            [Browsable(true)]
         [Category("Appearance")]
         [Description("Set all Borders.")]
         public virtual bool ShowAllBorders
@@ -1084,10 +1092,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
             // Adjust for border thickness
-            if (!_isframless && ShowAllBorders && BorderThickness > 0)
-            {
-                borderRectangle.Inflate(-BorderThickness, -BorderThickness);
-            }
+            //if (!_isframless && ShowAllBorders && BorderThickness > 0)
+            //{
+            //    borderRectangle.Inflate(-BorderThickness, -BorderThickness);
+            //}
             // Draw background shound be called before drawing border
             if (IsRounded)
             {
@@ -1326,7 +1334,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     case DashStyle.DashDotDot:
                         return; // No border to draw
                 }
-
+                pen.Alignment = System.Drawing.Drawing2D.PenAlignment.Inset;
                 // Draw rounded or regular borders
                 if (IsRounded && ShowAllBorders)
                 {
@@ -1396,76 +1404,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.AddEllipse(rect);
             return path;
         }
-        //protected virtual void DrawBorder(Graphics graphics)
-        //{
-        //    using (var pen = new Pen(BorderColor, _borderThickness))
-        //    {
-        //        pen.DashStyle = _borderDashStyle;
-        //        // Apply border style to the pen
-        //        switch (BorderDashStyle)
-        //        {
-        //            case DashStyle.Dash:
-        //                pen.DashStyle = DashStyle.Dash;
-        //                break;
-        //            case DashStyle.Dot:
-        //                pen.DashStyle = DashStyle.Dot;
-        //                break;
-        //            case DashStyle.Solid:
-        //                pen.DashStyle = DashStyle.Solid;
-        //                break;
-        //            case DashStyle.DashDotDot:
-        //                return; // No border to draw
-        //        }
-
-        //        // Draw a rounded or standard rectangle border
-        //        if (IsRounded)
-        //        {
-        //            // Draw a fully rounded border if `IsRounded` is true
-        //            var rect = new Rectangle(_borderThickness, _borderThickness, Width - 2 * _borderThickness, Height - 2 * _borderThickness);
-        //            using (GraphicsPath path = GetRoundedRectPath(rect, _borderRadius))
-        //            {
-        //                graphics.DrawPath(pen, path);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            // For standard borders, draw individual sides based on the border settings
-        //            if (ShowAllBorders || ShowTopBorder)
-        //            {
-        //                graphics.DrawLine(pen, 0, 0, Width, 0); // Top border
-        //            }
-        //            if (ShowAllBorders || ShowBottomBorder)
-        //            {
-        //                graphics.DrawLine(pen, 0, Height - _borderThickness, Width, Height - _borderThickness); // Bottom border
-        //            }
-        //            if (ShowAllBorders || ShowLeftBorder)
-        //            {
-        //                graphics.DrawLine(pen, 0, 0, 0, Height); // Left border
-        //            }
-        //            if (ShowAllBorders || ShowRightBorder)
-        //            {
-        //                graphics.DrawLine(pen, Width - _borderThickness, 0, Width - _borderThickness, Height); // Right border
-        //            }
-        //        }
-        //    }
-        //}
-        //protected virtual void DrawBackground(Graphics graphics)
-        //{
-        //    if (UseGradientBackground)
-        //    {
-        //        using (var brush = new LinearGradientBrush(ClientRectangle, GradientStartColor, GradientEndColor, GradientDirection))
-        //        {
-        //            graphics.FillRectangle(brush, ClientRectangle);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        using (var brush = new SolidBrush(BackColor))
-        //        {
-        //            graphics.FillRectangle(brush, ClientRectangle);
-        //        }
-        //    }
-        //}
+      
         protected void DrawShadowUsingRectangle(Graphics graphics)
         {
             // Ensure shadow is drawn only if it's enabled

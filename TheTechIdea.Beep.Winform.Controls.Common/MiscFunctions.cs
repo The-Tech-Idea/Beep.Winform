@@ -13,7 +13,52 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Desktop.Common
 {
     public static class MiscFunctions
-    {
+    { /// <summary>
+      /// Helper that tries to load an assembly by path (LoadFrom) or 
+      /// by full name (Load) depending on whether the string is a valid file path.
+      /// </summary>
+        public static Assembly LoadAssembly(string assemblyFullNameOrPath)
+        {
+            try
+            {
+                if (File.Exists(assemblyFullNameOrPath))
+                {
+                    // It's a file path
+                    return Assembly.LoadFrom(assemblyFullNameOrPath);
+                }
+                else
+                {
+                    // Assume it's an assembly full name
+                    return Assembly.Load(assemblyFullNameOrPath);
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        public static string GetAssemblyName(string assemblyFullNameOrPath)
+        {
+            try
+            {
+                if (File.Exists(assemblyFullNameOrPath))
+                {
+                    // It's a file path
+                    return AssemblyName.GetAssemblyName(assemblyFullNameOrPath).Name;
+                }
+                else
+                {
+                    // Assume it's an assembly full name
+                    return Assembly.Load(assemblyFullNameOrPath).GetName().Name;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+     
+
         public static string GetRandomString(int length)
         {
             Random random = new Random();
@@ -24,6 +69,22 @@ namespace TheTechIdea.Beep.Desktop.Common
         public static string GetRandomString(int length, string chars)
         {
             Random random = new Random();
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+        public static string GetRandomString(int length, string chars, Random random)
+        {
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+        public static string GetRandomString(int length, Random random)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+        public static string GetRandomString(int length, string chars, Random random, int seed)
+        {
             return new string(Enumerable.Repeat(chars, length)
               .Select(s => s[random.Next(s.Length)]).ToArray());
         }
@@ -70,7 +131,6 @@ namespace TheTechIdea.Beep.Desktop.Common
                 Debug.WriteLine($"Error setting theme property: {ex.Message}");
             }
         }
-
         public static Dictionary<string,object> ConvertPassedArgsToParameters(IPassedArgs passedArgs)
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();

@@ -23,7 +23,6 @@ namespace TheTechIdea.Beep.Desktop.Common
             SvgDocument svgDoc = SvgDocument.Open(svgPath);
             return ConvertSvgToIcon(svgDoc, iconSize);
         }
-
         /// <summary>
         /// Converts an in-memory SvgDocument to an Icon of specified size (in pixels).
         /// </summary>
@@ -39,7 +38,6 @@ namespace TheTechIdea.Beep.Desktop.Common
             using Bitmap bitmap = svgDoc.Draw(iconSize, iconSize);
             return CreateIconFromBitmap(bitmap);
         }
-
         /// <summary>
         /// Converts a PNG file at the given path to an Icon of specified size (in pixels).
         /// </summary>
@@ -57,7 +55,6 @@ namespace TheTechIdea.Beep.Desktop.Common
 
             return CreateIconFromBitmap(resized);
         }
-
         /// <summary>
         /// Helper method to convert a Bitmap into an Icon via PNG stream technique.
         /// </summary>
@@ -70,7 +67,6 @@ namespace TheTechIdea.Beep.Desktop.Common
 
             return CreateIconFromPngStream(ms, bitmap.Width, bitmap.Height);
         }
-
         /// <summary>
         /// Creates an Icon from in-memory PNG data by constructing a minimal .ico file header.
         /// </summary>
@@ -228,5 +224,17 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
             return null;
         }
+        public static Image ScaleImage(Graphics g, object image, Rectangle imageRect, float _manualRotationAngle, ImageScaleMode scaleMode)
+        {
+            if (image is SvgDocument svgDocument)
+            {
+                return ScaleSvgImage(g, svgDocument, imageRect, _manualRotationAngle, scaleMode);
+            }
+            else
+            {
+                return ScaleRegularImage(g, (Image)image, imageRect, _manualRotationAngle, scaleMode);
+            }
+        }
+       
     }
 }

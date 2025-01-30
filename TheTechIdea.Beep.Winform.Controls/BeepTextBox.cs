@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 using TheTechIdea.Beep.Vis.Logic;
 using System.Diagnostics;
+using TheTechIdea.Beep.Shared;
 
 
 namespace TheTechIdea.Beep.Winform.Controls

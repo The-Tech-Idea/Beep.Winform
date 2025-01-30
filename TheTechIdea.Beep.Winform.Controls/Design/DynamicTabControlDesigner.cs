@@ -8,7 +8,7 @@ using System.Windows.Forms.Design;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design
 {
-    public class DynamicTabControlDesigner : ControlDesigner
+    public class DynamicTabControlDesigner : ParentControlDesigner
     {
         private BeepDynamicTabControl _dynamicTabControl;
         private IDesignerHost _designerHost;

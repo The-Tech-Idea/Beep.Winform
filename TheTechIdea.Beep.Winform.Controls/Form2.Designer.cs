@@ -54,9 +54,9 @@
             beepSimpleGrid1.Category = Utilities.DbFieldCategory.String;
             beepSimpleGrid1.ColumnHeaderFont = new Font("Arial", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             beepSimpleGrid1.ColumnHeight = 23;
-            beepSimpleGrid1.Columns.Add((Grid.BeepGridColumnConfig)resources.GetObject("beepSimpleGrid1.Columns"));
-            beepSimpleGrid1.Columns.Add((Grid.BeepGridColumnConfig)resources.GetObject("beepSimpleGrid1.Columns1"));
-            beepSimpleGrid1.Columns.Add((Grid.BeepGridColumnConfig)resources.GetObject("beepSimpleGrid1.Columns2"));
+            beepSimpleGrid1.Columns.Add((BeepGridColumnConfig)resources.GetObject("beepSimpleGrid1.Columns"));
+            beepSimpleGrid1.Columns.Add((BeepGridColumnConfig)resources.GetObject("beepSimpleGrid1.Columns1"));
+            beepSimpleGrid1.Columns.Add((BeepGridColumnConfig)resources.GetObject("beepSimpleGrid1.Columns2"));
             beepSimpleGrid1.ComponentName = "beepSimpleGrid1";
             beepSimpleGrid1.DataContext = null;
             beepSimpleGrid1.DataSource = null;

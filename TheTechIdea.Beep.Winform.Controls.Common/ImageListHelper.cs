@@ -100,7 +100,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                         {
                             // We load the file as an object 
                             // (maybe an Image or Icon, depending on the type)
-                            (object obj, ImageType it) = LoadLogoObjectFromFile(file, type.Value);
+                            (object obj, ImageType it) = ImageLoader.LoadLogoObjectFromFile(file, type.Value);
                             LogoBigImage = obj;
                             LogoBigImageType = it;
                         }
@@ -128,7 +128,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                                 else
                                 {
                                     // Convert from image => icon or store as Image
-                                    (object obj2, ImageType it2) = LoadLogoObjectFromFile(iconPath, smallType ?? ImageType.Png);
+                                    (object obj2, ImageType it2) = ImageLoader.LoadLogoObjectFromFile(iconPath, smallType ?? ImageType.Png);
                                     LogoSmallImage = obj2;
                                     LogoSmallImageType = it2;
                                 }
@@ -265,7 +265,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                             using Stream st = assembly.GetManifestResourceStream(resource);
                             if (st != null)
                             {
-                                (object bigObj, ImageType bigType) = LoadLogoObjectFromStream(st, type.Value);
+                                (object bigObj, ImageType bigType) = ImageLoader.LoadLogoObjectFromStream(st, type.Value);
                                 LogoBigImage = bigObj;
                                 LogoBigImageType = bigType;
                             }
@@ -278,7 +278,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                             using Stream st = assembly.GetManifestResourceStream(resource);
                             if (st != null)
                             {
-                                (object smallObj, ImageType smallType) = LoadLogoObjectFromStream(st, type.Value);
+                                (object smallObj, ImageType smallType) = ImageLoader.LoadLogoObjectFromStream(st, type.Value);
                                 LogoSmallImage = smallObj;
                                 LogoSmallImageType = smallType;
                             }
@@ -297,7 +297,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             return result;
         }
         #endregion
-     
+        #region "Image configuration helpers"
         public static List<ImageConfiguration> GetEmbeddedGraphicsInProj(string projectDirectory)
         {
             var results = new List<ImageConfiguration>();
@@ -511,7 +511,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                 try
                 {
                     // Attempt to load the image (from embedded resource, local file, or other source)
-                    Image originalImage = LoadImageFromConfig(cfg);
+                    Image originalImage = ImageLoader.LoadImageFromConfig(cfg);
                     if (originalImage == null)
                         continue;
 
@@ -564,304 +564,9 @@ namespace TheTechIdea.Beep.Desktop.Common
 
             return imgList;
         }
+       
 
-
-        /// <summary>
-        /// <summary>
-        /// Loads an image from the given ImageConfiguration.
-        /// Considers multiple flags: IsResxEmbedded, AssemblyFullName, IsFile, IsUrl, IsBase64, etc.
-        /// If .svg, uses Svg.NET to render a Bitmap.
-        /// Returns a System.Drawing.Image or null if loading fails.
-        /// </summary>
-        public static Image LoadImageFromConfig(ImageConfiguration cfg)
-        {
-            try
-            {
-                // ------------------------------------------------------------------------------------------
-                // 1) If it's embedded in a .resx:
-                //    - We assume cfg.Path is the .resx file path (e.g. "C:\MyProject\Properties\Resources.resx")
-                //    - We assume cfg.FileName is the resource KEY inside that .resx
-                // ------------------------------------------------------------------------------------------
-                if (cfg.IsResxEmbedded)
-                {
-                    if (!string.IsNullOrEmpty(cfg.Path) && !string.IsNullOrEmpty(cfg.FileName))
-                    {
-                        string possibleResxFile = cfg.Path;
-                        // If cfg.Path is just the directory, and the actual .resx name is stored in FileName,
-                        // you might need a different approach. But if your "Path" is the actual .resx file, do:
-                        if (!File.Exists(possibleResxFile))
-                        {
-                            // Possibly combine path + FileName if the user stored them differently
-                            // e.g. Path = "C:\MyProject\Properties", FileName = "Resources.resx"
-                            // But let's assume Path is the .resx itself.
-                            return null;
-                        }
-
-                        // Use ResXResourceReader to find the resource by key
-                        using (ResXResourceReader reader = new ResXResourceReader(possibleResxFile))
-                        {
-                            foreach (DictionaryEntry entry in reader)
-                            {
-                                string key = entry.Key?.ToString();
-                                if (string.Equals(key, cfg.FileName, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    object val = entry.Value;
-                                    if (val is Icon iconVal)
-                                    {
-                                        // If you need an Image, convert the Icon to Bitmap:
-                                        // return iconVal.ToBitmap();
-                                        // or just return iconVal if your return type is object
-                                        return (Image)iconVal.ToBitmap();
-                                    }
-                                    else if (val is Bitmap bmpVal)
-                                    {
-                                        return bmpVal;
-                                    }
-                                    else if (val is Image imgVal)
-                                    {
-                                        return imgVal;
-                                    }
-                                    // If your .resx might store something else (e.g., base64 as a string),
-                                    // you could parse it here. Otherwise, fallback:
-                                    return null;
-                                }
-                            }
-                        }
-
-                        // If not found, return null
-                        return null;
-                    }
-                }
-
-                // ------------------------------------------------------------------------------------------
-                // 2) If there's an AssemblyFullName, treat it as an embedded resource in an assembly
-                //    (the old logic).
-                // ------------------------------------------------------------------------------------------
-                if (!string.IsNullOrEmpty(cfg.AssemblyFullName))
-                {
-                    Assembly asm = LoadAssembly(cfg.AssemblyFullName);
-                    if (asm != null)
-                    {
-                        // Typically, cfg.Path holds the resource name, e.g. "MyNamespace.Images.Icon1.ico"
-                        // or "MyNamespace.Images.Logo.png"
-                        using (Stream st = asm.GetManifestResourceStream(cfg.Path))
-                        {
-                            if (st != null)
-                            {
-                                return LoadImageFromStream(st, GetExtension(cfg));
-                            }
-                        }
-                    }
-                    return null;
-                }
-
-                // ------------------------------------------------------------------------------------------
-                // 3) If it's physically on disk (IsFile == true),
-                //    load from local file (the old "combine path + file" approach).
-                // ------------------------------------------------------------------------------------------
-                if (cfg.IsFile)
-                {
-                    string fullFilePath = Path.Combine(cfg.Path ?? "", cfg.FileName ?? cfg.Name);
-                    if (File.Exists(fullFilePath))
-                    {
-                        string extension = Path.GetExtension(fullFilePath).ToLowerInvariant();
-                        if (extension == ".svg")
-                        {
-                            return LoadSvgFromFile(fullFilePath);
-                        }
-                        else
-                        {
-                            return Image.FromFile(fullFilePath);
-                        }
-                    }
-                    return null;
-                }
-
-                // ------------------------------------------------------------------------------------------
-                // 4) If it's a URL (IsUrl), we could download it with HttpClient/WebClient
-                // ------------------------------------------------------------------------------------------
-                if (cfg.IsUrl && !string.IsNullOrEmpty(cfg.Path))
-                {
-                    // For example, if cfg.Path contains the URL
-                    // We'll do a quick example with HttpClient:
-                    using (var httpClient = new HttpClient())
-                    {
-                        var data = httpClient.GetByteArrayAsync(cfg.Path).Result;
-                        using (var ms = new MemoryStream(data))
-                        {
-                            // If you want to handle .svg from a URL, you'd need to check the extension or parse
-                            // For simplicity, let's assume it's PNG/JPG
-                            return Image.FromStream(ms);
-                        }
-                    }
-                }
-
-                // ------------------------------------------------------------------------------------------
-                // 5) If it's base64 (IsBase64), decode and load from memory
-                // ------------------------------------------------------------------------------------------
-                if (cfg.IsBase64 && !string.IsNullOrEmpty(cfg.Path))
-                {
-                    // Suppose cfg.Path holds the base64 string for the image
-                    byte[] bytes = Convert.FromBase64String(cfg.Path);
-                    using (var ms = new MemoryStream(bytes))
-                    {
-                        // If you want to handle .svg base64, you'd parse differently. 
-                        return Image.FromStream(ms);
-                    }
-                }
-
-                // ------------------------------------------------------------------------------------------
-                // 6) If it's a memory stream or generic stream that we've already stored somewhere
-                //    In that case, we might store that stream object in a separate property on cfg.
-                //    e.g. `public Stream ImageStream { get; set; }`
-                // ------------------------------------------------------------------------------------------
-                if (cfg.IsMemoryStream || cfg.IsStream)
-                {
-                    // For example, if you have a property "cfg.StreamObject"
-                    // (not shown in your class) that holds the actual stream:
-                    // using (var ms = cfg.StreamObject as MemoryStream)
-                    // {
-                    //     if (ms != null)
-                    //     {
-                    //         ms.Position = 0;
-                    //         return Image.FromStream(ms);
-                    //     }
-                    // }
-                    // return null;
-                }
-
-                // ------------------------------------------------------------------------------------------
-                // If none of the above matched, return null
-                // ------------------------------------------------------------------------------------------
-                return null;
-            }
-            catch (Exception ex)
-            {
-                // Log or handle as needed
-                Console.WriteLine($"LoadImageFromConfig error: {ex.Message}");
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Helper that tries to load an assembly by path (LoadFrom) or 
-        /// by full name (Load) depending on whether the string is a valid file path.
-        /// </summary>
-        public static Assembly LoadAssembly(string assemblyFullNameOrPath)
-        {
-            try
-            {
-                if (File.Exists(assemblyFullNameOrPath))
-                {
-                    // It's a file path
-                    return Assembly.LoadFrom(assemblyFullNameOrPath);
-                }
-                else
-                {
-                    // Assume it's an assembly full name
-                    return Assembly.Load(assemblyFullNameOrPath);
-                }
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Determine the file (or resource) extension from ImageConfiguration.
-        /// If Ext is not empty, return that; otherwise parse from Name or Path.
-        /// </summary>
-        public static string GetExtension(ImageConfiguration cfg)
-        {
-            if (!string.IsNullOrEmpty(cfg.Ext))
-            {
-                return cfg.Ext.ToLowerInvariant();
-            }
-            // fallback: parse from file Name or Path
-            string candidate = cfg.FileName ?? cfg.Name ?? cfg.Path;
-            if (!string.IsNullOrEmpty(candidate))
-            {
-                return Path.GetExtension(candidate).ToLowerInvariant();
-            }
-            return string.Empty;
-        }
-
-        /// <summary>
-        /// Loads an Image from a stream. If the extension is .svg,
-        /// parse with Svg.NET and render to a Bitmap, else do 
-        /// standard System.Drawing Image.FromStream.
-        /// </summary>
-        public static Image LoadImageFromStream(Stream st, string extension)
-        {
-            extension = extension?.ToLowerInvariant();
-            if (extension == ".svg")
-            {
-                // Convert the stream to an SvgDocument
-                // then render to a Bitmap
-                // Note: If you need a specific size, you can do doc.Draw(width, height).
-                var svgDoc = SvgDocument.Open<SvgDocument>(st);
-                return svgDoc.Draw(); // default size from the SVG
-            }
-            else
-            {
-                // standard approach for PNG, JPG, BMP, ICO, etc.
-                using (var mem = new MemoryStream())
-                {
-                    st.CopyTo(mem);
-                    mem.Position = 0;
-                    return Image.FromStream(mem);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Loads an .svg file from disk using Svg.NET, 
-        /// returning a rendered Bitmap.
-        /// </summary>
-        public static Image LoadSvgFromFile(string svgPath)
-        {
-            // parse .svg from file
-            SvgDocument doc = SvgDocument.Open<SvgDocument>(svgPath);
-            // doc.Draw() uses whatever the SVG says for size, 
-            // or you can do doc.Draw(width, height) if you want a fixed dimension.
-            return doc.Draw();
-        }
-        public static (object obj, ImageType type) LoadLogoObjectFromFile(string filePath, ImageType guessType)
-        {
-            if (guessType == ImageType.Ico || guessType == ImageType.Icon)
-            {
-                using (var ico = new Icon(filePath))
-                {
-                    return (ico.Clone(), ImageType.Ico);
-                }
-            }
-            else
-            {
-                // e.g. .png, .jpg, .svg => if you do .svg parsing, do it here
-                // for now, let's do standard:
-                return (Image.FromFile(filePath), guessType);
-            }
-        }
-        public static (object obj, ImageType type) LoadLogoObjectFromStream(Stream st, ImageType guessType)
-        {
-            if (guessType == ImageType.Ico || guessType == ImageType.Icon)
-            {
-                using (var ico = new Icon(st))
-                {
-                    return (ico.Clone(), ImageType.Ico);
-                }
-            }
-            else
-            {
-                // .svg or standard
-                // if (guessType == ImageType.Svg) => parse with Svg.NET, etc.
-                using var mem = new MemoryStream();
-                st.CopyTo(mem);
-                mem.Position = 0;
-                return (Image.FromStream(mem), guessType);
-            }
-        }
+        #endregion "Image configuration helpers"
         #region "Get Images"
         // Updated method: 
         public static int GetImageIndexFromConnectioName(string ConnectionName)
@@ -984,7 +689,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                 return null;
 
             var cfg = ImgAssemblies[index];
-            return LoadImageFromConfig(cfg);
+            return  ImageLoader.LoadImageFromConfig(cfg);
         }
 
         // If you still want these older methods, unify them
@@ -998,7 +703,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                                   || (c.Path?.Equals(name, StringComparison.OrdinalIgnoreCase) ?? false));
             if (cfg != null)
             {
-                return LoadImageFromConfig(cfg);
+                return ImageLoader.LoadImageFromConfig(cfg);
             }
             else
             {
@@ -1076,7 +781,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             // 2) If found, load from config. Otherwise, return null.
             if (cfg != null)
             {
-                return LoadImageFromConfig(cfg);
+                return ImageLoader.LoadImageFromConfig(cfg);
             }
             else
             {
@@ -1101,6 +806,338 @@ namespace TheTechIdea.Beep.Desktop.Common
             return ImgAssemblies.Select(x => x.Name).ToList();
         }
         #endregion "Get Images"
+        #region "Async Methods"
+        public static async Task<Image> LoadImageFromConfigAsync(ImageConfiguration cfg)
+        {
+            try
+            {
+                // 1) If it's embedded in a .resx
+                if (cfg.IsResxEmbedded)
+                {
+                    var imageFromResx = LoadFromResx(cfg);
+                    if (imageFromResx != null)
+                        return imageFromResx;
+                }
 
+                // 2) If we have an assembly full name => embedded resource
+                if (!string.IsNullOrEmpty(cfg.AssemblyFullName))
+                {
+                    var embedded = LoadFromEmbeddedAssembly(cfg);
+                    if (embedded != null)
+                        return embedded;
+                }
+
+                // 3) If it's physically on disk (IsFile == true)
+                if (cfg.IsFile)
+                {
+                    // We'll do an async read of the file into memory, then parse.
+                    return await LoadFromFileAsync(cfg);
+                }
+
+                // 4) If it's a URL (IsUrl), we do an async download
+                if (cfg.IsUrl && !string.IsNullOrEmpty(cfg.Path))
+                {
+                    return await LoadFromUrlAsync(cfg);
+                }
+
+                // 5) If it's base64 (IsBase64), decode and load from memory
+                if (cfg.IsBase64 && !string.IsNullOrEmpty(cfg.Path))
+                {
+                    return LoadFromBase64(cfg);
+                }
+
+                // 6) If it's some sort of in-memory stream (not shown in your class), 
+                //    you could do an async approach reading from that stream.
+
+                // If none match, return null
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"LoadImageFromConfigAsync error: {ex.Message}");
+                return null;
+            }
+        }
+        /// <summary>
+        /// Loads an image from a .resx file synchronously (since ResXResourceReader is sync-only).
+        /// </summary>
+        private static Image LoadFromResx(ImageConfiguration cfg)
+        {
+            if (string.IsNullOrEmpty(cfg.Path) || string.IsNullOrEmpty(cfg.FileName))
+                return null;
+
+            if (!File.Exists(cfg.Path))
+                return null;
+
+            using var reader = new ResXResourceReader(cfg.Path);
+            foreach (DictionaryEntry entry in reader)
+            {
+                if (string.Equals(entry.Key?.ToString(), cfg.FileName, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (entry.Value is Icon iconVal)
+                        return iconVal.ToBitmap();
+
+                    if (entry.Value is Bitmap bmpVal)
+                        return bmpVal;
+
+                    if (entry.Value is Image imgVal)
+                        return imgVal;
+
+                    // if it's stored as base64 string or something else, handle accordingly
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Loads an image from an embedded resource in the specified assembly (synchronous).
+        /// </summary>
+        private static Image LoadFromEmbeddedAssembly(ImageConfiguration cfg)
+        {
+            var asm = MiscFunctions.LoadAssembly(cfg.AssemblyFullName);
+            if (asm == null)
+                return null;
+
+            using var stream = asm.GetManifestResourceStream(cfg.Path);
+            if (stream == null)
+                return null;
+
+            // We can do a small helper for extension detection
+            string ext = GetExtension(cfg).ToLowerInvariant();
+            return LoadImageFromStream(stream, ext);
+        }
+
+        /// <summary>
+        /// Async method to load from a file. Reads the file into memory, then interprets it.
+        /// </summary>
+        private static async Task<Image> LoadFromFileAsync(ImageConfiguration cfg)
+        {
+            // Combine the path + file
+            var fullFilePath = Path.Combine(cfg.Path ?? "", cfg.FileName ?? cfg.Name);
+            if (!File.Exists(fullFilePath))
+                return null;
+
+            string extension = Path.GetExtension(fullFilePath).ToLowerInvariant();
+
+            // Asynchronously read the file contents
+            byte[] fileData = await File.ReadAllBytesAsync(fullFilePath);
+
+            // Now parse the data
+            using var ms = new MemoryStream(fileData);
+            if (extension == ".svg")
+            {
+                // Svg.NET is currently sync-only, so do it here:
+                var svgDoc = SvgDocument.Open<SvgDocument>(ms);
+                return svgDoc.Draw();
+            }
+            else
+            {
+                // This call is sync, but we're loading from memory, so it's usually fast
+                return Image.FromStream(ms);
+            }
+        }
+
+        /// <summary>
+        /// Async method to load from a URL using HttpClient.
+        /// </summary>
+        private static async Task<Image> LoadFromUrlAsync(ImageConfiguration cfg)
+        {
+            using var httpClient = new HttpClient();
+            byte[] data = await httpClient.GetByteArrayAsync(cfg.Path);
+
+            // Decide if it might be an SVG from the URL extension or content-type
+            // For simplicity, we just do a naive check by extension:
+            string ext = GetExtension(cfg).ToLowerInvariant();
+
+            using var ms = new MemoryStream(data);
+            if (ext == ".svg")
+            {
+                var svgDoc = SvgDocument.Open<SvgDocument>(ms);
+                return svgDoc.Draw();
+            }
+            else
+            {
+                return Image.FromStream(ms);
+            }
+        }
+
+        /// <summary>
+        /// Loads from a base64 string stored in cfg.Path (synchronous decode).
+        /// </summary>
+        private static Image LoadFromBase64(ImageConfiguration cfg)
+        {
+            byte[] bytes = Convert.FromBase64String(cfg.Path);
+            using var ms = new MemoryStream(bytes);
+
+            // If you want to handle .svg base64, you’d need a clue that it's SVG. 
+            // For example, if cfg.Ext == ".svg"
+            string ext = GetExtension(cfg).ToLowerInvariant();
+            if (ext == ".svg")
+            {
+                var svgDoc = SvgDocument.Open<SvgDocument>(ms);
+                return svgDoc.Draw();
+            }
+            else
+            {
+                return Image.FromStream(ms);
+            }
+        }
+
+        /// <summary>
+        /// Synchronous helper to load an image from a stream,
+        /// properly handling .svg vs. other types.
+        /// </summary>
+        private static Image LoadImageFromStream(Stream st, string extension)
+        {
+            extension = extension?.ToLowerInvariant();
+            if (extension == ".svg")
+            {
+                // Convert the stream to an SvgDocument
+                var svgDoc = SvgDocument.Open<SvgDocument>(st);
+                return svgDoc.Draw();
+            }
+            else
+            {
+                // standard approach for PNG, JPG, BMP, ICO, etc.
+                using var mem = new MemoryStream();
+                st.CopyTo(mem);
+                mem.Position = 0;
+                return Image.FromStream(mem);
+            }
+        }
+
+        /// <summary>
+        /// Determine the file/resource extension from ImageConfiguration.
+        /// If cfg.Ext is not empty, return that; otherwise parse from FileName or Path.
+        /// </summary>
+        private static string GetExtension(ImageConfiguration cfg)
+        {
+            if (!string.IsNullOrEmpty(cfg.Ext))
+                return cfg.Ext.ToLowerInvariant();
+
+            string candidate = cfg.FileName ?? cfg.Name ?? cfg.Path;
+            if (!string.IsNullOrEmpty(candidate))
+                return Path.GetExtension(candidate).ToLowerInvariant();
+
+            return string.Empty;
+        }
+        #endregion "Async Methods"
+        #region "Stream Methods for Loading Images"
+        public static async Task<Image> LoadImageFromUrlAsync(string url)
+        {
+            using var httpClient = new HttpClient();
+            using var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+
+            if (!response.IsSuccessStatusCode)
+                throw new HttpRequestException($"Error fetching {url}: {response.StatusCode}");
+
+            // Get the HTTP stream
+            using var httpStream = await response.Content.ReadAsStreamAsync();
+            using var ms = new MemoryStream();
+
+            // Asynchronously copy the stream in chunks
+            await httpStream.CopyToAsync(ms);
+
+            ms.Position = 0; // Reset stream
+                             // Parse with GDI+ (still sync):
+            return Image.FromStream(ms);
+        }
+        public static async Task<Image> LoadSvgFromUrlAsync(string url)
+        {
+            using var httpClient = new HttpClient();
+            using var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+
+            response.EnsureSuccessStatusCode();
+            using var httpStream = await response.Content.ReadAsStreamAsync();
+
+            using var ms = new MemoryStream();
+            await httpStream.CopyToAsync(ms);
+
+            // parse .svg after fully reading
+            ms.Position = 0;
+            var svgDoc = SvgDocument.Open<SvgDocument>(ms);
+            return svgDoc.Draw();
+        }
+        public static async Task<Image> LoadImageAsync(string filePath)
+        {
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException($"File not found: {filePath}");
+
+            // Open a FileStream in async mode.
+            using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read,
+                                          bufferSize: 4096, useAsync: true);
+
+            // Option A: Stream all bytes into MemoryStream, then decode
+            using var ms = new MemoryStream();
+
+            // Asynchronously copy file data to MemoryStream in chunks
+            await fs.CopyToAsync(ms);
+
+            ms.Position = 0; // Reset position
+
+            // Now parse with GDI+ (sync call):
+            Image image = Image.FromStream(ms);
+            return image;
+        }
+        public static async Task<Image> LoadSvgAsync(string filePath)
+        {
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException($"File not found: {filePath}");
+            // Open a FileStream in async mode.
+            using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read,
+                                          bufferSize: 4096, useAsync: true);
+            // Option A: Stream all bytes into MemoryStream, then decode
+            using var ms = new MemoryStream();
+            // Asynchronously copy file data to MemoryStream in chunks
+            await fs.CopyToAsync(ms);
+            ms.Position = 0; // Reset position
+            // Now parse with Svg.NET (sync call):
+            var svgDoc = SvgDocument.Open<SvgDocument>(ms);
+            return svgDoc.Draw();
+        }
+        public static async Task<Image> LoadImageFromBase64Async(string base64)
+        {
+            byte[] bytes = Convert.FromBase64String(base64);
+            using var ms = new MemoryStream(bytes);
+            ms.Position = 0; // Reset position
+            // Now parse with GDI+ (sync call):
+            Image image = Image.FromStream(ms);
+            return image;
+        }
+        public static async Task<Image> LoadSvgFromBase64Async(string base64)
+        {
+            byte[] bytes = Convert.FromBase64String(base64);
+            using var ms = new MemoryStream(bytes);
+            ms.Position = 0; // Reset position
+            // Now parse with Svg.NET (sync call):
+            var svgDoc = SvgDocument.Open<SvgDocument>(ms);
+            return svgDoc.Draw();
+        }
+        public static async Task<Image> LoadImageFromStreamAsync(Stream stream)
+        {
+            // Option A: Stream all bytes into MemoryStream, then decode
+            using var ms = new MemoryStream();
+            // Asynchronously copy stream data to MemoryStream in chunks
+            await stream.CopyToAsync(ms);
+            ms.Position = 0; // Reset position
+            // Now parse with GDI+ (sync call):
+            Image image = Image.FromStream(ms);
+            return image;
+        }
+        public static async Task<Image> LoadSvgFromStreamAsync(Stream stream)
+        {
+            // Option A: Stream all bytes into MemoryStream, then decode
+            using var ms = new MemoryStream();
+            // Asynchronously copy stream data to MemoryStream in chunks
+            await stream.CopyToAsync(ms);
+            ms.Position = 0; // Reset position
+            // Now parse with Svg.NET (sync call):
+            var svgDoc = SvgDocument.Open<SvgDocument>(ms);
+            return svgDoc.Draw();
+        }
+        
+
+        #endregion "Stream Methods for Loading Images"
     }
 }

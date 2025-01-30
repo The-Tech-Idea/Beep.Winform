@@ -55,8 +55,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             AllowDrop = true; // Enable drag-and-drop for the control itself
             ShowTitle = false;
-            //DragEnter += BeepDynamicTabControl_DragEnter;
-            //DragDrop += BeepDynamicTabControl_DragDrop;
+            DragEnter += BeepDynamicTabControl_DragEnter;
+            DragDrop += BeepDynamicTabControl_DragDrop;
             //// Header panel for tab buttons
 
             //NotifyContentPanelControlsPropertyDesigner(this, true);
@@ -538,7 +538,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Attach drag-and-drop event handlers
             panel.DragEnter += Panel_DragEnter;
             panel.DragDrop += Panel_DragDrop;
-
+            panel.AllowDrop= true;
+            EnableDesignMode(panel, panel.Name);
             Console.WriteLine($"notify designer");
             // Register the panel with the designer
            
@@ -770,18 +771,18 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #region "Drag and Drop"
 
-        // Drag and Drop should go to Selected Panel and if no panel is selected it should go to the last panel. If no panel exists, stop drop
-        protected override void OnDragEnter(DragEventArgs e)
-        {
-            base.OnDragEnter(e);
-            BeepDynamicTabControl_DragEnter(this, e);
-        }
+        //// Drag and Drop should go to Selected Panel and if no panel is selected it should go to the last panel. If no panel exists, stop drop
+        //protected override void OnDragEnter(DragEventArgs e)
+        //{
+        //    base.OnDragEnter(e);
+        //    BeepDynamicTabControl_DragEnter(this, e);
+        //}
 
-        protected override void OnDragDrop(DragEventArgs e)
-        {
-            base.OnDragDrop(e);
-            BeepDynamicTabControl_DragDrop(this, e);
-        }
+        //protected override void OnDragDrop(DragEventArgs e)
+        //{
+        //    base.OnDragDrop(e);
+        //    BeepDynamicTabControl_DragDrop(this, e);
+        //}
 
         private void Panel_DragEnter(object sender, DragEventArgs e)
         {

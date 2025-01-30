@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
-    public interface IAppManager: IDisposable
+    public interface IAppManager : IDisposable
     {
         event Action<EnumBeepThemes> OnThemeChanged;
         EnumBeepThemes Theme { get; set; }
@@ -24,6 +24,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         IBeepUIComponent SecondaryMenuStrip { get; set; }
         IDM_Addin CurrentDisplayedAddin { get; set; }
         IDM_Addin MainDisplay { get; set; }
+        IDM_Addin SplashScreen { get; set; }
+        IWaitForm WaitForm { get; set; }
+        Type WaitFormType { get; set; }
         IDisplayContainer Container { get; set; }
         IRoutingManager RoutingManager { get; set; }
         IPopupDisplayContainer PopupDisplay { get; set; }
@@ -36,29 +39,28 @@ namespace TheTechIdea.Beep.Vis.Modules
         bool IsinCaptureMenuMode { get; set; }
         int TreeIconSize { get; set; }
         bool TreeExpand { get; set; }
-      
+
         int SecondaryTreeIconSize { get; set; }
         bool SecondaryTreeExpand { get; set; }
         string AppObjectsName { get; set; }
         string BeepObjectsName { get; set; }
         string LogoUrl { get; set; }
         string Title { get; set; }
-        string IconUrl { get;set; }
-         bool ShowLogWindow { get ; set ; }
-         bool ShowTreeWindow { get ; set; }
-         bool ShowSideBarWindow { get; set; }
+        string IconUrl { get; set; }
+        bool ShowLogWindow { get; set; }
+        bool ShowTreeWindow { get; set; }
+        bool ShowSideBarWindow { get; set; }
         int Width { get; set; }
         int Height { get; set; }
         Task<IErrorsInfo> LoadGraphics(string[] namespacestoinclude);
         Task<IErrorsInfo> LoadAssemblies(string[] namespacestoinclude);
         List<IDM_Addin> Addins { get; set; }
-        IWaitForm WaitForm { get; set; }
-        Type WaitFormType { get; set; }
+     
         IErrorsInfo LoadSetting();
         IErrorsInfo SaveSetting();
         IErrorsInfo PrintGrid(IPassedArgs passedArgs);
         IDM_Addin ShowUserControlPopUp(string usercontrolname, IDMEEditor pDMEEditor, string[] args, IPassedArgs e);
-        IErrorsInfo ShowPage(string pagename,  PassedArgs Passedarguments,  DisplayType displayType = DisplayType.InControl,bool Singleton=false);
+        IErrorsInfo ShowPage(string pagename, PassedArgs Passedarguments, DisplayType displayType = DisplayType.InControl, bool Singleton = false);
         Task<IErrorsInfo> ShowPageAsync(string pagename, PassedArgs Passedarguments, DisplayType displayType = DisplayType.InControl, bool Singleton = false);
         IErrorsInfo ShowWaitForm(PassedArgs Passedarguments);
         IErrorsInfo PasstoWaitForm(PassedArgs Passedarguments);
@@ -68,10 +70,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         Task<IErrorsInfo> ShowAdminAsync();
         Task<IErrorsInfo> ShowProfileAsync();
         Task<IErrorsInfo> ShowLoginAsync();
-             IErrorsInfo ShowHome();
+        IErrorsInfo ShowHome();
         IErrorsInfo ShowAdmin();
         IErrorsInfo ShowProfile();
-       IErrorsInfo ShowLogin();
+        IErrorsInfo ShowLogin();
 
         event EventHandler<KeyCombination> KeyPressed;
         IErrorsInfo PressKey(KeyCombination keyCombination);
@@ -88,19 +90,19 @@ namespace TheTechIdea.Beep.Vis.Modules
         string BreadCrumb { get; }
         IProfile DefaultProfile { get; set; }
         List<IBeepPrivilege> Privileges { get; set; }
-        List<IBeepUser>    Users { get; set; }
+        List<IBeepUser> Users { get; set; }
         IBeepUser User { get; set; }
-     
+
         event EventHandler<IPassedArgs> PreLogin;
         event EventHandler<IPassedArgs> PostLogin;
-       
+
         event EventHandler<IPassedArgs> PreClose;
         event EventHandler<IPassedArgs> PreCallModule;
-       
+
         event EventHandler<IPassedArgs> PreShowItem;
         event EventHandler<IPassedArgs> PostShowItem;
         event EventHandler<IPassedArgs> PostCallModule;
-        void PrintData( object data);
+        void PrintData(object data);
         void Notify(object data);
         void Email(object data);
         void Ticket(object data);

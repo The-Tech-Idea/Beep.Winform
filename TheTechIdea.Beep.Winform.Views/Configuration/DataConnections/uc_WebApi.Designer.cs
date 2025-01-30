@@ -1,4 +1,5 @@
 ﻿using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Winform.Controls;
 
 namespace Beep.Config.Winform.DataConnections
 {
@@ -458,7 +459,7 @@ namespace Beep.Config.Winform.DataConnections
             beepGrid1.BackColor = SystemColors.Control;
             beepGrid1.BorderStyle = BorderStyle.FixedSingle;
             beepGrid1.CellPainting = null;
-            beepGrid1.columnConfigs = (List<TheTechIdea.Beep.Winform.Controls.Grid.BeepGridColumnConfig>)resources.GetObject("beepGrid1.columnConfigs");
+            beepGrid1.columnConfigs = (List<BeepGridColumnConfig>)resources.GetObject("beepGrid1.columnConfigs");
             beepGrid1.DataSource = null;
             beepGrid1.DefaultCreate = true;
             beepGrid1.Dependencies = null;

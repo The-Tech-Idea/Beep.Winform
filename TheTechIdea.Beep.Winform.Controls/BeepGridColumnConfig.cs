@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewColumns;
 
-namespace TheTechIdea.Beep.Winform.Controls.Grid
+namespace TheTechIdea.Beep.Winform.Controls
 {
     [Serializable]
     public class BeepGridColumnConfig
@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             ColumnType = "Text";
             ColumnCaption = "Column";
         }
-        
+
         public string ColumnType { get; set; }
         public BeepGridColumnType CellEditor { get; set; }
         public string Name { get; set; }
@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public string Filter { get; set; }
         public decimal OldValue { get; set; }
         public decimal NewValue { get; set; }
-        public string  DataSourceName { get; set; }
+        public string DataSourceName { get; set; }
         public string DataSourceType { get; set; }
         public string Query { get; set; }
         public string ColumnName { get; set; }
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public DataGridViewAutoSizeColumnMode AutoSizeMode { get; set; }
         public int DisplayIndex { get; set; }
         public int DividerWidth { get; set; }
-        public string DisplayMember  { get; set; }
+        public string DisplayMember { get; set; }
         public string ValueMember { get; set; }
         public string FilterMember { get; set; }
         public string SortMember { get; set; }
@@ -68,13 +68,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public int ProgressBarValue { get; set; }
         public string ProgressBarStyle { get; set; }
         public string ProgressBarText { get; set; }
-        public Color FilledStarColor { get;set; }
+        public Color FilledStarColor { get; set; }
         public Color EmptyStarColor { get; set; }
         public int MaxStars { get; set; }
-        public bool Frozen { get;  set; }
-        public int MinimumWidth { get;  set; }
-        public int Minimum { get;  set; }
-        public int Maximum { get;  set; }
+        public bool Frozen { get; set; }
+        public int MinimumWidth { get; set; }
+        public int Minimum { get; set; }
+        public int Maximum { get; set; }
         public string ColumnFormat { get; set; }
         public string ColumnAlignment { get; set; }
         public string ColumnBackColor { get; set; }
@@ -83,8 +83,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public string ColumnToolTip { get; set; }
         public string ColumnVisible { get; set; }
         public string ColumnVisibleIndex { get; set; }
-    }
+       public  ColumnHeaderStyle HeaderStyle { get; set; } = new ColumnHeaderStyle();
 
+    }
+    public class ColumnHeaderStyle
+    { // Defines column header properties like width, font, etc.
+        public SizeF Width { get; set; }
+        public string Typography { get; set; }
+        public string FontSize { get; set; }
+        public string ForeColor { get; set; }
+        public string BackColor { get; set; }
+    }
     [Serializable]
     public class BeepGridColumnConfigCollection : BindingList<BeepGridColumnConfig>
     {

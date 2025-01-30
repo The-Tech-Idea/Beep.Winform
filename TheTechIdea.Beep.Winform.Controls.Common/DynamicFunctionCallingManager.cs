@@ -187,6 +187,15 @@ namespace TheTechIdea.Beep.Desktop.Common
 
 
         }
+        public static void RunMethodFromExtension(this ITree tree, IBranch br, string MethodName)
+        {
+            AssemblyClassDefinitionManager.DMEEditor = tree.DMEEditor;
+            AssemblyClassDefinition assemblydef = new AssemblyClassDefinition();
+            MethodInfo method = null;
+            MethodsClass methodsClass;
+            assemblydef = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionByGuid(br.MiscStringID);
+            RunMethodFromExtension(br, assemblydef, MethodName);    
+        }
 
 
     }

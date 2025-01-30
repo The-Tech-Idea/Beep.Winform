@@ -94,6 +94,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public IDM_Addin MainDisplay { get; set; }
         public IPopupDisplayContainer PopupDisplay { get; set; }
         public IDisplayContainer Container { get; set; }
+        public IDM_Addin SplashScreen { get; set; }
         public IControlManager Controlmanager { get; set; }
         public IRoutingManager RoutingManager { get; set; }
         public IWaitForm WaitForm { get; set; }

@@ -1,14 +1,12 @@
 ﻿using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Grid;
 using System.Drawing.Design;
 using System.Windows.Forms.Design;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Desktop.Common;
-using System.Windows.Forms;
-using System.Diagnostics;
+
 using System.Reflection;
-using static TheTechIdea.Beep.Winform.Controls.BeepGridRowPainter;
+
 
 
 
@@ -468,7 +466,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion "Virtualization"
-     
         #region "Header Layout"
         protected int headerPanelHeight = 20; // Height of the header panel
         protected int bottomagregationPanelHeight = 12; // Height of the bottom panel for agregation
@@ -1001,101 +998,65 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion "Drawing on DrawingRectangle"
-        private void PaintEmptyRow(Graphics graphics, Rectangle rowRect)
-        {
-            // Fill row with the default background color (could use a lighter color to indicate it's empty)
-            rowRect.X += XOffset; // Apply XOffset to adjust drawing position
-            using (var brush = new SolidBrush(BackColor))
-            {
-                graphics.FillRectangle(brush, rowRect);
-            }
+        //private void PaintEmptyRow(Graphics graphics, Rectangle rowRect)
+        //{
+        //    // Fill row with the default background color (could use a lighter color to indicate it's empty)
+        //    rowRect.X += XOffset; // Apply XOffset to adjust drawing position
+        //    using (var brush = new SolidBrush(BackColor))
+        //    {
+        //        graphics.FillRectangle(brush, rowRect);
+        //    }
 
-            // Draw the empty row borders (no content, just visual rows)
-            using (var pen = new Pen(_currentTheme.BorderColor))
-            {
-                graphics.DrawRectangle(pen, rowRect);
-            }
-        }
-        private void PaintColumnHeaders(Graphics graphics)
-        {
+        //    // Draw the empty row borders (no content, just visual rows)
+        //    using (var pen = new Pen(_currentTheme.BorderColor))
+        //    {
+        //        graphics.DrawRectangle(pen, rowRect);
+        //    }
+        //}
+        //private void DrawColumnIcons(Graphics graphics, Rectangle columnRect, int columnIndex)
+        //{
+        //    // Only draw icons if the column has a valid title (i.e., non-empty)
+        //    //if (!string.IsNullOrEmpty(GridViewColumns[columnIndex].ColumnCaption))
+        //    //{
+        //        // Load SVG icons using BeepImage
+        //        var sortIcon = new BeepImage
+        //        {
+        //            ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.sort.svg",
+        //            Size = new Size(10, 10),
+        //            Location = new Point(columnRect.Left + 2, columnRect.Top + 2), // Top-left for sort icon
+        //            Theme = Theme // Apply the current theme
+        //        };
 
-            // Default header titles if no columns are defined
-            List<string> defaultHeaders = new List<string> { "Column 1", "Column 2", "Column 3" };
+        //        //var filterIcon = new BeepImage
+        //        //{
+        //        //    LogoImage = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg",
+        //        //    Size = new Size(10, 10),
+        //        //    Location = new Point(columnRect.Right - 12, columnRect.Top + 2), // Top-right for filter icon
+        //        //    Theme = _currentThemeEnum // Apply the current theme
+        //        //};
 
-            // Use defined column widths or placeholder widths
-            int columnCount = Columns.Count;
-            int xOffset = XOffset;
+        //        // Render the SVG icons using BeepImage's internal draw methods
+        //        sortIcon.DrawImage(graphics, new Rectangle(sortIcon.Location, sortIcon.Size));
+        //       // filterIcon.DrawImage(graphics, new Rectangle(filterIcon.Location, filterIcon.Size));
 
-            for (int i = 0; i < columnCount; i++)
-            {
-                // If a header is defined, use it; otherwise, use the default header
-                string headerText = Columns[i].ColumnCaption;
-
-                var columnRect = new Rectangle(xOffset, headerPanelHeight, Columns[i].Width, _defaultcolumnheaderheight);
-
-                // Draw the header text if it's not empty
-                if (!string.IsNullOrEmpty(headerText))
-                {
-                    using (var brush = new SolidBrush(_currentTheme.PrimaryTextColor))
-                    {
-                        graphics.DrawString(headerText, Font, brush, columnRect, new StringFormat
-                        {
-                            Alignment = StringAlignment.Center,
-                            LineAlignment = StringAlignment.Center
-                        });
-                    }
-
-                    // Draw sort icons for the header
-                    DrawColumnIcons(graphics, columnRect, i);
-                }
-
-                xOffset += Columns[i].Width;
-            }
-        }
-        private void DrawColumnIcons(Graphics graphics, Rectangle columnRect, int columnIndex)
-        {
-            // Only draw icons if the column has a valid title (i.e., non-empty)
-            //if (!string.IsNullOrEmpty(GridViewColumns[columnIndex].ColumnCaption))
-            //{
-                // Load SVG icons using BeepImage
-                var sortIcon = new BeepImage
-                {
-                    ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.sort.svg",
-                    Size = new Size(10, 10),
-                    Location = new Point(columnRect.Left + 2, columnRect.Top + 2), // Top-left for sort icon
-                    Theme = Theme // Apply the current theme
-                };
-
-                //var filterIcon = new BeepImage
-                //{
-                //    LogoImage = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg",
-                //    Size = new Size(10, 10),
-                //    Location = new Point(columnRect.Right - 12, columnRect.Top + 2), // Top-right for filter icon
-                //    Theme = _currentThemeEnum // Apply the current theme
-                //};
-
-                // Render the SVG icons using BeepImage's internal draw methods
-                sortIcon.DrawImage(graphics, new Rectangle(sortIcon.Location, sortIcon.Size));
-               // filterIcon.DrawImage(graphics, new Rectangle(filterIcon.Location, filterIcon.Size));
-
-                // Add clickable regions or events for the icons
-                AddIconClickEvents(columnIndex, new Rectangle(sortIcon.Location, sortIcon.Size));
-           //}
-        }
-        private void AddIconClickEvents(int columnIndex, Rectangle sortIconRect)
-        {
-            // Here you can add logic for detecting clicks on the sort and filter icons.
-            // This can be done by adding mouse event handlers that check whether the mouse
-            // click occurred inside the icon rectangles.
-            this.MouseClick += (sender, e) =>
-            {
-                if (sortIconRect.Contains(e.Location))
-                {
-                    OnSortColumn(columnIndex);
-                }
+        //        // Add clickable regions or events for the icons
+        //        AddIconClickEvents(columnIndex, new Rectangle(sortIcon.Location, sortIcon.Size));
+        //   //}
+        //}
+        //private void AddIconClickEvents(int columnIndex, Rectangle sortIconRect)
+        //{
+        //    // Here you can add logic for detecting clicks on the sort and filter icons.
+        //    // This can be done by adding mouse event handlers that check whether the mouse
+        //    // click occurred inside the icon rectangles.
+        //    this.MouseClick += (sender, e) =>
+        //    {
+        //        if (sortIconRect.Contains(e.Location))
+        //        {
+        //            OnSortColumn(columnIndex);
+        //        }
                 
-            };
-        }
+        //    };
+        //}
       
         #endregion "Paint"
         #region Resizing Logic

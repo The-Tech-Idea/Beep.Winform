@@ -17,14 +17,8 @@ namespace TheTechIdea.Beep.Desktop.Common
 
         event Action<EnumBeepThemes> OnThemeChanged;
 
-        void ApplyBorderToControl(Control control, bool showborder);
-        void ApplyRoundedToControl(Control control, bool isrounded);
-        void ApplyShadowToControl(Control control, bool showshadow);
-        void ApplyThemeOnImageControl(Control control, bool _applyonimage);
         void ApplyThemeToControl(Control control, EnumBeepThemes _theme, bool applytoimage);
         void FindBeepSideMenu();
-        bool GetPropertyFromControl(Control control, string PropertyName);
-       
         void ShowTitle(bool show);
     }
 }

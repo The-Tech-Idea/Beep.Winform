@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public SimpleItem SelectedItem
         {
             get => _selectedItem;
-            private set
+             set
             {
                 if (_selectedItem != value)
                 {

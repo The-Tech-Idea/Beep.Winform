@@ -10,7 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Converters;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    [Designer(typeof(TheTechIdea.Beep.Winform.Controls.Design.DynamicTabControlDesigner))]
+   [Designer(typeof(TheTechIdea.Beep.Winform.Controls.Design.DynamicTabControlDesigner))]
     public class BeepDynamicTabControl : BeepPanel
     {
         static int count = 0;
@@ -18,7 +18,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Panels mapped directly by SimpleItem.GuidId (string)
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public readonly Dictionary<string, Panel> Panels = new Dictionary<string, Panel>();
+        public Dictionary<string, Panel> Panels = new(StringComparer.OrdinalIgnoreCase);
+
 
         private BindingList<SimpleItem> _tabs = new BindingList<SimpleItem>();
         private SimpleItem _selectedTab;
@@ -300,6 +301,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 AutoSize = true,
                 Margin = new Padding(2),
                 Tag = item,
+                SelectedItem = item,
                 GuidID = item.GuidId
             };
            // Debug.WriteLine($"CreateTabButton: Created button {button.Name}");
@@ -344,9 +346,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Click event to select the tab
             button.Click += (s, e) =>
             {
-                TabButtonClicked?.Invoke(this, new DynamicTabEventArgs(panel, _tabs.IndexOf(item)));
-                SelectedTab = item;
-                TabSelected?.Invoke(this, new DynamicTabEventArgs(panel, _tabs.IndexOf(item)));
+                BeepButton btn = (BeepButton)s;
+                TabButtonClicked?.Invoke(this, new DynamicTabEventArgs(panel, _tabs.IndexOf(btn.SelectedItem)));
+                SelectedTab = btn.SelectedItem;
+                TabSelected?.Invoke(this, new DynamicTabEventArgs(panel, _tabs.IndexOf(btn.SelectedItem)));
                // Debug.WriteLine($"CreateTabButton: Tab {item.Text} clicked and selected.");
             };
 
@@ -405,14 +408,22 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void HighlightButtonAt(string itemguidid)
         {
+          //  Debug.WriteLine($"Expected GUID: '{itemguidid}'");
+
             for (int i = 0; i < HeaderPanel.Controls.Count; i++)
             {
                 if (HeaderPanel.Controls[i] is BeepButton btn)
                 {
-                    btn.IsSelected = (GuidID == itemguidid) ;
+            //        Debug.WriteLine($"Checking Button: {btn.Name} | Button GUID: '{btn.GuidID}'");
+
+                    bool match = string.Equals(btn.GuidID?.Trim(), itemguidid?.Trim(), StringComparison.OrdinalIgnoreCase);
+                    btn.IsSelected = match;
+
+              //      Debug.WriteLine($"HighlightButtonAt: Button {btn.Name} is selected: {btn.IsSelected}");
                 }
             }
         }
+
 
         private void UpdateLayout()
         {

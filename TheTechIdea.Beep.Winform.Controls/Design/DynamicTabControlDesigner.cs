@@ -10,7 +10,6 @@ using System.Drawing.Design;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design
 {
-    [System.Security.Permissions.PermissionSet(System.Security.Permissions.SecurityAction.Demand, Name = "FullTrust")]
     public class DynamicTabControlDesigner : ParentControlDesigner
     {
         private BeepDynamicTabControl _dynamicTabControl;

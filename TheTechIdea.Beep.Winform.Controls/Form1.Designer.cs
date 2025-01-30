@@ -50,8 +50,10 @@
             beepStarRating1 = new BeepStarRating();
             beepSimpleGrid1 = new BeepSimpleGrid();
             beepDynamicTabControl1 = new BeepDynamicTabControl();
+            beepCheckBox2 = new BeepCheckBox();
             tabPage1.SuspendLayout();
             tabPage3.SuspendLayout();
+            beepDynamicTabControl1.SuspendLayout();
             SuspendLayout();
             // 
             // beepuiManager1
@@ -407,7 +409,7 @@
             beepTreeControl1.SelectedBranchs = (List<int>)resources.GetObject("beepTreeControl1.SelectedBranchs");
             beepTreeControl1.SelectedIndex = -1;
             beepTreeControl1.SelectIcon = "Select.svg";
-            beepTreeControl1.SeqID = 3;
+            beepTreeControl1.SeqID = 1;
             beepTreeControl1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
             beepTreeControl1.ShadowOffset = 0;
             beepTreeControl1.ShadowOpacity = 0.5F;
@@ -534,6 +536,7 @@
             beepButton1.SavedID = null;
             beepButton1.SelectedBorderColor = Color.Blue;
             beepButton1.SelectedIndex = -1;
+            beepButton1.SelectedItem = null;
             beepButton1.ShadowColor = Color.Black;
             beepButton1.ShadowOffset = 0;
             beepButton1.ShadowOpacity = 0.5F;
@@ -1789,13 +1792,14 @@
             beepDynamicTabControl1.ContentPanel.Dock = DockStyle.Fill;
             beepDynamicTabControl1.ContentPanel.Location = new Point(0, 19);
             beepDynamicTabControl1.ContentPanel.Name = "";
-            beepDynamicTabControl1.ContentPanel.Size = new Size(432, 236);
+            beepDynamicTabControl1.ContentPanel.Size = new Size(453, 232);
             beepDynamicTabControl1.ContentPanel.TabIndex = 1;
+            beepDynamicTabControl1.Controls.Add(beepCheckBox2);
             beepDynamicTabControl1.DataContext = null;
             beepDynamicTabControl1.DataSourceProperty = null;
             beepDynamicTabControl1.DisabledBackColor = Color.Gray;
             beepDynamicTabControl1.DisabledForeColor = Color.Empty;
-            beepDynamicTabControl1.DrawingRect = new Rectangle(1, 1, 430, 253);
+            beepDynamicTabControl1.DrawingRect = new Rectangle(1, 1, 451, 249);
             beepDynamicTabControl1.Easing = EasingType.Linear;
             beepDynamicTabControl1.FieldID = null;
             beepDynamicTabControl1.FocusBackColor = Color.Gray;
@@ -1814,11 +1818,11 @@
             // 
             // 
             beepDynamicTabControl1.HeaderPanel.AutoSize = true;
-            beepDynamicTabControl1.HeaderPanel.BackColor = SystemColors.Control;
+            beepDynamicTabControl1.HeaderPanel.BackColor = Color.White;
             beepDynamicTabControl1.HeaderPanel.Dock = DockStyle.Top;
             beepDynamicTabControl1.HeaderPanel.Location = new Point(0, 0);
             beepDynamicTabControl1.HeaderPanel.Name = "";
-            beepDynamicTabControl1.HeaderPanel.Size = new Size(432, 19);
+            beepDynamicTabControl1.HeaderPanel.Size = new Size(453, 19);
             beepDynamicTabControl1.HeaderPanel.TabIndex = 0;
             beepDynamicTabControl1.HeaderPanel.WrapContents = false;
             beepDynamicTabControl1.HoverBackColor = Color.Gray;
@@ -1876,7 +1880,7 @@
             beepDynamicTabControl1.ShowTitleLine = true;
             beepDynamicTabControl1.ShowTitleLineinFullWidth = true;
             beepDynamicTabControl1.ShowTopBorder = true;
-            beepDynamicTabControl1.Size = new Size(432, 255);
+            beepDynamicTabControl1.Size = new Size(453, 251);
             beepDynamicTabControl1.SlideFrom = SlideDirection.Left;
             beepDynamicTabControl1.StaticNotMoving = false;
             beepDynamicTabControl1.TabIndex = 29;
@@ -1894,6 +1898,110 @@
             beepDynamicTabControl1.TopoffsetForDrawingRect = 0;
             beepDynamicTabControl1.UseGradientBackground = false;
             beepDynamicTabControl1.UseThemeFont = true;
+            // 
+            // beepCheckBox2
+            // 
+            beepCheckBox2.ActiveBackColor = Color.Gray;
+            beepCheckBox2.AnimationDuration = 500;
+            beepCheckBox2.AnimationType = DisplayAnimationType.None;
+            beepCheckBox2.ApplyThemeToChilds = true;
+            beepCheckBox2.BackColor = Color.FromArgb(240, 240, 240);
+            beepCheckBox2.BlockID = null;
+            beepCheckBox2.BorderColor = Color.Black;
+            beepCheckBox2.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            beepCheckBox2.BorderRadius = 1;
+            beepCheckBox2.BorderStyle = BorderStyle.FixedSingle;
+            beepCheckBox2.BorderThickness = 1;
+            beepCheckBox2.BottomoffsetForDrawingRect = 0;
+            beepCheckBox2.BoundProperty = "State";
+            beepCheckBox2.CanBeFocused = true;
+            beepCheckBox2.CanBeHovered = false;
+            beepCheckBox2.CanBePressed = true;
+            beepCheckBox2.Category = Utilities.DbFieldCategory.String;
+            beepCheckBox2.ComponentName = "beepCheckBox2";
+            beepCheckBox2.DataContext = null;
+            beepCheckBox2.DataSourceProperty = null;
+            beepCheckBox2.DisabledBackColor = Color.Gray;
+            beepCheckBox2.DisabledForeColor = Color.Empty;
+            beepCheckBox2.DrawingRect = new Rectangle(2, 2, 71, 19);
+            beepCheckBox2.Easing = EasingType.Linear;
+            beepCheckBox2.FieldID = null;
+            beepCheckBox2.FocusBackColor = Color.Gray;
+            beepCheckBox2.FocusBorderColor = Color.Gray;
+            beepCheckBox2.FocusForeColor = Color.Black;
+            beepCheckBox2.FocusIndicatorColor = Color.Blue;
+            beepCheckBox2.ForeColor = Color.FromArgb(0, 0, 0);
+            beepCheckBox2.Form = null;
+            beepCheckBox2.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
+            beepCheckBox2.GradientEndColor = Color.Gray;
+            beepCheckBox2.GradientStartColor = Color.Gray;
+            beepCheckBox2.GuidID = "1f77dd48-46d6-469c-bba7-a3e20b4fc3a3";
+            beepCheckBox2.HideText = false;
+            beepCheckBox2.HoverBackColor = Color.Gray;
+            beepCheckBox2.HoverBorderColor = Color.Gray;
+            beepCheckBox2.HoveredBackcolor = Color.Wheat;
+            beepCheckBox2.HoverForeColor = Color.Black;
+            beepCheckBox2.Id = -1;
+            beepCheckBox2.ImagePath = null;
+            beepCheckBox2.InactiveBackColor = Color.Gray;
+            beepCheckBox2.InactiveBorderColor = Color.Gray;
+            beepCheckBox2.InactiveForeColor = Color.Black;
+            beepCheckBox2.IsAcceptButton = false;
+            beepCheckBox2.IsBorderAffectedByTheme = true;
+            beepCheckBox2.IsCancelButton = false;
+            beepCheckBox2.IsChild = false;
+            beepCheckBox2.IsCustomeBorder = false;
+            beepCheckBox2.IsDefault = false;
+            beepCheckBox2.IsDeleted = false;
+            beepCheckBox2.IsDirty = false;
+            beepCheckBox2.IsEditable = false;
+            beepCheckBox2.IsFocused = false;
+            beepCheckBox2.IsFramless = false;
+            beepCheckBox2.IsHovered = false;
+            beepCheckBox2.IsNew = false;
+            beepCheckBox2.IsPressed = false;
+            beepCheckBox2.IsReadOnly = false;
+            beepCheckBox2.IsRounded = false;
+            beepCheckBox2.IsRoundedAffectedByTheme = true;
+            beepCheckBox2.IsSelected = false;
+            beepCheckBox2.IsShadowAffectedByTheme = true;
+            beepCheckBox2.IsVisible = false;
+            beepCheckBox2.LeftoffsetForDrawingRect = 0;
+            beepCheckBox2.LinkedProperty = null;
+            beepCheckBox2.Location = new Point(115, 86);
+            beepCheckBox2.Name = "beepCheckBox2";
+            beepCheckBox2.OverrideFontSize = TypeStyleFontSize.None;
+            beepCheckBox2.Padding = new Padding(1);
+            beepCheckBox2.ParentBackColor = Color.Empty;
+            beepCheckBox2.ParentControl = null;
+            beepCheckBox2.PressedBackColor = Color.Gray;
+            beepCheckBox2.PressedBorderColor = Color.Gray;
+            beepCheckBox2.PressedForeColor = Color.Black;
+            beepCheckBox2.RightoffsetForDrawingRect = 0;
+            beepCheckBox2.SavedGuidID = null;
+            beepCheckBox2.SavedID = null;
+            beepCheckBox2.ShadowColor = Color.Black;
+            beepCheckBox2.ShadowOffset = 0;
+            beepCheckBox2.ShadowOpacity = 0.5F;
+            beepCheckBox2.ShowAllBorders = true;
+            beepCheckBox2.ShowBottomBorder = true;
+            beepCheckBox2.ShowFocusIndicator = false;
+            beepCheckBox2.ShowLeftBorder = true;
+            beepCheckBox2.ShowRightBorder = true;
+            beepCheckBox2.ShowShadow = false;
+            beepCheckBox2.ShowTopBorder = true;
+            beepCheckBox2.Size = new Size(75, 23);
+            beepCheckBox2.SlideFrom = SlideDirection.Left;
+            beepCheckBox2.Spacing = 5;
+            beepCheckBox2.StaticNotMoving = false;
+            beepCheckBox2.TabIndex = 2;
+            beepCheckBox2.TempBackColor = Color.Empty;
+            beepCheckBox2.Text = "beepCheckBox2";
+            beepCheckBox2.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepCheckBox2.ToolTipText = "";
+            beepCheckBox2.TopoffsetForDrawingRect = 0;
+            beepCheckBox2.UseGradientBackground = false;
+            beepCheckBox2.UseThemeFont = true;
             // 
             // Form1
             // 
@@ -1916,6 +2024,8 @@
             Text = "````````";
             tabPage1.ResumeLayout(false);
             tabPage3.ResumeLayout(false);
+            beepDynamicTabControl1.ResumeLayout(false);
+            beepDynamicTabControl1.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -1943,5 +2053,6 @@
         private BeepLabel beepLabel1;
         private BeepSimpleGrid beepSimpleGrid1;
         private BeepDynamicTabControl beepDynamicTabControl1;
+        private BeepCheckBox beepCheckBox2;
     }
 }

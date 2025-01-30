@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 using TheTechIdea.Beep.Utilities;
@@ -9,11 +10,33 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Desktop.Common
 {
     [Serializable]
-    public class SimpleItem
+    public class SimpleItem: IEquatable<SimpleItem>
     {
         public SimpleItem()
         {
             GuidId = Guid.NewGuid().ToString();
+        }
+        public bool Equals(SimpleItem other)
+        {
+            if (other == null)
+                return false;
+
+            return this.Name == other.Name; // Assuming Name is unique
+        }
+
+        // Override Equals
+        public override bool Equals(object obj)
+        {
+            if (obj is SimpleItem other)
+            {
+                return GuidId.Equals(other.GuidId);
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return GuidId.GetHashCode();
         }
         public int Id { get; set; }
         public string GuidId { get; set; }

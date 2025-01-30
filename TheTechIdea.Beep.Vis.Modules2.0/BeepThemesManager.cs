@@ -19248,8 +19248,8 @@ namespace TheTechIdea.Beep.Vis.Modules
                 return MaterialDesignTheme;
             else if (theme == EnumBeepThemes.NeumorphismTheme)
                 return NeumorphismTheme;
-            else if (theme == EnumBeepThemes.GlassmorphismTheme)
-                return GlassmorphismTheme;
+            //else if (theme == EnumBeepThemes.GlassmorphismTheme)
+            //    return GlassmorphismTheme;
             else if (theme == EnumBeepThemes.FlatDesignTheme)
                 return FlatDesignTheme;
             else if (theme == EnumBeepThemes.CyberpunkNeonTheme)
@@ -19317,8 +19317,8 @@ namespace TheTechIdea.Beep.Vis.Modules
                 return EnumBeepThemes.MaterialDesignTheme;
             else if (string.Equals(themeName, "NeumorphismTheme", StringComparison.OrdinalIgnoreCase))
                 return EnumBeepThemes.NeumorphismTheme;
-            else if (string.Equals(themeName, "GlassmorphismTheme", StringComparison.OrdinalIgnoreCase))
-                return EnumBeepThemes.GlassmorphismTheme;
+            //else if (string.Equals(themeName, "GlassmorphismTheme", StringComparison.OrdinalIgnoreCase))
+            //    return EnumBeepThemes.GlassmorphismTheme;
             else if (string.Equals(themeName, "FlatDesignTheme", StringComparison.OrdinalIgnoreCase))
                 return EnumBeepThemes.FlatDesignTheme;
             else if (string.Equals(themeName, "CyberpunkNeonTheme", StringComparison.OrdinalIgnoreCase))
@@ -19415,6 +19415,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             List<string> themes = new List<string>();
             foreach (EnumBeepThemes theme in Enum.GetValues(typeof(EnumBeepThemes)))
             {
+                if(theme== EnumBeepThemes.GlassmorphismTheme)
+                {
+                    continue;
+                }
                 themes.Add(theme.ToString());
             }
             return themes;
@@ -19424,6 +19428,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             List<BeepTheme> themes = new List<BeepTheme>();
             foreach (EnumBeepThemes theme in Enum.GetValues(typeof(EnumBeepThemes)))
             {
+                if (theme == EnumBeepThemes.GlassmorphismTheme)
+                {
+                    continue;
+                }
                 themes.Add(GetTheme(theme));
             }
             return themes;

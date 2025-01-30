@@ -1,38 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Design;
-using System.Drawing.Design;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 
-
-
-
 namespace TheTechIdea.Beep.Winform.Controls
 {
-   // [Designer(typeof(DynamicTabControlDesigner))]
+    [Designer(typeof(TheTechIdea.Beep.Winform.Controls.Design.DynamicTabControlDesigner))]
     public class BeepDynamicTabControl : BeepPanel
     {
         static int count = 0;
-      
+
+        // Panels mapped directly by SimpleItem.GuidId (string)
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-     //   public  Panel _contentPanel { get; private set; }
-        public readonly Dictionary<SimpleItem, Panel> _panelMap = new();
+        public readonly Dictionary<string, Panel> Panels = new Dictionary<string, Panel>();
+
         private BindingList<SimpleItem> _tabs = new BindingList<SimpleItem>();
         private SimpleItem _selectedTab;
         private HeaderLocation _headerLocation = HeaderLocation.Top;
 
+        // Events
         public event EventHandler<DynamicTabEventArgs> TabSelected;
         public event EventHandler<DynamicTabEventArgs> TabAdded;
         public event EventHandler<DynamicTabEventArgs> TabRemoved;
         public event EventHandler<DynamicTabEventArgs> TabUpdated;
         public event EventHandler<DynamicTabEventArgs> TabButtonClicked;
+
+        // Header and Content Panels
         [Browsable(true)]
         [Localizable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public FlowLayoutPanel HeaderPanel { get; } = new()
+        public FlowLayoutPanel HeaderPanel { get; } = new FlowLayoutPanel
         {
             AutoSize = true,
             FlowDirection = FlowDirection.LeftToRight,
@@ -44,23 +47,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Localizable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public Panel ContentPanel { get; } = new()
+        public Panel ContentPanel { get; } = new Panel
         {
             Dock = DockStyle.Fill,
             BackColor = Color.White
         };
 
-
         public BeepDynamicTabControl()
         {
             AllowDrop = true; // Enable drag-and-drop for the control itself
             ShowTitle = false;
-            DragEnter += BeepDynamicTabControl_DragEnter;
-            DragDrop += BeepDynamicTabControl_DragDrop;
-            //// Header panel for tab buttons
 
-            //NotifyContentPanelControlsPropertyDesigner(this, true);
-            //UpdateLayout();
+            // Attach drag-and-drop event handlers
+            this.DragEnter += BeepDynamicTabControl_DragEnter;
+            this.DragDrop += BeepDynamicTabControl_DragDrop;
+
+            // Initialize HeaderPanel and ContentPanel
             if (!Controls.Contains(HeaderPanel))
             {
                 Controls.Add(HeaderPanel);
@@ -71,10 +73,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Controls.Add(ContentPanel);
                 ContentPanel.BringToFront();
             }
+
+            // Initialize Tabs
             _tabs = new BindingList<SimpleItem>();
-            _tabs.ListChanged+= OnTabsChanged;
-           
+            _tabs.ListChanged += OnTabsChanged;
         }
+
+        #region Properties
 
         [Browsable(true)]
         [Localizable(true)]
@@ -85,18 +90,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _tabs;
             set
             {
-               
-                Console.WriteLine("Set Tabs");
-                _tabs = value;
-                Console.WriteLine("Set Tabs 1");
-                // Notify the designer about the change
-               // NotifyDesigner(this, true);
-                Console.WriteLine("Set Tabs 2");
-                SynchronizeTabs();
-                Console.WriteLine("Set Tabs 3");
+               // Debug.WriteLine("Set Tabs");
+                if (_tabs != null)
+                {
+                    _tabs.ListChanged -= OnTabsChanged;
+                }
 
+                _tabs = value ?? new BindingList<SimpleItem>();
+                _tabs.ListChanged += OnTabsChanged;
+                SynchronizeTabs();
+               // Debug.WriteLine("Tabs synchronized.");
             }
         }
+
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         [TypeConverter(typeof(TabItemConverter))]
@@ -110,13 +116,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _selectedTab = value;
                     UpdateSelectedTab();
                     // Raise the TabSelected event
-                    TabSelected?.Invoke(this, new DynamicTabEventArgs(_panelMap[_selectedTab], SelectedIndex));
+                    TabSelected?.Invoke(this, new DynamicTabEventArgs(GetSelectedPanel(), SelectedIndex));
                 }
             }
         }
+
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-
         public int SelectedIndex => _tabs?.IndexOf(_selectedTab) ?? -1;
 
         [Browsable(true)]
@@ -129,361 +135,28 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_headerLocation != value)
                 {
                     _headerLocation = value;
-
-                    // Notify the designer about the change
-                  //  NotifyDesigner(this, true);
                     UpdateLayout();
                 }
             }
         }
-        #region "Designer Support"
-        public void RemoveAllControlsFromContentPanel(Control contentPanel)
-        {
-            if (contentPanel == null)
-                throw new ArgumentNullException(nameof(contentPanel));
 
-            // Iterate through all child controls and remove them
-            foreach (Control childControl in contentPanel.Controls.Cast<Control>().ToList())
-            {
-                // Remove the child control from the ContentPanel
-                contentPanel.Controls.Remove(childControl);
+        #endregion
 
-                // Notify the designer
-                NotifyContentPanelControlsPropertyDesigner(contentPanel, false);
+        #region Designer Support
 
-                // Unregister the control from the designer
-                if (Site?.Container is IContainer container)
-                {
-                    var componentToRemove = container.Components.Cast<IComponent>().FirstOrDefault(c => c == childControl);
-                    if (componentToRemove != null)
-                    {
-                        container.Remove(componentToRemove);
-                    }
-                }
+        // Ensure proper serialization and designer support
 
-                // Dispose the control to free resources
-                childControl.Dispose();
-            }
-        }
+        #endregion
 
-        public void UnregisterControlAsChildForParentControl(Control parentControl, Control childControl)
-        {
-            if (parentControl == null || childControl == null)
-                throw new ArgumentNullException("Parent and child controls cannot be null.");
+        #region Tab Management
 
-            if (parentControl.Site?.GetService(typeof(IComponentChangeService)) is IComponentChangeService changeService)
-            {
-                // Notify the designer about the upcoming removal
-                changeService.OnComponentChanging(parentControl, null);
-
-                // Remove the child control from the designer's container
-                var container = parentControl.Site.Container;
-                if (container != null)
-                {
-                    // Find the component explicitly since ComponentCollection doesn't have Contains()
-                    var componentToRemove = container.Components.Cast<IComponent>().FirstOrDefault(component => component == childControl);
-                    if (componentToRemove != null)
-                    {
-                        container.Remove(componentToRemove);
-                    }
-                }
-
-                // Remove the child control from the parent
-                if (parentControl.Controls.Contains(childControl))
-                {
-                    parentControl.Controls.Remove(childControl);
-                }
-
-                // Notify the designer that the removal is complete
-                changeService.OnComponentChanged(parentControl, null, null, null);
-            }
-            else
-            {
-                // Runtime fallback
-                if (parentControl.Controls.Contains(childControl))
-                {
-                    parentControl.Controls.Remove(childControl);
-                }
-            }
-        }
-
-        public void RegisterControlAsChildForParentControl(Control parentControl, Control childControl, string childCollectionProperty = "Controls")
-        {
-            if (parentControl == null || childControl == null)
-                throw new ArgumentNullException("Parent and child controls cannot be null.");
-
-            // Get the property dynamically
-            var propertyInfo = parentControl.GetType().GetProperty(childCollectionProperty);
-            if (propertyInfo == null)
-                throw new InvalidOperationException($"The parent control does not have a property named '{childCollectionProperty}'.");
-
-            // Validate the property is a ControlCollection
-            if (propertyInfo.GetValue(parentControl) is not Control.ControlCollection collection)
-                throw new InvalidOperationException($"The property '{childCollectionProperty}' is not a valid ControlCollection.");
-
-            if (parentControl.Site?.GetService(typeof(IComponentChangeService)) is IComponentChangeService changeService)
-            {
-                // Notify the designer about the change
-                changeService.OnComponentChanging(parentControl, null);
-
-                // Add the control to the collection
-                if (!collection.Contains(childControl))
-                {
-                    collection.Add(childControl);
-
-                    // Ensure the child control is serialized into Designer.cs
-                    var designerHost = parentControl.Site.GetService(typeof(IDesignerHost)) as IDesignerHost;
-                    if (designerHost != null)
-                    {
-                        designerHost.Container.Add(childControl, childControl.Name);
-                    }
-                }
-
-                // Notify the designer that the change has been completed
-                changeService.OnComponentChanged(parentControl, null, null, null);
-            }
-            else
-            {
-                // Runtime fallback
-                if (!collection.Contains(childControl))
-                {
-                    collection.Add(childControl);
-                }
-            }
-        }
-        private void NotifyContentPanelControlsPropertyDesigner(Control contentPanel, bool adding)
-        {
-            if (contentPanel == null)
-                throw new ArgumentNullException(nameof(contentPanel));
-
-            if (Site?.GetService(typeof(IComponentChangeService)) is IComponentChangeService changeService)
-            {
-                Console.WriteLine("Design-time services available.");
-                // Get the 'Controls' property descriptor
-                var controlsProperty = TypeDescriptor.GetProperties(contentPanel)["Controls"];
-
-                if (controlsProperty == null)
-                    throw new InvalidOperationException("The 'Controls' property could not be found on the ContentPanel.");
-
-                // Notify the designer about the change
-                if (adding)
-                { 
-                    Console.WriteLine("Add Design-time services available. Notifying the designer.");
-                    changeService.OnComponentChanging(contentPanel, controlsProperty);
-                    changeService.OnComponentChanged(contentPanel, controlsProperty, null, null);
-                }
-                else
-                {
-                    Console.WriteLine("Remove Design-time services available. Notifying the designer.");
-                    changeService.OnComponentChanging(contentPanel, controlsProperty);
-                    changeService.OnComponentChanged(contentPanel, controlsProperty, null, null);
-                }
-            }
-            else
-            {
-                // Fallback if no design-time services are available
-                Console.WriteLine("Design-time services not available. Runtime-only change.");
-            }
-        }
-        public void AddControlToContentPanel(Control contentPanel, Control childControl)
-        {
-            if (contentPanel == null || childControl == null)
-                throw new ArgumentNullException();
-
-            // Check if the childControl already exists in the contentPanel
-            //if (contentPanel.Controls.Contains(childControl))
-            //{
-            //    Console.WriteLine($"The control '{childControl.Name}' already exists in the ContentPanel. Skipping addition.");
-            //    return; // Exit if the control already exists
-            //}
-            // Add the child control to the ContentPanel
-            contentPanel.Controls.Add(childControl);
-
-            // Notify the designer
-            NotifyContentPanelControlsPropertyDesigner(contentPanel, true);
-
-            // Register the control with the designer
-            if (Site?.Container is IContainer container)
-            {
-                if (!container.Components.Cast<IComponent>().Contains(childControl))
-                {
-                    container.Add(childControl, childControl.Name);
-                }
-            }
-        }
-        public void RemoveControlFromContentPanel(Control contentPanel, Control childControl)
-        {
-            if (contentPanel == null || childControl == null)
-                throw new ArgumentNullException();
-
-            // Remove the child control from the ContentPanel
-            contentPanel.Controls.Remove(childControl);
-
-            // Notify the designer
-            NotifyContentPanelControlsPropertyDesigner(contentPanel, false);
-
-            // Unregister the control from the designer
-            if (Site?.Container is IContainer container)
-            {
-                var componentToRemove = container.Components.Cast<IComponent>().FirstOrDefault(c => c == childControl);
-                if (componentToRemove != null)
-                {
-                    container.Remove(componentToRemove);
-                }
-            }
-        }
-
-
-        private void NotifyDesignerVisibilityChange(Control control, bool isVisible)
-        {
-            if (control == null)
-                return;
-
-            if (Site?.GetService(typeof(IComponentChangeService)) is IComponentChangeService changeService)
-            {
-                // Notify the designer that the control is changing
-                changeService.OnComponentChanging(control, null);
-
-                // Change the property
-                control.Visible = isVisible;
-
-                // Notify the designer that the change is complete
-                changeService.OnComponentChanged(control, null, null, null);
-            }
-            else
-            {
-                // Fallback for runtime-only changes
-                control.Visible = isVisible;
-            }
-        }
-        private void UpdatePanelVisibility(Control panel, bool isVisible)
-        {
-            if (panel == null)
-                return;
-
-            if (Site?.GetService(typeof(IComponentChangeService)) is IComponentChangeService changeService)
-            {
-                // Notify the designer about the upcoming change
-                changeService.OnComponentChanging(panel, TypeDescriptor.GetProperties(panel)["Visible"]);
-
-                // Update the property
-                panel.Visible = isVisible;
-                if (isVisible)
-                {
-                    panel.Dock = DockStyle.Fill; // Ensure the panel fills the content area
-                    panel.BringToFront(); // Bring the selected panel to the front
-                }
-                else
-                {
-                    panel.SendToBack(); // Send non-selected panels to the back
-                }
-
-                // Notify the designer that the change is complete
-                changeService.OnComponentChanged(panel, TypeDescriptor.GetProperties(panel)["Visible"], !isVisible, isVisible);
-            }
-            else
-            {
-                // Fallback for runtime-only changes
-                panel.Visible = isVisible;
-                if (isVisible)
-                {
-                    panel.Dock = DockStyle.Fill;
-                    panel.BringToFront();
-                }
-                else
-                {
-                    panel.SendToBack();
-                }
-            }
-        }
-
-        private void NotifyDesigner(Control control, bool adding)
-        {
-            if (Site?.Container is IContainer container && container is IComponentChangeService changeService)
-            {
-                if (adding)
-                {
-                    changeService.OnComponentChanging(this, null);
-                    changeService.OnComponentChanged(this, null, null, null);
-                }
-                else
-                {
-                    changeService.OnComponentChanging(this, null);
-                    changeService.OnComponentChanged(this, null, null, null);
-                }
-            }
-        }
-        private void RegisterControl(Control control)
-        {
-            if (Site?.GetService(typeof(IComponentChangeService)) is IComponentChangeService changeService)
-            {
-                // Notify the designer that a control is being added
-                changeService.OnComponentChanging(this, null);
-
-                // Check if the control is already in the container
-                bool exists = false;
-                if (Site.Container != null)
-                {
-                    foreach (IComponent component in Site.Container.Components)
-                    {
-                        if (component == control)
-                        {
-                            exists = true;
-                            break;
-                        }
-                    }
-
-                    // Add the control if it doesn't exist
-                    if (!exists)
-                    {
-                        Site.Container.Add(control, control.Name);
-                    }
-                }
-
-                // Notify the designer that the change is complete
-                changeService.OnComponentChanged(this, null, null, null);
-            }
-        }
-
-        private void UnregisterControl(Control control)
-        {
-            if (Site?.GetService(typeof(IComponentChangeService)) is IComponentChangeService changeService)
-            {
-                // Notify the designer about the upcoming removal
-                changeService.OnComponentChanging(this, null);
-
-                // Remove the control from the container
-                if (Site.Container != null)
-                {
-                    foreach (IComponent component in Site.Container.Components)
-                    {
-                        if (component == control)
-                        {
-                            Site.Container.Remove(control);
-                            break;
-                        }
-                    }
-                }
-
-                // Notify the designer that the removal is complete
-                changeService.OnComponentChanged(this, null, null, null);
-            }
-            else
-            {
-                // Fallback for runtime or invalid design-time environment
-                Controls.Remove(control);
-            }
-        }
-
-        #endregion "Designer Support"
         private void OnTabsChanged(object sender, ListChangedEventArgs e)
         {
             switch (e.ListChangedType)
             {
                 case ListChangedType.ItemAdded:
-
                     AddTab(_tabs[e.NewIndex]);
-                    TabAdded?.Invoke(this, new DynamicTabEventArgs(_panelMap[_tabs[e.NewIndex]], e.NewIndex));
+                    TabAdded?.Invoke(this, new DynamicTabEventArgs(Panels[_tabs[e.NewIndex].GuidId], e.NewIndex));
                     break;
 
                 case ListChangedType.ItemDeleted:
@@ -492,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 case ListChangedType.ItemChanged:
                     UpdateTab(_tabs[e.NewIndex]);
-                    TabUpdated?.Invoke(this, new DynamicTabEventArgs(_panelMap[_tabs[e.NewIndex]], e.NewIndex));
+                    TabUpdated?.Invoke(this, new DynamicTabEventArgs(Panels[_tabs[e.NewIndex].GuidId], e.NewIndex));
                     break;
 
                 case ListChangedType.Reset:
@@ -500,132 +173,138 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
         }
+
         private void SynchronizeTabs()
         {
-         //   ClearTabs();
-            Console.WriteLine("SynchronizeTabs");
+           // Debug.WriteLine("SynchronizeTabs");
             if (_tabs == null) return;
-            Console.WriteLine("SynchronizeTabs 1");
+
+            ClearTabs();
+
             for (int i = 0; i < _tabs.Count; i++)
             {
-                Console.WriteLine("SynchronizeTabs 2");
+               // Debug.WriteLine($"SynchronizeTabs: Adding tab {_tabs[i].Text}");
                 AddTab(_tabs[i]);
-                TabAdded?.Invoke(this, new DynamicTabEventArgs(_panelMap[_tabs[i]], i));
+                TabAdded?.Invoke(this, new DynamicTabEventArgs(Panels[_tabs[i].GuidId], i));
             }
         }
+
         private void ClearTabs()
         {
             HeaderPanel.Controls.Clear();
-             ContentPanel.Controls.Clear();
-            _panelMap.Clear();
+            ContentPanel.Controls.Clear();
+            Panels.Clear();
         }
+
         private void AddTab(SimpleItem item)
         {
-            Console.WriteLine($"AddTab {item.Text}");
-            if (_panelMap.ContainsKey(item)) return;
-            Console.WriteLine($"Create content panel for the tab");
-            count++;
+           // Debug.WriteLine($"AddTab: {item.Text}");
+            if (Panels.ContainsKey(item.GuidId)) return;
+
             // Create content panel for the tab
+            count++;
             var panel = new Panel
             {
                 Name = $"Panel{count}",
                 Dock = DockStyle.Fill,
                 Visible = false,
                 BackColor = Color.White,
+                BorderStyle = BorderStyle.FixedSingle,
                 AllowDrop = true // Enable drag-and-drop
             };
-            Console.WriteLine($" Creating  Drag and Drop for Tab {item.Text} {panel.Name}");
+
+           // Debug.WriteLine($"AddTab: Creating drag-and-drop handlers for {panel.Name}");
             // Attach drag-and-drop event handlers
             panel.DragEnter += Panel_DragEnter;
             panel.DragDrop += Panel_DragDrop;
-            panel.AllowDrop= true;
-            EnableDesignMode(panel, panel.Name);
-            Console.WriteLine($"notify designer");
-            // Register the panel with the designer
-           
-            Console.WriteLine($"Add panel to TabPanels");
-            // Add panel to TabPanels (content panel's controls collection)
-        //    _contentPanel.Controls.Add(panel);
+
+           // Debug.WriteLine($"AddTab: Adding panel {panel.Name} to ContentPanel");
             AddControlToContentPanel(ContentPanel, panel);
 
-            Console.WriteLine($"Create Button to panelMap");
+           // Debug.WriteLine($"AddTab: Creating button for tab {item.Text}");
             // Create header button for the tab
             var button = CreateTabButton(item, panel);
-            Console.WriteLine($"Add button to headerPanel");
-            //HeaderPanel.Controls.Add(button);
+           // Debug.WriteLine($"AddTab: Adding button {button.Name} to HeaderPanel");
             AddControlToContentPanel(HeaderPanel, button);
-            Console.WriteLine($"Add to panelMap");
-            _panelMap[item] = panel;
-            Console.WriteLine($"Add to panelMap Done");
-            // Notify the designer about TabPanels change
-            // NotifyDesigner(panel, true);
-       //     NotifyContentPanelControlsPropertyDesigner(ContentPanel, true);
 
-            if (_panelMap.Count == 1)
+            // Map the tab's GuidId to its Panel
+            Panels[item.GuidId] = panel;
+           // Debug.WriteLine($"AddTab: Added panel {panel.Name} with GuidId {item.GuidId}");
+
+            // Automatically select the first tab
+            if (Panels.Count == 1)
             {
-                SelectedTab = item; // Automatically select the first tab
+                SelectedTab = item;
             }
         }
+
         private void RemoveTabByIndex(int index)
         {
             if (index < 0 || index >= _tabs.Count) return;
 
             var item = _tabs[index];
             RemoveTab(item);
-            TabRemoved?.Invoke(this, new DynamicTabEventArgs(_panelMap[item], index));
+            TabRemoved?.Invoke(this, new DynamicTabEventArgs(Panels[item.GuidId], index));
         }
+
         private void RemoveTab(SimpleItem item)
         {
-            if (!_panelMap.TryGetValue(item, out var panel)) return;
+            if (!Panels.TryGetValue(item.GuidId, out var panel)) return;
 
-            // Unregister and remove the panel
-            
-           
             // Remove header button
             var button = HeaderPanel.Controls.OfType<Button>().FirstOrDefault(b => Equals(b.Tag, item));
             if (button != null)
             {
                 HeaderPanel.Controls.Remove(button);
             }
-          //  _contentPanel.Controls.Remove(panel);
+
+            // Remove panel from ContentPanel
             RemoveControlFromContentPanel(ContentPanel, panel);
 
-          //  NotifyContentPanelControlsPropertyDesigner(ContentPanel, false);
-            // Remove from map
-            _panelMap.Remove(item);
+            // Remove from Panels dictionary
+            Panels.Remove(item.GuidId);
 
             // Update selected tab if necessary
             if (_selectedTab == item)
             {
                 SelectedTab = _tabs.FirstOrDefault();
             }
-        }
 
+           // Debug.WriteLine($"RemoveTab: Removed tab {item.Text} and panel {panel.Name}");
+        }
 
         private void UpdateTab(SimpleItem item)
         {
-            if (!_panelMap.TryGetValue(item, out var panel)) return;
+            if (!Panels.TryGetValue(item.GuidId, out var panel)) return;
 
             // Update header button text
             var button = HeaderPanel.Controls.OfType<Button>().FirstOrDefault(b => Equals(b.Tag, item));
             if (button != null)
             {
                 button.Text = item.Text;
+               // Debug.WriteLine($"UpdateTab: Updated button text to {item.Text}");
             }
         }
 
-        private Button CreateTabButton(SimpleItem item, Panel panel)
+        #endregion
+
+        #region Button Creation
+
+        private BeepButton CreateTabButton(SimpleItem item, Panel panel)
         {
-            Console.WriteLine($"CreateTabButton {item.Name}");
-            var button = new Button
+           // Debug.WriteLine($"CreateTabButton: Creating button for {item.Name}");
+            var button = new BeepButton
             {
-                Name= $"HeaderButton{count}",
-                Text = item.Text==null? Name : item.Text,
+                Name = $"HeaderButton{count}",
+                Text = string.IsNullOrEmpty(item.Text) ? Name : item.Text,
                 AutoSize = true,
                 Margin = new Padding(2),
-                Tag = item
+                Tag = item,
+                GuidID = item.GuidId
             };
-            Console.WriteLine($"CreateTabButton {item.Name} Done");
+           // Debug.WriteLine($"CreateTabButton: Created button {button.Name}");
+
+            // Drag-and-Drop for reordering tabs
             button.MouseDown += (s, e) =>
             {
                 if (e.Button == MouseButtons.Left)
@@ -657,55 +336,80 @@ namespace TheTechIdea.Beep.Winform.Controls
                     var temp = _tabs[sourceIndex];
                     _tabs[sourceIndex] = _tabs[targetIndex];
                     _tabs[targetIndex] = temp;
+
+                   // Debug.WriteLine($"CreateTabButton: Swapped tabs at index {sourceIndex} and {targetIndex}");
                 }
             };
 
+            // Click event to select the tab
             button.Click += (s, e) =>
             {
                 TabButtonClicked?.Invoke(this, new DynamicTabEventArgs(panel, _tabs.IndexOf(item)));
                 SelectedTab = item;
                 TabSelected?.Invoke(this, new DynamicTabEventArgs(panel, _tabs.IndexOf(item)));
+               // Debug.WriteLine($"CreateTabButton: Tab {item.Text} clicked and selected.");
             };
 
             return button;
         }
 
-        private void UpdateSelectedTab()
+        #endregion
+
+        #region Selected Tab Handling
+
+        public void UpdateSelectedTab()
         {
             if (_selectedTab == null)
+            {
+               // Debug.WriteLine("UpdateSelectedTab: SelectedTab is null.");
                 return;
+            }
 
-            Console.WriteLine($"UpdateSelectedTab {_selectedTab.Text}");
+           // Debug.WriteLine($"UpdateSelectedTab: SelectedTab = {_selectedTab.Text}");
 
             foreach (Control control in ContentPanel.Controls)
             {
                 if (control is Panel panel)
                 {
-                    if (_panelMap.TryGetValue(_selectedTab, out var selectedPanel) && panel == selectedPanel)
+                    bool isSelected = Panels.TryGetValue(_selectedTab.GuidId, out var selectedPanel) &&
+                                       selectedPanel == panel;
+                    panel.Visible = isSelected;
+                    if (isSelected)
                     {
-                        Console.WriteLine($"Showing Panel {panel.Name}");
-                        UpdatePanelVisibility(panel, true); // Config the selected panel
+                        panel.BringToFront();
+                       // Debug.WriteLine($"UpdateSelectedTab: Panel {panel.Name} is now visible.");
                     }
                     else
                     {
-                        Console.WriteLine($"Hiding Panel {panel.Name}");
-                        UpdatePanelVisibility(panel, false); // Hide all other panels
+                        panel.SendToBack();
+                       // Debug.WriteLine($"UpdateSelectedTab: Panel {panel.Name} is now hidden.");
                     }
                 }
             }
 
-            HighlightButtonAt(SelectedIndex); // Highlight the corresponding button
+            HighlightButtonAt(_selectedTab.GuidId);
         }
 
+        private Panel GetSelectedPanel()
+        {
+            if (_selectedTab != null && Panels.TryGetValue(_selectedTab.GuidId, out var panel))
+            {
+                return panel;
+            }
+            return null;
+        }
 
+        #endregion
 
-        private void HighlightButtonAt(int index)
+        #region UI Enhancements
+
+        private void HighlightButtonAt(string itemguidid)
         {
             for (int i = 0; i < HeaderPanel.Controls.Count; i++)
             {
-                if (HeaderPanel.Controls[i] is Button btn)
+                if (HeaderPanel.Controls[i] is BeepButton btn)
                 {
-                    btn.BackColor = (i == index) ? Color.LightBlue : SystemColors.Control;
+                    btn.IsSelected = (GuidID == itemguidid) ;
                 }
             }
         }
@@ -735,6 +439,152 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
         }
+
+        #endregion
+
+        #region Drag and Drop
+
+        // Drag and Drop should go to Selected Panel and if no panel is selected it should go to the last panel. If no panel exists, stop drop
+        protected override void OnDragEnter(DragEventArgs e)
+        {
+            base.OnDragEnter(e);
+            BeepDynamicTabControl_DragEnter(this, e);
+        }
+
+        protected override void OnDragDrop(DragEventArgs e)
+        {
+            base.OnDragDrop(e);
+            BeepDynamicTabControl_DragDrop(this, e);
+        }
+
+        private void BeepDynamicTabControl_DragEnter(object sender, DragEventArgs e)
+        {
+            if (IsInDesignMode())
+            {
+                // Let the designer handle drag-enter
+                return;
+            }
+
+            // Runtime drag-enter logic
+            if (e.Data.GetDataPresent(typeof(Control)))
+            {
+                e.Effect = DragDropEffects.Move;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void BeepDynamicTabControl_DragDrop(object sender, DragEventArgs e)
+        {
+            if (IsInDesignMode())
+            {
+                // Let the designer handle drag-drop
+                return;
+            }
+
+            // Runtime drag-drop logic
+            if (e.Data.GetData(typeof(Control)) is Control control)
+            {
+                Panel targetPanel = SelectedTab != null && Panels.ContainsKey(SelectedTab.GuidId)
+                    ? Panels[SelectedTab.GuidId]
+                    : (Panels.Values.Any() ? Panels.Values.Last() : null);
+
+                if (targetPanel != null)
+                {
+                    targetPanel.Controls.Add(control);
+                    control.Location = targetPanel.PointToClient(new Point(e.X, e.Y));
+                    control.BringToFront();
+                   // Debug.WriteLine($"DragDrop: Control {control.Name} added to {targetPanel.Name} at location {control.Location}");
+                }
+            }
+        }
+
+        private void Panel_DragEnter(object sender, DragEventArgs e)
+        {
+            if (IsInDesignMode())
+            {
+                // Let the designer handle drag-enter
+                return;
+            }
+
+            // Allow drop only if the data is a control
+            if (e.Data.GetDataPresent(typeof(Control)) ||
+                e.Data.GetDataPresent("System.Windows.Forms.Design.ToolboxItem", false))
+            {
+                e.Effect = DragDropEffects.Move;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void Panel_DragDrop(object sender, DragEventArgs e)
+        {
+            if (IsInDesignMode())
+            {
+                // Let the designer handle drag-drop
+                return;
+            }
+
+            // Runtime drag-drop logic for individual panels
+            if (e.Data.GetData(typeof(Control)) is Control control)
+            {
+                Panel targetPanel = sender as Panel;
+
+                if (targetPanel != null)
+                {
+                    targetPanel.Controls.Add(control);
+                    control.Location = targetPanel.PointToClient(new Point(e.X, e.Y));
+                    control.BringToFront();
+                   // Debug.WriteLine($"Panel_DragDrop: Control {control.Name} added to {targetPanel.Name} at location {control.Location}");
+                }
+            }
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        private void AddControlToContentPanel(Control parent, Control child)
+        {
+            if (!parent.Controls.Contains(child))
+            {
+                parent.Controls.Add(child);
+            }
+        }
+
+        private void RemoveControlFromContentPanel(Control parent, Control child)
+        {
+            if (parent.Controls.Contains(child))
+            {
+                parent.Controls.Remove(child);
+                child.Dispose();
+            }
+        }
+
+        #endregion
+
+        #region Design-Time Support
+
+        // The designer class handles design-time features. Ensure it's properly implemented.
+
+        #endregion
+
+        #region Design Mode Check
+
+        public bool IsInDesignMode()
+        {
+            return LicenseManager.UsageMode == LicenseUsageMode.Designtime ||
+                   (Site != null && Site.DesignMode);
+        }
+
+        #endregion
+
+        #region Disposal
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -749,125 +599,31 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     Controls.Remove(control);
                 }
+
                 RemoveAllControlsFromContentPanel(ContentPanel);
                 RemoveAllControlsFromContentPanel(HeaderPanel);
-                // Unregister dynamically created panels and buttons
-                //foreach (var panel in _panelMap.Values)
-                //{
-                //    RemoveControlFromContentPanel(ContentPanel, panel);
-                //}
 
-                // Clear panel map
-                _panelMap.Clear();
-
-                // Unregister HeaderPanel and ContentPanel
-                UnregisterControl(HeaderPanel);
-                UnregisterControl(ContentPanel);
+                // Clear Panels
+                Panels.Clear();
             }
 
             base.Dispose(disposing);
         }
-       
 
-        #region "Drag and Drop"
-
-        //// Drag and Drop should go to Selected Panel and if no panel is selected it should go to the last panel. If no panel exists, stop drop
-        //protected override void OnDragEnter(DragEventArgs e)
-        //{
-        //    base.OnDragEnter(e);
-        //    BeepDynamicTabControl_DragEnter(this, e);
-        //}
-
-        //protected override void OnDragDrop(DragEventArgs e)
-        //{
-        //    base.OnDragDrop(e);
-        //    BeepDynamicTabControl_DragDrop(this, e);
-        //}
-
-        private void Panel_DragEnter(object sender, DragEventArgs e)
+        private void RemoveAllControlsFromContentPanel(Control parent)
         {
-            // Allow drop only if the data is a control
-            if (e.Data.GetDataPresent(typeof(Control)) ||
-         e.Data.GetDataPresent("System.Windows.Forms.Design.ToolboxItem", false))
+            foreach (Control child in parent.Controls.OfType<Control>().ToList())
             {
-                e.Effect = DragDropEffects.Move;
-            }
-            else
-            {
-                e.Effect = DragDropEffects.None;
+                parent.Controls.Remove(child);
+                child.Dispose();
             }
         }
 
-        private void Panel_DragDrop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetData(typeof(ToolboxItem)) is Control   )
-            {
-                var control = e.Data.GetData(typeof(ToolboxItem)) as Control;
-                // Get the target panel
-                var targetPanel = sender as Panel;
-
-                if (targetPanel != null)
-                {
-                    // Add the control to the target panel
-                    targetPanel.Controls.Add(control);
-
-                    // Position the control at the drop location
-                    var dropPoint = targetPanel.PointToClient(new Point(e.X, e.Y));
-                    control.Location = dropPoint;
-
-                    // Ensure the control is visible within the panel
-                    control.BringToFront();
-                }
-            }
-        }
-
-        private void BeepDynamicTabControl_DragEnter(object sender, DragEventArgs e)
-        {
-            // Allow drop only if the data is a control
-            if (e.Data.GetDataPresent(typeof(Control)))
-            {
-                e.Effect = DragDropEffects.Move;
-            }
-            else
-            {
-                e.Effect = DragDropEffects.None;
-            }
-        }
-
-        private void BeepDynamicTabControl_DragDrop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetData(typeof(Control)) is Control control)
-            {
-                Panel targetPanel = null;
-
-                // Use the selected panel if available
-                if (_selectedTab != null && _panelMap.TryGetValue(_selectedTab, out var selectedPanel))
-                {
-                    targetPanel = selectedPanel;
-                }
-                else if (_panelMap.Values.Any())
-                {
-                    // Default to the last panel if no panel is selected
-                    targetPanel = _panelMap.Values.Last();
-                }
-
-                if (targetPanel != null)
-                {
-                    // Add the control to the target panel
-                    targetPanel.Controls.Add(control);
-
-                    // Position the control at the drop location
-                    var dropPoint = targetPanel.PointToClient(new Point(e.X, e.Y));
-                    control.Location = dropPoint;
-
-                    // Ensure the control is visible within the panel
-                    control.BringToFront();
-                }
-            }
-        }
-
-        #endregion "Drag and Drop"
+        #endregion
     }
+
+    // Supporting Classes
+
     public class DynamicTabEventArgs : EventArgs
     {
         public DynamicTabEventArgs(Panel tabPage, int tabIndex)

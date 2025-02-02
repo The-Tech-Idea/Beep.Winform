@@ -2,10 +2,7 @@
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Diagnostics;
-using System.Linq;
-using System.Windows.Forms;
 using System.Windows.Forms.Design;
-using System.Drawing;
 using System.Drawing.Design;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design
@@ -50,24 +47,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
             }
 
             // Subscribe to Tabs collection changes to enable design mode for new panels
-            _dynamicTabControl.Tabs.ListChanged += Tabs_ListChanged;
+         //   _dynamicTabControl.Tabs. += Tabs_ListChanged;
         }
 
         /// <summary>
         /// Handles dynamic addition of new tabs by enabling design mode for their panels.
         /// </summary>
-        private void Tabs_ListChanged(object sender, ListChangedEventArgs e)
-        {
-            if (e.ListChangedType == ListChangedType.ItemAdded)
-            {
-                var newTab = _dynamicTabControl.Tabs[e.NewIndex];
-                if (_dynamicTabControl.Panels.TryGetValue(newTab.GuidId, out var panel))
-                {
-                    EnableDesignMode(panel, panel.Name);
-                    Debug.WriteLine($"Designer: Enabled design mode for panel {panel.Name}");
-                }
-            }
-        }
+        //private void Tabs_ListChanged(object sender, ListChangedEventArgs e)
+        //{
+        //    if (e.ListChangedType == ListChangedType.ItemAdded)
+        //    {
+        //        var newTab = _dynamicTabControl.Tabs[e.NewIndex];
+        //        if (_dynamicTabControl.Panels.TryGetValue(newTab.GuidId, out var panel))
+        //        {
+        //            EnableDesignMode(panel, panel.Name);
+        //            Debug.WriteLine($"Designer: Enabled design mode for panel {panel.Name}");
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Event handler for when a component property changes.
@@ -132,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
         /// <summary>
         /// Retrieves the currently selected panel based on the SelectedTab property.
         /// </summary>
-        private Panel GetSelectedPanel()
+        private BeepPanel GetSelectedPanel()
         {
             if (_dynamicTabControl?.SelectedTab != null &&
                 _dynamicTabControl.ContentPanel != null)
@@ -148,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
         /// <summary>
         /// Handles adding the dropped control to the specified panel.
         /// </summary>
-        private void HandleDropToPanel(Panel panel, Control control, DragEventArgs e)
+        private void HandleDropToPanel(BeepPanel panel, Control control, DragEventArgs e)
         {
             if (panel == null || control == null) return;
 

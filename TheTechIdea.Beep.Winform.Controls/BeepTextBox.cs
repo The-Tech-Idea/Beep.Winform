@@ -1449,7 +1449,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _innerTextBox.BeginInvoke(new Action(() => _innerTextBox.Font = _textFont));
                 }
              
-                //InnerTextBox.Font=_textFont;
+                //InnerTextBox.Font=_listbuttontextFont;
                 Font=_textFont;
             }
          

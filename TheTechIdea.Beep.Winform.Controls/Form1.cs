@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepTreeControl1.init(beepService);
             //  beepButton1.Click += BeepButton1_Click;
             //   beepButton2.PopupMode = true;
-            
+
         }
 
 
@@ -61,5 +61,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             //beepTreeControl1.AllowMultiSelect = false;
         }
 
+        
     }
 }

@@ -308,15 +308,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _isSelected = value;
                 if (_isSelected)
                 {
-                    tmpbackcolor = BackColor;
-                    tmpforcolor = ForeColor;
+                    
                     BackColor = _currentTheme.ButtonActiveBackColor;
                     ForeColor = _currentTheme.ButtonActiveForeColor;
                 }
                 else
                 {
-                    BackColor = tmpbackcolor;
-                    ForeColor = tmpforcolor;
+                    BackColor = _currentTheme.ButtonBackColor;
+                    ForeColor = _currentTheme.ButtonForeColor;
                 }
                 Invalidate(); // Repaint to reflect selection state
             }

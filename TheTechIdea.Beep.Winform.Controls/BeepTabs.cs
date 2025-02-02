@@ -8,8 +8,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 {
     // A TabControl that hides the default tab headers
    // [Designer(typeof(TabControlWithoutTabsDesigner))]
-   
-
     [DefaultProperty("TabPages")]
     [ToolboxItem(true)]
     [DisplayName("Beep Tabs")]
@@ -51,7 +49,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private int _headerButtonWidth = 60;
         private Rectangle rect;
-
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int HeaderButtonWidth
@@ -63,11 +60,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RefreshHeaders();
             }
         }
-
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public TabControl.TabPageCollection TabPages => _tabControl.TabPages;
-
         public TabPage SelectedTab
         {
             get => _tabControl.SelectedTab;
@@ -81,8 +76,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
-
         public int SelectedIndex
         {
             get => _tabControl.SelectedIndex;
@@ -96,8 +89,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
-
         public BeepTabs()
         {
             _headerPanel = new FlowLayoutPanel
@@ -252,10 +243,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    return null;
         //}
         #endregion "Drag and Drop"
-
-
-
-
         // Triggered when a tab is selected
         protected virtual void OnTabSelected(TabPage selectedTab, int selectedIndex)
         {
@@ -310,14 +297,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             Console.WriteLine("Headers invalidated");
             _tabControl.Invalidate(); // Redraw tab content
         }
-
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
             Console.WriteLine("Handle created");
             RefreshHeaders(); // Ensure headers are built at runtime
         }
-
         public void RefreshHeaders()
         {
             Console.WriteLine("Refreshing headers");
@@ -335,7 +320,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             HighlightButtonAt(_tabControl.SelectedIndex);
             Console.WriteLine("Button highlighted");
         }
-
         private BeepButton CreateTabButton(TabPage page, int index)
         {
             int maxTextWidth = GetMaxTextWidth() + 20; // Include padding for horizontal alignment
@@ -354,6 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsBorderAffectedByTheme = true,
                 IsShadowAffectedByTheme = false,
                 UseScaledFont = true,
+                Id = index,
                 IsSelectedAuto = false,
                 ImagePath = "", // Optionally set an image path
                 Size = (_headerLocation == HeaderLocation.Left || _headerLocation == HeaderLocation.Right)
@@ -371,7 +356,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return btn;
         }
-
         public void SelectTab(int index)
         {
             if (index >= 0 && index < _tabControl.TabPages.Count)
@@ -381,7 +365,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 OnTabSelected(_tabControl.TabPages[index], index);
             }
         }
-
         private void HighlightButtonAt(int index)
         {
             for (int i = 0; i < _headerPanel.Controls.Count; i++)
@@ -389,8 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_headerPanel.Controls[i] is BeepButton btn)
                 {
                     Console.WriteLine("Highlighting button " + i);
-                    bool isSelected = (i == index);
-                    btn.IsSelected = isSelected;
+                    btn.IsSelected = btn.Id == index;
                     btn.Invalidate();
                 }
             }
@@ -400,8 +382,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             return _tabControl.TabPages.Cast<TabPage>()
                 .Max(page => TextRenderer.MeasureText(page.Text, Font).Width);
         }
-
-
         public override void ApplyTheme()
         {
             if (Theme != null)

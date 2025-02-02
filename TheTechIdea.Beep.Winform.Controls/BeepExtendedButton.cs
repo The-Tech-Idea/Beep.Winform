@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Vis.Modules;
 
 
 
@@ -18,8 +19,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int buttonWidth = 200;
         private int extendbuttonWidth = 22;
         private int buttonHeight = 30;
-        private int starty = 2;
-        private int startx = 2;
+        private int starty = 1;
+        private int startx = 1;
 
         private Size _imagesize = new Size(20, 20);
         bool _applyThemeOnImage = false;
@@ -196,11 +197,63 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        [Browsable(true)]
+        [Category("Behavior")]
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                _isSelected = value;
+                if (_isSelected)
+                {
+
+                    BackColor = _currentTheme.ButtonActiveBackColor;
+                    ForeColor = _currentTheme.ButtonActiveForeColor;
+                }
+                else
+                {
+                    BackColor = _currentTheme.ButtonBackColor;
+                    ForeColor = _currentTheme.ButtonForeColor;
+                }
+                Invalidate(); // Repaint to reflect selection state
+            }
+        }
+        private Font _textFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TextFont
+        {
+            get => _textFont;
+            set
+            {
+
+                _textFont = value;
+                UseThemeFont = false;
+                if (button != null)
+                {
+
+
+                  //  _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                    button.TextFont = _textFont;
+
+                }
+
+                Invalidate();
+
+
+            }
+        }
         #region Events
         public event EventHandler<BeepEventDataArgs> ButtonClick;
         public event EventHandler<BeepEventDataArgs> ExtendButtonClick;
         #endregion
         private SimpleItem _menuItem;
+        private bool _isSelected;
+
         [Browsable(true)]
         [Category("Appearance")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
@@ -241,7 +294,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             CreateMenuItemPanel();
             _isControlinvalidated = true;
+            Console.WriteLine("Control InitLayout 1");
             Invalidate();
+            Console.WriteLine("Control InitLayout 2");
         }
         private void CreateMenuItemPanel()
         {
@@ -250,8 +305,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Clear existing controls before re-creating the layout
             Controls.Clear();
             UpdateDrawingRect();
-            // DrawingRect.Inflate(-2, -10);
-            buttonHeight = DrawingRect.Height - 2;
+             DrawingRect.Inflate(-1, -1);
+            buttonHeight = DrawingRect.Height ;
             // Main button setup
             Console.WriteLine("Control CreateMenuItemPanel");
             button = new BeepButton
@@ -268,8 +323,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 ShowAllBorders = false,
                 ShowShadow = false,
+                IsFramless = true,
                 BorderSize = 0,
                 IsRounded = false,
+                UseScaledFont = true,
                 ApplyThemeOnImage = ApplyThemeOnImage
             };
             Console.WriteLine("Control CreateMenuItemPanel 1");
@@ -292,13 +349,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MaxImageSize = new Size(RightButtonSize - 2, RightButtonSize-2),
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,
-                
+                IsFramless = true,
                 Theme = Theme,
                 ShowAllBorders = false,
                 ShowShadow = false,
                 IsRounded = false,
                 IsBorderAffectedByTheme = false,
                 BorderSize = 0,
+                  
                 ApplyThemeOnImage = ApplyThemeOnImage
             };
             Console.WriteLine("Control CreateMenuItemPanel 3");
@@ -356,12 +414,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void rearrangeControls()
         {
             UpdateDrawingRect();
-            DrawingRect.Inflate(-1, -1);
+           // DrawingRect.Inflate(-1, -1);
             if (button != null && extendButton != null)
             {
-                buttonHeight = DrawingRect.Height - 2;
+                buttonHeight = DrawingRect.Height ;
                 // We want a small gap (like 2px) between the two buttons:
-                int gapBetweenButtons = 2;
+                int gapBetweenButtons = 1;
 
                 // Extended button has a known width:
                 int extButtonWidth = RightButtonSize;   // your chosen formula
@@ -395,5 +453,70 @@ namespace TheTechIdea.Beep.Winform.Controls
             ButtonClick?.Invoke(this, new BeepEventDataArgs("ButtonClick", MenuItem));
 
         }
+        #region "Theme"
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+            _textFont = Font;
+            //  Console.WriteLine("Font Changed");
+            if (AutoSize)
+            {
+                Size textSize = TextRenderer.MeasureText(Text, _textFont);
+                this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
+            }
+        }
+        public override void ApplyTheme()
+        {
+            if (button == null) return;
+
+            BackColor = _currentTheme.ButtonBackColor;
+            ForeColor = _currentTheme.ButtonForeColor;
+            HoverBackColor = _currentTheme.ButtonHoverBackColor;
+            HoverForeColor = _currentTheme.ButtonHoverForeColor;
+            ActiveBackColor = _currentTheme.ButtonActiveBackColor;
+            button.Theme = Theme;
+            if (UseThemeFont)
+            {
+                button.UseThemeFont = true;
+                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                button.Font = _textFont;
+            }else
+            {
+                button.Font = _textFont;
+            }
+            if (IsChild)
+            {
+                BackColor = _currentTheme.ButtonBackColor;
+                extendButton.BackColor = _currentTheme.ButtonBackColor; 
+                button.BackColor = _currentTheme.ButtonBackColor;
+
+            }
+            button.IsChild = IsChild;
+            extendButton.Theme = Theme;
+            extendButton.IsChild = IsChild;
+            Font = _textFont;
+
+            ApplyThemeToSvg();
+            Invalidate();  // Trigger repaint
+        }
+        public void ApplyThemeToSvg()
+        {
+
+            if (extendButton != null) // Safely apply theme to beepImage
+            {
+                extendButton.ApplyThemeOnImage = ApplyThemeOnImage;
+                if (ApplyThemeOnImage)
+                {
+
+                    extendButton.ImageEmbededin = ImageEmbededin.Button;
+                    extendButton.Theme = Theme;
+                    extendButton.ApplyThemeToSvg();
+                }
+
+            }
+
+
+        }
+        #endregion "Theme"
     }
 }

@@ -149,7 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //{
             //    if (!_beepListBox.UseThemeFont)
             //    {
-            //        btn.TextFont = _textFont;
+            //        btn.TextFont = _listbuttontextFont;
             //    }else
             //        btn.TextFont = _beepListBox.Font;
 

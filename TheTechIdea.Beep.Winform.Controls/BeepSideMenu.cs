@@ -3,6 +3,7 @@ using System.Drawing.Design;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Vis.Modules;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -41,6 +42,47 @@ namespace TheTechIdea.Beep.Winform.Controls
         bool _isExpanedWidthSet = false;
         int  _tWidth;
         #region "Properties"
+        private Size _logosize = new Size(100, 100);
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the size of the logo image.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Size LogoSize
+        {
+            get { return _logosize; }
+            set { _logosize = value; }
+        }
+        private Size _titleSize = new Size(100, 20);
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the size of the title.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Size TitleSize
+        {
+            get { return _titleSize; }
+            set { _titleSize = value; }
+        }
+        private Size _descriptionSize = new Size(100, 20);
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the size of the description.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Size DescriptionSize
+        {
+            get { return _descriptionSize; }
+            set { _descriptionSize = value; }
+        }
+        private Size _listimagesize = new Size(20, 20);
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the size of the list image.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Size ListImageSize
+        {
+            get { return _listimagesize; }
+            set { _listimagesize = value; }
+        }
+
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Set the width of the button.")]
@@ -170,6 +212,30 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_titleLabel != null) { _titleLabel.Text = value; Invalidate(); }
             }
         }
+        private Font _listbuttontextFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font for List Items displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font ListButtonFont
+        {
+            get => _listbuttontextFont;
+            set
+            {
+
+                _listbuttontextFont = value;
+                UseThemeFont = false;
+                Console.WriteLine("Font Changed");
+                ChangeListFont();
+                Invalidate();
+
+
+            }
+        }
+
+       
+
 
         #endregion "Properties"
         public BeepSideMenu()
@@ -457,7 +523,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 menuItemPanel.Width = DrawingRect.Width - (2 * padding);
                 menuItemPanel.Location = new Point(DrawingRect.X + padding, yOffset);
                 Controls.Add(menuItemPanel);
-
+                menuItemPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
                 yOffset += menuItemPanel.Height + padding;
 
                 // Add child menu items (if any)
@@ -512,7 +578,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Dock = DockStyle.Fill,
                 Text = item.Text,
                 ImagePath = item.ImagePath,
-                MaxImageSize = new Size(ButtonSize.Width-2, ButtonSize.Height-2),
+                MaxImageSize = ListImageSize,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 TextAlign = isCollapsed ? ContentAlignment.MiddleLeft : ContentAlignment.MiddleCenter,
                 ImageAlign = ContentAlignment.MiddleLeft,
@@ -526,7 +592,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Tag = item,
                 ApplyThemeOnImage = false
             };
-
+            
             button.MouseEnter += (s, e) =>
             {
                 menuItemPanel.BackColor = _currentTheme.SideMenuHoverBackColor;
@@ -596,11 +662,42 @@ namespace TheTechIdea.Beep.Winform.Controls
                             button.Theme = Theme;
                             button.BackColor = _currentTheme.SideMenuBackColor;
                             button.ForeColor = _currentTheme.SideMenuForeColor;
+                            if (UseThemeFont)
+                            {
+                                ListButtonFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                                button.Font = ListButtonFont;
+                                button.UseThemeFont = true;
+                            }
+                            else
+                            {
+                                
+                                button.TextFont = ListButtonFont;
+                            }
+                         
+
+
                         }
-                       
                     }
                 }
             }
+        }
+        private void ChangeListFont()
+        {
+            foreach (Control control in Controls)
+            {
+                if (control is Panel menuItemPanel && menuItemPanel.Tag is SimpleItem)
+                {
+                    foreach (Control subControl in menuItemPanel.Controls)
+                    {
+                        if (subControl is BeepButton button)
+                        {
+                            button.TextFont = ListButtonFont;
+                            
+                        }
+                    }
+                }
+            }
+
         }
     }
 }

@@ -1,18 +1,13 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
-using TheTechIdea.Beep.Report;
-using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
-using TheTechIdea.Beep.Winform.Controls.Managers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -21,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Fields"
         protected int _resizeMargin = 5; // Margin for resizing
         protected int _borderRadius = 5;
-        protected int _borderThickness = 3; // Thickness of the custom border
+        protected int _borderThickness = 1; // Thickness of the custom border
         private Color _borderColor = Color.Red; // Default border color
         private const int ButtonSize = 30;
         private Point lastMousePosition;
@@ -119,8 +114,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
             //      Margin = new Padding(_resizeMargin);
             //     Debug.WriteLine("BeepiForm Constructor 11");
-           // Initialize();
-
+            // Initialize();
+            // Set padding so controls dock within the interior
+            this.Padding = new Padding(_borderThickness);
 
         }
         public BeepiForm()
@@ -137,7 +133,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
             //      Margin = new Padding(_resizeMargin);
             //  Debug.WriteLine("BeepiForm Constructor 22");
-           // Initialize();
+            // Initialize();
+            // Set padding so controls dock within the interior
+            this.Padding = new Padding(_borderThickness);
         }
         protected override void OnActivated(EventArgs e)
         {
@@ -313,36 +311,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            // Enable anti-aliasing for smoother borders
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             e.Graphics.CompositingQuality = CompositingQuality.HighQuality;
             e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
             e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
-            // Draw the custom border
-            // Skip drawing if border thickness is zero
-            if (_borderThickness == 0)
+            if (_borderThickness > 0)
             {
-                return;
-            }
-            using (Pen borderPen = new Pen(_borderColor, _borderThickness))
-            {
-                // Account for the border thickness to prevent overlap
-                Rectangle borderRectangle = new Rectangle(
-                      _borderThickness / 2,
-                      _borderThickness / 2,
-                    Width - (_borderThickness),
-                    Height - (_borderThickness)
-                );
-
-
-                borderPen.Alignment = PenAlignment.Center;
-                e.Graphics.DrawRectangle(borderPen, borderRectangle);
-                //            e.Graphics.DrawRectangle(
-                //    borderPen,
-                //    new Rectangle(0, 0, Width - 1, Height - 1)
-                //);
+                using (Pen borderPen = new Pen(_borderColor, _borderThickness))
+                {
+                    // Using Center alignment ensures the stroke straddles the border path.
+                    borderPen.Alignment = PenAlignment.Center;
+                    // Adjust the rectangle to prevent clipping
+                    Rectangle rect = new Rectangle(0, 0, this.Width - 1, this.Height - 1);
+                    using (GraphicsPath path = GetRoundedRectanglePath(rect, _borderRadius))
+                    {
+                        e.Graphics.DrawPath(borderPen, path);
+                    }
+                }
             }
 
 
@@ -350,40 +337,66 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-
-            // Update the rounded corners region
-            if (Region != null)
+            Rectangle rect = new Rectangle(0, 0, this.Width, this.Height);
+            using (GraphicsPath path = GetRoundedRectanglePath(rect, _borderRadius))
             {
-                Region.Dispose();
+                this.Region = new Region(path);
             }
-            int diameter = _borderRadius * 2;
-            // Define the rounded region for the form
-            //Region = Region.FromHrgn(CreateRoundRectRgn(
-            //    _borderThickness , // No adjustment for border thickness
-            //    _borderThickness , // No adjustment for border thickness
-            //    Width- _borderThickness,
-            //    Height- _borderThickness,
-            //    diameter,
-            //    diameter
-            //));
-            Region = Region.FromHrgn(CreateRoundRectRgn(
-    0,
-    0,
-    Width,
-    Height,
-    diameter,
-    diameter
-));
-            Invalidate();
+            Invalidate(); // Redraw the form with the updated region
         }
         protected override void OnLayout(LayoutEventArgs e)
         {
             base.OnLayout(e);
-            //if (_borderThickness > 0)
-            //{
-            //    Padding = new Padding(_borderThickness);
-            //    AdjustControls();
-            //}
+
+            if (_borderThickness > 0)
+            {
+                Padding = new Padding(_borderThickness);
+                AdjustControls();
+            }
+        }
+        /// Creates a GraphicsPath representing a rounded rectangle.
+        /// </summary>
+        /// <param name="rect">The rectangle bounds.</param>
+        /// <param name="radius">The corner radius.</param>
+        /// <returns>A GraphicsPath with rounded corners.</returns>
+        private GraphicsPath GetRoundedRectanglePath(Rectangle rect, int radius)
+        {
+            GraphicsPath path = new GraphicsPath();
+            int diameter = radius * 2;
+
+            // If radius is 0, return a normal rectangle.
+            if (radius <= 0)
+            {
+                path.AddRectangle(rect);
+                return path;
+            }
+
+            // Ensure diameter does not exceed the bounds of the rectangle.
+            if (diameter > rect.Width)
+                diameter = rect.Width;
+            if (diameter > rect.Height)
+                diameter = rect.Height;
+
+            // Define arcs for each corner.
+            Rectangle arcRect = new Rectangle(rect.Location, new Size(diameter, diameter));
+
+            // Top-left arc
+            path.AddArc(arcRect, 180, 90);
+
+            // Top-right arc
+            arcRect.X = rect.Right - diameter;
+            path.AddArc(arcRect, 270, 90);
+
+            // Bottom-right arc
+            arcRect.Y = rect.Bottom - diameter;
+            path.AddArc(arcRect, 0, 90);
+
+            // Bottom-left arc
+            arcRect.X = rect.Left;
+            path.AddArc(arcRect, 90, 90);
+
+            path.CloseFigure();
+            return path;
         }
         public virtual void AdjustControls()
         {

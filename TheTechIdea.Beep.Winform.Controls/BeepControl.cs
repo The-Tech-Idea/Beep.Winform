@@ -2026,6 +2026,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool IsReadOnly { get; set; }
         public bool IsEditable { get; set; }
         public bool IsVisible { get; set; }
+        public bool IsRequired { get; set; }
         public object Oldvalue { get; }
         [Browsable(true)]
         [TypeConverter(typeof(ThemeEnumConverter))]

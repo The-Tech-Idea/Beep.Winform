@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -16,78 +16,65 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _firstVisibleRow;
         private int _visibleRowCount;
         private int _rowHeight = 30;
-        private int _resizeColumnIndex = -1;
-        private Point _resizeStartPos;
-        private List<object> _dataSource;
         private bool _showSelectionColumn = true;
+        private List<BeepDataRecord> _dataRecords = new();
+
         public BindingList<BeepGridRow> Rows { get; set; } = new BindingList<BeepGridRow>();
         public BeepGridRow CurrentRow { get; set; }
         public BeepGridCell CurrentCell { get; set; }
-        public BeepGridCell CurrentCellInEdit { get; set; }
-        public BeepGridRow CurrentRowInEdit { get; set; }
         public List<BeepGridColumnConfig> Columns { get; set; } = new List<BeepGridColumnConfig>();
 
-        private Dictionary<string, Control> controlPool = new(); // Pool of controls by Cell ID
-
         #region "Events Delegates"
-        // Row Events
         public event EventHandler<BeepGridRowEventArgs> OnRowSelected;
         public event EventHandler<BeepGridRowEventArgs> OnRowValidate;
         public event EventHandler<BeepGridRowEventArgs> OnRowDelete;
         public event EventHandler<BeepGridRowEventArgs> OnRowAdded;
         public event EventHandler<BeepGridRowEventArgs> OnRowUpdate;
-        //Cell Events
         public event EventHandler<BeepGridCellEventArgs> OnCellSelected;
         public event EventHandler<BeepGridCellEventArgs> OnCellValidate;
-        #endregion "Events Delegates"
-        #region "Constructor"
-        //public BeepGridRowPainterForTableLayout(BeepGridTableLayout gridControl,
-        //                                     BeepGridColumnConfigCollection columns)
-        //{
-        //    _gridPanel = gridControl.GridtableLayoutPanel;
-        //    _columns = columns;
-        //    _vScroll = gridControl.vScrollBar1;
-        //    _hScroll = gridControl.hScrollBar1;
+        #endregion
 
-        //    InitializeGridStructure();
-        //    ConfigureScrollBars();
-        //    HookEvents();
-        //}
-        #endregion "Constructor"
+        #region "Constructor"
+        public BeepGridRowPainterForTableLayout(TableLayoutPanel gridPanel, BeepGridColumnConfigCollection columns, VScrollBar vScroll, HScrollBar hScroll)
+        {
+            _gridPanel = gridPanel;
+            _columns = columns;
+            _vScroll = vScroll;
+            _hScroll = hScroll;
+
+            InitializeGridStructure();
+            ConfigureScrollBars();
+            HookEvents();
+        }
+        #endregion
+
+        #region "Grid Initialization"
         private void InitializeGridStructure()
         {
-            _gridPanel.ColumnStyles.Clear();
-            _gridPanel.RowStyles.Clear();
+
+            _gridPanel.SuspendLayout();
             _gridPanel.Controls.Clear();
+            _gridPanel.RowStyles.Clear();
 
-            // Add selection column if needed
-            if (_showSelectionColumn)
+            _gridPanel.RowCount = 2; // Header + Aggregation Row
+            _gridPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Header row
+            _gridPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Aggregation row
+
+            _visibleRowCount = (_gridPanel.Height - 60) / _rowHeight;
+            int endRow = Math.Min(_firstVisibleRow + _visibleRowCount, _dataRecords.Count);
+
+            AddHeaderRow(); // Ensure header row is added
+
+            for (int i = _firstVisibleRow; i < endRow; i++)
             {
-                _gridPanel.ColumnCount = _columns.Count + 1;
-                AddSelectColumn();
-            }
-            else
-            {
-                _gridPanel.ColumnCount = _columns.Count;
+                int rowIndex = i - _firstVisibleRow + 1; // Adjust index for header row
+                AddBeepDataRow(rowIndex, _dataRecords[i]);
             }
 
-            // Configure data columns
-            foreach (var col in _columns)
-            {
-                _gridPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, col.Width));
-            }
+            AddAggregationRow(); // Ensure aggregation row is added
 
-            // Header row (row 0)
-            AddHeaderRow();
-            // Footer row (last row)
-            AddAggregationRow();
+            _gridPanel.ResumeLayout(true);
         }
-
-        private void AddSelectColumn()
-        {
-            _gridPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 25));
-        }
-
         private void AddHeaderRow()
         {
             _gridPanel.RowCount = 1;
@@ -95,34 +82,22 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             int colIndex = 0;
 
-            // Selection column header
             if (_showSelectionColumn)
             {
                 var selectAll = new CheckBox { Dock = DockStyle.Fill };
                 selectAll.CheckedChanged += (s, e) => SelectAllRows(selectAll.Checked);
                 _gridPanel.Controls.Add(selectAll, colIndex++, 0);
             }
-           
-            // Data column headers
+
             foreach (var col in _columns)
             {
                 var header = CreateColumnHeader(col);
                 _gridPanel.Controls.Add(header, colIndex++, 0);
             }
         }
-
-        private void SelectAllRows(bool @checked)
-        {
-            foreach (var row in Rows)
-            {
-                row.IsSelected = @checked;
-            }
-        }
-
         private Control CreateColumnHeader(BeepGridColumnConfig col)
         {
             var panel = new Panel { Dock = DockStyle.Fill };
-
             var label = new BeepLabel
             {
                 Text = col.ColumnCaption,
@@ -131,238 +106,145 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Tag = col
             };
 
-            var filterBtn = new Button
-            {
-                Text = "⚡",
-               
-                Width = 25,
-                Tag = col
-            };
-            var sortBtn = new Button
-            {
-                Text = "🔽",
-               
-                Width = 25,
-                Tag = col
-            };
-            // position controls in the panel where the label is filling the panel and the buttons are on the right side on top of label
-            filterBtn.Location = new Point(panel.Width - filterBtn.Width, 0);
-            filterBtn.Anchor = AnchorStyles.Right;
-            sortBtn.Location = new Point(panel.Width - filterBtn.Width - sortBtn.Width, 0);
-            sortBtn.Anchor = AnchorStyles.Right;
-            // Add event handlers
-            label.MouseDown += (s, e) => StartColumnResize(col, e.Location);
-            label.Click += (s, e) => SortColumn(col);
+            var filterBtn = new Button { Text = "⚡", Width = 25, Tag = col };
+            var sortBtn = new Button { Text = "🔽", Width = 25, Tag = col };
+
             filterBtn.Click += (s, e) => ShowFilterDialog(col);
+            sortBtn.Click += (s, e) => SortColumn(col);
 
             panel.Controls.Add(filterBtn);
+            panel.Controls.Add(sortBtn);
             panel.Controls.Add(label);
 
             return panel;
         }
-
-        private void ShowFilterDialog(BeepGridColumnConfig col)
+        #endregion
+        #region "Row Handling"
+        private void AddBeepDataRow(int rowIndex, BeepDataRecord record)
         {
-            throw new NotImplementedException();
-        }
-
-        private void SortColumn(BeepGridColumnConfig col)
-        {
-           if(col.IsSorted)
-            {
-                col.IsSorted = false;
-            }
-            else
-            {
-                col.IsSorted = true;
-            }
-        }
-
-        private void StartColumnResize(BeepGridColumnConfig col, Point location)
-        {
-            // Check if the mouse is on the right edge of the column header
-            //if (location.X > GetColumnWidth(_gridPanel.GetColumn(col.Index)) - 5)
-            //{
-            //    _resizeColumnIndex = col.Index;
-            //    _resizeStartPos = location;
-            //    _gridPanel.Cursor = Cursors.SizeWE;
-            //}
-        }
-        private int GetColumnWidth(BeepGridColumnConfig col)
-        {
-            //var x=_gridPanel.GetColumn(col.Index);
-            return 1;
-        }
-
-        private void AddAggregationRow()
-        {
-            _gridPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 25));
-            _gridPanel.RowCount++;
-
             int colIndex = 0;
 
+            // If Selection Column is Enabled, Add Checkbox
             if (_showSelectionColumn)
             {
-                _gridPanel.Controls.Add(new Panel(), colIndex++, _gridPanel.RowCount - 1);
+                var checkBox = new CheckBox { Dock = DockStyle.Fill };
+                checkBox.CheckedChanged += (s, e) => record.SetDataRecord(new { IsSelected = checkBox.Checked });
+                _gridPanel.Controls.Add(checkBox, colIndex++, rowIndex);
             }
 
-            foreach (var col in _columns)
-            {
-                var lbl = new BeepLabel
-                {
-                    Dock = DockStyle.Fill,
-                    TextAlign = ContentAlignment.MiddleRight
-                };
-                _gridPanel.Controls.Add(lbl, colIndex++, _gridPanel.RowCount - 1);
-            }
+            // Add BeepDataRecord as Row
+            _gridPanel.Controls.Add(record, colIndex, rowIndex);
         }
-
         public void SetDataSource(List<object> data)
         {
-            _dataSource = data;
+            _dataRecords.Clear();
+            foreach (var record in data)
+            {
+                var beepRecord = new BeepDataRecord(record);
+                beepRecord.RecordStatusChanged += (s, status) => OnRowUpdate?.Invoke(this, new BeepGridRowEventArgs(CurrentRow));
+                _dataRecords.Add(beepRecord);
+            }
+
             UpdateVirtualization();
             UpdateScrollBars();
             UpdateAggregations();
         }
-
         private void UpdateVirtualization()
         {
             _gridPanel.SuspendLayout();
 
-            // Calculate visible rows (excluding header and footer)
-            var contentHeight = _gridPanel.Height -
-                              _gridPanel.GetRowHeights()[0] -
-                              _gridPanel.GetRowHeights()[_gridPanel.RowCount - 1];
-
-            _visibleRowCount = contentHeight / _rowHeight;
-
-            // Maintain RowCount: Header + Visible Rows + Footer
-            while (_gridPanel.RowCount > _visibleRowCount + 2)
-            {
-                _gridPanel.RowStyles.RemoveAt(1);
-                _gridPanel.RowCount--;
-            }
+            int totalDataRows = _dataRecords.Count;
+            _visibleRowCount = Math.Min((_gridPanel.Height - 60) / _rowHeight, totalDataRows); // Ensure we don’t create extra empty rows
+            int endRow = Math.Min(_firstVisibleRow + _visibleRowCount, totalDataRows);
 
             for (int i = 0; i < _visibleRowCount; i++)
             {
-                if (_gridPanel.RowCount < i + 2) // Header(0) + Rows + Footer
-                {
-                    _gridPanel.RowStyles.Insert(i + 1, new RowStyle(SizeType.Absolute, _rowHeight));
-                    _gridPanel.RowCount++;
-                }
+                int dataIndex = _firstVisibleRow + i;
 
-                UpdateDataRow(i);
+                if (dataIndex < totalDataRows)
+                {
+                    var record = _dataRecords[dataIndex];
+                    UpdateDataRow(i + 1, record); // Shift index because row 0 is header
+                }
+                else
+                {
+                    ClearRow(i + 1); // Hide rows beyond available data
+                }
             }
 
             _gridPanel.ResumeLayout(true);
         }
 
-        private void UpdateDataRow(int visibleIndex)
+        private void UpdateDataRow(int rowIndex, BeepDataRecord record)
         {
-            var dataIndex = _firstVisibleRow + visibleIndex;
-            var gridRow = visibleIndex + 1; // Skip header
-
-            if (dataIndex >= _dataSource.Count)
-            {
-                ClearRow(gridRow);
-                return;
-            }
-
-            var data = _dataSource[dataIndex];
             int colIndex = 0;
 
-            // Selection checkbox
-            if (_showSelectionColumn)
+            // If row exists, update its data
+            if (_gridPanel.GetControlFromPosition(colIndex, rowIndex) is BeepDataRecord existingRecord)
             {
-                //BeepCheckBox chk = GetOrCreateControl<BeepCheckBox>(colIndex, gridRow);
-                //chk = ((BeepGridRow)data).IsSelected;
-                //chk.CheckedChanged += (s, e) => UpdateSelection(data, chk.Checked);
-                //colIndex++;
+                existingRecord.SetDataRecord(record.DataRecord); // Just update data
             }
-
-            // Data columns
-            foreach (var col in _columns)
+            else
             {
-                var cell = GetOrCreateCellControl(col, colIndex, gridRow);
-                UpdateCellValue(cell, col, data);
-                colIndex++;
+                // If row doesn't exist, create a new one
+                var newRecord = new BeepDataRecord(record.DataRecord);
+                _gridPanel.Controls.Add(newRecord, colIndex, rowIndex);
             }
         }
 
-        private void ClearRow(int gridRow)
+        private void SelectAllRows(bool isChecked)
         {
-            throw new NotImplementedException();
-        }
-
-        private object GetOrCreateControl<T>(int colIndex, int gridRow)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void UpdateCellValue(Control cell, BeepGridColumnConfig col, object data)
-        {
-            throw new NotImplementedException();
-        }
-
-        private Control GetOrCreateCellControl(BeepGridColumnConfig col, int column, int row)
-        {
-            var existing = _gridPanel.GetControlFromPosition(column, row);
-            if (existing != null) return existing;
-
-            var control = CreateCellControl(col);
-            _gridPanel.Controls.Add(control, column, row);
-            return control;
-        }
-
-        private Control CreateCellControl(BeepGridColumnConfig col)
-        {
-            return col.CellEditor switch
+            foreach (var row in _dataRecords)
             {
-                BeepGridColumnType.CheckBox => new CheckBox { Dock = DockStyle.Fill },
-                BeepGridColumnType.ComboBox => new ComboBox { Dock = DockStyle.Fill },
-                BeepGridColumnType.DateTime => new DateTimePicker { Dock = DockStyle.Fill },
-                _ => new BeepLabel { Dock = DockStyle.Fill, TextAlign = TranslateAlignment(col.Alignment) }
-            };
+                row.SetDataRecord(new { IsSelected = isChecked });
+            }
         }
-
-        private ContentAlignment TranslateAlignment(string alignment)
+        private void ClearRow(int rowIndex)
         {
-            throw new NotImplementedException();
-        }
-
-        private void UpdateAggregations()
-        {
-            var aggRow = _gridPanel.RowCount - 1;
-            int colIndex = _showSelectionColumn ? 1 : 0;
-
-            foreach (var col in _columns)
+            for (int col = 0; col < _gridPanel.ColumnCount; col++)
             {
-                if (!col.HasTotal) continue;
-
-                var total = _dataSource
-                    .Skip(_firstVisibleRow)
-                    .Take(_visibleRowCount)
-                    .Sum(item => Convert.ToDecimal(GetCellValue(col, item)));
-
-                var lbl = (BeepLabel)_gridPanel.GetControlFromPosition(colIndex, aggRow);
-                lbl.Text = total.ToString(col.Format);
-                colIndex++;
+                var control = _gridPanel.GetControlFromPosition(col, rowIndex);
+                if (control != null)
+                {
+                    _gridPanel.Controls.Remove(control);
+                }
             }
         }
 
-        private bool GetCellValue(BeepGridColumnConfig col, object item)
+        #endregion
+        #region "Scroll Bar Configuration"
+        private void UpdateScrollBars()
         {
-            throw new NotImplementedException();
+            // Update Vertical Scrollbar
+            if (_dataRecords != null && _dataRecords.Count > 0)
+            {
+                _vScroll.Minimum = 0;
+                _vScroll.Maximum = Math.Max(0, _dataRecords.Count - _visibleRowCount);
+                _vScroll.LargeChange = _visibleRowCount;
+            }
+            else
+            {
+                _vScroll.Minimum = 0;
+                _vScroll.Maximum = 0;
+                _vScroll.LargeChange = 1;
+            }
+
+            // Update Horizontal Scrollbar
+            int totalColumnsWidth = _columns.Sum(c => c.Width);
+            int maxScroll = totalColumnsWidth - _gridPanel.Width;
+            _hScroll.Minimum = 0;
+            _hScroll.Maximum = Math.Max(0, maxScroll);
+            _hScroll.LargeChange = _gridPanel.Width;
         }
 
         private void ConfigureScrollBars()
         {
             _vScroll.Minimum = 0;
-            _vScroll.Maximum = Math.Max(0, _dataSource.Count - _visibleRowCount);
+            _vScroll.Maximum = Math.Max(0, _dataRecords.Count - _visibleRowCount);
             _vScroll.LargeChange = _visibleRowCount;
 
             _hScroll.Minimum = 0;
-            _hScroll.Maximum = _columns.Sum(c => c.Width);
+            _hScroll.Maximum = _columns.Sum(c => c.Width) - _gridPanel.Width;
             _hScroll.LargeChange = _gridPanel.Width;
         }
 
@@ -380,64 +262,72 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _gridPanel.HorizontalScroll.Value = _hScroll.Value;
                 _gridPanel.PerformLayout();
             };
-
-            _gridPanel.MouseMove += HandleColumnResize;
-            _gridPanel.MouseUp += (s, e) =>
-            {
-                _resizeColumnIndex = -1;
-                _gridPanel.Cursor = Cursors.Default;
-            };
         }
 
-        private void HandleColumnResize(object sender, MouseEventArgs e)
+        #endregion
+        #region "Cell Handling"
+        #endregion "Cell Handling"
+        #region "Aggregations"
+        private void AddAggregationRow()
         {
-            if (_resizeColumnIndex == -1) return;
+            int aggRowIndex = _gridPanel.RowCount - 1; // Last row is the aggregation row
+            int colIndex = 0;
 
-            var delta = e.X - _resizeStartPos.X;
-            var col = _columns[_resizeColumnIndex];
-            col.Width = Math.Max(col.MinimumWidth, col.Width + delta);
+            _gridPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
 
-            _gridPanel.ColumnStyles[_resizeColumnIndex + (_showSelectionColumn ? 1 : 0)].Width = col.Width;
-            _resizeStartPos = e.Location;
-            _gridPanel.Invalidate();
+            if (_showSelectionColumn)
+            {
+                _gridPanel.Controls.Add(new Panel(), colIndex++, aggRowIndex);
+            }
+
+            foreach (var col in _columns)
+            {
+                var lbl = new BeepLabel
+                {
+                    Dock = DockStyle.Fill,
+                    TextAlign = ContentAlignment.MiddleRight
+                };
+                _gridPanel.Controls.Add(lbl, colIndex++, aggRowIndex);
+            }
         }
-        /// <summary>
-        /// Updates the vertical and horizontal scrollbar settings based on data and layout.
-        /// </summary>
-        private void UpdateScrollBars()
+
+
+        private void UpdateAggregations()
         {
-            // Vertical scroll
-            if (_dataSource != null && _dataSource.Count > 0)
+            var aggRow = _gridPanel.RowCount - 1;
+            int colIndex = _showSelectionColumn ? 1 : 0;
+
+            foreach (var col in _columns)
             {
-                _vScroll.Minimum = 0;
-                // The maximum is total rows minus the number of visible rows (not to go out of range).
-                _vScroll.Maximum = Math.Max(0, _dataSource.Count - _visibleRowCount);
-                _vScroll.LargeChange = _visibleRowCount;
+                if (!col.HasTotal) continue;
+
+                var total = _dataRecords
+                    .Skip(_firstVisibleRow)
+                    .Take(_visibleRowCount)
+                    .Sum(record => Convert.ToDecimal(GetCellValue(col, record.DataRecord)));
+
+                var lbl = (BeepLabel)_gridPanel.GetControlFromPosition(colIndex, aggRow);
+                lbl.Text = total.ToString(col.Format);
+                colIndex++;
             }
-            else
-            {
-                _vScroll.Minimum = 0;
-                _vScroll.Maximum = 0;
-                _vScroll.LargeChange = 1;
-            }
+        }
 
-            // Horizontal scroll
-            // Suppose we sum up column widths for total width:
-            int totalColumnsWidth = 0;
-            foreach (var c in _columns)
-            {
-                totalColumnsWidth += c.Width;
-            }
+        private object GetCellValue(BeepGridColumnConfig col, object item)
+        {
+            var prop = item.GetType().GetProperty(col.ColumnName);
+            return prop?.GetValue(item) ?? 0;
+        }
+        #endregion
+        private void ShowFilterDialog(BeepGridColumnConfig col)
+        {
+            MessageBox.Show($"Filter dialog for column: {col.ColumnCaption}", "Filter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        private void SortColumn(BeepGridColumnConfig col)
+        {
+            col.IsSorted = !col.IsSorted;
 
-            _hScroll.Minimum = 0;
-
-            // A typical approach is: if totalColumnsWidth < _gridPanel.Width, no scrolling is needed.
-            // So max = totalColumnsWidth - panelWidth
-            int maxScroll = totalColumnsWidth - _gridPanel.Width;
-            if (maxScroll < 0) maxScroll = 0;
-
-            _hScroll.Maximum = maxScroll;
-            _hScroll.LargeChange = _gridPanel.Width;
+            // You can replace this with actual sorting logic
+            MessageBox.Show($"Sorting {col.ColumnCaption}: {(col.IsSorted ? "Ascending" : "None")}");
         }
 
     }

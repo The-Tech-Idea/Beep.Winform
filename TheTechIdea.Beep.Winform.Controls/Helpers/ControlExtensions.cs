@@ -11,8 +11,7 @@ using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Vis.Modules;
 using static TheTechIdea.Beep.Utilities.Util;
 using TheTechIdea.Beep.Addin;
-using System.Xml.Linq;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
+
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -1367,7 +1366,60 @@ public static class ControlExtensions
         // Calculate the adjustment point
         return new Point(targetLocation.X - baseLocation.X, targetLocation.Y - baseLocation.Y);
     }
+    public static IBeepUIComponent CreateFieldBasedOnCategory(string propertyName, Type propertyType)
+    {
+        DbFieldCategory category = MapTypeToDbFieldCategory(propertyType);
 
+        switch (category)
+        {
+            case DbFieldCategory.String:
+                return new BeepTextBox { BoundProperty = propertyName, ComponentName = propertyName };
+
+            case DbFieldCategory.Numeric:
+            case DbFieldCategory.Currency:
+                return new BeepNumericUpDown { BoundProperty = propertyName, ComponentName = propertyName };
+
+            case DbFieldCategory.Date:
+            case DbFieldCategory.Timestamp:
+                return new BeepDatePicker { BoundProperty = propertyName, ComponentName = propertyName };
+
+            case DbFieldCategory.Boolean:
+                return new BeepCheckBox { BoundProperty = propertyName, ComponentName = propertyName };
+
+            case DbFieldCategory.Guid:
+                return new BeepTextBox { BoundProperty = propertyName, ComponentName = propertyName, ReadOnly = true };
+
+            case DbFieldCategory.Json:
+            case DbFieldCategory.Xml:
+                return new BeepTextBox { BoundProperty = propertyName, ComponentName = propertyName };
+
+            default:
+                return new BeepTextBox { BoundProperty = propertyName, ComponentName = propertyName };
+        }
+    }
+    public static DbFieldCategory MapTypeToDbFieldCategory(Type type)
+    {
+        if (type == typeof(string))
+            return DbFieldCategory.String;
+        if (type == typeof(int) || type == typeof(long) || type == typeof(double) || type == typeof(decimal))
+            return DbFieldCategory.Numeric;
+        if (type == typeof(DateTime))
+            return DbFieldCategory.Date;
+        if (type == typeof(bool))
+            return DbFieldCategory.Boolean;
+        if (type == typeof(Guid))
+            return DbFieldCategory.Guid;
+        if (type == typeof(byte[]))
+            return DbFieldCategory.Binary;
+        if (type == typeof(System.Xml.XmlDocument) || type == typeof(System.Xml.Linq.XElement))
+            return DbFieldCategory.Xml;
+        if (type == typeof(System.Text.Json.JsonDocument))
+            return DbFieldCategory.Json;
+        if (type.IsEnum)
+            return DbFieldCategory.Enum;
+
+        return DbFieldCategory.Complex;
+    }
     private static  Point GetControlCorrectPointPositiononForm(Control control)
     {
         if (control == null)

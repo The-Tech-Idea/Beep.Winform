@@ -32,6 +32,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         string BoundProperty { get; set; } // The property of the Control to bind to  DataSourceProperty
         string DataSourceProperty { get; set; } // The property of the data source
         string LinkedProperty { get; set; }
+        string ToolTipText { get; set; }
+        
         void RefreshBinding();
         void SetValue(object value);
         object GetValue();
@@ -43,6 +45,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         int Top { get; set; }
         int Width { get; set; }
         int Height { get; set; }
+        Color BorderColor { get; set; }
+        bool IsRequired { get; set; }
         public bool IsSelected { get; set; }
         public bool IsDeleted { get; set; }
         public bool IsNew { get; set; }
@@ -55,11 +59,13 @@ namespace TheTechIdea.Beep.Vis.Modules
         void SetBinding(string controlProperty, string dataSourceProperty); // Method to bind a control property
         event EventHandler<BeepComponentEventArgs> PropertyChanged; // Event to notify that a property has changed
         event EventHandler<BeepComponentEventArgs> PropertyValidate; // Event to notify that a property is being validated
-        public event EventHandler<BeepComponentEventArgs> OnSelected;
-        public event EventHandler<BeepComponentEventArgs> OnValidate;
-        public event EventHandler<BeepComponentEventArgs> OnValueChanged;
-        public event EventHandler<BeepComponentEventArgs> OnLinkedValueChanged;
-       
+        event EventHandler<BeepComponentEventArgs> OnSelected;
+        event EventHandler<BeepComponentEventArgs> OnValidate;
+        event EventHandler<BeepComponentEventArgs> OnValueChanged;
+        event EventHandler<BeepComponentEventArgs> OnLinkedValueChanged;
+  
+
+
     }
     public class BeepComponentEventArgs : EventArgs
     {

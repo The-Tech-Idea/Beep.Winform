@@ -91,7 +91,7 @@
             beepAppBar1.DisabledBackColor = Color.Gray;
             beepAppBar1.DisabledForeColor = Color.Empty;
             beepAppBar1.Dock = DockStyle.Top;
-            beepAppBar1.DrawingRect = new Rectangle(1, 1, 915, 25);
+            beepAppBar1.DrawingRect = new Rectangle(1, 1, 909, 25);
             beepAppBar1.Easing = EasingType.Linear;
             beepAppBar1.FieldID = null;
             beepAppBar1.FocusBackColor = Color.Gray;
@@ -135,7 +135,7 @@
             beepAppBar1.IsVisible = false;
             beepAppBar1.LeftoffsetForDrawingRect = 0;
             beepAppBar1.LinkedProperty = null;
-            beepAppBar1.Location = new Point(176, 1);
+            beepAppBar1.Location = new Point(179, 4);
             beepAppBar1.Margin = new Padding(0);
             beepAppBar1.Name = "beepAppBar1";
             beepAppBar1.OverrideFontSize = TypeStyleFontSize.None;
@@ -167,7 +167,7 @@
             beepAppBar1.ShowShadow = false;
             beepAppBar1.ShowTitle = false;
             beepAppBar1.ShowTopBorder = true;
-            beepAppBar1.Size = new Size(917, 27);
+            beepAppBar1.Size = new Size(911, 27);
             beepAppBar1.SlideFrom = SlideDirection.Left;
             beepAppBar1.StaticNotMoving = false;
             beepAppBar1.TabIndex = 0;
@@ -205,7 +205,7 @@
             beepMenuBar1.DisabledBackColor = Color.Gray;
             beepMenuBar1.DisabledForeColor = Color.Empty;
             beepMenuBar1.Dock = DockStyle.Top;
-            beepMenuBar1.DrawingRect = new Rectangle(1, 1, 915, 33);
+            beepMenuBar1.DrawingRect = new Rectangle(1, 1, 909, 33);
             beepMenuBar1.Easing = EasingType.Linear;
             beepMenuBar1.FieldID = null;
             beepMenuBar1.FocusBackColor = Color.White;
@@ -249,7 +249,7 @@
             beepMenuBar1.IsVisible = false;
             beepMenuBar1.LeftoffsetForDrawingRect = 0;
             beepMenuBar1.LinkedProperty = null;
-            beepMenuBar1.Location = new Point(176, 28);
+            beepMenuBar1.Location = new Point(179, 31);
             beepMenuBar1.Margin = new Padding(0);
             beepMenuBar1.MenuItemHeight = 16;
             beepMenuBar1.MenuItems.Add((Desktop.Common.SimpleItem)resources.GetObject("beepMenuBar1.MenuItems"));
@@ -277,7 +277,7 @@
             beepMenuBar1.ShowRightBorder = true;
             beepMenuBar1.ShowShadow = false;
             beepMenuBar1.ShowTopBorder = true;
-            beepMenuBar1.Size = new Size(917, 35);
+            beepMenuBar1.Size = new Size(911, 35);
             beepMenuBar1.SlideFrom = SlideDirection.Left;
             beepMenuBar1.StaticNotMoving = false;
             beepMenuBar1.TabIndex = 1;
@@ -324,7 +324,7 @@
             beepTreeControl1.DisabledForeColor = Color.Empty;
             beepTreeControl1.DMEEditor = null;
             beepTreeControl1.Dock = DockStyle.Left;
-            beepTreeControl1.DrawingRect = new Rectangle(6, 6, 180, 810);
+            beepTreeControl1.DrawingRect = new Rectangle(6, 6, 180, 804);
             beepTreeControl1.DropHandler = null;
             beepTreeControl1.Easing = EasingType.Linear;
             beepTreeControl1.FieldID = null;
@@ -384,7 +384,7 @@
             beepTreeControl1.LastNodeSelected = null;
             beepTreeControl1.LeftoffsetForDrawingRect = 0;
             beepTreeControl1.LinkedProperty = null;
-            beepTreeControl1.Location = new Point(176, 63);
+            beepTreeControl1.Location = new Point(179, 66);
             beepTreeControl1.Margin = new Padding(0);
             beepTreeControl1.Name = "beepTreeControl1";
             beepTreeControl1.NodeHeight = 20;
@@ -420,7 +420,7 @@
             beepTreeControl1.ShowRightBorder = true;
             beepTreeControl1.ShowShadow = false;
             beepTreeControl1.ShowTopBorder = true;
-            beepTreeControl1.Size = new Size(192, 822);
+            beepTreeControl1.Size = new Size(192, 816);
             beepTreeControl1.SlideFrom = SlideDirection.Left;
             beepTreeControl1.StaticNotMoving = false;
             beepTreeControl1.TabIndex = 18;
@@ -724,7 +724,7 @@
             beepSideMenu1.DisabledBackColor = Color.Gray;
             beepSideMenu1.DisabledForeColor = Color.Empty;
             beepSideMenu1.Dock = DockStyle.Left;
-            beepSideMenu1.DrawingRect = new Rectangle(6, 6, 163, 872);
+            beepSideMenu1.DrawingRect = new Rectangle(6, 6, 163, 866);
             beepSideMenu1.Easing = EasingType.Linear;
             beepSideMenu1.ExpandedWidth = 200;
             beepSideMenu1.FieldID = null;
@@ -775,7 +775,7 @@
             beepSideMenu1.LinkedProperty = null;
             beepSideMenu1.ListButtonFont = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             beepSideMenu1.ListImageSize = new Size(20, 20);
-            beepSideMenu1.Location = new Point(1, 1);
+            beepSideMenu1.Location = new Point(4, 4);
             beepSideMenu1.LogoImage = "H:\\dev\\iconPacks\\10007852-team-management (2) (1)\\10007856-team-management\\10007856-team-management\\svg\\008-partnership.svg";
             beepSideMenu1.LogoSize = new Size(100, 100);
             beepSideMenu1.Margin = new Padding(0);
@@ -800,7 +800,7 @@
             beepSideMenu1.ShowRightBorder = true;
             beepSideMenu1.ShowShadow = false;
             beepSideMenu1.ShowTopBorder = true;
-            beepSideMenu1.Size = new Size(175, 884);
+            beepSideMenu1.Size = new Size(175, 878);
             beepSideMenu1.SlideFrom = SlideDirection.Left;
             beepSideMenu1.StaticNotMoving = false;
             beepSideMenu1.TabIndex = 21;

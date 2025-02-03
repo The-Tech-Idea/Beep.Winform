@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Fields"
         protected int _resizeMargin = 5; // Margin for resizing
         protected int _borderRadius = 5;
-        protected int _borderThickness = 1; // Thickness of the custom border
+        protected int _borderThickness = 4; // Thickness of the custom border
         private Color _borderColor = Color.Red; // Default border color
         private const int ButtonSize = 30;
         private Point lastMousePosition;
@@ -29,6 +29,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private readonly IBeepService beepservices;
         private bool ishandled = false;
         private bool _inpopupmode = false;
+        // Panel to hold your actual content.
+      //private Panel contentPanel;
 
 
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
@@ -118,6 +120,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Set padding so controls dock within the interior
             this.Padding = new Padding(_borderThickness);
 
+            // Create and configure the inner content panel.
+           
+
         }
         public BeepiForm()
         {
@@ -136,6 +141,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize();
             // Set padding so controls dock within the interior
             this.Padding = new Padding(_borderThickness);
+
+            // Create and configure the inner content panel.
+           
         }
         protected override void OnActivated(EventArgs e)
         {
@@ -182,7 +190,60 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    Theme = BeepThemesManager.CurrentTheme;
             //}
         }
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            if (Environment.OSVersion.Version.Major >= 6)
+            {
+                SetProcessDPIAware();
+            }
+        }
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            e.Graphics.CompositingQuality = CompositingQuality.HighQuality;
+            e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
+            if (_borderThickness > 0)
+            {
+                using (Pen borderPen = new Pen(_borderColor, _borderThickness))
+                {
+                    // Using Center alignment ensures the stroke straddles the border path.
+                    borderPen.Alignment = PenAlignment.Center;
+                    // Adjust the rectangle to prevent clipping
+                    Rectangle rect = new Rectangle(1,1, this.Width - 1, this.Height - 1);
+                    using (GraphicsPath path = GetRoundedRectanglePath(rect, _borderRadius))
+                    {
+                        e.Graphics.DrawPath(borderPen, path);
+                    }
+                }
+            }
+
+
+        }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            Rectangle rect = new Rectangle(1, 1, this.Width, this.Height);
+            using (GraphicsPath path = GetRoundedRectanglePath(rect, _borderRadius))
+            {
+                this.Region = new Region(path);
+            }
+            Invalidate(); // Redraw the form with the updated region
+        }
+        protected override void OnLayout(LayoutEventArgs e)
+        {
+            base.OnLayout(e);
+
+            if (_borderThickness > 0)
+            {
+                Padding = new Padding(_borderThickness);
+                AdjustControls();
+            }
+        }
         #endregion "Layout Events"
         #region Window Resizing
         protected override void OnMouseDown(MouseEventArgs e)
@@ -300,60 +361,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion
         #region Rounded Corners and DPI Awareness
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
-            if (Environment.OSVersion.Version.Major >= 6)
-            {
-                SetProcessDPIAware();
-            }
-        }
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            e.Graphics.CompositingQuality = CompositingQuality.HighQuality;
-            e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
-            if (_borderThickness > 0)
-            {
-                using (Pen borderPen = new Pen(_borderColor, _borderThickness))
-                {
-                    // Using Center alignment ensures the stroke straddles the border path.
-                    borderPen.Alignment = PenAlignment.Center;
-                    // Adjust the rectangle to prevent clipping
-                    Rectangle rect = new Rectangle(0, 0, this.Width - 1, this.Height - 1);
-                    using (GraphicsPath path = GetRoundedRectanglePath(rect, _borderRadius))
-                    {
-                        e.Graphics.DrawPath(borderPen, path);
-                    }
-                }
-            }
-
-
-        }
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            Rectangle rect = new Rectangle(0, 0, this.Width, this.Height);
-            using (GraphicsPath path = GetRoundedRectanglePath(rect, _borderRadius))
-            {
-                this.Region = new Region(path);
-            }
-            Invalidate(); // Redraw the form with the updated region
-        }
-        protected override void OnLayout(LayoutEventArgs e)
-        {
-            base.OnLayout(e);
-
-            if (_borderThickness > 0)
-            {
-                Padding = new Padding(_borderThickness);
-                AdjustControls();
-            }
-        }
+    
         /// Creates a GraphicsPath representing a rounded rectangle.
         /// </summary>
         /// <param name="rect">The rectangle bounds.</param>
@@ -452,15 +460,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else if (control.Dock == DockStyle.None)
                 {
-                    // Console.WriteLine($"Control is not docked {control.Left}-{adjustedClientArea.Left}");
-                    // Non-docked controls are clamped within the adjusted client area
-                    control.Left = Math.Max(control.Left, adjustedClientArea.Left + 1);
-                    control.Top = Math.Max(control.Top, adjustedClientArea.Top + 1);
-                    control.Width = Math.Min(control.Width, adjustedClientArea.Width - control.Left + adjustedClientArea.Left);
-                    control.Height = Math.Min(control.Height, adjustedClientArea.Height - control.Top + adjustedClientArea.Top);
+                    // Ensure the control is fully inside the adjusted client area.
+                    control.Left = Math.Max(control.Left, adjustedClientArea.Left);
+                    control.Top = Math.Max(control.Top, adjustedClientArea.Top);
+
+                    int maxWidth = adjustedClientArea.Right - control.Left;
+                    int maxHeight = adjustedClientArea.Bottom - control.Top;
+                    control.Width = Math.Min(control.Width, maxWidth);
+                    control.Height = Math.Min(control.Height, maxHeight);
                 }
             }
         }
+
         public Rectangle GetAdjustedClientRectangle()
         {
             int adjustedWidth = Math.Max(0, ClientSize.Width - (2 * _borderThickness));
@@ -617,11 +628,5 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "IDM_Addin"
 
-        private void BeepiForm_Load(object sender, EventArgs e)
-        {
-
-         //   beepuiManager1.Initialize(this); // Explicitly initialize the manager with the form
-           // beepuiManager1.Theme=BeepThemesManager.CurrentTheme; // Apply the theme to the form
-        }
     }
 }

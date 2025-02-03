@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Name = "BeepiForm";
             StartPosition = FormStartPosition.CenterParent;
             Text = "Beep i Form";
-            Load += BeepiForm_Load;
+           
             ResumeLayout(false);
         }
 

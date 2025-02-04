@@ -388,5 +388,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            UpdateDrawingRect();
+            tableLayoutPanel.Left = DrawingRect.Left;
+            tableLayoutPanel.Top = DrawingRect.Top;
+            tableLayoutPanel.Size = new Size(DrawingRect.Width, DrawingRect.Height);
+
+        }
     }
 }

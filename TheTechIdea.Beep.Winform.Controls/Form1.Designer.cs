@@ -522,7 +522,7 @@
             beepButton1.IsVisible = false;
             beepButton1.LeftoffsetForDrawingRect = 0;
             beepButton1.LinkedProperty = null;
-            beepButton1.Location = new Point(777, 723);
+            beepButton1.Location = new Point(733, 781);
             beepButton1.Margin = new Padding(0);
             beepButton1.MaxImageSize = new Size(32, 32);
             beepButton1.Name = "beepButton1";
@@ -1745,6 +1745,7 @@
             beepTableLayoutGrid1.AnimationDuration = 500;
             beepTableLayoutGrid1.AnimationType = DisplayAnimationType.None;
             beepTableLayoutGrid1.ApplyThemeToChilds = true;
+            beepTableLayoutGrid1.BackColor = Color.White;
             beepTableLayoutGrid1.BlockID = null;
             beepTableLayoutGrid1.BorderColor = Color.FromArgb(200, 200, 200);
             beepTableLayoutGrid1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -1762,7 +1763,7 @@
             beepTableLayoutGrid1.DataSourceProperty = null;
             beepTableLayoutGrid1.DisabledBackColor = Color.Gray;
             beepTableLayoutGrid1.DisabledForeColor = Color.Empty;
-            beepTableLayoutGrid1.DrawingRect = new Rectangle(1, 1, 509, 260);
+            beepTableLayoutGrid1.DrawingRect = new Rectangle(1, 1, 534, 254);
             beepTableLayoutGrid1.Easing = EasingType.Linear;
             beepTableLayoutGrid1.FieldID = null;
             beepTableLayoutGrid1.FocusBackColor = Color.White;
@@ -1826,7 +1827,7 @@
             beepTableLayoutGrid1.ShowRightBorder = true;
             beepTableLayoutGrid1.ShowShadow = false;
             beepTableLayoutGrid1.ShowTopBorder = true;
-            beepTableLayoutGrid1.Size = new Size(511, 262);
+            beepTableLayoutGrid1.Size = new Size(536, 256);
             beepTableLayoutGrid1.SlideFrom = SlideDirection.Left;
             beepTableLayoutGrid1.StaticNotMoving = false;
             beepTableLayoutGrid1.TabIndex = 32;

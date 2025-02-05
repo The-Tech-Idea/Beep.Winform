@@ -1545,12 +1545,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseEnter(e);
             //   BorderColor = _currentTheme.HoverLinkColor;
-            IsHovered = true;
+         //   IsHovered = true;
             //  ShowToolTipIfExists();
             //Invalidate();
         }
         protected override void OnMouseMove(MouseEventArgs e)
         {
+           
+         
             base.OnMouseMove(e);
 
         }
@@ -1558,8 +1560,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseLeave(e);
             //  BorderColor = _currentTheme.BorderColor;
-            //   IsPressed = false;
-            //  IsFocused = false;
+           // IsPressed = false;
+            IsFocused = false;
             IsHovered = false;
             // HideToolTip(); // Hide tooltip on mouse leave
             // Invalidate();
@@ -1569,21 +1571,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             IsFocused = true;
             base.OnGotFocus(e);
-            // Invalidate();
+        
         }
         protected override void OnLostFocus(EventArgs e)
         {
             IsFocused = false;
+            IsHovered = false;
             base.OnLostFocus(e);
-            // Invalidate();
+             
         }
         protected override void OnClick(EventArgs e)
         {
-
-
             base.OnClick(e);
-
-            //  Invalidate();
         }
         protected override void OnMouseDown(MouseEventArgs e)
         {
@@ -1597,13 +1596,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsFocused = true;
 
             }
-
-            // Invalidate();
         }
         protected override void OnMouseUp(MouseEventArgs e)
         {
             IsPressed = false;
             base.OnMouseUp(e);
+        }
+        protected override void OnMouseHover(EventArgs e)
+        {
+            base.OnMouseHover(e);
+            IsHovered = true;
         }
         #endregion "Mouse events"
         #region "Animation"

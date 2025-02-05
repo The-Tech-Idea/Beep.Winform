@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Editor;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -24,6 +27,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepLabel RecordCountLabel;
         public BeepLabel PageCountLabel;
         public BeepLabel PageNumberLabel;
+
+        public ObservableCollection<object>  _dataSource;
 
         private BeepGridRowPainterForTableLayout beepGridRowPainter;
         public BeepTableLayoutGrid()
@@ -74,11 +79,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void initView()
         {
             // Clear existing controls
-            this.Controls.Clear();
+            Controls.Clear();
 
             // Initialize main layout panel
-            tableLayoutPanel1 = new BeepMultiSplitter();
-            tableLayoutPanel1.Dock = DockStyle.Fill;
+            tableLayoutPanel1 = new BeepMultiSplitter
+            {
+                Dock = DockStyle.Fill
+            };
             tableLayoutPanel1.tableLayoutPanel.ColumnCount = 3;
             tableLayoutPanel1.tableLayoutPanel.RowCount = 5;
 
@@ -91,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             tableLayoutPanel1.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40)); // Title
             tableLayoutPanel1.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Data Rows
             tableLayoutPanel1.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 20)); // Horizontal Scrollbar
-            tableLayoutPanel1.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Filter String
+            tableLayoutPanel1.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Filter Panel
             tableLayoutPanel1.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40)); // Data Navigator
 
             // Initialize Title Label
@@ -109,7 +116,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize Grid Table Layout
             GridtableLayoutPanel = new BeepMultiSplitter
             {
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                BackColor = Color.LightGray
             };
             tableLayoutPanel1.tableLayoutPanel.SetColumnSpan(GridtableLayoutPanel, 2); // Spans Checkbox and Data Columns
             tableLayoutPanel1.tableLayoutPanel.Controls.Add(GridtableLayoutPanel, 0, 1);
@@ -119,7 +127,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Dock = DockStyle.Fill,
                 SmallChange = 1,
-                LargeChange = 5
+                LargeChange = 5,
+                Visible = false // Initially hidden
             };
             tableLayoutPanel1.tableLayoutPanel.Controls.Add(vScrollBar1, 2, 1);
 
@@ -128,44 +137,74 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Dock = DockStyle.Fill,
                 SmallChange = 1,
-                LargeChange = 5
+                LargeChange = 5,
+                Visible = false // Initially hidden
             };
             tableLayoutPanel1.tableLayoutPanel.SetColumnSpan(hScrollBar1, 2); // Spans Checkbox and Data Columns
             tableLayoutPanel1.tableLayoutPanel.Controls.Add(hScrollBar1, 0, 2);
 
-            // Initialize Filter String Label
-            var filterStringLabel = new BeepLabel
+            // Initialize Filter Panel
+            var filterPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.LightGray
+            };
+            var filterLabel = new BeepLabel
             {
                 Text = "Filter String: show conditions to filter data",
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleCenter,
-                BackColor = Color.LightGray,
+                BackColor = Color.White,
                 Font = new Font("Arial", 10F, FontStyle.Regular)
             };
-            tableLayoutPanel1.tableLayoutPanel.SetColumnSpan(filterStringLabel, 3);
-            tableLayoutPanel1.tableLayoutPanel.Controls.Add(filterStringLabel, 0, 3);
+            filterPanel.Controls.Add(filterLabel);
+            tableLayoutPanel1.tableLayoutPanel.SetColumnSpan(filterPanel, 3);
+            tableLayoutPanel1.tableLayoutPanel.Controls.Add(filterPanel, 0, 3);
 
             // Initialize Data Navigator
             beepDataNavigator1 = new BeepDataNavigator
             {
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                BackColor = Color.LightGray
             };
             tableLayoutPanel1.tableLayoutPanel.SetColumnSpan(beepDataNavigator1, 3);
             tableLayoutPanel1.tableLayoutPanel.Controls.Add(beepDataNavigator1, 0, 4);
 
             // Add the main layout panel to the control
-            this.Controls.Add(tableLayoutPanel1);
-
-            // Attach Resize Event
-            
+            Controls.Add(tableLayoutPanel1);
 
             // Initialize BeepGridRowPainter
-            InitializeBeepGridPainter();
+           // InitializeBeepGridPainter();
 
-            // Delay sample data loading to ensure proper initialization
-           
+            // Force layout updates
+            tableLayoutPanel1.PerformLayout();
         }
-    
+
+        private void UpdateScrollBars()
+        {
+            int rowHeight = 30; // Approximate height of each row
+            int totalHeight = _dataSource.Count * rowHeight;
+            int visibleHeight = GridtableLayoutPanel.Height;
+
+            // Show or hide vertical scrollbar
+            vScrollBar1.Visible = totalHeight > visibleHeight;
+            if (vScrollBar1.Visible)
+            {
+                vScrollBar1.Maximum = totalHeight - visibleHeight;
+            }
+
+            int totalWidth = 800; // Example: total width of all columns
+            int visibleWidth = GridtableLayoutPanel.Width;
+
+            // Show or hide horizontal scrollbar
+            hScrollBar1.Visible = totalWidth > visibleWidth;
+            if (hScrollBar1.Visible)
+            {
+                hScrollBar1.Maximum = totalWidth - visibleWidth;
+            }
+        }
+
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);

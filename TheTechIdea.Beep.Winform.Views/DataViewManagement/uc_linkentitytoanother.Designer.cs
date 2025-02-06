@@ -55,8 +55,8 @@ namespace TheTechIdea.ETL
             this.panel1 = new System.Windows.Forms.Panel();
             this.label4 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.MainbindingNavigator = new BeepbindingNavigator();
-            this.RelationbindingNavigator = new BeepbindingNavigator();
+            this.MainbindingNavigator = new BeepBindingNavigator();
+            this.RelationbindingNavigator = new BeepBindingNavigator();
             entityNameLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.entitiesBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.relationsBindingSource)).BeginInit();
@@ -278,7 +278,7 @@ namespace TheTechIdea.ETL
             // 
             this.MainbindingNavigator.AddinName = null;
             this.MainbindingNavigator.BackColor = System.Drawing.Color.White;
-            this.MainbindingNavigator.bindingSource = null;
+            this.MainbindingNavigator.BindingSource = null;
             this.MainbindingNavigator.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.MainbindingNavigator.ButtonBorderSize = 0;
             this.MainbindingNavigator.CausesValidation = false;
@@ -310,7 +310,7 @@ namespace TheTechIdea.ETL
             // 
             this.RelationbindingNavigator.AddinName = null;
             this.RelationbindingNavigator.BackColor = System.Drawing.Color.White;
-            this.RelationbindingNavigator.bindingSource = null;
+            this.RelationbindingNavigator.BindingSource = null;
             this.RelationbindingNavigator.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.RelationbindingNavigator.ButtonBorderSize = 0;
             this.RelationbindingNavigator.CausesValidation = false;
@@ -384,7 +384,7 @@ namespace TheTechIdea.ETL
         private System.Windows.Forms.DataGridViewTextBoxColumn RelatedEntityID;
         private System.Windows.Forms.DataGridViewTextBoxColumn RelatedEntityColumnID;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
-        private BeepbindingNavigator MainbindingNavigator;
-        private BeepbindingNavigator RelationbindingNavigator;
+        private BeepBindingNavigator MainbindingNavigator;
+        private BeepBindingNavigator RelationbindingNavigator;
     }
 }

@@ -121,7 +121,7 @@ namespace Beep.Config.Winform.DataConnections
             //this.headersBindingNavigatorSaveItem.Click += HeadersBindingNavigatorSaveItem_Click;
             this.headersBindingSource.AddingNew += HeadersBindingSource_AddingNew;
             this.headersBindingSource.DataSource = DMEEditor.ConfigEditor.DataConnections[DMEEditor.ConfigEditor.DataConnections.FindIndex(x => x.ConnectionName == EntityName)].Headers;
-            BeepbindingNavigator1.bindingSource = headersBindingSource;
+            BeepbindingNavigator1.BindingSource = headersBindingSource;
             BeepbindingNavigator1.SaveCalled += BeepbindingNavigator1_SaveCalled;
             BeepbindingNavigator1.SetConfig(DMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, new string[] { }, e, DMEEditor.ErrorObject);
             BeepbindingNavigator1.HightlightColor = Color.Yellow;

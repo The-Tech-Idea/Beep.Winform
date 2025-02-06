@@ -417,7 +417,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                     case Type type when type == typeof(int) || type == typeof(long) || type == typeof(short):
                         //inputControl = new NumericUpDown();
                         //((NumericUpDown)inputControl).Maximum = decimal.MaxValue;
-                        //inputControl.DataBindings.Add(new Binding("Value", bindingSource, field.fieldname, true, DataSourceUpdateMode.OnPropertyChanged));
+                        //inputControl.DataBindings.Add(new Binding("Value", BindingSource, field.fieldname, true, DataSourceUpdateMode.OnPropertyChanged));
                         inputControl = new TextBox();
                         inputControl.DataBindings.Add(new Binding("Text", bindingSource, field.fieldname, true, DataSourceUpdateMode.OnPropertyChanged, 0));
 
@@ -428,7 +428,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                         //((NumericUpDown)inputControl).Maximum = decimal.MaxValue;
 
                         //// Create a binding with proper formatting and parsing
-                        //Binding binding = new Binding("Value", bindingSource, field.fieldname, true, DataSourceUpdateMode.OnPropertyChanged);
+                        //Binding binding = new Binding("Value", BindingSource, field.fieldname, true, DataSourceUpdateMode.OnPropertyChanged);
                         //binding.Format += (s, e) => {
                         //    if (e.DesiredType == typeof(decimal))
                         //    {

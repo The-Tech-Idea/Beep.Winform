@@ -93,7 +93,7 @@ namespace Beep.Config.Winform.Configurations
             }
             unitofWork = new UnitofWork<QuerySqlRepo>(DMEEditor, true, new ObservableBindingList<QuerySqlRepo>(DMEEditor.ConfigEditor.QueryList), "ID");
             queryListBindingSource.DataSource = unitofWork.Units;
-            BeepbindingNavigator1.bindingSource= queryListBindingSource;
+            BeepbindingNavigator1.BindingSource= queryListBindingSource;
             BeepbindingNavigator1.SaveCalled += BeepbindingNavigator1_SaveCalled;
             BeepbindingNavigator1.SetConfig(DMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, new string[] { }, e, DMEEditor.ErrorObject);
             BeepbindingNavigator1.HightlightColor = Color.Yellow;

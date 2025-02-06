@@ -905,6 +905,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
+            
             if (_popupmode)
             {
                 TogglePopup();
@@ -916,9 +917,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     IsSelected = !IsSelected;
                 }
             }
-        
         }
-       
         #endregion "Mouse and Click"
         #region "Binding and Control Type"
         public DbFieldCategory Category { get; set; } = DbFieldCategory.Boolean;

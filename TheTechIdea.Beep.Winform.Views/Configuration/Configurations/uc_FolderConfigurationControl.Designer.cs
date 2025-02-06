@@ -40,7 +40,7 @@ namespace Beep.Config.Winform.Configurations
             this.folderPathDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.folderFilesTypeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.foldersBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.BeepbindingNavigator1 = new BeepbindingNavigator();
+            this.BeepbindingNavigator1 = new BeepBindingNavigator();
             this.poisonPanel1 = new ReaLTaiizor.Controls.PoisonPanel();
             this.poisonLabel1 = new ReaLTaiizor.Controls.PoisonLabel();
             this.poisonStyleManager1 = new ReaLTaiizor.Manager.PoisonStyleManager(this.components);
@@ -133,7 +133,7 @@ namespace Beep.Config.Winform.Configurations
             // 
             this.BeepbindingNavigator1.AddinName = null;
             this.BeepbindingNavigator1.BackColor = System.Drawing.Color.White;
-            this.BeepbindingNavigator1.bindingSource = null;
+            this.BeepbindingNavigator1.BindingSource = null;
             this.BeepbindingNavigator1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.BeepbindingNavigator1.ButtonBorderSize = 0;
             this.BeepbindingNavigator1.CausesValidation = false;
@@ -218,7 +218,7 @@ namespace Beep.Config.Winform.Configurations
         private System.Windows.Forms.BindingSource foldersBindingSource;
         private System.Windows.Forms.DataGridViewTextBoxColumn folderPathDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewComboBoxColumn folderFilesTypeDataGridViewTextBoxColumn;
-        private BeepbindingNavigator BeepbindingNavigator1;
+        private BeepBindingNavigator BeepbindingNavigator1;
         private ReaLTaiizor.Controls.PoisonPanel poisonPanel1;
         private ReaLTaiizor.Controls.PoisonLabel poisonLabel1;
         private ReaLTaiizor.Manager.PoisonStyleManager poisonStyleManager1;

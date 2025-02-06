@@ -75,6 +75,7 @@
     <None Remove="GFX\SVG\doorclosed.svg" />
     <None Remove="GFX\SVG\dooropen.svg" />
     <None Remove="GFX\SVG\dropdown-select.svg" />
+    <None Remove="GFX\SVG\edit.svg" />
     <None Remove="GFX\SVG\enter.svg" />
     <None Remove="GFX\SVG\exit.svg" />
     <None Remove="GFX\SVG\export.svg" />
@@ -108,7 +109,9 @@
     <None Remove="GFX\SVG\print.svg" />
     <None Remove="GFX\SVG\question.svg" />
     <None Remove="GFX\SVG\refresh.svg" />
-    <None Remove="GFX\SVG\restore.svg" />
+    <None Remove="GFX\SVG\remove.svg" />
+    <None Remove="GFX\SVG\rollback.svg" />
+    <None Remove="GFX\SVG\save.svg" />
     <None Remove="GFX\SVG\search.svg" />
     <None Remove="GFX\SVG\settings.svg" />
     <None Remove="GFX\SVG\share.svg" />
@@ -129,8 +132,12 @@
     <EmbeddedResource Include="GFX\SVG\alarm.svg" />
     <EmbeddedResource Include="GFX\SVG\alarmclock.svg" />
     <EmbeddedResource Include="GFX\SVG\alert.svg" />
+    <EmbeddedResource Include="GFX\SVG\edit.svg" />
     <EmbeddedResource Include="GFX\SVG\information.svg" />
     <EmbeddedResource Include="GFX\SVG\question.svg" />
+    <EmbeddedResource Include="GFX\SVG\remove.svg" />
+    <EmbeddedResource Include="GFX\SVG\rollback.svg" />
+    <EmbeddedResource Include="GFX\SVG\save.svg" />
     <EmbeddedResource Include="GFX\SVG\simpleinfoapps.svg" />
     <EmbeddedResource Include="GFX\SVG\stakeholder.svg" />
     <EmbeddedResource Include="GFX\SVG\about.svg" />
@@ -183,7 +190,6 @@
     <EmbeddedResource Include="GFX\SVG\previous.svg" />
     <EmbeddedResource Include="GFX\SVG\print.svg" />
     <EmbeddedResource Include="GFX\SVG\refresh.svg" />
-    <EmbeddedResource Include="GFX\SVG\restore.svg" />
     <EmbeddedResource Include="GFX\SVG\search.svg" />
     <EmbeddedResource Include="GFX\SVG\settings.svg" />
     <EmbeddedResource Include="GFX\SVG\share.svg" />
@@ -215,7 +221,7 @@
   <ItemGroup>
     <Compile Update="BeepDataBlock.cs" />
     <Compile Update="Containers\uc_Container.cs" />
-    <Compile Update="DataNavigator\BeepbindingNavigator.cs" />
+    <Compile Update="DataNavigator\BeepBindingNavigator.cs" />
     <Compile Update="Design\Forms\DataBlocksCollectionForm.cs">
       <SubType>Form</SubType>
     </Compile>

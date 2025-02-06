@@ -58,8 +58,8 @@ namespace TheTechIdea.ETL
             this.label3 = new System.Windows.Forms.Label();
             this.EntityNameLabel = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.EntitiesbindingNavigator = new BeepbindingNavigator();
-            this.DataViewbindingNavigator = new BeepbindingNavigator();
+            this.EntitiesbindingNavigator = new BeepBindingNavigator();
+            this.DataViewbindingNavigator = new BeepBindingNavigator();
             viewIDLabel = new System.Windows.Forms.Label();
             viewNameLabel = new System.Windows.Forms.Label();
             label1 = new System.Windows.Forms.Label();
@@ -295,7 +295,7 @@ namespace TheTechIdea.ETL
             this.EntitiesbindingNavigator.AddinName = null;
             this.EntitiesbindingNavigator.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.EntitiesbindingNavigator.BackColor = System.Drawing.Color.White;
-            this.EntitiesbindingNavigator.bindingSource = null;
+            this.EntitiesbindingNavigator.BindingSource = null;
             this.EntitiesbindingNavigator.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.EntitiesbindingNavigator.ButtonBorderSize = 0;
             this.EntitiesbindingNavigator.CausesValidation = false;
@@ -326,7 +326,7 @@ namespace TheTechIdea.ETL
             // 
             this.DataViewbindingNavigator.AddinName = null;
             this.DataViewbindingNavigator.BackColor = System.Drawing.Color.White;
-            this.DataViewbindingNavigator.bindingSource = this.dataViewDataSourceBindingSource;
+            this.DataViewbindingNavigator.BindingSource = this.dataViewDataSourceBindingSource;
             this.DataViewbindingNavigator.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.DataViewbindingNavigator.ButtonBorderSize = 0;
             this.DataViewbindingNavigator.CausesValidation = false;
@@ -395,7 +395,7 @@ namespace TheTechIdea.ETL
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label EntityNameLabel;
         private System.Windows.Forms.Panel panel2;
-        private BeepbindingNavigator DataViewbindingNavigator;
-        private BeepbindingNavigator EntitiesbindingNavigator;
+        private BeepBindingNavigator DataViewbindingNavigator;
+        private BeepBindingNavigator EntitiesbindingNavigator;
     }
 }

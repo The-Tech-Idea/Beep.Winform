@@ -88,7 +88,7 @@ namespace Beep.Config.Winform.Configurations
             }
             this.foldersBindingSource.DataSource=DMEEditor.ConfigEditor.Config.Folders;
             addinFoldersDataGridView.DataSource = foldersBindingSource;
-            BeepbindingNavigator1.bindingSource = foldersBindingSource;
+            BeepbindingNavigator1.BindingSource = foldersBindingSource;
             BeepbindingNavigator1.SetConfig(DMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, new string[] { }, e, DMEEditor.ErrorObject);
             BeepbindingNavigator1.HightlightColor = Color.Yellow;
             BeepbindingNavigator1.SaveCalled += BeepbindingNavigator1_SaveCalled;

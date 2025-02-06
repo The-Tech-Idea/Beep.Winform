@@ -76,9 +76,9 @@ namespace Beep.Config.Winform.DataConnections
             ds = DMEEditor.GetDataSource(e.DatasourceName);
             this.entitiesBindingSource.AddingNew += EntitiesBindingSource_AddingNew;
             this.entitiesBindingSource.DataSource = ds.Entities;
-            BeepbindingNavigator1.bindingSource = entitiesBindingSource;
+            BeepbindingNavigator1.BindingSource = entitiesBindingSource;
             BeepbindingNavigator1.SaveCalled += BeepbindingNavigator1_SaveCalled;
-            BeepbindingNavigator2.bindingSource = paramentersBindingSource;
+            BeepbindingNavigator2.BindingSource = paramentersBindingSource;
             BeepbindingNavigator2.SaveCalled+= BeepbindingNavigator1_SaveCalled;
             BeepbindingNavigator1.SetConfig(DMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, new string[] { }, e, DMEEditor.ErrorObject);
             BeepbindingNavigator1.HightlightColor = Color.Yellow;

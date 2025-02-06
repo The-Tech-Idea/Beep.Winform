@@ -684,7 +684,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_isUpdatingTree)
             {
-                Console.WriteLine("Skipping ListChanged event due to ongoing update.");
+                //Console.WriteLine("Skipping ListChanged event due to ongoing update.");
                 return;
             }
 

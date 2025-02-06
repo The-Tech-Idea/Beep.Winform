@@ -42,7 +42,7 @@ namespace Beep.Config.Winform.DataConnections
             this.headersDataGridView = new ReaLTaiizor.Controls.PoisonDataGridView();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.BeepbindingNavigator1 = new BeepbindingNavigator();
+            this.BeepbindingNavigator1 = new BeepBindingNavigator();
             this.poisonPanel2 = new ReaLTaiizor.Controls.PoisonPanel();
             this.poisonLabel1 = new ReaLTaiizor.Controls.PoisonLabel();
             ((System.ComponentModel.ISupportInitialize)(this.headersBindingSource)).BeginInit();
@@ -120,7 +120,7 @@ namespace Beep.Config.Winform.DataConnections
             // 
             this.BeepbindingNavigator1.AddinName = null;
             this.BeepbindingNavigator1.BackColor = System.Drawing.Color.White;
-            this.BeepbindingNavigator1.bindingSource = null;
+            this.BeepbindingNavigator1.BindingSource = null;
             this.BeepbindingNavigator1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.BeepbindingNavigator1.ButtonBorderSize = 0;
             this.BeepbindingNavigator1.CausesValidation = false;
@@ -200,7 +200,7 @@ namespace Beep.Config.Winform.DataConnections
         private ReaLTaiizor.Controls.PoisonDataGridView headersDataGridView;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
-        private BeepbindingNavigator BeepbindingNavigator1;
+        private BeepBindingNavigator BeepbindingNavigator1;
         private ReaLTaiizor.Controls.PoisonPanel poisonPanel2;
         private ReaLTaiizor.Controls.PoisonLabel poisonLabel1;
     }

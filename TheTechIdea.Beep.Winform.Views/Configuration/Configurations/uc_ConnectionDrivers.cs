@@ -99,7 +99,7 @@ namespace Beep.Config.Winform.Configurations
 
             connectiondriversConfigBindingSource.DataSource = viewModel.DBWork.Units;
             connectiondriversConfigBindingSource.CurrentItemChanged += ConnectiondriversConfigBindingSource_CurrentItemChanged;
-            BeepbindingNavigator1.bindingSource = connectiondriversConfigBindingSource;
+            BeepbindingNavigator1.BindingSource = connectiondriversConfigBindingSource;
             BeepbindingNavigator1.SetConfig(DMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, new string[] { }, e, DMEEditor.ErrorObject);
             BeepbindingNavigator1.HightlightColor = Color.Yellow;
             BeepbindingNavigator1.SaveCalled += BeepbindingNavigator1_SaveCalled;

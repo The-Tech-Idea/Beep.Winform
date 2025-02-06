@@ -1,31 +1,58 @@
 ﻿
 using System.ComponentModel;
 using System.Data;
-using TheTechIdea.Beep.DataBase;
+using System.Windows.Forms;
+using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Winform.Controls.Basic;
-using TheTechIdea.Beep.Winform.Controls.Grid;
-using TheTechIdea.Beep.Winform.Controls.Template;
 using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep.Utilities;
-using TheTechIdea.Beep.ConfigUtil;
-using TheTechIdea.Beep.Addin;
+
+
 
 namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
 {
     [ToolboxItem(true)]
-    //[ToolboxBitmap(typeof(BeepbindingNavigator))] // Optional//"Resources.BeepButtonIcon.bmp"
+    [ToolboxBitmap(typeof(BeepBindingNavigator))] // Optional//"Resources.BeepButtonIcon.bmp"
     [Category("Beep Controls")]
-    public partial class BeepbindingNavigator : uc_Addin
+    [Description("Beep Binding Navigator")]
+    [DisplayName("Beep Binding Navigator")]
+    public partial class BeepBindingNavigator : BeepControl
     {
-        public BeepbindingNavigator()
+        private Panel MainPanel;
+        TableLayoutPanel layoutPanel;
+        private BeepLabel Recordnumberinglabel1;
+        private BeepButton FindButton;
+        private BeepButton NewButton;
+        private BeepButton EditButton;
+        private BeepButton PrevoiusButton;
+        private BeepButton NextButton;
+        private BeepButton RemoveButton;
+        private BeepButton RollbackButton;
+        private BeepButton SaveButton;
+        private BeepButton PrinterButton;
+        private BeepButton MessageButton;
+        int spacing = 5; // Spacing between buttons
+        int labelWidth = 100; // Width of the label
+        int totalControls = 11; // Number of controls
+        public BeepBindingNavigator()
         {
-            InitializeComponent();
-            //Loadimages();
 
-            InitPanels();
+           
+        }
+        protected override void OnLayout(LayoutEventArgs e)
+        {
+            base.OnLayout(e);
+           
+        }
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+                initControls();
 
         }
+
         public IUnitofWork<Entity> UnitofWork { get; set; }
         public event EventHandler<BindingSource> CallPrinter;
         public event EventHandler<BindingSource> SendMessage;
@@ -35,24 +62,22 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         public event EventHandler<BindingSource> DeleteCalled;
         public event EventHandler<BindingSource> EditCalled;
 
-        public string ParentName { get ; set ; }
-        public string ObjectName { get ; set ; }
-        public string ObjectType { get ; set ; }
-        public string AddinName { get ; set ; }
-        public string Description { get ; set ; }
-        public bool DefaultCreate { get ; set ; }
-        public string DllPath { get ; set ; }
-        public string DllName { get ; set ; }
-        public string NameSpace { get ; set ; }
-        public IErrorsInfo ErrorObject { get ; set ; }
-        public IDMLogger Logger { get ; set ; }
-        public IDMEEditor DMEEditor { get ; set ; }
-        public EntityStructure EntityStructure { get ; set ; }
-        public string EntityName { get ; set ; }
-        public IPassedArgs Passedarg { get ; set ; }
-       // VisManager AppManager;
-       // ImportDataManager importDataManager;
-        public  BindingSource bindingSource { get; set; }
+        // VisManager AppManager;
+        // ImportDataManager importDataManager;
+        public IDMEEditor DMEEditor { get; set; }
+        private BindingSource _bindingsource;
+        public BindingSource BindingSource
+        {
+            get { return _bindingsource; }
+            set
+            {
+                _bindingsource = value;
+                if (_bindingsource != null)
+                {
+                    datasourcechanged();
+                }
+            }
+        }
         public bool VerifyDelete { get; set; } = true;
         public int ButtonBorderSize { get; set; } = 0;
         public int ControlHeight { get; set; } = 30;
@@ -69,173 +94,63 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         private ToolTip savetooltip;
         private ToolTip printtooltip;
         private ToolTip sharetooltip;
+        private Size buttonSize = new Size(14, 14);
 
-     
         public Color HightlightColor { get { return _HightlightColor; } set { _HightlightColor = value; setHiColor(); } }
         public Color SelectedColor { get { return _SelectedColor; } set { _SelectedColor = value; setSelectColor(); } }
-
-        public void Run(IPassedArgs pPassedarg)
-        {
-           
-        }
         public void SetConfig(IDMEEditor pbl, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
         {
-            DMEEditor = pbl;
-            ErrorObject = pbl.ErrorObject;
-            Logger = pbl.Logger;
 
-            //if (e.Objects.Where(c => c.Name == "VISUTIL").Any())
-            //{
-            //    AppManager = (VisManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
-            //}
-            //if (e.Objects.Where(c => c.Name == "ImportDataManager").Any())
-            //{
-            //    importDataManager = (ImportDataManager)e.Objects.Where(c => c.Name == "ImportDataManager").FirstOrDefault().obj;
-            //}
-            if (e.Objects.Where(c => c.Name == "BindingSource").Any())
-            {
-                bindingSource = (BindingSource)e.Objects.Where(c => c.Name == "BindingSource").FirstOrDefault().obj;
-            }
-            // UnitofWork<Entity> UnitofWork = new UnitofWork<Entity>(DMEEditor,true,new ObservableBindingList<Entity>(bindingSource.List),"ID");
-            //Loadimages();
-            // InitPanels();
 
-            // HightlightColor = Color.Yellow;
-            //  SelectedColor = Color.Green;
-
-            //    Highlightpanel.BackColor = HightlightColor;
-            //  Focuspanel.BackColor = SelectedColor;
-          
-            this.SizeChanged += Uc_bindingNavigator_SizeChanged;
            
-
-            if (bindingSource != null)
-            {
-                this.bindingSource.DataSourceChanged += BindingSource_DataSourceChanged;
-                this.bindingSource.ListChanged += BindingSource_ListChanged;
-                this.bindingSource.CurrentChanged += BindingSource_CurrentChanged;
-
-                this.PrevoiusButton.Click -= PreviouspictureBox_Click;
-                this.NextButton.Click -= NextpictureBox_Click;
-                this.RemoveButton.Click -= RemovepictureBox_Click;
-                this.SaveButton.Click -= SavepictureBox_Click;
-                this.RollbackButton.Click -= RollbackpictureBox_Click;
-                this.EditButton.Click -= EditpictureBox_Click;
-                this.FindButton.Click -= FindpictureBox_Click;
-                this.PrinterButton.Click -= PrinterpictureBox_Click;
-                this.MessageButton.Click -= MessegepictureBox_Click;
-                this.NewButton.Click -= NewButton_Click;
-
-                this.NewButton.Click += NewButton_Click;
-                this.PrevoiusButton.Click += PreviouspictureBox_Click;
-                this.NextButton.Click += NextpictureBox_Click;
-                this.RemoveButton.Click += RemovepictureBox_Click;
-                this.SaveButton.Click += SavepictureBox_Click;
-                this.RollbackButton.Click += RollbackpictureBox_Click;
-                this.EditButton.Click += EditpictureBox_Click;
-                this.FindButton.Click += FindpictureBox_Click;
-                this.PrinterButton.Click += PrinterpictureBox_Click;
-                this.MessageButton.Click += MessegepictureBox_Click;
-
-
-                this.NewButton.MouseHover-= pictureBox_MouseHover;
-                this.PrevoiusButton.MouseHover-= pictureBox_MouseHover;
-                this.NextButton.MouseHover -= pictureBox_MouseHover;
-                this.RemoveButton.MouseHover -= pictureBox_MouseHover;
-                this.SaveButton.MouseHover -= pictureBox_MouseHover;
-                this.RollbackButton.MouseHover -= pictureBox_MouseHover;
-                this.EditButton.MouseHover -= pictureBox_MouseHover;
-                this.FindButton.MouseHover -= pictureBox_MouseHover;
-                this.MessageButton.MouseHover -= pictureBox_MouseHover;
-                this.PrinterButton.MouseHover -= pictureBox_MouseHover;
-                this.Recordnumberinglabel1.MouseHover -= pictureBox_MouseHover;
-
-
-
-                this.NewButton.MouseHover += pictureBox_MouseHover;
-                this.PrevoiusButton.MouseHover += pictureBox_MouseHover;
-                this.NextButton.MouseHover += pictureBox_MouseHover;
-                this.RemoveButton.MouseHover += pictureBox_MouseHover;
-                this.SaveButton.MouseHover += pictureBox_MouseHover;
-                this.RollbackButton.MouseHover += pictureBox_MouseHover;
-                this.EditButton.MouseHover += pictureBox_MouseHover;
-                this.FindButton.MouseHover += pictureBox_MouseHover;
-                this.MessageButton.MouseHover += pictureBox_MouseHover;
-                this.PrinterButton.MouseHover += pictureBox_MouseHover;
-                this.Recordnumberinglabel1.MouseHover += Recordnumberinglabel1_MouseHover;
-
-                datasourcechanged();
-                if (UnitofWork != null)
-                {
-                    bindingSource.DataSource = UnitofWork.Units;
-                }
-              
-              
-            }
         }
-
+       
+      
      
-
-        private void Recordnumberinglabel1_MouseHover(object sender, EventArgs e)
+        private void initControls()
         {
-            Label box = (Label)sender;
-            if (box != null)
-            {
-                Highlightpanel.Left = box.Left - 1;
-                Highlightpanel.Top = box.Top - 1;
-                Highlightpanel.Height = box.Height + 2;
-                Highlightpanel.Width = box.Width + 2;
-                Highlightpanel.SendToBack();
-            }
+            Controls.Clear();
+            // InitPanels();
+            Console.WriteLine("InitLayout");
+            _bindingsource = new BindingSource();
+            Console.WriteLine("InitLayout 1");
+           
+            Console.WriteLine("InitLayout 2");
+            CreateButtons();
+           
+            Controls.Add(MainPanel);
+            this.BindingSource.DataSourceChanged += BindingSource_DataSourceChanged;
+            this.BindingSource.ListChanged += BindingSource_ListChanged;
+            this.BindingSource.CurrentChanged += BindingSource_CurrentChanged;
+            Console.WriteLine("InitLayout 3");
+            this.PrevoiusButton.Click -= PreviouspictureBox_Click;
+            this.NextButton.Click -= NextpictureBox_Click;
+            this.RemoveButton.Click -= RemovepictureBox_Click;
+            this.SaveButton.Click -= SavepictureBox_Click;
+            this.RollbackButton.Click -= RollbackpictureBox_Click;
+            this.EditButton.Click -= EditpictureBox_Click;
+            this.FindButton.Click -= FindpictureBox_Click;
+            this.PrinterButton.Click -= PrinterpictureBox_Click;
+            this.MessageButton.Click -= MessegepictureBox_Click;
+            this.NewButton.Click -= NewButton_Click;
+
+            this.NewButton.Click += NewButton_Click;
+            this.PrevoiusButton.Click += PreviouspictureBox_Click;
+            this.NextButton.Click += NextpictureBox_Click;
+            this.RemoveButton.Click += RemovepictureBox_Click;
+            this.SaveButton.Click += SavepictureBox_Click;
+            this.RollbackButton.Click += RollbackpictureBox_Click;
+            this.EditButton.Click += EditpictureBox_Click;
+            this.FindButton.Click += FindpictureBox_Click;
+            this.PrinterButton.Click += PrinterpictureBox_Click;
+            this.MessageButton.Click += MessegepictureBox_Click;
+
+            Console.WriteLine("InitLayout 4");
         }
-
-        private void pictureBox_MouseHover(object sender, EventArgs e)
+        public override void ApplyTheme()
         {
-            Button box = (Button)sender;
-            if (box != null)
-            {
-                Highlightpanel.Left = box.Left-1 ;
-                Highlightpanel.Top = box.Top-1;
-                Highlightpanel.Height = box.Height+2;
-                Highlightpanel.Width = box.Width+2;
-                Highlightpanel.SendToBack();
-            }
-        }
-        private void InitPanels()
-        {
-            Highlightpanel.Left = Recordnumberinglabel1.Left - 1;
-            Highlightpanel.Top = Recordnumberinglabel1.Top-1;
-            Highlightpanel.Height = Recordnumberinglabel1.Height+1;
-            Highlightpanel.Width = Recordnumberinglabel1.Width + 1;
-            foreach (Button item in GetAll(this, typeof(Button)))
-            {
-                item.FlatAppearance.BorderSize = ButtonBorderSize;
-                item.FlatAppearance.MouseDownBackColor = SelectedColor;
-                item.FlatAppearance.MouseOverBackColor = HightlightColor;
-            }
-
-            searchtooltip = new ToolTip();
-            addtooltip = new ToolTip();
-            edittooltip = new ToolTip();
-            removetooltip = new ToolTip();
-            nexttooltip = new ToolTip();
-            previoustooltip = new ToolTip();
-            canceltooltip =new ToolTip();
-            savetooltip = new ToolTip();
-            printtooltip = new ToolTip();
-            sharetooltip = new ToolTip();
-
-            searchtooltip.SetToolTip(FindButton, "Find");
-            addtooltip.SetToolTip(NewButton, "New Record");
-            edittooltip.SetToolTip(EditButton, "Edit Current Record");
-            removetooltip.SetToolTip(RemoveButton, "Delete Current Record");
-            nexttooltip.SetToolTip(NextButton, "Next");
-            previoustooltip.SetToolTip(PrevoiusButton, "Previous");
-            canceltooltip.SetToolTip(RollbackButton, "Cancel or Rollback changes");
-            savetooltip.SetToolTip(SaveButton, "Save Changes");
-            printtooltip.SetToolTip(PrinterButton, "Print");
-            sharetooltip.SetToolTip(MessageButton, "Share");
-            Focuspanel.Visible = false;
+            base.ApplyTheme();
+            BackColor = _currentTheme.PanelBackColor;
         }
         private void setHiColor()
         {
@@ -257,35 +172,22 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
 
         }
         #region "Click Methods for all Buttons"
-        //private void FocusPicture(object sender)
-        //{
-        //    PictureBox box = (PictureBox)sender;
-        //    if (box != null)
-        //    {
-        //        Focuspanel.Visible = true;
-        //        Focuspanel.Left = box.Left - 2;
-        //        Focuspanel.Top = box.Top - 2;
-        //        Focuspanel.Height = box.Height + 4;
-        //        Focuspanel.Width = box.Width + 4;
-                
-                
-        //    }
-        //}
+
         private void MessegepictureBox_Click(object sender, EventArgs e)
         {
             try
             {
                 //  if (MessageBox.Config(this.ParentNode, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == BeepDialogResult.OK)
                 //  {
-                // bindingSource.CancelEdit();
+                // BindingSource.CancelEdit();
                 //FocusPicture(sender);
-                SendMessage?.Invoke(this, bindingSource);
+                SendMessage?.Invoke(this, BindingSource);
                 // };
 
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage("Binding Navigator", ex.Message, DateTime.Now, bindingSource.Position, ex.Message, Errors.Failed);
+                SendLog($"Binding Navigator {ex.Message}");
             }
         }
         private void PrinterpictureBox_Click(object sender, EventArgs e)
@@ -294,32 +196,32 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
             {
                 //  if (MessageBox.Config(this.ParentNode, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == BeepDialogResult.OK)
                 //  {
-                // bindingSource.CancelEdit();
-          //      FocusPicture(sender);
-                CallPrinter?.Invoke(this, bindingSource);
+                // BindingSource.CancelEdit();
+                //      FocusPicture(sender);
+                CallPrinter?.Invoke(this, BindingSource);
                 // };
 
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage("Binding Navigator", ex.Message, DateTime.Now, bindingSource.Position, ex.Message, Errors.Failed);
+                SendLog($"Binding Navigator {ex.Message}");
             }
         }
         private void FindpictureBox_Click(object sender, EventArgs e)
         {
             try
             {
-              //  if (MessageBox.Config(this.ParentNode, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == BeepDialogResult.OK)
-              //  {
-                   // bindingSource.CancelEdit();
-               //FocusPicture(sender);
-                ShowSearch?.Invoke(this, bindingSource);
+                //  if (MessageBox.Config(this.ParentNode, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == BeepDialogResult.OK)
+                //  {
+                // BindingSource.CancelEdit();
+                //FocusPicture(sender);
+                ShowSearch?.Invoke(this, BindingSource);
                 // };
 
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage("Binding Navigator", ex.Message, DateTime.Now, bindingSource.Position, ex.Message, Errors.Failed);
+                SendLog($"Binding Navigator {ex.Message}");
             }
         }
         private void EditpictureBox_Click(object sender, EventArgs e)
@@ -328,14 +230,14 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
             {
                 //if (MessageBox.Config(this.ParentNode, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == BeepDialogResult.OK)
                 //{
-                  //  bindingSource.CancelEdit();
-              //      FocusPicture(sender);
-               // };
-               EditCalled?.Invoke(sender, bindingSource);
+                //  BindingSource.CancelEdit();
+                //      FocusPicture(sender);
+                // };
+                EditCalled?.Invoke(sender, BindingSource);
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage("Binding Navigator", ex.Message, DateTime.Now, bindingSource.Position, ex.Message, Errors.Failed);
+                SendLog($"Binding Navigator {ex.Message}");
             }
         }
         private void RollbackpictureBox_Click(object sender, EventArgs e)
@@ -344,61 +246,61 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
             {
                 if (MessageBox.Show(this.Parent, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
                 {
-                  bindingSource.CancelEdit();
-                    bindingSource.ResetBindings(false);
+                    BindingSource.CancelEdit();
+                    BindingSource.ResetBindings(false);
                     //      FocusPicture(sender);
                 };
 
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage("Binding Navigator", ex.Message, DateTime.Now, bindingSource.Position, ex.Message, Errors.Failed);
+                SendLog($"Binding Navigator {ex.Message}");
             }
         }
         private void SavepictureBox_Click(object sender, EventArgs e)
         {
             try
             {
-                bindingSource.EndEdit();
-                SaveCalled?.Invoke(sender, bindingSource);
+                BindingSource.EndEdit();
+                SaveCalled?.Invoke(sender, BindingSource);
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage("Binding Navigator", ex.Message, DateTime.Now, bindingSource.Position, ex.Message, Errors.Failed);
+                SendLog($"Binding Navigator {ex.Message}");
             }
 
         }
         private void RemovepictureBox_Click(object sender, EventArgs e)
         {
             try
-            { 
-                DeleteCalled?.Invoke(sender,bindingSource);
-                if (bindingSource.Current != null)
+            {
+                DeleteCalled?.Invoke(sender, BindingSource);
+                if (BindingSource.Current != null)
                 {
-                    if (bindingSource.Count > 0)
+                    if (BindingSource.Count > 0)
                     {
                         if (VerifyDelete)
                         {
                             if (MessageBox.Show(this.Parent, "Are you sure you want to Delete Record?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
                             {
-                                bindingSource.RemoveCurrent();
-                                bindingSource.ResetBindings(false);
+                                BindingSource.RemoveCurrent();
+                                BindingSource.ResetBindings(false);
                             };
                         }
                         else
                         {
-                            bindingSource.RemoveCurrent();
-                            bindingSource.ResetBindings(false);
+                            BindingSource.RemoveCurrent();
+                            BindingSource.ResetBindings(false);
                         }
                     }
                 }
-               
-               
+
+
                 //FocusPicture(sender);
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage("Binding Navigator", ex.Message, DateTime.Now, bindingSource.Position, ex.Message, Errors.Failed);
+                SendLog($"Binding Navigator {ex.Message}");
             }
 
         }
@@ -406,17 +308,17 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         {
             try
             {
-                if (bindingSource.Count > 0)
-                    if (bindingSource[bindingSource.Count - 1] != null)
-                        if (bindingSource.Position + 1 < bindingSource.Count)
-                            bindingSource.MoveNext();
+                if (BindingSource.Count > 0)
+                    if (BindingSource[BindingSource.Count - 1] != null)
+                        if (BindingSource.Position + 1 < BindingSource.Count)
+                            BindingSource.MoveNext();
                 ;
-                
-               // FocusPicture(sender);
+
+                // FocusPicture(sender);
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage("Binding Navigator", ex.Message, DateTime.Now, bindingSource.Position, ex.Message, Errors.Failed);
+                SendLog($"Binding Navigator {ex.Message}");
             }
 
         }
@@ -424,16 +326,16 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         {
             try
             {
-                if (bindingSource.Count > 0)
-                    if (bindingSource[bindingSource.Count - 1] != null)
-                        if (bindingSource.Position > 0)
-                            bindingSource.MovePrevious();
+                if (BindingSource.Count > 0)
+                    if (BindingSource[BindingSource.Count - 1] != null)
+                        if (BindingSource.Position > 0)
+                            BindingSource.MovePrevious();
                 ;
-              //  FocusPicture(sender);
+                //  FocusPicture(sender);
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage("Binding Navigator", ex.Message, DateTime.Now, bindingSource.Position, ex.Message, Errors.Failed);
+                SendLog($"Binding Navigator {ex.Message}");
             }
 
         }
@@ -442,25 +344,25 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
             try
             {
 
-                bindingSource.AddNew();
-                bindingSource.ResetBindings(false);
-                NewRecordCreated?.Invoke(this,bindingSource);
+                BindingSource.AddNew();
+                BindingSource.ResetBindings(false);
+                NewRecordCreated?.Invoke(this, BindingSource);
 
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage("Binding Navigator", ex.Message, DateTime.Now, bindingSource.Position, ex.Message, Errors.Failed);
+                SendLog($"Binding Navigator { ex.Message}");
             }
         }
-       
+
         #endregion
         #region "BindingSource Events"
         private void BindingSource_CurrentChanged(object sender, EventArgs e)
         {
             datasourcechanged();
-            
+
         }
-      
+
         private void BindingSource_ListChanged(object sender, ListChangedEventArgs e)
         {
             datasourcechanged();
@@ -473,11 +375,11 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         }
         private void datasourcechanged()
         {
-            if (this.bindingSource != null)
+            if (this.BindingSource != null)
             {
-                if (this.bindingSource.List != null)
+                if (this.BindingSource.List != null)
                 {
-                    this.Recordnumberinglabel1.Text = (Convert.ToInt32(bindingSource.Position+1)).ToString() + " From " + bindingSource.List.Count.ToString();
+                    this.Recordnumberinglabel1.Text = (Convert.ToInt32(BindingSource.Position + 1)).ToString() + " From " + BindingSource.List.Count.ToString();
                 }
                 else
                     this.Recordnumberinglabel1.Text = "-";
@@ -485,9 +387,17 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         }
 
         #endregion
-        private void Uc_bindingNavigator_SizeChanged(object sender, EventArgs e)
+        protected override void OnResize(EventArgs e)
         {
-            this.Height = ControlHeight;
+            base.OnResize(e);
+            // Call PositionControls again to adjust positions
+            List<Control> buttons = new List<Control>
+    {
+        FindButton, EditButton, PrinterButton, MessageButton, SaveButton,
+        PrevoiusButton, Recordnumberinglabel1, NextButton, NewButton, RemoveButton, RollbackButton
+    };
+
+            PositionControls(buttons, 5); // Adjust layout on resize
         }
         public IEnumerable<Control> GetAll(Control control, Type type)
         {
@@ -498,8 +408,119 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
                                       .Where(c => c.GetType() == type);
         }
         #region "Resource Loaders"
-       
-       
+
+
         #endregion
+        private void SendLog(string message)
+        {
+            if(DMEEditor!=null) { DMEEditor.AddLogMessage("Binding Navigator", message, DateTime.Now, BindingSource.Position, null, Errors.Failed); 
+            }else
+            MessageBox.Show(message, "Beep", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        private void CreateButtons()
+        {
+            SuspendLayout();
+
+            // Ensure MainPanel is created
+            if (MainPanel == null)
+            {
+                MainPanel = new Panel
+                {
+                    Dock = DockStyle.Fill,
+                    BackColor = Color.Transparent
+                };
+            }
+
+            UpdateDrawingRect();
+
+            // Set MainPanel size and position
+            MainPanel.Left = DrawingRect.Left;
+            MainPanel.Top = DrawingRect.Top;
+            MainPanel.Width = DrawingRect.Width;
+            MainPanel.Height = DrawingRect.Height;
+
+            Controls.Clear();
+            Controls.Add(MainPanel);
+
+            // Define Button Size
+          
+           
+
+            // Create Buttons
+            FindButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg", buttonSize);
+            EditButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.edit.svg", buttonSize);
+            PrinterButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg", buttonSize);
+            MessageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.share.svg", buttonSize);
+            SaveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.save.svg", buttonSize);
+            PrevoiusButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.previous.svg", buttonSize);
+            Recordnumberinglabel1 = new BeepLabel
+            {
+                TextAlign = ContentAlignment.MiddleCenter,
+                Size = new Size(labelWidth, buttonSize.Height),
+                Text = "0",
+                ShowAllBorders = true,
+                IsBorderAffectedByTheme = false
+            };
+            NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.next.svg", buttonSize);
+            NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.add.svg", buttonSize);
+            RemoveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.remove.svg", buttonSize);
+            RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.rollback.svg", buttonSize);
+
+            // Add all controls to a list
+            List<Control> buttons = new List<Control>
+    {
+        FindButton, EditButton, PrinterButton, MessageButton, SaveButton,
+        PrevoiusButton, Recordnumberinglabel1, NextButton, NewButton, RemoveButton, RollbackButton
+    };
+
+            // Call function to position controls dynamically
+            PositionControls(buttons, spacing);
+
+            ResumeLayout(false);
+        }
+        private void PositionControls(List<Control> controls, int spacing)
+        {
+            if (MainPanel == null || controls == null || controls.Count == 0)
+                return;
+
+            int totalWidth = controls.Sum(c => c.Width) + (spacing * (controls.Count - 1));
+            int startX = (MainPanel.Width - totalWidth) / 2;
+            int currentX = startX;
+            int centerY = (MainPanel.Height - controls[0].Height) / 2;
+
+            foreach (var control in controls)
+            {
+                if (!MainPanel.Controls.Contains(control))
+                {
+                    MainPanel.Controls.Add(control); // Add control ONLY if it is not already added
+                }
+
+                // Update position dynamically
+                control.Left = currentX;
+                control.Top = centerY;
+
+                currentX += control.Width + spacing;
+            }
+        }
+
+        // Helper Method to Create Buttons
+        private BeepButton CreateButton(string imagePath, Size buttonSize)
+        {
+            return new BeepButton()
+            {
+                ImagePath = imagePath,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                HideText = true,
+                IsFramless = true,
+                Size = buttonSize,
+                IsChild = true,
+                Anchor = AnchorStyles.None,
+                Margin = new Padding(0),
+                Padding = new Padding(0),
+                MaxImageSize = new Size(buttonSize.Width - 1, buttonSize.Height - 1),
+                
+            };
+        }
+
     }
 }

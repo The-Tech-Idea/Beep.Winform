@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Views.Configuration
             this.fieldsDataGridView = new System.Windows.Forms.DataGridView();
             this.statusdescriptionTextBox = new System.Windows.Forms.TextBox();
             this.nameTextBox = new System.Windows.Forms.TextBox();
-            this.BeepbindingNavigator1 = new BeepbindingNavigator();
+            this.BeepbindingNavigator1 = new BeepBindingNavigator();
             this.fieldsBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.mappingBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
@@ -356,7 +356,7 @@ namespace TheTechIdea.Beep.Winform.Views.Configuration
         private System.Windows.Forms.TextBox nameTextBox;
         private System.Windows.Forms.Label statusdescriptionLabel;
         private System.Windows.Forms.Label nameLabel;
-        private BeepbindingNavigator BeepbindingNavigator1;
+        private BeepBindingNavigator BeepbindingNavigator1;
         private System.Windows.Forms.BindingSource fieldsBindingSource;
         private System.Windows.Forms.BindingSource mappingBindingSource;
         private System.Windows.Forms.Panel panel1;

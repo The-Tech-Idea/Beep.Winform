@@ -79,7 +79,7 @@ namespace Beep.Config.Winform.Configurations
             }
             RuleComboBox.Items.Add("");
             this.datasourceDefaultsBindingSource.DataSource = DMEEditor.ConfigEditor.DataConnections[DMEEditor.ConfigEditor.DataConnections.FindIndex(i => i.ConnectionName == e.DatasourceName)].DatasourceDefaults;
-            BeepbindingNavigator1.bindingSource = datasourceDefaultsBindingSource;
+            BeepbindingNavigator1.BindingSource = datasourceDefaultsBindingSource;
             BeepbindingNavigator1.SaveCalled += BeepbindingNavigator1_SaveCalled;
             //this.datasourceDefaultsBindingNavigatorSaveItem.Click += DatasourceDefaultsBindingNavigatorSaveItem_Click;
             this.datasourceDefaultsBindingSource.AddingNew += DatasourceDefaultsBindingSource_AddingNew;

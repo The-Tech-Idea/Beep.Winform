@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Views
             DMEEditor = pbl;
             Visutil = (IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
             this.eventsBindingSource.DataSource = DMEEditor.ConfigEditor.Events;
-            BeepbindingNavigator1.bindingSource = eventsBindingSource;
+            BeepbindingNavigator1.BindingSource = eventsBindingSource;
             BeepbindingNavigator1.SaveCalled += BeepbindingNavigator1_SaveCalled;
             BeepbindingNavigator1.SetConfig(DMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, new string[] { }, e, DMEEditor.ErrorObject);
             BeepbindingNavigator1.HightlightColor = Color.Yellow;

@@ -419,9 +419,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 var page = _targetTabControl.TabPages[i];
                 var button = CreateTabButton(page);
-                Console.WriteLine("Button Created");
+              //  Console.WriteLine("Button Created");
                 HeaderPanel.Controls.Add(button);
-                Console.WriteLine("Button Added");
+               // Console.WriteLine("Button Added");
             }
 
             // Highlight the currently selected tab

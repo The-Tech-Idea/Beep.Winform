@@ -86,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Views
 
             ViewModel = new FunctionToFunctionMappingViewModel(DMEEditor, Visutil);
             this.function2FunctionsBindingSource.DataSource=ViewModel.Function2FunctionActions;
-            BeepbindingNavigator1.bindingSource = function2FunctionsBindingSource;
+            BeepbindingNavigator1.BindingSource = function2FunctionsBindingSource;
             BeepbindingNavigator1.SaveCalled += BeepbindingNavigator1_SaveCalled;
             //this.function2FunctionsBindingNavigatorSaveItem.Click += Function2FunctionsBindingNavigatorSaveItem_Click;
             this.fromClassComboBox.SelectedValueChanged += FromClassComboBox_SelectedValueChanged;

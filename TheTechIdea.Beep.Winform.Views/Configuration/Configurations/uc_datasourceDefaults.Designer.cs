@@ -40,7 +40,7 @@ namespace Beep.Config.Winform.Configurations
             this.TypedataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.datasourceDefaultsBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.BeepbindingNavigator1 = new BeepbindingNavigator();
+            this.BeepbindingNavigator1 = new BeepBindingNavigator();
             this.poisonPanel1 = new ReaLTaiizor.Controls.PoisonPanel();
             this.poisonLabel1 = new ReaLTaiizor.Controls.PoisonLabel();
             ((System.ComponentModel.ISupportInitialize)(this.datasourceDefaults1DataGridView)).BeginInit();
@@ -111,7 +111,7 @@ namespace Beep.Config.Winform.Configurations
             // 
             this.BeepbindingNavigator1.AddinName = null;
             this.BeepbindingNavigator1.BackColor = System.Drawing.Color.White;
-            this.BeepbindingNavigator1.bindingSource = null;
+            this.BeepbindingNavigator1.BindingSource = null;
             this.BeepbindingNavigator1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.BeepbindingNavigator1.ButtonBorderSize = 0;
             this.BeepbindingNavigator1.CausesValidation = false;
@@ -189,7 +189,7 @@ namespace Beep.Config.Winform.Configurations
 
         private System.Windows.Forms.BindingSource datasourceDefaultsBindingSource;
         private ReaLTaiizor.Controls.PoisonDataGridView datasourceDefaults1DataGridView;
-        private BeepbindingNavigator BeepbindingNavigator1;
+        private BeepBindingNavigator BeepbindingNavigator1;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private System.Windows.Forms.DataGridViewComboBoxColumn RuleComboBox;
         private System.Windows.Forms.DataGridViewTextBoxColumn ValueTextBox;

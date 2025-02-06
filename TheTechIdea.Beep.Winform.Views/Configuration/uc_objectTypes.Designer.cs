@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Views
             this.objectTypesDataGridView = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ObjectTypeinGrid = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.BeepbindingNavigator1 = new BeepbindingNavigator();
+            this.BeepbindingNavigator1 = new BeepBindingNavigator();
             ((System.ComponentModel.ISupportInitialize)(this.objectTypesBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.objectTypesDataGridView)).BeginInit();
             this.SuspendLayout();
@@ -81,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Views
             this.BeepbindingNavigator1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.BeepbindingNavigator1.BackColor = System.Drawing.Color.White;
-            this.BeepbindingNavigator1.bindingSource = null;
+            this.BeepbindingNavigator1.BindingSource = null;
             this.BeepbindingNavigator1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.BeepbindingNavigator1.ButtonBorderSize = 0;
             this.BeepbindingNavigator1.CausesValidation = false;
@@ -128,6 +128,6 @@ namespace TheTechIdea.Beep.Winform.Views
         private System.Windows.Forms.DataGridView objectTypesDataGridView;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private System.Windows.Forms.DataGridViewTextBoxColumn ObjectTypeinGrid;
-        private BeepbindingNavigator BeepbindingNavigator1;
+        private BeepBindingNavigator BeepbindingNavigator1;
     }
 }

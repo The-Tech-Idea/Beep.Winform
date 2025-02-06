@@ -18,6 +18,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
+using TheTechIdea.Beep.Vis.Logic;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid
@@ -35,6 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public IDMEEditor DMEEditor { get; set; }
         public EntityStructure EntityStructure { get; set; }
         TableLayoutPanel layoutPanel;
+        TableLayoutPanel toptableLayoutPanel;
         private float originalFilterPanelHeight = 28;
         private float originalTotalPanelHeight = 28;
 
@@ -53,7 +55,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             set => _gridId = value;
         }
         #region "Properties"
+        public BeepPanel Toppanel;
+        public BeepPanel Bottompanel;
 
+        public BeepButton FilterShowbutton;
+        public BeepButton Printbutton;
+        public BeepButton Sharebutton;
+        public BeepLabel Titlelabel;
+        private DataGridView dataGridView1;
+        private BeepPanel filterPanel;
+        public BeepBindingNavigator BindingNavigator=new BeepBindingNavigator();
+        private BeepPanel FilterMessagepanel;
+        private BeepPanel Totalspanel;
+        public BeepButton TotalShowbutton;
+        private BeepButton CSVExportbutton;
+        private BeepPanel customHeaderPanel;
         /// <summary>
         /// Indicates if the grid is in query mode (typically when loading or updating data).
         /// </summary>
@@ -397,8 +413,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// </summary>
         public BindingSource bindingSource
         {
-            get { return BindingNavigator.bindingSource; }
-            set { BindingNavigator.bindingSource = value; }
+            get { return BindingNavigator.BindingSource; }
+            set { BindingNavigator.BindingSource = value; }
         }
 
         /// <summary>
@@ -410,7 +426,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public  void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
         {
           
-            BindingNavigator.SetConfig(pDMEEditor, plogger, putil, args, e, per);
+          //  BindingNavigator.SetConfig(pDMEEditor, plogger, putil, args, e, per);
           //  DMEEditor = pDMEEditor;
             dataGridView1.AllowUserToAddRows = false;
          //   util = putil;
@@ -419,11 +435,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             ShowTotalsPanel = false;
             InQuery = true;
         }
-        public BeepGrid():base()
+        public BeepGrid()
         {
+            Console.WriteLine("BeepGrid Constructor");
             CreateComponent();
-            Margin = new Padding(1);
+            Console.WriteLine("BeepGrid Constructor 1");
+            Margin = new Padding(3);
             columnConfigs = new List<BeepGridColumnConfig>();
+            Console.WriteLine("BeepGrid Constructor 2");
             this.Resize += BeepGrid_Resize;
             dataGridView1.Scroll += DataGridView_Scroll; // Handle the Scroll event
           //  dataGridView1.Resize += DataGridView_Resize;
@@ -436,6 +455,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             // dataGridView1.Dock = DockStyle.Fill;
             // this.DoubleBuffered = true;
             // this.Resize += BeepControlResize;
+            Console.WriteLine("BeepGrid Constructor 3");
             CSVExportbutton.Click += CSVExportbutton_Click;
 
             this.Printbutton.Click += Printbutton_Click;
@@ -444,10 +464,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             //  this.FilterpictureBox1.Click += FilterpictureBox1_Click;
             // this.Totalbutton.Click += Totalbutton_Click;
             this.dataGridView1.CellValidating += DataGridView1_CellValidating;
-            BindingNavigator.bindingSource = new BindingSource();
+            Console.WriteLine("BeepGrid Constructor 4");
+            BindingNavigator = new BeepBindingNavigator();
+            Console.WriteLine("BeepGrid Constructor 4.1");
+          //  BindingNavigator.BindingSource = new BindingSource();
             // WireAllControls();
             this.BackColor = _backColor;
-         //   this.BorderStyle = _borderStyle;
+            //   this.BorderStyle = _borderStyle
+            //   
+            Console.WriteLine("BeepGrid Constructor 5");
             this.SetStyle(ControlStyles.ResizeRedraw, true);
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
             dataGridView1.ColumnHeadersVisible = false; // Hide default column headers
@@ -474,13 +499,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             BackColor = dataGridView1.BackColor;
          
             dataGridView1.VirtualMode = false;
+            Console.WriteLine("BeepGrid Constructor 6");
             UpdateCustomHeaders();
             // Check if GridId is already assigned, if not, create a new one.
             if (string.IsNullOrEmpty(_gridId))
             {
                 GenerateUniqueGridId();
             }
-
+            Console.WriteLine("BeepGrid Constructor 7");
             // Load the layout for the grid
             LoadGridLayout();
         }
@@ -654,10 +680,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             try
             {
                 InQuery = true;
-                BindingNavigator.bindingSource.DataSource = value;
-                BindingNavigator.bindingSource.ResetBindings(true);
+                BindingNavigator.BindingSource.DataSource = value;
+                BindingNavigator.BindingSource.ResetBindings(true);
                 this.BindingNavigator.HightlightColor = Color.Yellow;
-                dataGridView1.DataSource = BindingNavigator.bindingSource;
+                dataGridView1.DataSource = BindingNavigator.BindingSource;
                 InQuery = false;
                 return true;
             }
@@ -774,7 +800,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
 
             dataGridView1.Columns.Clear();
-            if (BindingNavigator.bindingSource != null && EntityStructure != null)
+            if (BindingNavigator.BindingSource != null && EntityStructure != null)
             {
                 columnConfigs.Clear();
                 filterPanel.Controls.Clear();
@@ -786,7 +812,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 Title.Text = EntityStructure.EntityName;
                 Titlelabel.Text = EntityStructure.EntityName;
             }
-            BindingNavigator.bindingSource.ResetBindings(false);
+            BindingNavigator.BindingSource.ResetBindings(false);
             DataSource = data;
             return DMEEditor.ErrorObject;
         }
@@ -809,7 +835,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
 
             dataGridView1.Columns.Clear();
-            if (BindingNavigator.bindingSource != null && EntityStructure != null)
+            if (BindingNavigator.BindingSource != null && EntityStructure != null)
             {
                 columnConfigs.Clear();
                 filterPanel.Controls.Clear();
@@ -821,7 +847,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 Title.Text = EntityStructure.EntityName;
                 Titlelabel.Text = EntityStructure.EntityName;
             }
-            BindingNavigator.bindingSource.ResetBindings(false);
+            BindingNavigator.BindingSource.ResetBindings(false);
             return DMEEditor.ErrorObject;
         }
 
@@ -958,13 +984,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             Console.WriteLine("Applying Filter: " + completeFilter);
             if (string.IsNullOrEmpty(completeFilter))
             {
-                BindingNavigator.bindingSource.RemoveFilter();
+                BindingNavigator.BindingSource.RemoveFilter();
             }
             else
             {
-                BindingNavigator.bindingSource.Filter = completeFilter;
+                BindingNavigator.BindingSource.Filter = completeFilter;
             }
-            dataGridView1.DataSource = BindingNavigator.bindingSource;
+            dataGridView1.DataSource = BindingNavigator.BindingSource;
         }
 
         public void RefreshGrid()
@@ -1084,12 +1110,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             this.GridView.DefaultCellStyle.SelectionForeColor = _currentTheme.GridRowSelectedForeColor;
 
             // apply theme for header
-            this.Toppanel.BackColor = _currentTheme.PanelBackColor;
-            this.customHeaderPanel.BackColor = _currentTheme.PanelBackColor;
-            this.filterPanel.BackColor = _currentTheme.PanelBackColor;
-            this.Totalspanel.BackColor = _currentTheme.PanelBackColor;
-            this.Bottompanel.BackColor = _currentTheme.PanelBackColor;
-            this.BindingNavigator.BackColor = _currentTheme.PanelBackColor;
+            toptableLayoutPanel.BackColor = _currentTheme.PanelBackColor;
+            layoutPanel.BackColor = _currentTheme.PanelBackColor;
+            //this.customHeaderPanel.BackColor = _currentTheme.PanelBackColor;
+            //this.filterPanel.BackColor = _currentTheme.PanelBackColor;
+            //this.Totalspanel.BackColor = _currentTheme.PanelBackColor;
+            //this.Bottompanel.BackColor = _currentTheme.PanelBackColor;
+            //this.BindingNavigator.BackColor = _currentTheme.PanelBackColor;
+            this.Toppanel.Theme = Theme;
+            this.customHeaderPanel.Theme = Theme;
+            this.filterPanel.Theme = Theme;
+            this.Totalspanel.Theme = Theme;
+            this.Bottompanel.Theme = Theme;
+            this.BindingNavigator.Theme = Theme;
             //apply theme for buttons
             this.FilterShowbutton.Theme = Theme;
             this.TotalShowbutton.Theme = Theme;
@@ -1097,6 +1130,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             this.CSVExportbutton.Theme = Theme;
             //this.BindingNavigator.Theme = Theme;
             this.Titlelabel.Theme = Theme;
+            this.Titlelabel.ForeColor = ColorUtils.GetForColor(_currentTheme.PanelBackColor, _currentTheme.LabelForeColor);
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
@@ -1616,7 +1650,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 oldColumn.HeaderCell.SortGlyphDirection = SortOrder.None;
                 Currentdirection = SortOrder.None;
-                BindingNavigator.bindingSource.RemoveSort();
+                BindingNavigator.BindingSource.RemoveSort();
                 UpdateSortIcons(headerLabel, SortOrder.None);
                 return;
             }
@@ -1938,8 +1972,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         #endregion "Layout Load and Save"
         #region "Drawing and Layout"
-
-
         private void SetRowVisibility(TableLayoutPanel table, int rowIndex, bool isVisible, float originalHeight)
         {
             if (isVisible)
@@ -1955,7 +1987,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 table.GetControlFromPosition(0, rowIndex).Visible = false;
             }
         }
-
         private void CreateComponent()
         {
             // Create TableLayoutPanel
@@ -1964,13 +1995,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
                 AutoSize = false,
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                Padding = new Padding(1),
-                Margin = new Padding(1),
+                Padding = new Padding(0),
+                Margin = new Padding(0),
                 ColumnCount = 1,
                 RowCount = 6,
-                Dock = DockStyle.Fill // Ensure it fills the container properly
+               // Ensure it fills the container properly
             };
-
+            UpdateDrawingRect();
+            layoutPanel.Left = DrawingRect.Left + padding;
+            layoutPanel.Top = DrawingRect.Top + padding;
+            layoutPanel.Width = DrawingRect.Width - (padding * 2);
+            layoutPanel.Height = DrawingRect.Height - (padding * 2);
             // Define row heights
             layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));  // Top Panel
             layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 31F));  // Custom Header Panel
@@ -1980,51 +2015,52 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));  // Bottom Panel
 
             // Fix panel sizes to prevent stretching
-            Toppanel = new Panel
+            Toppanel = new BeepPanel
             {
-                BackColor = Color.White,
-                BorderStyle = BorderStyle.FixedSingle,
+               
                 Height = 30, // Fix Height to match RowStyle
                 Dock = DockStyle.Top,
-                AutoSize = false, // Ensure it doesn't auto-grow
+                ShowTitle = false,
+                ShowAllBorders = false,
                 Margin = new Padding(0),
                 Padding = new Padding(0)
+
             };
             InitializeTopPanelControls(); // Helper method
 
-            customHeaderPanel = new Panel
+            customHeaderPanel = new BeepPanel
             {
-                BackColor = Color.Magenta,
-                BorderStyle = BorderStyle.FixedSingle,
+               
                 Height = 31, // Fix Height
                 Dock = DockStyle.Top,
-                AutoSize = false,
+                ShowTitle = false,
+                ShowAllBorders = false,
                 Margin = new Padding(0),
                 Padding = new Padding(0)
             };
 
-            filterPanel = new Panel
+            filterPanel = new BeepPanel
             {
-                BackColor = Color.Khaki,
-                BorderStyle = BorderStyle.FixedSingle,
-                Height = 28,
                 Dock = DockStyle.Top,
-                AutoSize = false,
+                Height = 28,
+                ShowTitle = false,
                 Margin = new Padding(0),
                 Padding = new Padding(0),
-                Visible = true
+                Visible = true,
+                ShowAllBorders = false,
+
             };
 
-            Totalspanel = new Panel
+            Totalspanel = new BeepPanel
             {
-                BackColor = Color.LawnGreen,
-                BorderStyle = BorderStyle.FixedSingle,
+              
                 Height = 28,
                 Dock = DockStyle.Top,
-                AutoSize = false,
+                ShowTitle = false,
                 Margin = new Padding(0),
                 Padding = new Padding(0),
-                Visible = true
+                Visible = true,
+                 ShowAllBorders = false,
             };
 
             dataGridView1 = new DataGridView
@@ -2036,17 +2072,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 Padding = new Padding(0)
             };
 
-            Bottompanel = new Panel
+            Bottompanel = new BeepPanel
             {
-                BackColor = Color.White,
-                Height = 28,
                 Dock = DockStyle.Top,
-                AutoSize = false,
+                Height = 28,
+                ShowTitle = false,
+                ShowAllBorders = false,
                 Margin = new Padding(0),
                 Padding = new Padding(0)
             };
 
-            BindingNavigator = new BeepbindingNavigator
+            BindingNavigator = new BeepBindingNavigator
             {
                 Dock = DockStyle.Fill
             };
@@ -2070,30 +2106,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             layoutPanel.Width = DrawingRect.Width - (padding * 2);
             layoutPanel.Height = DrawingRect.Height - (padding * 2);
         }
-
-
         // Helper method for top panel buttons
         private void InitializeTopPanelControls()
         {
-            TableLayoutPanel tableLayoutPanel = new TableLayoutPanel
+             toptableLayoutPanel = new TableLayoutPanel
             {
                 ColumnCount = 6,
                 RowCount = 1,
                 Dock = DockStyle.Fill
             };
-            tableLayoutPanel.Padding = new Padding(0);
-            tableLayoutPanel.Margin = new Padding(0);
-            Toppanel.Controls.Add(tableLayoutPanel);
+            toptableLayoutPanel.Padding = new Padding(0);
+            toptableLayoutPanel.Margin = new Padding(0);
+            Toppanel.Controls.Add(toptableLayoutPanel);
             // Set column widths
-            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            toptableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            toptableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            toptableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            toptableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            toptableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
             // add column for Title for the reset of the space
-            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
+            toptableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
             // Set row height
-            tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 23F));
+            toptableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 23F));
 
             CSVExportbutton = new BeepButton { ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.export.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFramless = true, ApplyThemeOnImage = false, IsChild = true, Dock = DockStyle.Fill };
             TotalShowbutton = new BeepButton {ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.sum.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFramless = true, ApplyThemeOnImage = false , IsChild = true , Dock = DockStyle.Fill };
@@ -2103,12 +2137,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
             Titlelabel = new BeepLabel { Text = "Title", TextAlign = ContentAlignment.MiddleCenter,ImageAlign= ContentAlignment.MiddleRight , IsFramless=true,IsChild=true, Dock = DockStyle.Fill };
             // Add buttons to the TableLayoutPanel
-            tableLayoutPanel.Controls.Add(CSVExportbutton, 0, 0);
-            tableLayoutPanel.Controls.Add(TotalShowbutton, 1, 0);
-            tableLayoutPanel.Controls.Add(Sharebutton, 2, 0);
-            tableLayoutPanel.Controls.Add(Printbutton, 3, 0);
-            tableLayoutPanel.Controls.Add(FilterShowbutton, 4, 0);
-            tableLayoutPanel.Controls.Add(Titlelabel, 5, 0);
+            toptableLayoutPanel.Controls.Add(CSVExportbutton, 0, 0);
+            toptableLayoutPanel.Controls.Add(TotalShowbutton, 1, 0);
+            toptableLayoutPanel.Controls.Add(Sharebutton, 2, 0);
+            toptableLayoutPanel.Controls.Add(Printbutton, 3, 0);
+            toptableLayoutPanel.Controls.Add(FilterShowbutton, 4, 0);
+            toptableLayoutPanel.Controls.Add(Titlelabel, 5, 0);
 
         }
 

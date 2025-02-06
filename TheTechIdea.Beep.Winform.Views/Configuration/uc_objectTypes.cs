@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Views
         {
             base.SetConfig(pbl,plogger,putil,args,e,per);
             this.objectTypesBindingSource.DataSource = DMEEditor.ConfigEditor.objectTypes;
-            BeepbindingNavigator1.bindingSource = objectTypesBindingSource;
+            BeepbindingNavigator1.BindingSource = objectTypesBindingSource;
             BeepbindingNavigator1.SaveCalled += BeepbindingNavigator1_SaveCalled;
             BeepbindingNavigator1.SetConfig(DMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, new string[] { }, e, DMEEditor.ErrorObject);
             BeepbindingNavigator1.HightlightColor = Color.Yellow;

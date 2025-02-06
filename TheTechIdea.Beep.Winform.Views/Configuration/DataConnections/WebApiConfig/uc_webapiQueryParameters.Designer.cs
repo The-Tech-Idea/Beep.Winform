@@ -52,8 +52,8 @@ namespace Beep.Config.Winform.DataConnections
             this.dataGridView2 = new ReaLTaiizor.Controls.PoisonDataGridView();
             this.parameterNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.parameterIndexDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.BeepbindingNavigator1 = new BeepbindingNavigator();
-            this.BeepbindingNavigator2 = new BeepbindingNavigator();
+            this.BeepbindingNavigator1 = new BeepBindingNavigator();
+            this.BeepbindingNavigator2 = new BeepBindingNavigator();
             this.poisonPanel2 = new ReaLTaiizor.Controls.PoisonPanel();
             this.poisonLabel1 = new ReaLTaiizor.Controls.PoisonLabel();
             this.poisonPanel1 = new ReaLTaiizor.Controls.PoisonPanel();
@@ -244,7 +244,7 @@ namespace Beep.Config.Winform.DataConnections
             // 
             this.BeepbindingNavigator1.AddinName = null;
             this.BeepbindingNavigator1.BackColor = System.Drawing.Color.White;
-            this.BeepbindingNavigator1.bindingSource = null;
+            this.BeepbindingNavigator1.BindingSource = null;
             this.BeepbindingNavigator1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.BeepbindingNavigator1.ButtonBorderSize = 0;
             this.BeepbindingNavigator1.CausesValidation = false;
@@ -276,7 +276,7 @@ namespace Beep.Config.Winform.DataConnections
             // 
             this.BeepbindingNavigator2.AddinName = null;
             this.BeepbindingNavigator2.BackColor = System.Drawing.Color.White;
-            this.BeepbindingNavigator2.bindingSource = null;
+            this.BeepbindingNavigator2.BindingSource = null;
             this.BeepbindingNavigator2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.BeepbindingNavigator2.ButtonBorderSize = 0;
             this.BeepbindingNavigator2.CausesValidation = false;
@@ -422,8 +422,8 @@ namespace Beep.Config.Winform.DataConnections
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn12;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn13;
         private System.Windows.Forms.DataGridViewTextBoxColumn KeyToken;
-        private BeepbindingNavigator BeepbindingNavigator1;
-        private BeepbindingNavigator BeepbindingNavigator2;
+        private BeepBindingNavigator BeepbindingNavigator1;
+        private BeepBindingNavigator BeepbindingNavigator2;
         private ReaLTaiizor.Controls.PoisonPanel poisonPanel2;
         private ReaLTaiizor.Controls.PoisonLabel poisonLabel1;
         private ReaLTaiizor.Controls.PoisonPanel poisonPanel1;

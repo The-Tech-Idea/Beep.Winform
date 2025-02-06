@@ -199,6 +199,24 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
         }
+        private bool _autoSize = false;
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Automatically resize the control based on the text and image size.")]
+        public bool AutoSize
+        {
+            get => _autoSize;
+            set
+            {
+                _autoSize = value;
+                if (value)
+                {
+                    Size textSize = TextRenderer.MeasureText(Text, _textFont);
+                    this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
+                }
+                Invalidate(); // Repaint on change
+            }
+        }
         #endregion "Properties"
         #region "Constructors"
         public BeepLabel()

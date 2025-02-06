@@ -226,7 +226,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 _listbuttontextFont = value;
                 UseThemeFont = false;
-                Console.WriteLine("Font Changed");
+              //  Console.WriteLine("Font Changed");
                 ChangeListFont();
                 Invalidate();
 

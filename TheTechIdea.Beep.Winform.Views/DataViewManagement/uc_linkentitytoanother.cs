@@ -103,8 +103,8 @@ namespace TheTechIdea.ETL
         this.fieldsBindingSource.DataSource = this.entitiesBindingSource;
         MainbindingNavigator.SetConfig(pDMEEditor, Logger, putil, args, obj, per);
             RelationbindingNavigator.SetConfig(pDMEEditor, Logger, putil, args, obj, per);
-            RelationbindingNavigator.bindingSource = relationsBindingSource;
-            MainbindingNavigator.bindingSource = entitiesBindingSource;
+            RelationbindingNavigator.BindingSource = relationsBindingSource;
+            MainbindingNavigator.BindingSource = entitiesBindingSource;
             MainbindingNavigator.SaveCalled += DataViewbindingNavigator_SaveCalled;
             RelationbindingNavigator.SaveCalled += DataViewbindingNavigator_SaveCalled;
             this.ParentEntitycomboBox.SelectedIndexChanged += ParentEntitycomboBox_SelectedIndexChanged;

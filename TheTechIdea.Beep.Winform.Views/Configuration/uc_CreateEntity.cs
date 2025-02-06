@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Views.Configuration
             this.fieldsDataGridView.CellEndEdit += FieldsDataGridView_CellEndEdit;
 
             BeepbindingNavigator1.SetConfig(DMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, new string[] { }, e, DMEEditor.ErrorObject);
-            BeepbindingNavigator1.bindingSource = fieldsBindingSource;
+            BeepbindingNavigator1.BindingSource = fieldsBindingSource;
             BeepbindingNavigator1.SaveCalled += BeepbindingNavigator1_SaveCalled1;
             BeepbindingNavigator1.HightlightColor = Color.Yellow;
             if (!string.IsNullOrEmpty(e.DatasourceName))

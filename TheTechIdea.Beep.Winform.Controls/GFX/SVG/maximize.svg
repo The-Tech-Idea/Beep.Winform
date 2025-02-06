@@ -1,2 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="512" height="512"><path d="M21.5,1H2.5C1.12,1,0,2.12,0,3.5V23H24V3.5c0-1.38-1.12-2.5-2.5-2.5ZM2.5,2H21.5c.83,0,1.5,.67,1.5,1.5v4.5H1V3.5c0-.83,.67-1.5,1.5-1.5ZM1,22V9H23v13H1Z"/></svg>
+<svg id="Layer_1" enable-background="new 0 0 24 24" height="512" viewBox="0 0 24 24" width="512" xmlns="http://www.w3.org/2000/svg"><path d="m18 24h-12c-3.3 0-6-2.7-6-6v-12c0-3.3 2.7-6 6-6h12c3.3 0 6 2.7 6 6v12c0 3.3-2.7 6-6 6z" fill="#00adff"/><path d="m10.3 4.5v1.7h-4.1v11.7h11.7v-4.2h1.7v5c0 .5-.3.8-.8.8h-13.5c-.5 0-.8-.3-.8-.8v-13.4c0-.5.3-.8.8-.8zm6.5 3.9-4.8 4.8-1.2-1.2 4.8-4.8-2.8-2.8h6.7v6.7z" fill="#fff"/></svg>

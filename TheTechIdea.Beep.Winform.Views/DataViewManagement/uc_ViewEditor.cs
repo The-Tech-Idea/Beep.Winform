@@ -107,8 +107,8 @@ namespace TheTechIdea.ETL
             dataSourcesBindingSource.DataSource = DMEEditor.DataSources;
             entitiesBindingSource.DataSource = dataViewDataSourceBindingSource;
 
-            DataViewbindingNavigator.bindingSource = dataViewDataSourceBindingSource;
-            EntitiesbindingNavigator.bindingSource = entitiesBindingSource;
+            DataViewbindingNavigator.BindingSource = dataViewDataSourceBindingSource;
+            EntitiesbindingNavigator.BindingSource = entitiesBindingSource;
 
             DataViewbindingNavigator.SetConfig(pbl, Logger, putil, args, e, per);
             EntitiesbindingNavigator.SetConfig(pbl, Logger, putil, args, e, per);

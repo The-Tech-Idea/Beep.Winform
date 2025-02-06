@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
         EntityControlViewModel EntityControlView;
         Type EntityType;
         IDataSource dataSource;
-      //  BindingSource bindingSource;
+      //  BindingSource BindingSource;
         bool IsPrimarykeyMissing = false;
         uc_Search uc_Search;
         frm_Addin frm_Addin;
@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
             CreateCrudView =new CreateCrudViewViewModel(pDMEEditor,Visutil);
             EntityControlView=new EntityControlViewModel(pDMEEditor, Visutil);
             AddinName = e.CurrentEntity;
-           // bindingSource = new BindingSource();
+           // BindingSource = new BindingSource();
             CreateCrudView.Entityname = e.CurrentEntity;
             CreateCrudView.DatasourceName = e.DatasourceName;
             CreateCrudView.DataSource=DMEEditor.GetDataSource(e.DatasourceName);

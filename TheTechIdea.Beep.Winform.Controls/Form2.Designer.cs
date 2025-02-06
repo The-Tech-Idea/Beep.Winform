@@ -28,120 +28,139 @@
         /// </summary>
         private void InitializeComponent()
         {
-            tableLayoutPanel1 = new TableLayoutPanel();
-            label9 = new Label();
-            label6 = new Label();
-            label4 = new Label();
-            label3 = new Label();
-            label2 = new Label();
-            label1 = new Label();
-            tableLayoutPanel1.SuspendLayout();
+            components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form2));
+            beepGrid1 = new Grid.BeepGrid();
             SuspendLayout();
             // 
-            // tableLayoutPanel1
+            // beepGrid1
             // 
-            tableLayoutPanel1.ColumnCount = 3;
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 4.06015F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 95.93985F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel1.Controls.Add(label9, 1, 3);
-            tableLayoutPanel1.Controls.Add(label6, 1, 2);
-            tableLayoutPanel1.Controls.Add(label4, 2, 1);
-            tableLayoutPanel1.Controls.Add(label3, 1, 1);
-            tableLayoutPanel1.Controls.Add(label2, 0, 1);
-            tableLayoutPanel1.Controls.Add(label1, 0, 0);
-            tableLayoutPanel1.Location = new Point(564, 340);
-            tableLayoutPanel1.Name = "tableLayoutPanel1";
-            tableLayoutPanel1.RowCount = 4;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 13.1034479F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 86.89655F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel1.Size = new Size(480, 435);
-            tableLayoutPanel1.TabIndex = 0;
-            // 
-            // label9
-            // 
-            label9.Anchor = AnchorStyles.None;
-            label9.AutoSize = true;
-            label9.Location = new Point(195, 417);
-            label9.Name = "label9";
-            label9.Size = new Size(86, 15);
-            label9.TabIndex = 8;
-            label9.Text = "Data Navigator";
-            // 
-            // label6
-            // 
-            label6.Anchor = AnchorStyles.None;
-            label6.AutoSize = true;
-            label6.Location = new Point(126, 396);
-            label6.Name = "label6";
-            label6.Size = new Size(224, 15);
-            label6.TabIndex = 5;
-            label6.Text = "Filter String show conditions to filter data";
-            // 
-            // label4
-            // 
-            label4.Anchor = AnchorStyles.None;
-            label4.AutoSize = true;
-            label4.Location = new Point(462, 162);
-            label4.Name = "label4";
-            label4.Size = new Size(14, 120);
-            label4.TabIndex = 3;
-            label4.Text = "Scrollbar";
-            // 
-            // label3
-            // 
-            label3.Anchor = AnchorStyles.None;
-            label3.AutoSize = true;
-            label3.Location = new Point(207, 215);
-            label3.Name = "label3";
-            label3.Size = new Size(62, 15);
-            label3.TabIndex = 2;
-            label3.Text = "Data Rows";
-            // 
-            // label2
-            // 
-            label2.Anchor = AnchorStyles.None;
-            label2.AutoSize = true;
-            label2.Location = new Point(3, 51);
-            label2.Name = "label2";
-            label2.Size = new Size(12, 343);
-            label2.TabIndex = 1;
-            label2.Text = "Check or point current record";
-            // 
-            // label1
-            // 
-            label1.Anchor = AnchorStyles.None;
-            label1.AutoSize = true;
-            tableLayoutPanel1.SetColumnSpan(label1, 3);
-            label1.Location = new Point(211, 18);
-            label1.Name = "label1";
-            label1.Size = new Size(58, 15);
-            label1.TabIndex = 0;
-            label1.Text = "Grid Title ";
+            beepGrid1.ActiveBackColor = Color.FromArgb(46, 139, 87);
+            beepGrid1.AllowUserToAddRows = true;
+            beepGrid1.AllowUserToDeleteRows = true;
+            beepGrid1.AnimationDuration = 500;
+            beepGrid1.AnimationType = DisplayAnimationType.None;
+            beepGrid1.ApplyThemeToChilds = true;
+            beepGrid1.BackColor = SystemColors.Control;
+            beepGrid1.BlockID = null;
+            beepGrid1.BorderColor = Color.FromArgb(144, 238, 144);
+            beepGrid1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            beepGrid1.BorderRadius = 1;
+            beepGrid1.BorderStyle = BorderStyle.None;
+            beepGrid1.BorderThickness = 1;
+            beepGrid1.BottomoffsetForDrawingRect = 0;
+            beepGrid1.BoundProperty = null;
+            beepGrid1.CanBeFocused = true;
+            beepGrid1.CanBeHovered = false;
+            beepGrid1.CanBePressed = true;
+            beepGrid1.Category = Utilities.DbFieldCategory.String;
+            beepGrid1.CellPainting = null;
+            beepGrid1.ComponentName = "beepGrid1";
+            beepGrid1.DataContext = null;
+            beepGrid1.DataSourceProperty = null;
+            beepGrid1.DisabledBackColor = Color.Gray;
+            beepGrid1.DisabledForeColor = Color.Empty;
+            beepGrid1.DMEEditor = null;
+            beepGrid1.DrawingRect = new Rectangle(1, 1, 699, 388);
+            beepGrid1.Easing = EasingType.Linear;
+            beepGrid1.EntityStructure = null;
+            beepGrid1.FieldID = null;
+            beepGrid1.FocusBackColor = Color.White;
+            beepGrid1.FocusBorderColor = Color.Gray;
+            beepGrid1.FocusForeColor = Color.Black;
+            beepGrid1.FocusIndicatorColor = Color.Blue;
+            beepGrid1.Form = null;
+            beepGrid1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
+            beepGrid1.GradientEndColor = Color.FromArgb(144, 238, 144);
+            beepGrid1.GradientStartColor = Color.FromArgb(245, 255, 250);
+            beepGrid1.GridId = null;
+            beepGrid1.GuidID = "a7042ccf-63ea-4e0e-a17f-01fc876ad654";
+            beepGrid1.HoverBackColor = Color.FromArgb(60, 179, 113);
+            beepGrid1.HoverBorderColor = Color.FromArgb(34, 139, 34);
+            beepGrid1.HoveredBackcolor = Color.Wheat;
+            beepGrid1.HoverForeColor = Color.Black;
+            beepGrid1.Id = -1;
+            beepGrid1.InactiveBackColor = Color.Gray;
+            beepGrid1.InactiveBorderColor = Color.Gray;
+            beepGrid1.InactiveForeColor = Color.Black;
+            beepGrid1.IsAcceptButton = false;
+            beepGrid1.IsBorderAffectedByTheme = true;
+            beepGrid1.IsCancelButton = false;
+            beepGrid1.IsChild = false;
+            beepGrid1.IsCustomeBorder = false;
+            beepGrid1.IsDefault = false;
+            beepGrid1.IsDeleted = false;
+            beepGrid1.IsDirty = false;
+            beepGrid1.IsEditable = false;
+            beepGrid1.IsFocused = false;
+            beepGrid1.IsFramless = false;
+            beepGrid1.IsHovered = false;
+            beepGrid1.IsNew = false;
+            beepGrid1.IsPressed = false;
+            beepGrid1.IsReadOnly = false;
+            beepGrid1.IsRequired = false;
+            beepGrid1.IsRounded = true;
+            beepGrid1.IsRoundedAffectedByTheme = true;
+            beepGrid1.IsSelected = false;
+            beepGrid1.IsShadowAffectedByTheme = true;
+            beepGrid1.IsVisible = false;
+            beepGrid1.LeftoffsetForDrawingRect = 0;
+            beepGrid1.LinkedProperty = null;
+            beepGrid1.Location = new Point(52, 58);
+            beepGrid1.Margin = new Padding(1);
+            beepGrid1.Name = "beepGrid1";
+            beepGrid1.OverrideFontSize = TypeStyleFontSize.None;
+            beepGrid1.ParentBackColor = Color.Empty;
+            beepGrid1.ParentControl = null;
+            beepGrid1.PressedBackColor = Color.FromArgb(46, 139, 87);
+            beepGrid1.PressedBorderColor = Color.Gray;
+            beepGrid1.PressedForeColor = Color.Black;
+            beepGrid1.ReadOnly = false;
+            beepGrid1.RightoffsetForDrawingRect = 0;
+            beepGrid1.SavedGuidID = null;
+            beepGrid1.SavedID = null;
+            beepGrid1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
+            beepGrid1.ShadowOffset = 0;
+            beepGrid1.ShadowOpacity = 0.5F;
+            beepGrid1.ShowAllBorders = true;
+            beepGrid1.ShowBottomBorder = true;
+            beepGrid1.ShowColumnHeaderPanel = true;
+            beepGrid1.ShowFilterPanel = false;
+            beepGrid1.ShowFocusIndicator = false;
+            beepGrid1.ShowHeaderPanel = true;
+            beepGrid1.ShowLeftBorder = true;
+            beepGrid1.ShowNavigatorPanel = true;
+            beepGrid1.ShowRightBorder = true;
+            beepGrid1.ShowShadow = false;
+            beepGrid1.ShowTopBorder = true;
+            beepGrid1.ShowTotalsPanel = false;
+            beepGrid1.Size = new Size(701, 390);
+            beepGrid1.SlideFrom = SlideDirection.Left;
+            beepGrid1.StaticNotMoving = false;
+            beepGrid1.TabIndex = 0;
+            beepGrid1.TempBackColor = Color.Empty;
+            beepGrid1.Text = "beepGrid1";
+            beepGrid1.Theme = Vis.Modules.EnumBeepThemes.SpringTheme;
+            beepGrid1.TitleFont = new Font("Segoe UI", 9F);
+            beepGrid1.ToolTipText = "";
+            beepGrid1.TopoffsetForDrawingRect = 0;
+            beepGrid1.UseGradientBackground = false;
+            beepGrid1.UseThemeFont = true;
+            beepGrid1.VerifyDelete = true;
             // 
             // Form2
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1379, 787);
-            Controls.Add(tableLayoutPanel1);
+            ClientSize = new Size(832, 475);
+            Controls.Add(beepGrid1);
             Name = "Form2";
             Text = "Form2";
-            tableLayoutPanel1.ResumeLayout(false);
-            tableLayoutPanel1.PerformLayout();
             ResumeLayout(false);
         }
 
         #endregion
 
-        private TableLayoutPanel tableLayoutPanel1;
-        private Label label1;
-        private Label label9;
-        private Label label6;
-        private Label label4;
-        private Label label3;
-        private Label label2;
+        private Grid.BeepGrid beepGrid1;
     }
 }

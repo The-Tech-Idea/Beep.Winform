@@ -17,6 +17,8 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Winform.Controls.Editors;
+using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
+using Newtonsoft.Json.Linq;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid
 {
@@ -32,9 +34,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
     {
         public IDMEEditor DMEEditor { get; set; }
         public EntityStructure EntityStructure { get; set; }
+        TableLayoutPanel layoutPanel;
+        private float originalFilterPanelHeight = 28;
+        private float originalTotalPanelHeight = 28;
 
         private string _gridId;
-
+        private int padding = 2;
+        private Size buttonwidth=new Size(15, 15);
         /// <summary>
         /// Unique identifier for each BeepGrid instance, persisted across design and runtime.
         /// </summary>
@@ -121,20 +127,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// <summary>
         /// Stores configuration details for each column, such as filters and totals.
         /// </summary>
-       // private List<BeepGridColumnConfig> columnConfigs { get; set; } = new List<BeepGridColumnConfig>();
-        public List<BeepGridColumnConfig> columnConfigs { get; set; } = new List<BeepGridColumnConfig>();
+        private List<BeepGridColumnConfig> columnConfigs = new List<BeepGridColumnConfig>();
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
         [Editor(typeof(ColumnConfigCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public List<BeepGridColumnConfig> GridViewColumns
+        public List<BeepGridColumnConfig> ColumnsConfigurations
         {
             get => columnConfigs;
             set
             {
                 columnConfigs = value;
                 Invalidate(); // Redraw grid with new columns
+            }
+        }
+        private Font _textFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TitleFont
+        {
+            get => _textFont;
+            set
+            {
+
+                _textFont = value;
+                UseThemeFont = false;
+                if (UseThemeFont)
+                {
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                    Titlelabel.UseThemeFont = true;
+                }
+                else
+                {
+                    Titlelabel.TextFont = _textFont;
+                }
+                if (ShowHeaderPanel)
+                {
+                    layoutPanel.RowStyles[0].Height = Titlelabel.PreferredSize.Height + (2 * (padding + 2)); // Adjust height dynamically
+                }
+             //   Invalidate();
+
+
             }
         }
         /// <summary>
@@ -168,7 +205,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// <summary>
         /// Gets the label used for displaying the grid's title.
         /// </summary>
-        public Label Title
+        public BeepLabel Title
         {
             get { return Titlelabel; }
         }
@@ -252,24 +289,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
 
         /// <summary>
-        /// Controls the visibility of the filter panel.
-        /// </summary>
-        public bool ShowFilterPanel
-        {
-            get
-            {
-                return filterPanel.Visible;
-            }
-            set
-            {
-                filterPanel.Visible = value;
-                FilterMessagepanel.Visible = value;
-            }
-        }
-
-        /// <summary>
         /// Controls the visibility of the totals panel.
         /// </summary>
+        /// 
+
+        [Browsable(true)]
+        [Localizable(true)]
+        [MergableProperty(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowTotalsPanel
         {
             get
@@ -279,12 +306,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             set
             {
                 Totalspanel.Visible = value;
+                layoutPanel.RowStyles[4].Height = value ? originalTotalPanelHeight : 0; // Collapse row if false
             }
         }
 
         /// <summary>
         /// Controls the visibility of the navigator panel.
         /// </summary>
+        ///  [Browsable(true)]
+        [Localizable(true)]
+        [MergableProperty(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowNavigatorPanel
         {
             get
@@ -294,12 +326,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             set
             {
                 BindingNavigator.Visible = value;
+                layoutPanel.RowStyles[5].Height = value ? 28 : 0; // Fixed height for navigator
             }
         }
 
         /// <summary>
         /// Controls the visibility of the header panel.
         /// </summary>
+        ///  [Browsable(true)]
+        [Localizable(true)]
+        [MergableProperty(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowHeaderPanel
         {
             get
@@ -309,12 +346,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             set
             {
                 Toppanel.Visible = value;
+
+                layoutPanel.RowStyles[0].Height = value ? Titlelabel.PreferredSize.Height+(2*(padding+2)) : 0; // Adjust height dynamically
             }
         }
+
 
         /// <summary>
         /// Controls the visibility of the custom column header panel.
         /// </summary>
+        ///  [Browsable(true)]
+        [Localizable(true)]
+        [MergableProperty(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowColumnHeaderPanel
         {
             get
@@ -324,16 +368,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             set
             {
                 customHeaderPanel.Visible = value;
+                layoutPanel.RowStyles[1].Height = value ? 31 : 0; // Fixed height for column header panel
             }
         }
 
         /// <summary>
-        /// Gets or sets the theme applied to the grid.
+        /// Controls the visibility of the filter panel.
         /// </summary>
-        public BeepTheme Theme
+        ///  [Browsable(true)]
+        [Localizable(true)]
+        [MergableProperty(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public bool ShowFilterPanel
         {
-            get { return _theme; }
-            set { _theme = value; ApplyTheme(_theme); }
+            get
+            {
+                return filterPanel.Visible;
+            }
+            set
+            {
+                filterPanel.Visible = value;
+                layoutPanel.RowStyles[3].Height = value ? originalFilterPanelHeight : 0; // Collapse row if false
+            }
         }
 
         /// <summary>
@@ -363,13 +419,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             ShowTotalsPanel = false;
             InQuery = true;
         }
-        public BeepGrid()
+        public BeepGrid():base()
         {
-            InitializeComponent();
-
-            ColumnConfigurations = new List<BeepGridColumnConfig>();
+            CreateComponent();
+            Margin = new Padding(1);
+            columnConfigs = new List<BeepGridColumnConfig>();
+            this.Resize += BeepGrid_Resize;
             dataGridView1.Scroll += DataGridView_Scroll; // Handle the Scroll event
-            dataGridView1.Resize += DataGridView_Resize;
+          //  dataGridView1.Resize += DataGridView_Resize;
             //   dataGridView1.ColumnAdded += DataGridView1_ColumnAdded;
             //   dataGridView1.ColumnRemoved += DataGridView1_ColumnRemoved;
             dataGridView1.ColumnWidthChanged += DataGridView_ColumnWidthChanged;
@@ -390,7 +447,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             BindingNavigator.bindingSource = new BindingSource();
             // WireAllControls();
             this.BackColor = _backColor;
-            this.BorderStyle = _borderStyle;
+         //   this.BorderStyle = _borderStyle;
             this.SetStyle(ControlStyles.ResizeRedraw, true);
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
             dataGridView1.ColumnHeadersVisible = false; // Hide default column headers
@@ -399,7 +456,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                                                         //  customHeaderPanel.Dock = DockStyle.Top;
                                                         //Controls.Add(customHeaderPanel);
                                                         //  customHeaderPanel.BringToFront();
-            typeof(Control).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(dataGridView1, true, null);
+       //     typeof(Control).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(dataGridView1, true, null);
             dataGridView1.BorderStyle = BorderStyle.None;
             dataGridView1.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
             dataGridView1.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
@@ -415,7 +472,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
             // Set initial styles
             BackColor = dataGridView1.BackColor;
-            BorderStyle = dataGridView1.BorderStyle;
+         
             dataGridView1.VirtualMode = false;
             UpdateCustomHeaders();
             // Check if GridId is already assigned, if not, create a new one.
@@ -447,8 +504,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 SetDataSource(value);
             }
         }
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public List<BeepGridColumnConfig> ColumnConfigurations { get; set; }
+       
         /// <summary>
         /// Gets the collection of columns in the grid.
         /// </summary>
@@ -458,14 +514,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             get { return dataGridView1.Columns; }
         }
 
-        /// <summary>
-        /// Gets the collection of configured columns in the grid.
-        /// </summary>
-        public DataGridViewColumnCollection ConfigColumns
-        {
-            get { return dataGridView1.Columns; }
-        }
-
+       
         /// <summary>
         /// Gets the collection of rows in the grid.
         /// </summary>
@@ -579,7 +628,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
 
         #endregion
-
         #region "Data Binding and Change"
 
         /// <summary>
@@ -933,7 +981,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
         }
         #endregion "Data Binding and Change"
-
         #region "Visual Styles"
 
         /// <summary>
@@ -1018,31 +1065,59 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
         }
 
-        /// <summary>
-        /// Applies a given theme to the DataGridView by changing colors and styles.
-        /// </summary>
-        /// <param name="theme">The theme to apply.</param>
-        /// <returns>Returns true if the theme was successfully applied.</returns>
-        private bool ApplyTheme(BeepTheme theme)
+        
+        public override void ApplyTheme()
         {
-            // Apply theme to DataGridView
-            GridView.BackgroundColor = theme.BackColor;
-            GridView.DefaultCellStyle.BackColor = theme.RowBackColor;
-            GridView.DefaultCellStyle.ForeColor = theme.RowForeColor;
-            GridView.DefaultCellStyle.SelectionBackColor = theme.SelectedRowBackColor;
-            GridView.DefaultCellStyle.SelectionForeColor = theme.SelectedRowForeColor;
+            base.ApplyTheme();
+            // apply theme for grid
+            this.GridView.BackgroundColor = _currentTheme.GridBackColor;
+            this.GridView.DefaultCellStyle.BackColor = _currentTheme.GridBackColor;
+            this.GridView.DefaultCellStyle.ForeColor = _currentTheme.GridForeColor;
+            this.GridView.DefaultCellStyle.SelectionForeColor= _currentTheme.GridRowSelectedForeColor;
+            this.GridView.DefaultCellStyle.SelectionBackColor = _currentTheme.GridRowSelectedBackColor;
+            this.GridView.ColumnHeadersDefaultCellStyle.BackColor = _currentTheme.GridHeaderBackColor;
+            this.GridView.ColumnHeadersDefaultCellStyle.ForeColor = _currentTheme.GridHeaderForeColor;
+            this.GridView.GridColor = _currentTheme.GridLineColor;
+            this.GridView.AlternatingRowsDefaultCellStyle.BackColor = _currentTheme.AltRowBackColor;
+            this.GridView.AlternatingRowsDefaultCellStyle.ForeColor = _currentTheme.GridForeColor;
+            this.GridView.DefaultCellStyle.SelectionBackColor = _currentTheme.GridRowSelectedBackColor;
+            this.GridView.DefaultCellStyle.SelectionForeColor = _currentTheme.GridRowSelectedForeColor;
 
-            GridView.ColumnHeadersDefaultCellStyle.BackColor = theme.HeaderBackColor;
-            GridView.ColumnHeadersDefaultCellStyle.ForeColor = theme.HeaderForeColor;
-            GridView.GridColor = theme.GridLineColor;
+            // apply theme for header
+            this.Toppanel.BackColor = _currentTheme.BackColor;
+            this.customHeaderPanel.BackColor = _currentTheme.GridHeaderBackColor;
+            this.filterPanel.BackColor = _currentTheme.GridHeaderBackColor;
+            this.Totalspanel.BackColor = _currentTheme.GridHeaderBackColor;
+            //apply theme for buttons
+            this.FilterShowbutton.Theme = Theme;
+            this.TotalShowbutton.Theme = Theme;
+            this.Printbutton.Theme = Theme;
+            this.CSVExportbutton.Theme = Theme;
+            //this.BindingNavigator.Theme = Theme;
+            this.Titlelabel.Theme = Theme;
+            if (UseThemeFont)
+            {
+                _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                Titlelabel.UseThemeFont = true;
+            }
+            else
+            {
+                Titlelabel.TextFont = _textFont;
+            }
+            if(ShowHeaderPanel)
+            {
+                layoutPanel.RowStyles[0].Height = Titlelabel.PreferredSize.Height + (2 * (padding + 2)); // Adjust height dynamically
+            }
+           
+            if (IsChild)
+            {
+                BackColor = _currentTheme.ButtonBackColor;
+            }
+         
 
-            // Alternate row coloring
-            GridView.AlternatingRowsDefaultCellStyle.BackColor = theme.AltRowBackColor;
-            GridView.AlternatingRowsDefaultCellStyle.ForeColor = theme.RowForeColor;
 
-            return true;
+
         }
-
         /// <summary>
         /// Changes the border style for the column headers and updates their positions.
         /// </summary>
@@ -1057,15 +1132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// </summary>
         private void ApplyInitialStyles()
         {
-            dataGridView1.BackgroundColor = _backColor;
-            customHeaderPanel.BackColor = _backColor;
-            filterPanel.BackColor = _backColor;
-            Totalspanel.BackColor = _backColor;
-
-            dataGridView1.BorderStyle = _borderStyle;
-            customHeaderPanel.BorderStyle = _borderStyle;
-            filterPanel.BorderStyle = _borderStyle;
-            Totalspanel.BorderStyle = _borderStyle;
+            ApplyTheme();
         }
 
         /// <summary>
@@ -1237,7 +1304,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
 
         #endregion "Visual Styles"
-
         #region "Sizing Functions"
 
         /// <summary>
@@ -1245,12 +1311,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="EventArgs"/> that contains the event data.</param>
-        private void BeepControlResize(object? sender, EventArgs e)
+        private void BeepGrid_Resize(object? sender, EventArgs e)
         {
+           
+            UpdateDrawingRect();
+            layoutPanel.Left = DrawingRect.Left+padding;
+            layoutPanel.Top = DrawingRect.Top + padding;
+            layoutPanel.Width = DrawingRect.Width - (padding * 2);
+            layoutPanel.Height = DrawingRect.Height - (padding * 2);
+
+            //dataGridView1.Left = DrawingRect.Left+padding;
+            //dataGridView1.Top = DrawingRect.Top + padding;
+            //dataGridView1.Width=DrawingRect.Width-(padding*2);
+            //dataGridView1.Height = DrawingRect.Height - (padding * 2);
+
+            //customHeaderPanel.Left = dataGridView1.Left;
+            //customHeaderPanel.Width = dataGridView1.Width;
+            //filterPanel.Left = dataGridView1.Left;
+            //filterPanel.Width = dataGridView1.Width;
+            //Totalspanel.Left = dataGridView1.Left;
+            //Totalspanel.Width = dataGridView1.Width;
+            UpdateHeaderAndPanelPositions();
             // Invalidate the DataGridView and control surfaces to trigger a repaint.
-            dataGridView1.Invalidate();
-            this.Invalidate();  // Invalidates the entire surface of the control and causes it to be redrawn
-            this.Update();      // Forces the control to immediately repaint any invalidated regions
+           // dataGridView1.Invalidate();
+            //this.Invalidate();  // Invalidates the entire surface of the control and causes it to be redrawn
+            //this.Update();      // Forces the control to immediately repaint any invalidated regions
         }
 
         /// <summary>
@@ -1268,11 +1353,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
 
         #endregion "Sizing Functions"
-
         #region "Print"
         PrintDocument printDocument = new PrintDocument();
         private int Topx;
         private int currentRow;
+      
 
         /// <summary>
         /// Handles the click event for the CSV export button, exporting the DataGridView content to a CSV file.
@@ -1393,7 +1478,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
 
         #endregion
-
         #region "Click and Mouse Events"
 
         /// <summary>
@@ -1630,7 +1714,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         {
             this.Columns.Clear(); // Clear existing columns before applying the configuration
 
-            foreach (var config in ColumnConfigurations)
+            foreach (var config in columnConfigs)
             {
                 DataGridViewColumn column = null;
 
@@ -1761,7 +1845,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public void CaptureCurrentLayout()
         {
             // Clear any previous configurations
-            ColumnConfigurations.Clear();
+            columnConfigs.Clear();
 
             // Iterate over each column in the DataGridView
             foreach (DataGridViewColumn column in this.Columns)
@@ -1841,12 +1925,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 }
 
                 // Add column configuration to the list
-                ColumnConfigurations.Add(config);
+                columnConfigs.Add(config);
             }
         }
         public void SaveColumnLayoutToFile(string filePath)
         {
-            var json = JsonConvert.SerializeObject(ColumnConfigurations, Formatting.Indented);
+            var json = JsonConvert.SerializeObject(columnConfigs, Formatting.Indented);
             File.WriteAllText(filePath, json);
         }
         public void LoadColumnLayoutFromFile(string filePath)
@@ -1854,11 +1938,127 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             if (File.Exists(filePath))
             {
                 var json = File.ReadAllText(filePath);
-                ColumnConfigurations = JsonConvert.DeserializeObject<List<BeepGridColumnConfig>>(json);
+                columnConfigs = JsonConvert.DeserializeObject<List<BeepGridColumnConfig>>(json);
                 ApplyColumnConfigurations(); // Rebuild the grid with loaded columns
             }
         }
         #endregion "Layout Load and Save"
+        #region "Drawing and Layout"
+
+
+        private void SetRowVisibility(TableLayoutPanel table, int rowIndex, bool isVisible, float originalHeight)
+        {
+            if (isVisible)
+            {
+                // Restore original height
+                table.RowStyles[rowIndex].Height = originalHeight;
+                table.GetControlFromPosition(0, rowIndex).Visible = true;
+            }
+            else
+            {
+                // Collapse the row
+                table.RowStyles[rowIndex].Height = 0;
+                table.GetControlFromPosition(0, rowIndex).Visible = false;
+            }
+        }
+
+        private void CreateComponent()
+        {
+            // Create TableLayoutPanel
+            layoutPanel = new TableLayoutPanel();
+            layoutPanel.Padding = new Padding(0);
+            layoutPanel.Margin = new Padding(0);
+            layoutPanel.ColumnCount = 1;
+            layoutPanel.RowCount = 6; // Define sections
+            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));  // Top Panel
+            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 31F));  // Custom Header Panel
+            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Data Grid (Expands)
+            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));  // Filter Panel (Fixed, can be hidden)
+            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));  // Totals Panel (Fixed, can be hidden)
+            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));  // Bottom Panel (Fixed)
+
+            // Initialize Panels
+            Toppanel = new Panel { BackColor = Color.White, BorderStyle = BorderStyle.FixedSingle, Dock = DockStyle.Fill };
+            InitializeTopPanelControls(); // Helper method to initialize buttons
+
+            customHeaderPanel = new Panel { BackColor = Color.Magenta, BorderStyle = BorderStyle.FixedSingle, Dock = DockStyle.Fill };
+
+            filterPanel = new Panel { BackColor = Color.Khaki, BorderStyle = BorderStyle.FixedSingle, Dock = DockStyle.Fill, Visible = true };
+
+            Totalspanel = new Panel { BackColor = Color.LawnGreen, BorderStyle = BorderStyle.FixedSingle, Dock = DockStyle.Fill, Visible = true };
+
+            dataGridView1 = new DataGridView
+            {
+                Dock = DockStyle.Fill,
+                BackgroundColor = Color.White,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect
+            };
+
+            Bottompanel = new Panel { BackColor = Color.White, Dock = DockStyle.Fill };
+            BindingNavigator = new BeepbindingNavigator { Dock = DockStyle.Fill };
+            Bottompanel.Controls.Add(BindingNavigator);
+
+            // Add controls to TableLayoutPanel
+            layoutPanel.Controls.Add(Toppanel, 0, 0);
+            layoutPanel.Controls.Add(customHeaderPanel, 0, 1);
+            layoutPanel.Controls.Add(dataGridView1, 0, 2);
+            layoutPanel.Controls.Add(filterPanel, 0, 3);
+            layoutPanel.Controls.Add(Totalspanel, 0, 4);
+          
+            layoutPanel.Controls.Add(Bottompanel, 0, 5);
+
+            // Add TableLayoutPanel to BeepGrid
+            Controls.Add(layoutPanel);
+            UpdateDrawingRect();
+            layoutPanel.Left = DrawingRect.Left + padding;
+            layoutPanel.Top = DrawingRect.Top + padding;
+            layoutPanel.Width = DrawingRect.Width - (padding * 2);
+            layoutPanel.Height = DrawingRect.Height - (padding * 2);
+           
+            // Resize event (No need to adjust manually anymore!)
+        }
+
+        // Helper method for top panel buttons
+        private void InitializeTopPanelControls()
+        {
+            TableLayoutPanel tableLayoutPanel = new TableLayoutPanel
+            {
+                ColumnCount = 6,
+                RowCount = 1,
+                Dock = DockStyle.Fill
+            };
+            tableLayoutPanel.Padding = new Padding(0);
+            tableLayoutPanel.Margin = new Padding(0);
+            Toppanel.Controls.Add(tableLayoutPanel);
+            // Set column widths
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            // add column for Title for the reset of the space
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
+            // Set row height
+            tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 23F));
+
+            CSVExportbutton = new BeepButton { ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.export.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFramless = true, ApplyThemeOnImage = false, IsChild = true, Dock = DockStyle.Fill };
+            TotalShowbutton = new BeepButton {ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.sum.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFramless = true, ApplyThemeOnImage = false , IsChild = true , Dock = DockStyle.Fill };
+            Sharebutton = new BeepButton {ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.share.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFramless = true, ApplyThemeOnImage = false, IsChild = true, Dock = DockStyle.Fill };
+            Printbutton = new BeepButton {ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFramless = true , ApplyThemeOnImage = false, IsChild = true, Dock = DockStyle.Fill };
+            FilterShowbutton = new BeepButton {ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFramless = true , ApplyThemeOnImage = false, IsChild = true ,Dock= DockStyle.Fill};
+
+            Titlelabel = new BeepLabel { Text = "Title", TextAlign = ContentAlignment.MiddleCenter,ImageAlign= ContentAlignment.MiddleRight , IsFramless=true,IsChild=true, Dock = DockStyle.Fill };
+            // Add buttons to the TableLayoutPanel
+            tableLayoutPanel.Controls.Add(CSVExportbutton, 0, 0);
+            tableLayoutPanel.Controls.Add(TotalShowbutton, 1, 0);
+            tableLayoutPanel.Controls.Add(Sharebutton, 2, 0);
+            tableLayoutPanel.Controls.Add(Printbutton, 3, 0);
+            tableLayoutPanel.Controls.Add(FilterShowbutton, 4, 0);
+            tableLayoutPanel.Controls.Add(Titlelabel, 5, 0);
+
+        }
+
+        #endregion "Drawing and Layout"
 
     }
 }

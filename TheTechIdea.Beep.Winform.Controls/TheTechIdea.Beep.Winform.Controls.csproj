@@ -118,6 +118,7 @@
     <None Remove="GFX\SVG\sortalphaup.svg" />
     <None Remove="GFX\SVG\square-minus.svg" />
     <None Remove="GFX\SVG\square-plus.svg" />
+    <None Remove="GFX\SVG\sum.svg" />
     <None Remove="GFX\SVG\theme.svg" />
     <None Remove="GFX\SVG\trash.svg" />
     <None Remove="GFX\SVG\user.svg" />
@@ -189,6 +190,7 @@
     <EmbeddedResource Include="GFX\SVG\sort.svg" />
     <EmbeddedResource Include="GFX\SVG\sortalphadown.svg" />
     <EmbeddedResource Include="GFX\SVG\sortalphaup.svg" />
+    <EmbeddedResource Include="GFX\SVG\sum.svg" />
     <EmbeddedResource Include="GFX\SVG\theme.svg" />
     <EmbeddedResource Include="GFX\SVG\trash.svg" />
     <EmbeddedResource Include="GFX\SVG\user.svg" />

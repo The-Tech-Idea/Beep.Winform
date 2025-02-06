@@ -36,12 +36,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
             Toppanel = new Panel();
-            CSVExportbutton = new Button();
-            TotalShowbutton = new Button();
-            Sharebutton = new Button();
-            Printbutton = new Button();
-            FilterShowbutton = new Button();
-            Titlelabel = new Label();
+            CSVExportbutton = new BeepButton();
+            TotalShowbutton = new BeepButton();
+            Sharebutton = new BeepButton();
+            Printbutton = new BeepButton();
+            FilterShowbutton = new BeepButton();
+            Titlelabel = new BeepLabel();
             Bottompanel = new Panel();
             BindingNavigator = new BeepbindingNavigator();
             dataGridView1 = new DataGridView();
@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             CSVExportbutton.Name = "CSVExportbutton";
             CSVExportbutton.Size = new Size(23, 23);
             CSVExportbutton.TabIndex = 11;
-            CSVExportbutton.UseVisualStyleBackColor = true;
+     
             // 
             // TotalShowbutton
             // 
@@ -91,7 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             TotalShowbutton.Name = "TotalShowbutton";
             TotalShowbutton.Size = new Size(23, 23);
             TotalShowbutton.TabIndex = 10;
-            TotalShowbutton.UseVisualStyleBackColor = true;
+          
             // 
             // Sharebutton
             // 
@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             Sharebutton.Name = "Sharebutton";
             Sharebutton.Size = new Size(23, 23);
             Sharebutton.TabIndex = 2;
-            Sharebutton.UseVisualStyleBackColor = true;
+      
             // 
             // Printbutton
             // 
@@ -113,7 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             Printbutton.Name = "Printbutton";
             Printbutton.Size = new Size(23, 23);
             Printbutton.TabIndex = 1;
-            Printbutton.UseVisualStyleBackColor = true;
+     
             // 
             // FilterShowbutton
             // 
@@ -124,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             FilterShowbutton.Name = "FilterShowbutton";
             FilterShowbutton.Size = new Size(23, 23);
             FilterShowbutton.TabIndex = 0;
-            FilterShowbutton.UseVisualStyleBackColor = true;
+
             // 
             // Titlelabel
             // 
@@ -223,9 +223,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
             dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
             dataGridView1.DefaultCellStyle = dataGridViewCellStyle3;
-            dataGridView1.Dock = DockStyle.Fill;
+            dataGridView1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridView1.GridColor = Color.White;
-            dataGridView1.Location = new Point(0, 92);
+            dataGridView1.Location = new Point(0, 0);
             dataGridView1.Margin = new Padding(4, 3, 4, 3);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
@@ -325,17 +325,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public Panel Toppanel;
         public Panel Bottompanel;
 
-        public Button FilterShowbutton;
-        public Button Printbutton;
-        public Button Sharebutton;
-        public Label Titlelabel;
+        public BeepButton FilterShowbutton;
+        public BeepButton Printbutton;
+        public BeepButton Sharebutton;
+        public BeepLabel Titlelabel;
         private DataGridView dataGridView1;
         private Panel filterPanel;
         public BeepbindingNavigator BindingNavigator;
         private Panel FilterMessagepanel;
         private Panel Totalspanel;
-        public Button TotalShowbutton;
-        private Button CSVExportbutton;
+        public BeepButton TotalShowbutton;
+        private BeepButton CSVExportbutton;
         private Panel customHeaderPanel;
     }
 }

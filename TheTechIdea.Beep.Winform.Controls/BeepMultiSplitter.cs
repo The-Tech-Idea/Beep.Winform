@@ -67,6 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Add the TableLayoutPanel as a child of this BeepControl
             Controls.Add(tableLayoutPanel);
+            tableLayoutPanel.Dock = DockStyle.Fill;
         }
 
         #region "Context Menu Setup & Handlers"

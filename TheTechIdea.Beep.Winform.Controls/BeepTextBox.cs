@@ -1379,7 +1379,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void SetValue(object value)
         {
-            Text = value.ToString();
+            Text = value?.ToString();
 
         }
         public override object GetValue()

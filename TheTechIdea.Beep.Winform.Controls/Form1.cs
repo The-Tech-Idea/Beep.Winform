@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Dependencies.DMEEditor = beepService.DMEEditor;
             MethodHandler.DMEEditor = beepService.DMEEditor;
             beepTreeControl1.init(beepService);
-            //  beepButton1.Click += BeepButton1_Click;
+             beepButton1.Click += BeepButton1_Click;
             //   beepButton2.PopupMode = true;
 
         }
@@ -55,6 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ////Point point = new Point(screenPoint.X, screenPoint.Y + beepButton1.Height);
             //SimpleItem x=beepFileDialog.ShowPopup("Tree",beepButton1, BeepPopupFormPosition.Top);
             beepTreeControl1.ShowCheckBox = true;
+           // beepDataRecord1.SetDataRecord(beepTreeControl1.Nodes[0]);
             // BeepThemesManager.CurrentTheme = EnumBeepThemes.WinterTheme;
             //    beepListBox1.ListItems = beepTreeControl1.Nodes;
             //    beepListBox1.InitializeMenu();

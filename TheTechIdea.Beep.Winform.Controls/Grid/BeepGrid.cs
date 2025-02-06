@@ -27,8 +27,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
     [ToolboxItem(true)]
     [ToolboxBitmap(typeof(BeepGrid))] // Optional//"Resources.BeepButtonIcon.bmp"
     [Category("Beep Controls")]
-    public partial class BeepGrid : uc_Addin, IDataGridView
+    [DisplayName("Beep Grid")]
+    public partial class BeepGrid : BeepControl, IDataGridView
     {
+        public IDMEEditor DMEEditor { get; set; }
+        public EntityStructure EntityStructure { get; set; }
+
         private string _gridId;
 
         /// <summary>
@@ -347,13 +351,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public bool VerifyDelete { get; set; } = true;
 
         #endregion "Properties"
-        public override void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
+        public  void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
         {
-            base.SetConfig(pDMEEditor, plogger, putil, args, e, per);
+          
             BindingNavigator.SetConfig(pDMEEditor, plogger, putil, args, e, per);
-            DMEEditor = pDMEEditor;
+          //  DMEEditor = pDMEEditor;
             dataGridView1.AllowUserToAddRows = false;
-            util = putil;
+         //   util = putil;
             WireAllControls();
             ShowFilterPanel = false;
             ShowTotalsPanel = false;

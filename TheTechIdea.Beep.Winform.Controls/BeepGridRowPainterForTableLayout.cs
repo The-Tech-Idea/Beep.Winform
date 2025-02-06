@@ -1,15 +1,16 @@
 ﻿
 using System.ComponentModel;
+using System.Data;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     public class BeepGridRowPainterForTableLayout
     {
-        private readonly BeepMultiSplitter _gridPanel;
-        private readonly BeepGridColumnConfigCollection _columns;
-        private readonly VScrollBar _vScroll;
-        private readonly HScrollBar _hScroll;
+        private  BeepMultiSplitter _gridPanel;
+        private  BeepGridColumnConfigCollection _columns;
+        private  VScrollBar _vScroll;
+        private  HScrollBar _hScroll;
         private int _firstVisibleRow;
         private int _visibleRowCount;
         private int _rowHeight = 30;
@@ -32,61 +33,87 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region "Constructor"
-        public BeepGridRowPainterForTableLayout(BeepMultiSplitter gridPanel, BeepGridColumnConfigCollection columns, VScrollBar vScroll, HScrollBar hScroll)
+        public BeepGridRowPainterForTableLayout(BeepMultiSplitter gridPanel, BeepGridColumnConfigCollection columns)
         {
             _gridPanel = gridPanel;
             _columns = columns;
-            _vScroll = vScroll;
-            _hScroll = hScroll;
+            
 
             InitializeGridStructure();
             ConfigureScrollBars();
             HookEvents();
         }
-
-        public BeepGridRowPainterForTableLayout(BeepMultiSplitter tableLayoutPanel, VScrollBar vScrollBar1, HScrollBar hScrollBar1)
+        public BeepGridRowPainterForTableLayout(BeepMultiSplitter gridPanel)
         {
-            _gridPanel = tableLayoutPanel;
-            _vScroll = vScrollBar1;
-            _hScroll = hScrollBar1;
+            Console.WriteLine("BeepGridRowPainterForTableLayout Constructor");
+            _gridPanel = gridPanel;
             _columns = new BeepGridColumnConfigCollection();
-           
+            
+            _gridPanel.Resize += (s, e) => OnResize();
+            Console.WriteLine("BeepGridRowPainterForTableLayout Constructor 1");
             InitializeGridStructure();
-          
+            Console.WriteLine("BeepGridRowPainterForTableLayout Constructor 2");
             ConfigureScrollBars();
-          
+            Console.WriteLine("BeepGridRowPainterForTableLayout Constructor 3");
             HookEvents();
-           
+            Console.WriteLine("BeepGridRowPainterForTableLayout Constructor End");
         }
+
+
         #endregion
 
         #region "Grid Initialization"
         private void InitializeGridStructure()
         {
-
             _gridPanel.SuspendLayout();
-            _gridPanel.Controls.Clear();
+
+            // Clear existing controls and styles
+            _gridPanel.tableLayoutPanel.Controls.Clear();
             _gridPanel.tableLayoutPanel.RowStyles.Clear();
+            _gridPanel.tableLayoutPanel.ColumnStyles.Clear();
 
-            _gridPanel.tableLayoutPanel.RowCount = 2; // Header + Aggregation Row
-            _gridPanel.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Header row
-            _gridPanel.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Aggregation row
+            // Define layout structure: 2 columns (data + scrollbar), dynamic rows
+            _gridPanel.tableLayoutPanel.ColumnCount = 2;
+            _gridPanel.tableLayoutPanel.RowCount = 2; // Minimum: Header + Aggregation
+            _gridPanel.tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); // Data Columns
+            _gridPanel.tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20)); // Vertical Scrollbar
+            _gridPanel.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Header Row
+            _gridPanel.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // Data Rows (dynamic)
+            _gridPanel.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Aggregation Row
+            _gridPanel.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 20)); // Horizontal Scrollbar
 
-            _visibleRowCount = (_gridPanel.Height - 60) / _rowHeight;
-            int endRow = Math.Min(_firstVisibleRow + _visibleRowCount, _dataRecords.Count);
-
-            AddHeaderRow(); // Ensure header row is added
-
-            for (int i = _firstVisibleRow; i < endRow; i++)
+            // Add Vertical Scrollbar
+            if (_vScroll == null)
             {
-                int rowIndex = i - _firstVisibleRow + 1; // Adjust index for header row
-                AddBeepDataRow(rowIndex, _dataRecords[i]);
+                _vScroll = new VScrollBar
+                {
+                    Dock = DockStyle.Fill,
+                    Visible = false // Initially hidden
+                };
+                _vScroll.Scroll += VerticalScroll_Scroll;
             }
+            _gridPanel.tableLayoutPanel.Controls.Add(_vScroll, 1, 1); // Add to second column (scrollbar column)
 
-            AddAggregationRow(); // Ensure aggregation row is added
+            // Add Horizontal Scrollbar
+            if (_hScroll == null)
+            {
+                _hScroll = new HScrollBar
+                {
+                    Dock = DockStyle.Fill,
+                    Visible = false // Initially hidden
+                };
+                _hScroll.Scroll += HorizontalScroll_Scroll;
+            }
+            _gridPanel.tableLayoutPanel.Controls.Add(_hScroll, 0, _gridPanel.tableLayoutPanel.RowCount - 1); // Add to last row
+            _gridPanel.tableLayoutPanel.SetColumnSpan(_hScroll, 2); // Span across both columns
 
-            _gridPanel.ResumeLayout(true);
+            AddHeaderRow();
+            AddAggregationRow();
+
+            _gridPanel.ResumeLayout();
         }
+
+
         private void AddHeaderRow()
         {
             _gridPanel.tableLayoutPanel.RowCount = 1;
@@ -151,18 +178,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (data == null || data.Count == 0)
                 return;
-
-            _dataRecords = data.Select(d => new BeepDataRecord(d)).ToList();
+            Console.WriteLine("SetDataSource");
+            FillData(data);
+            Console.WriteLine($"SetDataSource 0: {_dataRecords.Count}");
+            Console.WriteLine("SetDataSource 1");
             _firstVisibleRow = 0; // Reset scroll position
-
+            Console.WriteLine("SetDataSource 2");
             // Ensure we have valid rows before updating UI
             _gridPanel.tableLayoutPanel.RowCount = Math.Max(2, _visibleRowCount + 2);
-
+            Console.WriteLine("SetDataSource 3");
             UpdateVirtualization();
+            Console.WriteLine("SetDataSource 4");
             UpdateScrollBars();
+            Console.WriteLine("SetDataSource 5");
         }
-
-
         private void UpdateVirtualization()
         {
             if (_gridPanel == null || _dataRecords == null)
@@ -170,25 +199,34 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _gridPanel.SuspendLayout();
 
+            // Ensure valid data and grid dimensions
             int totalDataRows = _dataRecords.Count;
-            _visibleRowCount = Math.Max(1, Math.Min((_gridPanel.Height - 60) / _rowHeight, totalDataRows)); // Ensure at least 1 row
+            int availableHeight = Math.Max(0, _gridPanel.Height - 60);
+            _rowHeight = Math.Max(1, _rowHeight); // Ensure valid row height
+            _visibleRowCount = Math.Max(1, Math.Min(availableHeight / _rowHeight, totalDataRows));
 
-            // Ensure RowCount is valid
+            // Prevent invalid RowCount
             _gridPanel.tableLayoutPanel.RowCount = Math.Max(2, _visibleRowCount + 2); // Header + Rows + Aggregation
             _gridPanel.tableLayoutPanel.RowStyles.Clear();
 
+            // Add Header Row Style
             _gridPanel.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Header row
+
+            // Add Data Rows Styles
             for (int i = 0; i < _visibleRowCount; i++)
             {
-                _gridPanel.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, _rowHeight)); // Data rows
+                _gridPanel.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, _rowHeight));
             }
+
+            // Add Aggregation Row Style
             _gridPanel.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // Aggregation row
 
+            // Update Rows
             int endRow = Math.Min(_firstVisibleRow + _visibleRowCount, totalDataRows);
             for (int i = 0; i < _visibleRowCount; i++)
             {
                 int dataIndex = _firstVisibleRow + i;
-                if (dataIndex < totalDataRows)
+                if (dataIndex >= 0 && dataIndex < totalDataRows)
                 {
                     var record = _dataRecords[dataIndex];
                     UpdateDataRow(i + 1, record); // Shift index because row 0 is header
@@ -197,24 +235,62 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _gridPanel.ResumeLayout(true);
         }
-
-
+        private void FillData(List<object> data)
+        {
+            if (data == null || data.Count == 0)
+                return;
+            for (int i = 0; i < data.Count; i++)
+            {
+                var newRecord = new BeepDataRecord(data[i])
+                {
+                    Dock = DockStyle.Fill,
+                    Margin = new Padding(2),
+            
+                    BorderColor = Color.DarkGray, // Optional border for clarity
+                    BorderThickness = 1,
+                    BorderStyle = BorderStyle.FixedSingle,
+                    FieldOrientation = FieldOrientation.Horizontal,
+                    ShowFieldPrompts = false
+                };
+                _dataRecords.Add(newRecord);
+                // Apply padding & margin for better visibility
+                //_gridPanel.tableLayoutPanel.Controls.Add(newRecord, colIndex, rowIndex);
+            }
+           
+            _firstVisibleRow = 0; // Reset scroll position
+            // Ensure we have valid rows before updating UI
+        
+        }
         private void UpdateDataRow(int rowIndex, BeepDataRecord record)
         {
             int colIndex = 0;
 
-            // If row exists, update its data
+            // If row already exists, update its data
             if (_gridPanel.tableLayoutPanel.GetControlFromPosition(colIndex, rowIndex) is BeepDataRecord existingRecord)
             {
                 existingRecord.SetDataRecord(record.DataRecord); // Just update data
+                existingRecord.BackColor = rowIndex % 2 == 0 ? Color.White : Color.LightGray; // Alternate row color
             }
             else
             {
                 // If row doesn't exist, create a new one
-                var newRecord = new BeepDataRecord(record.DataRecord);
+                var newRecord = new BeepDataRecord(record.DataRecord)
+                {
+                    Dock = DockStyle.Fill,
+                    Margin = new Padding(2),
+                    BackColor = rowIndex % 2 == 0 ? Color.White : Color.LightGray, // Alternate row color
+                    BorderColor = Color.DarkGray, // Optional border for clarity
+                    BorderThickness = 1,
+                    BorderStyle = BorderStyle.FixedSingle,
+                    FieldOrientation= FieldOrientation.Horizontal,
+                    ShowFieldPrompts =false
+                };
+
+                // Apply padding & margin for better visibility
                 _gridPanel.tableLayoutPanel.Controls.Add(newRecord, colIndex, rowIndex);
             }
         }
+
 
         private void SelectAllRows(bool isChecked)
         {
@@ -237,40 +313,84 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion
         #region "Scroll Bar Configuration"
+        private void VerticalScroll_Scroll(object sender, ScrollEventArgs e)
+        {
+            _firstVisibleRow = _vScroll.Value;
+            UpdateVirtualization();
+        }
+
+        private void HorizontalScroll_Scroll(object sender, ScrollEventArgs e)
+        {
+            _gridPanel.HorizontalScroll.Value = _hScroll.Value;
+            _gridPanel.PerformLayout();
+        }
+
         private void UpdateScrollBars()
         {
             // Update Vertical Scrollbar
             if (_dataRecords != null && _dataRecords.Count > 0)
             {
-                _vScroll.Minimum = 0;
-                _vScroll.Maximum = Math.Max(0, _dataRecords.Count - _visibleRowCount);
-                _vScroll.LargeChange = _visibleRowCount;
+                int totalHeight = _dataRecords.Count * _rowHeight;
+                int visibleHeight = _gridPanel.Height;
+
+                _vScroll.Visible = totalHeight > visibleHeight;
+                if (_vScroll.Visible)
+                {
+                    _vScroll.Maximum = totalHeight - visibleHeight;
+                    _vScroll.LargeChange = visibleHeight;
+                    _vScroll.SmallChange = _rowHeight;
+                }
             }
             else
             {
-                _vScroll.Minimum = 0;
-                _vScroll.Maximum = 0;
-                _vScroll.LargeChange = 1;
+                _vScroll.Visible = false;
             }
 
             // Update Horizontal Scrollbar
-            int totalColumnsWidth = _columns.Sum(c => c.Width);
-            int maxScroll = totalColumnsWidth - _gridPanel.Width;
-            _hScroll.Minimum = 0;
-            _hScroll.Maximum = Math.Max(0, maxScroll);
-            _hScroll.LargeChange = _gridPanel.Width;
+            int totalWidth = _columns.Sum(c => c.Width);
+            int visibleWidth = _gridPanel.Width;
+
+            _hScroll.Visible = totalWidth > visibleWidth;
+            if (_hScroll.Visible)
+            {
+                _hScroll.Maximum = totalWidth - visibleWidth;
+                _hScroll.LargeChange = visibleWidth;
+                _hScroll.SmallChange = 50; // Smooth scrolling
+            }
+            else
+            {
+                _hScroll.Visible = false;
+            }
         }
+
 
         private void ConfigureScrollBars()
         {
-            _vScroll.Minimum = 0;
-            _vScroll.Maximum = Math.Max(0, _dataRecords.Count - _visibleRowCount);
-            _vScroll.LargeChange = _visibleRowCount;
+            // Vertical Scrollbar
+            int totalHeight = (_dataRecords.Count * _rowHeight) + 60; // Rows + Header + Aggregation
+            int visibleHeight = _gridPanel.Height;
 
-            _hScroll.Minimum = 0;
-            _hScroll.Maximum = _columns.Sum(c => c.Width) - _gridPanel.Width;
-            _hScroll.LargeChange = _gridPanel.Width;
+            _vScroll.Visible = totalHeight > visibleHeight;
+            if (_vScroll.Visible)
+            {
+                _vScroll.Maximum = totalHeight - visibleHeight;
+                _vScroll.LargeChange = visibleHeight;
+                _vScroll.SmallChange = _rowHeight;
+            }
+
+            // Horizontal Scrollbar
+            int totalWidth = _columns.Sum(c => c.Width);
+            int visibleWidth = _gridPanel.Width;
+
+            _hScroll.Visible = totalWidth > visibleWidth;
+            if (_hScroll.Visible)
+            {
+                _hScroll.Maximum = totalWidth - visibleWidth;
+                _hScroll.LargeChange = visibleWidth;
+                _hScroll.SmallChange = 50; // Adjust for smooth scrolling
+            }
         }
+
 
         private void HookEvents()
         {
@@ -286,6 +406,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _gridPanel.HorizontalScroll.Value = _hScroll.Value;
                 _gridPanel.PerformLayout();
             };
+        }
+        protected void OnResize()
+        {
+            UpdateVirtualization();
+            ConfigureScrollBars();
         }
 
         #endregion
@@ -352,6 +477,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // You can replace this with actual sorting logic
             MessageBox.Show($"Sorting {col.ColumnCaption}: {(col.IsSorted ? "Ascending" : "None")}");
+        }
+        public List<object> GenerateSampleData(int rowCount)
+        {
+            var sampleData = new List<object>();
+
+            for (int i = 1; i <= rowCount; i++)
+            {
+                sampleData.Add(new
+                {
+                    ID = i,
+                    Name = $"Name {i}",
+                    Age = 20 + (i % 30),
+                    Country = $"Country {i % 10}"
+                });
+            }
+
+            return sampleData;
         }
 
     }

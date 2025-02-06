@@ -5,53 +5,111 @@ using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    /// <summary>
-    /// A numeric input control that extends BeepControl and implements IBeepUIComponent.
-    /// </summary>
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [DisplayName("Beep Numeric UpDown")]
-    [Description("A numeric up-down control with Beep theming and IBeepUIComponent support.")]
+    [Description("A custom numeric up-down control with Beep theming.")]
     public class BeepNumericUpDown : BeepControl
     {
-        private NumericUpDown numericUpDownControl;
+        private BeepButton _decrementButton;
+        private BeepButton _incrementButton;
+        private BeepTextBox _valueTextBox;
+
+        private decimal _minimumValue = 0m;
+        private decimal _maximumValue = 1000m;
+        private decimal _incrementValue = 1m;
+        private decimal _value = 0m;
 
         public BeepNumericUpDown()
         {
-            // Ensure default size if none has been specified
-            if (Width <= 0 || Height <= 0)
-            {
-                Width = 100;
-                Height = 30;
-            }
-            InitializeNumericUpDown();
+            // Initialize default size
+            this.SetStyle(ControlStyles.ResizeRedraw, true);
+            this.Size = DefaultSize;
+            Margin = new Padding(0);
+            // Initialize child controls
+            InitializeControls();
         }
 
-        private void InitializeNumericUpDown()
+        protected override Size DefaultSize => new Size(120, _valueTextBox?.PreferredHeight ?? 30);
+
+        private void InitializeControls()
         {
-            numericUpDownControl = new NumericUpDown
+            // Decrement Button (Left)
+            _decrementButton = new BeepButton
             {
-                Anchor= AnchorStyles.Top|AnchorStyles.Bottom| AnchorStyles.Left| AnchorStyles.Right,
-                Minimum = _minimumValue,
-                Maximum = _maximumValue,
-                Increment = _incrementValue,
-                Value = _defaultValue,
-                DecimalPlaces = _decimalPlaces,
-                ReadOnly = _readOnly
+                Text = "-",
+                IsFramless = true,
+                AutoSize = true
             };
-            UpdateDrawingRect();
-            // set locationa and size inside on DrawingRect
-            numericUpDownControl.Location = new Point(DrawingRect.X, DrawingRect.Y);
-            numericUpDownControl.Size = new Size(DrawingRect.Width, DrawingRect.Height);
-            // Sync the base Text property whenever the numeric value changes
-            numericUpDownControl.ValueChanged += (s, e) => Text = numericUpDownControl.Value.ToString();
+            _decrementButton.Click += DecrementButton_Click;
 
-            Controls.Add(numericUpDownControl);
+            // Increment Button (Right)
+            _incrementButton = new BeepButton
+            {
+                Text = "+",
+                IsFramless = true,
+
+                AutoSize = true
+            };
+            _incrementButton.Click += IncrementButton_Click;
+
+            // Value TextBox (Middle)
+            _valueTextBox = new BeepTextBox
+            {
+                TextAlignment = HorizontalAlignment.Center,
+                IsFramless= true,
+                OnlyDigits = true
+            };
+            _valueTextBox.TextChanged += ValueTextBox_TextChanged;
+
+            // Add controls to the parent
+            Controls.Add(_decrementButton);
+            Controls.Add(_valueTextBox);
+            Controls.Add(_incrementButton);
+
+            // Update layout
+            UpdateLayout();
         }
 
-        #region "Numeric Properties"
+        private void UpdateLayout()
+        {
+            int buttonWidth = 15; // Width of the buttons
+            int padding = 1;      // Padding between controls
 
-        private decimal _minimumValue = 0m;
+            // Set the control's height based on the text box's preferred height
+            int controlHeight = _valueTextBox.PreferredHeight + 2 * padding;
+            this.Height = controlHeight;
+            UpdateDrawingRect();
+            // Compute the vertical alignment to keep everything centered in DrawingRect.
+            int verticalCenter = DrawingRect.Top + (DrawingRect.Height - _valueTextBox.PreferredHeight) / 2;
+            // Decrement button (left)
+            _decrementButton.Location = new Point(DrawingRect.Left + padding, verticalCenter);
+            _decrementButton.Size = new Size(buttonWidth, _valueTextBox.PreferredHeight);
+
+            // Increment button (right)
+            _incrementButton.Location = new Point(DrawingRect.Right - buttonWidth - padding, verticalCenter);
+            _incrementButton.Size = new Size(buttonWidth, _valueTextBox.PreferredHeight);
+
+            // Value TextBox (center)
+            _valueTextBox.Location = new Point(_decrementButton.Right + padding, verticalCenter);
+            _valueTextBox.Size = new Size(
+                Math.Max(0, DrawingRect.Width - _decrementButton.Width - _incrementButton.Width - 3 * padding),
+                _valueTextBox.PreferredHeight
+            );
+
+            // Prevent further manual resizing of the control
+            this.MaximumSize = this.MinimumSize = new Size(this.Width, this.Height);
+
+
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            UpdateLayout();
+        }
+
+        #region "Properties"
         [Browsable(true)]
         [Category("Numeric Settings")]
         [Description("Specifies the minimum numeric value.")]
@@ -61,12 +119,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _minimumValue = value;
-                if (numericUpDownControl != null)
-                    numericUpDownControl.Minimum = value;
+                if (_value < _minimumValue)
+                    _value = _minimumValue;
+                UpdateTextBox();
             }
         }
 
-        private decimal _maximumValue = 100m;
         [Browsable(true)]
         [Category("Numeric Settings")]
         [Description("Specifies the maximum numeric value.")]
@@ -76,142 +134,79 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _maximumValue = value;
-                if (numericUpDownControl != null)
-                    numericUpDownControl.Maximum = value;
+                if (_value > _maximumValue)
+                    _value = _maximumValue;
+                UpdateTextBox();
             }
         }
 
-        private decimal _incrementValue = 1m;
         [Browsable(true)]
         [Category("Numeric Settings")]
         [Description("Specifies the amount by which the value changes.")]
         public decimal IncrementValue
         {
             get => _incrementValue;
-            set
-            {
-                _incrementValue = value;
-                if (numericUpDownControl != null)
-                    numericUpDownControl.Increment = value;
-            }
+            set => _incrementValue = value;
         }
 
-        private decimal _defaultValue = 0m;
         [Browsable(true)]
         [Category("Numeric Settings")]
-        [Description("Specifies the default numeric value.")]
-        public decimal DefaultValue
+        [Description("Specifies the current numeric value.")]
+        public decimal Value
         {
-            get => _defaultValue;
+            get => _value;
             set
             {
-                _defaultValue = value;
-                if (numericUpDownControl != null)
-                    numericUpDownControl.Value = value;
+                if (value < _minimumValue || value > _maximumValue)
+                    throw new ArgumentOutOfRangeException($"Value must be between {_minimumValue} and {_maximumValue}.");
+                _value = value;
+                UpdateTextBox();
+            }
+        }
+        #endregion
+
+        #region "Event Handlers"
+        private void DecrementButton_Click(object sender, EventArgs e)
+        {
+            if (_value > _minimumValue)
+            {
+                _value -= _incrementValue;
+                UpdateTextBox();
             }
         }
 
-        private int _decimalPlaces;
-        [Browsable(true)]
-        [Category("Numeric Settings")]
-        [Description("Specifies the number of decimal places to display.")]
-        public int DecimalPlaces
+        private void IncrementButton_Click(object sender, EventArgs e)
         {
-            get => _decimalPlaces;
-            set
+            if (_value < _maximumValue)
             {
-                _decimalPlaces = value;
-                if (numericUpDownControl != null)
-                    numericUpDownControl.DecimalPlaces = value;
+                _value += _incrementValue;
+                UpdateTextBox();
             }
         }
 
-        private bool _readOnly;
-        [Browsable(true)]
-        [Category("Numeric Settings")]
-        [Description("Determines whether the user can modify the value via the keyboard.")]
-        public bool ReadOnly
+        private void ValueTextBox_TextChanged(object sender, EventArgs e)
         {
-            get => _readOnly;
-            set
+            if (decimal.TryParse(_valueTextBox.Text, out decimal newValue))
             {
-                _readOnly = value;
-                if (numericUpDownControl != null)
-                    numericUpDownControl.ReadOnly = value;
-            }
-        }
-
-        #endregion "Numeric Properties"
-
-        #region "Overridden Text Property"
-
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("The text associated with the numeric value.")]
-        public override string Text
-        {
-            get => numericUpDownControl?.Value.ToString() ?? string.Empty;
-            set
-            {
-                if (numericUpDownControl == null) return;
-
-                if (decimal.TryParse(value, out decimal result))
+                if (newValue >= _minimumValue && newValue <= _maximumValue)
                 {
-                    if (result < MinimumValue || result > MaximumValue)
-                        throw new ArgumentOutOfRangeException(
-                            $"Value '{value}' is out of range. Must be between {MinimumValue} and {MaximumValue}.");
-
-                    numericUpDownControl.Value = result;
+                    _value = newValue;
                 }
                 else
                 {
-                    throw new FormatException($"Invalid numeric format: '{value}'.");
+                    UpdateTextBox(); // Revert to the last valid value
                 }
             }
-        }
-
-        #endregion "Overridden Text Property"
-
-        #region "IBeepUIComponent Implementation"
-
-        /// <summary>
-        /// Validates the numeric value based on any business rules or constraints.
-        /// </summary>
-        /// <param name="message">An output parameter for validation result messages.</param>
-        /// <returns>True if valid, otherwise false.</returns>
-        public bool ValidateData(out string message)
-        {
-            // Example: Simple range validation. Adjust based on your requirements.
-            if (numericUpDownControl.Value < MinimumValue || numericUpDownControl.Value > MaximumValue)
+            else
             {
-                message = $"Value must be between {MinimumValue} and {MaximumValue}.";
-                return false;
-            }
-
-            // If additional custom rules exist, apply them here or call EntityHelper if you prefer.
-            message = "Valid";
-            return true;
-        }
-
-        /// <summary>
-        /// Applies the current theme to the numeric control.
-        /// </summary>
-        public override void ApplyTheme()
-        {
-            // Use base theming logic from BeepControl
-            base.ApplyTheme();
-
-            if (numericUpDownControl != null && _currentTheme != null)
-            {
-                numericUpDownControl.ForeColor = _currentTheme.PrimaryTextColor;
-                numericUpDownControl.BackColor = _currentTheme.TextBoxBackColor;
-               // numericUpDownControl.BorderStyle = BorderStyle.FixedSingle;
-
-                // Optionally, set the font if desired
-                numericUpDownControl.Font = _currentTheme.GetBlockTextFont();
+                UpdateTextBox(); // Revert to the last valid value
             }
         }
+        #endregion
 
-        #endregion "IBeepUIComponent Implementation"
+        private void UpdateTextBox()
+        {
+            _valueTextBox.Text = _value.ToString();
+        }
     }
 }

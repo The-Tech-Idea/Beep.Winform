@@ -18,7 +18,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
-using Newtonsoft.Json.Linq;
+
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid
 {
@@ -1084,10 +1084,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             this.GridView.DefaultCellStyle.SelectionForeColor = _currentTheme.GridRowSelectedForeColor;
 
             // apply theme for header
-            this.Toppanel.BackColor = _currentTheme.BackColor;
-            this.customHeaderPanel.BackColor = _currentTheme.GridHeaderBackColor;
-            this.filterPanel.BackColor = _currentTheme.GridHeaderBackColor;
-            this.Totalspanel.BackColor = _currentTheme.GridHeaderBackColor;
+            this.Toppanel.BackColor = _currentTheme.PanelBackColor;
+            this.customHeaderPanel.BackColor = _currentTheme.PanelBackColor;
+            this.filterPanel.BackColor = _currentTheme.PanelBackColor;
+            this.Totalspanel.BackColor = _currentTheme.PanelBackColor;
+            this.Bottompanel.BackColor = _currentTheme.PanelBackColor;
+            this.BindingNavigator.BackColor = _currentTheme.PanelBackColor;
             //apply theme for buttons
             this.FilterShowbutton.Theme = Theme;
             this.TotalShowbutton.Theme = Theme;
@@ -1109,14 +1111,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 layoutPanel.RowStyles[0].Height = Titlelabel.PreferredSize.Height + (2 * (padding + 2)); // Adjust height dynamically
             }
            
-            if (IsChild)
-            {
-                BackColor = _currentTheme.ButtonBackColor;
-            }
-         
-
-
-
         }
         /// <summary>
         /// Changes the border style for the column headers and updates their positions.
@@ -1965,37 +1959,97 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private void CreateComponent()
         {
             // Create TableLayoutPanel
-            layoutPanel = new TableLayoutPanel();
-            layoutPanel.Padding = new Padding(0);
-            layoutPanel.Margin = new Padding(0);
-            layoutPanel.ColumnCount = 1;
-            layoutPanel.RowCount = 6; // Define sections
+            layoutPanel = new TableLayoutPanel
+            {
+                CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
+                AutoSize = false,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Padding = new Padding(1),
+                Margin = new Padding(1),
+                ColumnCount = 1,
+                RowCount = 6,
+                Dock = DockStyle.Fill // Ensure it fills the container properly
+            };
+
+            // Define row heights
             layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));  // Top Panel
             layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 31F));  // Custom Header Panel
             layoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Data Grid (Expands)
-            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));  // Filter Panel (Fixed, can be hidden)
-            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));  // Totals Panel (Fixed, can be hidden)
-            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));  // Bottom Panel (Fixed)
+            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));  // Filter Panel
+            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));  // Totals Panel
+            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));  // Bottom Panel
 
-            // Initialize Panels
-            Toppanel = new Panel { BackColor = Color.White, BorderStyle = BorderStyle.FixedSingle, Dock = DockStyle.Fill };
-            InitializeTopPanelControls(); // Helper method to initialize buttons
+            // Fix panel sizes to prevent stretching
+            Toppanel = new Panel
+            {
+                BackColor = Color.White,
+                BorderStyle = BorderStyle.FixedSingle,
+                Height = 30, // Fix Height to match RowStyle
+                Dock = DockStyle.Top,
+                AutoSize = false, // Ensure it doesn't auto-grow
+                Margin = new Padding(0),
+                Padding = new Padding(0)
+            };
+            InitializeTopPanelControls(); // Helper method
 
-            customHeaderPanel = new Panel { BackColor = Color.Magenta, BorderStyle = BorderStyle.FixedSingle, Dock = DockStyle.Fill };
+            customHeaderPanel = new Panel
+            {
+                BackColor = Color.Magenta,
+                BorderStyle = BorderStyle.FixedSingle,
+                Height = 31, // Fix Height
+                Dock = DockStyle.Top,
+                AutoSize = false,
+                Margin = new Padding(0),
+                Padding = new Padding(0)
+            };
 
-            filterPanel = new Panel { BackColor = Color.Khaki, BorderStyle = BorderStyle.FixedSingle, Dock = DockStyle.Fill, Visible = true };
+            filterPanel = new Panel
+            {
+                BackColor = Color.Khaki,
+                BorderStyle = BorderStyle.FixedSingle,
+                Height = 28,
+                Dock = DockStyle.Top,
+                AutoSize = false,
+                Margin = new Padding(0),
+                Padding = new Padding(0),
+                Visible = true
+            };
 
-            Totalspanel = new Panel { BackColor = Color.LawnGreen, BorderStyle = BorderStyle.FixedSingle, Dock = DockStyle.Fill, Visible = true };
+            Totalspanel = new Panel
+            {
+                BackColor = Color.LawnGreen,
+                BorderStyle = BorderStyle.FixedSingle,
+                Height = 28,
+                Dock = DockStyle.Top,
+                AutoSize = false,
+                Margin = new Padding(0),
+                Padding = new Padding(0),
+                Visible = true
+            };
 
             dataGridView1 = new DataGridView
             {
                 Dock = DockStyle.Fill,
                 BackgroundColor = Color.White,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                Margin = new Padding(0),
+                Padding = new Padding(0)
             };
 
-            Bottompanel = new Panel { BackColor = Color.White, Dock = DockStyle.Fill };
-            BindingNavigator = new BeepbindingNavigator { Dock = DockStyle.Fill };
+            Bottompanel = new Panel
+            {
+                BackColor = Color.White,
+                Height = 28,
+                Dock = DockStyle.Top,
+                AutoSize = false,
+                Margin = new Padding(0),
+                Padding = new Padding(0)
+            };
+
+            BindingNavigator = new BeepbindingNavigator
+            {
+                Dock = DockStyle.Fill
+            };
             Bottompanel.Controls.Add(BindingNavigator);
 
             // Add controls to TableLayoutPanel
@@ -2004,19 +2058,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             layoutPanel.Controls.Add(dataGridView1, 0, 2);
             layoutPanel.Controls.Add(filterPanel, 0, 3);
             layoutPanel.Controls.Add(Totalspanel, 0, 4);
-          
             layoutPanel.Controls.Add(Bottompanel, 0, 5);
 
             // Add TableLayoutPanel to BeepGrid
             Controls.Add(layoutPanel);
+
+            // Ensure LayoutPanel is inside DrawingRect
             UpdateDrawingRect();
             layoutPanel.Left = DrawingRect.Left + padding;
             layoutPanel.Top = DrawingRect.Top + padding;
             layoutPanel.Width = DrawingRect.Width - (padding * 2);
             layoutPanel.Height = DrawingRect.Height - (padding * 2);
-           
-            // Resize event (No need to adjust manually anymore!)
         }
+
 
         // Helper method for top panel buttons
         private void InitializeTopPanelControls()

@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepStarRating
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
@@ -10,55 +9,106 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
     {
         public BeepStarRatingColumn() : base(new BeepStarRatingCell())
         {
-            this.CellTemplate = new BeepStarRatingCell();
+        }
+        public int MaxStars { get; set; } = 5; // Default to 5 stars
+        public override object Clone()
+        {
+            return base.Clone();
         }
     }
-    public class BeepStarRatingCell : DataGridViewCell
+
+    public class BeepStarRatingCell : DataGridViewTextBoxCell
     {
-        private BeepStarRating beepStarRating;
+        public override Type EditType => typeof(BeepStarRatingEditingControl); // Use BeepStarRating for editing
+        public override Type ValueType => typeof(int); // Store selected rating as an integer
+        public override object DefaultNewRowValue => 0; // Default to zero stars
 
-        public BeepStarRatingCell()
+        public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
         {
-            beepStarRating = new BeepStarRating
+            base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
+
+            if (DataGridView.EditingControl is BeepStarRatingEditingControl control)
             {
-                Size = new Size(120, 30), // Default size, dynamically adjusted
-                StarCount = 5,
-                SelectedRating = 0
-            };
+                if (initialFormattedValue is int rating)
+                {
+                    control.SelectedRating = rating;
+                }
+                else
+                {
+                    control.SelectedRating = 0;
+                }
+            }
+        }
+    }
+
+    public class BeepStarRatingEditingControl : BeepStarRating, IDataGridViewEditingControl
+    {
+        private DataGridView dataGridView;
+        private int rowIndex;
+        private bool valueChanged;
+
+        public BeepStarRatingEditingControl()
+        {
+            this.Size = new Size(120, 30); // Default size
+            this.BackColor = Color.White;
+
+            // Handle rating change event
+            this.RatingChanged += BeepStarRating_RatingChanged;
         }
 
-        protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates cellState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
+        private void BeepStarRating_RatingChanged(object sender, EventArgs e)
         {
-            base.Paint(graphics, clipBounds, cellBounds, rowIndex, cellState, formattedValue, formattedValue, errorText, cellStyle, advancedBorderStyle, paintParts);
-
-            int ratingValue = 0;
-            if (value != null && int.TryParse(value.ToString(), out ratingValue))
-            {
-                beepStarRating.SelectedRating = ratingValue;
-            }
-            else
-            {
-                beepStarRating.SelectedRating = 0;
-            }
-
-            beepStarRating.Bounds = cellBounds;
-            beepStarRating.DrawToBitmap(new Bitmap(cellBounds.Width, cellBounds.Height), cellBounds);
-            graphics.DrawImage(beepStarRating.BackgroundImage, cellBounds.Location);
+            valueChanged = true;
+            dataGridView?.NotifyCurrentCellDirty(true);
         }
 
-        protected override object GetValue(int rowIndex)
+        public object EditingControlFormattedValue
         {
-            return beepStarRating.SelectedRating;
+            get => this.SelectedRating;
+            set
+            {
+                if (value is int rating)
+                {
+                    this.SelectedRating = rating;
+                }
+                else
+                {
+                    this.SelectedRating = 0;
+                }
+            }
         }
 
-        protected override bool SetValue(int rowIndex, object value)
+        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => this.SelectedRating;
+
+        public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
         {
-            if (value != null && int.TryParse(value.ToString(), out int newValue))
-            {
-                beepStarRating.SelectedRating = newValue;
-                return true; // Successfully updated the value
-            }
-            return false; // Indicate that setting the value was unsuccessful
+            this.BackColor = dataGridViewCellStyle.BackColor;
+        }
+
+        public DataGridView EditingControlDataGridView
+        {
+            get => dataGridView;
+            set => dataGridView = value;
+        }
+
+        public int EditingControlRowIndex
+        {
+            get => rowIndex;
+            set => rowIndex = value;
+        }
+
+        public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey) => true;
+
+        public void PrepareEditingControlForEdit(bool selectAll) { }
+
+        public bool RepositionEditingControlOnValueChange => false;
+
+        public Cursor EditingPanelCursor => base.Cursor;
+
+        public bool EditingControlValueChanged
+        {
+            get => valueChanged;
+            set => valueChanged = value;
         }
     }
 }

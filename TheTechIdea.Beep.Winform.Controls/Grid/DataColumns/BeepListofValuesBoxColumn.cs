@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepListofValuesBox
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
@@ -10,81 +10,106 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
     {
         public BeepListofValuesBoxColumn() : base(new BeepListofValuesBoxCell())
         {
-            this.CellTemplate = new BeepListofValuesBoxCell();
+        }
+
+        public override object Clone()
+        {
+            return base.Clone();
         }
     }
-    public class BeepListofValuesBoxCell : DataGridViewCell
+
+    public class BeepListofValuesBoxCell : DataGridViewTextBoxCell
     {
-        private BeepListofValuesBox beepListofValuesBox;
+        public override Type EditType => typeof(BeepListofValuesBoxEditingControl); // Use BeepListofValuesBox for editing
+        public override Type ValueType => typeof(string); // Store selected item key as string
+        public override object DefaultNewRowValue => string.Empty; // Default to empty
 
-        public BeepListofValuesBoxCell()
+        public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
         {
-            beepListofValuesBox = new BeepListofValuesBox
-            {
-                Size = new Size(150, 30), // Default size, adjusted dynamically
-            };
+            base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
 
-            beepListofValuesBox.OnSelected += BeepListofValuesBox_SelectedIndexChanged;
+            if (DataGridView.EditingControl is BeepListofValuesBoxEditingControl control)
+            {
+                if (initialFormattedValue is string selectedKey)
+                {
+                    control.SelectedKey = selectedKey;
+                }
+                else
+                {
+                    control.SelectedKey = string.Empty;
+                }
+            }
+        }
+    }
+
+    public class BeepListofValuesBoxEditingControl : BeepListofValuesBox, IDataGridViewEditingControl
+    {
+        private DataGridView dataGridView;
+        private int rowIndex;
+        private bool valueChanged;
+
+        public BeepListofValuesBoxEditingControl()
+        {
+            this.Size = new Size(150, 30); // Default size
+            this.BackColor = Color.White;
+
+            // Handle selection change event
+            this.OnSelected += BeepListofValuesBox_SelectedIndexChanged;
         }
 
         private void BeepListofValuesBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (this.DataGridView != null && this.RowIndex >= 0)
+            valueChanged = true;
+            dataGridView?.NotifyCurrentCellDirty(true);
+        }
+
+        public object EditingControlFormattedValue
+        {
+            get => this.SelectedKey;
+            set
             {
-                this.DataGridView.CurrentCell = this;
-                this.DataGridView.NotifyCurrentCellDirty(true); // Notify that cell data has changed
-                this.Value = beepListofValuesBox.SelectedKey; // Store the key value in the DataGridView
+                if (value is string key)
+                {
+                    this.SelectedKey = key;
+                }
+                else
+                {
+                    this.SelectedKey = string.Empty;
+                }
             }
         }
 
-        protected override void OnMouseEnter(int rowIndex)
+        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => this.SelectedKey;
+
+        public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
         {
-            base.OnMouseEnter(rowIndex);
-            ShowBeepListofValuesBox(rowIndex);
+            this.BackColor = dataGridViewCellStyle.BackColor;
         }
 
-        protected override void OnMouseLeave(int rowIndex)
+        public DataGridView EditingControlDataGridView
         {
-            base.OnMouseLeave(rowIndex);
-            HideBeepListofValuesBox();
+            get => dataGridView;
+            set => dataGridView = value;
         }
 
-        private void ShowBeepListofValuesBox(int rowIndex)
+        public int EditingControlRowIndex
         {
-            if (this.DataGridView == null || rowIndex < 0)
-                return;
-
-            Rectangle cellBounds = this.DataGridView.GetCellDisplayRectangle(this.ColumnIndex, rowIndex, true);
-            beepListofValuesBox.Size = new Size(cellBounds.Width - 4, cellBounds.Height - 4);
-            beepListofValuesBox.Location = new Point(cellBounds.X + 2, cellBounds.Y + 2);
-
-            if (!this.DataGridView.Controls.Contains(beepListofValuesBox))
-            {
-                this.DataGridView.Controls.Add(beepListofValuesBox);
-            }
+            get => rowIndex;
+            set => rowIndex = value;
         }
 
-        private void HideBeepListofValuesBox()
-        {
-            if (this.DataGridView != null && this.DataGridView.Controls.Contains(beepListofValuesBox))
-            {
-                this.DataGridView.Controls.Remove(beepListofValuesBox);
-            }
-        }
+        public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey) => true;
 
-        protected override object GetValue(int rowIndex)
-        {
-            return beepListofValuesBox.SelectedKey;
-        }
+        public void PrepareEditingControlForEdit(bool selectAll) { }
 
-        protected override bool SetValue(int rowIndex, object value)
+        public bool RepositionEditingControlOnValueChange => false;
+
+        public Cursor EditingPanelCursor => base.Cursor;
+
+        public bool EditingControlValueChanged
         {
-            if (value != null)
-            {
-                beepListofValuesBox.SelectedKey = value.ToString();
-                return true; // Successfully updated the value
-            }
-            return false; // Indicate that setting the value was unsuccessful
+            get => valueChanged;
+            set => valueChanged = value;
         }
     }
 }

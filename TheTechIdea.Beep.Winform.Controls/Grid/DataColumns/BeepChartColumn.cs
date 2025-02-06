@@ -1,9 +1,8 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Drawing;
+using System.Collections.Generic;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls;
+using System.Drawing;
+using TheTechIdea.Beep.Vis.Modules; // Ensure correct namespace for BeepChartBase
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
@@ -11,73 +10,107 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
     {
         public BeepChartColumn() : base(new BeepChartCell())
         {
-            this.CellTemplate = new BeepChartCell();
+        }
+
+        public override object Clone()
+        {
+            return base.Clone();
         }
     }
 
-    public class BeepChartCell : DataGridViewCell
+    public class BeepChartCell : DataGridViewTextBoxCell
     {
-        private BeepChartBase beepChart;
+        public override Type EditType => typeof(BeepChartEditingControl); // Use BeepChartBase for editing
+        public override Type ValueType => typeof(List<ChartDataSeries>); // Store data as a list of series
+        public override object DefaultNewRowValue => new List<ChartDataSeries>(); // Default empty chart data
 
-        public BeepChartCell()
+        public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
         {
-            beepChart = new BeepChartBase
+            base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
+
+            if (DataGridView.EditingControl is BeepChartEditingControl control)
             {
-                Size = new Size(100, 50),
-                ChartType = ChartType.Line,
-                ShowLegend = false // Hide legend for small cells
-            };
+                if (initialFormattedValue is List<ChartDataSeries> series)
+                {
+                    control.DataSeries = series;
+                }
+                else
+                {
+                    control.DataSeries = new List<ChartDataSeries>();
+                }
+                control.Invalidate(); // Redraw chart with new data
+            }
+        }
+    }
+
+    public class BeepChartEditingControl : BeepChartBase, IDataGridViewEditingControl
+    {
+        private DataGridView dataGridView;
+        private int rowIndex;
+        private bool valueChanged;
+
+        public BeepChartEditingControl()
+        {
+            this.Size = new Size(150, 80); // Adjust the default size
+            this.ChartType = ChartType.Line;
+            this.ShowLegend = false; // Hide legend for compact view
         }
 
-        protected override void OnMouseEnter(int rowIndex)
+        public object EditingControlFormattedValue
         {
-            base.OnMouseEnter(rowIndex);
-            ShowBeepChart(rowIndex);
-        }
-
-        protected override void OnMouseLeave(int rowIndex)
-        {
-            base.OnMouseLeave(rowIndex);
-            HideBeepChart();
-        }
-
-        private void ShowBeepChart(int rowIndex)
-        {
-            if (this.DataGridView == null || rowIndex < 0)
-                return;
-
-            Rectangle cellBounds = this.DataGridView.GetCellDisplayRectangle(this.ColumnIndex, rowIndex, true);
-            beepChart.Size = new Size(cellBounds.Width - 4, cellBounds.Height - 4);
-            beepChart.Location = new Point(cellBounds.X + 2, cellBounds.Y + 2);
-
-            if (!this.DataGridView.Controls.Contains(beepChart))
+            get => this.DataSeries;
+            set
             {
-                this.DataGridView.Controls.Add(beepChart);
+                if (value is List<ChartDataSeries> series)
+                {
+                    this.DataSeries = series;
+                    this.Invalidate();
+                }
             }
         }
 
-        private void HideBeepChart()
+        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => this.DataSeries;
+
+        public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
         {
-            if (this.DataGridView != null && this.DataGridView.Controls.Contains(beepChart))
-            {
-                this.DataGridView.Controls.Remove(beepChart);
-            }
+            this.BackColor = dataGridViewCellStyle.BackColor;
         }
 
-        protected override object GetValue(int rowIndex)
+        public DataGridView EditingControlDataGridView
         {
-            return beepChart.DataSeries;
+            get => dataGridView;
+            set => dataGridView = value;
         }
 
-        protected override bool SetValue(int rowIndex, object value)
+        public int EditingControlRowIndex
         {
-            if (value is List<ChartDataSeries> seriesList)
-            {
-                beepChart.DataSeries = seriesList;
-                beepChart.Invalidate(); // Redraw chart
-                return true;
-            }
-            return false;
+            get => rowIndex;
+            set => rowIndex = value;
+        }
+
+        public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey) => true;
+
+        public void PrepareEditingControlForEdit(bool selectAll) { }
+
+        public bool RepositionEditingControlOnValueChange => false;
+
+        public Cursor EditingPanelCursor => base.Cursor;
+
+        public bool EditingControlValueChanged
+        {
+            get => valueChanged;
+            set => valueChanged = value;
+        }
+
+        protected override void OnClick(EventArgs e)
+        {
+            base.OnClick(e);
+
+            // Open a custom chart data editor (if needed)
+            MessageBox.Show($"Editing Chart in row {rowIndex}");
+
+            valueChanged = true;
+            dataGridView?.NotifyCurrentCellDirty(true);
         }
     }
 }

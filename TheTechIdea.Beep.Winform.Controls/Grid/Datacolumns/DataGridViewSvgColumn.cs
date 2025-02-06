@@ -3,26 +3,29 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Svg;
+using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepImage
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
 {
     [ToolboxBitmap(typeof(BeepDataGridViewSvgColumn), "DataGridViewImageColumn.bmp")]
     [ToolboxItem(false)]
-    public class BeepDataGridViewSvgColumn : DataGridViewImageColumn
+    public class BeepDataGridViewSvgColumn : DataGridViewColumn
     {
-        public BeepDataGridViewSvgColumn()
+        public BeepDataGridViewSvgColumn() : base(new BeepDataGridViewSvgCell())
         {
-            this.CellTemplate = new DataGridViewSvgCell();
+        }
+
+        public override object Clone()
+        {
+            return base.Clone();
         }
     }
 
-    public class DataGridViewSvgCell : DataGridViewImageCell
+    public class BeepDataGridViewSvgCell : DataGridViewTextBoxCell
     {
-        public DataGridViewSvgCell()
-        {
-            // This column contains images (in this case, SVGs rendered as bitmaps)
-            this.ValueType = typeof(string); // Path to SVG file
-        }
+        public override Type EditType => typeof(BeepDataGridViewSvgEditingControl); // Use BeepImage for editing
+        public override Type ValueType => typeof(string); // Store image path as a string
+        public override object DefaultNewRowValue => string.Empty; // Default to empty path
 
         protected override object GetFormattedValue(
             object value,
@@ -34,12 +37,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
         {
             try
             {
-                if (value is string svgPath)
+                if (value is string svgPath && !string.IsNullOrEmpty(svgPath))
                 {
-                    // Try to load the SVG from the given path
+                    // Load SVG and convert to Bitmap
                     SvgDocument svgDocument = SvgDocument.Open(svgPath);
-
-                    // Render the SVG as a Bitmap
                     Bitmap bitmap = svgDocument.Draw();
 
                     // Return the rendered bitmap
@@ -48,15 +49,74 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
             }
             catch (Exception ex)
             {
-                // Handle any exceptions, and potentially log them
+                // Handle any exceptions, log them
                 Console.WriteLine($"Error rendering SVG: {ex.Message}");
             }
 
-            // Fallback to the base implementation if not an SVG or an error occurred
-            return base.GetFormattedValue(value, rowIndex, ref cellStyle, valueTypeConverter, formattedValueTypeConverter, context);
+            // Fallback to an empty image if an error occurs
+            return new Bitmap(1, 1);
         }
 
-        public override Type ValueType => typeof(string);  // The path to the SVG file
-        public override Type FormattedValueType => typeof(Bitmap);  // The rendered Bitmap
+        public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
+        {
+            base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
+
+            if (DataGridView.EditingControl is BeepDataGridViewSvgEditingControl control)
+            {
+                control.ImagePath = initialFormattedValue?.ToString() ?? string.Empty;
+            }
+        }
+    }
+
+    public class BeepDataGridViewSvgEditingControl : BeepImage, IDataGridViewEditingControl
+    {
+        private DataGridView dataGridView;
+        private int rowIndex;
+        private bool valueChanged;
+
+        public BeepDataGridViewSvgEditingControl()
+        {
+            this.Size = new Size(100, 100); // Default size
+            this.BackColor = Color.White;
+        }
+
+        public object EditingControlFormattedValue
+        {
+            get => this.ImagePath;
+            set => this.ImagePath = value?.ToString() ?? string.Empty;
+        }
+
+        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => this.ImagePath;
+
+        public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
+        {
+            this.BackColor = dataGridViewCellStyle.BackColor;
+        }
+
+        public DataGridView EditingControlDataGridView
+        {
+            get => dataGridView;
+            set => dataGridView = value;
+        }
+
+        public int EditingControlRowIndex
+        {
+            get => rowIndex;
+            set => rowIndex = value;
+        }
+
+        public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey) => true;
+
+        public void PrepareEditingControlForEdit(bool selectAll) { }
+
+        public bool RepositionEditingControlOnValueChange => false;
+
+        public Cursor EditingPanelCursor => base.Cursor;
+
+        public bool EditingControlValueChanged
+        {
+            get => valueChanged;
+            set => valueChanged = value;
+        }
     }
 }

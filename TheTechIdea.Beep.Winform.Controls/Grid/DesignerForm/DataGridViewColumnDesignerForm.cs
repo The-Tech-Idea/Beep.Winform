@@ -3,6 +3,7 @@ using System.Data;
 using System.Reflection;
 using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns;
 
+
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DesignerForm
 {
     public partial class DataGridViewColumnDesignerForm : Form
@@ -168,9 +169,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DesignerForm
 
             return new List<Type>
             {
-                typeof(BeepDataGridViewSvgColumn),
-                typeof(BeepDataGridViewProgressBarColumn),
-                typeof(BeepListViewEditingControl),
+                //typeof(BeepDataGridViewSvgColumn),
+               // typeof(BeepDataGridViewProgressBarColumn),
+               // typeof(BeepListViewEditingControl),
                 typeof(BeepDataGridViewNumericColumn)
                 // Add more as needed
             };

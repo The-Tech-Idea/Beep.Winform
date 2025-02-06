@@ -1,6 +1,8 @@
-﻿
-using TheTechIdea.Beep.Editor;
-
+﻿using System;
+using System.Windows.Forms;
+using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Editor; // Ensure correct namespace for BeepExtendedButton
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
@@ -8,90 +10,98 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
     {
         public BeepExtendedButtonColumn() : base(new BeepExtendedButtonCell())
         {
-            this.CellTemplate = new BeepExtendedButtonCell();
+        }
+
+        public override object Clone()
+        {
+            return base.Clone();
         }
     }
 
     public class BeepExtendedButtonCell : DataGridViewTextBoxCell
     {
-        private BeepExtendedButton beepExtendedButton;
+        public override Type EditType => typeof(BeepExtendedButtonEditingControl); // Use BeepExtendedButton for editing
+        public override Type ValueType => typeof(string); // Store button text
+        public override object DefaultNewRowValue => "Click"; // Default text
 
-        public BeepExtendedButtonCell()
+        public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
         {
-            beepExtendedButton = new BeepExtendedButton
-            {
-                Size = new Size(200, 30),
-                BackColor = Color.White
-            };
+            base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
 
-            beepExtendedButton.ButtonClick += BeepExtendedButton_Click;
-            beepExtendedButton.ExtendButtonClick += BeepExtendedButton_ExtendClick;
+            if (DataGridView.EditingControl is BeepExtendedButtonEditingControl control)
+            {
+                control.Text = initialFormattedValue?.ToString() ?? "Click";
+            }
+        }
+    }
+
+    public class BeepExtendedButtonEditingControl : BeepExtendedButton, IDataGridViewEditingControl
+    {
+        private DataGridView dataGridView;
+        private int rowIndex;
+        private bool valueChanged;
+
+        public BeepExtendedButtonEditingControl()
+        {
+            this.Size = new Size(200, 30);
+            this.BackColor = Color.White;
+
+            // Handle button click event
+            this.ButtonClick += BeepExtendedButton_Click;
+            this.ExtendButtonClick += BeepExtendedButton_ExtendClick;
         }
 
         private void BeepExtendedButton_Click(object sender, BeepEventDataArgs e)
         {
-            if (this.DataGridView != null && this.RowIndex >= 0)
-            {
-                MessageBox.Show($"Button Clicked: {e.EventName}");
-            }
+            MessageBox.Show($"Button Clicked: {e.EventName}");
+            valueChanged = true;
+            dataGridView?.NotifyCurrentCellDirty(true);
         }
 
         private void BeepExtendedButton_ExtendClick(object sender, BeepEventDataArgs e)
         {
-            if (this.DataGridView != null && this.RowIndex >= 0)
-            {
-                MessageBox.Show($"Extended Button Clicked: {e.EventName}");
-            }
+            MessageBox.Show($"Extended Button Clicked: {e.EventName}");
+            valueChanged = true;
+            dataGridView?.NotifyCurrentCellDirty(true);
         }
 
-        protected override void OnMouseEnter(int rowIndex)
+        public object EditingControlFormattedValue
         {
-            base.OnMouseEnter(rowIndex);
-            ShowBeepExtendedButton(rowIndex);
+            get => this.Text;
+            set => this.Text = value?.ToString() ?? string.Empty;
         }
 
-        protected override void OnMouseLeave(int rowIndex)
+        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => this.Text;
+
+        public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
         {
-            base.OnMouseLeave(rowIndex);
-            HideBeepExtendedButton();
+            this.BackColor = dataGridViewCellStyle.BackColor;
         }
 
-        private void ShowBeepExtendedButton(int rowIndex)
+        public DataGridView EditingControlDataGridView
         {
-            if (this.DataGridView == null || rowIndex < 0)
-                return;
-
-            Rectangle cellBounds = this.DataGridView.GetCellDisplayRectangle(this.ColumnIndex, rowIndex, true);
-            beepExtendedButton.Size = new Size(cellBounds.Width - 4, cellBounds.Height - 4);
-            beepExtendedButton.Location = new Point(cellBounds.X + 2, cellBounds.Y + 2);
-
-            if (!this.DataGridView.Controls.Contains(beepExtendedButton))
-            {
-                this.DataGridView.Controls.Add(beepExtendedButton);
-            }
+            get => dataGridView;
+            set => dataGridView = value;
         }
 
-        private void HideBeepExtendedButton()
+        public int EditingControlRowIndex
         {
-            if (this.DataGridView != null && this.DataGridView.Controls.Contains(beepExtendedButton))
-            {
-                this.DataGridView.Controls.Remove(beepExtendedButton);
-            }
+            get => rowIndex;
+            set => rowIndex = value;
         }
 
-        protected override object GetValue(int rowIndex)
-        {
-            return beepExtendedButton.Text;
-        }
+        public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey) => true;
 
-        protected override bool SetValue(int rowIndex, object value)
+        public void PrepareEditingControlForEdit(bool selectAll) { }
+
+        public bool RepositionEditingControlOnValueChange => false;
+
+        public Cursor EditingPanelCursor => base.Cursor;
+
+        public bool EditingControlValueChanged
         {
-            if (value is string textValue)
-            {
-                beepExtendedButton.Text = textValue;
-                return true;
-            }
-            return false;
+            get => valueChanged;
+            set => valueChanged = value;
         }
     }
 }

@@ -4,95 +4,110 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
-{
-    public class BeepButtonColumn : DataGridViewColumn
+
+    namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
     {
-        public BeepButtonColumn() : base(new BeepButtonCell())
+        public class BeepButtonColumn : DataGridViewColumn
         {
-            this.CellTemplate = new BeepButtonCell();
+            public BeepButtonColumn() : base(new BeepButtonCell())
+            {
+            }
+
+            public override object Clone()
+            {
+                return base.Clone();
+            }
+        }
+
+        public class BeepButtonCell : DataGridViewTextBoxCell
+        {
+            public override Type EditType => typeof(BeepButtonEditingControl); // Use BeepButton for editing
+            public override Type ValueType => typeof(string); // Store button text
+            public override object DefaultNewRowValue => "Click"; // Default button text
+
+            public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
+            {
+                base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
+
+                if (DataGridView.EditingControl is BeepButtonEditingControl control)
+                {
+                    control.Text = initialFormattedValue?.ToString() ?? "Click";
+                }
+            }
+        }
+
+        public class BeepButtonEditingControl : BeepButton, IDataGridViewEditingControl
+        {
+            private DataGridView dataGridView;
+            private int rowIndex;
+            private bool valueChanged;
+
+            public BeepButtonEditingControl()
+            {
+                this.Size = new Size(100, 30);
+                this.Text = "Click";
+
+                // Handle Click event to update DataGridView
+                this.Click += BeepButton_Click;
+            }
+
+            private void BeepButton_Click(object sender, EventArgs e)
+            {
+                if (dataGridView != null)
+                {
+                    MessageBox.Show($"BeepButton clicked in row {rowIndex}!");
+                    valueChanged = true;
+                    dataGridView.NotifyCurrentCellDirty(true);
+                }
+            }
+
+            public object EditingControlFormattedValue
+            {
+                get => this.Text;
+                set => this.Text = value?.ToString() ?? string.Empty;
+            }
+
+            public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => this.Text;
+
+            public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
+            {
+                this.Font = dataGridViewCellStyle.Font;
+                this.BackColor = dataGridViewCellStyle.BackColor;
+                this.ForeColor = dataGridViewCellStyle.ForeColor;
+            }
+
+            public DataGridView EditingControlDataGridView
+            {
+                get => dataGridView;
+                set => dataGridView = value;
+            }
+
+            public int EditingControlRowIndex
+            {
+                get => rowIndex;
+                set => rowIndex = value;
+            }
+
+            public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey) => true;
+
+            public void PrepareEditingControlForEdit(bool selectAll)
+            {
+                if (selectAll)
+                {
+                    this.Select();
+                }
+            }
+
+            public bool RepositionEditingControlOnValueChange => false;
+
+            public Cursor EditingPanelCursor => base.Cursor;
+
+            public bool EditingControlValueChanged
+            {
+                get => valueChanged;
+                set => valueChanged = value;
+            }
         }
     }
 
-    public class BeepButtonCell : DataGridViewCell
-    {
-        private BeepButton beepButton;
 
-        public BeepButtonCell()
-        {
-            beepButton = new BeepButton
-            {
-                Size = new Size(100, 30),
-                Text = "Click",
-                BorderSize = 1,
-                BorderColor = Color.Black,
-                SelectedBorderColor = Color.Blue,
-                TextImageRelation = TextImageRelation.ImageBeforeText,
-                ImageAlign = ContentAlignment.MiddleLeft,
-                TextAlign = ContentAlignment.MiddleCenter
-            };
-
-            beepButton.Click += BeepButton_Click;
-        }
-
-        private void BeepButton_Click(object sender, EventArgs e)
-        {
-            if (this.DataGridView != null && this.RowIndex >= 0)
-            {
-                this.DataGridView.CurrentCell = this;
-                // invoke buttonclick event from beepbutton
-               
-            }
-        }
-
-        protected override void OnMouseEnter(int rowIndex)
-        {
-            base.OnMouseEnter(rowIndex);
-            ShowBeepButton(rowIndex);
-        }
-
-        protected override void OnMouseLeave(int rowIndex)
-        {
-            base.OnMouseLeave(rowIndex);
-            HideBeepButton();
-        }
-
-        private void ShowBeepButton(int rowIndex)
-        {
-            if (this.DataGridView == null || rowIndex < 0)
-                return;
-
-            Rectangle cellBounds = this.DataGridView.GetCellDisplayRectangle(this.ColumnIndex, rowIndex, true);
-            beepButton.Size = new Size(cellBounds.Width - 4, cellBounds.Height - 4);
-            beepButton.Location = new Point(cellBounds.X + 2, cellBounds.Y + 2);
-
-            if (!this.DataGridView.Controls.Contains(beepButton))
-            {
-                this.DataGridView.Controls.Add(beepButton);
-            }
-        }
-
-        private void HideBeepButton()
-        {
-            if (this.DataGridView != null && this.DataGridView.Controls.Contains(beepButton))
-            {
-                this.DataGridView.Controls.Remove(beepButton);
-            }
-        }
-
-        protected override object GetValue(int rowIndex)
-        {
-            return beepButton.Text;
-        }
-
-        protected override bool SetValue(int rowIndex, object value)
-        {
-            if (value != null)
-            {
-                beepButton.Text = value.ToString();
-                return true; // Successfully updated the value
-            }
-            return false; // Indicate that setting the value was unsuccessful
-        }
-    }
-}

@@ -2,221 +2,146 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepStarRating
 
-namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns;
-
-[ToolboxItem(false)]
-public class BeepDataGridViewRatingColumn : DataGridViewColumn
+namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
 {
-    public BeepDataGridViewRatingColumn()
-        : base(new DataGridViewRatingCell()) // Set the cell template to our custom rating cell
+    [ToolboxItem(true)]
+    public class BeepDataGridViewRatingColumn : DataGridViewColumn
     {
-    }
-
-    // Clone method for copying the column settings
-    public override object Clone()
-    {
-        BeepDataGridViewRatingColumn clone = (BeepDataGridViewRatingColumn)base.Clone();
-        return clone;
-    }
-
-    // Property for setting the filled star color at the column level
-    public Color FilledStarColor
-    {
-        get
+        public BeepDataGridViewRatingColumn() : base(new BeepDataGridViewRatingCell())
         {
-            if (this.CellTemplate is DataGridViewRatingCell cell)
-            {
-                return cell.FilledStarColor;
-            }
-            return Color.Gold;
         }
-        set
-        {
-            if (this.CellTemplate is DataGridViewRatingCell cell)
-            {
-                cell.FilledStarColor = value;
-            }
 
-            // Apply the color to existing cells
-            if (this.DataGridView != null)
+        public override object Clone()
+        {
+            var clone = (BeepDataGridViewRatingColumn)base.Clone();
+            return clone;
+        }
+    }
+
+    public class BeepDataGridViewRatingCell : DataGridViewTextBoxCell
+    {
+        public BeepDataGridViewRatingCell()
+        {
+            this.ValueType = typeof(int); // Rating value (0 to N stars)
+        }
+
+        public override Type EditType => typeof(BeepDataGridViewRatingEditingControl);
+        public override Type ValueType => typeof(int);
+        public override object DefaultNewRowValue => 0;
+
+        protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex,
+                                      DataGridViewElementStates cellState, object value, object formattedValue, string errorText,
+                                      DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle,
+                                      DataGridViewPaintParts paintParts)
+        {
+            int ratingValue = value != null && int.TryParse(value.ToString(), out int result) ? result : 0;
+
+            base.Paint(graphics, clipBounds, cellBounds, rowIndex, cellState, null, null, errorText, cellStyle, advancedBorderStyle,
+                      (paintParts & ~DataGridViewPaintParts.ContentForeground));
+
+            using (BeepStarRating starRating = new BeepStarRating())
             {
-                foreach (DataGridViewRow row in this.DataGridView.Rows)
+                starRating.SelectedRating = ratingValue;
+                starRating.StarSize = Math.Min(cellBounds.Height - 6, 20);
+                starRating.StarCount = 5;
+                starRating.Spacing = 3;
+                starRating.FilledStarColor = Color.Gold;
+                starRating.EmptyStarColor = Color.Gray;
+
+                using (Bitmap bmp = new Bitmap(cellBounds.Width, cellBounds.Height))
                 {
-                    if (row.Cells[this.Index] is DataGridViewRatingCell ratingCell)
+                    using (Graphics g = Graphics.FromImage(bmp))
                     {
-                        ratingCell.FilledStarColor = value;
+                        g.Clear(cellStyle.BackColor);
+                        starRating.DrawToBitmap(bmp, new Rectangle(0, 0, bmp.Width, bmp.Height));
                     }
+                    graphics.DrawImage(bmp, cellBounds.Location);
                 }
             }
         }
-    }
 
-    // Property for setting the empty star color at the column level
-    public Color EmptyStarColor
-    {
-        get
+        public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
         {
-            if (this.CellTemplate is DataGridViewRatingCell cell)
-            {
-                return cell.EmptyStarColor;
-            }
-            return Color.LightGray;
-        }
-        set
-        {
-            if (this.CellTemplate is DataGridViewRatingCell cell)
-            {
-                cell.EmptyStarColor = value;
-            }
+            base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
 
-            // Apply the color to existing cells
-            if (this.DataGridView != null)
+            if (DataGridView.EditingControl is BeepDataGridViewRatingEditingControl control)
             {
-                foreach (DataGridViewRow row in this.DataGridView.Rows)
-                {
-                    if (row.Cells[this.Index] is DataGridViewRatingCell ratingCell)
-                    {
-                        ratingCell.EmptyStarColor = value;
-                    }
-                }
+                control.SelectedRating = initialFormattedValue != null ? Convert.ToInt32(initialFormattedValue) : 0;
             }
         }
     }
 
-    // Property to allow setting the maximum stars in the column
-    public int MaxStars
+    public class BeepDataGridViewRatingEditingControl : BeepStarRating, IDataGridViewEditingControl
     {
-        get
-        {
-            if (this.CellTemplate is DataGridViewRatingCell cell)
-            {
-                return cell.MaxStars;
-            }
-            return 5; // Default
-        }
-        set
-        {
-            if (this.CellTemplate is DataGridViewRatingCell cell)
-            {
-                cell.MaxStars = value;
-            }
+        private DataGridView dataGridView;
+        private int rowIndex;
+        private bool valueChanged;
 
-            // Apply the max stars to existing cells
-            if (this.DataGridView != null)
+        public BeepDataGridViewRatingEditingControl()
+        {
+            this.StarCount = 5;
+            this.StarSize = 20;
+            this.Spacing = 3;
+            this.FilledStarColor = Color.Gold;
+            this.EmptyStarColor = Color.Gray;
+
+            this.RatingChanged += BeepDataGridViewRatingEditingControl_ValueChanged;
+        }
+
+        public object EditingControlFormattedValue
+        {
+            get => this.SelectedRating;
+            set => this.SelectedRating = Convert.ToInt32(value);
+        }
+
+        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => this.SelectedRating;
+
+        public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
+        {
+            this.BackColor = dataGridViewCellStyle.BackColor;
+        }
+
+        public DataGridView EditingControlDataGridView
+        {
+            get => dataGridView;
+            set => dataGridView = value;
+        }
+
+        public int EditingControlRowIndex
+        {
+            get => rowIndex;
+            set => rowIndex = value;
+        }
+
+        public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey) => true;
+
+        public void PrepareEditingControlForEdit(bool selectAll) { }
+
+        public bool RepositionEditingControlOnValueChange => false;
+
+        public Cursor EditingPanelCursor => base.Cursor;
+
+        public bool EditingControlValueChanged
+        {
+            get => valueChanged;
+            set => valueChanged = value;
+        }
+
+        private void BeepDataGridViewRatingEditingControl_ValueChanged(object sender, EventArgs e)
+        {
+            valueChanged = true;
+            dataGridView?.NotifyCurrentCellDirty(true);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
             {
-                foreach (DataGridViewRow row in this.DataGridView.Rows)
-                {
-                    if (row.Cells[this.Index] is DataGridViewRatingCell ratingCell)
-                    {
-                        ratingCell.MaxStars = value;
-                    }
-                }
+                this.RatingChanged -= BeepDataGridViewRatingEditingControl_ValueChanged;
             }
+            base.Dispose(disposing);
         }
     }
 }
-public class DataGridViewRatingCell : DataGridViewTextBoxCell
-{
-    private int maxStars = 5;      // Maximum stars in the rating, now adjustable
-    private const int StarSize = 16;      // Size of each star in pixels
-    private Color filledStarColor = Color.Gold;  // Default color for filled stars
-    private Color emptyStarColor = Color.LightGray;  // Default color for empty stars
-
-    public DataGridViewRatingCell()
-    {
-        this.ValueType = typeof(int);  // The cell value is expected to be an integer rating between 0 and maxStars.
-    }
-
-    public override Type EditType => null;  // No editing control
-
-    public override object DefaultNewRowValue => 0;  // Default rating is 0
-
-    // Set custom colors for the filled and empty stars
-    public Color FilledStarColor
-    {
-        get => filledStarColor;
-        set => filledStarColor = value;
-    }
-
-    public Color EmptyStarColor
-    {
-        get => emptyStarColor;
-        set => emptyStarColor = value;
-    }
-
-    // Property to allow dynamic setting of MaxStars
-    public int MaxStars
-    {
-        get => maxStars;
-        set
-        {
-            if (value > 0)
-            {
-                maxStars = value;
-            }
-        }
-    }
-
-    // Draw stars programmatically using Graphics
-    protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex,
-                                  DataGridViewElementStates cellState, object value, object formattedValue,
-                                  string errorText, DataGridViewCellStyle cellStyle,
-                                  DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
-    {
-        base.Paint(graphics, clipBounds, cellBounds, rowIndex, cellState, null, null, errorText, cellStyle, advancedBorderStyle, (paintParts & ~DataGridViewPaintParts.ContentForeground));
-
-        // Convert cell value to an integer rating
-        int rating = (value != null) ? Convert.ToInt32(value) : 0;
-
-        // Calculate the position to start drawing stars
-        int starX = cellBounds.X + (cellBounds.Width - (MaxStars * StarSize)) / 2;
-        int starY = cellBounds.Y + (cellBounds.Height - StarSize) / 2;
-
-        using (Brush filledBrush = new SolidBrush(filledStarColor))
-        using (Brush emptyBrush = new SolidBrush(emptyStarColor))
-        {
-            for (int i = 0; i < MaxStars; i++)
-            {
-                // Draw a filled or empty star depending on the rating
-                DrawStar(graphics, (i < rating) ? filledBrush : emptyBrush, starX + (i * StarSize), starY);
-            }
-        }
-    }
-
-    // Helper method to draw a star shape
-    private void DrawStar(Graphics graphics, Brush brush, int x, int y)
-    {
-        PointF[] starPoints = new PointF[10];
-        double angle = Math.PI / 5;  // 36 degrees in radians
-
-        for (int i = 0; i < 10; i++)
-        {
-            double radius = (i % 2 == 0) ? StarSize / 2.0 : StarSize / 4.0;  // Alternate between outer and inner points
-            double theta = i * angle;
-            starPoints[i] = new PointF(
-                x + StarSize / 2 + (float)(radius * Math.Sin(theta)),
-                y + StarSize / 2 - (float)(radius * Math.Cos(theta))
-            );
-        }
-
-        graphics.FillPolygon(brush, starPoints);
-    }
-
-    // Handle mouse click to change the rating
-    protected override void OnMouseClick(DataGridViewCellMouseEventArgs e)
-    {
-        base.OnMouseClick(e);
-
-        if (e.Button == MouseButtons.Left)
-        {
-            int clickedStar = (e.X - this.DataGridView.GetCellDisplayRectangle(this.ColumnIndex, e.RowIndex, false).X) / StarSize;
-            clickedStar = Math.Max(0, Math.Min(clickedStar, MaxStars - 1));  // Ensure rating stays within bounds
-
-            // Set the new rating based on the clicked position
-            this.Value = clickedStar + 1;
-            this.DataGridView.NotifyCurrentCellDirty(true);
-        }
-    }
-}
-

@@ -1,8 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Drawing;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Winform.Controls;
+using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepCircularButton
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
@@ -10,84 +9,95 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
     {
         public BeepCircularButtonColumn() : base(new BeepCircularButtonCell())
         {
-            this.CellTemplate = new BeepCircularButtonCell();
+        }
+
+        public override object Clone()
+        {
+            return base.Clone();
         }
     }
 
     public class BeepCircularButtonCell : DataGridViewButtonCell
     {
-        private BeepCircularButton beepCircularButton;
+        public override Type EditType => typeof(BeepCircularButtonEditingControl); // Use BeepCircularButton for editing
+        public override Type ValueType => typeof(string); // Store button text
+        public override object DefaultNewRowValue => "Click"; // Default text
 
-        public BeepCircularButtonCell()
+        public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
         {
-            beepCircularButton = new BeepCircularButton
-            {
-                Size = new Size(50, 50),
-                Text = "Click",
-                ShowBorder = true,
-                TextLocation = TextLocation.Below
-            };
+            base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
 
-            beepCircularButton.Click += BeepCircularButton_Click;
+            if (DataGridView.EditingControl is BeepCircularButtonEditingControl control)
+            {
+                control.Text = initialFormattedValue?.ToString() ?? "Click";
+            }
+        }
+    }
+
+    public class BeepCircularButtonEditingControl : BeepCircularButton, IDataGridViewEditingControl
+    {
+        private DataGridView dataGridView;
+        private int rowIndex;
+        private bool valueChanged;
+
+        public BeepCircularButtonEditingControl()
+        {
+            this.Size = new Size(50, 50);
+            this.Text = "Click";
+            this.ShowBorder = true;
+            this.TextLocation = TextLocation.Below;
+
+            // Handle click event
+            this.Click += BeepCircularButton_Click;
         }
 
         private void BeepCircularButton_Click(object sender, EventArgs e)
         {
-            if (this.DataGridView != null && this.RowIndex >= 0)
+            if (dataGridView != null)
             {
-                this.DataGridView.CurrentCell = this;
-                MessageBox.Show($"BeepCircularButton clicked in row {this.RowIndex}!");
+                MessageBox.Show($"BeepCircularButton clicked in row {rowIndex}!");
+                valueChanged = true;
+                dataGridView.NotifyCurrentCellDirty(true);
             }
         }
 
-        protected override void OnMouseEnter(int rowIndex)
+        public object EditingControlFormattedValue
         {
-            base.OnMouseEnter(rowIndex);
-            ShowBeepCircularButton(rowIndex);
+            get => this.Text;
+            set => this.Text = value?.ToString() ?? string.Empty;
         }
 
-        protected override void OnMouseLeave(int rowIndex)
+        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => this.Text;
+
+        public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
         {
-            base.OnMouseLeave(rowIndex);
-            HideBeepCircularButton();
+            this.BackColor = dataGridViewCellStyle.BackColor;
         }
 
-        private void ShowBeepCircularButton(int rowIndex)
+        public DataGridView EditingControlDataGridView
         {
-            if (this.DataGridView == null || rowIndex < 0)
-                return;
-
-            Rectangle cellBounds = this.DataGridView.GetCellDisplayRectangle(this.ColumnIndex, rowIndex, true);
-            beepCircularButton.Size = new Size(cellBounds.Width - 4, cellBounds.Height - 4);
-            beepCircularButton.Location = new Point(cellBounds.X + 2, cellBounds.Y + 2);
-
-            if (!this.DataGridView.Controls.Contains(beepCircularButton))
-            {
-                this.DataGridView.Controls.Add(beepCircularButton);
-            }
+            get => dataGridView;
+            set => dataGridView = value;
         }
 
-        private void HideBeepCircularButton()
+        public int EditingControlRowIndex
         {
-            if (this.DataGridView != null && this.DataGridView.Controls.Contains(beepCircularButton))
-            {
-                this.DataGridView.Controls.Remove(beepCircularButton);
-            }
+            get => rowIndex;
+            set => rowIndex = value;
         }
 
-        protected override object GetValue(int rowIndex)
-        {
-            return beepCircularButton.Text;
-        }
+        public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey) => true;
 
-        protected override bool SetValue(int rowIndex, object value)
+        public void PrepareEditingControlForEdit(bool selectAll) { }
+
+        public bool RepositionEditingControlOnValueChange => false;
+
+        public Cursor EditingPanelCursor => base.Cursor;
+
+        public bool EditingControlValueChanged
         {
-            if (value != null)
-            {
-                beepCircularButton.Text = value.ToString();
-                return true;
-            }
-            return false;
+            get => valueChanged;
+            set => valueChanged = value;
         }
     }
 }

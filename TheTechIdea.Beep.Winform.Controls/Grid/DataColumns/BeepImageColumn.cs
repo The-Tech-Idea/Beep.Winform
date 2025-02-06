@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Drawing;
+using TheTechIdea.Beep.Vis.Modules; // Ensure correct namespace for BeepImage
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
@@ -10,70 +9,96 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
     {
         public BeepImageColumn() : base(new BeepImageCell())
         {
-            this.CellTemplate = new BeepImageCell();
+        }
+
+        public override object Clone()
+        {
+            return base.Clone();
         }
     }
-    public class BeepImageCell : DataGridViewCell
+
+    public class BeepImageCell : DataGridViewTextBoxCell
     {
-        private BeepImage beepImage;
+        public override Type EditType => typeof(BeepImageEditingControl); // Use BeepImage for editing
+        public override Type ValueType => typeof(string); // Store image path as string
+        public override object DefaultNewRowValue => string.Empty; // Default empty path
 
-        public BeepImageCell()
+        public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
         {
-            beepImage = new BeepImage
+            base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
+
+            if (DataGridView.EditingControl is BeepImageEditingControl control)
             {
-                ScaleMode= Vis.Modules.ImageScaleMode.KeepAspectRatio,
-                Size = new Size(50, 50) // Default size, adjusted dynamically
-            };
+                control.ImagePath = initialFormattedValue?.ToString();
+            }
+        }
+    }
+
+    public class BeepImageEditingControl : BeepImage, IDataGridViewEditingControl
+    {
+        private DataGridView dataGridView;
+        private int rowIndex;
+        private bool valueChanged;
+
+        public BeepImageEditingControl()
+        {
+            this.Size = new Size(100, 100);
+            this.ScaleMode = ImageScaleMode.KeepAspectRatio;
+
+            // Handle click event to open image selector
+            this.Click += BeepImage_Click;
         }
 
-        protected override void OnMouseEnter(int rowIndex)
+        private void BeepImage_Click(object sender, EventArgs e)
         {
-            base.OnMouseEnter(rowIndex);
-            ShowBeepImage(rowIndex);
-        }
-
-        protected override void OnMouseLeave(int rowIndex)
-        {
-            base.OnMouseLeave(rowIndex);
-            HideBeepImage();
-        }
-
-        private void ShowBeepImage(int rowIndex)
-        {
-            if (this.DataGridView == null || rowIndex < 0)
-                return;
-
-            Rectangle cellBounds = this.DataGridView.GetCellDisplayRectangle(this.ColumnIndex, rowIndex, true);
-            beepImage.Size = new Size(cellBounds.Width - 4, cellBounds.Height - 4);
-            beepImage.Location = new Point(cellBounds.X + 2, cellBounds.Y + 2);
-
-            if (!this.DataGridView.Controls.Contains(beepImage))
+            using (OpenFileDialog dlg = new OpenFileDialog { Filter = "Image Files|*.png;*.jpg;*.jpeg;*.gif;*.bmp" })
             {
-                this.DataGridView.Controls.Add(beepImage);
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    this.ImagePath = dlg.FileName;
+                    valueChanged = true;
+                    dataGridView?.NotifyCurrentCellDirty(true);
+                }
             }
         }
 
-        private void HideBeepImage()
+        public object EditingControlFormattedValue
         {
-            if (this.DataGridView != null && this.DataGridView.Controls.Contains(beepImage))
-            {
-                this.DataGridView.Controls.Remove(beepImage);
-            }
+            get => this.ImagePath;
+            set => this.ImagePath = value?.ToString();
         }
 
-        protected override object GetValue(int rowIndex)
+        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => this.ImagePath;
+
+        public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
         {
-            return beepImage.ImagePath;
+            this.BackColor = dataGridViewCellStyle.BackColor;
         }
 
-        protected override bool SetValue(int rowIndex, object value)
+        public DataGridView EditingControlDataGridView
         {
-            if (value != null)
-            {
-                beepImage.ImagePath = value.ToString();
-                return true; // Successfully updated the value
-            }
-            return false; // Indicate that setting the value was unsuccessful
+            get => dataGridView;
+            set => dataGridView = value;
+        }
+
+        public int EditingControlRowIndex
+        {
+            get => rowIndex;
+            set => rowIndex = value;
+        }
+
+        public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey) => true;
+
+        public void PrepareEditingControlForEdit(bool selectAll) { }
+
+        public bool RepositionEditingControlOnValueChange => false;
+
+        public Cursor EditingPanelCursor => base.Cursor;
+
+        public bool EditingControlValueChanged
+        {
+            get => valueChanged;
+            set => valueChanged = value;
         }
     }
 }

@@ -29,12 +29,17 @@
   <ItemGroup>
     <Compile Remove="AppBar\**" />
     <Compile Remove="Dashboard\**" />
+    <Compile Remove="Grid\NewFolder\**" />
     <Compile Remove="Services\**" />
     <EmbeddedResource Remove="AppBar\**" />
     <EmbeddedResource Remove="Dashboard\**" />
+    <EmbeddedResource Remove="Grid\DataColumns\**" />
+    <EmbeddedResource Remove="Grid\NewFolder\**" />
     <EmbeddedResource Remove="Services\**" />
     <None Remove="AppBar\**" />
     <None Remove="Dashboard\**" />
+    <None Remove="Grid\DataColumns\**" />
+    <None Remove="Grid\NewFolder\**" />
     <None Remove="Services\**" />
   </ItemGroup>
   <ItemGroup>

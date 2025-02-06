@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
+
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
 {
@@ -12,14 +11,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
         public BeepDataGridViewImageComboBoxColumn() : base(new DataGridViewImageComboBoxCell())
         {
         }
-
         public override object Clone()
         {
             var clone = (BeepDataGridViewImageComboBoxColumn)base.Clone();
             return clone;
         }
     }
-
     public class DataGridViewImageComboBoxCell : DataGridViewTextBoxCell
     {
         public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
@@ -46,7 +43,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
 
         public override object DefaultNewRowValue => "Option 1";
     }
-
     // Custom ComboBox control with images
     public class ImageComboBoxEditingControl : ComboBox, IDataGridViewEditingControl
     {

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Windows.Forms;
+
 using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Beep.Vis;
+
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewColumns
 {
@@ -93,7 +92,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewC
             return (List<ColumnLookupList>)QueryDataSource.GetEntity(Query, null);
         }
     }
-
     public class DataGridViewExtendedComboBoxCell : DataGridViewComboBoxCell
     {
         public Dictionary<string, List<ColumnLookupList>> CascadingMap { get; set; }

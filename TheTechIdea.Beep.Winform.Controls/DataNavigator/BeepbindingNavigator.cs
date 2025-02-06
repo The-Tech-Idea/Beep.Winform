@@ -111,18 +111,18 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         {
             Controls.Clear();
             // InitPanels();
-            Console.WriteLine("InitLayout");
+           // Console.WriteLine("InitLayout");
             _bindingsource = new BindingSource();
-            Console.WriteLine("InitLayout 1");
+          //  Console.WriteLine("InitLayout 1");
            
-            Console.WriteLine("InitLayout 2");
+          //  Console.WriteLine("InitLayout 2");
             CreateButtons();
            
             Controls.Add(MainPanel);
             this.BindingSource.DataSourceChanged += BindingSource_DataSourceChanged;
             this.BindingSource.ListChanged += BindingSource_ListChanged;
             this.BindingSource.CurrentChanged += BindingSource_CurrentChanged;
-            Console.WriteLine("InitLayout 3");
+           // Console.WriteLine("InitLayout 3");
             this.PrevoiusButton.Click -= PreviouspictureBox_Click;
             this.NextButton.Click -= NextpictureBox_Click;
             this.RemoveButton.Click -= RemovepictureBox_Click;
@@ -145,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
             this.PrinterButton.Click += PrinterpictureBox_Click;
             this.MessageButton.Click += MessegepictureBox_Click;
 
-            Console.WriteLine("InitLayout 4");
+           // Console.WriteLine("InitLayout 4");
         }
         public override void ApplyTheme()
         {

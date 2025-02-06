@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Linq;
 using System.Windows.Forms;
 using System.Drawing;
-using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepComboBox
+using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepTextBox
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
-    public class BeepComboBoxColumn : DataGridViewColumn
+    public class BeepTextBoxColumn : DataGridViewColumn
     {
-        public BeepComboBoxColumn() : base(new BeepComboBoxCell())
+        public BeepTextBoxColumn() : base(new BeepTextBoxCell())
         {
         }
 
@@ -18,67 +17,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
         }
     }
 
-    public class BeepComboBoxCell : DataGridViewComboBoxCell
+    public class BeepTextBoxCell : DataGridViewTextBoxCell
     {
-        public override Type EditType => typeof(BeepComboBoxEditingControl); // Use BeepComboBox for editing
-        public override Type ValueType => typeof(string); // Store selected item text
+        public override Type EditType => typeof(BeepTextBoxEditingControl); // Use BeepTextBox for editing
+        public override Type ValueType => typeof(string); // Store text as a string
         public override object DefaultNewRowValue => string.Empty; // Default to empty
 
         public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
         {
             base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
 
-            if (DataGridView.EditingControl is BeepComboBoxEditingControl control)
+            if (DataGridView.EditingControl is BeepTextBoxEditingControl control)
             {
-                if (initialFormattedValue is string selectedText)
-                {
-                    var item = control.ListItems.FirstOrDefault(i => i.Text == selectedText);
-                    control.SelectedItem = item;
-                }
+                control.Text = initialFormattedValue?.ToString() ?? string.Empty;
             }
         }
     }
 
-    public class BeepComboBoxEditingControl : BeepComboBox, IDataGridViewEditingControl
+    public class BeepTextBoxEditingControl : BeepTextBox, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;
         private int rowIndex;
         private bool valueChanged;
 
-        public BeepComboBoxEditingControl()
+        public BeepTextBoxEditingControl()
         {
-            this.Size = new Size(120, 30);
+            this.Size = new Size(200, 30); // Default size
             this.BackColor = Color.White;
 
-            // Handle selection change event
-            this.SelectedItemChanged += BeepComboBoxEditingControl_SelectedItemChanged;
+            // Handle text change event
+            this.TextChanged += BeepTextBox_TextChanged;
         }
 
-        private void BeepComboBoxEditingControl_SelectedItemChanged(object? sender, Desktop.Common.SelectedItemChangedEventArgs e)
+        private void BeepTextBox_TextChanged(object sender, EventArgs e)
         {
             valueChanged = true;
             dataGridView?.NotifyCurrentCellDirty(true);
         }
 
-      
-
         public object EditingControlFormattedValue
         {
-            get => this.SelectedItem?.Text ?? string.Empty;
-            set
-            {
-                if (value is string textValue)
-                {
-                    var item = this.ListItems.FirstOrDefault(i => i.Text == textValue);
-                    if (item != null)
-                    {
-                        this.SelectedItem = item;
-                    }
-                }
-            }
+            get => this.Text;
+            set => this.Text = value?.ToString() ?? string.Empty;
         }
 
-        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => this.SelectedItem?.Text ?? string.Empty;
+        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => this.Text;
 
         public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
         {

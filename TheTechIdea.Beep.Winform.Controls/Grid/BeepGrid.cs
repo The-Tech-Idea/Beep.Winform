@@ -21,6 +21,7 @@ using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 using TheTechIdea.Beep.Vis.Logic;
 
 
+
 namespace TheTechIdea.Beep.Winform.Controls.Grid
 {
     /// <summary>
@@ -437,12 +438,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         public BeepGrid()
         {
-            Console.WriteLine("BeepGrid Constructor");
+          //  Console.WriteLine("BeepGrid Constructor");
             CreateComponent();
-            Console.WriteLine("BeepGrid Constructor 1");
+          //  Console.WriteLine("BeepGrid Constructor 1");
             Margin = new Padding(3);
             columnConfigs = new List<BeepGridColumnConfig>();
-            Console.WriteLine("BeepGrid Constructor 2");
+          //  Console.WriteLine("BeepGrid Constructor 2");
             this.Resize += BeepGrid_Resize;
             dataGridView1.Scroll += DataGridView_Scroll; // Handle the Scroll event
           //  dataGridView1.Resize += DataGridView_Resize;
@@ -455,7 +456,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             // dataGridView1.Dock = DockStyle.Fill;
             // this.DoubleBuffered = true;
             // this.Resize += BeepControlResize;
-            Console.WriteLine("BeepGrid Constructor 3");
+          //  Console.WriteLine("BeepGrid Constructor 3");
             CSVExportbutton.Click += CSVExportbutton_Click;
 
             this.Printbutton.Click += Printbutton_Click;
@@ -464,15 +465,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             //  this.FilterpictureBox1.Click += FilterpictureBox1_Click;
             // this.Totalbutton.Click += Totalbutton_Click;
             this.dataGridView1.CellValidating += DataGridView1_CellValidating;
-            Console.WriteLine("BeepGrid Constructor 4");
+          //  Console.WriteLine("BeepGrid Constructor 4");
             BindingNavigator = new BeepBindingNavigator();
-            Console.WriteLine("BeepGrid Constructor 4.1");
+          //  Console.WriteLine("BeepGrid Constructor 4.1");
           //  BindingNavigator.BindingSource = new BindingSource();
             // WireAllControls();
             this.BackColor = _backColor;
             //   this.BorderStyle = _borderStyle
             //   
-            Console.WriteLine("BeepGrid Constructor 5");
+          //  Console.WriteLine("BeepGrid Constructor 5");
             this.SetStyle(ControlStyles.ResizeRedraw, true);
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
             dataGridView1.ColumnHeadersVisible = false; // Hide default column headers
@@ -499,16 +500,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             BackColor = dataGridView1.BackColor;
          
             dataGridView1.VirtualMode = false;
-            Console.WriteLine("BeepGrid Constructor 6");
+          //  Console.WriteLine("BeepGrid Constructor 6");
             UpdateCustomHeaders();
             // Check if GridId is already assigned, if not, create a new one.
             if (string.IsNullOrEmpty(_gridId))
             {
                 GenerateUniqueGridId();
             }
-            Console.WriteLine("BeepGrid Constructor 7");
+            //  Console.WriteLine("BeepGrid Constructor 7");
             // Load the layout for the grid
-            LoadGridLayout();
+ LoadGridLayout();
         }
 
         #region "Grid Properties"
@@ -530,17 +531,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 SetDataSource(value);
             }
         }
-       
+
         /// <summary>
         /// Gets the collection of columns in the grid.
         /// </summary>
-        [Editor(typeof(DataGridViewColumnEditor), typeof(UITypeEditor))]
+        [Editor("System.Windows.Forms.Design.DataGridViewColumnCollectionEditor, System.Windows.Forms.Design", typeof(UITypeEditor))]
         public DataGridViewColumnCollection Columns
         {
             get { return dataGridView1.Columns; }
         }
 
-       
+
+
         /// <summary>
         /// Gets the collection of rows in the grid.
         /// </summary>
@@ -1820,20 +1822,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                             Name = config.Name,
                             HeaderText = config.ColumnCaption,
                             Width = config.Width,
-                            FilledStarColor = config.FilledStarColor,
-                            EmptyStarColor = config.EmptyStarColor,
-                            MaxStars = config.MaxStars
+                           // FilledStarColor = config.FilledStarColor,
+                         //   EmptyStarColor = config.EmptyStarColor,
+                         //   MaxStars = config.MaxStars
                         };
                         break;
 
-                    case "BeepDataGridViewSwitchColumn":
-                        column = new BeepDataGridViewSwitchColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.ColumnCaption,
-                            Width = config.Width,
-                        };
-                        break;
+                    //case "BeepDataGridViewSwitchColumn":
+                    //    column = new BeepDataGridViewSwitchColumn
+                    //    {
+                    //        Name = config.Name,
+                    //        HeaderText = config.ColumnCaption,
+                    //        Width = config.Width,
+                    //    };
+                    //    break;
 
                     case "BeepDataGridViewMultiColumnColumn":
                         column = new BeepDataGridViewMultiColumnColumn
@@ -1916,9 +1918,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 else if (column is BeepDataGridViewRatingColumn ratingColumn)
                 {
                     config.ColumnType = nameof(BeepDataGridViewRatingColumn);
-                    config.MaxStars = ratingColumn.MaxStars;
-                    config.FilledStarColor = ratingColumn.FilledStarColor;
-                    config.EmptyStarColor = ratingColumn.EmptyStarColor;
+                   // config.MaxStars = ratingColumn.MaxStars;
+                  //  config.FilledStarColor = ratingColumn.FilledStarColor;
+                  //  config.EmptyStarColor = ratingColumn.EmptyStarColor;
                 }
                 // Handle ProgressBar columns
                 else if (column is BeepDataGridViewProgressBarColumn progressBarColumn)

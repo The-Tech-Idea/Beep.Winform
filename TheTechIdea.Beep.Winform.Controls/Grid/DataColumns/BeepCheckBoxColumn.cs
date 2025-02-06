@@ -1,8 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Drawing;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Winform.Controls;
+using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepCheckBox<bool>
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
@@ -10,85 +9,104 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
     {
         public BeepCheckBoxColumn() : base(new BeepCheckBoxCell())
         {
-            this.CellTemplate = new BeepCheckBoxCell();
+        }
+
+        public override object Clone()
+        {
+            return base.Clone();
         }
     }
 
     public class BeepCheckBoxCell : DataGridViewCheckBoxCell
     {
-        private BeepCheckBox<bool> beepCheckBox;
+        public override Type EditType => typeof(BeepCheckBoxEditingControl); // Use BeepCheckBox as editing control
+        public override Type ValueType => typeof(bool); // Store checkbox value as bool
+        public override object DefaultNewRowValue => false; // Default to unchecked
 
-        public BeepCheckBoxCell()
+        public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
         {
-            beepCheckBox = new BeepCheckBox<bool>
-            {
-                CheckedValue = true,
-                UncheckedValue = false,
-                CurrentValue = false,
-                Size = new Size(20, 20)
-            };
+            base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
 
-            beepCheckBox.StateChanged += BeepCheckBox_StateChanged;
+            if (DataGridView.EditingControl is BeepCheckBoxEditingControl control)
+            {
+                if (initialFormattedValue is bool checkedValue)
+                {
+                    control.CurrentValue = checkedValue;
+                }
+                else
+                {
+                    control.CurrentValue = false; // Default unchecked
+                }
+            }
+        }
+    }
+
+    public class BeepCheckBoxEditingControl : BeepCheckBox<bool>, IDataGridViewEditingControl
+    {
+        private DataGridView dataGridView;
+        private int rowIndex;
+        private bool valueChanged;
+
+        public BeepCheckBoxEditingControl()
+        {
+            this.Size = new Size(20, 20);
+            this.CheckedValue = true;
+            this.UncheckedValue = false;
+            this.CurrentValue = false;
+
+            // Handle state change to notify grid
+            this.StateChanged += BeepCheckBox_StateChanged;
         }
 
         private void BeepCheckBox_StateChanged(object sender, EventArgs e)
         {
-            if (this.DataGridView != null && this.RowIndex >= 0)
+            valueChanged = true;
+            dataGridView?.NotifyCurrentCellDirty(true);
+        }
+
+        public object EditingControlFormattedValue
+        {
+            get => this.CurrentValue;
+            set
             {
-                this.DataGridView.CurrentCell = this;
-                this.DataGridView.NotifyCurrentCellDirty(true);
-                this.Value = beepCheckBox.CurrentValue;
+                if (value is bool boolValue)
+                {
+                    this.CurrentValue = boolValue;
+                }
             }
         }
 
-        protected override void OnMouseEnter(int rowIndex)
+        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => this.CurrentValue;
+
+        public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
         {
-            base.OnMouseEnter(rowIndex);
-            ShowBeepCheckBox(rowIndex);
+            this.BackColor = dataGridViewCellStyle.BackColor;
         }
 
-        protected override void OnMouseLeave(int rowIndex)
+        public DataGridView EditingControlDataGridView
         {
-            base.OnMouseLeave(rowIndex);
-            HideBeepCheckBox();
+            get => dataGridView;
+            set => dataGridView = value;
         }
 
-        private void ShowBeepCheckBox(int rowIndex)
+        public int EditingControlRowIndex
         {
-            if (this.DataGridView == null || rowIndex < 0)
-                return;
-
-            Rectangle cellBounds = this.DataGridView.GetCellDisplayRectangle(this.ColumnIndex, rowIndex, true);
-            beepCheckBox.Size = new Size(cellBounds.Height - 4, cellBounds.Height - 4);
-            beepCheckBox.Location = new Point(cellBounds.X + (cellBounds.Width - beepCheckBox.Width) / 2, cellBounds.Y + 2);
-
-            if (!this.DataGridView.Controls.Contains(beepCheckBox))
-            {
-                this.DataGridView.Controls.Add(beepCheckBox);
-            }
+            get => rowIndex;
+            set => rowIndex = value;
         }
 
-        private void HideBeepCheckBox()
-        {
-            if (this.DataGridView != null && this.DataGridView.Controls.Contains(beepCheckBox))
-            {
-                this.DataGridView.Controls.Remove(beepCheckBox);
-            }
-        }
+        public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey) => true;
 
-        protected override object GetValue(int rowIndex)
-        {
-            return beepCheckBox.CurrentValue;
-        }
+        public void PrepareEditingControlForEdit(bool selectAll) { }
 
-        protected override bool SetValue(int rowIndex, object value)
+        public bool RepositionEditingControlOnValueChange => false;
+
+        public Cursor EditingPanelCursor => base.Cursor;
+
+        public bool EditingControlValueChanged
         {
-            if (value is bool boolValue)
-            {
-                beepCheckBox.CurrentValue = boolValue;
-                return true;
-            }
-            return false;
+            get => valueChanged;
+            set => valueChanged = value;
         }
     }
 }

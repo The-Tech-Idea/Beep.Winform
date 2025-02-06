@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TheTechIdea.Beep.Desktop.Common;
+using System.Windows.Forms;
+using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Desktop.Common; // Ensure correct namespace for BeepListBox
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
@@ -11,83 +11,105 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
     {
         public BeepListBoxColumn() : base(new BeepListBoxCell())
         {
-            this.CellTemplate = new BeepListBoxCell();
+        }
+
+        public override object Clone()
+        {
+            return base.Clone();
         }
     }
-    public class BeepListBoxCell : DataGridViewCell
+
+    public class BeepListBoxCell : DataGridViewTextBoxCell
     {
-        private BeepListBox beepListBox;
+        public override Type EditType => typeof(BeepListBoxEditingControl); // Use BeepListBox for editing
+        public override Type ValueType => typeof(string); // Store selected item text
+        public override object DefaultNewRowValue => string.Empty; // Default to empty
 
-        public BeepListBoxCell()
+        public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
         {
-            beepListBox = new BeepListBox
-            {
-                Size = new Size(120, 100), // Default size, adjusted dynamically
-                Collapsed = true, // Start as collapsed
-                ShowCheckBox = false, // By default, no checkboxes
-            };
+            base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
 
-            beepListBox.ItemClicked += BeepListBox_ItemClicked;
+            if (DataGridView.EditingControl is BeepListBoxEditingControl control)
+            {
+                if (initialFormattedValue is string selectedText)
+                {
+                    var item = control.ListItems.FirstOrDefault(i => i.Text == selectedText);
+                    control.SelectedItem = item;
+                }
+            }
+        }
+    }
+
+    public class BeepListBoxEditingControl : BeepListBox, IDataGridViewEditingControl
+    {
+        private DataGridView dataGridView;
+        private int rowIndex;
+        private bool valueChanged;
+
+        public BeepListBoxEditingControl()
+        {
+            this.Size = new Size(150, 100); // Default size
+            this.BackColor = Color.White;
+            this.Collapsed = true; // Start as collapsed
+            this.ShowCheckBox = false; // By default, no checkboxes
+
+            // Handle item clicked event
+            this.ItemClicked += BeepListBox_ItemClicked;
         }
 
         private void BeepListBox_ItemClicked(object sender, SimpleItem selectedItem)
         {
-            if (this.DataGridView != null && this.RowIndex >= 0)
+            valueChanged = true;
+            dataGridView?.NotifyCurrentCellDirty(true);
+        }
+
+        public object EditingControlFormattedValue
+        {
+            get => this.SelectedItem?.Text ?? string.Empty;
+            set
             {
-                this.DataGridView.CurrentCell = this;
-                this.DataGridView.NotifyCurrentCellDirty(true); // Notify that cell data has changed
-                this.Value = selectedItem.Text;
+                if (value is string textValue)
+                {
+                    var item = this.ListItems.FirstOrDefault(i => i.Text == textValue);
+                    if (item != null)
+                    {
+                        this.SelectedItem = item;
+                    }
+                }
             }
         }
 
-        protected override void OnMouseEnter(int rowIndex)
+        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => this.SelectedItem?.Text ?? string.Empty;
+
+        public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
         {
-            base.OnMouseEnter(rowIndex);
-            ShowBeepListBox(rowIndex);
+            this.BackColor = dataGridViewCellStyle.BackColor;
         }
 
-        protected override void OnMouseLeave(int rowIndex)
+        public DataGridView EditingControlDataGridView
         {
-            base.OnMouseLeave(rowIndex);
-            HideBeepListBox();
+            get => dataGridView;
+            set => dataGridView = value;
         }
 
-        private void ShowBeepListBox(int rowIndex)
+        public int EditingControlRowIndex
         {
-            if (this.DataGridView == null || rowIndex < 0)
-                return;
-
-            Rectangle cellBounds = this.DataGridView.GetCellDisplayRectangle(this.ColumnIndex, rowIndex, true);
-            beepListBox.Size = new Size(cellBounds.Width - 4, Math.Max(60, cellBounds.Height)); // Adjust height
-            beepListBox.Location = new Point(cellBounds.X + 2, cellBounds.Y + 2);
-
-            if (!this.DataGridView.Controls.Contains(beepListBox))
-            {
-                this.DataGridView.Controls.Add(beepListBox);
-            }
+            get => rowIndex;
+            set => rowIndex = value;
         }
 
-        private void HideBeepListBox()
-        {
-            if (this.DataGridView != null && this.DataGridView.Controls.Contains(beepListBox))
-            {
-                this.DataGridView.Controls.Remove(beepListBox);
-            }
-        }
+        public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey) => true;
 
-        protected override object GetValue(int rowIndex)
-        {
-            return beepListBox.SelectedItem?.Text;
-        }
+        public void PrepareEditingControlForEdit(bool selectAll) { }
 
-        protected override bool SetValue(int rowIndex, object value)
+        public bool RepositionEditingControlOnValueChange => false;
+
+        public Cursor EditingPanelCursor => base.Cursor;
+
+        public bool EditingControlValueChanged
         {
-            if (value != null && beepListBox.ListItems.Any(i => i.Text == value.ToString()))
-            {
-                beepListBox.SelectedItem = beepListBox.ListItems.First(i => i.Text == value.ToString());
-                return true; // Successfully updated the value
-            }
-            return false; // Indicate that setting the value was unsuccessful
+            get => valueChanged;
+            set => valueChanged = value;
         }
     }
 }

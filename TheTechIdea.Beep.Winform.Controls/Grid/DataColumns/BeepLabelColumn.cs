@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Drawing;
-using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepDatePicker
+using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepLabel
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
-    public class BeepDatePickerColumn : DataGridViewColumn
+    public class BeepLabelColumn : DataGridViewColumn
     {
-        public BeepDatePickerColumn() : base(new BeepDatePickerCell())
+        public BeepLabelColumn() : base(new BeepLabelCell())
         {
         }
 
@@ -17,46 +17,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
         }
     }
 
-    public class BeepDatePickerCell : DataGridViewTextBoxCell
+    public class BeepLabelCell : DataGridViewTextBoxCell
     {
-        public override Type EditType => typeof(BeepDatePickerEditingControl); // Use BeepDatePicker for editing
-        public override Type ValueType => typeof(DateTime?); // Store nullable DateTime
-        public override object DefaultNewRowValue => null; // Default to null
+        public override Type EditType => typeof(BeepLabelEditingControl); // Use BeepLabel for editing
+        public override Type ValueType => typeof(string); // Store text as a string
+        public override object DefaultNewRowValue => string.Empty; // Default to empty text
 
         public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
         {
             base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
 
-            if (DataGridView.EditingControl is BeepDatePickerEditingControl control)
+            if (DataGridView.EditingControl is BeepLabelEditingControl control)
             {
-                if (initialFormattedValue is DateTime dateValue)
-                {
-                    control.SelectedDate = dateValue.ToString();
-                }
-                else
-                {
-                    control.SelectedDate = null; // Default to null
-                }
+                control.Text = initialFormattedValue?.ToString() ?? string.Empty;
             }
         }
     }
 
-    public class BeepDatePickerEditingControl : BeepDatePicker, IDataGridViewEditingControl
+    public class BeepLabelEditingControl : BeepLabel, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;
         private int rowIndex;
         private bool valueChanged;
 
-        public BeepDatePickerEditingControl()
+        public BeepLabelEditingControl()
         {
-            this.Size = new Size(120, 30);
-            this.BackColor = Color.White;
+            this.Size = new Size(200, 30); // Default size
+            this.BackColor = Color.Transparent;
 
-            // Handle date change event
-            this.TextChanged += BeepDatePicker_TextChanged;
+            // Handle text change event
+            this.TextChanged += BeepLabel_TextChanged;
         }
 
-        private void BeepDatePicker_TextChanged(object sender, EventArgs e)
+        private void BeepLabel_TextChanged(object sender, EventArgs e)
         {
             valueChanged = true;
             dataGridView?.NotifyCurrentCellDirty(true);
@@ -64,25 +57,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 
         public object EditingControlFormattedValue
         {
-            get => this.SelectedDate;
-            set
-            {
-                if (value is DateTime dateValue)
-                {
-                    this.SelectedDate = dateValue.ToString();
-                }
-                else
-                {
-                    this.SelectedDate = null;
-                }
-            }
+            get => this.Text;
+            set => this.Text = value?.ToString() ?? string.Empty;
         }
 
-        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => this.SelectedDate;
+        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => this.Text;
 
         public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
         {
             this.BackColor = dataGridViewCellStyle.BackColor;
+            this.ForeColor = dataGridViewCellStyle.ForeColor;
         }
 
         public DataGridView EditingControlDataGridView

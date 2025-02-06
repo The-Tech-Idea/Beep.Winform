@@ -1,120 +1,134 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Winform.Controls;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
 {
-    public class BeepListViewEditingControl : ListView, IDataGridViewEditingControl
+    [ToolboxItem(true)]
+    public class BeepDataGridViewListBoxColumn : DataGridViewColumn
     {
-        private DataGridView dataGridView;
-        private bool valueChanged = false;
-        private int rowIndex;
-
-        public BeepListViewEditingControl()
+        public BeepDataGridViewListBoxColumn() : base(new BeepDataGridViewListBoxCell())
         {
-            this.View = View.List; // Set default view to List for better item visibility
         }
 
-        public DataGridView EditingControlDataGridView
+        public override object Clone()
         {
-            get { return dataGridView; }
-            set { dataGridView = value; }
+            var clone = (BeepDataGridViewListBoxColumn)base.Clone();
+            return clone;
+        }
+    }
+
+    public class BeepDataGridViewListBoxCell : DataGridViewTextBoxCell
+    {
+        public BeepDataGridViewListBoxCell()
+        {
+            this.ValueType = typeof(string); // The selected item value
+        }
+
+        public override Type EditType => typeof(BeepDataGridViewListBoxEditingControl);
+        public override Type ValueType => typeof(string);
+        public override object DefaultNewRowValue => "";
+
+        protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex,
+                                      DataGridViewElementStates cellState, object value, object formattedValue, string errorText,
+                                      DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle,
+                                      DataGridViewPaintParts paintParts)
+        {
+            string displayText = value?.ToString() ?? "";
+
+            base.Paint(graphics, clipBounds, cellBounds, rowIndex, cellState, displayText, displayText, errorText, cellStyle, advancedBorderStyle,
+                      (paintParts & ~DataGridViewPaintParts.ContentForeground));
+
+            using (Brush textBrush = new SolidBrush(cellStyle.ForeColor))
+            {
+                StringFormat format = new StringFormat
+                {
+                    Alignment = StringAlignment.Near,
+                    LineAlignment = StringAlignment.Center
+                };
+
+                graphics.DrawString(displayText, cellStyle.Font, textBrush, cellBounds, format);
+            }
+        }
+
+        public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
+        {
+            base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
+
+            if (DataGridView.EditingControl is BeepDataGridViewListBoxEditingControl control)
+            {
+               // control.SelectedItem = initialFormattedValue;
+            }
+        }
+    }
+
+    public class BeepDataGridViewListBoxEditingControl : BeepListBox, IDataGridViewEditingControl
+    {
+        private DataGridView dataGridView;
+        private int rowIndex;
+        private bool valueChanged;
+
+        public BeepDataGridViewListBoxEditingControl()
+        {
+            this.SelectedItemChanged += BeepDataGridViewListBoxEditingControl_SelectedItemChanged;
         }
 
         public object EditingControlFormattedValue
         {
-            get
-            {
-                return SelectedItems.Count > 0 ? SelectedItems[0].Text : string.Empty;
-            }
-            set
-            {
-                if (value is string stringValue)
-                {
-                    foreach (ListViewItem item in Items)
-                    {
-                        if (item.Text == stringValue)
-                        {
-                            item.Selected = true;
-                            item.Focused = true;
-                            break;
-                        }
-                    }
-                }
-            }
+            get => this.SelectedItem?.Text ?? "";
+            set => this.SelectedItem = this.ListItems.FirstOrDefault(item => item.Text == value?.ToString());
+        }
+
+        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => EditingControlFormattedValue;
+
+        public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
+        {
+            this.BackColor = dataGridViewCellStyle.BackColor;
+        }
+
+        public DataGridView EditingControlDataGridView
+        {
+            get => dataGridView;
+            set => dataGridView = value;
         }
 
         public int EditingControlRowIndex
         {
-            get { return rowIndex; }
-            set { rowIndex = value; }
+            get => rowIndex;
+            set => rowIndex = value;
         }
 
-        public bool EditingControlValueChanged
-        {
-            get { return valueChanged; }
-            set { valueChanged = value; }
-        }
+        public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey) => true;
 
-        public Cursor EditingPanelCursor => base.Cursor;
+        public void PrepareEditingControlForEdit(bool selectAll) { }
 
         public bool RepositionEditingControlOnValueChange => false;
 
-        public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
+        public Cursor EditingPanelCursor => base.Cursor;
+
+        public bool EditingControlValueChanged
         {
-            this.Font = dataGridViewCellStyle.Font;
+            get => valueChanged;
+            set => valueChanged = value;
         }
 
-        public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey)
+        private void BeepDataGridViewListBoxEditingControl_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
         {
-            return true; // Let ListView handle navigation keys
+            valueChanged = true;
+            dataGridView?.NotifyCurrentCellDirty(true);
         }
 
-        public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context)
+        protected override void Dispose(bool disposing)
         {
-            return EditingControlFormattedValue;
-        }
-
-        public void PrepareEditingControlForEdit(bool selectAll)
-        {
-            // Optionally handle the case where the control is prepared for editing (e.g., select item, etc.)
-        }
-
-        protected override void OnSelectedIndexChanged(EventArgs e)
-        {
-            base.OnSelectedIndexChanged(e);
-            if (SelectedItems.Count > 0)
+            if (disposing)
             {
-                valueChanged = true;
-                EditingControlDataGridView?.NotifyCurrentCellDirty(true);
+                this.SelectedItemChanged -= BeepDataGridViewListBoxEditingControl_SelectedItemChanged;
             }
-        }
-
-        public void UpdateContentsBasedOnMasterValue(string masterValue)
-        {
-            // Example: Update ListView based on masterValue (e.g., dynamic filtering)
-            this.Items.Clear();
-            if (masterValue == "Example")
-            {
-                this.Items.Add(new ListViewItem("Item 1"));
-                this.Items.Add(new ListViewItem("Item 2"));
-            }
-            else
-            {
-                this.Items.Add(new ListViewItem("Default 1"));
-                this.Items.Add(new ListViewItem("Default 2"));
-            }
+            base.Dispose(disposing);
         }
     }
-
-    public class ListViewEditingCell : DataGridViewTextBoxCell
-    {
-        public override Type EditType => typeof(BeepListViewEditingControl);
-
-        public override Type ValueType => typeof(string);
-
-        public override object DefaultNewRowValue => string.Empty;
-    }
-
-    
 }

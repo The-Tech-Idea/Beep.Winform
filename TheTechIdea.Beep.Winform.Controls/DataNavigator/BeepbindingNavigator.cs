@@ -141,6 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         public override void ApplyTheme()
         {
             base.ApplyTheme();
+            if (MainPanel == null) return;
             BackColor = _currentTheme.PanelBackColor;
             MainPanel.BackColor = _currentTheme.PanelBackColor;
             Recordnumberinglabel1.Theme = Theme;

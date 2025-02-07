@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Drawing;
-using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepDatePicker
+using TheTechIdea.Beep.Winform.Controls;
+using System.ComponentModel; // Ensure correct namespace for BeepDatePicker
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
+    [ToolboxItem(false)]
     public class BeepDatePickerColumn : DataGridViewColumn
     {
         public BeepDatePickerColumn() : base(new BeepDatePickerCell())

@@ -2,10 +2,12 @@
 using System.Windows.Forms;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls;
-using TheTechIdea.Beep.Editor; // Ensure correct namespace for BeepExtendedButton
+using TheTechIdea.Beep.Editor;
+using System.ComponentModel; // Ensure correct namespace for BeepExtendedButton
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
+    [ToolboxItem(false)]
     public class BeepExtendedButtonColumn : DataGridViewColumn
     {
         public BeepExtendedButtonColumn() : base(new BeepExtendedButtonCell())

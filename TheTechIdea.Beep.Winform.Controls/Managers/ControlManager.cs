@@ -682,7 +682,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                         Top = starth
                     };
 
-                    //cbcondition.DataSource = GetDisplayLookup(entityStructure.DataSourceID, FK.ParentEntityID, FK.ParentEntityColumnID, FK.EntityColumnID);
+                    //cbcondition.DataBindingSource = GetDisplayLookup(entityStructure.DataSourceID, FK.ParentEntityID, FK.ParentEntityColumnID, FK.EntityColumnID);
                     //cbcondition.DisplayMember = DisplayField;
                     //cbcondition.ValueMember = FK.ParentEntityColumnID;
                     cbcondition.DataSource = AddFilterTypes();

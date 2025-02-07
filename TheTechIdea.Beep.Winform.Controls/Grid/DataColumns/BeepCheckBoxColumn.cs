@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Drawing;
-using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepCheckBox<bool>
+using TheTechIdea.Beep.Winform.Controls;
+using System.ComponentModel; // Ensure correct namespace for BeepCheckBox<bool>
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
+    [ToolboxItem(false)]
     public class BeepCheckBoxColumn : DataGridViewColumn
     {
         public BeepCheckBoxColumn() : base(new BeepCheckBoxCell())

@@ -2,10 +2,12 @@
 using System.Linq;
 using System.Windows.Forms;
 using System.Drawing;
-using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepListofValuesBox
+using TheTechIdea.Beep.Winform.Controls;
+using System.ComponentModel; // Ensure correct namespace for BeepListofValuesBox
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
+    [ToolboxItem(false)]
     public class BeepListofValuesBoxColumn : DataGridViewColumn
     {
         public BeepListofValuesBoxColumn() : base(new BeepListofValuesBoxCell())

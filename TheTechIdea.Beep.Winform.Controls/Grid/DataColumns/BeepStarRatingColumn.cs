@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Drawing;
-using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepStarRating
+using TheTechIdea.Beep.Winform.Controls;
+using System.ComponentModel; // Ensure correct namespace for BeepStarRating
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
+    [ToolboxItem(false)]
     public class BeepStarRatingColumn : DataGridViewColumn
     {
         public BeepStarRatingColumn() : base(new BeepStarRatingCell())

@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 
     namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
-    {
-        public class BeepButtonColumn : DataGridViewColumn
+{
+    [ToolboxItem(false)]
+    public class BeepButtonColumn : DataGridViewColumn
         {
             public BeepButtonColumn() : base(new BeepButtonCell())
             {

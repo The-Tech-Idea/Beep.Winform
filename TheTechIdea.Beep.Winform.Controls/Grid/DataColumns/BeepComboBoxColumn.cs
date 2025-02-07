@@ -2,10 +2,12 @@
 using System.Linq;
 using System.Windows.Forms;
 using System.Drawing;
-using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepComboBox
+using TheTechIdea.Beep.Winform.Controls;
+using System.ComponentModel; // Ensure correct namespace for BeepComboBox
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
+    [ToolboxItem(false)]
     public class BeepComboBoxColumn : DataGridViewColumn
     {
         public BeepComboBoxColumn() : base(new BeepComboBoxCell())

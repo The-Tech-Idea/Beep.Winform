@@ -233,7 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                     
                     if (ExtensionsHelpers.DataSource != null)
                     {
-                        //  DataSource.Dataconnection.OpenConnection();
+                        //  DataBindingSource.Dataconnection.OpenConnection();
                         if (ExtensionsHelpers.DataSource.ConnectionStatus == System.Data.ConnectionState.Open)
                         {
                             if (ExtensionsHelpers.Vismanager.Controlmanager.InputBoxYesNo("Beep DM", "Are you sure, this might take some time?") == BeepDialogResult.Yes)
@@ -259,7 +259,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
             }
 
         }
-        [CommandAttribute(Name = "CreateViewFromDataSource", Caption = "Create View From DataSource", Click = true, iconimage = "createnewentities.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu)]
+        [CommandAttribute(Name = "CreateViewFromDataSource", Caption = "Create View From DataBindingSource", Click = true, iconimage = "createnewentities.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu)]
         public void CreateViewFromDataSource(IPassedArgs Passedarguments)
         {
             try

@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepSta
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
-    [ToolboxItem(true)]
+    [ToolboxItem(false)]
     public class BeepDataGridViewRatingColumn : DataGridViewColumn
     {
         public BeepDataGridViewRatingColumn() : base(new BeepDataGridViewRatingCell())

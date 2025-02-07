@@ -222,7 +222,7 @@
 //                        DMView = null,
 //                        Id = BranchID,
 //                        CurrentEntity = BranchText,
-//                        DataSource = null,
+//                        DataBindingSource = null,
 //                        EventType = TreeEvent
 //                    };
 

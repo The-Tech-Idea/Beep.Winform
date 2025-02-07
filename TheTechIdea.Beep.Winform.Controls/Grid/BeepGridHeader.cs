@@ -37,8 +37,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
         // Column-sorting & filter references
         private Dictionary<DataGridViewColumn, SortOrder> _columnSortOrders = new();
-        private Dictionary<DataGridViewColumn, Label> _headerLabels = new();
-        private Dictionary<DataGridViewColumn, TextBox> _filterBoxes = new();
+        private Dictionary<DataGridViewColumn, BeepLabel> _headerLabels = new();
+        private Dictionary<DataGridViewColumn, BeepTextBox> _filterBoxes = new();
         /// <summary>
         /// Event handler for cell painting, allowing custom cell rendering.
         /// </summary>
@@ -55,18 +55,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// <summary>
         /// A dictionary mapping header labels to their corresponding sort icons.
         /// </summary>
-        private Dictionary<Label, PictureBox> sortIcons = new Dictionary<Label, PictureBox>();
+        private Dictionary<BeepLabel, BeepImage> sortIcons = new Dictionary<BeepLabel, BeepImage>();
 
         /// <summary>
         /// A dictionary mapping header labels to their corresponding DataGridView columns.
         /// </summary>
-        private Dictionary<Label, DataGridViewColumn> headerColumnMapping = new Dictionary<Label, DataGridViewColumn>();
+        private Dictionary<BeepLabel, DataGridViewColumn> headerColumnMapping = new Dictionary<BeepLabel, DataGridViewColumn>();
 
         private EventHandler RefershFooter { get; set; }
         // Column resizing
         private bool _isResizing = false;
         private bool _resizingLeft = false;
-        private Label _resizingLabel = null;
+        private BeepLabel _resizingLabel = null;
         private Point _initialMousePos;
         private int _initialColWidth;
         private int _initialLabelLeft;
@@ -77,29 +77,302 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private int _filterPanelHeight = 30;  // row #3 if visible
         private bool _showFilter = false;     // filter row toggled
         private int padding = 2;
+        private bool isinit = true;
         /// <summary>
         public BeepGridHeader()
         {
             // By default, no filter => total height = top + header => 60
             InitializeLayout();
+            _bindingSource = new BindingSource();
             this.LocationChanged += Header_LocationChanged;
-            this.SizeChanged += Header_SizeChanged;
+           this.SizeChanged += Header_SizeChanged;
         }
 
+      
+
+        #region Public Properties
+
+        public IDMEEditor DMEEditor { get; set; }
+        private EntityStructure _entity;
+        /// Controls the visibility of the navigator panel.
+        /// </summary>
+        ///  [Browsable(true)]
+        [Localizable(true)]
+        [MergableProperty(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public bool ShowNavigatorPanel
+        {
+            get
+            {
+                if(TargetFooter== null)
+                {
+                    return false;
+                }
+                return TargetFooter.ShowDataNavigator;
+            }
+            set
+            {
+                if(TargetFooter != null)   TargetFooter.ShowDataNavigator = value;
+
+            }
+        }
+        private BindingSource _bindingSource=new BindingSource();
+        /// <summary>
+        /// Gets or sets the BindingSource used by the grid's navigator.
+        /// </summary>
+        public BindingSource DataBindingSource
+        {
+            get { return _bindingSource; }
+            set
+            {
+                InQuery = true;
+               
+                _bindingSource = value;
+              //  if (TargetDataGridView != null) TargetDataGridView.DataSource = _bindingSource;
+                
+                InQuery = false;
+            }
+        }
+        private Font _textFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TitleFont
+        {
+            get => _textFont;
+            set
+            {
+
+                _textFont = value;
+                UseThemeFont = false;
+                if(_titleLabel != null)
+                {
+                    if (UseThemeFont)
+                    {
+                        _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                        _titleLabel.UseThemeFont = true;
+                    }
+                    else
+                    {
+                        _titleLabel.TextFont = _textFont;
+                    }
+                    // Force the label to recalculate its preferred size
+                    _titleLabel.PerformLayout();
+
+                    _topTableLayout.RowStyles[0].Height = _titleLabel.PreferredSize.Height + (2 * (padding + 2)); // Adjust height dynamically
+                    RecalcHeight();
+                    Invalidate();
+                }
+              
+
+
+            }
+        }
+
+        public EntityStructure Entity
+        {
+            get { return _entity; }
+            set { _entity = value; }
+        }
+
+        /// <summary>
+        /// The DataGridView we attach to. We'll follow its location/size changes, and build column headers.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("The DataGridView that this BeepGridHeader syncs with and positions above.")]
+        public DataGridView TargetDataGridView
+        {
+            get => _targetGrid;
+            set
+            {
+                if (_targetGrid != null)
+                {
+                    _targetGrid.LocationChanged -= TargetMoved;
+                    _targetGrid.SizeChanged -= TargetMoved;
+                    _targetGrid.ColumnAdded -= OnColumnAdded;
+                    _targetGrid.ColumnRemoved -= OnColumnRemoved;
+                    _targetGrid.Scroll -= _targetGrid_Scroll;
+                    _targetGrid.ColumnWidthChanged -= OnColumnWidthChanged;
+                    _targetGrid.DataSourceChanged -= OnDataSourceChanged;
+                    _targetGrid.DataMemberChanged -= OnDataMemberChanged;
+                    _targetGrid.DataContextChanged -= OnDataContextChanged;
+                    _targetGrid.DataBindingComplete -= OnDataBindingComplete;
+                    _targetGrid.ColumnWidthChanged -= DataGridView_ColumnWidthChanged;
+                    _targetGrid.CellEndEdit -= DataGridView1_CellEndEdit;
+                    _targetGrid.CellBeginEdit-= DataGridView1_CellBeginEdit;
+                    _targetGrid.DataError -= DataGridView1_DataError;
+                }
+                _targetGrid = value;
+                if (_targetGrid != null)
+                {
+                    SetupDataGridView();
+                    _targetGrid.LocationChanged += TargetMoved;
+                    _targetGrid.SizeChanged += TargetMoved;
+                    _targetGrid.ColumnAdded += OnColumnAdded;
+                    _targetGrid.ColumnRemoved += OnColumnRemoved;
+                    _targetGrid.Scroll += _targetGrid_Scroll;
+                    _targetGrid.ColumnWidthChanged += OnColumnWidthChanged;
+                    _targetGrid.DataSourceChanged += OnDataSourceChanged;
+                    _targetGrid.DataMemberChanged += OnDataMemberChanged;
+                    _targetGrid.DataContextChanged += OnDataContextChanged;
+                    _targetGrid.DataBindingComplete += OnDataBindingComplete;
+                    _targetGrid.ColumnWidthChanged += DataGridView_ColumnWidthChanged;
+                    _targetGrid.CellEndEdit += DataGridView1_CellEndEdit;
+                    _targetGrid.CellBeginEdit += DataGridView1_CellBeginEdit;
+                    _targetGrid.DataError += DataGridView1_DataError;
+                    Reposition();
+                    RebuildColumnsAndFilters();
+                    
+                }
+            }
+        }
+
+      
+        /// <summary>
+        /// Optionally link to a BeepGridFooter so that if the footer moves, we check if the grid moves, etc.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        public BeepGridFooter TargetFooter
+        {
+            get => _linkedFooter;
+            set
+            {
+                if (_linkedFooter != null)
+                {
+                    _linkedFooter.LocationChanged -= TargetMoved;
+                    _linkedFooter.SizeChanged -= TargetMoved;
+                }
+                _linkedFooter = value;
+                if (_linkedFooter != null)
+                {
+                    _linkedFooter.LocationChanged += TargetMoved;
+                    _linkedFooter.SizeChanged += TargetMoved;
+                    Reposition();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Show or hide the filter row below the column headers
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        public bool ShowFilter
+        {
+            get => _showFilter;
+            set
+            {
+                _showFilter = value;
+                if(_filterPanel != null)
+                {
+                    _filterPanel.Visible = value;
+                    RecalcHeight();
+                    if (value)
+                    {
+                        RebuildColumnsAndFilters(); // so we build textboxes
+                    }
+                    Reposition();
+                }
+               
+            }
+        }
+
+        /// <summary>
+        /// Title in the top panel label
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        public string Title
+        {
+            get => _titleLabel.Text;
+            set
+            {
+                if (_titleLabel != null)
+                {
+                    _titleLabel.Text = value;
+                    RecalcHeight();
+                    Reposition();
+                }
+            }
+        }
+        public bool InQuery { get; private set; }
+
+        /// <summary>
+        /// Tracks whether a column is currently being resized.
+        /// </summary>
+        private bool isResizing = false;
+
+        /// <summary>
+        /// Tracks if the left side of a column is being resized.
+        /// </summary>
+        private bool isResizingLeft = false;
+
+        /// <summary>
+        /// Stores the initial mouse position when resizing begins.
+        /// </summary>
+        private Point initialMousePosition;
+
+        /// <summary>
+        /// Stores the initial width of the column being resized.
+        /// </summary>
+        private int initialColumnWidth;
+
+        /// <summary>
+        /// Stores the initial left position of the label when resizing.
+        /// </summary>
+        private int initialLabelLeft;
+
+        /// <summary>
+        /// Reference to the label being resized.
+        /// </summary>
+        private Label resizingLabel;
+
+        /// <summary>
+        /// The current column being sorted.
+        /// </summary>
+        private DataGridViewColumn SortColumn = null;
+
+        /// <summary>
+        /// The current label being used for sorting.
+        /// </summary>
+        private BeepLabel SortColumnLabel = null;
+
+        /// <summary>
+        /// The current direction of sorting (Ascending, Descending, or None).
+        /// </summary>
+        SortOrder Currentdirection = SortOrder.None;
+
+        /// <summary>
+        /// Indicates if sorting is currently applied on the grid.
+        /// </summary>
+        private bool IsSorting = false;
+        #endregion
         #region Layout Setup
-       
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            isinit = false;
+        }
         private void InitializeLayout()
         {
+            _bindingSource = new BindingSource();
+            _bindingSource.DataSourceChanged += OnDataSourceChanged;
+            Console.WriteLine("Initializing BeepGridHeader layout...");
             // Manually stack three panels
-            Height = _topPanelHeight + _headerPanelHeight; // 60 if no filter
+            Height = 60; // 60 if no filter
             Width = 600;  // arbitrary placeholder
-
+            Console.WriteLine("Height: " + Height);
             // (1) top panel
             _topPanel = new Panel
             {
                 Height = _topPanelHeight,
                 Dock = DockStyle.Top
             };
+            Console.WriteLine("Top Panel Height: " + _topPanelHeight);
             // inside topPanel, we place a TableLayout for your 5 icons + label
             _topTableLayout = new TableLayoutPanel
             {
@@ -109,6 +382,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 Padding = new Padding(0),
                 Margin = new Padding(0)
             };
+            Console.WriteLine("Table Layout Column Count: " + _topTableLayout.ColumnCount);
             _topTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20f));
             _topTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20f));
             _topTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20f));
@@ -116,9 +390,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _topTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20f));
             _topTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
             _topTableLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 23f));
-
+            Console.WriteLine("Table Layout Row Count: " + _topTableLayout.RowCount);
             _topPanel.Controls.Add(_topTableLayout);
-
+            Console.WriteLine("Top Panel Controls Count: " + _topPanel.Controls.Count);
             // Create beepbuttons + label
             _csvExportButton = new BeepButton
             {
@@ -184,7 +458,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 IsChild = true,
                 Dock = DockStyle.Fill
             };
-
+            Console.WriteLine("Buttons Created");
             // Add them to table
             _topTableLayout.Controls.Add(_csvExportButton, 0, 0);
             _topTableLayout.Controls.Add(_totalShowButton, 1, 0);
@@ -192,319 +466,68 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _topTableLayout.Controls.Add(_printButton, 3, 0);
             _topTableLayout.Controls.Add(_filterToggleButton, 4, 0);
             _topTableLayout.Controls.Add(_titleLabel, 5, 0);
-
+            Console.WriteLine("Controls Added to Table");
             // Hook up events
             _csvExportButton.Click += (s, e) => OnCsvExport();
             _printButton.Click += (s, e) => OnPrint();
             _totalShowButton.Click += (s, e) => OnToggleTotals();
             _filterToggleButton.Click += (s, e) => ShowFilter = !ShowFilter;
-
+            Console.WriteLine("Events Hooked Up");
             // (2) column header row
+            // --- Header Panel (for column labels) ---
             _headerPanel = new Panel
             {
-                Height = _headerPanelHeight,
-                Dock = DockStyle.Top
+                Height = 30,  // Ensure a fixed height
+                Dock = DockStyle.Top,
+                BackColor = Color.White
             };
-            // We'll place a FlowLayout inside for column labels
-            var headerFlow = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                FlowDirection = FlowDirection.LeftToRight,
-                WrapContents = false
-            };
-            _headerPanel.Controls.Add(headerFlow);
-
+            Console.WriteLine("Header Panel Height: " + _headerPanelHeight);
+           ;
+            Console.WriteLine("Header Panel Controls Count: " + _headerPanel.Controls.Count);
             // (3) filter row (optional)
+            // --- Filter Panel (for filter textboxes) ---
             _filterPanel = new Panel
             {
-                Height = _filterPanelHeight,
+                Height = 25,  // Ensure a fixed height (or your desired height)
                 Dock = DockStyle.Top,
-                Visible = _showFilter
+                Visible = _showFilter,
+                BackColor = Color.WhiteSmoke
             };
-            var filterFlow = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                FlowDirection = FlowDirection.LeftToRight,
-                WrapContents = false
-            };
-            _filterPanel.Controls.Add(filterFlow);
+            Console.WriteLine("Filter Panel Height: " + _filterPanelHeight);
+           
+          
 
             // Add them from bottom to top
             Controls.Add(_filterPanel);
             Controls.Add(_headerPanel);
             Controls.Add(_topPanel);
-
+            Console.WriteLine("Controls Added to BeepGridHeader");
             RecalcHeight();
+            Console.WriteLine("Height Recalculated");
         }
-
         private void RecalcHeight()
         {
-            // Calculate the height of the top panel (title + padding)
-            _topPanelHeight = _titleLabel.PreferredSize.Height + (2 * padding );
+            _topPanelHeight = _titleLabel.PreferredSize.Height + (2 * padding);
             _topPanel.Height = _topPanelHeight;
 
-            // Calculate the height of the header panel
-            _headerPanelHeight = _headerPanel.Height;
-            if(_headerLabels.Count > 0)
-            {
-                _headerPanelHeight = _headerPanel.Height;
-            }else
-                _headerPanelHeight = 0;
-            // Calculate the height of the filter panel (if shown)
-            _filterPanelHeight = _filterPanel.Height;
+            // If there are no header labels, the header panel might get set to 0.
+            int headerHeight = (_headerLabels.Count > 0) ? _headerPanel.Height : 30; // use 30 as a minimum
+            _headerPanel.Height = headerHeight;
 
-            // Calculate the total height of the control
-            int totalHeight = _topPanelHeight + _headerPanelHeight;
+            int filterHeight = _showFilter ? _filterPanel.Height : 0;
 
-            if (_showFilter)
-            {
-                // Add the filter panel height if it's visible
-                totalHeight += _filterPanelHeight;
-            }
-
-            // Set the control's height
-            this.Height = totalHeight;
-
-            // Adjust the content panel's position and size dynamically
-            //UpdateContentPanelLayout();
+            // Set the overall control height (for example)
+            this.Height = _topPanel.Height + headerHeight + filterHeight;
         }
-
-      
 
         #endregion
-
-        #region Public Properties
-
-        public IDMEEditor DMEEditor { get; set; }
-        private EntityStructure _entity;
-        /// Controls the visibility of the navigator panel.
-        /// </summary>
-        ///  [Browsable(true)]
-        [Localizable(true)]
-        [MergableProperty(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public bool ShowNavigatorPanel
-        {
-            get
-            {
-                return TargetFooter.ShowDataNavigator;
-            }
-            set
-            {
-                TargetFooter.ShowDataNavigator = value;
-
-            }
-        }
-        private BindingSource _bindingSource;
-        /// <summary>
-        /// Gets or sets the BindingSource used by the grid's navigator.
-        /// </summary>
-        public BindingSource DataSource
-        {
-            get { return _bindingSource; }
-            set
-            {
-                InQuery = true;
-                _bindingSource = value;
-                if (TargetDataGridView != null) TargetDataGridView.DataSource = _bindingSource;
-
-                InQuery = false;
-            }
-        }
-        private Font _textFont = new Font("Arial", 10);
-        [Browsable(true)]
-        [MergableProperty(true)]
-        [Category("Appearance")]
-        [Description("Text Font displayed in the control.")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public Font TitleFont
-        {
-            get => _textFont;
-            set
-            {
-
-                _textFont = value;
-                UseThemeFont = false;
-                if (UseThemeFont)
-                {
-                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-                    _titleLabel.UseThemeFont = true;
-                }
-                else
-                {
-                    _titleLabel.TextFont = _textFont;
-                }
-                // Force the label to recalculate its preferred size
-                _titleLabel.PerformLayout();
-
-                _topTableLayout.RowStyles[0].Height = _titleLabel.PreferredSize.Height + (2 * (padding + 2)); // Adjust height dynamically
-                RecalcHeight();
-                Invalidate();
-
-
-            }
-        }
-
-        public EntityStructure Entity
-        {
-            get { return _entity; }
-            set { _entity = value; }
-        }
-
-        /// <summary>
-        /// The DataGridView we attach to. We'll follow its location/size changes, and build column headers.
-        /// </summary>
-        [Browsable(true)]
-        [Category("Behavior")]
-        [Description("The DataGridView that this BeepGridHeader syncs with and positions above.")]
-        public DataGridView TargetDataGridView
-        {
-            get => _targetGrid;
-            set
-            {
-                if (_targetGrid != null)
-                {
-                    _targetGrid.LocationChanged -= TargetMoved;
-                    _targetGrid.SizeChanged -= TargetMoved;
-                    _targetGrid.ColumnAdded -= OnColumnAdded;
-                    _targetGrid.ColumnRemoved -= OnColumnRemoved;
-                    _targetGrid.ColumnWidthChanged -= OnColumnWidthChanged;
-                    _targetGrid.DataSourceChanged -= OnDataSourceChanged;
-                    _targetGrid.DataMemberChanged -= OnDataMemberChanged;
-                    _targetGrid.DataContextChanged -= OnDataContextChanged;
-                    _targetGrid.DataBindingComplete -= OnDataBindingComplete;
-                }
-                _targetGrid = value;
-                if (_targetGrid != null)
-                {
-                    _targetGrid.LocationChanged += TargetMoved;
-                    _targetGrid.SizeChanged += TargetMoved;
-                    _targetGrid.ColumnAdded += OnColumnAdded;
-                    _targetGrid.ColumnRemoved += OnColumnRemoved;
-                    _targetGrid.ColumnWidthChanged += OnColumnWidthChanged;
-                    _targetGrid.DataSourceChanged += OnDataSourceChanged;
-                    _targetGrid.DataMemberChanged += OnDataMemberChanged;
-                    _targetGrid.DataContextChanged += OnDataContextChanged;
-                    _targetGrid.DataBindingComplete += OnDataBindingComplete;
-                    Reposition();
-                    RebuildColumnsAndFilters();
-                    SetupDataGridView();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Optionally link to a BeepGridFooter so that if the footer moves, we check if the grid moves, etc.
-        /// </summary>
-        [Browsable(true)]
-        [Category("Behavior")]
-        public BeepGridFooter TargetFooter
-        {
-            get => _linkedFooter;
-            set
-            {
-                if (_linkedFooter != null)
-                {
-                    _linkedFooter.LocationChanged -= TargetMoved;
-                    _linkedFooter.SizeChanged -= TargetMoved;
-                }
-                _linkedFooter = value;
-                if (_linkedFooter != null)
-                {
-                    _linkedFooter.LocationChanged += TargetMoved;
-                    _linkedFooter.SizeChanged += TargetMoved;
-                    Reposition();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Show or hide the filter row below the column headers
-        /// </summary>
-        [Browsable(true)]
-        [Category("Behavior")]
-        public bool ShowFilter
-        {
-            get => _showFilter;
-            set
-            {
-                _showFilter = value;
-                _filterPanel.Visible = value;
-                RecalcHeight();
-                if (value)
-                {
-                    RebuildColumnsAndFilters(); // so we build textboxes
-                }
-                Reposition();
-            }
-        }
-
-        /// <summary>
-        /// Title in the top panel label
-        /// </summary>
-        [Browsable(true)]
-        [Category("Appearance")]
-        public string Title
-        {
-            get => _titleLabel.Text;
-            set => _titleLabel.Text = value;
-        }
-        public bool InQuery { get; private set; }
-
-        /// <summary>
-        /// Tracks whether a column is currently being resized.
-        /// </summary>
-        private bool isResizing = false;
-
-        /// <summary>
-        /// Tracks if the left side of a column is being resized.
-        /// </summary>
-        private bool isResizingLeft = false;
-
-        /// <summary>
-        /// Stores the initial mouse position when resizing begins.
-        /// </summary>
-        private Point initialMousePosition;
-
-        /// <summary>
-        /// Stores the initial width of the column being resized.
-        /// </summary>
-        private int initialColumnWidth;
-
-        /// <summary>
-        /// Stores the initial left position of the label when resizing.
-        /// </summary>
-        private int initialLabelLeft;
-
-        /// <summary>
-        /// Reference to the label being resized.
-        /// </summary>
-        private Label resizingLabel;
-
-        /// <summary>
-        /// The current column being sorted.
-        /// </summary>
-        private DataGridViewColumn SortColumn = null;
-
-        /// <summary>
-        /// The current label being used for sorting.
-        /// </summary>
-        private Label SortColumnLabel = null;
-
-        /// <summary>
-        /// The current direction of sorting (Ascending, Descending, or None).
-        /// </summary>
-        SortOrder Currentdirection = SortOrder.None;
-
-        /// <summary>
-        /// Indicates if sorting is currently applied on the grid.
-        /// </summary>
-        private bool IsSorting = false;
-        #endregion
-
         #region Movement Sync
         private void Header_LocationChanged(object sender, EventArgs e)
         {
+            if (isinit )
+            {
+                return;
+            }
             if (_isUpdating) return;
             _isUpdating = true;
 
@@ -524,6 +547,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
         private void Header_SizeChanged(object sender, EventArgs e)
         {
+            if (isinit)
+            {
+                return;
+            }
             if (_isUpdating) return;
             _isUpdating = true;
 
@@ -600,79 +627,106 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         #region Column Building
         private void RebuildColumnsAndFilters()
         {
-            // Clear old
-            var headerFlow = (FlowLayoutPanel)_headerPanel.Controls[0];
-            headerFlow.Controls.Clear();
-            var filterFlow = (FlowLayoutPanel)_filterPanel.Controls[0];
-            filterFlow.Controls.Clear();
-
+            // Clear existing controls and dictionaries
+            _headerPanel.Controls.Clear();
+            _filterPanel.Controls.Clear();
             _headerLabels.Clear();
             _filterBoxes.Clear();
             _columnSortOrders.Clear();
+            ColumnConfigs.Clear();
 
-            if (_targetGrid == null) return;
+            if (_targetGrid == null)
+                return;
+
+            int leftPosition = 0;  // Running left coordinate
+
+            // Loop through each grid column and add corresponding header and filter controls.
             foreach (DataGridViewColumn col in _targetGrid.Columns)
             {
-                AddOneColumn(col);
+                AddOneColumn(col, ref leftPosition);
             }
+
+            // Adjust the width of the header and filter panels to match the total columns width.
+            _headerPanel.Width = leftPosition;
+            if (_showFilter)
+                _filterPanel.Width = leftPosition;
         }
 
-        private void AddOneColumn(DataGridViewColumn col)
-        {
-            var headerFlow = (FlowLayoutPanel)_headerPanel.Controls[0];
-            var filterFlow = (FlowLayoutPanel)_filterPanel.Controls[0];
 
-            var lbl = new Label
+        private void AddOneColumn(DataGridViewColumn col, ref int leftPosition)
+        {
+            // Create the header label.
+            BeepLabel lbl = new BeepLabel
             {
                 Text = col.HeaderText,
-                Width = col.Width,
-                Height = _headerPanelHeight,
+                Width = col.Width,                         // Use the grid column's width.
+                Height = _headerPanel.Height,              // Use the header panel's fixed height.
                 TextAlign = ContentAlignment.MiddleCenter,
                 BorderStyle = BorderStyle.FixedSingle,
-                Tag = col
+                Tag = col,
+                GuidID = Guid.NewGuid().ToString(),
+                Location = new Point(leftPosition, 0),
+                AutoSize = false,
+                 
             };
             lbl.Click += (s, e) => OnColumnHeaderClick(col);
 
-            // Resizing
+            // Attach mouse events for resizing if needed.
             lbl.MouseDown += CustomHeaderLabel_MouseDown;
             lbl.MouseMove += CustomHeaderLabel_MouseMove;
             lbl.MouseUp += CustomHeaderLabel_MouseUp;
 
-            headerFlow.Controls.Add(lbl);
+            // Add the label to the header panel and record it.
+            _headerPanel.Controls.Add(lbl);
             _headerLabels[col] = lbl;
 
+            // If filtering is enabled, add a filter textbox.
             if (_showFilter)
             {
-                var txt = new TextBox
+                BeepTextBox txt = new BeepTextBox
                 {
                     Width = col.Width,
-                    Tag = col
+                    Height = _filterPanel.Height,         // Use the filter panel's fixed height.
+                    Tag = col,
+                    GuidID =lbl.GuidID,
+                    Location = new Point(leftPosition, 0),
+                    AutoSize = false
                 };
                 txt.TextChanged += (s, e) => ApplyFilter();
-                filterFlow.Controls.Add(txt);
+                _filterPanel.Controls.Add(txt);
                 _filterBoxes[col] = txt;
             }
+
+            // Update the left position for the next control.
+            leftPosition += col.Width;
+
+            // Optionally, update your column configurations.
+            AddColumnConfigurations(col, col.Index, col.Width, col.DataPropertyName, col.DataPropertyName,lbl);
         }
+
 
         private void RemoveOneColumn(DataGridViewColumn col)
         {
-            // If you want to remove the label & filter box
-            var headerFlow = (FlowLayoutPanel)_headerPanel.Controls[0];
-            var filterFlow = (FlowLayoutPanel)_filterPanel.Controls[0];
-
-            if (_headerLabels.TryGetValue(col, out Label lbl))
+            // Remove the header label from the _headerPanel.
+            if (_headerLabels.TryGetValue(col, out BeepLabel lbl))
             {
-                headerFlow.Controls.Remove(lbl);
+                _headerPanel.Controls.Remove(lbl);
                 lbl.Dispose();
                 _headerLabels.Remove(col);
             }
-            if (_filterBoxes.TryGetValue(col, out TextBox tb))
+
+            // Remove the filter textbox from the _filterPanel.
+            if (_filterBoxes.TryGetValue(col, out BeepTextBox tb))
             {
-                filterFlow.Controls.Remove(tb);
+                _filterPanel.Controls.Remove(tb);
                 tb.Dispose();
                 _filterBoxes.Remove(col);
             }
+
+            // Optionally, update the header and filter panels' widths if necessary.
+            UpdateHeaderAndPanelPositions();
         }
+
         #endregion
 
         #region Column Events
@@ -685,7 +739,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             sortIcons.Clear();
             foreach (DataGridViewColumn column in TargetDataGridView.Columns)
             {
-                Label headerLabel = new Label
+                BeepLabel headerLabel = new BeepLabel
                 {
                     Text = column.HeaderText,
                     Width = column.Width,
@@ -693,19 +747,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                     TextAlign = ContentAlignment.MiddleCenter,
                     BorderStyle = this.BorderStyle,
                     Left = column.DisplayIndex * column.Width,
-                    Tag = column
+                    Tag = column,
+                    GuidID = Guid.NewGuid().ToString(),
                 };
                 headerColumnMapping[headerLabel] = column;
 
                 // PictureBox for Sort Icon
-                PictureBox sortIcon = new PictureBox
+                BeepImage sortIcon = new BeepImage
                 {
                     Width = 16,
                     Height = 16,
                     Top = 2,
                     Left = headerLabel.Width - 18, // Adjust as needed
                     Visible = false,
-                    SizeMode = PictureBoxSizeMode.StretchImage
+                    MaximumSize = new Size(14, 14),
                 };
                 headerLabel.Controls.Add(sortIcon);
                 sortIcons[headerLabel] = sortIcon;
@@ -719,7 +774,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// </summary>
         /// <param name="sortedLabel">The label of the sorted column.</param>
         /// <param name="sortDirection">The direction of sorting.</param>
-        private void UpdateSortIcons(Label sortedLabel, SortOrder sortDirection)
+        private void UpdateSortIcons(BeepLabel sortedLabel, SortOrder sortDirection)
         {
             foreach (var headerLabel in sortIcons.Keys)
             {
@@ -746,7 +801,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         private void OnColumnAdded(object sender, DataGridViewColumnEventArgs e)
         {
-            AddOneColumn(e.Column);
+            //AddOneColumn(e.Column,);
         }
         private void OnColumnRemoved(object sender, DataGridViewColumnEventArgs e)
         {
@@ -754,11 +809,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         private void OnColumnWidthChanged(object sender, DataGridViewColumnEventArgs e)
         {
-            if (_headerLabels.TryGetValue(e.Column, out Label lbl))
+            if (_headerLabels.TryGetValue(e.Column, out BeepLabel lbl))
             {
                 lbl.Width = e.Column.Width;
             }
-            if (_filterBoxes.TryGetValue(e.Column, out TextBox txt))
+            if (_filterBoxes.TryGetValue(e.Column, out BeepTextBox txt))
             {
                 txt.Width = e.Column.Width;
             }
@@ -862,7 +917,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 return;
             }
-            var headerLabel = sender as Label;
+            var headerLabel = sender as BeepLabel;
             if (headerLabel == null) return;
 
             if (!headerColumnMapping.TryGetValue(headerLabel, out var column))
@@ -896,7 +951,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 oldColumn.HeaderCell.SortGlyphDirection = SortOrder.None;
                 Currentdirection = SortOrder.None;
-                DataSource.RemoveSort();
+                DataBindingSource.RemoveSort();
                 UpdateSortIcons(headerLabel, SortOrder.None);
                 return;
             }
@@ -907,7 +962,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         private void CustomHeaderLabel_MouseDown(object sender, MouseEventArgs e)
         {
-            if (_targetGrid == null || !(sender is Label lbl)) return;
+            if (_targetGrid == null || !(sender is BeepLabel lbl)) return;
             _isResizing = true;
             _resizingLabel = lbl;
             _initialMousePos = e.Location;
@@ -973,13 +1028,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             Console.WriteLine("Applying Filter: " + completeFilter);
             if (string.IsNullOrEmpty(completeFilter))
             {
-                DataSource.RemoveFilter();
+                DataBindingSource.RemoveFilter();
             }
             else
             {
-                DataSource.Filter = completeFilter;
+                DataBindingSource.Filter = completeFilter;
             }
-            TargetDataGridView.DataSource = DataSource;
+            TargetDataGridView.DataSource = DataBindingSource;
         }
         private void ApplyFilter()
         {
@@ -1025,7 +1080,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             if (_targetGrid == null) return;
             // Set up the DataGridView to use this header
             _targetGrid.Controls.Add(this);
-            _targetGrid.ColumnHeadersHeight = _headerPanelHeight;
+       //     _targetGrid.ColumnHeadersHeight = _headerPanelHeight;
             _targetGrid.ColumnHeadersVisible = false;
             _targetGrid.RowHeadersVisible = false;
             _targetGrid.AllowUserToAddRows = false;
@@ -1034,14 +1089,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _targetGrid.AllowUserToResizeRows = false;
             _targetGrid.AllowUserToResizeColumns = true;
             _targetGrid.AllowUserToResizeRows = false;
-            _targetGrid.Scroll += DataGridView_Scroll; // Handle the Scroll event
-                                                       //  dataGridView1.Resize += DataGridView_Resize;
-                                                       //   dataGridView1.ColumnAdded += DataGridView1_ColumnAdded;
-                                                       //   dataGridView1.ColumnRemoved += DataGridView1_ColumnRemoved;
-            _targetGrid.ColumnWidthChanged += DataGridView_ColumnWidthChanged;
-            _targetGrid.CellEndEdit += DataGridView1_CellEndEdit;
-            _targetGrid.CellBeginEdit += DataGridView1_CellBeginEdit;
-            _targetGrid.DataError += DataGridView1_DataError;
+          
         }
         #region DataGridView Events
         /// Handles the ColumnWidthChanged event for updating header and panel positions when a column's width changes.
@@ -1176,12 +1224,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         #endregion DataGridView Cell Editing
         #region DataGridView Scrolling
-        private void DataGridView_Scroll(object sender, ScrollEventArgs e)
+        private void _targetGrid_Scroll(object? sender, ScrollEventArgs e)
         {
             if (e.ScrollOrientation == ScrollOrientation.HorizontalScroll)
             {
                 UpdateHeaderAndPanelPositions();
             }
+        }
+
+        private void DataGridView_Scroll(object sender, ScrollEventArgs e)
+        {
+            
         }
         /// <summary>
         /// Updates the positions and sizes of headers, filter controls, and total controls based on the current grid layout.
@@ -1197,11 +1250,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             int xPos = -offset;
             foreach (Control ctrl in _headerPanel.Controls)
             {
-                if (ctrl is Label headerLabel)
+                if (ctrl is BeepLabel headerLabel)
                 {
                     // find the DataGridViewColumn by label.Text (assuming it's the column's HeaderText)
                     var col = TargetDataGridView.Columns[headerLabel.Text];
-                    if (col != null && col.Tag is string guid)
+                    if (col != null && headerLabel.GuidID is string guid)
                     {
                         // find the matching ColumnConfig by guid
                         int idx = ColumnConfigs.FindIndex(c => c.GuidID == guid);
@@ -1224,7 +1277,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             xPos = -offset;
             foreach (Control ctrl in _filterPanel.Controls)
             {
-                if (ctrl is TextBox filterBox && filterBox.Tag is string filterGuid)
+                if (ctrl is BeepTextBox filterBox && filterBox.GuidID is string filterGuid)
                 {
                     // find the matching ColumnConfig
                     int idx = ColumnConfigs.FindIndex(c => c.GuidID == filterGuid);
@@ -1259,7 +1312,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
 
             // 2) Remove the header label if present
-            if (_headerLabels.TryGetValue(e.Column, out Label headerLabel))
+            if (_headerLabels.TryGetValue(e.Column, out BeepLabel headerLabel))
             {
                 // Removes the label from your header panel
                 headerLabel.Parent?.Controls.Remove(headerLabel);
@@ -1269,7 +1322,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
 
             // 3) Remove the filter textbox if present
-            if (_filterBoxes.TryGetValue(e.Column, out TextBox filterBox))
+            if (_filterBoxes.TryGetValue(e.Column, out BeepTextBox filterBox))
             {
                 // Removes the filter box from your filter panel
                 filterBox.Parent?.Controls.Remove(filterBox);
@@ -1305,6 +1358,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public override void ApplyTheme()
         {
             base.ApplyTheme();
+            if(_currentTheme == null)
+            {
+                return;
+            }
+            if(TargetDataGridView== null)
+            {
+                return;
+            }
             // apply theme for grid
             this.TargetDataGridView.BackgroundColor = _currentTheme.GridBackColor;
             this.TargetDataGridView.DefaultCellStyle.BackColor = _currentTheme.GridBackColor;
@@ -1352,7 +1413,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         #endregion Theme Management
 
         #region Entity Management
-        private void AddColumnConfigurations(DataGridViewColumn column, int index, int width, string name, string headertext)
+        private void AddColumnConfigurations(DataGridViewColumn column, int index, int width, string name, string headertext,BeepLabel lbl=null)
         {
             if (ColumnConfigs.Count > 0 && ColumnConfigs.Exists(p => p.Index == index))
             {
@@ -1369,7 +1430,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 IsSorted = false,
                 IsFilteOn = false,
                 IsTotalOn = false,
-                GuidID = column.Tag.ToString()
+                GuidID = lbl== null ? Guid.NewGuid().ToString() : lbl.GuidID,
             };
 
            // FilterBox.TextChanged += FilterTextBox_TextChanged;
@@ -1484,7 +1545,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
 
             TargetDataGridView.Columns.Clear();
-            if (DataSource != null && Entity != null)
+            if (DataBindingSource != null && Entity != null)
             {
                 ColumnConfigs.Clear();
              
@@ -1494,8 +1555,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 Title = Entity.EntityName;
                 _titleLabel.Text = Entity.EntityName;
             }
-            DataSource.ResetBindings(false);
-            DataSource.DataSource = data;
+            DataBindingSource.ResetBindings(false);
+            DataBindingSource.DataSource = data;
             return DMEEditor.ErrorObject;
         }
 
@@ -1517,7 +1578,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
 
             TargetDataGridView.Columns.Clear();
-            if (DataSource != null && Entity != null)
+            if (DataBindingSource != null && Entity != null)
             {
                 ColumnConfigs.Clear();
               
@@ -1528,7 +1589,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 Title = Entity.EntityName;
                 _titleLabel.Text = Entity.EntityName;
             }
-            DataSource.ResetBindings(false);
+            DataBindingSource.ResetBindings(false);
             return DMEEditor.ErrorObject;
         }
 
@@ -1538,7 +1599,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private void OnDataSourceChanged(object? sender, EventArgs e)
         {
             if (_targetGrid == null) return;
-            DataSource = _targetGrid.DataSource as BindingSource;
+            DataBindingSource = _targetGrid.DataSource as BindingSource;
             // Clear existing column configurations
             _headerLabels.Clear();
             _filterBoxes.Clear();
@@ -1581,7 +1642,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 var col = kvp.Key;
                 var sortOrder = kvp.Value;
-                if (_headerLabels.TryGetValue(col, out Label lbl))
+                if (_headerLabels.TryGetValue(col, out BeepLabel lbl))
                 {
                     UpdateSortIcons(lbl, sortOrder);
                 }

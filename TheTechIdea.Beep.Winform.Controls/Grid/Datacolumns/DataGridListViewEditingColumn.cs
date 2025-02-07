@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Winform.Controls;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
-    [ToolboxItem(true)]
+    [ToolboxItem(false)]
     public class BeepDataGridViewListBoxColumn : DataGridViewColumn
     {
         public BeepDataGridViewListBoxColumn() : base(new BeepDataGridViewListBoxCell())

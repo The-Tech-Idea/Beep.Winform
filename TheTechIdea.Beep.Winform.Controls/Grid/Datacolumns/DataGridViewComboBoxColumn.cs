@@ -152,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
                 control.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
                 control.AutoCompleteSource = AutoCompleteSource.ListItems;
 
-                // Set the DataSource, DisplayMember, ValueMember if necessary
+                // Set the DataBindingSource, DisplayMember, ValueMember if necessary
                 if (this.DataSource != null)
                 {
                     control.DataSource = this.DataSource;

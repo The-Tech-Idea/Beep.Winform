@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Drawing;
-using TheTechIdea.Beep.Vis.Modules; // Ensure correct namespace for BeepImage
+using TheTechIdea.Beep.Vis.Modules;
+using System.ComponentModel; // Ensure correct namespace for BeepImage
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
+    [ToolboxItem(false)]
     public class BeepImageColumn : DataGridViewColumn
     {
         public BeepImageColumn() : base(new BeepImageCell())

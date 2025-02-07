@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
-    
+    [ToolboxItem(false)]
     public class BeepDataGridViewColorPickerColumn : DataGridViewColumn
     {
         public BeepDataGridViewColorPickerColumn() : base(new DataGridViewColorPickerCell())

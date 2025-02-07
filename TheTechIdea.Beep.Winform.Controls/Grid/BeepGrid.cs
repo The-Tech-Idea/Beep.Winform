@@ -741,7 +741,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         case Type type when type.IsEnum:
                             column = new BeepDataGridViewComboBoxColumn(); // Custom ComboBox Column with cascading support
                             //{
-                            //    DataSource = Enum.GetValues(type),
+                            //    DataBindingSource = Enum.GetValues(type),
                             //    ValueType = type
                             //};
                             break;
@@ -1003,7 +1003,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 GridView.Update(); // Update the control immediately
 
                 // Optionally reset bindings or re-fetch data if necessary
-                // GridView.DataSource = ... // Update your data source if required
+                // GridView.DataBindingSource = ... // Update your data source if required
             }
         }
         #endregion "Data Binding and Change"

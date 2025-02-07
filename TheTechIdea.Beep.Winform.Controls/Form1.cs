@@ -48,6 +48,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
 
             beepTreeControl1.CreateRootTree();
+          
+            beepGridHeader1.TargetDataGridView = dataGridView1;
+            dataGridView1.DataSource = beepTreeControl1.Nodes;
             // beepButton2.ListItems = beepTreeControl1.Nodes;
             //BeepPopupListForm beepFileDialog = new BeepPopupListForm(beepTreeControl1.Nodes.ToList());
             //// Get the screen position of the control's top-left corner

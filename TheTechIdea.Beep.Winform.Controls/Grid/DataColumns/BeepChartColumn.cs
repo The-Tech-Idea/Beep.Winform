@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Drawing;
-using TheTechIdea.Beep.Vis.Modules; // Ensure correct namespace for BeepChartBase
+using TheTechIdea.Beep.Vis.Modules;
+using System.ComponentModel; // Ensure correct namespace for BeepChartBase
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
+    [ToolboxItem(false)]
     public class BeepChartColumn : DataGridViewColumn
     {
         public BeepChartColumn() : base(new BeepChartCell())

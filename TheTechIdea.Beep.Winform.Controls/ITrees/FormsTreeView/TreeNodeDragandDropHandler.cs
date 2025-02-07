@@ -148,7 +148,7 @@
 //                                ObjectType = "TABLE",
 //                                EventType = "DragandDrop",
 //                                ParameterString1 = "Add Entity Child",
-//                                DataSource = dragedBranch.DataSource,
+//                                DataBindingSource = dragedBranch.DataBindingSource,
 //                                DatasourceName = dragedBranch.DataSourceName,
 //                                CurrentEntity = dragedBranch.BranchText,
 //                                Id = dragedBranch.BranchID,
@@ -173,7 +173,7 @@
 //                                EventType = "COPYENTITY",
 //                                ParameterString1 = "COPYENTITY",
 
-//                                DataSource = dragedBranch.DataSource,
+//                                DataBindingSource = dragedBranch.DataBindingSource,
 //                                DatasourceName = dragedBranch.DataSourceName,
 //                                CurrentEntity = dragedBranch.BranchText,
 //                                Id = dragedBranch.BranchID,

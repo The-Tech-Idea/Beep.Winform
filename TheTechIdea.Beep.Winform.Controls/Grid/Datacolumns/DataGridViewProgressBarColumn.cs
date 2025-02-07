@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepPro
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
-    [ToolboxItem(true)]
+    [ToolboxItem(false)]
     public class BeepDataGridViewProgressBarColumn : DataGridViewColumn
     {
         public BeepDataGridViewProgressBarColumn() : base(new BeepDataGridViewProgressBarCell())

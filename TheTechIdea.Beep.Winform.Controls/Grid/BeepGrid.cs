@@ -7,9 +7,8 @@ using System.Drawing.Printing;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Winform.Controls.Basic;
 using TheTechIdea.Beep.Winform.Controls.Filter;
-using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns;
-using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewColumns;
-using TheTechIdea.Beep.Winform.Controls.Grid.DesignerForm;
+using TheTechIdea.Beep.Winform.Controls.Grid.DataColumns;
+
 
 using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep.Utilities;
@@ -509,7 +508,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
             //  Console.WriteLine("BeepGrid Constructor 7");
             // Load the layout for the grid
- LoadGridLayout();
+            LoadGridLayout();
         }
 
         #region "Grid Properties"
@@ -684,7 +683,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 InQuery = true;
                 BindingNavigator.BindingSource.DataSource = value;
                 BindingNavigator.BindingSource.ResetBindings(true);
-                this.BindingNavigator.HightlightColor = Color.Yellow;
                 dataGridView1.DataSource = BindingNavigator.BindingSource;
                 InQuery = false;
                 return true;

@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Winform.Controls;
 
-namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
+namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
     [ToolboxItem(true)]
     public class BeepDataGridViewListBoxColumn : DataGridViewColumn

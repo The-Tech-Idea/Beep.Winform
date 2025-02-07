@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
+namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
     
     public class BeepDataGridViewColorPickerColumn : DataGridViewColumn

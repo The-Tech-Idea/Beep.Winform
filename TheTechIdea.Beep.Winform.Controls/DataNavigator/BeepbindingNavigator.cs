@@ -7,6 +7,7 @@ using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Vis.Logic;
 
 
 
@@ -19,6 +20,23 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
     [DisplayName("Beep Binding Navigator")]
     public partial class BeepBindingNavigator : BeepControl
     {
+        public BeepBindingNavigator()
+        {
+
+
+        }
+        protected override void OnLayout(LayoutEventArgs e)
+        {
+            base.OnLayout(e);
+
+        }
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+            initControls();
+
+        }
         private Panel MainPanel;
         TableLayoutPanel layoutPanel;
         private BeepLabel Recordnumberinglabel1;
@@ -35,23 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         int spacing = 5; // Spacing between buttons
         int labelWidth = 100; // Width of the label
         int totalControls = 11; // Number of controls
-        public BeepBindingNavigator()
-        {
-
-           
-        }
-        protected override void OnLayout(LayoutEventArgs e)
-        {
-            base.OnLayout(e);
-           
-        }
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
-
-                initControls();
-
-        }
+     
 
         public IUnitofWork<Entity> UnitofWork { get; set; }
         public event EventHandler<BindingSource> CallPrinter;
@@ -95,18 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         private ToolTip printtooltip;
         private ToolTip sharetooltip;
         private Size buttonSize = new Size(14, 14);
-
-        public Color HightlightColor { get { return _HightlightColor; } set { _HightlightColor = value; setHiColor(); } }
-        public Color SelectedColor { get { return _SelectedColor; } set { _SelectedColor = value; setSelectColor(); } }
-        public void SetConfig(IDMEEditor pbl, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
-        {
-
-
-           
-        }
-       
-      
-     
+ 
         private void initControls()
         {
             Controls.Clear();
@@ -151,25 +142,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         {
             base.ApplyTheme();
             BackColor = _currentTheme.PanelBackColor;
-        }
-        private void setHiColor()
-        {
-            foreach (Button item in GetAll(this, typeof(Button)))
-            {
-
-
-                item.FlatAppearance.MouseOverBackColor = HightlightColor;
-            }
-        }
-        private void setSelectColor()
-        {
-            foreach (Button item in GetAll(this, typeof(Button)))
-            {
-
-                item.FlatAppearance.MouseDownBackColor = SelectedColor;
-
-            }
-
+            MainPanel.BackColor = _currentTheme.PanelBackColor;
+            Recordnumberinglabel1.Theme = Theme;
+          //  Recordnumberinglabel1.BackColor = ColorUtils.GetForColor(_currentTheme.LabelBackColor, _currentTheme.LabelForeColor);
         }
         #region "Click Methods for all Buttons"
 

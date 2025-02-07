@@ -1,7 +1,7 @@
 ﻿
 using System.Data;
 using System.Reflection;
-using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns;
+using TheTechIdea.Beep.Winform.Controls.Grid.DataColumns;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DesignerForm

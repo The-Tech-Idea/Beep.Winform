@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepStarRating
 
-namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
+namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
     [ToolboxItem(true)]
     public class BeepDataGridViewRatingColumn : DataGridViewColumn

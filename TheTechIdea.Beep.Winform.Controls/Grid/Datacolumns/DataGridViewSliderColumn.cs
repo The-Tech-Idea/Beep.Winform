@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
+namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
     // DataGridViewSliderColumn class
     [ToolboxItem(false)]

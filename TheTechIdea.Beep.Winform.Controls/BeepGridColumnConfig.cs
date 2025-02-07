@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewColumns;
+using TheTechIdea.Beep.Winform.Controls.Grid.DataColumns;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

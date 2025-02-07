@@ -176,6 +176,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
             // Add handling for any other properties you've included in DataGridViewColumnConfiguration
         }
+        public static void SetUpBeepDataGridView(DataGridView dataGridView1)
+        {
 
+        }
     }
 }

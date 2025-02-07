@@ -5,7 +5,7 @@ using System.ComponentModel;
 using TheTechIdea.Beep.DataBase;
 
 
-namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns.CustomDataGridViewColumns
+namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
     public enum DataSourceMode
     {

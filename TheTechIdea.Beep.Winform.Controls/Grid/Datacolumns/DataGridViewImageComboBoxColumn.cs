@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 
 
-namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
+namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
     [ToolboxItem(false)]
     public class BeepDataGridViewImageComboBoxColumn : DataGridViewColumn

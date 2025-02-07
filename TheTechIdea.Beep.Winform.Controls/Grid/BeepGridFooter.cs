@@ -16,27 +16,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private BeepGridHeader _linkedHeader;
         private bool _isUpdating;
 
-        // Panel to display totals
-        private BeepPanel _totalsPanel;
+        // FlowLayout for column-aligned totals
+        private FlowLayoutPanel _totalsFlow;
+
         // Binding navigator for record navigation
         private BeepBindingNavigator _bindingNavigator;
 
+        // A dictionary to store the label for each column
+        private Dictionary<DataGridViewColumn, Label> _columnTotals = new();
+
+        // Toggle whether totals panel is shown
+        private bool _showTotalsPanel = false;
+
+        // Toggle whether data navigator is shown
+        private bool _showDataNavigator = true;
+
         public BeepGridFooter()
         {
-            Height = 50; // Default height for totals + navigator
-            Width = 200;
+            // Default size
+            Height = 50;
+            Width = 400;
+
             InitializeComponents();
         }
 
         private void InitializeComponents()
         {
-            // Totals on top, navigator fills the rest
-            _totalsPanel = new BeepPanel
+            // Create the flow for totals (aligned with columns)
+            _totalsFlow = new FlowLayoutPanel
             {
-                Height = 24,
                 Dock = DockStyle.Top,
-                ShowTitle = false,
-                ShowAllBorders = false
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                Height = 24,
+                AutoScroll = false
             };
 
             _bindingNavigator = new BeepBindingNavigator
@@ -45,11 +58,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             };
 
             Controls.Add(_bindingNavigator);
-            Controls.Add(_totalsPanel);
+            Controls.Add(_totalsFlow);
+
+            // Initial visibility
+            _totalsFlow.Visible = _showTotalsPanel;
+            _bindingNavigator.Visible = _showDataNavigator;
         }
+
+        #region Public Properties
 
         /// <summary>
         /// The DataGridView this footer attaches to.
+        /// We'll follow its location/size changes and build one label per column in the totals row.
         /// </summary>
         [Browsable(true)]
         [Category("Behavior")]
@@ -61,20 +81,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 if (_targetDataGridView != null)
                 {
+                    // Unsubscribe old
                     _targetDataGridView.LocationChanged -= TargetMoved;
                     _targetDataGridView.SizeChanged -= TargetMoved;
                     _targetDataGridView.DataSourceChanged -= OnDataSourceChanged;
+                    _targetDataGridView.ColumnWidthChanged -= OnColumnWidthChanged;
+                    _targetDataGridView.ColumnAdded -= OnColumnAdded;
+                    _targetDataGridView.ColumnRemoved -= OnColumnRemoved;
                 }
 
                 _targetDataGridView = value;
 
                 if (_targetDataGridView != null)
                 {
+                    // Subscribe new
                     _targetDataGridView.LocationChanged += TargetMoved;
                     _targetDataGridView.SizeChanged += TargetMoved;
                     _targetDataGridView.DataSourceChanged += OnDataSourceChanged;
+                    _targetDataGridView.ColumnWidthChanged += OnColumnWidthChanged;
+                    _targetDataGridView.ColumnAdded += OnColumnAdded;
+                    _targetDataGridView.ColumnRemoved += OnColumnRemoved;
 
                     Reposition();
+                    BuildTotalsRow();
                     UpdateTotals();
                     UpdateBindingNavigator();
                 }
@@ -82,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
 
         /// <summary>
-        /// Optional: link a BeepGridHeader so we can keep in sync with it as well.
+        /// Optionally link a BeepGridHeader so we can keep in sync with it as well.
         /// </summary>
         [Browsable(true)]
         [Category("Behavior")]
@@ -108,8 +137,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
 
         /// <summary>
-        /// Called when the grid or the linked header moves or resizes.
+        /// Show or hide the totals row.
         /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Show or hide the totals row.")]
+        public bool ShowTotalsPanel
+        {
+            get => _showTotalsPanel;
+            set
+            {
+                _showTotalsPanel = value;
+                _totalsFlow.Visible = value;
+            }
+        }
+
+        /// <summary>
+        /// Show or hide the data navigator.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Show or hide the data navigator.")]
+        public bool ShowDataNavigator
+        {
+            get => _showDataNavigator;
+            set
+            {
+                _showDataNavigator = value;
+                _bindingNavigator.Visible = value;
+            }
+        }
+
+        #endregion
+
+        #region Movement & Position
+
         private void TargetMoved(object sender, EventArgs e)
         {
             if (_isUpdating) return;
@@ -124,15 +186,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
         }
 
-        /// <summary>
-        /// Positions the footer below the DataGridView.
-        /// </summary>
         private void Reposition()
         {
             if (_targetDataGridView == null || _targetDataGridView.Parent == null)
                 return;
 
-            // Make sure we share the same parent as the data grid.
+            // Ensure same parent
             if (Parent != _targetDataGridView.Parent)
             {
                 Parent?.Controls.Remove(this);
@@ -141,44 +200,54 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
             Width = _targetDataGridView.Width;
             Left = _targetDataGridView.Left;
-            Top = _targetDataGridView.Bottom;  // directly below the grid
+            // place directly below the grid
+            Top = _targetDataGridView.Bottom;
         }
 
-        /// <summary>
-        /// When the DataSource changes, recalc totals & set binding navigator source.
-        /// </summary>
-        private void OnDataSourceChanged(object sender, EventArgs e)
-        {
-            UpdateTotals();
-            UpdateBindingNavigator();
-        }
+        #endregion
+
+        #region Build & Update Totals
 
         /// <summary>
-        /// Refresh the binding navigator's BindingSource if the DataGridView's DataSource is a BindingSource.
+        /// Build a label for each column, stored in a dictionary for alignment & updates.
         /// </summary>
-        private void UpdateBindingNavigator()
+        private void BuildTotalsRow()
         {
-            if (_targetDataGridView?.DataSource is BindingSource bs)
+            _totalsFlow.Controls.Clear();
+            _columnTotals.Clear();
+
+            if (_targetDataGridView == null) return;
+            foreach (DataGridViewColumn col in _targetDataGridView.Columns)
             {
-                _bindingNavigator.BindingSource = bs;
+                // Create a label or textbox
+                var lbl = new Label
+                {
+                    Text = col.HeaderText + ": 0",
+                    AutoSize = false,
+                    Width = col.Width,
+                    Height = 24,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Tag = col
+                };
+                _totalsFlow.Controls.Add(lbl);
+                _columnTotals[col] = lbl;
             }
         }
 
         /// <summary>
-        /// Recompute totals for numeric columns and display them in the totals panel.
+        /// Recompute totals for numeric columns and place them in the labels.
+        /// Skips if ShowTotalsPanel is false or no rows.
         /// </summary>
         public void UpdateTotals()
         {
-            if (_targetDataGridView == null) return;
-
-            _totalsPanel.Controls.Clear();
-
-            // If we have no rows, do nothing
+            if (_targetDataGridView == null || !_showTotalsPanel) return;
             if (_targetDataGridView.Rows.Count == 0) return;
 
-            // Loop through columns, check for numeric
-            foreach (DataGridViewColumn col in _targetDataGridView.Columns)
+            foreach (var kvp in _columnTotals)
             {
+                DataGridViewColumn col = kvp.Key;
+                Label lbl = kvp.Value;
+
                 if (IsNumericColumn(col))
                 {
                     decimal sum = 0;
@@ -188,7 +257,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                     {
                         if (!row.IsNewRow && row.Cells[col.Index].Value != null)
                         {
-                            // Attempt parse
                             if (decimal.TryParse(row.Cells[col.Index].Value.ToString(), out decimal val))
                             {
                                 sum += val;
@@ -196,32 +264,99 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                             }
                         }
                     }
-
-                    // Create label with column name + sum
-                    // You could also do average, min, max, etc.
-                    var lbl = new Label
-                    {
-                        Text = $"{col.HeaderText}: {sum}",
-                        AutoSize = true,
-                        Margin = new Padding(5, 0, 5, 0)
-                    };
-                    _totalsPanel.Controls.Add(lbl);
+                    lbl.Text = $"{col.HeaderText}: {sum}";
+                }
+                else
+                {
+                    lbl.Text = $"{col.HeaderText}";
                 }
             }
         }
 
+        #endregion
+
+        #region Binding Navigator
+
+        private void OnDataSourceChanged(object sender, EventArgs e)
+        {
+            UpdateTotals();
+            UpdateBindingNavigator();
+        }
+
+        private void UpdateBindingNavigator()
+        {
+            if (_targetDataGridView?.DataSource is BindingSource bs)
+            {
+                // attach
+                _bindingNavigator.BindingSource = bs;
+            }
+        }
+
+        #endregion
+
+        #region Column Changes (Width, Add/Remove)
+
         /// <summary>
-        /// Checks if a given column is numeric (int, float, double, decimal, etc.).
+        /// Align the label widths with the new column widths.
         /// </summary>
+        private void OnColumnWidthChanged(object sender, DataGridViewColumnEventArgs e)
+        {
+            if (_columnTotals.TryGetValue(e.Column, out var lbl))
+            {
+                lbl.Width = e.Column.Width;
+            }
+        }
+
+        private void OnColumnAdded(object sender, DataGridViewColumnEventArgs e)
+        {
+            var lbl = new Label
+            {
+                Text = e.Column.HeaderText + ": 0",
+                AutoSize = false,
+                Width = e.Column.Width,
+                Height = 24,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Tag = e.Column
+            };
+            _totalsFlow.Controls.Add(lbl);
+            _columnTotals[e.Column] = lbl;
+            UpdateTotals();
+        }
+
+        private void OnColumnRemoved(object sender, DataGridViewColumnEventArgs e)
+        {
+            if (_columnTotals.TryGetValue(e.Column, out var lbl))
+            {
+                lbl.Parent?.Controls.Remove(lbl);
+                lbl.Dispose();
+                _columnTotals.Remove(e.Column);
+            }
+        }
+
+        #endregion
+
+        #region Helpers
+
         private bool IsNumericColumn(DataGridViewColumn col)
         {
-            if (col.ValueType == null) return false;
-            return
-                col.ValueType == typeof(int) ||
-                col.ValueType == typeof(long) ||
-                col.ValueType == typeof(float) ||
-                col.ValueType == typeof(double) ||
-                col.ValueType == typeof(decimal);
+            var t = col.ValueType;
+            if (t == null) return false;
+            return (t == typeof(int) || t == typeof(long) ||
+                    t == typeof(float) || t == typeof(double) ||
+                    t == typeof(decimal));
         }
+
+        #endregion
+        #region Theme Handling
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            if (Theme == null) return;
+            this._totalsFlow.BackColor = _currentTheme.BackColor;
+
+
+            _bindingNavigator.Theme = Theme;
+        }
+        #endregion  Theme Handling
     }
 }

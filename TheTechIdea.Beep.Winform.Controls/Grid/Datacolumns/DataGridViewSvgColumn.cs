@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using Svg;
 using TheTechIdea.Beep.Winform.Controls; // Ensure correct namespace for BeepImage
 
-namespace TheTechIdea.Beep.Winform.Controls.Grid.Datacolumns
+namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
     [ToolboxBitmap(typeof(BeepDataGridViewSvgColumn), "DataGridViewImageColumn.bmp")]
     [ToolboxItem(false)]

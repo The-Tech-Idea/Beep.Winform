@@ -1,23 +1,14 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿
 using TheTechIdea.Beep.Addin;
-using TheTechIdea.Beep.ConfigUtil;
-using TheTechIdea.Beep.Container.Services;
 
+using TheTechIdea.Beep.Container.Services;
+using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Logic;
-using TheTechIdea.Beep.Vis.Modules;
+
 
 
 
@@ -50,7 +41,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepTreeControl1.CreateRootTree();
           
             beepGridHeader1.TargetDataGridView = dataGridView1;
-            dataGridView1.DataSource = beepTreeControl1.Nodes;
+            DriversConfigViewModel viewModel = new DriversConfigViewModel(beepService.DMEEditor, beepService.vis);
+           
+            beepGridHeader1.DataSource =  viewModel.DBWork.Units;
             // beepButton2.ListItems = beepTreeControl1.Nodes;
             //BeepPopupListForm beepFileDialog = new BeepPopupListForm(beepTreeControl1.Nodes.ToList());
             //// Get the screen position of the control's top-left corner

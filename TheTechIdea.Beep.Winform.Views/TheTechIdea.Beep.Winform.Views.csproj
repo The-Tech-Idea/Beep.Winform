@@ -110,12 +110,14 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <PackageReference Include="ReaLTaiizor" Version="3.8.1.1" />
+	  <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.36" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Beep.ViewModels\TheTechIdea.Beep.MVVM\TheTechIdea.Beep.MVVM.csproj" />
 	  <ProjectReference Include="..\TheTechIdea.Beep.Vis.Logic\TheTechIdea.Beep.Vis.Logic.csproj" />
 	  <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
 	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Desktop.Common.csproj" />
+	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
 	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Extensions\TheTechIdea.Beep.Winform.Extensions.csproj" />
 	</ItemGroup>
 </Project>

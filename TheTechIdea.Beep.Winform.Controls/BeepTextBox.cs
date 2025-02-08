@@ -16,6 +16,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepTextBox : BeepControl
     {
         #region "Properties"
+      
+        public new event EventHandler TextChanged;
         private TextBox _innerTextBox;
         private BeepButton beepImage;
         private string _maskFormat = "";
@@ -282,7 +284,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Text displayed in the control.")]
-        public override string Text
+        public new string Text
         {
             get => _innerTextBox.Text;
             set
@@ -673,7 +675,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _innerTextBox.KeyDown += OnSearchKeyDown;
             _innerTextBox.MouseEnter += OnMouseEnter;
             _innerTextBox.MouseLeave += OnMouseLeave;
-            _innerTextBox.TextChanged += (s, e) => Invalidate(); // Repaint to apply formatting
+ //           _innerTextBox.TextChanged += (s, e) => Invalidate(); // Repaint to apply formatting
             Controls.Add(_innerTextBox);
             _innerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
             beepImage = new BeepButton() 
@@ -930,7 +932,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ApplyMaskFormat();
                 _isApplyingMask = false;
 
-                Text = _innerTextBox.Text;
+              //  Text = _innerTextBox.Text;
+                TextChanged?.Invoke(this, EventArgs.Empty);
                 Invalidate();
             }
         }

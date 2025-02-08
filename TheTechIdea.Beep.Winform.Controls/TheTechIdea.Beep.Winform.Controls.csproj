@@ -75,7 +75,9 @@
     <None Remove="GFX\SVG\back-button.svg" />
     <None Remove="GFX\SVG\back.svg" />
     <None Remove="GFX\SVG\close.svg" />
+    <None Remove="GFX\SVG\closered.svg" />
     <None Remove="GFX\SVG\comment.svg" />
+    <None Remove="GFX\SVG\copy.svg" />
     <None Remove="GFX\SVG\dislike.svg" />
     <None Remove="GFX\SVG\doorclosed.svg" />
     <None Remove="GFX\SVG\dooropen.svg" />
@@ -102,6 +104,7 @@
     <None Remove="GFX\SVG\menu.svg" />
     <None Remove="GFX\SVG\minimize.svg" />
     <None Remove="GFX\SVG\minus.svg" />
+    <None Remove="GFX\SVG\more.svg" />
     <None Remove="GFX\SVG\next.svg" />
     <None Remove="GFX\SVG\No.svg" />
     <None Remove="GFX\SVG\notice.svg" />
@@ -118,6 +121,7 @@
     <None Remove="GFX\SVG\rollback.svg" />
     <None Remove="GFX\SVG\save.svg" />
     <None Remove="GFX\SVG\search.svg" />
+    <None Remove="GFX\SVG\searchappbar.svg" />
     <None Remove="GFX\SVG\settings.svg" />
     <None Remove="GFX\SVG\share.svg" />
     <None Remove="GFX\SVG\simpleinfoapps.svg" />
@@ -126,8 +130,11 @@
     <None Remove="GFX\SVG\sortalphaup.svg" />
     <None Remove="GFX\SVG\square-minus.svg" />
     <None Remove="GFX\SVG\square-plus.svg" />
+    <None Remove="GFX\SVG\squareclose.svg" />
+    <None Remove="GFX\SVG\star.svg" />
     <None Remove="GFX\SVG\sum.svg" />
     <None Remove="GFX\SVG\theme.svg" />
+    <None Remove="GFX\SVG\thumb-up.svg" />
     <None Remove="GFX\SVG\trash.svg" />
     <None Remove="GFX\SVG\user.svg" />
     <None Remove="GFX\SVG\x.svg" />
@@ -137,13 +144,18 @@
     <EmbeddedResource Include="GFX\SVG\alarm.svg" />
     <EmbeddedResource Include="GFX\SVG\alarmclock.svg" />
     <EmbeddedResource Include="GFX\SVG\alert.svg" />
+    <EmbeddedResource Include="GFX\SVG\closered.svg" />
+    <EmbeddedResource Include="GFX\SVG\copy.svg" />
     <EmbeddedResource Include="GFX\SVG\edit.svg" />
     <EmbeddedResource Include="GFX\SVG\information.svg" />
+    <EmbeddedResource Include="GFX\SVG\more.svg" />
     <EmbeddedResource Include="GFX\SVG\question.svg" />
     <EmbeddedResource Include="GFX\SVG\remove.svg" />
     <EmbeddedResource Include="GFX\SVG\rollback.svg" />
     <EmbeddedResource Include="GFX\SVG\save.svg" />
+    <EmbeddedResource Include="GFX\SVG\searchappbar.svg" />
     <EmbeddedResource Include="GFX\SVG\simpleinfoapps.svg" />
+    <EmbeddedResource Include="GFX\SVG\squareclose.svg" />
     <EmbeddedResource Include="GFX\SVG\stakeholder.svg" />
     <EmbeddedResource Include="GFX\SVG\about.svg" />
     <EmbeddedResource Include="GFX\SVG\add.svg" />
@@ -201,8 +213,10 @@
     <EmbeddedResource Include="GFX\SVG\sort.svg" />
     <EmbeddedResource Include="GFX\SVG\sortalphadown.svg" />
     <EmbeddedResource Include="GFX\SVG\sortalphaup.svg" />
+    <EmbeddedResource Include="GFX\SVG\star.svg" />
     <EmbeddedResource Include="GFX\SVG\sum.svg" />
     <EmbeddedResource Include="GFX\SVG\theme.svg" />
+    <EmbeddedResource Include="GFX\SVG\thumb-up.svg" />
     <EmbeddedResource Include="GFX\SVG\trash.svg" />
     <EmbeddedResource Include="GFX\SVG\user.svg" />
     <EmbeddedResource Include="GFX\SVG\x.svg" />
@@ -221,7 +235,7 @@
     <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.42" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.10" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.36" />
-    <PackageReference Include="TheTechIdea.Beep.MVVM" Version="1.0.18" />
+    <PackageReference Include="TheTechIdea.Beep.MVVM" Version="1.0.19" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="BeepDataBlock.cs" />

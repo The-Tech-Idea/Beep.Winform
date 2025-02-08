@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Editor;
@@ -122,16 +123,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// <summary>
         /// Gets or sets the BindingSource used by the grid's navigator.
         /// </summary>
-        public BindingSource DataBindingSource
+        public Object DataSource
         {
             get { return _bindingSource; }
             set
             {
                 InQuery = true;
-               
-                _bindingSource = value;
-              //  if (TargetDataGridView != null) TargetDataGridView.DataSource = _bindingSource;
-                
+                _bindingSource.DataSource = value;
+                if (TargetDataGridView != null) TargetDataGridView.DataSource = _bindingSource;
                 InQuery = false;
             }
         }
@@ -903,7 +902,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 oldColumn.HeaderCell.SortGlyphDirection = SortOrder.None;
                 Currentdirection = SortOrder.None;
-                DataBindingSource.RemoveSort();
+                _bindingSource.RemoveSort();
                 UpdateSortIcons(headerLabel, SortOrder.None);
                 return;
             }
@@ -979,19 +978,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             Console.WriteLine("Applying Filter: " + completeFilter);
             if (string.IsNullOrEmpty(completeFilter))
             {
-                DataBindingSource.RemoveFilter();
+                _bindingSource.RemoveFilter();
             }
             else
             {
-                DataBindingSource.Filter = completeFilter;
+                _bindingSource.Filter = completeFilter;
             }
-            TargetDataGridView.DataSource = DataBindingSource;
+            TargetDataGridView.DataSource = _bindingSource;
         }
         private void ApplyFilter()
         {
+           
+            Debug.WriteLine("Applying Filter");
             if (!_showFilter || _targetGrid == null) return;
             if (_targetGrid.DataSource is BindingSource bs)
             {
+                Debug.WriteLine("Applying Filter 1");
                 var conditions = new List<string>();
                 foreach (var kvp in _filterBoxes)
                 {
@@ -1002,10 +1004,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         string prop = col.DataPropertyName;
                         if (string.IsNullOrEmpty(prop)) prop = col.Name;
                         string search = txt.Text.Replace("'", "''");
-                        conditions.Add($"[{prop}] LIKE '%{search}%'" );
+                        conditions.Add($"{prop} LIKE '%{search}%'" );
                     }
                 }
-                bs.Filter = string.Join(" AND ", conditions);
+                Debug.WriteLine("Conditions: " + string.Join(" AND ", conditions));
+                _bindingSource.Filter = string.Join(" AND ", conditions);
+                TargetDataGridView.Refresh();
+
+                Debug.WriteLine("Filter Applied End");
             }
         }
         #endregion
@@ -1532,7 +1538,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
 
             TargetDataGridView.Columns.Clear();
-            if (DataBindingSource != null && Entity != null)
+            if (_bindingSource != null && Entity != null)
             {
                 ColumnConfigs.Clear();
              
@@ -1542,8 +1548,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 Title = Entity.EntityName;
                 _titleLabel.Text = Entity.EntityName;
             }
-            DataBindingSource.ResetBindings(false);
-            DataBindingSource.DataSource = data;
+            _bindingSource.ResetBindings(false);
+            _bindingSource.DataSource = data;
             return DMEEditor.ErrorObject;
         }
 
@@ -1565,7 +1571,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
 
             TargetDataGridView.Columns.Clear();
-            if (DataBindingSource != null && Entity != null)
+            if (_bindingSource != null && Entity != null)
             {
                 ColumnConfigs.Clear();
               
@@ -1576,7 +1582,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 Title = Entity.EntityName;
                 _titleLabel.Text = Entity.EntityName;
             }
-            DataBindingSource.ResetBindings(false);
+            _bindingSource.ResetBindings(false);
             return DMEEditor.ErrorObject;
         }
 
@@ -1586,7 +1592,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private void OnDataSourceChanged(object? sender, EventArgs e)
         {
             if (_targetGrid == null) return;
-            DataBindingSource = _targetGrid.DataSource as BindingSource;
+            _bindingSource = _targetGrid.DataSource as BindingSource;
             // Clear existing column configurations
             _headerLabels.Clear();
             _filterBoxes.Clear();

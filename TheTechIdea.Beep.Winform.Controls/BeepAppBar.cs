@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepImage _logo;
     
 
-        private int imageoffset = 1;
+        private int imageoffset = 2;
         #endregion "Fields"
         //public BeepSideMenu SideMenu { get { return _sidemenu; } set { _sidemenu = value; if (_sidemenu != null) { _sidemenu.OnMenuCollapseExpand += HandleSideMenuState; } } }
         #region "Title and Text Properties"
@@ -407,7 +407,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             searchBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             searchBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
             searchBox.Click += ButtonClicked;
-            searchBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg";
+            searchBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.searchappbar.svg";
             Controls.Add(searchBox);
         }
         public void SetSearchBoxAutoCompleteSource(AutoCompleteStringCollection source)
@@ -586,7 +586,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = windowsicons_height,
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
                 Cursor = Cursors.Hand,
-                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.x.svg",
+                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg",
                 Theme = Theme,
                 ApplyThemeOnImage = ApplyThemeToChilds,
                 IsFramless = this.IsFramless,

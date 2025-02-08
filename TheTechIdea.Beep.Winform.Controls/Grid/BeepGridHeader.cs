@@ -82,6 +82,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public BeepGridHeader()
         {
             // By default, no filter => total height = top + header => 60
+            Margin = new Padding(2);
+            Padding = new Padding(2);
             InitializeLayout();
             _bindingSource = new BindingSource();
             this.LocationChanged += Header_LocationChanged;
@@ -490,7 +492,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 Height = 30,  // Ensure a fixed height
                 Dock = DockStyle.Top,
-                BackColor = Color.White
+                BackColor = Color.White,
+                Visible = true
+
             };
         //    Console.WriteLine("Header Panel Height: " + _headerPanelHeight);
            ;
@@ -650,7 +654,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 return;
 
             int leftPosition = 0;  // Running left coordinate
-
+           
             // Loop through each grid column and add corresponding header and filter controls.
             foreach (DataGridViewColumn col in _targetGrid.Columns)
             {

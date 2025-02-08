@@ -407,7 +407,7 @@
             beepTreeControl1.SelectedBranchs = (List<int>)resources.GetObject("beepTreeControl1.SelectedBranchs");
             beepTreeControl1.SelectedIndex = -1;
             beepTreeControl1.SelectIcon = "Select.svg";
-            beepTreeControl1.SeqID = 17;
+            beepTreeControl1.SeqID = 3;
             beepTreeControl1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
             beepTreeControl1.ShadowOffset = 0;
             beepTreeControl1.ShadowOpacity = 0.5F;
@@ -1185,7 +1185,7 @@
             dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
             dataGridView1.DefaultCellStyle = dataGridViewCellStyle3;
             dataGridView1.GridColor = Color.FromArgb(200, 200, 200);
-            dataGridView1.Location = new Point(415, 258);
+            dataGridView1.Location = new Point(415, 253);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersVisible = false;
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
@@ -1260,7 +1260,7 @@
             beepGridFooter1.LeftoffsetForDrawingRect = 0;
             beepGridFooter1.LinkedHeader = null;
             beepGridFooter1.LinkedProperty = null;
-            beepGridFooter1.Location = new Point(415, 435);
+            beepGridFooter1.Location = new Point(415, 430);
             beepGridFooter1.Name = "beepGridFooter1";
             beepGridFooter1.OverrideFontSize = TypeStyleFontSize.None;
             beepGridFooter1.ParentBackColor = Color.Empty;
@@ -1323,7 +1323,7 @@
             beepGridHeader1.DisabledBackColor = Color.Gray;
             beepGridHeader1.DisabledForeColor = Color.Empty;
             beepGridHeader1.DMEEditor = null;
-            beepGridHeader1.DrawingRect = new Rectangle(0, 0, 592, 60);
+            beepGridHeader1.DrawingRect = new Rectangle(2, 2, 588, 56);
             beepGridHeader1.Easing = EasingType.Linear;
             beepGridHeader1.Entity = null;
             beepGridHeader1.FieldID = null;
@@ -1368,9 +1368,11 @@
             beepGridHeader1.LeftoffsetForDrawingRect = 0;
             beepGridHeader1.LinkedFooter = null;
             beepGridHeader1.LinkedProperty = null;
-            beepGridHeader1.Location = new Point(415, 198);
+            beepGridHeader1.Location = new Point(415, 193);
+            beepGridHeader1.Margin = new Padding(2);
             beepGridHeader1.Name = "beepGridHeader1";
             beepGridHeader1.OverrideFontSize = TypeStyleFontSize.None;
+            beepGridHeader1.Padding = new Padding(2);
             beepGridHeader1.ParentBackColor = Color.Empty;
             beepGridHeader1.ParentControl = null;
             beepGridHeader1.PressedBackColor = Color.FromArgb(0, 120, 215);

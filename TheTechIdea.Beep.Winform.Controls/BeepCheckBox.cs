@@ -305,7 +305,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (Theme != null)
             {
-                _beepImage.Theme = Theme;
+                if(_beepImage != null)
+                    _beepImage.Theme = Theme;
                 ForeColor = _currentTheme.ButtonForeColor;
                 BackColor = _currentTheme.ButtonBackColor;
                 Invalidate();

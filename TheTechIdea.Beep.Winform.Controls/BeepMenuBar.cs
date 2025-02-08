@@ -204,8 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int initialWidthGuess = 80;  // you can tweak this
             List<BeepButton> createdButtons = new List<BeepButton>();
 
-            using (Graphics g = CreateGraphics())
-            {
+
                 foreach (SimpleItem item in items)
                 {
                     // Create the button
@@ -230,7 +229,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         Anchor = AnchorStyles.None,
                         TextFont = _textFont,
                         UseThemeFont = true,
-                        AutoSize = true,
+                      //  AutoSize = true,
                         GuidID = item.GuidId
                     };
                     
@@ -244,7 +243,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                   //  menumainbar.Add(item.Text, btn);
                     createdButtons.Add(btn);
                 }
-            }
+
 
             // Now we have all the buttons in the Controls, each with a guessed width.
             // Next step: measure them properly.
@@ -407,7 +406,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            BackColor = _currentTheme.ButtonBackColor;
+            BackColor = _currentTheme.SideMenuBackColor;
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);

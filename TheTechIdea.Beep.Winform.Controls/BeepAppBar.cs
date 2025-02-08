@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Events"
         #region "Properties"
         #region "Fields"
-        private int windowsicons_height = 15;
+        private int windowsicons_height = 20;
         private int defaultHeight = 32;
         private BeepButton hamburgerIcon;
         private BeepLabel TitleLabel;
@@ -191,7 +191,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         bool _applyThemeOnImage = false;
 
 
-        public bool ApplyThemeOnImage
+        public bool ApplyThemeOnLogo
         {
             get => _applyThemeOnImage;
             set
@@ -270,14 +270,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Constructor"
         public BeepAppBar()
         {
-            InitializeAppNavBar();
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
             IsRoundedAffectedByTheme = false;
             ShowAllBorders = false;
             ShowShadow = false;
-            IsFramless = true;
-            IsRounded=false;
+            IsFramless = false;
+            IsRounded = false;
+            ApplyThemeToChilds = true;
+            InitializeAppNavBar();
+          
             // ApplyTheme();
         }
         protected override void InitLayout()
@@ -319,7 +321,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsFramless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
-                ShowAllBorders = false,
+                ShowAllBorders = this.ShowAllBorders,
                 ShowShadow = false,
                 IsChild = true,
                 Visible = true // Initially hidden
@@ -365,8 +367,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
-                
-                ShowAllBorders = false,
+
+                ShowAllBorders = this.ShowAllBorders,
                 Text = Title,
                 //IsFramless = true,
                 IsChild = true,
@@ -389,16 +391,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = 25,
                 Theme = this.Theme,
                 Text = string.Empty,
-
+                ApplyThemeOnImage =ApplyThemeToChilds, 
                 IsChild = false,
                 PlaceholderText = "Search...",
-               // ApplyThemeOnImage = _applyThemeOnImage,
-                IsFramless = false,
+               // ApplyThemeOnLogo = _applyThemeOnImage,
+                IsFramless = this.IsFramless,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ImageAlign= ContentAlignment.MiddleRight,
                 TextImageRelation = TextImageRelation.TextBeforeImage,
                 TextAlignment = HorizontalAlignment.Left,
+                ShowAllBorders = this.ShowAllBorders,
                 Tag = "Search"
             };
             searchBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
@@ -424,8 +427,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
                 Cursor = Cursors.Hand,
                 Theme = Theme,
-                ApplyThemeOnImage = true,
-                IsFramless = true,
+                ApplyThemeOnImage = ApplyThemeToChilds,
+                IsFramless = this.IsFramless,
+                ShowAllBorders = this.ShowAllBorders,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 IsChild = true,
@@ -447,8 +451,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
                 Cursor = Cursors.Hand,
                 Theme = Theme,
-                ApplyThemeOnImage = true,
-                IsFramless = true,
+                ShowAllBorders = this.ShowAllBorders,
+                ApplyThemeOnImage = ApplyThemeToChilds,
+                IsFramless = this.IsFramless,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 IsChild = true,
@@ -496,8 +501,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Cursor = Cursors.Hand,
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg",
                 Theme = Theme,
-                ApplyThemeOnImage = true,
-                IsFramless = true,
+                ApplyThemeOnImage = ApplyThemeToChilds,
+                ShowAllBorders = this.ShowAllBorders,
+                IsFramless = this.IsFramless,
                 IsChild = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
@@ -532,10 +538,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
                 Cursor = Cursors.Hand,
                 Theme = Theme,
-                ApplyThemeOnImage = true,
-                IsFramless = true,
+                ApplyThemeOnImage = ApplyThemeToChilds,
+                IsFramless = this.IsFramless,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
+                ShowAllBorders = this.ShowAllBorders,
                 IsChild = true,
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,
@@ -553,10 +560,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
                 Cursor = Cursors.Hand,
                 Theme = Theme,
-                ApplyThemeOnImage = true,
-                IsFramless = true,
+                ApplyThemeOnImage = ApplyThemeToChilds,
+                IsFramless = this.IsFramless,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
+                ShowAllBorders = this.ShowAllBorders,
                 IsChild = true,
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,
@@ -580,10 +588,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Cursor = Cursors.Hand,
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.x.svg",
                 Theme = Theme,
-                ApplyThemeOnImage = true,
-                IsFramless = true,
+                ApplyThemeOnImage = ApplyThemeToChilds,
+                IsFramless = this.IsFramless,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
+                ShowAllBorders = this.ShowAllBorders,
                 IsChild = true,
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,

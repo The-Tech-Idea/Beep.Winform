@@ -800,7 +800,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_multiline)
             {
                 _innerTextBox.Multiline = true;
-                _innerTextBox.ScrollBars = ScrollBars.Vertical;
+              //  _innerTextBox.ScrollBars = ScrollBars.Vertical;
                 // fill the entire DrawingRect minus some padding
                 // (this ensures the text box is inside the beepcontrol border)
                 int fillWidth = DrawingRect.Width - (xpadding * 2);

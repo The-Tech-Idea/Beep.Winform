@@ -219,16 +219,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Properties"
         #region "Constructors"
-        public BeepLabel()
+        public BeepLabel():base()
         {
-           // DoubleBuffered = true;
-         //   SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-         //   SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
+            DoubleBuffered = true;
+            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+        //    SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
 
             InitializeComponents();
             beepImage.ImageEmbededin = ImageEmbededin.Label;
             //  SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
-            AutoSize = false;
+           // AutoSize = false;
                         BoundProperty = "Text";
 
         }
@@ -249,7 +249,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
             }
         }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            // If single line, don't allow a bigger or smaller height than necessary
+         
+            UpdateDrawingRect();
+            Invalidate();
 
+        }
         protected override Size DefaultSize
         {
             get
@@ -300,6 +308,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage = new BeepImage
             {
                 IsChild = true,
+                Visible=false,
                 Dock = DockStyle.None, // We'll manually position it
                 Margin = new Padding(0),
                 Location = new Point(0, 0), // Set initial position (will adjust in layout)
@@ -334,7 +343,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //contentRect.Height -= (Padding.Top + Padding.Bottom);
 
             // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
-            //  DrawBackColor(e, _currentTheme.BackColor, _currentTheme.ButtonHoverBackColor);
+           //  DrawBackColor(e, _currentTheme.LabelBackColor, _currentTheme.ButtonHoverBackColor);
             DrawToGraphics(e.Graphics);
         }
         private void DrawToGraphics(Graphics g)
@@ -414,18 +423,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ForeColor = _currentTheme.LabelForeColor;
                 HoverBackColor = _currentTheme.ButtonHoverBackColor;
                 HoverForeColor = _currentTheme.ButtonHoverForeColor;
-             //   Console.WriteLine("1 Label Apply Theme TextFont");
                 // Only apply the theme's font if UseThemeFont is true
                 if (UseThemeFont)
                 {
-               //     Console.WriteLine("2 Label Apply Theme TextFont");
                     _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                 }
+               
                 Font = _textFont;
-                if (IsChild)
-                {
-                    BackColor = TempBackColor;
-                }
+                //if (IsChild)
+                //{
+                //    parentbackcolor = Parent.BackColor;
+                //}
                 //   Console.WriteLine("2 Label Apply Theme TextFont");
                 ApplyThemeToSvg();
                 Invalidate();

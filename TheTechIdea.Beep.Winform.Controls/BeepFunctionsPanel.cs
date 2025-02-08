@@ -243,9 +243,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //if (ctrl is Beepbutton)
                 //{
                 //    ((Beepbutton)ctrl).Theme = Theme;
-                //    if (ApplyThemeOnImage)
+                //    if (ApplyThemeOnLogo)
                 //    {
-                //        ((Beepbutton)ctrl).ApplyThemeOnImage=true;
+                //        ((Beepbutton)ctrl).ApplyThemeOnLogo=true;
                 //    }
 
                 //}

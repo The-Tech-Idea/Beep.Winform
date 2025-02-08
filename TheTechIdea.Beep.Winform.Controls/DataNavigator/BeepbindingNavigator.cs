@@ -1,13 +1,9 @@
 ﻿
 using System.ComponentModel;
 using System.Data;
-using System.Windows.Forms;
-using TheTechIdea.Beep.Addin;
+
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Logger;
-using TheTechIdea.Beep.Utilities;
-using TheTechIdea.Beep.Vis.Logic;
 
 
 
@@ -435,7 +431,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
                 Size = new Size(labelWidth, buttonSize.Height),
                 Text = "0",
                 ShowAllBorders = true,
-                IsBorderAffectedByTheme = false
+                IsRounded = false,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                IsRoundedAffectedByTheme = false
             };
             NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.next.svg", buttonSize);
             NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.add.svg", buttonSize);

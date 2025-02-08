@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿
+using System.ComponentModel;
 using TheTechIdea.Beep.Editor;
 
 
@@ -201,6 +202,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ApplyThemeOnImage = true,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
+                IsRoundedAffectedByTheme = false,
+                IsRounded = false,
                 Anchor = AnchorStyles.None,
                 ImageAlign= ContentAlignment.MiddleCenter,
                 TextAlign= ContentAlignment.MiddleCenter,
@@ -235,6 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             button.IsBorderAffectedByTheme = false;
             button.IsShadowAffectedByTheme = false;
+            button.IsRoundedAffectedByTheme = false;
         }
 
         void GetDimensions()
@@ -269,8 +273,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 }
             }
-          
-         //   adjustedHeight = _buttonHeight + (YOffset * 2); // Adjusted height includes YOffset
+          this.Height = adjustedHeight;
+            //   adjustedHeight = _buttonHeight + (YOffset * 2); // Adjusted height includes YOffset
         }
 
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
@@ -527,6 +531,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             BackColor = _currentTheme.ButtonBackColor;
+            if(txtPosition== null)
+            {
+                return;
+            }
             foreach (Control ctrl in Controls)
             {
                 // apply theme to all child controls
@@ -535,6 +543,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ((BeepControl)ctrl).Theme = Theme;
                 }
             }
+            txtPosition.Theme = Theme;
             Invalidate();
         }
     }

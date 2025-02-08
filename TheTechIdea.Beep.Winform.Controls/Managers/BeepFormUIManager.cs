@@ -508,9 +508,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         // Event handler for when a control is added to the form or a container
         private void OnControlAdded(object sender, ControlEventArgs e)
         {
-            Console.WriteLine($"Control Added event 1 {e.Control.Name}");
+          //  Console.WriteLine($"Control Added event 1 {e.Control.Name}");
             ApplyThemeToControlAndChildren(e.Control); // Apply theme to the new control and its children
-            Console.WriteLine("Control Added event 2");
+         //   Console.WriteLine("Control Added event 2");
             // If the control is a container, recursively attach the ControlAdded event
             if (e.Control is ContainerControl containerControl)
             {
@@ -544,7 +544,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 BeepAppBar.Title = Title;
                 BeepSideMenu.Title = Title;
             }
-            Console.WriteLine("Control Added event 3");
+            //Console.WriteLine("Control Added event 3");
         }
         private void _beepSideMenu_OnMenuCollapseExpand(bool obj)
         {
@@ -662,9 +662,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         // Apply the theme to a single control and all its children recursively
         private void ApplyThemeToControlAndChildren(Control control)
         {
-            Console.WriteLine("Applying theme to control");
+            //Console.WriteLine("Applying theme to control");
             ApplyThemeToControl(control); // Apply to the control itself
-            Console.WriteLine("Applying theme to control 2");
+          //  Console.WriteLine("Applying theme to control 2");
             // Recursively apply to child controls if the control is a container
             foreach (Control child in control.Controls)
             {

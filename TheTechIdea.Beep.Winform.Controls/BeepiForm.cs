@@ -157,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnControlAdded(e);
             //   Console.WriteLine($"1 Control Added {e.Control.Text}");
-            AdjustControls();
+          //  AdjustControls();
         }
         protected override void InitLayout()
         {
@@ -241,7 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_borderThickness > 0)
             {
                 Padding = new Padding(_borderThickness);
-                AdjustControls();
+              //  AdjustControls();
             }
         }
         #endregion "Layout Events"
@@ -406,6 +406,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.CloseFigure();
             return path;
         }
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.Style &= ~0xC00000; // Remove WS_CAPTION and WS_BORDER
+                return cp;
+            }
+        }
         public virtual void AdjustControls()
         {
             Rectangle adjustedClientArea = GetAdjustedClientRectangle();
@@ -485,15 +494,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             );
         }
 
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams cp = base.CreateParams;
-                cp.Style &= ~0xC00000; // Remove WS_CAPTION and WS_BORDER
-                return cp;
-            }
-        }
+     
         protected new Rectangle DisplayRectangle
         {
             get

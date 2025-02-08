@@ -142,8 +142,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => Tree==null ? 20:Tree.NodeHeight;
         }
         public int NodeWidth { get; set; } = 100;
-        public int SmallNodeHeight { get; set; } = 10;
-        private int nodeimagesize = 10;
+        public int SmallNodeHeight { get; set; } = 14;
+        private int nodeimagesize = 14;
         public int MinimumTextWidth { get; set; } = 100;
         int padding = 1; // Padding around elements
         int spacing = 3; // Padding around elements
@@ -1060,26 +1060,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
     
         }
-        public void DrawLeftBranch()
-        {
-            // Draw Left Branch use startx and starty
-
-            lefttreebranchimage = new BeepImage()
-            {
-                IsShadowAffectedByTheme = false,
-                IsBorderAffectedByTheme = false,
-                IsFramless = true,
-                IsChild = true,
-                IsRounded=false,
-                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.L.svg"
-                
-            };
-           // lefttreebranchimage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-down.svg";
-            lefttreebranchimage.Location = new System.Drawing.Point(startx, starty);
-            lefttreebranchimage.Size = new System.Drawing.Size(10, 10);
-            _nodePanel.Controls.Add(lefttreebranchimage);
-            startx = startx + NodeHeight;
-        }
+       
         public void DrawLeftButton()
         {
             if (_isleftbuttonVisible)
@@ -1204,7 +1185,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsRounded = false,
                 MaxImageSize = new System.Drawing.Size(SmallNodeHeight - 2, SmallNodeHeight - 2),
                 Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall),
-                UseScaledFont = true,
+                UseScaledFont = false,
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-minus.svg"
             };
 

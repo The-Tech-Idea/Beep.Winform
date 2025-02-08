@@ -17,13 +17,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private bool _isUpdating;
 
         // FlowLayout for column-aligned totals
-        private FlowLayoutPanel _totalsFlow;
+        private Panel _totalsFlow;
 
         // Binding navigator for record navigation
         private BeepBindingNavigator _bindingNavigator;
 
         // A dictionary to store the label for each column
-        private Dictionary<DataGridViewColumn, Label> _columnTotals = new();
+        private Dictionary<DataGridViewColumn, BeepLabel> _columnTotals = new();
 
         // Toggle whether totals panel is shown
         private bool _showTotalsPanel = false;
@@ -43,11 +43,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private void InitializeComponents()
         {
             // Create the flow for totals (aligned with columns)
-            _totalsFlow = new FlowLayoutPanel
+            _totalsFlow = new Panel
             {
                 Dock = DockStyle.Top,
-                FlowDirection = FlowDirection.LeftToRight,
-                WrapContents = false,
                 Height = 24,
                 AutoScroll = false
             };
@@ -83,11 +81,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 {
                     // Unsubscribe old
                     _targetDataGridView.LocationChanged -= TargetMoved;
-                    _targetDataGridView.SizeChanged -= TargetMoved;
+                    _targetDataGridView.SizeChanged -=TargeSizeChanged;
                     _targetDataGridView.DataSourceChanged -= OnDataSourceChanged;
                     _targetDataGridView.ColumnWidthChanged -= OnColumnWidthChanged;
                     _targetDataGridView.ColumnAdded -= OnColumnAdded;
                     _targetDataGridView.ColumnRemoved -= OnColumnRemoved;
+                    _targetDataGridView.Scroll -= _targetGrid_Scroll;
                 }
 
                 _targetDataGridView = value;
@@ -96,12 +95,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 {
                     // Subscribe new
                     _targetDataGridView.LocationChanged += TargetMoved;
-                    _targetDataGridView.SizeChanged += TargetMoved;
+                    _targetDataGridView.SizeChanged += TargeSizeChanged;
                     _targetDataGridView.DataSourceChanged += OnDataSourceChanged;
                     _targetDataGridView.ColumnWidthChanged += OnColumnWidthChanged;
                     _targetDataGridView.ColumnAdded += OnColumnAdded;
                     _targetDataGridView.ColumnRemoved += OnColumnRemoved;
-
+                    _targetDataGridView.Scroll += _targetGrid_Scroll;
                     Reposition();
                     BuildTotalsRow();
                     UpdateTotals();
@@ -109,6 +108,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 }
             }
         }
+
+        
 
         /// <summary>
         /// Optionally link a BeepGridHeader so we can keep in sync with it as well.
@@ -171,7 +172,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         #endregion
 
         #region Movement & Position
-
+        private void TargeSizeChanged(object? sender, EventArgs e)
+        {
+            if (_isUpdating) return;
+            _isUpdating = true;
+            try
+            {
+                Reposition();
+            }
+            finally
+            {
+                _isUpdating = false;
+            }
+        }
         private void TargetMoved(object sender, EventArgs e)
         {
             if (_isUpdating) return;
@@ -220,14 +233,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             foreach (DataGridViewColumn col in _targetDataGridView.Columns)
             {
                 // Create a label or textbox
-                var lbl = new Label
+                var lbl = new BeepLabel
                 {
                     Text = col.HeaderText + ": 0",
                     AutoSize = false,
                     Width = col.Width,
                     Height = 24,
                     TextAlign = ContentAlignment.MiddleCenter,
-                    Tag = col
+                    Tag = col,GuidID = Guid.NewGuid().ToString()
+
                 };
                 _totalsFlow.Controls.Add(lbl);
                 _columnTotals[col] = lbl;
@@ -246,7 +260,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             foreach (var kvp in _columnTotals)
             {
                 DataGridViewColumn col = kvp.Key;
-                Label lbl = kvp.Value;
+                BeepLabel lbl = kvp.Value;
 
                 if (IsNumericColumn(col))
                 {
@@ -289,6 +303,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 // attach
                 _bindingNavigator.BindingSource = bs;
+                
             }
         }
 
@@ -309,14 +324,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
         private void OnColumnAdded(object sender, DataGridViewColumnEventArgs e)
         {
-            var lbl = new Label
+            var lbl = new BeepLabel()
             {
                 Text = e.Column.HeaderText + ": 0",
                 AutoSize = false,
                 Width = e.Column.Width,
                 Height = 24,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Tag = e.Column
+                Tag = e.Column,
+                GuidID = Guid.NewGuid().ToString()
             };
             _totalsFlow.Controls.Add(lbl);
             _columnTotals[e.Column] = lbl;
@@ -334,7 +350,55 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
 
         #endregion
+        #region DataGridView Scrolling
+        private void _targetGrid_Scroll(object? sender, ScrollEventArgs e)
+        {
+            if (e.ScrollOrientation == ScrollOrientation.HorizontalScroll)
+            {
+                UpdateHeaderAndPanelPositions();
+            }
+        }
 
+        /// <summary>
+        /// Updates the positions and sizes of headers, filter controls, and total controls based on the current grid layout.
+        /// </summary>
+        private void UpdateHeaderAndPanelPositions()
+        {
+            if (TargetDataGridView == null) return;
+
+            // horizontal offset from the DataGridView's scrolling
+            int offset = TargetDataGridView.HorizontalScrollingOffset;
+
+            // ~~~~~ 1) Shift HEADER LABELS in _headerPanel ~~~~~
+            int xPos = -offset;
+            foreach (Control ctrl in _totalsFlow.Controls)
+            {
+                if (ctrl is BeepLabel headerLabel)
+                {
+                    // find the DataGridViewColumn by label.Text (assuming it's the column's HeaderText)
+                    var col = TargetDataGridView.Columns[headerLabel.Text];
+                    if (col != null && headerLabel.GuidID is string guid)
+                    {
+                        // find the matching ColumnConfig by guid
+                        int idx = LinkedHeader.ColumnConfigs.FindIndex(c => c.GuidID == guid);
+                        if (idx >= 0)
+                        {
+                            // ensure the label's width matches the column's actual width
+                            headerLabel.Width = col.Width;
+                            // or ensure ColumnConfigs is updated:
+                            LinkedHeader.ColumnConfigs[idx].Width = col.Width;
+                        }
+
+                        // position the label
+                        headerLabel.Left = xPos;
+                        xPos += headerLabel.Width;
+                    }
+                }
+            }
+
+           
+        }
+        #endregion
         #region Helpers
 
         private bool IsNumericColumn(DataGridViewColumn col)
@@ -351,7 +415,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            if (Theme == null) return;
+         
+            if(_totalsFlow== null) return;
+            if(_bindingNavigator == null) return;
             this._totalsFlow.BackColor = _currentTheme.BackColor;
 
 

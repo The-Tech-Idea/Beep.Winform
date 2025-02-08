@@ -623,6 +623,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Draw the image and text
             contentRect = DrawingRect;
+
            // if (!SetFont())
            // {
             //    TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);

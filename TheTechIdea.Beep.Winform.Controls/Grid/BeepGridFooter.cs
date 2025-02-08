@@ -346,6 +346,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 lbl.Parent?.Controls.Remove(lbl);
                 lbl.Dispose();
                 _columnTotals.Remove(e.Column);
+                // remove from header panel
+                 
+
             }
         }
 

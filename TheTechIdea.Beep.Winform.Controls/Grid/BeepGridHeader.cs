@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -648,6 +650,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _filterBoxes.Clear();
             _columnSortOrders.Clear();
             ColumnConfigs.Clear();
+            sortIcons.Clear();
 
             if (_targetGrid == null)
                 return;
@@ -719,7 +722,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 _filterPanel.Controls.Add(txt);
                 _filterBoxes[col] = txt;
             }
+            headerColumnMapping[lbl] = col;
 
+            // PictureBox for Sort Icon
+            BeepImage sortIcon = new BeepImage
+            {
+                Width = 16,
+                Height = 16,
+                Top = 2,
+                Left = lbl.Width - 18, // Adjust as needed
+                Visible = false,
+                MaximumSize = new Size(14, 14),
+                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.sort.svg",
+            };
+            lbl.Controls.Add(sortIcon);
+            sortIcons[lbl] = sortIcon;
+          
             // Update the left position for the next control.
             leftPosition += col.Width;
 
@@ -743,7 +761,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 tb.Dispose();
                 _filterBoxes.Remove(col);
             }
-
+            // remove from column configs
+            ColumnConfigs.RemoveAll(c => c.ColumnName == col.Name);
             // Optionally, update the header and filter panels' widths if necessary.
             UpdateHeaderAndPanelPositions();
         }
@@ -829,7 +848,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         private void OnColumnWidthChanged(object? sender, DataGridViewColumnEventArgs e)
         {
-
             UpdateHeaderAndPanelPositions();
         }
         #endregion
@@ -1043,6 +1061,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _targetGrid.AllowUserToResizeRows = false;
             _targetGrid.AllowUserToResizeColumns = true;
             _targetGrid.AllowUserToResizeRows = false;
+            _targetGrid.AutoGenerateColumns = false;
             _targetGrid.EditMode = DataGridViewEditMode.EditOnKeystrokeOrF2;
             _targetGrid.CellBorderStyle = DataGridViewCellBorderStyle.None;
             _targetGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
@@ -1525,7 +1544,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// <param name="data">The new data to bind to the grid.</param>
         /// <param name="entity">The entity structure defining the columns.</param>
         /// <returns>An <see cref="IErrorsInfo"/> object representing the result of the operation.</returns>
-        public IErrorsInfo ResetData(object data, EntityStructure entity)
+        public IErrorsInfo SetData(object data, EntityStructure entity)
         {
             if (entity != null)
             {
@@ -1537,22 +1556,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 return DMEEditor.ErrorObject;
             }
 
-            TargetDataGridView.Columns.Clear();
+           
             if (_bindingSource != null && Entity != null)
             {
-                ColumnConfigs.Clear();
-             
-                RefershFooter?.Invoke(this, EventArgs.Empty);
+                TargetDataGridView.Columns.Clear();
+                _bindingSource.ResetBindings(false);
+                _bindingSource.DataSource = data;
+                TargetDataGridView.DataSource = _bindingSource;
                 CreateColumnsForEntity();
-                RebuildColumnsAndFilters();
+                ResetData();
+                 RefershFooter?.Invoke(this, EventArgs.Empty);
                 Title = Entity.EntityName;
                 _titleLabel.Text = Entity.EntityName;
             }
-            _bindingSource.ResetBindings(false);
-            _bindingSource.DataSource = data;
+            
             return DMEEditor.ErrorObject;
         }
-
+       
         /// <summary>
         /// Resets the grid columns based on the provided entity structure.
         /// </summary>
@@ -1591,13 +1611,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         #region Data Management
         private void OnDataSourceChanged(object? sender, EventArgs e)
         {
+          ResetData();
+        }
+        private void ResetData()
+        {
             if (_targetGrid == null) return;
-            _bindingSource = _targetGrid.DataSource as BindingSource;
+            //   _bindingSource = _targetGrid.DataSource as BindingSource;
             // Clear existing column configurations
             _headerLabels.Clear();
             _filterBoxes.Clear();
             _columnSortOrders.Clear();
             ColumnConfigs.Clear();
+
             // Rebuild columns and filters
             RebuildColumnsAndFilters();
 
@@ -1609,6 +1634,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
             // Update the layout to match the new data source
             UpdateHeaderAndPanelPositions();
+            TargetDataGridView.Refresh();
         }
         private void OnDataMemberChanged(object? sender, EventArgs e)
         {

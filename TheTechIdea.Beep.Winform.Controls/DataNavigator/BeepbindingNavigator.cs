@@ -341,14 +341,17 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         }
         private void BindingSource_DataSourceChanged(object sender, EventArgs e)
         {
+            if (Recordnumberinglabel1 == null) return;
             datasourcechanged();
 
 
         }
         private void datasourcechanged()
         {
+            if (Recordnumberinglabel1 == null) return;
             if (this.BindingSource != null)
             {
+              
                 if (this.BindingSource.List != null)
                 {
                     this.Recordnumberinglabel1.Text = (Convert.ToInt32(BindingSource.Position + 1)).ToString() + " From " + BindingSource.List.Count.ToString();

@@ -96,8 +96,8 @@ namespace Beep.Config.Winform.Configurations
             this.dataTypesMapBindingSource.AddingNew += DataTypesMapBindingSource_AddingNew;
             //poisonDataGridView1.RowValidated += PoisonDataGridView1_RowValidated;
             this.poisonDataGridView1.DataError += MappingDataGridView_DataError;
-            BeepbindingNavigator1.SetConfig(DMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, new string[] { }, DMEEditor.Passedarguments, DMEEditor.ErrorObject);
-            BeepbindingNavigator1.HightlightColor = Color.Yellow;
+           // BeepbindingNavigator1.SetConfig(DMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, new string[] { }, DMEEditor.Passedarguments, DMEEditor.ErrorObject);
+        //    BeepbindingNavigator1.HightlightColor = Color.Yellow;
             BeepbindingNavigator1.BindingSource = dataTypesMapBindingSource;
             poisonDataGridView1.DataSource = dataTypesMapBindingSource;
             this.BeepbindingNavigator1.SaveCalled += BeepbindingNavigator1_SaveCalled;

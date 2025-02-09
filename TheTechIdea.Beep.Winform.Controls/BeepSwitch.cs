@@ -31,8 +31,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private SwitchOrientation _orientation = SwitchOrientation.Horizontal;
         private string _onLabel = "On";
         private string _offLabel = "Off";
-        private Image? _onImage;
-        private Image? _offImage;
+
+        // Instead of direct Image fields, use two BeepImage instances.
+        private string? _onImagePath;
+        private string? _offImagePath;
+        private BeepImage _onBeepImage;
+        private BeepImage _offBeepImage;
 
         #endregion
 
@@ -48,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Properties
 
         /// <summary>
-        /// Gets or sets whether the switch is in the On (Checked) state.
+        /// Indicates whether the switch is On (Checked) or Off (Unchecked).
         /// </summary>
         [Category("Behavior")]
         [Description("Indicates whether the switch is On (Checked) or Off (Unchecked).")]
@@ -67,9 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         /// <summary>
-        /// Gets or sets the orientation of the switch.
-        /// Horizontal: labels appear on left/right.
-        /// Vertical: labels appear on top/bottom.
+        /// Orientation of the switch (Horizontal or Vertical).
         /// </summary>
         [Category("Appearance")]
         [Description("Orientation of the switch (Horizontal or Vertical).")]
@@ -88,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         /// <summary>
-        /// Gets or sets the label text for the On state.
+        /// Label text for the On state.
         /// </summary>
         [Category("Appearance")]
         [Description("Label for the On state.")]
@@ -103,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         /// <summary>
-        /// Gets or sets the label text for the Off state.
+        /// Label text for the Off state.
         /// </summary>
         [Category("Appearance")]
         [Description("Label for the Off state.")]
@@ -116,70 +118,39 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-        private string? _onImagepath;
+
         /// <summary>
-        /// Gets or sets the background image for the On state.
-        /// This image is drawn and clipped inside the capsule track.
+        /// Background image path for the On state.
+        /// The image is loaded via a BeepImage instance and drawn clipped inside the capsule.
         /// </summary>
         [Category("Appearance")]
-        [Description("Background image for the On state. This image is clipped inside the capsule track.")]
+        [Description("Background image for the On state. This image is drawn and clipped inside the capsule track.")]
+        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
         public string? OnImagePath
         {
-            get => _onImagepath;
+            get => _onImagePath;
             set
             {
-                _onImagepath = value;
-                OnImage = (Image?)ImageListHelper.GetImageFromName(value);
+                _onImagePath = value;
+                _onBeepImage.ImagePath = value;
                 Invalidate();
             }
         }
-        private string? _offImagepath;
+
         /// <summary>
-        /// Gets or sets the background image for the Off state.
-        /// This image is drawn and clipped inside the capsule track.
+        /// Background image path for the Off state.
+        /// The image is loaded via a BeepImage instance and drawn clipped inside the capsule.
         /// </summary>
         [Category("Appearance")]
-        [Description("Background image for the Off state. This image is clipped inside the capsule track.")]
+        [Description("Background image for the Off state. This image is drawn and clipped inside the capsule track.")]
+        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
         public string? OffImagePath
         {
-            get => _offImagepath;
+            get => _offImagePath;
             set
             {
-                _offImagepath = value;
-                OffImage= (Image?)ImageListHelper.GetImageFromName(value);
-                Invalidate();
-            }
-        }
-
-
-        /// <summary>
-        /// Gets or sets the background image for the On state.
-        /// This image is drawn and clipped inside the capsule track.
-        /// </summary>
-        [Category("Appearance")]
-        [Description("Background image for the On state. This image is clipped inside the capsule track.")]
-        public Image? OnImage
-        {
-            get => _onImage;
-            set
-            {
-                _onImage = value;
-                Invalidate();
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the background image for the Off state.
-        /// This image is drawn and clipped inside the capsule track.
-        /// </summary>
-        [Category("Appearance")]
-        [Description("Background image for the Off state. This image is clipped inside the capsule track.")]
-        public Image? OffImage
-        {
-            get => _offImage;
-            set
-            {
-                _offImage = value;
+                _offImagePath = value;
+                _offBeepImage.ImagePath = value;
                 Invalidate();
             }
         }
@@ -206,11 +177,22 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepSwitch()
         {
-            // Set default size
+            // Set default size and enable double buffering for smoother rendering.
             this.Width = 120;
             this.Height = 50;
-            // Enable double buffering for smoother rendering.
             this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
+
+            // Initialize the BeepImage instances.
+            _onBeepImage = new BeepImage
+            {
+                IsSpinning = false,
+                ScaleMode = Vis.Modules.ImageScaleMode.KeepAspectRatio
+            };
+            _offBeepImage = new BeepImage
+            {
+                IsSpinning = false,
+                ScaleMode = Vis.Modules.ImageScaleMode.KeepAspectRatio
+            };
         }
 
         #endregion
@@ -233,6 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawVerticalSwitch(g);
             }
         }
+
         /// <summary>
         /// Draws the switch in horizontal orientation.
         /// Off label appears on the left and On label on the right.
@@ -240,6 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawHorizontalSwitch(Graphics g)
         {
             int padding = 8; // General padding
+
             // Measure label sizes.
             Size offLabelSize = TextRenderer.MeasureText(OffLabel, this.Font);
             Size onLabelSize = TextRenderer.MeasureText(OnLabel, this.Font);
@@ -254,17 +238,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Create a capsule (pill-shaped) path for the track.
             using (GraphicsPath trackPath = GetCapsulePath(trackRect, vertical: false))
             {
-                // Draw the background image (clipped inside the capsule) if provided.
-                if (Checked && OnImage != null)
+                // Draw the background image (clipped inside the capsule) if available.
+                if (Checked && _onBeepImage.HasImage)
                 {
                     g.SetClip(trackPath);
-                    g.DrawImage(OnImage, trackRect);
+                    _onBeepImage.DrawImage(g, trackRect);
                     g.ResetClip();
                 }
-                else if (!Checked && OffImage != null)
+                else if (!Checked && _offBeepImage.HasImage)
                 {
                     g.SetClip(trackPath);
-                    g.DrawImage(OffImage, trackRect);
+                    _offBeepImage.DrawImage(g, trackRect);
                     g.ResetClip();
                 }
                 else
@@ -273,18 +257,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Color startColor, endColor;
                     if (Checked)
                     {
-                        // Use your theme's dark colors.
                         startColor = _currentTheme?.CheckBoxBackColor ?? Color.FromArgb(70, 70, 70);
                         endColor = _currentTheme?.CheckBoxForeColor ?? Color.FromArgb(45, 45, 45);
                     }
                     else
                     {
-                        // For the Off state, use other theme properties.
-                        // For example, using PanelBackColor and PanelForeColor:
                         startColor = _currentTheme?.GradientStartColor ?? Color.White;
                         endColor = _currentTheme?.GradientEndColor ?? Color.LightGray;
-                        // Alternatively, if you want to use the same theme properties as On state,
-                        // simply duplicate the above assignment or adjust as needed.
                     }
                     using (LinearGradientBrush brush = new LinearGradientBrush(trackRect, startColor, endColor, LinearGradientMode.Horizontal))
                     {
@@ -319,10 +298,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Draw the labels.
-            // Off label on the left.
             Rectangle offLabelRect = new Rectangle(padding, trackRect.Y, offLabelSize.Width, trackRect.Height);
             TextRenderer.DrawText(g, OffLabel, this.Font, offLabelRect, this.ForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
-            // On label on the right.
             Rectangle onLabelRect = new Rectangle(trackRect.Right + padding, trackRect.Y, onLabelSize.Width, trackRect.Height);
             TextRenderer.DrawText(g, OnLabel, this.Font, onLabelRect, this.ForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
@@ -334,6 +311,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawVerticalSwitch(Graphics g)
         {
             int padding = 8; // General padding
+
             // Measure label sizes.
             Size onLabelSize = TextRenderer.MeasureText(OnLabel, this.Font);
             Size offLabelSize = TextRenderer.MeasureText(OffLabel, this.Font);
@@ -348,16 +326,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Create a capsule path for the vertical track.
             using (GraphicsPath trackPath = GetCapsulePath(trackRect, vertical: true))
             {
-                if (Checked && OnImage != null)
+                if (Checked && _onBeepImage.HasImage)
                 {
                     g.SetClip(trackPath);
-                    g.DrawImage(OnImage, trackRect);
+                    _onBeepImage.DrawImage(g, trackRect);
                     g.ResetClip();
                 }
-                else if (!Checked && OffImage != null)
+                else if (!Checked && _offBeepImage.HasImage)
                 {
                     g.SetClip(trackPath);
-                    g.DrawImage(OffImage, trackRect);
+                    _offBeepImage.DrawImage(g, trackRect);
                     g.ResetClip();
                 }
                 else
@@ -372,7 +350,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         startColor = _currentTheme?.GradientStartColor ?? Color.White;
                         endColor = _currentTheme?.GradientEndColor ?? Color.LightGray;
-
                     }
                     using (LinearGradientBrush brush = new LinearGradientBrush(trackRect, startColor, endColor, LinearGradientMode.Vertical))
                     {
@@ -406,19 +383,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Draw the labels.
-            // On label at the top.
             Rectangle onLabelRect = new Rectangle(0, padding, this.Width, onLabelSize.Height);
             TextRenderer.DrawText(g, OnLabel, this.Font, onLabelRect, this.ForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
-            // Off label at the bottom.
             Rectangle offLabelRect = new Rectangle(0, trackRect.Bottom + padding, this.Width, offLabelSize.Height);
             TextRenderer.DrawText(g, OffLabel, this.Font, offLabelRect, this.ForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
 
         /// <summary>
         /// Creates a capsule-shaped GraphicsPath for the specified rectangle.
-        /// For vertical tracks, arcs are drawn at the top and bottom.
-        /// For horizontal tracks, arcs are drawn on the left and right.
         /// </summary>
+        /// <param name="rect">The rectangle for the capsule.</param>
+        /// <param name="vertical">If true, creates a vertical capsule; otherwise horizontal.</param>
         private GraphicsPath GetCapsulePath(Rectangle rect, bool vertical)
         {
             GraphicsPath path = new GraphicsPath();
@@ -464,7 +439,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion
 
-        #region Data Binding Methods (Optional)
+        #region Data Binding Methods
 
         public new void RefreshBinding()
         {
@@ -515,19 +490,27 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #region Theme Support
 
-        /// <summary>
-        /// Applies the current theme to the control.
-        /// This method uses your existing theme properties to set colors.
-        /// </summary>
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            // Here we assume _currentTheme is available from BeepControl.
-            // You can map your theme colors to properties used in this control.
+            // Apply theme colors to the control.
             this.ForeColor = _currentTheme.CheckBoxForeColor;
             this.BackColor = _currentTheme.CheckBoxBackColor;
-            // Optionally, you can update any additional properties based on the theme.
             Invalidate();
+        }
+
+        #endregion
+
+        #region Disposal
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _onBeepImage?.Dispose();
+                _offBeepImage?.Dispose();
+            }
+            base.Dispose(disposing);
         }
 
         #endregion

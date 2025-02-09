@@ -648,8 +648,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             toggleButton.ApplyThemeToSvg();
             logo.BackColor = _currentTheme.SideMenuBackColor;
             logo.ForeColor = _currentTheme.SideMenuForeColor;
-            _titleLabel.ForeColor = _currentTheme.TitleBarForeColor;
-            _descriptionLabel.ForeColor = _currentTheme.TitleBarForeColor;
+            _titleLabel.ForeColor = _currentTheme.SideMenuForeColor;
+            _descriptionLabel.ForeColor = _currentTheme.SideMenuForeColor;
             foreach (Control control in Controls)
             {
                 if (control is Panel menuItemPanel && menuItemPanel.Tag is SimpleItem)
@@ -659,7 +659,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         if (subControl is BeepButton button)
                         {
-                            button.Theme = Theme;
+                           // button.Theme = Theme;
                             button.BackColor = _currentTheme.SideMenuBackColor;
                             button.ForeColor = _currentTheme.SideMenuForeColor;
                             if (UseThemeFont)
@@ -670,12 +670,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                             }
                             else
                             {
-                                
                                 button.TextFont = ListButtonFont;
                             }
-                         
-
-
                         }
                     }
                 }

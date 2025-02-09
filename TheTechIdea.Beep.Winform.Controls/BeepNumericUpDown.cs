@@ -1,7 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -73,35 +71,34 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void UpdateLayout()
         {
-            int buttonWidth = 15; // Width of the buttons
-            int padding = 1;      // Padding between controls
+            int buttonWidth = 15; // Fixed width for the + and - buttons.
+            int padding = 1;      // Padding between controls and the edges of DrawingRect.
 
-            // Set the control's height based on the text box's preferred height
-            int controlHeight = _valueTextBox.PreferredHeight + 2 * padding;
-            this.Height = controlHeight;
-            UpdateDrawingRect();
-            // Compute the vertical alignment to keep everything centered in DrawingRect.
-            int verticalCenter = DrawingRect.Top + (DrawingRect.Height - _valueTextBox.PreferredHeight) / 2;
-            // Decrement button (left)
-            _decrementButton.Location = new Point(DrawingRect.Left + padding, verticalCenter);
-            _decrementButton.Size = new Size(buttonWidth, _valueTextBox.PreferredHeight);
+            // DrawingRect is assumed to be up-to-date (thanks to your UpdateDrawingRect() call).
 
-            // Increment button (right)
-            _incrementButton.Location = new Point(DrawingRect.Right - buttonWidth - padding, verticalCenter);
-            _incrementButton.Size = new Size(buttonWidth, _valueTextBox.PreferredHeight);
+            // Calculate the available height for the controls, subtracting top and bottom padding.
+            int elementHeight = DrawingRect.Height - 2 * padding;
+            // Determine the Y coordinate so the controls are vertically padded.
+            int elementY = DrawingRect.Top + padding;
 
-            // Value TextBox (center)
-            _valueTextBox.Location = new Point(_decrementButton.Right + padding, verticalCenter);
-            _valueTextBox.Size = new Size(
-                Math.Max(0, DrawingRect.Width - _decrementButton.Width - _incrementButton.Width - 3 * padding),
-                _valueTextBox.PreferredHeight
-            );
+            // Layout the Decrement Button (left side).
+            _decrementButton.Location = new Point(DrawingRect.Left + padding, elementY);
+            _decrementButton.Size = new Size(buttonWidth, elementHeight);
 
-            // Prevent further manual resizing of the control
+            // Layout the Increment Button (right side).
+            _incrementButton.Location = new Point(DrawingRect.Right - buttonWidth - padding, elementY);
+            _incrementButton.Size = new Size(buttonWidth, elementHeight);
+
+            // Layout the Value TextBox (center).
+            int textBoxX = _decrementButton.Right + padding;
+            int textBoxWidth = Math.Max(0, DrawingRect.Width - (buttonWidth * 2) - (3 * padding));
+            _valueTextBox.Location = new Point(textBoxX, elementY);
+            _valueTextBox.Size = new Size(textBoxWidth, elementHeight);
+
+            // Optionally, prevent the control from being resized manually by fixing its size.
             this.MaximumSize = this.MinimumSize = new Size(this.Width, this.Height);
-
-
         }
+
 
         protected override void OnResize(EventArgs e)
         {

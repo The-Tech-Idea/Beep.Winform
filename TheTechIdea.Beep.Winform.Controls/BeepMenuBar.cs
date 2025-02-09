@@ -417,8 +417,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (item is BeepButton)
                 {
                     BeepButton btn = (BeepButton)item;
-                    btn.Theme = Theme;
+                //    btn.Theme = Theme;
                     btn.ApplyThemeOnImage=false;
+                    btn.BackColor = _currentTheme.SideMenuBackColor;
+                    btn.ForeColor = _currentTheme.SideMenuForeColor;
                     btn.IsChild = true;
                     if(UseThemeFont)
                     {

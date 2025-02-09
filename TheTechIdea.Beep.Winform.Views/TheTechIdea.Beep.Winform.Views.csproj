@@ -110,10 +110,14 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <PackageReference Include="ReaLTaiizor" Version="3.8.1.1" />
-	  <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.36" />
 	</ItemGroup>
 	<ItemGroup>
+	  <ProjectReference Include="..\..\Beep.Containers\Beep.Containers.Models\TheTechIdea.Beep.Container.Model.csproj" />
+	  <ProjectReference Include="..\..\Beep.Containers\Beep.Container\TheTechIdea.Beep.Container.csproj" />
+	  <ProjectReference Include="..\..\Beep.Shared\Beep.Shared\TheTechIdea.Beep.Shared.csproj" />
 	  <ProjectReference Include="..\..\Beep.ViewModels\TheTechIdea.Beep.MVVM\TheTechIdea.Beep.MVVM.csproj" />
+	  <ProjectReference Include="..\..\BeepDM\DataManagementEngineStandard\DataManagementEngine.csproj" />
+	  <ProjectReference Include="..\..\BeepDM\DataManagementModelsStandard\DataManagementModels.csproj" />
 	  <ProjectReference Include="..\TheTechIdea.Beep.Vis.Logic\TheTechIdea.Beep.Vis.Logic.csproj" />
 	  <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
 	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Desktop.Common.csproj" />

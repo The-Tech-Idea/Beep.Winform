@@ -1,23 +1,39 @@
-﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
-using TheTechIdea.Beep.Vis.Modules;
+﻿using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 
 public class BeepScrollBar : BeepControl
 {
     public event EventHandler Scroll;
+
     private int _value;
     private int _maximum = 100;
     private int _largeChange = 10;
     private bool _dragging;
     private int _dragOffset;
 
+    // Orientation property to allow switching between vertical and horizontal.
+    private Orientation _scrollOrientation = Orientation.Vertical;
+    public Orientation ScrollOrientation
+    {
+        get => _scrollOrientation;
+        set
+        {
+            _scrollOrientation = value;
+            // Adjust the default size when changing orientation.
+            if (_scrollOrientation == Orientation.Vertical)
+                Width = 10;
+            else
+                Height = 10;
+            Invalidate();
+        }
+    }
+
     public int Value
     {
         get => _value;
         set
         {
+            // Clamp value between 0 and (Maximum - LargeChange)
             _value = Math.Max(0, Math.Min(value, Maximum - LargeChange));
             Invalidate();
             Scroll?.Invoke(this, EventArgs.Empty);
@@ -46,10 +62,16 @@ public class BeepScrollBar : BeepControl
 
     public BeepScrollBar()
     {
-        SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
+        // Enable double buffering and related styles for smoother rendering.
+        SetStyle(ControlStyles.AllPaintingInWmPaint |
+                 ControlStyles.OptimizedDoubleBuffer |
+                 ControlStyles.ResizeRedraw |
+                 ControlStyles.UserPaint, true);
+
+        // Set a default size based on vertical orientation.
         Width = 10;
-   //     BackColor = Color.Transparent;
     }
+
     public override void ApplyTheme()
     {
         base.ApplyTheme();
@@ -64,48 +86,107 @@ public class BeepScrollBar : BeepControl
         Invalidate();
     }
 
-
     protected override void OnPaint(PaintEventArgs e)
     {
         base.OnPaint(e);
         Graphics g = e.Graphics;
-        g.Clear(BackColor);
+
+        // Use the DrawingRect provided by BeepControl to define the drawing area.
+        Rectangle drawingRect = DrawingRect;
+
+        // Clear the drawing area using the BackColor.
+        using (Brush backBrush = new SolidBrush(BackColor))
+        {
+            g.FillRectangle(backBrush, drawingRect);
+        }
 
         using (Brush trackBrush = new SolidBrush(_currentTheme.ScrollbarTrackColor))
         using (Brush thumbBrush = new SolidBrush(_currentTheme.ScrollbarThumbColor))
-        using (Brush backBrush = new SolidBrush(_currentTheme.ScrollbarBackColor))
         {
-            g.FillRectangle(backBrush, new Rectangle(0, 0, Width, Height));
-            int thumbHeight = Math.Max(10, (Height * LargeChange) / Maximum);
-            int thumbY = (Height - thumbHeight) * Value / (Maximum - LargeChange);
-            g.FillRectangle(trackBrush, new Rectangle(0, 0, Width, Height));
-            g.FillRectangle(thumbBrush, new Rectangle(0, thumbY, Width, thumbHeight));
+            if (ScrollOrientation == Orientation.Vertical)
+            {
+                // Calculate the thumb height and Y position within drawingRect.
+                int thumbHeight = Math.Max(10, (drawingRect.Height * LargeChange) / Maximum);
+                int thumbY = drawingRect.Y + (drawingRect.Height - thumbHeight) * Value / (Maximum - LargeChange);
+
+                // Draw the track and the thumb.
+                g.FillRectangle(trackBrush, drawingRect);
+                g.FillRectangle(thumbBrush, new Rectangle(drawingRect.X, thumbY, drawingRect.Width, thumbHeight));
+            }
+            else // Horizontal orientation
+            {
+                // Calculate the thumb width and X position within drawingRect.
+                int thumbWidth = Math.Max(10, (drawingRect.Width * LargeChange) / Maximum);
+                int thumbX = drawingRect.X + (drawingRect.Width - thumbWidth) * Value / (Maximum - LargeChange);
+
+                // Draw the track and the thumb.
+                g.FillRectangle(trackBrush, drawingRect);
+                g.FillRectangle(thumbBrush, new Rectangle(thumbX, drawingRect.Y, thumbWidth, drawingRect.Height));
+            }
         }
     }
 
     protected override void OnMouseDown(MouseEventArgs e)
     {
         base.OnMouseDown(e);
-        int thumbHeight = (Height * LargeChange) / Maximum;
-        int thumbY = (Height - thumbHeight) * Value / (Maximum - LargeChange);
-        if (e.Y >= thumbY && e.Y <= thumbY + thumbHeight)
+        // Use DrawingRect for hit testing.
+        Rectangle drawingRect = DrawingRect;
+
+        if (ScrollOrientation == Orientation.Vertical)
         {
-            _dragging = true;
-            _dragOffset = e.Y - thumbY;
+            int thumbHeight = Math.Max(10, (drawingRect.Height * LargeChange) / Maximum);
+            int thumbY = drawingRect.Y + (drawingRect.Height - thumbHeight) * Value / (Maximum - LargeChange);
+
+            // Check if the mouse click is within the thumb.
+            if (e.Y >= thumbY && e.Y <= thumbY + thumbHeight)
+            {
+                _dragging = true;
+                _dragOffset = e.Y - thumbY;
+            }
+            else
+            {
+                // Calculate new Value based on click position relative to drawingRect.
+                int newValue = ((e.Y - drawingRect.Y) * (Maximum - LargeChange)) / (drawingRect.Height - thumbHeight);
+                Value = newValue;
+            }
         }
-        else
+        else // Horizontal orientation
         {
-            Value = (e.Y * Maximum) / Height;
+            int thumbWidth = Math.Max(10, (drawingRect.Width * LargeChange) / Maximum);
+            int thumbX = drawingRect.X + (drawingRect.Width - thumbWidth) * Value / (Maximum - LargeChange);
+
+            if (e.X >= thumbX && e.X <= thumbX + thumbWidth)
+            {
+                _dragging = true;
+                _dragOffset = e.X - thumbX;
+            }
+            else
+            {
+                int newValue = ((e.X - drawingRect.X) * (Maximum - LargeChange)) / (drawingRect.Width - thumbWidth);
+                Value = newValue;
+            }
         }
     }
 
     protected override void OnMouseMove(MouseEventArgs e)
     {
         base.OnMouseMove(e);
+        Rectangle drawingRect = DrawingRect;
+
         if (_dragging)
         {
-            int newValue = ((e.Y - _dragOffset) * (Maximum - LargeChange)) / (Height - (Height * LargeChange) / Maximum);
-            Value = Math.Max(0, Math.Min(newValue, Maximum - LargeChange));
+            if (ScrollOrientation == Orientation.Vertical)
+            {
+                int thumbHeight = Math.Max(10, (drawingRect.Height * LargeChange) / Maximum);
+                int newValue = ((e.Y - _dragOffset - drawingRect.Y) * (Maximum - LargeChange)) / (drawingRect.Height - thumbHeight);
+                Value = Math.Max(0, Math.Min(newValue, Maximum - LargeChange));
+            }
+            else
+            {
+                int thumbWidth = Math.Max(10, (drawingRect.Width * LargeChange) / Maximum);
+                int newValue = ((e.X - _dragOffset - drawingRect.X) * (Maximum - LargeChange)) / (drawingRect.Width - thumbWidth);
+                Value = Math.Max(0, Math.Min(newValue, Maximum - LargeChange));
+            }
         }
     }
 

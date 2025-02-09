@@ -30,14 +30,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form2));
             beepSwitch1 = new BeepSwitch();
             beepCheckBox1 = new BeepCheckBox();
             beepButton1 = new BeepButton();
             beepCard1 = new BeepCard();
             beepLabel1 = new BeepLabel();
-            beepGrid2 = new BeepGrid();
             SuspendLayout();
             // 
             // beepSwitch1
@@ -65,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepSwitch1.DataSourceProperty = null;
             beepSwitch1.DisabledBackColor = Color.Gray;
             beepSwitch1.DisabledForeColor = Color.Empty;
-            beepSwitch1.DrawingRect = new Rectangle(1, 1, 36, 165);
+            beepSwitch1.DrawingRect = new Rectangle(1, 1, 42, 149);
             beepSwitch1.Easing = EasingType.Linear;
             beepSwitch1.FieldID = null;
             beepSwitch1.FocusBackColor = Color.White;
@@ -111,10 +109,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepSwitch1.LinkedProperty = null;
             beepSwitch1.Location = new Point(29, 30);
             beepSwitch1.Name = "beepSwitch1";
-            beepSwitch1.OffImage = null;
             beepSwitch1.OffImagePath = null;
             beepSwitch1.OffLabel = "Off";
-            beepSwitch1.OnImage = null;
             beepSwitch1.OnImagePath = null;
             beepSwitch1.OnLabel = "On";
             beepSwitch1.Orientation = SwitchOrientation.Vertical;
@@ -137,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepSwitch1.ShowRightBorder = true;
             beepSwitch1.ShowShadow = false;
             beepSwitch1.ShowTopBorder = true;
-            beepSwitch1.Size = new Size(38, 167);
+            beepSwitch1.Size = new Size(44, 151);
             beepSwitch1.SlideFrom = SlideDirection.Left;
             beepSwitch1.StaticNotMoving = false;
             beepSwitch1.TabIndex = 4;
@@ -600,126 +596,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.UseScaledFont = false;
             beepLabel1.UseThemeFont = true;
             // 
-            // beepGrid2
-            // 
-            beepGrid2.ActiveBackColor = Color.FromArgb(0, 120, 215);
-            beepGrid2.AllowUserToAddRows = true;
-            beepGrid2.AllowUserToDeleteRows = true;
-            beepGrid2.AnimationDuration = 500;
-            beepGrid2.AnimationType = DisplayAnimationType.None;
-            beepGrid2.ApplyThemeToChilds = true;
-            beepGrid2.BackColor = SystemColors.Control;
-            beepGrid2.BlockID = null;
-            beepGrid2.BorderColor = Color.FromArgb(200, 200, 200);
-            beepGrid2.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            beepGrid2.BorderRadius = 3;
-            beepGrid2.BorderStyle = BorderStyle.None;
-            beepGrid2.BorderThickness = 1;
-            beepGrid2.BottomoffsetForDrawingRect = 0;
-            beepGrid2.BoundProperty = null;
-            beepGrid2.CanBeFocused = true;
-            beepGrid2.CanBeHovered = false;
-            beepGrid2.CanBePressed = true;
-            beepGrid2.Category = Utilities.DbFieldCategory.String;
-            beepGrid2.CellPainting = null;
-            beepGrid2.ComponentName = "beepGrid2";
-            beepGrid2.DataContext = null;
-            beepGrid2.DataSourceProperty = null;
-            beepGrid2.DisabledBackColor = Color.Gray;
-            beepGrid2.DisabledForeColor = Color.Empty;
-            beepGrid2.DMEEditor = null;
-            beepGrid2.DrawingRect = new Rectangle(1, 1, 519, 296);
-            beepGrid2.Easing = EasingType.Linear;
-            beepGrid2.EntityStructure = null;
-            beepGrid2.FieldID = null;
-            beepGrid2.FocusBackColor = Color.White;
-            beepGrid2.FocusBorderColor = Color.Gray;
-            beepGrid2.FocusForeColor = Color.Black;
-            beepGrid2.FocusIndicatorColor = Color.Blue;
-            beepGrid2.Form = null;
-            beepGrid2.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepGrid2.GradientEndColor = Color.FromArgb(230, 230, 230);
-            beepGrid2.GradientStartColor = Color.White;
-            beepGrid2.GridId = null;
-            beepGrid2.GuidID = "27a8a1c1-32cd-43e8-a187-7aabb4e73851";
-            beepGrid2.HoverBackColor = Color.FromArgb(230, 230, 230);
-            beepGrid2.HoverBorderColor = Color.FromArgb(0, 120, 215);
-            beepGrid2.HoveredBackcolor = Color.Wheat;
-            beepGrid2.HoverForeColor = Color.Black;
-            beepGrid2.Id = -1;
-            beepGrid2.InactiveBackColor = Color.Gray;
-            beepGrid2.InactiveBorderColor = Color.Gray;
-            beepGrid2.InactiveForeColor = Color.Black;
-            beepGrid2.IsAcceptButton = false;
-            beepGrid2.IsBorderAffectedByTheme = true;
-            beepGrid2.IsCancelButton = false;
-            beepGrid2.IsChild = false;
-            beepGrid2.IsCustomeBorder = false;
-            beepGrid2.IsDefault = false;
-            beepGrid2.IsDeleted = false;
-            beepGrid2.IsDirty = false;
-            beepGrid2.IsEditable = false;
-            beepGrid2.IsFocused = false;
-            beepGrid2.IsFramless = false;
-            beepGrid2.IsHovered = false;
-            beepGrid2.IsNew = false;
-            beepGrid2.IsPressed = false;
-            beepGrid2.IsReadOnly = false;
-            beepGrid2.IsRequired = false;
-            beepGrid2.IsRounded = true;
-            beepGrid2.IsRoundedAffectedByTheme = true;
-            beepGrid2.IsSelected = false;
-            beepGrid2.IsShadowAffectedByTheme = true;
-            beepGrid2.IsVisible = false;
-            beepGrid2.LeftoffsetForDrawingRect = 0;
-            beepGrid2.LinkedProperty = null;
-            beepGrid2.Location = new Point(408, 245);
-            beepGrid2.Name = "beepGrid2";
-            beepGrid2.OverrideFontSize = TypeStyleFontSize.None;
-            beepGrid2.ParentBackColor = Color.Empty;
-            beepGrid2.ParentControl = null;
-            beepGrid2.PressedBackColor = Color.FromArgb(0, 120, 215);
-            beepGrid2.PressedBorderColor = Color.Gray;
-            beepGrid2.PressedForeColor = Color.Black;
-            beepGrid2.ReadOnly = false;
-            beepGrid2.RightoffsetForDrawingRect = 0;
-            beepGrid2.SavedGuidID = null;
-            beepGrid2.SavedID = null;
-            beepGrid2.ShadowColor = Color.FromArgb(100, 0, 0, 0);
-            beepGrid2.ShadowOffset = 0;
-            beepGrid2.ShadowOpacity = 0.5F;
-            beepGrid2.ShowAllBorders = true;
-            beepGrid2.ShowBottomBorder = true;
-            beepGrid2.ShowColumnHeaderPanel = true;
-            beepGrid2.ShowFilterPanel = true;
-            beepGrid2.ShowFocusIndicator = false;
-            beepGrid2.ShowHeaderPanel = true;
-            beepGrid2.ShowLeftBorder = true;
-            beepGrid2.ShowNavigatorPanel = true;
-            beepGrid2.ShowRightBorder = true;
-            beepGrid2.ShowShadow = false;
-            beepGrid2.ShowTopBorder = true;
-            beepGrid2.ShowTotalsPanel = true;
-            beepGrid2.Size = new Size(521, 298);
-            beepGrid2.SlideFrom = SlideDirection.Left;
-            beepGrid2.StaticNotMoving = false;
-            beepGrid2.TabIndex = 9;
-            beepGrid2.TempBackColor = Color.Empty;
-            beepGrid2.Text = "beepGrid2";
-            beepGrid2.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
-            beepGrid2.TitleFont = new Font("Segoe UI", 9F);
-            beepGrid2.ToolTipText = "";
-            beepGrid2.TopoffsetForDrawingRect = 0;
-            beepGrid2.UseGradientBackground = false;
-            beepGrid2.UseThemeFont = true;
-            beepGrid2.VerifyDelete = true;
-            // 
             // Form2
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1023, 663);
-            Controls.Add(beepGrid2);
             Controls.Add(beepLabel1);
             Controls.Add(beepCard1);
             Controls.Add(beepButton1);
@@ -738,6 +619,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton beepButton1;
         private BeepCard beepCard1;
         private BeepLabel beepLabel1;
-        private BeepGrid beepGrid2;
+
     }
 }

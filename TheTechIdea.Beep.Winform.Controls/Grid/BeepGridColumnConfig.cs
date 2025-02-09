@@ -1,13 +1,14 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using TheTechIdea.Beep.Winform.Controls.Grid.DataColumns;
+
+
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid
 {
-    [Serializable]
-    public class BeepGridColumn
+  
+    public class BeepGridColumnConfig
     {
-        public BeepGridColumn()
+        public BeepGridColumnConfig()
         {
             GuidID = Guid.NewGuid().ToString();
             Width = 100;
@@ -95,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public string BackColor { get; set; }
     }
     [Serializable]
-    public class BeepGridColumnConfigCollection : BindingList<BeepGridColumn>
+    public class BeepGridColumnConfigCollection : BindingList<BeepGridColumnConfig>
     {
         public BeepGridColumnConfigCollection() : base() { }
         public BeepGridColumnConfigCollection(BindingList<BeepGridColumnConfigCollection> list) { }
@@ -104,6 +105,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
     {
         Main,
         Child
+    }
+    public enum DataSourceMode
+    {
+        CascadingMap,
+        Query,
+        List
     }
     public enum BeepGridColumnType
     {

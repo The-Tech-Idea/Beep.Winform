@@ -345,40 +345,23 @@ namespace TheTechIdea.Beep.Winform.Views.Configuration.DataConnections
             // 
             // beepGrid1
             // 
-            beepGrid1.AddinName = null;
+           
             beepGrid1.AllowDrop = true;
             beepGrid1.AllowUserToAddRows = true;
             beepGrid1.AllowUserToDeleteRows = true;
             beepGrid1.BackColor = SystemColors.Control;
             beepGrid1.BorderStyle = BorderStyle.FixedSingle;
             beepGrid1.CellPainting = null;
-            beepGrid1.columnConfigs = (List<BeepGridColumnConfig>)resources.GetObject("beepGrid1.columnConfigs");
-            beepGrid1.DataSource = null;
-            beepGrid1.DefaultCreate = true;
-            beepGrid1.Dependencies = null;
-            beepGrid1.Description = null;
-            beepGrid1.DestConnection = null;
-            beepGrid1.Details = null;
-            beepGrid1.DllName = null;
-            beepGrid1.DllPath = null;
-            beepGrid1.DMEEditor = null;
-            beepGrid1.Dset = null;
-            beepGrid1.EntityName = null;
-            beepGrid1.EntityStructure = null;
-            beepGrid1.ErrorObject = null;
-            beepGrid1.ExtensionsHelpers = null;
-            beepGrid1.GridId = null;
+           beepGrid1.DataSource = null;
+             beepGrid1.DMEEditor = null;
+           beepGrid1.EntityStructure = null;
+          beepGrid1.GridId = null;
             beepGrid1.GuidID = null;
             beepGrid1.Location = new Point(541, 73);
-            beepGrid1.Logger = null;
+          
             beepGrid1.Margin = new Padding(5, 3, 5, 3);
             beepGrid1.Name = "beepGrid1";
-            beepGrid1.NameSpace = null;
-            beepGrid1.ObjectName = null;
-            beepGrid1.ObjectType = "UserControl";
-            beepGrid1.ParentBranch = null;
-            beepGrid1.ParentName = null;
-            beepGrid1.Passedarg = null;
+        
             beepGrid1.pbr = null;
             beepGrid1.Progress = null;
             beepGrid1.ReadOnly = false;

@@ -7,12 +7,7 @@ using TheTechIdea.Beep.DataBase;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
-    public enum DataSourceMode
-    {
-        CascadingMap,
-        Query,
-        List
-    }
+   
     [ToolboxItem(false)]
     public class BeepDataGridViewComboBoxColumn : System.Windows.Forms.DataGridViewComboBoxColumn
     {

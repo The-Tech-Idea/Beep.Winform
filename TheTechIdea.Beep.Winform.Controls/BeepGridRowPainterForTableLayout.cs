@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BindingList<BeepGridRow> Rows { get; set; } = new BindingList<BeepGridRow>();
         public BeepGridRow CurrentRow { get; set; }
         public BeepGridCell CurrentCell { get; set; }
-        public List<BeepGridColumn> Columns { get; set; } = new List<BeepGridColumn>();
+        public List<BeepGridColumnConfig> Columns { get; set; } = new List<BeepGridColumnConfig>();
 
         #region "Events Delegates"
         public event EventHandler<BeepGridRowEventArgs> OnRowSelected;
@@ -135,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _gridPanel.tableLayoutPanel.Controls.Add(header, colIndex++, 0);
             }
         }
-        private Control CreateColumnHeader(BeepGridColumn col)
+        private Control CreateColumnHeader(BeepGridColumnConfig col)
         {
             var panel = new Panel { Dock = DockStyle.Fill };
             var label = new BeepLabel
@@ -462,17 +462,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        private object GetCellValue(BeepGridColumn col, object item)
+        private object GetCellValue(BeepGridColumnConfig col, object item)
         {
             var prop = item.GetType().GetProperty(col.ColumnName);
             return prop?.GetValue(item) ?? 0;
         }
         #endregion
-        private void ShowFilterDialog(BeepGridColumn col)
+        private void ShowFilterDialog(BeepGridColumnConfig col)
         {
             MessageBox.Show($"Filter dialog for column: {col.ColumnCaption}", "Filter", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-        private void SortColumn(BeepGridColumn col)
+        private void SortColumn(BeepGridColumnConfig col)
         {
             col.IsSorted = !col.IsSorted;
 

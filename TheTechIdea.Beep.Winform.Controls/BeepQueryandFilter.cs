@@ -19,7 +19,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InitializeLayout();
         }
-
         private void InitializeLayout()
         {
             // Initialize TableLayoutPanel
@@ -46,7 +45,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             tableLayoutPanel.Controls.Add(submitButton, 1, 0); // Add Submit Button to layout
             tableLayoutPanel.SetColumnSpan(submitButton, 2);  // Span across input columns
         }
-
         public void CreateQueryControls(EntityStructure entityStructure)
         {
             Filters.Clear();
@@ -100,7 +98,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             tableLayoutPanel.Controls.Add(submitButton, 1, tableLayoutPanel.RowCount); // Add Submit Button to layout
             tableLayoutPanel.SetColumnSpan(submitButton, 2);  // Span across input columns
         }
-
         private Control CreateInputControl(EntityField field, bool isFrom)
         {
             switch (Type.GetType(field.fieldtype))
@@ -139,14 +136,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     };
             }
         }
-
         private bool IsRangeSupported(EntityField field)
         {
             // Allow ranges for numeric and date fields
             var type = Type.GetType(field.fieldtype);
             return type == typeof(DateTime) || type == typeof(int) || type == typeof(decimal) || type == typeof(double) || type == typeof(float);
         }
-
         public List<AppFilter> GetFilters()
         {
             foreach (Control control in tableLayoutPanel.Controls)

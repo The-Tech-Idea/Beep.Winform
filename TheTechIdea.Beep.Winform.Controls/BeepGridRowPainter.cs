@@ -88,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Rows = rows;
             DataSource = dataSource;
         }
-        public BeepGridRowPainter(BeepSimpleGrid grid, Rectangle drawingRect, int rowHeight, int gridHeight, int gridWidth, int xOffset, int yOffset, BindingList<BeepGridRow> rows, Object dataSource, List<BeepGridColumn> columns)
+        public BeepGridRowPainter(BeepSimpleGrid grid, Rectangle drawingRect, int rowHeight, int gridHeight, int gridWidth, int xOffset, int yOffset, BindingList<BeepGridRow> rows, Object dataSource, List<BeepGridColumnConfig> columns)
         {
             Grid = grid;
             DrawingRect = drawingRect;
@@ -182,7 +182,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepGridCell CurrentCell { get; set; }
         public BeepGridCell CurrentCellInEdit { get; set; }
         public BeepGridRow CurrentRowInEdit { get; set; }
-        public List<BeepGridColumn> Columns
+        public List<BeepGridColumnConfig> Columns
         {
             get => Grid.Columns;
             
@@ -203,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Virtualization"
         private int _verticalScrollOffset = 0; // Track vertical scroll
         private int _horizontalScrollOffset = 0; // Track horizontal scroll
-        private List<BeepGridColumn> _columns;
+        private List<BeepGridColumnConfig> _columns;
         private (int firstRowIndex, int lastRowIndex) GetVisibleRows()
         {
             int firstRowIndex = Math.Max(0, _verticalScrollOffset / RowHeight);

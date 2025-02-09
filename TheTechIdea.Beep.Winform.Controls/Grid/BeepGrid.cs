@@ -143,13 +143,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// <summary>
         /// Stores configuration details for each column, such as filters and totals.
         /// </summary>
-        private List<BeepGridColumn> columnConfigs = new List<BeepGridColumn>();
+        private List<BeepGridColumnConfig> columnConfigs = new List<BeepGridColumnConfig>();
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
         [Editor(typeof(ColumnConfigCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public List<BeepGridColumn> ColumnsConfigurations
+        public List<BeepGridColumnConfig> ColumnsConfigurations
         {
             get => columnConfigs;
             set
@@ -441,7 +441,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             CreateComponent();
           //  Console.WriteLine("BeepGrid Constructor 1");
             Margin = new Padding(3);
-            columnConfigs = new List<BeepGridColumn>();
+            columnConfigs = new List<BeepGridColumnConfig>();
           //  Console.WriteLine("BeepGrid Constructor 2");
             this.Resize += BeepGrid_Resize;
             dataGridView1.Scroll += DataGridView_Scroll; // Handle the Scroll event
@@ -890,7 +890,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             decimal oldValue;
             if (dataGridView1.Columns[e.ColumnIndex] is BeepDataGridViewNumericColumn)
             {
-                BeepGridColumn cfg = columnConfigs[e.ColumnIndex];
+                BeepGridColumnConfig cfg = columnConfigs[e.ColumnIndex];
                 string cellValue = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString();
 
                 if (!string.IsNullOrEmpty(cellValue))
@@ -918,7 +918,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
             if (columnConfigs != null && columnConfigs.Count > 0)
             {
-                BeepGridColumn cfg = columnConfigs[e.ColumnIndex];
+                BeepGridColumnConfig cfg = columnConfigs[e.ColumnIndex];
                 if (dataGridView1.Columns[e.ColumnIndex] is BeepDataGridViewNumericColumn)
                 {
                     decimal newValue;
@@ -945,7 +945,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         {
             TextBox txt = (TextBox)sender;
             int idx = (int)txt.Tag;
-            BeepGridColumn cfg = columnConfigs[idx];
+            BeepGridColumnConfig cfg = columnConfigs[idx];
             decimal total = dataGridView1.Rows
                 .Cast<DataGridViewRow>()
                 .Sum(row => Convert.ToDecimal(row.Cells[cfg.Index].Value));
@@ -1287,7 +1287,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 TotalBox = TotalBox,
                 GuidID = column.Tag.ToString()
             };
-            BeepGridColumn cfg = new BeepGridColumn()
+            BeepGridColumnConfig cfg = new BeepGridColumnConfig()
             {
                 Index = index,
                 ColumnName = name,
@@ -1883,7 +1883,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             // Iterate over each column in the DataGridView
             foreach (DataGridViewColumn column in this.Columns)
             {
-                var config = new BeepGridColumn
+                var config = new BeepGridColumnConfig
                 {
                     Name = column.Name,
                     ColumnCaption = column.HeaderText,
@@ -1971,7 +1971,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             if (File.Exists(filePath))
             {
                 var json = File.ReadAllText(filePath);
-                columnConfigs = JsonConvert.DeserializeObject<List<BeepGridColumn>>(json);
+                columnConfigs = JsonConvert.DeserializeObject<List<BeepGridColumnConfig>>(json);
                 ApplyColumnConfigurations(); // Rebuild the grid with loaded columns
             }
         }

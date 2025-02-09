@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls
              beepButton1.Click += BeepButton1_Click;
             //   beepButton2.PopupMode = true;
             beepGridHeader1.TargetDataGridView = dataGridView1;
-            beepGridHeader1.DMEEditor = beepService.DMEEditor;
+           beepGridHeader1.DMEEditor = beepService.DMEEditor;
         }
 
 
@@ -45,6 +45,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             DriversConfigViewModel viewModel = new DriversConfigViewModel(beepService.DMEEditor, beepService.vis);
            
             beepGridHeader1.SetData(viewModel.DBWork.Units,viewModel.DBWork.EntityStructure);
+        
+          //  beepDataRecord1.SetDataRecord(viewModel.DBWork.Units[0]);
             // beepButton2.ListItems = beepTreeControl1.Nodes;
             //BeepPopupListForm beepFileDialog = new BeepPopupListForm(beepTreeControl1.Nodes.ToList());
             //// Get the screen position of the control's top-left corner

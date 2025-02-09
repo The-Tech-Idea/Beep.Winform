@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         private ToolTip savetooltip;
         private ToolTip printtooltip;
         private ToolTip sharetooltip;
-        private Size buttonSize = new Size(14, 14);
+        private Size buttonSize = new Size(16, 16);
  
         private void initControls()
         {
@@ -235,10 +235,12 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
             {
                 BindingSource.EndEdit();
                 SaveCalled?.Invoke(sender, BindingSource);
+                MessageBox.Show(this.Parent, "Record Saved", "Beep", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
                 SendLog($"Binding Navigator {ex.Message}");
+                MessageBox.Show(this.Parent, ex.Message, "Beep", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
         }
@@ -331,7 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         #region "BindingSource Events"
         private void BindingSource_CurrentChanged(object sender, EventArgs e)
         {
-            datasourcechanged();
+            UpdateRecordNumber();
 
         }
 
@@ -351,7 +353,28 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
             if (Recordnumberinglabel1 == null) return;
             if (this.BindingSource != null)
             {
-              
+                this.BindingSource.DataSourceChanged -= BindingSource_DataSourceChanged;
+                this.BindingSource.ListChanged -= BindingSource_ListChanged;
+                this.BindingSource.CurrentChanged -= BindingSource_CurrentChanged;
+                this.BindingSource.PositionChanged -= BindingSource_PositionChanged;
+                this.BindingSource.DataSourceChanged += BindingSource_DataSourceChanged;
+                this.BindingSource.ListChanged += BindingSource_ListChanged;
+                this.BindingSource.CurrentChanged += BindingSource_CurrentChanged;
+                this.BindingSource.PositionChanged += BindingSource_PositionChanged;
+                UpdateRecordNumber();
+               
+            }
+        }
+
+        private void BindingSource_PositionChanged(object? sender, EventArgs e)
+        {
+            UpdateRecordNumber();
+        }
+        private void UpdateRecordNumber()
+        {
+            if (Recordnumberinglabel1 == null) return;
+            if (this.BindingSource != null)
+            {
                 if (this.BindingSource.List != null)
                 {
                     this.Recordnumberinglabel1.Text = (Convert.ToInt32(BindingSource.Position + 1)).ToString() + " From " + BindingSource.List.Count.ToString();
@@ -360,7 +383,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
                     this.Recordnumberinglabel1.Text = "-";
             }
         }
-
         #endregion
         protected override void OnResize(EventArgs e)
         {

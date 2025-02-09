@@ -10,7 +10,6 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Vis.Modules;
-
 using TheTechIdea.Beep.Winform.Controls.Grid.DataColumns; // If your code references it
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid
@@ -50,7 +49,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// <summary>
         /// Stores configuration details for each column, such as filters and totals.
         /// </summary>
-        public List<BeepGridColumnConfig> ColumnConfigs { get; set; } = new List<BeepGridColumnConfig>();
+        /// 
+        private List<BeepGridColumn> _columnconfig= new List<BeepGridColumn>();
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("Column Configurations for the grid.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public List<BeepGridColumn> ColumnConfigs
+        {
+            get { return _columnconfig; }
+            set { _columnconfig = value; }
+        }
         /// <summary>
         /// A dictionary to hold filters for each column.
         /// </summary>
@@ -81,6 +90,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private bool _showFilter = false;     // filter row toggled
         private int padding = 2;
         private bool isinit = true;
+
+        private BeepScrollBar verticalScrollBar;
+        private BeepScrollBar horizontalScrollBar;
+
+
         /// <summary>
         public BeepGridHeader()
         {
@@ -91,6 +105,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _bindingSource = new BindingSource();
             this.LocationChanged += Header_LocationChanged;
            this.SizeChanged += Header_SizeChanged;
+            // Initialize Vertical ScrollBar
+           
         }
 
       
@@ -206,6 +222,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                     _targetGrid.CellEndEdit -= DataGridView1_CellEndEdit;
                     _targetGrid.CellBeginEdit-= DataGridView1_CellBeginEdit;
                     _targetGrid.DataError -= DataGridView1_DataError;
+                   
+
+                   // DetachScrollBars(); // Remove old scrollbars
                 }
                 _targetGrid = value;
                 if (_targetGrid != null)
@@ -224,6 +243,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                     _targetGrid.CellEndEdit += DataGridView1_CellEndEdit;
                     _targetGrid.CellBeginEdit += DataGridView1_CellBeginEdit;
                     _targetGrid.DataError += DataGridView1_DataError;
+                   
                     Reposition();
                     RebuildColumnsAndFilters();
                     if (LinkedFooter != null)
@@ -234,6 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         }
                     }
                     SetupDataGridView();
+                 //   AttachScrollBars();
 
                 }
             }
@@ -364,6 +385,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// Indicates if sorting is currently applied on the grid.
         /// </summary>
         private bool IsSorting = false;
+        private Size _buttonsize=new Size(16,16);
+        private Size _imagesize=new Size(14, 14);
         #endregion
         #region Layout Setup
         protected override void OnHandleCreated(EventArgs e)
@@ -411,8 +434,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _csvExportButton = new BeepButton
             {
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.export.svg",
-                Size = new Size(15, 15),
-                MaxImageSize = new Size(14, 14),
+                Size =_buttonsize,
+                MaxImageSize = _imagesize,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 HideText = true,
                 IsFramless = true,
@@ -422,8 +445,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _printButton = new BeepButton
             {
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg",
-                Size = new Size(15, 15),
-                MaxImageSize = new Size(14, 14),
+                Size = _buttonsize,
+                MaxImageSize = _imagesize,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 HideText = true,
                 IsFramless = true,
@@ -433,8 +456,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _shareButton = new BeepButton
             {
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.share.svg",
-                Size = new Size(15, 15),
-                MaxImageSize = new Size(14, 14),
+                Size = _buttonsize,
+                MaxImageSize = _imagesize,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 HideText = true,
                 IsFramless = true,
@@ -444,8 +467,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _totalShowButton = new BeepButton
             {
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.sum.svg",
-                Size = new Size(15, 15),
-                MaxImageSize = new Size(14, 14),
+                Size = _buttonsize,
+                MaxImageSize = _imagesize,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 HideText = true,
                 IsFramless = true,
@@ -455,8 +478,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _filterToggleButton = new BeepButton
             {
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg",
-                Size = new Size(15, 15),
-                MaxImageSize = new Size(14, 14),
+                Size = _buttonsize,
+                MaxImageSize = _imagesize,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 HideText = true,
                 IsFramless = true,
@@ -1066,7 +1089,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _targetGrid.CellBorderStyle = DataGridViewCellBorderStyle.None;
             _targetGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             _targetGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
-            _targetGrid.ColumnWidthChanged += DataGridView_ColumnWidthChanged;
+
+            // Hide the default scrollbar
+           // _targetGrid.ScrollBars = ScrollBars.None;
         }
         #region DataGridView Events
         /// Handles the ColumnWidthChanged event for updating header and panel positions when a column's width changes.
@@ -1077,7 +1102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         {
             Console.WriteLine("Column Width Changed");
             // ColumnConfig with new width
-            BeepGridColumnConfig cfg = ColumnConfigs[ ColumnConfigs.FindIndex(p => p.ColumnName==e.Column.Name)];
+            BeepGridColumn cfg = ColumnConfigs[ ColumnConfigs.FindIndex(p => p.ColumnName==e.Column.Name)];
             if (cfg == null) return;
             Console.WriteLine($"Column Width Changed: From {cfg.Width} to {e.Column.Width} ");
             cfg.Width = e.Column.Width;
@@ -1154,7 +1179,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             decimal oldValue;
             if (TargetDataGridView.Columns[e.ColumnIndex] is BeepDataGridViewNumericColumn)
             {
-                BeepGridColumnConfig cfg = ColumnConfigs[e.ColumnIndex];
+                BeepGridColumn cfg = ColumnConfigs[e.ColumnIndex];
                 string cellValue = TargetDataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString();
 
                 if (!string.IsNullOrEmpty(cellValue))
@@ -1182,7 +1207,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
             if (ColumnConfigs != null && ColumnConfigs.Count > 0)
             {
-                BeepGridColumnConfig cfg = ColumnConfigs[e.ColumnIndex];
+                BeepGridColumn cfg = ColumnConfigs[e.ColumnIndex];
                 if (TargetDataGridView.Columns[e.ColumnIndex] is BeepDataGridViewNumericColumn)
                 {
                     decimal newValue;
@@ -1210,6 +1235,129 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         #endregion DataGridView Cell Editing
         #region DataGridView Scrolling
+        private void DetachScrollBars()
+        {
+           
+
+            // Sync horizontal scrolling
+          
+            if (verticalScrollBar != null)
+            {
+                verticalScrollBar.Scroll -= (s, e) => SyncVerticalScroll();
+                _targetGrid.RowsAdded -= (s, e) => UpdateVerticalScrollBar();
+                _targetGrid.RowsRemoved -= (s, e) => UpdateVerticalScrollBar();
+                verticalScrollBar.Scroll -= (s, e) => SyncVerticalScroll();
+                if (Parent != null) Parent.Controls.Remove(verticalScrollBar);
+                verticalScrollBar.Dispose();
+                verticalScrollBar = null;
+            }
+
+            if (horizontalScrollBar != null)
+            {
+                horizontalScrollBar.Scroll -= (s, e) => SyncHorizontalScroll();
+                _targetGrid.ColumnWidthChanged -= (s, e) => UpdateHorizontalScrollBar();
+                // Update scrollbars when TargetDataGridView resizes
+                _targetGrid.SizeChanged -= (s, e) => RepositionScrollBars();
+                _targetGrid.LocationChanged -= (s, e) => RepositionScrollBars();
+                horizontalScrollBar.Scroll -= (s, e) => SyncHorizontalScroll();
+                if (Parent != null) Parent.Controls.Remove(horizontalScrollBar);
+                horizontalScrollBar.Dispose();
+                horizontalScrollBar = null;
+            }
+        }
+
+        private void AttachScrollBars()
+        {
+            if (_targetGrid == null || Parent == null) return;
+
+            // Create and attach Vertical ScrollBar
+            if (verticalScrollBar == null)
+            {
+                verticalScrollBar = new BeepScrollBar
+                {
+                    Width = 12,
+                    Height = _targetGrid.Height,
+                    Visible = true
+                };
+                Parent.Controls.Add(verticalScrollBar);
+            }
+
+            // Create and attach Horizontal ScrollBar
+            if (horizontalScrollBar == null)
+            {
+                horizontalScrollBar = new BeepScrollBar
+                {
+                    Height = 12,
+                    Width = _targetGrid.Width,
+                    Visible = true
+                };
+                Parent.Controls.Add(horizontalScrollBar);
+            }
+
+            // Set initial positions
+            RepositionScrollBars();
+            verticalScrollBar.Scroll += (s, e) => SyncVerticalScroll();
+            _targetGrid.RowsAdded += (s, e) => UpdateVerticalScrollBar();
+            _targetGrid.RowsRemoved += (s, e) => UpdateVerticalScrollBar();
+
+            // Sync horizontal scrolling
+            horizontalScrollBar.Scroll += (s, e) => SyncHorizontalScroll();
+            _targetGrid.ColumnWidthChanged += (s, e) => UpdateHorizontalScrollBar();
+            // Update scrollbars when TargetDataGridView resizes
+            _targetGrid.SizeChanged += (s, e) => RepositionScrollBars();
+            _targetGrid.LocationChanged += (s, e) => RepositionScrollBars();
+        }
+        private void RepositionScrollBars()
+        {
+            if (_targetGrid == null || verticalScrollBar == null || horizontalScrollBar == null) return;
+
+            // Position Vertical ScrollBar to the right of DataGridView
+            verticalScrollBar.Location = new Point(_targetGrid.Right - verticalScrollBar.Width, _targetGrid.Top);
+            verticalScrollBar.Height = _targetGrid.Height;
+
+            // Position Horizontal ScrollBar at the bottom of DataGridView
+            horizontalScrollBar.Location = new Point(_targetGrid.Left, _targetGrid.Bottom - horizontalScrollBar.Height);
+            horizontalScrollBar.Width = _targetGrid.Width;
+
+            // Ensure scrollbars are visible only when needed
+            verticalScrollBar.Visible = _targetGrid.RowCount > _targetGrid.DisplayedRowCount(false);
+            horizontalScrollBar.Visible = _targetGrid.Columns.Count > 0 && _targetGrid.Width < _targetGrid.Columns.GetColumnsWidth(DataGridViewElementStates.Visible);
+        }
+
+        private void UpdateVerticalScrollBar()
+        {
+            if (_targetGrid.RowCount > 0)
+            {
+                verticalScrollBar.Maximum = _targetGrid.RowCount - 1;
+                verticalScrollBar.LargeChange = _targetGrid.DisplayedRowCount(false);
+            }
+        }
+
+        private void SyncVerticalScroll()
+        {
+            if (verticalScrollBar.Value < _targetGrid.RowCount)
+            {
+                _targetGrid.FirstDisplayedScrollingRowIndex = verticalScrollBar.Value;
+            }
+        }
+
+        private void UpdateHorizontalScrollBar()
+        {
+            int totalWidth = 0;
+            foreach (DataGridViewColumn col in _targetGrid.Columns)
+                totalWidth += col.Width;
+
+            if (totalWidth > _targetGrid.ClientSize.Width)
+            {
+                horizontalScrollBar.Maximum = totalWidth - _targetGrid.ClientSize.Width;
+                horizontalScrollBar.LargeChange = _targetGrid.ClientSize.Width / 10; // Adjust scroll step
+            }
+        }
+
+        private void SyncHorizontalScroll()
+        {
+            _targetGrid.HorizontalScrollingOffset = horizontalScrollBar.Value;
+        }
         private void _targetGrid_Scroll(object? sender, ScrollEventArgs e)
         {
             if (e.ScrollOrientation == ScrollOrientation.HorizontalScroll)
@@ -1428,7 +1576,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 return;
             }
-            BeepGridColumnConfig cfg = new BeepGridColumnConfig()
+            BeepGridColumn cfg = new BeepGridColumn()
             {
                 Index = index,
                 ColumnName = name,

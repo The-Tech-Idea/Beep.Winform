@@ -1263,7 +1263,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnFontChanged(EventArgs e)
         {
             base.OnFontChanged(e);
-            _textFont = Font;
+            
          //   Console.WriteLine("Font Changed");
             if (AutoSize)
             {

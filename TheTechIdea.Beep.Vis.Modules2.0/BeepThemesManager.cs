@@ -14,8 +14,44 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public static class BeepThemesManager
     {
-       
-        
+        public static Dictionary<EnumBeepThemes, (Color ScrollbarBackColor, Color ScrollbarThumbColor, Color ScrollbarTrackColor)> ThemeScrollBarColors =
+     new Dictionary<EnumBeepThemes, (Color, Color, Color)>
+     {
+        { EnumBeepThemes.DefaultTheme, (Color.LightGray, Color.Gray, Color.DarkGray) },
+        { EnumBeepThemes.WinterTheme, (Color.WhiteSmoke, Color.SteelBlue, Color.LightBlue) },
+        { EnumBeepThemes.CandyTheme, (Color.Pink, Color.DeepPink, Color.MistyRose) },
+        { EnumBeepThemes.ZenTheme, (Color.Beige, Color.MediumSeaGreen, Color.LightGray) },
+        { EnumBeepThemes.RetroTheme, (Color.Bisque, Color.DarkGoldenrod, Color.SaddleBrown) },
+        { EnumBeepThemes.RoyalTheme, (Color.MidnightBlue, Color.Gold, Color.DarkSlateBlue) },
+        { EnumBeepThemes.HighlightTheme, (Color.Yellow, Color.OrangeRed, Color.DarkOrange) },
+        { EnumBeepThemes.DarkTheme, (Color.Black, Color.DimGray, Color.SlateGray) },
+        { EnumBeepThemes.OceanTheme, (Color.DarkCyan, Color.Teal, Color.LightSeaGreen) },
+        { EnumBeepThemes.LightTheme, (Color.White, Color.LightGray, Color.Gainsboro) },
+        { EnumBeepThemes.PastelTheme, (Color.LavenderBlush, Color.Plum, Color.Thistle) },
+        { EnumBeepThemes.MidnightTheme, (Color.Black, Color.MidnightBlue, Color.DarkSlateGray) },
+        { EnumBeepThemes.SpringTheme, (Color.MediumSpringGreen, Color.Chartreuse, Color.SeaGreen) },
+        { EnumBeepThemes.ForestTheme, (Color.DarkOliveGreen, Color.ForestGreen, Color.OliveDrab) },
+        { EnumBeepThemes.NeonTheme, (Color.Black, Color.Lime, Color.DeepPink) },
+        { EnumBeepThemes.RusticTheme, (Color.SaddleBrown, Color.Chocolate, Color.Tan) },
+        { EnumBeepThemes.GalaxyTheme, (Color.DarkSlateBlue, Color.Indigo, Color.MidnightBlue) },
+        { EnumBeepThemes.DesertTheme, (Color.SandyBrown, Color.Peru, Color.Sienna) },
+        { EnumBeepThemes.VintageTheme, (Color.Bisque, Color.Sienna, Color.Brown) },
+        { EnumBeepThemes.ModernDarkTheme, (Color.DarkSlateGray, Color.Gray, Color.DimGray) },
+        { EnumBeepThemes.MaterialDesignTheme, (Color.LightSlateGray, Color.CornflowerBlue, Color.SlateGray) },
+        { EnumBeepThemes.NeumorphismTheme, (Color.WhiteSmoke, Color.LightGray, Color.Gainsboro) },
+        { EnumBeepThemes.GlassmorphismTheme, (Color.Transparent, Color.LightSteelBlue, Color.Transparent) },
+        { EnumBeepThemes.FlatDesignTheme, (Color.Gainsboro, Color.Gray, Color.LightGray) },
+        { EnumBeepThemes.CyberpunkNeonTheme, (Color.Black, Color.Fuchsia, Color.Aqua) },
+        { EnumBeepThemes.GradientBurstTheme, (Color.DarkMagenta, Color.OrangeRed, Color.DeepSkyBlue) },
+        { EnumBeepThemes.HighContrastTheme, (Color.Black, Color.White, Color.Gray) },
+        { EnumBeepThemes.MonochromeTheme, (Color.Black, Color.DarkGray, Color.LightGray) },
+        { EnumBeepThemes.LuxuryGoldTheme, (Color.DarkSlateGray, Color.Gold, Color.DarkGoldenrod) },
+        { EnumBeepThemes.SunsetTheme, (Color.OrangeRed, Color.Crimson, Color.DarkOrange) },
+        { EnumBeepThemes.AutumnTheme, (Color.DarkOrange, Color.Brown, Color.Orange) },
+        { EnumBeepThemes.EarthyTheme, (Color.Tan, Color.SaddleBrown, Color.Peru) }
+     };
+
+
         static BeepThemesManager()
         {
             try

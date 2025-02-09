@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Winform.Controls.Managers;
 
+
 namespace TheTechIdea.Beep.Winform.Extensions
 {
     public static class BeepVisService

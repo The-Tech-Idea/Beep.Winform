@@ -5,6 +5,7 @@ using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TheTechIdea.Beep.Winform.Controls.Grid;
 
 namespace TheTechIdea.Beep.Winform.Controls.Editors
 {
@@ -15,12 +16,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Editors
 
         protected override Type CreateCollectionItemType()
         {
-            return typeof(BeepGridColumnConfig);  // Specify the type for collection rootnodeitems
+            return typeof(BeepGridColumn);  // Specify the type for collection rootnodeitems
         }
 
         protected override object CreateInstance(Type itemType)
         {
-            return new BeepGridColumnConfig();  // Create an instance of SimpleMenuItem
+            return new BeepGridColumn();  // Create an instance of SimpleMenuItem
         }
 
 

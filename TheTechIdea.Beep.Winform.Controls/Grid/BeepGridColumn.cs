@@ -2,12 +2,12 @@
 using System.ComponentModel.DataAnnotations;
 using TheTechIdea.Beep.Winform.Controls.Grid.DataColumns;
 
-namespace TheTechIdea.Beep.Winform.Controls
+namespace TheTechIdea.Beep.Winform.Controls.Grid
 {
     [Serializable]
-    public class BeepGridColumnConfig
+    public class BeepGridColumn
     {
-        public BeepGridColumnConfig()
+        public BeepGridColumn()
         {
             GuidID = Guid.NewGuid().ToString();
             Width = 100;
@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string ColumnToolTip { get; set; }
         public string ColumnVisible { get; set; }
         public string ColumnVisibleIndex { get; set; }
-       public  ColumnHeaderStyle HeaderStyle { get; set; } = new ColumnHeaderStyle();
+        public ColumnHeaderStyle HeaderStyle { get; set; } = new ColumnHeaderStyle();
 
     }
     public class ColumnHeaderStyle
@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string BackColor { get; set; }
     }
     [Serializable]
-    public class BeepGridColumnConfigCollection : BindingList<BeepGridColumnConfig>
+    public class BeepGridColumnConfigCollection : BindingList<BeepGridColumn>
     {
         public BeepGridColumnConfigCollection() : base() { }
         public BeepGridColumnConfigCollection(BindingList<BeepGridColumnConfigCollection> list) { }

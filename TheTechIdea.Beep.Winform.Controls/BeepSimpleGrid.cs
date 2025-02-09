@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Desktop.Common;
 
 using System.Reflection;
+using TheTechIdea.Beep.Winform.Controls.Grid;
 
 
 
@@ -137,13 +138,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepGridRow BottomRow { get; set; } // For aggregations and totals
 
         public BeepDataNavigator DataNavigator { get; set; } = new BeepDataNavigator();
-        private List<BeepGridColumnConfig> _columns = new List<BeepGridColumnConfig>();
+        private List<BeepGridColumn> _columns = new List<BeepGridColumn>();
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
         [Editor(typeof(ColumnConfigCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public List<BeepGridColumnConfig> Columns
+        public List<BeepGridColumn> Columns
         {
             get => _columns;
             set

@@ -454,7 +454,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                UnitOfWork?.Create();
+                UnitOfWork?.New();
                 UpdateRecordCountDisplay();
             }
         }

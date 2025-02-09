@@ -318,6 +318,11 @@ namespace TheTechIdea.Beep.Vis.Modules
             public Color FocusIndicatorColor { get; set; }
             public bool IsDarkTheme { get; set; }
 
+        // Scrollbar  colors
+        public Color ScrollbarBackColor { get; set; }
+        public Color ScrollbarThumbColor { get; set; }
+        public Color ScrollbarTrackColor { get; set; }
+
         public Font GetBlockHeaderFont()
         {
             return GetFont(FontFamily, FontSizeBlockHeader, FontStyleBold);

@@ -28,8 +28,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _fieldCount;
         private object _originalDataRecord;
         public bool AutoSave { get; set; } = false;
-
-        public bool IsDirty => RecordStatus == RecordStatus.Updated;
+        private bool _isdirty = false;
+        public bool IsDirty
+        {
+            get { _isdirty = RecordStatus == RecordStatus.Updated; return _isdirty; }
+            set { _isdirty = value; }
+        
+        }
 
         private Dictionary<string, object> _originalValues = new Dictionary<string, object>();
 

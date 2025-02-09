@@ -651,7 +651,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (!_nodePanels.TryGetValue(node.NodeSeq, out var panel))
                     continue;
                 // Position the panel
-                //     panel.Location = new Point(5, startY);
+                //panel.Location = new Point(5, startY);
                 if (node.Height != NodeHeight)
                 {
                     node.Height = NodeHeight;
@@ -981,7 +981,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Dock = DockStyle.Top,
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 Tag = node.GuidID,
-
+                Margin = new Padding(0),
+                Padding = new Padding(0),
+                BorderStyle = BorderStyle.None
             };
 
             _beeptreeRootnodes.Add(node);
@@ -1505,15 +1507,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.ApplyTheme();
             BackColor = _currentTheme.ButtonBackColor;
-            _nodePanels.Values.ToList().ForEach(p => p.BackColor = _currentTheme.PanelBackColor);
+            _nodePanels.Values.ToList().ForEach(p => p.BackColor = _currentTheme.ButtonBackColor);
             foreach (BeepTreeNode node in _beeptreeRootnodes)
             {
                 node.UseThemeFont = UseThemeFont;
                 node.UseScaledFont = UseScaledFont;
                 node.Theme = Theme;
-                if(UseThemeFont == false)
+                if(UseThemeFont)
                 {
-                    node.TextFont = TextFont;
+                    node.UseThemeFont = true;
+                    node.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                }
+                else
+                {
+                    node.UseThemeFont = false;
+                    node.Font = TextFont;
                 }
                 //     node.ApplyTheme();
             }

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Winform.Controls
+namespace TheTechIdea.Beep.Winform.Controls.Grid
 {
     #region "Beep Grid Data Classes"
     // Represents a single row in the grid

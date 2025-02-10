@@ -437,68 +437,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         public BeepGrid()
         {
-          //  Console.WriteLine("BeepGrid Constructor");
             CreateComponent();
-          //  Console.WriteLine("BeepGrid Constructor 1");
             Margin = new Padding(3);
             columnConfigs = new List<BeepGridColumnConfig>();
-          //  Console.WriteLine("BeepGrid Constructor 2");
+            BindingNavigator = new BeepBindingNavigator();
             this.Resize += BeepGrid_Resize;
-            dataGridView1.Scroll += DataGridView_Scroll; // Handle the Scroll event
-          //  dataGridView1.Resize += DataGridView_Resize;
-            //   dataGridView1.ColumnAdded += DataGridView1_ColumnAdded;
-            //   dataGridView1.ColumnRemoved += DataGridView1_ColumnRemoved;
-            dataGridView1.ColumnWidthChanged += DataGridView_ColumnWidthChanged;
-            dataGridView1.CellEndEdit += DataGridView1_CellEndEdit;
-            dataGridView1.CellBeginEdit += DataGridView1_CellBeginEdit;
-            dataGridView1.DataError += DataGridView1_DataError;
-            // dataGridView1.Dock = DockStyle.Fill;
-            // this.DoubleBuffered = true;
-            // this.Resize += BeepControlResize;
-          //  Console.WriteLine("BeepGrid Constructor 3");
-            CSVExportbutton.Click += CSVExportbutton_Click;
+            SetUpGridView();
 
+            CSVExportbutton.Click += CSVExportbutton_Click;
             this.Printbutton.Click += Printbutton_Click;
             this.TotalShowbutton.Click += TotalShowbutton_Click;
             this.FilterShowbutton.Click += FilterShowbutton_Click;
-            //  this.FilterpictureBox1.Click += FilterpictureBox1_Click;
-            // this.Totalbutton.Click += Totalbutton_Click;
-            this.dataGridView1.CellValidating += DataGridView1_CellValidating;
-          //  Console.WriteLine("BeepGrid Constructor 4");
-            BindingNavigator = new BeepBindingNavigator();
-          //  Console.WriteLine("BeepGrid Constructor 4.1");
-          //  BindingNavigator.BindingSource = new BindingSource();
-            // WireAllControls();
-            this.BackColor = _backColor;
-            //   this.BorderStyle = _borderStyle
-            //   
-          //  Console.WriteLine("BeepGrid Constructor 5");
+
+         
             this.SetStyle(ControlStyles.ResizeRedraw, true);
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
-            dataGridView1.ColumnHeadersVisible = false; // Hide default column headers
-                                                        // Initialize customHeaderPanel
-                                                        //  customHeaderPanel.Height = 30; // Adjust as needed
-                                                        //  customHeaderPanel.Dock = DockStyle.Top;
-                                                        //Controls.Add(customHeaderPanel);
-                                                        //  customHeaderPanel.BringToFront();
-       //     typeof(Control).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(dataGridView1, true, null);
-            dataGridView1.BorderStyle = BorderStyle.None;
-            dataGridView1.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-            dataGridView1.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
-            dataGridView1.EnableHeadersVisualStyles = false;
-            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridView1.RowHeadersVisible = false;
 
-
-            //  dataGridView1.GridColor = Color.FromArgb(45, 45, 45);
-            dataGridView1.DefaultCellStyle.Padding = new Padding(5, 2, 5, 2);
-            dataGridView1.RowHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            dataGridView1.CellPainting += DataGridView1_CellPainting;
-
-            // Set initial styles
-            BackColor = dataGridView1.BackColor;
-         
-            dataGridView1.VirtualMode = false;
           //  Console.WriteLine("BeepGrid Constructor 6");
             UpdateCustomHeaders();
             // Check if GridId is already assigned, if not, create a new one.
@@ -512,7 +466,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
 
         #region "Grid Properties"
+        private void SetUpGridView()
+        {
+            dataGridView1.Scroll += DataGridView_Scroll; // Handle the Scroll event
+            dataGridView1.ColumnWidthChanged += DataGridView_ColumnWidthChanged;
+            dataGridView1.CellEndEdit += DataGridView1_CellEndEdit;
+            dataGridView1.CellBeginEdit += DataGridView1_CellBeginEdit;
+            dataGridView1.DataError += DataGridView1_DataError;
+            dataGridView1.CellValidating += DataGridView1_CellValidating;
+            dataGridView1.ColumnHeadersVisible = false; // Hide default column headers
+                                                        // Initialize customHeaderPanel
+                                                        //  customHeaderPanel.Height = 30; // Adjust as needed
+                                                        //  customHeaderPanel.Dock = DockStyle.Top;
+                                                        //Controls.Add(customHeaderPanel);
+                                                        //  customHeaderPanel.BringToFront();
+                                                        //     typeof(Control).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(dataGridView1, true, null);
+            dataGridView1.BorderStyle = BorderStyle.None;
+            dataGridView1.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dataGridView1.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+            dataGridView1.EnableHeadersVisualStyles = false;
+            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridView1.RowHeadersVisible = false;
 
+
+            //  dataGridView1.GridColor = Color.FromArgb(45, 45, 45);
+            dataGridView1.DefaultCellStyle.Padding = new Padding(5, 2, 5, 2);
+            dataGridView1.RowHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            dataGridView1.CellPainting += DataGridView1_CellPainting;
+        }
         /// <summary>
         /// Gets or sets the data source for the grid.
         /// </summary>
@@ -542,10 +523,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
 
 
-        /// <summary>
-        /// Gets the collection of rows in the grid.
-        /// </summary>
-        public DataGridViewRowCollection Rows => dataGridView1.Rows;
+
 
         /// <summary>
         /// Accesses a specific cell in the grid using column and row indices.
@@ -1745,7 +1723,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         public void ApplyColumnConfigurations()
         {
-            this.Columns.Clear(); // Clear existing columns before applying the configuration
+            dataGridView1.Columns.Clear(); // Clear existing columns before applying the configuration
 
             foreach (var config in columnConfigs)
             {
@@ -1871,7 +1849,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
                 if (column != null)
                 {
-                    this.Columns.Add(column); // Add the column to the grid
+                    dataGridView1.Columns.Add(column); // Add the column to the grid
                 }
             }
         }
@@ -1881,7 +1859,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             columnConfigs.Clear();
 
             // Iterate over each column in the DataGridView
-            foreach (DataGridViewColumn column in this.Columns)
+            foreach (DataGridViewColumn column in dataGridView1.Columns)
             {
                 var config = new BeepGridColumnConfig
                 {

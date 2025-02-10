@@ -43,13 +43,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepSideMenu1 = new BeepSideMenu();
             beepStarRating1 = new BeepStarRating();
             beepExtendedButton1 = new BeepExtendedButton();
-            numericUpDown1 = new NumericUpDown();
             beepNumericUpDown1 = new BeepNumericUpDown();
             dataGridView1 = new DataGridView();
             beepGridFooter1 = new BeepGridFooter();
             beepGridHeader1 = new BeepGridHeader();
             beepSwitch1 = new BeepSwitch();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
@@ -407,7 +405,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepTreeControl1.SelectedBranchs = (List<int>)resources.GetObject("beepTreeControl1.SelectedBranchs");
             beepTreeControl1.SelectedIndex = -1;
             beepTreeControl1.SelectIcon = "Select.svg";
-            beepTreeControl1.SeqID = 3;
+            beepTreeControl1.SeqID = 1;
             beepTreeControl1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
             beepTreeControl1.ShadowOffset = 0;
             beepTreeControl1.ShadowOpacity = 0.5F;
@@ -1037,14 +1035,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepExtendedButton1.UseScaledFont = true;
             beepExtendedButton1.UseThemeFont = true;
             // 
-            // numericUpDown1
-            // 
-            numericUpDown1.BackColor = Color.White;
-            numericUpDown1.Location = new Point(415, 122);
-            numericUpDown1.Name = "numericUpDown1";
-            numericUpDown1.Size = new Size(96, 23);
-            numericUpDown1.TabIndex = 33;
-            // 
             // beepNumericUpDown1
             // 
             beepNumericUpDown1.ActiveBackColor = Color.FromArgb(0, 120, 215);
@@ -1113,7 +1103,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepNumericUpDown1.IsVisible = false;
             beepNumericUpDown1.LeftoffsetForDrawingRect = 0;
             beepNumericUpDown1.LinkedProperty = null;
-            beepNumericUpDown1.Location = new Point(765, 122);
+            beepNumericUpDown1.Location = new Point(707, 122);
             beepNumericUpDown1.Margin = new Padding(2);
             beepNumericUpDown1.MaximumSize = new Size(120, 26);
             beepNumericUpDown1.MaximumValue = new decimal(new int[] { 10000, 0, 0, 0 });
@@ -1181,11 +1171,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
             dataGridView1.DefaultCellStyle = dataGridViewCellStyle3;
             dataGridView1.GridColor = Color.FromArgb(200, 200, 200);
-            dataGridView1.Location = new Point(415, 229);
+            dataGridView1.Location = new Point(405, 248);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersVisible = false;
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridView1.Size = new Size(592, 177);
+            dataGridView1.Size = new Size(602, 178);
             dataGridView1.TabIndex = 36;
             // 
             // beepGridFooter1
@@ -1212,7 +1202,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepGridFooter1.DataSourceProperty = null;
             beepGridFooter1.DisabledBackColor = Color.Gray;
             beepGridFooter1.DisabledForeColor = Color.Empty;
-            beepGridFooter1.DrawingRect = new Rectangle(0, 0, 592, 31);
+            beepGridFooter1.DrawingRect = new Rectangle(0, 0, 602, 31);
             beepGridFooter1.Easing = EasingType.Linear;
             beepGridFooter1.FieldID = null;
             beepGridFooter1.FocusBackColor = Color.White;
@@ -1256,7 +1246,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepGridFooter1.LeftoffsetForDrawingRect = 0;
             beepGridFooter1.LinkedHeader = null;
             beepGridFooter1.LinkedProperty = null;
-            beepGridFooter1.Location = new Point(415, 406);
+            beepGridFooter1.Location = new Point(405, 426);
             beepGridFooter1.Name = "beepGridFooter1";
             beepGridFooter1.OverrideFontSize = TypeStyleFontSize.None;
             beepGridFooter1.ParentBackColor = Color.Empty;
@@ -1279,7 +1269,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepGridFooter1.ShowShadow = false;
             beepGridFooter1.ShowTopBorder = false;
             beepGridFooter1.ShowTotalsPanel = false;
-            beepGridFooter1.Size = new Size(592, 31);
+            beepGridFooter1.Size = new Size(602, 31);
             beepGridFooter1.SlideFrom = SlideDirection.Left;
             beepGridFooter1.StaticNotMoving = false;
             beepGridFooter1.TabIndex = 37;
@@ -1318,7 +1308,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepGridHeader1.DisabledBackColor = Color.Gray;
             beepGridHeader1.DisabledForeColor = Color.Empty;
             beepGridHeader1.DMEEditor = null;
-            beepGridHeader1.DrawingRect = new Rectangle(2, 2, 588, 32);
+            beepGridHeader1.DrawingRect = new Rectangle(2, 2, 598, 51);
             beepGridHeader1.Easing = EasingType.Linear;
             beepGridHeader1.Entity = null;
             beepGridHeader1.FieldID = null;
@@ -1363,7 +1353,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepGridHeader1.LeftoffsetForDrawingRect = 0;
             beepGridHeader1.LinkedFooter = null;
             beepGridHeader1.LinkedProperty = null;
-            beepGridHeader1.Location = new Point(415, 193);
+            beepGridHeader1.Location = new Point(405, 193);
             beepGridHeader1.Margin = new Padding(2);
             beepGridHeader1.Name = "beepGridHeader1";
             beepGridHeader1.OverrideFontSize = TypeStyleFontSize.None;
@@ -1388,7 +1378,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepGridHeader1.ShowRightBorder = false;
             beepGridHeader1.ShowShadow = false;
             beepGridHeader1.ShowTopBorder = false;
-            beepGridHeader1.Size = new Size(592, 36);
+            beepGridHeader1.Size = new Size(602, 55);
             beepGridHeader1.SlideFrom = SlideDirection.Left;
             beepGridHeader1.StaticNotMoving = false;
             beepGridHeader1.TabIndex = 38;
@@ -1521,7 +1511,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(beepGridFooter1);
             Controls.Add(dataGridView1);
             Controls.Add(beepNumericUpDown1);
-            Controls.Add(numericUpDown1);
             Controls.Add(beepAppBar1);
             Controls.Add(beepExtendedButton1);
             Controls.Add(beepTextBox1);
@@ -1532,7 +1521,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
             Text = "````````";
-            ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
         }
@@ -1548,7 +1536,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton beepButton1;
         private BeepStarRating beepStarRating1;
         private BeepExtendedButton beepExtendedButton1;
-        private NumericUpDown numericUpDown1;
         private BeepNumericUpDown beepNumericUpDown1;
         private Grid.BeepGridFooter beepGridFooter1;
         private DataGridView dataGridView1;

@@ -2319,6 +2319,118 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion "HitTest and HitList"
+        #region Badge Feature
+
+        private string _badgeText = "";
+        /// <summary>
+        /// Gets or sets the text displayed inside the badge (for example, a counter).
+        /// Set this to an empty string to hide the badge.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Text displayed inside the badge (e.g. a counter). Leave empty to hide the badge.")]
+        public string BadgeText
+        {
+            get => _badgeText;
+            set { _badgeText = value; Invalidate(); }
+        }
+
+        private Color _badgeBackColor = Color.Red;
+        /// <summary>
+        /// Gets or sets the background color of the badge.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Background color of the badge.")]
+        public Color BadgeBackColor
+        {
+            get => _badgeBackColor;
+            set { _badgeBackColor = value; Invalidate(); }
+        }
+
+        private Color _badgeForeColor = Color.White;
+        /// <summary>
+        /// Gets or sets the text color of the badge.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Text color of the badge.")]
+        public Color BadgeForeColor
+        {
+            get => _badgeForeColor;
+            set { _badgeForeColor = value; Invalidate(); }
+        }
+
+        private Font _badgeFont = new Font("Arial", 8, FontStyle.Bold);
+        /// <summary>
+        /// Gets or sets the font used for the badge text.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Font used for the badge text.")]
+        public Font BadgeFont
+        {
+            get => _badgeFont;
+            set { _badgeFont = value; Invalidate(); }
+        }
+
+        /// <summary>
+        /// Draws a badge in the top–right corner of the control’s DrawingRect.
+        /// The badge is drawn as a rounded rectangle (or circle for a single character)
+        /// and displays the value of BadgeText.
+        /// </summary>
+        /// <param name="g">The Graphics object to draw on.</param>
+        protected void DrawBadge(Graphics g)
+        {
+            // Do nothing if no badge text is set.
+            if (string.IsNullOrEmpty(BadgeText))
+                return;
+
+            // Measure the badge text.
+            Size textSize = TextRenderer.MeasureText(BadgeText, BadgeFont);
+
+            // Define some padding inside the badge.
+            int padding = 4;
+
+            // Compute badge dimensions.
+            int badgeWidth = textSize.Width + padding;
+            int badgeHeight = textSize.Height + padding;
+            // For a single-character badge, use a circle.
+            if (BadgeText.Length == 1)
+            {
+                badgeWidth = badgeHeight = Math.Max(badgeWidth, badgeHeight);
+            }
+
+            // Position the badge in the top–right corner of DrawingRect.
+            // Adjust the location as needed (here we offset it slightly so it appears at the top–right of the content).
+            Rectangle badgeRect = new Rectangle(
+                DrawingRect.Right - badgeWidth,
+                DrawingRect.Y,
+                badgeWidth,
+                badgeHeight);
+
+            // Optionally, add a slight offset (for example, to move the badge a bit outside the control’s content)
+            int offsetX = 2;
+            int offsetY = -2;
+            badgeRect.Offset(offsetX, offsetY);
+
+            // Draw the badge background as a filled rounded rectangle.
+            // We use the control’s helper method GetRoundedRectanglePath (which you already have) to generate the path.
+            using (GraphicsPath path = GetRoundedRectanglePath(badgeRect, badgeRect.Height / 2))
+            {
+                using (SolidBrush brush = new SolidBrush(BadgeBackColor))
+                {
+                    g.FillPath(brush, path);
+                }
+            }
+
+            // Draw the badge text centered within the badge.
+            TextRenderer.DrawText(g, BadgeText, BadgeFont, badgeRect, BadgeForeColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+        }
+
+        #endregion
+
     }
     public class ControlHitTest
     {

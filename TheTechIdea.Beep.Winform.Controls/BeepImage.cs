@@ -486,6 +486,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 e.Graphics,
                 DrawingRect
             );
+            DrawBadge(e.Graphics);
         }
 
 

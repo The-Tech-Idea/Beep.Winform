@@ -230,6 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 TextRenderer.DrawText(pevent.Graphics, Text, Font, textRect, _currentTheme.PrimaryTextColor);
             }
+            DrawBadge(pevent.Graphics);
         }
         public Size GetInscribedSquareSize(int circleDiameter)
         {

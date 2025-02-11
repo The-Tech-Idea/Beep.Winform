@@ -15,7 +15,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepButton btnQuery, btnFilter,btnPrint,btnEmail;
         public BeepButton txtPosition;
         public bool IsInQueryMode { get; private set; } = false;
-
         public IUnitofWork UnitOfWork
         {
             get => _unitOfWork;
@@ -73,7 +72,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
         public int ButtonWidth
         {
             get => _buttonWidth;
@@ -84,7 +82,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
         public int ButtonHeight
         {
             get => _buttonHeight;
@@ -96,7 +93,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
         public int XOffset { get; set; } = 2;
         public int YOffset { get; set; } = 1;
         int adjustedHeight;
@@ -114,7 +110,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         int buttonSpacing = 5;
         private bool _isinit;
-
         public int ButtonSpacing
         {
             get => buttonSpacing;
@@ -125,7 +120,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
         public BeepDataNavigator()
         {
             UpdateDrawingRect();
@@ -137,17 +131,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             txtPosition.MouseEnter += TxtPosition_MouseEnter;
             txtPosition.MouseHover += TxtPosition_MouseHover;
         }
-
         private void TxtPosition_MouseEnter(object? sender, EventArgs e)
         {
             txtPosition.IsHovered = false;
         }
-
         private void TxtPosition_MouseHover(object? sender, EventArgs e)
         {
             txtPosition.IsHovered = false;
         }
-
         protected override void InitLayout()
         {
             base.InitLayout();
@@ -160,14 +151,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isinit = false;
             ArrangeControls();
         }
-
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
             GetDimensions();
             ArrangeControls(); // Rearrange controls on resize
         }
-
         private void CreateNavigator()
         {
             UpdateDrawingRect();
@@ -233,14 +222,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             ArrangeControls();
         }
-
         private void SetThemeEffects(BeepButton button)
         {
             button.IsBorderAffectedByTheme = false;
             button.IsShadowAffectedByTheme = false;
             button.IsRoundedAffectedByTheme = false;
         }
-
         void GetDimensions()
         {
             UpdateDrawingRect();
@@ -276,7 +263,6 @@ namespace TheTechIdea.Beep.Winform.Controls
           this.Height = adjustedHeight;
             //   adjustedHeight = _buttonHeight + (YOffset * 2); // Adjusted height includes YOffset
         }
-
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
         {
             GetDimensions();
@@ -287,7 +273,6 @@ namespace TheTechIdea.Beep.Winform.Controls
            // }
             base.SetBoundsCore(x, y, width, adjustedHeight, specified);
         }
-
         private BeepButton CreateButton(string text, EventHandler onClick, string imagepath = null)
         {
             var btn = new BeepButton
@@ -315,7 +300,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             btn.Click += onClick;
             return btn;
         }
-
         private void ArrangeControls()
         {
             // Ensure DrawingRect is updated
@@ -353,7 +337,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     currentX += ButtonWidth + buttonSpacing;
                 }
             }
-
             // Arrange txtPosition (Position label)
             txtPosition.Size = txtPosition.GetPreferredSize(new Size(totalLabelWidth, ButtonHeight));
             txtPosition.Location = new Point(currentX, centerY);
@@ -371,8 +354,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 btnPrint.Location = new Point(currentX, centerY);
             }
         }
-
-
         #region "Event Handlers"
 
         private void Units_CurrentChanged(object sender, EventArgs e)
@@ -503,14 +484,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             MessageBox.Show(message, "Notification", MessageBoxButtons.OK, isError ? MessageBoxIcon.Error : MessageBoxIcon.Information);
         }
-
         private void HighlightCurrentRecord()
         {
             // Assuming UnitOfWork.Units.CurrentIndex is exposed
             var currentIndex = UnitOfWork.Units.CurrentIndex;
             // Update UI styling to reflect the current record
         }
-
         private void UpdateNavigationButtonState()
         {
             btnFirst.Enabled = UnitOfWork != null && UnitOfWork.Units.CurrentIndex > 0;
@@ -518,7 +497,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             btnNext.Enabled = UnitOfWork != null && UnitOfWork.Units.CurrentIndex < UnitOfWork.Units.Count - 1;
             btnLast.Enabled = UnitOfWork != null && UnitOfWork.Units.CurrentIndex < UnitOfWork.Units.Count - 1;
         }
-
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == Keys.Left)
@@ -527,7 +505,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 btnNext_Click(null, null);
             return base.ProcessCmdKey(ref msg, keyData);
         }
-
         public override void ApplyTheme()
         {
             BackColor = _currentTheme.ButtonBackColor;

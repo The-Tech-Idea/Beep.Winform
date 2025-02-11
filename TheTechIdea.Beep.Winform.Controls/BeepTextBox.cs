@@ -2,8 +2,6 @@
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Globalization;
-using TheTechIdea.Beep.Vis.Logic;
-using System.Diagnostics;
 using TheTechIdea.Beep.Shared;
 
 
@@ -267,8 +265,32 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
-      
+        private Color _backcolor;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public override Color BackColor
+        {
+            get => _backcolor;
+            set
+            {
+                _backcolor = value;
+                _innerTextBox.BackColor = value;
+                // Invalidate();  // Trigger repaint
+            }
+        }
+        private Color _forcolor;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public override Color ForeColor 
+        {
+            get => _forcolor;
+            set
+            {
+                _forcolor = value;
+                _innerTextBox.ForeColor = value;
+                // Invalidate();  // Trigger repaint
+            }
+        }
         [Browsable(true)]
         [Category("Appearance")]
         [Description("PlaceholderText  in the control.")]

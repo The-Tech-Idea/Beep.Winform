@@ -213,7 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 Height=23,
                 IsFramless = true,
-                IsChild = true,
+                IsChild = false,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 
@@ -226,7 +226,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ImageAlign = ContentAlignment.MiddleCenter,
                 Theme = Theme,
                 IsFramless = true,
-                IsChild = true,
+                IsChild = false,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                // AutoScroll=true,
@@ -258,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BackColor = _currentTheme.CardBackColor;
             imageBox.Theme = Theme;
             _isControlinvalidated = true;
-            Invalidate();
+           // Invalidate();
         }
         // Handle layout adjustments
         protected override void OnResize(EventArgs eventargs)

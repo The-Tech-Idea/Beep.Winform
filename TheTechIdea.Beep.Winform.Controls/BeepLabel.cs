@@ -407,7 +407,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
                 TextRenderer.DrawText(g, Text, scaledFont, textRect, textColor, flags);
             }
-
+            DrawBadge(g);
             //}
         }
         #endregion "Painting"

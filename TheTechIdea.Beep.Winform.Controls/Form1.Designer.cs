@@ -1171,7 +1171,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
             dataGridView1.DefaultCellStyle = dataGridViewCellStyle3;
             dataGridView1.GridColor = Color.FromArgb(200, 200, 200);
-            dataGridView1.Location = new Point(405, 248);
+            dataGridView1.Location = new Point(405, 236);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersVisible = false;
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
@@ -1246,7 +1246,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepGridFooter1.LeftoffsetForDrawingRect = 0;
             beepGridFooter1.LinkedHeader = null;
             beepGridFooter1.LinkedProperty = null;
-            beepGridFooter1.Location = new Point(405, 426);
+            beepGridFooter1.Location = new Point(405, 414);
             beepGridFooter1.Name = "beepGridFooter1";
             beepGridFooter1.OverrideFontSize = TypeStyleFontSize.None;
             beepGridFooter1.ParentBackColor = Color.Empty;
@@ -1308,7 +1308,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepGridHeader1.DisabledBackColor = Color.Gray;
             beepGridHeader1.DisabledForeColor = Color.Empty;
             beepGridHeader1.DMEEditor = null;
-            beepGridHeader1.DrawingRect = new Rectangle(2, 2, 598, 51);
+            beepGridHeader1.DrawingRect = new Rectangle(2, 2, 598, 56);
             beepGridHeader1.Easing = EasingType.Linear;
             beepGridHeader1.Entity = null;
             beepGridHeader1.FieldID = null;
@@ -1353,7 +1353,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepGridHeader1.LeftoffsetForDrawingRect = 0;
             beepGridHeader1.LinkedFooter = null;
             beepGridHeader1.LinkedProperty = null;
-            beepGridHeader1.Location = new Point(405, 193);
+            beepGridHeader1.Location = new Point(405, 176);
             beepGridHeader1.Margin = new Padding(2);
             beepGridHeader1.Name = "beepGridHeader1";
             beepGridHeader1.OverrideFontSize = TypeStyleFontSize.None;
@@ -1378,7 +1378,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepGridHeader1.ShowRightBorder = false;
             beepGridHeader1.ShowShadow = false;
             beepGridHeader1.ShowTopBorder = false;
-            beepGridHeader1.Size = new Size(602, 55);
+            beepGridHeader1.Size = new Size(602, 60);
             beepGridHeader1.SlideFrom = SlideDirection.Left;
             beepGridHeader1.StaticNotMoving = false;
             beepGridHeader1.TabIndex = 38;

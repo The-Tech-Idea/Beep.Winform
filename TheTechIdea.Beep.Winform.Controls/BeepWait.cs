@@ -227,8 +227,8 @@ namespace TheTechIdea.Beep.Winform.Controls
            // _spinnerImage.Theme = Theme;
             BackColor = _currentTheme.BackColor;
             ForeColor = _currentTheme.LatestForColor;
-            //messege.Theme = Theme;
-            //Title.Theme = Theme;
+            messege.Theme = Theme;
+            Title.Theme = Theme;
             InvokeAction(Title, () => Title.Theme = Theme);
             InvokeAction(messege, () => messege.Theme = Theme);
             InvokeAction(_spinnerImage, () => _spinnerImage.Theme = Theme);

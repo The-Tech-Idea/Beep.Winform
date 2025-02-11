@@ -61,6 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowAllBorders = false;
             ApplyTheme();
         }
+        public override string Text { get => base.Text; set { base.Text = value; notext(); } }
         protected override void InitLayout()
         {
             base.InitLayout();
@@ -186,12 +187,42 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnResize(e);
 
-            // Enforce minimum size for the control
-            int minSize = Padding.Left + Padding.Right + CheckBoxSize + 10; // Add space for text and padding
-            Width = Math.Max(Width, minSize);
+            if(isresize == false)
+                notext();
+            isresize = false;
+
+
+        }
+        private bool isresize = false;
+        private void notext()
+        {
+            int newWidth;
+            isresize = true;
+            // Check if there is no text or if the text is hidden.
+            if (string.IsNullOrEmpty(Text) || HideText)
+            {
+                // Set width to the checkbox size plus left/right padding.
+                newWidth = Padding.Left + CheckBoxSize + Padding.Right;
+            }
+            else
+            {
+                // Calculate a minimum width that accommodates the checkbox and text.
+                // You can adjust the extra space (here, 10 pixels) as needed.
+                int minWidth = Padding.Left + CheckBoxSize + 10 + Padding.Right;
+                newWidth = Math.Max(Width, minWidth);
+            }
+
+            Width = newWidth;
             Height = Math.Max(Height, CheckBoxSize + Padding.Top + Padding.Bottom);
 
-            Invalidate(); // Redraw to reflect updated dimensions
+            Invalidate(); // Redraw to reflect the updated dimensions
+        }
+
+        protected override void OnTextChanged(EventArgs e)
+        {
+            base.OnTextChanged(e);
+            // Force a layout update when the text changes.
+            OnResize(EventArgs.Empty);
         }
 
         private void UpdateStateFromValue()

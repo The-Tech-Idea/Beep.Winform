@@ -478,6 +478,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                         }
                     }
                 }
+                RearrangeTree();
             }
             catch (Exception ex)
             {

@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Winform.Controls.Properties;
+using System.Diagnostics;
 
 
 
@@ -145,8 +146,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public int SmallNodeHeight { get; set; } = 14;
         private int nodeimagesize = 14;
         public int MinimumTextWidth { get; set; } = 100;
-        int padding = 1; // Padding around elements
-        int spacing = 3; // Padding around elements
+        int padding = 5; // Padding around elements
+        int spacing =1; // Padding around elements
         public string NodeDataType { get; set; } = "SimpleItem";
         public string LocalizedText => Resources.ResourceManager.GetString(Key) ?? Text;
         /// <summary>
@@ -307,7 +308,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set { _level = value; }
         }
 
-
+        public bool IsInvalidated { get; set; }= false;
 
         public int NodeSeq
         {
@@ -392,6 +393,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_checkBox != null)
                 {
                     _checkBox.CurrentValue = _isSelected;
+                }
+                if (NodeMainMiddlebutton != null)
+                {
+                    NodeMainMiddlebutton.IsSelected = _isSelected;
                 }
                 Invalidate(); // Redraw the node if necessary
             }
@@ -657,6 +662,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void NodeMainMiddlebutton_Click(object sender, EventArgs e)
         {
+            Debug.WriteLine("Middel button Clicked");
+            // When a node is clicked, set this node as the selected node in the tree.
+            if (this.Tree != null)
+            {
+                this.Tree.SelectedNode = this;
+            }
+            BeepMouseEventArgs args = new BeepMouseEventArgs("Click", this);
+            NodeClicked?.Invoke(this, args);
+            if (Tree.LastNodeSelected != null)
+            {
+                Tree.LastNodeSelected.IsSelected = false;
+            }
+            Tree.LastNodeSelected = this;
+            NodeMainMiddlebutton.IsSelected = true;
         }
         private void NodeMainMiddlebutton_DoubleClick(object sender, EventArgs e)
         {
@@ -667,20 +686,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             BeepMouseEventArgs args = new BeepMouseEventArgs("MouseEnter", this);
             NodeMouseEnter?.Invoke(this, args);
-            HilightNode();
+            //HilightNode();
+            NodeMainMiddlebutton.IsHovered = true;
 
         }
         private void NodeMainMiddlebutton_MouseLeave(object sender, EventArgs e)
         {
             BeepMouseEventArgs args = new BeepMouseEventArgs("MouseLeave", this);
             NodeMouseLeave?.Invoke(this, args);
-            UnHilightNode();
+            NodeMainMiddlebutton.IsHovered = false;
+            // UnHilightNode();
         }
         private void NodeMainMiddlebutton_MouseHover(object sender, EventArgs e)
         {
             BeepMouseEventArgs args = new BeepMouseEventArgs("MouseHover", this);
             NodeMouseHover?.Invoke(this, args);
-            HilightNode();
+           // HilightNode();
+            NodeMainMiddlebutton.IsHovered = true;
 
         }
         private void NodeMainMiddlebutton_MouseWheel(object sender, EventArgs e)
@@ -695,7 +717,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void NodeMainMiddlebutton_MouseDown(object sender, MouseEventArgs e)
         {
-          
+            base.OnMouseDown(e);
+            Debug.WriteLine("Middel button MouseDown");
             BeepMouseEventArgs args=  MiscFunctions.GetMouseEventArgs("MouseDown", e);
             NodeMouseDown?.Invoke(this, args);
             if (e.Button == MouseButtons.Left)
@@ -709,7 +732,48 @@ namespace TheTechIdea.Beep.Winform.Controls
                     NodeRightClicked?.Invoke(this, args);
                     ShowMenu?.Invoke(this, args);
             }
-            base.OnMouseDown(e);
+            if (Tree.LastNodeSelected != null)
+            {
+                Tree.LastNodeSelected.IsSelected = false;
+            }
+        
+            Tree.LastNodeSelected = this;
+            NodeMainMiddlebutton.IsSelected = true;
+       
+        }
+        private void BeepTreeNode_LostFocus(object? sender, EventArgs e)
+        {
+            Debug.WriteLine("LostFocus");
+            NodeMainMiddlebutton.IsSelected = false;
+        }
+
+        private void BeepTreeNode_Click(object? sender, EventArgs e)
+        {
+            Debug.WriteLine("Clicked");
+        }
+        private void BeepTreeNode_MouseHover(object? sender, EventArgs e)
+        {
+            Debug.WriteLine("Hovered");
+            NodeMainMiddlebutton.IsHovered = true;
+        }
+
+        private void BeepTreeNode_MouseDown(object? sender, MouseEventArgs e)
+        {
+            Debug.WriteLine("MouseDown");
+            // When a node is clicked, set this node as the selected node in the tree.
+            if (this.Tree != null)
+            {
+                this.Tree.SelectedNode = this;
+            }
+            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseDown", this);
+            NodeMouseDown?.Invoke(this, args);
+            NodeMainMiddlebutton.IsSelected = true;
+        }
+        private void BeepTreeNode_MouseLeave(object? sender, EventArgs e)
+        {
+            Debug.WriteLine("MouseLeave");
+            NodeMainMiddlebutton.IsHovered =false;
+            
         }
         #endregion "MiddleButton"
         #region "LeftButton"
@@ -801,10 +865,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Painting Methods"
         int startx = 0;
         int starty = 0;
+        private int toggelbuttonsize=14;
+
         public void InitNode()
         {
           //  LogMessage($"init");
             UpdateDrawingRect();
+            Margin = new Padding(1);
+            Padding = new Padding(1);
             _nodePanel = new Panel
             {
                 Dock = DockStyle.Top,
@@ -846,9 +914,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsBorderAffectedByTheme = false,
                 Theme = Theme,
                 IsRounded = false,
-                Size = new Size(20, 20), // Adjust size as needed
+                HideText = true,
+                
             };
-         //   LogMessage($"init3");
+            _checkBox.Size = new Size(toggelbuttonsize, toggelbuttonsize);
+            //   LogMessage($"init3");
             _checkBox.StateChanged += CheckBox_StateChanged;
         //    LogMessage($"init4");
             _nodePanel.Controls.Add(_checkBox);
@@ -862,15 +932,24 @@ namespace TheTechIdea.Beep.Winform.Controls
        
             if (NodeMainMiddlebutton != null) NodeMainMiddlebutton.Text = Text;
             if (NodeMainMiddlebutton != null) NodeMainMiddlebutton.ImagePath = ImagePath;
-            Nodes.ListChanged += Nodes_ListChanged;    
+            Nodes.ListChanged += Nodes_ListChanged;
+            this.Click += BeepTreeNode_Click;
+            this.MouseDown += BeepTreeNode_MouseDown;
+            this.MouseHover += BeepTreeNode_MouseHover;
+            this.LostFocus += BeepTreeNode_LostFocus;
+            this.MouseLeave += BeepTreeNode_MouseLeave;
             //LogMessage($"init4");
             //   Invalidate();
             _isinitialized = true;
             _isExpanded=false;
-       
-            RearrangeNode();
+           IsInvalidated=true;
+            // RearrangeNode();
             ApplyTheme();
+            RearrangeNode();
         }
+
+       
+
         public void RearrangeNode()
         {
             SuspendLayout(); // Temporarily stop layout updates
@@ -879,20 +958,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                
                 SimpleItem t = (SimpleItem)Tag;
                 if (t == null) return;
-                if (!isSizeCached)
-                {
+         //       if (!isSizeCached)
+         //       {
                     CalculateSize();
-                }
+   ///             }
                 // Apply cached sizes
                 UpdateDrawingRect();
-                // this.Height = DrawingRect.Height; ;
-                //  this.Width = DrawingRect.Width;
-                //  _childrenPanel.Width = cachedWidth;
-                
-                int toggelbuttonsize = 14;
-               
-               
-                int startx = padding; // Horizontal start point
+                int startx = 0; // Horizontal start point
                 int centerY = (NodeHeight - MaxImageSize) / 2; // Center alignment for small buttons
 
                 // Adjust the size of the main node panel
@@ -903,8 +975,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Position the toggle button
                 if (_toggleButton != null)
                 {
-                    _toggleButton.Location = new Point(startx, (NodeHeight - toggelbuttonsize) / 2); // Center vertically
                     _toggleButton.Size = new Size(toggelbuttonsize, toggelbuttonsize);
+                    int centerYfortoggle = (NodeHeight - _toggleButton.Size.Height) / 2; // Center alignment for small buttons
+                    _toggleButton.Location = new Point(startx, centerYfortoggle); // Center vertically
+                  
                     _toggleButton.MaxImageSize =new Size(toggelbuttonsize-1, toggelbuttonsize-1);
                     startx += _toggleButton.Width + spacing;
                 }
@@ -912,9 +986,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Position the CheckBox
                 if (_checkBox != null && _showCheckBox)
                 {
-                    _checkBox.Location = new Point(startx, (NodeHeight - toggelbuttonsize) / 2);
                     _checkBox.Size = new Size(toggelbuttonsize, toggelbuttonsize);
+                    int centerYforcheckbox = (NodeHeight - _checkBox.Size.Height) / 2; // Center alignment for small buttons
+                    _checkBox.Location = new Point(startx, centerYforcheckbox);
                     _checkBox.CheckBoxSize = toggelbuttonsize - 1;
+                   
                     startx += _checkBox.Width + spacing;
                 }
                 //// Position the left button
@@ -928,10 +1004,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Position the main middle button
                 if (NodeMainMiddlebutton != null)
                 {
-                    NodeMainMiddlebutton.Location = new Point(startx, centerY); // Top aligned
                     NodeMainMiddlebutton.MinimumSize = new Size(MinimumTextWidth, NodeHeight); // Ensure a minimum size
+
                     NodeMainMiddlebutton.Size = new Size(Math.Max(MinimumTextWidth, _nodePanel.Width - startx - SmallNodeHeight - 2 * padding), NodeHeight);
-                    startx += NodeMainMiddlebutton.Width + spacing;
+                    int centerYformainbutton = (NodeHeight - NodeMainMiddlebutton.Size.Height) / 2; // Center alignment for small buttons
+                    NodeMainMiddlebutton.Location = new Point(startx, centerYformainbutton); // Top aligned
+                    
+                      startx += NodeMainMiddlebutton.Width + spacing;
                 }
 
                 // Position the right button
@@ -959,11 +1038,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     int childStartY = padding;
                     foreach (var child in NodesControls)
                     {
-                        child.Location = new Point(xlevel * spacing, childStartY); // Indent child nodes
-                        child.Width = Width - (xlevel * spacing);
+                        child.Location = new Point(xlevel * padding, childStartY); // Indent child nodes
+                        child.Width = Width - (xlevel * padding);
                         child.Theme = Theme;
                         child.RearrangeNode();
-                        childStartY += child.Height;
+                        childStartY += child.Height+ padding;
                     }
                     _childrenPanel.Height = childStartY;
                     _childrenPanel.Visible = true;
@@ -984,10 +1063,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     parentPanel.Height = Height;
                 }
-            
+                
             }
             finally
             {
+                checktoggle();
+                IsInvalidated = true;
                 ResumeLayout(); // Resume layout updates
             }
           //  UpdatePanelSize();
@@ -1030,33 +1111,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         if (IsExpanded)
                         {
-                            _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-minus.svg";
+                            _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg";
                         }
                         else
                         {
-                            _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-plus.svg";
+                            _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg";
                         }
                     }
                  else
                  {
-                        _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-minus.svg";
+                        _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg";
                  }
                 }
-                //if (NodesControls.Count > 0)
-                //{
-                //    if (IsExpanded)
-                //    {
-                //        _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-minus.svg";
-                //    }
-                //    else
-                //    {
-                //        _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-plus.svg";
-                //    }
-                //}
-                //else
-                //{
-                //    _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-minus.svg";
-                //}
             }
     
         }
@@ -1155,6 +1221,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
               //  NodeMainMiddlebutton.
                 NodeMainMiddlebutton.Click += NodeMainMiddlebutton_Click;
+                NodeMainMiddlebutton.MouseClick += NodeMainMiddlebutton_Click;
                 NodeMainMiddlebutton.DoubleClick += NodeMainMiddlebutton_DoubleClick;
                 NodeMainMiddlebutton.MouseEnter += NodeMainMiddlebutton_MouseEnter;
                 NodeMainMiddlebutton.MouseLeave += NodeMainMiddlebutton_MouseLeave;
@@ -1170,7 +1237,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _toggleButton = new BeepButton
             {
-                Text = "-",
+                Text = string.Empty,
                 Size = new Size(SmallNodeHeight, SmallNodeHeight),
                 ImageAlign = System.Drawing.ContentAlignment.MiddleCenter,
                 TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
@@ -1186,9 +1253,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MaxImageSize = new System.Drawing.Size(SmallNodeHeight - 2, SmallNodeHeight - 2),
                 Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall),
                 UseScaledFont = false,
-                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-minus.svg"
+                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg"
             };
-
+            _toggleButton.HideText = true;
+            _toggleButton.Text= string.Empty;
             _toggleButton.Click += (s, e) =>
             {
                 IsExpanded = !IsExpanded;
@@ -1248,11 +1316,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             if (_toggleButton != null)
             {
-                _toggleButton.ImagePath = _isExpanded ? "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-minus.svg" : "TheTechIdea.Beep.Winform.Controls.GFX.SVG.square-plus.svg";
+                _toggleButton.ImagePath = _isExpanded ? "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg" : "TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg";
             }
             else return;
             if (Nodes.Count > 0)
             {
+                IsInvalidated = true;
                 Tree?.RearrangeTree();
             }
          //   RearrangeNode();
@@ -1315,20 +1384,20 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             //     Noderightbutton.BackColor = _currentTheme.PanelBackColor;
         }
-        public void HilightNode()
-        {
-            NodeMainMiddlebutton.ForeColor = _currentTheme.ButtonHoverForeColor;
-            NodeMainMiddlebutton.BackColor = _currentTheme.ButtonHoverBackColor;
-            //   LogMessage("Hilight");
+        //public void HilightNode()
+        //{
+        //    NodeMainMiddlebutton.ForeColor = _currentTheme.ButtonHoverForeColor;
+        //    NodeMainMiddlebutton.BackColor = _currentTheme.ButtonHoverBackColor;
+        //    //   LogMessage("Hilight");
 
-        }
-        public void UnHilightNode()
-        {
-            NodeMainMiddlebutton.ForeColor = _currentTheme.ButtonForeColor;
-            NodeMainMiddlebutton.BackColor = _currentTheme.ButtonBackColor;
-            //   LogMessage("UnHilight");
+        //}
+        //public void UnHilightNode()
+        //{
+        //    NodeMainMiddlebutton.ForeColor = _currentTheme.ButtonForeColor;
+        //    NodeMainMiddlebutton.BackColor = _currentTheme.ButtonBackColor;
+        //    //   LogMessage("UnHilight");
 
-        }
+        //}
         public void ChangeNodeImageSettings()
         {
             if (NodeMainMiddlebutton != null)
@@ -1376,6 +1445,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     n.TextAlignment = textAlign;
                 }
             }
+            IsInvalidated = true;
         }
         private void Nodes_ListChanged(object? sender, ListChangedEventArgs e)
         {
@@ -1408,6 +1478,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         // Other types (e.g., ItemChanged, PropertyDescriptorAdded)
                         break;
                 }
+                IsInvalidated = true;
             }
             catch (Exception ex)
             {
@@ -1471,6 +1542,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     AddNode(node);
                 }
             }
+            IsInvalidated = true;
         }
         // remove child nodes that are draw when the node is collapsed
         protected void RemoveChildNodes()
@@ -1490,6 +1562,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                
             }
+            IsInvalidated = true;
 
         }
         /// <summary>
@@ -1520,6 +1593,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     
                 }
             }
+            IsInvalidated = true;
         }
         /// <summary>
         /// Removes a specific node from the current node's collection and updates the UI.
@@ -1530,12 +1604,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (node != null && NodesControls.Contains(node))
             {
                 NodesControls.Remove(node); // Automatically triggers Nodes_ListChanged
+                IsInvalidated = true;
             }
         }
         public void RemoveNode(SimpleItem node)
         {
             if (node == null) throw new ArgumentNullException(nameof(node));
             Nodes.Remove(node);
+            IsInvalidated = true;
 
         }
         /// <summary>
@@ -1550,6 +1626,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                // RemoveNode(node);
                 SimpleItem simpleItem = (SimpleItem)node.Tag;
                 Nodes.Remove(simpleItem);
+                IsInvalidated = true;
             }
             
         }
@@ -1565,6 +1642,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var node = NodesControls[NodeIndex];
                 SimpleItem simpleItem = (SimpleItem)node.Tag;
                 Nodes.Remove(simpleItem);
+                IsInvalidated = true;
             }
         }
 
@@ -1574,6 +1652,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void ClearNodes()
         {
             NodesControls.Clear(); // Automatically triggers Nodes_ListChanged
+            IsInvalidated = true;
         }
 
         /// <summary>
@@ -1619,6 +1698,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 child.ExpandAll(); // Recursive expansion
             }
             RearrangeNode();
+            IsInvalidated = true;
         }
 
         /// <summary>
@@ -1632,6 +1712,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 child.MiniAll(); // Recursive collapse
             }
             RearrangeNode();
+            IsInvalidated = true;
         }
 
         #endregion "Node Methods"
@@ -1828,6 +1909,45 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Drag and Drop"
         #region "Filter and Find"
+        /// <summary>
+        /// Ensures that this node is visible within its scrollable container.
+        /// </summary>
+        public void EnsureVisible()
+        {
+            // Expand parent nodes if necessary.
+            BeepTreeNode current = this.ParentNode;
+            while (current != null && !current.IsExpanded)
+            {
+                current.IsExpanded = true;
+                current = current.ParentNode;
+            }
+            ScrollIntoView();
+        }
+
+        /// <summary>
+        /// Scrolls this node into view by finding the first parent that is a ScrollableControl.
+        /// </summary>
+        private void ScrollIntoView()
+        {
+            Control parent = this.Parent;
+            while (parent != null && !(parent is ScrollableControl))
+            {
+                parent = parent.Parent;
+            }
+
+            if (parent is ScrollableControl scrollable)
+            {
+                // Adjust the scroll position so that this node is visible.
+                if (this.Bottom > scrollable.ClientRectangle.Bottom)
+                {
+                    scrollable.AutoScrollPosition = new Point(0, this.Bottom - scrollable.ClientRectangle.Height);
+                }
+                else if (this.Top < 0)
+                {
+                    scrollable.AutoScrollPosition = new Point(0, this.Top);
+                }
+            }
+        }
         public BeepTreeNode FindNode(Func<BeepTreeNode, bool> predicate)
         {
             if (predicate(this)) return this;

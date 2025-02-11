@@ -2,6 +2,7 @@
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -293,6 +294,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return _lastSelectedNode;
                 }
             }
+            set
+            {
+                if (_lastSelectedNode != value)
+                {
+                    if (_lastSelectedNode != null)
+                        _lastSelectedNode.IsSelected = false;  // Deselect previous node
+
+                    _lastSelectedNode = value;
+
+                    if (_lastSelectedNode != null)
+                    {
+                        _lastSelectedNode.IsSelected = true;
+                        _lastSelectedNode.EnsureVisible();
+                    }
+                }
+            }
         }
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
@@ -337,11 +354,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion "Properties"
-            #region "Constructors"
+        #region "Constructors"
         public BeepTree()
         {
-          //  SetStyle(ControlStyles.ResizeRedraw | ControlStyles.SupportsTransparentBackColor | ControlStyles.AllPaintingInWmPaint | ControlStyles.EnableNotifyMessage | ControlStyles.OptimizedDoubleBuffer, true);
-            this.Name = "BeepTree";
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
+
             if (rootnodeitems == null)
             {
                 rootnodeitems = new BindingList<SimpleItem>();
@@ -524,6 +541,57 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Node Clicked"
         #region "Event Handlers"
+        /// <summary>
+        /// Selects the previous visible node (if any) in the tree.
+        /// </summary>
+        public void SelectPreviousNode()
+        {
+            if (SelectedNode == null)
+                return;
+
+            List<BeepTreeNode> visibleNodes = GetAllVisibleNodes();
+            int currentIndex = visibleNodes.IndexOf(SelectedNode);
+
+            if (currentIndex > 0)
+            {
+                SelectedNode = visibleNodes[currentIndex - 1];
+            }
+        }
+
+        /// <summary>
+        /// Selects the next visible node (if any) in the tree.
+        /// </summary>
+        public void SelectNextNode()
+        {
+            if (SelectedNode == null)
+                return;
+
+            List<BeepTreeNode> visibleNodes = GetAllVisibleNodes();
+            int currentIndex = visibleNodes.IndexOf(SelectedNode);
+
+            if (currentIndex < visibleNodes.Count - 1)
+            {
+                SelectedNode = visibleNodes[currentIndex + 1];
+            }
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (SelectedNode == null) return;
+            if (e.KeyCode == Keys.Up)
+            {
+                SelectPreviousNode();
+            }
+            else if (e.KeyCode == Keys.Down)
+            {
+                SelectNextNode();
+            }
+            else if (e.KeyCode == Keys.Enter)
+            {
+                NodeSelected?.Invoke(this, new BeepMouseEventArgs { EventName="KeyEnter" });
+            }
+        }
+
         private void ChangeTextAlignment()
         {
             // change the text alignment of all nodes
@@ -652,17 +720,50 @@ namespace TheTechIdea.Beep.Winform.Controls
                     continue;
                 // Position the panel
                 //panel.Location = new Point(5, startY);
-                if (node.Height != NodeHeight)
+                if (panel.Width != DrawingRect.Width)
                 {
-                    node.Height = NodeHeight;
-                    panel.Height = NodeHeight;
+                    panel.Width = DrawingRect.Width; // Adjust panel width based on tree width
                 }
-                panel.Width = DrawingRect.Width ; // Adjust panel width based on tree width
-                node.RearrangeNode(); // Adjust the node's internal layout
+
+                if (node.IsInvalidated)
+                {
+                    node.RearrangeNode();
+                   
+                  
+                    node.IsInvalidated = false;
+                }
+                //if (node.Height != NodeHeight)
+                //{
+                //    node.Height = NodeHeight;
+                //    panel.Height = NodeHeight;
+                //}
+                
                 startY += panel.Height; // Increment Y position based on panel's height
+                                        //    node.RearrangeNode(); // Adjust the node's internal layout
+
             }
             ResumeLayout(); // Resume layout updates
                             // Invalidate(); // Redraw the tree
+        }
+        private void ScrollIntoView()
+        {
+            Control parent = this.Parent;
+            while (parent != null && !(parent is ScrollableControl))
+            {
+                parent = parent.Parent;
+            }
+
+            if (parent is ScrollableControl scrollable)
+            {
+                if (this.Bottom > scrollable.ClientRectangle.Bottom)
+                {
+                    scrollable.AutoScrollPosition = new Point(0, this.Bottom - scrollable.ClientRectangle.Height);
+                }
+                else if (this.Top < 0)
+                {
+                    scrollable.AutoScrollPosition = new Point(0, this.Top);
+                }
+            }
         }
         #endregion "Event Handlers"
         #region "Root Nodes Creation"
@@ -750,8 +851,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 menuItem.ContainerGuidID = node.GuidID;
                 menuItem.RootContainerGuidID = node.GuidID;
                 node.Nodes = menuItem.Children;
+                node.Tag = menuItem;
+            //    node.RearrangeNode();
                 LogMessage($"Node added for item at index {index}: {menuItem.Text}");
-                RearrangeTree();
+             //   RearrangeTree();
                 _dontRearrange = false;
             }
         }
@@ -872,8 +975,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 node.NodeCollapsed += (sender, e) => NodeCollapsed?.Invoke(sender, e);
                 node.NodeSelected += (sender, e) => NodeSelected?.Invoke(sender, e);
                 node.NodeDeselected += (sender, e) => NodeDeselected?.Invoke(sender, e);
-                node.MouseHover += (sender, e) => { node.HilightNode(); };
-                node.MouseLeave += (sender, e) => { node.UnHilightNode(); };
+              //  node.MouseHover += (sender, e) => { node.HilightNode(); };
+             //   node.MouseLeave += (sender, e) => { node.UnHilightNode(); };
                 Console.WriteLine("Node Created: " + node.Text);
 
                 return node;
@@ -934,10 +1037,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Level = parent?.Level + 1 ?? 1,
                     UseThemeFont = this.UseThemeFont,
                     UseScaledFont = this.UseScaledFont,
-                    TextAlignment = textAlign
-                    
-                   
-
+                    TextAlignment = textAlign,
+                  
                 };
                 if(UseThemeFont == false)
                 {
@@ -955,8 +1056,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 node.NodeDeselected += OnNodeDeselected;
                 node.NodeChecked += OnNodeChecked;
                 node.NodeUnchecked += OnNodeUnChecked;
-                node.MouseHover += (sender, e) => { node.HilightNode(); };
-                node.MouseLeave += (sender, e) => { node.UnHilightNode(); };
+              //  node.MouseHover += (sender, e) => { node.HilightNode(); };
+               // node.MouseLeave += (sender, e) => { node.UnHilightNode(); };
                 node.ShowCheckBox=ShowCheckBox;
                 Console.WriteLine("Node Created: " + node.Text);
                 LogMessage($"Creating Node Childern: {menuItem.Text}, Depth: {depth}");
@@ -985,7 +1086,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Padding = new Padding(0),
                 BorderStyle = BorderStyle.None
             };
-
+            
             _beeptreeRootnodes.Add(node);
             panel.Controls.Add(node); // Add the node to the panel
             Controls.Add(panel); // Add the panel to the tree
@@ -1193,6 +1294,56 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Remove Nodes"
         #region "Travsersal"
+        /// <summary>
+        /// Recursively adds the given node and all its visible (and expanded) descendants.
+        /// </summary>
+        private void AddVisibleNodes(BeepTreeNode node, List<BeepTreeNode> list)
+        {
+            if (!node.Visible)
+                return;
+
+            list.Add(node);
+            if (node.IsExpanded)
+            {
+                foreach (var child in node.NodesControls)
+                {
+                    AddVisibleNodes(child, list);
+                }
+            }
+        }
+        /// <summary>
+        /// Retrieves all visible nodes in the tree, including expanded children.
+        /// </summary>
+        public List<BeepTreeNode> GetAllVisibleNodes()
+        {
+            List<BeepTreeNode> visibleNodes = new List<BeepTreeNode>();
+
+            foreach (var rootNode in _beeptreeRootnodes)
+            {
+                TraverseVisibleNodes(rootNode, visibleNodes);
+            }
+
+            return visibleNodes;
+        }
+
+        /// <summary>
+        /// Recursively traverses only visible nodes.
+        /// </summary>
+        private void TraverseVisibleNodes(BeepTreeNode node, List<BeepTreeNode> nodeList)
+        {
+            if (!node.IsVisible) return;
+
+            nodeList.Add(node);
+
+            if (node.IsExpanded)
+            {
+                foreach (var child in node.NodesControls)
+                {
+                    TraverseVisibleNodes(child, nodeList);
+                }
+            }
+        }
+
         public IEnumerable<BeepTreeNode> GetDisplayNodes()
         {
             foreach (var rootNode in _beeptreeRootnodes.Where(n => n.ParentNode == null))
@@ -1475,7 +1626,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Mark the node as highlighted
-            node.HilightNode();
+            //node.HilightNode();
 
             // Scroll into view if you have a panel or control logic
             var panel = GetBeepTreeNodeFromPanel(node.NodeSeq);
@@ -1489,20 +1640,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// Highlights nodes that match the specified predicate.
         /// </summary>
         /// <param name="predicate">A function to test each node for a condition.</param>
-        public void HighlightNodes(Func<BeepTreeNode, bool> predicate)
-        {
-            foreach (var node in Traverse())
-            {
-                if (predicate(node))
-                {
-                    node.HilightNode(); // Use existing method to highlight
-                }
-                else
-                {
-                    node.UnHilightNode(); // Remove highlight
-                }
-            }
-        }
+        //public void HighlightNodes(Func<BeepTreeNode, bool> predicate)
+        //{
+        //    foreach (var node in Traverse())
+        //    {
+        //        if (predicate(node))
+        //        {
+        //            node.HilightNode(); // Use existing method to highlight
+        //        }
+        //        else
+        //        {
+        //            node.UnHilightNode(); // Remove highlight
+        //        }
+        //    }
+        //}
         public override void ApplyTheme()
         {
             base.ApplyTheme();
@@ -1682,7 +1833,30 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         }
         #endregion "Popup List Methods"
+        #region "Expand and Collapse"
+        private void ExpandWithAnimation(BeepTreeNode node)
+        {
+            Timer timer = new Timer { Interval = 10 };
+            int step = 5;
+            int targetHeight = node.Height + 100; // Example height increase
 
+            timer.Tick += (sender, args) =>
+            {
+                if (node.Height >= targetHeight)
+                {
+                    timer.Stop();
+                    node.IsExpanded = true;
+                }
+                else
+                {
+                    node.Height += step;
+                }
+            };
+
+            timer.Start();
+        }
+
+        #endregion "Expand and Collapse"
     }
 
 }

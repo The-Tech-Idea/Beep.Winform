@@ -8,28 +8,7 @@ using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    /// <summary>
-    /// Provides data for the SelectedValueChanged event.
-    /// </summary>
-    public class RadioButtonSelectedEventArgs : EventArgs
-    {
-        /// <summary>
-        /// The index of the option that was selected.
-        /// </summary>
-        public int SelectedIndex { get; }
-
-        /// <summary>
-        /// The value of the option that was selected.
-        /// </summary>
-        public string SelectedValue { get; }
-
-        public RadioButtonSelectedEventArgs(int index, string value)
-        {
-            SelectedIndex = index;
-            SelectedValue = value;
-        }
-    }
-    public enum RadioButtonOrientation { Horizontal, Vertical }
+   
     /// <summary>
     /// A control that displays a list of options as radio buttons.
     /// All drawing is performed inside the DrawingRect.
@@ -286,11 +265,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     int itemWidth = indicatorSize + spacing + textSize.Width + 2 * padding;
                     // Create the local rectangle for this option.
                     Rectangle localItemRect = new Rectangle(x, 0, itemWidth, drawRect.Height);
-                    // Convert to absolute coordinates for hit testing.
+                    // Convert local coordinates to absolute coordinates for hit testing.
                     Rectangle absoluteItemRect = new Rectangle(drawRect.X + localItemRect.X, drawRect.Y + localItemRect.Y, localItemRect.Width, localItemRect.Height);
                     _optionRectangles.Add(absoluteItemRect);
 
-                    // Highlight if hovered.
+                    // Highlight the option if the mouse is over it.
                     if (i == _hoverIndex)
                     {
                         using (SolidBrush brush = new SolidBrush(Color.LightGray))
@@ -299,12 +278,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                         }
                     }
 
-                    // Draw the radio indicator at the left of the item.
-                    Rectangle indicatorRect = new Rectangle(padding, (drawRect.Height - indicatorSize) / 2, indicatorSize, indicatorSize);
+                    // Draw the radio indicator relative to the current x.
+                    Rectangle indicatorRect = new Rectangle(x + padding, (drawRect.Height - indicatorSize) / 2, indicatorSize, indicatorSize);
                     using (Pen pen = new Pen(this.ForeColor, 2))
                     {
                         g.DrawEllipse(pen, indicatorRect);
                     }
+                    // If this option is selected, draw a filled inner circle.
                     if (_options[i] == _selectedValue)
                     {
                         int innerSize = indicatorSize / 2;
@@ -319,8 +299,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         }
                     }
 
-                    // Draw the text next to the indicator.
-                    Rectangle textRect = new Rectangle(indicatorRect.Right + spacing, 0, textSize.Width + 2 * padding, drawRect.Height);
+                    // Draw the option text next to the indicator.
+                    Rectangle textRect = new Rectangle(x + padding + indicatorSize + spacing, 0, textSize.Width + 2 * padding, drawRect.Height);
                     TextRenderer.DrawText(g, opt, this.Font, textRect, this.ForeColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
 
                     // Update x for the next option.
@@ -392,4 +372,26 @@ namespace TheTechIdea.Beep.Winform.Controls
             Font = _textFont;
         }
     }
+    /// <summary>
+    /// Provides data for the SelectedValueChanged event.
+    /// </summary>
+    public class RadioButtonSelectedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// The index of the option that was selected.
+        /// </summary>
+        public int SelectedIndex { get; }
+
+        /// <summary>
+        /// The value of the option that was selected.
+        /// </summary>
+        public string SelectedValue { get; }
+
+        public RadioButtonSelectedEventArgs(int index, string value)
+        {
+            SelectedIndex = index;
+            SelectedValue = value;
+        }
+    }
+    public enum RadioButtonOrientation { Horizontal, Vertical }
 }

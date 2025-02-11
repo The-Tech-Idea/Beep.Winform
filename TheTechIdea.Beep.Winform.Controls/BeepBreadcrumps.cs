@@ -8,28 +8,7 @@ using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    /// <summary>
-    /// Provides data for the CrumbClicked event.
-    /// </summary>
-    public class CrumbClickedEventArgs : EventArgs
-    {
-        /// <summary>
-        /// The index of the breadcrumb item that was clicked.
-        /// </summary>
-        public int Index { get; }
-
-        /// <summary>
-        /// The text of the breadcrumb item that was clicked.
-        /// </summary>
-        public string Crumb { get; }
-
-        public CrumbClickedEventArgs(int index, string crumb)
-        {
-            Index = index;
-            Crumb = crumb;
-        }
-    }
-
+   
     /// <summary>
     /// A control that displays breadcrumb navigation items.
     /// All drawing is performed within the DrawingRect.
@@ -144,26 +123,39 @@ namespace TheTechIdea.Beep.Winform.Controls
             //_itemRectangles.Clear();
 
             // Layout constants (all in local coordinates relative to drawRect).
-            int x = 5;                      // Starting x–coordinate
-            int padding = 8;                // Padding around each crumb
-            string separator = " > ";       // Separator between crumbs (with spaces for readability)
+            int x = 5;                      // Starting x–coordinate within DrawingRect
+            int hPadding = 8;               // Horizontal padding added to each crumb (left & right)
+            int vPadding = 4;               // Vertical padding added (top & bottom)
+            string separator = " > ";       // Separator text between breadcrumbs
             Size sepSize = TextRenderer.MeasureText(separator, this.Font);
 
-            // Draw each breadcrumb item.
+            _itemRectangles.Clear();        // Clear any previously stored hit–testing rectangles
+
             for (int i = 0; i < _items.Count; i++)
             {
                 string crumb = _items[i];
-                // Measure the text size.
+                // Measure the text size using the current font.
                 Size textSize = TextRenderer.MeasureText(crumb, this.Font);
-                // Create a rectangle for the crumb text with added padding.
-                Rectangle localRect = new Rectangle(x, (drawRect.Height - textSize.Height) / 2, textSize.Width, textSize.Height);
-                localRect.Inflate(padding, padding / 2);
 
-                // Convert local coordinates (relative to drawRect) into absolute coordinates for hit testing.
-                Rectangle absoluteRect = new Rectangle(drawRect.X + localRect.X, drawRect.Y + localRect.Y, localRect.Width, localRect.Height);
+                // Create a rectangle based on the measured text.
+                // The width and height are increased by the desired padding.
+                Rectangle localRect = new Rectangle(
+                    x,
+                    (DrawingRect.Height - (textSize.Height + 2 * vPadding)) / 2,
+                    textSize.Width + 2 * hPadding,
+                    textSize.Height + 2 * vPadding
+                );
+
+                // Convert the local rectangle to absolute coordinates for hit testing.
+                Rectangle absoluteRect = new Rectangle(
+                    DrawingRect.X + localRect.X,
+                    DrawingRect.Y + localRect.Y,
+                    localRect.Width,
+                    localRect.Height
+                );
                 _itemRectangles.Add(absoluteRect);
 
-                // If the mouse is over this crumb, fill its background.
+                // Optionally highlight the crumb if the mouse is hovering over it.
                 if (i == _hoverIndex)
                 {
                     using (SolidBrush brush = new SolidBrush(Color.LightGray))
@@ -172,20 +164,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
 
-                // Draw the crumb text.
-                TextRenderer.DrawText(g, crumb, this.Font, localRect, this.ForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                // Draw the crumb text centered within the local rectangle.
+                TextRenderer.DrawText(g, crumb, this.Font, localRect, this.ForeColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
 
-                // Advance the x–coordinate.
+                // Advance x by the width of the current crumb.
                 x += localRect.Width;
 
-                // If this is not the last crumb, draw the separator.
+                // If not the last crumb, draw the separator.
                 if (i < _items.Count - 1)
                 {
-                    Point sepLocation = new Point(x, (drawRect.Height - sepSize.Height) / 2);
+                    Point sepLocation = new Point(x, (DrawingRect.Height - sepSize.Height) / 2);
                     TextRenderer.DrawText(g, separator, this.Font, sepLocation, this.ForeColor);
                     x += sepSize.Width;
                 }
             }
+
 
             // Reset the transformation and clipping.
             g.ResetTransform();
@@ -253,4 +247,26 @@ namespace TheTechIdea.Beep.Winform.Controls
             Font = _textFont;
         }
     }
+    /// <summary>
+    /// Provides data for the CrumbClicked event.
+    /// </summary>
+    public class CrumbClickedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// The index of the breadcrumb item that was clicked.
+        /// </summary>
+        public int Index { get; }
+
+        /// <summary>
+        /// The text of the breadcrumb item that was clicked.
+        /// </summary>
+        public string Crumb { get; }
+
+        public CrumbClickedEventArgs(int index, string crumb)
+        {
+            Index = index;
+            Crumb = crumb;
+        }
+    }
+
 }

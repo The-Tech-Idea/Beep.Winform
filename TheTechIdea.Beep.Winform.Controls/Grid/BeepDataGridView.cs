@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -147,32 +149,82 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private bool isinit = true;
         private Size _buttonsize = new Size(16, 16);
         private Size _imagesize = new Size(14, 14);
+        // FlowLayout for column-aligned totals
+        private Panel _totalsFlow;
+
+        // Binding navigator for record navigation
+        private BeepBindingNavigator _bindingNavigator;
+
+        // A dictionary to store the label for each column
+        private Dictionary<DataGridViewColumn, BeepLabel> _columnTotals = new();
+
+        // Toggle whether totals panel is shown
+        private bool _showTotalsPanel = false;
+
+        // Toggle whether data navigator is shown
+        private bool _showDataNavigator = true;
         #region "Data Source"
+        // Backing fields to hold design-time values.
+        private object _dataSource;
+        private string _dataMember;
+
         private BindingSource _bindingSource = new BindingSource();
-        public BindingSource BindingSource
+        //public BindingSource BindingSource
+        //{
+        //    get { return _bindingSource; }
+        //    set
+        //    {
+        //        InQuery = true;
+        //        _bindingSource = value;
+        //        if (_targetGrid != null) _targetGrid.DataSource = _bindingSource;
+        //        InQuery = false;
+        //    }
+        //}
+        // Expose DataSource with design-time attributes.
+        [Browsable(true)]
+        [Category("Data")]
+        [AttributeProvider(typeof(IListSource))]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [Bindable(true)]
+        public new object DataSource
         {
-            get { return _bindingSource; }
+            get => _dataSource;
             set
             {
-                InQuery = true;
-                _bindingSource = value;
-                if (_targetGrid != null) _targetGrid.DataSource = _bindingSource;
-                InQuery = false;
+                _dataSource = value;
+                // If _targetGrid is already created, forward the value
+                if (_targetGrid != null)
+                {
+                    _bindingSource.DataSource = value;
+                    _targetGrid.DataSource = _bindingSource;
+                }
             }
         }
-        private object _data;
-        public object Data
+
+        // Expose DataMember with design-time attributes.
+        [Browsable(true)]
+        [Category("Data")]
+        [Editor("System.Windows.Forms.Design.DataMemberListEditor, System.Design", typeof(UITypeEditor))]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [Bindable(true)]
+        public new string DataMember
         {
-            get { return _data; }
+            get => _dataMember;
             set
             {
-                InQuery = true;
-                _data = value;
-                _bindingSource.DataSource = value;
-                if (_targetGrid != null) _targetGrid.DataSource = _bindingSource;
-                InQuery = false;
+                _dataMember = value;
+                Console.WriteLine("Data Member: " + value);
+                if (_targetGrid != null)
+                {
+                    Console.WriteLine("Setting Data Member in bindingsource: " + value);
+                    _bindingSource.DataMember = value;
+                    Console.WriteLine("Setting Data Member in  grid : " + _bindingSource.DataMember);
+                 //   _targetGrid.DataMember = value;
+                    ResetData();
+                }
             }
         }
+
         #endregion "Data Source"
         #region "Appearance"
         /// <summary>
@@ -212,7 +264,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             set
             {
                 _showTotalsPanel = value;
-                _totalsFlow.Visible = value;
+                if(_totalsFlow!=null)     _totalsFlow.Visible = value;
             }
         }
 
@@ -228,7 +280,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             set
             {
                 _showDataNavigator = value;
-                _bindingNavigator.Visible = value;
+                if(_bindingNavigator!=null)     _bindingNavigator.Visible = value;
             }
         }
 
@@ -253,20 +305,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         SortOrder Currentdirection = SortOrder.None;
         private bool isResizing;
         #endregion "Sort and Filter"
-        // FlowLayout for column-aligned totals
-        private Panel _totalsFlow;
-
-        // Binding navigator for record navigation
-        private BeepBindingNavigator _bindingNavigator;
-
-        // A dictionary to store the label for each column
-        private Dictionary<DataGridViewColumn, BeepLabel> _columnTotals = new();
-
-        // Toggle whether totals panel is shown
-        private bool _showTotalsPanel = false;
-
-        // Toggle whether data navigator is shown
-        private bool _showDataNavigator = true;
+      
         #endregion Properties
 
         #region Constructor
@@ -274,7 +313,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         {
             Margin = new Padding(2);
             Padding = new Padding(2);
+            _targetGrid = new DataGridView();
             _bindingSource = new BindingSource();
+            InitializeLayout();
+            SetupDataGridView();
         }
         protected override Size DefaultSize => new Size(300, 300);
 
@@ -287,7 +329,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             base.OnHandleCreated(e);
             if (isinit)
             {
-                InitializeLayout();
+               // InitializeLayout();
+                if (_targetGrid != null)
+                {
+                    _bindingSource.DataSource = _dataSource;
+                    _targetGrid.DataSource = _bindingSource;
+                    _bindingSource.DataMember = _dataMember;
+                    _targetGrid.DataMember = _dataMember;
+                }
                 isinit = false;
             }
         }
@@ -307,19 +356,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         private void InitializeLayout()
         {
+           
             BeepGridMiscUI.InitializeComponent(this,_targetGrid);
             BeepGridMiscUI.HideScrollHorizontal = false;
             BeepGridMiscUI.HideScrollVertical = false;
             BeepGridMiscUI.MainSplitContainer.Panel1MinSize = 100;
-            SetupDataGridView();
+            //SetupDataGridView();
             _bindingSource = new BindingSource();
             _bindingSource.DataSourceChanged += OnDataSourceChanged;
             //  Console.WriteLine("Initializing BeepGridHeader layout...");
             // Manually stack three panels
-            Height = 60; // 60 if no filter
-            Width = 600;  // arbitrary placeholder
-                          //   Console.WriteLine("Height: " + Height);
-                          // (1) top panel
+          
             _topPanel = new Panel
             {
                 Height = _topPanelHeight,
@@ -894,11 +941,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private void ApplyFilter()
         {
 
-       //     Debug.WriteLine("Applying Filter");
+       //     Console.WriteLine("Applying Filter");
             if (!_showFilter || _targetGrid == null) return;
             if (_targetGrid.DataSource is BindingSource bs)
             {
-             //   Debug.WriteLine("Applying Filter 1");
+             //   Console.WriteLine("Applying Filter 1");
                 var conditions = new List<string>();
                 foreach (var kvp in _filterBoxes)
                 {
@@ -912,11 +959,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         conditions.Add($"{prop} LIKE '%{search}%'");
                     }
                 }
-              //  Debug.WriteLine("Conditions: " + string.Join(" AND ", conditions));
+              //  Console.WriteLine("Conditions: " + string.Join(" AND ", conditions));
                 _bindingSource.Filter = string.Join(" AND ", conditions);
                 _targetGrid.Refresh();
 
-              //  Debug.WriteLine("Filter Applied End");
+              //  Console.WriteLine("Filter Applied End");
             }
         }
         #endregion
@@ -963,12 +1010,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _targetGrid.CellEndEdit += DataGridView1_CellEndEdit;
             _targetGrid.CellBeginEdit += DataGridView1_CellBeginEdit;
             _targetGrid.DataError += DataGridView1_DataError;
-
-           
+            _targetGrid.BindingContextChanged += DataGridView1_BindingContextChanged;
+          //  _bindingSource.DataSourceChanged += OnDataSourceChanged;
+            
             RebuildColumnsAndFilters();
             // Hide the default scrollbar
             // _targetGrid.ScrollBars = ScrollBars.None;
         }
+ 
         #region DataGridView Events
         /// Handles the ColumnWidthChanged event for updating header and panel positions when a column's width changes.
         /// </summary>
@@ -1628,12 +1677,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         #endregion Entity Management
 
         #region Data Management
+        private void DataGridView1_BindingContextChanged(object? sender, EventArgs e)
+        {
+            Console.WriteLine("Binding Context Changed");
+            ResetData();
+        }
         private void OnDataSourceChanged(object? sender, EventArgs e)
         {
+            Console.WriteLine("Data Source Changed");
             ResetData();
         }
         private void ResetData()
         {
+            Console.WriteLine("start Reset Data");
             if (_targetGrid == null) return;
             //   _bindingSource = _targetGrid.Data as BindingSource;
             // Clear existing column configurations
@@ -1643,6 +1699,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             ColumnConfigs.Clear();
 
             // Rebuild columns and filters
+            Console.WriteLine("Rebuild Columns and Filters");
             RebuildColumnsAndFilters();
 
             // Apply filters if the filter panel is visible
@@ -1650,15 +1707,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 ApplyFilter();
             }
-
+          
             // Update the layout to match the new data source
+            Console.WriteLine("Update Header and Panel Positions");
             UpdateHeaderAndPanelPositions();
+            Console.WriteLine("Refresh");
             _targetGrid.Refresh();
         }
         private void OnDataMemberChanged(object? sender, EventArgs e)
         {
+            Console.WriteLine("Data Member Changed");
             if (_targetGrid == null) return;
-
+            _headerLabels.Clear();
+            _filterBoxes.Clear();
+            _columnSortOrders.Clear();
+            ColumnConfigs.Clear();
             // Rebuild columns and filters to reflect the new data member
             RebuildColumnsAndFilters();
 
@@ -1697,6 +1760,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         private void OnDataContextChanged(object? sender, EventArgs e)
         {
+            Console.WriteLine("Data Context Changed");
             if (_targetGrid == null) return;
 
             // Rebuild columns and filters to reflect the new data context

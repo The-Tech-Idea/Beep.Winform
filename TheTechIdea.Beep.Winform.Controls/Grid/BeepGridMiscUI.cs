@@ -348,6 +348,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             DataGridViewPanel.Size = new Size(760, 377);
             DataGridViewPanel.TabIndex = 2;
             DataGridViewPanel.Controls.Add(Grid);
+            Grid.Dock= DockStyle.Fill;
             // 
             // UserControl1
             // 

@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                 Editor.AddLogMessage("Beep", "Entity Structure not set", DateTime.Now, 0, null, Errors.Failed);
                 return;
             }
-            // Getting Defaults for DataSource
+            // Getting Defaults for Data
             List<DefaultValue> defaults = Editor.ConfigEditor.DataConnections[Editor.ConfigEditor.DataConnections.FindIndex(i => i.ConnectionName == DatasourceName)].DatasourceDefaults;
 
             // Getting Size of Labels
@@ -547,7 +547,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
             catch (Exception ex)
             {
 
-                Console.WriteLine($"Error adding columns in Grid for Entity {structure.EntityName}: " + ex.Message);
+                Console.WriteLine($"Error adding columns in _targetGrid for Entity {structure.EntityName}: " + ex.Message);
             }
 
             dataGridView.ResumeLayout();
@@ -615,7 +615,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                 entityStructure.Filters.Add(filter);
                 Filters.Add(filter);
                 //  BindingData[i] = new BindingSource();
-                //   BindingData[i].DataSource = filter;
+                //   BindingData[i].Data = filter;
                 FieldNames.Add(entityStructure.Fields[i].fieldname);
                 EntityField col = entityStructure.Fields[i];
                 int fromwidth = 0;
@@ -652,7 +652,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                         Top = starth
                     };
 
-                    //cbcondition.DataSource = GetDisplayLookup(entityStructure.DataSourceID, FK.ParentEntityID, FK.ParentEntityColumnID, FK.EntityColumnID);
+                    //cbcondition.Data = GetDisplayLookup(entityStructure.DataSourceID, FK.ParentEntityID, FK.ParentEntityColumnID, FK.EntityColumnID);
                     //cbcondition.DisplayMember = DisplayField;
                     //cbcondition.ValueMember = FK.ParentEntityColumnID;
                     cbcondition.DataSource = AddFilterTypes();

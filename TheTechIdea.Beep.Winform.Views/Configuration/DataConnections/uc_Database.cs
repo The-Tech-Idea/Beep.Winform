@@ -23,9 +23,10 @@ namespace Beep.Config.Winform.DataConnections
         public uc_Database()
         {
             InitializeComponent();
+             AddinName  = "RDBMS Data Connection Manager";
+           Description = "RDBMS Data Connection Manager";
         }
-        public string AddinName { get; set; } = "RDBMS Data Connection Manager";
-        public string Description { get; set; } = "RDBMS Data Connection Manager";
+     
      
         #region "IAddinVisSchema"
         public string RootNodeName { get; set; } = "Configuration";
@@ -50,8 +51,6 @@ namespace Beep.Config.Winform.DataConnections
         public bool IsRunning { get;set;}
         public bool IsNew { get;set;}
 
-      
-        IBranch RDBMSRootbranch;
         
         public void Run(IPassedArgs pPassedarg)
         {
@@ -63,7 +62,7 @@ namespace Beep.Config.Winform.DataConnections
 
             ViewModel = new DataConnectionViewModel(DMEEditor, Visutil);
             ViewModel.SelectedCategoryItem = DatasourceCategory.RDBMS;
-            RDBMSRootbranch=Tree.Branches.FirstOrDefault(c => c.BranchClass == "RDBMS" && c.BranchType == EnumPointType.Root);
+         //   RDBMSRootbranch=Tree.Branches.FirstOrDefault(c => c.BranchClass == "RDBMS" && c.BranchType == EnumPointType.Root);
             foreach (var item in Enum.GetValues(typeof(DatasourceCategory)))
             {
                 DatasourceCategorycomboBox.Items.Add(item);

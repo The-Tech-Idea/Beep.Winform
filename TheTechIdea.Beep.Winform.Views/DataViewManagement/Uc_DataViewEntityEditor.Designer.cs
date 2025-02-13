@@ -170,7 +170,7 @@
             nameLabel.Name = "nameLabel";
             nameLabel.Size = new Size(138, 15);
             nameLabel.TabIndex = 4;
-            nameLabel.Text = "DataSource Entity Name:";
+            nameLabel.Text = "Data Entity Name:";
             // 
             // customBuildQueryLabel
             // 

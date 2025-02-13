@@ -72,7 +72,7 @@ namespace Beep.Config.Winform.DataConnections
             //            return;
             //        }
             //    }
-            //    dataConnectionsBindingSource.DataSource = ViewModel.Connection;
+            //    dataConnectionsBindingSource.Data = ViewModel.Connection;
             //}
         }
 

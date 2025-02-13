@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Views.Crud
                     //this.beepGrid1.EntityStructure = CreateCrudView.Structure;
                     this.beepGrid1.SetConfig(pDMEEditor, plogger, putil, args, e, per);
                     this.beepGrid1.ResetData(CreateCrudView.Ts, CreateCrudView.Structure);
-                    //this.beepGrid1.DataSource = CreateCrudView.Ts; // dataSource.GetEntity(e.CurrentEntity, null); ;
+                    //this.beepGrid1.Data = CreateCrudView.Ts; // dataSource.GetEntity(e.CurrentEntity, null); ;
                     beepGrid1.BindingNavigator.SaveCalled += BeepbindingNavigator1_SaveCalled;
                     beepGrid1.BindingNavigator.ShowSearch += BeepbindingNavigator1_ShowSearch;
                     beepGrid1.BindingNavigator.NewRecordCreated += BeepbindingNavigator1_NewRecordCreated;

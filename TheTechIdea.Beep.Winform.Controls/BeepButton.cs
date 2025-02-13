@@ -546,8 +546,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.ButtonForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
-            ActiveBackColor = _currentTheme.ButtonActiveBackColor;
            
+
             if (_beepListBox != null)   _beepListBox.Theme = Theme;
             if (UseThemeFont)
             {
@@ -917,6 +917,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     IsSelected = !IsSelected;
                 }
+                if (IsSelected)
+                {
+                    ForeColor = _currentTheme.ButtonActiveForeColor;
+                    BackColor = _currentTheme.ButtonActiveBackColor;
+                }else
+                {
+                    ForeColor = _currentTheme.ButtonForeColor;
+                    BackColor = _currentTheme.ButtonBackColor;
+                }
+
             }
         }
         #endregion "Mouse and Click"

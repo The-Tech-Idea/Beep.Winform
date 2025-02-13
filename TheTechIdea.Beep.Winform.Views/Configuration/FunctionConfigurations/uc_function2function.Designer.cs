@@ -339,35 +339,7 @@ namespace TheTechIdea.Beep.Winform.Views
             // 
             // BeepbindingNavigator1
             // 
-            this.BeepbindingNavigator1.AddinName = null;
-            this.BeepbindingNavigator1.BackColor = System.Drawing.Color.White;
-            this.BeepbindingNavigator1.BindingSource = null;
-            this.BeepbindingNavigator1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.BeepbindingNavigator1.ButtonBorderSize = 0;
-            this.BeepbindingNavigator1.CausesValidation = false;
-            this.BeepbindingNavigator1.ControlHeight = 30;
-            this.BeepbindingNavigator1.DefaultCreate = false;
-            this.BeepbindingNavigator1.Description = null;
-            this.BeepbindingNavigator1.DllName = null;
-            this.BeepbindingNavigator1.DllPath = null;
-            this.BeepbindingNavigator1.DMEEditor = null;
-            this.BeepbindingNavigator1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.BeepbindingNavigator1.EntityName = null;
-            this.BeepbindingNavigator1.EntityStructure = null;
-            this.BeepbindingNavigator1.ErrorObject = null;
-            this.BeepbindingNavigator1.HightlightColor = System.Drawing.Color.Red;
-            this.BeepbindingNavigator1.Location = new System.Drawing.Point(0, 459);
-            this.BeepbindingNavigator1.Logger = null;
-            this.BeepbindingNavigator1.Name = "BeepbindingNavigator1";
-            this.BeepbindingNavigator1.NameSpace = null;
-            this.BeepbindingNavigator1.ObjectName = null;
-            this.BeepbindingNavigator1.ObjectType = null;
-            this.BeepbindingNavigator1.ParentName = null;
-            this.BeepbindingNavigator1.Passedarg = null;
-            this.BeepbindingNavigator1.SelectedColor = System.Drawing.Color.Green;
-            this.BeepbindingNavigator1.Size = new System.Drawing.Size(880, 31);
-            this.BeepbindingNavigator1.TabIndex = 14;
-            this.BeepbindingNavigator1.VerifyDelete = true;
+          
             // 
             // poisonStyleManager1
             // 

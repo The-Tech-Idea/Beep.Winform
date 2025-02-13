@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 namespace TheTechIdea.Beep.Winform.Controls.Grid
 {
     [ToolboxItem(true)]
-    [DisplayName("Beep Grid Footer")]
+    [DisplayName("Beep _targetGrid Footer")]
     [Category("Beep Controls")]
     public class BeepGridFooter : BeepControl
     {

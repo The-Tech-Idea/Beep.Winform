@@ -14,6 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
         private BindingList<SimpleItem> currentMenu = new BindingList<SimpleItem>();
+        private BeepButton _lastbuttonclicked;
 
         public BeepButton CurrenItemButton { get; private set; }
 
@@ -94,7 +95,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _selectedIndex = value;
                     //  HighlightSelectedButton();
-                    SelectedItem = currentMenu[value];
+                    if (currentMenu.Count > 0)
+                    {
+                        SelectedItem = currentMenu[value];
+                    }
+               
                 }
             }
         }
@@ -372,10 +377,15 @@ namespace TheTechIdea.Beep.Winform.Controls
          
             BeepButton btn = (BeepButton)sender;
             
-            UnpressAllButtons();
-            btn.IsSelected = true;
-            SimpleItem item = (SimpleItem)btn.Tag;
+           // UnpressAllButtons();
            
+            SimpleItem item = (SimpleItem)btn.Tag;
+            if (_lastbuttonclicked != null)
+            {
+                _lastbuttonclicked.IsSelected = false;
+            }
+            _lastbuttonclicked = btn;
+            _lastbuttonclicked.IsSelected = true;
             if (item.Children.Count>0)
             {
               
@@ -384,6 +394,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
             {
                 currentMenu = items;
+              
                 SelectedIndex = items.IndexOf(item);
                
             }

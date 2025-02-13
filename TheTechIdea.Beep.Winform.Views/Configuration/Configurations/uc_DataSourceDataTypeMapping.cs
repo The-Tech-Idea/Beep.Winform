@@ -30,7 +30,7 @@ namespace Beep.Config.Winform.Configurations
         public uc_DataSourceDataTypeMapping()
         {
             InitializeComponent();
-            Details.AddinName  = "DataSource DataType Mapping Manager";
+            Details.AddinName  = "Data DataType Mapping Manager";
         }
         #region "IAddinVisSchema"
         public string RootNodeName { get; set; } = "DDL";

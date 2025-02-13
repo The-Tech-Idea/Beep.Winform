@@ -102,7 +102,7 @@ namespace TheTechIdea.ETL
             label1.Name = "label1";
             label1.Size = new System.Drawing.Size(64, 13);
             label1.TabIndex = 13;
-            label1.Text = "DataSource";
+            label1.Text = "Data";
             label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // dataViewDataSourceBindingSource

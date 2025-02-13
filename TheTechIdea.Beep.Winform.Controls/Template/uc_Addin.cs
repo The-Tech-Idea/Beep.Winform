@@ -103,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
 
 
         }
-        public void Run(Action action)
+        public virtual void Run(Action action)
         {
             SetupProgress();
             var ScriptRun = Task.Run(() =>
@@ -119,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
 
         }
 
-        public void StopTask()
+        public virtual void StopTask()
         {
             // Attempt to cancel the task politely
             isstopped = true;
@@ -129,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
             // MessageBox.Config("Job Stopped");
 
         }
-        void update(string messege)
+        void  update(string messege)
         {
             if (DMEEditor.ETL.LoadDataLogs.Count > 0)
             {
@@ -161,27 +161,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
 
         }
 
-        public void Initialize()
+        public virtual void Initialize()
         {
             throw new NotImplementedException();
         }
 
-        public void Suspend()
+        public virtual void Suspend()
         {
             throw new NotImplementedException();
         }
 
-        public void Resume()
+        public virtual void Resume()
         {
             throw new NotImplementedException();
         }
 
-        public string GetErrorDetails()
+        public virtual string GetErrorDetails()
         {
-            throw new NotImplementedException();
+            return "";
         }
 
-        public Task<IErrorsInfo> RunAsync(IPassedArgs pPassedarg)
+        public virtual Task<IErrorsInfo> RunAsync(IPassedArgs pPassedarg)
         {
             try
             {
@@ -195,7 +195,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
             return Task.FromResult(DMEEditor.ErrorObject);
         }
 
-        public Task<IErrorsInfo> RunAsync(params object[] args)
+        public virtual Task<IErrorsInfo> RunAsync(params object[] args)
         {
             try
             {
@@ -209,21 +209,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
             return Task.FromResult(DMEEditor.ErrorObject);
         }
 
-        public void Configure(Dictionary<string, object> settings)
+        public virtual void Configure(Dictionary<string, object> settings)
         {
             
         }
 
-        public void OnNavigatedTo(Dictionary<string, object> parameters)
+        public virtual void OnNavigatedTo(Dictionary<string, object> parameters)
         {
             
         }
 
-        public void SetError(string message)
+        public virtual void SetError(string message)
         {
            
         }
-        public void ApplyTheme()
+        public virtual void ApplyTheme()
         {
             
         }

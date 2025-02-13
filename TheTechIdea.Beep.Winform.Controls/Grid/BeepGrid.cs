@@ -753,7 +753,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error adding columns in Grid for Entity {EntityStructure.EntityName}: {ex.Message}");
+                Console.WriteLine($"Error adding columns in _targetGrid for Entity {EntityStructure.EntityName}: {ex.Message}");
             }
             dataGridView1.ResumeLayout();
         }
@@ -850,7 +850,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage("Beep", $"Error in Cell Validation in Grid: {ex.Message}", DateTime.Now, 0, "", Errors.Failed);
+                DMEEditor.AddLogMessage("Beep", $"Error in Cell Validation in _targetGrid: {ex.Message}", DateTime.Now, 0, "", Errors.Failed);
             }
         }
 
@@ -1498,7 +1498,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// <param name="e">A <see cref="DataGridViewDataErrorEventArgs"/> that contains the event data.</param>
         private void DataGridView1_DataError(object? sender, DataGridViewDataErrorEventArgs e)
         {
-            DMEEditor.AddLogMessage("Error", $"Error in Grid {e.Exception.Message}", DateTime.Now, 0, "", Errors.Failed);
+            DMEEditor.AddLogMessage("Error", $"Error in _targetGrid {e.Exception.Message}", DateTime.Now, 0, "", Errors.Failed);
         }
 
         /// <summary>
@@ -1972,6 +1972,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         private void CreateComponent()
         {
+
             // Create TableLayoutPanel
             layoutPanel = new TableLayoutPanel
             {
@@ -1992,7 +1993,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             // Define row heights
             layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));  // Top Panel
             layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 31F));  // Custom Header Panel
-            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Data Grid (Expands)
+            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Data _targetGrid (Expands)
             layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));  // Filter Panel
             layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));  // Totals Panel
             layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));  // Bottom Panel
@@ -2058,7 +2059,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             Bottompanel = new BeepPanel
             {
                 Dock = DockStyle.Top,
-                Height = 28,
+                Height = 30,
                 ShowTitle = false,
                 ShowAllBorders = false,
                 Margin = new Padding(0),
@@ -2067,17 +2068,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
             BindingNavigator = new BeepBindingNavigator
             {
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,IsRounded=false,IsFramless=true
+                
             };
-            Bottompanel.Controls.Add(BindingNavigator);
+           // Bottompanel.Controls.Add(BindingNavigator);
 
             // Add controls to TableLayoutPanel
             layoutPanel.Controls.Add(Toppanel, 0, 0);
             layoutPanel.Controls.Add(customHeaderPanel, 0, 1);
-            layoutPanel.Controls.Add(dataGridView1, 0, 2);
-            layoutPanel.Controls.Add(filterPanel, 0, 3);
+            layoutPanel.Controls.Add(filterPanel, 0, 2);
+            layoutPanel.Controls.Add(dataGridView1, 0, 3);
             layoutPanel.Controls.Add(Totalspanel, 0, 4);
-            layoutPanel.Controls.Add(Bottompanel, 0, 5);
+            layoutPanel.Controls.Add(BindingNavigator, 0, 5);
 
             // Add TableLayoutPanel to BeepGrid
             Controls.Add(layoutPanel);

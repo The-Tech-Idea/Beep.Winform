@@ -241,7 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
     #endregion
 
     /// <summary>
-    /// Data Grid View Printer. Print functions for a datagridview, since MS
+    /// Data _targetGrid View Printer. Print functions for a datagridview, since MS
     /// didn't see fit to do it.
     /// </summary>
     public class BeepPrinter
@@ -2300,8 +2300,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
                 colstoprint.Remove(dgv.Columns[columnname]);
             }
 
-            if (EnableLogging) Logger.LogInfoMsg(String.Format("Grid Printout Range is {0} columns", colstoprint.Count));
-            if (EnableLogging) Logger.LogInfoMsg(String.Format("Grid Printout Range is {0} rows", rowstoprint.Count));
+            if (EnableLogging) Logger.LogInfoMsg(String.Format("_targetGrid Printout Range is {0} columns", colstoprint.Count));
+            if (EnableLogging) Logger.LogInfoMsg(String.Format("_targetGrid Printout Range is {0} rows", rowstoprint.Count));
             
         }
 

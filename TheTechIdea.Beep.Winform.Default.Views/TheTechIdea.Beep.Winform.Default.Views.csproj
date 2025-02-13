@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
- 	<PropertyGroup>
+	<PropertyGroup>
 		<TargetFrameworks>net8.0-windows</TargetFrameworks>
 		<Nullable>enable</Nullable>
+		<UseWindowsForms>true</UseWindowsForms>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<LangVersion>latest</LangVersion>
+		<LangVersion>12.0</LangVersion>
 		<Authors>The Tech Idea</Authors>
 		<Company>The Tech Idea</Company>
 		<Copyright>2022</Copyright>
@@ -13,11 +14,12 @@
 		<IncludeSymbols>False</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<PackageId>TheTechIdea.Beep.Winform.Extensions</PackageId>
-		<Title>TheTechIdea.Beep.Winform.Extensions</Title>
-		<Product>TheTechIdea.Beep.Winform.Extensions</Product>
-		<AssemblyName>TheTechIdea.Beep.Winform.Extensions</AssemblyName>
-		<Version>1.0.4</Version>
+		<PackageId>TTheTechIdea.Beep.Winform.Default.Views</PackageId>
+		<Title>TheTechIdea.Beep.Winform.Default.Views</Title>
+		<Product>TheTechIdea.Beep.Winform.Default.Views</Product>
+		<AssemblyName>TheTechIdea.Beep.Winform.Default.Views</AssemblyName>
+		<Version>1.0.0</Version>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 	<Target Name="CopyPackage" AfterTargets="Pack">
 		<Copy SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="..\..\..\LocalNugetFiles" />
@@ -25,25 +27,24 @@
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Copy SourceFiles="$(TargetDir)$(Assemblyname).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(Assemblyname)\$(TargetFramework)" SkipUnchangedFiles="false" />
 	</Target>
-
 	<ItemGroup>
 		<None Include="..\..\InstallationScripts\LogoGFx\128\SimpleODM.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Beep.ViewModels\TheTechIdea.Beep.MVVM\TheTechIdea.Beep.MVVM.csproj" />
+    <ProjectReference Include="..\..\BeepDM\DataManagementModelsStandard\DataManagementModels.csproj" />
+    <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
+    <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
+  </ItemGroup>
 
-	<ItemGroup>
-	  <PackageReference Include="System.Text.Json" Version="9.0.0" />
-	  <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.42" />
-	  <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.38" />
-	</ItemGroup>
+  <ItemGroup>
+    <Folder Include="ImportExport\" />
+    <Folder Include="CRUD\" />
+    <Folder Include="ETL\" />
+    <Folder Include="DDL\" />
+  </ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\TheTechIdea.Beep.Vis.Logic\TheTechIdea.Beep.Vis.Logic.csproj" />
-	  <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
-	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Desktop.Common.csproj" />
-	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
-	</ItemGroup>
-	
 </Project>

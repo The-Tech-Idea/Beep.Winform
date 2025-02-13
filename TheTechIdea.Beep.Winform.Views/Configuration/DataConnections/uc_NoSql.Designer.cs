@@ -361,24 +361,8 @@ namespace TheTechIdea.Beep.Winform.Views.Configuration.DataConnections
           
             beepGrid1.Margin = new Padding(5, 3, 5, 3);
             beepGrid1.Name = "beepGrid1";
-        
-            beepGrid1.pbr = null;
-            beepGrid1.Progress = null;
-            beepGrid1.ReadOnly = false;
-            beepGrid1.RootBranch = null;
-            beepGrid1.ShowColumnHeaderPanel = true;
-            beepGrid1.ShowFilterPanel = false;
-            beepGrid1.ShowHeaderPanel = true;
-            beepGrid1.ShowNavigatorPanel = true;
-            beepGrid1.ShowTotalsPanel = false;
-            beepGrid1.Size = new Size(593, 484);
-            beepGrid1.SourceConnection = null;
-            beepGrid1.TabIndex = 76;
-            beepGrid1.Tree = null;
-            beepGrid1.util = null;
-            beepGrid1.VerifyDelete = true;
-            beepGrid1.ViewRootBranch = null;
-            beepGrid1.Visutil = null;
+
+  
             // 
             // ExitCancelpoisonButton
             // 

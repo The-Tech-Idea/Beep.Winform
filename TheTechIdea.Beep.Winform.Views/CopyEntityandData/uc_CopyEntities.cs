@@ -70,9 +70,9 @@ namespace Beep.Winform.Vis.ETL.CopyEntityandData
         //        AppManager = (IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
         //    }
 
-        //    this.dataConnectionsBindingSource.DataSource = DMEEditor.ConfigEditor.DataConnections;
+        //    this.dataConnectionsBindingSource.Data = DMEEditor.ConfigEditor.DataConnections;
 
-        //    scriptBindingSource.DataSource = DMEEditor.ETL.Script.ScriptDTL;
+        //    scriptBindingSource.Data = DMEEditor.ETL.Script.ScriptDTL;
         //    EntitiesnumericUpDown.Minimum = 0;
         //    EntitiesnumericUpDown.Maximum = DMEEditor.ETL.Script.ScriptDTL.Count() + 1;
         //    EntitiesnumericUpDown.Value = DMEEditor.ETL.Script.ScriptDTL.Count();

@@ -190,7 +190,7 @@ namespace Beep.Config.Winform.Configurations
             {
 
                 ErrorObject.Flag = Errors.Failed;
-                string errmsg = "Error Saving DataSource Drivers Path";
+                string errmsg = "Error Saving Data Drivers Path";
                 MessageBox.Show(errmsg, "Beep");
                 ErrorObject.Message = $"{errmsg}:{ex.Message}";
                 Logger.WriteLog($" {errmsg} :{ex.Message}");

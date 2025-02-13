@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                         ErrorsandMesseges.Message = ex.Message;
                         ErrorsandMesseges.Ex = ex;
                         DMEEditor.AddLogMessage("Beep", $" {ex.Message}", DateTime.Now, 0, null, Errors.Failed);
-                        ExtensionsHelpers.Vismanager.Controlmanager.ShowMessege("DHUB", " Error in Saving  Grid Layout", null);
+                        ExtensionsHelpers.Vismanager.Controlmanager.ShowMessege("DHUB", " Error in Saving  _targetGrid Layout", null);
 
                     }
                     return ErrorsandMesseges;

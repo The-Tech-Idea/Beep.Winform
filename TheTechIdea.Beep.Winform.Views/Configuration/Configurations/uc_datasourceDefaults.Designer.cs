@@ -148,7 +148,7 @@ namespace Beep.Config.Winform.Configurations
             this.poisonLabel1.Name = "poisonLabel1";
             this.poisonLabel1.Size = new System.Drawing.Size(267, 25);
             this.poisonLabel1.TabIndex = 3;
-            this.poisonLabel1.Text = "DataSource Defaults Manager";
+            this.poisonLabel1.Text = "Data Defaults Manager";
             this.poisonLabel1.UseStyleColors = true;
             // 
             // uc_datasourceDefaults

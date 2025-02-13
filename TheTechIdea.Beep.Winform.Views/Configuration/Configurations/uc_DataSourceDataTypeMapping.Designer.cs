@@ -190,7 +190,7 @@ namespace Beep.Config.Winform.Configurations
             // 
             this.dataSourceNameDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.dataSourceNameDataGridViewTextBoxColumn.DataPropertyName = "DataSourceName";
-            this.dataSourceNameDataGridViewTextBoxColumn.HeaderText = "DataSource Name";
+            this.dataSourceNameDataGridViewTextBoxColumn.HeaderText = "Data Name";
             this.dataSourceNameDataGridViewTextBoxColumn.Name = "dataSourceNameDataGridViewTextBoxColumn";
             this.dataSourceNameDataGridViewTextBoxColumn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.dataSourceNameDataGridViewTextBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;

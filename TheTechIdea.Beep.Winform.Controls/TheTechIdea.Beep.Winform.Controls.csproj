@@ -26,6 +26,12 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="$(TargetDir)$(Assemblyname).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(Assemblyname)\$(TargetFramework)" SkipUnchangedFiles="false" />
   </Target>
+	<ItemGroup>
+		<None Include="..\..\InstallationScripts\LogoGFx\128\SimpleODM.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
   <ItemGroup>
     <Compile Remove="AppBar\**" />
     <Compile Remove="Dashboard\**" />
@@ -42,12 +48,7 @@
     <None Remove="Grid\NewFolder\**" />
     <None Remove="Services\**" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\InstallationScripts\LogoGFx\128\SimpleODM.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+  
   <ItemGroup>
     <Compile Remove="BeepButtonPopList.cs" />
     <Compile Remove="BeepGlobalThemeManager.cs" />
@@ -228,17 +229,16 @@
     <EmbeddedResource Include="Resources/041-group.svg" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="8.2.0" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.0" />
     <PackageReference Include="Svg" Version="3.4.7" />
     <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.42" />
-    <PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.11" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.38" />
-    <PackageReference Include="TheTechIdea.Beep.MVVM" Version="1.0.19" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="BeepDataBlock.cs" />
+    <Compile Update="BeepFieldFilter.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Update="Containers\uc_Container.cs" />
     <Compile Update="DataNavigator\BeepBindingNavigator.cs" />
     <Compile Update="Design\Forms\DataBlocksCollectionForm.cs">

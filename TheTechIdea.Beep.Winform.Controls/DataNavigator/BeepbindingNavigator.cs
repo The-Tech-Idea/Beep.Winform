@@ -4,6 +4,7 @@ using System.Data;
 
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Vis.Modules;
 
 
 
@@ -19,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         public BeepBindingNavigator()
         {
 
-
+            IsRounded = false;
         }
         protected override void OnLayout(LayoutEventArgs e)
         {
@@ -140,8 +141,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
             if (MainPanel == null) return;
             BackColor = _currentTheme.PanelBackColor;
             MainPanel.BackColor = _currentTheme.PanelBackColor;
-            Recordnumberinglabel1.Theme = Theme;
-          //  Recordnumberinglabel1.BackColor = ColorUtils.GetForColor(_currentTheme.LabelBackColor, _currentTheme.LabelForeColor);
+         //   Recordnumberinglabel1.Theme = Theme;
+            Recordnumberinglabel1.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+            //  Recordnumberinglabel1.BackColor = ColorUtils.GetForColor(_currentTheme.LabelBackColor, _currentTheme.LabelForeColor);
         }
         #region "Click Methods for all Buttons"
 
@@ -438,10 +440,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
 
             Controls.Clear();
             Controls.Add(MainPanel);
-
-            // Define Button Size
-          
-           
 
             // Create Buttons
             FindButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg", buttonSize);

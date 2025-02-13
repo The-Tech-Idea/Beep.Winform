@@ -1210,7 +1210,7 @@ namespace TheTechIdea.Beep.Winform.Controls
               //  NodeMainMiddlebutton.PopupMode = true;
                 NodeMainMiddlebutton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
                 NodeMainMiddlebutton.TextAlign = TextAlignment;
-                NodeMainMiddlebutton.IsChild = true;
+                NodeMainMiddlebutton.IsChild = false;
                 NodeMainMiddlebutton.IsFramless = true;
                 NodeMainMiddlebutton.IsRounded = false;
                 NodeMainMiddlebutton.IsShadowAffectedByTheme = false;

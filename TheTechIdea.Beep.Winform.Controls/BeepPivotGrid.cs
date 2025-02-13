@@ -10,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [Category("Data")]
     [Description("A grid control that displays data in a pivot table format.")]
-    [DisplayName("Beep Pivot Grid")]
+    [DisplayName("Beep Pivot _targetGrid")]
     public class BeepPivotGrid : BeepSimpleGrid
     {
         public int RowHeaderWidth { get; set; } = 100;

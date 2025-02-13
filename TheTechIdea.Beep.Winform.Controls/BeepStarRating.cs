@@ -107,6 +107,37 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
+        private Color _starBorderColor = Color.Black;
+        private float _starBorderThickness = 1f;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Color of the star border.")]
+        public Color StarBorderColor
+        {
+            get => _starBorderColor;
+            set
+            {
+                _starBorderColor = value;
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Thickness of the star border.")]
+        public float StarBorderThickness
+        {
+            get => _starBorderThickness;
+            set
+            {
+                if (value > 0)
+                {
+                    _starBorderThickness = value;
+                    Invalidate();
+                }
+            }
+        }
 
         public event EventHandler RatingChanged;
 
@@ -149,14 +180,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        private void DrawStar(Graphics graphics, int x, int y, int size, Color color)
+        private void DrawStar(Graphics graphics, int x, int y, int size, Color fillColor)
         {
-            using (Brush brush = new SolidBrush(color))
+            PointF[] starPoints = CalculateStarPoints(x + size / 2, y + size / 2, size / 2, size / 4, 5);
+
+            using (Brush brush = new SolidBrush(fillColor))
             {
-                PointF[] starPoints = CalculateStarPoints(x + size / 2, y + size / 2, size / 2, size / 4, 5);
                 graphics.FillPolygon(brush, starPoints);
             }
+
+            using (Pen pen = new Pen(StarBorderColor, StarBorderThickness))
+            {
+                graphics.DrawPolygon(pen, starPoints);
+            }
         }
+
+
 
         private PointF[] CalculateStarPoints(float centerX, float centerY, float outerRadius, float innerRadius, int numPoints)
         {
@@ -201,8 +240,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            FilledStarColor = _currentTheme.ButtonActiveForeColor;
-            EmptyStarColor = _currentTheme.ButtonActiveBackColor;
+            FilledStarColor = _currentTheme.ButtonForeColor;
+            EmptyStarColor = _currentTheme.ButtonBackColor;
+            StarBorderColor = _currentTheme.BorderColor;
+            StarBorderThickness =BorderThickness    ;
+            BackColor = _currentTheme.ButtonBackColor;
+            ForeColor = _currentTheme.ButtonForeColor;
         }
         #endregion "Theme"
     }

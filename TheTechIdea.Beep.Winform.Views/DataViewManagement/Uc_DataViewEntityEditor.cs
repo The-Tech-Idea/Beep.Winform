@@ -164,7 +164,7 @@ namespace TheTechIdea.ETL
                 SourceConnection = DMEEditor.GetDataSource(dataSourceIDComboBox.Text);
                 if (SourceConnection == null)
                 {
-                    DMEEditor.AddLogMessage("Error", "Could not Find DataSource " + EntityStructure.DataSourceID, DateTime.Now, EntityStructure.Id, EntityStructure.EntityName, Errors.Failed);
+                    DMEEditor.AddLogMessage("Error", "Could not Find Data " + EntityStructure.DataSourceID, DateTime.Now, EntityStructure.Id, EntityStructure.EntityName, Errors.Failed);
                     MessageBox.Show($"{ErrorObject.Message}");
                 }
                 else
@@ -330,7 +330,7 @@ namespace TheTechIdea.ETL
         }
         private void AddNewItem_Click(object sender, EventArgs e)
         {
-            Logger.WriteLog($"Add Record to Grid  ");
+            Logger.WriteLog($"Add Record to _targetGrid  ");
         }
         public void RaiseObjectSelected()
         {

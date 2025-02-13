@@ -4,7 +4,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
+
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Logic;
@@ -42,9 +42,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepTreeControl1.CreateRootTree();
 
           
-            DriversConfigViewModel viewModel = new DriversConfigViewModel(beepService.DMEEditor, beepService.vis);
+         //   DriversConfigViewModel viewModel = new DriversConfigViewModel(beepService.DMEEditor, beepService.vis);
            
-            beepGridHeader1.SetData(viewModel.DBWork.Units,viewModel.DBWork.EntityStructure);
+        //    beepGridHeader1.SetData(viewModel.DBWork.Units,viewModel.DBWork.EntityStructure);
         
           //  beepDataRecord1.SetDataRecord(viewModel.DBWork.Units[0]);
             // beepButton2.ListItems = beepTreeControl1.Nodes;

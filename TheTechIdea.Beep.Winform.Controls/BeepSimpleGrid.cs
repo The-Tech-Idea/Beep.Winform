@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [Category("Data")]
     [Description("A grid control that displays data in a simple table format.")]
-    [DisplayName("Beep Simple Grid")]
+    [DisplayName("Beep Simple _targetGrid")]
     public class BeepSimpleGrid : BeepControl
     {
         #region "Properties"  
@@ -398,7 +398,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 titleLabel = new BeepLabel
                 {
-                    Text = string.IsNullOrEmpty(Title) ? "Beep Grid" : Title,
+                    Text = string.IsNullOrEmpty(Title) ? "Beep _targetGrid" : Title,
                     TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
                    // Location = new Point(headerPanelBorderRect.Left + 1, headerPanelBorderRect.Top + 1), // Adjust Y as needed
                     Theme = Theme,

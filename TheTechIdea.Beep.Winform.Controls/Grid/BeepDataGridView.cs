@@ -242,10 +242,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 {
                     BeepGridMiscUI.ShowFilter = !value;
                     RecalcHeight();
-                    if (value)
-                    {
-                        RebuildColumnsAndFilters(); // so we build textboxes
-                    }
+                    //if (value)
+                    //{
+                    //    RebuildColumnsAndFilters(); // so we build textboxes
+                    //}
                     
                 }
 
@@ -268,10 +268,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 {
                     BeepGridMiscUI.ShowTotals = value;
                     RecalcHeight();
-                    if (value)
-                    {
-                        RebuildColumnsAndFilters(); // so we build textboxes
-                    }
+                    //if (value)
+                    //{
+                    //    RebuildColumnsAndFilters(); // so we build textboxes
+                    //}
                 }
              
             }
@@ -603,14 +603,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _headerLabels[col] = lbl;
 
             // If filtering is enabled, add a filter textbox.
-            if (_showFilter)
-            {
+            //if (_showFilter)
+            //{
                 BeepTextBox txt = new BeepTextBox
                 {
+                    Name= col.Name,
                     Width = col.Width,
                     Height = _filterPanel.Height,         // Use the filter panel's fixed height.
                     Tag = col,
-
                     Location = new Point(leftPosition, 0),
                     AutoSize = false,
                     IsRounded = false,
@@ -618,16 +618,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                     IsShadowAffectedByTheme = false,
                     IsRoundedAffectedByTheme = false,
                     Theme = this.Theme
+                    
 
                 };
-                txt.TextChanged += (s, e) => ApplyFilter();
+                 txt.TextChanged += (s, e) => ApplyFilter();
                 _filterPanel.Controls.Add(txt);
                 _filterBoxes[col] = txt;
-            }
-            if(_showTotalsPanel)
-            {
+           // }
+            //if(_showTotalsPanel)
+            //{
                 BeepLabel flterlbl = new BeepLabel
                 {
+                    Name = col.Name,
                     Text = "",
                     Width = col.Width,                         // Use the grid column's width.
                     Height = _headerPanel.Height,              // Use the header panel's fixed height.
@@ -646,7 +648,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 _columnTotals[col] = flterlbl;
                 _totalsFlow.Controls.Add(flterlbl);
                 
-            }
+          //  }
             headerColumnMapping[lbl] = col;
 
             // PictureBox for Sort Icon
@@ -1338,8 +1340,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         // position the label
                         headerLabel.Left = xPos;
                         xPos += headerLabel.Width;
-                        if (ShowFilter)
-                        {
+
                             //get filter textbox for the column
                             if (_filterBoxes.TryGetValue(col, out BeepTextBox filterBox))
                             {
@@ -1347,35 +1348,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                                 filterBox.Left = headerLabel.Left;
                                 filterBox.Width = headerLabel.Width;
                             }
+                             if (_columnTotals.TryGetValue(col, out BeepLabel totalBox))
+                            {
+                            // position the filter textbox
+                            totalBox.Left = headerLabel.Left;
+                            totalBox.Width = headerLabel.Width;
+                            }
 
-                        }
                     }
                     headerLabel.Invalidate();
                 }
             }
-
-            // ~~~~~ 2) Shift FILTER TEXTBOXES in _filterPanel ~~~~~
-            xPos = -offset;
-            foreach (Control ctrl in _filterPanel.Controls)
-            {
-                if (ctrl is BeepLabel filterBox)
-                {
-                    var col = _targetGrid.Columns[filterBox.Text];
-                    // find the matching ColumnConfig by guid
-                    int idx = ColumnConfigs.FindIndex(c => c.ColumnName == col.Name);
-                    if (idx >= 0)
-                    {
-                        int w = ColumnConfigs[idx].Width;
-                        filterBox.Left = xPos;
-                        filterBox.Width = w;
-                        xPos += w;
-                    }
-                    filterBox.Invalidate();
-                }
-            }
-
-            // ~~~~~ 3) Notify the FOOTER to update positions too ~~~~~
-
         }
 
         #endregion DataGridView Scrolling

@@ -41,20 +41,20 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             beepTreeControl1.CreateRootTree();
 
-          
-         //   DriversConfigViewModel viewModel = new DriversConfigViewModel(beepService.DMEEditor, beepService.vis);
-           
-        //    beepGridHeader1.SetData(viewModel.DBWork.Units,viewModel.DBWork.EntityStructure);
-        
-          //  beepDataRecord1.SetDataRecord(viewModel.DBWork.Units[0]);
+            beepDataGridView1.DataSource = beepTreeControl1.Nodes.ToList();
+         //  DriversConfigViewModel viewModel = new DriversConfigViewModel(beepService.DMEEditor, beepService.vis);
+
+            //    beepGridHeader1.SetData(viewModel.DBWork.Units,viewModel.DBWork.EntityStructure);
+
+            //  beepDataRecord1.SetDataRecord(viewModel.DBWork.Units[0]);
             // beepButton2.ListItems = beepTreeControl1.Nodes;
             //BeepPopupListForm beepFileDialog = new BeepPopupListForm(beepTreeControl1.Nodes.ToList());
             //// Get the screen position of the control's top-left corner
             ////Point screenPoint = beepButton1.PointToScreen(Point.Empty);
             ////Point point = new Point(screenPoint.X, screenPoint.Y + beepButton1.Height);
             //SimpleItem x=beepFileDialog.ShowPopup("Tree",beepButton1, BeepPopupFormPosition.Top);
-           // beepTreeControl1.ShowCheckBox = true;
-           // beepDataRecord1.SetDataRecord(beepTreeControl1.Nodes[0]);
+            // beepTreeControl1.ShowCheckBox = true;
+            // beepDataRecord1.SetDataRecord(beepTreeControl1.Nodes[0]);
             // BeepThemesManager.CurrentTheme = EnumBeepThemes.WinterTheme;
             //    beepListBox1.ListItems = beepTreeControl1.Nodes;
             //    beepListBox1.InitializeMenu();

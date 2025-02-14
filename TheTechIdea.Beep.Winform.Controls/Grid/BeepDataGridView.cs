@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// Stores configuration details for each column, such as filters and totals.
         /// </summary>
         /// 
-        private List<BeepGridColumnConfig> _columnconfig;
+        private List<BeepGridColumnConfig> _columnconfig=new List<BeepGridColumnConfig>()   ;
         [Browsable(true)]
         [Category("Data")]
         [Description("Column Configurations for the grid.")]
@@ -240,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 _showFilter = value;
                 if (_filterPanel != null)
                 {
-                    _filterPanel.Visible = value;
+                    BeepGridMiscUI.ShowFilter = !value;
                     RecalcHeight();
                     if (value)
                     {
@@ -264,7 +264,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             set
             {
                 _showTotalsPanel = value;
-                if(_totalsFlow!=null)     _totalsFlow.Visible = value;
+                if(_filterPanel != null)
+                {
+                    BeepGridMiscUI.ShowTotals = value;
+                    RecalcHeight();
+                    if (value)
+                    {
+                        RebuildColumnsAndFilters(); // so we build textboxes
+                    }
+                }
+             
             }
         }
 
@@ -315,8 +324,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             Padding = new Padding(2);
             _targetGrid = new DataGridView();
             _bindingSource = new BindingSource();
-            InitializeLayout();
-            SetupDataGridView();
+            
+           
         }
         protected override Size DefaultSize => new Size(300, 300);
 
@@ -337,6 +346,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                     _bindingSource.DataMember = _dataMember;
                     _targetGrid.DataMember = _dataMember;
                 }
+                InitializeLayout();
+                SetupDataGridView();
                 isinit = false;
             }
         }
@@ -357,10 +368,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private void InitializeLayout()
         {
            
-            BeepGridMiscUI.InitializeComponent(this,_targetGrid);
-            BeepGridMiscUI.HideScrollHorizontal = false;
-            BeepGridMiscUI.HideScrollVertical = false;
-            BeepGridMiscUI.MainSplitContainer.Panel1MinSize = 100;
+            BeepGridMiscUI.InitializeLayout(this,_targetGrid);
+            _targetGrid.BorderStyle = BorderStyle.None;
+
             //SetupDataGridView();
             _bindingSource = new BindingSource();
             _bindingSource.DataSourceChanged += OnDataSourceChanged;
@@ -470,7 +480,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             // Hook up events
             _csvExportButton.Click += (s, e) => OnCsvExport();
             _printButton.Click += (s, e) => OnPrint();
-            _totalShowButton.Click += (s, e) => OnToggleTotals();
+            _totalShowButton.Click += (s, e) =>ShowTotalsPanel=!ShowTotalsPanel;
             _filterToggleButton.Click += (s, e) => ShowFilter = !ShowFilter;
             //  Console.WriteLine("Events Hooked Up");
             // (2) column header row
@@ -513,9 +523,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
 
             // Initial visibility
-            BeepGridMiscUI.HideTotals= _showTotalsPanel;
-           
-
+            
 
             // Add them from bottom to top
             BeepGridMiscUI.FilterColumnHeaderPanel.Controls.Add(_filterPanel);
@@ -524,6 +532,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
             BeepGridMiscUI.DataNavigatorPanel.Controls.Add(_bindingNavigator);
             BeepGridMiscUI.TotalsPanel.Controls.Add(_totalsFlow);
+            BeepGridMiscUI.ShowTotals = _showTotalsPanel;
+            BeepGridMiscUI.ShowFilter = _showFilter;
             //   Console.WriteLine("Controls Added to BeepGridHeader");
             //  RecalcHeight();
             //   Console.WriteLine("Height Recalculated");
@@ -534,6 +544,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private void RebuildColumnsAndFilters()
         {
             // Clear existing controls and dictionaries
+            if (_headerPanel == null) return;
             _headerPanel.Controls.Clear();
             _filterPanel.Controls.Clear();
             _headerLabels.Clear();
@@ -617,8 +628,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 BeepLabel flterlbl = new BeepLabel
                 {
-                    Text = "0",
-                    Width = col.Width + BorderThickness,                         // Use the grid column's width.
+                    Text = "",
+                    Width = col.Width,                         // Use the grid column's width.
                     Height = _headerPanel.Height,              // Use the header panel's fixed height.
                     TextAlign = ContentAlignment.MiddleCenter,
                     Tag = col,
@@ -634,6 +645,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 };
                 _columnTotals[col] = flterlbl;
                 _totalsFlow.Controls.Add(flterlbl);
+                
             }
             headerColumnMapping[lbl] = col;
 
@@ -995,7 +1007,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _targetGrid.AllowUserToResizeRows = false;
             _targetGrid.AllowUserToResizeColumns = true;
             _targetGrid.AllowUserToResizeRows = false;
-            _targetGrid.AutoGenerateColumns = false;
+            _targetGrid.AutoGenerateColumns = true;
             _targetGrid.EditMode = DataGridViewEditMode.EditOnKeystrokeOrF2;
             _targetGrid.CellBorderStyle = DataGridViewCellBorderStyle.None;
             _targetGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
@@ -1012,7 +1024,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _targetGrid.DataError += DataGridView1_DataError;
             _targetGrid.BindingContextChanged += DataGridView1_BindingContextChanged;
           //  _bindingSource.DataSourceChanged += OnDataSourceChanged;
-            
+            BeepGridMiscUI.ShowTotals = _showTotalsPanel;
+            BeepGridMiscUI.ShowFilter= _showFilter;
+           
             RebuildColumnsAndFilters();
             // Hide the default scrollbar
             // _targetGrid.ScrollBars = ScrollBars.None;
@@ -1297,7 +1311,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private void UpdateHeaderAndPanelPositions()
         {
             if (_targetGrid == null) return;
-
+            if (_headerPanel == null) return;   
             // horizontal offset from the DataGridView's scrolling
             int offset = _targetGrid.HorizontalScrollingOffset;
 
@@ -1448,7 +1462,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             this._targetGrid.AlternatingRowsDefaultCellStyle.ForeColor = _currentTheme.GridForeColor;
             this._targetGrid.DefaultCellStyle.SelectionBackColor = _currentTheme.GridRowSelectedBackColor;
             this._targetGrid.DefaultCellStyle.SelectionForeColor = _currentTheme.GridRowSelectedForeColor;
-
+            if (_headerPanel == null) return;
             // apply theme for header
             _headerPanel.BackColor = _currentTheme.PanelBackColor;
             BackColor = _currentTheme.PanelBackColor;
@@ -1486,8 +1500,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 _titleLabel.TextFont = _textFont;
             }
             _topTableLayout.RowStyles[0].Height = _titleLabel.PreferredSize.Height + (2 * (padding + 2)); // Adjust height dynamically
+            BeepGridMiscUI.beepScrollBar1.Theme = Theme;
+            BeepGridMiscUI.beepScrollBar2.Theme = Theme;
 
-            
         }
         #endregion Theme Management
 
@@ -1693,10 +1708,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             if (_targetGrid == null) return;
             //   _bindingSource = _targetGrid.Data as BindingSource;
             // Clear existing column configurations
+            if (_headerLabels == null) return;
             _headerLabels.Clear();
             _filterBoxes.Clear();
             _columnSortOrders.Clear();
-            ColumnConfigs.Clear();
+            if (_columnconfig == null) _columnconfig = new();
+            _columnconfig.Clear();
 
             // Rebuild columns and filters
             Console.WriteLine("Rebuild Columns and Filters");
@@ -1721,7 +1738,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _headerLabels.Clear();
             _filterBoxes.Clear();
             _columnSortOrders.Clear();
-            ColumnConfigs.Clear();
+            _columnconfig.Clear();
             // Rebuild columns and filters to reflect the new data member
             RebuildColumnsAndFilters();
 

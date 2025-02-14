@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         { EnumBeepThemes.ModernDarkTheme, (Color.DarkSlateGray, Color.Gray, Color.DimGray) },
         { EnumBeepThemes.MaterialDesignTheme, (Color.LightSlateGray, Color.CornflowerBlue, Color.SlateGray) },
         { EnumBeepThemes.NeumorphismTheme, (Color.WhiteSmoke, Color.LightGray, Color.Gainsboro) },
-        { EnumBeepThemes.GlassmorphismTheme, (Color.Transparent, Color.LightSteelBlue, Color.Transparent) },
+        { EnumBeepThemes.GlassmorphismTheme, (Color.Black, Color.LightSteelBlue, Color.Transparent) },
         { EnumBeepThemes.FlatDesignTheme, (Color.Gainsboro, Color.Gray, Color.LightGray) },
         { EnumBeepThemes.CyberpunkNeonTheme, (Color.Black, Color.Fuchsia, Color.Aqua) },
         { EnumBeepThemes.GradientBurstTheme, (Color.DarkMagenta, Color.OrangeRed, Color.DeepSkyBlue) },

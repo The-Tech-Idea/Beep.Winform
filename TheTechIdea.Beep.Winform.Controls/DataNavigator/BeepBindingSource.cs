@@ -3,175 +3,166 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using TheTechIdea.Beep.DataBase;
+using System.Drawing.Design;
+using System.Collections;
+using System.Reflection;
+
 
 namespace TheTechIdea.Beep.Winform.Controls.DataNavigator
 {
     public enum BeepBindingSourceMode
     {
-        ObservableBinidingList,
-        UnitofWok
+        ObservableBindingList,
+        UnitofWok, ViewModel, None
     }
-    public class BeepBindingSource:BindingSource
+    [ToolboxItem(true)]
+    [DesignerCategory("Code")]
+    [DefaultProperty(nameof(DataSource))]
+    [DefaultEvent(nameof(CurrentChanged))]
+    [ComplexBindingProperties(nameof(DataSource), nameof(DataMember))]
+    public class BeepBindingSource : Component
     {
-        #region Properties
-        private BeepBindingSourceMode BindingSourceMode { get; set; } = BeepBindingSourceMode.ObservableBinidingList;
-        public List<IUnitofWork> ChildUnitofWorks { get; set; } = new List<IUnitofWork>();
-        public List<ChildRelation> Childs { get; set; } = new List<ChildRelation>();
-        public IUnitofWork UnitofWork
-        {
-            get => _unitofWork;
-            set => _unitofWork = value;
-        }
-        
-        
-        public int Count => _observableList?.Count ?? 0;
-        public bool IsBindingSuspended { get; private set; }
-        private ObservableBindingList<Entity> _observableList;
-        private IUnitofWork _unitofWork;
-        #endregion Properties
-        #region Events
-        public event EventHandler CurrentChanged;
-        public event EventHandler<ListChangedEventArgs> ListChanged;
-        //public event AddingNewEventHandler AddingNew;
-        //public event EventHandler<EventArgs> DataSourceChanged;
+        private object _dataSource;
+        private string _dataMember;
+        private IBindingList _list;
+        private int _position = -1;
+        private BeepBindingSourceMode _mode = BeepBindingSourceMode.None;
 
-        #endregion Events
-        #region Constructors
+        public event EventHandler DataSourceChanged;
+        public event EventHandler DataMemberChanged;
+        public event EventHandler CurrentChanged;
+        public event EventHandler PositionChanged;
+        public event ListChangedEventHandler ListChanged;
+
         public BeepBindingSource()
         {
-            _observableList = new ObservableBindingList<Entity>();
-            ChildUnitofWorks = new List<IUnitofWork>();
-            Childs = new List<ChildRelation>();
-            AttachBaseBindingSourceEvents();
+            _list = new BindingList<object>(); // Default empty list
         }
-        public BeepBindingSource(IUnitofWork work) : this()
+
+        /// <summary>
+        /// Allows selecting a DataSource from the Designer
+        /// </summary>
+        [Browsable(true)]
+        [Category("Data")]
+        [AttributeProvider(typeof(IListSource))]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [RefreshProperties(RefreshProperties.Repaint)]
+        public object DataSource
         {
-            _unitofWork = work;
-            if(_unitofWork != null)
+            get => _dataSource;
+            set
             {
-                DataSource = _unitofWork.Units;
-                BindingSourceMode = BeepBindingSourceMode.UnitofWok;
+                if (_dataSource != value)
+                {
+                    _dataSource = value;
+                    ResolveDataSource();
+                    DataSourceChanged?.Invoke(this, EventArgs.Empty);
+                }
             }
         }
 
-        public BeepBindingSource(ObservableBindingList<Entity> list) : this()
+        /// <summary>
+        /// Allows selecting a DataMember in the Designer
+        /// </summary>
+        [Browsable(true)]
+        [Category("Data")]
+        [Editor("System.Windows.Forms.Design.DataMemberListEditor, System.Design", typeof(UITypeEditor))]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [RefreshProperties(RefreshProperties.Repaint)]
+        public string DataMember
         {
-          
-            DataSource = list;
-            BindingSourceMode = BeepBindingSourceMode.ObservableBinidingList;
-        }
-        #endregion Constructors
-        #region "Base Binding Source Events"
-        private void BeepBindingSource_CurrentItemChanged(object? sender, EventArgs e)
-        {
-
-        }
-
-        private void BeepBindingSource_DataError(object? sender, BindingManagerDataErrorEventArgs e)
-        {
-     
-        }
-
-        private void BeepBindingSource_BindingComplete(object? sender, BindingCompleteEventArgs e)
-        {
-
-        }
-
-        private void BeepBindingSource_PositionChanged(object? sender, EventArgs e)
-        {
-           
-        }
-
-        private void BeepBindingSource_AddingNew(object? sender, AddingNewEventArgs e)
-        {
-       
-        }
-
-        private void BeepBindingSource_ListChanged(object? sender, ListChangedEventArgs e)
-        {
-            
-        }
-
-        private void BeepBindingSource_CurrentChanged(object? sender, EventArgs e)
-        {
-             
-
-        }
-
-        private void BeepBindingSource_DataSourceChanged(object? sender, EventArgs e)
-        {
-            if (BindingSourceMode == BeepBindingSourceMode.ObservableBinidingList)
+            get => _dataMember;
+            set
             {
-            
+                if (_dataMember != value)
+                {
+                    _dataMember = value;
+                    ResolveDataSource();
+                    DataMemberChanged?.Invoke(this, EventArgs.Empty);
+                }
             }
         }
-        #endregion "Base Binding Source Events"
-        #region "CRUD Methods"
-      
-        #endregion "CRUD Methods"
-        #region "Filtering and Sorting"
-  
 
-        #endregion "Filtering and Sorting"
-        #region "Binding Source Events"
-     
-        #endregion "Binding Source Events"
-        #region "Attachment and Detachment"
-        private void AttachBaseBindingSourceEvents()
+        public int Position
         {
-            this.DataSourceChanged += BeepBindingSource_DataSourceChanged;
-            this.CurrentChanged += BeepBindingSource_CurrentChanged; ;
-            this.ListChanged += BeepBindingSource_ListChanged;
-            this.AddingNew += BeepBindingSource_AddingNew;
-            this.PositionChanged += BeepBindingSource_PositionChanged;
-            this.BindingComplete += BeepBindingSource_BindingComplete;
-            this.DataError += BeepBindingSource_DataError;
-            this.CurrentItemChanged += BeepBindingSource_CurrentItemChanged;
-        }
-        private void DetachBaseBindingSourceEvents()
-        {
-            this.DataSourceChanged -= BeepBindingSource_DataSourceChanged;
-            this.CurrentChanged -= BeepBindingSource_CurrentChanged; ;
-            this.ListChanged -= BeepBindingSource_ListChanged;
-            this.AddingNew -= BeepBindingSource_AddingNew;
-            this.PositionChanged -= BeepBindingSource_PositionChanged;
-            this.BindingComplete -= BeepBindingSource_BindingComplete;
-            this.DataError -= BeepBindingSource_DataError;
-            this.CurrentItemChanged -= BeepBindingSource_CurrentItemChanged;
-        }
-
-     
-        #endregion "Attachment and Detachment"
-        #region "Child Relations"
-
-        //public void LoadChildrenForCurrentParent()
-        //{
-        //    if (Current is not Entity currentEntity) return;
-
-        //    foreach (var relation in Childs)
-        //    {
-        //        var childEntities = LoadChildEntities(relation, currentEntity);
-        //        relation.ChildBindingSource = new ObservableBindingList<Entity>(childEntities);
-        //    }
-        //}
-
-        //private List<Entity> LoadChildEntities(ChildRelation relation, Entity parentEntity)
-        //{
-        //    var filter = $"{relation.child_column} = '{parentEntity.GetValue(relation.parent_column)}'";
-        //    return _unitofWork?.Get(relation.child_table, filter) ?? new List<Entity>();
-        //}
-
-        #endregion
-       
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
+            get => _position;
+            set
             {
-                DetachBaseBindingSourceEvents();
-                _observableList = null;
-                _unitofWork = null;
+                if (_position != value && value >= 0 && value < _list.Count)
+                {
+                    _position = value;
+                    PositionChanged?.Invoke(this, EventArgs.Empty);
+                    CurrentChanged?.Invoke(this, EventArgs.Empty);
+                }
             }
-            base.Dispose(disposing);
+        }
+
+        public object Current => (_position >= 0 && _position < _list.Count) ? _list[_position] : null;
+
+        private void ResolveDataSource()
+        {
+            _mode = BeepBindingSourceMode.None;
+            _list = new BindingList<object>();
+            _position = -1;
+
+            if (_dataSource == null)
+                return;
+
+            if (_dataSource is IBindingList bindingList)
+            {
+                _mode = BeepBindingSourceMode.ObservableBindingList;
+                _list = bindingList;
+            }
+            else if (_dataSource is IEnumerable enumerable)
+            {
+                _mode = BeepBindingSourceMode.ObservableBindingList;
+                _list = new BindingList<object>(new List<object>(enumerable.Cast<object>()));
+            }
+            else if (_dataSource.GetType().IsClass && !string.IsNullOrEmpty(_dataMember))
+            {
+                PropertyInfo prop = _dataSource.GetType().GetProperty(_dataMember);
+                if (prop != null && prop.GetValue(_dataSource) is IBindingList innerList)
+                {
+                    _mode = BeepBindingSourceMode.ViewModel;
+                    _list = innerList;
+                }
+            }
+
+            ListChanged?.Invoke(this, new ListChangedEventArgs(ListChangedType.Reset, -1));
+        }
+
+        public void MoveNext() => Position = Math.Min(Position + 1, _list.Count - 1);
+        public void MovePrevious() => Position = Math.Max(Position - 1, 0);
+        public void MoveFirst() => Position = 0;
+        public void MoveLast() => Position = _list.Count - 1;
+
+        public object AddNew()
+        {
+            if (_list is IBindingList bindingList && bindingList.AllowNew)
+            {
+                object newItem = bindingList.AddNew();
+                ListChanged?.Invoke(this, new ListChangedEventArgs(ListChangedType.ItemAdded, _list.Count - 1));
+                return newItem;
+            }
+            throw new InvalidOperationException("AddNew is not supported on this data source.");
+        }
+
+        public void RemoveAt(int index)
+        {
+            if (index >= 0 && index < _list.Count)
+            {
+                _list.RemoveAt(index);
+                ListChanged?.Invoke(this, new ListChangedEventArgs(ListChangedType.ItemDeleted, index));
+            }
+        }
+
+        public void Clear()
+        {
+            _list.Clear();
+            ListChanged?.Invoke(this, new ListChangedEventArgs(ListChangedType.Reset, -1));
         }
     }
+
+   
+
 }

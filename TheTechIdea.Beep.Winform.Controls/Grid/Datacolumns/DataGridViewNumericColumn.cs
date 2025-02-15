@@ -17,14 +17,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             var clone = (BeepDataGridViewNumericColumn)base.Clone();
             return clone;
         }
+
+        // Override Dispose to ensure proper cleanup
+        protected override void Dispose(bool disposing)
+        {
+            try
+            {
+                if (disposing)
+                {
+                    // Perform any additional cleanup here if needed
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error disposing BeepDataGridViewNumericColumn: {ex.Message}");
+            }
+            finally
+            {
+                base.Dispose(disposing);
+            }
+        }
     }
 
     public class DataGridViewNumericCell : DataGridViewTextBoxCell
     {
         private string _format = "N2"; // Default format (numeric with 2 decimal places).
 
-        public DataGridViewNumericCell()
-            : base()
+        public DataGridViewNumericCell() : base()
         {
             this.Style.Format = _format; // Set the default numeric format.
         }
@@ -32,6 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
         public override object Clone()
         {
             var clone = (DataGridViewNumericCell)base.Clone();
+            clone._format = this._format;
             return clone;
         }
 
@@ -48,53 +68,52 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 
         public override Type ValueType
         {
-            get
-            {
-                return typeof(decimal); // Use decimal as the value type for numeric values.
-            }
+            get => typeof(decimal); // Use decimal as the value type for numeric values.
         }
 
         public override object DefaultNewRowValue
         {
-            get
-            {
-                return 0m; // Default new row value to 0.
-            }
+            get => 0m; // Default new row value to 0.
         }
 
         public override Type EditType
         {
-            get
-            {
-                return typeof(NumericEditingControl); // Use custom editing control.
-            }
+            get => typeof(NumericEditingControl); // Use custom editing control.
         }
 
-        // This method will initialize the custom editing control with the current value.
         public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
         {
             base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
-
-            var control = DataGridView.EditingControl as NumericEditingControl;
+            var control = DataGridView?.EditingControl as NumericEditingControl;
             if (control != null)
             {
-                // Set the format for the numeric input.
+                // Safely handle null or invalid values
                 control.NumericFormat = this.NumericFormat;
+                control.Value = this.Value == null || this.Value == DBNull.Value ? 0m : Convert.ToDecimal(this.Value);
+            }
+        }
 
-                // Set the current value in the editing control.
-                if (this.Value == null || this.Value == DBNull.Value)
+        // Override Dispose to ensure proper cleanup
+        protected override void Dispose(bool disposing)
+        {
+            try
+            {
+                if (disposing)
                 {
-                    control.Value = 0m; // Default to 0 if the value is null.
+                    // Perform any additional cleanup here if needed
                 }
-                else
-                {
-                    control.Value = Convert.ToDecimal(this.Value);
-                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error disposing DataGridViewNumericCell: {ex.Message}");
+            }
+            finally
+            {
+                base.Dispose(disposing);
             }
         }
     }
 
-    // The editing control used for numeric entry.
     public class NumericEditingControl : TextBox, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;
@@ -108,7 +127,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             this.TextAlign = HorizontalAlignment.Right; // Right-align numeric values.
         }
 
-        // Property to get or set the numeric value in the control.
         public decimal Value
         {
             get
@@ -126,14 +144,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             }
         }
 
-        // Property to get or set the numeric format.
         public string NumericFormat
         {
             get => _numericFormat;
             set
             {
                 _numericFormat = value;
-                // Apply the format to the existing value.
                 this.Text = _value.ToString(_numericFormat);
             }
         }
@@ -170,7 +186,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 
         public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey)
         {
-            // Handle arrow keys and other numeric keypad keys.
             return (keyData == Keys.Left || keyData == Keys.Right || keyData == Keys.Up || keyData == Keys.Down || keyData == Keys.Decimal);
         }
 
@@ -196,6 +211,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
         {
             valueChanged = true;
             base.OnTextChanged(e);
+        }
+
+        // Override Dispose to ensure proper cleanup
+        protected override void Dispose(bool disposing)
+        {
+            try
+            {
+                if (disposing)
+                {
+                    // Perform any additional cleanup here if needed
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error disposing NumericEditingControl: {ex.Message}");
+            }
+            finally
+            {
+                base.Dispose(disposing);
+            }
         }
     }
 }

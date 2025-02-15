@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Diagnostics;
 using System.Drawing.Design;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.DataBase;
+using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
@@ -191,39 +195,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             get => _dataSource;
             set
             {
+            //    if (_dataSource == value) return; // 🚀 Avoid redundant setting
+
+                Console.WriteLine("📌 Setting Data Source");
+
                 _dataSource = value;
-                // If _targetGrid is already created, forward the value
-                if (_targetGrid != null)
-                {
-                    _bindingSource.DataSource = value;
-                    _targetGrid.DataSource = _bindingSource;
-                }
+
+                // 🚀 DO NOT Set `_bindingSource.DataSource` Here!
+                DetachGrid();
+                ResetData();
+                AttachGrid();
             }
         }
 
-        // Expose DataMember with design-time attributes.
-        [Browsable(true)]
-        [Category("Data")]
-        [Editor("System.Windows.Forms.Design.DataMemberListEditor, System.Design", typeof(UITypeEditor))]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        [Bindable(true)]
-        public new string DataMember
-        {
-            get => _dataMember;
-            set
-            {
-                _dataMember = value;
-                Console.WriteLine("Data Member: " + value);
-                if (_targetGrid != null)
-                {
-                    Console.WriteLine("Setting Data Member in bindingsource: " + value);
-                    _bindingSource.DataMember = value;
-                    Console.WriteLine("Setting Data Member in  grid : " + _bindingSource.DataMember);
-                 //   _targetGrid.DataMember = value;
-                    ResetData();
-                }
-            }
-        }
+
+
+
+
+        //// Expose DataMember with design-time attributes.
+        //[Browsable(true)]
+        //[Category("Data")]
+        //[Editor("System.Windows.Forms.Design.DataMemberListEditor, System.Design", typeof(UITypeEditor))]
+        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        //[Bindable(true)]
+        //public new string DataMember
+        //{
+        //    get => _dataMember;
+        //    set
+        //    {
+        //        _dataMember = value;
+        //        Console.WriteLine("Data Member: " + value);
+        //        if (_targetGrid != null)
+        //        {
+        //            Console.WriteLine("Setting Data Member in bindingsource: " + value);
+        //            //_bindingSource.DataMember = value;
+        //            Console.WriteLine("Setting Data Member in  grid : " + _bindingSource.DataMember);
+        //           _targetGrid.DataMember = value;
+        //         //   ResetData();
+        //        }
+        //    }
+        //}
 
         #endregion "Data Source"
         #region "Appearance"
@@ -313,8 +324,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// </summary>
         SortOrder Currentdirection = SortOrder.None;
         private bool isResizing;
+        private bool _isResetting=false;
         #endregion "Sort and Filter"
-      
+
         #endregion Properties
 
         #region Constructor
@@ -372,8 +384,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _targetGrid.BorderStyle = BorderStyle.None;
 
             //SetupDataGridView();
-            _bindingSource = new BindingSource();
-            _bindingSource.DataSourceChanged += OnDataSourceChanged;
+            //_bindingSource = new BindingSource();
+            //_bindingSource.DataSourceChanged += OnDataSourceChanged;
             //  Console.WriteLine("Initializing BeepGridHeader layout...");
             // Manually stack three panels
           
@@ -556,7 +568,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
             if (_targetGrid == null)
                 return;
-
+            if(_targetGrid.ColumnCount==0)
+            {
+                return;
+            }   
             int leftPosition = 0;  // Running left coordinate
 
             // Loop through each grid column and add corresponding header and filter controls.
@@ -998,6 +1013,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         #endregion
 
         #region DataGridView Setup and Handling
+        public void AttachGrid()
+        {
+            if (_targetGrid != null)
+            {
+                _targetGrid.ColumnAdded += OnColumnAdded;
+                _targetGrid.ColumnRemoved += OnColumnRemoved;
+                _targetGrid.ColumnWidthChanged += OnColumnWidthChanged;
+                _targetGrid.Scroll += _targetGrid_Scroll;
+               // _targetGrid.DataSourceChanged += OnDataSourceChanged;
+
+              //  _targetGrid.DataMemberChanged += OnDataMemberChanged;
+                _targetGrid.DataContextChanged += OnDataContextChanged;
+                _targetGrid.DataBindingComplete += OnDataBindingComplete;
+                _targetGrid.ColumnWidthChanged += DataGridView_ColumnWidthChanged;
+                _targetGrid.CellEndEdit += DataGridView1_CellEndEdit;
+                _targetGrid.CellBeginEdit += DataGridView1_CellBeginEdit;
+                _targetGrid.DataError += DataGridView1_DataError;
+                _targetGrid.BindingContextChanged += DataGridView1_BindingContextChanged;
+
+
+
+            }
+           
+        }
+        public void DetachGrid()
+        {
+            if (_targetGrid != null)
+            {
+                _targetGrid.ColumnAdded -= OnColumnAdded;
+                _targetGrid.ColumnRemoved -= OnColumnRemoved;
+                _targetGrid.ColumnWidthChanged -= OnColumnWidthChanged;
+                _targetGrid.Scroll -= _targetGrid_Scroll;
+               // _targetGrid.DataSourceChanged -= OnDataSourceChanged;
+              //  _targetGrid.DataMemberChanged -= OnDataMemberChanged;
+                _targetGrid.DataContextChanged -= OnDataContextChanged;
+                _targetGrid.DataBindingComplete -= OnDataBindingComplete;
+                _targetGrid.ColumnWidthChanged -= DataGridView_ColumnWidthChanged;
+                _targetGrid.CellEndEdit -= DataGridView1_CellEndEdit;
+                _targetGrid.CellBeginEdit -= DataGridView1_CellBeginEdit;
+                _targetGrid.DataError -= DataGridView1_DataError;
+                _targetGrid.BindingContextChanged -= DataGridView1_BindingContextChanged;
+
+            }
+            
+        }
         public void SetupDataGridView()
         {
             if (_targetGrid == null) return;
@@ -1009,23 +1069,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _targetGrid.AllowUserToResizeRows = false;
             _targetGrid.AllowUserToResizeColumns = true;
             _targetGrid.AllowUserToResizeRows = false;
-            _targetGrid.AutoGenerateColumns = true;
+            _targetGrid.AutoGenerateColumns = false;
             _targetGrid.EditMode = DataGridViewEditMode.EditOnKeystrokeOrF2;
             _targetGrid.CellBorderStyle = DataGridViewCellBorderStyle.None;
             _targetGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             _targetGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
-            _targetGrid.ColumnRemoved += OnColumnRemoved;
-            _targetGrid.Scroll += _targetGrid_Scroll;
-            _targetGrid.DataSourceChanged += OnDataSourceChanged;
-            _targetGrid.DataMemberChanged += OnDataMemberChanged;
-            _targetGrid.DataContextChanged += OnDataContextChanged;
-            _targetGrid.DataBindingComplete += OnDataBindingComplete;
-            _targetGrid.ColumnWidthChanged += DataGridView_ColumnWidthChanged;
-            _targetGrid.CellEndEdit += DataGridView1_CellEndEdit;
-            _targetGrid.CellBeginEdit += DataGridView1_CellBeginEdit;
-            _targetGrid.DataError += DataGridView1_DataError;
-            _targetGrid.BindingContextChanged += DataGridView1_BindingContextChanged;
-          //  _bindingSource.DataSourceChanged += OnDataSourceChanged;
+            AttachGrid();
             BeepGridMiscUI.ShowTotals = _showTotalsPanel;
             BeepGridMiscUI.ShowFilter= _showFilter;
            
@@ -1313,7 +1362,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private void UpdateHeaderAndPanelPositions()
         {
             if (_targetGrid == null) return;
-            if (_headerPanel == null) return;   
+            if (_headerPanel == null) return;
+            if (_targetGrid.ColumnCount == 0)
+            {
+                return;
+            }
             // horizontal offset from the DataGridView's scrolling
             int offset = _targetGrid.HorizontalScrollingOffset;
 
@@ -1524,69 +1577,80 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// </summary>
         public void CreateColumnsForEntity()
         {
-            _targetGrid.SuspendLayout();
-            _targetGrid.Columns.Clear();
             if (_targetGrid == null || Entity == null || Entity.Fields == null)
             {
-                _targetGrid.ResumeLayout();
+                Console.WriteLine("⚠️ Target Grid or Entity is NULL. Skipping Column Creation.");
                 return;
             }
-            _targetGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
-            _targetGrid.AllowUserToResizeColumns = true;
+
+            _targetGrid.SuspendLayout();
+            _targetGrid.Columns.Clear();
+
+            Console.WriteLine($"🔄 Creating Columns for Entity: {Entity.EntityName}");
+
             try
             {
+                _targetGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+                _targetGrid.AllowUserToResizeColumns = true;
+
                 foreach (var field in Entity.Fields)
                 {
                     DataGridViewColumn column = null;
+                    Type fieldType = Type.GetType(field.fieldtype, false, true) ?? typeof(object); // Safe fallback
 
-                    // Create appropriate column type based on the field's data type
-                    switch (Type.GetType(field.fieldtype))
+                    Console.WriteLine($"🛠 Adding Column: {field.fieldname} ({field.fieldtype}) -> Mapped Type: {fieldType}");
+
+                    // ✅ Column Type Selection Based on Field Type
+                    if (fieldType == typeof(string))
                     {
-                        case Type type when type == typeof(string):
-                            column = new DataGridViewTextBoxColumn();
-                            break;
-                        case Type type when type == typeof(int) || type == typeof(long) || type == typeof(short):
-                            column = new BeepDataGridViewNumericColumn(); // Custom Numeric Column
-                            column.ValueType = type;
-                            break;
-                        case Type type when type == typeof(decimal) || type == typeof(double) || type == typeof(float):
-                            column = new BeepDataGridViewNumericColumn(); // Custom Numeric Column
-                            column.ValueType = type;
-                            break;
-                        case Type type when type == typeof(bool):
-                            column = new BeepDataGridViewThreeStateCheckBoxColumn(); // Custom Three State Checkbox Column
-                            break;
-                        case Type type when type == typeof(DateTime):
-                            column = new BeepDataGridViewDateTimePickerColumn
-                            {
-                                ValueType = type,
-                                DefaultCellStyle = { Format = "g" } // General date-time format
-                            };
-                            break;
-                        case Type type when type.IsEnum:
-                            column = new BeepDataGridViewComboBoxColumn() // Custom ComboBox Column with cascading support
-                            {
-                                DataSource = Enum.GetValues(type),
-                                ValueType = type
-                            };
-                            break;
-                        case Type type when type == typeof(Guid):
-                            column = new DataGridViewTextBoxColumn();
-                            break;
-                        case Type type when type == typeof(object):
-                            column = new DataGridViewTextBoxColumn
-                            {
-                                ValueType = typeof(string) // Display ObjectId as a string
-                            };
-                            break;
-                        case Type type when type == typeof(float) || type == typeof(double) || type == typeof(decimal):
-                            column = new BeepDataGridViewProgressBarColumn(); // Custom ProgressBar Column
-                            break;
-                        case Type type when type == typeof(List<string>): // or any List-based structure
-                            column = new BeepDataGridViewMultiColumnColumn(); // Custom MultiColumn ComboBox
-                            break;
+                        column = new DataGridViewTextBoxColumn();
+                    }
+                    else if (fieldType == typeof(int) || fieldType == typeof(long) || fieldType == typeof(short))
+                    {
+                        column = new BeepDataGridViewNumericColumn() { ValueType = fieldType };
+                    }
+                    else if (fieldType == typeof(decimal) || fieldType == typeof(double) || fieldType == typeof(float))
+                    {
+                        column = new BeepDataGridViewNumericColumn() { ValueType = fieldType };
+                    }
+                    else if (fieldType == typeof(bool))
+                    {
+                        column = new BeepDataGridViewThreeStateCheckBoxColumn();
+                    }
+                    else if (fieldType == typeof(DateTime))
+                    {
+                        column = new BeepDataGridViewDateTimePickerColumn()
+                        {
+                            ValueType = fieldType,
+                            DefaultCellStyle = { Format = "g" }
+                        };
+                    }
+                    else if (fieldType.IsEnum)
+                    {
+                        column = new BeepDataGridViewComboBoxColumn()
+                        {
+                            DataSource = Enum.GetValues(fieldType),
+                            ValueType = fieldType
+                        };
+                    }
+                    else if (fieldType == typeof(Guid))
+                    {
+                        column = new DataGridViewTextBoxColumn();
+                    }
+                    else if (fieldType == typeof(object))
+                    {
+                        column = new DataGridViewTextBoxColumn() { ValueType = typeof(string) };
+                    }
+                    else if (fieldType == typeof(float) || fieldType == typeof(double) || fieldType == typeof(decimal))
+                    {
+                        column = new BeepDataGridViewProgressBarColumn();
+                    }
+                    else if (fieldType == typeof(List<string>))
+                    {
+                        column = new BeepDataGridViewMultiColumnColumn();
                     }
 
+                    // ✅ Add Column to Grid
                     if (column != null)
                     {
                         column.DataPropertyName = field.fieldname;
@@ -1594,14 +1658,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         column.HeaderText = field.fieldname;
                         column.Tag = Guid.NewGuid().ToString();
                         _targetGrid.Columns.Add(column);
+
+                        // ✅ Apply Column Configuration
                         AddColumnConfigurations(column, column.Index, column.Width, field.fieldname, field.fieldname);
+                        Console.WriteLine($"✅ Column Added: {column.Name}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"❌ Failed to create column for {field.fieldname}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                LogMessage($"Error adding columns in Grid for Entity {Entity.EntityName}: {ex.Message}");
+                Console.WriteLine($"❌ Error adding columns for Entity {Entity.EntityName}: {ex.Message}");
             }
+
             _targetGrid.ResumeLayout();
         }
 
@@ -1627,6 +1699,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
             if (_bindingSource != null && Entity != null)
             {
+                _targetGrid.SuspendLayout(); // Pause rendering
                 _targetGrid.Columns.Clear();
                 _bindingSource.ResetBindings(false);
                 _bindingSource.DataSource = data;
@@ -1636,6 +1709,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                
                 Title = Entity.EntityName;
                 _titleLabel.Text = Entity.EntityName;
+                _targetGrid.ResumeLayout(true); // Resume rendering
             }
 
             return DMEEditor.ErrorObject;
@@ -1662,7 +1736,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             if (_bindingSource != null && Entity != null)
             {
                 ColumnConfigs.Clear();
-
+               
                 CreateColumnsForEntity();
                 RebuildColumnsAndFilters();
                 Title = Entity.EntityName;
@@ -1671,73 +1745,357 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _bindingSource.ResetBindings(false);
             return DMEEditor.ErrorObject;
         }
+        private object ExtractActualData(object source, out string dataMember)
+        {
+            dataMember = "";
 
+            while (source is BindingSource bindingSrc)
+            {
+                Console.WriteLine($"🔄 Unwrapping BindingSource: {bindingSrc.DataSource?.GetType()}");
+
+                if (!string.IsNullOrEmpty(bindingSrc.DataMember))
+                {
+                    dataMember = bindingSrc.DataMember;
+                    Console.WriteLine($"📌 Found DataMember: {dataMember}");
+                }
+
+                source = bindingSrc.DataSource;
+            }
+
+            // If DataSource is still a BindingSource, extract further
+            return source;
+        }
+
+        private void ResetData()
+        {
+            // 🚀 Prevent recursion
+            if (_isResetting) return;
+            _isResetting = true;
+
+            try
+            {
+                Console.WriteLine("🚨 Start Reset Data");
+                _targetGrid.SuspendLayout();
+                // Validate _targetGrid
+                if (_targetGrid == null)
+                {
+                    Console.WriteLine("⚠️ _targetGrid is NULL. Exiting...");
+                    return;
+                }
+
+                ClearAllObjects();
+
+                // Suspend layout updates to improve performance
+               
+
+                // ✅ Step 2: Handle Null DataSource
+                if (_dataSource == null)
+                {
+                    Console.WriteLine("⚠️ _dataSource is NULL. Exiting...");
+                    return;
+                }
+
+                // ✅ Step 1: Unbind Grid Before Clearing
+                _targetGrid.AutoGenerateColumns = false; // 🔥 Prevent auto-regeneration issues
+                _targetGrid.DataSource = null;
+                _bindingSource.DataSource = null;
+                _bindingSource.Clear();
+
+                // ✅ Step 2: Extract Actual Data from BindingSource
+                object finalData = null;
+
+                if (_dataSource is BindingSource bindingSrc)
+                {
+                    Console.WriteLine($"🔍 Unwrapping BindingSource: {bindingSrc.DataSource?.GetType()}");
+
+                    var dataSource = bindingSrc.DataSource;
+
+                    // Check if we are in design mode
+                    bool isDesignTime = DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime;
+
+                    if (isDesignTime && dataSource is Type type)
+                    {
+                        Console.WriteLine("⚠️ Design Mode Detected. Using Type Metadata for Entity Creation...");
+
+                        // Resolve DataMember if specified
+                        if (!string.IsNullOrEmpty(bindingSrc.DataMember))
+                        {
+                            Console.WriteLine($"📌 DataMember Found: {bindingSrc.DataMember}");
+
+                            // Use reflection to resolve the DataMember property
+                            PropertyInfo dataMemberProp = type.GetProperty(bindingSrc.DataMember);
+                            if (dataMemberProp != null)
+                            {
+                                Console.WriteLine($"✅ Resolved DataMember '{bindingSrc.DataMember}' to type: {dataMemberProp.PropertyType}");
+
+                                // Handle IList<T> or DataTable
+                                Type itemType = GetItemTypeFromDataMember(dataMemberProp.PropertyType);
+                                if (itemType != null)
+                                {
+                                    Console.WriteLine($"✅ Extracted Item Type from DataMember: {itemType}");
+
+                                    // Create Entity Structure based on the item type
+                                    Entity = EntityHelper.GetEntityStructureFromType(itemType);
+                                    Console.WriteLine($"✅ Created Entity Structure: {Entity?.EntityName}");
+
+                                    // Create Columns from the Entity Structure
+                                    CreateColumnsForEntity();
+                                    return;
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"⚠️ Warning: Unable to extract item type from DataMember '{bindingSrc.DataMember}'!");
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine($"⚠️ Warning: DataMember '{bindingSrc.DataMember}' not found in DataSource!");
+                            }
+                        }
+                        else
+                        {
+                            // Use the entire type's properties if no DataMember is specified
+                            Entity = EntityHelper.GetEntityStructureFromType(type);
+                            Console.WriteLine($"✅ Created Entity Structure: {Entity?.EntityName}");
+
+                            // Create Columns from the Entity Structure
+                            CreateColumnsForEntity();
+                            return;
+                        }
+                    }
+
+                    // Ensure DataSource is not a Type object at runtime
+                    if (dataSource is Type typeAtRuntime)
+                    {
+                        throw new InvalidOperationException("DataSource cannot be a Type object. Provide a valid data instance.");
+                    }
+
+                    if (!string.IsNullOrEmpty(bindingSrc.DataMember))
+                    {
+                        Console.WriteLine($"📌 DataMember Found: {bindingSrc.DataMember}");
+
+                        // Resolve the DataMember property in the DataSource
+                        PropertyInfo prop = dataSource.GetType().GetProperty(bindingSrc.DataMember);
+                        if (prop != null)
+                        {
+                            finalData = prop.GetValue(dataSource);
+                            Console.WriteLine($"✅ Resolved DataMember '{bindingSrc.DataMember}' to type: {finalData?.GetType()}");
+
+                            // Handle IList<T> or DataTable at runtime
+                            Type itemType = GetItemTypeFromDataMember(prop.PropertyType);
+                            if (itemType != null)
+                            {
+                                Console.WriteLine($"✅ Extracted Item Type from DataMember: {itemType}");
+                                Entity = EntityHelper.GetEntityStructureFromType(itemType);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"⚠️ Warning: Unable to extract item type from DataMember '{bindingSrc.DataMember}'!");
+                                Entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"⚠️ Warning: DataMember '{bindingSrc.DataMember}' not found in DataSource!");
+                            finalData = dataSource; // Fallback: Use the entire DataSource
+                        }
+                    }
+                    else
+                    {
+                        finalData = dataSource; // Directly assign if no DataMember
+                    }
+
+                    Console.WriteLine($"✅ Final Extracted Data: {finalData?.GetType()}");
+                }
+
+                // ✅ Step 3: Validate Final Data
+                if (finalData == null || !(finalData is DataTable || finalData is IList))
+                {
+                    Console.WriteLine($"⚠️ Invalid DataSource Type: {finalData?.GetType()}. Expected DataTable or IList.");
+                    Console.WriteLine("⚠️ Clearing Grid Safely...");
+
+                    _targetGrid.Rows.Clear();
+                    _targetGrid.Columns.Clear();
+                    _targetGrid.Refresh();
+
+                    Console.WriteLine("✅ Grid Cleared Successfully!");
+                    return;
+                }
+
+                // ✅ Step 4: Retrieve Entity Structure
+                Entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
+                Console.WriteLine($"✅ Entity Structure Retrieved: {Entity?.EntityName}");
+                _bindingSource.DataSource = finalData;
+                _targetGrid.DataSource = _bindingSource;
+                // ✅ Step 5: Create Columns for Entity
+                Console.WriteLine($"🔄 Creating Columns from Entity Structure: {Entity?.Fields.Count} fields...");
+                _targetGrid.Columns.Clear(); // 🛑 Ensure clean slate before adding new columns
+                CreateColumnsForEntity();
+                Console.WriteLine("✅ Columns Created");
+                _targetGrid.Refresh();
+                // ✅ Step 6: Rebind Data Correctly
+
+                Console.WriteLine("✅ BindingSource Set and Grid Updated");
+            }
+            catch (Exception ex)
+            {
+                // Log any unexpected errors
+                Console.WriteLine($"❌ Error during ResetData: {ex.Message}");
+            }
+            finally
+            {
+                // Resume layout updates and reset the flag
+                _targetGrid?.ResumeLayout();
+                _isResetting = false;
+            }
+        }
+        private void ClearAllObjects()
+        {
+            try
+            {
+                // Clear _targetGrid
+                if (_targetGrid != null)
+                {
+                    // Suspend layout updates to improve performance and prevent inconsistencies
+                    _targetGrid.SuspendLayout();
+
+                    try
+                    {
+                        // Safely clear rows
+                        if (_targetGrid.Rows.Count > 0)
+                        {
+                            try
+                            {
+                                _targetGrid.Rows.Clear();
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"⚠️ Error while clearing rows: {ex.Message}");
+                            }
+                        }
+
+                        // Safely clear columns
+                        if (_targetGrid.Columns.Count > 0)
+                        {
+                            try
+                            {
+                                // Iterate through columns and remove them one by one
+                                while (_targetGrid.Columns.Count > 0)
+                                {
+                                    _targetGrid.Columns.RemoveAt(0);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"⚠️ Error while clearing columns: {ex.Message}");
+                            }
+                        }
+
+                        // Unbind the DataSource
+                        _targetGrid.DataSource = null;
+
+                        // Refresh the grid
+                        _targetGrid.Refresh();
+                    }
+                    finally
+                    {
+                        // Resume layout updates
+                        _targetGrid.ResumeLayout();
+                    }
+
+                    Console.WriteLine("✅ _targetGrid Cleared Successfully!");
+                }
+
+                // Clear _bindingSource
+                if (_bindingSource != null)
+                {
+                    try
+                    {
+                        _bindingSource.Clear(); // Clear all items
+                        _bindingSource.DataSource = null; // Unbind the DataSource
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"⚠️ Error while clearing _bindingSource: {ex.Message}");
+                    }
+
+                    Console.WriteLine("✅ _bindingSource Cleared Successfully!");
+                }
+
+                // Reset Entity
+                Entity = null;
+                Console.WriteLine("✅ Entity Reset Successfully!");
+
+                // Reset _dataSource
+              //  _dataSource = null;
+                Console.WriteLine("✅ _dataSource Reset Successfully!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error while clearing objects: {ex.Message}");
+            }
+        }
+        private Type GetItemTypeFromDataMember(Type propertyType)
+        {
+            // Handle IList<T>
+            if (propertyType.IsGenericType && typeof(IEnumerable).IsAssignableFrom(propertyType))
+            {
+                Type[] genericArgs = propertyType.GetGenericArguments();
+                if (genericArgs.Length > 0)
+                {
+                    return genericArgs[0]; // Return the type of the items in the list
+                }
+            }
+
+            // Handle DataTable
+            if (propertyType == typeof(DataTable))
+            {
+                return typeof(DataRow); // DataRow represents the rows in a DataTable
+            }
+
+            // Return null if the type is not supported
+            return null;
+        }
         #endregion Entity Management
 
         #region Data Management
         private void DataGridView1_BindingContextChanged(object? sender, EventArgs e)
         {
             Console.WriteLine("Binding Context Changed");
-            ResetData();
+          //  ResetData();
         }
         private void OnDataSourceChanged(object? sender, EventArgs e)
         {
             Console.WriteLine("Data Source Changed");
-            ResetData();
-        }
-        private void ResetData()
-        {
-            Console.WriteLine("start Reset Data");
-            if (_targetGrid == null) return;
-            //   _bindingSource = _targetGrid.Data as BindingSource;
-            // Clear existing column configurations
-            if (_headerLabels == null) return;
-            _headerLabels.Clear();
-            _filterBoxes.Clear();
-            _columnSortOrders.Clear();
-            if (_columnconfig == null) _columnconfig = new();
-            _columnconfig.Clear();
-
-            // Rebuild columns and filters
-            Console.WriteLine("Rebuild Columns and Filters");
-            RebuildColumnsAndFilters();
-
-            // Apply filters if the filter panel is visible
-            if (_showFilter)
-            {
-                ApplyFilter();
-            }
-          
-            // Update the layout to match the new data source
-            Console.WriteLine("Update Header and Panel Positions");
-            UpdateHeaderAndPanelPositions();
-            Console.WriteLine("Refresh");
-            _targetGrid.Refresh();
+          // ResetData();
         }
         private void OnDataMemberChanged(object? sender, EventArgs e)
         {
-            Console.WriteLine("Data Member Changed");
-            if (_targetGrid == null) return;
-            _headerLabels.Clear();
-            _filterBoxes.Clear();
-            _columnSortOrders.Clear();
-            _columnconfig.Clear();
-            // Rebuild columns and filters to reflect the new data member
-            RebuildColumnsAndFilters();
-
-            // Update filters if the filter panel is visible
-            if (_showFilter)
-            {
-                ApplyFilter();
-            }
-
-            // Refresh the header layout
-            UpdateHeaderAndPanelPositions();
+            //Console.WriteLine("Data Member Changed");
+            //if (_targetGrid == null) return;
+            //_headerLabels.Clear();
+            //_filterBoxes.Clear();
+            //_columnSortOrders.Clear();
+            //_columnconfig.Clear();
+            //Console.WriteLine("Rebuild Columns and Filters");
+            //// Rebuild columns and filters to reflect the new data member
+            //RebuildColumnsAndFilters();
+            //Console.WriteLine("Apply Filter");
+            //// Update filters if the filter panel is visible
+            //if (_showFilter)
+            //{
+            //    ApplyFilter();
+            //}
+            //Console.WriteLine("Update Header and Panel Positions");
+            //// Refresh the header layout
+            //UpdateHeaderAndPanelPositions();
+            //Console.WriteLine("Data Member Changed End");
         }
         private void OnDataBindingComplete(object? sender, DataGridViewBindingCompleteEventArgs e)
         {
+            Console.WriteLine("Started Data Binding Complete");
             if (_targetGrid == null) return;
-
+            Console.WriteLine("Setting Column sort order ");
             // Ensure sorting icons are updated
             foreach (var kvp in _columnSortOrders)
             {
@@ -1748,32 +2106,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                     UpdateSortIcons(lbl, sortOrder);
                 }
             }
-
+            Console.WriteLine("Building Totals Row");
             // Apply filters if the filter panel is visible
             if (_showFilter)
             {
                 ApplyFilter();
             }
-
+            Console.WriteLine("DataBinding Complete");
             // Notify the footer (if linked) to update totals
-           
+
         }
         private void OnDataContextChanged(object? sender, EventArgs e)
         {
-            Console.WriteLine("Data Context Changed");
+            Console.WriteLine("Data Context Changed 1");
             if (_targetGrid == null) return;
-
+            Console.WriteLine("Data Context Changed 2");
             // Rebuild columns and filters to reflect the new data context
             RebuildColumnsAndFilters();
-
+            Console.WriteLine("Data Context Changed 3");
             // Update filters if the filter panel is visible
             if (_showFilter)
             {
                 ApplyFilter();
             }
-
+            Console.WriteLine("Data Context Changed 4");
             // Refresh the header layout
             UpdateHeaderAndPanelPositions();
+            Console.WriteLine("Data Context Changed 5");
         }
         #endregion Data Management
 

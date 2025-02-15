@@ -339,7 +339,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Template
                 this.WindowState = FormWindowState.Normal;
 
             }
-            this.Maxbutton.BackgroundImage = Properties.Resources.minimize;
+          //  this.Maxbutton.BackgroundImage = Properties.Resources.minimize;
             this.Maxbutton.BackgroundImageLayout = ImageLayout.Zoom;
         }
 

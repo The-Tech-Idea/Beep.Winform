@@ -144,7 +144,7 @@
             // Minbutton
             // 
             Minbutton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            Minbutton.BackgroundImage = Properties.Resources.minimize;
+           // Minbutton.BackgroundImage = Properties.Resources.minimize;
             Minbutton.BackgroundImageLayout = ImageLayout.Zoom;
             Minbutton.FlatAppearance.BorderSize = 0;
             Minbutton.FlatStyle = FlatStyle.Flat;

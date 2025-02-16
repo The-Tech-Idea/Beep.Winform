@@ -212,31 +212,35 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 foreach (SimpleItem item in items)
                 {
-                    // Create the button
-                    BeepButton btn = new BeepButton
-                    {
-                        Text = item.Text,
-                        Tag = item,
-                        ImagePath = item.ImagePath,
-                        Width = initialWidthGuess,        // temporary guess
-                        Height = MenuItemHeight,           // your known item height
-                        UseScaledFont = false,
-                        MaxImageSize = new Size(_imagesize, _imagesize),
-                        ImageAlign = ContentAlignment.MiddleLeft,
-                        TextAlign = ContentAlignment.MiddleCenter,
-                        ApplyThemeOnImage = false,
-                        ApplyThemeToChilds = false,
-                        IsShadowAffectedByTheme = false,
-                        IsBorderAffectedByTheme = false,
-                        IsRoundedAffectedByTheme = false,
-                        IsChild = true,
-                        ShowAllBorders = false,
-                        Anchor = AnchorStyles.None,
-                        TextFont = _textFont,
-                        UseThemeFont = true,
-                      //  AutoSize = true,
-                        GuidID = item.GuidId
-                    };
+                if(item==null)
+                {
+                    continue;
+                }
+                // Create the button
+                BeepButton btn = new BeepButton
+                {
+                    Text = item.Text,
+                    Tag = item,
+                    ImagePath = item.ImagePath,
+                    Width = initialWidthGuess,        // temporary guess
+                    Height = MenuItemHeight,           // your known item height
+                    UseScaledFont = false,
+                    MaxImageSize = new Size(_imagesize, _imagesize),
+                    ImageAlign = ContentAlignment.MiddleLeft,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    ApplyThemeOnImage = false,
+                    ApplyThemeToChilds = false,
+                    IsShadowAffectedByTheme = false,
+                    IsBorderAffectedByTheme = false,
+                    IsRoundedAffectedByTheme = false,
+                    IsChild = true,
+                    ShowAllBorders = false,
+                    Anchor = AnchorStyles.None,
+                    TextFont = _textFont,
+                    UseThemeFont = true,
+                    //  AutoSize = true,
+                    GuidID = item != null ? item.GuidId : Guid.NewGuid().ToString()
+                };
                     
 
                     // Attach your click handler

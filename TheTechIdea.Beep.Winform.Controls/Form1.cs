@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InitializeComponent();
             beepService = service; // serviceProvider.GetService<IBeepService>();
-            Dependencies.DMEEditor = beepService.DMEEditor;
+          
             MethodHandler.DMEEditor = beepService.DMEEditor;
             beepTreeControl1.init(beepService);
              beepButton1.Click += BeepButton1_Click;

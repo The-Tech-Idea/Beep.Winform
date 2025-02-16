@@ -6,12 +6,13 @@ using System.Runtime.InteropServices;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
+using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public partial class BeepiForm : Form, IDM_Addin
+    public partial class BeepiForm : Form
     {
         #region "Fields"
         protected int _resizeMargin = 5; // Margin for resizing
@@ -99,6 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Redraw the form when the color changes
             }
         }
+  
         #endregion "Properties"
         #region "Constructors"
         public BeepiForm(IBeepService beepService)
@@ -528,106 +530,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private static extern bool SetProcessDPIAware();
 
         #endregion
-        #region "IDM_Addin"
-        public event EventHandler OnStart;
-        public event EventHandler OnStop;
-        public event EventHandler<ErrorEventArgs> OnError;
-        public AddinDetails Details { get; set; } = new AddinDetails();
-        public Dependencies Dependencies { get; set; } = new Dependencies();
-        public string GuidID { get; set; }
-
-
-        public virtual void Initialize()
-        {
-            if (ishandled) return;
-            ishandled = true;
-            GuidID = Guid.NewGuid().ToString();
-            // Apply border and custom form styles
-            FormBorderStyle = FormBorderStyle.None;
-            this.Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
-                                                          //  beepuiManager1 = new Managers.BeepFormUIManager(this.components);
-                                                          //  Margin = new Padding(5);
-                                                          // Apply initial theme\
-
-
-            // Theme = BeepThemesManager.CurrentTheme;
-            //   ApplyTheme();
-            //    beepuiManager1.Theme = Theme;
-            //   BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
-
-        }
-
-        public virtual void Suspend()
-        {
-
-        }
-
-        public virtual void Resume()
-        {
-
-        }
-
-        public virtual string GetErrorDetails()
-        {
-            return "";
-        }
-
-        public void Run(IPassedArgs pPassedarg)
-        {
-
-        }
-
-        public virtual void Run(params object[] args)
-        {
-
-        }
-
-        public virtual Task<IErrorsInfo> RunAsync(IPassedArgs pPassedarg)
-        {
-            try
-            {
-                // use the view router to navigate back
-
-            }
-            catch (Exception ex)
-            {
-                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
-                Dependencies.DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
-            }
-            return Task.FromResult(Dependencies.DMEEditor.ErrorObject);
-        }
-
-        public virtual Task<IErrorsInfo> RunAsync(params object[] args)
-        {
-            try
-            {
-                // use the view router to navigate back
-
-            }
-            catch (Exception ex)
-            {
-                string methodName = MethodBase.GetCurrentMethod().Name; // Retrieves "PrintGrid"
-                Dependencies.DMEEditor.AddLogMessage("Beep", $"in {methodName} Error : {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
-            }
-            return Task.FromResult(Dependencies.DMEEditor.ErrorObject);
-
-        }
-
-        public virtual void Configure(Dictionary<string, object> settings)
-        {
-
-        }
-
-        public virtual void OnNavigatedTo(Dictionary<string, object> parameters)
-        {
-
-        }
-
-        public virtual void SetError(string message)
-        {
-
-        }
-        #endregion "IDM_Addin"
+       
 
     }
 }

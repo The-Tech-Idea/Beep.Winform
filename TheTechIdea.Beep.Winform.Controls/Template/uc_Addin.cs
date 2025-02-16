@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using System.ComponentModel;
 using System.Reflection;
+using TheTechIdea.Beep.Container.Services;
 
 namespace TheTechIdea.Beep.Winform.Controls.Basic
 {
@@ -20,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
         {
             InitializeComponent();
         }
+      
         public string AddinName { get; set; } 
         public string Description { get; set; }
         public string ObjectName { get; set; }

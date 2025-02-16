@@ -409,7 +409,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 Height = _topPanelHeight,
                 Dock = DockStyle.Top
             };
-          //  Console.WriteLine("Top Panel Height: " + _topPanelHeight);
+          //  Console.WriteLine("Top Panel Height: " + _titletopPanelHeight);
             // inside topPanel, we place a TableLayout for your 5 icons + label
             _topTableLayout = new TableLayoutPanel
             {
@@ -429,7 +429,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _topTableLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 23f));
           //  Console.WriteLine("Table Layout Row Count: " + _topTableLayout.RowCount);
             _topPanel.Controls.Add(_topTableLayout);
-         //   Console.WriteLine("Top Panel Controls Count: " + _topPanel.Controls.Count);
+         //   Console.WriteLine("Top Panel Controls Count: " + _titletopPanel.Controls.Count);
             // Create beepbuttons + label
             _csvExportButton = new BeepButton
             {
@@ -522,7 +522,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             };
         //    Console.WriteLine("Header Panel Height: " + _headerPanelHeight);
            ;
-        //    Console.WriteLine("Header Panel Controls Count: " + _headerPanel.Controls.Count);
+        //    Console.WriteLine("Header Panel Controls Count: " + _columnheaderPanel.Controls.Count);
             // (3) filter row (optional)
             // --- Filter Panel (for filter textboxes) ---
             _filterPanel = new Panel
@@ -770,7 +770,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         private void RemoveOneColumn(DataGridViewColumn col)
         {
-            // Remove the header label from the _headerPanel.
+            // Remove the header label from the _columnheaderPanel.
             if (_headerLabels.TryGetValue(col, out BeepLabel lbl))
             {
                 _headerPanel.Controls.Remove(lbl);
@@ -1377,7 +1377,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             // horizontal offset from the DataGridView's scrolling
             int offset = _targetGrid.HorizontalScrollingOffset;
 
-            // ~~~~~ 1) Shift HEADER LABELS in _headerPanel ~~~~~
+            // ~~~~~ 1) Shift HEADER LABELS in _columnheaderPanel ~~~~~
             int xPos = -offset;
             foreach (Control ctrl in _headerPanel.Controls)
             {

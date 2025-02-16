@@ -301,6 +301,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         //    base.SetBoundsCore(x, y, width, height, specified);
         //}
+
+        #endregion "Constructors"
         #region "Painting"
         private void InitializeComponents()
         {
@@ -308,7 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage = new BeepImage
             {
                 IsChild = true,
-                Visible=false,
+                Visible = false,
                 Dock = DockStyle.None, // We'll manually position it
                 Margin = new Padding(0),
                 Location = new Point(0, 0), // Set initial position (will adjust in layout)
@@ -332,7 +334,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             contentRect = DrawingRect;
             // If you want to ensure at least a 1-pixel margin from the edge:
-           // contentRect.Inflate(-1, -1);
+            // contentRect.Inflate(-1, -1);
             // Draw the image and text
             // Also apply the label’s own padding
             // (Padding already might be set to some default; adapt as desired)
@@ -343,17 +345,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             //contentRect.Height -= (Padding.Top + Padding.Bottom);
 
             // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
-           //  DrawBackColor(e, _currentTheme.LabelBackColor, _currentTheme.ButtonHoverBackColor);
+            //  DrawBackColor(e, _currentTheme.LabelBackColor, _currentTheme.ButtonHoverBackColor);
             DrawToGraphics(e.Graphics);
         }
         private void DrawToGraphics(Graphics g)
         {
-           // contentRect.Inflate(-Padding.Horizontal / 2, -Padding.Vertical / 2);
+            // contentRect.Inflate(-Padding.Horizontal / 2, -Padding.Vertical / 2);
             DrawToGraphics(g, contentRect);
         }
         public void DrawToGraphics(Graphics g, Rectangle drawrect)
         {    // Adjust contentRect for padding
-           
+
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
@@ -411,7 +413,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             //}
         }
         #endregion "Painting"
-        #endregion "Constructors"
         #region "Theme"
         public override void ApplyTheme()
         {

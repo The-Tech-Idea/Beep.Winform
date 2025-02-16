@@ -372,7 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             // horizontal offset from the DataGridView's scrolling
             int offset = TargetDataGridView.HorizontalScrollingOffset;
 
-            // ~~~~~ 1) Shift HEADER LABELS in _headerPanel ~~~~~
+            // ~~~~~ 1) Shift HEADER LABELS in _columnheaderPanel ~~~~~
             int xPos = -offset;
             foreach (Control ctrl in _totalsFlow.Controls)
             {

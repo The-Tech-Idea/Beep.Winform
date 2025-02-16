@@ -21,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
         {
 
             IsRounded = false;
+            
         }
         protected override void OnLayout(LayoutEventArgs e)
         {
@@ -141,7 +142,64 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
             if (MainPanel == null) return;
             BackColor = _currentTheme.PanelBackColor;
             MainPanel.BackColor = _currentTheme.PanelBackColor;
-         //   Recordnumberinglabel1.Theme = Theme;
+            //apply theme to all buttons
+            FindButton.Theme = Theme;
+            NextButton.Theme = Theme;
+            PrevoiusButton.Theme = Theme;
+            RemoveButton.Theme = Theme;
+            SaveButton.Theme = Theme;
+            RollbackButton.Theme = Theme;
+            EditButton.Theme = Theme;
+            NewButton.Theme = Theme;
+            PrinterButton.Theme = Theme;
+            MessageButton.Theme = Theme;
+            
+            //apply theme to all tooltips
+            searchtooltip = new ToolTip();
+            searchtooltip.BackColor = _currentTheme.ToolTipBackColor;
+            searchtooltip.ForeColor = _currentTheme.ToolTipForeColor;
+            searchtooltip.SetToolTip(FindButton, "Search");
+            addtooltip = new ToolTip();
+            addtooltip.BackColor = _currentTheme.ToolTipBackColor;
+            addtooltip.ForeColor = _currentTheme.ToolTipForeColor;
+            addtooltip.SetToolTip(NewButton, "Add New Record");
+            edittooltip = new ToolTip();
+            edittooltip.BackColor = _currentTheme.ToolTipBackColor;
+            edittooltip.ForeColor = _currentTheme.ToolTipForeColor;
+            edittooltip.SetToolTip(EditButton, "Edit Record");
+            removetooltip = new ToolTip();
+            removetooltip.BackColor = _currentTheme.ToolTipBackColor;
+            removetooltip.ForeColor = _currentTheme.ToolTipForeColor;
+            removetooltip.SetToolTip(RemoveButton, "Remove Record");
+            nexttooltip = new ToolTip();
+            nexttooltip.BackColor = _currentTheme.ToolTipBackColor;
+            nexttooltip.ForeColor = _currentTheme.ToolTipForeColor;
+            nexttooltip.SetToolTip(NextButton, "Next Record");
+            previoustooltip = new ToolTip();
+            previoustooltip.BackColor = _currentTheme.ToolTipBackColor;
+            previoustooltip.ForeColor = _currentTheme.ToolTipForeColor;
+            previoustooltip.SetToolTip(PrevoiusButton, "Previous Record");
+            canceltooltip = new ToolTip();
+            canceltooltip.BackColor = _currentTheme.ToolTipBackColor;
+            canceltooltip.ForeColor = _currentTheme.ToolTipForeColor;
+            canceltooltip.SetToolTip(RollbackButton, "Cancel Changes");
+            savetooltip = new ToolTip();
+            savetooltip.BackColor = _currentTheme.ToolTipBackColor;
+            savetooltip.ForeColor = _currentTheme.ToolTipForeColor;
+            savetooltip.SetToolTip(SaveButton, "Save Record");
+            printtooltip = new ToolTip();
+            printtooltip.BackColor = _currentTheme.ToolTipBackColor;
+            printtooltip.ForeColor = _currentTheme.ToolTipForeColor;
+            printtooltip.SetToolTip(PrinterButton, "Print Record");
+            sharetooltip = new ToolTip();
+            sharetooltip.BackColor = _currentTheme.ToolTipBackColor;
+            sharetooltip.ForeColor = _currentTheme.ToolTipForeColor;
+            sharetooltip.SetToolTip(MessageButton, "Share Record");
+
+
+
+
+            //   Recordnumberinglabel1.Theme = Theme;
             Recordnumberinglabel1.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
             //  Recordnumberinglabel1.BackColor = ColorUtils.GetForColor(_currentTheme.LabelBackColor, _currentTheme.LabelForeColor);
         }
@@ -455,6 +513,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BindingNavigator
                 Text = "0",
                 ShowAllBorders = true,
                 IsRounded = false,
+                IsChild=false,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
                 IsRoundedAffectedByTheme = false

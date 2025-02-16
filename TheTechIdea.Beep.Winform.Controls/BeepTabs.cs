@@ -107,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _tabControl = new TabControlWithoutHeader
             {
                 //Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
-                //Bounds = new Rectangle(DrawingRect.Left, _headerPanel.Height+DrawingRect.Top, DrawingRect.Width, DrawingRect.Height - _headerPanel.Height)
+                //Bounds = new Rectangle(DrawingRect.Left, _columnheaderPanel.Height+DrawingRect.Top, DrawingRect.Width, DrawingRect.Height - _columnheaderPanel.Height)
 
             };
             _tabControl.AllowDrop = true;

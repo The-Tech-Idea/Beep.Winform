@@ -43,16 +43,17 @@
             // 
             // beepDataGridView1
             // 
-            beepDataGridView1.ActiveBackColor = Color.FromArgb(0, 120, 215);
+            beepDataGridView1.ActiveBackColor = Color.FromArgb(0, 100, 0);
             beepDataGridView1.AnimationDuration = 500;
             beepDataGridView1.AnimationType = Winform.Controls.DisplayAnimationType.None;
             beepDataGridView1.ApplyThemeToChilds = true;
+            beepDataGridView1.BackColor = Color.FromArgb(107, 142, 35);
             beepDataGridView1.BadgeBackColor = Color.Red;
             beepDataGridView1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepDataGridView1.BadgeForeColor = Color.White;
             beepDataGridView1.BadgeText = "";
             beepDataGridView1.BlockID = null;
-            beepDataGridView1.BorderColor = Color.FromArgb(200, 200, 200);
+            beepDataGridView1.BorderColor = Color.FromArgb(85, 107, 47);
             beepDataGridView1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             beepDataGridView1.BorderRadius = 3;
             beepDataGridView1.BorderStyle = BorderStyle.FixedSingle;
@@ -64,6 +65,7 @@
             beepDataGridView1.CanBePressed = true;
             beepDataGridView1.Category = Utilities.DbFieldCategory.String;
             beepDataGridView1.CellPainting = null;
+            beepDataGridView1.ColumnHeaderHeight = 40;
             beepDataGridView1.ComponentName = "beepDataGridView1";
             beepDataGridView1.DataContext = null;
             beepDataGridView1.DataSource = driversConfigViewModelBindingSource;
@@ -71,7 +73,7 @@
             beepDataGridView1.DisabledBackColor = Color.Gray;
             beepDataGridView1.DisabledForeColor = Color.Empty;
             beepDataGridView1.DMEEditor = null;
-            beepDataGridView1.DrawingRect = new Rectangle(3, 3, 830, 429);
+            beepDataGridView1.DrawingRect = new Rectangle(2, 2, 959, 541);
             beepDataGridView1.Easing = Winform.Controls.EasingType.Linear;
             entityStructure1.Caption = null;
             entityStructure1.Category = null;
@@ -105,17 +107,17 @@
             entityStructure1.Viewtype = Utilities.ViewType.Table;
             beepDataGridView1.Entity = entityStructure1;
             beepDataGridView1.FieldID = null;
-            beepDataGridView1.FocusBackColor = Color.White;
+            beepDataGridView1.FocusBackColor = Color.FromArgb(0, 0, 0);
             beepDataGridView1.FocusBorderColor = Color.Gray;
             beepDataGridView1.FocusForeColor = Color.Black;
             beepDataGridView1.FocusIndicatorColor = Color.Blue;
             beepDataGridView1.Form = null;
             beepDataGridView1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepDataGridView1.GradientEndColor = Color.FromArgb(230, 230, 230);
-            beepDataGridView1.GradientStartColor = Color.White;
+            beepDataGridView1.GradientEndColor = Color.FromArgb(107, 142, 35);
+            beepDataGridView1.GradientStartColor = Color.FromArgb(245, 245, 220);
             beepDataGridView1.GuidID = "e4cfc9f7-f7e1-4769-b1a0-50220fb79bc6";
-            beepDataGridView1.HoverBackColor = Color.FromArgb(230, 230, 230);
-            beepDataGridView1.HoverBorderColor = Color.FromArgb(0, 120, 215);
+            beepDataGridView1.HoverBackColor = Color.FromArgb(0, 128, 0);
+            beepDataGridView1.HoverBorderColor = Color.FromArgb(0, 100, 0);
             beepDataGridView1.HoveredBackcolor = Color.Wheat;
             beepDataGridView1.HoverForeColor = Color.Black;
             beepDataGridView1.Id = -1;
@@ -145,14 +147,14 @@
             beepDataGridView1.IsVisible = false;
             beepDataGridView1.LeftoffsetForDrawingRect = 0;
             beepDataGridView1.LinkedProperty = null;
-            beepDataGridView1.Location = new Point(112, 175);
+            beepDataGridView1.Location = new Point(27, 115);
             beepDataGridView1.Margin = new Padding(2);
             beepDataGridView1.Name = "beepDataGridView1";
             beepDataGridView1.OverrideFontSize = Winform.Controls.TypeStyleFontSize.None;
             beepDataGridView1.Padding = new Padding(2);
             beepDataGridView1.ParentBackColor = Color.Empty;
             beepDataGridView1.ParentControl = null;
-            beepDataGridView1.PressedBackColor = Color.FromArgb(0, 120, 215);
+            beepDataGridView1.PressedBackColor = Color.FromArgb(0, 100, 0);
             beepDataGridView1.PressedBorderColor = Color.Gray;
             beepDataGridView1.PressedForeColor = Color.Black;
             beepDataGridView1.RightoffsetForDrawingRect = 0;
@@ -161,28 +163,29 @@
             beepDataGridView1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
             beepDataGridView1.ShadowOffset = 0;
             beepDataGridView1.ShadowOpacity = 0.5F;
-            beepDataGridView1.ShowAllBorders = true;
-            beepDataGridView1.ShowBottomBorder = true;
+            beepDataGridView1.ShowAllBorders = false;
+            beepDataGridView1.ShowBottomBorder = false;
             beepDataGridView1.ShowDataNavigator = true;
             beepDataGridView1.ShowFilter = false;
             beepDataGridView1.ShowFocusIndicator = false;
-            beepDataGridView1.ShowLeftBorder = true;
-            beepDataGridView1.ShowRightBorder = true;
+            beepDataGridView1.ShowLeftBorder = false;
+            beepDataGridView1.ShowRightBorder = false;
             beepDataGridView1.ShowShadow = false;
-            beepDataGridView1.ShowTopBorder = true;
+            beepDataGridView1.ShowTopBorder = false;
             beepDataGridView1.ShowTotalsPanel = false;
-            beepDataGridView1.Size = new Size(836, 435);
+            beepDataGridView1.Size = new Size(963, 545);
             beepDataGridView1.SlideFrom = Winform.Controls.SlideDirection.Left;
             beepDataGridView1.StaticNotMoving = false;
             beepDataGridView1.TabIndex = 0;
             beepDataGridView1.TempBackColor = Color.Empty;
             beepDataGridView1.Text = "beepDataGridView1";
-            beepDataGridView1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
-            beepDataGridView1.TitleFont = new Font("Arial", 10F);
+            beepDataGridView1.Theme = Vis.Modules.EnumBeepThemes.ForestTheme;
+            beepDataGridView1.TitleFont = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            beepDataGridView1.TitleTopPanelHeight = 29;
             beepDataGridView1.ToolTipText = "";
             beepDataGridView1.TopoffsetForDrawingRect = 0;
             beepDataGridView1.UseGradientBackground = false;
-            beepDataGridView1.UseThemeFont = true;
+            beepDataGridView1.UseThemeFont = false;
             // 
             // uc_ConnnectionDrivers
             // 

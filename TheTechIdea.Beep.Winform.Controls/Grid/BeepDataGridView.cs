@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
 using System.Drawing.Design;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Shared;
@@ -41,9 +35,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         // Row #2: custom column header row
         // Row #3: optional filter row
 
-        private Panel _topPanel;
+        private Panel _titletopPanel;
         private TableLayoutPanel _topTableLayout;
-        private Panel _headerPanel;
+        private Panel _columnheaderPanel;
         private Panel _filterPanel;
 
         // Buttons & Title in the top panel
@@ -100,8 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                     }
                     // Force the label to recalculate its preferred size
                     _titleLabel.PerformLayout();
-
-                    _topTableLayout.RowStyles[0].Height = _titleLabel.PreferredSize.Height + (2 * (padding + 2)); // Adjust height dynamically
+                    //_topTableLayout.RowStyles[0].Height = _titleLabel.PreferredSize.Height + (2 * (padding + 2)); // Adjust height dynamically
                     RecalcHeight();
                     Invalidate();
                 }
@@ -145,7 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private int _initialLabelLeft;
 
         // Layout heights
-        private int _topPanelHeight = 30;  // row #1
+        private int _titletopPanelHeight = 30;  // row #1
         private int _headerPanelHeight = 30;  // row #2
         private int _filterPanelHeight = 30;  // row #3 if visible
         private bool _showFilter = false;     // filter row toggled
@@ -173,17 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private string _dataMember;
 
         private BindingSource _bindingSource = new BindingSource();
-        //public BindingSource BindingSource
-        //{
-        //    get { return _bindingSource; }
-        //    set
-        //    {
-        //        InQuery = true;
-        //        _bindingSource = value;
-        //        if (_targetGrid != null) _targetGrid.DataSource = _bindingSource;
-        //        InQuery = false;
-        //    }
-        //}
+      
         // Expose DataSource with design-time attributes.
         [Browsable(true)]
         [Category("Data")]
@@ -210,31 +193,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
 
 
-
-
-        //// Expose DataMember with design-time attributes.
-        //[Browsable(true)]
-        //[Category("Data")]
-        //[Editor("System.Windows.Forms.Design.DataMemberListEditor, System.Design", typeof(UITypeEditor))]
-        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        //[Bindable(true)]
-        //public new string DataMember
-        //{
-        //    get => _dataMember;
-        //    set
-        //    {
-        //        _dataMember = value;
-        //        Console.WriteLine("Data Member: " + value);
-        //        if (_targetGrid != null)
-        //        {
-        //            Console.WriteLine("Setting Data Member in bindingsource: " + value);
-        //            //_bindingSource.DataMember = value;
-        //            Console.WriteLine("Setting Data Member in  grid : " + _bindingSource.DataMember);
-        //           _targetGrid.DataMember = value;
-        //         //   ResetData();
-        //        }
-        //    }
-        //}
 
         #endregion "Data Source"
         #region "Appearance"
@@ -303,6 +261,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 if(_bindingNavigator!=null)     _bindingNavigator.Visible = value;
             }
         }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The height of the top panel.")]
+        public int TitleTopPanelHeight
+        {
+            get => _titletopPanelHeight;
+            set
+            {
+                _titletopPanelHeight = value;
+                if (_titletopPanel != null)
+                {
+                    _titletopPanel.Height = value;
+                    RecalcHeight();
+                }
+            }
+        }
+        private int _columnheaderheight = 30;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The height of the column header panel.")]
+        public int ColumnHeaderHeight
+        {
+            get => _columnheaderheight;
+            set
+            {
+                _columnheaderheight = value;
+                if (_columnheaderPanel != null)
+                {
+                    _columnheaderPanel.Height = value;
+                    RecalcHeight();
+                }
+            }
+        }
 
         #endregion "Appearance"
         #region "Sort and Filter"
@@ -365,17 +356,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         private void RecalcHeight()
         {
-            _topPanelHeight = _titleLabel.PreferredSize.Height + (2 * padding);
-            _topPanel.Height = _topPanelHeight;
+
+            //calculate the height of the top panel
+            if (_targetGrid != null) {
+                // calculate the height of the column header panel from _headerLabels
+               
+                foreach (var kvp in _headerLabels)
+                {
+
+                        kvp.Value.Height=_columnheaderheight;
+
+                }
+               
+            }
+            _columnheaderPanel.Height = _columnheaderheight +(2*padding);
+            _titletopPanelHeight = _titleLabel.PreferredSize.Height + (2 * padding);
+          //  _titletopPanel.Height = _titletopPanelHeight+ _columnheaderPanel.Height;
 
             // If there are no header labels, the header panel might get set to 0.
-            int headerHeight = (_headerLabels.Count > 0) ? _headerPanel.Height : 30; // use 30 as a minimum
-            _headerPanel.Height = headerHeight;
+          
 
             int filterHeight = _showFilter ? _filterPanel.Height : 0;
-
+            BeepGridMiscUI.FilterColumnHeaderPanel.Height= _filterPanel.Height;
+            BeepGridMiscUI.ColumnHeaderPanel.Height=_columnheaderPanel.Height;
+            BeepGridMiscUI.HeaderPanel.Height = _titletopPanel.Height;
             // Set the overall control height (for example)
-          //  this.Height = _topPanel.Height + headerHeight + filterHeight;
+            //_titletopPanel.Height = _titletopPanel.Height + _columnheaderPanel.Height + filterHeight;
         }
         private void InitializeLayout()
         {
@@ -389,12 +395,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             //  Console.WriteLine("Initializing BeepGridHeader layout...");
             // Manually stack three panels
           
-            _topPanel = new Panel
+            _titletopPanel = new Panel
             {
-                Height = _topPanelHeight,
+                Height = _titletopPanelHeight,
                 Dock = DockStyle.Top
             };
-            //  Console.WriteLine("Top Panel Height: " + _topPanelHeight);
+            //  Console.WriteLine("Top Panel Height: " + _titletopPanelHeight);
             // inside topPanel, we place a TableLayout for your 5 icons + label
             _topTableLayout = new TableLayoutPanel
             {
@@ -413,8 +419,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _topTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
             _topTableLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 23f));
             //  Console.WriteLine("Table Layout Row Count: " + _topTableLayout.RowCount);
-            _topPanel.Controls.Add(_topTableLayout);
-            //   Console.WriteLine("Top Panel Controls Count: " + _topPanel.Controls.Count);
+            _titletopPanel.Controls.Add(_topTableLayout);
+            //   Console.WriteLine("Top Panel Controls Count: " + _titletopPanel.Controls.Count);
             // Create beepbuttons + label
             _csvExportButton = new BeepButton
             {
@@ -497,7 +503,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             //  Console.WriteLine("Events Hooked Up");
             // (2) column header row
             // --- Header Panel (for column labels) ---
-            _headerPanel = new Panel
+            _columnheaderPanel = new Panel
             {
                 Height = 30,  // Ensure a fixed height
                 Dock = DockStyle.Top,
@@ -507,12 +513,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             };
             //    Console.WriteLine("Header Panel Height: " + _headerPanelHeight);
             ;
-            //    Console.WriteLine("Header Panel Controls Count: " + _headerPanel.Controls.Count);
+            //    Console.WriteLine("Header Panel Controls Count: " + _columnheaderPanel.Controls.Count);
             // (3) filter row (optional)
             // --- Filter Panel (for filter textboxes) ---
             _filterPanel = new Panel
             {
-                Height = 25,  // Ensure a fixed height (or your desired height)
+                Height = 30,  // Ensure a fixed height (or your desired height)
                 Dock = DockStyle.Top,
                 Visible = true,
                 BackColor = Color.WhiteSmoke
@@ -523,7 +529,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _totalsFlow = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 24,
+                Height = 30,
                 AutoScroll = false
             };
 
@@ -539,15 +545,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
             // Add them from bottom to top
             BeepGridMiscUI.FilterColumnHeaderPanel.Controls.Add(_filterPanel);
-            BeepGridMiscUI.ColumnHeaderPanel.Controls.Add(_headerPanel);
-            BeepGridMiscUI.HeaderPanel.Controls.Add(_topPanel);
+            BeepGridMiscUI.ColumnHeaderPanel.Controls.Add(_columnheaderPanel);
+            BeepGridMiscUI.HeaderPanel.Controls.Add(_titletopPanel);
 
             BeepGridMiscUI.DataNavigatorPanel.Controls.Add(_bindingNavigator);
             BeepGridMiscUI.TotalsPanel.Controls.Add(_totalsFlow);
             BeepGridMiscUI.ShowTotals = _showTotalsPanel;
             BeepGridMiscUI.ShowFilter = _showFilter;
             //   Console.WriteLine("Controls Added to BeepGridHeader");
-            //  RecalcHeight();
+              RecalcHeight();
             //   Console.WriteLine("Height Recalculated");
         }
         #endregion "Setup"
@@ -556,8 +562,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private void RebuildColumnsAndFilters()
         {
             // Clear existing controls and dictionaries
-            if (_headerPanel == null) return;
-            _headerPanel.Controls.Clear();
+            if (_columnheaderPanel == null) return;
+            _columnheaderPanel.Controls.Clear();
             _filterPanel.Controls.Clear();
             _headerLabels.Clear();
             _filterBoxes.Clear();
@@ -581,7 +587,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
 
             // Adjust the width of the header and filter panels to match the total columns width.
-            _headerPanel.Width = leftPosition;
+            _columnheaderPanel.Width = leftPosition;
             if (_showFilter)
                 _filterPanel.Width = leftPosition;
         }
@@ -592,7 +598,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 Text = col.HeaderText,
                 Width = col.Width + BorderThickness,                         // Use the grid column's width.
-                Height = _headerPanel.Height,              // Use the header panel's fixed height.
+                Height = _columnheaderPanel.Height,              // Use the header panel's fixed height.
                 TextAlign = ContentAlignment.MiddleCenter,
                 Tag = col,
                 GuidID = Guid.NewGuid().ToString(),
@@ -614,7 +620,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             lbl.MouseUp += CustomHeaderLabel_MouseUp;
 
             // Add the label to the header panel and record it.
-            _headerPanel.Controls.Add(lbl);
+            _columnheaderPanel.Controls.Add(lbl);
             _headerLabels[col] = lbl;
 
             // If filtering is enabled, add a filter textbox.
@@ -647,7 +653,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                     Name = col.Name,
                     Text = "",
                     Width = col.Width,                         // Use the grid column's width.
-                    Height = _headerPanel.Height,              // Use the header panel's fixed height.
+                    Height = _columnheaderPanel.Height,              // Use the header panel's fixed height.
                     TextAlign = ContentAlignment.MiddleCenter,
                     Tag = col,
                     GuidID = Guid.NewGuid().ToString(),
@@ -688,10 +694,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         private void RemoveOneColumn(DataGridViewColumn col)
         {
-            // Remove the header label from the _headerPanel.
+            // Remove the header label from the _columnheaderPanel.
             if (_headerLabels.TryGetValue(col, out BeepLabel lbl))
             {
-                _headerPanel.Controls.Remove(lbl);
+                _columnheaderPanel.Controls.Remove(lbl);
                 lbl.Dispose();
                 _headerLabels.Remove(col);
             }
@@ -726,7 +732,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// </summary>
         private void UpdateCustomHeaders()
         {
-            _headerPanel.Controls.Clear();
+            _columnheaderPanel.Controls.Clear();
             sortIcons.Clear();
             foreach (DataGridViewColumn column in _targetGrid.Columns)
             {
@@ -734,7 +740,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 {
                     Text = column.HeaderText,
                     Width = column.Width,
-                    Height = _headerPanel.Height,
+                    Height = _columnheaderPanel.Height,
                     TextAlign = ContentAlignment.MiddleCenter,
                     BorderStyle = this.BorderStyle,
                     Left = column.DisplayIndex * column.Width,
@@ -756,7 +762,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 headerLabel.Controls.Add(sortIcon);
                 sortIcons[headerLabel] = sortIcon;
                 headerLabel.Click += CustomHeaderLabel_Click;
-                _headerPanel.Controls.Add(headerLabel);
+                _columnheaderPanel.Controls.Add(headerLabel);
             }
         }
 
@@ -1098,7 +1104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             cfg.Width = e.Column.Width;
             UpdateHeaderAndPanelPositions();
             _filterPanel.Update();
-            _headerPanel.Update();
+            _columnheaderPanel.Update();
             Invalidate();
         }
 
@@ -1362,7 +1368,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private void UpdateHeaderAndPanelPositions()
         {
             if (_targetGrid == null) return;
-            if (_headerPanel == null) return;
+            if (_columnheaderPanel == null) return;
             if (_targetGrid.ColumnCount == 0)
             {
                 return;
@@ -1370,9 +1376,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             // horizontal offset from the DataGridView's scrolling
             int offset = _targetGrid.HorizontalScrollingOffset;
 
-            // ~~~~~ 1) Shift HEADER LABELS in _headerPanel ~~~~~
+            // ~~~~~ 1) Shift HEADER LABELS in _columnheaderPanel ~~~~~
             int xPos = -offset;
-            foreach (Control ctrl in _headerPanel.Controls)
+            foreach (Control ctrl in _columnheaderPanel.Controls)
             {
                 if (ctrl is BeepLabel headerLabel)
                 {
@@ -1498,13 +1504,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             this._targetGrid.AlternatingRowsDefaultCellStyle.ForeColor = _currentTheme.GridForeColor;
             this._targetGrid.DefaultCellStyle.SelectionBackColor = _currentTheme.GridRowSelectedBackColor;
             this._targetGrid.DefaultCellStyle.SelectionForeColor = _currentTheme.GridRowSelectedForeColor;
-            if (_headerPanel == null) return;
+            if (_columnheaderPanel == null) return;
             // apply theme for header
-            _headerPanel.BackColor = _currentTheme.PanelBackColor;
+            _columnheaderPanel.BackColor = _currentTheme.PanelBackColor;
             BackColor = _currentTheme.PanelBackColor;
             _topTableLayout.BackColor = _currentTheme.PanelBackColor;
             this._filterPanel.BackColor = _currentTheme.PanelBackColor;
-            foreach (Control ctrl in _headerPanel.Controls)
+            foreach (Control ctrl in _columnheaderPanel.Controls)
             {
                 if (ctrl is BeepLabel lbl)
                 {
@@ -1539,6 +1545,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             BeepGridMiscUI.beepScrollBar1.Theme = Theme;
             BeepGridMiscUI.beepScrollBar2.Theme = Theme;
 
+            _bindingNavigator.Theme = Theme;
         }
         #endregion Theme Management
 

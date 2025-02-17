@@ -845,7 +845,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             }
         }
         #endregion "Remove Node"
-
         #region "Select Branch "
         #endregion "Select Branch "
         #region "Mouse Events"

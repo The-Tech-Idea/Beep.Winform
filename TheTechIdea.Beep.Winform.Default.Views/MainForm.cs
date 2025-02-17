@@ -32,7 +32,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             InitializeComponent();
             beepService = service; // serviceProvider.GetService<IBeepService>();
             Dependencies.DMEEditor = beepService.DMEEditor;
-            
+            beepTreeControl1.init(beepService);
+            beepTreeControl1.CreateRootTree();
         }
     }
 }

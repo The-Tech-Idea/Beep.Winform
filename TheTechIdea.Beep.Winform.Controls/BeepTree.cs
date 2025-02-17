@@ -79,6 +79,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int defaultHeight = 100;
 
         private int _nodeHeight = 20;
+
+
         public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
         protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
         {
@@ -114,8 +116,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Font = value;
                 ChangeFontSettings();
                 Invalidate();
-
-
             }
         }
         private bool _useThemeFont = true;
@@ -132,8 +132,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
-
         private ContentAlignment textAlign= ContentAlignment.MiddleLeft;
 
         [Browsable(true)]
@@ -148,9 +146,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
-       
-
         [Browsable(true)]
         [Category("Appearance")]
         public bool PopupMode
@@ -214,37 +209,81 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Popup List Properties"
         #region "Properties"
         #region "Nodes State"
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTreeNode LastNodeMenuShown { get; set; }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTreeNode LastNodeClicked { get; set; }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTreeNode LastNodeRightClicked { get; set; }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTreeNode LastNodeSelected { get; set; }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTreeNode LastNodeDragged { get; set; }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTreeNode LastNodeDropped { get; set; }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTreeNode LastNodeDraggedOver { get; set; }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTreeNode LastNodeDraggedEnter { get; set; }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTreeNode LastNodeDraggedLeave { get; set; }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTreeNode LastNodeDraggedDrop { get; set; }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTreeNode LastNodeDraggedOverLeave { get; set; }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTreeNode LastNodeDraggedOverEnter { get; set; }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTreeNode LastNodeDraggedOverDrop { get; set; }
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTreeNode LastNodeDraggedOverLeaveEnter { get; set; }
+
         #endregion "Nodes State"
-       
+
+
         private BeepFlyoutMenu BeepFlyoutMenu;
 
-        private Dictionary<string, SimpleItem> _menus = new Dictionary<string, SimpleItem>();
-        [Browsable(true)]
-        [Localizable(true)]
-        [MergableProperty(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public Dictionary<string, SimpleItem> ContextMenu
-        {
-            get => _menus;
-            set
-            {
-                _menus = value;
-            }
-        }
+        //private Dictionary<string, SimpleItem> _menus = new Dictionary<string, SimpleItem>();
+        //[Browsable(true)]
+        //[Localizable(true)]
+        //[MergableProperty(false)]
+        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        //public Dictionary<string, SimpleItem> ContextMenu
+        //{
+        //    get => _menus;
+        //    set
+        //    {
+        //        _menus = value;
+        //    }
+        //}
         private int nodeimagesize = 20;
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
@@ -273,12 +312,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public bool AllowMultiSelect { get; set; }
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-
+      
         public List<BeepTreeNode> SelectedNodes { get; private set; }
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public BeepTreeNode SelectedNode
         {
             get
@@ -332,9 +369,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 InitializeTreeFromMenuItems();
             }
         }
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public List<BeepTreeNode> NodesControls
+      
+        protected List<BeepTreeNode> NodesControls
         {
             get => _beeptreeRootnodes;
             set
@@ -1764,6 +1800,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  _popupForm = new BeepPopupForm1();
             _popupForm.BorderThickness = 1;
             _popupForm.Controls.Add(_beepListBox);
+            InitListbox();
             _beepListBox.ShowHilightBox = false;
             _beepListBox.Dock = DockStyle.None;
             _beepListBox.MenuItemHeight = NodeHeight;

@@ -189,7 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private BeepTextBox searchBox;
         bool _applyThemeOnImage = false;
-
+       
 
         public bool ApplyThemeOnLogo
         {
@@ -200,6 +200,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _logo.ApplyThemeOnImage = value;
                 _logo.Invalidate();
                 Invalidate();
+            }
+        }
+        private Size _logosize;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Set the logo size of the form.")]
+        [DefaultValue("32,32")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public Size LogoSize
+        {
+            get => _logosize;
+            set
+            {
+                _logosize = value;
+                if (_logo != null)
+                {
+                    _logo.Size = _logosize;
+                    Invalidate();
+                }
             }
         }
         #endregion "Image and Icon Properties"
@@ -821,18 +840,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             int rightEdge = DrawingRect.Right - padding;
             int centerX = DrawingRect.Left + DrawingRect.Width / 2;
             int centerY = DrawingRect.Top + DrawingRect.Height / 2;
-            // Position hamburgerIcon and TitleLabel (left-aligned)
-            //if (hamburgerIcon != null && hamburgerIcon.Visible)
-            //{
-            //    hamburgerIcon.Top = DrawingRect.Top + (DrawingRect.Height - hamburgerIcon.Height) / 2;
-            //    hamburgerIcon.Left = leftEdge;
-            //    leftEdge += hamburgerIcon.Width + spacing;
-            //}
-           if(_logo != null && _logo.Visible)
+            // Update height dynamically based on logo size (with extra padding)
+            Height = Math.Max(_logosize.Height + 8, defaultHeight);
+
+            if (_logo != null && _logo.Visible)
             {
                 _logo.Anchor = AnchorStyles.Left| AnchorStyles.Top|AnchorStyles.Bottom;
                 _logo.Top = DrawingRect.Top + (DrawingRect.Height - _logo.Height) / 2;
                 _logo.Left = leftEdge;
+               
                 leftEdge += _logo.Width + spacing;
             }
            

@@ -10,14 +10,14 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A dialog box control that displays a message and buttons.")]
     public class BeepDialogBox : BeepPanel
     {
-        private BeepImage _iconImage = new BeepImage();
-        private BeepPanel _buttonPanel = new BeepPanel();
-        private BeepButton _primaryButton = new BeepButton();
-        private BeepButton _secondaryButton = new BeepButton();
-        private BeepButton _thirdButton = new BeepButton();
-        private BeepButton _closeButton = new BeepButton();
-        private Control _customControl = new BeepButton();
-        private BeepDialogResult dialogResult ;
+        public BeepImage _iconImage = new BeepImage();
+        public BeepPanel _buttonPanel = new BeepPanel();
+        public BeepButton _primaryButton = new BeepButton();
+        public BeepButton _secondaryButton = new BeepButton();
+        public BeepButton _thirdButton = new BeepButton();
+        public BeepButton _closeButton = new BeepButton();
+        public Control _customControl = new BeepButton();
+        public BeepDialogResult dialogResult ;
         public event EventHandler PrimaryButtonClicked;
         public event EventHandler SecondaryButtonClicked;
         public event EventHandler ThirdButtonClicked;
@@ -293,9 +293,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 title: title
             );
         }
-
-        #endregion
-
         #region Utility Methods
         //public void ConfigureButtons(DialogButtons dialogButtons, string customPrimaryButtonText = null, string customSecondaryButtonText = null)
         //{
@@ -410,6 +407,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion
+        #endregion
+
+
 
         private void InitializeDialog()
         {

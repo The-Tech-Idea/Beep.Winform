@@ -141,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             //SecondaryToolStrip = new ToolbarControl(DMEEditor, (TreeViewControl)StandardTree);
             //SecondaryMenuStrip = new MenuControl(DMEEditor, (TreeViewControl)StandardTree);
 
-            Controlmanager = new ControlManager(DMEEditor, this);
+          //  Controlmanager = new ControlManager(DMEEditor);
             wizardManager = new WizardManager(DMEEditor, this);
             if (DMEEditor.Passedarguments == null)
             {

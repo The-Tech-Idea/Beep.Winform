@@ -296,7 +296,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowShadow = false;
             IsFramless = false;
             IsRounded = false;
-            ApplyThemeToChilds = true;
+            ApplyThemeToChilds = false;
             InitializeAppNavBar();
           
             // ApplyTheme();
@@ -410,7 +410,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = 25,
                 Theme = this.Theme,
                 Text = string.Empty,
-                ApplyThemeOnImage =ApplyThemeToChilds, 
+                ApplyThemeOnImage =_applyThemeOnImage, 
                 IsChild = false,
                 PlaceholderText = "Search...",
                // ApplyThemeOnLogo = _applyThemeOnImage,
@@ -446,7 +446,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
                 Cursor = Cursors.Hand,
                 Theme = Theme,
-                ApplyThemeOnImage = ApplyThemeToChilds,
+                ApplyThemeOnImage = _applyThemeOnImage,
                 IsFramless = this.IsFramless,
                 ShowAllBorders = this.ShowAllBorders,
                 IsShadowAffectedByTheme = false,
@@ -471,7 +471,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Cursor = Cursors.Hand,
                 Theme = Theme,
                 ShowAllBorders = this.ShowAllBorders,
-                ApplyThemeOnImage = ApplyThemeToChilds,
+                ApplyThemeOnImage = _applyThemeOnImage,
                 IsFramless = this.IsFramless,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
@@ -520,7 +520,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Cursor = Cursors.Hand,
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg",
                 Theme = Theme,
-                ApplyThemeOnImage = ApplyThemeToChilds,
+                ApplyThemeOnImage =_applyThemeOnImage,
                 ShowAllBorders = this.ShowAllBorders,
                 IsFramless = this.IsFramless,
                 IsChild = true,
@@ -557,7 +557,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
                 Cursor = Cursors.Hand,
                 Theme = Theme,
-                ApplyThemeOnImage = ApplyThemeToChilds,
+                ApplyThemeOnImage = _applyThemeOnImage,
                 IsFramless = this.IsFramless,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
@@ -579,7 +579,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
                 Cursor = Cursors.Hand,
                 Theme = Theme,
-                ApplyThemeOnImage = ApplyThemeToChilds,
+                ApplyThemeOnImage = _applyThemeOnImage,
                 IsFramless = this.IsFramless,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
@@ -607,7 +607,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Cursor = Cursors.Hand,
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg",
                 Theme = Theme,
-                ApplyThemeOnImage = ApplyThemeToChilds,
+                ApplyThemeOnImage = _applyThemeOnImage,
                 IsFramless = this.IsFramless,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
@@ -806,7 +806,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             TitleLabel.Font = _textFont;
             profileIcon.Theme = Theme;
-            profileIcon.ApplyThemeOnImage = true;
             closeIcon.Theme = Theme;
             maximizeIcon.Theme = Theme;
             minimizeIcon.Theme = Theme;

@@ -1984,8 +1984,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 //}
             }
-            BeepMouseEventArgs args = new BeepMouseEventArgs("ShowBeepMenu", this);
-            ShowMenu?.Invoke(this, args);
+            //BeepMouseEventArgs args = new BeepMouseEventArgs("ShowBeepMenu", this);
+            //ShowMenu?.Invoke(this, args);
             NodeMainMiddlebutton.PopPosition = BeepPopupFormPosition.Right;
             NodeMainMiddlebutton.SelectedItemChanged += NodeMainMiddlebutton_SelectedItemChanged;
             NodeMainMiddlebutton.ShowPopup();

@@ -13,7 +13,7 @@ using TheTechIdea.Beep.Shared;
 
 namespace TheTechIdea.Beep.Desktop.Common
 {
-    public static class BeepServicesRegisterAutFac
+    public  static partial class BeepServicesRegisterAutFac
     {
         private static ContainerBuilder Builder;
         private static bool _mappingCreated;
@@ -80,9 +80,10 @@ namespace TheTechIdea.Beep.Desktop.Common
             Builder.RegisterType<AppManager>().As<IAppManager>().SingleInstance();
             return Builder;
         }
+       
         public static void ShowHome()
         {
-
+            AppManager.CloseWaitForm();
             AppManager.ShowHome();
 
         }

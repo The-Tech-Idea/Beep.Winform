@@ -198,7 +198,7 @@
             _spinnerImage.DisabledBackColor = Color.Gray;
             _spinnerImage.DisabledForeColor = Color.Empty;
             _spinnerImage.Dock = DockStyle.Top;
-            _spinnerImage.DrawingRect = new Rectangle(0, 0, 461, 103);
+            _spinnerImage.DrawingRect = new Rectangle(0, 0, 461, 112);
             _spinnerImage.Easing = EasingType.Linear;
             _spinnerImage.FieldID = null;
             _spinnerImage.FocusBackColor = Color.FromArgb(0, 120, 215);
@@ -269,7 +269,7 @@
             _spinnerImage.ShowRightBorder = false;
             _spinnerImage.ShowShadow = false;
             _spinnerImage.ShowTopBorder = false;
-            _spinnerImage.Size = new Size(461, 103);
+            _spinnerImage.Size = new Size(461, 112);
             _spinnerImage.SlideFrom = SlideDirection.Left;
             _spinnerImage.SpinSpeed = 5F;
             _spinnerImage.StaticNotMoving = false;
@@ -531,7 +531,10 @@
             Title.ApplyThemeOnImage = false;
             Title.ApplyThemeToChilds = true;
             Title.BackColor = Color.White;
-         
+            Title.BadgeBackColor = Color.Red;
+            Title.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
+            Title.BadgeForeColor = Color.White;
+            Title.BadgeText = "";
             Title.BlockID = null;
             Title.BorderColor = Color.Black;
             Title.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -767,7 +770,10 @@
             messege.ApplyThemeToChilds = true;
             messege.AutoCompleteMode = AutoCompleteMode.None;
             messege.AutoCompleteSource = AutoCompleteSource.None;
-          
+            messege.BadgeBackColor = Color.Red;
+            messege.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
+            messege.BadgeForeColor = Color.White;
+            messege.BadgeText = "";
             messege.BlockID = null;
             messege.BorderColor = Color.Black;
             messege.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -788,7 +794,7 @@
             messege.DateTimeFormat = "MM/dd/yyyy HH:mm:ss";
             messege.DisabledBackColor = Color.Gray;
             messege.DisabledForeColor = Color.Empty;
-            messege.DrawingRect = new Rectangle(0, 0, 461, 184);
+            messege.DrawingRect = new Rectangle(0, 0, 461, 164);
             messege.Easing = EasingType.Linear;
             messege.FieldID = null;
             messege.FocusBackColor = Color.Gray;
@@ -835,7 +841,7 @@
             messege.IsVisible = false;
             messege.LeftoffsetForDrawingRect = 0;
             messege.LinkedProperty = null;
-            messege.Location = new Point(4, 137);
+            messege.Location = new Point(4, 157);
             messege.MaskFormat = Vis.Modules.TextBoxMaskFormat.None;
             messege.MaxImageSize = new Size(16, 16);
             messege.Modified = false;
@@ -869,7 +875,7 @@
             messege.ShowShadow = false;
             messege.ShowTopBorder = false;
             messege.ShowVerticalScrollBar = false;
-            messege.Size = new Size(461, 184);
+            messege.Size = new Size(461, 164);
             messege.SlideFrom = SlideDirection.Left;
             messege.StaticNotMoving = false;
             messege.TabIndex = 9;
@@ -884,6 +890,7 @@
             messege.UseGradientBackground = false;
             messege.UseSystemPasswordChar = false;
             messege.UseThemeFont = true;
+            messege.UseWaitCursor = true;
             messege.WordWrap = true;
             // 
             // BeepWait

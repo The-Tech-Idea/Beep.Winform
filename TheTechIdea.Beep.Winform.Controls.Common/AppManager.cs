@@ -30,6 +30,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             servicelocator = service;
             beepservices = (IBeepService)service.GetService(typeof(IBeepService));
             RoutingManager = (IRoutingManager)service.GetService(typeof(IRoutingManager));
+            Controlmanager = (IControlManager)service.GetService(typeof(IControlManager));
             DMEEditor = beepservices.DMEEditor;
             init();
 
@@ -42,6 +43,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             // Resolve dependencies using Autofac
             beepservices = _autofacContext.Resolve<IBeepService>();
             RoutingManager = _autofacContext.Resolve<IRoutingManager>();
+            Controlmanager = _autofacContext.Resolve<IControlManager>();
             DMEEditor = beepservices.DMEEditor;
             init();
         }
@@ -155,7 +157,6 @@ namespace TheTechIdea.Beep.Desktop.Common
         public IBeepUser User { get; set; }
         #endregion "User and Profile"
         #endregion "Properties"
-
         #region "Events"
         public event Action<EnumBeepThemes> OnThemeChanged;
         public event EventHandler<KeyCombination> KeyPressed;
@@ -331,93 +332,80 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
 
         }
-        private async void startwait(PassedArgs Passedarguments)
+        // Declare these as fields in your class:
+        private Thread waitFormThread;
+       
+
+        private void startwait(PassedArgs passedArguments)
         {
-            string[] args = null;
-          
             if (IsShowingWaitForm)
-            {
                 return;
-            }
-            await Task.Run(() =>
+
+            IsShowingWaitForm = true;
+
+            // Create a dedicated STA thread for the wait form.
+            waitFormThread = new Thread(() =>
             {
-                if(WaitFormType == null && WaitForm!=null)
+                // Ensure WaitFormType is set properly.
+                if (WaitFormType == null && WaitForm != null)
                 {
                     WaitFormType = WaitForm.GetType();
                 }
-
-                 beepWaitForm = (Form)Activator.CreateInstance(WaitFormType);
+                
+                // Create the wait form instance.
+                beepWaitForm = (Form)Activator.CreateInstance(WaitFormType);
+                beepWaitForm.Name = "BeepWait"; // so you can find it later if needed
                 MiscFunctions.SetThemePropertyinControlifexist(beepWaitForm, Theme);
                 WaitForm = (IWaitForm)beepWaitForm;
+
                 if (!string.IsNullOrEmpty(Title))
                 {
-                    WaitForm.SetTitle( Title);
+                    WaitForm.SetTitle(Title);
                 }
-                //Debug.WriteLine($"not found logurl");
+                // Optional: subscribe to Load event to force centering.
+                beepWaitForm.Load += (s, e) =>
+                {
+                    Form form = (Form)s;
+                    // Get the working area of the primary screen
+                    var screenBounds = Screen.PrimaryScreen.WorkingArea;
+                    int x = (screenBounds.Width - form.Width) / 2;
+                    int y = (screenBounds.Height - form.Height) / 2;
+                    form.Location = new Point(x, y);
+                };
                 beepWaitForm.TopMost = true;
-                // Form frm = (Form)MainFormView;
                 beepWaitForm.StartPosition = FormStartPosition.CenterScreen;
-            // beepWaitForm.ParentNode = frm;
-            IsShowingWaitForm = true;
                 WaitForm.SetImage("simpleinfoapps.svg");
-                //LogopictureBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
 
-                beepWaitForm.ShowDialog();
+                // When the form closes, update the flag.
+                beepWaitForm.FormClosed += (s, e) =>
+                {
+                    IsShowingWaitForm = false;
+                };
 
+                // Run the form’s own message loop.
+                Application.Run(beepWaitForm);
             });
-            // delay for 2 seconds
-            await Task.Delay(2000);
+            waitFormThread.SetApartmentState(ApartmentState.STA);
+            waitFormThread.Start();
         }
+
         /// <summary>
-        /// Closes the wait form.
+        /// Closes the wait form by marshaling the close call to the wait form’s thread.
         /// </summary>
-        /// <returns>Operation result with status.</returns>
         public IErrorsInfo CloseWaitForm()
         {
-           // beepWaitForm = (Form)WaitForm;
             var result = new ErrorsInfo();
             try
             {
-                //// Check if WaitForm is initialized
-                //if (WaitForm == null)
-                //{
-                //    throw new InvalidOperationException("WaitForm is not initialized.");
-                //}
-
-                //// Check if WaitForm is disposed
-                //if (beepWaitForm.IsDisposed)
-                //{
-                //    throw new InvalidOperationException("WaitForm is disposed.");
-                //}
-
-                //// Ensure the form's handle is created
-                //if (!beepWaitForm.IsHandleCreated)
-                //{
-                //    Debug.WriteLine("WaitForm handle not created. Forcing handle creation.");
-                //    var forceHandle = beepWaitForm.Handle; // Force handle creation
-                //}
-
-                beepWaitForm = Application.OpenForms["BeepWait"];
-
-                if (beepWaitForm != null)
+                if (beepWaitForm != null && !beepWaitForm.IsDisposed)
                 {
-                    System.Windows.Forms.MethodInvoker action = delegate ()
+                    // Ensure we call Close on the thread that owns the wait form.
+                    beepWaitForm.Invoke(new Action(() =>
                     {
+                        // Use your close method (or simply Close) here.
                         WaitForm.CloseForm();
-                        IsShowingWaitForm = false;
-                       
-                    };
-
-                    if (beepWaitForm.InvokeRequired)
-                    {
-                        beepWaitForm.Invoke(action);
-                    }
-                    else
-                    {
-                        action();
-                    }
+                    }));
                 }
-
                 result.Flag = Errors.Ok;
                 result.Message = "Wait form closed successfully.";
             }
@@ -431,7 +419,8 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
             return result;
         }
-       
+
+
         /// <summary>
         /// Closes the wait form.
         /// </summary>
@@ -643,11 +632,12 @@ namespace TheTechIdea.Beep.Desktop.Common
         {
             try
             {
-               
+                CloseWaitForm();
                 MainDisplay=RoutingManager.GetAddin(HomePageName);
                 Addins.Add(MainDisplay);
                 MiscFunctions.SetThemePropertyinControlifexist((Control)MainDisplay, Theme);
                 ApplyTheme();
+                CloseWaitForm();
                 ShowPopup(MainDisplay);
                 
             }
@@ -872,14 +862,10 @@ namespace TheTechIdea.Beep.Desktop.Common
         {
             try
             {
-
-
                 if (view is Form form)
                 {
-
                     if (!form.IsDisposed)
                     {
-                        
                         form.Shown += (s, e) =>
                         {
                             Theme = Theme;
@@ -1045,7 +1031,7 @@ namespace TheTechIdea.Beep.Desktop.Common
 
                 if (IsDataModified)
                 {
-                    if (Controlmanager.InputBoxYesNo("Beep", "Module/Data not Saved, Do you want to continue?") == BeepDialogResult.No)
+                    if ( Controlmanager.InputBoxYesNo("Beep", "Module/Data not Saved, Do you want to continue?") == BeepDialogResult.No)
                     {
                         return Task.FromResult(DMEEditor.ErrorObject); ;
                     }

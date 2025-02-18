@@ -324,10 +324,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ApplyThemeOnImage = false,
                 UseThemeFont=this.UseThemeFont,
             };
-            //if(UseThemeFont == false)
-            //{
+            if (UseThemeFont == false)
+            {
                 button.TextFont =BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-          //  }
+            }
 
             // Load the icon if specified
             if (!string.IsNullOrEmpty(item.ImagePath) && File.Exists(item.ImagePath))
@@ -371,13 +371,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             button.MouseEnter += (s, e) =>
             {
                base.OnMouseEnter(e);
-                // menuItemPanel.BackColor = _currentTheme.ButtonHoverBackColor;
+                 menuItemPanel.BackColor = _currentTheme.ButtonHoverBackColor;
                 if (_showHilightBox) highlightPanel.BackColor = _currentTheme.AccentColor;
             };
             button.MouseLeave += (s, e) =>
             {
                 base.OnMouseLeave(e);
-                // menuItemPanel.BackColor = _currentTheme.PanelBackColor;
+                 menuItemPanel.BackColor = _currentTheme.ButtonBackColor;
                 if (_showHilightBox) highlightPanel.BackColor = _currentTheme.SideMenuBackColor;
             };
             button.Click += Button_Click;

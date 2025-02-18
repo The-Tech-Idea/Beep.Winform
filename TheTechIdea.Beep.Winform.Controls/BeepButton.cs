@@ -502,6 +502,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Constructor"
         #region "Popup List Methods"
+        BeepPopupListForm beepFileDialog;
         private void TogglePopup()
         {
             if (_isPopupOpen)
@@ -509,14 +510,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
                 ShowPopup();
         }
-        private void ShowPopup()
+        public void ShowPopup()
         {
             if (_isPopupOpen) return;
             if(ListItems.Count == 0)
             {
                 return;
             }
-            BeepPopupListForm beepFileDialog = new BeepPopupListForm(ListItems.ToList());
+             beepFileDialog = new BeepPopupListForm(ListItems.ToList());
            
             beepFileDialog.Theme = Theme;
             beepFileDialog.SelectedItemChanged += (sender, item) =>
@@ -530,11 +531,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             SimpleItem x = beepFileDialog.ShowPopup(Text, this, _beepPopupFormPosition);
            
         }
-        private void ClosePopup()
+        public void ClosePopup()
         {
            
             _isPopupOpen = false;
-            _popupForm.Hide();
+            beepFileDialog.Hide();
         }
         #endregion "Popup List Methods"
         #region "Theme"

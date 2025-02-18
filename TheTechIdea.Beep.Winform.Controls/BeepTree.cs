@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public EventHandler<BeepMouseEventArgs> NodeMouseUp;
         public EventHandler<BeepMouseEventArgs> NodeMouseDown;
         public EventHandler<BeepMouseEventArgs> NodeMouseMove;
-
+        public EventHandler<SelectedItemChangedEventArgs> MenuItemSelected;
         public EventHandler<BeepMouseEventArgs> ShowMenu;
         #endregion "Events"
         #region "Popup List Properties"
@@ -389,6 +389,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SetAllNodesCheckBoxVisibility(value);
             }
         }
+
+        public BeepTreeNode? ClickedNode { get;  set; }
         #endregion "Properties"
         #region "Constructors"
         public BeepTree()
@@ -435,13 +437,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Node Clicked"
         private void OnNodeRightClicked(object sender, BeepMouseEventArgs e)
         {
-            var clickedNode = sender as BeepTreeNode;
-            if (clickedNode == null) return;
+            ClickedNode = sender as BeepTreeNode;
+            if (ClickedNode == null) return;
             NodeRightClicked?.Invoke(sender, e);
 
         }
         private void OnNodeDoubleClicked(object sender, BeepMouseEventArgs e)
         {
+            ClickedNode = sender as BeepTreeNode;
+            if (ClickedNode == null) return;
             NodeDoubleClicked?.Invoke(sender, e);
         }
         private void OnNodeExpanded(object sender, BeepMouseEventArgs e)
@@ -463,7 +467,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void OnNodeChecked(object? sender, BeepMouseEventArgs e)
         {
-            var node = sender as BeepTreeNode;
+            ClickedNode = sender as BeepTreeNode;
+            if (ClickedNode == null) return;
+            var node = ClickedNode;
             if (node == null) return;
 
             // Add to SelectedNodes if not already present
@@ -481,7 +487,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void OnNodeUnChecked(object? sender, BeepMouseEventArgs e)
         {
-            var node = sender as BeepTreeNode;
+            ClickedNode = sender as BeepTreeNode;
+            if (ClickedNode == null) return;
+            var node = ClickedNode;
             if (node == null) return;
 
             // Remove from SelectedNodes if present
@@ -490,7 +498,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void OnNodeSelected(object? sender, BeepMouseEventArgs e)
         {
-            var node = sender as BeepTreeNode;
+            ClickedNode = sender as BeepTreeNode;
+            if (ClickedNode == null) return;
+            var node = ClickedNode;
             if (node == null) return;
 
             // Add to SelectedNodes if not already present
@@ -564,10 +574,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void OnNodeClicked(object sender, BeepMouseEventArgs e)
         {
-            var clickedNode = sender as BeepTreeNode;
-            if (clickedNode == null) return;
-          
-            if (IsPopupOpen && (clickedNode!=LastNodeMenuShown))
+            ClickedNode = sender as BeepTreeNode;
+            if (ClickedNode == null) return;
+            
+
+            if (IsPopupOpen && (ClickedNode != LastNodeMenuShown))
             {
                 ClosePopup();
               
@@ -1774,69 +1785,32 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Popup List Methods"
         protected void TogglePopup()
         {
-            if (_isPopupOpen)
-                ClosePopup();
-            else
-                ShowPopup();
-        }
-        protected void ShowPopup()
-        {
-             ClosePopup();
-            // Always create a new instance from scratch
-            _popupForm = new BeepPopupForm();
-            _popupForm.OnLeave += (sender, e) =>
+            if (LastNodeMenuShown != null)
             {
-                _isPopupOpen = false;
-                ClosePopup();
-            };
-            _isPopupOpen = true;
-            int _maxListHeight = Width;
-            int _maxListWidth = 100;
-            _popupForm.TriggerControl=this;
-            //InitListbox();
-            // 2) Create a borderless popup form
-            //  _popupForm = new BeepPopupForm1();
-            _popupForm.BorderThickness = 1;
-            _popupForm.Controls.Add(_beepListBox);
-            InitListbox();
-            _beepListBox.ShowHilightBox = false;
-            _beepListBox.Dock = DockStyle.None;
-            _beepListBox.MenuItemHeight = NodeHeight;
-            _beepListBox.ListItems = CurrentMenutems;
-            _beepListBox.InitializeMenu();
-
-            int neededHeight = _beepListBox.GetMaxHeight();
-            int finalHeight = Math.Min(neededHeight, _maxListHeight);
-            // possibly also compute width
-            int finalWidth = Math.Max(Width, _maxListWidth);
- 
-            // The popup form is sized to fit beepListBox
-            _popupForm.Size = new Size(finalWidth, finalHeight);
-            // Position popup just below the main control
-            // get node position  from LastNodeMenuShown
-            Point ctlpoint = LastNodeMenuShown.PointToScreen(Point.Empty);
-             Point point=new Point(ctlpoint.X+Width, ctlpoint.Y);
-
-            var screenPoint = point;// this.PointToScreen(ctlpoint);// new Point(-(finalWidth / 2), Height + 5));
-            _popupForm.Location = screenPoint;
-            _beepListBox.Theme = Theme;
-            _beepListBox.ShowAllBorders = false;
-            //_popupForm.BackColor = _currentTheme.BackColor;
-            _popupForm.Theme = Theme;
-
-            _beepListBox.Dock = DockStyle.Fill; // Manually size and position
-            _popupForm.ShowPopup(LastNodeMenuShown, screenPoint);
+                LastNodeMenuShown.ClosePopup();
+                LastNodeMenuShown.MenuItemSelected -= LastNodeMenuShown_MenuItemSelected;
+            }
+            ClickedNode.MenuItemSelected += LastNodeMenuShown_MenuItemSelected;
+            ClickedNode.ShowContextMenu(CurrentMenutems);
+            LastNodeMenuShown = ClickedNode;
         }
+
+        private void LastNodeMenuShown_MenuItemSelected(object? sender, SelectedItemChangedEventArgs e)
+        {
+            
+            MenuItemSelected?.Invoke(sender, e);
+        }
+
         private void ClosePopup()
         {
-           
-            _isPopupOpen = false;
-            if (_popupForm != null)
-            {
-                _popupForm.Hide();
-              //  LastNodeMenuShown = null;
+           LastNodeMenuShown.ClosePopup();
+            //_isPopupOpen = false;
+            //if (_popupForm != null)
+            //{
+            //    _popupForm.Hide();
+            //  //  LastNodeMenuShown = null;
 
-            }
+            //}
 
 
         }

@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public EventHandler<BeepMouseEventArgs> NodeMouseUp;
         public EventHandler<BeepMouseEventArgs> NodeMouseDown;
         public EventHandler<BeepMouseEventArgs> NodeMouseMove;
-
+        public EventHandler<SelectedItemChangedEventArgs> MenuItemSelected;
         public EventHandler<BeepMouseEventArgs> ShowMenu;
         #endregion "Events"
         #region "Properties"
@@ -1973,20 +1973,33 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Filter and Find"
         #region "Menu "
-        public void ShowContextMenu(MenuList menuList)
+        public void ShowContextMenu(BindingList<SimpleItem> menuList)
         {
             NodeMainMiddlebutton.ListItems.Clear();
-            //foreach (var item1 in menuList.Items)
-            //{
-            //    // add as listitem   CurrentMenutems.Add(new SimpleItem { Text = "Profile", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg" });
-            //    SimpleItem listitem = new SimpleItem { Text = item1.Text, ImagePath = item1.imagename, AssemblyClassDefinitionID = item1.ClassDefinitionID, GuidId = item1.ID };
-            //    NodeMainMiddlebutton.CurrentMenutems.Add(listitem);
 
-            //}
-            //StandardTree.
+            foreach (var item1 in menuList)
+            {
+
+                NodeMainMiddlebutton.ListItems.Add(item1);
+
+                //}
+            }
             BeepMouseEventArgs args = new BeepMouseEventArgs("ShowBeepMenu", this);
             ShowMenu?.Invoke(this, args);
+            NodeMainMiddlebutton.PopPosition = BeepPopupFormPosition.Right;
+            NodeMainMiddlebutton.SelectedItemChanged += NodeMainMiddlebutton_SelectedItemChanged;
+            NodeMainMiddlebutton.ShowPopup();
         }
+
+        private void NodeMainMiddlebutton_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
+        {
+            MenuItemSelected?.Invoke(this, e);
+        }
+
+        public void ClosePopup()
+        {
+            NodeMainMiddlebutton.ClosePopup();
+        }   
         #endregion "Menu"
         private void RaiseEvent(EventHandler<BeepMouseEventArgs> handler, string eventName)
         {

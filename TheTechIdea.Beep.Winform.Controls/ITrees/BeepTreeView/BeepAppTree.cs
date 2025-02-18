@@ -41,10 +41,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             DropHandler = new BeepTreeNodeDragandDropHandler(service, this);
             this.NodeRightClicked += BeepTreeControl_NodeRightClicked;
             this.NodeClicked += BeepTreeControl_NodeClicked;
-            this.SelectedItemChanged += BeepTreeControl_SelectedItemChanged;
+          //  this.SelectedItemChanged += BeepTreeControl_SelectedItemChanged;
+            this.MenuItemSelected += BeepTreeControl_MenuItemSelected;
         }
-        #region "Properties"
 
+
+        #region "Properties"
+        public ITreeBranchHandler Treebranchhandler { get; set; }
+        public BeepTreeNodeDragandDropHandler DropHandler { get; set; }
+        public IBranch SelectedBranch { get; private set; }
+        public SimpleItem SelectedItem { get; private set; }
         public string ObjectType { get; set; }= "Beep";
         public string CategoryIcon { get; set; }= "Category.svg";
         public string SelectIcon { get; set; } = "Select.svg";
@@ -75,6 +81,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         public event EventHandler<IBranch> RefreshBranchText;
         #endregion "Events"
         #region "Handlers"
+        private void BeepTreeControl_MenuItemSelected(object? sender, SelectedItemChangedEventArgs e)
+        {
+            if (SelectedBranch == null)
+            {
+                Console.WriteLine("Selected Branch is null");
+                return;
+            }
+            AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == SelectedBranch.Name).FirstOrDefault();
+
+            if (cls != null)
+            {
+                if (!DynamicFunctionCallingManager.IsMethodApplicabletoNode(cls, SelectedBranch)) return;
+
+                RunMethod(SelectedBranch, e.SelectedItem.Text);
+
+            }
+        }
         public IErrorsInfo RunMethod(object branch, string MethodName)
         {
             try
@@ -89,32 +112,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             return DMEEditor.ErrorObject;
            
         }
-        public ITreeBranchHandler Treebranchhandler { get; set; }
-        public BeepTreeNodeDragandDropHandler DropHandler { get; set; }
-        public IBranch SelectedBranch { get; private set; }
-        public SimpleItem SelectedItem { get; private set; }
-
-        private void BeepTreeControl_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
-        {
-            if (SelectedBranch == null)
-            {
-                Console.WriteLine("Selected Branch is null");
-                return;
-            }
-            AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == SelectedBranch.Name ).FirstOrDefault();
-           
-            if (cls != null)
-            {
-                if (!DynamicFunctionCallingManager.IsMethodApplicabletoNode(cls, SelectedBranch)) return;
-
-                RunMethod(SelectedBranch, e.SelectedItem.Text);
-
-            }
-        }
         private void BeepTreeControl_NodeClicked(object? sender, BeepMouseEventArgs e)
         {
-            BeepTreeNode node = (BeepTreeNode)sender;
-            IBranch br =Branches.FirstOrDefault(c => c.GuidID == node.GuidID);
+            ClickedNode = sender as BeepTreeNode;
+            if (ClickedNode == null) return;
+            SelectedBranch = GetBranchByGuidID(ClickedNode.SavedGuidID);
+            IBranch br =Branches.FirstOrDefault(c => c.GuidID == ClickedNode.GuidID);
             AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == br.Name && x.Methods.Where(y => y.DoubleClick == true || y.Click == true).Any()).FirstOrDefault();
             if (cls != null)
             {
@@ -126,17 +129,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         }
         private void BeepTreeControl_NodeRightClicked(object? sender, BeepMouseEventArgs e)
         {
-           var clickedNode = sender as BeepTreeNode;
-            if (clickedNode == null) return;
-            SelectedBranch= GetBranchByGuidID(clickedNode.SavedGuidID);
-            SelectedItem=GetNodeByGuidID(clickedNode.GuidID);
-            var a = DynamicMenuManager.GetMenuItemsList((SimpleItem)clickedNode.Tag);
+            ClickedNode = sender as BeepTreeNode;
+            if (ClickedNode == null) return;
+            SelectedBranch = GetBranchByGuidID(ClickedNode.SavedGuidID);
+            SelectedItem=GetNodeByGuidID(ClickedNode.GuidID);
+            var a = DynamicMenuManager.GetMenuItemsList((SimpleItem)ClickedNode.Tag);
             if (a == null) return;
             CurrentMenutems = new BindingList<SimpleItem>(a);
             if ( CurrentMenutems.Count > 0)
             {
-                LastNodeMenuShown = clickedNode;
+               
                 TogglePopup();
+               
             }
         }
         #endregion "Handlers"

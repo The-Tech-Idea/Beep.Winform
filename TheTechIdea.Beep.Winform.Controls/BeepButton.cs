@@ -124,6 +124,16 @@ namespace TheTechIdea.Beep.Winform.Controls
       
             }
         }
+        private BeepPopupFormPosition _beepPopupFormPosition= BeepPopupFormPosition.Bottom;
+        [Browsable(true)]
+        [Category("Appearance")]
+      
+        public BeepPopupFormPosition PopPosition
+        {
+            get { return _beepPopupFormPosition; }
+            set { _beepPopupFormPosition = value; }
+
+        }
         #endregion "Popup List Properties"
         private ImageEmbededin _imageEmbededin = ImageEmbededin.Button;
         [Category("Appearance")]
@@ -517,7 +527,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Get the screen position of the control's top-left corner
             //Point screenPoint = beepButton1.PointToScreen(Point.Empty);
             //Point point = new Point(screenPoint.X, screenPoint.Y + beepButton1.Height);
-            SimpleItem x = beepFileDialog.ShowPopup(Text, this, BeepPopupFormPosition.Bottom);
+            SimpleItem x = beepFileDialog.ShowPopup(Text, this, _beepPopupFormPosition);
            
         }
         private void ClosePopup()

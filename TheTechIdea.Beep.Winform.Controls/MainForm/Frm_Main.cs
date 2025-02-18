@@ -23,7 +23,7 @@
 //        ToolbarControl BeepVerticaltoolbarControl;
 //        ToolbarControl BeepHorizantaltoolbarControl;
 //        MenuControl BeepmenuControl;
-//        TreeViewControl BeepTreeControl;
+//        TreeViewControl BeepAppTree;
 //        PassedArgs args = new PassedArgs();
 //        Progress<PassedArgs> progress;
 //        bool _hideLog = true;
@@ -240,15 +240,15 @@
 //            DMEEditor.ErrorObject.Message = string.Empty;
 //            try
 //            {
-//                BeepTreeControl.TreeType = Visutil.BeepObjectsName;
-//                BeepTreeControl.ObjectType = Visutil.BeepObjectsName;
-//                BeepTreeControl.TreeV = uc_MainSplitPanel1.StandardTree;
+//                BeepAppTree.TreeType = Visutil.BeepObjectsName;
+//                BeepAppTree.ObjectType = Visutil.BeepObjectsName;
+//                BeepAppTree.TreeV = uc_MainSplitPanel1.StandardTree;
 
 //                //  you can change icon size in StandardTree controls  ex. Apptree.IconsSize = new Size(24, 24);
 
 //                SendMessege(progress, "Loading Beep Data Management Functions and StandardTree");
 
-//                BeepTreeControl.CreateRootTree();
+//                BeepAppTree.CreateRootTree();
 //            }
 //            catch (Exception ex)
 //            {
@@ -318,7 +318,7 @@
 //            {
 //                //StartStopLog(false);
 //                Visutil.Container = uc_MainSplitPanel1.Container;
-//                BeepTreeControl = (TreeViewControl)Visutil.StandardTree;
+//                BeepAppTree = (TreeViewControl)Visutil.StandardTree;
 //                BeepVerticaltoolbarControl = (ToolbarControl)Visutil.ToolStrip;
 //                BeepHorizantaltoolbarControl = (ToolbarControl)Visutil.SecondaryToolStrip;
 //                BeepmenuControl = (MenuControl)Visutil.MenuStrip;

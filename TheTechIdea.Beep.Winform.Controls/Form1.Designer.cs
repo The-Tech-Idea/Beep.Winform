@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             beepAppBar1 = new BeepAppBar();
             beepMenuBar1 = new BeepMenuBar();
-            beepTreeControl1 = new ITrees.BeepTreeView.BeepTreeControl();
+            beepTreeControl1 = new ITrees.BeepTreeView.BeepAppTree();
             beepButton1 = new BeepButton();
             beepTextBox1 = new BeepTextBox();
             beepSideMenu1 = new BeepSideMenu();
@@ -1482,7 +1482,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepAppBar beepAppBar1;
         private BeepMenuBar beepMenuBar1;
         private BeepSideMenu beepSideMenu1;
-        private ITrees.BeepTreeView.BeepTreeControl beepTreeControl1;
+        private ITrees.BeepTreeView.BeepAppTree beepTreeControl1;
         private Label label1;
         private BeepTextBox beepTextBox1;
         private BeepButton beepButton1;

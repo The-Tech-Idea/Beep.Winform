@@ -14,8 +14,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
     public partial class BeepTreeBranchHandler : ITreeBranchHandler
     {
         private IBeepService service;
-        private BeepTreeControl beepTreeControl;
-        public BeepTreeBranchHandler(IBeepService service, BeepTreeControl beepTreeControl)
+        private BeepAppTree beepTreeControl;
+        public BeepTreeBranchHandler(IBeepService service, BeepAppTree beepTreeControl)
         {
             this.service = service;
             this.beepTreeControl = beepTreeControl;

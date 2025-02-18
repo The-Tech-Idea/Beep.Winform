@@ -10,9 +10,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
     public partial class BeepTreeNodeDragandDropHandler
     {
         private IBeepService service;
-        private BeepTreeControl beepTreeControl;
+        private BeepAppTree beepTreeControl;
 
-        public BeepTreeNodeDragandDropHandler(IBeepService service, BeepTreeControl beepTreeControl)
+        public BeepTreeNodeDragandDropHandler(IBeepService service, BeepAppTree beepTreeControl)
         {
             this.service = service;
             this.beepTreeControl = beepTreeControl;

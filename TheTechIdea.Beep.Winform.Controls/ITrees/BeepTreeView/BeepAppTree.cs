@@ -18,16 +18,16 @@ using static TheTechIdea.Beep.Utilities.Util;
 namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
 {
     [ToolboxItem(true)]
-    [DisplayName("Beep StandardTree Control")]
+    [DisplayName("Beep App Tree")]
     [Category("Beep Controls")]
-    [Description("A control that displays hierarchical data in a tree format.")]
-    public partial class BeepTreeControl : BeepTree,ITree
+    [Description("A control that displays App hierarchical data in a tree format.")]
+    public partial class BeepAppTree : BeepTree,ITree
     {
-        public BeepTreeControl()
+        public BeepAppTree()
         {
             
         }
-        public BeepTreeControl(IBeepService service)
+        public BeepAppTree(IBeepService service)
         {
             BeepService = service;
            

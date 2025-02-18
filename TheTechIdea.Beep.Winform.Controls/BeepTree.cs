@@ -1781,9 +1781,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected void ShowPopup()
         {
-
-                ClosePopup();
-
+             ClosePopup();
             // Always create a new instance from scratch
             _popupForm = new BeepPopupForm();
             _popupForm.OnLeave += (sender, e) =>

@@ -31,7 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             beepAppBar1 = new TheTechIdea.Beep.Winform.Controls.BeepAppBar();
             beepMenuBar1 = new TheTechIdea.Beep.Winform.Controls.BeepMenuBar();
-            beepTreeControl1 = new TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView.BeepTreeControl();
+            beepTreeControl1 = new TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView.BeepAppTree();
             SuspendLayout();
             // 
             // beepuiManager1
@@ -75,7 +75,7 @@
             beepAppBar1.DisabledBackColor = Color.Gray;
             beepAppBar1.DisabledForeColor = Color.Empty;
             beepAppBar1.Dock = DockStyle.Top;
-            beepAppBar1.DrawingRect = new Rectangle(0, 0, 936, 32);
+            beepAppBar1.DrawingRect = new Rectangle(0, 0, 1020, 32);
             beepAppBar1.Easing = Winform.Controls.EasingType.Linear;
             beepAppBar1.FieldID = null;
             beepAppBar1.FocusBackColor = Color.Gray;
@@ -150,7 +150,7 @@
             beepAppBar1.ShowShadow = false;
             beepAppBar1.ShowTitle = true;
             beepAppBar1.ShowTopBorder = false;
-            beepAppBar1.Size = new Size(936, 32);
+            beepAppBar1.Size = new Size(1020, 32);
             beepAppBar1.SlideFrom = Winform.Controls.SlideDirection.Left;
             beepAppBar1.StaticNotMoving = false;
             beepAppBar1.TabIndex = 0;
@@ -192,7 +192,7 @@
             beepMenuBar1.DisabledBackColor = Color.Gray;
             beepMenuBar1.DisabledForeColor = Color.Empty;
             beepMenuBar1.Dock = DockStyle.Top;
-            beepMenuBar1.DrawingRect = new Rectangle(0, 0, 936, 26);
+            beepMenuBar1.DrawingRect = new Rectangle(0, 0, 1020, 26);
             beepMenuBar1.Easing = Winform.Controls.EasingType.Linear;
             beepMenuBar1.FieldID = null;
             beepMenuBar1.FocusBackColor = Color.White;
@@ -261,7 +261,7 @@
             beepMenuBar1.ShowRightBorder = false;
             beepMenuBar1.ShowShadow = false;
             beepMenuBar1.ShowTopBorder = false;
-            beepMenuBar1.Size = new Size(936, 26);
+            beepMenuBar1.Size = new Size(1020, 26);
             beepMenuBar1.SlideFrom = Winform.Controls.SlideDirection.Left;
             beepMenuBar1.StaticNotMoving = false;
             beepMenuBar1.TabIndex = 2;
@@ -312,7 +312,7 @@
             beepTreeControl1.DisabledForeColor = Color.Empty;
             beepTreeControl1.DMEEditor = null;
             beepTreeControl1.Dock = DockStyle.Left;
-            beepTreeControl1.DrawingRect = new Rectangle(1, 1, 198, 382);
+            beepTreeControl1.DrawingRect = new Rectangle(1, 1, 198, 732);
             beepTreeControl1.DropHandler = null;
             beepTreeControl1.Easing = Winform.Controls.EasingType.Linear;
             beepTreeControl1.FieldID = null;
@@ -321,6 +321,7 @@
             beepTreeControl1.FocusBorderColor = Color.Gray;
             beepTreeControl1.FocusForeColor = Color.Black;
             beepTreeControl1.FocusIndicatorColor = Color.Blue;
+            beepTreeControl1.Font = new Font("Arial", 10F);
             beepTreeControl1.Form = null;
             beepTreeControl1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepTreeControl1.GradientEndColor = Color.FromArgb(230, 230, 230);
@@ -380,7 +381,7 @@
             beepTreeControl1.SelectedBranchs = (List<int>)resources.GetObject("beepTreeControl1.SelectedBranchs");
             beepTreeControl1.SelectedIndex = -1;
             beepTreeControl1.SelectIcon = "Select.svg";
-            beepTreeControl1.SeqID = 7;
+            beepTreeControl1.SeqID = 2;
             beepTreeControl1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
             beepTreeControl1.ShadowOffset = 0;
             beepTreeControl1.ShadowOpacity = 0.5F;
@@ -393,7 +394,7 @@
             beepTreeControl1.ShowRightBorder = false;
             beepTreeControl1.ShowShadow = false;
             beepTreeControl1.ShowTopBorder = false;
-            beepTreeControl1.Size = new Size(200, 384);
+            beepTreeControl1.Size = new Size(200, 734);
             beepTreeControl1.SlideFrom = Winform.Controls.SlideDirection.Left;
             beepTreeControl1.StaticNotMoving = false;
             beepTreeControl1.TabIndex = 3;
@@ -416,7 +417,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BorderColor = Color.FromArgb(200, 200, 200);
-            ClientSize = new Size(944, 450);
+            ClientSize = new Size(1028, 800);
             Controls.Add(beepTreeControl1);
             Controls.Add(beepMenuBar1);
             Controls.Add(beepAppBar1);
@@ -429,6 +430,6 @@
 
         private Controls.BeepAppBar beepAppBar1;
         private Controls.BeepMenuBar beepMenuBar1;
-        private Controls.ITrees.BeepTreeView.BeepTreeControl beepTreeControl1;
+        private Controls.ITrees.BeepTreeView.BeepAppTree beepTreeControl1;
     }
 }

@@ -103,6 +103,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int childnodesSeq = 0;
 
         private bool _ischildDrawn = false;
+        private SimpleItem _nodeinfo=new SimpleItem();
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public SimpleItem NodeInfo
+        {
+            get => _nodeinfo;
+            set
+            {
+                _nodeinfo = value;
+                if (NodeMainMiddlebutton != null)
+                {
+                    NodeMainMiddlebutton.Text = _nodeinfo.Text;
+                    NodeMainMiddlebutton.ImagePath = _nodeinfo.ImagePath;
+                }
+            }
+        }
 
         private bool _useScaledfont = false;
         [Browsable(true)]
@@ -132,11 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-        public string GuidID
-        {
-            get { return _guidid; }
-            set { _guidid = value; }
-        }
+       
         private int _parentid;
         public int NodeHeight
         {
@@ -272,16 +284,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set { _shownodeimage = value; ChangeNodeImageSettings(); }
         }
 
-     
-
-        private SimpleItem _menuitem;
-
-        public SimpleItem NodeInfo
-        {
-            get { return _menuitem; }
-            set { _menuitem = value; }
-        }
-        private BindingList<SimpleItem> _nodesview= new BindingList<SimpleItem>();
+       
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
@@ -289,10 +292,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BindingList<SimpleItem> Nodes
         {
-            get => _nodesview;
+            get => NodeInfo.Children;
             set
             {
-                _nodesview = value;
+                NodeInfo.Children = value;
             }
 
         }
@@ -956,8 +959,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             try
             {
                
-                SimpleItem t = (SimpleItem)Tag;
-                if (t == null) return;
+              
+                if (NodeInfo == null) return;
          //       if (!isSizeCached)
          //       {
                     CalculateSize();
@@ -1025,9 +1028,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _nodePanel.Height = NodeHeight + spacing;
               
                 int xlevel = 1;
-
+               
                 // Adjust the size of `_childrenPanel` based on expansion
-                if (t.Children.Count > 0 && IsExpanded)
+                if (NodeInfo.Children.Count > 0 && IsExpanded)
                 {
 
            ////         if (!_ischildDrawn)
@@ -1104,10 +1107,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_toggleButton != null)
             {
-                SimpleItem simpleItem = (SimpleItem)Tag;
-                if (simpleItem != null)
+               
+                if (NodeInfo != null)
                 {
-                    if (simpleItem.Children.Count > 0)
+                    if (NodeInfo.Children.Count > 0)
                     {
                         if (IsExpanded)
                         {
@@ -1457,7 +1460,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         // Handle node addition
                         if (e.NewIndex >= 0 && e.NewIndex < _beeptreenodes.Count)
                         {
-                            var addedNode = _nodesview[e.NewIndex];
+                            var addedNode = NodeInfo.Children[e.NewIndex];
                           
                             RearrangeNode(); // Rearrange after addition
                         }
@@ -1489,14 +1492,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-                if (index < 0 || index >= _nodesview.Count)
+                if (index < 0 || index >= NodeInfo.Children.Count)
                 {
                     LogMessage($"Invalid index for deletion: {index}");
                     return;
                 }
 
                 // Get the deleted node from NodesControls
-                var deletedNode = _nodesview[index];
+                var deletedNode = NodeInfo.Children[index];
 
                 // Find the corresponding control in _childrenPanel
                 var removedControl = _childrenPanel.Controls
@@ -1522,12 +1525,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected void CreateChildNodes()
         {
-            SimpleItem simpleItem=(SimpleItem)Tag;
-            if (simpleItem.Children.Count == 0)
+          
+            if (NodeInfo.Children.Count == 0)
             {
                 return;
             }
-            foreach (var item in simpleItem.Children)
+            foreach (var item in NodeInfo.Children)
             {
                 // check if 
                 if (item.IsDrawn)
@@ -1537,9 +1540,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var node = Tree.CreateTreeNodeFromMenuItem(item, this);
                 if (node != null)
                 {
-                    node.SavedGuidID = item.GuidId;
-                    item.IsDrawn = true;
-                    AddNode(node);
+                    node.GuidID = item.GuidId;
+                    node.ParentID= this.Id;
+
+                    addnode(node);
                 }
             }
             IsInvalidated = true;
@@ -1572,28 +1576,41 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void AddNode(SimpleItem node)
         {
             if (node == null) throw new ArgumentNullException(nameof(node));
-               Nodes.Add(node);
+            var treenode = Tree.CreateTreeNodeFromMenuItem(node, this);
+            if (treenode != null)
+            {
+                treenode.GuidID = node.GuidId;
+                treenode.ParentID = this.Id;
+                node.IsDrawn = true;
+                AddNode(node);
+            }
 
         }
-        public void AddNode(BeepTreeNode node)
+        private void addnode(BeepTreeNode node)
         {
             if (node != null && !NodesControls.Contains(node))
             {
                 NodesControls.Add(node);
+                SimpleItem newnode = (SimpleItem)node.Tag;
+                // if newnode not in nodes then add it
+              
                 _childrenPanel.Controls.Add(node); // Add to the UI panel
-                if (node.Tag != null)
-                {
-                    if (node.Tag is SimpleItem)
-                    {
-                        SimpleItem simpleItem = (SimpleItem)node.Tag;
-                        // check if simpleitem exist or to be added
-                        simpleItem.IsDrawn = true;
-                        node.SavedGuidID = simpleItem.GuidId;
-                    }
-                    
-                }
+                node.NodeInfo.IsDrawn = true;
+                node.ParentID = this.Id;
+
             }
             IsInvalidated = true;
+        }
+        public void AddNode(BeepTreeNode node)
+        {
+            addnode(node);
+            SimpleItem newnode = (SimpleItem)node.Tag;
+                // if newnode not in nodes then add it
+            if (!Nodes.Contains(newnode))
+             {
+                    Nodes.Add(newnode);
+                }
+        
         }
         /// <summary>
         /// Removes a specific node from the current node's collection and updates the UI.

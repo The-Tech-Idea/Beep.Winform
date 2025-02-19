@@ -48,9 +48,13 @@ namespace TheTechIdea.Beep.Vis.Logic
         {
             return DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.classProperties.ObjectType == ObjectType && x.classProperties.ClassType == BranchClass && x.VisSchema.BranchType == PointType && x.classProperties.Category == datasourceCategory).FirstOrDefault();
         }
-        public static AssemblyClassDefinition GetAssemblyClassDefinitionByGuid(string Guid)
+        public static AssemblyClassDefinition GetAssemblyBranchsClassDefinitionByGuid(string Guid)
         {
             return DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.GuidID == Guid).FirstOrDefault();
+        }
+        public static AssemblyClassDefinition GetAssemblyGlobalFunctionsClassDefinitionByGuid(string Guid)
+        {
+            return DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.GuidID == Guid).FirstOrDefault();
         }
         public static List<MenuList> Menus { get; set; } = new List<MenuList>();
         public static List<MenuItem> CreateMenuMethods(IBranch branch)

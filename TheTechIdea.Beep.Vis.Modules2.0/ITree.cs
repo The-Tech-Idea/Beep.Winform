@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         IBranch CurrentBranch { get; set; }
         IDMEEditor DMEEditor { get; set; }
         List<int> SelectedBranchs { get; set; }
+        IBranch SelectedBranch { get; set; }
         PassedArgs args { get; set; }
         int SeqID { get; set; }
         List<IBranch> Branches { get; set; }
@@ -37,6 +38,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         IBranch GetBranchByGuidID(string guidid);
         IBranch GetBranchByEntityGuidID(string guidid);
         IBranch GetBranchByMiscGuidID(string guidid);
+        IBranch GetBranch(string text);
+        IBranch GetBranch(int id);
+        IBranch GetBranch(string text, string parent);
+        IBranch GetBranch(string text, EnumPointType branchtype);
         ITreeBranchHandler Treebranchhandler { get; set; }
         IErrorsInfo RunMethod(object branch, string MethodName);
         bool AddBranchToParentInBranchsOnly(IBranch ParentBranch, IBranch br);

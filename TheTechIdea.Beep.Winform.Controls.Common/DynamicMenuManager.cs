@@ -195,6 +195,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                                         Value = item.CommandAttr,
                                         BranchName = item.Name,
                                         PackageName = cls.PackageName,
+                                        AssemblyClassDefinitionID = cls.GuidID,
                                         ImagePath = ImageListHelper.GetImagePathFromName(item.iconimage)
 
                                     });
@@ -215,6 +216,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                                         Value = item.CommandAttr,
                                         BranchName = item.Name,
                                         PackageName = cls.PackageName,
+                                        AssemblyClassDefinitionID = cls.GuidID,
                                         ImagePath = ImageListHelper.GetImagePathFromName(item.iconimage)
 
                                     });

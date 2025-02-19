@@ -611,7 +611,8 @@ public static class ControlExtensions
         AssemblyClassDefinition assemblydef = new AssemblyClassDefinition();
         MethodInfo method = null;
         MethodsClass methodsClass;
-        assemblydef =MethodHandler.GetAssemblyClassDefinitionByGuid(item.AssemblyClassDefinitionID);
+        
+        assemblydef =MethodHandler.GetAssemblyGlobalFunctionsClassDefinitionByGuid(item.AssemblyClassDefinitionID);
         dynamic fc = tree.DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { tree.DMEEditor, tree.VisManager, tree });
         //  dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] { DMEEditor, Vismanager, this });
         if (fc == null)
@@ -1144,7 +1145,7 @@ public static class ControlExtensions
     }
     public static void Nodemenu_ItemClicked(this ITree tree, SimpleItem item,  string MethodName)
     {
-        AssemblyClassDefinition cls = (AssemblyClassDefinition)MethodHandler.GetAssemblyClassDefinitionByGuid(item.AssemblyClassDefinitionID);
+        AssemblyClassDefinition cls = (AssemblyClassDefinition)MethodHandler.GetAssemblyBranchsClassDefinitionByGuid(item.AssemblyClassDefinitionID);
         IBranch br = tree.Branches.Where(p => p.GuidID == item.GuidId).FirstOrDefault();
         if (cls != null)
         {

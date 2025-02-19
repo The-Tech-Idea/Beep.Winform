@@ -685,7 +685,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 foreach (var childItem in currentItem.Children)
                 {
-                    var childNode = currentNode.NodesControls.FirstOrDefault(n => n.Tag == childItem);
+                    var childNode = currentNode.NodesControls.FirstOrDefault(n => n.NodeInfo == childItem);
                     if (childNode == null)
                     {
                         // Create and add the child node if not yet rendered
@@ -898,7 +898,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 menuItem.ContainerGuidID = node.GuidID;
                 menuItem.RootContainerGuidID = node.GuidID;
                 node.Nodes = menuItem.Children;
-                node.Tag = menuItem;
+                node.NodeInfo = menuItem;
+               
             //    node.RearrangeNode();
                 LogMessage($"Node added for item at index {index}: {menuItem.Text}");
              //   RearrangeTree();
@@ -1078,7 +1079,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Size = new Size(this.Width, NodeHeight),
                     Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right,
                     Theme = this.Theme,
-                    Tag = menuItem,
+                    NodeInfo = menuItem,
                     GuidID=menuItem.GuidId,
                     NodeDataType = menuItem.GetType().Name,
                     Level = parent?.Level + 1 ?? 1,
@@ -1203,6 +1204,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return _beeptreeRootnodes.FirstOrDefault(p => p.NodeSeq == seq);
         }
+        public void AddNode(SimpleItem simpleItem,BeepTreeNode parent)
+        {
+            if (simpleItem == null)
+            {
+                return;
+            }
+            // Create a new node from the SimpleItem
+            var node = CreateTreeNodeFromMenuItem(simpleItem, parent);
+            if (node == null)
+            {
+                return;
+            }
+            // Add the node to the parent's children
+            parent.AddNode(node);
+            parent.RearrangeNode();
+
+        }
         #endregion "Root Nodes Creation"
         #region "Remove Nodes"
         public void RemoveNode(SimpleItem simpleItem)
@@ -1251,7 +1269,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             foreach (var node in nodes.ToList())
             {
-                if (node.Tag == simpleItem)
+                if (node.NodeInfo == simpleItem)
                 {
                     // Remove the node and its panel
                     if (_nodePanels.TryGetValue(node.NodeSeq, out var panel))
@@ -1765,7 +1783,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             var clickedNode = sender as BeepTreeNode;
             if (clickedNode == null) return;
-            List<SimpleItem> menuList = DynamicMenuManager.GetMenuItemsList(clickedNode.Tag as SimpleItem);
+            List<SimpleItem> menuList = DynamicMenuManager.GetMenuItemsList(clickedNode.NodeInfo as SimpleItem);
 
             CurrentMenutems = new BindingList<SimpleItem>(menuList);
             if (BeepFlyoutMenu == null)

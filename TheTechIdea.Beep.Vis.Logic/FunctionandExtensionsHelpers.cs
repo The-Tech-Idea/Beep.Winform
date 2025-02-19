@@ -69,53 +69,12 @@ namespace TheTechIdea.Beep.Vis.Logic
         public void GetValues(IPassedArgs Passedarguments)
 
         {
-            if (Passedarguments.Objects.Where(c => c.Name == "IProgress").Any())
-            {
-                progress = (IProgress<PassedArgs>)Passedarguments.Objects.Where(c => c.Name == "IProgress").FirstOrDefault().obj;
-            }
-            if (Passedarguments.Objects.Where(c => c.Name == "CancellationToken").Any())
-            {
-                token = (CancellationToken)Passedarguments.Objects.Where(c => c.Name == "CancellationToken").FirstOrDefault().obj;
-            }
-            if (Passedarguments.Objects.Where(c => c.Name == "VISUTIL").Any())
-            {
-                Vismanager = (IAppManager)Passedarguments.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
-            }
-            if (Passedarguments.Objects.Where(c => c.Name == "TreeControl").Any())
-            {
-                TreeEditor = (ITree)Passedarguments.Objects.Where(c => c.Name == "TreeControl").FirstOrDefault().obj;
-            }
-           
-            if (Passedarguments.Objects.Where(c => c.Name == "ControlManager").Any())
-            {
-                Controlmanager = (IControlManager)Passedarguments.Objects.Where(c => c.Name == "ControlManager").FirstOrDefault().obj;
-            }
-          
-
-            if (Passedarguments.Objects.Where(i => i.Name == "Branch").Any())
-            {
-                Passedarguments.Objects.Remove(Passedarguments.Objects.Where(c => c.Name == "Branch").FirstOrDefault());
-            }
-            if (pbr == null && TreeEditor!=null && TreeEditor.SelectedBranchID>0)
-            {
-                pbr= TreeEditor.Treebranchhandler.GetBranch(TreeEditor.SelectedBranchID); 
-            }
-            if (Passedarguments.Id > 0 && pbr==null)
-            {
-                pbr = TreeEditor.Treebranchhandler.GetBranch(Passedarguments.Id);
-            }
-
+            pbr = TreeEditor.CurrentBranch;
 
             if (pbr != null)
             {
-                //Passedarguments.DatasourceName = pbr.DataSourceName;
-                //Passedarguments.CurrentEntity = pbr.BranchText;
-                if (pbr.ParentBranchID > 0)
-                {
-                    ParentBranch = TreeEditor.Treebranchhandler.GetBranch(pbr.ParentBranchID);
-                    Passedarguments.Objects.Add(new ObjectItem() { Name = "ParentBranch", obj = ParentBranch });
-                }
-                Passedarguments.Objects.Add(new ObjectItem() { Name = "Branch", obj = pbr });
+                ParentBranch = pbr.ParentBranch;
+              
                 if (pbr.BranchType != EnumPointType.Root)
                 {
                     int idx = TreeEditor.Branches.FindIndex(x => x.BranchClass == pbr.BranchClass && x.BranchType == EnumPointType.Root);
@@ -131,19 +90,8 @@ namespace TheTechIdea.Beep.Vis.Logic
                     RootBranch = pbr;
                 }
 
-                Passedarguments.Objects.Add(new ObjectItem() { Name = "RootBranch", obj = RootBranch });
             }
 
-
-            //if (Passedarguments.Objects.Where(i => i.Name == "RootBranch").Any())
-            //{
-            //    Passedarguments.Objects.Remove(Passedarguments.Objects.Where(c => c.Name == "RootBranch").FirstOrDefault());
-            //}
-
-            //if (Passedarguments.Objects.Where(i => i.Name == "ParentBranch").Any())
-            //{
-            //    Passedarguments.Objects.Remove(Passedarguments.Objects.Where(c => c.Name == "ParentBranch").FirstOrDefault());
-            //}
             if (!string.IsNullOrEmpty(Passedarguments.DatasourceName))
             {
                 DataSource = DMEEditor.GetDataSource(Passedarguments.DatasourceName);
@@ -153,91 +101,50 @@ namespace TheTechIdea.Beep.Vis.Logic
             {
                 progress = DMEEditor.progress;
             }
-            if (token == null)
-            {
-
-            }
+         
             if(TreeEditor.Branches.Count>0)
             {
-                
-                int viewrootidx = TreeEditor.Branches.FindIndex(x => x.BranchClass == "VIEW" && x.BranchType == EnumPointType.Root);
-                int nosqlrootidx = TreeEditor.Branches.FindIndex(x => x.BranchClass == "NOSQL" && x.BranchType == EnumPointType.Root);
-                int rdbmsrootidx = TreeEditor.Branches.FindIndex(x => x.BranchClass == "RDBMS" && x.BranchType == EnumPointType.Root);
-                int airootidx = TreeEditor.Branches.FindIndex(x => x.BranchClass == "AI" && x.BranchType == EnumPointType.Root);
-                int cloudrootidx = TreeEditor.Branches.FindIndex(x => x.BranchClass == "CLOUD" && x.BranchType == EnumPointType.Root);
-                int configrootidx = TreeEditor.Branches.FindIndex(x => x.BranchClass == "CONFIG" && x.BranchType == EnumPointType.Root);
-                int devrootidx = TreeEditor.Branches.FindIndex(x => x.BranchClass == "DEV" && x.BranchType == EnumPointType.Root);
-                int ddlrootidx = TreeEditor.Branches.FindIndex(x => x.BranchClass == "DDL" && x.BranchType == EnumPointType.Root);
-                int etlrootidx = TreeEditor.Branches.FindIndex(x => x.BranchClass == "ETL" && x.BranchType == EnumPointType.Root);
-                int reportrootidx = TreeEditor.Branches.FindIndex(x => x.BranchClass == "REPORT" && x.BranchType == EnumPointType.Root);
-                int scriprootidx = TreeEditor.Branches.FindIndex(x => x.BranchClass == "SCRIPT" && x.BranchType == EnumPointType.Root);
-                int filerootidx = TreeEditor.Branches.FindIndex(x => x.BranchClass == "FILE" && x.BranchType == EnumPointType.Root);
-                int mappingrootidx = TreeEditor.Branches.FindIndex(x => x.BranchClass == "MAP" && x.BranchType == EnumPointType.Root);
-                if (viewrootidx > 0)
-                {
-                    ViewRootBranch = TreeEditor.Branches[viewrootidx];
-                    RootBranchs.Add(ViewRootBranch);
-                }
-                if(nosqlrootidx > 0)
-                {
-                    NOSQLRootBranch = TreeEditor.Branches[nosqlrootidx];
-                    RootBranchs.Add(NOSQLRootBranch);
-                }
-                if (rdbmsrootidx > 0)
-                {
-                    RDBMSRootBranch = TreeEditor.Branches[rdbmsrootidx];
-                    RootBranchs.Add(RDBMSRootBranch);
-                }
-                if (airootidx > 0)
-                {
-                    AIRootBranch = TreeEditor.Branches[airootidx];
-                    RootBranchs.Add(AIRootBranch);
-                }
-                if (cloudrootidx > 0)
-                {
-                    CloudRootBranch = TreeEditor.Branches[cloudrootidx];
-                    RootBranchs.Add(CloudRootBranch);
-                }
-                if (configrootidx > 0)
-                {
-                    ConfigRootBranch = TreeEditor.Branches[configrootidx];
-                    RootBranchs.Add(ConfigRootBranch);
-                }
-                if (devrootidx > 0)
-                {
-                    DevRootBranch = TreeEditor.Branches[devrootidx];
-                    RootBranchs.Add(DevRootBranch);
-                }
-                if (ddlrootidx > 0)
-                {
-                    DDLRootBranch = TreeEditor.Branches[ddlrootidx];
-                    RootBranchs.Add(DDLRootBranch);
-                }
-                if (etlrootidx > 0)
-                {
-                    ETLRootBranch = TreeEditor.Branches[etlrootidx];
-                    RootBranchs.Add(ETLRootBranch);
-                }
-                if (reportrootidx > 0)
-                {
-                    ReportRootBranch = TreeEditor.Branches[reportrootidx];
-                    RootBranchs.Add(ReportRootBranch);
-                }
-                if (scriprootidx > 0)
-                {
-                    ScriptRootBranch = TreeEditor.Branches[scriprootidx];
-                    RootBranchs.Add(ScriptRootBranch);
-                }
-                if (filerootidx > 0)
-                {
-                    FileRootBranch = TreeEditor.Branches[filerootidx];
-                    RootBranchs.Add(FileRootBranch);
-                }
-                if (mappingrootidx > 0)
-                {
-                    MappingRootBranch = TreeEditor.Branches[mappingrootidx];
-                    RootBranchs.Add(MappingRootBranch);
-                }
+
+
+                    ViewRootBranch = TreeEditor.GetBranch("DataView", EnumPointType.Root);
+                if(ViewRootBranch!=null)  RootBranchs.Add(ViewRootBranch);
+
+                    NOSQLRootBranch = TreeEditor.GetBranch("NoSQL", EnumPointType.Root);
+                if (NOSQLRootBranch != null) RootBranchs.Add(NOSQLRootBranch);
+
+                    RDBMSRootBranch = TreeEditor.GetBranch("RDBMS", EnumPointType.Root);
+                if (RDBMSRootBranch != null) RootBranchs.Add(RDBMSRootBranch);
+
+                    AIRootBranch = TreeEditor.GetBranch("AI", EnumPointType.Root);
+                if (AIRootBranch != null) RootBranchs.Add(AIRootBranch);
+
+                    CloudRootBranch = TreeEditor.GetBranch("CLOUD", EnumPointType.Root);
+                if (CloudRootBranch != null) RootBranchs.Add(CloudRootBranch);
+
+                    ConfigRootBranch = TreeEditor.GetBranch("Configuration", EnumPointType.Root);
+                if (ConfigRootBranch != null) RootBranchs.Add(ConfigRootBranch);
+
+                    DevRootBranch = TreeEditor.GetBranch("Developer", EnumPointType.Root);
+                if (DevRootBranch != null) RootBranchs.Add(DevRootBranch);
+ 
+                    DDLRootBranch = TreeEditor.GetBranch("DDL", EnumPointType.Root);
+                if (DDLRootBranch != null) RootBranchs.Add(DDLRootBranch);
+
+                    ETLRootBranch = TreeEditor.GetBranch("ETL", EnumPointType.Root);
+                if (ETLRootBranch != null) RootBranchs.Add(ETLRootBranch);
+
+                    ReportRootBranch = TreeEditor.GetBranch("Reports", EnumPointType.Root);
+                if (ReportRootBranch != null) RootBranchs.Add(ReportRootBranch);
+
+                    ScriptRootBranch = TreeEditor.GetBranch("Script", EnumPointType.Root);
+                if (ScriptRootBranch != null) RootBranchs.Add(ScriptRootBranch);
+ 
+                    FileRootBranch = TreeEditor.GetBranch("Files", EnumPointType.Root);
+                if (FileRootBranch != null) RootBranchs.Add(FileRootBranch);
+
+                    MappingRootBranch = TreeEditor.GetBranch("Mapping", EnumPointType.Root);
+                if (MappingRootBranch != null) RootBranchs.Add(MappingRootBranch);
+           
                 // add other root branches not in RootBranchs
                 
                 List<IBranch> otherrootbranchs = TreeEditor.Branches.Where(x => x.BranchType == EnumPointType.Root && x.BranchClass != "VIEW" && x.BranchClass != "NOSQL" && x.BranchClass != "RDBMS" && x.BranchClass != "AI" && x.BranchClass != "CLOUD" && x.BranchClass != "CONFIG" && x.BranchClass != "DEV" && x.BranchClass != "DDL" && x.BranchClass != "ETL" && x.BranchClass != "REPORT" && x.BranchClass != "SCRIPT" && x.BranchClass != "FILE" && x.BranchClass != "MAP").ToList();

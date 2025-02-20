@@ -1,23 +1,27 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
+using System;
 using System.Diagnostics;
-using TheTechIdea.Beep.Vis;
-
+using System.Drawing;
+using System.Linq;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Vis;
 
 namespace TheTechIdea.Beep.Winform.Controls.Containers
 {
     public partial class uc_Container : BeepControl, IDisplayContainer
     {
+        private static readonly Image CloseImage = global::TheTechIdea.Beep.Winform.Controls.Properties.Resources.close;
         public ContainerTypeEnum ContainerType { get; set; }
-        private Panel ContainerPanel=new Panel();
+        private Panel ContainerPanel = new Panel();
         private TabControl TabContainerPanel = new TabControl();
 
         public Vis.Modules.IAppManager VisManager { get; set; }
         public IDMEEditor Editor { get; set; }
 
-        public event EventHandler<ContainerEvents?> AddinAdded ;
+        public event EventHandler<ContainerEvents?> AddinAdded;
         public event EventHandler<ContainerEvents?> AddinRemoved;
         public event EventHandler<ContainerEvents?> AddinMoved;
         public event EventHandler<ContainerEvents?> AddinChanging;
@@ -26,367 +30,441 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers
         public event EventHandler<IPassedArgs> PreShowItem;
         public event EventHandler<KeyCombination> KeyPressed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="uc_Container"/> class.
+        /// </summary>
         public uc_Container()
         {
             InitializeComponent();
-
-            TabContainerPanel.TabIndexChanged += TabContainerPanel_TabIndexChanged1; ;
-
+            TabContainerPanel.TabIndexChanged += TabContainerPanel_TabIndexChanged;
         }
 
-        private void TabContainerPanel_TabIndexChanged1(object? sender, EventArgs e)
+        private void TabContainerPanel_TabIndexChanged(object? sender, EventArgs e)
         {
             if (TabContainerPanel.SelectedIndex >= 0)
             {
                 TabPage p = TabContainerPanel.TabPages[TabContainerPanel.SelectedIndex];
-                if (p != null)
+                if (p?.Controls.Count > 0 && p.Controls[0] is IDM_Addin addin && VisManager != null)
                 {
-                    if (p.Controls.Count > 0)
-                    {
-                        IDM_Addin addin = (IDM_Addin)p.Controls[0];
-                        if (VisManager != null)
-                        {
-                            VisManager.CurrentDisplayedAddin = addin;
-                        }
-                    }
+                    VisManager.CurrentDisplayedAddin = addin;
                 }
             }
         }
 
-       
-        public bool IsControlExit(IDM_Addin control)
-        {
-            if (TabContainerPanel != null)
-            {
-                for (int i = TabContainerPanel.TabPages.Count - 1; i >= 0; i--)
-                {
-                    TabPage tabPage = TabContainerPanel.TabPages[i];
-                    foreach (Control ctl in tabPage.Controls)
-                    {
-                        IDM_Addin d = (IDM_Addin)ctl;
-                        if (ctl == control)
-                        {
-                            return true;
-                        }
-                    }
-                    
-                }
-            }
-            if (ContainerPanel != null)
-            {
-                for (int i = ContainerPanel.Controls.Count - 1; i >= 0; i--)
-                {
-                    Control ctl = ContainerPanel.Controls[i];
-                    IDM_Addin d = (IDM_Addin)ctl;
-                    if (ctl == control)
-                    {
-                        return true;
-                    }
-                }
-            }
-            
-            return false;
-        }
-        private void TabContainerPanel_MouseClick(object sender, MouseEventArgs e)
-        {
-            Image CloseImage = global::TheTechIdea.Beep.Winform.Controls.Properties.Resources.close;
-            for (var i = 0; i < this.TabContainerPanel.TabPages.Count; i++)
-            {
-                var tabRect = this.TabContainerPanel.GetTabRect(i);
-                tabRect.Inflate(-2, -2);
-                var imageRect = new Rectangle(tabRect.Right - CloseImage.Width,
-                                         tabRect.Top + (tabRect.Height - CloseImage.Height) / 2,
-                                         CloseImage.Width,
-                                         CloseImage.Height);
-                if (imageRect.Contains(e.Location))
-                {
-                    try
-                    {
-                        TabPage t = this.TabContainerPanel.TabPages[i];
-                        if (t.Controls.Count > 0)
-                        {
-                            Panel panel = (Panel)t.Controls[0];
-                            if(panel.Controls.Count > 0)
-                            {
-                                IDM_Addin addin = (IDM_Addin)panel.Controls[0];
-                                AddinRemoved?.Invoke(this, new ContainerEvents() { Control = addin, TitleText = t.Text });
-                            }
-                            t.Controls.Clear();
-                        }
-                        this.TabContainerPanel.TabPages.RemoveAt(i);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($" Error while Removing Tab : {ex.Message}");
-                    }
-                   
-                    break;
-                }
-            }
-        }
-        private void TabContainerPanel_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            try
-            {
-                Image CloseImage = global::TheTechIdea.Beep.Winform.Controls.Properties.Resources.close;
-                Image img = new Bitmap(CloseImage);
-                Rectangle r = e.Bounds;
-                r = this.TabContainerPanel.GetTabRect(e.Index);
-                r.Offset(2, 2);
-                Brush TitleBrush = new SolidBrush(Color.Black);
-                Font f = this.Font;
-                string title = this.TabContainerPanel.TabPages[e.Index].Text;
-                SizeF titlesize=e.Graphics.MeasureString(title, f);
-                //This code will render a "x" mark at the end of the Tab caption. 
-                e.Graphics.DrawString("x", e.Font, Brushes.Black, e.Bounds.Right - 15, e.Bounds.Top + 4);
-                e.Graphics.DrawString(this.TabContainerPanel.TabPages[e.Index].Text, e.Font, Brushes.Black, e.Bounds.Left + 12, e.Bounds.Top + 4);
-                e.DrawFocusRectangle();
-                //e.Graphics.DrawString(title, f, TitleBrush, new PointF(r.X, r.Y));
-                
-                //e.Graphics.DrawImage(img, new Point(r.X + (this.TabContainerPanel.GetTabRect(e.Index).Width - _imageLocation.X), _imageLocation.Y));
+        /// <summary>
+        /// Checks if a control exists within the container.
+        /// </summary>
+        public bool IsControlExit(IDM_Addin control) =>
+            TabContainerPanel?.TabPages.Cast<TabPage>()
+                .SelectMany(tab => tab.Controls.Cast<Control>())
+                .Any(c => c == control) ??
+            ContainerPanel?.Controls.Cast<Control>().Any(c => c == control) ?? false;
 
-            }
-            catch (Exception ex) { }
-        }
+        /// <summary>
+        /// Adds a control to the container based on the specified type.
+        /// </summary>
         public bool AddControl(string TitleText, IDM_Addin pcontrol, ContainerTypeEnum pcontainerType)
         {
+            if (this.InvokeRequired)
+            {
+                return (bool)this.Invoke(new Func<string, IDM_Addin, ContainerTypeEnum, bool>(AddControl), TitleText, pcontrol, pcontainerType);
+            }
+
             Control control = (Control)pcontrol;
+            if (control == null) return false;
+
             ContainerType = pcontainerType;
-            if (control == null ) { return false; }
+            bool success = false;
             switch (pcontainerType)
             {
                 case ContainerTypeEnum.SinglePanel:
-                    if (this.InvokeRequired)
-                    {
-                        this.Invoke((MethodInvoker)(() => AddToSingle(TitleText, control)));
-                    }
-                    else
-                    {
-                        AddToSingle(TitleText, control);
-                    }
+                    success = AddToSingle(TitleText, control);
                     break;
                 case ContainerTypeEnum.TabbedPanel:
-                    if (this.InvokeRequired)
-                    {
-                        this.Invoke((MethodInvoker)(() => AddToTabbed(TitleText, control)));
-                    }
-                    else
-                    {
-                        AddToTabbed(TitleText, control);
-                    }
-                    break;
-                default:
+                    success = AddToTabbed(TitleText, control);
                     break;
             }
-            return control != null && control.Controls.Contains(control);
+
+            if (success)
+            {
+                AddinAdded?.Invoke(this, new ContainerEvents { Control = pcontrol, TitleText = TitleText });
+            }
+            return success;
         }
-        private bool AddToTabbed(string TitleText,Control control)
+
+        private bool AddToTabbed(string TitleText, Control control)
         {
-            if(ContainerType== ContainerTypeEnum.SinglePanel)
-            {
-                if (Controls.Contains(ContainerPanel))
-                {
-                    Controls.Remove(ContainerPanel);
-                }
-              
-            }
-            if (!Controls.Contains(TabContainerPanel))
-            {
-                TabContainerPanel = new TabControl();
-                TabContainerPanel.AllowDrop = true;
-                TabContainerPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-           | System.Windows.Forms.AnchorStyles.Left)
-           | System.Windows.Forms.AnchorStyles.Right)));
-                TabContainerPanel.Location = new System.Drawing.Point(0,0);
-                TabContainerPanel.Name = "ControlPanel";
-                TabContainerPanel.Size = new System.Drawing.Size(this.Width, this.Height);
-                TabContainerPanel.TabPages.Clear();
-                Controls.Add(TabContainerPanel);
-            //    CloseImage = global::TheTechIdea.Beep.Winform.Controls.Properties.Resources.close;
-                this.TabContainerPanel.Multiline = true;
-                TabContainerPanel.DrawMode = TabDrawMode.OwnerDrawFixed;
-                TabContainerPanel.DrawItem += TabContainerPanel_DrawItem;
-                TabContainerPanel.MouseClick += TabContainerPanel_MouseClick;
-                TabContainerPanel.Padding = new Point(30, 4);
-            }
-            TabContainerPanel.TabPages.Add(TitleText, TitleText);
-            Panel panel1 = new Panel();
-            panel1.Dock = DockStyle.Fill;
-            panel1.Left = 0;
-            panel1.Top = 0;
-            //panel1.Width = TabContainerPanel.Width-20;
-            //panel1.Height = TabContainerPanel.Height-20;
-            panel1.Resize += Panel1_Resize;
-            panel1.AutoScroll = true;
-            TabContainerPanel.SelectedTab = TabContainerPanel.TabPages[TabContainerPanel.TabPages.Count - 1];
-            // TabContainerPanel.TabPanels[TabContainerPanel.TabPanels.Count-1].Controls.Add(control);
-            if (TabContainerPanel.SelectedTab!=null)
-            {
-                TabContainerPanel.SelectedTab.Controls.Add(panel1);
-            }else
-            {
-                TabContainerPanel.TabPages[0].Controls.Add(panel1);
-            }
             try
             {
-                TabContainerPanel.SelectedTab.Text = TitleText;
-                ////if (this.InvokeRequired)
-                ////{
-                //    this.Invoke((MethodInvoker)(() => panel1.Controls.Add(control)));
-                ////}
-                ////else
-                ////{
-                    panel1.Controls.Add(control);
-                //}
-              
+                EnsureTabContainerSetup();
+                TabPage newTab = new TabPage(TitleText);
+                Panel panel = CreateAndSetupPanel(newTab);
+
+                TabContainerPanel.TabPages.Add(newTab);
+                TabContainerPanel.SelectedTab = newTab;
+
+                AddControlToPanel(panel, control);
+                return true;
             }
             catch (Exception ex)
             {
-                MessageBox.Show( $"Error in Displaying Control {control.Name}-{ex.Message}","Beep", MessageBoxButtons.OK);
-                Debug.WriteLine(ex.Message);
+                LogError($"Failed to add control to tabbed panel: {ex.Message}");
+                return false;
             }
-           
-           
+        }
+
+        private void EnsureTabContainerSetup()
+        {
+            if (ContainerType == ContainerTypeEnum.SinglePanel && Controls.Contains(ContainerPanel))
+            {
+                Controls.Remove(ContainerPanel);
+            }
+
+            if (!Controls.Contains(TabContainerPanel))
+            {
+                SetupTabContainer();
+            }
+        }
+
+        private void SetupTabContainer()
+        {
+            TabContainerPanel = new TabControl
+            {
+                AllowDrop = true,
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
+                Location = new System.Drawing.Point(0, 0),
+                Name = "ControlPanel",
+                Size = new System.Drawing.Size(Width, Height),
+                Multiline = true,
+                DrawMode = TabDrawMode.OwnerDrawFixed,
+                Padding = new Point(30, 4)
+            };
+            TabContainerPanel.DrawItem += TabContainerPanel_DrawItem;
+            TabContainerPanel.MouseClick += TabContainerPanel_MouseClick;
+            Controls.Add(TabContainerPanel);
+        }
+
+        private Panel CreateAndSetupPanel(TabPage tab)
+        {
+            var panel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true
+            };
+            panel.Resize += Panel1_Resize;
+            tab.Controls.Add(panel);
+            return panel;
+        }
+
+        private void AddControlToPanel(Panel panel, Control control)
+        {
+            panel.Controls.Add(control);
+            AdjustControlSize(control, panel);
+        }
+
+        private void AdjustControlSize(Control control, Panel panel)
+        {
             control.Location = new System.Drawing.Point(0, 0);
-         
-            if((control.Size.Height< panel1.Size.Height)&&((control.Size.Width < panel1.Size.Width)))
+            if (control.Size.Height < panel.Size.Height && control.Size.Width < panel.Size.Width)
             {
                 control.Dock = DockStyle.Fill;
-            }else if ((control.Size.Height < panel1.Size.Height) )
-            {
-                control.Height = panel1.Height ;
-                control.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top )
-         | System.Windows.Forms.AnchorStyles.Left)
-         | System.Windows.Forms.AnchorStyles.Right)));
             }
-            else if ((control.Size.Width < panel1.Size.Width))
+            else if (control.Size.Height < panel.Size.Height)
             {
-                control.Width = panel1.Width ;
-                control.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top )
-         | System.Windows.Forms.AnchorStyles.Left)
-         )));
+                control.Height = panel.Height;
+                control.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             }
-            //    this.TitleLabel.Text = TitleText;
-            return true;
+            else if (control.Size.Width < panel.Size.Width)
+            {
+                control.Width = panel.Width;
+                control.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            }
         }
+
         private void Panel1_Resize(object? sender, EventArgs e)
         {
-            Panel? panel1 = sender as Panel;
-            if (panel1 != null)
+            if (sender is Panel panel && panel.Controls.Count > 0)
             {
-                if(panel1.Controls.Count > 0)
-                {
-                    Control control = panel1.Controls[0];
-                    if ((control.Size.Height < panel1.Size.Height) && ((control.Size.Width < panel1.Size.Width)))
-                    {
-                        control.Dock = DockStyle.Fill;
-                    }
-                    else if ((control.Size.Height < panel1.Size.Height))
-                    {
-                        control.Height = panel1.Height ;
-                        control.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top)
-                 | System.Windows.Forms.AnchorStyles.Left)
-                 | System.Windows.Forms.AnchorStyles.Right)));
-                    }
-                    else if ((control.Size.Width < panel1.Size.Width))
-                    {
-                        control.Width = panel1.Width ;
-                        control.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top )
-                 | System.Windows.Forms.AnchorStyles.Left)
-                 )));
-                    }
-                }
-               
+                AdjustControlSize(panel.Controls[0], panel);
             }
-            
         }
+
         private bool AddToSingle(string TitleText, Control control)
         {
-            if (ContainerType == ContainerTypeEnum.TabbedPanel)
+            try
             {
-                if (Controls.Contains(TabContainerPanel))
+                if (ContainerType == ContainerTypeEnum.TabbedPanel && Controls.Contains(TabContainerPanel))
                 {
                     Controls.Remove(TabContainerPanel);
                 }
 
+                EnsureSinglePanelSetup();
+                ContainerPanel.Controls.Add(control);
+                control.Dock = DockStyle.Fill;
+                return true;
             }
+            catch (Exception ex)
+            {
+                LogError($"Failed to add control to single panel: {ex.Message}");
+                return false;
+            }
+        }
+
+        private void EnsureSinglePanelSetup()
+        {
             if (!Controls.Contains(ContainerPanel))
             {
-                ContainerPanel = new Panel();
-                ContainerPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-         | System.Windows.Forms.AnchorStyles.Left)
-         | System.Windows.Forms.AnchorStyles.Right)));
-                ContainerPanel.Location = new System.Drawing.Point(0, 0);
-                ContainerPanel.Name = "ControlPanel";
-                ContainerPanel.Dock = DockStyle.None;
-                ContainerPanel.Size = new System.Drawing.Size(this.Width, this.Height );
+                ContainerPanel = new Panel
+                {
+                    Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
+                    Location = new System.Drawing.Point(0, 0),
+                    Name = "ControlPanel",
+                    Size = new System.Drawing.Size(Width, Height)
+                };
                 Controls.Add(ContainerPanel);
             }
-            ContainerPanel.Controls.Add(control);
-            control.Dock = DockStyle.Fill;
-         //   this.TitleLabel.Text = TitleText;
-            return true;
         }
-        public static Rectangle GetRTLCoordinates(Rectangle container, Rectangle drawRectangle)
+
+        private void TabContainerPanel_MouseClick(object sender, MouseEventArgs e)
         {
-            return new Rectangle(
-                container.Width - drawRectangle.Width - drawRectangle.X,
-                drawRectangle.Y,
-                drawRectangle.Width,
-                drawRectangle.Height);
+            for (int i = 0; i < TabContainerPanel.TabPages.Count; i++)
+            {
+                var tabRect = TabContainerPanel.GetTabRect(i);
+                tabRect.Inflate(-2, -2);
+                var imageRect = new Rectangle(tabRect.Right - CloseImage.Width,
+                    tabRect.Top + (tabRect.Height - CloseImage.Height) / 2,
+                    CloseImage.Width, CloseImage.Height);
+
+                if (imageRect.Contains(e.Location))
+                {
+                    try
+                    {
+                        TabPage tab = TabContainerPanel.TabPages[i];
+                        if (tab.Controls.Count > 0 && tab.Controls[0] is IDM_Addin addin)
+                        {
+                            AddinRemoved?.Invoke(this, new ContainerEvents { Control = addin, TitleText = tab.Text });
+                            tab.Controls.Clear();
+                            TabContainerPanel.TabPages.RemoveAt(i);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError($"Error while removing tab: {ex.Message}");
+                    }
+                    break;
+                }
+            }
         }
+
+        private void TabContainerPanel_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            try
+            {
+                using (var brush = new SolidBrush(Color.Black))
+                {
+                    var tabRect = TabContainerPanel.GetTabRect(e.Index);
+                    var text = TabContainerPanel.TabPages[e.Index].Text;
+                    var textSize = e.Graphics.MeasureString(text, Font);
+                    var textPoint = new PointF(tabRect.X + 12, tabRect.Y + (tabRect.Height - textSize.Height) / 2);
+                    var closePoint = new Point(tabRect.Right - CloseImage.Width - 2, tabRect.Top + (tabRect.Height - CloseImage.Height) / 2);
+
+                    e.Graphics.DrawString(text, Font, brush, textPoint);
+                    e.Graphics.DrawImage(CloseImage, closePoint);
+
+                    if (TabContainerPanel.SelectedIndex == e.Index)
+                    {
+                        e.Graphics.DrawRectangle(Pens.Blue, e.Bounds);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError($"Error drawing tab item: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Removes a control from the container by title and control reference.
+        /// </summary>
         public bool RemoveControl(string TitleText, IDM_Addin control)
         {
-            bool retval = true;
-            AddinRemoved?.Invoke(this, new ContainerEvents() { Control = control, TitleText = TitleText });
-            return retval;
+            try
+            {
+                if (IsControlExit(control))
+                {
+                    if (ContainerType == ContainerTypeEnum.TabbedPanel)
+                    {
+                        foreach (TabPage tab in TabContainerPanel.TabPages)
+                        {
+                            if (tab.Text == TitleText && tab.Controls.Contains((Control)control))
+                            {
+                                tab.Controls.Remove((Control)control);
+                                TabContainerPanel.TabPages.Remove(tab);
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ContainerPanel.Controls.Remove((Control)control);
+                    }
+                    AddinRemoved?.Invoke(this, new ContainerEvents { Control = control, TitleText = TitleText });
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                LogError($"Error removing control: {ex.Message}");
+                return false;
+            }
         }
+
+        /// <summary>
+        /// Shows a control within the container.
+        /// </summary>
         public bool ShowControl(string TitleText, IDM_Addin control)
         {
-            bool retval = true;
-            AddinAdded?.Invoke(this, new ContainerEvents() { Control = control, TitleText = TitleText });
-            return retval;
-
+            if (AddControl(TitleText, control, ContainerType))
+            {
+                return true;
+            }
+            return false;
         }
+
+        /// <summary>
+        /// Clears all controls from the container.
+        /// </summary>
         public void Clear()
         {
-            if (TabContainerPanel != null)
+            try
             {
-                for (int i = TabContainerPanel.TabPages.Count - 1; i >= 0; i--)
+                if (TabContainerPanel != null)
                 {
-                    TabPage tabPage = TabContainerPanel.TabPages[i];
-                    foreach (Control ctl in tabPage.Controls)
+                    TabContainerPanel.SuspendLayout();
+                    foreach (TabPage tab in TabContainerPanel.TabPages.Cast<TabPage>().ToList())
+                    {
+                        foreach (Control ctl in tab.Controls)
+                        {
+                            ctl.Dispose();
+                        }
+                        TabContainerPanel.TabPages.Remove(tab);
+                    }
+                    TabContainerPanel.ResumeLayout();
+                }
+
+                if (ContainerPanel != null)
+                {
+                    ContainerPanel.SuspendLayout();
+                    foreach (Control ctl in ContainerPanel.Controls.Cast<Control>().ToList())
                     {
                         ctl.Dispose();
                     }
-                    TabContainerPanel.TabPages.RemoveAt(i);
+                    ContainerPanel.Controls.Clear();
+                    ContainerPanel.ResumeLayout();
                 }
             }
-            if (ContainerPanel != null)
+            catch (Exception ex)
             {
-                for (int i = ContainerPanel.Controls.Count - 1; i >= 0; i--)
-                {
-                    Control ctl = ContainerPanel.Controls[i];
-                    ctl.Dispose();
-                    ContainerPanel.Controls.RemoveAt(i);
-                }
+                LogError($"Error clearing container: {ex.Message}");
             }
-
         }
+
         public IErrorsInfo PressKey(KeyCombination keyCombination)
         {
-            return null;
+            KeyPressed?.Invoke(this, keyCombination);
+            return null; // Implement if there's specific logic required
         }
 
+        /// <summary>
+        /// Removes a control by its GUID tag.
+        /// </summary>
         public bool RemoveControlByGuidTag(string guidid)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var tabsToRemove = TabContainerPanel?.TabPages.Cast<TabPage>()
+                    .Where(tab => tab.Controls.Cast<Control>().Any(c => c.Tag?.ToString() == guidid)).ToList();
+                if (tabsToRemove != null)
+                {
+                    foreach (var tab in tabsToRemove)
+                    {
+                        if (tab.Controls[0] is IDM_Addin addin)
+                        {
+                            AddinRemoved?.Invoke(this, new ContainerEvents { Control = addin, TitleText = tab.Text });
+                        }
+                        TabContainerPanel.TabPages.Remove(tab);
+                    }
+                    return tabsToRemove.Any();
+                }
+
+                var controlToRemove = ContainerPanel?.Controls.Cast<Control>()
+                    .FirstOrDefault(c => c.Tag?.ToString() == guidid);
+                if (controlToRemove != null)
+                {
+                    if (controlToRemove is IDM_Addin addin)
+                    {
+                        AddinRemoved?.Invoke(this, new ContainerEvents { Control = addin, TitleText = controlToRemove.Text });
+                    }
+                    ContainerPanel.Controls.Remove(controlToRemove);
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                LogError($"Error removing control by GUID: {ex.Message}");
+                return false;
+            }
         }
 
-        public bool RemoveControlByName(string guidid)
+        /// <summary>
+        /// Removes a control by its name.
+        /// </summary>
+        public bool RemoveControlByName(string name)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var tabsToRemove = TabContainerPanel?.TabPages.Cast<TabPage>()
+                    .Where(tab => tab.Controls.Cast<Control>().Any(c => c.Name == name)).ToList();
+                if (tabsToRemove != null)
+                {
+                    foreach (var tab in tabsToRemove)
+                    {
+                        if (tab.Controls[0] is IDM_Addin addin)
+                        {
+                            AddinRemoved?.Invoke(this, new ContainerEvents { Control = addin, TitleText = tab.Text });
+                        }
+                        TabContainerPanel.TabPages.Remove(tab);
+                    }
+                    return tabsToRemove.Any();
+                }
+
+                var controlToRemove = ContainerPanel?.Controls.Cast<Control>()
+                    .FirstOrDefault(c => c.Name == name);
+                if (controlToRemove != null)
+                {
+                    if (controlToRemove is IDM_Addin addin)
+                    {
+                        AddinRemoved?.Invoke(this, new ContainerEvents { Control = addin, TitleText = controlToRemove.Text });
+                    }
+                    ContainerPanel.Controls.Remove(controlToRemove);
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                LogError($"Error removing control by name: {ex.Message}");
+                return false;
+            }
+        }
+
+        private void LogError(string message)
+        {
+            Debug.WriteLine(message);
+            // Consider integrating with a proper logging framework like Serilog or NLog
+           // Editor?.ErrorObject?.FlagError(ErrorTypes.ERROR, message); // Assuming Editor has an error logging mechanism
         }
     }
-   
 }

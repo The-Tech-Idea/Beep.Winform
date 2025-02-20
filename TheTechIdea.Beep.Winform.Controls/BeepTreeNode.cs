@@ -487,7 +487,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BoundProperty= "Text";
             Height = NodeHeight;
             Width = NodeWidth;
-           
+            
             InitNode();
         }
         protected override Size DefaultSize => new Size(NodeWidth,NodeHeight);
@@ -648,38 +648,55 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             BeepMouseEventArgs args = new BeepMouseEventArgs("MouseMove", this);
             NodeMouseMove?.Invoke(this, args);
-            if (e.Equals(MouseButtons.Right))
-            {
-                BeepMouseEventArgs args1 = new BeepMouseEventArgs("RightClick", this);
-                NodeRightClicked?.Invoke(this, args1);
-                if (ShowMenu != null)
-                {
-                    ShowMenu?.Invoke(this, args1);
-                }
-            }
-            if (e.Equals(MouseButtons.Left))
-            {
-                BeepMouseEventArgs args1 = new BeepMouseEventArgs("LeftClick", e);
-                args1.Location = new Point(MousePosition.X, MousePosition.Y);
-                NodeLeftClicked?.Invoke(this, args1);
-            }
+        
         }
         private void NodeMainMiddlebutton_Click(object sender, EventArgs e)
         {
-            Debug.WriteLine("Middel button Clicked");
-            // When a node is clicked, set this node as the selected node in the tree.
-            if (this.Tree != null)
+            //Debug.WriteLine("Middel button Clicked");
+            //// When a node is clicked, set this node as the selected node in the tree.
+            //if (this.Tree != null)
+            //{
+            //    this.Tree.SelectedNode = this;
+            //}
+            //BeepMouseEventArgs args = new BeepMouseEventArgs("Click", this);
+            //NodeClicked?.Invoke(this, args);
+            //if (Tree.LastNodeSelected != null)
+            //{
+            //    Tree.LastNodeSelected.IsSelected = false;
+            //}
+            //Tree.LastNodeSelected = this;
+            //NodeMainMiddlebutton.IsSelected = true;
+        }
+        private void NodeMainMiddlebutton_MouseDown(object sender, MouseEventArgs e)
+        {
+            Debug.WriteLine("MouseDown");
+            base.OnMouseDown(e);
+            Debug.WriteLine("Middel button MouseDown");
+            BeepMouseEventArgs args = MiscFunctions.GetMouseEventArgs("MouseDown", e);
+            NodeMouseDown?.Invoke(this, args);
+            if (e.Button == MouseButtons.Left)
             {
-                this.Tree.SelectedNode = this;
+                NodeClicked?.Invoke(this, new BeepMouseEventArgs("Click", this));
+                DoDragDrop(this, DragDropEffects.Move);
             }
-            BeepMouseEventArgs args = new BeepMouseEventArgs("Click", this);
-            NodeClicked?.Invoke(this, args);
+            else
+            {
+                args = MiscFunctions.GetMouseEventArgs("RightClick", e);
+                NodeRightClicked?.Invoke(this, args);
+                ShowMenu?.Invoke(this, args);
+            }
             if (Tree.LastNodeSelected != null)
             {
                 Tree.LastNodeSelected.IsSelected = false;
             }
+
             Tree.LastNodeSelected = this;
             NodeMainMiddlebutton.IsSelected = true;
+
+        }
+        private void BeepTreeNode_MouseDown(object? sender, MouseEventArgs e)
+        {
+           
         }
         private void NodeMainMiddlebutton_DoubleClick(object sender, EventArgs e)
         {
@@ -719,32 +736,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BeepMouseEventArgs args = new BeepMouseEventArgs("MouseUp", this);
             NodeMouseUp?.Invoke(this, args);
         }
-        private void NodeMainMiddlebutton_MouseDown(object sender, MouseEventArgs e)
-        {
-            base.OnMouseDown(e);
-            Debug.WriteLine("Middel button MouseDown");
-            BeepMouseEventArgs args=  MiscFunctions.GetMouseEventArgs("MouseDown", e);
-            NodeMouseDown?.Invoke(this, args);
-            if (e.Button == MouseButtons.Left)
-            {
-               // NodeClicked?.Invoke(this, new BeepMouseEventArgs("Click", this));
-                DoDragDrop(this, DragDropEffects.Move);
-            }
-            else
-            {
-                    args = MiscFunctions.GetMouseEventArgs("RightClick", e);
-                    NodeRightClicked?.Invoke(this, args);
-                    ShowMenu?.Invoke(this, args);
-            }
-            if (Tree.LastNodeSelected != null)
-            {
-                Tree.LastNodeSelected.IsSelected = false;
-            }
-        
-            Tree.LastNodeSelected = this;
-            NodeMainMiddlebutton.IsSelected = true;
-       
-        }
+      
         private void BeepTreeNode_LostFocus(object? sender, EventArgs e)
         {
             Debug.WriteLine("LostFocus");
@@ -761,18 +753,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             NodeMainMiddlebutton.IsHovered = true;
         }
 
-        private void BeepTreeNode_MouseDown(object? sender, MouseEventArgs e)
-        {
-            Debug.WriteLine("MouseDown");
-            // When a node is clicked, set this node as the selected node in the tree.
-            if (this.Tree != null)
-            {
-                this.Tree.SelectedNode = this;
-            }
-            BeepMouseEventArgs args = new BeepMouseEventArgs("MouseDown", this);
-            NodeMouseDown?.Invoke(this, args);
-            NodeMainMiddlebutton.IsSelected = true;
-        }
+      
         private void BeepTreeNode_MouseLeave(object? sender, EventArgs e)
         {
             Debug.WriteLine("MouseLeave");
@@ -937,8 +918,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (NodeMainMiddlebutton != null) NodeMainMiddlebutton.Text = Text;
             if (NodeMainMiddlebutton != null) NodeMainMiddlebutton.ImagePath = ImagePath;
             Nodes.ListChanged += Nodes_ListChanged;
-            this.Click += BeepTreeNode_Click;
-            this.MouseDown += BeepTreeNode_MouseDown;
+         //   this.Click += BeepTreeNode_Click;
+          //  this.MouseDown += BeepTreeNode_MouseDown;
             this.MouseHover += BeepTreeNode_MouseHover;
             this.LostFocus += BeepTreeNode_LostFocus;
             this.MouseLeave += BeepTreeNode_MouseLeave;
@@ -1224,8 +1205,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //   NodeMainMiddlebutton.TextFont=BeepThemesManager.ToFont(_currentTheme.LabelSmall);
 
               //  NodeMainMiddlebutton.
-                NodeMainMiddlebutton.Click += NodeMainMiddlebutton_Click;
-                NodeMainMiddlebutton.MouseClick += NodeMainMiddlebutton_Click;
+          
                 NodeMainMiddlebutton.DoubleClick += NodeMainMiddlebutton_DoubleClick;
                 NodeMainMiddlebutton.MouseEnter += NodeMainMiddlebutton_MouseEnter;
                 NodeMainMiddlebutton.MouseLeave += NodeMainMiddlebutton_MouseLeave;
@@ -2036,8 +2016,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-                File.AppendAllText(@"C:\Logs\debug_log.txt", $"{DateTime.Now}: {message}{Environment.NewLine}");
-
+               // File.AppendAllText(@"C:\Logs\debug_log.txt", $"{DateTime.Now}: {message}{Environment.NewLine}");
+                Debug.WriteLine(message);
             }
             catch { /* Ignore logging errors */ }
         }

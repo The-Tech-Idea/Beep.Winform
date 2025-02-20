@@ -373,7 +373,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepTreeControl1.IsFramless = false;
             beepTreeControl1.IsHovered = false;
             beepTreeControl1.IsNew = false;
-            beepTreeControl1.IsPopupOpen = false;
+    
             beepTreeControl1.IsPressed = false;
             beepTreeControl1.IsReadOnly = false;
             beepTreeControl1.IsRequired = false;
@@ -410,7 +410,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepTreeControl1.Padding = new Padding(5);
             beepTreeControl1.ParentBackColor = SystemColors.Control;
             beepTreeControl1.ParentControl = this;
-            beepTreeControl1.PopupMode = false;
+           
             beepTreeControl1.PressedBackColor = Color.FromArgb(219, 112, 147);
             beepTreeControl1.PressedBorderColor = Color.Gray;
             beepTreeControl1.PressedForeColor = Color.Black;
@@ -419,7 +419,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepTreeControl1.SavedID = null;
             beepTreeControl1.SelectedBranchID = 0;
             beepTreeControl1.SelectedBranchs = (List<int>)resources.GetObject("beepTreeControl1.SelectedBranchs");
-            beepTreeControl1.SelectedIndex = -1;
+
             beepTreeControl1.SelectedNode = null;
             beepTreeControl1.SelectIcon = "Select.svg";
             beepTreeControl1.SeqID = 3;

@@ -3,6 +3,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Vis.Modules;
 using Timer = System.Windows.Forms.Timer;
+using System.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -17,7 +18,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         public EventHandler<BeepMouseEventArgs> LeftButtonClicked;
         public EventHandler<BeepMouseEventArgs> RighButtonClicked;
         public EventHandler<BeepMouseEventArgs> MiddleButtonClicked;
-        public EventHandler<BeepMouseEventArgs> NodeClicked;
         public EventHandler<BeepMouseEventArgs> NodeDoubleClicked;
         public EventHandler<BeepMouseEventArgs> NodeSelected;
         public EventHandler<BeepMouseEventArgs> NodeDeselected;
@@ -54,12 +54,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public EventHandler<BeepMouseEventArgs> ShowMenu;
         #endregion "Events"
         #region "Popup List Properties"
-        private BeepPopupForm _popupForm;
-        private BeepListBox _beepListBox;
-        private bool _isPopupOpen;
-        private bool _popupmode = false;
-        private int _maxListHeight = 100;
-        private int _maxListWidth = 100;
+   
+
         private int depth;
         private bool _dontRearrange;
 
@@ -146,66 +142,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool PopupMode
-        {
-            get => _popupmode;
-            set
-            {
-                _popupmode = value;
-            }
-        }
+      
         public BindingList<SimpleItem> CurrentMenutems { get; set; }
-        // The item currently chosen by the user
-        private SimpleItem _selectedItem;
-        public SimpleItem SelectedMenuItem
-        {
-            get => _selectedItem;
-            private set
-            {
-                if (_selectedItem != value)
-                {
-                    _selectedItem = value;
-                    OnSelectedItemChanged(_selectedItem); // Pass the selected item
-                }
-            }
-        }
-        [Browsable(false)]
-        public int SelectedIndex
-        {
-            get => _beepListBox.SelectedIndex;
-            set
-            {
-                if (value >= 0 && value < _beepListBox.ListItems.Count)
-                {
-                    _beepListBox.SelectedIndex = value;
-                    SelectedMenuItem = _beepListBox.ListItems[value];
-                }
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool IsPopupOpen
-        {
-            get => _isPopupOpen;
-            set
-            {
-                _isPopupOpen = value;
-                if (_popupForm != null)
-                {
-                    if (_isPopupOpen)
-                    {
-                      //  ShowMainPopup();
-                    }
-                    else
-                    {
-                       // ClosePopup();
-                    }
-                }
-
-            }
-        }
+       
+       
         #endregion "Popup List Properties"
         #region "Properties"
         #region "Nodes State"
@@ -268,7 +208,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Nodes State"
 
-
+        public SimpleItem SelectedItem { get;  set; }
         private BeepFlyoutMenu BeepFlyoutMenu;
 
         //private Dictionary<string, SimpleItem> _menus = new Dictionary<string, SimpleItem>();
@@ -419,7 +359,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.AutoScroll = true;
             this.VerticalScroll.Visible = true;
             SelectedNodes = new List<BeepTreeNode>();
-            InitListbox();
+           
         }
         protected override void InitLayout()
         {
@@ -440,12 +380,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             ClickedNode = sender as BeepTreeNode;
             if (ClickedNode == null) return;
             NodeRightClicked?.Invoke(sender, e);
+         
+          
+            SelectedItem = GetNodeByGuidID(ClickedNode.GuidID);
+            var a = DynamicMenuManager.GetMenuItemsList(ClickedNode.NodeInfo);
+            if (a == null) return;
+            CurrentMenutems = new BindingList<SimpleItem>(a);
+            if (CurrentMenutems.Count > 0)
+            {
+
+                TogglePopup();
+
+            }
 
         }
         private void OnNodeDoubleClicked(object sender, BeepMouseEventArgs e)
         {
             ClickedNode = sender as BeepTreeNode;
             if (ClickedNode == null) return;
+            CloseOpenPopupMenu();
             NodeDoubleClicked?.Invoke(sender, e);
         }
         private void OnNodeExpanded(object sender, BeepMouseEventArgs e)
@@ -502,7 +455,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (ClickedNode == null) return;
             var node = ClickedNode;
             if (node == null) return;
-
+            CloseOpenPopupMenu();
             // Add to SelectedNodes if not already present
             if (!SelectedNodes.Contains(node))
                 SelectedNodes.Add(node);
@@ -576,13 +529,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             ClickedNode = sender as BeepTreeNode;
             if (ClickedNode == null) return;
-            
 
-            if (IsPopupOpen && (ClickedNode != LastNodeMenuShown))
-            {
-                ClosePopup();
-              
-            }
+            CloseOpenPopupMenu();
+
             // Refresh the UI if necessary
             Invalidate();
         }
@@ -724,8 +673,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-                File.AppendAllText(@"C:\Logs\debug_log.txt", $"{DateTime.Now}: {message}{Environment.NewLine}");
-
+               // File.AppendAllText(@"C:\Logs\debug_log.txt", $"{DateTime.Now}: {message}{Environment.NewLine}");
+                Console.WriteLine(message);
+                Debug.WriteLine(message);
             }
             catch { /* Ignore logging errors */ }
         }
@@ -1015,7 +965,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Level = parent?.Level + 1 ?? 1 // Increment level for child nodes
                 };
                 node.Text = name ?? $"Node{seq}";
-                node.NodeClicked += (sender, e) => NodeClicked?.Invoke(sender, e);
+                node.NodeLeftClicked += (sender, e) => NodeLeftClicked?.Invoke(sender, e);
                 node.NodeRightClicked += (sender, e) => NodeRightClicked?.Invoke(sender, e);
                 node.NodeDoubleClicked += (sender, e) => NodeDoubleClicked?.Invoke(sender, e);
                 node.ShowMenu += (sender, e) => ShowFlyoutMenu(sender,e);
@@ -1803,14 +1753,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Popup List Methods"
         protected void TogglePopup()
         {
+            CloseOpenPopupMenu();
+            ClickedNode.MenuItemSelected += LastNodeMenuShown_MenuItemSelected;
+            ClickedNode.ShowContextMenu(CurrentMenutems);
+            LastNodeMenuShown = ClickedNode;
+        }
+        protected void CloseOpenPopupMenu()
+        {
             if (LastNodeMenuShown != null)
             {
                 LastNodeMenuShown.ClosePopup();
                 LastNodeMenuShown.MenuItemSelected -= LastNodeMenuShown_MenuItemSelected;
             }
-            ClickedNode.MenuItemSelected += LastNodeMenuShown_MenuItemSelected;
-            ClickedNode.ShowContextMenu(CurrentMenutems);
-            LastNodeMenuShown = ClickedNode;
         }
 
         private void LastNodeMenuShown_MenuItemSelected(object? sender, SelectedItemChangedEventArgs e)
@@ -1832,33 +1786,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         }
-        private void InitListbox()
-        {
-            // Rebuild beepListBox's layout
-            _beepListBox = new BeepListBox
-            {
-                TitleText = "Select an item",
-                ShowTitle = false,
-                ShowTitleLine = false,
-                Width = _maxListWidth,
-                Height = _maxListHeight,
-                ShowAllBorders = false,
-                IsBorderAffectedByTheme = false,
-                IsRoundedAffectedByTheme = false,
-                IsShadowAffectedByTheme = false,
-                
-            };
-            _beepListBox.Theme = Theme;
-            _beepListBox.ItemClicked += _beepListBox_ItemClicked;
-        }
 
-        private void _beepListBox_ItemClicked(object? sender, SimpleItem e)
-        {
-                SelectedMenuItem = e;
-                
-                ClosePopup();
-
-        }
+       
         #endregion "Popup List Methods"
         #region "Expand and Collapse"
         private void ExpandWithAnimation(BeepTreeNode node)

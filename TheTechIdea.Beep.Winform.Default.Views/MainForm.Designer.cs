@@ -348,7 +348,7 @@
             beepTreeControl1.IsFramless = false;
             beepTreeControl1.IsHovered = false;
             beepTreeControl1.IsNew = false;
-            beepTreeControl1.IsPopupOpen = false;
+     
             beepTreeControl1.IsPressed = false;
             beepTreeControl1.IsReadOnly = false;
             beepTreeControl1.IsRequired = false;
@@ -370,7 +370,7 @@
             beepTreeControl1.Padding = new Padding(1);
             beepTreeControl1.ParentBackColor = Color.Empty;
             beepTreeControl1.ParentControl = null;
-            beepTreeControl1.PopupMode = false;
+         
             beepTreeControl1.PressedBackColor = Color.FromArgb(0, 120, 215);
             beepTreeControl1.PressedBorderColor = Color.Gray;
             beepTreeControl1.PressedForeColor = Color.Black;
@@ -379,7 +379,7 @@
             beepTreeControl1.SavedID = null;
             beepTreeControl1.SelectedBranchID = 0;
             beepTreeControl1.SelectedBranchs = (List<int>)resources.GetObject("beepTreeControl1.SelectedBranchs");
-            beepTreeControl1.SelectedIndex = -1;
+
             beepTreeControl1.SelectIcon = "Select.svg";
             beepTreeControl1.SeqID = 2;
             beepTreeControl1.ShadowColor = Color.FromArgb(100, 0, 0, 0);

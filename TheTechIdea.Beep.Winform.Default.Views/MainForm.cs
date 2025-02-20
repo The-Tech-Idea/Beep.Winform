@@ -34,6 +34,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             Dependencies.DMEEditor = beepService.DMEEditor;
             beepTreeControl1.init(beepService);
             beepTreeControl1.CreateRootTree();
+           // beepTreeControl1.InitializeTreeFromMenuItems();
         }
     }
 }

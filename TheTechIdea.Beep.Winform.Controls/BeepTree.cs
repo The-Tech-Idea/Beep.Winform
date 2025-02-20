@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Keep track of visible nodes
         private List<BeepTreeNode> visibleNodes = new List<BeepTreeNode>();
         public int NodeWidth { get; set; } = 100;
-        private BindingList<SimpleItem> rootnodeitems = new BindingList<SimpleItem>();
+        private List<SimpleItem> rootnodeitems = new List<SimpleItem>();
         private List<BeepTreeNode> _beeptreeRootnodes = new List<BeepTreeNode>();
         private Dictionary<int, Panel> _nodePanels = new Dictionary<int, Panel>();
         private bool _shownodeimage = true;
@@ -300,7 +300,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [MergableProperty(false)]
         //  [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public BindingList<SimpleItem> Nodes
+        public List<SimpleItem> Nodes
         {
             get => rootnodeitems;
             set
@@ -339,12 +339,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (rootnodeitems == null)
             {
-                rootnodeitems = new BindingList<SimpleItem>();
+                rootnodeitems = new List<SimpleItem>();
             }
 
             _beeptreeRootnodes = new List<BeepTreeNode>();
-            rootnodeitems.ListChanged -= Items_ListChanged;
-            rootnodeitems.ListChanged += Items_ListChanged;
+            //rootnodeitems.ListChanged -= Items_ListChanged;
+            //rootnodeitems.ListChanged += Items_ListChanged;
 
             ApplyThemeToChilds = false;
             InitLayout();
@@ -709,61 +709,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void RearrangeTree()
         {
             SuspendLayout(); // Suspend layout updates for performance
-            int startY = 5; // Initial Y offset
 
             foreach (var node in _beeptreeRootnodes)
             {
                 if (!_nodePanels.TryGetValue(node.NodeSeq, out var panel))
                     continue;
-                // Position the panel
-                //panel.Location = new Point(5, startY);
-                if (panel.Width != DrawingRect.Width)
-                {
-                    panel.Width = DrawingRect.Width; // Adjust panel width based on tree width
-                }
 
-                if (node.IsInvalidated)
-                {
-                    node.RearrangeNode();
-                   
-                  
-                    node.IsInvalidated = false;
-                }
-                //if (node.Height != NodeHeight)
-                //{
-                //    node.Height = NodeHeight;
-                //    panel.Height = NodeHeight;
-                //}
-                
-                startY += panel.Height; // Increment Y position based on panel's height
-                                        //    node.RearrangeNode(); // Adjust the node's internal layout
+                // Ensure the node's layout is fully updated
+                node.RearrangeNode();
+                node.IsInvalidated = false; // Reset after rearranging
 
+                // Sync panel dimensions with the node's calculated size
+                panel.Width = DrawingRect.Width; // Match tree width
+                panel.Height = node.Height; // Use full node height including children
+
+                // No need to set Location.Y since Dock = DockStyle.Top handles vertical stacking
+                // panel.Location = new Point(5, panel.Location.Y); // X offset optional, Y ignored by docking
             }
-            ResumeLayout(); // Resume layout updates
-                            // Invalidate(); // Redraw the tree
+
+            ResumeLayout(); // Resume layout updates and let docking adjust positions
+                            // Invalidate(); // Uncomment if redraw is needed
         }
-        private void ScrollIntoView()
-        {
-            Control parent = this.Parent;
-            while (parent != null && !(parent is ScrollableControl))
-            {
-                parent = parent.Parent;
-            }
-
-            if (parent is ScrollableControl scrollable)
-            {
-                if (this.Bottom > scrollable.ClientRectangle.Bottom)
-                {
-                    scrollable.AutoScrollPosition = new Point(0, this.Bottom - scrollable.ClientRectangle.Height);
-                }
-                else if (this.Top < 0)
-                {
-                    scrollable.AutoScrollPosition = new Point(0, this.Top);
-                }
-            }
-        }
+   
         #endregion "Event Handlers"
-        #region "Root Nodes Creation"
+        #region "Nodes Creation"
         public void SyncChildNodes(BeepTreeNode node)
         {
             if (node == null || node.Nodes == null)
@@ -778,152 +747,200 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        private void Items_ListChanged(object? sender, ListChangedEventArgs e)
-        {
-            if (_isUpdatingTree)
-            {
-                //Console.WriteLine("Skipping ListChanged event due to ongoing update.");
-                return;
-            }
+        //private void Items_ListChanged(object? sender, ListChangedEventArgs e)
+        //{
+        //    if (_isUpdatingTree)
+        //    {
+        //        //Console.WriteLine("Skipping ListChanged event due to ongoing update.");
+        //        return;
+        //    }
 
-          //  Console.WriteLine($"ListChanged: Type={e.ListChangedType}, Index={e.NewIndex}");
+        //  //  Console.WriteLine($"ListChanged: Type={e.ListChangedType}, Index={e.NewIndex}");
+        //    try
+        //    {
+        //        _isUpdatingTree = true;
+
+        //        switch (e.ListChangedType)
+        //        {
+        //            case ListChangedType.ItemAdded:
+        //                HandleItemAdded(e.NewIndex);
+        //                break;
+
+        //            case ListChangedType.ItemDeleted:
+        //                HandleItemDeleted(e.NewIndex);
+        //                break;
+
+        //            case ListChangedType.ItemChanged:
+        //                HandleItemChanged(e.NewIndex);
+        //                break;
+
+        //            case ListChangedType.Reset:
+        //                if (rootnodeitems.Count == 0)
+        //                {
+        //                    ClearNodes();
+        //                }
+        //                else
+        //                {
+        //                    InitializeTreeFromMenuItems();
+        //                }
+        //                break;
+
+        //            default:
+        //                Console.WriteLine($"Unhandled ListChangedType: {e.ListChangedType}");
+        //                break;
+        //        }
+        //    }
+        //    finally
+        //    {
+        //        _isUpdatingTree = false;
+        //    }
+        //}
+        //private void HandleItemAdded(int index)
+        //{
+
+        //    if (index < 0 || index >= rootnodeitems.Count)
+        //    {
+        //        LogMessage($"Invalid index for addition: {index}");
+        //        return;
+        //    }
+
+        //    var menuItem = rootnodeitems[index];
+        //    LogMessage($"Handling item addition for index {index}: {menuItem.Text}");
+
+        //    // Commented out for debugging:
+        //    var node = CreateTreeNodeFromMenuItem(menuItem, null);
+        //    if (node != null)
+        //    {
+        //        _dontRearrange = true;
+        //        Panel panel = AddRootNode(node);
+        //        panel.Tag = node.GuidID;
+        //        menuItem.ContainerGuidID = node.GuidID;
+        //        menuItem.RootContainerGuidID = node.GuidID;
+        //        node.Nodes = menuItem.Children;
+        //        node.NodeInfo = menuItem;
+               
+        //    //    node.RearrangeNode();
+        //        LogMessage($"Node added for item at index {index}: {menuItem.Text}");
+        //     //   RearrangeTree();
+        //        _dontRearrange = false;
+        //    }
+        //}
+        //private void HandleItemDeleted(int index)
+        //{
+        //    if (index < 0 || index >= _beeptreeRootnodes.Count)
+        //    {
+        //        LogMessage($"Invalid index for deletion: {index}");
+        //        return;
+        //    }
+
+        //    var node = GetNode(index);
+        //    if (node != null)
+        //    {
+        //        RemoveNode(node);
+        //        LogMessage($"Node removed for item at index {index}");
+        //        RearrangeTree();
+        //    }
+        //}
+        //private void HandleItemChanged(int index)
+        //{
+        //    if (index < 0 || index >= rootnodeitems.Count || index >= _beeptreeRootnodes.Count)
+        //    {
+        //        Console.WriteLine($"Invalid index for update: {index}");
+        //        return;
+        //    }
+
+        //    var menuItem = rootnodeitems[index];
+        //    var node = GetNode(index);
+        //    if (node != null && menuItem != null)
+        //    {
+        //        node.Text = menuItem.Text;
+        //        node.ImagePath = menuItem.ImagePath;
+        //        node.Children = menuItem.Children; // Sync children
+        //        //node.RearrangeNode();
+        //        Console.WriteLine($"Node updated for item at index {index}: {menuItem.Text}");
+        //        RearrangeTree();
+        //    }
+        //}
+        /// <summary>
+        /// Initializes the tree by traversing SimpleItems and their children, creating BeepTreeNodes recursively.
+        /// </summary>
+        public void InitializeTreeFromMenuItems()
+        {
             try
             {
-                _isUpdatingTree = true;
+                SuspendLayout(); // Prevent layout updates during initialization
+                _beeptreeRootnodes.Clear(); // Clear existing root nodes
+                Controls.Clear(); // Clear existing UI controls
 
-                switch (e.ListChangedType)
+                // Traverse root-level SimpleItems and create root BeepTreeNodes
+                foreach (var item in rootnodeitems)
                 {
-                    case ListChangedType.ItemAdded:
-                        HandleItemAdded(e.NewIndex);
-                        break;
+                    var rootNode = CreateTreeNodeFromMenuItem(item, null); // null parent for root nodes
+                    if (rootNode != null)
+                    {
+                        rootNode.GuidID = item.GuidId; // Share GuidId
+                        item.ContainerGuidID = rootNode.GuidID;
+                        item.RootContainerGuidID = rootNode.GuidID; // Root node's own GuidID
+                        item.IsDrawn = true; // Root nodes are drawn immediately
 
-                    case ListChangedType.ItemDeleted:
-                        HandleItemDeleted(e.NewIndex);
-                        break;
+                        // Add the root node using AddRootNode
+                        var panel = AddRootNode(rootNode);
 
-                    case ListChangedType.ItemChanged:
-                        HandleItemChanged(e.NewIndex);
-                        break;
-
-                    case ListChangedType.Reset:
-                        if (rootnodeitems.Count == 0)
-                        {
-                            ClearNodes();
-                        }
-                        else
-                        {
-                            InitializeTreeFromMenuItems();
-                        }
-                        break;
-
-                    default:
-                        Console.WriteLine($"Unhandled ListChangedType: {e.ListChangedType}");
-                        break;
+                        // Recursively create child nodes (not drawn until expanded)
+                        CreateChildNodesRecursively(rootNode, item);
+                    }
+                    else
+                    {
+                        LogMessage($"Failed to create root BeepTreeNode for item with GuidId {item.GuidId}.");
+                    }
                 }
+
+                // RearrangeTree is called within AddRootNode unless _dontRearrange is true
+                // No need to call it again here unless additional layout is required
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"Error initializing tree from menu items: {ex.Message}");
             }
             finally
             {
-                _isUpdatingTree = false;
+                ResumeLayout(); // Resume layout updates
             }
         }
-        private void HandleItemAdded(int index)
-        {
 
-            if (index < 0 || index >= rootnodeitems.Count)
+        /// <summary>
+        /// Recursively creates child BeepTreeNodes for a SimpleItem’s children.
+        /// </summary>
+        /// <param name="parentNode">The parent BeepTreeNode.</param>
+        /// <param name="parentItem">The parent SimpleItem.</param>
+        private void CreateChildNodesRecursively(BeepTreeNode parentNode, SimpleItem parentItem)
+        {
+            if (parentItem.Children == null || parentItem.Children.Count == 0)
             {
-                LogMessage($"Invalid index for addition: {index}");
                 return;
             }
 
-            var menuItem = rootnodeitems[index];
-            LogMessage($"Handling item addition for index {index}: {menuItem.Text}");
-
-            // Commented out for debugging:
-            var node = CreateTreeNodeFromMenuItem(menuItem, null);
-            if (node != null)
+            foreach (var childItem in parentItem.Children)
             {
-                _dontRearrange = true;
-                Panel panel = AddRootNode(node);
-                panel.Tag = node.GuidID;
-                menuItem.ContainerGuidID = node.GuidID;
-                menuItem.RootContainerGuidID = node.GuidID;
-                node.Nodes = menuItem.Children;
-                node.NodeInfo = menuItem;
-               
-            //    node.RearrangeNode();
-                LogMessage($"Node added for item at index {index}: {menuItem.Text}");
-             //   RearrangeTree();
-                _dontRearrange = false;
-            }
-        }
-        private void HandleItemDeleted(int index)
-        {
-            if (index < 0 || index >= _beeptreeRootnodes.Count)
-            {
-                LogMessage($"Invalid index for deletion: {index}");
-                return;
-            }
-
-            var node = GetNode(index);
-            if (node != null)
-            {
-                RemoveNode(node);
-                LogMessage($"Node removed for item at index {index}");
-                RearrangeTree();
-            }
-        }
-        private void HandleItemChanged(int index)
-        {
-            if (index < 0 || index >= rootnodeitems.Count || index >= _beeptreeRootnodes.Count)
-            {
-                Console.WriteLine($"Invalid index for update: {index}");
-                return;
-            }
-
-            var menuItem = rootnodeitems[index];
-            var node = GetNode(index);
-            if (node != null && menuItem != null)
-            {
-                node.Text = menuItem.Text;
-                node.ImagePath = menuItem.ImagePath;
-                node.Children = menuItem.Children; // Sync children
-                //node.RearrangeNode();
-                Console.WriteLine($"Node updated for item at index {index}: {menuItem.Text}");
-                RearrangeTree();
-            }
-        }
-        public void InitializeTreeFromMenuItems()
-        {
-            LogMessage("Initialize StandardTree");
-            ClearNodes(); // Clear existing nodes
-            LogMessage("Items Count: " + rootnodeitems.Count);
-            _dontRearrange = true;
-            foreach (var menuItem in rootnodeitems)
-            {
-                try
+                var childNode = CreateTreeNodeFromMenuItem(childItem, parentNode);
+                if (childNode != null)
                 {
-                    LogMessage("MenuItem: " + menuItem.Text);
-                    var node = CreateTreeNodeFromMenuItem(menuItem, null);
-                    LogMessage("Created Node: " + node.Text);
-                    if (node == null)
-                    {
-                        continue;
-                    }
+                    childNode.GuidID = childItem.GuidId; // Share GuidId
+                    childItem.ContainerGuidID = childNode.GuidID;
+                    childItem.RootContainerGuidID = parentNode.GuidID; // Set to parent's GuidID
+                    childItem.IsDrawn = false; // Children are not drawn until expanded
 
-                    Panel panel= AddRootNode(node);
-                    menuItem.ContainerGuidID = node.GuidID;
-                    menuItem.RootContainerGuidID = node.GuidID;
-                    panel.Tag = node.GuidID;
-                    LogMessage("Node Added");
-
+                    parentNode.AddNode(childNode); // Add to parent’s NodesControls and Nodes
+                    parentNode.RearrangeNode();
+                    childNode.RearrangeNode();
+                    // Recursively process deeper children
+                    CreateChildNodesRecursively(childNode, childItem);
                 }
-                catch (Exception ex)
+                else
                 {
-                    LogMessage("Error: " + ex.Message);
+                    LogMessage($"Failed to create child BeepTreeNode for item with GuidId {childItem.GuidId}.");
                 }
             }
-            RearrangeTree();
-            _dontRearrange = false;
         }
         // function to generate a tree node from a parameters
         public BeepTreeNode CreateTreeNode(string name, string imagepath, string BranchGuid, string typename, BeepTreeNode parent)
@@ -1154,49 +1171,429 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return _beeptreeRootnodes.FirstOrDefault(p => p.NodeSeq == seq);
         }
-        public void AddNode(SimpleItem simpleItem,BeepTreeNode parent)
+        /// <summary>
+        /// Adds a new SimpleItem to the specified parent's Children and draws the entire branch.
+        /// If no valid parent is specified or found, creates a root node.
+        /// </summary>
+        /// <param name="newItem">The SimpleItem to add.</param>
+        /// <param name="parentGuidId">The GuidID of the parent node (null or invalid for root).</param>
+        /// <returns>The created BeepTreeNode, or null if the operation fails.</returns>
+        public BeepTreeNode AddNodeWithBranch(SimpleItem newItem, string parentGuidId = null)
         {
-            if (simpleItem == null)
+            if (newItem == null)
             {
-                return;
+                LogMessage("Cannot add null SimpleItem.");
+                return null;
             }
-            // Create a new node from the SimpleItem
-            var node = CreateTreeNodeFromMenuItem(simpleItem, parent);
-            if (node == null)
-            {
-                return;
-            }
-            // Add the node to the parent's children
-            parent.AddNode(node);
-            parent.RearrangeNode();
 
+            try
+            {
+                BeepTreeNode parentNode = null;
+                SimpleItem parentItem = null;
+                BeepTreeNode newNode = null;
+
+                // Ensure newItem has a GuidId
+                if (string.IsNullOrEmpty(newItem.GuidId))
+                {
+                    newItem.GuidId = Guid.NewGuid().ToString();
+                }
+
+                // Handle root node case (null or invalid parentGuidId)
+                if (string.IsNullOrEmpty(parentGuidId))
+                {
+                    // Create as a root node
+                    newNode = CreateTreeNodeFromMenuItem(newItem, null);
+                    if (newNode == null)
+                    {
+                        LogMessage("Failed to create root BeepTreeNode.");
+                        return null;
+                    }
+
+                    newNode.GuidID = newItem.GuidId;
+                    newItem.ContainerGuidID = newNode.GuidID;
+                    newItem.RootContainerGuidID = newNode.GuidID;
+                    newItem.IsDrawn = true;
+
+                    var panel = AddRootNode(newNode);
+                    if (panel == null)
+                    {
+                        LogMessage("Failed to add root node panel.");
+                        return null;
+                    }
+
+                    panel.Tag = newNode.GuidID;
+                    Nodes.Add(newItem); // Add to rootnodeitems for data consistency
+                }
+                else
+                {
+                    // Find the parent node by GuidID
+                    parentNode = GetBeepTreeNodeByGuid(parentGuidId);
+                    if (parentNode == null)
+                    {
+                        // Parent not found: treat as root node (assuming intent to always succeed)
+                        LogMessage($"Parent node with GuidID {parentGuidId} not found. Adding as root node.");
+                        newNode = CreateTreeNodeFromMenuItem(newItem, null);
+                        if (newNode == null)
+                        {
+                            LogMessage("Failed to create root BeepTreeNode for invalid parent.");
+                            return null;
+                        }
+
+                        newNode.GuidID = newItem.GuidId;
+                        newItem.ContainerGuidID = newNode.GuidID;
+                        newItem.RootContainerGuidID = newNode.GuidID;
+                        newItem.IsDrawn = true;
+
+                        var panel = AddRootNode(newNode);
+                        if (panel == null)
+                        {
+                            LogMessage("Failed to add root node panel for invalid parent.");
+                            return null;
+                        }
+
+                        panel.Tag = newNode.GuidID;
+                        Nodes.Add(newItem);
+                    }
+                    else
+                    {
+                        // Parent exists: add as child
+                        parentItem = parentNode.NodeInfo;
+                        if (parentItem == null)
+                        {
+                            LogMessage($"Parent node {parentGuidId} has no associated SimpleItem.");
+                            return null;
+                        }
+
+                        parentItem.Children.Add(newItem);
+                        newItem.ParentItem = parentItem;
+
+                        newNode = CreateTreeNodeFromMenuItem(newItem, parentNode);
+                        if (newNode == null)
+                        {
+                            LogMessage("Failed to create child BeepTreeNode.");
+                            return null;
+                        }
+
+                        newNode.GuidID = newItem.GuidId;
+                        newItem.ContainerGuidID = newNode.GuidID;
+                        newItem.RootContainerGuidID = parentNode.GuidID;
+                        newItem.IsDrawn = parentNode.IsExpanded;
+
+                        parentNode.AddNode(newNode);
+                    }
+                }
+
+                // Draw the branch and update layout
+                DrawBranch(newNode);
+                if (parentNode != null)
+                {
+                    parentNode.RearrangeNode();
+                }
+                RearrangeTree();
+
+                return newNode;
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"Error adding node with branch: {ex.Message}");
+                return null;
+            }
         }
-        #endregion "Root Nodes Creation"
+        /// <summary>
+        /// Recursively draws the branch starting from the given node, including all children.
+        /// </summary>
+        /// <param name="node">The starting node of the branch to draw.</param>
+        private void DrawBranch(BeepTreeNode node)
+        {
+            if (node == null || node.Nodes == null || node.Nodes.Count == 0)
+                return;
+
+            // Ensure the node's children are rendered if expanded
+            if (node.IsExpanded)
+            {
+                foreach (var childItem in node.Nodes)
+                {
+                    if (node.NodesControls.Any(n => n.NodeInfo == childItem))
+                        continue; // Skip if already created
+
+                    var childNode = CreateTreeNodeFromMenuItem(childItem, node);
+                    if (childNode != null)
+                    {
+                        childNode.GuidID = childItem.GuidId;
+                        childItem.ContainerGuidID = childNode.GuidID;
+                        childItem.RootContainerGuidID = node.GuidID;
+
+                        node.AddNode(childNode); // Add to NodesControls and UI
+                        DrawBranch(childNode); // Recursively draw children
+                    }
+                }
+                node.RearrangeNode(); // Update layout after adding children
+            }
+        }
+        /// <summary>
+        /// Adds a new SimpleItem to an existing BeepTreeNode branch and updates the UI.
+        /// </summary>
+        /// <param name="newItem">The SimpleItem to add.</param>
+        /// <param name="parentNode">The existing BeepTreeNode to add the item under.</param>
+        /// <returns>The created BeepTreeNode, or null if the operation fails.</returns>
+        public BeepTreeNode AddNodeToBranch(SimpleItem newItem, BeepTreeNode parentNode)
+        {
+            if (newItem == null)
+            {
+                LogMessage("Cannot add null SimpleItem.");
+                return null;
+            }
+            if (parentNode == null)
+            {
+                LogMessage("Parent BeepTreeNode cannot be null. Use AddNodeWithBranch for root nodes.");
+                return null;
+            }
+
+            try
+            {
+                var parentItem = parentNode.NodeInfo;
+                if (parentItem == null)
+                {
+                    LogMessage($"Parent node {parentNode.GuidID} has no associated SimpleItem.");
+                    return null;
+                }
+
+                // Ensure newItem has a GuidId
+                if (string.IsNullOrEmpty(newItem.GuidId))
+                {
+                    newItem.GuidId = Guid.NewGuid().ToString();
+                }
+
+                // Add to parent's Children
+                parentItem.Children.Add(newItem);
+                newItem.ParentItem = parentItem;
+
+                // Create the new node
+                var newNode = CreateTreeNodeFromMenuItem(newItem, parentNode);
+                if (newNode == null)
+                {
+                    LogMessage("Failed to create BeepTreeNode for the new item.");
+                    return null;
+                }
+
+                // Set GUIDs and hierarchy
+                newNode.GuidID = newItem.GuidId;
+                newItem.ContainerGuidID = newNode.GuidID;
+                newItem.RootContainerGuidID = parentNode.GuidID;
+
+                // Add to parent and update UI
+                parentNode.AddNode(newNode);
+                parentNode.RearrangeNode(); // Update parent layout
+                RearrangeTree(); // Update entire tree
+
+                return newNode;
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"Error adding node to branch: {ex.Message}");
+                return null;
+            }
+        }
+        /// <summary>
+        /// Adds a new SimpleItem to an existing branch identified by the parent's GuidId and updates Nodes.
+        /// </summary>
+        /// <param name="newItem">The SimpleItem to add.</param>
+        /// <param name="parentGuidId">The GuidId of the parent SimpleItem in the branch.</param>
+        /// <returns>The SimpleItem added, or null if the operation fails.</returns>
+        public SimpleItem AddNodeToBranchByGuid(SimpleItem newItem, string parentGuidId)
+        {
+            if (newItem == null)
+            {
+                LogMessage("Cannot add null SimpleItem.");
+                return null;
+            }
+            if (string.IsNullOrEmpty(parentGuidId))
+            {
+                LogMessage("Parent GuidId cannot be null or empty. Use Nodes.Add for root nodes.");
+                return null;
+            }
+
+            try
+            {
+                // Find the parent SimpleItem
+                var parentItem = GetNodeByGuidID(parentGuidId);
+                if (parentItem == null)
+                {
+                    LogMessage($"Parent SimpleItem with GuidId {parentGuidId} not found.");
+                    return null;
+                }
+
+                // Ensure newItem has a GuidId
+                if (string.IsNullOrEmpty(newItem.GuidId))
+                {
+                    newItem.GuidId = Guid.NewGuid().ToString();
+                }
+
+                // Add to parent's Children
+                parentItem.Children.Add(newItem);
+                newItem.ParentItem = parentItem;
+                newItem.RootContainerGuidID = parentGuidId;
+
+                // Find the corresponding BeepTreeNode (if exists)
+                var parentNode = GetBeepTreeNodeByGuid(parentGuidId);
+                if (parentNode != null)
+                {
+                    var newNode = CreateTreeNodeFromMenuItem(newItem, parentNode);
+                    if (newNode != null)
+                    {
+                        newNode.GuidID = newItem.GuidId;
+                        newItem.ContainerGuidID = newNode.GuidID;
+
+                        parentNode.AddNode(newNode);
+                        parentNode.RearrangeNode();
+                        RearrangeTree();
+                    }
+                    else
+                    {
+                        LogMessage("Failed to create BeepTreeNode for the new item.");
+                    }
+                }
+                else
+                {
+                    LogMessage($"Parent node for GuidId {parentGuidId} not yet created. Added to data only.");
+                }
+
+                NodeAdded?.Invoke(this, new BeepMouseEventArgs { EventName = "NodeAdded", Data = newItem.GuidId });
+                return newItem;
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"Error adding node to branch: {ex.Message}");
+                return null;
+            }
+        }
+        /// <summary>
+        /// Adds a new SimpleItem to an existing SimpleItem parent's Children and updates the tree.
+        /// </summary>
+        /// <param name="newItem">The SimpleItem to add.</param>
+        /// <param name="parentItem">The SimpleItem parent to add the item under.</param>
+        /// <returns>The BeepTreeNode of the parent, or null if the parent isn’t drawn or the operation fails.</returns>
+        public BeepTreeNode AddNodeToBranch(SimpleItem newItem, SimpleItem parentItem)
+        {
+            if (newItem == null)
+            {
+                LogMessage("Cannot add null SimpleItem.");
+                return null;
+            }
+            if (parentItem == null)
+            {
+                LogMessage("Parent SimpleItem cannot be null. Use Nodes.Add for root nodes.");
+                return null;
+            }
+
+            try
+            {
+                // Ensure newItem has a GuidId
+                if (string.IsNullOrEmpty(newItem.GuidId))
+                {
+                    newItem.GuidId = Guid.NewGuid().ToString();
+                }
+
+                // Add to parent's Children
+                parentItem.Children.Add(newItem);
+                newItem.ParentItem = parentItem;
+
+                // Find the corresponding parent BeepTreeNode (if it exists)
+                var parentNode = GetBeepTreeNodeByGuid(parentItem.GuidId);
+                if (parentNode != null)
+                {
+                    // Create a new BeepTreeNode for the new item
+                    var newNode = CreateTreeNodeFromMenuItem(newItem, parentNode);
+                    if (newNode != null)
+                    {
+                        newNode.GuidID = newItem.GuidId;
+                        newItem.ContainerGuidID = newNode.GuidID;
+                        newItem.RootContainerGuidID = parentNode.GuidID;
+                        newItem.IsDrawn = parentNode.IsExpanded;
+
+                        parentNode.AddNode(newNode);
+                        parentNode.RearrangeNode();
+                        RearrangeTree();
+                    }
+                    else
+                    {
+                        LogMessage($"Failed to create BeepTreeNode for item with GuidId {newItem.GuidId}.");
+                    }
+
+                    // Return the parent node
+                    return parentNode;
+                }
+                else
+                {
+                    // If parent node isn’t drawn yet, update data only
+                    newItem.RootContainerGuidID = parentItem.GuidId;
+                    newItem.IsDrawn = false;
+                    LogMessage($"Parent node for GuidId {parentItem.GuidId} not yet created. Added to data only.");
+                }
+
+                // Trigger NodeAdded event
+                NodeAdded?.Invoke(this, new BeepMouseEventArgs { EventName = "NodeAdded", Data = newItem.GuidId });
+
+                return null; // Return null if parent isn’t drawn
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"Error adding node to branch: {ex.Message}");
+                return null;
+            }
+        }
+        #endregion "Nodes Creation"
         #region "Remove Nodes"
+        /// <summary>
+        /// Removes a SimpleItem from the tree and updates Nodes and the UI.
+        /// </summary>
+        /// <param name="simpleItem">The SimpleItem to remove.</param>
         public void RemoveNode(SimpleItem simpleItem)
         {
             if (simpleItem == null)
             {
+                LogMessage("Cannot remove null SimpleItem.");
                 return;
             }
 
-            // Recursively find and remove the SimpleItem from the Nodes hierarchy
-            var parentItem = FindParentNode(rootnodeitems, simpleItem);
-            if (parentItem != null)
+            try
             {
-                parentItem.Children.Remove(simpleItem);
+                // Find and remove the SimpleItem from the hierarchy
+                var parentItem = FindParentNode(rootnodeitems, simpleItem);
+                if (parentItem != null)
+                {
+                    parentItem.Children.Remove(simpleItem);
+                }
+                else
+                {
+                    // If it’s a root node, remove it directly from rootnodeitems
+                    rootnodeitems.Remove(simpleItem);
+                }
+
+                // Clean up UI controls if the node exists
+                var node = GetBeepTreeNodeByGuid(simpleItem.GuidId);
+                if (node != null)
+                {
+                    if (node.ParentNode != null)
+                    {
+                        node.ParentNode.RemoveNode(node);
+                        node.ParentNode.RearrangeNode();
+                    }
+                    else
+                    {
+                        _beeptreeRootnodes.Remove(node);
+                    }
+                    RemoveNodeControlsRecursive(_beeptreeRootnodes, simpleItem);
+                    RearrangeTree();
+                }
+
+                // Trigger NodeDeleted event
+                NodeDeleted?.Invoke(this, new BeepMouseEventArgs { EventName = "NodeDeleted", Data = simpleItem.GuidId });
             }
-            else
+            catch (Exception ex)
             {
-                // If it's a root node, remove it from the root list
-                rootnodeitems.Remove(simpleItem);
+                LogMessage($"Error removing node: {ex.Message}");
             }
-
-            // Clean up any associated UI controls
-            RemoveNodeControlsRecursive(_beeptreeRootnodes, simpleItem);
-
-            // Rearrange the tree after changes
-            RearrangeTree();
         }
         private SimpleItem FindParentNode(IEnumerable<SimpleItem> items, SimpleItem target)
         {
@@ -1603,7 +2000,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
     
 
         #endregion "Find SimpleItem"

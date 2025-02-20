@@ -560,7 +560,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 br.Visutil = VisManager;
                 br.TreeEditor = this;
                 // add to Simpleitem child nodes
-                parentnode.Children.Add(item);
+                AddNodeToBranch(item, parentnode);
                 // add to Child Branchs
                 AddBranchToParentInBranchsOnly(ParentBranch, br);
                 if (br.ChildBranchs.Count == 0)
@@ -637,7 +637,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             br.DMEEditor = DMEEditor;
             br.Visutil = VisManager;
             br.TreeEditor = this;
-            Nodes.Add(item);
+           // Nodes.Add(item);
+            AddNodeWithBranch(item);
             Branches.Add(br);
             br.CreateChildNodes();
         }
@@ -669,7 +670,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             br.DMEEditor = DMEEditor;
             br.Visutil = VisManager;
             br.TreeEditor = this;
-            Nodes.Add(item);
+           //ee Nodes.Add(item);
+            AddNodeWithBranch(item);
             Branches.Add(br);
             br.CreateChildNodes();
         }

@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private int _level;
 
-        private string _guidid=Guid.NewGuid().ToString();
+       // private string _guidid=Guid.NewGuid().ToString();
         private Panel _nodePanel; // Panel to encapsulate the node
         private Panel _childrenPanel; // Panel for child nodes
 
@@ -917,7 +917,7 @@ namespace TheTechIdea.Beep.Winform.Controls
        
             if (NodeMainMiddlebutton != null) NodeMainMiddlebutton.Text = Text;
             if (NodeMainMiddlebutton != null) NodeMainMiddlebutton.ImagePath = ImagePath;
-            Nodes.ListChanged += Nodes_ListChanged;
+           // Nodes.ListChanged += Nodes_ListChanged;
          //   this.Click += BeepTreeNode_Click;
           //  this.MouseDown += BeepTreeNode_MouseDown;
             this.MouseHover += BeepTreeNode_MouseHover;
@@ -932,39 +932,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             ApplyTheme();
             RearrangeNode();
         }
-
-       
-
         public void RearrangeNode()
         {
             SuspendLayout(); // Temporarily stop layout updates
             try
             {
-               
-              
                 if (NodeInfo == null) return;
-         //       if (!isSizeCached)
-         //       {
-                    CalculateSize();
-   ///             }
-                // Apply cached sizes
+
+                CalculateSize();
                 UpdateDrawingRect();
                 int startx = 0; // Horizontal start point
                 int centerY = (NodeHeight - MaxImageSize) / 2; // Center alignment for small buttons
 
-                // Adjust the size of the main node panel
-               // _nodePanel.Width = Parent?.Width ?? DrawingRect.Width; // Match parent's width
-               //   LogMessage($"Rearranging inside NodesControls 1 : {_nodePanel.Width}");
                 _nodePanel.Height = NodeHeight;
 
                 // Position the toggle button
                 if (_toggleButton != null)
                 {
                     _toggleButton.Size = new Size(toggelbuttonsize, toggelbuttonsize);
-                    int centerYfortoggle = (NodeHeight - _toggleButton.Size.Height) / 2; // Center alignment for small buttons
-                    _toggleButton.Location = new Point(startx, centerYfortoggle); // Center vertically
-                  
-                    _toggleButton.MaxImageSize =new Size(toggelbuttonsize-1, toggelbuttonsize-1);
+                    int centerYfortoggle = (NodeHeight - _toggleButton.Size.Height) / 2;
+                    _toggleButton.Location = new Point(startx, centerYfortoggle);
+                    _toggleButton.MaxImageSize = new Size(toggelbuttonsize - 1, toggelbuttonsize - 1);
                     startx += _toggleButton.Width + spacing;
                 }
 
@@ -972,83 +960,75 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_checkBox != null && _showCheckBox)
                 {
                     _checkBox.Size = new Size(toggelbuttonsize, toggelbuttonsize);
-                    int centerYforcheckbox = (NodeHeight - _checkBox.Size.Height) / 2; // Center alignment for small buttons
+                    int centerYforcheckbox = (NodeHeight - _checkBox.Size.Height) / 2;
                     _checkBox.Location = new Point(startx, centerYforcheckbox);
                     _checkBox.CheckBoxSize = toggelbuttonsize - 1;
-                   
                     startx += _checkBox.Width + spacing;
                 }
-                //// Position the left button
-                //if (Nodeleftbutton != null)
-                //{
-                //    Nodeleftbutton.Location = new Point(startx, centerY); // Center vertically
-                //    Nodeleftbutton.Size = new Size(SmallNodeHeight, SmallNodeHeight);
-                //    startx += Nodeleftbutton.Width + spacing;
-                //}
 
                 // Position the main middle button
                 if (NodeMainMiddlebutton != null)
                 {
-                    NodeMainMiddlebutton.MinimumSize = new Size(MinimumTextWidth, NodeHeight); // Ensure a minimum size
-
+                    NodeMainMiddlebutton.MinimumSize = new Size(MinimumTextWidth, NodeHeight);
                     NodeMainMiddlebutton.Size = new Size(Math.Max(MinimumTextWidth, _nodePanel.Width - startx - SmallNodeHeight - 2 * padding), NodeHeight);
-                    int centerYformainbutton = (NodeHeight - NodeMainMiddlebutton.Size.Height) / 2; // Center alignment for small buttons
-                    NodeMainMiddlebutton.Location = new Point(startx, centerYformainbutton); // Top aligned
-                    
-                      startx += NodeMainMiddlebutton.Width + spacing;
+                    int centerYformainbutton = (NodeHeight - NodeMainMiddlebutton.Size.Height) / 2;
+                    NodeMainMiddlebutton.Location = new Point(startx, centerYformainbutton);
+                    startx += NodeMainMiddlebutton.Width + spacing;
                 }
 
                 // Position the right button
                 if (Noderightbutton != null)
                 {
-                    Noderightbutton.Location = new Point(startx, centerY); // Center vertically
+                    Noderightbutton.Location = new Point(startx, centerY);
                     Noderightbutton.Size = new Size(SmallNodeHeight, SmallNodeHeight);
                     startx += Noderightbutton.Width + spacing;
                 }
 
-                // Adjust the size of the node panel
                 _nodePanel.Height = NodeHeight + spacing;
-              
+
                 int xlevel = 1;
-               
-                // Adjust the size of `_childrenPanel` based on expansion
-                if (NodeInfo.Children.Count > 0 && IsExpanded)
+
+                // Adjust children visibility and layout
+                if (NodeInfo.Children.Count > 0)
                 {
-
-           ////         if (!_ischildDrawn)
-               //     {
-                        CreateChildNodes();
-               //         _ischildDrawn = true;
-              //      }
-                    int childStartY = padding;
-                    foreach (var child in NodesControls)
+                    if (IsExpanded)
                     {
-                        child.Location = new Point(xlevel * padding, childStartY); // Indent child nodes
-                        child.Width = Width - (xlevel * padding);
-                        child.Theme = Theme;
-                        child.RearrangeNode();
-                        childStartY += child.Height+ padding;
+                        int childStartY = padding;
+                        foreach (var child in NodesControls)
+                        {
+                            if (!_childrenPanel.Controls.Contains(child))
+                            {
+                                _childrenPanel.Controls.Add(child); // Ensure child is in UI
+                            }
+                            child.NodeInfo.IsDrawn = true; // Mark as drawn
+                            child.Location = new Point(xlevel * padding, childStartY); // Indent child nodes
+                            child.Width = Width - (xlevel * padding);
+                            child.Theme = Theme;
+                            child.RearrangeNode(); // Recursively arrange children
+                            childStartY += child.Height + padding;
+                        }
+                        _childrenPanel.Height = childStartY;
+                        _childrenPanel.Visible = true;
                     }
-                    _childrenPanel.Height = childStartY;
-                    _childrenPanel.Visible = true;
-
+                    else
+                    {
+                        _childrenPanel.Height = 0;
+                        _childrenPanel.Visible = false;
+                    }
                 }
                 else
                 {
                     _childrenPanel.Height = 0;
                     _childrenPanel.Visible = false;
-                }            
+                }
 
                 checktoggle();
-                // Adjust the node's height
                 Height = _nodePanel.Height + _childrenPanel.Height;
 
-                // If the parent is a panel, adjust its height
                 if (Parent is Panel parentPanel)
                 {
                     parentPanel.Height = Height;
                 }
-                
             }
             finally
             {
@@ -1056,7 +1036,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsInvalidated = true;
                 ResumeLayout(); // Resume layout updates
             }
-          //  UpdatePanelSize();
         }
         public void ToggleCheckBoxVisibility(bool show)
         {
@@ -1306,10 +1285,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (Nodes.Count > 0)
             {
                 IsInvalidated = true;
-                Tree?.RearrangeTree();
+               // 
             }
-         //   RearrangeNode();
-           
+         //  RearrangeNode();
+          Tree?.RearrangeTree();
+
         }
         #endregion "Painting Methods"
         #region "Theme Methods"
@@ -1431,79 +1411,79 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             IsInvalidated = true;
         }
-        private void Nodes_ListChanged(object? sender, ListChangedEventArgs e)
-        {
-            try
-            {
-                switch (e.ListChangedType)
-                {
-                    case ListChangedType.ItemAdded:
-                        // Handle node addition
-                        if (e.NewIndex >= 0 && e.NewIndex < _beeptreenodes.Count)
-                        {
-                            var addedNode = NodeInfo.Children[e.NewIndex];
+        //private void Nodes_ListChanged(object? sender, ListChangedEventArgs e)
+        //{
+        //    try
+        //    {
+        //        switch (e.ListChangedType)
+        //        {
+        //            case ListChangedType.ItemAdded:
+        //                // Handle node addition
+        //                if (e.NewIndex >= 0 && e.NewIndex < _beeptreenodes.Count)
+        //                {
+        //                    var addedNode = NodeInfo.Children[e.NewIndex];
                           
-                            RearrangeNode(); // Rearrange after addition
-                        }
-                        break;
+        //                    RearrangeNode(); // Rearrange after addition
+        //                }
+        //                break;
 
-                    case ListChangedType.ItemDeleted:
-                        // Handle node removal
-                        HandleItemDeleted(e.OldIndex);
-                        break;
+        //            case ListChangedType.ItemDeleted:
+        //                // Handle node removal
+        //                HandleItemDeleted(e.OldIndex);
+        //                break;
 
-                    case ListChangedType.Reset:
-                        // Handle a full reset (clear all nodes)
-                        _childrenPanel.Controls.Clear();
-                        RearrangeNode();
-                        break;
+        //            case ListChangedType.Reset:
+        //                // Handle a full reset (clear all nodes)
+        //                _childrenPanel.Controls.Clear();
+        //                RearrangeNode();
+        //                break;
 
-                    default:
-                        // Other types (e.g., ItemChanged, PropertyDescriptorAdded)
-                        break;
-                }
-                IsInvalidated = true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in Nodes_ListChanged: {ex.Message}");
-            }
-        }
-        private void HandleItemDeleted(int index)
-        {
-            try
-            {
-                if (index < 0 || index >= NodeInfo.Children.Count)
-                {
-                    LogMessage($"Invalid index for deletion: {index}");
-                    return;
-                }
+        //            default:
+        //                // Other types (e.g., ItemChanged, PropertyDescriptorAdded)
+        //                break;
+        //        }
+        //        IsInvalidated = true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Error in Nodes_ListChanged: {ex.Message}");
+        //    }
+        //}
+        //private void HandleItemDeleted(int index)
+        //{
+        //    try
+        //    {
+        //        if (index < 0 || index >= NodeInfo.Children.Count)
+        //        {
+        //            LogMessage($"Invalid index for deletion: {index}");
+        //            return;
+        //        }
 
-                // Get the deleted node from NodesControls
-                var deletedNode = NodeInfo.Children[index];
+        //        // Get the deleted node from NodesControls
+        //        var deletedNode = NodeInfo.Children[index];
 
-                // Find the corresponding control in _childrenPanel
-                var removedControl = _childrenPanel.Controls
-                    .OfType<BeepTreeNode>()
-                    .FirstOrDefault(node => node.SavedGuidID == deletedNode.GuidId);
+        //        // Find the corresponding control in _childrenPanel
+        //        var removedControl = _childrenPanel.Controls
+        //            .OfType<BeepTreeNode>()
+        //            .FirstOrDefault(node => node.SavedGuidID == deletedNode.GuidId);
 
-                if (removedControl != null)
-                {
-                    _childrenPanel.Controls.Remove(removedControl); // Remove from UI
-                    LogMessage($"Node with GuidID {deletedNode.GuidId} removed from UI.");
-                }
-                else
-                {
-                    LogMessage($"Node with GuidID {deletedNode.GuidId} not found in _childrenPanel.");
-                }
+        //        if (removedControl != null)
+        //        {
+        //            _childrenPanel.Controls.Remove(removedControl); // Remove from UI
+        //            LogMessage($"Node with GuidID {deletedNode.GuidId} removed from UI.");
+        //        }
+        //        else
+        //        {
+        //            LogMessage($"Node with GuidID {deletedNode.GuidId} not found in _childrenPanel.");
+        //        }
 
-                RearrangeNode(); // Adjust layout after deletion
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in HandleItemDeleted: {ex.Message}");
-            }
-        }
+        //        RearrangeNode(); // Adjust layout after deletion
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Error in HandleItemDeleted: {ex.Message}");
+        //    }
+        //}
         protected void CreateChildNodes()
         {
           
@@ -1529,27 +1509,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             IsInvalidated = true;
         }
-        // remove child nodes that are draw when the node is collapsed
-        protected void RemoveChildNodes()
-        {
-            SimpleItem simpleItem = (SimpleItem)Tag;
-            if (simpleItem.Children.Count == 0)
-            {
-                return;
-            }
-            foreach (var item in simpleItem.Children)
-            {
-                // check if Drawn then remove it
-                if (item.IsDrawn)
-                {
-                    BeepTreeNode node = GetNodeByGuid(item.GuidId);
-                    RemoveNode(node);
-                }
-               
-            }
-            IsInvalidated = true;
-
-        }
+       
         /// <summary>
         /// Adds a new node to the current node's collection and updates the UI.
         /// </summary>
@@ -1562,10 +1522,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 treenode.GuidID = node.GuidId;
                 treenode.ParentID = this.Id;
-                node.IsDrawn = true;
-                AddNode(node);
+                node.IsDrawn = IsExpanded; // Draw if parent is expanded
+                AddNode(treenode); // Use the unified AddNode method
             }
-
         }
         public void AddNodeNoDraw(SimpleItem node)
         {
@@ -1585,20 +1544,55 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _childrenPanel.Controls.Add(node); // Add to the UI panel
                 node.NodeInfo.IsDrawn = true;
                 node.ParentID = this.Id;
-
+                
             }
             IsInvalidated = true;
         }
         public void AddNode(BeepTreeNode node)
         {
-            addnode(node);
-            SimpleItem newnode = (SimpleItem)node.Tag;
-                // if newnode not in nodes then add it
-            if (!Nodes.Contains(newnode))
-             {
-                    Nodes.Add(newnode);
+            if (node != null && !NodesControls.Contains(node))
+            {
+                NodesControls.Add(node);
+                SimpleItem newItem = node.NodeInfo;
+                newItem.GuidId = node.GuidID; // Ensure SimpleItem shares GuidId
+                newItem.ContainerGuidID = node.GuidID;
+                newItem.RootContainerGuidID = this.GuidID; // Set to parent's GuidID
+                newItem.IsDrawn = true;
+
+                if (!Nodes.Contains(newItem))
+                {
+                    Nodes.Add(newItem); // Updates NodeInfo.Children
                 }
-        
+
+                _childrenPanel.Controls.Add(node);
+                node.ParentNode = this;
+                node.Tree = this.Tree;
+                node.RearrangeNode();
+                IsInvalidated = true;
+                // Update toggle button visibility
+                checktoggle();
+            }
+        }
+        // remove child nodes that are draw when the node is collapsed
+        protected void RemoveChildNodes()
+        {
+            SimpleItem simpleItem = (SimpleItem)Tag;
+            if (simpleItem.Children.Count == 0)
+            {
+                return;
+            }
+            foreach (var item in simpleItem.Children)
+            {
+                // check if Drawn then remove it
+                if (item.IsDrawn)
+                {
+                    BeepTreeNode node = GetNodeByGuid(item.GuidId);
+                    RemoveNode(node);
+                }
+
+            }
+            IsInvalidated = true;
+
         }
         /// <summary>
         /// Removes a specific node from the current node's collection and updates the UI.
@@ -1608,8 +1602,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (node != null && NodesControls.Contains(node))
             {
-                NodesControls.Remove(node); // Automatically triggers Nodes_ListChanged
+                NodesControls.Remove(node); // Remove from UI
+                _childrenPanel.Controls.Remove(node);
+                Nodes.Remove(node.NodeInfo); // Remove from NodeInfo.Children
+                node.NodeInfo.IsDrawn = false;
                 IsInvalidated = true;
+                RearrangeNode();
             }
         }
         public void RemoveNode(SimpleItem node)

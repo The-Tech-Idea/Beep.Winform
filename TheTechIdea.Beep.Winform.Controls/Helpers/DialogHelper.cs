@@ -1,210 +1,172 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Beep.Report;
-using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Addin;
-using TheTechIdea.Beep.ConfigUtil;
-using BeepDialogResult = TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     public static class DialogHelper
     {
+        private const int DEFAULT_WIDTH = 400;
+        private const int DEFAULT_MARGIN = 10;
+
+        // Changed to object type to avoid needing IDMEEditor definition
+        // Replace with your actual editor interface if available
         public static IDMEEditor DMEEditor { get; set; }
 
-        // Synchronous InputBoxYesNo using BeepDialogForm.
+        private static (BeepDialogForm Form, UserControl Control) CreateBaseDialog(string title, Size size)
+        {
+            var form = new BeepDialogForm();
+            var control = new UserControl { ClientSize = size };
+            return (form, control);
+        }
+
+        private static Label CreateLabel(string text, int width, ContentAlignment alignment = ContentAlignment.MiddleLeft)
+        {
+            return new Label
+            {
+                Text = text,
+                Width = width,
+                Height = 20,
+                TextAlign = alignment
+            };
+        }
+
         public static BeepDialogResult InputBoxYesNo(string title, string promptText)
         {
-            using (var form = new BeepDialogForm())
+            var (form, control) = CreateBaseDialog(title, new Size(375, 60));
+            using (form)
             {
-                var label = new Label
-                {
-                    Text = promptText,
-                    Dock = DockStyle.Fill,
-                    TextAlign = ContentAlignment.MiddleCenter,
-                    AutoSize = false
-                };
-                var control = new UserControl
-                {
-                    ClientSize = new Size(375, 60)
-                };
+                var label = CreateLabel(promptText, control.Width - (DEFAULT_MARGIN * 2), ContentAlignment.MiddleCenter);
+                label.Dock = DockStyle.Fill;
                 control.Controls.Add(label);
-                return form.ShowDialog(control, submit: null, cancel: null, title: title);
+                return form.ShowDialog(control, null, null, title);
             }
         }
 
-        // Synchronous InputBox using BeepDialogForm.
         public static (BeepDialogResult Result, string Value) InputBox(string title, string promptText, string initialValue)
         {
-            using (var form = new BeepDialogForm())
+            var (form, control) = CreateBaseDialog(title, new Size(375, 60));
+            using (form)
             {
-                var label = new Label
-                {
-                    Text = promptText,
-                    Width = 200,
-                    Height = 14,
-                    TextAlign = ContentAlignment.MiddleLeft
-                };
+                var label = CreateLabel(promptText, 200);
+                label.Location = new Point((control.Width - 200) / 2, DEFAULT_MARGIN);
                 var textBox = new TextBox
                 {
                     Text = initialValue,
                     Width = 200,
-                    Height = 20
+                    Height = 20,
+                    Location = new Point((control.Width - 200) / 2, 30)
                 };
-                var control = new UserControl
-                {
-                    ClientSize = new Size(375, 60)
-                };
-                label.Location = new Point((control.Width - label.Width) / 2, 10);
-                textBox.Location = new Point((control.Width - textBox.Width) / 2, 30);
-                control.Controls.Add(label);
-                control.Controls.Add(textBox);
-                var result = form.ShowDialog(control, submit: null, cancel: null, title: title);
+                control.Controls.AddRange(new Control[] { label, textBox });
+                var result = form.ShowDialog(control, null, null, title);
                 return (result, result == BeepDialogResult.OK ? textBox.Text : initialValue);
             }
         }
 
-        // Synchronous InputLargeBox using BeepDialogForm.
         public static (BeepDialogResult Result, string Value) InputLargeBox(string title, string promptText, string initialValue)
         {
-            using (var form = new BeepDialogForm())
+            var (form, control) = CreateBaseDialog(title, new Size(DEFAULT_WIDTH, 200));
+            using (form)
             {
-                var label = new Label
-                {
-                    Text = promptText,
-                    Width = 380,
-                    Height = 20,
-                    TextAlign = ContentAlignment.MiddleLeft
-                };
+                var label = CreateLabel(promptText, control.Width - (DEFAULT_MARGIN * 2));
+                label.Location = new Point(DEFAULT_MARGIN, DEFAULT_MARGIN);
                 var textBox = new TextBox
                 {
                     Text = initialValue,
                     Multiline = true,
                     ScrollBars = ScrollBars.Vertical,
-                    Width = 380,
-                    Height = 130
+                    Width = control.Width - (DEFAULT_MARGIN * 2),
+                    Height = 130,
+                    Location = new Point(DEFAULT_MARGIN, 40)
                 };
-                var control = new UserControl
-                {
-                    ClientSize = new Size(400, 200)
-                };
-                label.Location = new Point(10, 10);
-                textBox.Location = new Point(10, 40);
-                control.Controls.Add(label);
-                control.Controls.Add(textBox);
-                var result = form.ShowDialog(control, submit: null, cancel: null, title: title);
+                control.Controls.AddRange(new Control[] { label, textBox });
+                var result = form.ShowDialog(control, null, null, title);
                 return (result, result == BeepDialogResult.OK ? textBox.Text : initialValue);
             }
         }
 
-        // Synchronous InputComboBox using BeepDialogForm.
         public static (BeepDialogResult Result, string Value) InputComboBox(string title, string promptText, List<string> items, string selectedValue)
         {
-            using (var form = new BeepDialogForm())
+            var (form, control) = CreateBaseDialog(title, new Size(DEFAULT_WIDTH, 100));
+            using (form)
             {
-                var label = new Label
-                {
-                    Text = promptText,
-                    Width = 380,
-                    Height = 20,
-                    Location = new Point(10, 10)
-                };
+                var label = CreateLabel(promptText, control.Width - (DEFAULT_MARGIN * 2));
+                label.Location = new Point(DEFAULT_MARGIN, DEFAULT_MARGIN);
                 var comboBox = new ComboBox
                 {
                     Text = selectedValue,
-                    Width = 380,
+                    Width = control.Width - (DEFAULT_MARGIN * 2),
                     Height = 30,
-                    Location = new Point(10, 40)
+                    Location = new Point(DEFAULT_MARGIN, 40),
+                    DropDownStyle = ComboBoxStyle.DropDownList
                 };
                 comboBox.Items.AddRange(items.ToArray());
-                var control = new UserControl
-                {
-                    ClientSize = new Size(400, 100)
-                };
-                control.Controls.Add(label);
-                control.Controls.Add(comboBox);
-                var result = form.ShowDialog(control, submit: null, cancel: null, title: title);
+                control.Controls.AddRange(new Control[] { label, comboBox });
+                var result = form.ShowDialog(control, null, null, title);
                 return (result, result == BeepDialogResult.OK ? comboBox.Text : selectedValue);
             }
         }
 
-        // Synchronous ShowMessageBox using BeepDialogForm.
         public static void ShowMessageBox(string title, string message)
         {
-            using (var form = new BeepDialogForm())
+            var (form, control) = CreateBaseDialog(title, new Size(DEFAULT_WIDTH, 200));
+            using (form)
             {
-                var label = new Label
-                {
-                    Text = message,
-                    AutoSize = true,
-                    TextAlign = ContentAlignment.MiddleCenter,
-                    Dock = DockStyle.Fill
-                };
-                var control = new UserControl
-                {
-                    ClientSize = new Size(400, 200)
-                };
+                var label = CreateLabel(message, control.Width - (DEFAULT_MARGIN * 2), ContentAlignment.MiddleCenter);
+                label.Dock = DockStyle.Fill;
+                label.AutoSize = true;
                 control.Controls.Add(label);
-                form.ShowDialog(control, submit: null, cancel: null, title: title);
-                DMEEditor?.AddLogMessage("Success", "Displayed MsgBox", DateTime.Now, 0, null, Errors.Ok);
+                form.ShowDialog(control, null, null, title);
+
+                // Modified to remove Errors dependency - replace with your actual logging mechanism
+                if (DMEEditor != null && DMEEditor is IDMEEditor editor)
+                {
+                    editor.AddLogMessage("Success", "Displayed MsgBox", DateTime.Now, 0, null, 0); // Replace 0 with your success code
+                }
             }
         }
 
-        // Synchronous DialogCombo using BeepDialogForm.
         public static (BeepDialogResult Result, string Value) DialogCombo(string text, List<object> comboSource, string displayMember, string valueMember)
         {
-            using (var form = new BeepDialogForm())
+            var (form, control) = CreateBaseDialog(text, new Size(500, 200));
+            using (form)
             {
-                var label = new Label
-                {
-                    Text = text,
-                    Width = 460,
-                    Height = 20,
-                    Location = new Point(20, 20)
-                };
+                var label = CreateLabel(text, control.Width - (DEFAULT_MARGIN * 2));
+                label.Location = new Point(DEFAULT_MARGIN * 2, DEFAULT_MARGIN * 2);
                 var comboBox = new ComboBox
                 {
                     DataSource = comboSource,
                     DisplayMember = displayMember,
                     ValueMember = valueMember,
-                    Width = 460,
+                    Width = control.Width - (DEFAULT_MARGIN * 2),
                     Height = 30,
-                    Location = new Point(20, 50)
+                    Location = new Point(DEFAULT_MARGIN * 2, 50),
+                    DropDownStyle = ComboBoxStyle.DropDownList
                 };
-                var control = new UserControl
-                {
-                    ClientSize = new Size(500, 200)
-                };
-                control.Controls.Add(label);
-                control.Controls.Add(comboBox);
-                var result = form.ShowDialog(control, submit: null, cancel: null, title: text);
+                control.Controls.AddRange(new Control[] { label, comboBox });
+                var result = form.ShowDialog(control, null, null, text);
                 return (result, result == BeepDialogResult.OK ? comboBox.SelectedValue?.ToString() : null);
             }
         }
 
-        // The file and folder dialogs remain synchronous.
         public static List<string> LoadFilesDialog(string exts, string dir, string filter)
         {
-            var dialog = new OpenFileDialog
+            using (var dialog = new OpenFileDialog
             {
                 Title = "Browse Files",
                 CheckFileExists = true,
                 CheckPathExists = true,
-                DefaultExt = exts,
-                Filter = filter,
+                DefaultExt = exts ?? "txt",
+                Filter = filter ?? "All files (*.*)|*.*",
                 Multiselect = true,
-                InitialDirectory = dir
-            };
-
-            return dialog.ShowDialog() == DialogResult.OK ? dialog.FileNames.ToList() : new List<string>();
+                InitialDirectory = dir ?? Environment.CurrentDirectory
+            })
+            {
+                return dialog.ShowDialog() == DialogResult.OK ? dialog.FileNames.ToList() : new List<string>();
+            }
         }
 
         public static string SelectFolderDialog()
@@ -221,30 +183,35 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public static string LoadFileDialog(string exts, string dir, string filter)
         {
-            var dialog = new OpenFileDialog
+            using (var dialog = new OpenFileDialog
             {
                 Title = "Browse Files",
                 CheckFileExists = true,
                 CheckPathExists = true,
-                DefaultExt = exts,
-                Filter = filter,
-                InitialDirectory = dir
-            };
-
-            return dialog.ShowDialog() == DialogResult.OK ? dialog.FileName : null;
+                DefaultExt = exts ?? "txt",
+                Filter = filter ?? "All files (*.*)|*.*",
+                InitialDirectory = dir ?? Environment.CurrentDirectory
+            })
+            {
+                return dialog.ShowDialog() == DialogResult.OK ? dialog.FileName : null;
+            }
         }
 
         public static string SaveFileDialog(string exts, string dir, string filter)
         {
-            var dialog = new SaveFileDialog
+            using (var dialog = new SaveFileDialog
             {
                 Title = "Save File",
-                DefaultExt = exts,
-                Filter = filter,
-                InitialDirectory = dir
-            };
-
-            return dialog.ShowDialog() == DialogResult.OK ? dialog.FileName : null;
+                DefaultExt = exts ?? "txt",
+                Filter = filter ?? "All files (*.*)|*.*",
+                InitialDirectory = dir ?? Environment.CurrentDirectory
+            })
+            {
+                return dialog.ShowDialog() == DialogResult.OK ? dialog.FileName : null;
+            }
         }
     }
+
+    // Added temporary interface definition - replace with your actual IDMEEditor
+  
 }

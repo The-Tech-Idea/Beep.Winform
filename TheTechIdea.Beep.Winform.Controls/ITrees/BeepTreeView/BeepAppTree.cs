@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Desktop.Common.Helpers;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
@@ -540,6 +541,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 br.ParentBranchID = ParentBranch.ID;
                 br.ParentGuidID = ParentBranch.GuidID;
                 SimpleItem item = ControlExtensions.CreateNode(this, id, br);
+                item.IsDrawn = false;
                 //n.ContextMenuStrip = 
                 br.GuidID = item.GuidId;
                 Console.WriteLine(br.BranchText);
@@ -565,7 +567,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 br.DMEEditor = DMEEditor;
                 br.Visutil = VisManager;
                 br.TreeEditor = this;
+                // add to Simpleitem child nodes
                 parentnode.Children.Add(item);
+                // add to Child Branchs
                 AddBranchToParentInBranchsOnly(ParentBranch, br);
                 if (br.ChildBranchs.Count == 0)
                 {
@@ -575,12 +579,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                         foreach (var childbr in br.ChildBranchs)
                         {
                             AddBranch(br, childbr);
-                            br.ChildBranchs.Add(childbr);
+                           // br.ChildBranchs.Add(childbr);
                         }
 
                     }
                 }
-                BeepTreeNode n = GetBeepTreeNodeByGuid(ParentBranch.GuidID);
+                
 
             }
             catch (Exception ex)

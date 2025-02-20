@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.ComponentModel.Design;
 using TheTechIdea.Beep.Desktop.Common;
 using System.Diagnostics;
+using TheTechIdea.Beep.Desktop.Common.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Managers

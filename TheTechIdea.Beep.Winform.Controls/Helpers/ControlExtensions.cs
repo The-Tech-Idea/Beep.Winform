@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Vis.Modules;
 using static TheTechIdea.Beep.Utilities.Util;
 using TheTechIdea.Beep.Addin;
+using TheTechIdea.Beep.Desktop.Common.Helpers;
 
 
 
@@ -612,7 +613,7 @@ public static class ControlExtensions
         MethodInfo method = null;
         MethodsClass methodsClass;
         
-        assemblydef =MethodHandler.GetAssemblyGlobalFunctionsClassDefinitionByGuid(item.AssemblyClassDefinitionID);
+        assemblydef = AssemblyDefinitionsHelper.GetAssemblyGlobalFunctionsClassDefinitionByGuid(tree.DMEEditor, item.AssemblyClassDefinitionID);
         dynamic fc = tree.DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { tree.DMEEditor, tree.VisManager, tree });
         //  dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] { DMEEditor, Vismanager, this });
         if (fc == null)
@@ -1145,7 +1146,7 @@ public static class ControlExtensions
     }
     public static void Nodemenu_ItemClicked(this ITree tree, SimpleItem item,  string MethodName)
     {
-        AssemblyClassDefinition cls = (AssemblyClassDefinition)MethodHandler.GetAssemblyBranchsClassDefinitionByGuid(item.AssemblyClassDefinitionID);
+        AssemblyClassDefinition cls = AssemblyDefinitionsHelper.GetAssemblyBranchsClassDefinitionByGuid(tree.DMEEditor, item.AssemblyClassDefinitionID);
         IBranch br = tree.Branches.Where(p => p.GuidID == item.GuidId).FirstOrDefault();
         if (cls != null)
         {

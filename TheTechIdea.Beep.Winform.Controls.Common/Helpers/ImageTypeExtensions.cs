@@ -2,7 +2,7 @@
 using System.IO;
 using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Desktop.Common
+namespace TheTechIdea.Beep.Desktop.Common.Helpers
 {
     public static class ImageTypeExtensions
     {

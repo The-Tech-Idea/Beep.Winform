@@ -97,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepDialogBox1.SecondaryButtonClicked += secondaryHandler;
 
             // Show the form modally.
-            base.ShowDialog();
+          DialogResult a =  ShowDialog();
 
             // Remove event handlers.
             beepDialogBox1.PrimaryButtonClicked -= primaryHandler;
@@ -124,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepDialogBox1.PrimaryButtonClicked += primaryHandler;
             beepDialogBox1._secondaryButton.Visible = false;
 
-            base.ShowDialog();
+            ShowDialog();
 
             beepDialogBox1.PrimaryButtonClicked -= primaryHandler;
             CleanupCustomControl();

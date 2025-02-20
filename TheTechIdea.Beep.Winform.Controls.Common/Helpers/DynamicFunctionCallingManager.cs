@@ -10,7 +10,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Desktop.Common
+namespace TheTechIdea.Beep.Desktop.Common.Helpers
 {
     public static class DynamicFunctionCallingManager
     {
@@ -158,7 +158,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                 if (!IsMethodApplicabletoNode(cls, br)) return;
                 try
                 {
-                    if (br.BranchType != TheTechIdea.Beep.Vis.EnumPointType.Global)
+                    if (br.BranchType != Vis.EnumPointType.Global)
                     {
                         methodsClass = cls.Methods.Where(x => x.Caption == MethodName).FirstOrDefault();
                     }

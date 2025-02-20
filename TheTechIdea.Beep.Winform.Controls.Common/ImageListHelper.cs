@@ -5,6 +5,7 @@ using System.Collections;
 using System.Reflection;
 using System.Resources;
 using System.Xml.Linq;
+using TheTechIdea.Beep.Desktop.Common.Helpers;
 using TheTechIdea.Beep.DriversConfigurations;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;

@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Winform.Controls.Properties;
 using System.Diagnostics;
+using TheTechIdea.Beep.Desktop.Common.Helpers;
 
 
 
@@ -1584,6 +1585,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 node.IsDrawn = true;
                 AddNode(node);
             }
+
+        }
+        public void AddNodeNoDraw(SimpleItem node)
+        {
+            if (node == null) throw new ArgumentNullException(nameof(node));
+             node.IsDrawn = true;
+            NodeInfo.Children.Add(node);
 
         }
         private void addnode(BeepTreeNode node)

@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Resources;
 using Svg;
+using TheTechIdea.Beep.Desktop.Common.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Desktop.Common

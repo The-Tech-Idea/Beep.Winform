@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Desktop.Common
+namespace TheTechIdea.Beep.Desktop.Common.Helpers
 {
     public static class ThemeFunctions
     {

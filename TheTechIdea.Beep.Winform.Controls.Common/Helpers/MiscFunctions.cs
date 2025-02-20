@@ -4,13 +4,12 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Desktop.Common
+namespace TheTechIdea.Beep.Desktop.Common.Helpers
 {
     public static class MiscFunctions
     { /// <summary>
@@ -57,8 +56,6 @@ namespace TheTechIdea.Beep.Desktop.Common
                 return null;
             }
         }
-     
-
         public static string GetRandomString(int length)
         {
             Random random = new Random();

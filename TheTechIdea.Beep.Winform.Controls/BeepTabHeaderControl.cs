@@ -1,21 +1,14 @@
-﻿using System;
+﻿
 using System.ComponentModel;
-using System.Configuration;
-using System.Drawing;
+using System.Diagnostics;
 using System.Drawing.Design;
-using System.Text.RegularExpressions;
-using System.Windows.Forms;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Winform.Controls.Converters;
-using TheTechIdea.Beep.Winform.Controls.Design;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public enum HeaderDockPosition
-    {
-        Top,
-        Bottom
-    }
+
 
     [ToolboxItem(true)]
     [DisplayName("Beep Tab Header Control")]
@@ -37,6 +30,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Padding = new Padding(1),
 
             };
+            if (_tabs == null)
+            {
+                _tabs = new BindingList<SimpleItem>();
+            }
+
+                _tabs.ListChanged += Tabs_ListChanged;
+
             Controls.Add(HeaderPanel);
             RebuildHeader();
         
@@ -49,11 +49,35 @@ namespace TheTechIdea.Beep.Winform.Controls
         private  FlowLayoutPanel HeaderPanel { get; set; }
         protected override Size DefaultSize => new Size(200, 30);
         private HeaderDockPosition _dockPosition = HeaderDockPosition.Top;
+        private BindingList<SimpleItem> _tabs ;
+        [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public List<SimpleItem> Tabs { get; } = new List<SimpleItem>();
-       
+        public BindingList<SimpleItem> Tabs
+        {
+            get => _tabs;
+            set
+            {
+                if (_tabs != null)
+                {
+                    _tabs.ListChanged -= Tabs_ListChanged;
+                }
+                _tabs = value;
+                if (_tabs != null)
+                {
+                    _tabs.ListChanged += Tabs_ListChanged;
+                }
+               
+            }
+        }
+
+        private void Tabs_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            SyncTabs(_tabs);
+        }
+
+
         /// <summary>
         /// Choose whether this header is docked above or below the target tab control.
         /// </summary>
@@ -75,11 +99,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// The TabControlWithoutHeader that this header will sync with.
         /// </summary>
-      //  [Browsable(true)]
-      //  [Category("Behavior")]
-      //  [Description("Select which TabControlWithoutHeader this header belongs to.")]
-      //  [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-    ///    [TypeConverter(typeof(ReferenceConverter))]
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("The Name of the TabControlWithoutHeader this header control is attached to.")]
         public TabControlWithoutHeader TargetTabControl
         {
             get => _targetTabControl;
@@ -433,24 +455,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private BeepExtendedButton CreateTabButton(TabPage page)
         {
-            
             var btn = new BeepExtendedButton
             {
-                Text = string.IsNullOrEmpty(page.Text) ? page.Name: page.Text,
+                Text = string.IsNullOrEmpty(page.Text) ? page.Name : page.Text,
                 Tag = page, // store reference to TabPage
                 AutoSize = false,
                 Margin = new Padding(1),
                 UseScaledFont = true,
                 ExtendButtonImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg"
             };
-           // btn.TextFont = new Font("Arial", 10, FontStyle.Regular);
             btn.ButtonClick += (s, e) =>
             {
-                Console.WriteLine("Button Clicked");
                 if (_targetTabControl != null)
-                {   Console.WriteLine("TargetTab is not null");
+                {
                     _targetTabControl.SelectedTab = (TabPage)btn.Tag;
-                    Console.WriteLine("Select Tab Done");
                 }
             };
             btn.ExtendButtonClick += (s, e) =>
@@ -459,9 +477,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _targetTabControl.TabPages.Remove((TabPage)((BeepButton)s).Tag);
                 }
-                // On click.close current tab
-                
-
             };
             // check if tabs has been added for this button by comparing Guidid
             SimpleItem item = Tabs.FirstOrDefault(x => x.Name == page.Name);
@@ -480,10 +495,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     btn.ImagePath = item.ImagePath;
                 }
             }
-      
-          
+
             return btn;
         }
+
 
         /// <summary>
         /// Updates button states (e.g., bold the selected one).
@@ -536,6 +551,50 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
             UpdateButtonSelection();
+        }
+        private void SyncTabs(BindingList<SimpleItem> tabs)
+        {
+            Debug.WriteLine($"SyncTabs called with {tabs?.Count ?? 0} items.");
+            if (_targetTabControl == null)
+                return;
+
+            // --- Remove TabPages that are not in _tabs ---
+            var tabNames = new HashSet<string>(tabs.Select(t => t.Name));
+            for (int i = _targetTabControl.TabPages.Count - 1; i >= 0; i--)
+            {
+                var tp = _targetTabControl.TabPages[i];
+                if (!tabNames.Contains(tp.Name))
+                {
+                    Debug.WriteLine($"Removing TabPage '{tp.Name}' from TargetTabControl.");
+                    _targetTabControl.TabPages.RemoveAt(i);
+                }
+            }
+
+            // --- Add new or update existing TabPages based on _tabs ---
+            foreach (var item in tabs)
+            {
+                var tp = _targetTabControl.TabPages
+                            .Cast<TabPage>()
+                            .FirstOrDefault(p => p.Name == item.Name);
+                if (tp == null)
+                {
+                    Debug.WriteLine($"Adding new TabPage '{item.Name}'.");
+                    tp = new TabPage
+                    {
+                        Name = item.Name,
+                        Text = item.Text
+                    };
+                    _targetTabControl.TabPages.Add(tp);
+                }
+                else
+                {
+                    Debug.WriteLine($"Updating TabPage '{item.Name}'.");
+                    tp.Text = item.Text;
+                }
+            }
+
+            Debug.WriteLine("Rebuilding header.");
+            RebuildHeader();
         }
 
         private void OnTabControl_SelectedIndexChanged(object sender, EventArgs e)

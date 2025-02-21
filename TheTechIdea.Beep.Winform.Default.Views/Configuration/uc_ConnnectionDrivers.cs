@@ -17,18 +17,21 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls.Basic;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
+using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
     [AddinAttribute(Caption = "Connection Drivers", Name = "uc_ConnectionDrivers", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.Popup, ObjectType = "Beep")]
     [AddinVisSchema(BranchID = 3, RootNodeName = "Configuration", Order = 3, ID = 3, BranchText = "Connection Drivers", BranchType = EnumPointType.Function, IconImageName = "driversconfig.png", BranchClass = "ADDIN", BranchDescription = "Data Sources Connection Drivers Setup Screen")]
 
-    public partial class uc_ConnnectionDrivers : uc_Addin, IAddinVisSchema
+    public partial class uc_ConnnectionDrivers : TemplateUserControl, IAddinVisSchema
     {
         public uc_ConnnectionDrivers(IBeepService service)
         {
             InitializeComponent();
             beepservice = service;
+            AddinName = "Connection Drivers";
+            Details.AddinName = "Connection Drivers";
         }
         #region "IAddinVisSchema"
         public string RootNodeName { get; set; } = "Configuration";
@@ -44,17 +47,18 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public int ParentBranchID { get; set; }
         public string BranchDescription { get; set; } = "Data Sources Connection Drivers Setup Screen";
         public string BranchClass { get; set; } = "ADDIN";
+        public string AddinName { get ; set ; }
         #endregion "IAddinVisSchema"
 
         DriversConfigViewModel viewModel;
         private IBeepService beepservice;
 
-        public override void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
+        public  void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
         {
-            base.SetConfig(pDMEEditor, plogger, putil, args, e, per);
+            SetConfig(pDMEEditor, plogger, putil, args, e, per);
         }
-        //public override void Configure(Dictionary<string, object> settings)
-        //{
+        public override void Configure(Dictionary<string, object> settings)
+        {
         //    base.Configure(settings);
         //    viewModel = new DriversConfigViewModel(beepservice.DMEEditor, Visutil);
 
@@ -105,6 +109,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         //    //BeepbindingNavigator1.HightlightColor = Color.Yellow;
         //    BeepbindingNavigator1.SaveCalled += BeepbindingNavigator1_SaveCalled;
         //    this.connectiondriversConfigDataGridView.DataError += ConnectiondriversConfigDataGridView_DataError;
-        //}
+        }
     }
 }

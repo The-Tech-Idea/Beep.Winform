@@ -32,7 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(uc_ConnnectionDrivers));
             DataBase.EntityStructure entityStructure1 = new DataBase.EntityStructure();
             driversConfigViewModelBindingSource = new BindingSource(components);
-            beepDataGridView1 = new Controls.Grid.BeepDataGridView();
+            beepDataGridView1 = new TheTechIdea.Beep.Winform.Controls.Grid.BeepDataGridView();
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).BeginInit();
             SuspendLayout();
             // 
@@ -73,7 +73,8 @@
             beepDataGridView1.DisabledBackColor = Color.Gray;
             beepDataGridView1.DisabledForeColor = Color.Empty;
             beepDataGridView1.DMEEditor = null;
-            beepDataGridView1.DrawingRect = new Rectangle(2, 2, 959, 541);
+            beepDataGridView1.Dock = DockStyle.Fill;
+            beepDataGridView1.DrawingRect = new Rectangle(2, 2, 1028, 692);
             beepDataGridView1.Easing = Winform.Controls.EasingType.Linear;
             entityStructure1.Caption = null;
             entityStructure1.Category = null;
@@ -147,7 +148,7 @@
             beepDataGridView1.IsVisible = false;
             beepDataGridView1.LeftoffsetForDrawingRect = 0;
             beepDataGridView1.LinkedProperty = null;
-            beepDataGridView1.Location = new Point(27, 115);
+            beepDataGridView1.Location = new Point(0, 0);
             beepDataGridView1.Margin = new Padding(2);
             beepDataGridView1.Name = "beepDataGridView1";
             beepDataGridView1.OverrideFontSize = Winform.Controls.TypeStyleFontSize.None;
@@ -173,7 +174,7 @@
             beepDataGridView1.ShowShadow = false;
             beepDataGridView1.ShowTopBorder = false;
             beepDataGridView1.ShowTotalsPanel = false;
-            beepDataGridView1.Size = new Size(963, 545);
+            beepDataGridView1.Size = new Size(1032, 696);
             beepDataGridView1.SlideFrom = Winform.Controls.SlideDirection.Left;
             beepDataGridView1.StaticNotMoving = false;
             beepDataGridView1.TabIndex = 0;
@@ -181,7 +182,7 @@
             beepDataGridView1.Text = "beepDataGridView1";
             beepDataGridView1.Theme = Vis.Modules.EnumBeepThemes.FlatDesignTheme;
             beepDataGridView1.TitleFont = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            beepDataGridView1.TitleTopPanelHeight = 29;
+            beepDataGridView1.TitleTopPanelHeight = 28;
             beepDataGridView1.ToolTipText = "";
             beepDataGridView1.TopoffsetForDrawingRect = 0;
             beepDataGridView1.UseGradientBackground = false;

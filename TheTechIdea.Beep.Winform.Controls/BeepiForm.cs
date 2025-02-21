@@ -348,7 +348,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BackColor = _currentTheme.BackColor;
             //beepPanel1.Theme = beepuiManager1.Theme;
             BorderColor = _currentTheme.BorderColor;
-
+           
             Invalidate();
         }
         #endregion

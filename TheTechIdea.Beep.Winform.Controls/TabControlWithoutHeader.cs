@@ -52,26 +52,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.WndProc(ref m);
         }
 
-        /// <summary>
-        /// Called when a control (TabPage) is added to the TabControl.
-        /// </summary>
         protected override void OnControlAdded(ControlEventArgs e)
         {
             base.OnControlAdded(e);
-
-          
+            if (e.Control is TabPage)
+            {
+                TabPagesChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
 
-        /// <summary>
-        /// Called when a control (TabPage) is removed from the TabControl.
-        /// </summary>
         protected override void OnControlRemoved(ControlEventArgs e)
         {
             base.OnControlRemoved(e);
-
-            // Trigger the TabPagesChanged event
-            TabPagesChanged?.Invoke(this, EventArgs.Empty);
+            if (e.Control is TabPage)
+            {
+                TabPagesChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
+
 
 
 

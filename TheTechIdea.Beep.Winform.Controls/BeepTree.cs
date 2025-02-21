@@ -1897,7 +1897,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (string.IsNullOrWhiteSpace(nodeName))
                 return null;
 
-            return TraverseAllItems(Nodes).FirstOrDefault(n => n.Name == nodeName);
+            return TraverseAllItems(Nodes).FirstOrDefault(n => n.Text == nodeName);
         }
 
         // Traverse all SimpleItems recursively and find a node by index

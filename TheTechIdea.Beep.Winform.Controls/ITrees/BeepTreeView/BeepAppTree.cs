@@ -43,8 +43,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             this.NodeRightClicked += BeepTreeControl_NodeRightClicked;
             this.MenuItemSelected += BeepTreeControl_MenuItemSelected;
         }
-
-
         #region "Properties"
         public ITreeBranchHandler Treebranchhandler { get; set; }
         public BeepTreeNodeDragandDropHandler DropHandler { get; set; }
@@ -66,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public List<Tuple<IBranch, string>> GenerBranchs { get; set; } = new List<Tuple<IBranch, string>>();
         public List<MenuList> Menus { get; set; } = new List<MenuList>();
-        public Vis.Modules.IAppManager VisManager { get; set; }
+        public IAppManager VisManager { get; set; }
         public int SelectedBranchID { get; set; }
         public string Filterstring { get; set; }
         #endregion "Properties"
@@ -88,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 return;
             }
             AssemblyClassDefinition methodclass = DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.GuidID== e.SelectedItem.AssemblyClassDefinitionID).FirstOrDefault();
-            AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == SelectedBranch.Name).FirstOrDefault();
+            AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == SelectedBranch.ToString()).FirstOrDefault();
             if (methodclass != null || cls != null)
             {
                 if (methodclass != null)
@@ -237,7 +235,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             var branch = GetBranchById(branchId);
             if (branch != null)
             {
-                branch.Name = text;
+                branch.BranchText = text;
 
                 // Update the corresponding SimpleItem in Nodes
                 var simpleItem = GetNodeByGuidID(branch.GuidID);
@@ -261,7 +259,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             var branch = GetBranchByName(branchName);
             if (branch != null)
             {
-                branch.Name = text;
+                branch.BranchText = text;
 
                 // Update the corresponding SimpleItem in Nodes
                 var simpleItem = GetNodeByGuidID(branch.GuidID);
@@ -284,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         {
             if (branch != null)
             {
-                branch.Name = text;
+                branch.BranchText = text;
 
                 // Update the corresponding SimpleItem in Nodes
                 var simpleItem = GetNodeByGuidID(branch.GuidID);
@@ -521,7 +519,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                     return DMEEditor.ErrorObject;
                 }
                 Console.WriteLine($"Adding Branch {br.BranchText} to {ParentBranch.BranchText}");
-                parentnode = GetNode(ParentBranch.Name);
+                parentnode = GetNode(ParentBranch.BranchText);
        
                 if (parentnode == null)
                 {
@@ -562,7 +560,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 // add to Simpleitem child nodes
                 AddNodeToBranch(item, parentnode);
                 // add to Child Branchs
-                AddBranchToParentInBranchsOnly(ParentBranch, br);
+                ParentBranch.ChildBranchs.Add(br);
+             //   AddBranchToParentInBranchsOnly(ParentBranch, br);
                 if (br.ChildBranchs.Count == 0)
                 {
                     br.CreateChildNodes();
@@ -677,7 +676,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         }
        
         #endregion "Create Branches"
-        #region "Get Branches"
         #region "Branch Retrieval"
 
         /// <summary>
@@ -726,7 +724,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             return null;
         }
 
-        #endregion "Branch Retrieval"
+    
         public IBranch GetBranch(string text, EnumPointType branchtype)
         {
             return FindBranchRecursive(Branches, branch => branch.BranchText == text && branch.BranchType == branchtype);
@@ -783,8 +781,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
 
             return null;
         }
-
-        #endregion "Get Branches"
+        #endregion "Branch Retrieval"
         #region "Refresh Tree"
 
 
@@ -896,7 +893,5 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         #region "Mouse Events"
 
         #endregion "Mouse Events"
-
-
     }
 }

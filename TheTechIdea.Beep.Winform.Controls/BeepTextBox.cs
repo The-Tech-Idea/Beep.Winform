@@ -1469,9 +1469,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-                if (Handle != null)
+                if (_innerTextBox != null)
                 {
-                    _innerTextBox.BeginInvoke(new Action(() => _innerTextBox.Font = _textFont));
+                    //_innerTextBox.BeginInvoke(new Action(() => _innerTextBox.Font = _textFont));
+                    _innerTextBox.Font = _textFont;
                 }
              
                 //InnerTextBox.Font=_listbuttontextFont;

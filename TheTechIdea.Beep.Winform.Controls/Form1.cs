@@ -29,10 +29,10 @@ namespace TheTechIdea.Beep.Winform.Controls
           
             MethodHandler.DMEEditor = beepService.DMEEditor;
             beepTreeControl1.init(beepService);
-             beepButton1.Click += BeepButton1_Click;
+         //    beepButton1.Click += BeepButton1_Click;
             //   beepButton2.PopupMode = true;
-            beepGridHeader1.TargetDataGridView = dataGridView1;
-           beepGridHeader1.DMEEditor = beepService.DMEEditor;
+         //   beepGridHeader1.TargetDataGridView = dataGridView1;
+         //  beepGridHeader1.DMEEditor = beepService.DMEEditor;
         }
 
 

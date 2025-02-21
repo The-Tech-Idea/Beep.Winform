@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
 using System.IO;
+using TheTechIdea.Beep.Desktop.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -119,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected int _animationDuration = 500;
         protected string _guidID = Guid.NewGuid().ToString();
         protected int _id = -1;
-        protected string[] _items = new string[0];
+        protected List<object> _items = new List<object>();
         protected bool _isHovered = false;
         protected bool _isPressed = false;
         protected bool _isFocused = false;
@@ -145,6 +146,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "protected Properties"
         #region "Public Properties"
         //    public IContainer Components => this.Components;
+        private SimpleItem _info = new SimpleItem();
+        [Browsable(true)]
+        [Category("Appearance")]
+        public SimpleItem Info
+        {
+            get => _info;
+            set => _info = value;
+        }
         [Browsable(true)]
         [Category("Appearance")]
         public bool CanBeHovered { get { return _canbehovered; } set { _canbehovered = value; } }
@@ -2023,6 +2032,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Return the calculated size
             return new Size(width, height);
         }
+        protected override void OnParentChanged(EventArgs e)
+        {
+            base.OnParentChanged(e);
+
+            // If BeepControl is removed from its parent, remove the floating badge.
+            if (this.Parent == null && floatingBadgeForm != null && !floatingBadgeForm.IsDisposed)
+            {
+                // Remove from old parent if it still exists
+                if (floatingBadgeForm.Parent != null)
+                {
+                    floatingBadgeForm.Parent.Controls.Remove(floatingBadgeForm);
+                }
+                floatingBadgeForm.Dispose();
+                floatingBadgeForm = null;
+            }
+        }
+
         #endregion "Util"
         #region "IBeepUIComoponent"
         #region "ToolTip"
@@ -2061,7 +2087,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "ToolTip"
         public event EventHandler<BeepComponentEventArgs> PropertyChanged; // Event to notify that a property has changed
-        public string[] Items { get { return _items; } set { _items = value; } }
+        public List<object> Items { get { return _items; } set { _items = value; } }
 
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
         protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
@@ -2320,6 +2346,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "HitTest and HitList"
         #region Badge Feature
+        private FloatingBadgeForm floatingBadgeForm;
 
         private string _badgeText = "";
         /// <summary>
@@ -2373,7 +2400,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _badgeFont;
             set { _badgeFont = value; Invalidate(); }
         }
-
+        BadgeShape _badgeshape = BadgeShape.Circle;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("shape of Badge.")]
+        public BadgeShape BadgeShape
+        {
+            get => _badgeshape;
+            set { _badgeshape = value; Invalidate(); }
+        }
         /// <summary>
         /// Draws a badge in the top–right corner of the control’s DrawingRect.
         /// The badge is drawn as a rounded rectangle (or circle for a single character)
@@ -2382,55 +2417,124 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <param name="g">The Graphics object to draw on.</param>
         protected void DrawBadge(Graphics g)
         {
-            // Do nothing if no badge text is set.
             if (string.IsNullOrEmpty(BadgeText))
+            {
+                if (floatingBadgeForm != null && !floatingBadgeForm.IsDisposed)
+                {
+                    floatingBadgeForm.Hide();
+                }
                 return;
+            }
 
-            // Measure the badge text.
+            // Measure text size
             Size textSize = TextRenderer.MeasureText(BadgeText, BadgeFont);
-
-            // Define some padding inside the badge.
             int padding = 4;
-
-            // Compute badge dimensions.
             int badgeWidth = textSize.Width + padding;
             int badgeHeight = textSize.Height + padding;
-            // For a single-character badge, use a circle.
+
+            // For single character, ensure circle proportions
             if (BadgeText.Length == 1)
             {
                 badgeWidth = badgeHeight = Math.Max(badgeWidth, badgeHeight);
             }
 
-            // Position the badge in the top–right corner of DrawingRect.
-            // Adjust the location as needed (here we offset it slightly so it appears at the top–right of the content).
-            Rectangle badgeRect = new Rectangle(
-                DrawingRect.Right - badgeWidth,
-                DrawingRect.Y,
-                badgeWidth,
-                badgeHeight);
-
-            // Optionally, add a slight offset (for example, to move the badge a bit outside the control’s content)
-            int offsetX = 2;
-            int offsetY = -2;
-            badgeRect.Offset(offsetX, offsetY);
-
-            // Draw the badge background as a filled rounded rectangle.
-            // We use the control’s helper method GetRoundedRectanglePath (which you already have) to generate the path.
-            using (GraphicsPath path = GetRoundedRectanglePath(badgeRect, badgeRect.Height / 2))
+            if (this.Parent != null)
             {
-                using (SolidBrush brush = new SolidBrush(BadgeBackColor))
+                // Calculate screen location
+                Point controlScreenLocation = this.Parent.PointToScreen(this.Location);
+
+                // Badge position (top-right)
+                int badgeX = controlScreenLocation.X + this.Width - badgeWidth / 2;
+                int badgeY = controlScreenLocation.Y - badgeHeight / 2;
+
+                // Convert screen coordinates to parent's client area
+                Point parentClientPoint = this.Parent.PointToClient(new Point(badgeX, badgeY));
+                Rectangle badgeRect = new Rectangle(parentClientPoint, new Size(badgeWidth, badgeHeight));
+
+                // **🔹 Recreate badge form if the shape has changed**
+                if (floatingBadgeForm == null || floatingBadgeForm.IsDisposed || floatingBadgeForm.BadgeShape != this.BadgeShape)
                 {
-                    g.FillPath(brush, path);
+                    floatingBadgeForm?.Dispose(); // **Dispose old instance**
+                    floatingBadgeForm = new FloatingBadgeForm
+                    {
+                        TopLevel = false,
+                        FormBorderStyle = FormBorderStyle.None,
+                        ShowInTaskbar = false,
+                        BackColor = Color.Magenta,
+                        TransparencyKey = Color.Magenta,
+                        BadgeShape = this.BadgeShape // **Apply new shape**
+                    };
+
+                    this.Parent.Controls.Add(floatingBadgeForm);
+                }
+
+                // Update properties
+                floatingBadgeForm.BadgeText = this.BadgeText;
+                floatingBadgeForm.BadgeBackColor = this.BadgeBackColor;
+                floatingBadgeForm.BadgeForeColor = this.BadgeForeColor;
+                floatingBadgeForm.BadgeFont = this.BadgeFont;
+                floatingBadgeForm.Size = new Size(badgeWidth, badgeHeight);
+                floatingBadgeForm.Location = badgeRect.Location;
+
+                // **Force redraw**
+                floatingBadgeForm.Invalidate();
+                floatingBadgeForm.BringToFront();
+                if (!floatingBadgeForm.Visible)
+                {
+                    floatingBadgeForm.Show();
                 }
             }
+            else
+            {
+                // **Fallback: Draw inside the control**
+                Rectangle badgeRect = new Rectangle(
+                    DrawingRect.Right - badgeWidth,
+                    DrawingRect.Y,
+                    badgeWidth,
+                    badgeHeight);
+                int offsetX = 2;
+                int offsetY = -2;
+                badgeRect.Offset(offsetX, offsetY);
 
-            // Draw the badge text centered within the badge.
-            TextRenderer.DrawText(g, BadgeText, BadgeFont, badgeRect, BadgeForeColor,
-                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                using (GraphicsPath path = GetRoundedRectanglePath(badgeRect, badgeRect.Height / 2))
+                {
+                    using (SolidBrush brush = new SolidBrush(BadgeBackColor))
+                    {
+                        g.FillPath(brush, path);
+                    }
+                }
+
+                TextRenderer.DrawText(g, BadgeText, BadgeFont, badgeRect, BadgeForeColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            }
         }
 
-        #endregion
 
+
+
+        #endregion
+        #region "Dispose"
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // If the floating badge exists
+                if (floatingBadgeForm != null && !floatingBadgeForm.IsDisposed)
+                {
+                    // Remove it from the parent’s Controls collection if it’s there
+                    if (floatingBadgeForm.Parent != null)
+                    {
+                        floatingBadgeForm.Parent.Controls.Remove(floatingBadgeForm);
+                    }
+
+                    floatingBadgeForm.Dispose();
+                    floatingBadgeForm = null;
+                }
+            }
+            base.Dispose(disposing);
+        }
+
+        #endregion "Dispose"
     }
     public class ControlHitTest
     {

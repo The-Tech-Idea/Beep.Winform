@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int buttonHeight = 30;
         private int starty = 1;
         private int startx = 1;
-
+        
         private Size _imagesize = new Size(20, 20);
         bool _applyThemeOnImage = false;
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using TheTechIdea.Beep.Editor;
@@ -25,7 +26,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         string BlockID { get; set; }
         string FieldID { get; set; }
         int Id { get; set; }
-        string[] Items { get; set; }
+        List<object> Items { get; set; }
         bool ValidateData(out string  messege);
         // New properties and methods for binding
         object DataContext { get; set; } // The source of data for binding

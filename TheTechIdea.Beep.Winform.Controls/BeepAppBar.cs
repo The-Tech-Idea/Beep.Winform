@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Desktop.Common;
 using System.Runtime.InteropServices;
 using TheTechIdea.Beep.Report;
+using System.Diagnostics;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -22,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Properties"
         #region "Fields"
         private int windowsicons_height = 20;
-        private int defaultHeight = 32;
+        private int defaultHeight = 40;
         private BeepButton hamburgerIcon;
         private BeepLabel TitleLabel;
         private BeepButton profileIcon;
@@ -75,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _title = value;
-                TitleLabel.Text = _title;
+                if(TitleLabel != null)                    TitleLabel.Text = _title;
             }
         }
 
@@ -83,12 +84,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get
             {
-                return TitleLabel.Visible;
+                return TitleLabel?.Visible?? false;
             }
             set
             {
-                HideShowLogo(value);
-                HideShowTitle(value);
+                if (TitleLabel != null && _logo != null) // Null check
+                {
+                    HideShowLogo(value);
+                    HideShowTitle(value);
+                }
+                 
                 //  RearrangeLayout();
             }
         }
@@ -301,6 +306,14 @@ namespace TheTechIdea.Beep.Winform.Controls
           
             // ApplyTheme();
         }
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+ 
+                ApplyTheme();
+                RearrangeLayout();
+
+        }
         protected override void InitLayout()
         {
             base.InitLayout();
@@ -460,6 +473,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             notificationIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg";
             notificationIcon.Click += ButtonClicked;
             Controls.Add(notificationIcon);
+        }
+        public void ShowBadgeOnNotificationIcon(string badgeText)
+        {
+            notificationIcon.BadgeText=badgeText;
         }
         private void AddThemeIcon()
         {
@@ -686,105 +703,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnResize(e);
             RearrangeLayout(); // Ensure layout is correct during resizing
         }
-        // Import the Win32 API for posting messages
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern bool PostMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
-
-        private const int WM_MOUSEMOVE = 0x0200;
-        private const int WM_LBUTTONDOWN = 0x0201;
-        private const int WM_LBUTTONUP = 0x0202;
-        private const int WM_RBUTTONDOWN = 0x0204;
-        private const int WM_RBUTTONUP = 0x0205;
-        // etc. (add more as needed)
-
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-            base.OnMouseDown(e);
-
-            // 1. Get parent form
-            var form = FindForm();
-            if (form == null) return;
-
-            // 2. Convert control-relative coords to form coords
-            var screenCoords = PointToScreen(e.Location);
-            var formCoords = form.PointToClient(screenCoords);
-            int lParam = (formCoords.Y << 16) | (formCoords.X & 0xFFFF);
-
-            // 3. Pick the correct down message
-            int msg;
-            if (e.Button == MouseButtons.Left)
-                msg = WM_LBUTTONDOWN;
-            else if (e.Button == MouseButtons.Right)
-                msg = WM_RBUTTONDOWN;
-            else
-                return; // Skip for other buttons, or add more logic
-
-            // 4. Post the message
-            PostMessage(form.Handle, msg, IntPtr.Zero, (IntPtr)lParam);
-        }
-        protected override void OnMouseUp(MouseEventArgs e)
-        {
-            base.OnMouseUp(e);
-
-            var form = FindForm();
-            if (form == null) return;
-
-            var screenCoords = PointToScreen(e.Location);
-            var formCoords = form.PointToClient(screenCoords);
-            int lParam = (formCoords.Y << 16) | (formCoords.X & 0xFFFF);
-
-            int msg;
-            if (e.Button == MouseButtons.Left)
-                msg = WM_LBUTTONUP;
-            else if (e.Button == MouseButtons.Right)
-                msg = WM_RBUTTONUP;
-            else
-                return;
-
-            PostMessage(form.Handle, msg, IntPtr.Zero, (IntPtr)lParam);
-        }
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-
-            var form = FindForm();
-            if (form == null) return;
-
-            var screenCoords = PointToScreen(e.Location);
-            var formCoords = form.PointToClient(screenCoords);
-            int lParam = (formCoords.Y << 16) | (formCoords.X & 0xFFFF);
-
-            // Always WM_MOUSEMOVE for move
-            PostMessage(form.Handle, WM_MOUSEMOVE, IntPtr.Zero, (IntPtr)lParam);
-        }
-        protected override void OnMouseClick(MouseEventArgs e)
-        {
-            // Let the control handle its own click logic first
-            base.OnMouseClick(e);
-
-            // Attempt to find the parent form
-            var form = this.FindForm();
-            if (form == null)
-                return;
-
-            // We only demonstrate left-click here. 
-            // For right-click or middle-click, you'd send WM_RBUTTONDOWN / WM_RBUTTONUP etc.
-            if (e.Button == MouseButtons.Left)
-            {
-                // Convert from this control's coords to screen coords
-                var screenCoords = PointToScreen(e.Location);
-
-                // Then convert screen coords to parent-form-relative coords
-                var formCoords = form.PointToClient(screenCoords);
-
-                // Encode those coordinates into the lParam for the Win32 message
-                int lParam = (formCoords.Y << 16) | (formCoords.X & 0xFFFF);
-
-                // Post both a "down" and an "up" message to simulate a full click
-                PostMessage(form.Handle, WM_LBUTTONDOWN, IntPtr.Zero, (IntPtr)lParam);
-                PostMessage(form.Handle, WM_LBUTTONUP, IntPtr.Zero, (IntPtr)lParam);
-            }
-        }
+   
 
         #endregion "Event Handlers"
         #region "Layout and Theme"
@@ -831,6 +750,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void RearrangeLayout()
         {
+            if (_logo == null || TitleLabel == null || searchBox == null)
+                return; // Prevent layout calculation on uninitialized components
             int padding = 2; // Padding between controls and edges
             int spacing = 5; // Spacing between controls
             UpdateDrawingRect();
@@ -876,30 +797,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 rightEdge -= minimizeIcon.Width + spacing;
             }
 
-            if (notificationIcon != null && notificationIcon.Visible)
-            {
-                notificationIcon.Anchor = AnchorStyles.Right;
-                notificationIcon.Top = DrawingRect.Top + (DrawingRect.Height - notificationIcon.Height) / 2;
-                notificationIcon.Left = rightEdge - notificationIcon.Width;
-                rightEdge -= notificationIcon.Width + spacing;
-            }
-
-            if (profileIcon != null && profileIcon.Visible)
-            {
-                profileIcon.Anchor = AnchorStyles.Right;
-                profileIcon.Top = DrawingRect.Top + (DrawingRect.Height - profileIcon.Height) / 2;
-                profileIcon.Left = rightEdge - profileIcon.Width;
-                rightEdge -= profileIcon.Width + spacing;
-            }
-            if (themeIcon != null && themeIcon.Visible)
-            {
-                themeIcon.Anchor = AnchorStyles.Right;
-                themeIcon.Top = DrawingRect.Top + (DrawingRect.Height - themeIcon.Height) / 2;
-                themeIcon.Left = rightEdge - themeIcon.Width;
-                rightEdge -= themeIcon.Width + spacing;
-            }
-            
-            int totalwidthforrightbuttons = (windowsicons_height + spacing) * 5;
             // Position searchBox (centered horizontally)
             if (searchBox != null && searchBox.Visible)
             {
@@ -907,8 +804,38 @@ namespace TheTechIdea.Beep.Winform.Controls
                 searchBox.Height = searchBox.PreferredHeight;
                 searchBox.Width = SearchBoxWidth; // Ensure searchBox occupies at most one-third of the width
                 searchBox.Top = DrawingRect.Top + (DrawingRect.Height - searchBox.Height) / 2;
-                searchBox.Left = rightEdge- SearchBoxWidth-spacing;
+                searchBox.Left = rightEdge - SearchBoxWidth-spacing-20;
+                rightEdge -= SearchBoxWidth + spacing+20;
             }
+            Console.WriteLine("RightEdge" + rightEdge);
+            if (notificationIcon != null && notificationIcon.Visible)
+            {
+                Console.WriteLine("notification" + rightEdge);
+                notificationIcon.Anchor = AnchorStyles.Right;
+                notificationIcon.Top = DrawingRect.Top + (DrawingRect.Height - notificationIcon.Height) / 2;
+                notificationIcon.Left = rightEdge - notificationIcon.Width-spacing-20;
+                rightEdge -= notificationIcon.Width + spacing+20;
+            }
+            Console.WriteLine("profileIcon RightEdge" + rightEdge);
+            if (profileIcon != null && profileIcon.Visible)
+            {
+                Console.WriteLine("profileIcon" + rightEdge);
+                profileIcon.Anchor = AnchorStyles.Right;
+                profileIcon.Top = DrawingRect.Top + (DrawingRect.Height - profileIcon.Height) / 2;
+                profileIcon.Left = rightEdge - profileIcon.Width;
+                rightEdge -= profileIcon.Width + spacing;
+            }
+            Console.WriteLine("themeIcon RightEdge" + rightEdge);
+            if (themeIcon != null && themeIcon.Visible)
+            {
+                Console.WriteLine("themeIcon" + rightEdge);
+                themeIcon.Anchor = AnchorStyles.Right;
+                themeIcon.Top = DrawingRect.Top + (DrawingRect.Height - themeIcon.Height) / 2;
+                themeIcon.Left = rightEdge - themeIcon.Width;
+                rightEdge -= themeIcon.Width + spacing;
+            }
+            
+          
             if (TitleLabel != null && TitleLabel.Visible)
             {
                 var prefSize = TitleLabel.GetPreferredSize(Size.Empty);
@@ -918,96 +845,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TitleLabel.Top = DrawingRect.Top + (DrawingRect.Height - TitleLabel.Height) / 2;
 
                 TitleLabel.Left = leftEdge;
-                TitleLabel.Width = searchBox.Left - leftEdge - spacing;
+                TitleLabel.Width = themeIcon.Left - leftEdge - spacing;
                 leftEdge += TitleLabel.Width + spacing;
 
 
             }
+            Console.WriteLine("LeftEdge" + leftEdge);
         }
         #endregion "Layout and Theme"
-        #region "IBeepUIComoponent Distinct Control Implementation"
-        public void SetValue(object value)
-        {
-            var controlProperty = GetType().GetProperty(BoundProperty);
-            controlProperty?.SetValue(this, value);
-
-            if (DataContext != null && !string.IsNullOrEmpty(DataSourceProperty))
-            {
-                var dataSourceProperty = DataContext.GetType().GetProperty(DataSourceProperty);
-                dataSourceProperty?.SetValue(DataContext, value);
-            }
-        }
-        public object GetValue()
-        {
-            var controlProperty = GetType().GetProperty(BoundProperty);
-            return controlProperty?.GetValue(this);
-        }
-        public void ClearValue() => SetValue(null);
-        public virtual bool HasFilterValue() => !string.IsNullOrEmpty(BoundProperty) && GetValue() != null;
-        public AppFilter ToFilter()
-        {
-            return new AppFilter
-            {
-                FieldName = BoundProperty,
-                FilterValue = GetValue().ToString(),
-                Operator = "=",
-                valueType = "string"
-            };
-        }
-        // Set binding for a specific control property to a data source property
-        public virtual void SetBinding(string controlProperty, string dataSourceProperty)
-        {
-            if (DataContext == null)
-                throw new InvalidOperationException("DataContext is not set.");
-
-            // Check if a binding already exists for the property
-            var existingBinding = DataBindings[controlProperty];
-            if (existingBinding != null)
-            {
-                DataBindings.Remove(existingBinding);
-            }
-
-            // Add a new binding
-            var binding = new Binding(controlProperty, DataContext, dataSourceProperty)
-            {
-                DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged
-            };
-
-            DataBindings.Add(binding);
-
-            // Track bound properties for later reference
-            BoundProperty = controlProperty;
-            DataSourceProperty = dataSourceProperty;
-        }
-
-        // Method to validate data, with a default implementation
-        public virtual bool ValidateData(out string message)
-        {
-            base.ValidateData(out message);
-            var x = new BeepComponentEventArgs(this, BoundProperty, LinkedProperty, GetValue());
-          
-            if (x.Cancel)
-            {
-                message = x.Message;
-                return false;
-            }
-            else
-            {
-                message = string.Empty; return true;
-            }
-
-        }
-
-        public virtual void Draw(Graphics graphics, Rectangle rectangle)
-        {
-            // Draw the control on the provided graphics object
-
-            base.Draw(graphics, rectangle);
-
-
-
-        }
-        #endregion "IBeepUIComoponent Distinct Control Implementation"
+      
      
     }
     public class BeepAppBarEventsArgs : EventArgs

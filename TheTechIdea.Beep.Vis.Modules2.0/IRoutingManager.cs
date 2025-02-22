@@ -13,6 +13,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         string BreadCrumb { get; }
         IDM_Addin CurrentControl { get; }
         bool UseCustomCreator { get; set; }
+        IDisplayContainer DisplayContainer { get; set; }
+
+        ContainerTypeEnum ContainerType { get; set; }
 
         event EventHandler<string> Navigated;
         event EventHandler<string> Navigating;

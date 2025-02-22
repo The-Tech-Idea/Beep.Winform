@@ -148,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Basic
             Tree = (ITree)Visutil.Tree;
             ExtensionsHelpers=new FunctionandExtensionsHelpers(DMEEditor,Visutil,Tree   );
             ExtensionsHelpers.GetValues(Passedarg);
-            pbr=ExtensionsHelpers.pbr;
+            pbr=ExtensionsHelpers.CurrentBranch;
             RootBranch = ExtensionsHelpers.RootBranch;
             ParentBranch = ExtensionsHelpers.ParentBranch;
          

@@ -48,11 +48,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             //  beepDataRecord1.SetDataRecord(viewModel.DBWork.Units[0]);
             // beepButton2.ListItems = beepTreeControl1.Nodes;
-            //BeepPopupListForm beepFileDialog = new BeepPopupListForm(beepTreeControl1.Nodes.ToList());
+            //BeepPopupListForm menuDialog = new BeepPopupListForm(beepTreeControl1.Nodes.ToList());
             //// Get the screen position of the control's top-left corner
             ////Point screenPoint = beepButton1.PointToScreen(Point.Empty);
             ////Point point = new Point(screenPoint.X, screenPoint.Y + beepButton1.Height);
-            //SimpleItem x=beepFileDialog.ShowPopup("Tree",beepButton1, BeepPopupFormPosition.Top);
+            //SimpleItem x=menuDialog.ShowPopup("Tree",beepButton1, BeepPopupFormPosition.Top);
             // beepTreeControl1.ShowCheckBox = true;
             // beepDataRecord1.SetDataRecord(beepTreeControl1.Nodes[0]);
             // BeepThemesManager.CurrentTheme = EnumBeepThemes.WinterTheme;

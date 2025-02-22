@@ -107,11 +107,11 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
             try
             {
                 ExtensionsHelpers.GetValues(Passedarguments);
-                if (ExtensionsHelpers.pbr == null)
+                if (ExtensionsHelpers.CurrentBranch == null)
                 {
                     return DMEEditor.ErrorObject;
                 }
-                if (ExtensionsHelpers.pbr.BranchType == EnumPointType.DataPoint)
+                if (ExtensionsHelpers.CurrentBranch.BranchType == EnumPointType.DataPoint)
                 {
                    
                     List<DefaultValue> defaults = DMEEditor.ConfigEditor.DataConnections[DMEEditor.ConfigEditor.DataConnections.FindIndex(i => i.ConnectionName == Passedarguments.DatasourceName)].DatasourceDefaults;
@@ -162,13 +162,13 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
             try
             {
                 ExtensionsHelpers.GetValues(Passedarguments);
-                if (ExtensionsHelpers.pbr == null)
+                if (ExtensionsHelpers.CurrentBranch == null)
                 {
                     return DMEEditor.ErrorObject;
                 }
                
 
-                if (ExtensionsHelpers.pbr.BranchType == EnumPointType.DataPoint)
+                if (ExtensionsHelpers.CurrentBranch.BranchType == EnumPointType.DataPoint)
                 {
                    
                     List<DefaultValue> defaults = DMEEditor.ConfigEditor.DataConnections[DMEEditor.ConfigEditor.DataConnections.FindIndex(i => i.ConnectionName == Passedarguments.DatasourceName)].DatasourceDefaults;
@@ -189,7 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                         Passedarguments.EventType = "COPYDEFAULTS";
 
                         DMEEditor.AddLogMessage("Success", $"Copy Defaults", DateTime.Now, 0, null, Errors.Ok);
-                        ExtensionsHelpers.Vismanager.Controlmanager.MsgBox("Beep", "Defaults Copied Successfully");
+                        ExtensionsHelpers.Vismanager.DialogManager.MsgBox("Beep", "Defaults Copied Successfully");
                         DMEEditor.Passedarguments = Passedarguments;
                     }
                     else
@@ -213,7 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
         public IErrorsInfo PasteDefault(IPassedArgs Passedarguments)
         {
             ExtensionsHelpers.GetValues(Passedarguments);
-            if (ExtensionsHelpers.pbr == null)
+            if (ExtensionsHelpers.CurrentBranch == null)
             {
                 return DMEEditor.ErrorObject;
             }
@@ -231,7 +231,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                             DMEEditor.ConfigEditor.DataConnections[DMEEditor.ConfigEditor.DataConnections.FindIndex(i => i.ConnectionName == ExtensionsHelpers.DataSource.DatasourceName)].DatasourceDefaults = defaults;
                             DMEEditor.ConfigEditor.SaveDataconnectionsValues();
                             DMEEditor.AddLogMessage("Success", $"Paste Defaults", DateTime.Now, 0, null, Errors.Ok);
-                            ExtensionsHelpers.Vismanager.Controlmanager.MsgBox("Beep", "Pasted Defaults Successfully");
+                            ExtensionsHelpers.Vismanager.DialogManager.MsgBox("Beep", "Pasted Defaults Successfully");
                         }
 
                     }
@@ -276,17 +276,17 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
             try
             {
                 ExtensionsHelpers.GetValues(Passedarguments);
-                if (ExtensionsHelpers.pbr == null)
+                if (ExtensionsHelpers.CurrentBranch == null)
                 {
                     return DMEEditor.ErrorObject;
                 }
-                if (ExtensionsHelpers.pbr.BranchType != EnumPointType.Root)
+                if (ExtensionsHelpers.CurrentBranch.BranchType != EnumPointType.Root)
                 {
                     return DMEEditor.ErrorObject;
                 }
                 IBranch Rootbr = ExtensionsHelpers.RootBranch;
                 string foldername = "";
-                ExtensionsHelpers.Vismanager.Controlmanager.InputBox("Enter Category Name", "What Category you want to Add", ref foldername);
+                ExtensionsHelpers.Vismanager.DialogManager.InputBox("Enter Category Name", "What Category you want to Add", ref foldername);
                 if (foldername != null)
                 {
                     if (foldername.Length > 0)
@@ -313,16 +313,16 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
             try
             {
                 ExtensionsHelpers.GetValues(Passedarguments);
-                if (ExtensionsHelpers.pbr == null)
+                if (ExtensionsHelpers.CurrentBranch == null)
                 {
                     return DMEEditor.ErrorObject;
                 }
-                if (ExtensionsHelpers.pbr.BranchType != EnumPointType.Category)
+                if (ExtensionsHelpers.CurrentBranch.BranchType != EnumPointType.Category)
                 {
                     return DMEEditor.ErrorObject;
                 }
-                int id = ExtensionsHelpers.pbr.ID;
-                IBranch CategoryBranch = ExtensionsHelpers.pbr;
+                int id = ExtensionsHelpers.CurrentBranch.ID;
+                IBranch CategoryBranch = ExtensionsHelpers.CurrentBranch;
                 IBranch RootBranch = ExtensionsHelpers.RootBranch;
                 TreeNode CategoryBranchNode = (TreeNode)ExtensionsHelpers.TreeEditor.GetTreeNodeByID(CategoryBranch.BranchID);
                 var ls = ExtensionsHelpers.TreeEditor.Branches.Where(x => x.ParentBranchID == id).ToList();

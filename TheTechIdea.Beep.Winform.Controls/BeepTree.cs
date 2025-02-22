@@ -398,7 +398,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             ClickedNode = sender as BeepTreeNode;
             if (ClickedNode == null) return;
-            CloseOpenPopupMenu();
+            //CloseOpenPopupMenu();
             NodeDoubleClicked?.Invoke(sender, e);
         }
         private void OnNodeExpanded(object sender, BeepMouseEventArgs e)
@@ -455,7 +455,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (ClickedNode == null) return;
             var node = ClickedNode;
             if (node == null) return;
-            CloseOpenPopupMenu();
+            //CloseOpenPopupMenu();
             // Add to SelectedNodes if not already present
             if (!SelectedNodes.Contains(node))
                 SelectedNodes.Add(node);
@@ -530,7 +530,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ClickedNode = sender as BeepTreeNode;
             if (ClickedNode == null) return;
 
-            CloseOpenPopupMenu();
+         //   CloseOpenPopupMenu();
 
             // Refresh the UI if necessary
             Invalidate();
@@ -2158,8 +2158,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (LastNodeMenuShown != null)
             {
-                LastNodeMenuShown.ClosePopup();
                 LastNodeMenuShown.MenuItemSelected -= LastNodeMenuShown_MenuItemSelected;
+                LastNodeMenuShown.ClosePopup();
+               
             }
         }
 

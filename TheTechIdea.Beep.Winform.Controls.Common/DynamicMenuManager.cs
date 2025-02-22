@@ -135,6 +135,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                             Category = item.Category,
                             BranchName = item.Name,
                             PackageName = cls.PackageName,
+                            AssemblyClassDefinitionID= cls.GuidID,
                             ImagePath = ImageListHelper.GetImagePathFromName(item.iconimage)
                         };
 

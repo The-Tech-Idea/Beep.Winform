@@ -17,13 +17,13 @@ namespace TheTechIdea.Beep.Desktop.Common
         public static ContainerBuilder RegisterControlManager(this ContainerBuilder builder)
         {
 
-            builder.RegisterType<ControlManager>().As<IControlManager>().SingleInstance();
+            builder.RegisterType<DialogManager>().As<IDialogManager>().SingleInstance();
             return builder;
         }
         public static IServiceCollection RegisterControlManager(this IServiceCollection services)
         {
          
-            services.AddSingleton<IControlManager, ControlManager>();
+            services.AddSingleton<IDialogManager, DialogManager>();
             return services;
         }
     }

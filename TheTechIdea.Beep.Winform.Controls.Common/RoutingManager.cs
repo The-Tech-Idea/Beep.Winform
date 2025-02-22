@@ -26,8 +26,8 @@ namespace TheTechIdea.Beep.Desktop.Common
         new RouteDefinition("Home", "/"),
         // ... add as many as needed
     };
-        private readonly IDisplayContainer _displayContainer;
-        private readonly ContainerTypeEnum _containerType;
+        private  IDisplayContainer _displayContainer;
+        private  ContainerTypeEnum _containerType;
 
         private readonly Dictionary<string, Lazy<IDM_Addin>> _viewCache = new Dictionary<string, Lazy<IDM_Addin>>();
         private readonly Dictionary<string, Type> _routes = new Dictionary<string, Type>();
@@ -54,6 +54,16 @@ namespace TheTechIdea.Beep.Desktop.Common
         {
             get => _useCustomCreator;
             set => _useCustomCreator = value;
+        }
+        public IDisplayContainer DisplayContainer
+        {
+            get { return _displayContainer; }
+            set { _displayContainer = value; }
+        }
+        public ContainerTypeEnum ContainerType
+        {
+            get { return _containerType; }
+            set { _containerType = value; }
         }
         #endregion "Properties"
         #region "Constructors"
@@ -171,7 +181,13 @@ namespace TheTechIdea.Beep.Desktop.Common
                     result.Message = "Navigation canceled by PreShowItem.";
                     return result;
                 }
-
+                if(_displayContainer == null)
+                {
+                    await NavigateToErrorAsync($"Display Container is not set");
+                    result.Flag = Errors.Failed;
+                    result.Message = $"Display Container is not set";
+                    return result;
+                }
                 // Remove the current view in SinglePanel mode
                 if (_containerType == ContainerTypeEnum.SinglePanel && _currentView != null)
                 {
@@ -310,7 +326,13 @@ namespace TheTechIdea.Beep.Desktop.Common
                 {
                     error.SetError(errorMessage);
                 }
-
+                if (_displayContainer == null)
+                {
+                    await NavigateToErrorAsync($"Display Container is not set");
+                    result.Flag = Errors.Failed;
+                    result.Message = $"Display Container is not set";
+                    return result;
+                }
                 if (_containerType == ContainerTypeEnum.SinglePanel && _currentView != null)
                 {
                     _displayContainer.RemoveControl(_currentView.Details.AddinName, _currentView);
@@ -408,7 +430,13 @@ namespace TheTechIdea.Beep.Desktop.Common
                     result.Message = "Navigation canceled by PreShowItem.";
                     return result;
                 }
-
+                if (_displayContainer == null)
+                {
+                     NavigateToError($"Display Container is not set");
+                    result.Flag = Errors.Failed;
+                    result.Message = $"Display Container is not set";
+                    return result;
+                }
                 // Remove the current view in SinglePanel mode
                 if (_containerType == ContainerTypeEnum.SinglePanel && _currentView != null)
                 {
@@ -547,7 +575,13 @@ namespace TheTechIdea.Beep.Desktop.Common
                 {
                     error.SetError(errorMessage);
                 }
-
+                if (_displayContainer == null)
+                {
+                     NavigateToError($"Display Container is not set");
+                    result.Flag = Errors.Failed;
+                    result.Message = $"Display Container is not set";
+                    return result;
+                }
                 if (_containerType == ContainerTypeEnum.SinglePanel && _currentView != null)
                 {
                     _displayContainer.RemoveControl(_currentView.Details.AddinName, _currentView);
@@ -903,24 +937,6 @@ namespace TheTechIdea.Beep.Desktop.Common
             return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
         #endregion "Parameter Binding and Handling"
-        //public class CustomerOrdersParameters
-        //{
-        //    public int CustomerId { get; set; }
-        //    public int OrderId { get; set; }
-        //    public DateTime? StartDate { get; set; }
-        //}
-
-        //public void OnNavigatedTo(Dictionary<string, object> parameters)
-        //{
-        //    // Convert to string->string
-        //    var raw = parameters.ToDictionary(x => x.Key, x => x.Value?.ToString() ?? "");
-        //    var bound = BindParameters<CustomerOrdersParameters>(raw);
-
-        //    // bound.CustomerId is an int
-        //    // bound.OrderId is an int
-        //    // bound.StartDate is a DateTime?
-        //}
-
     }
 
 

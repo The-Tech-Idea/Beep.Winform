@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers.Wizards
                 ;
             }
         }
-        public ControlManager controlManager { get;set; }
+        public DialogManager controlManager { get;set; }
         public bool Isloaded { get  ; set  ; }
         public bool IsSaved { get  ; set  ; }
         public bool IsEdited { get  ; set  ; }

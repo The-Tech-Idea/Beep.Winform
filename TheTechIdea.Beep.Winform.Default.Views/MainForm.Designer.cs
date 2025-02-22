@@ -32,6 +32,7 @@
             beepMenuBar1 = new TheTechIdea.Beep.Winform.Controls.BeepMenuBar();
             beepTreeControl1 = new TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView.BeepAppTree();
             beepAppBar1 = new TheTechIdea.Beep.Winform.Controls.BeepAppBar();
+            uc_Container1 = new TheTechIdea.Beep.Winform.Controls.Containers.uc_Container();
             SuspendLayout();
             // 
             // beepuiManager1
@@ -268,7 +269,7 @@
             beepTreeControl1.SelectedBranchs = (List<int>)resources.GetObject("beepTreeControl1.SelectedBranchs");
             beepTreeControl1.SelectedItem = null;
             beepTreeControl1.SelectIcon = "Select.svg";
-            beepTreeControl1.SeqID = 9;
+            beepTreeControl1.SeqID = 1;
             beepTreeControl1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
             beepTreeControl1.ShadowOffset = 0;
             beepTreeControl1.ShadowOpacity = 0.5F;
@@ -304,6 +305,7 @@
             beepAppBar1.ActiveBackColor = Color.Gray;
             beepAppBar1.AnimationDuration = 500;
             beepAppBar1.AnimationType = Winform.Controls.DisplayAnimationType.None;
+            beepAppBar1.ApplyThemeButtons = false;
             beepAppBar1.ApplyThemeOnLogo = false;
             beepAppBar1.ApplyThemeToChilds = false;
             beepAppBar1.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
@@ -422,12 +424,125 @@
             beepAppBar1.UseGradientBackground = false;
             beepAppBar1.UseThemeFont = true;
             // 
+            // uc_Container1
+            // 
+            uc_Container1.ActiveBackColor = Color.FromArgb(0, 120, 215);
+            uc_Container1.AnimationDuration = 500;
+            uc_Container1.AnimationType = Winform.Controls.DisplayAnimationType.None;
+            uc_Container1.ApplyThemeToChilds = true;
+            uc_Container1.AutoScroll = true;
+            uc_Container1.BadgeBackColor = Color.Red;
+            uc_Container1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
+            uc_Container1.BadgeForeColor = Color.White;
+            uc_Container1.BadgeShape = Winform.Controls.BadgeShape.Circle;
+            uc_Container1.BadgeText = "";
+            uc_Container1.BlockID = null;
+            uc_Container1.BorderColor = Color.FromArgb(200, 200, 200);
+            uc_Container1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            uc_Container1.BorderRadius = 3;
+            uc_Container1.BorderStyle = BorderStyle.FixedSingle;
+            uc_Container1.BorderThickness = 1;
+            uc_Container1.BottomoffsetForDrawingRect = 0;
+            uc_Container1.BoundProperty = null;
+            uc_Container1.CanBeFocused = true;
+            uc_Container1.CanBeHovered = false;
+            uc_Container1.CanBePressed = true;
+            uc_Container1.Category = Utilities.DbFieldCategory.String;
+            uc_Container1.ComponentName = "uc_Container";
+            uc_Container1.ContainerType = Vis.Modules.ContainerTypeEnum.SinglePanel;
+            uc_Container1.DataContext = null;
+            uc_Container1.DataSourceProperty = null;
+            uc_Container1.DisabledBackColor = Color.Gray;
+            uc_Container1.DisabledForeColor = Color.Empty;
+            uc_Container1.Dock = DockStyle.Fill;
+            uc_Container1.DrawingRect = new Rectangle(0, 0, 973, 782);
+            uc_Container1.Easing = Winform.Controls.EasingType.Linear;
+            uc_Container1.Editor = null;
+            uc_Container1.FieldID = null;
+            uc_Container1.FocusBackColor = Color.White;
+            uc_Container1.FocusBorderColor = Color.Gray;
+            uc_Container1.FocusForeColor = Color.Black;
+            uc_Container1.FocusIndicatorColor = Color.Blue;
+            uc_Container1.Form = null;
+            uc_Container1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
+            uc_Container1.GradientEndColor = Color.FromArgb(230, 230, 230);
+            uc_Container1.GradientStartColor = Color.White;
+            uc_Container1.GuidID = "0411ea69-34d8-4d81-a126-3229ee10a35b";
+            uc_Container1.HoverBackColor = Color.FromArgb(230, 230, 230);
+            uc_Container1.HoverBorderColor = Color.FromArgb(0, 120, 215);
+            uc_Container1.HoveredBackcolor = Color.Wheat;
+            uc_Container1.HoverForeColor = Color.Black;
+            uc_Container1.Id = -1;
+            uc_Container1.InactiveBackColor = Color.Gray;
+            uc_Container1.InactiveBorderColor = Color.Gray;
+            uc_Container1.InactiveForeColor = Color.Black;
+            uc_Container1.Info = (Desktop.Common.SimpleItem)resources.GetObject("uc_Container1.Info");
+            uc_Container1.IsAcceptButton = false;
+            uc_Container1.IsBorderAffectedByTheme = true;
+            uc_Container1.IsCancelButton = false;
+            uc_Container1.IsChild = false;
+            uc_Container1.IsCustomeBorder = false;
+            uc_Container1.IsDefault = false;
+            uc_Container1.IsDeleted = false;
+            uc_Container1.IsDirty = false;
+            uc_Container1.IsEditable = false;
+            uc_Container1.IsFocused = false;
+            uc_Container1.IsFramless = false;
+            uc_Container1.IsHovered = false;
+            uc_Container1.IsNew = false;
+            uc_Container1.IsPressed = false;
+            uc_Container1.IsReadOnly = false;
+            uc_Container1.IsRequired = false;
+            uc_Container1.IsRounded = false;
+            uc_Container1.IsRoundedAffectedByTheme = true;
+            uc_Container1.IsSelected = false;
+            uc_Container1.IsShadowAffectedByTheme = true;
+            uc_Container1.IsVisible = false;
+            uc_Container1.Items = (List<object>)resources.GetObject("uc_Container1.Items");
+            uc_Container1.LeftoffsetForDrawingRect = 0;
+            uc_Container1.LinkedProperty = null;
+            uc_Container1.Location = new Point(204, 70);
+            uc_Container1.Margin = new Padding(4, 3, 4, 3);
+            uc_Container1.Name = "uc_Container1";
+            uc_Container1.OverrideFontSize = Winform.Controls.TypeStyleFontSize.None;
+            uc_Container1.ParentBackColor = Color.Empty;
+            uc_Container1.ParentControl = null;
+            uc_Container1.PressedBackColor = Color.FromArgb(0, 120, 215);
+            uc_Container1.PressedBorderColor = Color.Gray;
+            uc_Container1.PressedForeColor = Color.Black;
+            uc_Container1.RightoffsetForDrawingRect = 0;
+            uc_Container1.SavedGuidID = null;
+            uc_Container1.SavedID = null;
+            uc_Container1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
+            uc_Container1.ShadowOffset = 0;
+            uc_Container1.ShadowOpacity = 0.5F;
+            uc_Container1.ShowAllBorders = false;
+            uc_Container1.ShowBottomBorder = false;
+            uc_Container1.ShowFocusIndicator = false;
+            uc_Container1.ShowLeftBorder = false;
+            uc_Container1.ShowRightBorder = false;
+            uc_Container1.ShowShadow = false;
+            uc_Container1.ShowTopBorder = false;
+            uc_Container1.Size = new Size(973, 782);
+            uc_Container1.SlideFrom = Winform.Controls.SlideDirection.Left;
+            uc_Container1.StaticNotMoving = false;
+            uc_Container1.TabIndex = 5;
+            uc_Container1.TempBackColor = Color.Empty;
+            uc_Container1.Text = "uc_Container1";
+            uc_Container1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            uc_Container1.ToolTipText = "";
+            uc_Container1.TopoffsetForDrawingRect = 0;
+            uc_Container1.UseGradientBackground = false;
+            uc_Container1.UseThemeFont = true;
+            uc_Container1.VisManager = null;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BorderColor = Color.FromArgb(200, 200, 200);
             ClientSize = new Size(1181, 856);
+            Controls.Add(uc_Container1);
             Controls.Add(beepTreeControl1);
             Controls.Add(beepMenuBar1);
             Controls.Add(beepAppBar1);
@@ -440,5 +555,6 @@
         private Controls.BeepMenuBar beepMenuBar1;
         private Controls.ITrees.BeepTreeView.BeepAppTree beepTreeControl1;
         private Controls.BeepAppBar beepAppBar1;
+        private Controls.Containers.uc_Container uc_Container1;
     }
 }

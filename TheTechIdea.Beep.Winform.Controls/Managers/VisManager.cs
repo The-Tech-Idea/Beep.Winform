@@ -70,8 +70,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public IVisHelper visHelper { get; set; }
         public List<AddinsShownData> addinsShowns { get; set; } = new List<AddinsShownData>();
         public List<IDM_Addin> Addins { get; set; } = new List<IDM_Addin>();
-        public IControlManager Controlmanager { get; set; }
-        public ControlManager _controlManager { get { return (ControlManager)Controlmanager; } }
+        public IDialogManager DialogManager { get; set; }
+        public DialogManager _controlManager { get { return (DialogManager)DialogManager; } }
         public ErrorsInfo ErrorsandMesseges { get; set; }
         public IDM_Addin CurrentDisplayedAddin { get; set; }
         public IDM_Addin MainDisplay { get; set; }
@@ -141,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             //SecondaryToolStrip = new ToolbarControl(DMEEditor, (TreeViewControl)StandardTree);
             //SecondaryMenuStrip = new MenuControl(DMEEditor, (TreeViewControl)StandardTree);
 
-          //  Controlmanager = new ControlManager(DMEEditor);
+          //  DialogManager = new DialogManager(DMEEditor);
             wizardManager = new WizardManager(DMEEditor, this);
             if (DMEEditor.Passedarguments == null)
             {
@@ -316,7 +316,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
                 if (IsDataModified)
                 {
-                    if (Controlmanager.InputBoxYesNo("Beep", "Module/Data not Saved, Do you want to continue?") == BeepDialogResult.No)
+                    if (DialogManager.InputBoxYesNo("Beep", "Module/Data not Saved, Do you want to continue?") == BeepDialogResult.No)
                     {
                         return ErrorsandMesseges;
                     }

@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         bool IsLogOn { get; set; }
         IDMEEditor DMEEditor { get; set; }
         ErrorsInfo ErrorsandMesseges { get; set; }
-        IControlManager Controlmanager { get; set; }
+        IDialogManager DialogManager { get; set; }
         IBeepUIComponent ToolStrip { get; set; }
         IBeepUIComponent SecondaryToolStrip { get; set; }
         IBeepUIComponent Tree { get; set; }

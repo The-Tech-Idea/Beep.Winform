@@ -106,6 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _selectedItem = value;
+                OnSelectedItemChanged(_selectedItem); //
             }
         }
         [Browsable(false)]
@@ -481,7 +482,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SimpleItem simpleItem = (SimpleItem)clickedButton.Tag;
                 SelectedItem = simpleItem;
                 ItemClicked?.Invoke(this, simpleItem);
-                SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(simpleItem));
+               
             }
         }
         #endregion "Menu events Handling"

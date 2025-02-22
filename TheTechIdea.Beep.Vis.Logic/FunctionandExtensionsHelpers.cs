@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Vis.Logic
         public IDMEEditor DMEEditor { get; set; }
         public IPassedArgs Passedargs { get; set; }
         public IAppManager Vismanager { get; set; }
-        public IControlManager Controlmanager { get; set; }
+        public IDialogManager DialogManager { get; set; }
         public IDM_Addin Crudmanager { get; set; }
         public IDM_Addin Menucontrol { get; set; }
         public IDM_Addin Toolbarcontrol { get; set; }
@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Vis.Logic
         public CancellationToken token { get; set; }
 
         public IDataSource DataSource { get; set; }
-        public IBranch pbr { get; set; }
+        public IBranch CurrentBranch { get; set; }
         public IBranch RootBranch { get; set; }
         public IBranch ParentBranch { get; set; }
         public IBranch ViewRootBranch { get; set; }
@@ -69,15 +69,15 @@ namespace TheTechIdea.Beep.Vis.Logic
         public void GetValues(IPassedArgs Passedarguments)
 
         {
-            pbr = TreeEditor.CurrentBranch;
+            CurrentBranch = TreeEditor.CurrentBranch;
 
-            if (pbr != null)
+            if (CurrentBranch != null)
             {
-                ParentBranch = pbr.ParentBranch;
+                ParentBranch = CurrentBranch.ParentBranch;
               
-                if (pbr.BranchType != EnumPointType.Root)
+                if (CurrentBranch.BranchType != EnumPointType.Root)
                 {
-                    int idx = TreeEditor.Branches.FindIndex(x => x.BranchClass == pbr.BranchClass && x.BranchType == EnumPointType.Root);
+                    int idx = TreeEditor.Branches.FindIndex(x => x.BranchClass == CurrentBranch.BranchClass && x.BranchType == EnumPointType.Root);
                     if (idx > 0)
                     {
                         RootBranch = TreeEditor.Branches[idx];
@@ -87,7 +87,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                 }
                 else
                 {
-                    RootBranch = pbr;
+                    RootBranch = CurrentBranch;
                 }
 
             }
@@ -218,7 +218,7 @@ namespace TheTechIdea.Beep.Vis.Logic
 
                             //if (DataSource.CheckEntityExist(entity.EntityName))
                             //{
-                            //    if (pbr.BranchClass == "VIEW")
+                            //    if (CurrentBranch.BranchClass == "VIEW")
                             //    {
                             //        IsView = false;
                             //    }
@@ -352,7 +352,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                 List<string> filenames = new List<string>();
                 if (Directoryname == null)
                 {
-                    Directoryname= Vismanager.Controlmanager.SelectFolderDialog();
+                    Directoryname= Vismanager.DialogManager.SelectFolderDialog();
                 }
                 if (!string.IsNullOrEmpty(Directoryname))
                 {
@@ -382,7 +382,7 @@ namespace TheTechIdea.Beep.Vis.Logic
                 }
                 foreach (string d in Directory.GetDirectories(dir))
                 {
-                    TreeEditor.Treebranchhandler.AddCategory(pbr, d);
+                    TreeEditor.Treebranchhandler.AddCategory(CurrentBranch, d);
                     // Console.WriteLine(Path.GetFileName(d));
                     DirectorySearch(d);
                 }
@@ -507,7 +507,7 @@ namespace TheTechIdea.Beep.Vis.Logic
             try
             {
                 string pextens = DMEEditor.ConfigEditor.CreateFileExtensionString();
-                string pfilename = Vismanager.Controlmanager.LoadFileDialog("*", DMEEditor.ConfigEditor.Config.ProjectDataPath, pextens);
+                string pfilename = Vismanager.DialogManager.LoadFileDialog("*", DMEEditor.ConfigEditor.Config.ProjectDataPath, pextens);
                 if (string.IsNullOrEmpty(pfilename))
                 {
                     return null;
@@ -530,7 +530,7 @@ namespace TheTechIdea.Beep.Vis.Logic
 
             try
             {
-                if (Vismanager.Controlmanager.InputBoxYesNo("Beep AI", $"Would you Like to Copy File {filename} to Local Folders?") == BeepDialogResult.OK)
+                if (Vismanager.DialogManager.InputBoxYesNo("Beep AI", $"Would you Like to Copy File {filename} to Local Folders?") == BeepDialogResult.OK)
                 {
                     CopyFileToLocal(sourcPath, DMEEditor.ConfigEditor.Config.ProjectDataPath, filename);
                 }

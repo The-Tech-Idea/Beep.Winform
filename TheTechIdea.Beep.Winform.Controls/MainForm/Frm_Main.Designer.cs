@@ -138,7 +138,7 @@
 //            uc_MainSplitPanel1.ParentBranch = null;
 //            uc_MainSplitPanel1.ParentName = null;
 //            uc_MainSplitPanel1.Passedarg = null;
-//            uc_MainSplitPanel1.pbr = null;
+//            uc_MainSplitPanel1.CurrentBranch = null;
 //            uc_MainSplitPanel1.Progress = null;
 //            uc_MainSplitPanel1.RootBranch = null;
 //            uc_MainSplitPanel1.Size = new Size(1363, 664);

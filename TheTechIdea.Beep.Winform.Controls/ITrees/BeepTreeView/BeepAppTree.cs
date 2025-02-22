@@ -783,15 +783,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         }
         #endregion "Branch Retrieval"
         #region "Refresh Tree"
-
-
         public void RefreshTree()
         {
             ClearNodes();
             CreateRootTree();
             RearrangeTree();
         }
-
         public void RefreshTree(IBranch branch)
         {
             if (branch == null) return;
@@ -811,7 +808,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 }
             }
         }
-
         public void RefreshTree(int branchid)
         {
             var branch = GetBranchById(branchid);
@@ -820,7 +816,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 RefreshTree(branch);
             }
         }
-
         public void RefreshTree(string branchname)
         {
             var branch = GetBranchByName(branchname);
@@ -829,7 +824,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 RefreshTree(branch);
             }
         }
-
         #endregion "Refresh Tree"
         #region "Remove Node"
         public void RemoveNode(int id)

@@ -13,14 +13,14 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public interface IFunctionandExtensionsHelpers
     {
-        IControlManager Controlmanager { get; set; }
+        IDialogManager DialogManager { get; set; }
         IDM_Addin Crudmanager { get; set; }
         IDataSource DataSource { get; set; }
         IDMEEditor DMEEditor { get; set; }
         IDM_Addin Menucontrol { get; set; }
         IBranch ParentBranch { get; set; }
         IPassedArgs Passedargs { get; set; }
-        IBranch pbr { get; set; }
+        IBranch CurrentBranch { get; set; }
         IProgress<PassedArgs> progress { get; set; }
         IBranch RootBranch { get; set; }
         CancellationToken token { get; set; }

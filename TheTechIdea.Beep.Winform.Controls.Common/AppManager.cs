@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             servicelocator = service;
             beepservices = (IBeepService)service.GetService(typeof(IBeepService));
             RoutingManager = (IRoutingManager)service.GetService(typeof(IRoutingManager));
-            Controlmanager = (IControlManager)service.GetService(typeof(IControlManager));
+            DialogManager = (IDialogManager)service.GetService(typeof(IDialogManager));
             DMEEditor = beepservices.DMEEditor;
             init();
 
@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             // Resolve dependencies using Autofac
             beepservices = _autofacContext.Resolve<IBeepService>();
             RoutingManager = _autofacContext.Resolve<IRoutingManager>();
-            Controlmanager = _autofacContext.Resolve<IControlManager>();
+            DialogManager = _autofacContext.Resolve<IDialogManager>();
             DMEEditor = beepservices.DMEEditor;
             init();
         }
@@ -96,9 +96,21 @@ namespace TheTechIdea.Beep.Desktop.Common
         public IDM_Addin CurrentDisplayedAddin { get; set; }
         public IDM_Addin MainDisplay { get; set; }
         public IPopupDisplayContainer PopupDisplay { get; set; }
-        public IDisplayContainer Container { get; set; }
+        IDisplayContainer _displaycontainer;
+        public IDisplayContainer Container
+        {
+            get
+            {
+                return _displaycontainer;
+            }
+            set
+            {
+                _displaycontainer = value;
+                RoutingManager.DisplayContainer = _displaycontainer;
+            }
+        }
         public IDM_Addin SplashScreen { get; set; }
-        public IControlManager Controlmanager { get; set; }
+        public IDialogManager DialogManager { get; set; }
         public IRoutingManager RoutingManager { get; set; }
         public IWaitForm WaitForm { get; set; }
         public Type WaitFormType { get; set; }
@@ -335,8 +347,6 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
         // Declare these as fields in your class:
         private Thread waitFormThread;
-       
-
         private void startwait(PassedArgs passedArguments)
         {
             if (IsShowingWaitForm)
@@ -639,7 +649,9 @@ namespace TheTechIdea.Beep.Desktop.Common
                 MiscFunctions.SetThemePropertyinControlifexist((Control)MainDisplay, Theme);
                 ApplyTheme();
                 CloseWaitForm();
+                RoutingManager.DisplayContainer= Container;
                 ShowPopup(MainDisplay);
+               
                 
             }
             catch (Exception ex)
@@ -701,7 +713,7 @@ namespace TheTechIdea.Beep.Desktop.Common
 
                 if (IsDataModified)
                 {
-                    if (Controlmanager.InputBoxYesNo("Beep", "Module/Data not Saved, Do you want to continue?") == BeepDialogResult.No)
+                    if (DialogManager.InputBoxYesNo("Beep", "Module/Data not Saved, Do you want to continue?") == BeepDialogResult.No)
                     {
                         return ErrorsandMesseges;
                     }
@@ -797,7 +809,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             IDM_Addin addin = null;
             try
             {
-
+                RoutingManager.NavigateTo(pagename);
             }
             catch (Exception ex)
             {
@@ -812,7 +824,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             IDM_Addin addin = null;
             try
             {
-
+                RoutingManager.NavigateTo(usercontrolname, null, true);
             }
             catch (Exception ex)
             {
@@ -1032,7 +1044,7 @@ namespace TheTechIdea.Beep.Desktop.Common
 
                 if (IsDataModified)
                 {
-                    if ( Controlmanager.InputBoxYesNo("Beep", "Module/Data not Saved, Do you want to continue?") == BeepDialogResult.No)
+                    if ( DialogManager.InputBoxYesNo("Beep", "Module/Data not Saved, Do you want to continue?") == BeepDialogResult.No)
                     {
                         return Task.FromResult(DMEEditor.ErrorObject); ;
                     }
@@ -1109,8 +1121,6 @@ namespace TheTechIdea.Beep.Desktop.Common
             return Task.FromResult(DMEEditor.ErrorObject);
         }
         #endregion "Async Methods"
-
-        //--------------------------------------------------
         #endregion "Navigation"
         #region "Printing and Exporting"
         public void PrintData(object data)

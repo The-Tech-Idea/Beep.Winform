@@ -82,11 +82,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _selectedItem;
              set
             {
-                if (_selectedItem != value)
-                {
+
                     _selectedItem = value;
                     OnSelectedItemChanged(_selectedItem); //
-                }
+
             }
         }
         [Browsable(false)]
@@ -504,7 +503,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Constructor"
         #region "Popup List Methods"
-        BeepPopupListForm beepFileDialog;
+        BeepPopupListForm menuDialog;
         private Color tmpfillcolor;
         private Color tmpstrokecolor;
 
@@ -522,25 +521,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 return;
             }
-             beepFileDialog = new BeepPopupListForm(ListItems.ToList());
+             menuDialog = new BeepPopupListForm(ListItems.ToList());
            
-            beepFileDialog.Theme = Theme;
-            beepFileDialog.SelectedItemChanged += (sender, item) =>
-            {
-                SelectedItem = item.SelectedItem;
-       //         ClosePopup();
-            };
-            // Get the screen position of the control's top-left corner
-            //Point screenPoint = beepButton1.PointToScreen(Point.Empty);
-            //Point point = new Point(screenPoint.X, screenPoint.Y + beepButton1.Height);
-            SimpleItem x = beepFileDialog.ShowPopup(Text, this, _beepPopupFormPosition);
+            menuDialog.Theme = Theme;
+
+            menuDialog.SelectedItemChanged += MenuDialog_SelectedItemChanged;
+           SimpleItem x = menuDialog.ShowPopup(Text, this, _beepPopupFormPosition);
            
         }
+
+        private void MenuDialog_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
+        {
+
+                 SelectedItem = e.SelectedItem;
+
+        }
+
         public void ClosePopup()
         {
            
             _isPopupOpen = false;
-            beepFileDialog.Hide();
+            menuDialog.Close();
         }
         #endregion "Popup List Methods"
         #region "Theme"

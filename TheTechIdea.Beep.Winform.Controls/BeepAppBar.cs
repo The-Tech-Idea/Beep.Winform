@@ -353,7 +353,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             AddUserProfileIcon();
             AddWindowControlIcons();
             AddLogoImage();
-          
             AddThemeIcon();
             RearrangeLayout();
         }
@@ -528,7 +527,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             themeIcon.SelectedItemChanged += ThemeIcon_SelectedItemChanged;
             Controls.Add(themeIcon);
         }
-     
         private void ThemeIcon_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
             if (e.SelectedItem!= null)
@@ -551,7 +549,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,
-                Cursor = Cursors.Hand,
+
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg",
                 Theme = Theme,
                 ApplyThemeOnImage =_applyThemeOnImage,
@@ -563,9 +561,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 HideText = true,
                 Tag = "Profile",
                 PopupMode = true
-
             };
-
             // Add menu rootnodeitems (SimpleMenuItem instances) with text and optional SVG icons
             profileIcon.ListItems.Add(new SimpleItem { Text = "Profile", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg" });
             profileIcon.ListItems.Add(new SimpleItem { Text = "Settings", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.settings.svg" });
@@ -575,12 +571,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             profileIcon.SelectedItemChanged += ProfileIcon_SelectedItemChanged;
             Controls.Add(profileIcon);
         }
-
         private void ProfileIcon_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
            
         }
-
         private void AddWindowControlIcons()
         {
             // Minimize button
@@ -589,7 +583,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = windowsicons_height,
                 Height = windowsicons_height,
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
-                Cursor = Cursors.Hand,
+      
                 Theme = Theme,
                 ApplyThemeOnImage = _applyThemeOnImage,
                 IsFramless = this.IsFramless,
@@ -611,7 +605,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = windowsicons_height,
                 Height = windowsicons_height,
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
-                Cursor = Cursors.Hand,
+             
                 Theme = Theme,
                 ApplyThemeOnImage = _applyThemeOnImage,
                 IsFramless = this.IsFramless,
@@ -660,7 +654,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Handle the notification click event
             MessageBox.Show("Showing notifications");
         }
-
         #endregion "Adding Controls"
         #region "Event Handlers"
         private void ButtonClicked(object sender, EventArgs e)
@@ -910,8 +903,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Console.WriteLine("LeftEdge" + leftEdge);
         }
         #endregion "Layout and Theme"
-      
-     
     }
     public class BeepAppBarEventsArgs : EventArgs
     {

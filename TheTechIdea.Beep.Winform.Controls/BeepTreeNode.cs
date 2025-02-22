@@ -928,6 +928,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isinitialized = true;
             _isExpanded=false;
            IsInvalidated=true;
+            NodeMainMiddlebutton.PopPosition = BeepPopupFormPosition.Right;
+            NodeMainMiddlebutton.SelectedItemChanged += NodeMainMiddlebutton_SelectedItemChanged;
             // RearrangeNode();
             ApplyTheme();
             RearrangeNode();
@@ -1991,8 +1993,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             //BeepMouseEventArgs args = new BeepMouseEventArgs("ShowBeepMenu", this);
             //ShowMenu?.Invoke(this, args);
-            NodeMainMiddlebutton.PopPosition = BeepPopupFormPosition.Right;
-            NodeMainMiddlebutton.SelectedItemChanged += NodeMainMiddlebutton_SelectedItemChanged;
+          
             NodeMainMiddlebutton.ShowPopup();
         }
 

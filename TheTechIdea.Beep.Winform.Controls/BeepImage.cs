@@ -4,7 +4,6 @@ using System.Drawing.Design;
 using Svg;
 using System.Drawing.Text;
 using Timer = System.Windows.Forms.Timer;
-using System.Reflection;
 using TheTechIdea.Beep.Vis.Modules;
 
 
@@ -20,34 +19,55 @@ namespace TheTechIdea.Beep.Winform.Controls
     //[Designer(typeof(TheTechIdea.Beep.Winform.Controls.Design.BeepImageDesigner))]
     public class BeepImage : BeepControl
     {
-
-
-
-        // private ImageSelectorImporterForm form;
         public SvgDocument svgDocument { get; private set; }
         private Image regularImage;
         private bool isSvg = false;
         private string _advancedImagePath;
         // Property for the image path (SVG, PNG, JPG, BMP)
         protected string _imagepath;
-
+        Color fillColor;
+        Color strokeColor;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("fill color")]
+        public Color FillColor
+        {
+            get => fillColor;
+            set
+            {
+                fillColor = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("stroke color")]
+        public Color StrokeColor
+        {
+            get => strokeColor;
+            set
+            {
+                strokeColor = value;
+                Invalidate();
+            }
+        }
         public BeepImage()
-        { 
+        {
             //// Enable double buffering and optimized painting
-            //SetStyle(ControlStyles.OptimizedDoubleBuffer |
-            //         ControlStyles.AllPaintingInWmPaint |
-            //         ControlStyles.UserPaint, true);
-            //UpdateStyles();
+            SetStyle(ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.UserPaint, true);
+            UpdateStyles();
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
                 Width = 100;
                 Height = 100;
             }
             BoundProperty = "ImagePath";
+            fillColor = Color.Black;
+            strokeColor = Color.Black;
             // ImageSelector.SetSelector();
         }
-
-
         #region "Properties"
 
         private ImageEmbededin _imageEmbededin = ImageEmbededin.Button;
@@ -209,6 +229,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         private bool _isstillimage = false;
+        private SvgPaintServer tmpfillcolor;
+        private SvgPaintServer tmpstrokecolor;
+
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         [Category("Appearance")]
@@ -287,7 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // ForeColor = _currentTheme.ButtonForeColor; // Default foreground color
 
-                BackColor = _currentTheme.BackColor;
+                BackColor = _currentTheme.ButtonBackColor;
                 switch (_imageEmbededin)
                 {
                     case ImageEmbededin.ListBox:
@@ -324,6 +347,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     ApplyThemeToSvg();
                 }
+                if (IsChild && Parent != null)
+                {
+                    parentbackcolor = Parent.BackColor;
+                }
                 Invalidate();
             }
         }
@@ -333,8 +360,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (svgDocument != null && _currentTheme != null)
             {
-                Color fillColor;
-                Color strokeColor;
+                
                 switch (_imageEmbededin)
                 {
                     case ImageEmbededin.ListBox:
@@ -361,8 +387,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         fillColor = _currentTheme.GridBackColor;
                         break;
                    default:
-                        strokeColor = _currentTheme.LatestForColor;
-                        fillColor  = _currentTheme.BackColor;
+                        strokeColor = _currentTheme.ButtonForeColor;
+                        fillColor  = _currentTheme.ButtonBackColor;
                         break;
 
 
@@ -375,8 +401,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else if (IsHovered)
                 {
-                    strokeColor  = _currentTheme.ButtonHoverBackColor;
+                    strokeColor  = _currentTheme.ButtonActiveBackColor;
                     fillColor = _currentTheme.ButtonHoverForeColor;
+                }
+              
+                foreach (var element in svgDocument.Descendants())
+                {
+                    if (element is SvgVisualElement visualElement)
+                    {
+                        // store current colors for future reference from current svgdocument
+                       tmpfillcolor = visualElement.Fill;
+                        tmpstrokecolor = visualElement.Stroke;
+                    
+                    }
                 }
 
                 // Apply colors recursively to all elements
@@ -388,9 +425,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         visualElement.Stroke = new SvgColourServer(strokeColor);
                         visualElement.Fill = new SvgColourServer(fillColor);
-                        //visualElement.CustomAttributes["stroke-width"] = "1"; // Explicitly set stroke width
-                        //visualElement.CustomAttributes["stroke-linecap"] = "round"; // Customize stroke if needed
-                        //visualElement.CustomAttributes["stroke-linejoin"] = "round";
+                       
                     }
                 }
 
@@ -399,18 +434,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
         }
-        //private void ApplyColorsToElement(SvgElement element, Color fillColor, Color strokeColor)
-        //{
-        //    if (element is SvgVisualElement visualElement)
-        //    {
-        //        visualElement.Fill = new SvgColourServer(fillColor);
-        //        visualElement.Stroke = new SvgColourServer(strokeColor);
-        //    }
-        //    foreach (var child in element.Children)
-        //    {
-        //        ApplyColorsToElement(child, fillColor, strokeColor);
-        //    }
-        //}
+      
         #endregion "Theme Properties"
         #region "Image Drawing Methods"
       

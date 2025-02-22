@@ -197,6 +197,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     if (ApplyThemeOnImage)
                     {
+                        tmpfillcolor = beepImage.FillColor;
+                        tmpstrokecolor = beepImage.StrokeColor;
                         beepImage.Theme = Theme;
                     }
                 }
@@ -503,6 +505,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Constructor"
         #region "Popup List Methods"
         BeepPopupListForm beepFileDialog;
+        private Color tmpfillcolor;
+        private Color tmpstrokecolor;
+
         private void TogglePopup()
         {
             if (_isPopupOpen)
@@ -565,9 +570,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
                 
             }
-            if (IsChild)
+            if (IsChild && Parent!=null)
             {
-                BackColor= _currentTheme.ButtonBackColor;
+                BackColor= Parent.BackColor;
             }
             Font = _textFont;
             ApplyThemeToSvg();

@@ -113,7 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             }
         }
     }
-
+    [ToolboxItem(false)]
     public class NumericEditingControl : TextBox, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;

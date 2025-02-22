@@ -113,7 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             }
         }
     }
-
+    [ToolboxItem(false)]
     public class BeepDataGridViewProgressBarEditingControl : BeepProgressBar, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;

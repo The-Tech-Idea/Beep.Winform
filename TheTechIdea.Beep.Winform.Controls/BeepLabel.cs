@@ -431,10 +431,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                
                 Font = _textFont;
-                //if (IsChild)
-                //{
-                //    parentbackcolor = Parent.BackColor;
-                //}
+                if (IsChild && Parent!=null)
+                {
+                    parentbackcolor = Parent.BackColor;
+                }
                 //   Console.WriteLine("2 Label Apply Theme TextFont");
                 ApplyThemeToSvg();
                 Invalidate();

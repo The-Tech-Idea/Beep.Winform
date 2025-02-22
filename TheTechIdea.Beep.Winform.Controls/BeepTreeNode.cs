@@ -1337,6 +1337,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (_toggleButton != null)
             {
+                _toggleButton.ImageEmbededin = ImageEmbededin.Button;
+                _toggleButton.ApplyThemeOnImage = true;
                 _toggleButton.Theme = Theme;
             }
            // NodeMainMiddlebutton.ForeColor = _currentTheme.AccentColor;

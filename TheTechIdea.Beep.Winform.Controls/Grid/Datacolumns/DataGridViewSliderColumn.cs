@@ -80,6 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
     }
 
     // DataGridViewSliderEditingControl class
+    [ToolboxItem(false)]
     public class DataGridViewSliderEditingControl : TrackBar, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;

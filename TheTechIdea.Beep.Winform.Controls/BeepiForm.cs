@@ -1,12 +1,9 @@
 ﻿
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
-using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 
@@ -176,7 +173,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             //}
         }
-
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
@@ -530,7 +526,5 @@ namespace TheTechIdea.Beep.Winform.Controls
         private static extern bool SetProcessDPIAware();
 
         #endregion
-       
-
     }
 }

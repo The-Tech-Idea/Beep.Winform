@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             }
         }
     }
-
+    [ToolboxItem(false)]
     public class BeepChartEditingControl : BeepChartBase, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;

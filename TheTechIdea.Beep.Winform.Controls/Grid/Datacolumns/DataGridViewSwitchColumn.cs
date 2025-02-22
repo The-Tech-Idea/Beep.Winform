@@ -41,6 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 
         public override object DefaultNewRowValue => false;
     }
+    [ToolboxItem(false)]
     public class SwitchEditingControl : Control, IDataGridViewEditingControl
     {
         private bool isOn;

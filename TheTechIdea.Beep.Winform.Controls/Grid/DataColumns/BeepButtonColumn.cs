@@ -37,8 +37,9 @@ using System.Threading.Tasks;
                 }
             }
         }
+    [ToolboxItem(false)]
 
-        public class BeepButtonEditingControl : BeepButton, IDataGridViewEditingControl
+    public class BeepButtonEditingControl : BeepButton, IDataGridViewEditingControl
         {
             private DataGridView dataGridView;
             private int rowIndex;

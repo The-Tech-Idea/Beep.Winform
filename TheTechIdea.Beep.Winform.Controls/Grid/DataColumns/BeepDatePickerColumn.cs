@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             }
         }
     }
-
+    [ToolboxItem(false)]
     public class BeepDatePickerEditingControl : BeepDatePicker, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;

@@ -88,6 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
     }
 
     // Custom editing control that is displayed when editing a cell
+    [ToolboxItem(false)]
     public class DataGridViewDateTimePickerEditingControl : DateTimePicker, IDataGridViewEditingControl
     {
         DataGridView dataGridView;

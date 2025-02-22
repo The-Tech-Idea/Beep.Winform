@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             }
         }
     }
-
+    [ToolboxItem(false)]
     public class BeepExtendedButtonEditingControl : BeepExtendedButton, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;

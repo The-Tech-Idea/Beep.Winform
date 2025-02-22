@@ -44,6 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
         public override object DefaultNewRowValue => "Option 1";
     }
     // Custom ComboBox control with images
+    [ToolboxItem(false)]
     public class ImageComboBoxEditingControl : ComboBox, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;

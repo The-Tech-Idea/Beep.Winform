@@ -11,9 +11,6 @@ using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
-using TheTechIdea.Beep.Winform.Controls;
-using TheTechIdea.Beep.Winform.Controls.Grid;
-using TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 namespace TheTechIdea.Beep.Winform.Default.Views

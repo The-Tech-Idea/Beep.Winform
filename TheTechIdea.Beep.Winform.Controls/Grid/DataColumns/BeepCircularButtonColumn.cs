@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             }
         }
     }
-
+    [ToolboxItem(false)]
     public class BeepCircularButtonEditingControl : BeepCircularButton, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;

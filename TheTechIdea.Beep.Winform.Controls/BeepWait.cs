@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepWait : BeepiForm, IWaitForm
     {
         public  Progress<PassedArgs> Progress { get; } = new Progress<PassedArgs>();
-        public BeepWait()
+        public BeepWait():base()
         {
             InitializeComponent();
             Progress.ProgressChanged += (sender, args) =>
@@ -229,13 +229,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.LatestForColor;
             messege.Theme = Theme;
             Title.Theme = Theme;
-            InvokeAction(Title, () => Title.Theme = Theme);
-            InvokeAction(messege, () => messege.Theme = Theme);
-            InvokeAction(_spinnerImage, () => _spinnerImage.Theme = Theme);
-            InvokeAction(LogopictureBox, () => LogopictureBox.Theme = Theme);
-
-
-
+            _spinnerImage.Theme = Theme;
+            LogopictureBox.Theme = Theme;
+            beepLabel1.Theme = Theme;
+            beepLabel2.Theme = Theme;
 
         }
         public static void InvokeAction(Control control, MethodInvoker action)

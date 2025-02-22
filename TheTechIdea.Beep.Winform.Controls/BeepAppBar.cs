@@ -194,8 +194,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private BeepTextBox searchBox;
         bool _applyThemeOnImage = false;
-       
 
+        [Browsable(true)]
+        [Category("Appearance")]
         public bool ApplyThemeOnLogo
         {
             get => _applyThemeOnImage;
@@ -207,6 +208,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
+        private bool _applythemeonbuttons = false;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool ApplyThemeButtons
+        {
+            get => _applythemeonbuttons;
+            set
+            {
+                _applythemeonbuttons = value;
+                applythemetoButtons();
+                Invalidate();
+            }
+        }
+
+     
+
         private Size _logosize;
         [Browsable(true)]
         [Category("Appearance")]
@@ -740,6 +757,46 @@ namespace TheTechIdea.Beep.Winform.Controls
             RearrangeLayout();
             Invalidate();
         }
+        private void applythemetoButtons()
+        {
+            // apply theme to buttons
+            if (closeIcon != null)
+            {
+                closeIcon.ApplyThemeOnImage = _applythemeonbuttons;
+                closeIcon.Invalidate();
+            }
+            if (maximizeIcon != null)
+            {
+                maximizeIcon.ApplyThemeOnImage = _applythemeonbuttons;
+                maximizeIcon.Invalidate();
+            }
+            if (minimizeIcon != null)
+            {
+                minimizeIcon.ApplyThemeOnImage = _applythemeonbuttons;
+                minimizeIcon.Invalidate();
+            }
+            if (notificationIcon != null)
+            {
+                notificationIcon.ApplyThemeOnImage = _applythemeonbuttons;
+                notificationIcon.Invalidate();
+            }
+            if (themeIcon != null)
+            {
+                themeIcon.ApplyThemeOnImage = _applythemeonbuttons;
+                themeIcon.Invalidate();
+            }
+            if (profileIcon != null)
+            {
+                profileIcon.ApplyThemeOnImage = _applythemeonbuttons;
+                profileIcon.Invalidate();
+            }
+            if (hamburgerIcon != null)
+            {
+                hamburgerIcon.ApplyThemeOnImage = _applythemeonbuttons;
+                hamburgerIcon.Invalidate();
+            }
+            
+        }
         public void HideShowLogo(bool val)
         {
             _logo.Visible = val;
@@ -822,7 +879,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Console.WriteLine("profileIcon" + rightEdge);
                 profileIcon.Anchor = AnchorStyles.Right;
                 profileIcon.Top = DrawingRect.Top + (DrawingRect.Height - profileIcon.Height) / 2;
-                profileIcon.Left = rightEdge - profileIcon.Width;
+                profileIcon.Left = rightEdge - profileIcon.Width-spacing;
                 rightEdge -= profileIcon.Width + spacing;
             }
             Console.WriteLine("themeIcon RightEdge" + rightEdge);
@@ -831,7 +888,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Console.WriteLine("themeIcon" + rightEdge);
                 themeIcon.Anchor = AnchorStyles.Right;
                 themeIcon.Top = DrawingRect.Top + (DrawingRect.Height - themeIcon.Height) / 2;
-                themeIcon.Left = rightEdge - themeIcon.Width;
+                themeIcon.Left = rightEdge - themeIcon.Width-spacing;
                 rightEdge -= themeIcon.Width + spacing;
             }
             

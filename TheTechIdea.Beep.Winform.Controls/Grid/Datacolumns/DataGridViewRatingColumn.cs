@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             }
         }
     }
-
+    [ToolboxItem(false)]
     public class BeepDataGridViewRatingEditingControl : BeepStarRating, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;

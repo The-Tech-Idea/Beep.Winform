@@ -45,6 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
     }
 
     // Custom editing control with multi-column support
+    [ToolboxItem(false)]
     public class DataGridViewMultiColumnEditingControl : DataGridView, IDataGridViewEditingControl
     {
         public DataGridView EditingControlDataGridView { get; set; }

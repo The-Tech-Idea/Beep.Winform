@@ -648,8 +648,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             toggleButton.ApplyThemeToSvg();
             logo.BackColor = _currentTheme.SideMenuBackColor;
             logo.ForeColor = _currentTheme.SideMenuForeColor;
-            _titleLabel.ForeColor = _currentTheme.SideMenuForeColor;
-            _descriptionLabel.ForeColor = _currentTheme.SideMenuForeColor;
+            _titleLabel.Theme = Theme;
+
+            _descriptionLabel.Theme = Theme;
             foreach (Control control in Controls)
             {
                 if (control is Panel menuItemPanel && menuItemPanel.Tag is SimpleItem)

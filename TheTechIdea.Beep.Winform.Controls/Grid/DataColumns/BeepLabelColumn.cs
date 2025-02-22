@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             }
         }
     }
-
+    [ToolboxItem(false)]
     public class BeepLabelEditingControl : BeepLabel, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;

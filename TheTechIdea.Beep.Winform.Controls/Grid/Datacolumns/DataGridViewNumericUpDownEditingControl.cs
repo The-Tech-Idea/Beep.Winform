@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
         public override Type ValueType => typeof(decimal);
         public override object DefaultNewRowValue => 0m;
     }
-
+    [ToolboxItem(false)]
     public class DataGridViewNumericUpDownEditingControl : NumericUpDown, IDataGridViewEditingControl
     {
         DataGridView dataGridView;

@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             }
         }
     }
-
+    [ToolboxItem(false)]
     public class BeepDataGridViewSvgEditingControl : BeepImage, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;

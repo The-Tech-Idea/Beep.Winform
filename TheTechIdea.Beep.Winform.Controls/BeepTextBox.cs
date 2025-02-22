@@ -639,9 +639,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "AutoCompelete Properties"
         #endregion "Properties"
         #region "Constructors"
-        public BeepTextBox()
+        public BeepTextBox():base()
         {
-        //    SetStyle(ControlStyles.SupportsTransparentBackColor, false);
+           
             //      BackColor = Color.Black;
             Padding = new Padding(3);
             InitializeComponents();
@@ -653,15 +653,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  BorderStyle = BorderStyle.FixedSingle;
             _innerTextBox.Invalidated += BeepTextBox_Invalidated;
             beepImage.IsChild = true;
-         //   ApplyTheme(); // Ensure _currentTheme is initialized
+            ShowAllBorders=true;
+            IsShadowAffectedByTheme = false;
+            IsBorderAffectedByTheme = false;
+            
+            //   ApplyTheme(); // Ensure _currentTheme is initialized
             // Ensure size adjustments occur after initialization
             UpdateDrawingRect();
             AdjustTextBoxHeight();
             PositionInnerTextBoxAndImage();
-         //   _innerTextBox.BringToFront();
 
-            //AdjustTextBoxHeight();
-            //PositionInnerTextBoxAndImage();
         }
         #endregion "Constructors"
         #region "Initialization"
@@ -765,60 +766,49 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Ensure DrawingRect is updated
             UpdateDrawingRect();
-            // check if it is multiline
-            if (_multiline)
+
+            // Prevent resizing when multiline and AutoSize is false
+            if (_multiline && !AutoSize)
             {
-                // Multiline: just set the control's bounds as requested
-                base.SetBoundsCore(x, y, width, height, specified);
+                base.SetBoundsCore(x, y, width, this.Height, specified);
                 return;
             }
+
             // Ensure the control's height is always a multiple of the single-line height
             int singleLineHeight = GetSingleLineHeight();
             int adjustedHeight = height;
+
             if (height % singleLineHeight != 0)
             {
                 adjustedHeight = (height / singleLineHeight) * singleLineHeight;
             }
+
             // Adjust the control's height to fit the single-line height
             base.SetBoundsCore(x, y, width, adjustedHeight, specified);
-        
         }
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
+
             // If single line, don't allow a bigger or smaller height than necessary
             if (!_multiline)
             {
                 int singleLineHeight = GetSingleLineHeight();
-                // Force this control’s height to the single-line height
-                
-                    // single line
-                    _innerTextBox.Multiline = false;
-                    _innerTextBox.ScrollBars = ScrollBars.None;
-                    // Just keep the text box's native preferred height
-
-                    // This is the critical part:
-                   
-                    _innerTextBox.Height = singleLineHeight;
-                    // This is the critical part:
-
-
-                    // Force the user control to match that height 
-                    this.Height = singleLineHeight + (BorderThickness * 2);
-                    // Or add some extra margin if your border is drawn outside the DrawingRect
-
-                    // Then set the actual textbox height
-                    _innerTextBox.Height = singleLineHeight;
-
-                // Or you could do:
-                // this.MinimumSize = new Size(0, singleLineHeight);
-                // this.MaximumSize = new Size(0, singleLineHeight);
+                _innerTextBox.Height = singleLineHeight;
+                this.Height = singleLineHeight + (BorderThickness * 2);
             }
+            else if (!AutoSize)
+            {
+                // Prevent auto-resizing when multiline is enabled and AutoSize is false
+                _innerTextBox.Height = this.Height - (BorderThickness * 2);
+            }
+
             UpdateDrawingRect();
             AdjustTextBoxHeight();
             PositionInnerTextBoxAndImage();
-            
         }
+
         private void AdjustTextBoxHeight()
         {
             if (_multiline)
@@ -1478,7 +1468,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //InnerTextBox.Font=_listbuttontextFont;
                 Font=_textFont;
             }
-         
+            if (IsChild && Parent != null)
+            {
+                parentbackcolor = Parent.BackColor;
+            }
 
             beepImage.IsChild = true;
             beepImage.BackColor = _currentTheme.TextBoxBackColor;

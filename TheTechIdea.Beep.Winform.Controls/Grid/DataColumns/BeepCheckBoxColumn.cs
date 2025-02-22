@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             }
         }
     }
-
+    [ToolboxItem(false)]
     public class BeepCheckBoxEditingControl : BeepCheckBox<bool>, IDataGridViewEditingControl
     {
         private DataGridView dataGridView;

@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         [Category("Appearance")]
         public string ImagePath { get; set; }
         private string _displayField; // used for to store the name of field that has value to display
-        public string DisplayField
+        public string Display
         {
             get { return string.IsNullOrEmpty(_displayField) ? Text : _displayField; }
             set { _displayField = value; }

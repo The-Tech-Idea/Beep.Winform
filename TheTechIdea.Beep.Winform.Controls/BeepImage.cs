@@ -54,10 +54,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepImage()
         {
             //// Enable double buffering and optimized painting
-            SetStyle(ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.UserPaint, true);
-            UpdateStyles();
+            //SetStyle(ControlStyles.OptimizedDoubleBuffer |
+            //         ControlStyles.AllPaintingInWmPaint |
+            //         ControlStyles.UserPaint, true);
+            //UpdateStyles();
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
                 Width = 100;
@@ -173,23 +173,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
                 _imagepath = value;
-                // Console.WriteLine("Loading ImagePath");
+                 Console.WriteLine("Loading ImagePath ...");
                 if (!string.IsNullOrEmpty(_imagepath))
                 {
-                    //Use ImageSelector to select and process the image path
-                    //if (!isinit)
-                    //{
-                    //  //  string processedPath = ImageSelector.SelectImage(_imagepath);
-                    //    if (!string.IsNullOrEmpty(processedPath))
-                    //    {
-                    //        _imagepath = processedPath;
-                    //    }
-
-                    //}
-                    //   isinit = false;
-                    // Console.WriteLine("Loading ImagePath");
+                    Console.WriteLine($"Loading ImagePath ....."+ _imagepath);
                     LoadImage(_imagepath);  // Use the final processed path for the image
-                                            //  Console.WriteLine("Apply Theme to  ImagePath");
+                    Console.WriteLine("Finished  Image Path ......." + _imagepath);
                     ApplyTheme();
                     Invalidate();
                 }
@@ -526,17 +515,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool retval = false;
             try
             {
+               Console.WriteLine($"Loading image: {path}");
                 if (IsEmbeddedResource(path))
                 {
+                    Console.WriteLine("Loading from embedded resource 1"); 
                     // Attempt to load from embedded resources
                     retval = LoadImageFromEmbeddedResource(path);
+                    Console.WriteLine("Loading from embedded resource 2");
                 }
                 else
                 {
                     if (File.Exists(path))
                     {
+                        Console.WriteLine("Loading from file system");
                         // Load from file system
                         retval = LoadImageFromFile(path);
+                        Console.WriteLine("Loading from file system 2");
                     }
                 }
             }
@@ -572,41 +566,67 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return retval;
         }
-        public bool IsEmbeddedResource(string path)
-        {
-            // check if path has more than one dot
-            if (path.Split('.').Length > 2)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
 
+public bool IsEmbeddedResource(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return false;
+
+        string normalizedPath = path.Trim().Replace("\\", ".").Replace("/", ".");
+
+        // Check if it exists in any loaded assembly
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            var resourceNames = assembly.GetManifestResourceNames();
+
+            if (resourceNames.Any(name => name.Equals(normalizedPath, StringComparison.OrdinalIgnoreCase)))
+            {
+                return true; // Found as an embedded resource
+            }
         }
-        /// <summary>
-        /// Load an image from the embedded resources (checks the current assembly).
-        /// </summary>
-        public bool LoadImageFromEmbeddedResource(string resourcePath)
+
+        // If it's a valid file path, it's NOT an embedded resource
+        if (File.Exists(path) || Directory.Exists(path))
+        {
+            return false;
+        }
+
+        // If it has no valid file extension, assume it's an embedded resource
+        return string.IsNullOrEmpty(Path.GetExtension(path));
+    }
+
+    /// <summary>
+    /// Load an image from the embedded resources (checks the current assembly).
+    /// </summary>
+    public bool LoadImageFromEmbeddedResource(string resourcePath)
         {
             try
             {
                 Stream stream = null;
+                string matchedResource = null;
 
-                // Try to load the resource from all loaded assemblies
+                // Normalize resource path (remove starting dots or extra spaces)
+                string normalizedResourcePath = resourcePath.Trim().Replace("\\", ".").Replace("/", ".");
+
+                // Search all assemblies for the resource (case-insensitive)
                 foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    stream = assembly.GetManifestResourceStream(resourcePath);
-                    if (stream != null)
+                    var resourceNames = assembly.GetManifestResourceNames();
+
+                    // Perform a case-insensitive lookup
+                    matchedResource = resourceNames
+                        .FirstOrDefault(name => name.Equals(normalizedResourcePath, StringComparison.OrdinalIgnoreCase));
+
+                    if (matchedResource != null)
                     {
-                        break; // Stop searching once we find the resource
+                        stream = assembly.GetManifestResourceStream(matchedResource);
+                        break;
                     }
                 }
 
                 if (stream != null)
                 {
-                    // Determine the image type by file extension
+                    // Determine image type by file extension
                     string extension = Path.GetExtension(resourcePath).ToLower();
                     if (extension == ".svg")
                     {
@@ -625,7 +645,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                    Console.WriteLine($"Embedded resource not found: {resourcePath}");
+                    Console.WriteLine($"Embedded resource not found (case-insensitive): {resourcePath}");
                     return false;
                 }
             }
@@ -635,8 +655,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return false;
             }
         }
-
-
         public void ClearImage()
         {
             svgDocument = null;

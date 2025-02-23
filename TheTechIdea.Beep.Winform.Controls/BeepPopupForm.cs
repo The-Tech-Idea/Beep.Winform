@@ -274,8 +274,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Get bounds of the trigger control
             Rectangle triggerBounds = new Rectangle(TriggerControl.PointToScreen(Point.Empty), TriggerControl.Size);
 
-            // Get bounds of the popup form
-            Rectangle popupBounds = new Rectangle(this.PointToScreen(Point.Empty), this.Size);
+            // Ensure popup form is valid before getting its screen coordinates
+            Rectangle popupBounds = Rectangle.Empty;
+            if (this.IsHandleCreated && !this.IsDisposed)
+            {
+                popupBounds = new Rectangle(this.PointToScreen(Point.Empty), this.Size);
+            }
 
             // Combine the trigger and popup bounds
             Rectangle combinedBounds = Rectangle.Union(triggerBounds, popupBounds);

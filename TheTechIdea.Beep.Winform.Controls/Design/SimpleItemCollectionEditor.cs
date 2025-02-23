@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
             existingItem.Name = newItem.Name;
             existingItem.MenuName = newItem.MenuName;
             existingItem.ImagePath = newItem.ImagePath;
-            existingItem.DisplayField = newItem.DisplayField;
+            existingItem.Display = newItem.Display;
             existingItem.ValueField = newItem.ValueField;
             existingItem.ParentItem = newItem.ParentItem;
             existingItem.Value = newItem.Value;

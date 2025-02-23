@@ -114,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 TextImageRelation = TextImageRelation.ImageAboveText,
-                ToolTipText = item.DisplayField,
+                ToolTipText = item.Display,
                 Theme = this.Theme,
                 ApplyThemeOnImage = true,
                 Tag = item

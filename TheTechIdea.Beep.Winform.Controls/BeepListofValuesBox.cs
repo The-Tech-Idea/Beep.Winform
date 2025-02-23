@@ -271,7 +271,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void UpdateDisplayValue()
         {
             var selectedItem = _items.FirstOrDefault(i => i.GuidId == SelectedKey);
-            SelectedDisplayValue = selectedItem?.DisplayField ?? string.Empty;
+            SelectedDisplayValue = selectedItem?.Display ?? string.Empty;
         }
 
         #region "Generic Handling"

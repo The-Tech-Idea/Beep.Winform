@@ -96,9 +96,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _multiline = value;
-                _innerTextBox.Multiline = value;
-                AdjustTextBoxHeight();
-                PositionInnerTextBoxAndImage();
+               // _innerTextBox.Multiline = value;
+                //AdjustTextBoxHeight();
+                //PositionInnerTextBoxAndImage();
                 Invalidate();
             }
         }
@@ -643,12 +643,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
            
             //      BackColor = Color.Black;
-            Padding = new Padding(3);
+           // Padding = new Padding(3);
             InitializeComponents();
 
            // AutoSize = true;
             BoundProperty = "Text";
-            Padding = new Padding(0);
+       
            _innerTextBox.BorderStyle = BorderStyle.None;
             //  BorderStyle = BorderStyle.FixedSingle;
             _innerTextBox.Invalidated += BeepTextBox_Invalidated;
@@ -656,7 +656,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowAllBorders=true;
             IsShadowAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
-            
+            AutoSize = false; // Prevents automatic shrinking
+           // Size = DefaultSize; // Ensures a default size
             //   ApplyTheme(); // Ensure _currentTheme is initialized
             // Ensure size adjustments occur after initialization
             UpdateDrawingRect();
@@ -743,90 +744,88 @@ namespace TheTechIdea.Beep.Winform.Controls
         // protected override Size DefaultSize => GetDefaultSize();
         private int GetSingleLineHeight()
         {
-            // Ensure DrawingRect is updated
-            UpdateDrawingRect();
-            int textBoxHeight;
-          //  padding = BorderThickness + offset;
-            //spacing = 1;
+            UpdateDrawingRect(); // Ensure DrawingRect is current
             using (TextBox tempTextBox = new TextBox())
             {
+                tempTextBox.Text = "A";
                 tempTextBox.Multiline = false;
                 tempTextBox.BorderStyle = BorderStyle.None;
-                tempTextBox.Font = Font;
+                tempTextBox.Font = TextFont;
                 tempTextBox.Refresh();
-                textBoxHeight = tempTextBox.PreferredHeight + (padding * 2);
-
-                // Calculate the total height, including borders and padding
+                Size t = tempTextBox.GetPreferredSize(Size.Empty);
+                // Return raw height without additional padding, as DrawingRect handles borders
+                return t.Height;
             }
-       //    Console.WriteLine($" GetSingleLineHeight : {textBoxHeight}");
-
-            return textBoxHeight;
         }
-        protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
-        {
-            // Ensure DrawingRect is updated
-            UpdateDrawingRect();
+        //protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+        //{
+        //    // Ensure DrawingRect is updated from BeepControl
+        //    UpdateDrawingRect();
 
-            // Prevent resizing when multiline and AutoSize is false
-            if (_multiline && !AutoSize)
-            {
-                base.SetBoundsCore(x, y, width, this.Height, specified);
-                return;
-            }
+        //    // Prevent zero-size issues
+        //    int minWidth = Math.Max(50, DrawingRect.Width);
+        //    int minHeight = Math.Max(GetSingleLineHeight(), DrawingRect.Height);
 
-            // Ensure the control's height is always a multiple of the single-line height
-            int singleLineHeight = GetSingleLineHeight();
-            int adjustedHeight = height;
+        //    // Ensure the width and height do not go below the minimum
+        //    width = Math.Max(width, minWidth);
+        //    height = Math.Max(height, minHeight);
 
-            if (height % singleLineHeight != 0)
-            {
-                adjustedHeight = (height / singleLineHeight) * singleLineHeight;
-            }
+        //    // Prevent auto-resizing conflict when multiline but AutoSize is false
+        //    if (_multiline && !AutoSize)
+        //    {
+        //        base.SetBoundsCore(DrawingRect.X, DrawingRect.Y, DrawingRect.Width, DrawingRect.Height, specified);
+        //        return;
+        //    }
 
-            // Adjust the control's height to fit the single-line height
-            base.SetBoundsCore(x, y, width, adjustedHeight, specified);
-        }
+        //    // Ensure height is always a multiple of the single-line height
+        //    int singleLineHeight = GetSingleLineHeight();
+        //    if (height % singleLineHeight != 0)
+        //    {
+        //        height = ((height / singleLineHeight) * singleLineHeight);
+        //    }
+
+        //    // Apply the final constrained size within DrawingRect
+        //    base.SetBoundsCore(x, y, width, height, specified);
+        //}
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-
-            // If single line, don't allow a bigger or smaller height than necessary
-            if (!_multiline)
-            {
-                int singleLineHeight = GetSingleLineHeight();
-                _innerTextBox.Height = singleLineHeight;
-                this.Height = singleLineHeight + (BorderThickness * 2);
-            }
-            else if (!AutoSize)
-            {
-                // Prevent auto-resizing when multiline is enabled and AutoSize is false
-                _innerTextBox.Height = this.Height - (BorderThickness * 2);
-            }
+            if (Width == 0 || Height == 0) return;
 
             UpdateDrawingRect();
+            Rectangle rect = DrawingRect;
+            int singleLineHeight = GetSingleLineHeight();
+            int minWidth = Math.Max(50, rect.Width);
+            int minHeight = _multiline ? rect.Height : singleLineHeight;
+
+            if (Width < minWidth) Width = minWidth;
+            if (Height < minHeight) Height = minHeight;
+
             AdjustTextBoxHeight();
             PositionInnerTextBoxAndImage();
         }
-
         private void AdjustTextBoxHeight()
         {
+            UpdateDrawingRect(); // Ensure DrawingRect is current
+            int fillWidth = DrawingRect.Width - (xpadding * 2);
+            int fillHeight = DrawingRect.Height - (padding * 2);
+
             if (_multiline)
             {
                 _innerTextBox.Multiline = true;
-              //  _innerTextBox.ScrollBars = ScrollBars.Vertical;
-                // fill the entire DrawingRect minus some padding
-                // (this ensures the text box is inside the beepcontrol border)
-                int fillWidth = DrawingRect.Width - (xpadding * 2);
-                int fillHeight = DrawingRect.Height - (padding * 2);
-                _innerTextBox.Multiline = true;
-                if (fillWidth < 1) fillWidth = 1;
-                if (fillHeight < 1) fillHeight = 1;
-
-                _innerTextBox.Location = new Point(DrawingRect.X + xpadding, DrawingRect.Y + padding);
-                _innerTextBox.Size = new Size(fillWidth, fillHeight);
+                // In multiline mode, use the full available height within DrawingRect
+                _innerTextBox.Size = new Size(Math.Max(1, fillWidth), Math.Max(1, fillHeight));
             }
-           
+            else
+            {
+                _innerTextBox.Multiline = false;
+                int singleLineHeight = GetSingleLineHeight();
+                // In single-line mode, constrain height to fit within DrawingRect
+                int adjustedHeight = Math.Min(singleLineHeight, fillHeight);
+                _innerTextBox.Size = new Size(Math.Max(1, fillWidth), adjustedHeight);
+            }
+            _innerTextBox.Location = new Point(DrawingRect.X + xpadding, DrawingRect.Y + padding);
         }
         private void PositionInnerTextBoxAndImage()
         {

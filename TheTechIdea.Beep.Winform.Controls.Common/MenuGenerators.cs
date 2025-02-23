@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                         item.Name = method.Name;
                         item.Text = method.Caption;
                         item.ImagePath = method.iconimage;
-                        item.DisplayField = method.Caption;
+                        item.Display = method.Caption;
                         item.ObjectType = method.ObjectType;
                         item.MethodName = method.Name;
                         item.AssemblyClassDefinitionID = cls.GuidID;

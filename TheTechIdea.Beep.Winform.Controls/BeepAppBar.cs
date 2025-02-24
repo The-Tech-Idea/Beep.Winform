@@ -436,7 +436,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             searchBox = new BeepTextBox
             {
                 Width = 200,
-                Height = 25,
+                Height =30,
                 Theme = this.Theme,
                 Text = string.Empty,
                 ApplyThemeOnImage =_applyThemeOnImage, 

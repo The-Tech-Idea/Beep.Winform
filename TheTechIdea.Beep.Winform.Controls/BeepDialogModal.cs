@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string TryAgainCaption { get => tryAgainCaption; set => tryAgainCaption = value; }
         public string ContinueCaption { get => continueCaption; set => continueCaption = value; }
 
-        public DialogResult Result { get; set; }
+ 
         public string ReturnValue { get; set; }
 
         public  List<SimpleItem> Items { get; set; }
@@ -263,20 +263,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void LeftButton_Click(object sender, EventArgs e)
         {
-            ReturnValue = LeftButtonCaption;
-            Result = DialogResult.Yes;
+            if(dialogType== DialogType.GetInputString)
+            {
+                ReturnValue = InputTextBox.Text;
+            }
+            if(dialogType == DialogType.GetInputFromList)
+            {
+                ReturnValue = SelectFromListComboBox.SelectedItem.ToString();
+            }
+           
+            DialogResult = DialogResult.Yes;
             this.Close();
         }
         private void RightButton_Click(object sender, EventArgs e)
         {
-            ReturnValue = RightButtonCaption;
-            Result = DialogResult.No;
+            ReturnValue = null;
+
+            DialogResult = DialogResult.No;
             this.Close();
         }
         private void CenterButton_Click(object sender, EventArgs e)
         {
             ReturnValue = MiddleButtonCaption;
-            Result = DialogResult.Cancel;
+           
+            DialogResult = DialogResult.OK;
             this.Close();
         }
         #endregion "Setting Visible Buttons"
@@ -628,7 +638,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void SelectFromListComboBox_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
-           Result = DialogResult.Yes;
+           DialogResult = DialogResult.OK;
             ReturnValue = SelectFromListComboBox.SelectedItem.ToString();
            
         }

@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Desktop.Common;
+using Autofac.Features.OwnedInstances;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -199,17 +200,35 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var owner = Application.OpenForms[0]; // Get the first open form as owner
                 owner.Invoke((MethodInvoker)(() =>
                 {
-                    result = dialog.ShowDialog(owner) == DialogResult.OK ? BeepDialogResult.OK : BeepDialogResult.Cancel;
+                   var ret= dialog.ShowDialog(owner);
+                   
+                    result = _resultMapReverse[ret];
                 }));
             }
             else
             {
-                result = dialog.ShowDialog() == DialogResult.OK ? BeepDialogResult.OK : BeepDialogResult.Cancel;
+                var ret = dialog.ShowDialog();
+
+                result = _resultMapReverse[ret];
             }
 
             return result;
         }
 
         #endregion
+        private static readonly Dictionary<BeepDialogResult, DialogResult> _resultMap = new Dictionary<BeepDialogResult, DialogResult>
+        {
+            { BeepDialogResult.OK, DialogResult.OK },
+            { BeepDialogResult.Cancel, DialogResult.Cancel },
+            { BeepDialogResult.Yes, DialogResult.Yes },
+            { BeepDialogResult.No, DialogResult.No },
+            { BeepDialogResult.Abort, DialogResult.Abort },
+            { BeepDialogResult.Retry, DialogResult.Retry },
+            { BeepDialogResult.Ignore, DialogResult.Ignore },
+            { BeepDialogResult.None, DialogResult.None },
+            { BeepDialogResult.Continue, DialogResult.Continue }
+
+        };
+        private static readonly Dictionary<DialogResult, BeepDialogResult> _resultMapReverse = _resultMap.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
     }
 }

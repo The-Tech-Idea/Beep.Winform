@@ -42,7 +42,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public BeepDialogResult InputBox(string title, string promptText, ref string value)
         {
             var result = DialogHelper.InputBox(title, promptText, value);
-            if (result.Result == BeepDialogResult.OK)
+            if ((result.Result == BeepDialogResult.OK) ||
+                    (result.Result == BeepDialogResult.Yes))
                 value = result.Value;
             return result.Result;
         }
@@ -58,7 +59,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public BeepDialogResult InputComboBox(string title, string promptText, List<string> itvalues, ref string value)
         {
             var result = DialogHelper.InputComboBox(title, promptText, itvalues, value);
-            if (result.Result == BeepDialogResult.OK)
+            if ((result.Result == BeepDialogResult.OK) ||
+                    (result.Result == BeepDialogResult.Yes))
                 value = result.Value;
             return result.Result;
         }

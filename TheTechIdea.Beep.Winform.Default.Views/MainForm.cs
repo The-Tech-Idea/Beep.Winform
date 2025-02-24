@@ -24,6 +24,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTreeControl1.CreateRootTree();
             beepAppBar1.ShowBadgeOnNotificationIcon("1");
             beepService.vis.Container = this.uc_Container1;
+            beepMenuAppBar1.beepServices = beepService;
+            beepMenuAppBar1.CreateMenuItems();
         }
     }
 }

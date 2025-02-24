@@ -532,16 +532,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void MenuDialog_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
-
-                 SelectedItem = e.SelectedItem;
-
+          SelectedItem = e.SelectedItem;
         }
-
         public void ClosePopup()
         {
            
             _isPopupOpen = false;
-            menuDialog.Close();
+            if(menuDialog!=null)     menuDialog.Close();
         }
         #endregion "Popup List Methods"
         #region "Theme"

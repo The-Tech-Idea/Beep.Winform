@@ -134,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected bool _isborderaffectedbytheme = true;
         protected bool _isshadowaffectedbytheme = true;
         private bool _isroundedffectedbytheme = true;
-        private bool _applythemetochilds = true;
+        private bool _applythemetochilds = false;
         private int _topoffsetForDrawingRect = 0;
         private int _leftoffsetForDrawingRect = 0;
         private int _bottomoffsetForDrawingRect = 0;
@@ -946,7 +946,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 GradientEndColor = _currentTheme.GradientEndColor;
                 if (IsChild)
                 {
-                    BackColor = TempBackColor;
+                    BackColor = ParentBackColor;
+                }else
+                {
+                    BackColor = _currentTheme.BackColor;
                 }
             }
             catch (Exception ex)

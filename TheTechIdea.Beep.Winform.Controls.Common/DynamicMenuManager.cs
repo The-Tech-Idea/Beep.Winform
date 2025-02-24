@@ -322,6 +322,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public static List<SimpleItem> CreateToolBarMenuItems(IDMEEditor DMEEditor, string ObjectType = "Beep", bool IsHorizantal = true)
         {
             List<SimpleItem> ret = new List<SimpleItem>();
+            AssemblyClassDefinitionManager.DMEEditor = DMEEditor;
             try
             {
                 var extensions = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionToolbar(ObjectType);
@@ -385,11 +386,20 @@ namespace TheTechIdea.Beep.Desktop.Common
         public static List<SimpleItem> CreateMenuItems(IDMEEditor DMEEditor, string ObjectType = "Beep")
         {
             List<SimpleItem> ret = new List<SimpleItem>();
+            AssemblyClassDefinitionManager.DMEEditor = DMEEditor;
             try
             {
                 var extensions = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionForMenu(ObjectType);
                 foreach (var item in extensions)
                 {
+                    SimpleItem main = new SimpleItem();
+                    main.Name = item.className;
+                    main.Text = item.classProperties.Caption;
+                   main.PackageName = item.PackageName;
+                    main.ObjectType = item.classProperties.ObjectType;
+                    main.BranchClass = item.classProperties.ClassType;
+                   main.AssemblyClassDefinitionID = item.GuidID;
+                    main.ImagePath = ImageListHelper.GetImagePathFromName(item.classProperties.iconimage);
                     for (int i = 0; i < item.Methods.Count; i++)
                     {
                         SimpleItem mi = new SimpleItem();
@@ -403,8 +413,9 @@ namespace TheTechIdea.Beep.Desktop.Common
                         mi.BranchName = item.Methods[i].Name;
                         mi.PackageName = item.PackageName;
                         mi.ImagePath = ImageListHelper.GetImagePathFromName(item.Methods[i].iconimage);
-                        ret.Add(mi);
+                        main.Children.Add(mi);
                     }
+                    ret.Add(main);
                 }
             }
             catch (Exception ex)

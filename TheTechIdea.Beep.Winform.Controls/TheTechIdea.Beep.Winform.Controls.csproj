@@ -82,6 +82,7 @@
     <None Remove="GFX\SVG\comment.svg" />
     <None Remove="GFX\SVG\continue.svg" />
     <None Remove="GFX\SVG\copy.svg" />
+    <None Remove="GFX\SVG\datasources.svg" />
     <None Remove="GFX\SVG\dislike.svg" />
     <None Remove="GFX\SVG\dontsave.svg" />
     <None Remove="GFX\SVG\doorclosed.svg" />
@@ -94,6 +95,7 @@
     <None Remove="GFX\SVG\exit.svg" />
     <None Remove="GFX\SVG\export.svg" />
     <None Remove="GFX\SVG\favorite.svg" />
+    <None Remove="GFX\SVG\file.svg" />
     <None Remove="GFX\SVG\filter.svg" />
     <None Remove="GFX\SVG\firstrecord.svg" />
     <None Remove="GFX\SVG\floppy-disk.svg" />
@@ -167,10 +169,12 @@
     <EmbeddedResource Include="GFX\SVG\closered.svg" />
     <EmbeddedResource Include="GFX\SVG\continue.svg" />
     <EmbeddedResource Include="GFX\SVG\copy.svg" />
+    <EmbeddedResource Include="GFX\SVG\datasources.svg" />
     <EmbeddedResource Include="GFX\SVG\dontsave.svg" />
     <EmbeddedResource Include="GFX\SVG\edit.svg" />
     <EmbeddedResource Include="GFX\SVG\equalizercontrol.svg" />
     <EmbeddedResource Include="GFX\SVG\error.svg" />
+    <EmbeddedResource Include="GFX\SVG\file.svg" />
     <EmbeddedResource Include="GFX\SVG\heart.svg" />
     <EmbeddedResource Include="GFX\SVG\ignore.svg" />
     <EmbeddedResource Include="GFX\SVG\important.svg" />

@@ -248,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls
          
             IsChild = false;
             Padding = new Padding(5);
-            DoubleBuffered = true;
+           
             //  Width = expandedWidth;
             _buttonSize = new Size(DrawingRect.Width, menuItemHeight);
             _isControlinvalidated = true;

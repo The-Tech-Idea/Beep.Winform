@@ -10,7 +10,7 @@ using TheTechIdea.Beep.Editor;
 
 namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
 {
-    [AddinAttribute(Caption = "Edit", Name = "EditMenuFunctions", ObjectType = "Beep", misc = "IFunctionExtension", menu = "Beep", addinType = AddinType.Class, iconimage = "edit.png", order = 2, Showin = ShowinType.Menu)]
+    [AddinAttribute(Caption = "Edit", Name = "EditMenuFunctions", ObjectType = "Beep", misc = "IFunctionExtension", menu = "Beep", addinType = AddinType.Class, iconimage = "edit.svg", order = 2, Showin = ShowinType.Menu)]
     public class EditMenuFunctions : IFunctionExtension
     {
         public IDMEEditor DMEEditor { get; set; }

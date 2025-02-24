@@ -290,8 +290,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             {
 
                     Theme = BeepThemesManager.CurrentTheme;
-                    ApplyThemeToAllBeepControls(_form); // Apply the initial theme
-                    BeepiForm.ApplyTheme();
+                BeepiForm.ApplyTheme();
+                ApplyThemeToAllBeepControls(_form); // Apply the initial theme
+                  
           
             }
         }
@@ -621,7 +622,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             if (container == null) return;
             container.BackColor = BeepThemesManager.GetTheme(_theme).BackgroundColor;
-           
+
             // Apply theme to the container itself
             ApplyThemeToControl(container);
             if (HasApplyThemeToChildsProperty(container))

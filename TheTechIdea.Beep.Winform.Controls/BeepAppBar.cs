@@ -850,8 +850,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Position searchBox (centered horizontally)
             if (searchBox != null && searchBox.Visible)
             {
+                var prefSize = searchBox.GetPreferredSize(Size.Empty);
                 searchBox.Anchor = AnchorStyles.Right;
-                searchBox.Height = searchBox.PreferredHeight;
+                searchBox.Height = prefSize.Height;
                 searchBox.Width = SearchBoxWidth; // Ensure searchBox occupies at most one-third of the width
                 searchBox.Top = DrawingRect.Top + (DrawingRect.Height - searchBox.Height) / 2;
                 searchBox.Left = rightEdge - SearchBoxWidth-spacing-20;

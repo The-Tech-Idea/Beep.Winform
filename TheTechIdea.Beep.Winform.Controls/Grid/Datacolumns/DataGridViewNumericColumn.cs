@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"⚠️ Error disposing BeepDataGridViewNumericColumn: {ex.Message}");
+               // Console.WriteLine($"⚠️ Error disposing BeepDataGridViewNumericColumn: {ex.Message}");
             }
             finally
             {
@@ -105,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"⚠️ Error disposing DataGridViewNumericCell: {ex.Message}");
+               // Console.WriteLine($"⚠️ Error disposing DataGridViewNumericCell: {ex.Message}");
             }
             finally
             {
@@ -225,7 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"⚠️ Error disposing NumericEditingControl: {ex.Message}");
+               // Console.WriteLine($"⚠️ Error disposing NumericEditingControl: {ex.Message}");
             }
             finally
             {

@@ -976,15 +976,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 {
                     BeepWaitForm.Title.Text = Title;
                 }
-                //Debug.WriteLine($"Getting Logourl {LogoUrl}");
+                ////Debug.WriteLine($"Getting Logourl {LogoUrl}");
                 //if (!string.IsNullOrEmpty(LogoUrl))
                 //{
                 //    ImagePath logurl = (ImagePath)visHelper.LogoBigImage;
-                //    Debug.WriteLine($"found or not = {logurl}");
+                //    //Debug.WriteLine($"found or not = {logurl}");
 
                 //    BeepWaitForm.SetImage(logurl);
                 //}
-                //Debug.WriteLine($"not found logurl");
+                ////Debug.WriteLine($"not found logurl");
                 BeepWaitForm.TopMost = true;
                 // Form frm = (Form)MainFormView;
                 BeepWaitForm.StartPosition = FormStartPosition.CenterScreen;

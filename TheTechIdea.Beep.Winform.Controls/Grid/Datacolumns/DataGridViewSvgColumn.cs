@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             catch (Exception ex)
             {
                 // Handle any exceptions, log them
-                Console.WriteLine($"Error rendering SVG: {ex.Message}");
+               // Console.WriteLine($"Error rendering SVG: {ex.Message}");
             }
 
             // Fallback to an empty image if an error occurs

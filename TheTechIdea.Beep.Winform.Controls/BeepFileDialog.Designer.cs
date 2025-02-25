@@ -147,7 +147,7 @@
             _specialFoldersComboBox.IsCustomeBorder = false;
             _specialFoldersComboBox.IsDefault = false;
             _specialFoldersComboBox.IsFocused = false;
-            _specialFoldersComboBox.IsFramless = false;
+            _specialFoldersComboBox.IsFrameless = false;
             _specialFoldersComboBox.IsHovered = false;
             _specialFoldersComboBox.IsPressed = false;
             _specialFoldersComboBox.IsRounded = true;
@@ -297,7 +297,7 @@
             _searchBox.IsCustomeBorder = false;
             _searchBox.IsDefault = false;
             _searchBox.IsFocused = false;
-            _searchBox.IsFramless = false;
+            _searchBox.IsFrameless = false;
             _searchBox.IsHovered = false;
             _searchBox.IsPressed = false;
             _searchBox.IsRounded = true;
@@ -437,7 +437,7 @@
             _okButton.IsCustomeBorder = false;
             _okButton.IsDefault = false;
             _okButton.IsFocused = false;
-            _okButton.IsFramless = false;
+            _okButton.IsFrameless = false;
             _okButton.IsHovered = false;
             _okButton.IsPopupOpen = false;
             _okButton.IsPressed = false;
@@ -550,7 +550,7 @@
             _cancelButton.IsCustomeBorder = false;
             _cancelButton.IsDefault = false;
             _cancelButton.IsFocused = false;
-            _cancelButton.IsFramless = false;
+            _cancelButton.IsFrameless = false;
             _cancelButton.IsHovered = false;
             _cancelButton.IsPopupOpen = false;
             _cancelButton.IsPressed = false;
@@ -669,7 +669,7 @@
             _fileNameTextBox.IsCustomeBorder = false;
             _fileNameTextBox.IsDefault = false;
             _fileNameTextBox.IsFocused = false;
-            _fileNameTextBox.IsFramless = false;
+            _fileNameTextBox.IsFrameless = false;
             _fileNameTextBox.IsHovered = false;
             _fileNameTextBox.IsPressed = false;
             _fileNameTextBox.IsRounded = true;

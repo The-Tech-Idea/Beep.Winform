@@ -199,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Calculate the total height, including borders and padding
             }
-            //    Console.WriteLine($" GetSingleLineHeight : {textBoxHeight}");
+            //   // Console.WriteLine($" GetSingleLineHeight : {textBoxHeight}");
 
             return textBoxHeight;
         }
@@ -207,7 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnFontChanged(e);
             _textFont = Font;
-            //    Console.WriteLine("Font Changed");
+            //   // Console.WriteLine("Font Changed");
             if (AutoSize)
             {
                 Size textSize = TextRenderer.MeasureText(Text, _textFont);

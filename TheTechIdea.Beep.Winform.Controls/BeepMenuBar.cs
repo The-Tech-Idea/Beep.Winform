@@ -186,7 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(container);
             _lastbuttonclicked = null;
             BoundProperty = "SelectedMenuItem";
-            IsFramless = true;
+            IsFrameless = true;
             IsRounded = false;
             IsChild = false;
             ListForms = new LinkedList<MenuitemTracking>();
@@ -211,7 +211,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //}
         public void InitMenu()
         {
-            // Console.WriteLine("InitMenu");
+            //// Console.WriteLine("InitMenu");
             container.Controls.Clear();
             if (items == null || items.Count == 0) return;
 
@@ -313,7 +313,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 btn.ShowAllBorders = false;
             }
 
-            //    Console.WriteLine("InitMenu done.");
+            //   // Console.WriteLine("InitMenu done.");
         }
         private void ShowMainMenuBarList(SimpleItem item, BeepButton button)
         {
@@ -406,7 +406,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnFontChanged(e);
             _textFont = Font;
-            //  Console.WriteLine("Font Changed");
+            // // Console.WriteLine("Font Changed");
             if (AutoSize)
             {
                 Size textSize = TextRenderer.MeasureText(Text, _textFont);
@@ -421,24 +421,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             base.ApplyTheme();
 
-           // Console.WriteLine("ApplyTheme in menubar");
+           //// Console.WriteLine("ApplyTheme in menubar");
             BackColor = _currentTheme.ButtonBackColor;
             ForeColor = _currentTheme.ButtonBackColor;
             container.BackColor = _currentTheme.ButtonBackColor;
-         //   Console.WriteLine($"Container {container.Width} BackColor {container.BackColor} and BackColro {BackColor} and Theme SideMenuBackColor {_currentTheme.SideMenuBackColor}");  //BackColor {container.BackColor} and BackColro {BackColor} and Theme SideMenuBackColor {_currentTheme.SideMenuBackColor}dddddddddddddddddd
+         //  // Console.WriteLine($"Container {container.Width} BackColor {container.BackColor} and BackColro {BackColor} and Theme SideMenuBackColor {_currentTheme.SideMenuBackColor}");  //BackColor {container.BackColor} and BackColro {BackColor} and Theme SideMenuBackColor {_currentTheme.SideMenuBackColor}dddddddddddddddddd
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
             }
-          //  Console.WriteLine("ApplyTheme in menubar 1");
+          // // Console.WriteLine("ApplyTheme in menubar 1");
             Font = _textFont;
-          //  Console.WriteLine("ApplyTheme in menubar 2");
+          // // Console.WriteLine("ApplyTheme in menubar 2");
             foreach (var item in container.Controls)
             {
-             //   Console.WriteLine("ApplyTheme in menubar 3");
+             //  // Console.WriteLine("ApplyTheme in menubar 3");
                 if (item is BeepButton)
                 {
-               //     Console.WriteLine("ApplyTheme in menubar 4");
+               //    // Console.WriteLine("ApplyTheme in menubar 4");
                     BeepButton btn = (BeepButton)item;
                     //    btn.Theme = Theme;
                     //btn.ApplyThemeOnImage = false;
@@ -460,7 +460,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
             }
-           // Console.WriteLine("ApplyTheme in menubar 5");
+           //// Console.WriteLine("ApplyTheme in menubar 5");
             Invalidate();
         }
         protected override void OnMouseEnter(EventArgs e)

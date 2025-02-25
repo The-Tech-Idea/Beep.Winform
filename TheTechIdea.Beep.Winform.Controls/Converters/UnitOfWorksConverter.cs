@@ -11,26 +11,26 @@ public class UnitOfWorksConverter : TypeConverter
 
     public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
     {
-     //   Console.WriteLine("UnitOfWorksConverter: GetStandardValues called");
+     //  // Console.WriteLine("UnitOfWorksConverter: GetStandardValues called");
 
         if (context?.Instance is not Component component)
         {
-          //  Console.WriteLine("Context instance is not a valid component");
+          // // Console.WriteLine("Context instance is not a valid component");
             return new StandardValuesCollection(Array.Empty<object>());
         }
 
         var parentForm = FindParentForm(component);
         if (parentForm == null)
         {
-            Console.WriteLine("No parent form found");
+           // Console.WriteLine("No parent form found");
             return new StandardValuesCollection(Array.Empty<object>());
         }
 
         // Log all properties in the form
-        Console.WriteLine("Inspecting properties on parent form...");
+       // Console.WriteLine("Inspecting properties on parent form...");
        // foreach (var prop in parentForm.GetType().GetProperties())
         //{
-        //    Console.WriteLine($"Property: {prop.Name}, Type: {prop.PropertyType}");
+        //   // Console.WriteLine($"Property: {prop.Name}, Type: {prop.PropertyType}");
         //}
 
         // Find UnitOfWork properties
@@ -41,7 +41,7 @@ public class UnitOfWorksConverter : TypeConverter
             .Where(instance => instance != null)
             .ToList();
 
-        Console.WriteLine($"Detected UnitOfWork instances: {unitOfWorkInstances.Count}");
+       // Console.WriteLine($"Detected UnitOfWork instances: {unitOfWorkInstances.Count}");
         return new StandardValuesCollection(unitOfWorkInstances);
     }
 
@@ -55,7 +55,7 @@ public class UnitOfWorksConverter : TypeConverter
         //Console.WriteLine($"Inspecting properties on parent form ({parentForm.Name})...");
         //foreach (var prop in parentForm.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic))
         //{
-        //    Console.WriteLine($"Property: {prop.Name}, Type: {prop.PropertyType}, Value: {prop.GetValue(parentForm)}");
+        //   // Console.WriteLine($"Property: {prop.Name}, Type: {prop.PropertyType}, Value: {prop.GetValue(parentForm)}");
         //}
 
         return parentForm;
@@ -64,7 +64,7 @@ public class UnitOfWorksConverter : TypeConverter
 
     private bool IsUnitOfWorkType(Type type)
     {
-        Console.WriteLine($"Checking type: {type?.Name}");
+       // Console.WriteLine($"Checking type: {type?.Name}");
         return type != null &&
                (type == typeof(IUnitofWork) ||
                 (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(UnitofWork<>)) ||

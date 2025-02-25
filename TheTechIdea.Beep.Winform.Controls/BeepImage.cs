@@ -94,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (IsSpinning)
                 {
-                    Console.WriteLine("Warning: Spinner is active. Manual rotation may combine with spinning.");
+                   // Console.WriteLine("Warning: Spinner is active. Manual rotation may combine with spinning.");
                     // Option 1: Combine rotation
                     _manualRotationAngle = value; // Allows combining angles
                                                   // Option 2: Block manual rotation
@@ -173,12 +173,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
                 _imagepath = value;
-                 Console.WriteLine("Loading ImagePath ...");
+                // Console.WriteLine("Loading ImagePath ...");
                 if (!string.IsNullOrEmpty(_imagepath))
                 {
-                    Console.WriteLine($"Loading ImagePath ....."+ _imagepath);
+                   // Console.WriteLine($"Loading ImagePath ....."+ _imagepath);
                     LoadImage(_imagepath);  // Use the final processed path for the image
-                    Console.WriteLine("Finished  Image Path ......." + _imagepath);
+                   // Console.WriteLine("Finished  Image Path ......." + _imagepath);
                     ApplyTheme();
                     Invalidate();
                 }
@@ -515,28 +515,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool retval = false;
             try
             {
-               Console.WriteLine($"Loading image: {path}");
+              // Console.WriteLine($"Loading image: {path}");
                 if (IsEmbeddedResource(path))
                 {
-                    Console.WriteLine("Loading from embedded resource 1"); 
+                   // Console.WriteLine("Loading from embedded resource 1"); 
                     // Attempt to load from embedded resources
                     retval = LoadImageFromEmbeddedResource(path);
-                    Console.WriteLine("Loading from embedded resource 2");
+                   // Console.WriteLine("Loading from embedded resource 2");
                 }
                 else
                 {
                     if (File.Exists(path))
                     {
-                        Console.WriteLine("Loading from file system");
+                       // Console.WriteLine("Loading from file system");
                         // Load from file system
                         retval = LoadImageFromFile(path);
-                        Console.WriteLine("Loading from file system 2");
+                       // Console.WriteLine("Loading from file system 2");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading image: {ex.Message}");
+               // Console.WriteLine($"Error loading image: {ex.Message}");
                 return false;
             }
             return retval;
@@ -560,7 +560,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     retval = LoadRegularImage(path);
                     break;
                 default:
-                    Console.WriteLine("Unsupported image format. Supported formats are: SVG, PNG, JPG, BMP.");
+                   // Console.WriteLine("Unsupported image format. Supported formats are: SVG, PNG, JPG, BMP.");
                     break;
             }
 
@@ -645,13 +645,13 @@ public bool IsEmbeddedResource(string path)
                 }
                 else
                 {
-                    Console.WriteLine($"Embedded resource not found (case-insensitive): {resourcePath}");
+                   // Console.WriteLine($"Embedded resource not found (case-insensitive): {resourcePath}");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading embedded resource: {ex.Message}");
+               // Console.WriteLine($"Error loading embedded resource: {ex.Message}");
                 return false;
             }
         }

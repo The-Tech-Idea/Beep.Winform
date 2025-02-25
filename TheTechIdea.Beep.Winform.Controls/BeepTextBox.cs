@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using TheTechIdea.Beep.Shared;
+using System.Diagnostics;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -311,12 +312,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _innerTextBox.Text;
             set
             {
-                if (!_isApplyingMask)
+                _innerTextBox.Text = value;
+                base._text = value;
+                if (_isApplyingMask)
                 {
-                    _innerTextBox.Text = value;
                     ApplyMaskFormat();
-                    Invalidate();
+                 
                 }
+              //  Invalidate();
             }
         }
         #region "Format and Masking"
@@ -589,7 +592,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                 //   Debug.WriteLine($"No Parent ");
+                 //   //Debug.WriteLine($"No Parent ");
                     return;
                 }
                 Invalidate();
@@ -663,7 +666,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             AdjustTextBoxHeight();
             PositionInnerTextBoxAndImage();
+            //_innerTextBox.TextChanged += (s, e) =>
+            //{
+            //    Debug.WriteLine($"📝 BeepTextBox.TextChanged: {_innerTextBox.Text}");
+            //};
 
+            //_innerTextBox.GotFocus += (s, e) =>
+            //{
+            //    Debug.WriteLine($"🎯 BeepTextBox Got Focus: {_innerTextBox.Text}");
+            //};
         }
         #endregion "Constructors"
         #region "Initialization"
@@ -714,16 +725,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             };
             Controls.Add(beepImage);
-            //       Console.WriteLine("InitializeComponents");
+            //      // Console.WriteLine("InitializeComponents");
             //AdjustTextBoxHeight();
            // PositionInnerTextBoxAndImage();
 
         }
         #endregion "Initialization"
         #region "Paint and Invalidate"
+
         private void BeepTextBox_Invalidated(object? sender, InvalidateEventArgs e)
         {
-            _isControlinvalidated = true;
+    //        _isControlinvalidated = true;
             _innerTextBox.Update();
             Invalidate();
         }
@@ -752,9 +764,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 tempTextBox.BorderStyle = BorderStyle.None;
                 tempTextBox.Font = TextFont;
                 tempTextBox.Refresh();
-                Size t = tempTextBox.GetPreferredSize(Size.Empty);
+                int t = tempTextBox.PreferredHeight+(2*padding);
                 // Return raw height without additional padding, as DrawingRect handles borders
-                return t.Height;
+                return t;
             }
         }
         //protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
@@ -796,7 +808,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             Rectangle rect = DrawingRect;
             int singleLineHeight = GetSingleLineHeight();
-            int minWidth = Math.Max(50, rect.Width);
+            int minWidth = Math.Max(10, rect.Width);
             int minHeight = _multiline ? rect.Height : singleLineHeight;
 
             if (Width < minWidth) Width = minWidth;
@@ -1363,7 +1375,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error applying custom mask: {ex.Message}");
+                   // Console.WriteLine($"Error applying custom mask: {ex.Message}");
                 }
             }
         }
@@ -1393,12 +1405,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void SetValue(object value)
         {
-            Text = value?.ToString();
+            this.Text = value?.ToString();
 
         }
         public override object GetValue()
         {
-            return Text;
+            return this.Text;
 
         }
         public override void ClearValue()
@@ -1414,6 +1426,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 beepImage.Draw(graphics, rectangle);
             }
             // Draw Text
+            //Debug.WriteLine($"Drawing Text {Text}");
             if (!string.IsNullOrEmpty(Text))
             {
                 TextRenderer.DrawText(graphics, Text, Font, rectangle, ForeColor, TextFormatFlags.Left);
@@ -1436,7 +1449,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnFontChanged(e);
             _textFont = Font;
-        //    Console.WriteLine("Font Changed");
+        //   // Console.WriteLine("Font Changed");
             if (AutoSize)
             {
                 Size textSize = TextRenderer.MeasureText(Text, _textFont);
@@ -1481,7 +1494,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage.PressedBackColor = _currentTheme.SelectedRowBackColor;
             beepImage.PressedForeColor = _currentTheme.SelectedRowForeColor;
             beepImage.ShowAllBorders = false;
-            beepImage.IsFramless = true;
+            beepImage.IsFrameless = true;
             if (IsChild)
             {
                 BackColor = _currentTheme.TextBoxBackColor;
@@ -1499,6 +1512,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             Refresh();
         }
         #endregion "Theme and Style"
+        // Override to prevent text loss on parent change
+        protected override void OnParentChanged(EventArgs e)
+        {
+            base.OnParentChanged(e);
+            string preservedText = _innerTextBox.Text;
+            Debug.WriteLine($"✅ OnParentChanged, preserving text: {preservedText}");
+            _innerTextBox.Text = preservedText; // Restore text after parent change
+            Invalidate();
+        }
 
     }
 }

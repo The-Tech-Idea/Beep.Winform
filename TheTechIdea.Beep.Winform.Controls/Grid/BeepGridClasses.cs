@@ -71,16 +71,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             get { return _rowIdx; }
             set { _rowIdx = value; }
         }
+        public int X { get; set; } // Updated dynamically
+        public int Y { get; set; } // Updated dynamically
         public int Width { get; set; } = 100; // Default cell width
         public int Height { get; set; } = 30; // Default cell height
         public bool IsSelected { get; set; }
         public bool IsDirty { get; set; }
         public bool IsReadOnly { get; set; }
-        public bool IsEditable { get; set; }
+        public bool IsEditable { get; set; } = true;
         public bool IsVisible { get; set; }
         public object CellData { get; set; }
         = new object();
-        public string CellValue { get; set; }
+        public object CellValue { get; set; }
         public string CellType { get; set; }
         public string CellFormat { get; set; }
         public string CellAlignment { get; set; }
@@ -94,7 +96,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public event EventHandler<BeepGridCellEventArgs> OnCellValidate;
 
         public IBeepUIComponent UIComponent { get; set; }
+        // Method to trigger OnCellSelected event
+        public void SelectCell()
+        {
+            OnCellSelected?.Invoke(this, new BeepGridCellEventArgs(this));
+        }
 
+        // Method to trigger OnCellValidate event
+        public void ValidateCell()
+        {
+            OnCellValidate?.Invoke(this, new BeepGridCellEventArgs(this));
+        }
         public void ApplyTheme(BeepTheme theme)
         {
             if (UIComponent != null)

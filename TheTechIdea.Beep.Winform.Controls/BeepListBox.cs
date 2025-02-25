@@ -569,7 +569,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int padding = 3; // Example padding
             totalHeight += padding * 2;
             totalHeight = totalHeight;// LastItemBottomY + (padding * 2);//Math.Max(totalHeight,);
-            Console.WriteLine($"GetMaxHeight: Total height calculated as {totalHeight} pixels.");
+           // Console.WriteLine($"GetMaxHeight: Total height calculated as {totalHeight} pixels.");
 
             return totalHeight;
         }
@@ -608,7 +608,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnFontChanged(e);
             _textFont = Font;
-           // Console.WriteLine("Font Changed");
+           //// Console.WriteLine("Font Changed");
             if (AutoSize)
             {
                 Size textSize = TextRenderer.MeasureText(Text, _textFont);

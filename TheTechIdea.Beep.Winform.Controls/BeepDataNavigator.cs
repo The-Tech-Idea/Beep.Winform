@@ -127,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsShadowAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
             //ApplyThemeToChilds = true;
-            txtPosition.IsFramless = true;
+            txtPosition.IsFrameless = true;
             txtPosition.MouseEnter += TxtPosition_MouseEnter;
             txtPosition.MouseHover += TxtPosition_MouseHover;
         }

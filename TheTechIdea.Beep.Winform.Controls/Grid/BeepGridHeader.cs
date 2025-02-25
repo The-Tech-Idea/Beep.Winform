@@ -398,18 +398,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         {
             _bindingSource = new BindingSource();
             _bindingSource.DataSourceChanged += OnDataSourceChanged;
-          //  Console.WriteLine("Initializing BeepGridHeader layout...");
+          // // Console.WriteLine("Initializing BeepGridHeader layout...");
             // Manually stack three panels
             Height = 60; // 60 if no filter
             Width = 600;  // arbitrary placeholder
-         //   Console.WriteLine("Height: " + Height);
+         //  // Console.WriteLine("Height: " + Height);
             // (1) top panel
             _topPanel = new Panel
             {
                 Height = _topPanelHeight,
                 Dock = DockStyle.Top
             };
-          //  Console.WriteLine("Top Panel Height: " + _titletopPanelHeight);
+          // // Console.WriteLine("Top Panel Height: " + _titletopPanelHeight);
             // inside topPanel, we place a TableLayout for your 5 icons + label
             _topTableLayout = new TableLayoutPanel
             {
@@ -419,7 +419,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 Padding = new Padding(0),
                 Margin = new Padding(0)
             };
-          //  Console.WriteLine("Table Layout Column Count: " + _topTableLayout.ColumnCount);
+          // // Console.WriteLine("Table Layout Column Count: " + _topTableLayout.ColumnCount);
             _topTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20f));
             _topTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20f));
             _topTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20f));
@@ -427,9 +427,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _topTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20f));
             _topTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
             _topTableLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 23f));
-          //  Console.WriteLine("Table Layout Row Count: " + _topTableLayout.RowCount);
+          // // Console.WriteLine("Table Layout Row Count: " + _topTableLayout.RowCount);
             _topPanel.Controls.Add(_topTableLayout);
-         //   Console.WriteLine("Top Panel Controls Count: " + _titletopPanel.Controls.Count);
+         //  // Console.WriteLine("Top Panel Controls Count: " + _titletopPanel.Controls.Count);
             // Create beepbuttons + label
             _csvExportButton = new BeepButton
             {
@@ -438,7 +438,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 MaxImageSize = _imagesize,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 HideText = true,
-                IsFramless = true,
+                IsFrameless = true,
                 IsChild = true,
                 Dock = DockStyle.Fill
             };
@@ -449,7 +449,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 MaxImageSize = _imagesize,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 HideText = true,
-                IsFramless = true,
+                IsFrameless = true,
                 IsChild = true,
                 Dock = DockStyle.Fill
             };
@@ -460,7 +460,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 MaxImageSize = _imagesize,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 HideText = true,
-                IsFramless = true,
+                IsFrameless = true,
                 IsChild = true,
                 Dock = DockStyle.Fill
             };
@@ -471,7 +471,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 MaxImageSize = _imagesize,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 HideText = true,
-                IsFramless = true,
+                IsFrameless = true,
                 IsChild = true,
                 Dock = DockStyle.Fill
             };
@@ -482,7 +482,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 MaxImageSize = _imagesize,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 HideText = true,
-                IsFramless = true,
+                IsFrameless = true,
                 IsChild = true,
                 Dock = DockStyle.Fill
             };
@@ -491,11 +491,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 Text = "Title",
                 TextAlign = ContentAlignment.MiddleCenter,
                 ImageAlign = ContentAlignment.MiddleRight,
-                IsFramless = true,
+                IsFrameless = true,
                 IsChild = true,
                 Dock = DockStyle.Fill
             };
-          //  Console.WriteLine("Buttons Created");
+          // // Console.WriteLine("Buttons Created");
             // Add them to table
             _topTableLayout.Controls.Add(_csvExportButton, 0, 0);
             _topTableLayout.Controls.Add(_totalShowButton, 1, 0);
@@ -503,13 +503,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _topTableLayout.Controls.Add(_printButton, 3, 0);
             _topTableLayout.Controls.Add(_filterToggleButton, 4, 0);
             _topTableLayout.Controls.Add(_titleLabel, 5, 0);
-         //   Console.WriteLine("Controls Added to Table");
+         //  // Console.WriteLine("Controls Added to Table");
             // Hook up events
             _csvExportButton.Click += (s, e) => OnCsvExport();
             _printButton.Click += (s, e) => OnPrint();
             _totalShowButton.Click += (s, e) => OnToggleTotals();
             _filterToggleButton.Click += (s, e) => ShowFilter = !ShowFilter;
-          //  Console.WriteLine("Events Hooked Up");
+          // // Console.WriteLine("Events Hooked Up");
             // (2) column header row
             // --- Header Panel (for column labels) ---
             _headerPanel = new Panel
@@ -520,9 +520,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 Visible = true
 
             };
-        //    Console.WriteLine("Header Panel Height: " + _headerPanelHeight);
+        //   // Console.WriteLine("Header Panel Height: " + _headerPanelHeight);
            ;
-        //    Console.WriteLine("Header Panel Controls Count: " + _columnheaderPanel.Controls.Count);
+        //   // Console.WriteLine("Header Panel Controls Count: " + _columnheaderPanel.Controls.Count);
             // (3) filter row (optional)
             // --- Filter Panel (for filter textboxes) ---
             _filterPanel = new Panel
@@ -532,7 +532,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 Visible = _showFilter,
                 BackColor = Color.WhiteSmoke
             };
-         //   Console.WriteLine("Filter Panel Height: " + _filterPanelHeight);
+         //  // Console.WriteLine("Filter Panel Height: " + _filterPanelHeight);
            
           
 
@@ -540,9 +540,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             Controls.Add(_filterPanel);
             Controls.Add(_headerPanel);
             Controls.Add(_topPanel);
-         //   Console.WriteLine("Controls Added to BeepGridHeader");
+         //  // Console.WriteLine("Controls Added to BeepGridHeader");
             RecalcHeight();
-         //   Console.WriteLine("Height Recalculated");
+         //  // Console.WriteLine("Height Recalculated");
         }
         private void RecalcHeight()
         {
@@ -566,19 +566,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
          
             //Console.WriteLine("Location Changed");
             if (_isUpdating) return;
-           // Console.WriteLine("Location Changed 1");
+           //// Console.WriteLine("Location Changed 1");
             _isUpdating = true;
 
             try
             {
-              //  Console.WriteLine("Location Changed 2");
+              // // Console.WriteLine("Location Changed 2");
                 if (_targetGrid != null)
                 {
-               //     Console.WriteLine("Location Changed 3");    
+               //    // Console.WriteLine("Location Changed 3");    
                     _targetGrid.Top = this.Bottom;
                     _targetGrid.Left = this.Left;
                     RepositionFooter();
-                 //   Console.WriteLine("Location Changed 4");
+                 //  // Console.WriteLine("Location Changed 4");
                 }
             }
             finally
@@ -1017,7 +1017,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private void ApplyFilters()
         {
             string completeFilter = string.Join(" AND ", ColumnFilters.Values.Where(filter => !string.IsNullOrEmpty(filter)));
-            Console.WriteLine("Applying Filter: " + completeFilter);
+           // Console.WriteLine("Applying Filter: " + completeFilter);
             if (string.IsNullOrEmpty(completeFilter))
             {
                 _bindingSource.RemoveFilter();
@@ -1031,11 +1031,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private void ApplyFilter()
         {
            
-            Debug.WriteLine("Applying Filter");
+            //Debug.WriteLine("Applying Filter");
             if (!_showFilter || _targetGrid == null) return;
             if (_targetGrid.DataSource is BindingSource bs)
             {
-                Debug.WriteLine("Applying Filter 1");
+                //Debug.WriteLine("Applying Filter 1");
                 var conditions = new List<string>();
                 foreach (var kvp in _filterBoxes)
                 {
@@ -1049,11 +1049,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         conditions.Add($"{prop} LIKE '%{search}%'" );
                     }
                 }
-                Debug.WriteLine("Conditions: " + string.Join(" AND ", conditions));
+                //Debug.WriteLine("Conditions: " + string.Join(" AND ", conditions));
                 _bindingSource.Filter = string.Join(" AND ", conditions);
                 TargetDataGridView.Refresh();
 
-                Debug.WriteLine("Filter Applied End");
+                //Debug.WriteLine("Filter Applied End");
             }
         }
         #endregion
@@ -1061,15 +1061,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         #region Button Logic
         private void OnCsvExport()
         {
-            Console.WriteLine("CSV export clicked.");
+           // Console.WriteLine("CSV export clicked.");
         }
         private void OnPrint()
         {
-            Console.WriteLine("Print clicked.");
+           // Console.WriteLine("Print clicked.");
         }
         private void OnToggleTotals()
         {
-            Console.WriteLine("Toggle Totals clicked.");
+           // Console.WriteLine("Toggle Totals clicked.");
         }
         #endregion
 
@@ -1101,11 +1101,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// <param name="e">A <see cref="DataGridViewColumnEventArgs"/> that contains the event data.</param>
         private void DataGridView_ColumnWidthChanged(object? sender, DataGridViewColumnEventArgs e)
         {
-            Console.WriteLine("Column Width Changed");
+           // Console.WriteLine("Column Width Changed");
             // ColumnConfig with new width
             BeepGridColumnConfig cfg = ColumnConfigs[ ColumnConfigs.FindIndex(p => p.ColumnName==e.Column.Name)];
             if (cfg == null) return;
-            Console.WriteLine($"Column Width Changed: From {cfg.Width} to {e.Column.Width} ");
+           // Console.WriteLine($"Column Width Changed: From {cfg.Width} to {e.Column.Width} ");
             cfg.Width = e.Column.Width;
             UpdateHeaderAndPanelPositions();
             _filterPanel.Update();
@@ -1849,7 +1849,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             if(DMEEditor != null)
             {
                 DMEEditor.AddLogMessage("Beep", message, DateTime.Now, 0, "", Errors.Ok);
-            }else           Console.WriteLine(message);
+            }else          Console.WriteLine(message);
         }
         #endregion Logging
     }

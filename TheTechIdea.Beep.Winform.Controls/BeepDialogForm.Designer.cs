@@ -99,7 +99,7 @@
             beepDialogBox1.IsDirty = false;
             beepDialogBox1.IsEditable = false;
             beepDialogBox1.IsFocused = false;
-            beepDialogBox1.IsFramless = false;
+            beepDialogBox1.IsFrameless = false;
             beepDialogBox1.IsHovered = false;
             beepDialogBox1.IsNew = false;
             beepDialogBox1.IsPressed = false;

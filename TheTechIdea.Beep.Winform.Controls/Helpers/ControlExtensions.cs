@@ -814,7 +814,7 @@ public static class ControlExtensions
                                     Genrebr.ChildBranchs.Add(br);
                                     if (br.ObjectType != null && br.BranchClass != null)
                                     {
-                                        // Console.WriteLine($"{CreateNode}- br.BranchText");
+                                        //// Console.WriteLine($"{CreateNode}- br.BranchText");
                                         tree.CreateMenuMethods(br);
                                         tree.CreateGlobalMenu(br);
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
@@ -47,13 +48,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             int yOffset = ColumnHeight + headerPanelHeight + 2;
 
             // Define top-left header rectangle area
-            topLeftRect = new Rectangle(XOffset - RowHeaderWidth, headerPanelHeight, RowHeaderWidth, _rowHeight);
+            topLeftRect = new Rectangle(XOffset - RowHeaderWidth, headerPanelHeight, RowHeaderWidth, RowHeight);
 
             // Draw each row header
             foreach (var row in Rows)
             {
                 // Define the rectangle for each row header
-                var headerRect = new Rectangle(XOffset - RowHeaderWidth, yOffset, RowHeaderWidth, _rowHeight);
+                var headerRect = new Rectangle(XOffset - RowHeaderWidth, yOffset, RowHeaderWidth, RowHeight);
 
                 // Create and configure a BeepLabel for the row header
                 var headerLabel = new BeepLabel
@@ -82,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
 
-                yOffset += _rowHeight; // Move to the next row's position
+                yOffset += RowHeight; // Move to the next row's position
             }
 
             // Draw the pivot header, including the column and row header labels

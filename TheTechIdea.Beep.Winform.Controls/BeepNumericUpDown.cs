@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _decrementButton = new BeepButton
             {
                 Text = "-",
-                IsFramless = true,
+                IsFrameless = true,
                 AutoSize = false  // We'll size it manually
             };
             _decrementButton.Click += DecrementButton_Click;
@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _incrementButton = new BeepButton
             {
                 Text = "+",
-                IsFramless = true,
+                IsFrameless = true,
                 AutoSize = false  // We'll size it manually
             };
             _incrementButton.Click += IncrementButton_Click;
@@ -56,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _valueTextBox = new BeepTextBox
             {
                 TextAlignment = HorizontalAlignment.Center,
-                IsFramless = true,
+                IsFrameless = true,
                 OnlyDigits = true,
                 // If your BeepTextBox supports vertical centering, set it here.
                 // Otherwise, consider making the TextBox tall enough so that the text appears centered.

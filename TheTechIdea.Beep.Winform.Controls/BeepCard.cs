@@ -157,9 +157,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeComponents();
           //  this.MinimumSize = new Size(300, 200); // Set based on layout needs
             this.Size = new Size(400, 300); // Default start size
-           // Console.WriteLine("BeepCard Constructor");
+           //// Console.WriteLine("BeepCard Constructor");
            // InitializeComponents();
-          //  Console.WriteLine("BeepCard Constructor End");
+          // // Console.WriteLine("BeepCard Constructor End");
             ApplyThemeToChilds = false;
             ApplyTheme(); // Apply the default theme initially
 
@@ -199,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsBorderAffectedByTheme = false,
                 ApplyThemeOnImage = false,
                 ImagePath = imagepath,
-                IsFramless = true,
+                IsFrameless = true,
                 Visible = false  // Initially hide image until set
             };
             Controls.Add(imageBox);
@@ -212,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ImageAlign = ContentAlignment.MiddleCenter,
                 Theme = Theme,
                 Height=23,
-                IsFramless = true,
+                IsFrameless = true,
                 IsChild = false,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
@@ -225,7 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                
                 ImageAlign = ContentAlignment.MiddleCenter,
                 Theme = Theme,
-                IsFramless = true,
+                IsFrameless = true,
                 IsChild = false,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
@@ -247,7 +247,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_currentTheme == null) return;
            // headerLabel.Theme = Theme;
-            imageBox.IsFramless = true;
+            imageBox.IsFrameless = true;
            // paragraphLabel.Theme = Theme;
             headerLabel.ForeColor = _currentTheme.CardHeaderStyle.TextColor;
             headerLabel.Font = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);

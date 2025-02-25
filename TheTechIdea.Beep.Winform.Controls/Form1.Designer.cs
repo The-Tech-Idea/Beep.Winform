@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepMenuBar1.IsDirty = false;
             beepMenuBar1.IsEditable = false;
             beepMenuBar1.IsFocused = false;
-            beepMenuBar1.IsFramless = true;
+            beepMenuBar1.IsFrameless = true;
             beepMenuBar1.IsHovered = false;
             beepMenuBar1.IsNew = false;
             beepMenuBar1.IsPressed = false;
@@ -242,7 +242,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepTreeControl1.IsDirty = false;
             beepTreeControl1.IsEditable = false;
             beepTreeControl1.IsFocused = false;
-            beepTreeControl1.IsFramless = false;
+            beepTreeControl1.IsFrameless = false;
             beepTreeControl1.IsHovered = false;
             beepTreeControl1.IsNew = false;
             beepTreeControl1.IsPressed = false;
@@ -382,7 +382,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepSideMenu1.IsDirty = false;
             beepSideMenu1.IsEditable = false;
             beepSideMenu1.IsFocused = false;
-            beepSideMenu1.IsFramless = true;
+            beepSideMenu1.IsFrameless = true;
             beepSideMenu1.IsHovered = false;
             beepSideMenu1.IsNew = false;
             beepSideMenu1.IsPressed = false;
@@ -501,7 +501,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepDataGridView1.IsDirty = false;
             beepDataGridView1.IsEditable = false;
             beepDataGridView1.IsFocused = false;
-            beepDataGridView1.IsFramless = false;
+            beepDataGridView1.IsFrameless = false;
             beepDataGridView1.IsHovered = false;
             beepDataGridView1.IsNew = false;
             beepDataGridView1.IsPressed = false;
@@ -629,7 +629,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepButton1.IsDirty = false;
             beepButton1.IsEditable = false;
             beepButton1.IsFocused = false;
-            beepButton1.IsFramless = false;
+            beepButton1.IsFrameless = false;
             beepButton1.IsHovered = false;
             beepButton1.IsNew = false;
             beepButton1.IsPopupOpen = false;
@@ -757,7 +757,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepAppBar1.IsDirty = false;
             beepAppBar1.IsEditable = false;
             beepAppBar1.IsFocused = false;
-            beepAppBar1.IsFramless = false;
+            beepAppBar1.IsFrameless = false;
             beepAppBar1.IsHovered = false;
             beepAppBar1.IsNew = false;
             beepAppBar1.IsPressed = false;
@@ -886,7 +886,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepTextBox1.IsDirty = false;
             beepTextBox1.IsEditable = false;
             beepTextBox1.IsFocused = false;
-            beepTextBox1.IsFramless = false;
+            beepTextBox1.IsFrameless = false;
             beepTextBox1.IsHovered = false;
             beepTextBox1.IsNew = false;
             beepTextBox1.IsPressed = false;

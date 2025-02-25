@@ -851,7 +851,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 for (int i = 0; i < Rows.Count; i++)
                 {
-                    yOffset += Grid._rowHeight;
+                    yOffset += Grid.RowHeight;
                     g.DrawLine(pen, drawingBounds.Left, yOffset, drawingBounds.Right, yOffset);
                 }
             }

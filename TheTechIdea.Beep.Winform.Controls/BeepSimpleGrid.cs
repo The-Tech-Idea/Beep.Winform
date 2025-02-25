@@ -1,13 +1,13 @@
-﻿using System.ComponentModel;
-using TheTechIdea.Beep.Vis.Modules;
+﻿
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing.Design;
-using System.Windows.Forms.Design;
-using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Desktop.Common;
-
-using System.Reflection;
+using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Design;
 using TheTechIdea.Beep.Winform.Controls.Grid;
-
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 
 
@@ -15,20 +15,20 @@ namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [Category("Data")]
-    [Description("A grid control that displays data in a simple table format.")]
-    [DisplayName("Beep Simple _targetGrid")]
+    [Description("A grid control that displays data in a simple table format with scrollbars.")]
+    [DisplayName("Beep Simple Grid")]
     public class BeepSimpleGrid : BeepControl
     {
-        #region "Properties"  
-        #region "Title Properties"
-        private TextImageRelation textImageRelation= TextImageRelation.ImageAboveText;
-        private string _titletext= "Simple BeepGrid";
+        #region Properties
+        #region Title Properties
+        private TextImageRelation textImageRelation = TextImageRelation.ImageAboveText;
+        private string _titletext = "Simple BeepGrid";
         [Browsable(true)]
         [Category("Layout")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public string TitleText
         {
-            get { return _titletext; }
+            get => _titletext;
             set
             {
                 _titletext = value;
@@ -36,131 +36,140 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     titleLabel.Text = value;
                 }
-                Invalidate(); // Repaint on change
+                Invalidate();
             }
         }
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("ImagePath alignment relative to text (Left or Right).")]
+        [Description("Image alignment relative to text.")]
         public TextImageRelation TextImageRelation
         {
             get => textImageRelation;
             set
             {
                 textImageRelation = value;
-                if(titleLabel != null)
+                if (titleLabel != null)
                 {
                     titleLabel.TextImageRelation = value;
                 }
-                Invalidate(); // Repaint on change
-               
+                Invalidate();
             }
         }
         private Font _textFont;
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Text Font displayed in the control.")]
+        [Description("Text font for the title.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public Font TitleTextFont
         {
-            get => _textFont;
+            get => _textFont ?? Font;
             set
             {
-
                 _textFont = value;
                 if (titleLabel != null)
                 {
                     titleLabel.TextFont = _textFont;
                 }
-                  
-                // Font = value;;
                 Invalidate();
-
-
             }
         }
-        private Font _columnHeadertextFont= new Font("Arial", 8);
+        private Font _columnHeadertextFont = new Font("Arial", 8);
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Text Font displayed in the control. for Column Headers")]
+        [Description("Text font for column headers.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public Font ColumnHeaderFont
         {
             get => _columnHeadertextFont;
             set
             {
-
                 _columnHeadertextFont = value;
-               // UseThemeFont = false;
-                using (BeepLabel lbl = new BeepLabel())
-                {
-                    lbl.TextFont = _columnHeadertextFont;
-                    lbl.Text = "A";
-                    ColumnHeight = lbl.GetPreferredSize(Size.Empty).Height;
-                }
-                // Font = value;;
                 Invalidate();
-
-
             }
         }
         #endregion "Title Properties"
-        int bottomPanelY;
-        int botomspacetaken = 0;
-        int topPanelY ;
-        Rectangle gridRect;
-        public int _rowHeight = 12; // Default row height
-       // private List<int> _columnWidths = new List<int> { 100, 100, 100 }; // Default column widths
 
-        
+        private int bottomPanelY;
+        private int botomspacetaken = 0;
+        private int topPanelY;
+        private Rectangle gridRect;
+        private int _rowHeight = 25;
+        [Browsable(true)]
+        [Category("Layout")]
+        public int RowHeight
+        {
+            get => _rowHeight;
+            set
+            {
+                _rowHeight = value;
+                InitializeRows();
+                UpdateScrollBars();
+                Invalidate();
+            }
+        }
+
         private bool _resizingColumn = false;
-        public bool _resizingRow = false;
+        private bool _resizingRow = false;
         private int _resizingIndex = -1;
-        private int _resizeMargin = 5; // Distance from the edge to start resizing
-        private Point _lastMousePos; // Store the last mouse position for resizing
+        private int _resizeMargin = 2;
+        private Point _lastMousePos;
 
-        private BeepGridRow _hoveredRow = null; // For row hover effects
-        private BeepGridCell _hoveredCell = null; // For cell hover effects
+        private BeepGridRow _hoveredRow = null;
+        private BeepGridCell _hoveredCell = null;
 
         private List<Rectangle> sortIconBounds = new List<Rectangle>();
         private List<Rectangle> filterIconBounds = new List<Rectangle>();
-        private int _defaultcolumnheaderheight = 12;
+        private int _defaultcolumnheaderheight = 25;
         private int _defaultcolumnheaderwidth = 50;
-        public object DataSource { get; set; }
+
+        private object _dataSource;
+        private List<object> _fullData;
+        private int _dataOffset = 0;
+        public object DataSource
+        {
+            get => _dataSource;
+            set
+            {
+                _dataSource = value;
+                InitializeData();
+                FillVisibleRows();
+                UpdateScrollBars();
+                Invalidate();
+            }
+        }
         public string QueryFunctionName { get; set; }
         public string QueryFunction { get; set; }
-        private int _xOffset = 0; // New offset for drawing
-
+        private int _xOffset = 0;
         private bool _showFilterButton = true;
 
-       
         public BindingList<BeepGridRow> Rows { get; set; } = new BindingList<BeepGridRow>();
-        public BeepGridRow BottomRow { get; set; } // For aggregations and totals
-
-        public BeepDataNavigator DataNavigator { get; set; } = new BeepDataNavigator();
+        public BeepGridRow BottomRow { get; set; }
+        public BeepDataNavigator DataNavigator { get; set; }
         private List<BeepGridColumnConfig> _columns = new List<BeepGridColumnConfig>();
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
-        [Editor(typeof(ColumnConfigCollectionEditor), typeof(UITypeEditor))]
+        [Editor(typeof(BeepGridColumnConfigCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public List<BeepGridColumnConfig> Columns
         {
             get => _columns;
             set
             {
-                _columns = value;
-                Invalidate(); // Redraw grid with new columns
+                _columns = value ?? new List<BeepGridColumnConfig>();
+                InitializeRows();
+                FillVisibleRows();
+                UpdateScrollBars();
+                Invalidate();
             }
         }
         [Browsable(true)]
         [Category("Layout")]
         public int DefaultColumnHeaderWidth
         {
-            get { return _defaultcolumnheaderwidth; }
+            get => _defaultcolumnheaderwidth;
             set { _defaultcolumnheaderwidth = value; Invalidate(); }
         }
-
 
         private bool _showverticalgridlines = true;
         [Browsable(true)]
@@ -171,7 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showverticalgridlines = value;
-                Invalidate(); // Redraw grid with new vertical grid line visibility
+                Invalidate();
             }
         }
         private bool _showhorizontalgridlines = true;
@@ -183,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showhorizontalgridlines = value;
-                Invalidate(); // Redraw grid with new horizontal grid line visibility
+                Invalidate();
             }
         }
 
@@ -195,7 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showFilterButton = value;
-                Invalidate(); // Redraw grid with new filter button visibility
+                Invalidate();
             }
         }
         private bool _showSortIcons = true;
@@ -207,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showSortIcons = value;
-                Invalidate(); // Redraw grid with new sort icon visibility
+                Invalidate();
             }
         }
         private bool _showRowNumbers = true;
@@ -219,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showRowNumbers = value;
-                Invalidate(); // Redraw grid with new row number visibility
+                Invalidate();
             }
         }
         private bool _showColumnHeaders = true;
@@ -231,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showColumnHeaders = value;
-                Invalidate(); // Redraw grid with new column header visibility
+                Invalidate();
             }
         }
         private bool _showRowHeaders = true;
@@ -243,7 +252,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showRowHeaders = value;
-                Invalidate(); // Redraw grid with new row header visibility
+                Invalidate();
             }
         }
         private bool _showNavigator = true;
@@ -255,7 +264,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showNavigator = value;
-                Invalidate(); // Redraw grid with new navigator visibility
+                Invalidate();
             }
         }
         private bool _showBottomRow = false;
@@ -267,7 +276,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showBottomRow = value;
-                Invalidate(); // Redraw grid with new bottom row visibility
+                Invalidate();
             }
         }
         private bool _showFooter = false;
@@ -279,10 +288,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showFooter = value;
-                Invalidate(); // Redraw grid with new footer visibility
+                Invalidate();
             }
         }
-        private bool _showHeaderPanel = false;
+        private bool _showHeaderPanel = true;
         [Browsable(true)]
         [Category("Layout")]
         public bool ShowHeaderPanel
@@ -291,7 +300,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showHeaderPanel = value;
-                Invalidate(); // Redraw grid with new header panel visibility
+                Invalidate();
             }
         }
         private bool _showHeaderPanelBorder = true;
@@ -303,19 +312,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showHeaderPanelBorder = value;
-                Invalidate(); // Redraw grid with new header panel border visibility
+                Invalidate();
             }
         }
-  
-       
 
         [Browsable(true)]
         [Category("Layout")]
         public int ColumnHeight
         {
-            get { return _defaultcolumnheaderheight; }
+            get => _defaultcolumnheaderheight;
             set { _defaultcolumnheaderheight = value; Invalidate(); }
-
         }
         [Browsable(true)]
         [Category("Layout")]
@@ -326,833 +332,870 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _xOffset = value;
-                Invalidate(); // Redraw grid with new offset
+                UpdateScrollBars();
+                Invalidate();
             }
         }
         public GridDataSourceType DataSourceType { get; set; } = GridDataSourceType.Fixed;
-        private string _title = "BeepSimpleGrid Title"; // Title text
+        private string _title = "BeepSimpleGrid Title";
         public string Title
         {
             get => _title;
             set => _title = value;
-
         }
-        [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
-        [Description("Select the image file (SVG, PNG, JPG, etc.) to load")]
-        [Category("Appearance")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public string ImagePath
+
+        // Scrollbar Properties
+        private BeepScrollBar _verticalScrollBar;
+        private BeepScrollBar _horizontalScrollBar;
+        private bool _showVerticalScrollBar = true;
+        [Browsable(true)]
+        [Category("Layout")]
+        public bool ShowVerticalScrollBar
         {
-            get => _imagepath;
+            get => _showVerticalScrollBar;
             set
             {
-                _imagepath = value;
-                // Console.WriteLine("Loading ImagePath");
-                if (!string.IsNullOrEmpty(_imagepath))
-                {
-                    titleLabel.ImagePath = _imagepath;
-                    ApplyTheme();
-                    Invalidate();
-                }
-                    Invalidate();
+                _showVerticalScrollBar = value;
+                UpdateScrollBars();
+                Invalidate();
             }
         }
-        //[Browsable(true)]
-        //[Localizable(true)]
-        //[MergableProperty(false)]
-
-        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        //public BindingList<SimpleItem> CurrentMenutems
-        //{
-        //    get => items;
-        //    set
-        //    {
-        //        items = value;
-        //        // InitializeMenu();
-        //    }
-        //}
+        private bool _showHorizontalScrollBar = true;
+        [Browsable(true)]
+        [Category("Layout")]
+        public bool ShowHorizontalScrollBar
+        {
+            get => _showHorizontalScrollBar;
+            set
+            {
+                _showHorizontalScrollBar = value;
+                UpdateScrollBars();
+                Invalidate();
+            }
+        }
         #endregion "Properties"
 
-        public BeepSimpleGrid()
+        #region Constructor
+        public BeepSimpleGrid():base()
         {
-           
-           
+            // This ensures child controls are painted properly
+            this.SetStyle(ControlStyles.ContainerControl, true);
+            this.SetStyle(ControlStyles.UserPaint, true);
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             Width = 200;
             Height = 200;
-            // Set up the grid's default properties
+            // Attach event handlers for mouse actions
+            this.MouseClick += BeepGrid_MouseClick;
             this.MouseDown += BeepGrid_MouseDown;
             this.MouseMove += BeepGrid_MouseMove;
             this.MouseUp += BeepGrid_MouseUp;
+            Rows.ListChanged += Rows_ListChanged;
             ApplyThemeToChilds = false;
-            this.Rows.ListChanged += Rows_ListChanged;
-            DataNavigator = new BeepDataNavigator();
-            Controls.Add(DataNavigator);
-            DataNavigator.ShowAllBorders = false;
-            DataNavigator.ShowShadow = false;
-            DataNavigator.IsBorderAffectedByTheme = false;
-            DataNavigator.IsShadowAffectedByTheme = false;
-            DataNavigator.ApplyThemeToChilds = true;
-            DataNavigator.Theme = Theme;
-
-                // Draw the Title Label (BeepLabel) within drawingBounds
-
-                titleLabel = new BeepLabel
-                {
-                    Text = string.IsNullOrEmpty(Title) ? "Beep _targetGrid" : Title,
-                    TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
-                   // Location = new Point(headerPanelBorderRect.Left + 1, headerPanelBorderRect.Top + 1), // Adjust Y as needed
-                    Theme = Theme,
-                    ImageAlign = System.Drawing.ContentAlignment.MiddleLeft,
-                    TextImageRelation = TextImageRelation.ImageBeforeText,
-                    MaxImageSize = new Size(20, 20),
-                    ShowAllBorders = false,
-                    ShowShadow = false,
-                    //ShowBottomBorder =true,
-                    //ShowTopBorder = true,
-                    IsChild = true,
-                    IsShadowAffectedByTheme = false,
-                    IsBorderAffectedByTheme = false,
-                };
-
-              //  titleLabel.Size = new Size(headerPanelBorderRect.Width - 2, headerPanelBorderRect.Height - 2);
-                titleLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
-                titleLabel.BackColor = _currentTheme.BackColor;
-                //Controls.Add(titleLabel);
-            
-
-        }
-        protected override void InitLayout()
-        {
-            base.InitLayout();
-        
-        }
-        private void Rows_ListChanged(object sender, ListChangedEventArgs e)
-        {
-            Invalidate(); // Redraw the grid when rows change
-        }
-        #region "Virtualization"
-        private int _verticalScrollOffset = 0; // Track vertical scroll
-        private int _horizontalScrollOffset = 0; // Track horizontal scroll
-
-    
-        private (int firstColumnIndex, int lastColumnIndex) GetVisibleColumns()
-        {
-            int xOffset = _horizontalScrollOffset;
-            int firstColumnIndex = 0;
-            int visibleWidth = DrawingRect.Width;
-
-            for (int i = 0; i < Columns.Count; i++)
+            // Initialize scrollbars immediately to ensure they’re never null
+            _verticalScrollBar = new BeepScrollBar
             {
-                if (xOffset < Columns[i].Width)
-                {
-                    firstColumnIndex = i;
-                    break;
-                }
-                xOffset -= Columns[i].Width;
-            }
-
-            int lastColumnIndex = firstColumnIndex;
-            int usedWidth = xOffset;
-            for (int i = firstColumnIndex; i < Columns.Count; i++)
-            {
-                usedWidth += Columns[i].Width;
-                if (usedWidth >= visibleWidth)
-                {
-                    lastColumnIndex = i;
-                    break;
-                }
-            }
-
-            return (firstColumnIndex, lastColumnIndex);
-        }
-
-        #endregion "Virtualization"
-        #region "Header Layout"
-        protected int headerPanelHeight = 20; // Height of the header panel
-        protected int bottomagregationPanelHeight = 12; // Height of the bottom panel for agregation
-        protected int footerPanelHeight = 12; // Height of the Footer panel
-        protected int navigatorPanelHeight = 20; // Height of the navigator panel
-
-        private Rectangle footerPanelRect; // Rectangle for the header panel
-        private Rectangle headerPanelRect; // Rectangle for the header panel
-        private Rectangle columnsheaderPanelRect; // Rectangle for the header panel
-        private Rectangle bottomagregationPanelRect; // Rectangle for the header panel
-        private Rectangle navigatorPanelRect; // Rectangle for the header panel
-
-        private Rectangle filterButtonRect; // Rectangle for the filter button area
-        private BeepLabel titleLabel;
-        private BeepButton filterButton;
-        private int _buttonssize = 25;
-        private string _imagepath;
-        private int defaultHeight=100;
-        private BindingList<SimpleItem> items;
-       
-
-        private void FilterButton_Click(object sender, EventArgs e)
-        {
-            // Config filter form when filter button is clicked
-            ShowFilterForm();
-        }
-        #endregion "Header Layout"
-        #region "Theme"
-        public override void ApplyTheme()
-        {
-            //base.ApplyTheme();
-            this.BackColor = _currentTheme.GridBackColor;
-            this.ForeColor = _currentTheme.GridForeColor;
-            if (titleLabel != null) 
-            {
-                titleLabel.Theme = Theme;
-            }
-
-            if (DataNavigator != null)
-            {
-                _currentTheme.ButtonBackColor = _currentTheme.GridBackColor;
-                _currentTheme.ButtonForeColor = _currentTheme.GridForeColor;
-                DataNavigator.Theme = Theme;
-            }
-            if (UseThemeFont)
-            {
-                //     Console.WriteLine("2 Label Apply Theme TextFont");
-                _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
-                titleLabel.UseThemeFont = true;
-            }
-            titleLabel.Font = _textFont;
-            Invalidate(); // Repaint the grid after applying the theme
-        }
-        #endregion "Theme"
-        #region "Paint"
-        #region "Dynamic Control Pooling"
-        private Dictionary<string, Control> controlPool = new(); // Pool of controls by Cell ID
-
-        private Control GetControlForCell(BeepGridCell cell)
-        {
-            if (!controlPool.TryGetValue(cell.Id, out var control))
-            {
-                // Create a new control if not already in the pool
-                control = CreateControlForCell(cell);
-                controlPool[cell.Id] = control;
-                Controls.Add(control);
-            }
-
-            control.Visible = true;
-            return control;
-        }
-
-        private Control CreateControlForCell(BeepGridCell cell)
-        {
-            Control control = cell.UIComponent switch
-            {
-                BeepLabel => new BeepLabel(),
-                BeepTextBox => new BeepTextBox(),
-                BeepComboBox => new BeepComboBox(),
-                _ => new Label() // Fallback control
+                ScrollOrientation = Orientation.Vertical,
+                Theme = Theme,
+                Visible = false,
+                IsChild = true
             };
+            _verticalScrollBar.Scroll += VerticalScrollBar_Scroll;
+            Controls.Add(_verticalScrollBar);
 
-            control.Tag = cell; // Associate the control with its cell
-            return control;
-        }
-        private void RenderVisibleCells()
-        {
-            var (firstRowIndex, lastRowIndex) = GetVisibleRows();
-            var (firstColumnIndex, lastColumnIndex) = GetVisibleColumns();
-
-            // Hide all controls initially
-            foreach (var control in controlPool.Values)
+            _horizontalScrollBar = new BeepScrollBar
             {
-                control.Visible = false;
+                ScrollOrientation = Orientation.Horizontal,
+                Theme = Theme,
+                Visible = false,
+                IsChild = true
+            };
+            _horizontalScrollBar.Scroll += HorizontalScrollBar_Scroll;
+            Controls.Add(_horizontalScrollBar);
+            DataNavigator = new BeepDataNavigator
+            {
+                ShowAllBorders = false,
+                ShowShadow = false,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                ApplyThemeToChilds = true,
+                Theme = Theme
+            };
+            Controls.Add(DataNavigator);
+
+            titleLabel = new BeepLabel
+            {
+                Text = string.IsNullOrEmpty(Title) ? "Beep Grid" : Title,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Theme = Theme,
+                ImageAlign = ContentAlignment.MiddleLeft,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                MaxImageSize = new Size(20, 20),
+                ShowAllBorders = false,
+                ShowShadow = false,
+                IsChild = true,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false
+            };
+            titleLabel.BackColor = _currentTheme?.BackColor ?? Color.White;
+
+            _verticalScrollBar = new BeepScrollBar
+            {
+                ScrollOrientation = Orientation.Vertical,
+                Theme = Theme,
+                Visible = false,
+                IsChild = true
+            };
+            _verticalScrollBar.Scroll += VerticalScrollBar_Scroll;
+            Controls.Add(_verticalScrollBar);
+
+            _horizontalScrollBar = new BeepScrollBar
+            {
+                ScrollOrientation = Orientation.Horizontal,
+                Theme = Theme,
+                Visible = false,
+                IsChild = true
+            };
+            _horizontalScrollBar.Scroll += HorizontalScrollBar_Scroll;
+            Controls.Add(_horizontalScrollBar);
+
+            InitializeRows();
+        }
+        #endregion
+
+        #region Initialization
+        private void InitializeRows()
+        {
+            Rows.Clear();
+            int visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
+            int visibleRowCount = visibleHeight / _rowHeight;
+
+            for (int i = 0; i < visibleRowCount; i++)
+            {
+                var row = new BeepGridRow();
+                foreach (var col in Columns)
+                {
+                    // Create a new cell that will later be filled with data.
+                    // Note: We no longer assign UIComponent here.
+                    var cell = new BeepGridCell
+                    {
+                        // Do not default CellValue to string.Empty if FillVisibleRows will update it.
+                        // You can leave it null or use a default if desired.
+                        CellValue = null,
+                        CellData = null,
+                        IsEditable =true,
+                        Index = col.Index,
+                        IsVisible = col.Visible,
+                        RowIdx = i
+
+                    };
+                    row.Cells.Add(cell);
+                }
+                Rows.Add(row);
             }
 
-            // Render visible cells
-            int yOffset = headerPanelHeight;
-            for (int rowIndex = firstRowIndex; rowIndex <= lastRowIndex; rowIndex++)
+            UpdateScrollBars();
+        }
+        private void InitializeData()
+        {
+            _fullData = _dataSource is IEnumerable<object> enumerable ? enumerable.ToList() : new List<object>();
+            _dataOffset = 0;
+
+            if (_columns.Count == 0 && _fullData.Any())
             {
-                var row = Rows[rowIndex];
-                int xOffset = XOffset;
-
-                for (int colIndex = firstColumnIndex; colIndex <= lastColumnIndex; colIndex++)
+                var firstItem = _fullData.First();
+                var properties = firstItem.GetType().GetProperties();
+                int index = 0;
+                foreach (var prop in properties)
                 {
-                    var cell = row.Cells[colIndex];
-                    var cellControl = GetControlForCell(cell);
-                    cellControl.SetBounds(
-    xOffset - _horizontalScrollOffset, // Account for horizontal scroll
-    yOffset - _verticalScrollOffset,   // Account for vertical scroll
-    Columns[colIndex].Width,
-    _rowHeight
-);
-                    // Position the control
-                    //   cellControl.SetBounds(xOffset, yOffset, Columns[colIndex].Width, _rowHeight);
+                    var columnType = MapPropertyTypeToDbFieldCategory(prop.PropertyType);
+                    var cellEditor = MapPropertyTypeToCellEditor(prop.PropertyType);
 
-                    // Update content if necessary
-                    UpdateControlContent(cellControl, cell);
+                    var columnConfig = new BeepGridColumnConfig
+                    {
+                        ColumnCaption = prop.Name,
+                        ColumnName = prop.Name,
+                        Width = 100,
+                        Index = index++,
+                        Visible = true,
+                        ColumnType = columnType,
+                        CellEditor = cellEditor
+                    };
 
-                    xOffset += Columns[colIndex].Width;
+                    _columns.Add(columnConfig);
+
+                    
                 }
 
-                yOffset += _rowHeight;
+                InitializeRows();
+            }
+
+            UpdateScrollBars();
+        }
+        private BeepControl CreateCellControlForEditing(BeepGridColumnConfig column)
+        {
+           // Console.WriteLine("YY"+column.CellEditor);
+            //Debug.WriteLine("YY" + column.CellEditor);
+            switch (column.CellEditor)
+            {
+               
+                case BeepGridColumnType.Text:
+                    return new BeepTextBox { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.CheckBox:
+                    return new BeepCheckBox { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.ComboBox:
+                    return new BeepComboBox { Theme = Theme, IsChild = true, ListItems = new BindingList<SimpleItem>(column.Items) };
+                case BeepGridColumnType.DateTime:
+                    return new BeepDatePicker { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.Image:
+                    return new BeepImage { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.Button:
+                    return new BeepButton { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.ProgressBar:
+                    return new BeepProgressBar { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.NumericUpDown:
+                    return new BeepNumericUpDown { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.StarRating:
+                    return new BeepStarRating { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.Switch:
+                    return new BeepSwitch { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.ListBox:
+                    return new BeepListofValuesBox { Theme = Theme, IsChild = true, ListItems = column.Items };
+                default:
+                    return new BeepTextBox { Theme = Theme, IsChild = true }; // Default fallback
             }
         }
 
-        private void UpdateControlContent(Control control, BeepGridCell cell)
+        #endregion
+
+        #region Data Filling and Navigation
+        private void FillVisibleRows()
         {
-            if (control is BeepLabel label && cell.UIComponent is BeepLabel)
+            if (_fullData == null || !_fullData.Any()) return;
+
+            for (int i = 0; i < Rows.Count; i++)
             {
-                label.Text = ((BeepLabel)cell.UIComponent).Text;
-                label.ApplyTheme();
-            }
-            else if (control is BeepTextBox textBox && cell.UIComponent is BeepTextBox)
-            {
-                textBox.Text = ((BeepTextBox)cell.UIComponent).Text;
-                textBox.ApplyTheme();
-            }
-            else if (control is BeepComboBox comboBox && cell.UIComponent is BeepComboBox)
-            {
-                comboBox.Text = ((BeepComboBox)cell.UIComponent).Text;
-                comboBox.ApplyTheme();
-            }
-            else if (control is BeepDatePicker datePicker)
-            {
-                datePicker.Text = cell.UIComponent.ToString();
-            }
-            else if (control is BeepCheckBox checkBox)
-            {
-                // get property value from cell
-                PropertyInfo propertyInfo = cell.UIComponent.GetType().GetProperty(cell.UIComponent.BoundProperty);
-                if (propertyInfo != null)
+                int dataIndex = _dataOffset + i;
+                var row = Rows[i];
+                if (dataIndex < _fullData.Count)
                 {
-                    var value = propertyInfo.GetValue(cell.UIComponent);
-                    if (value != null)
+                    var dataItem = _fullData[dataIndex];
+                    for (int j = 0; j < row.Cells.Count && j < Columns.Count; j++)
                     {
-                        if (value is bool)
+                        var col = Columns[j];
+                        var prop = dataItem.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
+                        var value = prop?.GetValue(dataItem)?.ToString() ?? string.Empty;
+                        row.Cells[j].CellValue = value;
+                        string colKey = col.ColumnName;
+                        if(_editingCell != null && _editingCell.RowIdx == i && _editingCell.Index == j)
                         {
-                            checkBox.CheckedValue = (bool)value;
+                            continue;
+                        }
+                        if (_columnEditors.TryGetValue(colKey, out IBeepUIComponent editor))
+                        {
+                            UpdateCellControl(editor, col, row.Cells[j].CellValue);
+                        }
+
+                    }
+                }
+                else
+                {
+                    foreach (var cell in row.Cells)
+                    {
+                        UpdateCellControl(cell.UIComponent, null, string.Empty);
+                    }
+                }
+            }
+            UpdateScrollBars();
+        }
+
+        public void MoveNext()
+        {
+            if (_dataOffset + Rows.Count < _fullData.Count)
+            {
+                _dataOffset++;
+                FillVisibleRows();
+                UpdateScrollBars();
+                Invalidate();
+            }
+        }
+
+        public void MovePrevious()
+        {
+            if (_dataOffset > 0)
+            {
+                _dataOffset--;
+                FillVisibleRows();
+                UpdateScrollBars();
+                Invalidate();
+            }
+        }
+        #endregion
+
+        #region Control Creation and Updating
+        private object CreateCellControl(BeepGridColumnConfig column)
+        {
+            switch (column.CellEditor)
+            {
+                case BeepGridColumnType.Text:
+                    return new BeepTextBox { Theme = Theme };
+                case BeepGridColumnType.CheckBox:
+                    return new BeepCheckBox { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.ComboBox:
+                    return new BeepComboBox { Theme = Theme, IsChild = true, ListItems = new BindingList<SimpleItem>(column.Items) };
+                case BeepGridColumnType.DateTime:
+                    return new BeepDatePicker { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.Image:
+                    return new BeepImage { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.Button:
+                    return new BeepButton { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.ProgressBar:
+                    return new BeepProgressBar { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.Rating:
+                case BeepGridColumnType.StarRating:
+                    return new BeepStarRating { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.Custom:
+                    if (column.ColumnType == DbFieldCategory.Numeric)
+                        return new BeepNumericUpDown { Theme = Theme, IsChild = true };
+                    else if (column.ColumnType == DbFieldCategory.Boolean)
+                        return new BeepSwitch { Theme = Theme, IsChild = true };
+                    else if (column.Items != null && column.Items.Any())
+                        return new BeepListofValuesBox { Theme = Theme, IsChild = true, ListItems = column.Items};
+                    else
+                        return new BeepTextBox { Theme = Theme, IsChild = true };
+                default:
+                    return new BeepLabel { Theme = Theme, IsChild = true };
+            }
+        }
+
+        private void UpdateCellControl(IBeepUIComponent control, BeepGridColumnConfig column, object value)
+        {
+            if (control == null) return;
+            string stringValue = value?.ToString() ?? ""; // Ensure it's always a string
+
+            switch (control)
+            {
+                case BeepTextBox textBox:
+                    textBox.Text = stringValue;
+                    if (column != null)
+                        textBox.MaskFormat = GetTextBoxMaskFormat(column.ColumnType);
+                    break;
+
+                case BeepCheckBox checkBox:
+                    checkBox.CheckedValue = bool.TryParse(stringValue, out bool boolVal) && boolVal;
+                    break;
+
+                case BeepComboBox comboBox:
+                    if (column?.Items != null)
+                    {
+                        var item = column.Items.FirstOrDefault(i => i.Value?.ToString() == stringValue || i.Text == stringValue);
+                        if (item != null)
+                        {
+                            comboBox.SelectedItem = item;
                         }
                         else
                         {
-                            checkBox.Text = value.ToString();
+                            comboBox.Text = stringValue;
                         }
                     }
+                    else
+                    {
+                        comboBox.Text = stringValue;
+                    }
+                    break;
 
-                }
+                case BeepDatePicker datePicker:
+                    if (DateTime.TryParse(stringValue, out DateTime dateValue))
+                    {
+                        datePicker.SelectedDate = stringValue;
+                    }
+                    else
+                    {
+                        datePicker.SelectedDate = null; // Clear if invalid
+                    }
+                    break;
+
+                case BeepImage image:
+                    image.ImagePath = stringValue;
+                    break;
+
+                case BeepButton button:
+                    button.Text = stringValue;
+                    break;
+
+                case BeepProgressBar progressBar:
+                    progressBar.Value = int.TryParse(stringValue, out int progress) ? progress : 0;
+                    break;
+
+                case BeepStarRating starRating:
+                    starRating.SelectedRating = int.TryParse(stringValue, out int rating) ? rating : 0;
+                    break;
+
+                case BeepNumericUpDown numericUpDown:
+                    numericUpDown.Value = int.TryParse(stringValue, out int numVal) ? numVal : 0;
+                    break;
+
+                case BeepSwitch switchControl:
+                    switchControl.Checked = bool.TryParse(stringValue, out bool switchVal) && switchVal;
+                    break;
+
+                case BeepListofValuesBox listBox:
+                    listBox.SelectedKey = stringValue;
+                    break;
+
+                case BeepLabel label:
+                    label.Text = stringValue;
+                    break;
             }
-            else
-            {
-                control.Text = cell.UIComponent.ToString();
-            }
-            // Add other UIComponent updates as needed
         }
 
-        #endregion "Dynamic Control Pooling"
-        #region "Drawin on DrawingRectangle"
+        private TextBoxMaskFormat GetTextBoxMaskFormat(DbFieldCategory columnType)
+        {
+            return columnType switch
+            {
+                DbFieldCategory.Numeric => TextBoxMaskFormat.Numeric,
+                DbFieldCategory.Date => TextBoxMaskFormat.Date,
+                DbFieldCategory.Timestamp => TextBoxMaskFormat.DateTime,
+                DbFieldCategory.Currency => TextBoxMaskFormat.Currency,
+                _ => TextBoxMaskFormat.None
+            };
+        }
+        #endregion
 
+        #region Painting
         protected override void OnPaint(PaintEventArgs e)
         {
-           // Controls.Clear();
-            
           //  base.OnPaint(e);
             UpdateDrawingRect();
-            // Adjust all drawing within DrawingRect
             var g = e.Graphics;
+            var drawingBounds = DrawingRect;
 
-            var drawingBounds =DrawingRect;
-          //  drawingBounds.Inflate(-1, -1); // Adjust for border
-           // int headerfontheight = 0;
-            if (titleLabel != null)
-            {
-                headerPanelHeight = titleLabel.GetPreferredSize(Size.Empty).Height;
-            }
-             headerPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Top , drawingBounds.Width , headerPanelHeight);
-             bottomPanelY = drawingBounds.Bottom;
-             botomspacetaken = 0;
-             topPanelY = drawingBounds.Top;
+            bottomPanelY = drawingBounds.Bottom;
+            botomspacetaken = 0;
+            topPanelY = drawingBounds.Top;
+
             if (_showNavigator)
             {
-               
                 bottomPanelY -= navigatorPanelHeight;
-                botomspacetaken = navigatorPanelHeight;
-                navigatorPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width, navigatorPanelHeight);
+                botomspacetaken += navigatorPanelHeight;
+                navigatorPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), navigatorPanelHeight);
                 DrawNavigationRow(g, navigatorPanelRect);
             }
             else
             {
-                // hide navigator
                 navigatorPanelRect = new Rectangle(-100, -100, drawingBounds.Width, navigatorPanelHeight);
                 DrawNavigationRow(g, navigatorPanelRect);
             }
+
             if (_showFooter)
             {
                 bottomPanelY -= footerPanelHeight;
                 botomspacetaken += footerPanelHeight;
-                footerPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width, footerPanelHeight);
+                footerPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), footerPanelHeight);
                 DrawFooterRow(g, footerPanelRect);
             }
+
             if (_showBottomRow)
             {
                 bottomPanelY -= bottomagregationPanelHeight;
                 botomspacetaken += bottomagregationPanelHeight;
-                bottomagregationPanelRect = new Rectangle(drawingBounds.Left , bottomPanelY, drawingBounds.Width, bottomagregationPanelHeight);
+                bottomagregationPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), bottomagregationPanelHeight);
                 DrawBottomAggregationRow(g, bottomagregationPanelRect);
             }
-          
-            if(_showHeaderPanel)
+
+            if (_showHeaderPanel)
             {
+                headerPanelHeight = titleLabel?.GetPreferredSize(Size.Empty).Height ?? headerPanelHeight;
+                headerPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), headerPanelHeight);
+                DrawHeaderPanel(g, headerPanelRect);
                 topPanelY += headerPanelHeight;
                 botomspacetaken += headerPanelHeight;
-                // Draw Header Panel and Title
-                DrawHeaderPanel(g, headerPanelRect);
             }
-            //else
-            //{
-            //    // hide header
-            //    headerPanelRect = new Rectangle(-100, -100, drawingBounds.Width, headerPanelHeight);
-            //    DrawHeaderPanel(g, headerPanelRect);
-            //}
-
-            // Draw Column Headers
 
             if (_showColumnHeaders)
             {
-             
-                columnsheaderPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width, ColumnHeight);
+                columnsheaderPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), ColumnHeight);
                 PaintColumnHeaders(g, columnsheaderPanelRect);
-                topPanelY += ColumnHeight; // Move after drawing
+                topPanelY += ColumnHeight;
                 botomspacetaken += ColumnHeight;
             }
-            int availableHeight = drawingBounds.Height - topPanelY - botomspacetaken;
-             gridRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width, availableHeight);
-            // Draw Rows
+
+            int availableHeight = drawingBounds.Height - botomspacetaken - (_horizontalScrollBar.Visible ? _horizontalScrollBar.Height : 0);
+            int availableWidth = drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
+            gridRect = new Rectangle(drawingBounds.Left, topPanelY, availableWidth, availableHeight);
+           
             PaintRows(g, gridRect);
+
             if (_showverticalgridlines)
-            {
                 DrawColumnBorders(g, gridRect);
-
-            }
             if (_showhorizontalgridlines)
-            {
                 DrawRowsBorders(g, gridRect);
-            }
-            
 
+            PositionScrollBars();
         }
-        private void DrawBottomAggregationRow(Graphics g, Rectangle bottomagregationPanelRect)
+        private void DrawBottomAggregationRow(Graphics g, Rectangle rect)
         {
+            using (var brush = new SolidBrush(_currentTheme.BackColor))
             using (var pen = new Pen(_currentTheme.GridLineColor))
             {
-
-
-                g.DrawLine(pen, bottomagregationPanelRect.Left, bottomagregationPanelRect.Top, bottomagregationPanelRect.Right, bottomagregationPanelRect.Top);
-
-            }
-        }
-        private void DrawFooterRow(Graphics g, Rectangle footerPanelRect)
-        {
-            using (var pen = new Pen(_currentTheme.GridLineColor))
-            {
-
-
-                g.DrawLine(pen, footerPanelRect.Left, footerPanelRect.Top, footerPanelRect.Right, footerPanelRect.Top);
-
-            }
-        }
-        private void DrawNavigationRow(Graphics g, Rectangle navigatorPanelRect)
-        {
-          
-
-            DataNavigator.Location = new Point(navigatorPanelRect.Left, navigatorPanelRect.Top+1);
-            DataNavigator.Size = new Size(navigatorPanelRect.Width, navigatorPanelHeight);
-         
-            
-            // DataNavigator.Invalidate();
-            //DataNavigator.BringToFront();
-            // draw line between header and grid
-            using (var pen = new Pen(_currentTheme.GridLineColor))
-            {
-                g.DrawLine(pen, navigatorPanelRect.Left, navigatorPanelRect.Top, navigatorPanelRect.Right, navigatorPanelRect.Top);
-            }
-           //Console.WriteLine("Drawing Navigator");
-        }
-        private void PaintRows(Graphics graphics, Rectangle drawingBounds)
-        {
-            var (firstRowIndex, lastRowIndex) = GetVisibleRows();
-            int rowStartY = drawingBounds.Top;
-            int xOffset = gridRect.Left + XOffset; // Apply the same offset
-            for (int rowIndex = firstRowIndex; rowIndex <= lastRowIndex; rowIndex++)
-            {
-                var row = Rows[rowIndex];
-                var rowRect = new Rectangle(drawingBounds.Left, rowStartY, drawingBounds.Width, _rowHeight);
-                PaintRow(graphics, row, rowRect);
-                rowStartY += _rowHeight;
-            }
-        }
-        private void PaintRow(Graphics graphics, BeepGridRow row, Rectangle rowRect)
-        {
-            //rowRect.Inflate(-1, -1);
-            // Ensure we only draw within the grid's DrawingRect area
-            int yOffset = DrawingRect.Top + headerPanelHeight;
-            int xOffset = DrawingRect.Left + XOffset;
-
-            // Set the row height based on the default row height or the height of the tallest control in the row
-            int maxCellHeight = _rowHeight;
-
-            for (int i = 0; i < row.Cells.Count; i++)
-            {
-                var cell = row.Cells[i];
-                int cellWidth = Columns[i].Width;
-
-                // Define the cell rectangle within the grid's drawing boundaries
-                var cellRect = new Rectangle(xOffset, yOffset, cellWidth, _rowHeight);
-                PaintCell(graphics, cell, cellRect);
-
-                // Adjust row height based on the cell’s preferred height if it contains a control
-                if (cell.UIComponent is Control control)
+                g.FillRectangle(brush, rect);
+                g.DrawLine(pen, rect.Left, rect.Top, rect.Right, rect.Top);
+                if (BottomRow != null)
                 {
-                    int controlHeight = control.PreferredSize.Height;
-                    if (controlHeight > maxCellHeight)
+                    int xOffset = rect.Left + XOffset;
+                    for (int i = 0; i < BottomRow.Cells.Count && i < Columns.Count; i++)
                     {
-                        maxCellHeight = controlHeight;
+                        var cellRect = new Rectangle(xOffset, rect.Top, Columns[i].Width, rect.Height);
+                        PaintCell(g, BottomRow.Cells[i], cellRect);
+                        xOffset += Columns[i].Width;
+                    }
+                }
+            }
+        }
+        private void DrawFooterRow(Graphics g, Rectangle rect)
+        {
+            using (var brush = new SolidBrush(_currentTheme.BackColor))
+            using (var pen = new Pen(_currentTheme.GridLineColor))
+            {
+                g.FillRectangle(brush, rect);
+                g.DrawLine(pen, rect.Left, rect.Top, rect.Right, rect.Top);
+                g.DrawString("Footer", Font, new SolidBrush(_currentTheme.PrimaryTextColor), rect,
+                    new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+            }
+        }
+        private void DrawNavigationRow(Graphics g, Rectangle rect)
+        {
+            DataNavigator.Location = new Point(rect.Left, rect.Top + 1);
+            DataNavigator.Size = new Size(rect.Width, rect.Height);
+            using (var pen = new Pen(_currentTheme.GridLineColor))
+            {
+                g.DrawLine(pen, rect.Left, rect.Top, rect.Right, rect.Top);
+            }
+        }
+        private void PaintColumnHeaders(Graphics g, Rectangle bounds)
+        {
+            int xOffset = bounds.Left - XOffset; // Ensure same offset as rows
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                var col = Columns[i];
+                if (!col.Visible) continue;
+
+                string headerText = col.ColumnCaption;
+                var columnRect = new Rectangle(xOffset, bounds.Top, col.Width, bounds.Height);
+
+                if (columnRect.Right >= bounds.Left && columnRect.Left < bounds.Right) // Only draw visible columns
+                {
+                    using (var textBrush = new SolidBrush(_currentTheme.ButtonForeColor))
+                    {
+                        g.DrawString(headerText, _columnHeadertextFont ?? Font, textBrush, columnRect,
+                            new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
                     }
                 }
 
-                // Move to the next cell horizontally
-                xOffset += cellWidth;
+                xOffset += col.Width;
+                if (xOffset > bounds.Right) break; // Stop drawing when out of bounds
             }
 
-            // Update row rectangle with the calculated height and draw the row background
-            rowRect.Height = maxCellHeight;
-            using (var rowBrush = new SolidBrush(BackColor))
+            using (var pen = new Pen(_currentTheme.GridLineColor))
             {
-                graphics.FillRectangle(rowBrush, rowRect);
+                g.DrawLine(pen, bounds.Left, bounds.Bottom, bounds.Right, bounds.Bottom);
             }
-
-            //// Draw row borders if needed (optional)
-            //if (ShowAllBorders)
-            //{
-            //    using (var pen = new Pen(_currentTheme.BorderColor))
-            //    {
-            //        graphics.DrawRectangle(pen, rowRect);
-            //    }
-            //}if(ShowBottomBorder && ShowAllBorders==false)
-            //{
-            //    using (var pen = new Pen(_currentTheme.BorderColor))
-            //    {
-            //        graphics.DrawLine(pen, rowRect.Left, rowRect.Bottom, rowRect.Right, rowRect.Bottom);
-            //    }
-            //}
-            //if (ShowLeftBorder && ShowAllBorders == false) 
-            //{
-            //    using (var pen = new Pen(_currentTheme.BorderColor))
-            //    {
-            //        graphics.DrawLine(pen, rowRect.Left, rowRect.Top, rowRect.Left, rowRect.Bottom);
-            //    }
-
-            //}
-            //if (ShowRightBorder && ShowAllBorders == false)
-            //{
-            //    using (var pen = new Pen(_currentTheme.BorderColor))
-            //    {
-            //        graphics.DrawLine(pen, rowRect.Right, rowRect.Top, rowRect.Right, rowRect.Bottom);
-            //    }
-
-            //}
-            //if (ShowTopBorder && ShowAllBorders == false)
-            //{
-            //    using (var pen = new Pen(_currentTheme.BorderColor))
-            //    {
-            //        graphics.DrawLine(pen, rowRect.Left, rowRect.Top, rowRect.Right, rowRect.Top);
-            //    }
-
-            //}
         }
-        private (int firstRowIndex, int lastRowIndex) GetVisibleRows()
+        private void PaintRows(Graphics g, Rectangle bounds)
         {
-            int firstRowIndex = Math.Max(0, _verticalScrollOffset / _rowHeight);
-            int visibleRowCount = (int)Math.Ceiling((double)gridRect.Height / _rowHeight);
-            int lastRowIndex = Math.Min(firstRowIndex + visibleRowCount, Rows.Count - 1);
-            return (firstRowIndex, lastRowIndex);
-        }
-        private void DrawHeaderPanel(Graphics g, Rectangle drawingBounds)
-        {
-            var headerPanelBorderRect = drawingBounds;
-            // Set up header panel rectangle based on drawingBounds
-            // Rectangle headerPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Top, drawingBounds.Width, headerPanelHeight);
-
-
-            // Draw the header panel top border
-            //using (var borderPen = new Pen(_currentTheme.BorderColor))
-            //{
-            //    g.DrawLine(borderPen, headerPanelBorderRect.Left, headerPanelBorderRect.Top, headerPanelBorderRect.Right, headerPanelBorderRect.Top);
-            //}
-            // Draw the header panel bottom border
-            using (var borderPen = new Pen(_currentTheme.BorderColor))
+            int yOffset = bounds.Top;
+            for (int i = 0; i < Rows.Count; i++)
             {
-                g.DrawLine(borderPen, headerPanelBorderRect.Left, headerPanelBorderRect.Bottom, headerPanelBorderRect.Right, headerPanelBorderRect.Bottom);
+                var row = Rows[i];
+                var rowRect = new Rectangle(bounds.Left, yOffset, bounds.Width, RowHeight);
+                PaintRow(g, row, rowRect);
+                yOffset += _rowHeight;
+                if (yOffset >= bounds.Bottom) break;
             }
-
-                titleLabel.TextFont = _textFont;
-
-            titleLabel.ImageAlign = ContentAlignment.MiddleLeft;
-            titleLabel.TextAlign = ContentAlignment.MiddleCenter;
-            titleLabel.TextImageRelation = TextImageRelation.ImageBeforeText;
-           // Location = new Point(headerPanelBorderRect.Left + 1, headerPanelBorderRect.Top + 1); // Adjust Y as needed
-            titleLabel.Size = new Size(headerPanelBorderRect.Width - 2, headerPanelBorderRect.Height - 2);
-            titleLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
-            titleLabel.BackColor = _currentTheme.BackColor;
-            //if (!string.IsNullOrEmpty(_imagepath))
-            //{
-            //    titleLabel.ImagePath = _imagepath;
-            //}
-            //titleLabel.Location = new Point(headerPanelBorderRect.Left + 1, headerPanelBorderRect.Top + 1);
-            // Add controls to BeepSimpleGrid
-            titleLabel.Text = TitleText;
-         //   Debug.WriteLine($"Drawing Title {TitleText}");
-            titleLabel.Theme = Theme;
-          
-            //    Debug.WriteLine($"Drawing Title {headerPanelBorderRect.Left}- {headerPanelBorderRect.Top}-{headerPanelBorderRect.Width}-{headerPanelBorderRect.Height}");
-            titleLabel.DrawToGraphics(g, headerPanelBorderRect);
         }
-        private void PaintColumnHeaders(Graphics g, Rectangle drawingBounds)
+        private void PaintRow(Graphics g, BeepGridRow row, Rectangle rowRect)
         {
-            // Define the area for column headers within DrawingRect
-            int yOffset = drawingBounds.Top;
-            int xOffset = drawingBounds.Left + XOffset;
-
-            // Default or user-defined headers
-            //  List<string> defaultHeaders = new List<string> { "Column 1", "Column 2", "Column 3" };
-            int columnCount = Columns.Count;//> 0 ? _columnWidths.Count : defaultHeaders.Count;
-           // Console.WriteLine("Column Count " + columnCount);
-            for (int i = 0; i < columnCount; i++)
+            int xOffset = rowRect.Left - XOffset; // Apply scrolling offset
+            for (int i = 0; i < row.Cells.Count && i < Columns.Count; i++)
             {
-                string headerText = Columns[i].ColumnCaption;
+                var cell = row.Cells[i];
 
+                // 🔹 Update BeepGridCell with new calculated position
+                cell.X = xOffset;
+                cell.Y = rowRect.Top;
+                cell.Width = Columns[i].Width;
+                cell.Height = rowRect.Height;
 
-                var columnRect = new Rectangle(xOffset, yOffset, Columns[i].Width, _defaultcolumnheaderheight);
+                var cellRect = new Rectangle(cell.X, cell.Y, cell.Width, cell.Height);
 
-                using (var textBrush = new SolidBrush(_currentTheme.ButtonForeColor))
+                if (cellRect.Right >= gridRect.Left && cellRect.Left < gridRect.Right) // Draw only visible cells
                 {
-                    g.DrawString(headerText, _columnHeadertextFont, textBrush, columnRect, new StringFormat
-                    {
-                        Alignment = StringAlignment.Center,
-                        LineAlignment = StringAlignment.Center
-                    });
+                    PaintCell(g, cell, cellRect);
                 }
 
                 xOffset += Columns[i].Width;
-            }
-            // draw line between header and grid
-            using (var pen = new Pen(_currentTheme.GridLineColor))
-            {
-                g.DrawLine(pen, drawingBounds.Left, drawingBounds.Top + _defaultcolumnheaderheight, drawingBounds.Right, drawingBounds.Top + _defaultcolumnheaderheight);
+                if (xOffset > rowRect.Right) break; // Stop drawing if outside the visible area
             }
         }
+
         private void PaintCell(Graphics g, BeepGridCell cell, Rectangle cellRect)
         {
-            // Draw cell background
+            // If this cell is being edited, skip drawing so that
+            // the editor control remains visible.
+            
             using (var cellBrush = new SolidBrush(_currentTheme.BackColor))
             {
                 g.FillRectangle(cellBrush, cellRect);
             }
 
-            // Draw cell text if available
-            if (cell.UIComponent != null && cell.UIComponent is BeepLabel cellLabel)
+            if (cell.UIComponent == null)
             {
-                cellLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-                cellLabel.Text = cell.UIComponent.ToString(); // Display the content as text
-                cellLabel.DrawToGraphics(g, cellRect);
-            }
-            else if (cell.UIComponent != null)
-            {
-                // Draw any other UIComponent content if it's not a BeepLabel
-                g.DrawString(cell.UIComponent.ToString(), Font, new SolidBrush(_currentTheme.PrimaryTextColor),
-                    cellRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
-            }
-
-            //// Draw cell border
-            //using (var borderPen = new Pen(_currentTheme.BorderColor))
-            //{
-            //    g.DrawRectangle(borderPen, cellRect);
-            //}
-        }
-        private void DrawColumnBorders(Graphics g, Rectangle drawingBounds)
-        {
-
-            int xOffset = drawingBounds.Left+XOffset;
-            int yOffset = drawingBounds.Top +ColumnHeight;
-            using (var pen = new Pen(_currentTheme.GridLineColor))
-            {
-                for (int i = 0; i < Columns.Count-1; i++)
+               // Console.WriteLine("Cell UIComponent is null");
+                //Debug.WriteLine("Cell UIComponent is null");
+                // Get the column editor if available
+                if (_columnEditors.TryGetValue(Columns[cell.Index].ColumnName, out IBeepUIComponent columnEditor))
                 {
-                    xOffset += Columns[i].Width;
-                    g.DrawLine(pen, xOffset, yOffset, xOffset, drawingBounds.Bottom);
+                   // Console.WriteLine("Cell UIComponent is null 1");
+                    //Debug.WriteLine("Cell UIComponent is null 1");
+                    cell.UIComponent = columnEditor;
+                }
+                else
+                {
+                   // Console.WriteLine("Cell UIComponent is null 2");
+                    //Debug.WriteLine("Cell UIComponent is null 2");
+                    // Create a new control if it doesn't exist (failsafe)
+                    cell.UIComponent = CreateCellControlForEditing(cell);
+                    _columnEditors[Columns[cell.Index].ColumnName] = (IBeepUIComponent)cell.UIComponent;
+                }
+            }
+           // Console.WriteLine("Cell UIComponent is null 3");
+            //Debug.WriteLine("Cell UIComponent is null 3");
+            if (cell.UIComponent != null)
+            {
+               // Console.WriteLine("Cell UIComponent is null 4");
+                //Debug.WriteLine("Cell UIComponent is null 4");
+                // 🔹 Correctly update control bounds
+                var editor = (Control)cell.UIComponent;
+                editor.Bounds = new Rectangle(cellRect.X, cellRect.Y, cellRect.Width, cellRect.Height);
+               // Console.WriteLine($"Cell {cell.CellValue}");
+                //Debug.WriteLine($"Cell UIComponent is null 4");
+                // 🔹 Update the control value to match the cell's data
+                UpdateCellControl(cell.UIComponent, Columns[cell.Index], cell.CellValue);
+
+                // 🔹 Draw the editor or its representation
+                switch (cell.UIComponent)
+                {
+                    case BeepTextBox textBox:
+                        textBox.Draw(g, cellRect);
+                        break;
+                    case BeepCheckBox checkBox:
+                        checkBox.Draw(g, cellRect);
+                        break;
+                    case BeepComboBox comboBox:
+                        comboBox.Draw(g, cellRect);
+                        break;
+                    case BeepDatePicker datePicker:
+                        datePicker.Draw(g, cellRect);
+                        break;
+                    case BeepImage image:
+                        image.DrawImage(g, cellRect);
+                        break;
+                    case BeepButton button:
+                        button.Draw(g, cellRect);
+                        break;
+                    case BeepProgressBar progressBar:
+                        progressBar.Draw(g, cellRect);
+                        break;
+                    case BeepStarRating starRating:
+                        starRating.Draw(g, cellRect);
+                        break;
+                    case BeepNumericUpDown numericUpDown:
+                        numericUpDown.Draw(g, cellRect);
+                        break;
+                    case BeepSwitch switchControl:
+                        switchControl.Draw(g, cellRect);
+                        break;
+                    case BeepListofValuesBox listBox:
+                        listBox.Draw(g, cellRect);
+                        break;
+                    case BeepLabel label:
+                        label.Draw(g, cellRect);
+                        break;
+                    default:
+                        g.DrawString(cell.UIComponent.ToString(), Font, new SolidBrush(_currentTheme.PrimaryTextColor),
+                            cellRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+                        break;
                 }
             }
         }
-        private void DrawRowsBorders(Graphics g, Rectangle drawingBounds)
+        private void DrawColumnBorders(Graphics g, Rectangle bounds)
         {
-            int yOffset = drawingBounds.Top + ColumnHeight;
-            using (var pen = new Pen(_currentTheme.BorderColor))
+            int xOffset = bounds.Left - XOffset; // Adjust for scrolling
+            using (var pen = new Pen(_currentTheme.GridLineColor))
+            {
+                for (int i = 0; i < Columns.Count; i++)
+                {
+                    if (!Columns[i].Visible) continue;
+                    int columnRight = xOffset + Columns[i].Width;
+
+                    if (columnRight >= bounds.Left && columnRight < bounds.Right) // Ensure only visible borders are drawn
+                    {
+                        g.DrawLine(pen, columnRight, bounds.Top, columnRight, bounds.Bottom);
+                    }
+
+                    xOffset += Columns[i].Width;
+                    if (xOffset > bounds.Right) break; // Stop drawing when out of bounds
+                }
+            }
+        }
+        private void DrawRowsBorders(Graphics g, Rectangle bounds)
+        {
+            int yOffset = bounds.Top;
+            using (var pen = new Pen(_currentTheme.GridLineColor))
             {
                 for (int i = 0; i < Rows.Count; i++)
                 {
                     yOffset += _rowHeight;
-                    g.DrawLine(pen, drawingBounds.Left, yOffset, drawingBounds.Right, yOffset);
+                    if (yOffset < bounds.Bottom)
+                        g.DrawLine(pen, bounds.Left, yOffset, bounds.Right, yOffset);
                 }
             }
         }
-        #endregion "Drawing on DrawingRectangle"
-        //private void PaintEmptyRow(Graphics graphics, Rectangle rowRect)
-        //{
-        //    // Fill row with the default background color (could use a lighter color to indicate it's empty)
-        //    rowRect.X += XOffset; // Apply XOffset to adjust drawing position
-        //    using (var brush = new SolidBrush(BackColor))
-        //    {
-        //        graphics.FillRectangle(brush, rowRect);
-        //    }
+        private void DrawHeaderPanel(Graphics g, Rectangle rect)
+        {
+            using (var borderPen = new Pen(_currentTheme.BorderColor))
+            {
+                if (ShowHeaderPanelBorder)
+                {
+                    g.DrawLine(borderPen, rect.Left, rect.Bottom, rect.Right, rect.Bottom);
+                }
+            }
+            titleLabel.TextFont = _textFont;
+            titleLabel.ImageAlign = ContentAlignment.MiddleLeft;
+            titleLabel.TextAlign = ContentAlignment.MiddleCenter;
+            titleLabel.TextImageRelation = TextImageRelation.ImageBeforeText;
+            titleLabel.Size = new Size(rect.Width - 2, rect.Height - 2);
+            titleLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+            titleLabel.BackColor = _currentTheme.BackColor;
+            titleLabel.Text = TitleText;
+            titleLabel.Theme = Theme;
+            titleLabel.DrawToGraphics(g, rect);
+        }
+        #endregion
 
-        //    // Draw the empty row borders (no content, just visual rows)
-        //    using (var pen = new Pen(_currentTheme.BorderColor))
-        //    {
-        //        graphics.DrawRectangle(pen, rowRect);
-        //    }
-        //}
-        //private void DrawColumnIcons(Graphics graphics, Rectangle columnRect, int columnIndex)
-        //{
-        //    // Only draw icons if the column has a valid title (i.e., non-empty)
-        //    //if (!string.IsNullOrEmpty(GridViewColumns[columnIndex].ColumnCaption))
-        //    //{
-        //        // Load SVG icons using BeepImage
-        //        var sortIcon = new BeepImage
-        //        {
-        //            ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.sort.svg",
-        //            Size = new Size(10, 10),
-        //            Location = new Point(columnRect.Left + 2, columnRect.Top + 2), // Top-left for sort icon
-        //            Theme = Theme // Apply the current theme
-        //        };
+        #region Scrollbar Management
+        private void OnScroll(object sender, ScrollEventArgs e)
+        {
+             visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
+             visibleRowCount = visibleHeight / RowHeight; // 🔹 Calculate dynamically
 
-        //        //var filterIcon = new BeepImage
-        //        //{
-        //        //    LogoImage = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg",
-        //        //    Size = new Size(10, 10),
-        //        //    Location = new Point(columnRect.Right - 12, columnRect.Top + 2), // Top-right for filter icon
-        //        //    Theme = _currentThemeEnum // Apply the current theme
-        //        //};
+            _dataOffset = _verticalScrollBar.Value;
+            Invalidate();
+            //PositionControlsForVisibleCells(); // 🔹 Update visible controls dynamically
+        }
 
-        //        // Render the SVG icons using BeepImage's internal draw methods
-        //        sortIcon.DrawImage(graphics, new Rectangle(sortIcon.Location, sortIcon.Size));
-        //       // filterIcon.DrawImage(graphics, new Rectangle(filterIcon.Location, filterIcon.Size));
 
-        //        // Add clickable regions or events for the icons
-        //        AddIconClickEvents(columnIndex, new Rectangle(sortIcon.Location, sortIcon.Size));
-        //   //}
-        //}
-        //private void AddIconClickEvents(int columnIndex, Rectangle sortIconRect)
-        //{
-        //    // Here you can add logic for detecting clicks on the sort and filter icons.
-        //    // This can be done by adding mouse event handlers that check whether the mouse
-        //    // click occurred inside the icon rectangles.
-        //    this.MouseClick += (sender, e) =>
-        //    {
-        //        if (sortIconRect.Contains(e.Location))
-        //        {
-        //            OnSortColumn(columnIndex);
-        //        }
-                
-        //    };
-        //}
-      
-        #endregion "Paint"
+        private void UpdateScrollBars()
+        {
+            if (_verticalScrollBar == null || _horizontalScrollBar == null)
+                return;
+
+            if (_fullData == null || !_fullData.Any())
+            {
+                _verticalScrollBar.Visible = false;
+                _horizontalScrollBar.Visible = false;
+                return;
+            }
+
+            int totalRowHeight = _fullData.Count * _rowHeight;
+            int totalColumnWidth = Columns.Sum(col => col.Width);
+            int visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
+            int visibleWidth = DrawingRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
+
+            // **Vertical ScrollBar Fix**
+            if (_showVerticalScrollBar && totalRowHeight > visibleHeight)
+            {
+                int maxOffset = Math.Max(0, _fullData.Count - Rows.Count);
+                _verticalScrollBar.Minimum = 0;
+                _verticalScrollBar.Maximum = maxOffset;
+                _verticalScrollBar.LargeChange = Rows.Count; // Number of visible rows
+                _verticalScrollBar.SmallChange = 1;
+                _verticalScrollBar.Value = Math.Min(_dataOffset, maxOffset);
+                _verticalScrollBar.Visible = true;
+            }
+            else
+            {
+                _verticalScrollBar.Visible = false;
+            }
+
+            // **Horizontal ScrollBar Fix**
+            if (_showHorizontalScrollBar && totalColumnWidth > visibleWidth)
+            {
+                _horizontalScrollBar.Minimum = 0;
+                _horizontalScrollBar.Maximum = Math.Max(0, totalColumnWidth - visibleWidth);
+                _horizontalScrollBar.LargeChange = visibleWidth;
+                _horizontalScrollBar.SmallChange = 10;
+                _horizontalScrollBar.Value = Math.Max(0, _xOffset);
+                _horizontalScrollBar.Visible = true;
+            }
+            else
+            {
+                _horizontalScrollBar.Visible = false;
+                _xOffset = 0; // Reset offset when no scrollbar
+            }
+
+            PositionScrollBars();
+        }
+
+
+        private void PositionScrollBars()
+        {
+            if (_verticalScrollBar == null || _horizontalScrollBar == null)
+                return;
+
+            int verticalScrollWidth = _verticalScrollBar.Width;
+            int horizontalScrollHeight = _horizontalScrollBar.Height;
+            int visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
+            int visibleWidth = DrawingRect.Width;
+
+            if (_verticalScrollBar.Visible)
+            {
+                _verticalScrollBar.Location = new Point(DrawingRect.Right - verticalScrollWidth, DrawingRect.Top + (ShowHeaderPanel ? headerPanelHeight : 0) + (ShowColumnHeaders ? ColumnHeight : 0));
+                _verticalScrollBar.Height = visibleHeight - (_horizontalScrollBar.Visible ? horizontalScrollHeight : 0);
+            }
+
+            if (_horizontalScrollBar.Visible)
+            {
+                _horizontalScrollBar.Location = new Point(DrawingRect.Left, DrawingRect.Bottom - horizontalScrollHeight - (_showNavigator ? navigatorPanelHeight : 0));
+                _horizontalScrollBar.Width = visibleWidth - (_verticalScrollBar.Visible ? verticalScrollWidth : 0);
+            }
+        }
+
+        private void VerticalScrollBar_Scroll(object sender, EventArgs e)
+        {
+            if (_verticalScrollBar != null)
+            {
+                int maxOffset = Math.Max(0, _fullData.Count - Rows.Count);
+                _dataOffset = Math.Min(_verticalScrollBar.Value, maxOffset);
+                FillVisibleRows();
+                Invalidate();
+            }
+        }
+
+        private void HorizontalScrollBar_Scroll(object sender, EventArgs e)
+        {
+            if (_horizontalScrollBar != null)
+            {
+                int totalColumnWidth = Columns.Sum(col => col.Width);
+                int visibleWidth = DrawingRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
+                _xOffset = Math.Min(_horizontalScrollBar.Value, Math.Max(0, totalColumnWidth - visibleWidth));
+                Invalidate();
+            }
+        }
+
+        #endregion
+
         #region Resizing Logic
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            Invalidate();
-        }
-        private void AdjustColumnWidths()
-        {
-            int availableWidth = this.Width - XOffset; // Account for any offsets
-            int columnCount = Columns.Count;
-
-            if (columnCount > 0)
-            {
-                int newWidth = availableWidth / columnCount;
-
-                for (int i = 0; i < Columns.Count; i++)
-                {
-                    Columns[i].Width = newWidth;
-                }
-            }
-        }
-        private void AdjustRowHeights()
-        {
-            // Default row height for the grid, or a minimum height you want to ensure
-            int defaultRowHeight = 30;
-
-            // Adjust each row's height
-            foreach (var row in Rows)
-            {
-                int maxCellHeight = defaultRowHeight;
-
-                // Check each cell in the row to find the tallest content
-                foreach (var cell in row.Cells)
-                {
-                    // Determine the height required for the cell content
-                    if (cell.UIComponent is Control control)
-                    {
-                        // Calculate height based on the control's preferred size
-                        int requiredHeight = control.PreferredSize.Height;
-
-                        // Update maxCellHeight if this cell requires more height
-                        if (requiredHeight > maxCellHeight)
-                        {
-                            maxCellHeight = requiredHeight;
-                        }
-                    }
-                    else
-                    {
-                        // If not a control, measure text size based on TextFont and add padding
-                        using (Graphics g = this.CreateGraphics())
-                        {
-                            SizeF textSize = g.MeasureString(cell.UIComponent?.ToString() ?? string.Empty, this.Font);
-                            int textHeight = (int)textSize.Height + 8; // Adding padding
-
-                            if (textHeight > maxCellHeight)
-                            {
-                                maxCellHeight = textHeight;
-                            }
-                        }
-                    }
-                }
-
-                // Set the row height based on the tallest cell content in this row
-                row.Height = maxCellHeight;
-            }
-
-            // Redraw the grid to apply the new row heights
-            Invalidate();
-        }
-        private Rectangle CalculateDrawingRectangleForGrid()
-        {
-            int height = 0;
-            // calculate the Rectangle  Area for the grid based on the layout
-            // take in accoutn if HeaderPanel is visible and BottomPanel is visible
-            // take in account if Navigator is visible
-            // remove all from original DrawingRectangle
-            // return the new DrawingRectangle
-            int heightAdjustment = 0;
-
-            if (ShowHeaderPanel)
-                heightAdjustment += headerPanelHeight;
-
-            if (ShowNavigator)
-                heightAdjustment += 30; // Assuming 30px height for navigator
-            if(ShowFooter)
-                heightAdjustment += 30; // Assuming 30px height for footer
-            if(ShowFooter)
-                heightAdjustment += 30; // Assuming 30px height for footer
-            return new Rectangle(0, 0, DrawingRect.Width, DrawingRect.Height - heightAdjustment);
-
-
-            
-        }
         private void BeepGrid_MouseDown(object sender, MouseEventArgs e)
         {
             if (IsNearColumnBorder(e.Location, out _resizingIndex))
@@ -1171,18 +1214,24 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void BeepGrid_MouseMove(object sender, MouseEventArgs e)
         {
-            if (_resizingColumn)
+            if (_resizingColumn && _resizingIndex >= 0)
             {
                 int deltaX = e.X - _lastMousePos.X;
-                Columns[_resizingIndex].Width += deltaX;
+                if (_resizingIndex < Columns.Count)
+                {
+                    Columns[_resizingIndex].Width = Math.Max(20, Columns[_resizingIndex].Width + deltaX); // Prevent negative width
+                }
                 _lastMousePos = e.Location;
+                UpdateScrollBars();
                 Invalidate();
             }
-            else if (_resizingRow)
+            else if (_resizingRow && _resizingIndex >= 0)
             {
                 int deltaY = e.Y - _lastMousePos.Y;
-                _rowHeight += deltaY;
+                _rowHeight = Math.Max(10, _rowHeight + deltaY); // Prevent negative height
                 _lastMousePos = e.Location;
+                InitializeRows(); // Recreate rows with new height
+                UpdateScrollBars();
                 Invalidate();
             }
             else
@@ -1202,20 +1251,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+
         private void BeepGrid_MouseUp(object sender, MouseEventArgs e)
         {
             _resizingColumn = false;
             _resizingRow = false;
             this.Cursor = Cursors.Default;
+            FillVisibleRows(); // Ensure data is redrawn after resizing
+          //  Invalidate();
         }
 
         private bool IsNearColumnBorder(Point location, out int columnIndex)
         {
-            int xOffset = 0;
+            // Calculate the X coordinate relative to the grid's content.
+            // gridRect.Left is where the cells start; add XOffset to account for horizontal scrolling.
+            int xRelative = location.X - gridRect.Left + XOffset;
+            int currentX = 0;
             for (int i = 0; i < Columns.Count; i++)
             {
-                xOffset += Columns[i].Width;
-                if (Math.Abs(location.X - xOffset) <= _resizeMargin)
+                if (!Columns[i].Visible)
+                    continue;
+                currentX += Columns[i].Width;
+                // Check if the point is within _resizeMargin pixels of this column’s right edge.
+                if (Math.Abs(xRelative - currentX) <= _resizeMargin)
                 {
                     columnIndex = i;
                     return true;
@@ -1225,245 +1283,407 @@ namespace TheTechIdea.Beep.Winform.Controls
             return false;
         }
 
+
         private bool IsNearRowBorder(Point location, out int rowIndex)
         {
-            int yOffset = _rowHeight;
-            for (int i = 0; i < Rows.Count; i++)
+            // Calculate the Y coordinate relative to the grid's drawing area (rows start at gridRect.Top).
+            int yRelative = location.Y - gridRect.Top;
+            int row = yRelative / RowHeight;
+            if (row < 0 || row >= Rows.Count)
             {
-                if (Math.Abs(location.Y - yOffset) <= _resizeMargin)
-                {
-                    rowIndex = i;
-                    return true;
-                }
-                yOffset += _rowHeight;
+                rowIndex = -1;
+                return false;
+            }
+            // The bottom edge of this row (in relative coordinates) is at (row + 1) * RowHeight.
+            int rowBottom = (row + 1) * RowHeight;
+            if (Math.Abs(yRelative - rowBottom) <= _resizeMargin)
+            {
+                rowIndex = row;
+                return true;
             }
             rowIndex = -1;
             return false;
         }
-        #endregion Resizing Logic
-        #region "Events"
-        public event EventHandler<BeepGridRowEventArgs> RowClick;
-        public event EventHandler<BeepGridCellEventArgs> CellClick;
 
-        protected virtual void OnRowClick(BeepGridRow row)
+
+
+
+        protected override void OnResize(EventArgs e)
         {
-            RowClick?.Invoke(this, new BeepGridRowEventArgs(row));
+            base.OnResize(e);
+           // InitializeRows();
+            FillVisibleRows();
+            UpdateScrollBars();
+            Invalidate();
         }
+        #endregion
+        #region Editor
+        // One editor control per column (keyed by column index)
+        private Dictionary<string, IBeepUIComponent> _columnEditors = new Dictionary<string, IBeepUIComponent>();
+        // The currently active editor and cell being edited
+        private BeepControl _editingControl = null;
+        private BeepGridCell _editingCell = null;
+        private IBeepComponentForm _editorPopupForm;
 
-        protected virtual void OnCellClick(BeepGridCell cell)
+        private void ShowCellEditor(BeepGridCell cell, Point location)
         {
-            CellClick?.Invoke(this, new BeepGridCellEventArgs(cell));
-        }
-        protected override void OnMouseClick(MouseEventArgs e)
-        {
-            base.OnMouseClick(e);
+            if (!cell.IsEditable)
+                return;
 
-            // Detect column icon clicks
-            for (int i = 0; i < sortIconBounds.Count; i++)
+            int colIndex = cell.Index;
+            string columnName = Columns[colIndex].ColumnName;
+
+            // Close any existing editor before opening a new one
+            CloseCurrentEditor();
+
+            _editingCell = cell;
+            Size cellSize = new Size(cell.Width, cell.Height);
+            // Create the popup form if it's null
+            if (_editorPopupForm == null)
             {
-                if (sortIconBounds[i].Contains(e.Location))
+                _editorPopupForm = new IBeepComponentForm
                 {
-                    OnSortColumn(i);
-                    return;
-                }
+                    FormBorderStyle = FormBorderStyle.None,
+                    StartPosition = FormStartPosition.Manual,
+                    ShowInTaskbar = false,
+                    AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                    TopMost = true,
+                    MinimumSize = cellSize, // Force exact size
+                    MaximumSize = cellSize
+                };
+
+            }
+            // Apply size
+            _editorPopupForm.Size = cellSize;
+            _editorPopupForm.ClientSize = cellSize;
+            // Retrieve or create editor control
+            if (!_columnEditors.TryGetValue(columnName, out IBeepUIComponent Ieditor))
+            {
+                _editingControl = CreateCellControlForEditing(cell);
+                _columnEditors[columnName] = _editingControl;
+            }
+            else
+            {
+                _editingControl = (BeepControl)Ieditor;
             }
 
-            // Check if filter button was clicked
-            if (filterButtonRect.Contains(e.Location))
+            // Ensure the control is not disposed before using it
+            if (_editingControl.IsDisposed)
             {
-                ShowFilterForm();
+                _editingControl = CreateCellControlForEditing(cell);
+                _columnEditors[columnName] = _editingControl;
+            }
+
+            // Ensure the control is only added once
+            if (_editingControl.Parent != _editorPopupForm)
+            {
+                _editorPopupForm.AddComponent(_editingControl);
+            }
+            _editingControl.Theme = Theme;
+         
+            // **🔹 Force the popup form and editor control to match the exact cell size**
+           // _editingControl.IsFrameless = true;
+         //   _editingControl.ShowAllBorders = false;
+            Debug.WriteLine($"Cell size: {cellSize}");
+            _editorPopupForm.ClientSize = cellSize; // 👈 Ensures no extra space due to window frame
+            _editingControl.Size = cellSize; // 👈 Matches cell exactly
+            _editingControl.Dock = DockStyle.Fill; // 👈 Ensures it doesn't resize incorrectly
+            Debug.WriteLine($"Editor size: {_editingControl.Size}");
+            Debug.WriteLine($"Popup size: {_editorPopupForm.ClientSize}");
+            // **🔹 Position popup exactly at the cell location (relative to BeepSimpleGrid)**
+            Point screenLocation = this.PointToScreen(new Point(cell.X, cell.Y));
+            _editorPopupForm.Location = screenLocation;
+            _editingControl.Theme = Theme;
+            // **Set initial text**
+            //  _editingControl.Text = cell.CellValue;
+            _editingControl.Focus();
+            UpdateCellControl(_editingControl, Columns[colIndex], cell.CellValue);
+            // 🔹 Confirm value in editor **after setting**
+            Debug.WriteLine($"✅ Editor Text After Update: {_editingControl.Text}");
+            // Handle when the popup loses focus
+            _editorPopupForm.Deactivate += (s, e) => CloseCurrentEditor();
+            //_editorPopupForm.Shown += (s, e) =>
+            //{
+            //    Debug.WriteLine($"🔄 Setting BeepTextBox text after popup is visible: {cell.CellValue}");
+            //    
+            //};
+            //_editingControl.Invalidate();
+            _editorPopupForm.Show();
+            _editorPopupForm.SetValue(cell.CellValue);
+            Debug.WriteLine($"✅ after show Editor Text After Update: {_editingControl.Text}");
+        }
+        private void CloseCurrentEditor()
+        {
+            if (_editingControl != null)
+            {
+                // Save the current value before closing
+             
+                Debug.WriteLine($"✅ before closing Editor Text After Update: {_editingControl.Text}");
+
+                SaveEditedValue();
+                // Remove editor control from popup (prevents premature disposal)
+                if (_editorPopupForm != null && _editingControl.Parent == _editorPopupForm)
+                {
+                    _editorPopupForm.Controls.Remove(_editingControl);
+                }
+
+                // Close and dispose of the popup form safely
+                if (_editorPopupForm != null)
+                {
+                    _editorPopupForm.Close();
+                    _editorPopupForm.Dispose();
+                    _editorPopupForm = null;
+                }
+
+                // Reset references (but don't dispose `_editingControl` yet)
+                _editingCell = null;
+                _editingControl = null;
+
+                Debug.WriteLine("Popup editor closed successfully.");
+            }
+        }
+        private BeepControl CreateCellControlForEditing(BeepGridCell cell)
+        {
+            // Get the column definition based on cell.Index.
+            var column = Columns[cell.Index];
+
+            switch (column.CellEditor)
+            {
+                case BeepGridColumnType.Text:
+                    return new BeepTextBox { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.CheckBox:
+                    return new BeepCheckBox { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.ComboBox:
+                    return new BeepComboBox { Theme = Theme, IsChild = true, ListItems = new BindingList<SimpleItem>(column.Items) };
+                case BeepGridColumnType.DateTime:
+                    return new BeepDatePicker { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.Image:
+                    return new BeepImage { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.Button:
+                    return new BeepButton { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.ProgressBar:
+                    return new BeepProgressBar { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.NumericUpDown:
+                    return new BeepNumericUpDown { Theme = Theme, IsChild = true };
+                default:
+                    return new BeepTextBox { Theme = Theme, IsChild = true };
+            }
+        }
+        private void EditingControl_LostFocus(object sender, EventArgs e)
+        {
+            // Optionally, check if the mouse is not over the editor before closing.
+            CloseCurrentEditor();
+        }
+        private void EditingControl_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SaveEditedValue();
+                CloseCurrentEditor();
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                CancelEditing();
+                CloseCurrentEditor();
+            }
+        }
+        private void SaveEditedValue()
+        {
+            if (_editingControl != null && _editingCell != null)
+            {
+                IBeepUIComponent component = (IBeepUIComponent)_editingControl;
+                object newValue = component.GetValue();
+
+                // Update cell's stored value
+                _editingCell.OldValue = _editingCell.CellData;
+                _editingCell.CellData = newValue;
+                _editingCell.CellValue = newValue;
+                _editingCell.IsDirty = true;
+
+                // Fire cell validation event (if any)
+                _editingCell.ValidateCell();
+
+                Invalidate(); // Redraw grid if necessary
+            }
+        }
+        private void CancelEditing()
+        {
+            // Optionally, revert the editor's value if needed.
+            CloseCurrentEditor();
+        }
+        private void BeepGrid_MouseClick(object sender, MouseEventArgs e)
+        {
+            // If clicked cell is null → close editor
+            var clickedCell = GetCellAtLocation(e.Location);
+            if (_editingCell!=null)
+            {
+                CloseCurrentEditor();
                 return;
             }
 
-            // Detect row and cell clicks
-            int yOffset = _defaultcolumnheaderheight + headerPanelHeight + 2;
-            for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
+            // Or if the clicked cell is different from the editing cell, close the old one and open new
+            if (clickedCell != _editingCell)
             {
-                var rowRect = new Rectangle(0, yOffset, Width, _rowHeight);
-                if (rowRect.Contains(e.Location))
-                {
-                    var row = Rows[rowIndex];
-                    OnRowClick(row);
-
-                    int xOffset = 0;
-                    for (int colIndex = 0; colIndex < row.Cells.Count; colIndex++)
-                    {
-                        var cellRect = new Rectangle(xOffset, yOffset, Columns[colIndex].Width, _rowHeight);
-                        if (cellRect.Contains(e.Location))
-                        {
-                            OnCellClick(row.Cells[colIndex]);
-                            return;
-                        }
-                        xOffset += Columns[colIndex].Width;
-                    }
-                }
-                yOffset += _rowHeight;
+                
+                CloseCurrentEditor();
+                _editingCell = clickedCell;
+                if (clickedCell.IsEditable)
+                    ShowCellEditor(clickedCell,e.Location);
             }
         }
 
-
-        #endregion "Events"
-        #region "Scroll"
-        protected override void OnScroll(ScrollEventArgs se)
+        private BeepGridCell GetCellAtLocation(Point location)
         {
-            base.OnScroll(se);
-            if (se.ScrollOrientation == ScrollOrientation.VerticalScroll)
+            // First, ensure the point is inside the grid's drawing area.
+            if (!gridRect.Contains(location))
+                return null;
+
+            // Compute the Y coordinate relative to gridRect.
+            int yRelative = location.Y - gridRect.Top;
+            int rowIndex = yRelative / RowHeight;
+            if (rowIndex < 0 || rowIndex >= Rows.Count)
+                return null;
+            var row = Rows[rowIndex];
+
+            // Compute the X coordinate relative to gridRect.
+            // Note: We add XOffset because our content is shifted to the right by the scroll offset.
+            int xRelative = location.X - gridRect.Left + XOffset;
+            int currentX = 0;
+            for (int i = 0; i < Columns.Count; i++)
             {
-                _verticalScrollOffset = se.NewValue;
+                if (!Columns[i].Visible)
+                    continue;
+                if (xRelative >= currentX && xRelative < currentX + Columns[i].Width)
+                {
+                    // Return the cell at column i (assuming 1-to-1 correspondence).
+                    return row.Cells[i];
+                }
+                currentX += Columns[i].Width;
             }
-            else if (se.ScrollOrientation == ScrollOrientation.HorizontalScroll)
+            return null;
+        }
+        private Rectangle GetCellRectangle(BeepGridCell cell)
+        {
+            // Find which row and column this cell belongs to.
+            int rowIndex = -1, colIndex = -1;
+            for (int r = 0; r < Rows.Count; r++)
             {
-                _horizontalScrollOffset = se.NewValue;
+                int c = Rows[r].Cells.IndexOf(cell);
+                if (c != -1)
+                {
+                    rowIndex = r;
+                    colIndex = c;
+                    break;
+                }
+            }
+            if (rowIndex == -1 || colIndex == -1)
+                return Rectangle.Empty;
+
+            // Calculate Y coordinate: gridRect.Top is the start of rows.
+            int y = gridRect.Top + rowIndex * RowHeight;
+
+            // Calculate X coordinate: start at gridRect.Left and add the widths of the previous visible columns.
+            int x = gridRect.Left - XOffset;
+            for (int i = 0; i < colIndex; i++)
+            {
+                if (Columns[i].Visible)
+                    x += Columns[i].Width;
+            }
+            int width = Columns[colIndex].Width;
+            int height = RowHeight;
+            return new Rectangle(x, y, width, height);
+        }
+
+        #endregion Editor
+        #region Header Layout
+        protected int headerPanelHeight = 20;
+        protected int bottomagregationPanelHeight = 12;
+        protected int footerPanelHeight = 12;
+        protected int navigatorPanelHeight = 20;
+
+        private Rectangle footerPanelRect;
+        private Rectangle headerPanelRect;
+        private Rectangle columnsheaderPanelRect;
+        private Rectangle bottomagregationPanelRect;
+        private Rectangle navigatorPanelRect;
+        private Rectangle filterButtonRect;
+        private BeepLabel titleLabel;
+        private BeepButton filterButton;
+        private int visibleHeight;
+        private int visibleRowCount;
+        #endregion
+
+        #region Events
+        private void Rows_ListChanged(object sender, ListChangedEventArgs e) => Invalidate();
+        #endregion
+
+        #region Theme
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            this.BackColor = _currentTheme.GridBackColor;
+            this.ForeColor = _currentTheme.GridForeColor;
+            if (titleLabel != null)
+            {
+                titleLabel.Theme = Theme;
+            }
+            if (DataNavigator != null)
+            {
+                _currentTheme.ButtonBackColor = _currentTheme.GridBackColor;
+                _currentTheme.ButtonForeColor = _currentTheme.GridForeColor;
+                DataNavigator.Theme = Theme;
+            }
+            if (_verticalScrollBar != null)
+            {
+                _verticalScrollBar.Theme = Theme;
+            }
+            if (_horizontalScrollBar != null)
+            {
+                _horizontalScrollBar.Theme = Theme;
+            }
+            foreach (var row in Rows)
+            {
+                foreach (var cell in row.Cells)
+                {
+                    if (cell.UIComponent is BeepControl ctrl)
+                    {
+                        ctrl.Theme = Theme;
+                    }
+                }
             }
             Invalidate();
         }
+        #endregion
 
-        #endregion "Scroll"
-        #region "Sort and Filter"
-
-        private void ShowFilterForm()
+        #region Helper Methods
+        private DbFieldCategory MapPropertyTypeToDbFieldCategory(Type type)
         {
-            using (Form filterForm = new Form())
-            {
-                filterForm.Text = "Filter Conditions";
-                filterForm.Size = new Size(400, 300);
-                filterForm.StartPosition = FormStartPosition.CenterParent;
+            if (type == typeof(string)) return DbFieldCategory.String;
+            if (type == typeof(int) || type == typeof(long)) return DbFieldCategory.Numeric;
+            if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return DbFieldCategory.Numeric;
+            if (type == typeof(DateTime)) return DbFieldCategory.Date;
+            if (type == typeof(bool)) return DbFieldCategory.Boolean;
+            if (type == typeof(Guid)) return DbFieldCategory.Guid;
 
-                Label conditionLabel = new Label { Text = "Enter Condition:", Left = 20, Top = 20, Width = 350 };
-                TextBox conditionBox = new TextBox { Left = 20, Top = 50, Width = 350 };
-
-                Button applyButton = new Button { Text = "Apply Filter", Left = 20, Top = 100, Width = 100 };
-                applyButton.Click += (s, args) => { ApplyFilter(conditionBox.Text); filterForm.Close(); };
-
-                filterForm.Controls.Add(conditionLabel);
-                filterForm.Controls.Add(conditionBox);
-                filterForm.Controls.Add(applyButton);
-
-                filterForm.ShowDialog();
-            }
+            // Default to string for unknown types
+            return DbFieldCategory.String;
         }
 
-        private void ApplyFilter(string condition)
+        private BeepGridColumnType MapPropertyTypeToCellEditor(Type type)
         {
-            // Apply the filter condition to BeepSimpleGrid data
-            var filteredRows = Rows.Where(row => row.Cells.Any(cell => cell.UIComponent?.ToString().Contains(condition, StringComparison.OrdinalIgnoreCase) == true)).ToList();
+            if (type == typeof(string)) return BeepGridColumnType.Text;
+            if (type == typeof(int) || type == typeof(long)) return BeepGridColumnType.NumericUpDown; // Integer-based controls
+            if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return BeepGridColumnType.Text; // Use a formatted text field for decimal numbers
+            if (type == typeof(DateTime)) return BeepGridColumnType.DateTime;
+            if (type == typeof(bool)) return BeepGridColumnType.CheckBox;
+            if (type == typeof(Guid)) return BeepGridColumnType.Text; // Could be a readonly label or a dropdown if referencing something
 
-            Rows.Clear();
-            foreach (var row in filteredRows)
-            {
-                Rows.Add(row);
-            }
-
-            Invalidate(); // Redraw grid to reflect filtered data
-        }
-        protected virtual void OnFilterColumn(int columnIndex)
-        {
-            // Prompt the user to input a filter value (you can customize this dialog as needed)
-            string filterValue = ShowFilterDialog(columnIndex);
-
-            if (!string.IsNullOrEmpty(filterValue))
-            {
-                // Apply the filter to the rows based on the entered filter value
-                var filteredRows = Rows.Where(row => row.Cells[columnIndex].UIComponent?.ToString().Contains(filterValue, StringComparison.OrdinalIgnoreCase) == true).ToList();
-
-                // Clear the existing rows and add the filtered rows
-                Rows.Clear();
-                foreach (var row in filteredRows)
-                {
-                    Rows.Add(row);
-                }
-
-                // Redraw the grid to reflect the filtered results
-                Invalidate();
-            }
+            // Fallback to text if the type is unknown
+            return BeepGridColumnType.Text;
         }
 
-        private string ShowFilterDialog(int columnIndex)
-        {
-            // Create a simple input dialog to get the filter value from the user
-            using (Form filterDialog = new Form())
-            {
-                filterDialog.Text = $"Filter Column {columnIndex + 1}";
-                filterDialog.Size = new Size(300, 150);
-                filterDialog.StartPosition = FormStartPosition.CenterParent;
-
-                Label promptLabel = new Label() { Left = 20, Top = 20, Text = $"Enter filter for column {columnIndex + 1}:", Width = 250 };
-                TextBox inputBox = new TextBox() { Left = 20, Top = 50, Width = 250 };
-                Button okButton = new Button() { Text = "OK", Left = 20, Width = 100, Top = 80, DialogResult = System.Windows.Forms.DialogResult.OK };
-                Button cancelButton = new Button() { Text = "Cancel", Left = 130, Width = 100, Top = 80, DialogResult = System.Windows.Forms.DialogResult.Cancel };
-
-                filterDialog.Controls.Add(promptLabel);
-                filterDialog.Controls.Add(inputBox);
-                filterDialog.Controls.Add(okButton);
-                filterDialog.Controls.Add(cancelButton);
-
-                filterDialog.AcceptButton = okButton;
-                filterDialog.CancelButton = cancelButton;
-
-                if (filterDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    return inputBox.Text;
-                }
-                else
-                {
-                    return string.Empty;
-                }
-            }
-        }
-
-        protected virtual void OnSortColumn(int columnIndex)
-        {
-            // Sort Rows based on the value in the specified columnIndex
-            var sortedRows = Rows.OrderBy(row => row.Cells[columnIndex].UIComponent?.ToString()).ToList();
-
-            // Update the Rows with sorted data
-            Rows.Clear();
-            foreach (var row in sortedRows)
-            {
-                Rows.Add(row);
-            }
-
-            Invalidate(); // Repaint the grid after sorting
-        }
-
-        #endregion "Sort and Filter"
-        #region "Dispose"
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                foreach (var control in Controls)
-                {
-                    if (control is IDisposable disposable)
-                    {
-                        disposable.Dispose();
-                    }
-                }
-            }
-            base.Dispose(disposing);
-        }
-
-        #endregion "Dispose"
-        #region "Layout Load and Save"
-       
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
-            ApplyTheme();
-            // Ensure consistent GridId at runtime and design time
-            //if (!DesignMode && LicenseManager.UsageMode != LicenseUsageMode.Designtime)
-            //{
-            //    LoadGridLayout();  // Load layout specific to this grid based on GridId
-            //}
-        }
-        #endregion "Layout Load and Save"
+        #endregion
     }
 
 
-    public enum GridDataSourceType
-    {
-        Fixed,
-        BindingSource,
-        IDataSource
-    }
 }

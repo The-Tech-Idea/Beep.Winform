@@ -126,17 +126,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void TabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Refresh the designer when the selected tab changes
-            Console.WriteLine("Selected tab changed");
+           // Console.WriteLine("Selected tab changed");
             //var host = this.GetService(typeof(IDesignerHost)) as IDesignerHost;
             //if (host != null)
             //{
             //    host.Activate();
             //}
-            Console.WriteLine("Designer activated");
+           // Console.WriteLine("Designer activated");
             HighlightButtonAt(_tabControl.SelectedIndex);
-            Console.WriteLine("Button highlighted");
+           // Console.WriteLine("Button highlighted");
             OnTabSelected(_tabControl.SelectedTab, _tabControl.SelectedIndex);
-            Console.WriteLine("Tab selected event triggered");
+           // Console.WriteLine("Tab selected event triggered");
             RefreshSelectedTab();
         }
         // Handle DragEnter event
@@ -178,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        var designerHost = this.GetService(typeof(IDesignerHost)) as IDesignerHost;
         //        if (designerHost == null)
         //        {
-        //            Console.WriteLine("Designer host is null. Cannot create component.");
+        //           // Console.WriteLine("Designer host is null. Cannot create component.");
         //            return;
         //        }
 
@@ -186,7 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        var toolboxItem = GetToolboxItem(e.Data);
         //        if (toolboxItem == null)
         //        {
-        //            Console.WriteLine("ToolboxItem is null. Cannot create component.");
+        //           // Console.WriteLine("ToolboxItem is null. Cannot create component.");
         //            return;
         //        }
 
@@ -194,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        var components = toolboxItem.CreateComponents();
         //        if (components == null || components.Count() == 0)
         //        {
-        //            Console.WriteLine("No components created from ToolboxItem.");
+        //           // Console.WriteLine("No components created from ToolboxItem.");
         //            return;
         //        }
 
@@ -202,11 +202,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        var control = components.OfType<Control>().FirstOrDefault();
         //        if (control == null)
         //        {
-        //            Console.WriteLine("No Control component created from ToolboxItem.");
+        //           // Console.WriteLine("No Control component created from ToolboxItem.");
         //            return;
         //        }
 
-        //        Console.WriteLine("Control created successfully");
+        //       // Console.WriteLine("Control created successfully");
 
         //        // Add the control to the selected TabPage
         //        if (_tabControl.SelectedTab != null)
@@ -217,7 +217,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //            Point dropPoint = _tabControl.SelectedTab.PointToClient(new Point(e.X, e.Y));
         //            control.Location = dropPoint;
 
-        //            Console.WriteLine("Control added to TabPage");
+        //           // Console.WriteLine("Control added to TabPage");
         //        }
         //    }
         //}
@@ -290,35 +290,35 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void RefreshSelectedTab()
         {
-            Console.WriteLine("Refreshing selected tab");
+           // Console.WriteLine("Refreshing selected tab");
             HighlightButtonAt(_tabControl.SelectedIndex);
-            Console.WriteLine("Button highlighted");
+           // Console.WriteLine("Button highlighted");
             _headerPanel.Invalidate(); // Redraw headers
-            Console.WriteLine("Headers invalidated");
+           // Console.WriteLine("Headers invalidated");
             _tabControl.Invalidate(); // Redraw tab content
         }
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
-            Console.WriteLine("Handle created");
+           // Console.WriteLine("Handle created");
             RefreshHeaders(); // Ensure headers are built at runtime
         }
         public void RefreshHeaders()
         {
-            Console.WriteLine("Refreshing headers");
+           // Console.WriteLine("Refreshing headers");
             _headerPanel.Controls.Clear();
-            Console.WriteLine("Controls cleared");
+           // Console.WriteLine("Controls cleared");
             for (int i = 0; i < _tabControl.TabPages.Count; i++)
             {
-                Console.WriteLine("Creating button for tab " + i);
+               // Console.WriteLine("Creating button for tab " + i);
                 var page = _tabControl.TabPages[i];
                 var btn = CreateTabButton(page, i);
                 _headerPanel.Controls.Add(btn);
             }
-            Console.WriteLine("Headers refreshed");
+           // Console.WriteLine("Headers refreshed");
             // Highlight the selected tab button
             HighlightButtonAt(_tabControl.SelectedIndex);
-            Console.WriteLine("Button highlighted");
+           // Console.WriteLine("Button highlighted");
         }
         private BeepButton CreateTabButton(TabPage page, int index)
         {
@@ -371,7 +371,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_headerPanel.Controls[i] is BeepButton btn)
                 {
-                    Console.WriteLine("Highlighting button " + i);
+                   // Console.WriteLine("Highlighting button " + i);
                     btn.IsSelected = btn.Id == index;
                     btn.Invalidate();
                 }

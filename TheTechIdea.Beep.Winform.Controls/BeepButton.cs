@@ -546,7 +546,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnFontChanged(e);
             _textFont = Font;
-          //  Console.WriteLine("Font Changed");
+          // // Console.WriteLine("Font Changed");
             if (AutoSize)
             {
                 Size textSize = TextRenderer.MeasureText(Text, _textFont);
@@ -647,7 +647,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DrawImageAndText(Graphics g)
         {
-           // Console.WriteLine($"User ThemeFont is {UseThemeFont}");
+           //// Console.WriteLine($"User ThemeFont is {UseThemeFont}");
             if (!SetFont() && UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);

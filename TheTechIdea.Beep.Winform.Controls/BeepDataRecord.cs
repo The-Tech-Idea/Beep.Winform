@@ -128,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepDataRecord(object row, bool isNew = false) : this()
         {
-            Console.WriteLine("BeepDataRecord Constructor");
+           // Console.WriteLine("BeepDataRecord Constructor");
             SetDataRecord(row, isNew);
         }
 
@@ -154,30 +154,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void SetDataRecord(object row, bool isNew = false)
         {
             if (row == null) return;
-            Console.WriteLine("SetDataRecord 1");
+           // Console.WriteLine("SetDataRecord 1");
             if (_currentRowType == row.GetType())
             {
-                Console.WriteLine("SetDataRecord 2");
+               // Console.WriteLine("SetDataRecord 2");
                 DataRecord = row;
                 BindDataRecord();
             }
             else
             {
-                Console.WriteLine("SetDataRecord 3");
+               // Console.WriteLine("SetDataRecord 3");
                 _currentRowType = row.GetType();
                 DataRecord = row;
                 GenerateFieldsFromDataRecord();
             }
-            Console.WriteLine("SetDataRecord 4");
+           // Console.WriteLine("SetDataRecord 4");
             _originalDataRecord = EntityHelper.DeepCopyUsingSerialize(row); // Store the original copy
-            Console.WriteLine("SetDataRecord 5");
+           // Console.WriteLine("SetDataRecord 5");
             // Store original field values
             _originalValues.Clear();
             foreach (var prop in row.GetType().GetProperties())
             {
                 _originalValues[prop.Name] = prop.GetValue(row);
             }
-            Console.WriteLine("SetDataRecord 6");
+           // Console.WriteLine("SetDataRecord 6");
             RecordStatus = isNew ? RecordStatus.New : RecordStatus.Unchanged;
         }
 
@@ -241,7 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             foreach (var prop in properties)
             {
-                Console.WriteLine("GenerateFieldsFromDataRecord 1");
+               // Console.WriteLine("GenerateFieldsFromDataRecord 1");
                 IBeepUIComponent field = ControlExtensions.CreateFieldBasedOnCategory(prop.Name, prop.PropertyType);
                 if (field != null)
                 {

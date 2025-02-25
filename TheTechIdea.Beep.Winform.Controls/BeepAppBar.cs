@@ -316,7 +316,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsRoundedAffectedByTheme = false;
             ShowAllBorders = false;
             ShowShadow = false;
-            IsFramless = false;
+            IsFrameless = false;
             IsRounded = false;
             ApplyThemeToChilds = false;
             InitializeAppNavBar();
@@ -366,7 +366,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Cursor = Cursors.Hand,
                 Theme = Theme,
                 ApplyThemeOnImage = _applyThemeOnImage,
-                IsFramless = true,
+                IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ShowAllBorders = this.ShowAllBorders,
@@ -391,7 +391,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 HideText = true,
                 ApplyThemeOnImage = _applyThemeOnImage,
-                IsFramless = true,
+                IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 IsChild = true,
@@ -418,7 +418,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 ShowAllBorders = this.ShowAllBorders,
                 Text = Title,
-                //IsFramless = true,
+                //IsFrameless = true,
                 IsChild = true,
                 ApplyThemeOnImage = false,
                 UseScaledFont= true
@@ -443,7 +443,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChild = false,
                 PlaceholderText = "Search...",
                // ApplyThemeOnLogo = _applyThemeOnImage,
-                IsFramless = this.IsFramless,
+                IsFrameless = this.IsFrameless,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ImageAlign= ContentAlignment.MiddleRight,
@@ -476,7 +476,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Cursor = Cursors.Hand,
                 Theme = Theme,
                 ApplyThemeOnImage = _applyThemeOnImage,
-                IsFramless = this.IsFramless,
+                IsFrameless = this.IsFrameless,
                 ShowAllBorders = this.ShowAllBorders,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
@@ -505,7 +505,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 ShowAllBorders = this.ShowAllBorders,
                 ApplyThemeOnImage = _applyThemeOnImage,
-                IsFramless = this.IsFramless,
+                IsFrameless = this.IsFrameless,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 IsChild = true,
@@ -554,7 +554,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 ApplyThemeOnImage =_applyThemeOnImage,
                 ShowAllBorders = this.ShowAllBorders,
-                IsFramless = this.IsFramless,
+                IsFrameless = this.IsFrameless,
                 IsChild = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
@@ -586,7 +586,7 @@ namespace TheTechIdea.Beep.Winform.Controls
       
                 Theme = Theme,
                 ApplyThemeOnImage = _applyThemeOnImage,
-                IsFramless = this.IsFramless,
+                IsFrameless = this.IsFrameless,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ShowAllBorders = this.ShowAllBorders,
@@ -608,7 +608,7 @@ namespace TheTechIdea.Beep.Winform.Controls
              
                 Theme = Theme,
                 ApplyThemeOnImage = _applyThemeOnImage,
-                IsFramless = this.IsFramless,
+                IsFrameless = this.IsFrameless,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ShowAllBorders = this.ShowAllBorders,
@@ -636,7 +636,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg",
                 Theme = Theme,
                 ApplyThemeOnImage = _applyThemeOnImage,
-                IsFramless = this.IsFramless,
+                IsFrameless = this.IsFrameless,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ShowAllBorders = this.ShowAllBorders,
@@ -858,28 +858,28 @@ namespace TheTechIdea.Beep.Winform.Controls
                 searchBox.Left = rightEdge - SearchBoxWidth-spacing-20;
                 rightEdge -= SearchBoxWidth + spacing+20;
             }
-            Console.WriteLine("RightEdge" + rightEdge);
+           // Console.WriteLine("RightEdge" + rightEdge);
             if (notificationIcon != null && notificationIcon.Visible)
             {
-                Console.WriteLine("notification" + rightEdge);
+               // Console.WriteLine("notification" + rightEdge);
                 notificationIcon.Anchor = AnchorStyles.Right;
                 notificationIcon.Top = DrawingRect.Top + (DrawingRect.Height - notificationIcon.Height) / 2;
                 notificationIcon.Left = rightEdge - notificationIcon.Width-spacing-20;
                 rightEdge -= notificationIcon.Width + spacing+20;
             }
-            Console.WriteLine("profileIcon RightEdge" + rightEdge);
+           // Console.WriteLine("profileIcon RightEdge" + rightEdge);
             if (profileIcon != null && profileIcon.Visible)
             {
-                Console.WriteLine("profileIcon" + rightEdge);
+               // Console.WriteLine("profileIcon" + rightEdge);
                 profileIcon.Anchor = AnchorStyles.Right;
                 profileIcon.Top = DrawingRect.Top + (DrawingRect.Height - profileIcon.Height) / 2;
                 profileIcon.Left = rightEdge - profileIcon.Width-spacing;
                 rightEdge -= profileIcon.Width + spacing;
             }
-            Console.WriteLine("themeIcon RightEdge" + rightEdge);
+           // Console.WriteLine("themeIcon RightEdge" + rightEdge);
             if (themeIcon != null && themeIcon.Visible)
             {
-                Console.WriteLine("themeIcon" + rightEdge);
+               // Console.WriteLine("themeIcon" + rightEdge);
                 themeIcon.Anchor = AnchorStyles.Right;
                 themeIcon.Top = DrawingRect.Top + (DrawingRect.Height - themeIcon.Height) / 2;
                 themeIcon.Left = rightEdge - themeIcon.Width-spacing;
@@ -901,7 +901,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
             }
-            Console.WriteLine("LeftEdge" + leftEdge);
+           // Console.WriteLine("LeftEdge" + leftEdge);
         }
         #endregion "Layout and Theme"
     }

@@ -255,7 +255,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             get => _theme;
             set
             {
-              //  Debug.WriteLine($"Theme Changed {value.ToString()} - {_theme.ToString()}");
+              //  //Debug.WriteLine($"Theme Changed {value.ToString()} - {_theme.ToString()}");
                 if (_theme != value)
                 {
                     _theme = value;
@@ -378,7 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
             BeepiForm.Theme = BeepThemesManager.CurrentTheme    ;
             Theme = BeepThemesManager.CurrentTheme;
-      //     Debug.WriteLine($"Form Load event 3 {BeepThemesManager.CurrentTheme.ToString()}");
+      //     //Debug.WriteLine($"Form Load event 3 {BeepThemesManager.CurrentTheme.ToString()}");
             BeepiForm.ApplyTheme();
             ApplyThemeToForm();
             BeepThemesManager.ThemeChanged -= BeepThemesManager_ThemeChanged;
@@ -468,7 +468,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
         private void Form_Load(object sender, EventArgs e)
         {
-            // Console.WriteLine("Form Load event 1");
+            //// Console.WriteLine("Form Load event 1");
 
             // InitForm((BeepiForm)sender);
         }
@@ -484,11 +484,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             if (container != null)
             {
-                //  Console.WriteLine("Attaching to control added event 1");
+                // // Console.WriteLine("Attaching to control added event 1");
                 container.ControlAdded += OnControlAdded;
                 // container.HandleCreated += (s, e) => ApplyBeepFormTheme(); // Apply theme to controls on handle creation
                 // _form.Load += Form_Load; // Apply theme to controls on form load
-                // Console.WriteLine("Attaching to control added event 2");
+                //// Console.WriteLine("Attaching to control added event 2");
                 // Recursively attach to existing child containers
                 foreach (Control child in container.Controls)
                 {
@@ -500,7 +500,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($" {child.Name} -  {ex.Message}");
+                           // Console.WriteLine($" {child.Name} -  {ex.Message}");
                         }
 
                     }
@@ -510,9 +510,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         // Event handler for when a control is added to the form or a container
         private void OnControlAdded(object sender, ControlEventArgs e)
         {
-          //  Console.WriteLine($"Control Added event 1 {e.Control.Name}");
+          // // Console.WriteLine($"Control Added event 1 {e.Control.Name}");
             ApplyThemeToControlAndChildren(e.Control); // Apply theme to the new control and its children
-         //   Console.WriteLine("Control Added event 2");
+         //  // Console.WriteLine("Control Added event 2");
             // If the control is a container, recursively attach the ControlAdded event
             if (e.Control is ContainerControl containerControl)
             {
@@ -666,7 +666,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             //Console.WriteLine("Applying theme to control");
             ApplyThemeToControl(control); // Apply to the control itself
-          //  Console.WriteLine("Applying theme to control 2");
+          // // Console.WriteLine("Applying theme to control 2");
             // Recursively apply to child controls if the control is a container
             foreach (Control child in control.Controls)
             {

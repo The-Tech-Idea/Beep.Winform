@@ -112,7 +112,7 @@
             Title.IsDirty = false;
             Title.IsEditable = false;
             Title.IsFocused = false;
-            Title.IsFramless = false;
+            Title.IsFrameless = false;
             Title.IsHovered = false;
             Title.IsNew = false;
             Title.IsPressed = false;
@@ -234,7 +234,7 @@
             LogopictureBox.IsDirty = false;
             LogopictureBox.IsEditable = false;
             LogopictureBox.IsFocused = false;
-            LogopictureBox.IsFramless = false;
+            LogopictureBox.IsFrameless = false;
             LogopictureBox.IsHovered = false;
             LogopictureBox.IsNew = false;
             LogopictureBox.IsPressed = false;
@@ -355,7 +355,7 @@
             beepLabel1.IsDirty = false;
             beepLabel1.IsEditable = false;
             beepLabel1.IsFocused = false;
-            beepLabel1.IsFramless = false;
+            beepLabel1.IsFrameless = false;
             beepLabel1.IsHovered = false;
             beepLabel1.IsNew = false;
             beepLabel1.IsPressed = false;
@@ -478,7 +478,7 @@
             beepLabel2.IsDirty = false;
             beepLabel2.IsEditable = false;
             beepLabel2.IsFocused = false;
-            beepLabel2.IsFramless = false;
+            beepLabel2.IsFrameless = false;
             beepLabel2.IsHovered = false;
             beepLabel2.IsNew = false;
             beepLabel2.IsPressed = false;
@@ -606,7 +606,7 @@
             messege.IsDirty = false;
             messege.IsEditable = false;
             messege.IsFocused = false;
-            messege.IsFramless = false;
+            messege.IsFrameless = false;
             messege.IsHovered = false;
             messege.IsNew = false;
             messege.IsPressed = false;
@@ -739,7 +739,7 @@
             _spinnerImage.IsDirty = false;
             _spinnerImage.IsEditable = false;
             _spinnerImage.IsFocused = false;
-            _spinnerImage.IsFramless = false;
+            _spinnerImage.IsFrameless = false;
             _spinnerImage.IsHovered = false;
             _spinnerImage.IsNew = false;
             _spinnerImage.IsPressed = false;

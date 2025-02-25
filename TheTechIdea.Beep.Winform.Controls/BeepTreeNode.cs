@@ -652,7 +652,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void NodeMainMiddlebutton_Click(object sender, EventArgs e)
         {
-            //Debug.WriteLine("Middel button Clicked");
+            ////Debug.WriteLine("Middel button Clicked");
             //// When a node is clicked, set this node as the selected node in the tree.
             //if (this.Tree != null)
             //{
@@ -669,9 +669,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void NodeMainMiddlebutton_MouseDown(object sender, MouseEventArgs e)
         {
-            Debug.WriteLine("MouseDown");
+            //Debug.WriteLine("MouseDown");
             base.OnMouseDown(e);
-            Debug.WriteLine("Middel button MouseDown");
+            //Debug.WriteLine("Middel button MouseDown");
             BeepMouseEventArgs args = MiscFunctions.GetMouseEventArgs("MouseDown", e);
             NodeMouseDown?.Invoke(this, args);
             if (e.Button == MouseButtons.Left)
@@ -739,24 +739,24 @@ namespace TheTechIdea.Beep.Winform.Controls
       
         private void BeepTreeNode_LostFocus(object? sender, EventArgs e)
         {
-            Debug.WriteLine("LostFocus");
+            //Debug.WriteLine("LostFocus");
             NodeMainMiddlebutton.IsSelected = false;
         }
 
         private void BeepTreeNode_Click(object? sender, EventArgs e)
         {
-            Debug.WriteLine("Clicked");
+            //Debug.WriteLine("Clicked");
         }
         private void BeepTreeNode_MouseHover(object? sender, EventArgs e)
         {
-            Debug.WriteLine("Hovered");
+            //Debug.WriteLine("Hovered");
             NodeMainMiddlebutton.IsHovered = true;
         }
 
       
         private void BeepTreeNode_MouseLeave(object? sender, EventArgs e)
         {
-            Debug.WriteLine("MouseLeave");
+            //Debug.WriteLine("MouseLeave");
             NodeMainMiddlebutton.IsHovered =false;
             
         }
@@ -880,7 +880,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //     LogMessage($"init1");
             IsShadowAffectedByTheme =false;
             IsBorderAffectedByTheme = false;
-            IsFramless = true;
+            IsFrameless = true;
             IsChild = true;
             startx = DrawingRect.Left;
             starty = DrawingRect.Top;
@@ -894,7 +894,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 CurrentValue = IsSelected,
                 Visible = _showCheckBox,
                 IsChild = true,
-                IsFramless = true,
+                IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 Theme = Theme,
@@ -1108,7 +1108,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Nodeleftbutton.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
                 Nodeleftbutton.IsRounded = false;
                 Nodeleftbutton.IsChild = true;
-                Nodeleftbutton.IsFramless = true;
+                Nodeleftbutton.IsFrameless = true;
                 Nodeleftbutton.IsShadowAffectedByTheme = true;
                 Nodeleftbutton.IsBorderAffectedByTheme = true;
                 Nodeleftbutton.MaxImageSize = new System.Drawing.Size(MaxImageSize , MaxImageSize);
@@ -1143,7 +1143,7 @@ namespace TheTechIdea.Beep.Winform.Controls
              //   Noderightbutton.HideText = true;
                 Noderightbutton.IsChild = true;
                 Noderightbutton.IsRounded = false;
-                Noderightbutton.IsFramless = true;
+                Noderightbutton.IsFrameless = true;
                 Noderightbutton.IsShadowAffectedByTheme = true;
                 Noderightbutton.IsBorderAffectedByTheme = true;
                 Noderightbutton.MaxImageSize = new System.Drawing.Size(MaxImageSize , MaxImageSize);
@@ -1177,7 +1177,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NodeMainMiddlebutton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
                 NodeMainMiddlebutton.TextAlign = TextAlignment;
                 NodeMainMiddlebutton.IsChild = false;
-                NodeMainMiddlebutton.IsFramless = true;
+                NodeMainMiddlebutton.IsFrameless = true;
                 NodeMainMiddlebutton.IsRounded = false;
                 NodeMainMiddlebutton.IsShadowAffectedByTheme = false;
                 NodeMainMiddlebutton.IsBorderAffectedByTheme = false;
@@ -1210,7 +1210,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChild = true,
                 ShowAllBorders = false,
                 HideText = true,
-                IsFramless = true,
+                IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ApplyThemeOnImage = true,
@@ -1268,7 +1268,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in UpdatePanelSize: {ex.Message}");
+               // Console.WriteLine($"Error in UpdatePanelSize: {ex.Message}");
             }
         }
         private void ToggleButton_Click(object? sender, EventArgs e)
@@ -1299,7 +1299,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnFontChanged(e);
             
-         //   Console.WriteLine("Font Changed");
+         //  // Console.WriteLine("Font Changed");
             if (AutoSize)
             {
                 Size textSize = TextRenderer.MeasureText(Text, _textFont);
@@ -1450,7 +1450,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    }
         //    catch (Exception ex)
         //    {
-        //        Console.WriteLine($"Error in Nodes_ListChanged: {ex.Message}");
+        //       // Console.WriteLine($"Error in Nodes_ListChanged: {ex.Message}");
         //    }
         //}
         //private void HandleItemDeleted(int index)
@@ -1485,7 +1485,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    }
         //    catch (Exception ex)
         //    {
-        //        Console.WriteLine($"Error in HandleItemDeleted: {ex.Message}");
+        //       // Console.WriteLine($"Error in HandleItemDeleted: {ex.Message}");
         //    }
         //}
         protected void CreateChildNodes()
@@ -2018,7 +2018,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             try
             {
                // File.AppendAllText(@"C:\Logs\debug_log.txt", $"{DateTime.Now}: {message}{Environment.NewLine}");
-                Debug.WriteLine(message);
+                //Debug.WriteLine(message);
             }
             catch { /* Ignore logging errors */ }
         }

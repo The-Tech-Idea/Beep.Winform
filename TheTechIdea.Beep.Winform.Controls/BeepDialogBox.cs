@@ -208,7 +208,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Text = "X",
                 IsChild=true,
                 Size = new Size(20, 20),
-                IsFramless = true,
+                IsFrameless = true,
                 UseScaledFont = true,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,

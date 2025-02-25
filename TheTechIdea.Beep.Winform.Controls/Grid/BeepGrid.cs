@@ -453,14 +453,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             this.SetStyle(ControlStyles.ResizeRedraw, true);
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
 
-          //  Console.WriteLine("BeepGrid Constructor 6");
+          // // Console.WriteLine("BeepGrid Constructor 6");
             UpdateCustomHeaders();
             // Check if GridId is already assigned, if not, create a new one.
             if (string.IsNullOrEmpty(_gridId))
             {
                 GenerateUniqueGridId();
             }
-            //  Console.WriteLine("BeepGrid Constructor 7");
+            // // Console.WriteLine("BeepGrid Constructor 7");
             // Load the layout for the grid
             LoadGridLayout();
         }
@@ -753,7 +753,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error adding columns in _targetGrid for Entity {EntityStructure.EntityName}: {ex.Message}");
+               // Console.WriteLine($"Error adding columns in _targetGrid for Entity {EntityStructure.EntityName}: {ex.Message}");
             }
             dataGridView1.ResumeLayout();
         }
@@ -964,7 +964,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private void ApplyFilters()
         {
             string completeFilter = string.Join(" AND ", columnFilters.Values.Where(filter => !string.IsNullOrEmpty(filter)));
-            Console.WriteLine("Applying Filter: " + completeFilter);
+           // Console.WriteLine("Applying Filter: " + completeFilter);
             if (string.IsNullOrEmpty(completeFilter))
             {
                 BindingNavigator.BindingSource.RemoveFilter();
@@ -1721,224 +1721,224 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             string layoutFilePath = $"{GridId}_layout.json";
             SaveColumnLayoutToFile(layoutFilePath);  // Save layout to file
         }
-        public void ApplyColumnConfigurations()
-        {
-            dataGridView1.Columns.Clear(); // Clear existing columns before applying the configuration
+        //public void ApplyColumnConfigurations()
+        //{
+        //    dataGridView1.Columns.Clear(); // Clear existing columns before applying the configuration
 
-            foreach (var config in columnConfigs)
-            {
-                DataGridViewColumn column = null;
+        //    foreach (var config in columnConfigs)
+        //    {
+        //        DataGridViewColumn column = null;
 
-                // Handle different types of columns
-                switch (config.ColumnType)
-                {
-                    case "BeepDataGridViewComboBoxColumn":
-                        column = new BeepDataGridViewComboBoxColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.ColumnCaption,
-                            Width = config.Width,
-                            DataSourceName = config.DataSourceName,
-                            DisplayMember = config.DisplayMember,
-                            ValueMember = config.ValueMember
-                        };
+        //        // Handle different types of columns
+        //        switch (config.ColumnType)
+        //        {
+        //            case "BeepDataGridViewComboBoxColumn":
+        //                column = new BeepDataGridViewComboBoxColumn
+        //                {
+        //                    Name = config.Name,
+        //                    HeaderText = config.ColumnCaption,
+        //                    Width = config.Width,
+        //                    DataSourceName = config.DataSourceName,
+        //                    DisplayMember = config.DisplayMember,
+        //                    ValueMember = config.ValueMember
+        //                };
 
-                        // Check for custom cascading map
-                        //if (column is BeepDataGridViewComboBoxColumn comboBoxColumn && config.CascadingMap != null)
-                        //{
-                        //    comboBoxColumn.CascadingMap = config.CascadingMap;
-                        //}
-                        break;
+        //                // Check for custom cascading map
+        //                //if (column is BeepDataGridViewComboBoxColumn comboBoxColumn && config.CascadingMap != null)
+        //                //{
+        //                //    comboBoxColumn.CascadingMap = config.CascadingMap;
+        //                //}
+        //                break;
 
-                    case "BeepDataGridViewNumericColumn":
-                        column = new BeepDataGridViewNumericColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.ColumnCaption,
-                            Width = config.Width,
-                            // You can add more numeric-specific properties here if needed
-                        };
-                        break;
+        //            case "BeepDataGridViewNumericColumn":
+        //                column = new BeepDataGridViewNumericColumn
+        //                {
+        //                    Name = config.Name,
+        //                    HeaderText = config.ColumnCaption,
+        //                    Width = config.Width,
+        //                    // You can add more numeric-specific properties here if needed
+        //                };
+        //                break;
 
-                    case "BeepDataGridViewProgressBarColumn":
-                        column = new BeepDataGridViewProgressBarColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.ColumnCaption,
-                            Width = config.Width,
-                            ProgressBarColor = config.ProgressBarColor
-                        };
-                        break;
+        //            case "BeepDataGridViewProgressBarColumn":
+        //                column = new BeepDataGridViewProgressBarColumn
+        //                {
+        //                    Name = config.Name,
+        //                    HeaderText = config.ColumnCaption,
+        //                    Width = config.Width,
+        //                    ProgressBarColor = config.ProgressBarColor
+        //                };
+        //                break;
 
-                    case "BeepDataGridViewSvgColumn":
-                        column = new BeepDataGridViewSvgColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.ColumnCaption,
-                            Width = config.Width,
-                        };
-                        break;
+        //            case "BeepDataGridViewSvgColumn":
+        //                column = new BeepDataGridViewSvgColumn
+        //                {
+        //                    Name = config.Name,
+        //                    HeaderText = config.ColumnCaption,
+        //                    Width = config.Width,
+        //                };
+        //                break;
 
-                    case "BeepDataGridViewThreeStateCheckBoxColumn":
-                        column = new BeepDataGridViewThreeStateCheckBoxColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.ColumnCaption,
-                            Width = config.Width
-                        };
-                        break;
+        //            case "BeepDataGridViewThreeStateCheckBoxColumn":
+        //                column = new BeepDataGridViewThreeStateCheckBoxColumn
+        //                {
+        //                    Name = config.Name,
+        //                    HeaderText = config.ColumnCaption,
+        //                    Width = config.Width
+        //                };
+        //                break;
 
-                    case "BeepDataGridViewSliderColumn":
-                        column = new BeepDataGridViewSliderColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.ColumnCaption,
-                            Width = config.Width,
-                        };
-                        break;
+        //            case "BeepDataGridViewSliderColumn":
+        //                column = new BeepDataGridViewSliderColumn
+        //                {
+        //                    Name = config.Name,
+        //                    HeaderText = config.ColumnCaption,
+        //                    Width = config.Width,
+        //                };
+        //                break;
 
-                    case "BeepDataGridViewRatingColumn":
-                        column = new BeepDataGridViewRatingColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.ColumnCaption,
-                            Width = config.Width,
-                           // FilledStarColor = config.FilledStarColor,
-                         //   EmptyStarColor = config.EmptyStarColor,
-                         //   MaxStars = config.MaxStars
-                        };
-                        break;
+        //            case "BeepDataGridViewRatingColumn":
+        //                column = new BeepDataGridViewRatingColumn
+        //                {
+        //                    Name = config.Name,
+        //                    HeaderText = config.ColumnCaption,
+        //                    Width = config.Width,
+        //                   // FilledStarColor = config.FilledStarColor,
+        //                 //   EmptyStarColor = config.EmptyStarColor,
+        //                 //   MaxStars = config.MaxStars
+        //                };
+        //                break;
 
-                    //case "BeepDataGridViewSwitchColumn":
-                    //    column = new BeepDataGridViewSwitchColumn
-                    //    {
-                    //        Name = config.Name,
-                    //        HeaderText = config.ColumnCaption,
-                    //        Width = config.Width,
-                    //    };
-                    //    break;
+        //            //case "BeepDataGridViewSwitchColumn":
+        //            //    column = new BeepDataGridViewSwitchColumn
+        //            //    {
+        //            //        Name = config.Name,
+        //            //        HeaderText = config.ColumnCaption,
+        //            //        Width = config.Width,
+        //            //    };
+        //            //    break;
 
-                    case "BeepDataGridViewMultiColumnColumn":
-                        column = new BeepDataGridViewMultiColumnColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.ColumnCaption,
-                            Width = config.Width,
-                        };
-                        break;
+        //            case "BeepDataGridViewMultiColumnColumn":
+        //                column = new BeepDataGridViewMultiColumnColumn
+        //                {
+        //                    Name = config.Name,
+        //                    HeaderText = config.ColumnCaption,
+        //                    Width = config.Width,
+        //                };
+        //                break;
 
-                    case "BeepDataGridViewImageComboBoxColumn":
-                        column = new BeepDataGridViewImageComboBoxColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.ColumnCaption,
-                            Width = config.Width,
-                        };
-                        break;
+        //            case "BeepDataGridViewImageComboBoxColumn":
+        //                column = new BeepDataGridViewImageComboBoxColumn
+        //                {
+        //                    Name = config.Name,
+        //                    HeaderText = config.ColumnCaption,
+        //                    Width = config.Width,
+        //                };
+        //                break;
 
-                    default:
-                        // Fallback to DataGridViewTextBoxColumn if type is not found
-                        column = new DataGridViewTextBoxColumn
-                        {
-                            Name = config.Name,
-                            HeaderText = config.ColumnCaption,
-                            Width = config.Width
-                        };
-                        break;
-                }
+        //            default:
+        //                // Fallback to DataGridViewTextBoxColumn if type is not found
+        //                column = new DataGridViewTextBoxColumn
+        //                {
+        //                    Name = config.Name,
+        //                    HeaderText = config.ColumnCaption,
+        //                    Width = config.Width
+        //                };
+        //                break;
+        //        }
 
-                if (column != null)
-                {
-                    dataGridView1.Columns.Add(column); // Add the column to the grid
-                }
-            }
-        }
-        public void CaptureCurrentLayout()
-        {
-            // Clear any previous configurations
-            columnConfigs.Clear();
+        //        if (column != null)
+        //        {
+        //            dataGridView1.Columns.Add(column); // Add the column to the grid
+        //        }
+        //    }
+        //}
+        //public void CaptureCurrentLayout()
+        //{
+        //    // Clear any previous configurations
+        //    columnConfigs.Clear();
 
-            // Iterate over each column in the DataGridView
-            foreach (DataGridViewColumn column in dataGridView1.Columns)
-            {
-                var config = new BeepGridColumnConfig
-                {
-                    Name = column.Name,
-                    ColumnCaption = column.HeaderText,
-                    Width = column.Width,
-                    Visible = column.Visible,
-                    DisplayIndex = column.DisplayIndex,
-                    ReadOnly = column.ReadOnly,
-                    SortMode = column.SortMode,
-                    AutoSizeMode = column.AutoSizeMode,
-                    Resizable = column.Resizable,
-                    DividerWidth = column.DividerWidth,
-                    Frozen = column.Frozen,  // Capture if the column is frozen
-                    MinimumWidth = column.MinimumWidth, // Minimum width of the column
-                };
+        //    // Iterate over each column in the DataGridView
+        //    foreach (DataGridViewColumn column in dataGridView1.Columns)
+        //    {
+        //        var config = new BeepGridColumnConfig
+        //        {
+        //            Name = column.Name,
+        //            ColumnCaption = column.HeaderText,
+        //            Width = column.Width,
+        //            Visible = column.Visible,
+        //            DisplayIndex = column.DisplayIndex,
+        //            ReadOnly = column.ReadOnly,
+        //            SortMode = column.SortMode,
+        //            AutoSizeMode = column.AutoSizeMode,
+        //            Resizable = column.Resizable,
+        //            DividerWidth = column.DividerWidth,
+        //            Frozen = column.Frozen,  // Capture if the column is frozen
+        //            MinimumWidth = column.MinimumWidth, // Minimum width of the column
+        //        };
 
-                // Handle ComboBox columns
-                if (column is DataGridViewComboBoxColumn comboBoxColumn)
-                {
-                    config.ColumnType = nameof(DataGridViewComboBoxColumn);
-                    config.DisplayMember = comboBoxColumn.DisplayMember;
-                    config.ValueMember = comboBoxColumn.ValueMember;
-                    //config.LookupList = new List<ColumnLookupList>();
+        //        // Handle ComboBox columns
+        //        if (column is DataGridViewComboBoxColumn comboBoxColumn)
+        //        {
+        //            config.ColumnType = nameof(DataGridViewComboBoxColumn);
+        //            config.DisplayMember = comboBoxColumn.DisplayMember;
+        //            config.ValueMember = comboBoxColumn.ValueMember;
+        //            //config.LookupList = new List<ColumnLookupList>();
 
-                    // Capture ComboBox rootnodeitems
-                    //foreach (var item in comboBoxColumn.Items)
-                    //{
-                    //    config.LookupList.Add(new ColumnLookupList
-                    //    {
-                    //        Display = item.ToString(),
-                    //        Value = item
-                    //    });
-                    //}
-                }
-                // Handle Rating columns
-                else if (column is BeepDataGridViewRatingColumn ratingColumn)
-                {
-                    config.ColumnType = nameof(BeepDataGridViewRatingColumn);
-                   // config.MaxStars = ratingColumn.MaxStars;
-                  //  config.FilledStarColor = ratingColumn.FilledStarColor;
-                  //  config.EmptyStarColor = ratingColumn.EmptyStarColor;
-                }
-                // Handle ProgressBar columns
-                else if (column is BeepDataGridViewProgressBarColumn progressBarColumn)
-                {
-                    config.ColumnType = nameof(BeepDataGridViewProgressBarColumn);
-                    config.ProgressBarColor = progressBarColumn.ProgressBarColor;
-                    config.ProgressBarMaxValue = progressBarColumn.Maximum;
-                    config.ProgressBarMinValue = progressBarColumn.Minimum;
-                    config.ProgressBarStep = progressBarColumn.Step;
-                }
-                // Handle Numeric columns
-                else if (column is BeepDataGridViewNumericColumn numericColumn)
-                {
-                    config.ColumnType = nameof(BeepDataGridViewNumericColumn);
-                    config.Format = numericColumn.DefaultCellStyle.Format;
-                }
-                // Handle custom columns
-                else if (column is BeepDataGridViewSvgColumn svgColumn)
-                {
-                    config.ColumnType = nameof(BeepDataGridViewSvgColumn);
-                    // Additional SVG properties can be captured here if necessary
-                }
-                else if (column is BeepDataGridViewThreeStateCheckBoxColumn threeStateColumn)
-                {
-                    config.ColumnType = nameof(BeepDataGridViewThreeStateCheckBoxColumn);
-                }
-                else if (column is BeepDataGridViewSliderColumn sliderColumn)
-                {
-                    config.ColumnType = nameof(BeepDataGridViewSliderColumn);
-                    config.Minimum = sliderColumn.Minimum;
-                    config.Maximum = sliderColumn.Maximum;
-                }
+        //            // Capture ComboBox rootnodeitems
+        //            //foreach (var item in comboBoxColumn.Items)
+        //            //{
+        //            //    config.LookupList.Add(new ColumnLookupList
+        //            //    {
+        //            //        Display = item.ToString(),
+        //            //        Value = item
+        //            //    });
+        //            //}
+        //        }
+        //        // Handle Rating columns
+        //        else if (column is BeepDataGridViewRatingColumn ratingColumn)
+        //        {
+        //            config.ColumnType = nameof(BeepDataGridViewRatingColumn);
+        //           // config.MaxStars = ratingColumn.MaxStars;
+        //          //  config.FilledStarColor = ratingColumn.FilledStarColor;
+        //          //  config.EmptyStarColor = ratingColumn.EmptyStarColor;
+        //        }
+        //        // Handle ProgressBar columns
+        //        else if (column is BeepDataGridViewProgressBarColumn progressBarColumn)
+        //        {
+        //            config.ColumnType = nameof(BeepDataGridViewProgressBarColumn);
+        //            config.ProgressBarColor = progressBarColumn.ProgressBarColor;
+        //            config.ProgressBarMaxValue = progressBarColumn.Maximum;
+        //            config.ProgressBarMinValue = progressBarColumn.Minimum;
+        //            config.ProgressBarStep = progressBarColumn.Step;
+        //        }
+        //        // Handle Numeric columns
+        //        else if (column is BeepDataGridViewNumericColumn numericColumn)
+        //        {
+        //            config.ColumnType = nameof(BeepDataGridViewNumericColumn);
+        //            config.Format = numericColumn.DefaultCellStyle.Format;
+        //        }
+        //        // Handle custom columns
+        //        else if (column is BeepDataGridViewSvgColumn svgColumn)
+        //        {
+        //            config.ColumnType = nameof(BeepDataGridViewSvgColumn);
+        //            // Additional SVG properties can be captured here if necessary
+        //        }
+        //        else if (column is BeepDataGridViewThreeStateCheckBoxColumn threeStateColumn)
+        //        {
+        //            config.ColumnType = nameof(BeepDataGridViewThreeStateCheckBoxColumn);
+        //        }
+        //        else if (column is BeepDataGridViewSliderColumn sliderColumn)
+        //        {
+        //            config.ColumnType = nameof(BeepDataGridViewSliderColumn);
+        //            config.Minimum = sliderColumn.Minimum;
+        //            config.Maximum = sliderColumn.Maximum;
+        //        }
 
-                // Add column configuration to the list
-                columnConfigs.Add(config);
-            }
-        }
+        //        // Add column configuration to the list
+        //        columnConfigs.Add(config);
+        //    }
+        //}
         public void SaveColumnLayoutToFile(string filePath)
         {
             var json = JsonConvert.SerializeObject(columnConfigs, Formatting.Indented);
@@ -1950,7 +1950,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 var json = File.ReadAllText(filePath);
                 columnConfigs = JsonConvert.DeserializeObject<List<BeepGridColumnConfig>>(json);
-                ApplyColumnConfigurations(); // Rebuild the grid with loaded columns
+                //ApplyColumnConfigurations(); // Rebuild the grid with loaded columns
             }
         }
         #endregion "Layout Load and Save"
@@ -2068,7 +2068,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
             BindingNavigator = new BeepBindingNavigator
             {
-                Dock = DockStyle.Fill,IsRounded=false,IsFramless=true
+                Dock = DockStyle.Fill,IsRounded=false,IsFrameless=true
                 
             };
            // Bottompanel.Controls.Add(BindingNavigator);
@@ -2114,13 +2114,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             // Set row height
             toptableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 23F));
 
-            CSVExportbutton = new BeepButton { ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.export.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFramless = true, ApplyThemeOnImage = false, IsChild = true, Dock = DockStyle.Fill };
-            TotalShowbutton = new BeepButton {ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.sum.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFramless = true, ApplyThemeOnImage = false , IsChild = true , Dock = DockStyle.Fill };
-            Sharebutton = new BeepButton {ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.share.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFramless = true, ApplyThemeOnImage = false, IsChild = true, Dock = DockStyle.Fill };
-            Printbutton = new BeepButton {ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFramless = true , ApplyThemeOnImage = false, IsChild = true, Dock = DockStyle.Fill };
-            FilterShowbutton = new BeepButton {ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFramless = true , ApplyThemeOnImage = false, IsChild = true ,Dock= DockStyle.Fill};
+            CSVExportbutton = new BeepButton { ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.export.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFrameless = true, ApplyThemeOnImage = false, IsChild = true, Dock = DockStyle.Fill };
+            TotalShowbutton = new BeepButton {ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.sum.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFrameless = true, ApplyThemeOnImage = false , IsChild = true , Dock = DockStyle.Fill };
+            Sharebutton = new BeepButton {ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.share.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFrameless = true, ApplyThemeOnImage = false, IsChild = true, Dock = DockStyle.Fill };
+            Printbutton = new BeepButton {ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFrameless = true , ApplyThemeOnImage = false, IsChild = true, Dock = DockStyle.Fill };
+            FilterShowbutton = new BeepButton {ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg", Size = buttonwidth, MaxImageSize = new Size(buttonwidth.Width - 1, buttonwidth.Height - 1), ImageAlign = ContentAlignment.MiddleCenter, HideText = true, IsFrameless = true , ApplyThemeOnImage = false, IsChild = true ,Dock= DockStyle.Fill};
 
-            Titlelabel = new BeepLabel { Text = "Title", TextAlign = ContentAlignment.MiddleCenter,ImageAlign= ContentAlignment.MiddleRight , IsFramless=true,IsChild=true, Dock = DockStyle.Fill };
+            Titlelabel = new BeepLabel { Text = "Title", TextAlign = ContentAlignment.MiddleCenter,ImageAlign= ContentAlignment.MiddleRight , IsFrameless=true,IsChild=true, Dock = DockStyle.Fill };
             // Add buttons to the TableLayoutPanel
             toptableLayoutPanel.Controls.Add(CSVExportbutton, 0, 0);
             toptableLayoutPanel.Controls.Add(TotalShowbutton, 1, 0);

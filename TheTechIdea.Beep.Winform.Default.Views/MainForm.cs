@@ -26,6 +26,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepService.vis.Container = this.uc_Container1;
             beepMenuAppBar1.beepServices = beepService;
             beepMenuAppBar1.CreateMenuItems();
+             beepSimpleGrid1.DataSource = beepTreeControl1.Nodes;
+            beepButton1.Click += BeepButton1_Click;
+        }
+
+        private void BeepButton1_Click(object? sender, EventArgs e)
+        {
+            beepTextBox1.Text = "Hello";
         }
     }
 }

@@ -1,117 +1,293 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-
-
+using System.Drawing;
+using System.Windows.Forms;
+using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Utilities;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid
 {
-  
-    public class BeepGridColumnConfig
+    [Serializable]
+    public class BeepGridColumnConfig : INotifyPropertyChanged
     {
         public BeepGridColumnConfig()
         {
             GuidID = Guid.NewGuid().ToString();
             Width = 100;
             Visible = true;
-            ColumnType = "Text";
+            ColumnType = DbFieldCategory.String;
             ColumnCaption = "Column";
+            CellEditor = BeepGridColumnType.Text;
+            SortMode = DataGridViewColumnSortMode.Automatic;
+            Resizable = DataGridViewTriState.True;
+            AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            HeaderStyle = new ColumnHeaderStyle();
         }
 
-        public string ColumnType { get; set; }
-        public BeepGridColumnType CellEditor { get; set; }
-        public string Name { get; set; }
+        #region Properties
+        private string _columnCaption;
+        [Category("Data")]
+        [Description("The display name of the column.")]
         [Required]
-        public string ColumnCaption { get; set; }
-        public int Width { get; set; }
-        public string Format { get; set; }
-        public string Alignment { get; set; }
-        public string BackColor { get; set; }
-        public string ForeColor { get; set; }
-        public string Font { get; set; }
-        public string ToolTip { get; set; }
-        public bool Visible { get; set; }
-        public int Index { get; set; }
-        public int VisibleIndex { get; set; }
-        public bool ReadOnly { get; set; }
-        public bool TotalOn { get; set; }
-        public bool HasTotal { get; set; }
-        public string GuidID { get; set; }
-        public bool IsReadOnly { get; set; } = false;
-        public bool IsFilteOn { get; set; } = false;
-        public bool IsTotalOn { get; set; } = false;
-        public bool IsFiltered { get; set; } = false;
-        public bool IsSorted { get; set; } = false;
-        public List<string> AutoCompleteSource { get; set; }
-        public decimal Total { get; set; }
-        public string Filter { get; set; }
-        public decimal OldValue { get; set; }
-        public decimal NewValue { get; set; }
-        public string DataSourceName { get; set; }
-        public string DataSourceType { get; set; }
-        public string Query { get; set; }
-        public string ColumnName { get; set; }
-        public string ParentColumn { get; set; }
-        public string ChildColumn { get; set; }
-        public DataSourceMode DataSourceMode { get; set; }
-        public DataGridViewColumnSortMode SortMode { get; set; }
-        public DataGridViewTriState Resizable { get; set; }
-        public DataGridViewAutoSizeColumnMode AutoSizeMode { get; set; }
-        public int DisplayIndex { get; set; }
-        public int DividerWidth { get; set; }
-        public string DisplayMember { get; set; }
-        public string ValueMember { get; set; }
-        public string FilterMember { get; set; }
-        public string SortMember { get; set; }
-        public Color ProgressBarColor { get; set; }
-        public int ProgressBarMaxValue { get; set; }
-        public int ProgressBarMinValue { get; set; }
-        public int ProgressBarStep { get; set; }
-        public int ProgressBarValue { get; set; }
-        public string ProgressBarStyle { get; set; }
-        public string ProgressBarText { get; set; }
-        public Color FilledStarColor { get; set; }
-        public Color EmptyStarColor { get; set; }
-        public int MaxStars { get; set; }
-        public bool Frozen { get; set; }
-        public int MinimumWidth { get; set; }
-        public int Minimum { get; set; }
-        public int Maximum { get; set; }
-        public string ColumnFormat { get; set; }
-        public string ColumnAlignment { get; set; }
-        public string ColumnBackColor { get; set; }
-        public string ColumnForeColor { get; set; }
-        public string ColumnFont { get; set; }
-        public string ColumnToolTip { get; set; }
-        public string ColumnVisible { get; set; }
-        public string ColumnVisibleIndex { get; set; }
-        public ColumnHeaderStyle HeaderStyle { get; set; } = new ColumnHeaderStyle();
+        public string ColumnCaption
+        {
+            get => _columnCaption;
+            set { _columnCaption = value; OnPropertyChanged(nameof(ColumnCaption)); }
+        }
 
+        private string _columnName;
+        [Category("Data")]
+        [Description("The name of the column in the data source.")]
+        public string ColumnName
+        {
+            get => _columnName;
+            set { _columnName = value; OnPropertyChanged(nameof(ColumnName)); }
+        }
+
+        private int _width;
+        [Category("Layout")]
+        [Description("The width of the column in pixels.")]
+        public int Width
+        {
+            get => _width;
+            set { _width = value; OnPropertyChanged(nameof(Width)); }
+        }
+
+        private bool _visible = true;
+        [Category("Behavior")]
+        [Description("Indicates whether the column is visible.")]
+        public bool Visible
+        {
+            get => _visible;
+            set { _visible = value; OnPropertyChanged(nameof(Visible)); }
+        }
+
+        private DbFieldCategory _columnType;
+        [Category("Data")]
+        [Description("The data type of the column.")]
+        public DbFieldCategory ColumnType
+        {
+            get => _columnType;
+            set { _columnType = value; OnPropertyChanged(nameof(ColumnType)); }
+        }
+
+        private BeepGridColumnType _cellEditor;
+        [Category("Appearance")]
+        [Description("The editor type for the column cells.")]
+        public BeepGridColumnType CellEditor
+        {
+            get => _cellEditor;
+            set { _cellEditor = value; OnPropertyChanged(nameof(CellEditor)); }
+        }
+
+        private string _format;
+        [Category("Appearance")]
+        [Description("The format string for displaying data (e.g., 'N2' for numbers).")]
+        public string Format
+        {
+            get => _format;
+            set { _format = value; OnPropertyChanged(nameof(Format)); }
+        }
+
+        private string _filter;
+        [Category("Filtering")]
+        [Description("The filter condition applied to this column.")]
+        public string Filter
+        {
+            get => _filter;
+            set { _filter = value; OnPropertyChanged(nameof(Filter)); }
+        }
+
+        private bool _isFiltered;
+        [Category("Filtering")]
+        [Description("Indicates whether the column is currently filtered.")]
+        public bool IsFiltered
+        {
+            get => _isFiltered;
+            set { _isFiltered = value; OnPropertyChanged(nameof(IsFiltered)); }
+        }
+
+        private bool _isSorted;
+        [Category("Sorting")]
+        [Description("Indicates whether the column is currently sorted.")]
+        public bool IsSorted
+        {
+            get => _isSorted;
+            set { _isSorted = value; OnPropertyChanged(nameof(IsSorted)); }
+        }
+
+        private bool _isFilteOn;
+        [Category("Filtering")]
+        [Description("Indicates whether filtering is enabled for this column.")]
+        public bool IsFilteOn
+        {
+            get => _isFilteOn;
+            set { _isFilteOn = value; OnPropertyChanged(nameof(IsFilteOn)); }
+        }
+
+        private bool _isTotalOn;
+        [Category("Aggregation")]
+        [Description("Indicates whether totaling is enabled for this column.")]
+        public bool IsTotalOn
+        {
+            get => _isTotalOn;
+            set { _isTotalOn = value; OnPropertyChanged(nameof(IsTotalOn)); }
+        }
+
+        private bool _hasTotal;
+        [Category("Aggregation")]
+        [Description("Indicates whether the column should display a total.")]
+        public bool HasTotal
+        {
+            get => _hasTotal;
+            set { _hasTotal = value; OnPropertyChanged(nameof(HasTotal)); }
+        }
+
+        private decimal _total;
+        [Category("Aggregation")]
+        [Description("The total value for the column (if applicable).")]
+        public decimal Total
+        {
+            get => _total;
+            set { _total = value; OnPropertyChanged(nameof(Total)); }
+        }
+
+        private decimal _oldValue;
+        [Category("Data")]
+        [Description("The previous value of the column (for tracking changes).")]
+        public decimal OldValue
+        {
+            get => _oldValue;
+            set { _oldValue = value; OnPropertyChanged(nameof(OldValue)); }
+        }
+
+        private int _index;
+        [Category("Layout")]
+        [Description("The index of the column in the grid.")]
+        public int Index
+        {
+            get => _index;
+            set { _index = value; OnPropertyChanged(nameof(Index)); }
+        }
+
+        private bool _readOnly;
+        [Category("Behavior")]
+        [Description("Indicates whether the column is read-only.")]
+        public bool ReadOnly
+        {
+            get => _readOnly;
+            set { _readOnly = value; OnPropertyChanged(nameof(ReadOnly)); }
+        }
+
+        private string _guidID;
+        [Browsable(false)]
+        public string GuidID
+        {
+            get => _guidID;
+            set { _guidID = value; OnPropertyChanged(nameof(GuidID)); }
+        }
+
+        private DataGridViewColumnSortMode _sortMode;
+        [Category("Sorting")]
+        [Description("Defines how the column can be sorted.")]
+        public DataGridViewColumnSortMode SortMode
+        {
+            get => _sortMode;
+            set { _sortMode = value; OnPropertyChanged(nameof(SortMode)); }
+        }
+
+        private DataGridViewTriState _resizable;
+        [Category("Layout")]
+        [Description("Indicates whether the column can be resized.")]
+        public DataGridViewTriState Resizable
+        {
+            get => _resizable;
+            set { _resizable = value; OnPropertyChanged(nameof(Resizable)); }
+        }
+
+        private DataGridViewAutoSizeColumnMode _autoSizeMode;
+        [Category("Layout")]
+        [Description("Defines how the column auto-sizes.")]
+        public DataGridViewAutoSizeColumnMode AutoSizeMode
+        {
+            get => _autoSizeMode;
+            set { _autoSizeMode = value; OnPropertyChanged(nameof(AutoSizeMode)); }
+        }
+
+        private ColumnHeaderStyle _headerStyle;
+        [Category("Appearance")]
+        [Description("Style settings for the column header.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public ColumnHeaderStyle HeaderStyle
+        {
+            get => _headerStyle;
+            set { _headerStyle = value; OnPropertyChanged(nameof(HeaderStyle)); }
+        }
+        private List<SimpleItem> _items;
+        [Category("Data")]
+        [Description("The list of items for the ComboBox editor.")]
+        public List<SimpleItem> Items
+        {
+            get => _items;
+            set { _items = value; OnPropertyChanged(nameof(Items)); }
+        }
+
+        #endregion
+
+        #region INotifyPropertyChanged Implementation
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        #endregion
     }
+
+    [Serializable]
     public class ColumnHeaderStyle
-    { // Defines column header properties like width, font, etc.
-        public SizeF Width { get; set; }
-        public string Typography { get; set; }
-        public string FontSize { get; set; }
-        public string ForeColor { get; set; }
-        public string BackColor { get; set; }
+    {
+        private string _typography = "Arial";
+        [Description("The font family for the header text.")]
+        public string Typography
+        {
+            get => _typography;
+            set => _typography = value;
+        }
+
+        private float _fontSize = 10f;
+        [Description("The font size for the header text.")]
+        public float FontSize
+        {
+            get => _fontSize;
+            set => _fontSize = value;
+        }
+
+        private Color _foreColor = Color.Black;
+        [Description("The text color of the header.")]
+        public Color ForeColor
+        {
+            get => _foreColor;
+            set => _foreColor = value;
+        }
+
+        private Color _backColor = Color.LightGray;
+        [Description("The background color of the header.")]
+        public Color BackColor
+        {
+            get => _backColor;
+            set => _backColor = value;
+        }
     }
+
     [Serializable]
     public class BeepGridColumnConfigCollection : BindingList<BeepGridColumnConfig>
     {
         public BeepGridColumnConfigCollection() : base() { }
-        public BeepGridColumnConfigCollection(BindingList<BeepGridColumnConfigCollection> list) { }
     }
-    public enum MenuItemType
-    {
-        Main,
-        Child
-    }
-    public enum DataSourceMode
-    {
-        CascadingMap,
-        Query,
-        List
-    }
+
+
+
     public enum BeepGridColumnType
     {
         Text,
@@ -124,6 +300,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         StarRating,
         Button,
         Link,
+        Switch,
+        ListBox,
+        NumericUpDown,
         Custom
     }
 }

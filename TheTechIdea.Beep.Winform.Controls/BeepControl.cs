@@ -194,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         [Category("Appearance")]
         [Description("The text associated with the Beepbutton.")]
-        public override string Text
+        public virtual new string Text
         {
             get => _text;
             set
@@ -212,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         [Browsable(true)]
         [Category("Appearance")]
-        public bool IsFramless { get { return _isframless; } set { _isframless = value; Invalidate(); } }
+        public bool IsFrameless { get { return _isframless; } set { _isframless = value; Invalidate(); } }
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -816,7 +816,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepControl()
         {
             DoubleBuffered = true;
-            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+            this.SetStyle(ControlStyles.ContainerControl, true);
+            this.SetStyle(ControlStyles.UserPaint, true);
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true); 
             InitializeTooltip();
             ShowAllBorders = true;
             //  BackColor = Color.Transparent;
@@ -1056,7 +1059,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             );
 
             // Log or debug the dimensions if needed
-            //  Debug.WriteLine($"DrawingRect: {DrawingRect}");
+            //  //Debug.WriteLine($"DrawingRect: {DrawingRect}");
         }
         public virtual bool SetFont()
         {

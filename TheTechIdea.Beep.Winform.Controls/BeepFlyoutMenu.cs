@@ -138,7 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Padding = new Padding(5, 0, 0, 0),
                 ShowShadow = false,
                 ShowAllBorders = false,
-                IsFramless = true,
+                IsFrameless = true,
                 IsChild = true
             };
 
@@ -154,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 ShowAllBorders = false,
                 ShowShadow = false,
-                IsFramless = true,
+                IsFrameless = true,
                 HideText = true,
                 IsChild = true
             };
@@ -179,7 +179,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Location = new Point(0, Height),
                 ShowAllBorders = false,
                 ShowShadow = false,
-                IsFramless = true,
+                IsFrameless = true,
                 ShowTitleLine = false,
                 ShowTitle = false,
             };

@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         {
             if (SelectedBranch == null)
             {
-                Console.WriteLine("Selected Branch is null");
+               // Console.WriteLine("Selected Branch is null");
                 return;
             }
             AssemblyClassDefinition methodclass = DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.GuidID== e.SelectedItem.AssemblyClassDefinitionID).FirstOrDefault();
@@ -518,7 +518,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                     DMEEditor.AddLogMessage("Error", "Branch already exist", DateTime.Now, -1, null, Errors.Failed);
                     return DMEEditor.ErrorObject;
                 }
-                Console.WriteLine($"Adding Branch {br.BranchText} to {ParentBranch.BranchText}");
+               // Console.WriteLine($"Adding Branch {br.BranchText} to {ParentBranch.BranchText}");
                 parentnode = GetNode(ParentBranch.BranchText);
        
                 if (parentnode == null)
@@ -534,7 +534,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 item.IsDrawn = false;
                 //n.ContextMenuStrip = 
                 br.GuidID = item.GuidId;
-                Console.WriteLine(br.BranchText);
+               // Console.WriteLine(br.BranchText);
                 DynamicMenuManager.CreateMenuMethods(DMEEditor, br);
                 if (br.ObjectType != null && br.BranchClass != null)
                 {
@@ -613,7 +613,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             SimpleItem item = ControlExtensions.CreateNode(this, id, br);
             br.GuidID = item.GuidId;
             //n.ContextMenuStrip = 
-            Console.WriteLine(br.BranchText);
+           // Console.WriteLine(br.BranchText);
             DynamicMenuManager.CreateMenuMethods(DMEEditor, br);
             if (br.ObjectType != null && br.BranchClass != null)
             {
@@ -646,7 +646,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             SimpleItem item=ControlExtensions.CreateNode(this,id, br);
             br.GuidID = item.GuidId;
             //n.ContextMenuStrip = 
-            Console.WriteLine(br.BranchText);
+           // Console.WriteLine(br.BranchText);
             DynamicMenuManager.CreateMenuMethods(DMEEditor, br);
             if (br.ObjectType != null && br.BranchClass != null)
             {

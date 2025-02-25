@@ -47,10 +47,11 @@
             beepDataGridView1.AnimationDuration = 500;
             beepDataGridView1.AnimationType = Winform.Controls.DisplayAnimationType.None;
             beepDataGridView1.ApplyThemeToChilds = true;
-            beepDataGridView1.BackColor = Color.FromArgb(245, 245, 245);
+            beepDataGridView1.BackColor = Color.White;
             beepDataGridView1.BadgeBackColor = Color.Red;
             beepDataGridView1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepDataGridView1.BadgeForeColor = Color.White;
+            beepDataGridView1.BadgeShape = Winform.Controls.BadgeShape.Circle;
             beepDataGridView1.BadgeText = "";
             beepDataGridView1.BlockID = null;
             beepDataGridView1.BorderColor = Color.FromArgb(189, 195, 199);
@@ -90,7 +91,7 @@
             entityStructure1.EndRow = 0;
             entityStructure1.EntityName = "ConnectionDriversConfig";
             entityStructure1.EntityPath = null;
-            entityStructure1.GuidID = "87a7ebe3-7c4c-4e3f-95e6-069a70f9b724";
+            entityStructure1.GuidID = "331ac797-b719-4d02-b1b0-f7bb500f1819";
             entityStructure1.Id = 0;
             entityStructure1.IsCreated = false;
             entityStructure1.IsIdentity = false;
@@ -125,6 +126,7 @@
             beepDataGridView1.InactiveBackColor = Color.Gray;
             beepDataGridView1.InactiveBorderColor = Color.Gray;
             beepDataGridView1.InactiveForeColor = Color.Black;
+            beepDataGridView1.Info = (Desktop.Common.SimpleItem)resources.GetObject("beepDataGridView1.Info");
             beepDataGridView1.IsAcceptButton = false;
             beepDataGridView1.IsBorderAffectedByTheme = true;
             beepDataGridView1.IsCancelButton = false;
@@ -135,7 +137,7 @@
             beepDataGridView1.IsDirty = false;
             beepDataGridView1.IsEditable = false;
             beepDataGridView1.IsFocused = false;
-            beepDataGridView1.IsFramless = false;
+            beepDataGridView1.IsFrameless = false;
             beepDataGridView1.IsHovered = false;
             beepDataGridView1.IsNew = false;
             beepDataGridView1.IsPressed = false;
@@ -146,6 +148,7 @@
             beepDataGridView1.IsSelected = false;
             beepDataGridView1.IsShadowAffectedByTheme = true;
             beepDataGridView1.IsVisible = false;
+            beepDataGridView1.Items = (List<object>)resources.GetObject("beepDataGridView1.Items");
             beepDataGridView1.LeftoffsetForDrawingRect = 0;
             beepDataGridView1.LinkedProperty = null;
             beepDataGridView1.Location = new Point(0, 0);

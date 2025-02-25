@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepTabsControl()
         {
-            Debug.WriteLine("BeepTabsControl: Constructor called.");
+            //Debug.WriteLine("BeepTabsControl: Constructor called.");
 
             // Create the header control with anchor on Top | Left | Right
             // so it stays at the top and resizes horizontally with the parent.
@@ -37,19 +37,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             Padding = new Padding(5);
             // Add the header control to the Controls collection.
             this.Controls.Add(_headerControl);
-            Debug.WriteLine("BeepTabsControl: Header control created and added.");
+            //Debug.WriteLine("BeepTabsControl: Header control created and added.");
         }
 
         protected override void OnCreateControl()
         {
             base.OnCreateControl();
-            Debug.WriteLine("BeepTabsControl: OnCreateControl called.");
+            //Debug.WriteLine("BeepTabsControl: OnCreateControl called.");
 
             // Instead of creating a fallback when TabControl is null,
             // assume the designer provides it.
             if (TabControl == null)
             {
-                Debug.WriteLine("BeepTabsControl: TabControl property is null. Check designer serialization!");
+                //Debug.WriteLine("BeepTabsControl: TabControl property is null. Check designer serialization!");
                 // Optionally, you could throw an exception or log a warning here.
                 // For debugging, you might create a fallback temporarily:
                 // TabControl = new TabControlWithoutHeader { Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right };
@@ -57,17 +57,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                Debug.WriteLine("BeepTabsControl: Using designer-provided TabControl.");
+                //Debug.WriteLine("BeepTabsControl: Using designer-provided TabControl.");
                 TabControl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             }
 
             // Wire up the header control with the TabControl.
             _headerControl.TargetTabControl = TabControl;
-            Debug.WriteLine("BeepTabsControl: Header control wired to TabControl.");
+            //Debug.WriteLine("BeepTabsControl: Header control wired to TabControl.");
 
             // Bring the header control to front to ensure visibility.
             _headerControl.BringToFront();
-            Debug.WriteLine("BeepTabsControl: Header control brought to front.");
+            //Debug.WriteLine("BeepTabsControl: Header control brought to front.");
         }
 
 
@@ -106,12 +106,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get
             {
-                Debug.WriteLine("BeepTabsControl: Tabs getter called.");
+                //Debug.WriteLine("BeepTabsControl: Tabs getter called.");
                 return _headerControl.Tabs;
             }
             set
             {
-                Debug.WriteLine("BeepTabsControl: Tabs setter called.");
+                //Debug.WriteLine("BeepTabsControl: Tabs setter called.");
                 _headerControl.Tabs = value;
             }
         }
@@ -125,12 +125,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get
             {
-                Debug.WriteLine("BeepTabsControl: SelectedTab getter called.");
+                //Debug.WriteLine("BeepTabsControl: SelectedTab getter called.");
                 return _headerControl.SelectedTab;
             }
             set
             {
-                Debug.WriteLine("BeepTabsControl: SelectedTab setter called.");
+                //Debug.WriteLine("BeepTabsControl: SelectedTab setter called.");
                 _headerControl.SelectedTab = value;
             }
         }
@@ -144,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get
             {
-                Debug.WriteLine("BeepTabsControl: TabPages getter called.");
+                //Debug.WriteLine("BeepTabsControl: TabPages getter called.");
                 return TabControl?.TabPages;
             }
         }

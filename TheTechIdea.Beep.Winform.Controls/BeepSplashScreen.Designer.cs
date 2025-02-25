@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _logoImage.IsCustomeBorder = false;
             _logoImage.IsDefault = false;
             _logoImage.IsFocused = false;
-            _logoImage.IsFramless = false;
+            _logoImage.IsFrameless = false;
             _logoImage.IsHovered = false;
             _logoImage.IsPressed = false;
             _logoImage.IsRounded = false;
@@ -196,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.IsCustomeBorder = false;
             _titleLabel.IsDefault = false;
             _titleLabel.IsFocused = false;
-            _titleLabel.IsFramless = false;
+            _titleLabel.IsFrameless = false;
             _titleLabel.IsHovered = false;
             _titleLabel.IsPressed = false;
             _titleLabel.IsRounded = false;

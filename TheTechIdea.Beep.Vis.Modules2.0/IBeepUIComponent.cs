@@ -55,6 +55,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public bool IsReadOnly { get; set; }
         public bool IsEditable { get; set; }
         public bool IsVisible { get; set; }
+        public bool IsFrameless { get; set; }
         DbFieldCategory Category { get; set; }
         void Draw(Graphics graphics,Rectangle rectangle);
         void SetBinding(string controlProperty, string dataSourceProperty); // Method to bind a control property

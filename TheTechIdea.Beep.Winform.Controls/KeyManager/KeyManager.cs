@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.KeyManagement
 
             if (FindKeyMethod(Editor,combination)!=null)
             {
-                Console.WriteLine($"{combination.MappedFunction.Name} triggered");
+               // Console.WriteLine($"{combination.MappedFunction.Name} triggered");
                 // Implement your function call logic based on functionName
                 var x = new BeepEventDataArgs("KeyPressed",combination);
 
@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.KeyManagement
                 return true;
             }
 
-            Console.WriteLine($"Key combination for {combination.Key} with Control: {combination.Control}, Alt: {combination.Alt}, and Shift: {combination.Shift} already exists.");
+           // Console.WriteLine($"Key combination for {combination.Key} with Control: {combination.Control}, Alt: {combination.Alt}, and Shift: {combination.Shift} already exists.");
             return false;
         }
         public static BeepKeys ConvertSystemKeysToBeepKeys(System.Windows.Forms.Keys key)

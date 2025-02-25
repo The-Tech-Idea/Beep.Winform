@@ -192,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _textFont = value;
                 UseThemeFont = false;
                 Font = value;
-               // Console.WriteLine("TextFont Changed");
+               //// Console.WriteLine("TextFont Changed");
              //   ApplyTheme();
                 Invalidate();
 
@@ -242,7 +242,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnFontChanged(e);
             _textFont = Font;
-         //   Console.WriteLine("Font Changed");
+         //  // Console.WriteLine("Font Changed");
             if (AutoSize)
             {
                 Size textSize = TextRenderer.MeasureText(Text, _textFont);
@@ -395,7 +395,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 beepImage.MaximumSize = imageSize;
                 beepImage.Size = imageRect.Size;
-                // Console.WriteLine("Label show ImagePath");
+                //// Console.WriteLine("Label show ImagePath");
                 beepImage.DrawImage(g, imageRect);
                 // place beepimage in the same place imagerect is
                 //beepImage.Location = imageRect.Location;
@@ -416,7 +416,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Theme"
         public override void ApplyTheme()
         {
-           // Console.WriteLine("1 Label Apply Theme TextFont");
+           //// Console.WriteLine("1 Label Apply Theme TextFont");
             //  base.ApplyTheme();
             if (_currentTheme != null)
             {
@@ -435,7 +435,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     parentbackcolor = Parent.BackColor;
                 }
-                //   Console.WriteLine("2 Label Apply Theme TextFont");
+                //  // Console.WriteLine("2 Label Apply Theme TextFont");
                 ApplyThemeToSvg();
                 Invalidate();
                 Refresh();
@@ -657,7 +657,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "IBeep UI Component Implementation"
         public override void SetValue(object value)
         {
-            Text = value.ToString();
+            Text = value?.ToString();
 
         }
         public override object GetValue()

@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Constructors"
         public BeepiForm(IBeepService beepService)
         {
-            //   Debug.WriteLine("BeepiForm Constructor 1");
+            //   //Debug.WriteLine("BeepiForm Constructor 1");
             InitializeComponent();
             beepservices = beepService;
             ishandled = false;
@@ -114,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             FormBorderStyle = FormBorderStyle.None;
             //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
             //      Margin = new Padding(_resizeMargin);
-            //     Debug.WriteLine("BeepiForm Constructor 11");
+            //     //Debug.WriteLine("BeepiForm Constructor 11");
             // Initialize();
             // Set padding so controls dock within the interior
             this.Padding = new Padding(_borderThickness);
@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public BeepiForm()
         {
-            // Debug.WriteLine("BeepiForm Constructor 2");
+            // //Debug.WriteLine("BeepiForm Constructor 2");
             InitializeComponent();
             ishandled = false;
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
@@ -136,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             FormBorderStyle = FormBorderStyle.None;
             //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
             //      Margin = new Padding(_resizeMargin);
-            //  Debug.WriteLine("BeepiForm Constructor 22");
+            //  //Debug.WriteLine("BeepiForm Constructor 22");
             // Initialize();
             // Set padding so controls dock within the interior
             this.Padding = new Padding(_borderThickness);
@@ -155,7 +155,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnControlAdded(ControlEventArgs e)
         {
             base.OnControlAdded(e);
-            //   Console.WriteLine($"1 Control Added {e.Control.Text}");
+            //  // Console.WriteLine($"1 Control Added {e.Control.Text}");
           //  AdjustControls();
         }
         protected override void InitLayout()

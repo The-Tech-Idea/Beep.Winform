@@ -294,7 +294,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     //                                   else
     //                                   {
     //                                       // Handle file not found scenario
-    //                                       Console.WriteLine($"File not found: {iconPath}");
+    //                                      // Console.WriteLine($"File not found: {iconPath}");
     //                                   }
     //                               }
 
@@ -335,7 +335,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     //           {
     //               if (assembly.FullName.ToUpper().Contains("HALALLIB"))
     //               {
-    //                   Debug.WriteLine(assembly.FullName);
+    //                   //Debug.WriteLine(assembly.FullName);
     //               }
     //               // Get all embedded resources
     //               string[] resources = assembly.GetManifestResourceNames();

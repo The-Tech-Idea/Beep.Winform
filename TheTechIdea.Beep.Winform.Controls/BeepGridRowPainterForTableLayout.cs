@@ -46,18 +46,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public BeepGridRowPainterForTableLayout(BeepMultiSplitter gridPanel)
         {
-            Console.WriteLine("BeepGridRowPainterForTableLayout Constructor");
+           // Console.WriteLine("BeepGridRowPainterForTableLayout Constructor");
             _gridPanel = gridPanel;
             _columns = new BeepGridColumnConfigCollection();
             
             _gridPanel.Resize += (s, e) => OnResize();
-            Console.WriteLine("BeepGridRowPainterForTableLayout Constructor 1");
+           // Console.WriteLine("BeepGridRowPainterForTableLayout Constructor 1");
             InitializeGridStructure();
-            Console.WriteLine("BeepGridRowPainterForTableLayout Constructor 2");
+           // Console.WriteLine("BeepGridRowPainterForTableLayout Constructor 2");
             ConfigureScrollBars();
-            Console.WriteLine("BeepGridRowPainterForTableLayout Constructor 3");
+           // Console.WriteLine("BeepGridRowPainterForTableLayout Constructor 3");
             HookEvents();
-            Console.WriteLine("BeepGridRowPainterForTableLayout Constructor End");
+           // Console.WriteLine("BeepGridRowPainterForTableLayout Constructor End");
         }
 
 
@@ -179,19 +179,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (data == null || data.Count == 0)
                 return;
-            Console.WriteLine("SetDataSource");
+           // Console.WriteLine("SetDataSource");
             FillData(data);
-            Console.WriteLine($"SetDataSource 0: {_dataRecords.Count}");
-            Console.WriteLine("SetDataSource 1");
+           // Console.WriteLine($"SetDataSource 0: {_dataRecords.Count}");
+           // Console.WriteLine("SetDataSource 1");
             _firstVisibleRow = 0; // Reset scroll position
-            Console.WriteLine("SetDataSource 2");
+           // Console.WriteLine("SetDataSource 2");
             // Ensure we have valid rows before updating UI
             _gridPanel.tableLayoutPanel.RowCount = Math.Max(2, _visibleRowCount + 2);
-            Console.WriteLine("SetDataSource 3");
+           // Console.WriteLine("SetDataSource 3");
             UpdateVirtualization();
-            Console.WriteLine("SetDataSource 4");
+           // Console.WriteLine("SetDataSource 4");
             UpdateScrollBars();
-            Console.WriteLine("SetDataSource 5");
+           // Console.WriteLine("SetDataSource 5");
         }
         private void UpdateVirtualization()
         {

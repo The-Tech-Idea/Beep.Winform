@@ -48,25 +48,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (this.IsDisposed)
             {
-                Debug.WriteLine("Form is disposed. Action skipped.");
+                //Debug.WriteLine("Form is disposed. Action skipped.");
                 return;
             }
 
             // Force handle creation if it doesn't exist
             if (!this.IsHandleCreated)
             {
-                Debug.WriteLine("Form handle not created. Forcing handle creation.");
+                //Debug.WriteLine("Form handle not created. Forcing handle creation.");
                 var forceHandle = this.Handle; // Force handle creation
             }
 
             if (this.InvokeRequired)
             {
-                Debug.WriteLine("Invoking action on UI thread.");
+                //Debug.WriteLine("Invoking action on UI thread.");
                 this.Invoke(action);
             }
             else
             {
-                Debug.WriteLine("Executing action directly.");
+                //Debug.WriteLine("Executing action directly.");
                 action();
             }
         }
@@ -163,20 +163,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Ensure the method is thread-safe
             //SafeInvoke(() =>
             //{
-                Debug.WriteLine($"UpdateProgress called with text: {text}");
+                //Debug.WriteLine($"UpdateProgress called with text: {text}");
                 if (!string.IsNullOrEmpty(text))
                 {
                     if (messege == null)
                     {
-                        Debug.WriteLine("messege control is null.");
+                        //Debug.WriteLine("messege control is null.");
                         return;
                     }
                     if (messege.IsDisposed)
                     {
-                        Debug.WriteLine("messege control is disposed.");
+                        //Debug.WriteLine("messege control is disposed.");
                         return;
                     }
-                Debug.WriteLine("started");
+                //Debug.WriteLine("started");
                 InvokeAction(messege, () => {
                     messege.AppendText(text + Environment.NewLine);
                     messege.SelectionStart = messege.Text.Length;
@@ -190,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //        messege.ScrollToCaret();
                 //        messege.Refresh(); // Force redraw
                 //   }));
-                Debug.WriteLine("finshed ");
+                //Debug.WriteLine("finshed ");
                     //messege.AppendText(text + Environment.NewLine);
                     //messege.SelectionStart = messege.Text.Length;
                     //messege.ScrollToCaret();

@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
         //        if (_dynamicTabControl.Panels.TryGetValue(newTab.GuidId, out var panel))
         //        {
         //            EnableDesignMode(panel, panel.Name);
-        //            Debug.WriteLine($"Designer: Enabled design mode for panel {panel.Name}");
+        //            //Debug.WriteLine($"Designer: Enabled design mode for panel {panel.Name}");
         //        }
         //    }
         //}
@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
                 var designerActionUIService = (DesignerActionUIService)GetService(typeof(DesignerActionUIService));
                 designerActionUIService?.Refresh(_dynamicTabControl);
 
-                Debug.WriteLine($"Designer: SelectedTab changed to {_dynamicTabControl.SelectedTab?.Name}");
+                //Debug.WriteLine($"Designer: SelectedTab changed to {_dynamicTabControl.SelectedTab?.Name}");
             }
         }
 
@@ -172,7 +172,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
             control.Location = dropPoint;
             control.BringToFront();
 
-            Debug.WriteLine($"Designer: Control {control.Name} added to {panel.Name} at location {control.Location}");
+            //Debug.WriteLine($"Designer: Control {control.Name} added to {panel.Name} at location {control.Location}");
         }
 
         /// <summary>

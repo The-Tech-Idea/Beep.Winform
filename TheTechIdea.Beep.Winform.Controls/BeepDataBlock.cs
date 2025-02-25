@@ -99,13 +99,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                         else
                         {
                             // Handle the case where EntityStructure is null
-                            Console.WriteLine("EntityStructure is null after GetEntityStructureFromType.");
+                           // Console.WriteLine("EntityStructure is null after GetEntityStructureFromType.");
                         }
                     }
                     else
                     {
                         // Handle the case where beepService or beepService.util is null
-                        Console.WriteLine("beepService or beepService.util is null.");
+                       // Console.WriteLine("beepService or beepService.util is null.");
                     }
                 
             }
@@ -366,11 +366,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (component.ValidateData(out string message))
                 {
-                    Console.WriteLine($"Validated {component.GuidID}: {message}");
+                   // Console.WriteLine($"Validated {component.GuidID}: {message}");
                 }
                 else
                 {
-                    Console.WriteLine($"Validation failed for {component.GuidID}: {message}");
+                   // Console.WriteLine($"Validation failed for {component.GuidID}: {message}");
                 }
             }
 
@@ -397,7 +397,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (EntityStructure == null || EntityStructure.Fields == null)
             {
-                Console.WriteLine("EntityStructure or Fields is null. Cannot initialize controls.");
+               // Console.WriteLine("EntityStructure or Fields is null. Cannot initialize controls.");
                 return;
             }
 
@@ -435,7 +435,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Type componentType = Type.GetType(existingComponent.TypeFullName);
                     if (componentType == null)
                     {
-                        Console.WriteLine($"Cannot find type {existingComponent.TypeFullName} for field {field.fieldname}.");
+                       // Console.WriteLine($"Cannot find type {existingComponent.TypeFullName} for field {field.fieldname}.");
                         continue;
                     }
 
@@ -478,20 +478,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Ensure the type implements IBeepUIComponent and derives from Control
                 if (!typeof(IBeepUIComponent).IsAssignableFrom(type))
                 {
-                    Console.WriteLine("Type {TypeName} does not implement IBeepUIComponent.", type.FullName);
+                   // Console.WriteLine("Type {TypeName} does not implement IBeepUIComponent.", type.FullName);
                     return null;
                 }
 
                 if (!typeof(Control).IsAssignableFrom(type))
                 {
-                    Console.WriteLine("Type {TypeName} does not derive from Control.", type.FullName);
+                   // Console.WriteLine("Type {TypeName} does not derive from Control.", type.FullName);
                     return null;
                 }
 
                 // Ensure the type has a parameterless constructor
                 if (type.GetConstructor(Type.EmptyTypes) == null)
                 {
-                    Console.WriteLine("Type {TypeName} does not have a parameterless constructor.", type.FullName);
+                   // Console.WriteLine("Type {TypeName} does not have a parameterless constructor.", type.FullName);
                     return null;
                 }
 
@@ -526,7 +526,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Add to UIComponents dictionary
                     UIComponents[componentInstance.GuidID] = componentInstance;
 
-                    Console.WriteLine("Component {ComponentName} of type {TypeName} instantiated and added to UIComponents.", componentInstance.ComponentName, type.FullName);
+                   // Console.WriteLine("Component {ComponentName} of type {TypeName} instantiated and added to UIComponents.", componentInstance.ComponentName, type.FullName);
                 }
 
                 return componentInstance;

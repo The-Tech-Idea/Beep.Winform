@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         {
             if (string.IsNullOrEmpty(guidID))
             {
-                Console.WriteLine("Invalid GuidID provided.");
+               // Console.WriteLine("Invalid GuidID provided.");
                 return null;
             }
 
@@ -151,11 +151,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             {
                 foreach (var node in nodes)
                 {
-                    Console.WriteLine($"Checking node: {node.Name}");
+                   // Console.WriteLine($"Checking node: {node.Name}");
 
                     if (node.GuidID == guid)
                     {
-                        Console.WriteLine($"Match found: {node.Name}");
+                       // Console.WriteLine($"Match found: {node.Name}");
                         return node;
                     }
 
@@ -169,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             var result = FindNodeByGuid(Tree.Branches, guidID);
             if (result == null)
             {
-                Console.WriteLine($"Node with GuidID {guidID} not found.");
+               // Console.WriteLine($"Node with GuidID {guidID} not found.");
             }
             return result;
         }

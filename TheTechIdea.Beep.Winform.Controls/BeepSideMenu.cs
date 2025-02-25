@@ -226,7 +226,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 _listbuttontextFont = value;
                 UseThemeFont = false;
-              //  Console.WriteLine("Font Changed");
+              // // Console.WriteLine("Font Changed");
                 ChangeListFont();
                 Invalidate();
 
@@ -256,7 +256,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             animationTimer.Tick += AnimationTimer_Tick;
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
-            IsFramless = true;
+            IsFrameless = true;
             ShowAllBorders = false;
             ShowShadow = false;
             logo = new BeepImage
@@ -268,7 +268,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowAllBorders = false,
                 ShowShadow = false,
                 Text = Title,
-                IsFramless = true,
+                IsFrameless = true,
                 IsChild = true,
                 ApplyThemeOnImage = false,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,

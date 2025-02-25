@@ -674,8 +674,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             try
             {
                // File.AppendAllText(@"C:\Logs\debug_log.txt", $"{DateTime.Now}: {message}{Environment.NewLine}");
-                Console.WriteLine(message);
-                Debug.WriteLine(message);
+               // Console.WriteLine(message);
+                //Debug.WriteLine(message);
             }
             catch { /* Ignore logging errors */ }
         }
@@ -755,7 +755,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        return;
         //    }
 
-        //  //  Console.WriteLine($"ListChanged: Type={e.ListChangedType}, Index={e.NewIndex}");
+        //  // // Console.WriteLine($"ListChanged: Type={e.ListChangedType}, Index={e.NewIndex}");
         //    try
         //    {
         //        _isUpdatingTree = true;
@@ -786,7 +786,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //                break;
 
         //            default:
-        //                Console.WriteLine($"Unhandled ListChangedType: {e.ListChangedType}");
+        //               // Console.WriteLine($"Unhandled ListChangedType: {e.ListChangedType}");
         //                break;
         //        }
         //    }
@@ -845,7 +845,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //{
         //    if (index < 0 || index >= rootnodeitems.Count || index >= _beeptreeRootnodes.Count)
         //    {
-        //        Console.WriteLine($"Invalid index for update: {index}");
+        //       // Console.WriteLine($"Invalid index for update: {index}");
         //        return;
         //    }
 
@@ -857,7 +857,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        node.ImagePath = menuItem.ImagePath;
         //        node.Children = menuItem.Children; // Sync children
         //        //node.RearrangeNode();
-        //        Console.WriteLine($"Node updated for item at index {index}: {menuItem.Text}");
+        //       // Console.WriteLine($"Node updated for item at index {index}: {menuItem.Text}");
         //        RearrangeTree();
         //    }
         //}
@@ -957,7 +957,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     seq = Nodeseq++; ;
                 }
                 //   LogMessage($"Creating Node: {menuItem.Text}, Depth: {depth}");
-                Console.WriteLine("Creating Node: " + name);
+               // Console.WriteLine("Creating Node: " + name);
                 var node = new BeepTreeNode
                 {
                     Name = name ?? $"Node{seq}",
@@ -970,7 +970,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Height = NodeHeight,
                     IsBorderAffectedByTheme = false,
                     IsShadowAffectedByTheme = false,
-                    IsFramless = true,
+                    IsFrameless = true,
                     IsChild = true,
                     Size = new Size(this.Width, NodeHeight),
                     Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right,
@@ -992,13 +992,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 node.NodeDeselected += (sender, e) => NodeDeselected?.Invoke(sender, e);
               //  node.MouseHover += (sender, e) => { node.HilightNode(); };
              //   node.MouseLeave += (sender, e) => { node.UnHilightNode(); };
-                Console.WriteLine("Node Created: " + node.Text);
+               // Console.WriteLine("Node Created: " + node.Text);
                 return node;
             }
             catch (Exception ex)
             {
                 //   LogMessage($"Erro in creating node:  {ex.Message} ");
-                Console.WriteLine("Error: " + ex.Message);
+               // Console.WriteLine("Error: " + ex.Message);
                 return new BeepTreeNode();
             }
         }
@@ -1023,7 +1023,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                  
                 LogMessage($"Creating Node: {menuItem.Text}, Depth: {depth}");
-                Console.WriteLine("Creating Node: " + menuItem.Text);
+               // Console.WriteLine("Creating Node: " + menuItem.Text);
                 var node = new BeepTreeNode
                 {
                     Name = menuItem.Text ?? $"Node{seq}",
@@ -1038,7 +1038,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     IsBorderAffectedByTheme = false,
                     IsShadowAffectedByTheme = false,
                     MaxImageSize= NodeImageSize,
-                    IsFramless = true,
+                    IsFrameless = true,
                     IsChild = false,
                     Size = new Size(this.Width, NodeHeight),
                     Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right,
@@ -1070,7 +1070,7 @@ namespace TheTechIdea.Beep.Winform.Controls
               //  node.MouseHover += (sender, e) => { node.HilightNode(); };
                // node.MouseLeave += (sender, e) => { node.UnHilightNode(); };
                 node.ShowCheckBox=ShowCheckBox;
-                Console.WriteLine("Node Created: " + node.Text);
+               // Console.WriteLine("Node Created: " + node.Text);
                 LogMessage($"Creating Node Childern: {menuItem.Text}, Depth: {depth}");
                 return node;
 
@@ -1078,7 +1078,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             catch (Exception ex)
             {
                 LogMessage($"Erro in creating node:  {ex.Message} ");
-                Console.WriteLine("Error: " + ex.Message);
+               // Console.WriteLine("Error: " + ex.Message);
                 return new BeepTreeNode();
             }
         }
@@ -1997,7 +1997,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnFontChanged(e);
             _textFont = Font;
-          //  Console.WriteLine("Font Changed");
+          // // Console.WriteLine("Font Changed");
             if (AutoSize)
             {
                 Size textSize = TextRenderer.MeasureText(Text, _textFont);

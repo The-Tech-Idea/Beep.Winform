@@ -88,7 +88,7 @@
             _beepListBox.IsCustomeBorder = false;
             _beepListBox.IsDefault = false;
             _beepListBox.IsFocused = false;
-            _beepListBox.IsFramless = false;
+            _beepListBox.IsFrameless = false;
             _beepListBox.IsHovered = false;
             _beepListBox.IsItemChilds = true;
             _beepListBox.IsPressed = false;

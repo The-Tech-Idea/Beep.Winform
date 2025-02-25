@@ -156,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public static void ApplyTheme(Form form, BeepTheme theme)
         {
             form.BackColor = theme.BackgroundColor;
-            Console.WriteLine("Form BackColor: " + form.BackColor);
+           // Console.WriteLine("Form BackColor: " + form.BackColor);
 
             //closeButton.BackColor = theme.BackgroundColor;
             //closeButton.ForeColor = theme.ButtonForeColor;

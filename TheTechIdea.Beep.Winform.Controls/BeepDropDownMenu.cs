@@ -233,7 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _dropDownButton.Width = _buttonWidth;
                 _dropDownButton.Height = _buttonWidth;
                 _dropDownButton.MaxImageSize = new Size(_dropDownButton.Width - 2, _dropDownButton.Height - 2);
-                Console.WriteLine($"TitlelineY: {TitleBottomY}");
+               // Console.WriteLine($"TitlelineY: {TitleBottomY}");
             }
             // Adjust the height of the control if it's not expanded
             if (!_isExpanded)

@@ -3,6 +3,7 @@ using System.Drawing.Design;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Winform.Controls.Editors;
+using System.Collections.Generic;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -19,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Form _popupForm;
         int padding;
         int spacing; 
-        private SimpleItemCollection _items = new SimpleItemCollection();
+        private List<SimpleItem> _items = new List<SimpleItem>();
         Panel sp1,sp2;
         private string _listField;
         private string _displayField;
@@ -50,9 +51,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
-        [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
+       
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public SimpleItemCollection ListItems
+        public List<SimpleItem> ListItems
         {
             get => _items;
             set

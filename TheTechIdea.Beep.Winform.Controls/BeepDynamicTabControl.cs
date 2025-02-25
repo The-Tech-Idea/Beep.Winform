@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         if (!Panels.ContainsKey(newItem.GuidId))
                         {
-                            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] 🔹 Add Triggered! ...");
+                           // Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] 🔹 Add Triggered! ...");
                             AddTab(newItem);
                             TabAdded?.Invoke(this, new DynamicTabEventArgs(Panels[newItem.GuidId], Tabs.IndexOf(newItem)));
                         }
@@ -167,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
-                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] 🚨 Reset Triggered! Checking Stack Trace...");
+                   // Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] 🚨 Reset Triggered! Checking Stack Trace...");
                     SynchronizeTabs(); // ✅ Only update missing items
                     break;
             }
@@ -180,8 +180,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_isResetting) return; // ✅ Ignore duplicate resets
                 _isResetting = true;
 
-                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] 🚨 Reset Triggered! Checking Stack Trace...");
-                Console.WriteLine(new System.Diagnostics.StackTrace()); // ✅ Helps debugging
+               // Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] 🚨 Reset Triggered! Checking Stack Trace...");
+               // Console.WriteLine(new System.Diagnostics.StackTrace()); // ✅ Helps debugging
 
                 // ✅ Instead of resetting everything, only update missing items
               //  SynchronizeTabs();
@@ -193,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             switch (e.ListChangedType)
             {
                 case ListChangedType.ItemAdded:
-                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] 🔹 ItemAdded -> {Tabs[e.NewIndex].GuidId}");
+                   // Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] 🔹 ItemAdded -> {Tabs[e.NewIndex].GuidId}");
                     AddTab(Tabs[e.NewIndex]);
                     TabAdded?.Invoke(this, new DynamicTabEventArgs(Panels[Tabs[e.NewIndex].GuidId], e.NewIndex));
                     break;
@@ -255,7 +255,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void AddTab(SimpleItem item)
         {
-           // Debug.WriteLine($"AddTab: {item.Text}");
+           // //Debug.WriteLine($"AddTab: {item.Text}");
             if (Panels.ContainsKey(item.GuidId.Trim())) return;
 
             // Create content panel for the tab
@@ -273,23 +273,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                
             };
 
-           // Debug.WriteLine($"AddTab: Creating drag-and-drop handlers for {panel.Name}");
+           // //Debug.WriteLine($"AddTab: Creating drag-and-drop handlers for {panel.Name}");
             // Attach drag-and-drop event handlers
             panel.DragEnter += Panel_DragEnter;
             panel.DragDrop += Panel_DragDrop;
 
-           //Debug.WriteLine($"AddTab: Adding panel {panel.Name} to ContentPanel");
+           ////Debug.WriteLine($"AddTab: Adding panel {panel.Name} to ContentPanel");
             AddControlToContentPanel(ContentPanel, panel);
 
-         //  Debug.WriteLine($"AddTab: Creating button for tab {item.Text}");
+         //  //Debug.WriteLine($"AddTab: Creating button for tab {item.Text}");
             // Create header button for the tab
             var button = CreateTabButton(item, panel);
-          //  Debug.WriteLine($"AddTab: Adding button {button.Name} to HeaderPanel");
+          //  //Debug.WriteLine($"AddTab: Adding button {button.Name} to HeaderPanel");
             AddControlToContentPanel(HeaderPanel, button);
 
             // Map the tab's GuidId to its Panel
             Panels[item.GuidId.Trim()] = panel;
-            Debug.WriteLine($"AddTab: Added panel {panel.Name} with GuidId {item.GuidId}");
+            //Debug.WriteLine($"AddTab: Added panel {panel.Name} with GuidId {item.GuidId}");
             
             // Automatically select the first tab
             if (Panels.Count == 1)
@@ -376,7 +376,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             // remove from Tabs
          //   Tabs.Remove(item);
-            // Debug.WriteLine($"RemoveTab: Removed tab {item.Text} and panel {panel.Name}");
+            // //Debug.WriteLine($"RemoveTab: Removed tab {item.Text} and panel {panel.Name}");
         }
 
         private void UpdateTab(SimpleItem item)
@@ -389,7 +389,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (button != null)
             {
                 button.Text = item.Text;
-               // Debug.WriteLine($"UpdateTab: Updated button text to {item.Text}");
+               // //Debug.WriteLine($"UpdateTab: Updated button text to {item.Text}");
             }
         }
 
@@ -399,7 +399,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private BeepButton CreateTabButton(SimpleItem item, BeepPanel panel)
         {
-           // Debug.WriteLine($"CreateTabButton: Creating button for {item.Name}");
+           // //Debug.WriteLine($"CreateTabButton: Creating button for {item.Name}");
             var button = new BeepButton
             {
                 Name = $"HeaderButton{count}",
@@ -410,7 +410,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SelectedItem = item,
                 GuidID = item.GuidId
             };
-           // Debug.WriteLine($"CreateTabButton: Created button {button.Name}");
+           // //Debug.WriteLine($"CreateTabButton: Created button {button.Name}");
 
             // Drag-and-Drop for reordering tabs
             button.MouseDown += (s, e) =>
@@ -445,7 +445,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Tabs[sourceIndex] = Tabs[targetIndex];
                     Tabs[targetIndex] = temp;
 
-                   // Debug.WriteLine($"CreateTabButton: Swapped tabs at index {sourceIndex} and {targetIndex}");
+                   // //Debug.WriteLine($"CreateTabButton: Swapped tabs at index {sourceIndex} and {targetIndex}");
                 }
             };
 
@@ -457,7 +457,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TabButtonClicked?.Invoke(this, new DynamicTabEventArgs(btnpanel, Tabs.IndexOf(btn.SelectedItem)));
                 SelectedTab = btn.SelectedItem;
                 TabSelected?.Invoke(this, new DynamicTabEventArgs(btnpanel, Tabs.IndexOf(btn.SelectedItem)));
-               // Debug.WriteLine($"CreateTabButton: Tab {item.Text} clicked and selected.");
+               // //Debug.WriteLine($"CreateTabButton: Tab {item.Text} clicked and selected.");
             };
 
             return button;
@@ -471,11 +471,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_selectedTab == null)
             {
-               // Debug.WriteLine("UpdateSelectedTab: SelectedTab is null.");
+               // //Debug.WriteLine("UpdateSelectedTab: SelectedTab is null.");
                 return;
             }
 
-           // Debug.WriteLine($"UpdateSelectedTab: SelectedTab = {_selectedTab.Text}");
+           // //Debug.WriteLine($"UpdateSelectedTab: SelectedTab = {_selectedTab.Text}");
 
             foreach (Control control in ContentPanel.Controls)
             {
@@ -485,24 +485,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         panel.Visible = true;
                         panel.BringToFront();
-                        // Debug.WriteLine($"UpdateSelectedTab: Panel {panel.Name} is now visible.");
+                        // //Debug.WriteLine($"UpdateSelectedTab: Panel {panel.Name} is now visible.");
                     }
                     else
                     {
                         panel.Visible = false;
                         panel.SendToBack();
-                        // Debug.WriteLine($"UpdateSelectedTab: Panel {panel.Name} is now hidden.");
+                        // //Debug.WriteLine($"UpdateSelectedTab: Panel {panel.Name} is now hidden.");
                     }
                     //panel.Visible = isSelected;
                     //if (isSelected)
                     //{
                     //    panel.BringToFront();
-                    //   // Debug.WriteLine($"UpdateSelectedTab: Panel {panel.Name} is now visible.");
+                    //   // //Debug.WriteLine($"UpdateSelectedTab: Panel {panel.Name} is now visible.");
                     //}
                     //else
                     //{
                     //    panel.SendToBack();
-                    //   // Debug.WriteLine($"UpdateSelectedTab: Panel {panel.Name} is now hidden.");
+                    //   // //Debug.WriteLine($"UpdateSelectedTab: Panel {panel.Name} is now hidden.");
                     //}
                 }
             }
@@ -525,18 +525,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region UI Enhancements
         private void HighlightButtonAt(string itemguidid)
         {
-          //  Debug.WriteLine($"Expected GUID: '{itemguidid}'");
+          //  //Debug.WriteLine($"Expected GUID: '{itemguidid}'");
 
             for (int i = 0; i < HeaderPanel.Controls.Count; i++)
             {
                 if (HeaderPanel.Controls[i] is BeepButton btn)
                 {
-            //        Debug.WriteLine($"Checking Button: {btn.Name} | Button GUID: '{btn.GuidID}'");
+            //        //Debug.WriteLine($"Checking Button: {btn.Name} | Button GUID: '{btn.GuidID}'");
 
                     bool match = string.Equals(btn.GuidID?.Trim(), itemguidid?.Trim(), StringComparison.OrdinalIgnoreCase);
                     btn.IsSelected = match;
 
-              //      Debug.WriteLine($"HighlightButtonAt: Button {btn.Name} is selected: {btn.IsSelected}");
+              //      //Debug.WriteLine($"HighlightButtonAt: Button {btn.Name} is selected: {btn.IsSelected}");
                 }
             }
         }
@@ -622,7 +622,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //            targetPanel.Controls.Add(control);
         //            control.Location = targetPanel.PointToClient(new Point(e.X, e.Y));
         //            control.BringToFront();
-        //           // Debug.WriteLine($"DragDrop: Control {control.Name} added to {targetPanel.Name} at location {control.Location}");
+        //           // //Debug.WriteLine($"DragDrop: Control {control.Name} added to {targetPanel.Name} at location {control.Location}");
         //        }
         //    }
         //}
@@ -665,7 +665,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     targetPanel.Controls.Add(control);
                     control.Location = targetPanel.PointToClient(new Point(e.X, e.Y));
                     control.BringToFront();
-                   // Debug.WriteLine($"Panel_DragDrop: Control {control.Name} added to {targetPanel.Name} at location {control.Location}");
+                   // //Debug.WriteLine($"Panel_DragDrop: Control {control.Name} added to {targetPanel.Name} at location {control.Location}");
                 }
             }
         }
@@ -837,7 +837,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Prevent duplicate additions
             if (contentPanel.Controls.Contains(childControl))
             {
-                Debug.WriteLine($"[INFO] The control '{childControl.Name}' already exists in the ContentPanel. Skipping addition.");
+                //Debug.WriteLine($"[INFO] The control '{childControl.Name}' already exists in the ContentPanel. Skipping addition.");
                 return;
             }
 
@@ -871,7 +871,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (componentToRemove != null)
                     {
                         container.Remove(componentToRemove);
-                        Debug.WriteLine($"[DESIGNER] Unregistered '{childControl.Name}' from the designer.");
+                        //Debug.WriteLine($"[DESIGNER] Unregistered '{childControl.Name}' from the designer.");
                     }
                 }
 

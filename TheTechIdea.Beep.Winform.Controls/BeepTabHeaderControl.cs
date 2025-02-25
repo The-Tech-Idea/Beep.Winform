@@ -628,7 +628,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void SyncTabs(BindingList<SimpleItem> tabs)
         {
-            Debug.WriteLine($"SyncTabs called with {tabs?.Count ?? 0} items.");
+            //Debug.WriteLine($"SyncTabs called with {tabs?.Count ?? 0} items.");
             if (_targetTabControl == null)
                 return;
 
@@ -639,7 +639,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var tp = _targetTabControl.TabPages[i];
                 if (!tabNames.Contains(tp.Name))
                 {
-                    Debug.WriteLine($"Removing TabPage '{tp.Name}' from TargetTabControl.");
+                    //Debug.WriteLine($"Removing TabPage '{tp.Name}' from TargetTabControl.");
                     _targetTabControl.TabPages.RemoveAt(i);
                 }
             }
@@ -653,7 +653,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             .FirstOrDefault(p => p.Name == item.GuidId);
                 if (tp == null)
                 {
-                    Debug.WriteLine($"Adding new TabPage '{item.Name}'.");
+                    //Debug.WriteLine($"Adding new TabPage '{item.Name}'.");
                     tp = new TabPage
                     {
                         Name = item.GuidId,
@@ -663,12 +663,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                    Debug.WriteLine($"Updating TabPage '{item.Name}'.");
+                    //Debug.WriteLine($"Updating TabPage '{item.Name}'.");
                     tp.Text = item.Text;
                 }
             }
 
-            Debug.WriteLine("Rebuilding header.");
+            //Debug.WriteLine("Rebuilding header.");
             RebuildHeader();
         }
 

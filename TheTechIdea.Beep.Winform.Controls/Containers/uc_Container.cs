@@ -462,7 +462,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers
 
         private void LogError(string message)
         {
-            Debug.WriteLine(message);
+            //Debug.WriteLine(message);
             // Consider integrating with a proper logging framework like Serilog or NLog
            // Editor?.ErrorObject?.FlagError(ErrorTypes.ERROR, message); // Assuming Editor has an error logging mechanism
         }

@@ -289,14 +289,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void InitLayout()
         {
-        //    Console.WriteLine("Control InitLayout");
+        //   // Console.WriteLine("Control InitLayout");
             base.InitLayout();
             UpdateDrawingRect();
             CreateMenuItemPanel();
             _isControlinvalidated = true;
-        //    Console.WriteLine("Control InitLayout 1");
+        //   // Console.WriteLine("Control InitLayout 1");
             Invalidate();
-        //    Console.WriteLine("Control InitLayout 2");
+        //   // Console.WriteLine("Control InitLayout 2");
         }
         private void CreateMenuItemPanel()
         {
@@ -308,7 +308,7 @@ namespace TheTechIdea.Beep.Winform.Controls
              DrawingRect.Inflate(-1, -1);
             buttonHeight = DrawingRect.Height ;
             // Main button setup
-           // Console.WriteLine("Control CreateMenuItemPanel");
+           //// Console.WriteLine("Control CreateMenuItemPanel");
             button = new BeepButton
             {
                 Size = new Size(DrawingRect.Width - RightButtonSize -  4, buttonHeight),
@@ -323,13 +323,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 ShowAllBorders = false,
                 ShowShadow = false,
-                IsFramless = true,
+                IsFrameless = true,
                 BorderSize = 0,
                 IsRounded = false,
                 UseScaledFont = true,
                 ApplyThemeOnImage = ApplyThemeOnImage
             };
-         //   Console.WriteLine("Control CreateMenuItemPanel 1");
+         //  // Console.WriteLine("Control CreateMenuItemPanel 1");
             if (MenuItem != null)
             {
                 button.Text = MenuItem.Text;
@@ -338,7 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     button.ImagePath = MenuItem.ImagePath;
                 }
             }
-          //  Console.WriteLine("Control CreateMenuItemPanel 2");
+          // // Console.WriteLine("Control CreateMenuItemPanel 2");
             // Extend button setup
             extendButton = new BeepButton
             {
@@ -349,7 +349,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MaxImageSize = new Size(RightButtonSize - 2, RightButtonSize-2),
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,
-                IsFramless = true,
+                IsFrameless = true,
                 Theme = Theme,
                 ShowAllBorders = false,
                 ShowShadow = false,
@@ -359,17 +359,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                   
                 ApplyThemeOnImage = ApplyThemeOnImage
             };
-          //  Console.WriteLine("Control CreateMenuItemPanel 3");
+          // // Console.WriteLine("Control CreateMenuItemPanel 3");
             if (!string.IsNullOrEmpty(_buttonImagePath))
             {
                 button.ImagePath = _buttonImagePath;
             }
-          //  Console.WriteLine("Control CreateMenuItemPanel 4");
+          // // Console.WriteLine("Control CreateMenuItemPanel 4");
             if (!string.IsNullOrEmpty(_extendedbuttonImagePath))
             {
                 extendButton.ImagePath = _extendedbuttonImagePath;
             }
-          //  Console.WriteLine("Control CreateMenuItemPanel 5");
+          // // Console.WriteLine("Control CreateMenuItemPanel 5");
             // Add highlight panel, main button, and extend button to the panel
             Controls.Add(highlightPanel);
             Controls.Add(button);
@@ -381,11 +381,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             //button.MouseHover += (s, e) => { highlightPanel.BackColor = _currentTheme.ButtonHoverBackColor; };
             button.Click += MenuItemButton_Click;
             extendButton.Click += ExtendButton_Click;
-          //  Console.WriteLine("Control CreateMenuItemPanel 6");
+          // // Console.WriteLine("Control CreateMenuItemPanel 6");
             // Add the panel to the control
 
             rearrangeControls();
-           // Console.WriteLine("Control CreateMenuItemPanel 7");
+           //// Console.WriteLine("Control CreateMenuItemPanel 7");
             _isControlinvalidated = false;
         }
 
@@ -393,10 +393,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         //protected override void OnPaint(PaintEventArgs e)
         //{
         //    base.OnPaint(e);
-        //   // Console.WriteLine("Control Invalidated 1 ");
+        //   //// Console.WriteLine("Control Invalidated 1 ");
         //    if (_isControlinvalidated)
         //    {
-        //       // Console.WriteLine("Control Invalidated 2");
+        //       //// Console.WriteLine("Control Invalidated 2");
         //        Controls.Clear();
         //        CreateMenuItemPanel();
         //        _isControlinvalidated = false;
@@ -458,7 +458,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnFontChanged(e);
             _textFont = Font;
-            //  Console.WriteLine("Font Changed");
+            // // Console.WriteLine("Font Changed");
             if (AutoSize)
             {
                 Size textSize = TextRenderer.MeasureText(Text, _textFont);

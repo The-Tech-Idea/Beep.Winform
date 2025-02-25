@@ -130,7 +130,7 @@
             DialogImage.IsDirty = false;
             DialogImage.IsEditable = false;
             DialogImage.IsFocused = false;
-            DialogImage.IsFramless = false;
+            DialogImage.IsFrameless = false;
             DialogImage.IsHovered = false;
             DialogImage.IsNew = false;
             DialogImage.IsPressed = false;
@@ -254,7 +254,7 @@
             CloseButton.IsDirty = false;
             CloseButton.IsEditable = false;
             CloseButton.IsFocused = false;
-            CloseButton.IsFramless = true;
+            CloseButton.IsFrameless = true;
             CloseButton.IsHovered = false;
             CloseButton.IsNew = false;
             CloseButton.IsPopupOpen = false;
@@ -383,7 +383,7 @@
             TitleLabel.IsDirty = false;
             TitleLabel.IsEditable = false;
             TitleLabel.IsFocused = false;
-            TitleLabel.IsFramless = true;
+            TitleLabel.IsFrameless = true;
             TitleLabel.IsHovered = false;
             TitleLabel.IsNew = false;
             TitleLabel.IsPressed = false;
@@ -521,7 +521,7 @@
             MiddleButton.IsDirty = false;
             MiddleButton.IsEditable = false;
             MiddleButton.IsFocused = false;
-            MiddleButton.IsFramless = false;
+            MiddleButton.IsFrameless = false;
             MiddleButton.IsHovered = false;
             MiddleButton.IsNew = false;
             MiddleButton.IsPopupOpen = false;
@@ -653,7 +653,7 @@
             RightButton.IsDirty = false;
             RightButton.IsEditable = false;
             RightButton.IsFocused = false;
-            RightButton.IsFramless = false;
+            RightButton.IsFrameless = false;
             RightButton.IsHovered = false;
             RightButton.IsNew = false;
             RightButton.IsPopupOpen = false;
@@ -785,7 +785,7 @@
             LeftButton.IsDirty = false;
             LeftButton.IsEditable = false;
             LeftButton.IsFocused = false;
-            LeftButton.IsFramless = false;
+            LeftButton.IsFrameless = false;
             LeftButton.IsHovered = false;
             LeftButton.IsNew = false;
             LeftButton.IsPopupOpen = false;
@@ -930,7 +930,7 @@
             InputTextBox.IsDirty = false;
             InputTextBox.IsEditable = false;
             InputTextBox.IsFocused = false;
-            InputTextBox.IsFramless = false;
+            InputTextBox.IsFrameless = false;
             InputTextBox.IsHovered = false;
             InputTextBox.IsNew = false;
             InputTextBox.IsPressed = false;
@@ -1068,7 +1068,7 @@
             CaptionTextBox.IsDirty = false;
             CaptionTextBox.IsEditable = false;
             CaptionTextBox.IsFocused = false;
-            CaptionTextBox.IsFramless = true;
+            CaptionTextBox.IsFrameless = true;
             CaptionTextBox.IsHovered = false;
             CaptionTextBox.IsNew = false;
             CaptionTextBox.IsPressed = false;
@@ -1195,7 +1195,7 @@
             SelectFromListComboBox.IsDirty = false;
             SelectFromListComboBox.IsEditable = false;
             SelectFromListComboBox.IsFocused = false;
-            SelectFromListComboBox.IsFramless = false;
+            SelectFromListComboBox.IsFrameless = false;
             SelectFromListComboBox.IsHovered = false;
             SelectFromListComboBox.IsNew = false;
             SelectFromListComboBox.IsPressed = false;

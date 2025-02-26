@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 
 
 
@@ -463,6 +465,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Theme"
         #region "Text and Alignment"
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+            Debug.WriteLine($"⚠️ BeepTextBox lost focus. Saving: {Text}");
+           
+
+        }
+
         // Dynamically calculate the preferred size based on text and image sizes
         public override Size GetPreferredSize(Size proposedSize)
         {

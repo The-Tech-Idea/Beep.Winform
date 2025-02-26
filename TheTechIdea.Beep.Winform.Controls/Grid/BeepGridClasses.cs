@@ -42,6 +42,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         //Cell Events
         public event EventHandler<BeepGridCellEventArgs> OnCellSelected;
         public event EventHandler<BeepGridCellEventArgs> OnCellValidate;
+        //public override bool Equals(object obj)
+        //{
+        //    if (obj is BeepGridCell other)
+        //    {
+        //        return this.Id == other.Id;
+        //    }
+        //    return false;
+        //}
+
+        //public override int GetHashCode()
+        //{
+        //    return Id.GetHashCode();
+        //}
 
 
         public void ApplyTheme(BeepTheme theme)

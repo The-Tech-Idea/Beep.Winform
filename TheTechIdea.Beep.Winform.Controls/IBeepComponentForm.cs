@@ -1,4 +1,5 @@
 ﻿
+using System.Diagnostics;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
@@ -9,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class IBeepComponentForm : Form, IBeepUIComponent
     {
         public IBeepUIComponent Component { get; set; }
-
+        public object Value { get; set; }
         public IBeepComponentForm()
         {
             InitializeComponent();
@@ -25,11 +26,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void AddComponent(IBeepUIComponent component)
         {
+            Debug.WriteLine($"🔄 Adding component {component.GetType().Name} to popup.");
             Component = component;
             Control ctl = (Control)component;
-            Controls.Add((Control)component);
-            component.Form = this;
-            ctl.Dock = DockStyle.Fill;
+
+            if (!Controls.Contains(ctl))  // Prevent re-adding the control
+            {
+                Controls.Add(ctl);
+                component.Form = this;
+                ctl.Dock = DockStyle.Fill;
+                Debug.WriteLine($"✅ Component added: {ctl.Name}");
+            }
+            else
+            {
+                Debug.WriteLine($"⚠️ Component already exists in popup: {ctl.Name}");
+            }
         }
 
         public EnumBeepThemes Theme
@@ -250,12 +261,20 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public object GetValue()
         {
+            Debug.WriteLine($"Getting Value from BeepTextBox in Beepiform");
             return Component?.GetValue();
         }
 
         public bool HasFilterValue()
         {
             return Component?.HasFilterValue() ?? false;
+        }
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+                Debug.WriteLine($"⚠️ BeeIForm lost focus. Saving: {Value}");
+      //      Component.SetValue(Value);  // Force saving before closing
+            
         }
 
         public void HideToolTip()
@@ -275,8 +294,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void SetValue(object value)
         {
+            Debug.WriteLine($"SetValue: {value}");
             Component?.SetValue(value);
+            Value = value;
         }
+        public new void Show()
+        {
+            Debug.WriteLine($"🔄 Showing popup. Current editor text: {Component?.GetValue()}");
+            base.Show();
+            Debug.WriteLine($"✅ After popup is visible, editor text: {Component?.GetValue()}");
+        }
+
+        protected override void OnDeactivate(EventArgs e)
+        {
+            Debug.WriteLine($"⚠️ Popup lost focus. Current text: {Component?.GetValue()}");
+            base.OnDeactivate(e);
+        }
+
 
         public void ShowToolTip(string text)
         {

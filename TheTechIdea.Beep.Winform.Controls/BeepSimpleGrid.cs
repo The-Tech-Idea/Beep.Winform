@@ -532,40 +532,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             UpdateScrollBars();
         }
-        private BeepControl CreateCellControlForEditing(BeepGridColumnConfig column)
-        {
-           // Console.WriteLine("YY"+column.CellEditor);
-            //Debug.WriteLine("YY" + column.CellEditor);
-            switch (column.CellEditor)
-            {
-               
-                case BeepGridColumnType.Text:
-                    return new BeepTextBox { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.CheckBox:
-                    return new BeepCheckBox { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.ComboBox:
-                    return new BeepComboBox { Theme = Theme, IsChild = true, ListItems = new BindingList<SimpleItem>(column.Items) };
-                case BeepGridColumnType.DateTime:
-                    return new BeepDatePicker { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.Image:
-                    return new BeepImage { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.Button:
-                    return new BeepButton { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.ProgressBar:
-                    return new BeepProgressBar { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.NumericUpDown:
-                    return new BeepNumericUpDown { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.StarRating:
-                    return new BeepStarRating { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.Switch:
-                    return new BeepSwitch { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.ListBox:
-                    return new BeepListofValuesBox { Theme = Theme, IsChild = true, ListItems = column.Items };
-                default:
-                    return new BeepTextBox { Theme = Theme, IsChild = true }; // Default fallback
-            }
-        }
-
         #endregion
 
         #region Data Filling and Navigation
@@ -586,29 +552,52 @@ namespace TheTechIdea.Beep.Winform.Controls
                         var prop = dataItem.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
                         var value = prop?.GetValue(dataItem)?.ToString() ?? string.Empty;
                         row.Cells[j].CellValue = value;
+                        row.Cells[j].CellData = value;
                         string colKey = col.ColumnName;
-                        if(_editingCell != null && _editingCell.RowIdx == i && _editingCell.Index == j)
-                        {
-                            continue;
-                        }
-                        if (_columnEditors.TryGetValue(colKey, out IBeepUIComponent editor))
-                        {
-                            UpdateCellControl(editor, col, row.Cells[j].CellValue);
-                        }
+                      
+                        //if (_columnEditors.TryGetValue(colKey, out IBeepUIComponent editor))
+                        //{
+                        //    UpdateCellControl(editor, col, row.Cells[j].CellValue);
+                        //}
 
                     }
                 }
-                else
-                {
-                    foreach (var cell in row.Cells)
-                    {
-                        UpdateCellControl(cell.UIComponent, null, string.Empty);
-                    }
-                }
+                //else
+                //{
+                //    foreach (var cell in row.Cells)
+                //    {
+                //        UpdateCellControl(cell.UIComponent, null, string.Empty);
+                //    }
+                //}
             }
             UpdateScrollBars();
         }
+        private void UpdateDataRecordFromRow(BeepGridCell editingCell)
+        {
+            BeepGridRow row = Rows[editingCell.RowIdx];
 
+            if (_fullData == null || !_fullData.Any()) return;
+            int rowIndex = Rows.IndexOf(row);
+            if (rowIndex < 0) return;
+            int dataIndex = _dataOffset + rowIndex;
+            if (dataIndex < _fullData.Count)
+            {
+                var dataItem = _fullData[dataIndex];
+                foreach (var cell in row.Cells)
+                {
+                    if(cell.IsDirty)
+                    {
+                        var prop = dataItem.GetType().GetProperty(Columns[cell.Index].ColumnName);
+                        if (prop != null)
+                        {
+                            prop.SetValue(dataItem, cell.CellValue);
+                        }
+                        row.IsDirty = true;
+                    }
+                   
+                }
+            }
+        }
         public void MoveNext()
         {
             if (_dataOffset + Rows.Count < _fullData.Count)
@@ -619,7 +608,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
         public void MovePrevious()
         {
             if (_dataOffset > 0)
@@ -631,43 +619,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion
-
         #region Control Creation and Updating
-        private object CreateCellControl(BeepGridColumnConfig column)
-        {
-            switch (column.CellEditor)
-            {
-                case BeepGridColumnType.Text:
-                    return new BeepTextBox { Theme = Theme };
-                case BeepGridColumnType.CheckBox:
-                    return new BeepCheckBox { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.ComboBox:
-                    return new BeepComboBox { Theme = Theme, IsChild = true, ListItems = new BindingList<SimpleItem>(column.Items) };
-                case BeepGridColumnType.DateTime:
-                    return new BeepDatePicker { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.Image:
-                    return new BeepImage { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.Button:
-                    return new BeepButton { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.ProgressBar:
-                    return new BeepProgressBar { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.Rating:
-                case BeepGridColumnType.StarRating:
-                    return new BeepStarRating { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.Custom:
-                    if (column.ColumnType == DbFieldCategory.Numeric)
-                        return new BeepNumericUpDown { Theme = Theme, IsChild = true };
-                    else if (column.ColumnType == DbFieldCategory.Boolean)
-                        return new BeepSwitch { Theme = Theme, IsChild = true };
-                    else if (column.Items != null && column.Items.Any())
-                        return new BeepListofValuesBox { Theme = Theme, IsChild = true, ListItems = column.Items};
-                    else
-                        return new BeepTextBox { Theme = Theme, IsChild = true };
-                default:
-                    return new BeepLabel { Theme = Theme, IsChild = true };
-            }
-        }
-
         private void UpdateCellControl(IBeepUIComponent control, BeepGridColumnConfig column, object value)
         {
             if (control == null) return;
@@ -748,7 +700,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
         }
-
         private TextBoxMaskFormat GetTextBoxMaskFormat(DbFieldCategory columnType)
         {
             return columnType switch
@@ -937,7 +888,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (xOffset > rowRect.Right) break; // Stop drawing if outside the visible area
             }
         }
-
         private void PaintCell(Graphics g, BeepGridCell cell, Rectangle cellRect)
         {
             // If this cell is being edited, skip drawing so that
@@ -947,43 +897,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 g.FillRectangle(cellBrush, cellRect);
             }
+            // Get the column editor if available
+            if (!_columnEditors.TryGetValue(Columns[cell.Index].ColumnName, out IBeepUIComponent columnEditor))
+               
+                {
 
-            if (cell.UIComponent == null)
-            {
-               // Console.WriteLine("Cell UIComponent is null");
-                //Debug.WriteLine("Cell UIComponent is null");
-                // Get the column editor if available
-                if (_columnEditors.TryGetValue(Columns[cell.Index].ColumnName, out IBeepUIComponent columnEditor))
-                {
-                   // Console.WriteLine("Cell UIComponent is null 1");
-                    //Debug.WriteLine("Cell UIComponent is null 1");
-                    cell.UIComponent = columnEditor;
+                // Create a new control if it doesn't exist (failsafe)
+                     columnEditor = CreateCellControlForEditing(cell);
+                    _columnEditors[Columns[cell.Index].ColumnName] = columnEditor;
                 }
-                else
-                {
-                   // Console.WriteLine("Cell UIComponent is null 2");
-                    //Debug.WriteLine("Cell UIComponent is null 2");
-                    // Create a new control if it doesn't exist (failsafe)
-                    cell.UIComponent = CreateCellControlForEditing(cell);
-                    _columnEditors[Columns[cell.Index].ColumnName] = (IBeepUIComponent)cell.UIComponent;
-                }
-            }
-           // Console.WriteLine("Cell UIComponent is null 3");
-            //Debug.WriteLine("Cell UIComponent is null 3");
-            if (cell.UIComponent != null)
+
+            if (columnEditor != null)
             {
-               // Console.WriteLine("Cell UIComponent is null 4");
-                //Debug.WriteLine("Cell UIComponent is null 4");
+             
                 // 🔹 Correctly update control bounds
-                var editor = (Control)cell.UIComponent;
+                var editor = (Control)columnEditor;
                 editor.Bounds = new Rectangle(cellRect.X, cellRect.Y, cellRect.Width, cellRect.Height);
-               // Console.WriteLine($"Cell {cell.CellValue}");
-                //Debug.WriteLine($"Cell UIComponent is null 4");
+             
                 // 🔹 Update the control value to match the cell's data
-                UpdateCellControl(cell.UIComponent, Columns[cell.Index], cell.CellValue);
+                UpdateCellControl(columnEditor, Columns[cell.Index], cell.CellValue);
 
                 // 🔹 Draw the editor or its representation
-                switch (cell.UIComponent)
+                switch (columnEditor)
                 {
                     case BeepTextBox textBox:
                         textBox.Draw(g, cellRect);
@@ -1332,6 +1267,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             int colIndex = cell.Index;
             string columnName = Columns[colIndex].ColumnName;
+            if(_editingControl!=null) 
 
             // Close any existing editor before opening a new one
             CloseCurrentEditor();
@@ -1401,26 +1337,35 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 🔹 Confirm value in editor **after setting**
             Debug.WriteLine($"✅ Editor Text After Update: {_editingControl.Text}");
             // Handle when the popup loses focus
-            _editorPopupForm.Deactivate += (s, e) => CloseCurrentEditor();
+           // _editorPopupForm.Deactivate += (s, e) => CloseCurrentEditor();
             //_editorPopupForm.Shown += (s, e) =>
             //{
             //    Debug.WriteLine($"🔄 Setting BeepTextBox text after popup is visible: {cell.CellValue}");
             //    
             //};
             //_editingControl.Invalidate();
-            _editorPopupForm.Show();
+            Debug.WriteLine($"🔄 Setting BeepTextBox text before popupform is Show: {_editingControl.Text}");
             _editorPopupForm.SetValue(cell.CellValue);
-            Debug.WriteLine($"✅ after show Editor Text After Update: {_editingControl.Text}");
+            _editorPopupForm.Show();
+            
+            Task.Delay(50).ContinueWith(t =>
+            {
+                _editorPopupForm.SetValue((string)cell.CellValue);
+                Debug.WriteLine($"✅ After popup is fully visible, setting text: {_editingControl.Text}");
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+
+            Debug.WriteLine($"✅ after popform Show the Editor BeepTextBox text   Show : {_editingControl.Text}");
         }
         private void CloseCurrentEditor()
         {
             if (_editingControl != null)
             {
                 // Save the current value before closing
-             
+              //  _editingCell.IsEditable = false;
                 Debug.WriteLine($"✅ before closing Editor Text After Update: {_editingControl.Text}");
 
                 SaveEditedValue();
+                Debug.WriteLine($"✅ After Save Text After : {_editingControl.Text}");
                 // Remove editor control from popup (prevents premature disposal)
                 if (_editorPopupForm != null && _editingControl.Parent == _editorPopupForm)
                 {
@@ -1436,8 +1381,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 // Reset references (but don't dispose `_editingControl` yet)
-                _editingCell = null;
-                _editingControl = null;
+             //   _editingCell = null;
+            //    _editingControl = null;
 
                 Debug.WriteLine("Popup editor closed successfully.");
             }
@@ -1469,11 +1414,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return new BeepTextBox { Theme = Theme, IsChild = true };
             }
         }
-        private void EditingControl_LostFocus(object sender, EventArgs e)
-        {
-            // Optionally, check if the mouse is not over the editor before closing.
-            CloseCurrentEditor();
-        }
+      
         private void EditingControl_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -1489,10 +1430,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void SaveEditedValue()
         {
-            if (_editingControl != null && _editingCell != null)
+            if (_editorPopupForm != null && _editingCell != null)
             {
-                IBeepUIComponent component = (IBeepUIComponent)_editingControl;
-                object newValue = component.GetValue();
+              
+                object newValue = _editorPopupForm.GetValue();
+
+                Debug.WriteLine($"🔄 Saving value: {newValue} (Old: {_editingCell.CellData})");
+
+                if (newValue == null || newValue.ToString() == string.Empty)
+                {
+                    Debug.WriteLine($"⚠️ New value is empty. Skipping update.");
+                    return;
+                }
 
                 // Update cell's stored value
                 _editingCell.OldValue = _editingCell.CellData;
@@ -1500,12 +1449,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _editingCell.CellValue = newValue;
                 _editingCell.IsDirty = true;
 
+                // update the cell value in the datasource after getting row index and column index
+
+                UpdateDataRecordFromRow(_editingCell);
                 // Fire cell validation event (if any)
                 _editingCell.ValidateCell();
 
+                Debug.WriteLine($"✅ Cell updated. New: {_editingCell.CellValue}");
+
                 Invalidate(); // Redraw grid if necessary
             }
+            else
+            {
+                Debug.WriteLine($"⚠️ Editing control or cell is null!");
+            }
         }
+
         private void CancelEditing()
         {
             // Optionally, revert the editor's value if needed.
@@ -1513,22 +1472,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void BeepGrid_MouseClick(object sender, MouseEventArgs e)
         {
-            // If clicked cell is null → close editor
             var clickedCell = GetCellAtLocation(e.Location);
-            if (_editingCell!=null)
+            if (_editingCell != null && clickedCell != null &&
+                _editingCell.Id == clickedCell.Id)  // Compare by unique Id
             {
-                CloseCurrentEditor();
+                // The same cell was clicked—save its current value
+                SaveEditedValue();
                 return;
             }
-
-            // Or if the clicked cell is different from the editing cell, close the old one and open new
-            if (clickedCell != _editingCell)
+            else
             {
-                
+            //    if (_editingCell != null) _editingCell.IsSelected = false;
                 CloseCurrentEditor();
+               
                 _editingCell = clickedCell;
-                if (clickedCell.IsEditable)
-                    ShowCellEditor(clickedCell,e.Location);
+                //_editingCell.IsSelected = true;
+                if (clickedCell != null && clickedCell.IsEditable)
+                {
+                    ShowCellEditor(clickedCell, e.Location);
+                }
             }
         }
 

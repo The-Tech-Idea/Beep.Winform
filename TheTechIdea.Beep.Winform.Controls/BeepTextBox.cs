@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 using TheTechIdea.Beep.Shared;
 using System.Diagnostics;
+using Newtonsoft.Json.Linq;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -103,13 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-        //[Browsable(true)]
-        //[Category("Appearance")]
-        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        //public TextBox InnerTextBox
-        //{
-        //    get => _innerTextBox;
-        //}
+        
         [Browsable(true)]
         [Category("Appearance")]
         public bool ReadOnly
@@ -244,17 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool Enabled
-        {
-            get => _innerTextBox.Enabled;
-            set
-            {
-                _innerTextBox.Enabled = value;
-                Invalidate();
-            }
-        }
+     
         [Browsable(true)]
         [Category("Appearance")]
         public HorizontalAlignment TextAlignment
@@ -266,32 +251,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-        private Color _backcolor;
-        [Browsable(true)]
-        [Category("Appearance")]
-        public override Color BackColor
-        {
-            get => _backcolor;
-            set
-            {
-                _backcolor = value;
-                _innerTextBox.BackColor = value;
-                // Invalidate();  // Trigger repaint
-            }
-        }
-        private Color _forcolor;
-        [Browsable(true)]
-        [Category("Appearance")]
-        public override Color ForeColor 
-        {
-            get => _forcolor;
-            set
-            {
-                _forcolor = value;
-                _innerTextBox.ForeColor = value;
-                // Invalidate();  // Trigger repaint
-            }
-        }
+       
         [Browsable(true)]
         [Category("Appearance")]
         [Description("PlaceholderText  in the control.")]
@@ -304,24 +264,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Text displayed in the control.")]
-        public new string Text
-        {
-            get => _innerTextBox.Text;
-            set
-            {
-                _innerTextBox.Text = value;
-                base._text = value;
-                if (_isApplyingMask)
-                {
-                    ApplyMaskFormat();
-                 
-                }
-              //  Invalidate();
-            }
-        }
+       
         #region "Format and Masking"
         [Browsable(true)]
         [Category("Behavior")]
@@ -648,8 +591,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             //      BackColor = Color.Black;
            // Padding = new Padding(3);
             InitializeComponents();
-
-           // AutoSize = true;
+            base.TextChanged += BeepTextBox_TextChanged;
+            base.ForeColorChanged += BeepTextBox_ForeColorChanged;
+            base.BackColorChanged += BeepTextBox_BackColorChanged;
+            base.EnabledChanged += BeepTextBox_EnabledChanged;
+            // AutoSize = true;
             BoundProperty = "Text";
        
            _innerTextBox.BorderStyle = BorderStyle.None;
@@ -676,6 +622,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    Debug.WriteLine($"🎯 BeepTextBox Got Focus: {_innerTextBox.Text}");
             //};
         }
+
+       
         #endregion "Constructors"
         #region "Initialization"
         protected override void OnLayout(LayoutEventArgs levent)
@@ -708,8 +656,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _innerTextBox.TextChanged += InnerTextBox_TextChanged;
             _innerTextBox.KeyPress += InnerTextBox_KeyPress;
             _innerTextBox.KeyDown += OnSearchKeyDown;
-            _innerTextBox.MouseEnter += OnMouseEnter;
-            _innerTextBox.MouseLeave += OnMouseLeave;
+          //  _innerTextBox.MouseEnter += OnMouseEnter;
+          //  _innerTextBox.MouseLeave += OnMouseLeave;
  //           _innerTextBox.TextChanged += (s, e) => Invalidate(); // Repaint to apply formatting
             Controls.Add(_innerTextBox);
             _innerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
@@ -732,25 +680,44 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Initialization"
         #region "Paint and Invalidate"
+        private void BeepTextBox_EnabledChanged(object? sender, EventArgs e)
+        {
+            _innerTextBox.Enabled = Enabled;
+        }
 
+        private void BeepTextBox_BackColorChanged(object? sender, EventArgs e)
+        {
+            _innerTextBox.BackColor = BackColor;
+        }
+
+        private void BeepTextBox_ForeColorChanged(object? sender, EventArgs e)
+        {
+            _innerTextBox.ForeColor = ForeColor;
+        }
+        private void BeepTextBox_TextChanged(object sender, EventArgs e)
+        {
+         //   Debug.WriteLine($"✅ BeepLabel TextChanged: {base.Text}");
+          
+            _innerTextBox.Text = Text;
+            if (_isApplyingMask)
+            {
+                ApplyMaskFormat();
+
+            }
+            // Invalidate();
+        }
         private void BeepTextBox_Invalidated(object? sender, InvalidateEventArgs e)
         {
     //        _isControlinvalidated = true;
-            _innerTextBox.Update();
+      //      if(_innerTextBox!=null)   _innerTextBox.Invalidate();
             Invalidate();
         }
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-            if (_isControlinvalidated)
-            {
-              //  if (ShowAllBorders) { _innerTextBox.BorderStyle = BorderStyle.None; } else { _innerTextBox.BorderStyle = BorderStyle.FixedSingle; }
-                _isControlinvalidated = false;
-             //   _innerTextBox.Invalidate();
-                
-
-            }
-        }
+        //protected override void OnPaint(PaintEventArgs e)
+        //{
+        //    base.OnPaint(e);
+        //    _innerTextBox.Invalidate();
+        //}
+      
         #endregion "Paint and Invalidate"
         #region "Size and Position"
         // protected override Size DefaultSize => GetDefaultSize();
@@ -932,24 +899,25 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Size and Position"
         #region "Mouse Events"
-        private void OnMouseEnter(object? sender, EventArgs e)
+        protected override void OnMouseEnter(EventArgs e)
         {
-            base.OnMouseEnter(e);
-            BorderColor = HoverBackColor;
-            Invalidate();
+           
         }
-        private void OnMouseLeave(object? sender, EventArgs e)
+        protected override void OnMouseLeave(EventArgs e)
         {
-            base.OnMouseLeave(e);
-            BorderColor = _currentTheme.BorderColor;
-            Invalidate();
+          
+        }
+        
+        protected override void OnGotFocus(EventArgs e)
+        {
+
         }
 
         #endregion "Mouse Events"
         #region "Key Events"
         private void InnerTextBox_TextChanged(object sender, EventArgs e)
         {
-            if (!_isApplyingMask)
+            if (_isApplyingMask)
             {
                 _isApplyingMask = true;
                 ApplyMaskFormat();
@@ -957,7 +925,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
               //  Text = _innerTextBox.Text;
                 TextChanged?.Invoke(this, EventArgs.Empty);
-                Invalidate();
+              //  Invalidate();
             }
         }
         private void InnerTextBox_KeyPress(object sender, KeyPressEventArgs e)
@@ -1116,6 +1084,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _innerTextBox.Invalidate();
             Invalidate();
         }
+
         #endregion "Key Events"
         #region "Search Events"
         private void OnSearchKeyDown(object sender, KeyEventArgs e)
@@ -1375,7 +1344,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 catch (Exception ex)
                 {
-                   // Console.WriteLine($"Error applying custom mask: {ex.Message}");
+                    Console.WriteLine($"Error applying custom mask: {ex.Message}");
                 }
             }
         }
@@ -1406,11 +1375,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void SetValue(object value)
         {
             this.Text = value?.ToString();
-
+            _innerTextBox.Text = this.Text;
         }
         public override object GetValue()
         {
-            return this.Text;
+            return _innerTextBox.Text;
 
         }
         public override void ClearValue()
@@ -1513,14 +1482,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Theme and Style"
         // Override to prevent text loss on parent change
-        protected override void OnParentChanged(EventArgs e)
-        {
-            base.OnParentChanged(e);
-            string preservedText = _innerTextBox.Text;
-            Debug.WriteLine($"✅ OnParentChanged, preserving text: {preservedText}");
-            _innerTextBox.Text = preservedText; // Restore text after parent change
-            Invalidate();
-        }
+     
 
     }
 }

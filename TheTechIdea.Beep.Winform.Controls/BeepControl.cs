@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
 using System.IO;
 using TheTechIdea.Beep.Desktop.Common;
+using System.Configuration;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -190,20 +191,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         public bool IsShadowAffectedByTheme { get { return _isshadowaffectedbytheme; } set { _isshadowaffectedbytheme = value; } }
         // Make the Text property visible in the designer
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        [Category("Appearance")]
-        [Description("The text associated with the Beepbutton.")]
-        public virtual new string Text
-        {
-            get => _text;
-            set
-            {
-                _text = value;
-                _isControlinvalidated = true;
-                Invalidate();  // Trigger repaint when the text changes
-            }
-        }
+
+        
+        //[Browsable(true)]
+        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        //[Category("Appearance")]
+        //[Description("The text associated with the Beepbutton.")]
+        //public  override  string Text
+        //{
+        //    get => _text;
+        //    set
+        //    {
+        //        _text = value;
+        //        _isControlinvalidated = true;
+        //        Invalidate();  // Trigger repaint when the text changes
+        //    }
+        //}
         [Browsable(true), Category("Appearance")]
         public TypeStyleFontSize OverrideFontSize
         {
@@ -216,27 +219,27 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Appearance")]
-        public Color HoveredBackcolor { get { return _hoveredBackcolor; } set { _hoveredBackcolor = value; Invalidate(); } }
+        public Color HoveredBackcolor { get { return _hoveredBackcolor; } set { _hoveredBackcolor = value;  } }
 
 
         [Browsable(true)]
         [Category("Appearance")]
-        public bool IsHovered { get { return _isHovered; } set { if (CanBeHovered) { _isHovered = value; Invalidate(); } } }
+        public bool IsHovered { get { return _isHovered; } set { if (CanBeHovered) { _isHovered = value;  } } }
         [Browsable(true)]
         [Category("Appearance")]
-        public bool IsPressed { get { return _isPressed; } set { if (CanBePressed) { _isPressed = value; Invalidate(); } } }
+        public bool IsPressed { get { return _isPressed; } set { if (CanBePressed) { _isPressed = value;  } } }
         [Browsable(true)]
         [Category("Appearance")]
-        public bool IsFocused { get { return _isFocused; } set { if (CanBeFocused) { _isFocused = value; Invalidate(); } } }
+        public bool IsFocused { get { return _isFocused; } set { if (CanBeFocused) { _isFocused = value;  } } }
         [Browsable(true)]
         [Category("Appearance")]
         public bool IsDefault { get { return _isDefault; } set { _isDefault = value; Invalidate(); } }
         [Browsable(true)]
         [Category("Appearance")]
-        public bool IsAcceptButton { get { return _isAcceptButton; } set { _isAcceptButton = value; Invalidate(); } }
+        public bool IsAcceptButton { get { return _isAcceptButton; } set { _isAcceptButton = value; }  }
         [Browsable(true)]
         [Category("Appearance")]
-        public bool IsCancelButton { get { return _isCancelButton; } set { _isCancelButton = value; Invalidate(); } }
+        public bool IsCancelButton { get { return _isCancelButton; } set { _isCancelButton = value; } }
 
 
         public string SavedID { get; set; }
@@ -1607,41 +1610,33 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);
-            //   BorderColor = _currentTheme.HoverLinkColor;
-         //   IsHovered = true;
-            //  ShowToolTipIfExists();
-            //Invalidate();
+
         }
         protected override void OnMouseMove(MouseEventArgs e)
         {
-           
-         
             base.OnMouseMove(e);
 
         }
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-            //  BorderColor = _currentTheme.BorderColor;
-           // IsPressed = false;
-            IsFocused = false;
+         
             IsHovered = false;
-            // HideToolTip(); // Hide tooltip on mouse leave
-            // Invalidate();
+            
         }
 
         protected override void OnGotFocus(EventArgs e)
         {
-            IsFocused = true;
             base.OnGotFocus(e);
+          //  IsFocused = true;
+         
         
         }
         protected override void OnLostFocus(EventArgs e)
         {
-            IsFocused = false;
-            IsHovered = false;
             base.OnLostFocus(e);
-             
+          //  IsFocused = false;
+            IsHovered = false;
         }
         protected override void OnClick(EventArgs e)
         {
@@ -1656,14 +1651,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Perform the hit test
                 HitTest(e.Location);
                 IsPressed = true;
-                IsFocused = true;
+             //   IsFocused = true;
 
             }
         }
         protected override void OnMouseUp(MouseEventArgs e)
         {
-            IsPressed = false;
             base.OnMouseUp(e);
+            IsPressed = false;
+           
         }
         protected override void OnMouseHover(EventArgs e)
         {

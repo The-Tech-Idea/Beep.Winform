@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid
@@ -75,11 +71,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
 
         public string Id { get; set; }
-        public int Index { get; set; }
+        public int ColumnIndex { get; set; }
         public int DisplayIndex { get; set; }
-        private int Colidx { get; set; } // used for to store the display header of column
+      
         private int _rowIdx; // used for to store the display header  of row
-        public int RowIdx
+        public int RowIndex
         {
             get { return _rowIdx; }
             set { _rowIdx = value; }

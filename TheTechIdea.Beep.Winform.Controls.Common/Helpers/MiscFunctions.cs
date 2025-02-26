@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.DataBase;
@@ -119,7 +120,7 @@ namespace TheTechIdea.Beep.Desktop.Common.Helpers
                     return; // Exit after setting the property
                 }
 
-               
+
 
                 Debug.WriteLine("No 'Theme' property found on the control or its components.");
             }
@@ -128,7 +129,7 @@ namespace TheTechIdea.Beep.Desktop.Common.Helpers
                 Debug.WriteLine($"Error setting theme property: {ex.Message}");
             }
         }
-        public static Dictionary<string,object> ConvertPassedArgsToParameters(IPassedArgs passedArgs)
+        public static Dictionary<string, object> ConvertPassedArgsToParameters(IPassedArgs passedArgs)
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             parameters.Add("AddinName", passedArgs.AddinName);
@@ -167,7 +168,7 @@ namespace TheTechIdea.Beep.Desktop.Common.Helpers
             parameters.Add("Parameterdouble1", passedArgs.Parameterdouble1);
             parameters.Add("Parameterdouble2", passedArgs.Parameterdouble2);
             parameters.Add("Parameterdouble3", passedArgs.Parameterdouble3);
-            parameters.Add("Progress", passedArgs.Progress  );
+            parameters.Add("Progress", passedArgs.Progress);
             parameters.Add("Timestamp", passedArgs.Timestamp);
             parameters.Add("Title", passedArgs.Title);
             return parameters;
@@ -216,6 +217,165 @@ namespace TheTechIdea.Beep.Desktop.Common.Helpers
             passedArgs.Title = parameters["Title"].ToString();
             return passedArgs;
 
+        }
+
+        // A set of known acronyms (uppercase).
+        // If a token fully matches (case-insensitive), we'll keep it uppercase 
+        // rather than splitting or spacing it out.
+        private static readonly HashSet<string> knownAcronyms = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "AC",       // Air Conditioning or Alternating Current
+        "AJAX",
+        "AMD",
+        "API",
+        "ASCII",
+        "ASP",
+        "BIOS",
+        "CSV",
+        "CPU",
+        "DB",
+        "DHCP",
+        "DOB",
+        "DNS",
+        "DOC",
+        "EXIF",
+        "FTP",
+        "FHIR",
+        "GPU",
+        "GUID",
+        "HEX",
+        "HR",
+        "HTML",
+        "HTTP",
+        "HTTPS",
+        "HUD",
+        "I/O",
+        "ID",
+        "IP",
+        "ISO",
+        "JSON",
+        "JDBC",
+        "JPEG",
+        "JPG",
+        "JWT",
+        "KPI",
+        "LAN",
+        "MAC",
+        "MVC",
+        "MVP",
+        "MVVM",
+        "NET",      // Representing ".NET" (cannot include a dot in a token easily)
+        "ODBC",
+        "OLE",
+        "OS",
+        "PDF",
+        "PNG",
+        "RAM",
+        "REST",
+        "RPC",
+        "SHA",
+        "SMTP",
+        "SNMP",
+        "SOAP",
+        "SQL",
+        "SSAS",
+        "SSIS",
+        "SSN",
+        "SSRS",
+        "SSL",
+        "SSH",
+        "SSO",
+        "TLS",
+        "TFS",
+        "UID",
+        "UI",
+        "URI",
+        "URL",
+        "USB",
+        "UTF8",
+        "UX",
+        "VPN",
+        "WCF",
+        "XML"
+        // Add more as needed...
+    };
+
+        /// <summary>
+        /// Creates a more user-friendly caption from a raw field name.
+        /// Examples:
+        ///   "FirstName" -> "First Name", 
+        ///   "Contact_Phone_Number" -> "Contact Phone Number",
+        ///   "DOB" -> "DOB", 
+        ///   "SQLVersion" -> "SQL Version"
+        /// </summary>
+        public static string CreateCaptionFromFieldName(string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(fieldName))
+                return string.Empty;
+
+            // 1) Replace underscores with spaces
+            fieldName = fieldName.Replace('_', ' ');
+
+            // 2) Split on spaces so we can handle each "word" or "token" individually.
+            //    E.g. "Contact Phone DOB" -> ["Contact", "Phone", "DOB"]
+            string[] tokens = fieldName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            for (int i = 0; i < tokens.Length; i++)
+            {
+                string token = tokens[i];
+
+                // Convert the token to uppercase for checking against knownAcronyms
+                string upperToken = token.ToUpperInvariant();
+
+                // 3) If the entire token is a known acronym, keep it uppercase
+                //    (avoiding splitting it into letters).
+                if (knownAcronyms.Contains(upperToken))
+                {
+                    tokens[i] = upperToken;
+                }
+                else
+                {
+                    // 4) Otherwise, insert spaces before uppercase letters to handle CamelCase/PascalCase.
+                    //    e.g., "FirstName" -> "First Name".
+                    tokens[i] = InsertSpacesBeforeUpper(token);
+                }
+            }
+
+            // 5) Re-join tokens with a space and return the final caption.
+            return string.Join(" ", tokens).Trim();
+        }
+
+        /// <summary>
+        /// Inserts a space before uppercase letters in a token,
+        /// unless the previous letter is also uppercase.
+        /// e.g., "FirstName" -> "First Name", "FullAddress" -> "Full Address"
+        /// </summary>
+        private static string InsertSpacesBeforeUpper(string str)
+        {
+            if (string.IsNullOrEmpty(str))
+                return str;
+
+            var sb = new StringBuilder();
+            sb.Append(str[0]); // Start with the first character.
+
+            for (int i = 1; i < str.Length; i++)
+            {
+                char currentChar = str[i];
+                char previousChar = sb[sb.Length - 1];
+
+                // If current char is uppercase, and the previous is not uppercase/space, insert a space.
+                // So "VersionNumber" -> "Version Number". 
+                // "DOB" remains "D O B" unless recognized as an acronym above.
+                if (char.IsUpper(currentChar)
+                    && !char.IsWhiteSpace(previousChar)
+                    && !char.IsUpper(previousChar))
+                {
+                    sb.Append(' ');
+                }
+                sb.Append(currentChar);
+            }
+
+            return sb.ToString();
         }
     }
 }

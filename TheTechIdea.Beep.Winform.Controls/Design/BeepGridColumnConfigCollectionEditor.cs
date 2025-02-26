@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
                 int count = grid.Columns.Count;
                 instance.ColumnCaption = $"Column {count + 1}";
                 instance.ColumnName = $"Column{count + 1}";
-                instance.Index = count; // Auto-increment Index
+                instance.Index = count; // Auto-increment ColumnIndex
             }
             else
             {
@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
             var result = base.SetItems(editValue, value);
             if (editValue is List<BeepGridColumnConfig> columns)
             {
-                // Reassign Index based on order in the collection
+                // Reassign ColumnIndex based on order in the collection
                 for (int i = 0; i < columns.Count; i++)
                 {
                     columns[i].Index = i;

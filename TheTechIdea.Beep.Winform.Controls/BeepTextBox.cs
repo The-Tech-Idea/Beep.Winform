@@ -595,12 +595,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.ForeColorChanged += BeepTextBox_ForeColorChanged;
             base.BackColorChanged += BeepTextBox_BackColorChanged;
             base.EnabledChanged += BeepTextBox_EnabledChanged;
+            ProcessTabKey(true);
             // AutoSize = true;
             BoundProperty = "Text";
        
-           _innerTextBox.BorderStyle = BorderStyle.None;
-            //  BorderStyle = BorderStyle.FixedSingle;
-            _innerTextBox.Invalidated += BeepTextBox_Invalidated;
+         
             beepImage.IsChild = true;
             ShowAllBorders=true;
             IsShadowAffectedByTheme = false;
@@ -656,9 +655,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             _innerTextBox.TextChanged += InnerTextBox_TextChanged;
             _innerTextBox.KeyPress += InnerTextBox_KeyPress;
             _innerTextBox.KeyDown += OnSearchKeyDown;
-          //  _innerTextBox.MouseEnter += OnMouseEnter;
-          //  _innerTextBox.MouseLeave += OnMouseLeave;
- //           _innerTextBox.TextChanged += (s, e) => Invalidate(); // Repaint to apply formatting
+            _innerTextBox.BorderStyle = BorderStyle.None;
+       //     _innerTextBox.AcceptsTab = true;
+            _innerTextBox.Invalidated += BeepTextBox_Invalidated;
+            //  _innerTextBox.MouseEnter += OnMouseEnter;
+            //  _innerTextBox.MouseLeave += OnMouseLeave;
+            //           _innerTextBox.TextChanged += (s, e) => Invalidate(); // Repaint to apply formatting
             Controls.Add(_innerTextBox);
             _innerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
             beepImage = new BeepButton() 
@@ -899,19 +901,19 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Size and Position"
         #region "Mouse Events"
-        protected override void OnMouseEnter(EventArgs e)
-        {
+        //protected override void OnMouseEnter(EventArgs e)
+        //{
            
-        }
-        protected override void OnMouseLeave(EventArgs e)
-        {
+        //}
+        //protected override void OnMouseLeave(EventArgs e)
+        //{
           
-        }
+        //}
         
-        protected override void OnGotFocus(EventArgs e)
-        {
+        //protected override void OnGotFocus(EventArgs e)
+        //{
 
-        }
+        //}
 
         #endregion "Mouse Events"
         #region "Key Events"
@@ -1075,12 +1077,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         internal void ScrollToCaret()
         {
+            _innerTextBox.ScrollBars = ScrollBars.Vertical;
             _innerTextBox.ScrollToCaret();
+            
+          
             Invalidate();
         }
         internal void AppendText(string v)
         {
-            _innerTextBox.AppendText(v);
+            if(_innerTextBox != null) _innerTextBox.AppendText(v);
+          
+            // if text is more than the height of textbox, scroll to the end    
+            if (_innerTextBox.Text.Length > _innerTextBox.Height) _innerTextBox.ScrollToCaret();
+            if (_innerTextBox.Text.Length > 0) _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+            // if text is empty, set the selection start to 0
+            else _innerTextBox.SelectionStart = 0;
             _innerTextBox.Invalidate();
             Invalidate();
         }
@@ -1089,6 +1100,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Search Events"
         private void OnSearchKeyDown(object sender, KeyEventArgs e)
         {
+            base.OnKeyDown(e);
             if (e.KeyCode == Keys.Enter) OnSearchTriggered();
         }
         public event EventHandler SearchTriggered;

@@ -241,7 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     //                       {
     //                           result.Add(new ImageConfiguration
     //                           {
-    //                               Index = index++,
+    //                               ColumnIndex = index++,
     //                               Name = filename,
     //                               Ext = extension,
     //                               Path = path
@@ -365,7 +365,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     //                           {
     //                               result.Add(new ImageConfiguration
     //                               {
-    //                                   Index = index++,
+    //                                   ColumnIndex = index++,
     //                                   Name = fileName + extension,
     //                                   Ext = extension,
     //                                   Path = resource,
@@ -498,7 +498,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     //               ImageConfiguration img = ImgAssemblies.FirstOrDefault(p => p.Name.ToLower().Equals(imagename, StringComparison.InvariantCultureIgnoreCase));
     //               if (img != null)
     //               {
-    //                   imgindx = img.Index;
+    //                   imgindx = img.ColumnIndex;
     //               }
 
     //           }

@@ -755,7 +755,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        return;
         //    }
 
-        //  // // Console.WriteLine($"ListChanged: Type={e.ListChangedType}, Index={e.NewIndex}");
+        //  // // Console.WriteLine($"ListChanged: Type={e.ListChangedType}, ColumnIndex={e.NewIndex}");
         //    try
         //    {
         //        _isUpdatingTree = true;

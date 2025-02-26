@@ -1,4 +1,5 @@
 ﻿
+using System.ComponentModel;
 using System.Diagnostics;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
@@ -34,6 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Controls.Add(ctl);
                 component.Form = this;
+              
                 ctl.Dock = DockStyle.Fill;
                 Debug.WriteLine($"✅ Component added: {ctl.Name}");
             }
@@ -42,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Debug.WriteLine($"⚠️ Component already exists in popup: {ctl.Name}");
             }
         }
-
+       
         public EnumBeepThemes Theme
         {
             get => Component?.Theme ?? EnumBeepThemes.DefaultTheme;

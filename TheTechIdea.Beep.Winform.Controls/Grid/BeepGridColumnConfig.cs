@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Utilities;
 
@@ -26,6 +27,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
 
         #region Properties
+        [XmlIgnore] // or [JsonIgnore], etc.
+        public Type PropertyType { get; set; }
+
+        // Helper for serialization
+        [Browsable(false)]
+        public string PropertyTypeName
+        {
+            get => PropertyType?.AssemblyQualifiedName;
+            set => PropertyType = !string.IsNullOrWhiteSpace(value)
+                ? Type.GetType(value, throwOnError: false)
+                : null;
+        }
         private string _columnCaption;
         [Category("Data")]
         [Description("The display name of the column.")]

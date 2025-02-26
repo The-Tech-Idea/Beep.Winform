@@ -2635,7 +2635,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
                 
                     // get gridview style, and override if we have a set style for this column
                     StringFormat currentformat = null;
-                    DataGridViewCellStyle colstyle = GetStyle(row, col); // = row.Cells[col.Index].InheritedStyle.Clone();
+                    DataGridViewCellStyle colstyle = GetStyle(row, col); // = row.Cells[col.ColumnIndex].InheritedStyle.Clone();
 
                     // build the cell style and font 
                     buildstringformat(ref currentformat, colstyle, cellformat.Alignment, cellformat.LineAlignment,
@@ -3551,7 +3551,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
                     // get DGV column style and see if we have an override for this column
                     StringFormat finalformat = null;
                     Font cellfont = null;
-                    DataGridViewCellStyle colstyle = GetStyle(row, col); // = row.Cells[col.Index].InheritedStyle.Clone(); 
+                    DataGridViewCellStyle colstyle = GetStyle(row, col); // = row.Cells[col.ColumnIndex].InheritedStyle.Clone(); 
 
                     // set string format
                     buildstringformat(ref finalformat, colstyle, cellformat.Alignment, cellformat.LineAlignment,

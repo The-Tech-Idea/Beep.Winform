@@ -28,14 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            DataBase.EntityStructure entityStructure1 = new DataBase.EntityStructure();
             beepTreeControl1 = new TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView.BeepAppTree();
             beepAppBar1 = new TheTechIdea.Beep.Winform.Controls.BeepAppBar();
             uc_Container1 = new TheTechIdea.Beep.Winform.Controls.Containers.uc_Container();
             beepMenuAppBar1 = new TheTechIdea.Beep.Winform.Controls.MenuBar.BeepMenuAppBar();
             beepSimpleGrid1 = new TheTechIdea.Beep.Winform.Controls.BeepSimpleGrid();
+            driversConfigViewModelBindingSource = new BindingSource(components);
             beepTextBox1 = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             beepButton1 = new TheTechIdea.Beep.Winform.Controls.BeepButton();
+            ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).BeginInit();
             SuspendLayout();
             // 
             // beepuiManager1
@@ -571,14 +575,45 @@
             beepSimpleGrid1.ColumnHeight = 12;
             beepSimpleGrid1.ComponentName = "beepSimpleGrid1";
             beepSimpleGrid1.DataContext = null;
-            beepSimpleGrid1.DataSource = null;
+            beepSimpleGrid1.DataSource = driversConfigViewModelBindingSource;
             beepSimpleGrid1.DataSourceProperty = null;
             beepSimpleGrid1.DataSourceType = Winform.Controls.Models.GridDataSourceType.Fixed;
             beepSimpleGrid1.DefaultColumnHeaderWidth = 50;
             beepSimpleGrid1.DisabledBackColor = Color.Gray;
             beepSimpleGrid1.DisabledForeColor = Color.Empty;
-            beepSimpleGrid1.DrawingRect = new Rectangle(0, 0, 835, 530);
+            beepSimpleGrid1.DrawingRect = new Rectangle(0, 0, 864, 526);
             beepSimpleGrid1.Easing = Winform.Controls.EasingType.Linear;
+            entityStructure1.Caption = null;
+            entityStructure1.Category = null;
+            entityStructure1.Created = false;
+            entityStructure1.CustomBuildQuery = null;
+            entityStructure1.DatabaseType = Utilities.DataSourceType.NONE;
+            entityStructure1.DatasourceEntityName = null;
+            entityStructure1.DataSourceID = null;
+            entityStructure1.DefaultChartType = null;
+            entityStructure1.Description = null;
+            entityStructure1.Drawn = false;
+            entityStructure1.Editable = false;
+            entityStructure1.EndRow = 0;
+            entityStructure1.EntityName = "ConnectionDriversConfig";
+            entityStructure1.EntityPath = null;
+            entityStructure1.GuidID = "b9fc287e-d895-447f-b1f5-d3e0182d9024";
+            entityStructure1.Id = 0;
+            entityStructure1.IsCreated = false;
+            entityStructure1.IsIdentity = false;
+            entityStructure1.IsLoaded = false;
+            entityStructure1.IsSaved = false;
+            entityStructure1.IsSynced = false;
+            entityStructure1.KeyToken = null;
+            entityStructure1.OriginalEntityName = null;
+            entityStructure1.ParentId = 0;
+            entityStructure1.SchemaOrOwnerOrDatabase = null;
+            entityStructure1.Show = false;
+            entityStructure1.StartRow = 0;
+            entityStructure1.StatusDescription = null;
+            entityStructure1.ViewID = 0;
+            entityStructure1.Viewtype = Utilities.ViewType.Table;
+            beepSimpleGrid1.Entity = entityStructure1;
             beepSimpleGrid1.FieldID = null;
             beepSimpleGrid1.FocusBackColor = Color.White;
             beepSimpleGrid1.FocusBorderColor = Color.Gray;
@@ -661,7 +696,7 @@
             beepSimpleGrid1.ShowTopBorder = false;
             beepSimpleGrid1.ShowVerticalGridLines = true;
             beepSimpleGrid1.ShowVerticalScrollBar = true;
-            beepSimpleGrid1.Size = new Size(835, 530);
+            beepSimpleGrid1.Size = new Size(864, 526);
             beepSimpleGrid1.SlideFrom = Winform.Controls.SlideDirection.Left;
             beepSimpleGrid1.StaticNotMoving = false;
             beepSimpleGrid1.TabIndex = 7;
@@ -678,6 +713,11 @@
             beepSimpleGrid1.UseThemeFont = true;
             beepSimpleGrid1.XOffset = 0;
             // 
+            // driversConfigViewModelBindingSource
+            // 
+            driversConfigViewModelBindingSource.DataMember = "ConnectionDriversConfigs";
+            driversConfigViewModelBindingSource.DataSource = typeof(MVVM.ViewModels.BeepConfig.DriversConfigViewModel);
+            // 
             // beepTextBox1
             // 
             beepTextBox1.AcceptsReturn = false;
@@ -689,6 +729,7 @@
             beepTextBox1.ApplyThemeToChilds = false;
             beepTextBox1.AutoCompleteMode = AutoCompleteMode.None;
             beepTextBox1.AutoCompleteSource = AutoCompleteSource.None;
+            beepTextBox1.BackColor = Color.White;
             beepTextBox1.BadgeBackColor = Color.Red;
             beepTextBox1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepTextBox1.BadgeForeColor = Color.White;
@@ -962,6 +1003,7 @@
             Controls.Add(beepAppBar1);
             Name = "MainForm";
             Text = "MainForm";
+            ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).EndInit();
             ResumeLayout(false);
         }
 
@@ -973,5 +1015,6 @@
         private Controls.BeepSimpleGrid beepSimpleGrid1;
         private Controls.BeepTextBox beepTextBox1;
         private Controls.BeepButton beepButton1;
+        private BindingSource driversConfigViewModelBindingSource;
     }
 }

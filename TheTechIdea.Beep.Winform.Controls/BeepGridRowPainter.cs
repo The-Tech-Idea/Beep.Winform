@@ -297,9 +297,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void PaintCell(Graphics g, BeepGridCell cell, int xOffset, int yOffset)
         {
             // Draw the cell background
-            g.FillRectangle(Brushes.White, new Rectangle(xOffset, yOffset, cell.Width, cell.RowIdx));
+            g.FillRectangle(Brushes.White, new Rectangle(xOffset, yOffset, cell.Width, cell.RowIndex));
             // Draw the cell border
-            g.DrawRectangle(Pens.Black, new Rectangle(xOffset, yOffset, cell.Width, cell.RowIdx));
+            g.DrawRectangle(Pens.Black, new Rectangle(xOffset, yOffset, cell.Width, cell.RowIndex));
             // Draw the cell text
             g.DrawString(cell.UIComponent.Text, SystemFonts.DefaultFont, Brushes.Black, new PointF(xOffset + 2, yOffset + 2));
         }
@@ -584,7 +584,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Create a cell
                 var cell = new BeepGridCell
                 {
-                    Index = i,
+                    ColumnIndex = i,
                     // For simplicity, let's just stick a BeepLabel in each cell
                     UIComponent = new BeepLabel
                     {

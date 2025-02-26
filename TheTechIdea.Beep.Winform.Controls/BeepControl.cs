@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Utilities;
 using System.IO;
 using TheTechIdea.Beep.Desktop.Common;
 using System.Configuration;
+using System.Diagnostics;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -823,6 +824,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.SetStyle(ControlStyles.UserPaint, true);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true); 
+         //  base.ProcessTabKey(true);
+          
             InitializeTooltip();
             ShowAllBorders = true;
             //  BackColor = Color.Transparent;
@@ -1667,6 +1670,107 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsHovered = true;
         }
         #endregion "Mouse events"
+        #region "Key events"
+        public event EventHandler TabKeyPressed;
+        public event EventHandler ShiftTabKeyPressed;
+        public event EventHandler EnterKeyPressed;
+        public event EventHandler EscapeKeyPressed;
+
+        public event EventHandler LeftArrowKeyPressed;
+        public event EventHandler RightArrowKeyPressed;
+        public event EventHandler UpArrowKeyPressed;
+        public event EventHandler DownArrowKeyPressed;
+        public event EventHandler PageUpKeyPressed;
+        public event EventHandler PageDownKeyPressed;
+        public event EventHandler HomeKeyPressed;
+        public event EventHandler EndKeyPressed;
+
+        /// <summary>
+        /// This event is raised *first* for any “dialog” key so you get 
+        /// a chance to see which key was pressed *before* specialized events.
+        /// </summary>
+        public event EventHandler<KeyEventArgs> DialogKeyDetected;
+
+        protected override bool ProcessDialogKey(Keys keyData)
+        {
+            // Example: extract only the base key, ignoring Ctrl, Alt, etc. 
+            // (But you can do more advanced checks if you want.)
+            var keyCode = (keyData & Keys.KeyCode);
+
+            // Raise a “catch-all” event for anything that goes through ProcessDialogKey.
+            DialogKeyDetected?.Invoke(this, new KeyEventArgs(keyData));
+
+            // Check for SHIFT pressed
+            bool shiftPressed = (keyData & Keys.Shift) == Keys.Shift;
+
+            switch (keyCode)
+            {
+                case Keys.Tab:
+                    // You can separately raise events for Tab vs. Shift+Tab
+                    if (shiftPressed)
+                    {
+                        ShiftTabKeyPressed?.Invoke(this, EventArgs.Empty);
+                    }
+                    else
+                    {
+                        TabKeyPressed?.Invoke(this, EventArgs.Empty);
+                    }
+
+                    // Return `true` if you want to STOP normal focus behavior
+                    // Return `false` if you want normal Tab navigation to continue
+                    return false;
+
+                case Keys.Enter:
+                    EnterKeyPressed?.Invoke(this, EventArgs.Empty);
+                    // Return `true` if you have fully handled Enter 
+                    // and do NOT want the default “AcceptButton” behavior:
+                    return true;
+
+                case Keys.Escape:
+                    EscapeKeyPressed?.Invoke(this, EventArgs.Empty);
+                    // Return `true` if you have fully handled Escape 
+                    // and do NOT want default “CancelButton” behavior:
+                    return true;
+
+                case Keys.Left:
+                    LeftArrowKeyPressed?.Invoke(this, EventArgs.Empty);
+                    return false; // Let normal arrow navigation proceed if desired
+
+                case Keys.Right:
+                    RightArrowKeyPressed?.Invoke(this, EventArgs.Empty);
+                    return false;
+
+                case Keys.Up:
+                    UpArrowKeyPressed?.Invoke(this, EventArgs.Empty);
+                    return false;
+
+                case Keys.Down:
+                    DownArrowKeyPressed?.Invoke(this, EventArgs.Empty);
+                    return false;
+
+                case Keys.PageUp:
+                    PageUpKeyPressed?.Invoke(this, EventArgs.Empty);
+                    return false;
+
+                case Keys.PageDown:
+                    PageDownKeyPressed?.Invoke(this, EventArgs.Empty);
+                    return false;
+
+                case Keys.Home:
+                    HomeKeyPressed?.Invoke(this, EventArgs.Empty);
+                    return false;
+
+                case Keys.End:
+                    EndKeyPressed?.Invoke(this, EventArgs.Empty);
+                    return false;
+
+                default:
+                    // If it's a key you don't care about, let the base class handle it.
+                    return base.ProcessDialogKey(keyData);
+            }
+        }
+
+        #endregion "Key events"
         #region "Animation"
         // Default Animation Properties
 

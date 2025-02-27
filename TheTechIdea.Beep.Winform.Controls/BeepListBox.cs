@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region "Properties"
         public List<BeepButton> _buttons { get; set; } = new List<BeepButton>();
-        private Dictionary<SimpleItem, BeepCheckBox> _itemCheckBoxes = new Dictionary<SimpleItem, BeepCheckBox>();
+        private Dictionary<SimpleItem, BeepCheckBoxBool> _itemCheckBoxes = new Dictionary<SimpleItem, BeepCheckBoxBool>();
         public event EventHandler<SimpleItem> ItemClicked;
         private int _selectedIndex = -1;
         private SimpleItem _selectedItem;
@@ -358,7 +358,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (ShowCheckBox)
             {
-                BeepCheckBox checkBox = new BeepCheckBox
+                BeepCheckBoxBool checkBox = new BeepCheckBoxBool
                 {
                     Dock = DockStyle.Left,
                     Width = 20,
@@ -389,7 +389,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return menuItemPanel;
         }
-        private void UpdateSelectedItems(SimpleItem item, BeepCheckBox checkBox)
+        private void UpdateSelectedItems(SimpleItem item, BeepCheckBoxBool checkBox)
         {
             if (checkBox.State == BeepCheckBox<bool>.CheckBoxState.Checked)
             {

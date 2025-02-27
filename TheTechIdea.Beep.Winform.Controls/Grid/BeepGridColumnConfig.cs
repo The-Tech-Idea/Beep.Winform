@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Xml.Serialization;
@@ -15,39 +16,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public BeepGridColumnConfig()
         {
             GuidID = Guid.NewGuid().ToString();
-            Width = 100;
-            Visible = true;
-            ColumnType = DbFieldCategory.String;
-            ColumnCaption = "Column";
-            CellEditor = BeepGridColumnType.Text;
-            SortMode = DataGridViewColumnSortMode.Automatic;
-            Resizable = DataGridViewTriState.True;
-            AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            HeaderStyle = new ColumnHeaderStyle();
+            _items = new List<SimpleItem>(); // Initialize to avoid null
+        }
+
+        public override string ToString()
+        {
+            return !string.IsNullOrEmpty(ColumnCaption) ? ColumnCaption :
+                   !string.IsNullOrEmpty(ColumnName) ? ColumnName :
+                   "Unnamed Column";
         }
 
         #region Properties
-        [XmlIgnore] // or [JsonIgnore], etc.
-        public Type PropertyType { get; set; }
-
-        // Helper for serialization
+       // [XmlIgnore]
+        // public Type PropertyType { get; set; }
+        private string _propertyTypeName = "Column"; // Default value
         [Browsable(false)]
         public string PropertyTypeName
         {
-            get => PropertyType?.AssemblyQualifiedName;
-            set => PropertyType = !string.IsNullOrWhiteSpace(value)
-                ? Type.GetType(value, throwOnError: false)
-                : null;
+            get => _propertyTypeName;
+            set => _propertyTypeName = value;
         }
-        private string _columnCaption;
+
+        private string _columnCaption = "Column"; // Default value
         [Category("Data")]
         [Description("The display name of the column.")]
-        [Required]
         public string ColumnCaption
         {
             get => _columnCaption;
             set { _columnCaption = value; OnPropertyChanged(nameof(ColumnCaption)); }
         }
+        private bool ShouldSerializeColumnCaption() => _columnCaption != "Column";
 
         private string _columnName;
         [Category("Data")]
@@ -58,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             set { _columnName = value; OnPropertyChanged(nameof(ColumnName)); }
         }
 
-        private int _width;
+        private int _width = 100;
         [Category("Layout")]
         [Description("The width of the column in pixels.")]
         public int Width
@@ -66,6 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             get => _width;
             set { _width = value; OnPropertyChanged(nameof(Width)); }
         }
+        private bool ShouldSerializeWidth() => _width != 100;
 
         private bool _visible = true;
         [Category("Behavior")]
@@ -75,8 +74,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             get => _visible;
             set { _visible = value; OnPropertyChanged(nameof(Visible)); }
         }
+        private bool ShouldSerializeVisible() => _visible != true;
 
-        private DbFieldCategory _columnType;
+        private DbFieldCategory _columnType = DbFieldCategory.String;
         [Category("Data")]
         [Description("The data type of the column.")]
         public DbFieldCategory ColumnType
@@ -84,8 +84,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             get => _columnType;
             set { _columnType = value; OnPropertyChanged(nameof(ColumnType)); }
         }
+        private bool ShouldSerializeColumnType() => _columnType != DbFieldCategory.String;
 
-        private BeepGridColumnType _cellEditor;
+        private BeepGridColumnType _cellEditor = BeepGridColumnType.Text;
         [Category("Appearance")]
         [Description("The editor type for the column cells.")]
         public BeepGridColumnType CellEditor
@@ -93,6 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             get => _cellEditor;
             set { _cellEditor = value; OnPropertyChanged(nameof(CellEditor)); }
         }
+        private bool ShouldSerializeCellEditor() => _cellEditor != BeepGridColumnType.Text;
 
         private string _format;
         [Category("Appearance")]
@@ -201,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             set { _guidID = value; OnPropertyChanged(nameof(GuidID)); }
         }
 
-        private DataGridViewColumnSortMode _sortMode;
+        private DataGridViewColumnSortMode _sortMode = DataGridViewColumnSortMode.Automatic;
         [Category("Sorting")]
         [Description("Defines how the column can be sorted.")]
         public DataGridViewColumnSortMode SortMode
@@ -209,8 +211,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             get => _sortMode;
             set { _sortMode = value; OnPropertyChanged(nameof(SortMode)); }
         }
+        private bool ShouldSerializeSortMode() => _sortMode != DataGridViewColumnSortMode.Automatic;
 
-        private DataGridViewTriState _resizable;
+        private DataGridViewTriState _resizable = DataGridViewTriState.True;
         [Category("Layout")]
         [Description("Indicates whether the column can be resized.")]
         public DataGridViewTriState Resizable
@@ -218,8 +221,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             get => _resizable;
             set { _resizable = value; OnPropertyChanged(nameof(Resizable)); }
         }
+        private bool ShouldSerializeResizable() => _resizable != DataGridViewTriState.True;
 
-        private DataGridViewAutoSizeColumnMode _autoSizeMode;
+        private DataGridViewAutoSizeColumnMode _autoSizeMode = DataGridViewAutoSizeColumnMode.None;
         [Category("Layout")]
         [Description("Defines how the column auto-sizes.")]
         public DataGridViewAutoSizeColumnMode AutoSizeMode
@@ -227,6 +231,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             get => _autoSizeMode;
             set { _autoSizeMode = value; OnPropertyChanged(nameof(AutoSizeMode)); }
         }
+        private bool ShouldSerializeAutoSizeMode() => _autoSizeMode != DataGridViewAutoSizeColumnMode.None;
 
         private ColumnHeaderStyle _headerStyle;
         [Category("Appearance")]
@@ -237,22 +242,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             get => _headerStyle;
             set { _headerStyle = value; OnPropertyChanged(nameof(HeaderStyle)); }
         }
+
         private List<SimpleItem> _items;
         [Category("Data")]
         [Description("The list of items for the ComboBox editor.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public List<SimpleItem> Items
         {
             get => _items;
             set { _items = value; OnPropertyChanged(nameof(Items)); }
         }
-
         #endregion
 
         #region INotifyPropertyChanged Implementation
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            try
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"OnPropertyChanged Error: {ex.Message}");
+            }
         }
         #endregion
     }
@@ -304,7 +317,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
     public enum BeepGridColumnType
     {
         Text,
-        CheckBox,
+        CheckBoxBool,
+        CheckBoxChar,
+        CheckBoxString,
         ComboBox,
         DateTime,
         Image,

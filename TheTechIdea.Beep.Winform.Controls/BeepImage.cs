@@ -5,6 +5,7 @@ using Svg;
 using System.Drawing.Text;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Vis.Modules;
+using System.Diagnostics;
 
 
 
@@ -94,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (IsSpinning)
                 {
-                   // Console.WriteLine("Warning: Spinner is active. Manual rotation may combine with spinning.");
+                    // Console.WriteLine("Warning: Spinner is active. Manual rotation may combine with spinning.");
                     // Option 1: Combine rotation
                     _manualRotationAngle = value; // Allows combining angles
                                                   // Option 2: Block manual rotation
@@ -155,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        
+
 
         [Category("Behavior")]
         [Description("Sets the speed of the spin in degrees per frame.")]
@@ -176,9 +177,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Console.WriteLine("Loading ImagePath ...");
                 if (!string.IsNullOrEmpty(_imagepath))
                 {
-                   // Console.WriteLine($"Loading ImagePath ....."+ _imagepath);
+                    // Console.WriteLine($"Loading ImagePath ....."+ _imagepath);
                     LoadImage(_imagepath);  // Use the final processed path for the image
-                   // Console.WriteLine("Finished  Image Path ......." + _imagepath);
+                                            // Console.WriteLine("Finished  Image Path ......." + _imagepath);
                     ApplyTheme();
                     Invalidate();
                 }
@@ -287,7 +288,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Theme Properties"
         public override void ApplyTheme()
         {
-          //  base.ApplyTheme();
+            //  base.ApplyTheme();
             if (_currentTheme != null)
             {
                 HoverBackColor = _currentTheme.ButtonHoverBackColor; // Hover background color
@@ -306,7 +307,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     case ImageEmbededin.Form:
                     case ImageEmbededin.Button:
                     case ImageEmbededin.ListView:
-                        
+
                         BackColor = _currentTheme.ButtonBackColor;
                         break;
                     case ImageEmbededin.Label:
@@ -326,7 +327,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         BackColor = _currentTheme.GridBackColor;
                         break;
                     default:
-                      
+
                         BackColor = _currentTheme.BackColor;
                         break;
 
@@ -346,87 +347,126 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void ApplyThemeToSvg()
         {
+            if (svgDocument == null || _currentTheme == null) return;
 
-            if (svgDocument != null && _currentTheme != null)
+            // Determine fill & stroke colors based on the theme
+            Color strokeColor, fillColor;
+            switch (_imageEmbededin)
             {
-                
-                switch (_imageEmbededin)
-                {
-                    case ImageEmbededin.ListBox:
-                    case ImageEmbededin.Form:
-                    case ImageEmbededin.Button:
-                    case ImageEmbededin.ListView:
-                        strokeColor  = _currentTheme.ButtonForeColor;
-                        fillColor = _currentTheme.ButtonBackColor;
-                        break;
-                    case ImageEmbededin.Label:
-                        strokeColor = _currentTheme.LabelForeColor;
-                        fillColor  = _currentTheme.LabelBackColor;
-                        break;
-                    case ImageEmbededin.TextBox:
-                        strokeColor = _currentTheme.TextBoxForeColor;
-                        fillColor  = _currentTheme.TextBoxBackColor;
-                        break;
-                    case ImageEmbededin.ComboBox:
-                        strokeColor  = _currentTheme.ComboBoxForeColor;
-                        fillColor = _currentTheme.ComboBoxBackColor;
-                        break;
-                    case ImageEmbededin.DataGridView:
-                        strokeColor  = _currentTheme.GridForeColor;
-                        fillColor = _currentTheme.GridBackColor;
-                        break;
-                   default:
-                        strokeColor = _currentTheme.ButtonForeColor;
-                        fillColor  = _currentTheme.ButtonBackColor;
-                        break;
-
-
-                }
-                //Determine the appropriate colors based on the current state(hover, pressed, or default)
-                if (IsPressed)
-                {
-                    strokeColor  = _currentTheme.ButtonActiveBackColor;
-                    fillColor = _currentTheme.ButtonActiveForeColor;
-                }
-                else if (IsHovered)
-                {
-                    strokeColor  = _currentTheme.ButtonActiveBackColor;
-                    fillColor = _currentTheme.ButtonHoverForeColor;
-                }
-              
-                foreach (var element in svgDocument.Descendants())
-                {
-                    if (element is SvgVisualElement visualElement)
-                    {
-                        // store current colors for future reference from current svgdocument
-                       tmpfillcolor = visualElement.Fill;
-                        tmpstrokecolor = visualElement.Stroke;
-                    
-                    }
-                }
-
-                // Apply colors recursively to all elements
-                // ApplyColorsToElement(svgDocument, fillColor, strokeColor);
-                // Apply the selected colors to the SVG elements
-                foreach (var element in svgDocument.Descendants())
-                {
-                    if (element is SvgVisualElement visualElement)
-                    {
-                        visualElement.Stroke = new SvgColourServer(strokeColor);
-                        visualElement.Fill = new SvgColourServer(fillColor);
-                       
-                    }
-                }
-
-                // Invalidate the control to trigger a repaint after applying the theme
-                Invalidate();
+                case ImageEmbededin.ListBox:
+                case ImageEmbededin.Form:
+                case ImageEmbededin.Button:
+                case ImageEmbededin.ListView:
+                    strokeColor = _currentTheme.ButtonForeColor;
+                    fillColor = _currentTheme.ButtonBackColor;
+                    break;
+                case ImageEmbededin.Label:
+                    strokeColor = _currentTheme.LabelForeColor;
+                    fillColor = _currentTheme.LabelBackColor;
+                    break;
+                case ImageEmbededin.TextBox:
+                    strokeColor = _currentTheme.TextBoxForeColor;
+                    fillColor = _currentTheme.TextBoxBackColor;
+                    break;
+                case ImageEmbededin.ComboBox:
+                    strokeColor = _currentTheme.ComboBoxForeColor;
+                    fillColor = _currentTheme.ComboBoxBackColor;
+                    break;
+                case ImageEmbededin.DataGridView:
+                    strokeColor = _currentTheme.GridForeColor;
+                    fillColor = _currentTheme.GridBackColor;
+                    break;
+                default:
+                    strokeColor = _currentTheme.ButtonForeColor;
+                    fillColor = _currentTheme.ButtonBackColor;
+                    break;
             }
 
+            // Adjust for hover/pressed states
+            if (IsPressed)
+            {
+                strokeColor = _currentTheme.ButtonActiveBackColor;
+                fillColor = _currentTheme.ButtonActiveForeColor;
+            }
+            else if (IsHovered)
+            {
+                strokeColor = _currentTheme.ButtonActiveBackColor;
+                fillColor = _currentTheme.ButtonHoverForeColor;
+            }
+
+            //   Debug.WriteLine("Applying Theme to SVG Elements:");
+
+            foreach (var element in svgDocument.Descendants())
+            {
+                if (element is SvgVisualElement visualElement)
+                {
+                    //      Debug.WriteLine($"Before: {element.GetType().Name}, Fill: {visualElement.Fill}, Stroke: {visualElement.Stroke}");
+
+                    // Store original colors
+                    tmpfillcolor = visualElement.Fill;
+                    tmpstrokecolor = visualElement.Stroke;
+
+                    // Apply theme colors
+                    visualElement.Fill = fillColor != Color.Empty ? new SvgColourServer(fillColor) : SvgPaintServer.None;
+                    visualElement.Stroke = strokeColor != Color.Empty ? new SvgColourServer(strokeColor) : SvgPaintServer.None;
+
+                    //    Debug.WriteLine($"After: {element.GetType().Name}, Fill: {visualElement.Fill}, Stroke: {visualElement.Stroke}");
+                }
+
+                // Fix SvgText-specific attributes
+                if (element is SvgText svgText)
+                {
+                    // Fix text-anchor if invalid
+                    try
+                    {
+                        if (svgText.TextAnchor != SvgTextAnchor.Start &&
+                            svgText.TextAnchor != SvgTextAnchor.Middle &&
+                            svgText.TextAnchor != SvgTextAnchor.End)
+                        {
+                            svgText.TextAnchor = SvgTextAnchor.Start; // Default to start
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        svgText.TextAnchor = SvgTextAnchor.Start; // Fallback
+                    }
+
+                    // Fix stroke-opacity if invalid
+                    try
+                    {
+                        if (svgText.StrokeOpacity < 0 || float.IsNaN(svgText.StrokeOpacity) || svgText.StrokeOpacity > 1)
+                        {
+                            svgText.StrokeOpacity = 1.0f;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        svgText.StrokeOpacity = 1.0f; // Fallback
+                    }
+
+                    // Fix stroke if invalid
+                    try
+                    {
+                        if (svgText.Stroke == null || svgText.Stroke == SvgPaintServer.None)
+                        {
+                            svgText.Stroke = new SvgColourServer(Color.Black);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        svgText.Stroke = new SvgColourServer(Color.Black); // Fallback
+                    }
+                }
+            }
+
+            Invalidate();
         }
-      
+
+
+
         #endregion "Theme Properties"
         #region "Image Drawing Methods"
-      
+
         public void DrawImage(Graphics g, Rectangle imageRect)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -493,7 +533,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
             e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             // Fill the background with BackColor
-           
+
             // Use spin functionality if enabled
             DrawImage(
                 e.Graphics,
@@ -515,28 +555,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool retval = false;
             try
             {
-              // Console.WriteLine($"Loading image: {path}");
+                // Console.WriteLine($"Loading image: {path}");
                 if (IsEmbeddedResource(path))
                 {
-                   // Console.WriteLine("Loading from embedded resource 1"); 
+                    // Console.WriteLine("Loading from embedded resource 1"); 
                     // Attempt to load from embedded resources
                     retval = LoadImageFromEmbeddedResource(path);
-                   // Console.WriteLine("Loading from embedded resource 2");
+                    // Console.WriteLine("Loading from embedded resource 2");
                 }
                 else
                 {
                     if (File.Exists(path))
                     {
-                       // Console.WriteLine("Loading from file system");
+                        // Console.WriteLine("Loading from file system");
                         // Load from file system
                         retval = LoadImageFromFile(path);
-                       // Console.WriteLine("Loading from file system 2");
+                        // Console.WriteLine("Loading from file system 2");
                     }
                 }
             }
             catch (Exception ex)
             {
-               // Console.WriteLine($"Error loading image: {ex.Message}");
+                // Console.WriteLine($"Error loading image: {ex.Message}");
                 return false;
             }
             return retval;
@@ -560,45 +600,45 @@ namespace TheTechIdea.Beep.Winform.Controls
                     retval = LoadRegularImage(path);
                     break;
                 default:
-                   // Console.WriteLine("Unsupported image format. Supported formats are: SVG, PNG, JPG, BMP.");
+                    // Console.WriteLine("Unsupported image format. Supported formats are: SVG, PNG, JPG, BMP.");
                     break;
             }
 
             return retval;
         }
 
-public bool IsEmbeddedResource(string path)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-            return false;
-
-        string normalizedPath = path.Trim().Replace("\\", ".").Replace("/", ".");
-
-        // Check if it exists in any loaded assembly
-        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        public bool IsEmbeddedResource(string path)
         {
-            var resourceNames = assembly.GetManifestResourceNames();
+            if (string.IsNullOrWhiteSpace(path))
+                return false;
 
-            if (resourceNames.Any(name => name.Equals(normalizedPath, StringComparison.OrdinalIgnoreCase)))
+            string normalizedPath = path.Trim().Replace("\\", ".").Replace("/", ".");
+
+            // Check if it exists in any loaded assembly
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                return true; // Found as an embedded resource
+                var resourceNames = assembly.GetManifestResourceNames();
+
+                if (resourceNames.Any(name => name.Equals(normalizedPath, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return true; // Found as an embedded resource
+                }
             }
+
+            // If it's a valid file path, it's NOT an embedded resource
+            if (File.Exists(path) || Directory.Exists(path))
+            {
+                return false;
+            }
+
+            // If it has no valid file extension, assume it's an embedded resource
+            return string.IsNullOrEmpty(Path.GetExtension(path));
         }
 
-        // If it's a valid file path, it's NOT an embedded resource
-        if (File.Exists(path) || Directory.Exists(path))
-        {
-            return false;
-        }
-
-        // If it has no valid file extension, assume it's an embedded resource
-        return string.IsNullOrEmpty(Path.GetExtension(path));
-    }
-
-    /// <summary>
-    /// Load an image from the embedded resources (checks the current assembly).
-    /// </summary>
-    public bool LoadImageFromEmbeddedResource(string resourcePath)
+        /// <summary>
+        /// Load an image from the embedded resources (checks the current assembly).
+        /// </summary>
+        public bool LoadImageFromEmbeddedResource(string resourcePath)
         {
             try
             {
@@ -630,8 +670,23 @@ public bool IsEmbeddedResource(string path)
                     string extension = Path.GetExtension(resourcePath).ToLower();
                     if (extension == ".svg")
                     {
-                        svgDocument = SvgDocument.Open<SvgDocument>(stream);
-                        isSvg = true;
+                        // Read the stream into a string for sanitization
+                        using (var reader = new StreamReader(stream))
+                        {
+                            string svgContent = reader.ReadToEnd();
+
+                            // Sanitize invalid attribute values
+                            svgContent = svgContent.Replace("text-anchor=\"left\"", "text-anchor=\"start\"")
+                                                   .Replace("stroke-opacity=\"null\"", "stroke-opacity=\"1.0\"")
+                                                   .Replace("stroke=\"null\"", "stroke=\"none\"");
+
+                            // Convert the sanitized string back to a stream
+                            using (var sanitizedStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(svgContent)))
+                            {
+                                svgDocument = SvgDocument.Open<SvgDocument>(sanitizedStream);
+                                isSvg = true;
+                            }
+                        }
                     }
                     else
                     {
@@ -639,19 +694,19 @@ public bool IsEmbeddedResource(string path)
                         isSvg = false;
                     }
 
-                    ApplyTheme(); // Apply theme after loading
+                    // ApplyTheme(); // Apply theme after loading
                     Invalidate(); // Trigger a repaint
                     return true;
                 }
                 else
                 {
-                   // Console.WriteLine($"Embedded resource not found (case-insensitive): {resourcePath}");
+                    // Console.WriteLine($"Embedded resource not found (case-insensitive): {resourcePath}");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-               // Console.WriteLine($"Error loading embedded resource: {ex.Message}");
+                // Console.WriteLine($"Error loading embedded resource: {ex.Message}");
                 return false;
             }
         }
@@ -662,12 +717,26 @@ public bool IsEmbeddedResource(string path)
             regularImage = null;
             isSvg = false;
         }
+        public SvgDocument LoadSanitizedSvg(string svgFilePath)
+        {
+            // Read the raw SVG content
+            string svgContent = File.ReadAllText(svgFilePath);
+
+            // Replace invalid attribute values
+            svgContent = svgContent.Replace("text-anchor=\"left\"", "text-anchor=\"start\"")
+                                   .Replace("stroke-opacity=\"null\"", "stroke-opacity=\"1.0\"")
+                                   .Replace("stroke=\"null\"", "stroke=\"none\"");
+
+            // Parse the sanitized content into an SvgDocument
+            return SvgDocument.FromSvg<SvgDocument>(svgContent);
+        }
         public bool LoadSvg(string svgPath)
         {
             try
             {
                 DisposeImages();
-                svgDocument = SvgDocument.Open(svgPath);
+                svgDocument = LoadSanitizedSvg(svgPath);
+                //  svgDocument = SvgDocument.Open(svgPath);
                 isSvg = true;
                 Invalidate(); // Trigger repaint
             }
@@ -958,7 +1027,7 @@ public bool IsEmbeddedResource(string path)
         }
 
     }
-   public enum ImageEmbededin
+    public enum ImageEmbededin
     {
         Button,
         Form,

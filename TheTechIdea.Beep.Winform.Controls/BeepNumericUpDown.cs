@@ -229,11 +229,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             Rectangle valueTextBoxRect = new Rectangle(_valueTextBox.Left, _valueTextBox.Top, _valueTextBox.Width, _valueTextBox.Height);
             Rectangle incrementButtonRect = new Rectangle(_incrementButton.Left, _incrementButton.Top, _incrementButton.Width, _incrementButton.Height);
 
-            // Draw the decrement button
-            if (_decrementButton != null)
-            {
-                _decrementButton.Draw(graphics, decrementButtonRect);
-            }
+            //// Draw the decrement button
+            //if (_decrementButton != null)
+            //{
+            //    _decrementButton.Draw(graphics, decrementButtonRect);
+            //}
 
             // Draw the text box
             if (_valueTextBox != null)
@@ -241,11 +241,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _valueTextBox.Draw(graphics, valueTextBoxRect);
             }
 
-            // Draw the increment button
-            if (_incrementButton != null)
-            {
-                _incrementButton.Draw(graphics, incrementButtonRect);
-            }
+            //// Draw the increment button
+            //if (_incrementButton != null)
+            //{
+            //    _incrementButton.Draw(graphics, incrementButtonRect);
+            //}
         }
         #region "Event Handlers"
         private void IncrementButton_Click(object sender, EventArgs e)

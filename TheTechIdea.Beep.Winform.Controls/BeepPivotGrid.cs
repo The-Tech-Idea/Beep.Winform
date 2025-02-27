@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnPaint(e); // Call base to retain BeepSimpleGrid's painting logic
 
-            int yOffset = ColumnHeight + headerPanelHeight + 2;
+            int yOffset = ColumnHeaderHeight + headerPanelHeight + 2;
 
             // Define top-left header rectangle area
             topLeftRect = new Rectangle(XOffset - RowHeaderWidth, headerPanelHeight, RowHeaderWidth, RowHeight);
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawHeader(PaintEventArgs e)
         {
             int yOffset = headerPanelHeight;
-            int lineYPosition = ColumnHeight / 2; // Position for the horizontal dividing line
+            int lineYPosition = ColumnHeaderHeight / 2; // Position for the horizontal dividing line
 
             // Draw a thin horizontal line between the headers
             using (var pen = new Pen(_currentTheme.BorderColor, 1))

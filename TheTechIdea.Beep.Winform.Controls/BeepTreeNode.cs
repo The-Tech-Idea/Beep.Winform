@@ -887,7 +887,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsExpanded=false;
             NodeWidth = DrawingRect.Width;
            // LogMessage($"init2");
-            _checkBox = new BeepCheckBox
+            _checkBox = new BeepCheckBoxBool
             {
                 CheckedValue = true,
                 UncheckedValue = false,
@@ -989,34 +989,41 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _nodePanel.Height = NodeHeight + spacing;
 
                 int xlevel = 1;
-
-                // Adjust children visibility and layout
-                if (NodeInfo.Children.Count > 0)
+                if (NodeInfo.Children != null)
                 {
-                    if (IsExpanded)
+                    if (NodeInfo.Children.Count > 0)
                     {
-                        int childStartY = padding;
-                        foreach (var child in NodesControls)
+                        if (IsExpanded)
                         {
-                            if (!_childrenPanel.Controls.Contains(child))
+                            int childStartY = padding;
+                            foreach (var child in NodesControls)
                             {
-                                _childrenPanel.Controls.Add(child); // Ensure child is in UI
+                                if (!_childrenPanel.Controls.Contains(child))
+                                {
+                                    _childrenPanel.Controls.Add(child); // Ensure child is in UI
+                                }
+                                child.NodeInfo.IsDrawn = true; // Mark as drawn
+                                child.Location = new Point(xlevel * padding, childStartY); // Indent child nodes
+                                child.Width = Width - (xlevel * padding);
+                                child.Theme = Theme;
+                                child.RearrangeNode(); // Recursively arrange children
+                                childStartY += child.Height + padding;
                             }
-                            child.NodeInfo.IsDrawn = true; // Mark as drawn
-                            child.Location = new Point(xlevel * padding, childStartY); // Indent child nodes
-                            child.Width = Width - (xlevel * padding);
-                            child.Theme = Theme;
-                            child.RearrangeNode(); // Recursively arrange children
-                            childStartY += child.Height + padding;
+                            _childrenPanel.Height = childStartY;
+                            _childrenPanel.Visible = true;
                         }
-                        _childrenPanel.Height = childStartY;
-                        _childrenPanel.Visible = true;
+                        else
+                        {
+                            _childrenPanel.Height = 0;
+                            _childrenPanel.Visible = false;
+                        }
                     }
                     else
                     {
                         _childrenPanel.Height = 0;
                         _childrenPanel.Visible = false;
                     }
+
                 }
                 else
                 {
@@ -1073,6 +1080,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                
                 if (NodeInfo != null)
                 {
+                    if (NodeInfo.Children == null) return;
                     if (NodeInfo.Children.Count > 0)
                     {
                         if (IsExpanded)

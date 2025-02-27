@@ -228,7 +228,7 @@ public static class ControlExtensions
             case DbFieldCategory.Date:
                 return typeof(BeepDatePicker);
             case DbFieldCategory.Boolean:
-                return typeof(BeepCheckBox);
+                return typeof(BeepCheckBoxBool);
             case DbFieldCategory.Binary:
                 return typeof(BeepImage);
             case DbFieldCategory.Guid:
@@ -1386,7 +1386,7 @@ public static class ControlExtensions
                 return new BeepDatePicker { BoundProperty = propertyName, ComponentName = propertyName };
 
             case DbFieldCategory.Boolean:
-                return new BeepCheckBox { BoundProperty = propertyName, ComponentName = propertyName };
+                return new BeepCheckBoxBool { BoundProperty = propertyName, ComponentName = propertyName };
 
             case DbFieldCategory.Guid:
                 return new BeepTextBox { BoundProperty = propertyName, ComponentName = propertyName, ReadOnly = true };

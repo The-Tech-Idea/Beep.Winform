@@ -5,21 +5,55 @@ using TheTechIdea.Beep.Report;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    // Non-generic base class with a default type of bool
+    //-------------------------------------------------
+    // Non-generic wrapper for bool
     [ToolboxItem(true)]
-    [DisplayName("Beep CheckBox")]
+    [DisplayName("Beep CheckBox Bool")]
     [Category("Beep Controls")]
-    [Description("A checkbox control with customizable appearance.")]
-    public class BeepCheckBox : BeepCheckBox<bool>
+    [Description("A checkbox control with boolean values.")]
+    public class BeepCheckBoxBool : BeepCheckBox<bool>
     {
-        public BeepCheckBox()
+        public BeepCheckBoxBool()
         {
-            // Default values for CheckedValue and UncheckedValue
             CheckedValue = true;
             UncheckedValue = false;
             CurrentValue = false;
+         //   ValueType = BeepCheckBox<bool>.CheckBoxValueType.Boolean;
         }
     }
+
+    // Non-generic wrapper for char
+    [ToolboxItem(true)]
+    [DisplayName("Beep CheckBox Char")]
+    [Category("Beep Controls")]
+    [Description("A checkbox control with character values.")]
+    public class BeepCheckBoxChar : BeepCheckBox<char>
+    {
+        public BeepCheckBoxChar()
+        {
+            CheckedValue = 'Y';
+            UncheckedValue = 'N';
+            CurrentValue = 'N';
+         //   ValueType = BeepCheckBox<char>.CheckBoxValueType.Character;
+        }
+    }
+
+    // Non-generic wrapper for string
+    [ToolboxItem(true)]
+    [DisplayName("Beep CheckBox String")]
+    [Category("Beep Controls")]
+    [Description("A checkbox control with string values.")]
+    public class BeepCheckBoxString : BeepCheckBox<string>
+    {
+        public BeepCheckBoxString()
+        {
+            CheckedValue = "YES";
+            UncheckedValue = "NO";
+            CurrentValue = "NO";
+          //  ValueType = BeepCheckBox<string>.CheckBoxValueType.String;
+        }
+    }
+    //-------------------------------------------------
     // Generic class for flexibility
     public class BeepCheckBox<T> : BeepControl
     {

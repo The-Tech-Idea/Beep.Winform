@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 using TheTechIdea.Beep.Winform.Controls.Design;
 using TheTechIdea.Beep.Winform.Controls.Grid;
 using TheTechIdea.Beep.Winform.Controls.Grid.DataColumns;
@@ -123,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _resizingIndex = -1;
         private int _resizeMargin = 2;
         private Point _lastMousePos;
-
+        private int _editingRowIndex = -1; // Add this field to track absolute row index in _fullData
         private BeepGridRow _hoveredRow = null;
         private BeepGridCell _hoveredCell = null;
         private BeepGridCell _selectedCell = null;
@@ -144,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private List<Rectangle> rowHeaderBounds = new List<Rectangle>();
         private List<Rectangle> sortIconBounds = new List<Rectangle>();
         private List<Rectangle> filterIconBounds = new List<Rectangle>();
-        private int _defaultcolumnheaderheight = 25;
+        private int _defaultcolumnheaderheight = 40;
         private int _defaultcolumnheaderwidth = 50;
 
         private object _dataSource;
@@ -176,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         public BindingList<BeepGridRow> Rows { get; set; } = new BindingList<BeepGridRow>();
         public BeepGridRow BottomRow { get; set; }
-        public BeepDataNavigator DataNavigator { get; set; }
+        public BeepBindingNavigator DataNavigator { get; set; }
         private bool columnssetupusingeditordontchange = false;
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -185,27 +186,37 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => columnssetupusingeditordontchange;
             set => columnssetupusingeditordontchange = value;
         }
-        private List<BeepGridColumnConfig> _columns = new List<BeepGridColumnConfig>();
+        private List<BeepGridColumnConfig> _columns=new List<BeepGridColumnConfig>();
         [Browsable(true)]
-        [Localizable(true)]
-        [MergableProperty(false)]
-     //   [Editor(typeof(BeepGridColumnConfigCollectionEditor), typeof(UITypeEditor))]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Category("Data")]
+        // [Editor(typeof(BeepGridColumnConfigCollectionEditor), typeof(UITypeEditor))] // Uncomment if you have a custom editor
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public List<BeepGridColumnConfig> Columns
         {
-            get => _columns;
+            get
+            {
+             //   Debug.WriteLine($"Columns Getter: Count = {_columns.Count}, DesignMode = {DesignMode}");
+                return _columns;
+            }
             set
             {
-                _columns = value ?? new List<BeepGridColumnConfig>();
-                columnssetupusingeditordontchange = true;
-                //InitializeRows();
-                //FillVisibleRows();
+            //   Debug.WriteLine($"Columns Setter: Count = {value?.Count}, DesignMode = {DesignMode}");
+                if (value != null && value != _columns)
+                {
+                    _columns = value;
+                    if (_columns.Any())
+                    {
+                        columnssetupusingeditordontchange = true;
+                   //     Debug.WriteLine("Columns set via property, marking as designer-configured");
+                    }
+                }
                 UpdateScrollBars();
                 Invalidate();
             }
         }
         [Browsable(true)]
         [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int DefaultColumnHeaderWidth
         {
             get => _defaultcolumnheaderwidth;
@@ -215,6 +226,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showverticalgridlines = true;
         [Browsable(true)]
         [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowVerticalGridLines
         {
             get => _showverticalgridlines;
@@ -227,6 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showhorizontalgridlines = true;
         [Browsable(true)]
         [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowHorizontalGridLines
         {
             get => _showhorizontalgridlines;
@@ -239,6 +252,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowFilterButton
         {
             get => _showFilterButton;
@@ -251,6 +265,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showSortIcons = true;
         [Browsable(true)]
         [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowSortIcons
         {
             get => _showSortIcons;
@@ -263,6 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showRowNumbers = true;
         [Browsable(true)]
         [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowRowNumbers
         {
             get => _showRowNumbers;
@@ -275,6 +291,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showColumnHeaders = true;
         [Browsable(true)]
         [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowColumnHeaders
         {
             get => _showColumnHeaders;
@@ -287,6 +304,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showRowHeaders = true;
         [Browsable(true)]
         [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowRowHeaders
         {
             get => _showRowHeaders;
@@ -299,6 +317,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showNavigator = true;
         [Browsable(true)]
         [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowNavigator
         {
             get => _showNavigator;
@@ -311,6 +330,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showBottomRow = false;
         [Browsable(true)]
         [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowBottomRow
         {
             get => _showBottomRow;
@@ -323,6 +343,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showFooter = false;
         [Browsable(true)]
         [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowFooter
         {
             get => _showFooter;
@@ -335,6 +356,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showHeaderPanel = true;
         [Browsable(true)]
         [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowHeaderPanel
         {
             get => _showHeaderPanel;
@@ -347,6 +369,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showHeaderPanelBorder = true;
         [Browsable(true)]
         [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowHeaderPanelBorder
         {
             get => _showHeaderPanelBorder;
@@ -359,7 +382,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Layout")]
-        public int ColumnHeight
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int ColumnHeaderHeight
         {
             get => _defaultcolumnheaderheight;
             set { _defaultcolumnheaderheight = value; Invalidate(); }
@@ -425,7 +449,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.SetStyle(ControlStyles.UserPaint, true);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-         
+            // Ensure _columns is only initialized once
+           
             Width = 200;
             Height = 200;
             // Attach event handlers for mouse actions
@@ -455,15 +480,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             _horizontalScrollBar.Scroll += HorizontalScrollBar_Scroll;
             Controls.Add(_horizontalScrollBar);
-            DataNavigator = new BeepDataNavigator
+            DataNavigator = new BeepBindingNavigator
             {
                 ShowAllBorders = false,
                 ShowShadow = false,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
-                ApplyThemeToChilds = true,
-                Theme = Theme
+                Theme = Theme,
+               
             };
+            ApplyThemeToChilds = false;
             Controls.Add(DataNavigator);
 
             titleLabel = new BeepLabel
@@ -509,172 +535,284 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DataSetup()
         {
             IEntityStructure entity = null;
-            if (_dataSource is BindingSource bindingSrc)
-            {
-                // Console.WriteLine($"🔍 Unwrapping BindingSource: {bindingSrc.DataSource?.GetType()}");
+            object resolvedData = null; // Unified variable for final data or type resolution
+            Debug.WriteLine($"DataSetup Started: _dataSource Type = {_dataSource?.GetType()}, DesignMode = {DesignMode}, Columns Count = {_columns.Count}");
 
+            // Step 1: Handle different _dataSource types
+            if (_dataSource == null)
+            {
+                Debug.WriteLine("DataSource is null, no entity generated");
+            }
+            else if (_dataSource is BindingSource bindingSrc)
+            {
+                Debug.WriteLine($"BindingSource Detected: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
                 var dataSource = bindingSrc.DataSource;
 
-                // Check if we are in design mode
-                bool isDesignTime = DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime;
-
-                if (isDesignTime && dataSource is Type type)
+                if (dataSource == null)
                 {
-                    // Console.WriteLine("⚠️ Design Mode Detected. Using Type Metadata for Entity Creation...");
-
-                    // Resolve DataMember if specified
+                    Debug.WriteLine("BindingSource.DataSource is null, checking BindingSource.List");
+                    resolvedData = bindingSrc.List; // Could be IList, DataView, etc.
+                }
+                else if (dataSource is Type type)
+                {
+                    // Handle Type (design-time or runtime)
+                    Debug.WriteLine($"{(DesignMode ? "Design-time" : "Runtime")}: DataSource is Type = {type.FullName}");
                     if (!string.IsNullOrEmpty(bindingSrc.DataMember))
                     {
-                        // Console.WriteLine($"📌 DataMember Found: {bindingSrc.DataMember}");
-
-                        // Use reflection to resolve the DataMember property
-                        PropertyInfo dataMemberProp = type.GetProperty(bindingSrc.DataMember);
+                        PropertyInfo dataMemberProp = type.GetProperty(bindingSrc.DataMember, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
                         if (dataMemberProp != null)
                         {
-                            // Console.WriteLine($"✅ Resolved DataMember '{bindingSrc.DataMember}' to type: {dataMemberProp.PropertyType}");
-
-                            // Handle IList<T> or DataTable
                             Type itemType = GetItemTypeFromDataMember(dataMemberProp.PropertyType);
                             if (itemType != null)
                             {
-                                // Console.WriteLine($"✅ Extracted Item Type from DataMember: {itemType}");
-
-                                // Create Entity Structure based on the item type
-                                Entity = EntityHelper.GetEntityStructureFromType(itemType);
-                                // Console.WriteLine($"✅ Created Entity Structure: {Entity?.EntityName}");
-
-                                // Create Columns from the Entity Structure
-                                CreateColumnsForEntity();
-                                return;
+                                Debug.WriteLine($"Resolved ItemType from DataMember '{bindingSrc.DataMember}' = {itemType.FullName}");
+                                entity = EntityHelper.GetEntityStructureFromType(itemType);
                             }
                             else
                             {
-                                // Console.WriteLine($"⚠️ Warning: Unable to extract item type from DataMember '{bindingSrc.DataMember}'!");
+                                Debug.WriteLine($"Could not extract item type from DataMember '{bindingSrc.DataMember}' property type: {dataMemberProp.PropertyType}");
                             }
                         }
                         else
                         {
-                            // Console.WriteLine($"⚠️ Warning: DataMember '{bindingSrc.DataMember}' not found in DataSource!");
+                            Debug.WriteLine($"DataMember '{bindingSrc.DataMember}' not found on Type {type.FullName}");
                         }
                     }
                     else
                     {
-                        // Use the entire type's properties if no DataMember is specified
-                        Entity = EntityHelper.GetEntityStructureFromType(type);
-                        // Console.WriteLine($"✅ Created Entity Structure: {Entity?.EntityName}");
-
-                        // Create Columns from the Entity Structure
-                        CreateColumnsForEntity();
-                        return;
+                        Debug.WriteLine("No DataMember specified with Type DataSource, using Type directly");
+                        entity = EntityHelper.GetEntityStructureFromType(type);
                     }
                 }
-
-                // Ensure DataSource is not a Type object at runtime
-                if (dataSource is Type typeAtRuntime)
+                else
                 {
-                    throw new InvalidOperationException("DataSource cannot be a Type object. Provide a valid data instance.");
-                }
-
-                if (!string.IsNullOrEmpty(bindingSrc.DataMember))
-                {
-                    // Console.WriteLine($"📌 DataMember Found: {bindingSrc.DataMember}");
-
-                    // Resolve the DataMember property in the DataSource
-                    PropertyInfo prop = dataSource.GetType().GetProperty(bindingSrc.DataMember);
-                    if (prop != null)
+                    // Handle instance (could be DataTable, IList, or class with DataMember)
+                    if (!string.IsNullOrEmpty(bindingSrc.DataMember))
                     {
-                        finalData = prop.GetValue(dataSource);
-                        // Console.WriteLine($"✅ Resolved DataMember '{bindingSrc.DataMember}' to type: {finalData?.GetType()}");
-
-                        // Handle IList<T> or DataTable at runtime
-                        Type itemType = GetItemTypeFromDataMember(prop.PropertyType);
-                        if (itemType != null)
+                        PropertyInfo prop = dataSource.GetType().GetProperty(bindingSrc.DataMember, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                        if (prop != null)
                         {
-                            // Console.WriteLine($"✅ Extracted Item Type from DataMember: {itemType}");
-                            entity = EntityHelper.GetEntityStructureFromType(itemType);
+                            resolvedData = prop.GetValue(dataSource);
+                            Debug.WriteLine($"Resolved data from DataMember = {resolvedData?.GetType()}");
                         }
                         else
                         {
-                            // Console.WriteLine($"⚠️ Warning: Unable to extract item type from DataMember '{bindingSrc.DataMember}'!");
-                            entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
+                            Debug.WriteLine($"DataMember '{bindingSrc.DataMember}' not found on instance, using BindingSource.List or DataSource");
+                            resolvedData = bindingSrc.List != null && bindingSrc.List.Count > 0 ? bindingSrc.List : dataSource;
                         }
                     }
                     else
                     {
-                        // Console.WriteLine($"⚠️ Warning: DataMember '{bindingSrc.DataMember}' not found in DataSource!");
-                        finalData = dataSource; // Fallback: Use the entire DataSource
+                        Debug.WriteLine("No DataMember, attempting auto-detection or using BindingSource.List");
+                        resolvedData = GetCollectionPropertyFromInstance(dataSource) ?? (bindingSrc.List != null && bindingSrc.List.Count > 0 ? bindingSrc.List : dataSource);
+                        Debug.WriteLine($"Resolved data = {resolvedData?.GetType()}");
                     }
                 }
-                else
-                {
-                    finalData = _dataSource; // Directly assign if no DataMember
-                    entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
-                }
-
-                // Console.WriteLine($"✅ Final Extracted Data: {finalData?.GetType()}");
+            }
+            else if (_dataSource is DataTable dataTable)
+            {
+                Debug.WriteLine("DataSource is DataTable");
+                resolvedData = dataTable;
+            }
+            else if (_dataSource is IList iList)
+            {
+                Debug.WriteLine("DataSource is IList");
+                resolvedData = iList;
             }
             else
             {
-                finalData = _dataSource; // its a list
-                entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
+                Debug.WriteLine($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting auto-detection");
+                resolvedData = GetCollectionPropertyFromInstance(_dataSource) ?? _dataSource;
             }
-            if (Entity != null && entity!=null)
+
+            // Step 2: Process resolvedData to set finalData and entity
+            if (entity == null) // Entity not set yet (i.e., not a Type case)
             {
-                if (!entity.EntityName.Equals(Entity.EntityName))
+                if (resolvedData == null)
                 {
-                    if (!columnssetupusingeditordontchange)
+                    Debug.WriteLine("Resolved data is null, no entity generated");
+                }
+                else if (resolvedData is DataTable dt)
+                {
+                    finalData = dt;
+                    entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
+                }
+                else if (resolvedData is IList list && list.Count > 0)
+                {
+                    finalData = list;
+                    Type itemType = list[0]?.GetType();
+                    if (itemType != null)
                     {
-                        CreateColumnsForEntity();
+                        Debug.WriteLine($"Extracted item type from IList: {itemType.FullName}");
+                        entity = EntityHelper.GetEntityStructureFromType(itemType);
                     }
-                    
+                    else
+                    {
+                        entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
+                    }
                 }
                 else
                 {
-                    if (!columnssetupusingeditordontchange)
-                    {
-                        SyncFields(entity);
-                    }
-                   
+                    Debug.WriteLine($"Resolved data is not a recognized collection type: {resolvedData.GetType()}, using as-is");
+                    finalData = resolvedData;
+                    entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
                 }
             }
+            else
+            {
+                // Entity already set from Type handling, finalData remains null (structure only)
+                Debug.WriteLine("Entity set from Type handling, finalData remains null");
+            }
+
+            //Step 3: Process entity and columns
+            if (entity != null)
+            {
+                Debug.WriteLine($"New Entity: {entity.EntityName}, Existing Entity: {Entity?.EntityName}, Columns Count = {_columns.Count}");
+                if (_columns.Any() )
+                {
+                    if (Entity != null && entity.EntityName.Equals(Entity.EntityName))
+                    {
+                        Debug.WriteLine("Preserving designer Columns, syncing fields");
+                      //  SyncFields(entity);
+                        SyncColumnsWithEntity(entity);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("New Entity with designer Columns, updating Entity only");
+                        Entity = entity;
+                        SyncColumnsWithEntity(entity);
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("No designer Columns or not protected, regenerating");
+                    Entity = entity;
+                    CreateColumnsForEntity();
+                }
+            }
+            else if (_columns.Any() && columnssetupusingeditordontchange)
+            {
+                Debug.WriteLine("No new Entity, keeping designer Columns");
+            }
+
+            Debug.WriteLine($"DataSetup Completed: finalData = {finalData?.GetType()}, Entity = {Entity?.EntityName}, Columns Count = {_columns.Count}");
         }
-        private void SyncFields(IEntityStructure entity)
+        private object GetCollectionPropertyFromInstance(object instance)
         {
-            // Sync the fields
+            if (instance == null) return null;
+
+            var properties = instance.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo collectionProp = null;
+            int collectionCount = 0;
+
+            foreach (var prop in properties)
+            {
+                if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
+                {
+                    var value = prop.GetValue(instance);
+                    if (value != null)
+                    {
+                        collectionProp = prop;
+                        collectionCount++;
+                        Debug.WriteLine($"Found collection property: {prop.Name}, Type = {prop.PropertyType}");
+                    }
+                }
+            }
+
+            if (collectionCount == 1 && collectionProp != null)
+            {
+                return collectionProp.GetValue(instance);
+            }
+            else if (collectionCount > 1)
+            {
+                Debug.WriteLine("Multiple collection properties found, please specify DataMember");
+            }
+            return null; // No single collection found or all are null
+        }
+        private Type GetItemTypeFromDataMember(Type propertyType)
+        {
+            Debug.WriteLine($"GetItemTypeFromDataMember: PropertyType = {propertyType.FullName}");
+
+            // Handle generic IEnumerable<T> (e.g., List<T>)
+            if (propertyType.IsGenericType && typeof(IEnumerable).IsAssignableFrom(propertyType))
+            {
+                Type[] genericArgs = propertyType.GetGenericArguments();
+                if (genericArgs.Length > 0)
+                {
+                    Debug.WriteLine($"Extracted item type: {genericArgs[0].FullName}");
+                    return genericArgs[0];
+                }
+            }
+
+            // Handle DataTable
+            if (propertyType == typeof(DataTable))
+            {
+                Debug.WriteLine("DataTable detected, returning DataRow");
+                return typeof(DataRow);
+            }
+
+            // Handle arrays
+            if (propertyType.IsArray)
+            {
+                Debug.WriteLine($"Array detected, element type: {propertyType.GetElementType().FullName}");
+                return propertyType.GetElementType();
+            }
+
+            Debug.WriteLine("No item type extracted");
+            return null;
+        }
+        private void SyncColumnsWithEntity(IEntityStructure entity)
+        {
+            Debug.WriteLine("Syncing Columns with Entity");
+
+            // Map existing columns by name for quick lookup
+            var columnMap = _columns.ToDictionary(c => c.ColumnName, c => c, StringComparer.OrdinalIgnoreCase);
+
+            // Sync fields into columns, preserving designer settings
             foreach (var field in entity.Fields)
             {
-                var existingField = Entity.Fields.FirstOrDefault(f => f.fieldname == field.fieldname);
-                if (existingField != null)
+                if (columnMap.TryGetValue(field.fieldname, out var existingColumn))
                 {
-                    existingField.fieldtype = field.fieldtype;
-                    existingField.fieldCategory = field.fieldCategory;
-                    existingField.Description = field.Description;
-                    existingField.IsKey = field.IsKey;
-                    existingField.FieldIndex = field.FieldIndex;
-                    existingField.IsUnique = field.IsUnique;
-                    existingField.IsAutoIncrement = field.IsAutoIncrement;
-                    existingField.IsHidden = field.IsHidden;
-                    existingField.IsIdentity = field.IsIdentity;
-                    existingField.IsCheck = field.IsCheck;
-                    existingField.IsReadOnly = field.IsReadOnly;
-                    existingField.Size1 = field.Size1;
-                    existingField.Size2 = field.Size2;
-
+                    // Update type-related properties, preserve designer settings
+                    existingColumn.PropertyTypeName = field.fieldtype ?? existingColumn.PropertyTypeName ?? typeof(object).AssemblyQualifiedName;
+                    existingColumn.ColumnType = MapPropertyTypeToDbFieldCategory(existingColumn.PropertyTypeName);
+              //      existingColumn.CellEditor = MapPropertyTypeToCellEditor(existingColumn.PropertyTypeName);
+                    // Designer settings like Width, Visible, ColumnCaption remain unchanged
+                    Debug.WriteLine($"Synced Column '{field.fieldname}': Type = {existingColumn.PropertyTypeName}");
                 }
                 else
                 {
-                    Entity.Fields.Add(field);
+                    // Add new column if it doesn’t exist, with defaults
+                    var newColumn = new BeepGridColumnConfig
+                    {
+                        ColumnName = field.fieldname,
+                        ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(field.fieldname),
+                        PropertyTypeName = field.fieldtype ?? typeof(object).AssemblyQualifiedName,
+                        Width = 100,
+                        Visible = true,
+                        SortMode = DataGridViewColumnSortMode.Automatic,
+                        Resizable = DataGridViewTriState.True,
+                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                    };
+                    newColumn.ColumnType = MapPropertyTypeToDbFieldCategory(newColumn.PropertyTypeName);
+                    newColumn.CellEditor = MapPropertyTypeToCellEditor(newColumn.PropertyTypeName);
+                    _columns.Add(newColumn);
+                    Debug.WriteLine($"Added new Column '{field.fieldname}': Type = {newColumn.PropertyTypeName}");
                 }
             }
-            // remove fields that are not in the new entity
-            foreach (var field in Entity.Fields)
+
+            // Remove columns not in the new Entity (optional, comment out if you want to keep extras)
+            _columns.RemoveAll(c => !entity.Fields.Any(f => f.fieldname.Equals(c.ColumnName, StringComparison.OrdinalIgnoreCase)));
+
+            // Re-index columns
+            for (int i = 0; i < _columns.Count; i++)
             {
-                if (!entity.Fields.Any(f => f.fieldname == field.fieldname))
-                {
-                    Entity.Fields.Remove(field);
-                }
+                _columns[i].Index = i;
             }
+
+            Invalidate();
         }
+     
         public void CreateColumnsForEntity()
         {
             try
@@ -684,135 +822,62 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 foreach (var field in Entity.Fields)
                 {
-                    // 1) Safely get the .NET Type from a string
-                    Type fieldType = Type.GetType(field.fieldtype, throwOnError: false, ignoreCase: true)
-                                     ?? typeof(object);
-
-                    // 2) Create a new BeepGridColumnConfig
+                    // Create a new BeepGridColumnConfig using PropertyTypeName as a string
                     var colConfig = new BeepGridColumnConfig
                     {
                         ColumnName = field.fieldname,  // The name in the data source
                         ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(field.fieldname),  // The user-facing caption
-                        PropertyType = fieldType,        // Store the actual .NET Type
+                        PropertyTypeName = field.fieldtype,  // Store the string representation of the type
                         GuidID = Guid.NewGuid().ToString(),
                         Visible = true,
                         Width = 100,
-                        // If you want to default some advanced properties:
                         SortMode = DataGridViewColumnSortMode.Automatic,
                         Resizable = DataGridViewTriState.True,
                         AutoSizeMode = DataGridViewAutoSizeColumnMode.None
                     };
 
-                    // 3) Map the fieldType to a ColumnType and CellEditor
-                    if (fieldType == typeof(string))
+                    // Map PropertyTypeName to ColumnType and CellEditor using existing methods
+                    colConfig.ColumnType = MapPropertyTypeToDbFieldCategory(colConfig.PropertyTypeName);
+                    colConfig.CellEditor = MapPropertyTypeToCellEditor(colConfig.PropertyTypeName);
+
+                    // Additional customizations based on type (optional, if you want specific overrides)
+                    Type fieldType = Type.GetType(colConfig.PropertyTypeName, throwOnError: false) ?? typeof(object);
+                    if (fieldType == typeof(DateTime))
                     {
-                        colConfig.ColumnType = DbFieldCategory.String;
-                        colConfig.CellEditor = BeepGridColumnType.Text;
-                    }
-                    else if (fieldType == typeof(int)
-                          || fieldType == typeof(long)
-                          || fieldType == typeof(short))
-                    {
-                        colConfig.ColumnType = DbFieldCategory.Numeric;
-                        colConfig.CellEditor = BeepGridColumnType.NumericUpDown;
-                    }
-                    else if (fieldType == typeof(decimal)
-                          || fieldType == typeof(double)
-                          || fieldType == typeof(float))
-                    {
-                        // Could be a numeric editor or a progress bar—your call:
-                        colConfig.ColumnType = DbFieldCategory.Numeric;
-                        colConfig.CellEditor = BeepGridColumnType.NumericUpDown;
-                        // or BeepGridColumnType.ProgressBar if that’s your intention
-                    }
-                    else if (fieldType == typeof(bool))
-                    {
-                        colConfig.ColumnType = DbFieldCategory.Boolean;
-                        colConfig.CellEditor = BeepGridColumnType.CheckBox;
-                    }
-                    else if (fieldType == typeof(DateTime))
-                    {
-                        colConfig.ColumnType = DbFieldCategory.Date;
-                        colConfig.CellEditor = BeepGridColumnType.DateTime;
-                        // If you want to store a format string, e.g. "g"
-                        colConfig.Format = "g";
+                        colConfig.Format = "g"; // Add format for DateTime if needed
                     }
                     else if (fieldType.IsEnum)
                     {
-                        colConfig.ColumnType = DbFieldCategory.String; // or “Enum” if you have one
-                        colConfig.CellEditor = BeepGridColumnType.ComboBox;
-                        // Optionally populate Items with the enum values:
-                        // var values = Enum.GetValues(fieldType);
-                        // colConfig.Items = new List<SimpleItem>();
-                        // foreach (var val in values) {
-                        //     colConfig.Items.Add(new SimpleItem { Value = val, Text = val.ToString() });
-                        // }
-                    }
-                    else if (fieldType == typeof(Guid))
-                    {
-                        colConfig.ColumnType = DbFieldCategory.Guid;
-                        colConfig.CellEditor = BeepGridColumnType.Text;
-                    }
-                    else if (fieldType == typeof(object))
-                    {
-                        // fallback to string or custom
-                        colConfig.ColumnType = DbFieldCategory.String;
-                        colConfig.CellEditor = BeepGridColumnType.Text;
-                    }
-                    else if (fieldType == typeof(List<string>))
-                    {
-                        // If you have a special multi-column editor
-                        colConfig.ColumnType = DbFieldCategory.String;  // or “Collection”
-                        colConfig.CellEditor = BeepGridColumnType.Custom; // or something else
-                    }
-                    else
-                    {
-                        // A general fallback
-                        colConfig.ColumnType = DbFieldCategory.String;
-                        colConfig.CellEditor = BeepGridColumnType.Text;
+                        // Optionally populate Items with enum values
+                        var values = Enum.GetValues(fieldType);
+                        colConfig.Items = new List<SimpleItem>();
+                        foreach (var val in values)
+                        {
+                            colConfig.Items.Add(new SimpleItem { Value = val, Text = val.ToString() });
+                        }
                     }
 
-                    // 4) Finally, add the newly created column config to your grid’s Columns list
+                    // Add the column config to the grid’s Columns list
                     Columns.Add(colConfig);
                 }
             }
             catch (Exception ex)
             {
-                // Handle/log exceptions appropriately
-                // Console.WriteLine($"Error adding columns for Entity {Entity.EntityName}: {ex.Message}");
+                Debug.WriteLine($"Error adding columns for Entity {Entity?.EntityName}: {ex.Message}");
             }
-
-            // If necessary, refresh or invalidate the grid to reflect new columns
-          //  beepSimpleGrid.Invalidate();
         }
-        private Type GetItemTypeFromDataMember(Type propertyType)
-        {
-            // Handle IList<T>
-            if (propertyType.IsGenericType && typeof(IEnumerable).IsAssignableFrom(propertyType))
-            {
-                Type[] genericArgs = propertyType.GetGenericArguments();
-                if (genericArgs.Length > 0)
-                {
-                    return genericArgs[0]; // Return the type of the items in the list
-                }
-            }
 
-            // Handle DataTable
-            if (propertyType == typeof(DataTable))
-            {
-                return typeof(DataRow); // DataRow represents the rows in a DataTable
-            }
-
-            // Return null if the type is not supported
-            return null;
-        }
         private void InitializeRows()
         {
             Rows.Clear();
-            int visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
+            if (_fullData == null || !_fullData.Any()) return; // No rows if no data
+            int visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeaderHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
             int visibleRowCount = visibleHeight / _rowHeight;
+            int dataRowCount = _fullData.Count;
 
-            for (int i = 0; i < visibleRowCount; i++)
+            // Limit rows to the lesser of visible rows or data rows
+            int rowCount = Math.Min(visibleRowCount, dataRowCount);
+            for (int i = 0; i < rowCount; i++)
             {
                 var row = new BeepGridRow();
                 foreach (var col in Columns)
@@ -840,7 +905,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void InitializeData()
         {
-
             _fullData = finalData is IEnumerable<object> enumerable ? enumerable.ToList() : new List<object>();
             _dataOffset = 0;
 
@@ -851,9 +915,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 int index = 0;
                 foreach (var prop in properties)
                 {
-                    var columnType = MapPropertyTypeToDbFieldCategory(prop.PropertyType);
-                    var cellEditor = MapPropertyTypeToCellEditor(prop.PropertyType);
-
+                    // Use AssemblyQualifiedName for PropertyTypeName
+                    string propertyTypeName = prop.PropertyType.AssemblyQualifiedName;
                     var columnConfig = new BeepGridColumnConfig
                     {
                         ColumnCaption = prop.Name,
@@ -861,11 +924,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                         Width = 100,
                         Index = index++,
                         Visible = true,
-                        ColumnType = columnType,
-                        CellEditor = cellEditor,
-                        PropertyType = prop.PropertyType
-
+                        PropertyTypeName = propertyTypeName // Full AssemblyQualifiedName
                     };
+
+                    // Map using PropertyTypeName string
+                    columnConfig.ColumnType = MapPropertyTypeToDbFieldCategory(propertyTypeName);
+                    columnConfig.CellEditor = MapPropertyTypeToCellEditor(propertyTypeName);
+
                     _columns.Add(columnConfig);
                 }
             }
@@ -892,22 +957,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                         var value = prop?.GetValue(dataItem) ?? string.Empty;
                         row.Cells[j].CellValue = value;
                         row.Cells[j].CellData = value;
-                        string colKey = col.ColumnName;
-                      
-                        //if (_columnEditors.TryGetValue(colKey, out IBeepUIComponent editor))
-                        //{
-                        //    UpdateCellControl(editor, col, row.Cells[j].CellValue);
-                        //}
-
                     }
                 }
-                //else
-                //{
-                //    foreach (var cell in row.Cells)
-                //    {
-                //        UpdateCellControl(cell.UIComponent, null, string.Empty);
-                //    }
-                //}
+                else
+                {
+                    // Clear cells beyond data (optional, since we won’t draw these rows)
+                    foreach (var cell in row.Cells)
+                    {
+                        cell.CellValue = null;
+                        cell.CellData = null;
+                    }
+                }
             }
             UpdateScrollBars();
         }
@@ -1199,8 +1259,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
-
         public void SelectCell(int rowIndex, int columnIndex)
         {
             if (IsEditorShown)
@@ -1227,11 +1285,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Invalidate();
         }
-
-
         public void SelectCell(BeepGridCell cell)
         {
             if (cell == null) return;
+            _editingRowIndex = cell.RowIndex; // Absolute index in _fullData
             SelectCell(cell.RowIndex, cell.ColumnIndex);
         }
         protected override void OnKeyDown(KeyEventArgs e)
@@ -1316,10 +1373,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                         textBox.MaskFormat = GetTextBoxMaskFormat(column.ColumnType);
                     break;
 
-                case BeepCheckBox checkBox:
+                case BeepCheckBoxBool checkBox:
                     checkBox.CheckedValue = bool.TryParse(stringValue, out bool boolVal) && boolVal;
                     break;
-
+                case BeepCheckBoxChar checkBox:
+                    checkBox.CheckedValue = (char)value;
+                    break;
+                case BeepCheckBoxString checkBox:
+                    checkBox.CheckedValue = stringValue;
+                    break;
                 case BeepComboBox comboBox:
                     if (column?.Items != null)
                     {
@@ -1351,7 +1413,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
 
                 case BeepImage image:
-                    image.ImagePath = stringValue;
+                    image.ImagePath = ImageListHelper.GetImagePathFromName(stringValue);
                     break;
 
                 case BeepButton button:
@@ -1447,10 +1509,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_showColumnHeaders)
             {
-                columnsheaderPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), ColumnHeight);
+                columnsheaderPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), ColumnHeaderHeight);
                 PaintColumnHeaders(g, columnsheaderPanelRect);
-                topPanelY += ColumnHeight;
-                botomspacetaken += ColumnHeight;
+                topPanelY += ColumnHeaderHeight;
+                botomspacetaken += ColumnHeaderHeight;
             }
 
             int availableHeight = drawingBounds.Height - botomspacetaken - (_horizontalScrollBar.Visible ? _horizontalScrollBar.Height : 0);
@@ -1516,7 +1578,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 string headerText = col.ColumnCaption;
                 var columnRect = new Rectangle(xOffset, bounds.Top, col.Width, bounds.Height);
 
-                if (columnRect.Right >= bounds.Left && columnRect.Left < bounds.Right) // Only draw visible columns
+                if (columnRect.Right >= bounds.Left && columnRect.Left < bounds.Right + Columns.Last().Width) // Only draw visible columns
                 {
                     using (var textBrush = new SolidBrush(_currentTheme.ButtonForeColor))
                     {
@@ -1526,7 +1588,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 xOffset += col.Width;
-                if (xOffset > bounds.Right) break; // Stop drawing when out of bounds
+               // if (xOffset > bounds.Right) break; // Stop drawing when out of bounds
             }
 
             using (var pen = new Pen(_currentTheme.GridLineColor))
@@ -1567,7 +1629,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 xOffset += Columns[i].Width;
-                if (xOffset > rowRect.Right) break; // Stop drawing if outside the visible area
+              //  if (xOffset > rowRect.Right) break; // Stop drawing if outside the visible area
             }
         }
         private void PaintCell(Graphics g, BeepGridCell cell, Rectangle cellRect)
@@ -1605,7 +1667,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                     case BeepTextBox textBox:
                         textBox.Draw(g, cellRect);
                         break;
-                    case BeepCheckBox checkBox:
+                    case BeepCheckBoxBool checkBox:
+                        checkBox.Draw(g, cellRect);
+                        break;
+                    case BeepCheckBoxChar checkBox:
+                        checkBox.Draw(g, cellRect);
+                        break;
+                    case BeepCheckBoxString checkBox:
                         checkBox.Draw(g, cellRect);
                         break;
                     case BeepComboBox comboBox:
@@ -1702,7 +1770,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Scrollbar Management
         private void OnScroll(object sender, ScrollEventArgs e)
         {
-             visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
+             visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeaderHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
              visibleRowCount = visibleHeight / RowHeight; // 🔹 Calculate dynamically
 
             _dataOffset = _verticalScrollBar.Value;
@@ -1724,7 +1792,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             int totalRowHeight = _fullData.Count * _rowHeight;
             int totalColumnWidth = Columns.Sum(col => col.Width);
-            int visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
+            int visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeaderHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
             int visibleWidth = DrawingRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
 
             // **Vertical ScrollBar Fix**
@@ -1742,16 +1810,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _verticalScrollBar.Visible = false;
             }
-
-            // **Horizontal ScrollBar Fix**
+            // Horizontal ScrollBar
+            // Horizontal ScrollBar - NEW CALCULATION
             if (_showHorizontalScrollBar && totalColumnWidth > visibleWidth)
             {
                 _horizontalScrollBar.Minimum = 0;
-                _horizontalScrollBar.Maximum = Math.Max(0, totalColumnWidth - visibleWidth);
-                _horizontalScrollBar.LargeChange = visibleWidth;
-                _horizontalScrollBar.SmallChange = 10;
-                _horizontalScrollBar.Value = Math.Max(0, _xOffset);
+                // Corrected Maximum: Allow scrolling until the last column's right edge aligns with visible area's right edge
+                _horizontalScrollBar.Maximum = totalColumnWidth; // Full width, not reduced by visibleWidth
+                _horizontalScrollBar.SmallChange = Columns.Where(c => c.Visible).Min(c => c.Width) / 2; // Smallest column half-width
+                _horizontalScrollBar.LargeChange = visibleWidth; // Full visible width
+                _horizontalScrollBar.Value = Math.Max(0, Math.Min(_xOffset, _horizontalScrollBar.Maximum));
                 _horizontalScrollBar.Visible = true;
+
+                // Debug output
+              //  Debug.WriteLine($"Horizontal Scroll: TotalWidth={totalColumnWidth}, VisibleWidth={visibleWidth}, Max={_horizontalScrollBar.Maximum}, Value={_horizontalScrollBar.Value}");
             }
             else
             {
@@ -1768,12 +1840,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             int verticalScrollWidth = _verticalScrollBar.Width;
             int horizontalScrollHeight = _horizontalScrollBar.Height;
-            int visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
+            int visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeaderHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
             int visibleWidth = DrawingRect.Width;
 
             if (_verticalScrollBar.Visible)
             {
-                _verticalScrollBar.Location = new Point(DrawingRect.Right - verticalScrollWidth, DrawingRect.Top + (ShowHeaderPanel ? headerPanelHeight : 0) + (ShowColumnHeaders ? ColumnHeight : 0));
+                _verticalScrollBar.Location = new Point(DrawingRect.Right - verticalScrollWidth, DrawingRect.Top + (ShowHeaderPanel ? headerPanelHeight : 0) + (ShowColumnHeaders ? ColumnHeaderHeight : 0));
                 _verticalScrollBar.Height = visibleHeight - (_horizontalScrollBar.Visible ? horizontalScrollHeight : 0);
             }
 
@@ -1789,60 +1861,82 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 int maxOffset = Math.Max(0, _fullData.Count - Rows.Count);
                 _dataOffset = Math.Min(_verticalScrollBar.Value, maxOffset);
+              
+            
+                FillVisibleRows(); // Fill visible rows based on new offset 
+                UpdateCellPositions(); // Update cell positions based on new offset
+                if (_editingRowIndex >= 0 && _editingRowIndex >= _dataOffset && _editingRowIndex < _dataOffset + Rows.Count)
+                {
+                    int newRowIndex = _editingRowIndex - _dataOffset; // Relative index in Rows
+                    if (newRowIndex >= 0 && newRowIndex < Rows.Count)
+                    {
+                        _editingCell = Rows[newRowIndex].Cells[_editingCell.ColumnIndex]; // Assuming ColumnIndex exists
+                        Debug.WriteLine($"Updated _editingCell to rowIndex={newRowIndex}");
+                    }
+                }
 
-                FillVisibleRows(); // 🔹 Update the visible rows after scrolling
-                UpdateCellPositions(); // 🔹 Ensure cells get updated positions
                 Invalidate();
                 MoveEditor(); // 🔹 Move editor if needed
             }
-        }
-
-        private void MoveEditor()
-        {
-            if (_editingCell == null || _editingControl == null || _editorPopupForm == null)
-                return;
-
-            // 🔹 Get the exact rectangle of the cell
-            Rectangle cellRect = GetCellRectangle(_editingCell);
-
-            // 🔹 Get the grid’s current visible area
-            int gridLeft = gridRect.Left;
-            int gridRight = gridRect.Right;
-            int gridTop = gridRect.Top;
-            int gridBottom = gridRect.Bottom;
-
-            // 🔹 Check if the entire cell is outside the visible area
-            bool isFullyOutOfView =
-                (cellRect.Right < gridLeft) ||  // Completely off to the left
-                (cellRect.Left > gridRight) ||  // Completely off to the right
-                (cellRect.Bottom < gridTop) ||  // Completely off above
-                (cellRect.Top > gridBottom);    // Completely off below
-
-            if (isFullyOutOfView)
-            {
-                _editorPopupForm.Visible = false; // 🔹 Hide the editor earlier
-                return;
-            }
-
-            // 🔹 If the cell is visible, move the editor
-            Point screenLocation = this.PointToScreen(new Point(cellRect.X, cellRect.Y));
-            _editorPopupForm.Location = screenLocation;
-            _editorPopupForm.Visible = true;
         }
         private void HorizontalScrollBar_Scroll(object sender, EventArgs e)
         {
             if (_horizontalScrollBar != null)
             {
-                int totalColumnWidth = Columns.Sum(col => col.Width);
+                int totalColumnWidth = Columns.Where(c => c.Visible).Sum(col => col.Width);
                 int visibleWidth = DrawingRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
 
-                _xOffset = Math.Min(_horizontalScrollBar.Value, Math.Max(0, totalColumnWidth - visibleWidth));
+                // Update _xOffset based on scrollbar value, clamped to valid range
+                _xOffset = Math.Max(0, Math.Min(_horizontalScrollBar.Value, totalColumnWidth - visibleWidth));
 
-                UpdateCellPositions(); // 🔹 Ensure cells update their X positions
+                // Debugging output
+                //  Debug.WriteLine($"Scroll Event: _xOffset={_xOffset}, ScrollValue={_horizontalScrollBar.Value}, Max={_horizontalScrollBar.Maximum}");
+
+                UpdateCellPositions(); // Update cell positions based on new offset
                 Invalidate();
-                MoveEditor();
+                MoveEditor(); // Move editor if active
             }
         }
+        private void MoveEditor()
+        {
+            if (_editingCell == null || _editingControl == null || _editorPopupForm == null)
+            {
+                Debug.WriteLine("MoveEditor: Skipped - null reference");
+                return;
+            }
+
+            // 🔹 Get the exact rectangle of the cell **after scrolling**
+            Rectangle cellRect = GetCellRectangle(_editingCell);
+            Debug.WriteLine($"MoveEditor: cellRect.Y={cellRect.Y}, _dataOffset={_dataOffset}");
+
+            int gridLeft = gridRect.Left;
+            int gridRight = gridRect.Right;
+            int gridTop = gridRect.Top;
+            int gridBottom = gridRect.Bottom;
+
+            // 🔹 Adjust for vertical scrolling (subtract scroll offset)
+            cellRect.Y -= (_dataOffset * RowHeight);
+
+            // 🔹 Check if the editor should be hidden (out of grid bounds)
+            bool isFullyOutOfView =
+                (cellRect.Right < gridLeft) ||  // Completely off to the left
+                (cellRect.Left > gridRight) ||  // Completely off to the right
+                (cellRect.Bottom < gridTop) ||  // 🔹 Scrolled out past the **top** of the grid
+                (cellRect.Top > gridBottom);    // Completely off below
+
+            if (isFullyOutOfView)
+            {
+                Debug.WriteLine("MoveEditor: Editor is out of view - Hiding");
+                _editorPopupForm.Visible = false;
+                return;
+            }
+
+            // 🔹 Move the editor **with scrolling**
+            Point screenLocation = this.PointToScreen(new Point(cellRect.X, cellRect.Y));
+            _editorPopupForm.Location = screenLocation;
+            _editorPopupForm.Visible = true;
+        }
+
 
 
         #endregion
@@ -1862,7 +1956,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 this.Cursor = Cursors.SizeNS;
             }
         }
-
         private void BeepGrid_MouseMove(object sender, MouseEventArgs e)
         {
             if (_resizingColumn && _resizingIndex >= 0)
@@ -1901,8 +1994,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
-
         private void BeepGrid_MouseUp(object sender, MouseEventArgs e)
         {
             _resizingColumn = false;
@@ -1911,7 +2002,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             FillVisibleRows(); // Ensure data is redrawn after resizing
           //  Invalidate();
         }
-
         private bool IsNearColumnBorder(Point location, out int columnIndex)
         {
             // Calculate the X coordinate relative to the grid's content.
@@ -1933,8 +2023,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             columnIndex = -1;
             return false;
         }
-
-
         private bool IsNearRowBorder(Point location, out int rowIndex)
         {
             // Calculate the Y coordinate relative to the grid's drawing area (rows start at gridRect.Top).
@@ -1955,10 +2043,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             rowIndex = -1;
             return false;
         }
-
-
-
-
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -2056,7 +2140,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             _editingControl.Focus();
             Debug.WriteLine($"✅ after popform Show the Editor BeepTextBox text   Show : {_editingControl.Text}");
         }
-
         private void LostFocusHandler(object? sender, EventArgs e)
         {
           //  CloseCurrentEditor();
@@ -2071,7 +2154,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
            MoveNextCell();
         }
-
         private void CloseCurrentEditor()
         {
             if (_editingControl != null)
@@ -2113,8 +2195,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 case BeepGridColumnType.Text:
                     return new BeepTextBox { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.CheckBox:
-                    return new BeepCheckBox { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.CheckBoxBool:
+                    return new BeepCheckBoxBool { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.CheckBoxString:
+                    return new BeepCheckBoxString { Theme = Theme, IsChild = true };
+                case BeepGridColumnType.CheckBoxChar:
+                    return new BeepCheckBoxChar { Theme = Theme, IsChild = true };
                 case BeepGridColumnType.ComboBox:
                     return new BeepComboBox { Theme = Theme, IsChild = true, ListItems = new BindingList<SimpleItem>(column.Items) };
                 case BeepGridColumnType.DateTime:
@@ -2156,7 +2242,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Debug.WriteLine($"⚠️ Column config not found. Skipping update.");
                 return;
             }
-            Type propertyType = columnConfig.PropertyType ?? typeof(string); // Default to string if null
+            Type propertyType = Type.GetType(columnConfig.PropertyTypeName, throwOnError: false) ?? typeof(string); // Default to string if null
 
              //🔹 Convert new value to the correct type before comparing
             object convertedNewValue = MiscFunctions.ConvertValueToPropertyType(propertyType, newValue);
@@ -2185,8 +2271,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Invalidate(); // 🔹 Redraw grid if necessary
         }
-
-
         private void CancelEditing()
         {
             // Optionally, revert the editor's value if needed.
@@ -2339,6 +2423,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private DbFieldCategory MapPropertyTypeToDbFieldCategory(Type type)
         {
             if (type == typeof(string)) return DbFieldCategory.String;
+            if (type == typeof(Char)) return DbFieldCategory.Char;
             if (type == typeof(int) || type == typeof(long)) return DbFieldCategory.Numeric;
             if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return DbFieldCategory.Numeric;
             if (type == typeof(DateTime)) return DbFieldCategory.Date;
@@ -2355,13 +2440,73 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (type == typeof(int) || type == typeof(long)) return BeepGridColumnType.NumericUpDown; // Integer-based controls
             if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return BeepGridColumnType.Text; // Use a formatted text field for decimal numbers
             if (type == typeof(DateTime)) return BeepGridColumnType.DateTime;
-            if (type == typeof(bool)) return BeepGridColumnType.CheckBox;
+            if (type == typeof(bool)) return BeepGridColumnType.CheckBoxBool;
+            if (type == typeof(Char)) return BeepGridColumnType.CheckBoxChar;
             if (type == typeof(Guid)) return BeepGridColumnType.Text; // Could be a readonly label or a dropdown if referencing something
 
             // Fallback to text if the type is unknown
             return BeepGridColumnType.Text;
         }
+        private DbFieldCategory MapPropertyTypeToDbFieldCategory(string propertyTypeName)
+        {
+            // Default to String if typeName is null or empty
+            if (string.IsNullOrWhiteSpace(propertyTypeName))
+            {
+                Debug.WriteLine("MapPropertyTypeToDbFieldCategory: propertyTypeName is null or empty, defaulting to String");
+                return DbFieldCategory.String;
+            }
 
+            // Attempt to resolve the Type from the AssemblyQualifiedName
+            Type type = Type.GetType(propertyTypeName, throwOnError: false);
+            if (type == null)
+            {
+                Debug.WriteLine($"MapPropertyTypeToDbFieldCategory: Could not resolve type '{propertyTypeName}', defaulting to String");
+                return DbFieldCategory.String;
+            }
+
+            // Map resolved Type to DbFieldCategory
+            if (type == typeof(string)) return DbFieldCategory.String;
+            if (type == typeof(int) || type == typeof(long)) return DbFieldCategory.Numeric;
+            if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return DbFieldCategory.Numeric;
+            if (type == typeof(DateTime)) return DbFieldCategory.Date;
+            if (type == typeof(bool)) return DbFieldCategory.Boolean;
+            if (type == typeof(Char)) return DbFieldCategory.Char;
+            if (type == typeof(Guid)) return DbFieldCategory.Guid;
+
+            // Default to String for unknown types
+            Debug.WriteLine($"MapPropertyTypeToDbFieldCategory: Unknown type '{type.FullName}', defaulting to String");
+            return DbFieldCategory.String;
+        }
+        private BeepGridColumnType MapPropertyTypeToCellEditor(string propertyTypeName)
+        {
+            // Default to Text if typeName is null or empty
+            if (string.IsNullOrWhiteSpace(propertyTypeName))
+            {
+                Debug.WriteLine("MapPropertyTypeToCellEditor: propertyTypeName is null or empty, defaulting to Text");
+                return BeepGridColumnType.Text;
+            }
+
+            // Attempt to resolve the Type from the AssemblyQualifiedName
+            Type type = Type.GetType(propertyTypeName, throwOnError: false);
+            if (type == null)
+            {
+                Debug.WriteLine($"MapPropertyTypeToCellEditor: Could not resolve type '{propertyTypeName}', defaulting to Text");
+                return BeepGridColumnType.Text;
+            }
+
+            // Map resolved Type to BeepGridColumnType
+            if (type == typeof(string)) return BeepGridColumnType.Text;
+            if (type == typeof(int) || type == typeof(long)) return BeepGridColumnType.NumericUpDown;
+            if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return BeepGridColumnType.Text; // Use formatted text for decimals
+            if (type == typeof(DateTime)) return BeepGridColumnType.DateTime;
+            if (type == typeof(bool)) return BeepGridColumnType.CheckBoxBool;
+            if (type == typeof(Char)) return BeepGridColumnType.CheckBoxChar;
+            if (type == typeof(Guid)) return BeepGridColumnType.Text;
+
+            // Fallback to Text for unknown types
+            Debug.WriteLine($"MapPropertyTypeToCellEditor: Unknown type '{type.FullName}', defaulting to Text");
+            return BeepGridColumnType.Text;
+        }
         #endregion
     }
 

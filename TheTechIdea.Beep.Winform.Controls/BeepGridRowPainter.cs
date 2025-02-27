@@ -800,7 +800,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 datePicker.Text = cell.UIComponent.ToString();
             }
-            else if (control is BeepCheckBox checkBox)
+            else if (control is BeepCheckBoxBool checkBox)
             {
                 // get property value from cell
                 PropertyInfo propertyInfo = cell.UIComponent.GetType().GetProperty(cell.UIComponent.BoundProperty);

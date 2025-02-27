@@ -2320,6 +2320,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "IBeepUIComoponent Distinct Control Implementation"
         public virtual void SetValue(object value)
         {
+            if (string.IsNullOrEmpty(BoundProperty)) return;
             var controlProperty = GetType().GetProperty(BoundProperty);
             controlProperty?.SetValue(this, value);
 
@@ -2331,6 +2332,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public virtual object GetValue()
         {
+            if (string.IsNullOrEmpty(BoundProperty))
+            {
+                return null;
+            }
             var controlProperty = GetType().GetProperty(BoundProperty);
             return controlProperty?.GetValue(this);
         }

@@ -177,6 +177,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnPaint(e);
             Graphics g = e.Graphics;
+            UpdateDrawingRect();
+            Draw(g,DrawingRect);
+        }
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            var g= graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Use DrawingRect as the drawing area.
@@ -187,14 +193,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Translate the coordinate system so that (0,0) corresponds to drawRect.Location.
             g.TranslateTransform(drawRect.X, drawRect.Y);
 
-            // (Optional) Clear the drawing area. Uncomment if needed.
-            // using (SolidBrush backBrush = new SolidBrush(this.BackColor))
-            // {
-            //     g.FillRectangle(backBrush, 0, 0, drawRect.Width, drawRect.Height);
-            // }
-
-            // Clear previous hit–testing rectangles.
-           // _optionRectangles.Clear();
 
             if (_orientation == RadioButtonOrientation.Vertical)
             {
@@ -313,7 +311,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             g.ResetClip();
         }
 
-
         #endregion
 
         #region Mouse Interaction
@@ -370,6 +367,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             Font = _textFont;
+        }
+        public override void SetValue(object value)
+        {
+           
+                SelectedValue = (string)value;
+           
+        }
+        public override object GetValue()
+        {
+            return SelectedValue;
         }
     }
     /// <summary>

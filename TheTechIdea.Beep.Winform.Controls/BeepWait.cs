@@ -24,6 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             StartSpinner();
             Theme=BeepThemesManager.CurrentTheme;
             ApplyTheme();
+            messege.Multiline = true;
         }
 
         private void StartSpinner()

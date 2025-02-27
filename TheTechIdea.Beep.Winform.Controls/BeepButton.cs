@@ -719,7 +719,7 @@ namespace TheTechIdea.Beep.Winform.Controls
            
             //}
         }
-        public void DrawToGraphics(Graphics g, Rectangle rectangle)
+        public override void Draw(Graphics g, Rectangle rectangle)
         {
             contentRect = rectangle;
             DrawImageAndText(g);
@@ -957,6 +957,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.DataBindings.Add(controlProperty, DataContext, dataSourceProperty, true, DataSourceUpdateMode.OnPropertyChanged);
         }
         #endregion "Binding and Control Type"
+       
     }
 
 

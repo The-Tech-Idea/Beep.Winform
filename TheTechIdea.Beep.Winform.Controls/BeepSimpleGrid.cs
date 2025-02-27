@@ -866,13 +866,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         PropertyType = prop.PropertyType
 
                     };
-
                     _columns.Add(columnConfig);
-
-                    
                 }
-
-             
             }
             InitializeRows();
             UpdateScrollBars();
@@ -894,7 +889,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         var col = Columns[j];
                         var prop = dataItem.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
-                        var value = prop?.GetValue(dataItem)?.ToString() ?? string.Empty;
+                        var value = prop?.GetValue(dataItem) ?? string.Empty;
                         row.Cells[j].CellValue = value;
                         row.Cells[j].CellData = value;
                         string colKey = col.ColumnName;
@@ -929,16 +924,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var dataItem = _fullData[dataIndex];
                 foreach (var cell in row.Cells)
                 {
-                    if(cell.IsDirty)
+                    if (cell.IsDirty)
                     {
                         var prop = dataItem.GetType().GetProperty(Columns[cell.ColumnIndex].ColumnName);
                         if (prop != null)
                         {
-                            prop.SetValue(dataItem, cell.CellValue);
+                            object convertedValue = MiscFunctions.ConvertValueToPropertyType(prop.PropertyType, cell.CellValue);
+                            prop.SetValue(dataItem, convertedValue);
                         }
                         row.IsDirty = true;
                     }
-                   
                 }
             }
         }
@@ -967,69 +962,273 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
         public void MoveNextRow()
         {
             ScrollBy(1);  // +1 means scroll down one row
         }
-
         public void MovePreviousRow()
         {
             ScrollBy(-1); // -1 means scroll up one row
         }
-
-
         public void MoveNextCell()
         {
-            // check if last column , if it is goto next row if there is more rows
-            if (_selectedColumnIndex < Columns.Count - 1)
+            try
             {
-                SelectCell(_selectedRowIndex, _selectedColumnIndex + 1);
-            }
-            else
-            {
-                if (_selectedRowIndex < Rows.Count - 1)
+                if (Rows == null || Rows.Count == 0 || Columns == null || Columns.Count == 0)
                 {
-                    SelectCell(_selectedRowIndex + 1, 1);
+                    Debug.WriteLine("MoveNextCell: No rows or columns available.");
+                    return;
+                }
+
+                Debug.WriteLine($"MoveNextCell: Current position - Row: {_selectedRowIndex}, Col: {_selectedColumnIndex}");
+
+                int lastVisibleColumn = GetLastVisibleColumn();
+                int firstVisibleColumn = GetNextVisibleColumn(-1); // Find the first column
+                int nextColumn = GetNextVisibleColumn(_selectedColumnIndex);
+
+                Debug.WriteLine($"LastVisibleColumn: {lastVisibleColumn}, FirstVisibleColumn: {firstVisibleColumn}, NextColumn: {nextColumn}");
+
+                // 🔹 If at the last column of the last row, wrap back to the first row/column
+                if (_selectedRowIndex == Rows.Count - 1 && _selectedColumnIndex == lastVisibleColumn)
+                {
+                    if (firstVisibleColumn == -1)
+                    {
+                        Debug.WriteLine("No visible columns to wrap to.");
+                        return;
+                    }
+                    Debug.WriteLine($"🔄 Wrapping to first row, first column: {firstVisibleColumn}");
+                    SelectCell(0, firstVisibleColumn);
+                    EnsureColumnVisible(firstVisibleColumn);
+                    return;
+                }
+
+                // 🔹 If at the last visible column but more columns exist, scroll and move to the next column
+                if (_selectedColumnIndex == lastVisibleColumn && nextColumn != -1)
+                {
+                    Debug.WriteLine($"➡ Scrolling to next column: {nextColumn}");
+                    EnsureColumnVisible(nextColumn);
+                    SelectCell(_selectedRowIndex, nextColumn);
+                    return;
+                }
+
+                // 🔹 If at the last visible column of the row, move to the first column of the next row
+                if (_selectedColumnIndex == lastVisibleColumn)
+                {
+                    if (_selectedRowIndex < Rows.Count - 1)
+                    {
+                        Debug.WriteLine($"➡ Moving to next row, first column: {firstVisibleColumn}");
+                        SelectCell(_selectedRowIndex + 1, firstVisibleColumn);
+                        EnsureColumnVisible(firstVisibleColumn);
+                        ScrollBy(1); // Ensure next row is visible
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"🔄 Wrapping to first column in the same row: {firstVisibleColumn}");
+                        SelectCell(_selectedRowIndex, firstVisibleColumn);
+                        EnsureColumnVisible(firstVisibleColumn);
+                    }
+                }
+                else
+                {
+                    // Move to next visible column
+                    if (nextColumn == -1)
+                    {
+                        Debug.WriteLine("❌ No next visible column found.");
+                        return;
+                    }
+                    Debug.WriteLine($"➡ Moving to next column: {nextColumn}");
+                    EnsureColumnVisible(nextColumn);
+                    SelectCell(_selectedRowIndex, nextColumn);
                 }
             }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MoveNextCell crashed: {ex.Message}\nStackTrace: {ex.StackTrace}");
+            }
         }
+
+
+        // Helper method to find the last visible column
+        private int GetLastVisibleColumn()
+        {
+            try
+            {
+                if (Columns == null || Columns.Count == 0)
+                {
+                    Debug.WriteLine("GetLastVisibleColumn: Columns is null or empty.");
+                    return -1;
+                }
+
+                for (int i = Columns.Count - 1; i >= 0; i--)
+                {
+                    if (Columns[i] != null && Columns[i].Visible)
+                        return i;
+                }
+                return -1; // No visible columns
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"GetLastVisibleColumn crashed: {ex.Message}");
+                return -1;
+            }
+        }
+
+        // Helper method to find the next visible column
+        private int GetNextVisibleColumn(int currentIndex)
+        {
+            try
+            {
+                if (Columns == null || Columns.Count == 0)
+                {
+                    Debug.WriteLine("GetNextVisibleColumn: Columns is null or empty.");
+                    return -1;
+                }
+
+                for (int i = currentIndex + 1; i < Columns.Count; i++)
+                {
+                    if (Columns[i] != null && Columns[i].Visible)
+                        return i;
+                }
+                return -1; // No visible column found
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"GetNextVisibleColumn crashed: {ex.Message}");
+                return -1;
+            }
+        }
+
         public void MovePreviousCell()
         {
-            // check if first column , if it is goto previous row if there is more rows
+            // If there are no rows or columns, do nothing.
+            if (Rows.Count == 0 || Columns.Count == 0)
+                return;
+
+            // If we're at the first cell, do nothing.
+            if (_selectedRowIndex == 0 && _selectedColumnIndex == 0)
+                return;
+
             if (_selectedColumnIndex > 0)
             {
-                SelectCell(_selectedRowIndex, _selectedColumnIndex - 1);
+                // Ensure previous column index is within bounds
+                int prevColumn = Math.Max(_selectedColumnIndex - 1, 0);
+                SelectCell(_selectedRowIndex, prevColumn);
+                EnsureColumnVisible(prevColumn);
             }
-            else
+            else if (_selectedRowIndex > 0)
             {
-                if (_selectedRowIndex > 0)
+                // Move to last column of the previous row
+                int lastColumn = Columns.Count - 1;
+                SelectCell(_selectedRowIndex - 1, lastColumn);
+                EnsureColumnVisible(lastColumn);
+            }
+        }
+
+        /// <summary>
+        /// Ensures that the specified column is visible by adjusting the scroll offset.
+        /// </summary>
+        private void EnsureColumnVisible(int colIndex)
+        {
+            try
+            {
+                if (colIndex < 0 || colIndex >= Columns.Count || Columns[colIndex] == null || !Columns[colIndex].Visible)
                 {
-                    SelectCell(_selectedRowIndex - 1, Columns.Count - 1);
+                    Debug.WriteLine($"EnsureColumnVisible: Invalid column index {colIndex}");
+                    return;
+                }
+
+                int columnLeft = 0;
+                for (int i = 0; i < colIndex; i++)
+                {
+                    if (Columns[i] != null && Columns[i].Visible)
+                        columnLeft += Columns[i].Width;
+                }
+
+                int columnRight = columnLeft + Columns[colIndex].Width;
+
+                int visibleLeft = _xOffset;
+                int visibleWidth = DrawingRect.Width - (_verticalScrollBar?.Visible == true ? _verticalScrollBar.Width : 0);
+                int visibleRight = visibleLeft + visibleWidth;
+
+                // 🔹 Adjust scroll offset based on position
+                if (columnLeft < visibleLeft)
+                {
+                    _xOffset = columnLeft; // Scroll left
+                }
+                else if (columnRight > visibleRight)
+                {
+                    _xOffset = columnRight - visibleWidth; // Scroll right
+                }
+
+                _xOffset = Math.Max(0, Math.Min(_xOffset, _horizontalScrollBar?.Maximum ?? 0));
+
+                if (_horizontalScrollBar != null && _horizontalScrollBar.Visible)
+                {
+                    _horizontalScrollBar.Value = _xOffset;
+                }
+
+                UpdateScrollBars();
+                UpdateCellPositions(); // 🔹 Ensure cells get updated after scrolling
+                Invalidate();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"EnsureColumnVisible crashed: {ex.Message}\nStackTrace: {ex.StackTrace}");
+            }
+        }
+        private void UpdateCellPositions()
+        {
+            int yOffset = _dataOffset * _rowHeight;
+            int xOffset = _xOffset;
+
+            for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
+            {
+                var row = Rows[rowIndex];
+                row.UpperY = rowIndex * _rowHeight - yOffset; // 🔹 Adjust row Y position
+
+                int x = -xOffset;
+                for (int colIndex = 0; colIndex < Columns.Count; colIndex++)
+                {
+                    if (Columns[colIndex].Visible)
+                    {
+                        var cell = row.Cells[colIndex];
+                        cell.X = x;
+                      
+                        x += Columns[colIndex].Width;
+                    }
                 }
             }
         }
+
+
         public void SelectCell(int rowIndex, int columnIndex)
         {
-            if(IsEditorShown)
+            if (IsEditorShown)
             {
-               CloseCurrentEditor();    
+                CloseCurrentEditor();
             }
             if (rowIndex < 0 || rowIndex >= Rows.Count) return;
             if (columnIndex < 0 || columnIndex >= Columns.Count) return;
+
             _selectedRowIndex = rowIndex;
             _selectedColumnIndex = columnIndex;
             _selectedCell = Rows[rowIndex].Cells[columnIndex];
-          
-            Point CellLocation = new Point(_selectedCell.X, _selectedCell.Y);
-            if(_selectedCell.IsEditable)
+
+            // 🔹 Use updated X and Y positions
+            int cellX = _selectedCell.X;
+            int cellY = _selectedCell.Y;
+            Point cellLocation = new Point(cellX, cellY);
+
+            if (_selectedCell.IsEditable)
             {
                 IsEditorShown = true;
-                ShowCellEditor(_selectedCell, CellLocation);
+                ShowCellEditor(_selectedCell, cellLocation);
             }
-           
+
             Invalidate();
         }
+
+
         public void SelectCell(BeepGridCell cell)
         {
             if (cell == null) return;
@@ -1077,6 +1276,31 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
         }
+        private int GetCellX(int columnIndex)
+        {
+            int x = -_xOffset; // Start with current scroll offset
+
+            for (int i = 0; i < columnIndex; i++)
+            {
+                if (Columns[i].Visible)
+                    x += Columns[i].Width;
+            }
+
+            return x;
+        }
+
+        private int GetCellY(int rowIndex)
+        {
+            int y = -(_dataOffset * _rowHeight); // Start with vertical scroll offset
+
+            for (int i = 0; i < rowIndex; i++)
+            {
+                y += _rowHeight;
+            }
+
+            return y;
+        }
+
         #endregion
         #region Control Creation and Updating
         private void UpdateCellControl(IBeepUIComponent control, BeepGridColumnConfig column, object value)
@@ -1143,7 +1367,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
 
                 case BeepNumericUpDown numericUpDown:
-                    numericUpDown.Value = int.TryParse(stringValue, out int numVal) ? numVal : 0;
+                    numericUpDown.Value = (decimal)MiscFunctions.ConvertValueToPropertyType(typeof(decimal), stringValue);
                     break;
 
                 case BeepSwitch switchControl:
@@ -1350,7 +1574,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // If this cell is being edited, skip drawing so that
             // the editor control remains visible.
-            
+            if (_editingCell == cell) return;
             using (var cellBrush = new SolidBrush(_currentTheme.BackColor))
             {
                 g.FillRectangle(cellBrush, cellRect);
@@ -1485,10 +1709,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
             //PositionControlsForVisibleCells(); // 🔹 Update visible controls dynamically
         }
-
-
         private void UpdateScrollBars()
         {
+           
             if (_verticalScrollBar == null || _horizontalScrollBar == null)
                 return;
 
@@ -1538,8 +1761,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             PositionScrollBars();
         }
-
-
         private void PositionScrollBars()
         {
             if (_verticalScrollBar == null || _horizontalScrollBar == null)
@@ -1562,28 +1783,67 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _horizontalScrollBar.Width = visibleWidth - (_verticalScrollBar.Visible ? verticalScrollWidth : 0);
             }
         }
-
         private void VerticalScrollBar_Scroll(object sender, EventArgs e)
         {
             if (_verticalScrollBar != null)
             {
                 int maxOffset = Math.Max(0, _fullData.Count - Rows.Count);
                 _dataOffset = Math.Min(_verticalScrollBar.Value, maxOffset);
-                FillVisibleRows();
+
+                FillVisibleRows(); // 🔹 Update the visible rows after scrolling
+                UpdateCellPositions(); // 🔹 Ensure cells get updated positions
                 Invalidate();
+                MoveEditor(); // 🔹 Move editor if needed
             }
         }
 
+        private void MoveEditor()
+        {
+            if (_editingCell == null || _editingControl == null || _editorPopupForm == null)
+                return;
+
+            // 🔹 Get the exact rectangle of the cell
+            Rectangle cellRect = GetCellRectangle(_editingCell);
+
+            // 🔹 Get the grid’s current visible area
+            int gridLeft = gridRect.Left;
+            int gridRight = gridRect.Right;
+            int gridTop = gridRect.Top;
+            int gridBottom = gridRect.Bottom;
+
+            // 🔹 Check if the entire cell is outside the visible area
+            bool isFullyOutOfView =
+                (cellRect.Right < gridLeft) ||  // Completely off to the left
+                (cellRect.Left > gridRight) ||  // Completely off to the right
+                (cellRect.Bottom < gridTop) ||  // Completely off above
+                (cellRect.Top > gridBottom);    // Completely off below
+
+            if (isFullyOutOfView)
+            {
+                _editorPopupForm.Visible = false; // 🔹 Hide the editor earlier
+                return;
+            }
+
+            // 🔹 If the cell is visible, move the editor
+            Point screenLocation = this.PointToScreen(new Point(cellRect.X, cellRect.Y));
+            _editorPopupForm.Location = screenLocation;
+            _editorPopupForm.Visible = true;
+        }
         private void HorizontalScrollBar_Scroll(object sender, EventArgs e)
         {
             if (_horizontalScrollBar != null)
             {
                 int totalColumnWidth = Columns.Sum(col => col.Width);
                 int visibleWidth = DrawingRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
+
                 _xOffset = Math.Min(_horizontalScrollBar.Value, Math.Max(0, totalColumnWidth - visibleWidth));
+
+                UpdateCellPositions(); // 🔹 Ensure cells update their X positions
                 Invalidate();
+                MoveEditor();
             }
         }
+
 
         #endregion
         #region Resizing Logic
@@ -1748,22 +2008,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             _editorPopupForm.Size = cellSize;
             _editorPopupForm.ClientSize = cellSize;
             // Retrieve or create editor control
-            if (!_columnEditors.TryGetValue(columnName, out IBeepUIComponent Ieditor))
-            {
                 _editingControl = CreateCellControlForEditing(cell);
-                _columnEditors[columnName] = _editingControl;
-            }
-            else
-            {
-                _editingControl = (BeepControl)Ieditor;
-            }
-
-            // Ensure the control is not disposed before using it
-            if (_editingControl.IsDisposed)
-            {
-                _editingControl = CreateCellControlForEditing(cell);
-                _columnEditors[columnName] = _editingControl;
-            }
+                
+           
 
             // Ensure the control is only added once
             if (_editingControl.Parent != _editorPopupForm)
@@ -1793,11 +2040,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Debug.WriteLine($"🔄 Setting BeepTextBox text before popupform is Show: {_editingControl.Text}");
           //  _editorPopupForm.SetValue(cell.CellValue);
-            _editorPopupForm.Show();
+          
             _editingControl.TabKeyPressed -= Tabhandler;
             _editingControl.TabKeyPressed += Tabhandler;
             _editingControl.EscapeKeyPressed -= Canclehandler;
             _editingControl.EscapeKeyPressed += Canclehandler;
+            //   _editingControl.LostFocus -= LostFocusHandler;
+            //  _editingControl.LostFocus += LostFocusHandler;
+            _editorPopupForm.Show();
             Task.Delay(50).ContinueWith(t =>
             {
                 _editorPopupForm.SetValue(cell.CellValue);
@@ -1805,6 +2055,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             }, TaskScheduler.FromCurrentSynchronizationContext());
             _editingControl.Focus();
             Debug.WriteLine($"✅ after popform Show the Editor BeepTextBox text   Show : {_editingControl.Text}");
+        }
+
+        private void LostFocusHandler(object? sender, EventArgs e)
+        {
+          //  CloseCurrentEditor();
         }
 
         private void Canclehandler(object? sender, EventArgs e)
@@ -1842,8 +2097,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 // Reset references (but don't dispose `_editingControl` yet)
-             //   _editingCell = null;
-            //    _editingControl = null;
+                _editingCell = null;
+                 _editingControl = null;
 
                 Debug.WriteLine("Popup editor closed successfully.");
             }
@@ -1878,40 +2133,60 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void SaveEditedValue()
         {
-            if (_editorPopupForm != null && _editingCell != null)
-            {
-              
-                object newValue = _editorPopupForm.GetValue();
-
-                Debug.WriteLine($"🔄 Saving value: {newValue} (Old: {_editingCell.CellData})");
-
-                if (newValue == null || newValue.ToString() == string.Empty)
-                {
-                    Debug.WriteLine($"⚠️ New value is empty. Skipping update.");
-                    return;
-                }
-
-                // Update cell's stored value
-                _editingCell.OldValue = _editingCell.CellData;
-                _editingCell.CellData = newValue;
-                _editingCell.CellValue = newValue;
-                _editingCell.IsDirty = true;
-
-                // update the cell value in the datasource after getting row index and column index
-
-                UpdateDataRecordFromRow(_editingCell);
-                // Fire cell validation event (if any)
-                _editingCell.ValidateCell();
-
-                Debug.WriteLine($"✅ Cell updated. New: {_editingCell.CellValue}");
-
-                Invalidate(); // Redraw grid if necessary
-            }
-            else
+            if (_editorPopupForm == null || _editingCell == null)
             {
                 Debug.WriteLine($"⚠️ Editing control or cell is null!");
+                return;
             }
+
+            object newValue = _editorPopupForm.GetValue();
+            Debug.WriteLine($"🔄 Saving value: {newValue} (Old: {_editingCell.CellData})");
+
+            // 🔹 Check if the new value is empty or null
+            if (newValue == null || string.IsNullOrWhiteSpace(newValue.ToString()))
+            {
+                Debug.WriteLine($"⚠️ New value is empty. Skipping update.");
+                return;
+            }
+
+            // 🔹 Retrieve PropertyType from the corresponding column
+            BeepGridColumnConfig columnConfig = Columns.FirstOrDefault(c => c.Index == _editingCell.ColumnIndex);
+            if (columnConfig == null)
+            {
+                Debug.WriteLine($"⚠️ Column config not found. Skipping update.");
+                return;
+            }
+            Type propertyType = columnConfig.PropertyType ?? typeof(string); // Default to string if null
+
+             //🔹 Convert new value to the correct type before comparing
+            object convertedNewValue = MiscFunctions.ConvertValueToPropertyType(propertyType, newValue);
+            object convertedOldValue = MiscFunctions.ConvertValueToPropertyType(propertyType, _editingCell.CellData);
+
+            // 🔹 Skip update if the new value is the same as the old value
+            if (convertedNewValue != null && convertedOldValue != null && convertedNewValue.Equals(convertedOldValue))
+            {
+                Debug.WriteLine($"⚠️ New value is the same as old. Skipping update.");
+                return;
+            }
+
+            // 🔹 Update cell's stored value
+            _editingCell.OldValue = _editingCell.CellData;
+            _editingCell.CellData =  convertedNewValue;
+            _editingCell.CellValue = convertedNewValue;
+            _editingCell.IsDirty = true;
+
+            // 🔹 Update the corresponding data record
+            UpdateDataRecordFromRow(_editingCell);
+
+            // 🔹 Trigger validation if necessary
+            _editingCell.ValidateCell();
+
+            Debug.WriteLine($"✅ Cell updated. New: {_editingCell.CellValue}");
+
+            Invalidate(); // 🔹 Redraw grid if necessary
         }
+
+
         private void CancelEditing()
         {
             // Optionally, revert the editor's value if needed.

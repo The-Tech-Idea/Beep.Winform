@@ -931,7 +931,19 @@ public bool IsEmbeddedResource(string path)
         }
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-            Draw(graphics, rectangle);
+            DrawingRect.Inflate(-1, -1); // Adjust for border thickness
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            // Fill the background with BackColor
+
+            // Use spin functionality if enabled
+            DrawImage(
+                graphics,
+                DrawingRect
+            );
+            DrawBadge(graphics);
         }
 
         #endregion "IBeep UI Component Implementation"

@@ -2,6 +2,8 @@
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 
 
 
@@ -453,6 +455,54 @@ namespace TheTechIdea.Beep.Winform.Controls
             ButtonClick?.Invoke(this, new BeepEventDataArgs("ButtonClick", MenuItem));
 
         }
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            // Enable anti-aliasing for smooth rendering
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
+            // Fill the background with the theme's button background color
+            using (SolidBrush backgroundBrush = new SolidBrush(_currentTheme.ButtonBackColor))
+            {
+                graphics.FillRectangle(backgroundBrush, rectangle);
+            }
+
+            // Draw the highlight panel **before** drawing the buttons (only if applicable)
+            if (highlightPanel != null && highlightPanel.Visible)
+            {
+                Rectangle highlightRect = new Rectangle(button.Left, button.Top, button.Width, button.Height);
+                using (SolidBrush highlightBrush = new SolidBrush(_currentTheme.ButtonHoverBackColor))
+                {
+                    graphics.FillRectangle(highlightBrush, highlightRect);
+                }
+            }
+
+            // Draw the border if needed
+            if (BorderThickness > 0)
+            {
+                using (Pen borderPen = new Pen(_currentTheme.BorderColor, BorderThickness))
+                {
+                    graphics.DrawRectangle(borderPen, rectangle);
+                }
+            }
+
+            // Define rectangles for child components
+            Rectangle buttonRect = new Rectangle(button.Left, button.Top, button.Width, button.Height);
+            Rectangle extendButtonRect = new Rectangle(extendButton.Left, extendButton.Top, extendButton.Width, extendButton.Height);
+
+            // Draw the main button
+            if (button != null)
+            {
+                button.Draw(graphics, buttonRect);
+            }
+
+            // Draw the extend button
+            if (extendButton != null)
+            {
+                extendButton.Draw(graphics, extendButtonRect);
+            }
+        }
+
         #region "Theme"
         protected override void OnFontChanged(EventArgs e)
         {

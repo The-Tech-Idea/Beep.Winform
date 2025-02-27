@@ -5,6 +5,7 @@ using System.Globalization;
 using TheTechIdea.Beep.Shared;
 using System.Diagnostics;
 using Newtonsoft.Json.Linq;
+using System.Runtime.InteropServices;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -98,7 +99,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _multiline = value;
-               // _innerTextBox.Multiline = value;
+                _innerTextBox.ScrollBars = ScrollBars.Vertical;
+                _innerTextBox.WordWrap = true;
+                // _innerTextBox.Multiline = value;
                 //AdjustTextBoxHeight();
                 //PositionInnerTextBoxAndImage();
                 Invalidate();
@@ -595,7 +598,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.ForeColorChanged += BeepTextBox_ForeColorChanged;
             base.BackColorChanged += BeepTextBox_BackColorChanged;
             base.EnabledChanged += BeepTextBox_EnabledChanged;
-            ProcessTabKey(true);
+           
             // AutoSize = true;
             BoundProperty = "Text";
        
@@ -1075,9 +1078,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
         }
+        [DllImport("user32.dll")]
+        private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
+
+        private const int WM_VSCROLL = 0x115;
+        private const int SB_BOTTOM = 7;
+
+        private void ForceScrollToBottom()
+        {
+            if (_innerTextBox != null)
+                SendMessage(_innerTextBox.Handle, WM_VSCROLL, SB_BOTTOM, 0);
+        }
+
         internal void ScrollToCaret()
         {
-            _innerTextBox.ScrollBars = ScrollBars.Vertical;
+           
+            
             _innerTextBox.ScrollToCaret();
             
           
@@ -1085,16 +1101,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         internal void AppendText(string v)
         {
-            if(_innerTextBox != null) _innerTextBox.AppendText(v);
-          
-            // if text is more than the height of textbox, scroll to the end    
-            if (_innerTextBox.Text.Length > _innerTextBox.Height) _innerTextBox.ScrollToCaret();
-            if (_innerTextBox.Text.Length > 0) _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-            // if text is empty, set the selection start to 0
-            else _innerTextBox.SelectionStart = 0;
+            if (_innerTextBox == null) return;
+
+            _innerTextBox.AppendText(v);
+
+            // Move the caret to the end
+            _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
+
+            // Call ScrollToCaret() asynchronously to allow UI updates
+            _innerTextBox.BeginInvoke(new Action(() =>
+            {
+                _innerTextBox.ScrollToCaret();
+                ForceScrollToBottom();
+            }));
+
             _innerTextBox.Invalidate();
             Invalidate();
         }
+
+
 
         #endregion "Key Events"
         #region "Search Events"

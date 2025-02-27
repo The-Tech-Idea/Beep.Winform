@@ -1,6 +1,9 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using System.ComponentModel;
 using TheTechIdea.Beep.Desktop.Common;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
+using Newtonsoft.Json.Linq;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -686,9 +689,66 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Layout and Theme"
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-            // Draw the main panel background
-            
+            // Enable anti-aliasing for smoother rendering
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
+            // Fill the background
+            using (SolidBrush backgroundBrush = new SolidBrush(_currentTheme.ButtonBackColor))
+            {
+                graphics.FillRectangle(backgroundBrush, rectangle);
+            }
+
+            // Draw border (optional)
+            if (BorderThickness > 0)
+            {
+                using (Pen borderPen = new Pen(_currentTheme.BorderColor, BorderThickness))
+                {
+                    graphics.DrawRectangle(borderPen, rectangle);
+                }
+            }
+
+            // Draw items using BeepButton's Draw method
+            int yOffset = drawRectY + TitleBottomY;
+            foreach (var button in _buttons)
+            {
+                Rectangle itemRectangle = new Rectangle(drawRectX, yOffset, drawRectWidth, _menuItemHeight);
+
+                // Highlight selected item
+                if (SelectedItem == (SimpleItem)button.Tag)
+                {
+                    using (SolidBrush selectionBrush = new SolidBrush(_currentTheme.ButtonHoverBackColor))
+                    {
+                        graphics.FillRectangle(selectionBrush, itemRectangle);
+                    }
+                }
+
+                // Let BeepButton handle drawing its own content
+                button.Draw(graphics, itemRectangle);
+
+                // Draw separator line (optional)
+                if (ShowTitleLine)
+                {
+                    using (Pen separatorPen = new Pen(_currentTheme.BorderColor, 1))
+                    {
+                        graphics.DrawLine(separatorPen, itemRectangle.Left, itemRectangle.Bottom - 1, itemRectangle.Right, itemRectangle.Bottom - 1);
+                    }
+                }
+
+                yOffset += _menuItemHeight + spacing;
+            }
         }
+        public override void SetValue(object value)
+        {
+            if(value is SimpleItem)
+                SelectedItem = (SimpleItem)value;
+           
+        }
+        public override object GetValue()
+        {
+            return SelectedItem;
+        }
+
         // ---------------------------------------
 
 

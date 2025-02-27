@@ -377,5 +377,42 @@ namespace TheTechIdea.Beep.Desktop.Common.Helpers
 
             return sb.ToString();
         }
+        /// <summary>
+        /// Converts a value to the expected property type.
+        /// Handles cases where numbers need to be converted between types safely.
+        /// </summary>
+        public static object ConvertValueToPropertyType(Type targetType, object value)
+        {
+            if (value == null || value == DBNull.Value)
+                return targetType.IsValueType ? Activator.CreateInstance(targetType) : null;
+
+            try
+            {
+                if (targetType == typeof(int))
+                    return Convert.ToInt32(value);  // 🔹 Converts decimals/floats safely to int
+                if (targetType == typeof(long))
+                    return Convert.ToInt64(value);
+                if (targetType == typeof(float))
+                    return Convert.ToSingle(value);
+                if (targetType == typeof(double))
+                    return Convert.ToDouble(value);
+                if (targetType == typeof(decimal))
+                    return Convert.ToDecimal(value);
+                if (targetType == typeof(bool))
+                    return Convert.ToBoolean(value);
+                if (targetType == typeof(string))
+                    return value.ToString();
+                if (targetType == typeof(DateTime))
+                    return Convert.ToDateTime(value);
+                if (targetType.IsEnum)
+                    return Enum.Parse(targetType, value.ToString());
+
+                return Convert.ChangeType(value, targetType);
+            }
+            catch
+            {
+                return targetType.IsValueType ? Activator.CreateInstance(targetType) : null;
+            }
+        }
     }
 }

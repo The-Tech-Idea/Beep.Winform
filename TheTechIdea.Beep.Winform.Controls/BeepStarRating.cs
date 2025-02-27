@@ -1,4 +1,5 @@
 ﻿
+using Newtonsoft.Json.Linq;
 using System.ComponentModel;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -157,8 +158,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
+            UpdateDrawingRect();
+            Draw(e.Graphics, DrawingRect);
 
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        }
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+
+            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
             // Ensure DrawingRect is valid
             if (DrawingRect.Width <= 0 || DrawingRect.Height <= 0)
@@ -176,10 +183,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw stars
             for (int i = 0; i < _starCount; i++)
             {
-                DrawStar(e.Graphics, startX + i * (starSize + Spacing), startY, starSize, i < _selectedRating ? _filledStarColor : _emptyStarColor);
+                DrawStar(graphics, startX + i * (starSize + Spacing), startY, starSize, i < _selectedRating ? _filledStarColor : _emptyStarColor);
             }
         }
-
         private void DrawStar(Graphics graphics, int x, int y, int size, Color fillColor)
         {
             PointF[] starPoints = CalculateStarPoints(x + size / 2, y + size / 2, size / 2, size / 4, 5);
@@ -194,9 +200,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 graphics.DrawPolygon(pen, starPoints);
             }
         }
-
-
-
         private PointF[] CalculateStarPoints(float centerX, float centerY, float outerRadius, float innerRadius, int numPoints)
         {
             PointF[] points = new PointF[numPoints * 2];
@@ -248,5 +251,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.ButtonForeColor;
         }
         #endregion "Theme"
+
+        public override void SetValue(object value)
+        {
+            if (value is int)
+            {
+                SelectedRating = (int)value;
+            }
+        }
+        public override object GetValue()
+        {
+            return SelectedRating;
+        }
     }
 }

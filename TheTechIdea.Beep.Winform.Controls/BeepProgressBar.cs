@@ -200,5 +200,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             base.Dispose(disposing);
         }
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+
+            DrawProgressBar(graphics);
+            DrawText(graphics);
+        }
+        public override void SetValue(object value)
+        {
+            if (value is int)
+            {
+                Value = (int)value;
+            }
+        }
+        public override object GetValue()
+        {
+            return Value;
+        }
+
     }
 }

@@ -182,40 +182,47 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isframless = true;
 
             base.OnPaint(pevent);
-             UpdateDrawingRect();
+            UpdateDrawingRect();
+            Draw(pevent.Graphics, DrawingRect);
+
+
+        }
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            UpdateDrawingRect();
             // Calculate text rectangle first to adjust the circle bounds accordingly
             Rectangle textRect = GetTextRectangle();
             Rectangle circleBounds = GetCircleBounds(textRect);
-            pevent.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Calculate the circle bounds based on control size
             int diameter = Math.Min(circleBounds.Width, circleBounds.Height);
 
-            using (Brush brush = new SolidBrush(IsHovered?_currentTheme.ButtonHoverBackColor: _currentTheme.ButtonBackColor ))
+            using (Brush brush = new SolidBrush(IsHovered ? _currentTheme.ButtonHoverBackColor : _currentTheme.ButtonBackColor))
             {
-                pevent.Graphics.FillEllipse(brush, circleBounds);
+                graphics.FillEllipse(brush, circleBounds);
             }
             if (_showBorder)
             {
                 using (Pen pen = new Pen(_currentTheme.ShadowColor, _borderThickness))
                 {
                     circleBounds.Inflate(_borderThickness / 2, _borderThickness / 2);
-                    pevent.Graphics.DrawEllipse(pen, circleBounds);
+                    graphics.DrawEllipse(pen, circleBounds);
                 }
             }
-           
+
             if (IsPressed)
             {
                 using (Pen pen = new Pen(_currentTheme.ButtonActiveBackColor, _borderThickness))
                 {
                     circleBounds.Inflate(-_borderThickness, -_borderThickness);
-                    pevent.Graphics.DrawEllipse(pen, circleBounds);
+                    graphics.DrawEllipse(pen, circleBounds);
                 }
             }
             // Position and set the maximum size for beepImage to fit inside the circle
             if (!string.IsNullOrEmpty(beepImage.ImagePath))
             {
-                beepImage.MaximumSize = GetInscribedSquareSize( diameter );  // Constrain to circle diameter
+                beepImage.MaximumSize = GetInscribedSquareSize(diameter);  // Constrain to circle diameter
                 beepImage.Size = beepImage.MaximumSize;  // Apply the size directly to beepImage
                 beepImage.Location = new Point(
                     circleBounds.X + (circleBounds.Width - beepImage.Width) / 2,
@@ -223,14 +230,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 );
 
                 // Render the image within the circular area
-                beepImage.DrawImage(pevent.Graphics, new Rectangle(beepImage.Location, beepImage.Size));
+                beepImage.DrawImage(graphics, new Rectangle(beepImage.Location, beepImage.Size));
             }
             // Draw the text inside the button if enabled
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
-                TextRenderer.DrawText(pevent.Graphics, Text, Font, textRect, _currentTheme.PrimaryTextColor);
+                TextRenderer.DrawText(graphics, Text, Font, textRect, _currentTheme.PrimaryTextColor);
             }
-            DrawBadge(pevent.Graphics);
+            DrawBadge(graphics);
         }
         public Size GetInscribedSquareSize(int circleDiameter)
         {

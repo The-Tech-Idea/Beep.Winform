@@ -25,7 +25,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public bool IsReadOnly { get; set; }
         public bool IsEditable { get; set; }
         public bool IsVisible { get; set; }
-
+        public int UpperX { get; set; } // Updated dynamically
+        public int UpperY { get; set; } // Updated dynamically
         public int Width { get; set; } = 100; // Default cell width
         public int Height { get; set; } = 30; // Default cell height
 

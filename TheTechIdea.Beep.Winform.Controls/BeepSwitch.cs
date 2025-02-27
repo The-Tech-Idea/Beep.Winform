@@ -204,23 +204,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnPaint(e);
 
             Graphics g = e.Graphics;
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+            UpdateDrawingRect();
+           Draw(g, DrawingRect);
+        }
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             if (Orientation == SwitchOrientation.Horizontal)
             {
-                DrawHorizontalSwitch(g);
+                DrawHorizontalSwitch(graphics, rectangle);
             }
             else
             {
-                DrawVerticalSwitch(g);
+                DrawVerticalSwitch(graphics, rectangle);
             }
         }
-
         /// <summary>
         /// Draws the switch in horizontal orientation.
         /// Off label appears on the left and On label on the right.
         /// </summary>
-        private void DrawHorizontalSwitch(Graphics g)
+        private void DrawHorizontalSwitch(Graphics g, Rectangle rectangle)
         {
             int padding = 8; // General padding
 
@@ -308,7 +312,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// Draws the switch in vertical orientation.
         /// On label appears at the top and Off label at the bottom.
         /// </summary>
-        private void DrawVerticalSwitch(Graphics g)
+        private void DrawVerticalSwitch(Graphics g, Rectangle rectangle)
         {
             int padding = 8; // General padding
 

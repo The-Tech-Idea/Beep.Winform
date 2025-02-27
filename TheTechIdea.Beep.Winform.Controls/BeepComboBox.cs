@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Utilities;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 // using TheTechIdea.Beep.Desktop.Common; // if needed
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -307,5 +309,52 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.DataBindings.Add(controlProperty, DataContext, dataSourceProperty, true, DataSourceUpdateMode.OnPropertyChanged);
         }
         #endregion "Binding and Control Type"
+        #region "IBeepComponent"
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            // Enable anti-aliasing for smoother rendering
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
+            // Fill the background with the current theme's panel background color
+            using (SolidBrush backgroundBrush = new SolidBrush(_currentTheme.PanelBackColor))
+            {
+                graphics.FillRectangle(backgroundBrush, rectangle);
+            }
+
+            // Draw the border if needed
+            if (BorderThickness > 0)
+            {
+                using (Pen borderPen = new Pen(_currentTheme.BorderColor, BorderThickness))
+                {
+                    graphics.DrawRectangle(borderPen, rectangle);
+                }
+            }
+
+            // Define the rendering areas for internal components
+            Rectangle textBoxRect = new Rectangle(_comboTextBox.Left, _comboTextBox.Top, _comboTextBox.Width, _comboTextBox.Height);
+            Rectangle buttonRect = new Rectangle(_dropDownButton.Left, _dropDownButton.Top, _dropDownButton.Width, _dropDownButton.Height);
+            Rectangle listBoxRect = new Rectangle(_beepListBox.Left, _beepListBox.Top, _beepListBox.Width, _beepListBox.Height);
+
+            // Draw the combo box's text box
+            if (_comboTextBox != null)
+            {
+                _comboTextBox.Draw(graphics, textBoxRect);
+            }
+
+            // Draw the dropdown button
+            if (_dropDownButton != null)
+            {
+                _dropDownButton.Draw(graphics, buttonRect);
+            }
+
+            // Draw the dropdown list if expanded
+            if (_isExpanded && _beepListBox != null)
+            {
+                _beepListBox.Draw(graphics, listBoxRect);
+            }
+        }
+
+        #endregion "IBeepComponent"
     }
 }

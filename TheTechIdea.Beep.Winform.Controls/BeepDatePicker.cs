@@ -291,6 +291,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
         }
-
+        public override void SetValue(object value)
+        {
+            if (value != null)
+            {
+                SelectedDate = value.ToString();
+            }
+        }
+        public override object GetValue()
+        {
+            return SelectedDate;
+        }
     }
 }

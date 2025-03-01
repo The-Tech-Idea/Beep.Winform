@@ -27,4 +27,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         BindingSource,
         IDataSource
     }
+    public enum CheckBoxState
+    {
+        Unchecked,
+        Checked,
+        Indeterminate
+    }
+    public enum TextAlignment
+    {
+        Right,
+        Left,
+        Above,
+        Below
+    }
+    public enum CheckMarkShape
+    {
+        Square,
+        Circle,
+        CustomSvg
+    }
+
+    public enum BeepGridColumnType
+    {
+        Text,
+        CheckBoxBool,
+        CheckBoxChar,
+        CheckBoxString,
+        ComboBox,
+        DateTime,
+        Image,
+        ProgressBar,
+        Rating,
+        StarRating,
+        Button,
+        Link,
+        Switch,
+        ListBox,
+        NumericUpDown,
+        Custom
+    }
 }

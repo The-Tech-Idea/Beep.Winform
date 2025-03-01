@@ -3,7 +3,7 @@ using System.ComponentModel;
 using TheTechIdea.Beep.Desktop.Common;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-using Newtonsoft.Json.Linq;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 List<SimpleItem> selectedItems = new();
                 foreach (var kvp in _itemCheckBoxes)
                 {
-                    if (kvp.Value.State == BeepCheckBox<bool>.CheckBoxState.Checked)
+                    if (kvp.Value.State == CheckBoxState.Checked)
                     {
                         selectedItems.Add(kvp.Key);
                     }
@@ -391,7 +391,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void UpdateSelectedItems(SimpleItem item, BeepCheckBoxBool checkBox)
         {
-            if (checkBox.State == BeepCheckBox<bool>.CheckBoxState.Checked)
+            if (checkBox.State == CheckBoxState.Checked)
             {
                 if (!_itemCheckBoxes.ContainsKey(item))
                 {

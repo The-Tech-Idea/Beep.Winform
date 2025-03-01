@@ -2341,7 +2341,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public virtual void ClearValue() => SetValue(null);
         public virtual bool HasFilterValue() => !string.IsNullOrEmpty(BoundProperty) && GetValue() != null;
-        public AppFilter ToFilter()
+        public virtual AppFilter ToFilter()
         {
             return new AppFilter
             {

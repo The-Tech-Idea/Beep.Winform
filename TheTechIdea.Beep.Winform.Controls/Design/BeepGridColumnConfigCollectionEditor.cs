@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Winform.Controls.Grid;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design
 {

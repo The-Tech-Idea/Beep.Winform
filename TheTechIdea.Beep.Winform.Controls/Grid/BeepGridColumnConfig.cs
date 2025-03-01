@@ -1,12 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Drawing;
-using System.Windows.Forms;
-using System.Xml.Serialization;
+using System.Drawing.Design;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Winform.Controls.Design;
+using TheTechIdea.Beep.Winform.Controls.Design.Forms;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid
 {
@@ -27,8 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
 
         #region Properties
-       // [XmlIgnore]
-        // public Type PropertyType { get; set; }
+      
         private string _propertyTypeName = "Column"; // Default value
         [Browsable(false)]
         public string PropertyTypeName
@@ -168,15 +168,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             set { _total = value; OnPropertyChanged(nameof(Total)); }
         }
 
-        private decimal _oldValue;
-        [Category("Data")]
-        [Description("The previous value of the column (for tracking changes).")]
-        public decimal OldValue
-        {
-            get => _oldValue;
-            set { _oldValue = value; OnPropertyChanged(nameof(OldValue)); }
-        }
-
         private int _index;
         [Category("Layout")]
         [Description("The index of the column in the grid.")]
@@ -252,6 +243,152 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             get => _items;
             set { _items = value; OnPropertyChanged(nameof(Items)); }
         }
+        private string _enumsourcetypename;
+        [Category("Data")]
+        [Description("The Enum Source Type Name for the column.")]
+       // [TypeConverter(typeof(EnumTypeConverter))]
+        [Editor(typeof(EnumTypeEditor), typeof(UITypeEditor))]
+        public string EnumSourceType
+        {
+            get => _enumsourcetypename;
+            set
+            {
+                _enumsourcetypename = value;
+                FillitemsFromEnum();
+                OnPropertyChanged(nameof(EnumSourceType));
+            }
+        }
+        //[Category("Data")]
+        //[Description("Click to select an enum type.")]
+        //[EditorBrowsable(EditorBrowsableState.Always)]
+        //public string SelectEnumType
+        //{
+        //    get => "Click to Select...";
+        //    set
+        //    {
+        //        if (value == "Click to Select...")
+        //        {
+        //            using (EnumSelectorForm form = new EnumSelectorForm())
+        //            {
+        //                form.SelectedEnumType = EnumSourceType;
+        //                if (form.ShowDialog() == DialogResult.OK)
+        //                {
+        //                    EnumSourceType = form.SelectedEnumType;
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+        private void FillitemsFromEnum()
+        {
+            _items.Clear();
+            if (!string.IsNullOrEmpty(EnumSourceType))
+            {
+                Type enumType = Type.GetType(EnumSourceType);
+                if (enumType != null && enumType.IsEnum)
+                {
+                    foreach (var item in Enum.GetValues(enumType))
+                    {
+                        Items.Add(new SimpleItem { Display = item.ToString(), Value = item });
+                    }
+                    Debug.WriteLine($"Filled items from enum: {EnumSourceType}, Count: {Items.Count}");
+                }
+                else
+                {
+                    Debug.WriteLine($"Invalid or non-enum type: {EnumSourceType}");
+                }
+            }
+        }
+        private string _parentColumnName;
+        [Category("Data")]
+        [Description("The Parent Column Name for the column.")]
+        public string ParentColumnName
+        {
+            get => _parentColumnName;
+            set { _parentColumnName = value; OnPropertyChanged(nameof(ParentColumnName)); }
+        }
+        private object _defaultValue;
+        [Category("Data")]
+        [Description("The Default Value for the column.")]
+        public object DefaultValue
+        {
+            get => _defaultValue;
+            set { _defaultValue = value; OnPropertyChanged(nameof(DefaultValue)); }
+        }
+        private string _customControlName;
+        [Category("Data")]
+        [Description("The Custom Control Name for the column.")]
+        public string CustomControlName
+        {
+            get => _customControlName;
+            set { _customControlName = value; OnPropertyChanged(nameof(CustomControlName)); }
+        }
+        private string _querytogetvalues;
+        [Category("Data")]
+        [Description("The Query to get values for the column.")]
+        public string QueryToGetValues
+        {
+            get => _querytogetvalues;
+            set { _querytogetvalues = value; OnPropertyChanged(nameof(QueryToGetValues)); }
+        }
+        private decimal _oldvalue;
+        [Category("Data")]
+        [Description("The Old Value for the column.")]
+        public decimal OldValue
+        {
+            get => _oldvalue;
+            set { _oldvalue = value; OnPropertyChanged(nameof(OldValue)); }
+        }
+        private int _maxValue;
+        [Category("Data")]
+        [Description("The Maximum Value for the column.")]
+        public int MaxValue
+        {
+            get => _maxValue;
+            set { _maxValue = value; OnPropertyChanged(nameof(MaxValue)); }
+        }
+        private int _minValue;
+        [Category("Data")]
+        [Description("The Minimum Value for the column.")]
+        public int MinValue
+        {
+            get => _minValue;
+            set { _minValue = value; OnPropertyChanged(nameof(MinValue)); }
+        }
+        private int _decimalPlaces;
+        [Category("Data")]
+        [Description("The Decimal Places for the column.")]
+        public int DecimalPlaces
+        {
+            get => _decimalPlaces;
+            set { _decimalPlaces = value; OnPropertyChanged(nameof(DecimalPlaces)); }
+        }
+        private int _maximageheight;
+        [Category("Data")]
+        [Description("The Maximum Image Height for the column.")]
+        public int MaxImageHeight
+        {
+            get => _maximageheight;
+            set { _maximageheight = value; OnPropertyChanged(nameof(MaxImageHeight)); }
+        }
+        private int _maximagewidth;
+        [Category("Data")]
+        [Description("The Maximum Image Width for the column.")]
+        public int MaxImageWidth
+        {
+            get => _maximagewidth;
+            set { _maximagewidth = value; OnPropertyChanged(nameof(MaxImageWidth)); }
+        }
+        private string _imagepath;
+        [Category("Data")]
+        [Description("The Image Path for the column.")]
+        public string ImagePath
+        {
+            get => _imagepath;
+            set { _imagepath = value; OnPropertyChanged(nameof(ImagePath)); }
+        }
+
+
         #endregion
 
         #region INotifyPropertyChanged Implementation
@@ -312,25 +449,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public BeepGridColumnConfigCollection() : base() { }
     }
 
-
-
-    public enum BeepGridColumnType
-    {
-        Text,
-        CheckBoxBool,
-        CheckBoxChar,
-        CheckBoxString,
-        ComboBox,
-        DateTime,
-        Image,
-        ProgressBar,
-        Rating,
-        StarRating,
-        Button,
-        Link,
-        Switch,
-        ListBox,
-        NumericUpDown,
-        Custom
-    }
 }

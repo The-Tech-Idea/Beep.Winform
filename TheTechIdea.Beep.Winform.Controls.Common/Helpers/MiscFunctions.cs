@@ -388,6 +388,32 @@ namespace TheTechIdea.Beep.Desktop.Common.Helpers
 
             try
             {
+                if (value == null)
+                {
+                    return targetType.IsValueType ? Activator.CreateInstance(targetType) : null;
+                    // For bool: returns false
+                    // For char: returns '\0'
+                    // For string: returns null
+                }
+
+                if (targetType == typeof(bool))
+                {
+                    if (bool.TryParse(value.ToString(), out bool result))
+                        return result;
+                    return false; // Default for invalid bool
+                }
+                if (targetType == typeof(char))
+                {
+                    if (value is char c)
+                        return c;
+                    if (!string.IsNullOrEmpty(value.ToString()) && value.ToString().Length > 0)
+                        return value.ToString()[0];
+                    return '\0'; // Default for invalid char
+                }
+                if (targetType == typeof(string))
+                {
+                    return value.ToString();
+                }
                 if (targetType == typeof(int))
                     return Convert.ToInt32(value);  // 🔹 Converts decimals/floats safely to int
                 if (targetType == typeof(long))

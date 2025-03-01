@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
-using System.Data;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Report;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -57,45 +57,18 @@ namespace TheTechIdea.Beep.Winform.Controls
     // Generic class for flexibility
     public class BeepCheckBox<T> : BeepControl
     {
-        public enum CheckBoxState
-        {
-            Unchecked,
-            Checked,
-            Indeterminate
-        }
-        public enum TextAlignment
-        {
-            Right,
-            Left,
-            Above,
-            Below
-        }
-        public enum CheckMarkShape
-        {
-            Square,
-            Circle,
-            CustomSvg
-        }
-        private CheckBoxState _state = CheckBoxState.Unchecked;
-        private T _checkedValue;
-        private T _uncheckedValue;
-        private T _currentValue;
-        private BeepImage _beepImage;
-        private bool _hideText = false;
-        // Declare the StateChanged event
-        public event EventHandler? StateChanged;
+        #region Constructors
         public BeepCheckBox()
         {
-             Padding = new Padding(1, 1,1, 1);
+            Padding = new Padding(1, 1, 1, 1);
             _beepImage = new BeepImage
             {
                 Theme = Theme
             };
-            BoundProperty= "State";
+            BoundProperty = "State";
             ShowAllBorders = false;
             ApplyTheme();
         }
-        public override string Text { get => base.Text; set { base.Text = value; notext(); } }
         protected override void InitLayout()
         {
             base.InitLayout();
@@ -105,11 +78,32 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = 30;
             }
         }
+        #endregion Constructors
         #region Properties
+        private CheckBoxState _state = CheckBoxState.Unchecked;
+        private T _checkedValue;
+        private T _uncheckedValue;
+        private T _currentValue;
+        private BeepImage _beepImage;
+        private bool _hideText = false;
+        // Declare the StateChanged event
+        public event EventHandler? StateChanged;
+        public override string Text { get => base.Text; set { base.Text = value; } }
 
         [Category("Appearance")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public TextAlignment TextAlignRelativeToCheckBox { get; set; } = TextAlignment.Right;
+        [Description("Position of the text relative to the checkbox.")]
+        [DefaultValue(TextAlignment.Right)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public TextAlignment TextAlignRelativeToCheckBox
+        {
+            get => _textAlignRelativeToCheckBox;
+            set
+            {
+                _textAlignRelativeToCheckBox = value;
+                Invalidate();
+            }
+        }
+        private TextAlignment _textAlignRelativeToCheckBox = TextAlignment.Right;
 
         [Category("Appearance")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -135,11 +129,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _checkedValue;
             set
             {
+    
                 _checkedValue = value;
                 UpdateCurrentValue();
             }
         }
-
         [Category("Behavior")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public T UncheckedValue
@@ -147,11 +141,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _uncheckedValue;
             set
             {
+       
                 _uncheckedValue = value;
                 UpdateCurrentValue();
             }
         }
-
         [Category("Behavior")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public T CurrentValue
@@ -161,12 +155,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _currentValue = value;
                 UpdateStateFromValue();
-                Invalidate();
+               // Invalidate();
             }
         }
-
         [Category("Appearance")]
-
         public bool HideText
         {
             get => _hideText;
@@ -176,7 +168,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
         [Category("Appearance")]
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load as the custom check mark.")]
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
@@ -196,11 +187,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-        private int checkboxsize = 20;
+        private int checkboxsize = 15;
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Size of the checkbox.")]
-        [DefaultValue(20)]
+        [DefaultValue(15)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int CheckBoxSize
         {
@@ -208,131 +199,306 @@ namespace TheTechIdea.Beep.Winform.Controls
             set { checkboxsize = value; }
         }
         public int Spacing { get; set; } = 5;
+        #region Keyboard Navigation Properties
+        [Category("Behavior")]
+        [Description("Indicates whether the control can be navigated to using the Tab key.")]
+        [DefaultValue(true)]
+        public new bool TabStop
+        {
+            get => base.TabStop;
+            set => base.TabStop = value;
+        }
 
         #endregion
-
+        #endregion
         #region Methods
-
-        private void UpdateCurrentValue()
-        {
-            _currentValue = _state == CheckBoxState.Checked ? _checkedValue : _uncheckedValue;
-        }
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-
-            if(isresize == false)
-                notext();
-            isresize = false;
-
-
+            AdjustSize(); // Call directly, no need for recursion flag if we avoid recursive property sets
         }
-        private bool isresize = false;
-        private void notext()
+        private void AdjustSize()
         {
-            int newWidth;
-            isresize = true;
-            // Check if there is no text or if the text is hidden.
-            if (string.IsNullOrEmpty(Text) || HideText)
+            bool hasText = !HideText && !string.IsNullOrEmpty(Text);
+            Size textSize = hasText ? TextRenderer.MeasureText(Text, Font) : Size.Empty;
+            int checkBoxSize = CheckBoxSize;
+
+            int newWidth, newHeight;
+
+            if (!hasText)
             {
-                // Set width to the checkbox size plus left/right padding.
-                newWidth = Padding.Left + CheckBoxSize + Padding.Right;
+                // Center checkbox, minimal size
+                newWidth = Padding.Left + checkBoxSize + Padding.Right;
+                newHeight = Padding.Top + checkBoxSize + Padding.Bottom;
             }
             else
             {
-                // Calculate a minimum width that accommodates the checkbox and text.
-                // You can adjust the extra space (here, 10 pixels) as needed.
-                int minWidth = Padding.Left + CheckBoxSize + 10 + Padding.Right;
-                newWidth = Math.Max(Width, minWidth);
+                switch (TextAlignRelativeToCheckBox)
+                {
+                    case TextAlignment.Right: // Text right, checkbox left
+                        newWidth = Padding.Left + checkBoxSize + Spacing + textSize.Width + Padding.Right;
+                        newHeight = Padding.Top + Math.Max(checkBoxSize, textSize.Height) + Padding.Bottom;
+                        break;
+
+                    case TextAlignment.Left: // Text left, checkbox right
+                        newWidth = Padding.Left + textSize.Width + Spacing + checkBoxSize + Padding.Right;
+                        newHeight = Padding.Top + Math.Max(checkBoxSize, textSize.Height) + Padding.Bottom;
+                        break;
+
+                    case TextAlignment.Above: // Text above, checkbox below
+                        newWidth = Padding.Left + Math.Max(checkBoxSize, textSize.Width) + Padding.Right;
+                        newHeight = Padding.Top + textSize.Height + Spacing + checkBoxSize + Padding.Bottom;
+                        break;
+
+                    case TextAlignment.Below: // Text below, checkbox above
+                        newWidth = Padding.Left + Math.Max(checkBoxSize, textSize.Width) + Padding.Right;
+                        newHeight = Padding.Top + checkBoxSize + Spacing + textSize.Height + Padding.Bottom;
+                        break;
+
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(TextAlignRelativeToCheckBox));
+                }
             }
 
-            Width = newWidth;
-            Height = Math.Max(Height, CheckBoxSize + Padding.Top + Padding.Bottom);
+            // Only set size if different to avoid unnecessary recursion
+            if (Width != newWidth || Height != newHeight)
+            {
+                Width = Math.Max(Width, newWidth); // Preserve larger width if set externally
+                Height = Math.Max(Height, newHeight); // Preserve larger height if set externally
+            }
 
-            Invalidate(); // Redraw to reflect the updated dimensions
+            // No need for Invalidate here; OnResize already triggers a repaint
         }
-
         protected override void OnTextChanged(EventArgs e)
         {
             base.OnTextChanged(e);
             // Force a layout update when the text changes.
             OnResize(EventArgs.Empty);
         }
-
+        private void UpdateCurrentValue()
+        {
+            _currentValue = _state == CheckBoxState.Checked ? _checkedValue : _uncheckedValue;
+            OnStateChanged();
+        }
         private void UpdateStateFromValue()
         {
-            if (_currentValue != null && _currentValue.Equals(_checkedValue))
+            if (typeof(T) == typeof(bool))
             {
-                _state = CheckBoxState.Checked;
-            }
-            else if (_currentValue != null && _currentValue.Equals(_uncheckedValue))
-            {
-                _state = CheckBoxState.Unchecked;
+                bool current = Convert.ToBoolean(_currentValue);
+                bool checkedVal = Convert.ToBoolean(_checkedValue);
+                bool uncheckedVal = Convert.ToBoolean(_uncheckedValue);
+
+                if (current)
+                {
+                    _state = CheckBoxState.Checked;
+                }
+                else if (current == uncheckedVal)
+                {
+                    _state = CheckBoxState.Unchecked;
+                }
+                else
+                {
+                    _state = CheckBoxState.Indeterminate;
+                }
             }
             else
             {
-                _state = CheckBoxState.Indeterminate;
+                if (_currentValue == null)
+                {
+                    _state = CheckBoxState.Indeterminate;
+                }
+                else if (EqualityComparer<T>.Default.Equals(_currentValue, _checkedValue))
+                {
+                    _state = CheckBoxState.Checked;
+                }
+                else if (EqualityComparer<T>.Default.Equals(_currentValue, _uncheckedValue))
+                {
+                    _state = CheckBoxState.Unchecked;
+                }
+                else
+                {
+                    _state = CheckBoxState.Indeterminate;
+                }
             }
-          //  OnStateChanged();
+         //   Debug.WriteLine($"State updated to {_state} for CurrentValue: {_currentValue}");
+            Invalidate(); // Redraw without calling OnStateChanged
         }
-
         #endregion
-
         #region Painting
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.CompositingQuality = CompositingQuality.HighQuality;
+            graphics.ResetTransform();
 
+          //  Debug.WriteLine($"Draw called: Rectangle = {rectangle}, State = {_state}, CurrentValue = {_currentValue}, TextAlign = {_textAlignRelativeToCheckBox}");
+
+            if (_currentTheme == null)
+            {
+            //    Debug.WriteLine("Theme is null, using fallback colors");
+               // _currentTheme = new Theme(); // Replace with your theme class or a default instance
+            }
+
+            Rectangle checkBoxRect;
+            Rectangle textRect = Rectangle.Empty;
+            bool hasText = !HideText || !string.IsNullOrEmpty(Text);
+
+            // Calculate sizes
+            int checkBoxSize = Math.Min(CheckBoxSize, Math.Min(rectangle.Width - Padding.Horizontal, rectangle.Height - Padding.Vertical));
+            Size textSize = hasText ? TextRenderer.MeasureText(Text, Font) : Size.Empty;
+
+            if (!hasText)
+            {
+                // Center checkbox when no text
+                int centerX = rectangle.X + (rectangle.Width - checkBoxSize) / 2;
+                int centerY = rectangle.Y + (rectangle.Height - checkBoxSize) / 2;
+                checkBoxRect = new Rectangle(centerX, centerY, checkBoxSize, checkBoxSize);
+            }
+            else
+            {
+                switch (_textAlignRelativeToCheckBox)
+                {
+                    case TextAlignment.Right: // Text right, checkbox left
+                        checkBoxRect = new Rectangle(
+                            rectangle.X + Padding.Left,
+                            rectangle.Y + Padding.Top,
+                            checkBoxSize,
+                            checkBoxSize
+                        );
+                        textRect = new Rectangle(
+                            checkBoxRect.Right + Spacing,
+                            rectangle.Y + (rectangle.Height - textSize.Height) / 2,
+                            rectangle.Width - (checkBoxRect.Right - rectangle.X) - Padding.Right,
+                            textSize.Height
+                        );
+                        break;
+
+                    case TextAlignment.Left: // Text left, checkbox right
+                        textRect = new Rectangle(
+                            rectangle.X + Padding.Left,
+                            rectangle.Y + (rectangle.Height - textSize.Height) / 2,
+                            textSize.Width,
+                            textSize.Height
+                        );
+                        checkBoxRect = new Rectangle(
+                            textRect.Right + Spacing,
+                            rectangle.Y + Padding.Top,
+                            checkBoxSize,
+                            checkBoxSize
+                        );
+                        // Adjust if checkbox exceeds bounds
+                        if (checkBoxRect.Right > rectangle.Right - Padding.Right)
+                        {
+                            checkBoxRect.X = rectangle.Right - Padding.Right - checkBoxSize;
+                            textRect.Width = checkBoxRect.X - Spacing - textRect.X;
+                        }
+                        break;
+
+                    case TextAlignment.Above: // Text above, checkbox below
+                        textRect = new Rectangle(
+                            rectangle.X + Padding.Left,
+                            rectangle.Y + Padding.Top,
+                            rectangle.Width - Padding.Horizontal,
+                            textSize.Height
+                        );
+                        checkBoxRect = new Rectangle(
+                            rectangle.X + (rectangle.Width - checkBoxSize) / 2,
+                            textRect.Bottom + Spacing,
+                            checkBoxSize,
+                            checkBoxSize
+                        );
+                        break;
+
+                    case TextAlignment.Below: // Text below, checkbox above
+                        checkBoxRect = new Rectangle(
+                            rectangle.X + (rectangle.Width - checkBoxSize) / 2,
+                            rectangle.Y + Padding.Top,
+                            checkBoxSize,
+                            checkBoxSize
+                        );
+                        textRect = new Rectangle(
+                            rectangle.X + Padding.Left,
+                            checkBoxRect.Bottom + Spacing,
+                            rectangle.Width - Padding.Horizontal,
+                            textSize.Height
+                        );
+                        break;
+
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(_textAlignRelativeToCheckBox));
+                }
+            }
+
+         //   Debug.WriteLine($"CheckBoxRect = {checkBoxRect}");
+          //  if (hasText)
+           //     Debug.WriteLine($"TextRect = {textRect}");
+
+            // Draw background
+            Color backColor = _state == CheckBoxState.Checked ? Color.LightGreen :
+                             (_state == CheckBoxState.Indeterminate ? Color.Yellow : Color.White);
+            using (Brush backBrush = new SolidBrush(backColor))
+            {
+                graphics.FillRectangle(backBrush, checkBoxRect);
+           //     Debug.WriteLine($"Filled background with {backColor}");
+            }
+
+            // Draw border
+            using (Pen borderPen = new Pen(_currentTheme.BorderColor, 2))
+            {
+                graphics.DrawRectangle(borderPen, checkBoxRect);
+            //    Debug.WriteLine("Drew border");
+            }
+
+            // Draw state-specific mark
+            switch (_state)
+            {
+                case CheckBoxState.Checked:
+                    DrawCheckMark(graphics, checkBoxRect);
+             //       Debug.WriteLine("Drew checkmark");
+                    break;
+                case CheckBoxState.Indeterminate:
+                    DrawIndeterminateMark(graphics, checkBoxRect);
+               //     Debug.WriteLine("Drew indeterminate mark");
+                    break;
+                case CheckBoxState.Unchecked:
+                    DrawUnChecked(graphics, checkBoxRect);
+                //    Debug.WriteLine("Drew unchecked outline");
+                    break;
+            }
+
+            // Draw text if present
+            if (hasText)
+            {
+                DrawAlignedText(graphics, Text, Font,_currentTheme.AccentTextColor, textRect);
+            //    Debug.WriteLine($"Drew text '{Text}' at {textRect}");
+            }
+
+            // Test drawing (optional, remove once confirmed)
+            graphics.DrawEllipse(Pens.Red, checkBoxRect);
+          //  Debug.WriteLine("Drew test red ellipse");
+        }
         protected override void OnPaint(PaintEventArgs pe)
         {
             base.OnPaint(pe);
             UpdateDrawingRect();
             Draw(pe.Graphics,DrawingRect);
-
         }
-
-        private Rectangle GetCheckBoxRectangle()
+        private Rectangle GetCheckBoxRectangle(Rectangle rectangle)
         {
             // Calculate checkbox rectangle using CheckBoxSize
-            int checkBoxSize = Math.Min(CheckBoxSize, Height - Padding.Top - Padding.Bottom);
-            int centerY = (Height - checkBoxSize) / 2;
+            int checkBoxSize = Math.Min(CheckBoxSize, rectangle.Height - Padding.Top - Padding.Bottom);
+            int centerY = (rectangle.Height - checkBoxSize) / 2;
 
             return new Rectangle(Padding.Left, centerY, checkBoxSize, checkBoxSize);
         }
-
-        private Rectangle GetTextRectangle(string text, Font font)
+        private Rectangle GetTextRectangle(string text, Font font, Rectangle rectangle, Rectangle checkBoxRect)
         {
-            var checkBoxRect = GetCheckBoxRectangle();
             Size textSize = TextRenderer.MeasureText(text, font);
-
-            int offsetX = checkBoxRect.Right + Spacing; // Text starts after checkbox
-            int centerY = (Height - textSize.Height) / 2;
-
-            return new Rectangle(offsetX, centerY, Width - offsetX - Padding.Right, textSize.Height);
+            int offsetX = checkBoxRect.Right + Spacing; // Start text after checkbox + spacing
+            int centerY = rectangle.Y + (rectangle.Height - textSize.Height) / 2;
+            int textWidth = rectangle.Width - (offsetX - rectangle.X) - Padding.Right;
+            return new Rectangle(offsetX, centerY, textWidth, textSize.Height);
         }
-
-
-
-        private void DrawCheckMark(Graphics g, Rectangle bounds)
-        {
-            using (Pen pen = new Pen(ForeColor, 2))
-            {
-                PointF[] checkMarkPoints = new PointF[]
-                {
-                    new PointF(bounds.X + bounds.Width / 4, bounds.Y + bounds.Height / 2),
-                    new PointF(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height * 3 / 4),
-                    new PointF(bounds.X + bounds.Width * 3 / 4, bounds.Y + bounds.Height / 4)
-                };
-                g.DrawLines(pen, checkMarkPoints);
-            }
-        }
-
-        private void DrawIndeterminateMark(Graphics g, Rectangle bounds)
-        {
-            using (Brush indeterminateBrush = new SolidBrush(ForeColor))
-            {
-                g.FillRectangle(indeterminateBrush, bounds.X + bounds.Width / 4, bounds.Y + bounds.Height / 4,
-                    bounds.Width / 2, bounds.Height / 2);
-            }
-        }
-
         private void DrawAlignedText(Graphics g, string text, Font font, Color color, Rectangle textRect)
         {
             TextRenderer.DrawText(
@@ -342,127 +508,63 @@ namespace TheTechIdea.Beep.Winform.Controls
                 textRect,
                 color,
                 TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
+           // Debug.WriteLine($"DrawAlignedText: Text = '{text}', Rect = {textRect}");
         }
-
-        #endregion
-        protected override void OnMouseClick(MouseEventArgs e)
+        private void DrawCheckMark(Graphics g, Rectangle bounds)
         {
-            base.OnMouseClick(e);
-
-            // Get the checkbox rectangle using the CheckBoxSize property
-            var checkBoxRect = GetCheckBoxRectangle();
-
-            // Toggle state if HideText is true or the click is inside the checkbox rectangle
-            if (HideText || checkBoxRect.Contains(e.Location))
+            using (Pen pen = new Pen(Color.Black, 2))
             {
-                State = State == CheckBoxState.Checked ? CheckBoxState.Unchecked : CheckBoxState.Checked;
-                OnStateChanged(); // Update CurrentValue and redraw
-            }
-        }
-        private void OnStateChanged()
-        {
-            CurrentValue = State == CheckBoxState.Checked ? CheckedValue : UncheckedValue;
-            // Trigger the StateChanged event
-            StateChanged?.Invoke(this, EventArgs.Empty);
-            Invalidate(); // Redraw the control
-        }
-        public override void ApplyTheme()
-        {
-            if (Theme != null)
-            {
-                if(_beepImage != null)
-                    _beepImage.Theme = Theme;
-                ForeColor = _currentTheme.ButtonForeColor;
-                BackColor = _currentTheme.ButtonBackColor;
-                Invalidate();
-            }
-        }
-      
-
-        public override void Draw(Graphics graphics, Rectangle rectangle)
-        {
-            var g = graphics;
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.CompositingMode = CompositingMode.SourceOver;
-            g.CompositingQuality = CompositingQuality.HighQuality;
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
-            // Get checkbox rectangle
-            var checkBoxRect = GetCheckBoxRectangle();
-
-            // Draw checkbox background
-            Color checkBoxBackColor = _state == CheckBoxState.Checked
-                ? _currentTheme.ButtonBackColor
-                : (_state == CheckBoxState.Indeterminate ? _currentTheme.WarningColor : _currentTheme.PanelBackColor);
-
-            using (Brush backBrush = new SolidBrush(checkBoxBackColor))
-            {
-                g.FillRectangle(backBrush, checkBoxRect);
-            }
-
-            // Draw checkbox border
-            using (Pen borderPen = new Pen(ForeColor, 2))
-            {
-                g.DrawRectangle(borderPen, checkBoxRect);
-            }
-
-            // Draw the check mark
-            if (_state == CheckBoxState.Checked)
-            {
-                DrawCheckMark(g, checkBoxRect);
-            }
-            else if (_state == CheckBoxState.Indeterminate)
-            {
-                DrawIndeterminateMark(g, checkBoxRect);
-            }
-
-            // Draw text if HideText is false
-            if (!HideText && !string.IsNullOrEmpty(Text))
-            {
-                var textRect = GetTextRectangle(Text, Font);
-                DrawAlignedText(g, Text, Font, ForeColor, textRect);
-            }
-        }
-        #region "IBeepComponent Implementation"
-        public new string BoundProperty { get; set; } = "State";
-        public new string DataSourceProperty { get; set; }
-        public new string LinkedProperty { get; set; }
-        public new void RefreshBinding()
-        {
-            if (DataContext != null)
-            {
-                if (BoundProperty != null && BoundProperty != "")
+                PointF[] checkMarkPoints = new PointF[]
                 {
-                    if (BoundProperty == "State")
-                    {
-                        if (DataContext.GetType().GetProperty(DataSourceProperty) != null)
-                        {
-                            CurrentValue = (T)DataContext.GetType().GetProperty(DataSourceProperty).GetValue(DataContext);
-                        }
-                    }
-                }
+            new PointF(bounds.X + bounds.Width / 4, bounds.Y + bounds.Height / 2),
+            new PointF(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height * 3 / 4),
+            new PointF(bounds.X + bounds.Width * 3 / 4, bounds.Y + bounds.Height / 4)
+                };
+                g.DrawLines(pen, checkMarkPoints);
+             //   Debug.WriteLine($"DrawCheckMark: Points = [{checkMarkPoints[0]}, {checkMarkPoints[1]}, {checkMarkPoints[2]}]");
             }
         }
-        public new void SetValue(object value)
+        private void DrawIndeterminateMark(Graphics g, Rectangle bounds)
+        {
+            using (Brush brush = new SolidBrush(Color.Black))
+            {
+                g.FillRectangle(brush, bounds.X + bounds.Width / 4, bounds.Y + bounds.Height / 4,
+                    bounds.Width / 2, bounds.Height / 2);
+             //   Debug.WriteLine("DrawIndeterminateMark: Filled inner rectangle");
+            }
+        }
+        private void DrawUnChecked(Graphics g, Rectangle bounds)
+        {
+            using (Pen pen = new Pen(Color.Black, 2))
+            {
+                g.DrawRectangle(pen, bounds);
+              //  Debug.WriteLine("DrawUnChecked: Drew outline");
+            }
+        }
+        #endregion
+        #region IBeepComponent Implementation
+        public override string BoundProperty { get; set; } = "State";
+        public override void SetValue(object value)
         {
             if (value != null)
             {
                 CurrentValue = (T)value;
+              //  Debug.WriteLine($"Setting Value for Checkbox {value.ToString()}");
             }
         }
-        public new object GetValue()
+        public override object GetValue()
         {
             return CurrentValue;
         }
-        public new void ClearValue()
+        public override void ClearValue()
         {
             CurrentValue = default;
         }
-        public new bool HasFilterValue()
+        public override bool HasFilterValue()
         {
             return CurrentValue != null;
         }
-        public new AppFilter ToFilter()
+        public override AppFilter ToFilter()
         {
             return new AppFilter
             {
@@ -471,8 +573,107 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Operator = "="
             };
         }
-      
-    
-        #endregion "IBeepComponent Implementation"
+        #endregion IBeepComponent Implementation
+        #region Keyboard Event Handlers
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+
+            if (e.KeyCode == Keys.Space)
+            {
+                // Toggle state when Spacebar is pressed
+                ToggleState();
+                e.Handled = true;
+            }
+            else if (e.KeyCode == Keys.Enter)
+            {
+                // Optional: Treat Enter as toggle too
+                ToggleState();
+                e.Handled = true;
+            }
+        }
+
+        // Provide visual feedback when the control receives focus
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            Invalidate(); // Redraw to show focus indication
+        }
+
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+            Invalidate(); // Redraw to remove focus indication
+        }
+
+        // Optional: Handle arrow keys or other navigation if desired
+        protected override bool IsInputKey(Keys keyData)
+        {
+            // Allow arrow keys and other navigation keys to be processed
+            if (keyData == Keys.Up || keyData == Keys.Down || keyData == Keys.Left || keyData == Keys.Right)
+            {
+                return true;
+            }
+            return base.IsInputKey(keyData);
+        }
+        #endregion
+        #region Helper Methods
+        protected override void OnMouseClick(MouseEventArgs e)
+        {// Ensure clicking also sets focus
+            if (!Focused)
+            {
+                Focus();
+            }
+            base.OnMouseClick(e);
+            UpdateDrawingRect();
+            // Get the checkbox rectangle using the CheckBoxSize property
+            var checkBoxRect = GetCheckBoxRectangle(DrawingRect);
+
+            // Toggle state if HideText is true or the click is inside the checkbox rectangle
+            if (HideText || checkBoxRect.Contains(e.Location))
+            {
+                _state = _state == CheckBoxState.Checked ? CheckBoxState.Unchecked : CheckBoxState.Checked;
+                OnStateChanged(); // Update CurrentValue and redraw
+            }
+        }
+        private void OnStateChanged()
+        {
+            // Only update CurrentValue if necessary, avoid recursion
+            T newValue = State == CheckBoxState.Checked ? CheckedValue : UncheckedValue;
+
+                _currentValue = newValue; // Set directly, bypass setter to avoid recursion
+
+            StateChanged?.Invoke(this, EventArgs.Empty);
+            Invalidate();
+         //   Debug.WriteLine($"OnStateChanged: CurrentValue set to {_currentValue}");
+        }
+        public override void ApplyTheme()
+        {
+            if (Theme != null)
+            {
+                if (_beepImage != null)
+                    _beepImage.Theme = Theme;
+                ForeColor = _currentTheme.ButtonForeColor;
+                BackColor = _currentTheme.ButtonBackColor;
+                Invalidate();
+            }
+        }
+        private void ToggleState()
+        {
+            switch (State)
+            {
+                case CheckBoxState.Unchecked:
+                    State = CheckBoxState.Checked;
+                    break;
+                case CheckBoxState.Checked:
+                    State = CheckBoxState.Indeterminate;
+                    break;
+                case CheckBoxState.Indeterminate:
+                    State = CheckBoxState.Unchecked;
+                    break;
+            }
+            OnStateChanged();
+        }
+        #endregion
     }
 }

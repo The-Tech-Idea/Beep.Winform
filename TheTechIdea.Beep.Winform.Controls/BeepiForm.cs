@@ -13,8 +13,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region "Fields"
         protected int _resizeMargin = 5; // Margin for resizing
-        protected int _borderRadius = 3;
-        protected int _borderThickness = 1; // Thickness of the custom border
+        protected int _borderRadius = 10;
+        protected int _borderThickness = 2; // Thickness of the custom border
         private Color _borderColor = Color.Red; // Default border color
         private const int ButtonSize = 30;
         private Point lastMousePosition;

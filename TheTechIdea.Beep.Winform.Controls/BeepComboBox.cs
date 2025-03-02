@@ -26,6 +26,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A combo box control that displays a list of items.")]
     public class BeepComboBox : BeepControl
     {
+        public event EventHandler PopupOpened;
+        public event EventHandler PopupClosed;
         private BeepTextBox _comboTextBox;
         private BeepButton _dropDownButton;
         private BeepListBox _beepListBox;
@@ -59,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _beepListBox.ListItems = value;
-                // Possibly _beepListBox.InitializeMenu();
+                _beepListBox.InitializeMenu();
             }
         }
         public SimpleItem SelectedItem
@@ -67,31 +69,108 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _beepListBox.SelectedItem;
             set
             {
-                _beepListBox.SelectedItem = value;
+                if (value == null)
+                {
+                    // Reset case: clear selection
+                    _beepListBox.SelectedItem = null;
+                    _beepListBox.SelectedIndex = -1; // Ensure no item is selected
+                    _comboTextBox.Text = string.Empty; // Clear the text display
+                    OnSelectedItemChanged(null); // Notify listeners of reset
+                }
+                else if (_beepListBox.ListItems != null && _beepListBox.ListItems.Count > 0)
+                {
+                    // Set to a valid item
+                    int index = _beepListBox.ListItems.IndexOf(value);
+                    if (index >= 0)
+                    {
+                        _beepListBox.SelectedItem = value;
+                        SelectedIndex = index; // This will update text and raise event
+                    }
+                    // If value isn't in the list, do nothing or optionally add it
+                }
+                Invalidate(); // Ensure redraw in grid
             }
         }
+
         [Browsable(false)]
         public int SelectedIndex
         {
             get => _beepListBox.SelectedIndex;
             set
             {
-                if (value >= 0 && value < _beepListBox.ListItems.Count)
+                if (_beepListBox.ListItems == null || _beepListBox.ListItems.Count == 0)
+                {
+                    _beepListBox.SelectedIndex = -1;
+                    _comboTextBox.Text = string.Empty;
+                    _beepListBox.SelectedItem = null;
+                    OnSelectedItemChanged(null);
+                }
+                else if (value >= -1 && value < _beepListBox.ListItems.Count)
                 {
                     _beepListBox.SelectedIndex = value;
-                    _comboTextBox.Text = _beepListBox.ListItems[value].Text;
-                    OnSelectedItemChanged(_beepListBox.SelectedItem); //
+                    if (value == -1)
+                    {
+                        // Reset case
+                        _beepListBox.SelectedItem = null;
+                        _comboTextBox.Text = string.Empty;
+                        OnSelectedItemChanged(null);
+                    }
+                    else
+                    {
+                        // Valid selection
+                        _beepListBox.SelectedItem = _beepListBox.ListItems[value];
+                        _comboTextBox.Text = _beepListBox.ListItems[value].Text;
+                        OnSelectedItemChanged(_beepListBox.SelectedItem);
+                    }
                 }
+                Invalidate(); // Ensure redraw in grid
             }
         }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool IsPopupOpen
+        {
+            get => _isPopupOpen;
+            set
+            {
+                _isPopupOpen = value;
+               
+                    if (_isPopupOpen)
+                    {
+                        ShowPopup();
+                    }
+                    else
+                    {
+                        ClosePopup();
+                    }
+             
+            }
+        }
+        private BeepPopupFormPosition _beepPopupFormPosition = BeepPopupFormPosition.Bottom;
+        [Browsable(true)]
+        [Category("Appearance")]
+
+        public BeepPopupFormPosition PopPosition
+        {
+            get { return _beepPopupFormPosition; }
+            set { _beepPopupFormPosition = value; }
+
+        }
+        public DbFieldCategory Category { get; set; } = DbFieldCategory.Numeric;
 
         public BeepComboBox()
         {
+            SetStyle(ControlStyles.AllPaintingInWmPaint |
+             ControlStyles.UserPaint |
+             ControlStyles.OptimizedDoubleBuffer, true);
+            DoubleBuffered = true;
+            // Ensure child controls don't handle their own painting when in a grid
+           
             // If user did not specify size, define default
             if (Width < _minWidth) Width = 150;
 
             // 1) Create & add beepTextBox
-            _comboTextBox = new BeepTextBox { IsChild = true,ShowAllBorders=false };
+            _comboTextBox = new BeepTextBox { IsChild = true,ShowAllBorders=false,ReadOnly=true };
             // Toggle dropdown if user clicks text
            // _comboTextBox.Click += (s, e) => ToggleMenu();
             Controls.Add(_comboTextBox);
@@ -144,7 +223,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Theming, etc.
             ApplyTheme();
         }
-
+        public void Reset()
+        {
+            SelectedItem = null; // This will trigger the reset logic in the setter
+        }
         private void ToggleMenu()
         {
             SetDropDownButtonImage();
@@ -171,18 +253,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _isExpanded = true;
             this.BringToFront();
-            int neededHeight = _beepListBox.GetMaxHeight();
-            int finalListHeight = Math.Min(neededHeight, _maxListHeight);
-
-            // total height = collapsed area + list portion + some extra padding
-            int newHeight = _collapsedHeight + finalListHeight + _padding;
-            Height = newHeight; // triggers OnResize => repositions beepListBox
+            if (IsPopupOpen)
+            {
+                TogglePopup();
+            }
+           
         }
 
         private void Collapse()
         {
             _isExpanded = false;
-            Height = _collapsedHeight; // triggers OnResize
+            TogglePopup();
         }
 
         #region Resizing Logic
@@ -191,78 +272,46 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnResize(e);
 
-            // If user tries to shrink width below _minWidth => revert
             if (Width < _minWidth)
-            {
                 Width = _minWidth;
-            }
+
             if (_comboTextBox == null) return;
-            // 2) Compute collapsed height from beepTextBox SingleLineHeight
+
             GetControlHeight();
-            // If not expanded, forcibly revert height to collapsed
             if (!_isExpanded && Height != _collapsedHeight)
-            {
                 Height = _collapsedHeight;
-            }
 
             UpdateDrawingRect();
-
-            // The top portion is always the collapsed area
             int topSectionHeight = _collapsedHeight;
 
-            // Position text box
+            // Position components relative to control's client area
             if (_comboTextBox != null)
             {
-                _comboTextBox.Left = DrawingRect.Left + _padding;
-                _comboTextBox.Top = DrawingRect.Top + _padding;
-
-                int textBoxWidth = DrawingRect.Width - _buttonWidth - (_padding * 2);
-                if (textBoxWidth < 1) textBoxWidth = 1;
-                _comboTextBox.Width = textBoxWidth;
-
-                // match the beepTextBox height to topSectionHeight minus vertical padding
-                int textBoxHeight = topSectionHeight - (_padding * 2);
-                if (textBoxHeight < 1) textBoxHeight = 1;
-                _comboTextBox.Height = textBoxHeight;
+                _comboTextBox.Location = new Point(_padding, _padding);
+                _comboTextBox.Width = Math.Max(1, Width - _buttonWidth - (_padding * 2));
+                _comboTextBox.Height = Math.Max(1, topSectionHeight - (_padding * 2));
             }
 
-            // Position toggle button
             if (_dropDownButton != null)
             {
-                _dropDownButton.Left = DrawingRect.Right - _buttonWidth - _padding;
-                _dropDownButton.Top = DrawingRect.Top + _padding;
+                _dropDownButton.Location = new Point(Width - _buttonWidth - _padding, _padding);
                 _dropDownButton.Width = _buttonWidth;
-
-                int buttonHeight = topSectionHeight - (_padding * 2)-_extraspace;
-                if (buttonHeight < 1) buttonHeight = 1;
                 _dropDownButton.Height = _comboTextBox.Height;
-
                 _dropDownButton.Text = _isExpanded ? "▲" : "▼";
             }
 
-            // beepListBox sits below top portion if expanded
             if (_beepListBox != null)
             {
-                // show only if expanded
                 _beepListBox.Visible = _isExpanded;
-
                 if (_isExpanded)
                 {
-                    int listTop = DrawingRect.Top + topSectionHeight + _padding;
-                    int listHeight = DrawingRect.Bottom - listTop - _padding;
-                    if (listHeight < 1) listHeight = 1;
-
-                    _beepListBox.Left = DrawingRect.Left + _padding;
-                    _beepListBox.Top = listTop;
-                    _beepListBox.Width = Math.Max(1, DrawingRect.Width - (_padding * 2));
-                    _beepListBox.Height = listHeight;
-                }
-                else
-                {
-                    // if not expanded, beepListBox is hidden or minimal
-                    _beepListBox.Visible = false;
+                    _beepListBox.Location = new Point(_padding, topSectionHeight + _padding);
+                    _beepListBox.Width = Math.Max(1, Width - (_padding * 2));
+                    _beepListBox.Height = Math.Max(1, Height - topSectionHeight - _padding);
                 }
             }
+
+            Invalidate(); // Force redraw after resize
         }
 
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
@@ -301,60 +350,249 @@ namespace TheTechIdea.Beep.Winform.Controls
             _comboTextBox.ForeColor = _currentTheme.TitleForColor;
         }
         #region "Binding and Control Type"
-        public DbFieldCategory Category { get; set; } = DbFieldCategory.Numeric;
 
-        public void SetBinding(string controlProperty, string dataSourceProperty)
-        {
-            // Implementation for setting up data binding
-            this.DataBindings.Add(controlProperty, DataContext, dataSourceProperty, true, DataSourceUpdateMode.OnPropertyChanged);
-        }
+
         #endregion "Binding and Control Type"
         #region "IBeepComponent"
+
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-            // Enable anti-aliasing for smoother rendering
-            graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-
-            // Fill the background with the current theme's panel background color
-            using (SolidBrush backgroundBrush = new SolidBrush(_currentTheme.PanelBackColor))
+            try
             {
-                graphics.FillRectangle(backgroundBrush, rectangle);
-            }
+                graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-            // Draw the border if needed
-            if (BorderThickness > 0)
-            {
-                using (Pen borderPen = new Pen(_currentTheme.BorderColor, BorderThickness))
+                // Store and set clip region
+                Region originalClip = graphics.Clip;
+                graphics.SetClip(rectangle);
+
+                // Draw background
+                using (SolidBrush backgroundBrush = new SolidBrush(_currentTheme.PanelBackColor))
                 {
-                    graphics.DrawRectangle(borderPen, rectangle);
+                    graphics.FillRectangle(backgroundBrush, rectangle);
                 }
+
+                // Draw border if applicable
+                if (BorderThickness > 0)
+                {
+                    using (Pen borderPen = new Pen(_currentTheme.BorderColor, BorderThickness))
+                    {
+                        Rectangle borderRect = rectangle;
+                        borderRect.Inflate(-BorderThickness / 2, -BorderThickness / 2);
+                        graphics.DrawRectangle(borderPen, borderRect);
+                    }
+                }
+
+                // Define areas for text and dropdown indicator
+                int buttonWidth = _buttonWidth; // Use the control's button width
+                Rectangle textRect = new Rectangle(
+                    rectangle.X + _padding,
+                    rectangle.Y + _padding,
+                    rectangle.Width - buttonWidth - (2 * _padding),
+                    rectangle.Height - (2 * _padding));
+
+                Rectangle buttonRect = new Rectangle(
+                    rectangle.Right - buttonWidth - _padding,
+                    rectangle.Y + _padding,
+                    buttonWidth,
+                    rectangle.Height - (2 * _padding));
+
+                // Draw text (selected item or textbox content)
+                string textToDraw = _comboTextBox?.Text ?? SelectedItem?.Text ?? string.Empty;
+                if (!string.IsNullOrEmpty(textToDraw))
+                {
+                    TextRenderer.DrawText(
+                        graphics,
+                        textToDraw,
+                        Font,
+                        textRect,
+                        _currentTheme.TitleForColor,
+                        TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                }
+
+                // Draw dropdown indicator (simple triangle)
+                using (SolidBrush buttonBrush = new SolidBrush(_currentTheme.ButtonBackColor))
+                {
+                    graphics.FillRectangle(buttonBrush, buttonRect);
+                }
+
+                using (Pen arrowPen = new Pen(_currentTheme.ButtonForeColor, 2))
+                {
+                    PointF[] arrowPoints = _isExpanded
+                        ? new PointF[] // Up arrow
+                        {
+                    new PointF(buttonRect.X + buttonRect.Width / 4, buttonRect.Bottom - buttonRect.Height / 4),
+                    new PointF(buttonRect.X + buttonRect.Width / 2, buttonRect.Y + buttonRect.Height / 4),
+                    new PointF(buttonRect.Right - buttonRect.Width / 4, buttonRect.Bottom - buttonRect.Height / 4)
+                        }
+                        : new PointF[] // Down arrow
+                        {
+                    new PointF(buttonRect.X + buttonRect.Width / 4, buttonRect.Y + buttonRect.Height / 4),
+                    new PointF(buttonRect.X + buttonRect.Width / 2, buttonRect.Bottom - buttonRect.Height / 4),
+                    new PointF(buttonRect.Right - buttonRect.Width / 4, buttonRect.Y + buttonRect.Height / 4)
+                        };
+                    graphics.DrawLines(arrowPen, arrowPoints);
+                }
+
+                // Draw button border
+                using (Pen buttonBorderPen = new Pen(_currentTheme.BorderColor, 1))
+                {
+                    graphics.DrawRectangle(buttonBorderPen, buttonRect);
+                }
+
+                // Restore graphics state
+                graphics.Clip = originalClip;
             }
-
-            // Define the rendering areas for internal components
-            Rectangle textBoxRect = new Rectangle(_comboTextBox.Left, _comboTextBox.Top, _comboTextBox.Width, _comboTextBox.Height);
-            Rectangle buttonRect = new Rectangle(_dropDownButton.Left, _dropDownButton.Top, _dropDownButton.Width, _dropDownButton.Height);
-            Rectangle listBoxRect = new Rectangle(_beepListBox.Left, _beepListBox.Top, _beepListBox.Width, _beepListBox.Height);
-
-            // Draw the combo box's text box
-            if (_comboTextBox != null)
+            catch (Exception ex)
             {
-                _comboTextBox.Draw(graphics, textBoxRect);
-            }
-
-            // Draw the dropdown button
-            if (_dropDownButton != null)
-            {
-                _dropDownButton.Draw(graphics, buttonRect);
-            }
-
-            // Draw the dropdown list if expanded
-            if (_isExpanded && _beepListBox != null)
-            {
-                _beepListBox.Draw(graphics, listBoxRect);
+                System.Diagnostics.Debug.WriteLine($"Error in BeepComboBox.Draw: {ex.Message}");
             }
         }
-
+        public override void SetValue(object value)
+        {
+            if (value is SimpleItem item)
+            {
+                // check if item exists in the list
+                if (ListItems.Contains(item))
+                {
+                    SelectedItem = item;
+                }
+               
+            }
+        }
+        public override object GetValue()
+        {
+            return SelectedItem;
+        }
         #endregion "IBeepComponent"
+        #region "Popup List Methods"
+        BeepPopupListForm menuDialog;
+        private Color tmpfillcolor;
+        private Color tmpstrokecolor;
+        private bool _isPopupOpen=false;
+
+        private void TogglePopup()
+        {
+            if (_isPopupOpen)
+                ClosePopup();
+            else
+                ShowPopup();
+        }
+        public void ShowPopup()
+        {
+            if (_isPopupOpen) return;
+            if (ListItems.Count == 0)
+            {
+                return;
+            }
+            menuDialog = new BeepPopupListForm(ListItems.ToList());
+
+            menuDialog.Theme = Theme;
+
+            menuDialog.SelectedItemChanged += MenuDialog_SelectedItemChanged;
+            SimpleItem x = menuDialog.ShowPopup(Text, this, _beepPopupFormPosition);
+            _isPopupOpen = true;
+            PopupOpened?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void MenuDialog_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
+        {
+            SelectedItem = e.SelectedItem;
+            _comboTextBox.Text = e.SelectedItem.Text;
+            OnSelectedItemChanged(e.SelectedItem);
+            ClosePopup();
+        }
+        public void ClosePopup()
+        {
+            _isPopupOpen = false;
+            if (menuDialog != null)
+            {
+                menuDialog.SelectedItemChanged -= MenuDialog_SelectedItemChanged;
+                menuDialog.Close();
+                menuDialog.Dispose();
+                menuDialog = null;
+            }
+        }
+        #endregion "Popup List Methods"
+        protected override void OnParentChanged(EventArgs e)
+        {
+            base.OnParentChanged(e);
+            if (Parent != null)
+            {
+                Parent.Invalidated += (s, ev) => Invalidate();
+                Parent.Resize += (s, ev) => Invalidate();
+            }
+        }
+        //protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        //{
+        //    if (keyData == Keys.Enter && _isPopupOpen)
+        //    {
+        //        if (_beepListBox.SelectedItem != null)
+        //        {
+        //            MenuDialog_SelectedItemChanged(this,
+        //                new SelectedItemChangedEventArgs(_beepListBox.SelectedItem));
+        //        }
+        //        return true;
+        //    }
+        //    else if (keyData == Keys.Down && !_isPopupOpen)
+        //    {
+        //        ToggleMenu();
+        //        return true;
+        //    }
+        //    if(keyData == Keys.Escape && _isPopupOpen)
+        //    {
+        //        ClosePopup();
+        //        return true;
+        //    }
+        //    if(keyData==Keys.Tab && _isPopupOpen)
+        //    {
+        //        ClosePopup();
+        //        return true;
+        //    }
+        //    if(keyData == Keys.Tab && !_isPopupOpen)
+        //    {
+              
+        //        return false;
+        //    }
+        //    return base.ProcessCmdKey(ref msg, keyData);
+        //}
+        //#region Keyboard Event Handlers
+       
+
+        //// Provide visual feedback when the control receives focus
+        //protected override void OnGotFocus(EventArgs e)
+        //{
+        //    base.OnGotFocus(e);
+        //    Invalidate(); // Redraw to show focus indication
+        //}
+
+        //protected override void OnLostFocus(EventArgs e)
+        //{
+        //    base.OnLostFocus(e);
+        //    Invalidate(); // Redraw to remove focus indication
+        //}
+
+        //// Optional: Handle arrow keys or other navigation if desired
+        //protected override bool IsInputKey(Keys keyData)
+        //{
+        //    // Allow arrow keys and other navigation keys to be processed
+        //    if (keyData == Keys.Up || keyData == Keys.Down || keyData == Keys.Left || keyData == Keys.Right)
+        //    {
+        //        return true;
+        //    }
+        //    return base.IsInputKey(keyData);
+        //}
+        //#endregion
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                ClosePopup();
+                _comboTextBox?.Dispose();
+                _dropDownButton?.Dispose();
+                _beepListBox?.Dispose();
+            }
+            base.Dispose(disposing);
+        }
     }
 }

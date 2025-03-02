@@ -1,5 +1,5 @@
 ﻿
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using System.Collections;
 using System.ComponentModel;
 using System.Data;
@@ -14,9 +14,7 @@ using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
-using TheTechIdea.Beep.Winform.Controls.Design;
 using TheTechIdea.Beep.Winform.Controls.Grid;
-using TheTechIdea.Beep.Winform.Controls.Grid.DataColumns;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 
@@ -472,13 +470,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             // Ensure _columns is only initialized once
-            this.SetStyle(ControlStyles.Selectable, true);
-            this.TabStop = true;
+            SetStyle(ControlStyles.Selectable | ControlStyles.UserMouse , true);
+            TabStop = true;
             this.Focus();
 
             this.PreviewKeyDown += BeepGrid_PreviewKeyDown;
 
-            this.KeyDown += BeepSimpleGrid_KeyDown; ;
+            this.KeyDown += BeepSimpleGrid_KeyDown; 
+         
 
             Width = 200;
             Height = 200;
@@ -562,9 +561,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             InitializeRows();
         }
-
-      
-
 
         #endregion
         #region Initialization
@@ -1135,6 +1131,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                //     Debug.WriteLine($"➡ Moving to next column: {nextColumn}");
                     EnsureColumnVisible(nextColumn);
                     SelectCell(_selectedRowIndex, nextColumn);
+                    Focus();
                 }
             }
             catch (Exception ex)
@@ -1216,9 +1213,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 EnsureColumnVisible(lastColumn);
             }
         }
-        /// <summary>
-        /// Ensures that the specified column is visible by adjusting the scroll offset.
-        /// </summary>
         private void EnsureColumnVisible(int colIndex)
         {
             try
@@ -1291,15 +1285,43 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        protected override bool ProcessKeyPreview(ref Message m)
+        {
+            if (m.Msg == 0x0100) // WM_KEYDOWN
+            {
+                Keys keyData = (Keys)m.WParam | ModifierKeys;
+                if (keyData == Keys.Tab)
+                {
+                    Debug.WriteLine("BeepSimpleGrid: Tab key previewed");
+                    MoveNextCell();
+                    Invalidate();
+                    return true; // Consume the key
+                }
+            }
+            return base.ProcessKeyPreview(ref m);
+        }
         protected override bool ProcessDialogKey(Keys keyData)
         {
-            if (keyData == Keys.Tab)
+            var keyCode = (keyData & Keys.KeyCode);
+            bool shiftPressed = (keyData & Keys.Shift) == Keys.Shift;
+
+            switch (keyCode)
             {
-             
-                MoveNextCell();
-                return true; // Prevent default tab behavior
+                case Keys.Tab:
+                    if (shiftPressed)
+                    {
+                        MovePreviousCell(); // Optional: Handle Shift+Tab if desired
+                    }
+                    else
+                    {
+                        MoveNextCell();
+                    }
+                    Invalidate();
+                    return true; // Stop default tab navigation
+
+                default:
+                    return base.ProcessDialogKey(keyData); // Let base class handle other keys
             }
-            return base.ProcessDialogKey(keyData);
         }
         private void BeepGrid_PreviewKeyDown(object? sender, PreviewKeyDownEventArgs e)
         {
@@ -1438,21 +1460,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     break;
                 case BeepComboBox comboBox:
+                   
+                    comboBox.Reset();
                     if (column?.Items != null)
                     {
+                        comboBox.ListItems = new BindingList<SimpleItem>(column.Items);
                         var item = column.Items.FirstOrDefault(i => i.Value?.ToString() == stringValue || i.Text == stringValue);
                         if (item != null)
                         {
                             comboBox.SelectedItem = item;
                         }
-                        else
-                        {
-                            comboBox.Text = stringValue;
-                        }
-                    }
-                    else
-                    {
-                        comboBox.Text = stringValue;
                     }
                     break;
 
@@ -1691,7 +1708,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // If this cell is being edited, skip drawing so that
             // the editor control remains visible.
-            if (_editingCell == cell) return;
+          //  if (_selectedCell == cell && !_columns[_selectedCell.ColumnIndex].ReadOnly) return;
             Rectangle TargetRect = cellRect;
 
             if (_selectedCell == cell)
@@ -1862,7 +1879,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    IsEditorShown = true;
             //    ShowCellEditor(_selectedCell, cellLocation);
             //}
-
+            
             Invalidate();
         }
         public void SelectCell(BeepGridCell cell)
@@ -2318,7 +2335,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             CancelEditing();
         }
-
+      
         private void Tabhandler(object? sender, EventArgs e)
         {
            MoveNextCell();
@@ -2430,12 +2447,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    if (_editingCell != null) _editingCell.IsSelected = false;
                 CloseCurrentEditor();
                 // reset the cell selection
-                if (clickedCell != null)
+                if (clickedCell != null )
                 {
                     _editingCell = clickedCell;
                     _selectedCell = clickedCell;
                     SelectCell(_selectedCell);
-                    ShowCellEditor(_selectedCell,e.Location);
+                   
+                    if (!_columns[_selectedCell.ColumnIndex].ReadOnly)
+                    {
+                        ShowCellEditor(_selectedCell, e.Location);
+                    }
+                  
                 }
                
             }
@@ -2483,6 +2505,36 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
         #region Helper Methods
+        public BeepGridColumnConfig GetColumnByName(string columnName)
+        {
+            // Find index first
+            int index = Columns.FindIndex(c => c.ColumnName.Equals(columnName,StringComparison.InvariantCultureIgnoreCase));
+            if (index == -1) return null;
+            return Columns[index];
+            
+        }
+        public Dictionary<string,BeepGridColumnConfig> GetDictionaryColumns()
+        {
+            Dictionary<string, BeepGridColumnConfig> dict = new Dictionary<string, BeepGridColumnConfig>();
+            foreach (var col in Columns)
+            {
+                dict.Add(col.ColumnName, col);
+            }
+            return dict;
+        }
+        public BeepGridColumnConfig GetColumnByIndex(int index)
+        {  // Find index first
+            int retindex = Columns.FindIndex(c => c.Index == index);
+            if (retindex == -1) return null;
+            return Columns[retindex];
+        }
+        public BeepGridColumnConfig GetColumnByCaption(string caption)
+        {
+            int index = Columns.FindIndex(c => c.ColumnName.Equals(caption, StringComparison.InvariantCultureIgnoreCase));
+            if (index == -1) return null;
+
+            return Columns[index];
+        }
         private DbFieldCategory MapPropertyTypeToDbFieldCategory(Type type)
         {
             if (type == typeof(string)) return DbFieldCategory.String;
@@ -2571,5 +2623,53 @@ namespace TheTechIdea.Beep.Winform.Controls
             return BeepGridColumnType.Text;
         }
         #endregion
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                if (_verticalScrollBar != null)
+                {
+                    _verticalScrollBar.Dispose();
+                    _verticalScrollBar = null;
+                }
+                if (_horizontalScrollBar != null)
+                {
+                    _horizontalScrollBar.Dispose();
+                    _horizontalScrollBar = null;
+                }
+                if(_editingControl != null)
+                {
+                    _editingControl.Dispose();
+                    _editingControl = null;
+                }
+                if (_editorPopupForm != null)
+                {
+                    _editorPopupForm.Dispose();
+                    _editorPopupForm = null;
+                }
+                if (titleLabel != null)
+                {
+                    titleLabel.Dispose();
+                    titleLabel = null;
+                }
+                if (DataNavigator != null)
+                {
+                    DataNavigator.Dispose();
+                    DataNavigator = null;
+                }
+                if (Rows != null)
+                {
+                    Rows.ListChanged -= Rows_ListChanged;
+                    Rows.Clear();
+                    Rows = null;
+                }
+                if (Columns != null)
+                {
+                    Columns.Clear();
+                    Columns = null;
+                }
+            }
+        }
     }
 }

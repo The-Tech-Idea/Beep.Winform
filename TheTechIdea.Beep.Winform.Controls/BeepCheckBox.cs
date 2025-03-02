@@ -575,47 +575,47 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion IBeepComponent Implementation
         #region Keyboard Event Handlers
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
+        //protected override void OnKeyDown(KeyEventArgs e)
+        //{
+        //    base.OnKeyDown(e);
 
-            if (e.KeyCode == Keys.Space)
-            {
-                // Toggle state when Spacebar is pressed
-                ToggleState();
-                e.Handled = true;
-            }
-            else if (e.KeyCode == Keys.Enter)
-            {
-                // Optional: Treat Enter as toggle too
-                ToggleState();
-                e.Handled = true;
-            }
-        }
+        //    if (e.KeyCode == Keys.Space)
+        //    {
+        //        // Toggle state when Spacebar is pressed
+        //        ToggleState();
+        //        e.Handled = true;
+        //    }
+        //    else if (e.KeyCode == Keys.Enter)
+        //    {
+        //        // Optional: Treat Enter as toggle too
+        //        ToggleState();
+        //        e.Handled = true;
+        //    }
+        //}
 
-        // Provide visual feedback when the control receives focus
-        protected override void OnGotFocus(EventArgs e)
-        {
-            base.OnGotFocus(e);
-            Invalidate(); // Redraw to show focus indication
-        }
+        //// Provide visual feedback when the control receives focus
+        //protected override void OnGotFocus(EventArgs e)
+        //{
+        //    base.OnGotFocus(e);
+        //    Invalidate(); // Redraw to show focus indication
+        //}
 
-        protected override void OnLostFocus(EventArgs e)
-        {
-            base.OnLostFocus(e);
-            Invalidate(); // Redraw to remove focus indication
-        }
+        //protected override void OnLostFocus(EventArgs e)
+        //{
+        //    base.OnLostFocus(e);
+        //    Invalidate(); // Redraw to remove focus indication
+        //}
 
-        // Optional: Handle arrow keys or other navigation if desired
-        protected override bool IsInputKey(Keys keyData)
-        {
-            // Allow arrow keys and other navigation keys to be processed
-            if (keyData == Keys.Up || keyData == Keys.Down || keyData == Keys.Left || keyData == Keys.Right)
-            {
-                return true;
-            }
-            return base.IsInputKey(keyData);
-        }
+        //// Optional: Handle arrow keys or other navigation if desired
+        //protected override bool IsInputKey(Keys keyData)
+        //{
+        //    // Allow arrow keys and other navigation keys to be processed
+        //    if (keyData == Keys.Up || keyData == Keys.Down || keyData == Keys.Left || keyData == Keys.Right)
+        //    {
+        //        return true;
+        //    }
+        //    return base.IsInputKey(keyData);
+        //}
         #endregion
         #region Helper Methods
         protected override void OnMouseClick(MouseEventArgs e)

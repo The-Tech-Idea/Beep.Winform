@@ -246,8 +246,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private string _enumsourcetypename;
         [Category("Data")]
         [Description("The Enum Source Type Name for the column.")]
-       // [TypeConverter(typeof(EnumTypeConverter))]
-        [Editor(typeof(EnumTypeEditor), typeof(UITypeEditor))]
+        [TypeConverter(typeof(EnumTypeConverter))]
         public string EnumSourceType
         {
             get => _enumsourcetypename;

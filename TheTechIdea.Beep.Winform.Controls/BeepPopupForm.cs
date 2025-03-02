@@ -10,13 +10,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         // Timer for handling auto-close
         private Timer _closeTimer;
-        private int _closeTimeout = 1000; // Time in milliseconds
         private bool _isClosing = false;
 
         private Timer _timerTriggerLeave;
         private Timer _timerPopupLeave;
         private int _triggerLeaveTimeout = 1000; // 3 seconds
         private int _popupLeaveTimeout = 3000; // 3 seconds
+        private int _closeTimeout = 1000; // Time in milliseconds
 
         public Control TriggerControl { get; set; } // Dynamically set triggering control
         public event EventHandler OnLeave;

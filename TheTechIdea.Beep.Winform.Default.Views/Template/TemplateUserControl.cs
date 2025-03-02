@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             Details.ObjectType = "UserControl";
             Dependencies.DMEEditor = service.DMEEditor;
             Dependencies.Logger = service.lg;
-         
+           
             beepService = service;
             Dependencies.DMEEditor = beepService.DMEEditor;
 

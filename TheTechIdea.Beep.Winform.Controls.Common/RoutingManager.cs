@@ -430,18 +430,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                     result.Message = "Navigation canceled by PreShowItem.";
                     return result;
                 }
-                if (_displayContainer == null)
-                {
-                     NavigateToError($"Display Container is not set");
-                    result.Flag = Errors.Failed;
-                    result.Message = $"Display Container is not set";
-                    return result;
-                }
-                // Remove the current view in SinglePanel mode
-                if (_containerType == ContainerTypeEnum.SinglePanel && _currentView != null)
-                {
-                    _displayContainer.RemoveControl(_currentView.Details.AddinName, _currentView);
-                }
+              
 
                 // Create or retrieve the new view
                 IDM_Addin view = GetAddin(routeName);
@@ -459,7 +448,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                         };
                     }
                 }
-
+                view.Configure(parameters);
                 if (view == null)
                 {
                      NavigateToError($"Failed to create view for route: {routeName}");
@@ -468,19 +457,36 @@ namespace TheTechIdea.Beep.Desktop.Common
                     return result;
                 }
 
-                if (view is INavigable navigableView)
-                {
-                    navigableView.OnNavigatedTo(parameters ?? new Dictionary<string, object>());
-                }
+              
 
                 if (!popup)
                 {
-                    _displayContainer?.AddControl(routeName, view, _containerType);
+                    if (_displayContainer == null)
+                    {
+                        NavigateToError($"Display Container is not set");
+                        result.Flag = Errors.Failed;
+                        result.Message = $"Display Container is not set";
+                        return result;
+                    }
+                    // Remove the current view in SinglePanel mode
+                    if (_containerType == ContainerTypeEnum.SinglePanel && _currentView != null)
+                    {
+                        _displayContainer.RemoveControl(_currentView.Details.AddinName, _currentView);
+                    }
+                    if (view is INavigable navigableView)
+                    {
+                        navigableView.OnNavigatedTo(parameters ?? new Dictionary<string, object>());
+                    }else
+                        _displayContainer?.AddControl(routeName, view, _containerType);
                 }
                 else
                 {
+                    if (view is INavigable navigableView)
+                    {
+                        navigableView.OnNavigatedTo(parameters ?? new Dictionary<string, object>());
+                    }
                     // Config as popup
-                     ShowPopup(view);
+                    ShowPopup(view);
                 }
 
                 _currentView = view;
@@ -760,6 +766,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             IDM_Addin view = _useCustomCreator && _isCustomCreatorSet
                 ? CreateControlUsingCustomCreator(_routes[routeName])
                 : ResolveAddin(_routes[routeName]);
+        
             return view;
         }
         private IDM_Addin ResolveAddin(Type viewType)

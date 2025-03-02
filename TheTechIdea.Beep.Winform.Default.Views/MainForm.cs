@@ -1,4 +1,6 @@
-﻿using TheTechIdea.Beep.Container.Services;
+﻿using System.ComponentModel;
+using TheTechIdea.Beep.Container.Services;
+using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
@@ -26,14 +28,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepService.vis.Container = this.uc_Container1;
             beepMenuAppBar1.beepServices = beepService;
             beepMenuAppBar1.CreateMenuItems();
-          
-            beepButton1.Click += BeepButton1_Click;
+            BindingList<SimpleItem> items = new BindingList<SimpleItem>();
+            foreach (var item in Dependencies.DMEEditor.ConfigEditor.DataSourcesClasses)
+            {
+                SimpleItem item1 = new SimpleItem();
+                item1.Display = item.className;
+                item1.Value = item.className;
+                item1.Text = item.className;
+                item1.Name = item.className;
+                items.Add(item1);
+            }
+            beepComboBox1.ListItems= items;
         }
 
-        private void BeepButton1_Click(object? sender, EventArgs e)
-        {
-            beepSimpleGrid1.DataSource = beepService.Config_editor.DataDriversClasses;
-            beepTextBox1.Text = "Hello";
-        }
+       
     }
 }

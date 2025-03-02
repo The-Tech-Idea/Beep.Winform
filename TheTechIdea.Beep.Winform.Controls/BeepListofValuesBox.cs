@@ -1,107 +1,68 @@
 ﻿using System.ComponentModel;
-using System.Drawing.Design;
-using TheTechIdea.Beep.Vis.Modules;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using TheTechIdea.Beep.Desktop.Common;
-using TheTechIdea.Beep.Winform.Controls.Editors;
-using System.Collections.Generic;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [DisplayName("Beep List of Values Box")]
-    [Description("A control that displays a list of values.")]
+    [Description("A control that displays a list of values with a popup selection.")]
     public class BeepListofValuesBox : BeepControl
     {
+        #region Fields
         private TextBox _keyTextBox;
         private TextBox _valueTextBox;
         private BeepButton _dropdownButton;
-        private ListBox _dropdownListBox;
-        private Form _popupForm;
-        int padding;
-        int spacing; 
+        private BeepPopupListForm _popupForm;
         private List<SimpleItem> _items = new List<SimpleItem>();
-        Panel sp1,sp2;
-        private string _listField;
-        private string _displayField;
-        private int _valueTextBoxWidth=80;
-        int buttonHeight;
-
-        public BeepListofValuesBox()
-        {
-            
-            InitializeComponents();
-            ApplyTheme();
-
-
-        }
-        protected override void CreateHandle()
-        {
-            base.CreateHandle();
-           
-        }
-        protected override void InitLayout()
-        {
-            base.InitLayout();
-            Width = 300;
-            Height = 30;
-        }
+        private int padding;
+        private int spacing;
+        private int buttonHeight;
+        private object _lastValidKey; // Store the last valid key as an object
+        #endregion
 
         #region Properties
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
-       
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public List<SimpleItem> ListItems
         {
             get => _items;
             set
             {
-                _items = value;
-                // InitializeMenu();
+                _items = value ?? new List<SimpleItem>();
+                if (_popupForm != null)
+                {
+                    _popupForm.ListItems = new BindingList<SimpleItem>(_items);
+                }
+                UpdateDisplayValue();
+                Invalidate();
             }
         }
 
         [Browsable(true)]
         [Category("Data")]
-        [Description("The field name in the item list to use as the value.")]
-        public string ListField
-        {
-            get => _listField;
-            set
-            {
-                _listField = value;
-                UpdateDropdownItems();
-            }
-        }
-
-        [Browsable(true)]
-        [Category("Data")]
-        [Description("The field name in the item list to use as the display text.")]
-        public string DisplayField
-        {
-            get => _displayField;
-            set
-            {
-                
-               
-                _displayField = value; 
-                UpdateDropdownItems();
-            }
-        }
-
-        [Browsable(true)]
-        [Category("Data")]
-        [Description("The selected key.")]
+        [Description("The selected key (Value property of SimpleItem).")]
         public string SelectedKey
         {
             get => _keyTextBox.Text;
             set
             {
-                if (_keyTextBox == null) return;
-                _keyTextBox.Text = value;
-                UpdateDisplayValue();
+                if (ValidateKey(value))
+                {
+                    _keyTextBox.Text = value;
+                    UpdateLastValidKey(value);
+                    UpdateDisplayValue();
+                    Invalidate();
+                }
+                else
+                {
+                    _keyTextBox.Text = _lastValidKey?.ToString() ?? string.Empty;
+                }
             }
         }
 
@@ -111,207 +72,151 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string SelectedDisplayValue
         {
             get => _valueTextBox.Text;
-            private set { if (_valueTextBox == null) return; _valueTextBox.Text = value; }
+            private set => _valueTextBox.Text = value;
         }
-
         #endregion
 
+        #region Constructor
+        public BeepListofValuesBox()
+        {
+            InitializeComponents();
+            ApplyTheme();
+        }
+        #endregion
+
+        #region Initialization
         private void InitializeComponents()
         {
-            // Key TextBox
             _keyTextBox = new TextBox
             {
-                BorderStyle = BorderStyle.None,
-                Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall),
-              
-
+                BorderStyle = BorderStyle.None
             };
             _keyTextBox.TextChanged += KeyTextBox_TextChanged;
 
-            // Value TextBox
             _valueTextBox = new TextBox
             {
                 BorderStyle = BorderStyle.None,
-                ReadOnly = true,
-                BackColor = _currentTheme.TextBoxBackColor,
-                Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall),
-               
+                ReadOnly = true
             };
-           
-            // Dropdown Button
+
             _dropdownButton = new BeepButton
             {
                 Text = "▼",
                 HideText = true,
-                ShowAllBorders =false,
+                ShowAllBorders = false,
                 IsShadowAffectedByTheme = false,
                 IsChild = true,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 TextImageRelation = TextImageRelation.Overlay,
                 TextAlign = ContentAlignment.MiddleCenter,
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.dropdown-select.svg"
-
             };
-            
             _dropdownButton.Click += DropdownButton_Click;
-            sp1 = new Panel
-            {
-                BackColor =_currentTheme.BorderColor,
-                BorderStyle = BorderStyle.FixedSingle,
-                Height = 1,
-                Width = 1,
-                Visible = true,
-                Location = new Point(0, 0)
-            };
-            sp2 = new Panel
-            {
-                BackColor = _currentTheme.BorderColor,
-                BorderStyle = BorderStyle.FixedSingle,
-                Height = 1,
-                Width = 1,
-                Visible = true,
-                Location = new Point(0, 0)
-            };
-            // Dropdown ListBox
-            _dropdownListBox = new ListBox
-            {
-                BorderStyle = BorderStyle.FixedSingle,
-                Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall),
-            };
-            _dropdownListBox.DoubleClick += DropdownListBox_DoubleClick;
 
-            // Popup Form
-            _popupForm = new Form
+            _popupForm = new BeepPopupListForm(_items)
             {
-                FormBorderStyle = FormBorderStyle.None,
-                StartPosition = FormStartPosition.Manual,
-                ShowInTaskbar = false,
-                BackColor = Color.White,
-                Size = new Size(Width, 150),
-                Padding = new Padding(2)
+                Theme = Theme
             };
-            _popupForm.Controls.Add(_dropdownListBox);
-            _dropdownListBox.Dock = DockStyle.Fill;
-            // Add controls
+            _popupForm.SelectedItemChanged += PopupForm_SelectedItemChanged;
+
             Controls.Add(_keyTextBox);
             Controls.Add(_valueTextBox);
             Controls.Add(_dropdownButton);
-            Controls.Add(sp1);
-            Controls.Add(sp2);
-            
+
             _keyTextBox.MouseEnter += (s, e) => OnMouseEnter(e);
             _keyTextBox.MouseHover += (s, e) => OnMouseHover(e);
             _keyTextBox.MouseLeave += (s, e) => OnMouseLeave(e);
             _valueTextBox.MouseEnter += (s, e) => OnMouseEnter(e);
             _valueTextBox.MouseHover += (s, e) => OnMouseHover(e);
             _valueTextBox.MouseLeave += (s, e) => OnMouseLeave(e);
+
+            _lastValidKey = null;
             AdjustLayout();
         }
-        void GetHeight()
+
+        protected override void InitLayout()
         {
-            padding = BorderThickness ;
+            base.InitLayout();
+            Width = 300;
+            Height = 30;
+            AdjustLayout();
+        }
+        #endregion
+
+        #region Layout and Drawing
+        private void GetHeight()
+        {
+            padding = BorderThickness;
             spacing = 5;
             buttonHeight = _keyTextBox.PreferredHeight;
-            Height = _keyTextBox.PreferredHeight + (padding * 2);
+            Height = buttonHeight + (padding * 2);
         }
+
         private void AdjustLayout()
         {
-            if (DrawingRect == Rectangle.Empty)
-                UpdateDrawingRect();
-
+            UpdateDrawingRect();
             GetHeight();
 
-            int centerY = DrawingRect.Top + (DrawingRect.Height - _keyTextBox.PreferredHeight) / 2;
+            int centerY = DrawingRect.Top + (DrawingRect.Height - buttonHeight) / 2;
 
-            // Key TextBox layout
-            _keyTextBox.Location = new Point(DrawingRect.Left + padding + BorderThickness, centerY);
-            _keyTextBox.Width = 60; // Example width
+            _keyTextBox.Location = new Point(DrawingRect.Left + padding, centerY);
+            _keyTextBox.Width = 60;
             _keyTextBox.Height = buttonHeight;
 
-            // Separator 1 (sp1) layout
-            sp1.Location = new Point(_keyTextBox.Right + 1, centerY);
-            sp1.Width = 2;
-            sp1.Height = buttonHeight;
-
-            // Value TextBox layout
-            _valueTextBox.Location = new Point(sp1.Right + 1, centerY);
-            _valueTextBox.Width = DrawingRect.Width - _keyTextBox.Width - (buttonHeight + padding * 4) - sp1.Width - sp2.Width - (BorderThickness * 2);
+            _valueTextBox.Location = new Point(_keyTextBox.Right + spacing, centerY);
+            _valueTextBox.Width = DrawingRect.Width - _keyTextBox.Width - buttonHeight - (padding * 2) - (spacing * 2);
             _valueTextBox.Height = buttonHeight;
 
-            // Separator 2 (sp2) layout
-            sp2.Location = new Point(_valueTextBox.Right + 1, centerY);
-            sp2.Width = 2;
-            sp2.Height = buttonHeight;
+            _dropdownButton.Location = new Point(_valueTextBox.Right + spacing, centerY);
+            _dropdownButton.Width = buttonHeight - 2;
+            _dropdownButton.Height = buttonHeight - 2;
+            _dropdownButton.MaxImageSize = new Size(buttonHeight - 4, buttonHeight - 4);
 
-            // Dropdown Button layout (centered in the remaining space)
-            int remainingSpace = DrawingRect.Right - sp2.Right - padding - BorderThickness;
-            int dropdownX = sp2.Right + (remainingSpace - buttonHeight) / 2;
-
-            _dropdownButton.Location = new Point(dropdownX , _valueTextBox.Top+1);
-            _dropdownButton.Width = buttonHeight-3;
-            _dropdownButton.Height = buttonHeight-3;
-            _dropdownButton.MaxImageSize = new Size(buttonHeight-5, buttonHeight-5);
-            // Adjust the popup location when resizing
             if (_popupForm.Visible)
             {
                 PositionPopupForm();
             }
         }
 
-        private void UpdateDropdownItems()
+        protected override void OnResize(EventArgs e)
         {
-            if (_dropdownListBox == null) return;
-            _dropdownListBox.Items.Clear();
-            if (_items == null) return;
+            base.OnResize(e);
+            AdjustLayout();
+            Invalidate();
+        }
 
-            foreach (var item in _items)
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
+            using (SolidBrush backgroundBrush = new SolidBrush(_currentTheme.ButtonBackColor))
             {
-                _dropdownListBox.Items.Add(item);
+                graphics.FillRectangle(backgroundBrush, rectangle);
             }
-        }
-        private void UpdateDisplayValue()
-        {
-            var selectedItem = _items.FirstOrDefault(i => i.GuidId == SelectedKey);
-            SelectedDisplayValue = selectedItem?.Display ?? string.Empty;
-        }
 
-        #region "Generic Handling"
-        private void UpdateDropdownItemsGeneric()
-        {
-            if (_dropdownListBox == null) return;
-            _dropdownListBox.Items.Clear();
-            if (_items == null || string.IsNullOrEmpty(_listField) || string.IsNullOrEmpty(_displayField)) return;
-
-            foreach (var item in _items)
+            if (BorderThickness > 0)
             {
-                var key = item.GetType().GetProperty(_listField)?.GetValue(item)?.ToString();
-                var display = item.GetType().GetProperty(_displayField)?.GetValue(item)?.ToString();
-                if (key != null && display != null)
+                using (Pen borderPen = new Pen(_currentTheme.BorderColor, BorderThickness))
                 {
-                    _dropdownListBox.Items.Add(new KeyValuePair<string, string>(key, display));
+                    graphics.DrawRectangle(borderPen, rectangle);
                 }
             }
-        }
-        private void UpdateDisplayValueGeneric()
-        {
-            if (_items == null || string.IsNullOrEmpty(_listField) || string.IsNullOrEmpty(_displayField)) return;
 
-            var item = _items.FirstOrDefault(i =>
+            if (_keyTextBox != null && _valueTextBox != null && _dropdownButton != null)
             {
-                var key = i.GetType().GetProperty(_listField)?.GetValue(i)?.ToString();
-                return key == _keyTextBox.Text;
-            });
+                Rectangle keyRect = new Rectangle(_keyTextBox.Left, _keyTextBox.Top, _keyTextBox.Width, _keyTextBox.Height);
+                Rectangle valueRect = new Rectangle(_valueTextBox.Left, _valueTextBox.Top, _valueTextBox.Width, _valueTextBox.Height);
+                Rectangle buttonRect = new Rectangle(_dropdownButton.Left, _dropdownButton.Top, _dropdownButton.Width, _dropdownButton.Height);
 
-            if (item != null)
-            {
-                SelectedDisplayValue = item.GetType().GetProperty(_displayField)?.GetValue(item)?.ToString();
-            }
-            else
-            {
-                SelectedDisplayValue = string.Empty;
+                TextRenderer.DrawText(graphics, _keyTextBox.Text, _keyTextBox.Font, keyRect, _currentTheme.TextBoxForeColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
+                TextRenderer.DrawText(graphics, _valueTextBox.Text, _valueTextBox.Font, valueRect, _currentTheme.TextBoxForeColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
+                _dropdownButton.Draw(graphics, buttonRect);
             }
         }
-        #endregion "Generic Handling"
+        #endregion
+
+        #region Event Handlers
         private void DropdownButton_Click(object sender, EventArgs e)
         {
             if (_popupForm.Visible)
@@ -320,18 +225,64 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                PositionPopupForm();
-                _popupForm.Show();
+                if(_popupForm.ListItems.Count == 0)
+                {
+                    _popupForm.ListItems = new BindingList<SimpleItem>(_items);
+                    return;
+                }
+                _popupForm.ListItems = new BindingList<SimpleItem>(_items);
+                _popupForm.ShowPopup("Select an Item", this, BeepPopupFormPosition.Bottom);
             }
         }
 
-        private void DropdownListBox_DoubleClick(object sender, EventArgs e)
+        private void PopupForm_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
         {
-            if (_dropdownListBox.SelectedItem is SimpleItem selectedItem)
+            if (e.SelectedItem != null)
             {
-                SelectedKey = selectedItem.GuidId;
+                SetSelectedItem(e.SelectedItem);
                 _popupForm.Hide();
             }
+        }
+
+        private void KeyTextBox_TextChanged(object sender, EventArgs e)
+        {
+            string newKey = _keyTextBox.Text;
+            if (ValidateKey(newKey))
+            {
+                UpdateLastValidKey(newKey);
+                UpdateDisplayValue();
+            }
+            else
+            {
+                MessageBox.Show("Invalid key. Please enter a valid value from the list.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                _keyTextBox.Text = _lastValidKey?.ToString() ?? string.Empty;
+                UpdateDisplayValue();
+            }
+        }
+        #endregion
+
+        #region Helper Methods
+        private bool ValidateKey(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                return true; // Allow empty input to clear selection
+            }
+
+            foreach (var item in _items)
+            {
+                if (item.Value != null && item.Value.ToString() == key)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void UpdateLastValidKey(string key)
+        {
+            var selectedItem = _items.FirstOrDefault(i => i.Value?.ToString() == key);
+            _lastValidKey = selectedItem?.Value;
         }
 
         private void PositionPopupForm()
@@ -340,63 +291,68 @@ namespace TheTechIdea.Beep.Winform.Controls
             _popupForm.Location = new Point(location.X, location.Y);
         }
 
-        private void KeyTextBox_TextChanged(object sender, EventArgs e)
+        private void UpdateDisplayValue()
         {
+            var selectedItem = _items.FirstOrDefault(i => i.Value?.ToString() == SelectedKey);
+            SelectedDisplayValue = selectedItem?.Text ?? string.Empty;
+        }
+
+        private void SetSelectedItem(SimpleItem item)
+        {
+            _keyTextBox.Text = item.Value?.ToString() ?? string.Empty;
+            _lastValidKey = item.Value;
             UpdateDisplayValue();
+            Invalidate();
         }
 
-        protected override void OnResize(EventArgs e)
+        public void Reset()
         {
-            base.OnResize(e);
-
-            if (_keyTextBox != null && _valueTextBox != null)
+            _items.Clear();
+            _keyTextBox.Text = string.Empty;
+            _valueTextBox.Text = string.Empty;
+            if (_popupForm != null)
             {
-                //int padding = _borderThickness +5;
-                //// Ensure the height is fixed
-                //Height = _valueTextBox.PreferredHeight+(padding * 2);
-                _popupForm.Width = Width;
-                AdjustLayout();
+                _popupForm.ListItems.Clear();
             }
-          
+            _lastValidKey = null;
         }
+        #endregion
 
+        #region Theme and Value Management
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            if(_keyTextBox == null) return;
+            if (_keyTextBox == null) return;
+
             _keyTextBox.BackColor = _currentTheme.AltRowBackColor;
             _keyTextBox.ForeColor = _currentTheme.LatestForColor;
-
             _valueTextBox.BackColor = _currentTheme.AltRowBackColor;
             _valueTextBox.ForeColor = _currentTheme.AccentTextColor;
-            _dropdownListBox.BackColor = _currentTheme.AltRowBackColor;
-            _dropdownListBox.ForeColor = _currentTheme.AccentTextColor;
             _dropdownButton.BackColor = _currentTheme.ButtonBackColor;
             _dropdownButton.ForeColor = _currentTheme.ButtonForeColor;
             _dropdownButton.ApplyThemeOnImage = true;
-            
+            _popupForm.Theme = Theme;
+
+            Invalidate();
         }
-        private  void OnMouseEnter(EventArgs e)
+
+        public override void SetValue(object value)
         {
-           
-           
-            IsHovered = true;
-           
-            //Invalidate();
+            if (value is SimpleItem item)
+            {
+                SetSelectedItem(item);
+            }
+            else
+            {
+                SelectedKey = value?.ToString();
+            }
         }
-        protected  void OnMouseHover(EventArgs e)
+
+        public override object GetValue()
         {
-            IsHovered = true;
+            var selectedItem = _items.FirstOrDefault(i => i.Value?.ToString() == SelectedKey);
+            return selectedItem;
         }
-        protected  void OnMouseLeave(EventArgs e)
-        {
-           
-            BorderColor = _currentTheme.BorderColor;
-            IsPressed = false;
-            IsFocused = false;
-            IsHovered = false;
-            HideToolTip(); // Hide tooltip on mouse leave
-                           // Invalidate();
-        }
+        #endregion
     }
 }

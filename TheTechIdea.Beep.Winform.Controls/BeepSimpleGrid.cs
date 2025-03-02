@@ -5,11 +5,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing.Design;
+using System.Globalization;
 using System.Reflection;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Desktop.Common.Helpers;
-using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
@@ -58,6 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Point _lastMousePos;
         private int _editingRowIndex = -1; // Add this field to track absolute row index in _fullData
         private BeepGridRow _hoveredRow = null;
+        private BeepGridRow _selectedRow = null;
         private BeepGridCell _hoveredCell = null;
         private BeepGridCell _selectedCell = null;
         private int _hoveredRowIndex = -1;
@@ -79,9 +80,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         private List<Rectangle> filterIconBounds = new List<Rectangle>();
         private int _defaultcolumnheaderheight = 40;
         private int _defaultcolumnheaderwidth = 50;
+        private TextImageRelation textImageRelation = TextImageRelation.ImageAboveText;
+
         #endregion Fields
         #region Title Properties
-        private TextImageRelation textImageRelation = TextImageRelation.ImageAboveText;
+        [Browsable(true)]
+        [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        private BeepGridRow SelectedRow
+        {
+            get => _selectedRow;
+            set
+            {
+                _selectedRow = value;
+                if (value != null)
+                {
+                    _selectedRowIndex = Rows.IndexOf(value);
+                }
+                else
+                {
+                    _selectedRowIndex = -1;
+                }
+            }
+        }
+        [Browsable(true)]
+
         private string _titletext = "Simple BeepGrid";
         [Browsable(true)]
         [Category("Layout")]
@@ -1001,7 +1024,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
             }
-            UpdateScrollBars();
+         //   UpdateScrollBars();
         }
         private void UpdateDataRecordFromRow(BeepGridCell editingCell)
         {
@@ -1029,31 +1052,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        private void ScrollBy(int delta)
-        {
-            // Calculate the new offset
-            int newOffset = _dataOffset + delta;
-
-            // Calculate the maximum possible offset (so the last page of Rows is still visible)
-            // For example, if _fullData.Count=100 and Rows.Count=10, 
-            // then the highest offset is 90 (showing items 90..99).
-            int maxOffset = Math.Max(0, _fullData.Count - Rows.Count);
-
-            // Clamp newOffset between 0 and maxOffset
-            if (newOffset < 0)
-                newOffset = 0;
-            else if (newOffset > maxOffset)
-                newOffset = maxOffset;
-
-            // Only do the work if the offset actually changed
-            if (newOffset != _dataOffset)
-            {
-                _dataOffset = newOffset;
-                FillVisibleRows();
-                UpdateScrollBars();
-                Invalidate();
-            }
-        }
+   
         public void MoveNextRow()
         {
             ScrollBy(1);  // +1 means scroll down one row
@@ -1290,13 +1289,47 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (m.Msg == 0x0100) // WM_KEYDOWN
             {
                 Keys keyData = (Keys)m.WParam | ModifierKeys;
-                if (keyData == Keys.Tab)
+                switch (keyData)
                 {
-                    Debug.WriteLine("BeepSimpleGrid: Tab key previewed");
-                    MoveNextCell();
-                    Invalidate();
-                    return true; // Consume the key
+                    case Keys.Enter:
+                        MoveNextCell();
+                        break;
+                    case Keys.Tab:
+
+                        MoveNextCell();
+                        Invalidate();
+                        break;
+                    case Keys.Up:
+                        if (_selectedRowIndex > 0)
+                        {
+                            SelectCell(_selectedRowIndex - 1, _selectedColumnIndex);
+                        }
+                        break;
+                    case Keys.Down:
+                        if (_selectedRowIndex < Rows.Count - 1)
+                        {
+                            SelectCell(_selectedRowIndex + 1, _selectedColumnIndex);
+                        }
+                        break;
+                    case Keys.Left:
+                        if (_selectedColumnIndex > 0)
+                        {
+                            SelectCell(_selectedRowIndex, _selectedColumnIndex - 1);
+                        }
+                        break;
+                    case Keys.Right:
+                        if (_selectedColumnIndex < Columns.Count - 1)
+                        {
+                            SelectCell(_selectedRowIndex, _selectedColumnIndex + 1);
+                        }
+                        break;
+                    case Keys.Escape:
+                        CancelEditing();
+                        CloseCurrentEditor();
+                        break;
                 }
+               
+                return true; // Consume the key
             }
             return base.ProcessKeyPreview(ref m);
         }
@@ -1410,6 +1443,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return new BeepProgressBar { Theme = Theme, IsChild = true };
                 case BeepColumnType.NumericUpDown:
                     return new BeepNumericUpDown { Theme = Theme, IsChild = true };
+                case BeepColumnType.Radio:
+                    return new BeepRadioButton { Theme = Theme, IsChild = true };
+                case BeepColumnType.ListBox:
+                    return new BeepListBox { Theme = Theme, IsChild = true };
+                case BeepColumnType.ListOfValue:
+                    return new BeepListofValuesBox { Theme = Theme, IsChild = true };
                 default:
                     return new BeepTextBox { Theme = Theme, IsChild = true };
             }
@@ -1417,103 +1456,221 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void UpdateCellControl(IBeepUIComponent control, BeepColumnConfig column, object value)
         {
             if (control == null) return;
-            string stringValue = value?.ToString() ?? ""; // Ensure it's always a string
+
+            if (value == null)
+            {
+                switch (control)
+                {
+                    case BeepTextBox textBox:
+                        textBox.Text = string.Empty;
+                        break;
+                    case BeepCheckBoxBool checkBox:
+                        checkBox.State = CheckBoxState.Indeterminate;
+                        break;
+                    case BeepCheckBoxChar checkBox:
+                        checkBox.State = CheckBoxState.Indeterminate;
+                        break;
+                    case BeepCheckBoxString checkBox:
+                        checkBox.State = CheckBoxState.Indeterminate;
+                        break;
+                    case BeepComboBox comboBox:
+                        comboBox.Reset();
+                        break;
+                    case BeepDatePicker datePicker:
+                        datePicker.SelectedDate = null;
+                        break;
+                    case BeepRadioButton radioButton:
+                        radioButton.Reset();
+                        break;
+                    case BeepListofValuesBox listBox:
+                        listBox.Reset();
+                        break;
+                    case BeepListBox listBox:
+                        listBox.Reset();
+                        break;
+                    case BeepImage image:
+                        image.ImagePath = null;
+                        break;
+                    case BeepButton button:
+                        button.Text = string.Empty;
+                        break;
+                    case BeepProgressBar progressBar:
+                        progressBar.Value = 0;
+                        break;
+                    case BeepStarRating starRating:
+                        starRating.SelectedRating = 0;
+                        break;
+                    case BeepNumericUpDown numericUpDown:
+                        numericUpDown.Value = 0;
+                        break;
+                    case BeepSwitch switchControl:
+                        switchControl.Checked = false;
+                        break;
+                    case BeepLabel label:
+                        label.Text = string.Empty;
+                        break;
+                }
+                return;
+            }
 
             switch (control)
             {
                 case BeepTextBox textBox:
-                    textBox.Text = stringValue;
+                    textBox.Text = value.ToString();
                     if (column != null)
                         textBox.MaskFormat = GetTextBoxMaskFormat(column.ColumnType);
                     break;
 
                 case BeepCheckBoxBool checkBox:
-                    if (value == null)
-                    {
-                        checkBox.State = CheckBoxState.Indeterminate; // Explicitly set Indeterminate for null
-                    }
-                    else
-                    {
-                        checkBox.CurrentValue = (bool)MiscFunctions.ConvertValueToPropertyType(typeof(bool), value);
-                    }
+                    checkBox.CurrentValue = (bool)MiscFunctions.ConvertValueToPropertyType(typeof(bool), value);
                     break;
 
                 case BeepCheckBoxChar checkBox:
-                    if (value == null)
-                    {
-                        checkBox.State = CheckBoxState.Indeterminate; // Explicitly set Indeterminate for null
-                    }
-                    else
-                    {
-                        checkBox.CurrentValue = (char)MiscFunctions.ConvertValueToPropertyType(typeof(char), value);
-                    }
+                    checkBox.CurrentValue = (char)MiscFunctions.ConvertValueToPropertyType(typeof(char), value);
                     break;
 
                 case BeepCheckBoxString checkBox:
-                    if (value == null)
-                    {
-                        checkBox.State =    CheckBoxState.Indeterminate; // Explicitly set Indeterminate for null
-                    }
-                    else
-                    {
-                        checkBox.CurrentValue = (string)MiscFunctions.ConvertValueToPropertyType(typeof(string), value);
-                    }
+                    checkBox.CurrentValue = (string)MiscFunctions.ConvertValueToPropertyType(typeof(string), value);
                     break;
+
                 case BeepComboBox comboBox:
-                   
                     comboBox.Reset();
                     if (column?.Items != null)
                     {
                         comboBox.ListItems = new BindingList<SimpleItem>(column.Items);
-                        var item = column.Items.FirstOrDefault(i => i.Value?.ToString() == stringValue || i.Text == stringValue);
-                        if (item != null)
+                        if (value is SimpleItem simpleItem)
                         {
-                            comboBox.SelectedItem = item;
+                            var item = column.Items.FirstOrDefault(i => i.Text == simpleItem.Text && i.ImagePath == simpleItem.ImagePath);
+                            if (item != null)
+                            {
+                                comboBox.SelectedItem = item;
+                            }
+                        }
+                        else
+                        {
+                            string stringValue = value.ToString();
+                            var item = column.Items.FirstOrDefault(i => i.Value?.ToString() == stringValue || i.Text == stringValue);
+                            if (item != null)
+                            {
+                                comboBox.SelectedItem = item;
+                            }
+                        }
+                    }
+                    break;
+                case BeepListBox listBox:
+                    listBox.Reset();
+                    if (column?.Items != null)
+                    {
+                        listBox.ListItems = new BindingList<SimpleItem>(column.Items);
+                        if (value is SimpleItem simpleItem)
+                        {
+                            var item = column.Items.FirstOrDefault(i => i.Text == simpleItem.Text && i.ImagePath == simpleItem.ImagePath);
+                            if (item != null)
+                            {
+                                listBox.SetValue(item);
+                            }
+                        }
+                        else
+                        {
+                            string stringValue = value.ToString();
+                            var item = column.Items.FirstOrDefault(i => i.Value?.ToString() == stringValue || i.Text == stringValue);
+                            if (item != null)
+                            {
+                                listBox.SetValue(item);
+                            }
+                        }
+                    }
+                    break;
+                case BeepDatePicker datePicker:
+                    if (value is DateTime dateTime)
+                    {
+                        datePicker.SelectedDate = dateTime.ToString(datePicker.GetCurrentFormat(), datePicker.Culture);
+                    }
+                    else if (DateTime.TryParse(value.ToString(), datePicker.Culture, DateTimeStyles.None, out DateTime dateValue))
+                    {
+                        datePicker.SelectedDate = dateValue.ToString(datePicker.GetCurrentFormat(), datePicker.Culture);
+                    }
+                    else
+                    {
+                        datePicker.SelectedDate = null;
+                    }
+                    break;
+
+                case BeepRadioButton radioButton:
+                    radioButton.Reset();
+                    if (column?.Items != null)
+                    {
+                        radioButton.Options = new List<SimpleItem>(column.Items);
+                        if (value is SimpleItem simpleItem)
+                        {
+                            var item = column.Items.FirstOrDefault(i => i.Text == simpleItem.Text && i.ImagePath == simpleItem.ImagePath);
+                            if (item != null)
+                            {
+                                radioButton.SetValue(item);
+                            }
+                        }
+                        else
+                        {
+                            string stringValue = value.ToString();
+                            var item = column.Items.FirstOrDefault(i => i.Value?.ToString() == stringValue || i.Text == stringValue);
+                            if (item != null)
+                            {
+                                radioButton.SetValue(item);
+                            }
+                        }
+                    }
+                    break;
+                case BeepListofValuesBox listBox:
+                    listBox.Reset();
+                    if (column?.Items != null)
+                    {
+                        listBox.ListItems = new List<SimpleItem>(column.Items);
+                        if (value is SimpleItem simpleItem)
+                        {
+                            var item = column.Items.FirstOrDefault(i => i.GuidId == simpleItem.GuidId || (i.Text == simpleItem.Text && i.ImagePath == simpleItem.ImagePath));
+                            if (item != null)
+                            {
+                                listBox.SetValue(item);
+                            }
+                        }
+                        else
+                        {
+                            string stringValue = value.ToString();
+                            var item = column.Items.FirstOrDefault(i => i.GuidId == stringValue || i.Text == stringValue);
+                            if (item != null)
+                            {
+                                listBox.SetValue(item);
+                            }
                         }
                     }
                     break;
 
-                case BeepDatePicker datePicker:
-                    if (DateTime.TryParse(stringValue, out DateTime dateValue))
-                    {
-                        datePicker.SelectedDate = stringValue;
-                    }
-                    else
-                    {
-                        datePicker.SelectedDate = null; // Clear if invalid
-                    }
-                    break;
-
                 case BeepImage image:
-                    image.ImagePath = ImageListHelper.GetImagePathFromName(stringValue);
+                    image.ImagePath = ImageListHelper.GetImagePathFromName(value.ToString());
                     break;
 
                 case BeepButton button:
-                    button.Text = stringValue;
+                    button.Text = value.ToString();
                     break;
 
                 case BeepProgressBar progressBar:
-                    progressBar.Value = int.TryParse(stringValue, out int progress) ? progress : 0;
+                    progressBar.Value = int.TryParse(value.ToString(), out int progress) ? progress : 0;
                     break;
 
                 case BeepStarRating starRating:
-                    starRating.SelectedRating = int.TryParse(stringValue, out int rating) ? rating : 0;
+                    starRating.SelectedRating = int.TryParse(value.ToString(), out int rating) ? rating : 0;
                     break;
 
                 case BeepNumericUpDown numericUpDown:
-                    numericUpDown.Value = (decimal)MiscFunctions.ConvertValueToPropertyType(typeof(decimal), stringValue);
+                    numericUpDown.Value = (decimal)MiscFunctions.ConvertValueToPropertyType(typeof(decimal), value);
                     break;
 
                 case BeepSwitch switchControl:
-                    switchControl.Checked = bool.TryParse(stringValue, out bool switchVal) && switchVal;
-                    break;
-
-                case BeepListofValuesBox listBox:
-                    listBox.SelectedKey = stringValue;
+                    switchControl.Checked = bool.TryParse(value.ToString(), out bool switchVal) && switchVal;
                     break;
 
                 case BeepLabel label:
-                    label.Text = stringValue;
+                    label.Text = value.ToString();
                     break;
             }
         }
@@ -1613,7 +1770,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     for (int i = 0; i < BottomRow.Cells.Count && i < Columns.Count; i++)
                     {
                         var cellRect = new Rectangle(xOffset, rect.Top, Columns[i].Width, rect.Height);
-                        PaintCell(g, BottomRow.Cells[i], cellRect);
+                        PaintCell(g, BottomRow.Cells[i], cellRect,_currentTheme.GridBackColor);
                         xOffset += Columns[i].Width;
                     }
                 }
@@ -1694,26 +1851,30 @@ namespace TheTechIdea.Beep.Winform.Controls
                 cell.Height = rowRect.Height;
 
                 var cellRect = new Rectangle(cell.X, cell.Y, cell.Width, cell.Height);
-
+                Color selectedbordercolor = _currentTheme.ActiveBorderColor;
+                Color backcolor=cell.RowIndex== _selectedRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
                 if (cellRect.Right >= gridRect.Left && cellRect.Left < gridRect.Right) // Draw only visible cells
                 {
-                    PaintCell(g, cell, cellRect);
+                    PaintCell(g, cell, cellRect, backcolor);
                 }
-
+               
                 xOffset += Columns[i].Width;
               //  if (xOffset > rowRect.Right) break; // Stop drawing if outside the visible area
             }
         }
-        private void PaintCell(Graphics g, BeepGridCell cell, Rectangle cellRect)
+        private void PaintCell(Graphics g, BeepGridCell cell, Rectangle cellRect,Color backcolor)
         {
             // If this cell is being edited, skip drawing so that
             // the editor control remains visible.
           //  if (_selectedCell == cell && !_columns[_selectedCell.ColumnIndex].ReadOnly) return;
             Rectangle TargetRect = cellRect;
-
+            using (var cellBrush = new SolidBrush(backcolor))
+            {
+                g.FillRectangle(cellBrush, TargetRect);
+            }               
             if (_selectedCell == cell)
             {
-                using (var cellBrush = new SolidBrush(_currentTheme.ActiveBorderColor)) // ✅ Use a highlight color
+                using (var cellBrush = new SolidBrush(_currentTheme.GridRowHoverBackColor)) // ✅ Use a highlight color
                 {
                     g.FillRectangle(cellBrush, TargetRect);
                 }
@@ -1722,13 +1883,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     g.DrawRectangle(borderPen, TargetRect);
                 }
             }
-            else
-            {
-                using (var cellBrush = new SolidBrush(_currentTheme.BackColor))
-                {
-                    g.FillRectangle(cellBrush, TargetRect);
-                }
-            }
+            
             // Get the column editor if available
             if (!_columnEditors.TryGetValue(Columns[cell.ColumnIndex].ColumnName, out IBeepUIComponent columnEditor))
 
@@ -1879,7 +2034,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    IsEditorShown = true;
             //    ShowCellEditor(_selectedCell, cellLocation);
             //}
-            
+            SelectedRow = Rows[rowIndex];
+
+            SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(rowIndex, Rows[rowIndex]));
+            SelectedCellChanged?.Invoke(this, new BeepGridCellSelectedEventArgs(rowIndex, columnIndex, Rows[rowIndex].Cells[columnIndex]));
             Invalidate();
         }
         public void SelectCell(BeepGridCell cell)
@@ -1990,14 +2148,39 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion Cell Editing
         #region Scrollbar Management
+        private void ScrollBy(int delta)
+        {
+            // Calculate the new offset
+            int newOffset = _dataOffset + delta;
+
+            // Calculate the maximum possible offset (so the last page of Rows is still visible)
+            // For example, if _fullData.Count=100 and Rows.Count=10, 
+            // then the highest offset is 90 (showing items 90..99).
+            int maxOffset = Math.Max(0, _fullData.Count - GetVisibleRowCount());
+
+            // Clamp newOffset between 0 and maxOffset
+            if (newOffset < 0)
+                newOffset = 0;
+            else if (newOffset > maxOffset)
+                newOffset = maxOffset;
+
+            // Only do the work if the offset actually changed
+            if (newOffset != _dataOffset)
+            {
+                _dataOffset = newOffset;
+                FillVisibleRows();
+                UpdateScrollBars();
+                Invalidate();
+            }
+        }
         private void OnScroll(object sender, ScrollEventArgs e)
         {
-             visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeaderHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
-             visibleRowCount = visibleHeight / RowHeight; // 🔹 Calculate dynamically
+            int visibleRowCount = GetVisibleRowCount();
 
             _dataOffset = _verticalScrollBar.Value;
+            FillVisibleRows();
+            UpdateScrollBars();
             Invalidate();
-            //PositionControlsForVisibleCells(); // 🔹 Update visible controls dynamically
         }
         private void UpdateScrollBars()
         {
@@ -2011,19 +2194,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _horizontalScrollBar.Visible = false;
                 return;
             }
-
-            int totalRowHeight = _fullData.Count * _rowHeight;
-            int totalColumnWidth = Columns.Where(o=>o.Visible).Sum(col => col.Width);
-            int visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeaderHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
+            int totalRowHeight = _fullData.Count * RowHeight;
+            int totalColumnWidth = Columns.Where(o => o.Visible).Sum(col => col.Width);
+            int visibleHeight = gridRect.Height; // Use gridRect for row area
             int visibleWidth = DrawingRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
-
+            int visibleRowCount = GetVisibleRowCount();
             // **Vertical ScrollBar Fix**
-            if (_showVerticalScrollBar && totalRowHeight > visibleHeight)
+            Debug.WriteLine($"visiblerowcount :{visibleRowCount }");
+            if (_showVerticalScrollBar && _fullData.Count >= visibleRowCount)
             {
-                int maxOffset = Math.Max(0, _fullData.Count - Rows.Count);
+                int maxOffset = Math.Max(0, _fullData.Count - visibleRowCount);
                 _verticalScrollBar.Minimum = 0;
-                _verticalScrollBar.Maximum = maxOffset;
-                _verticalScrollBar.LargeChange = Rows.Count; // Number of visible rows
+                _verticalScrollBar.Maximum = maxOffset + visibleRowCount - 1; // Include visible rows in range
+                _verticalScrollBar.LargeChange = visibleRowCount;
                 _verticalScrollBar.SmallChange = 1;
                 _verticalScrollBar.Value = Math.Min(_dataOffset, maxOffset);
                 _verticalScrollBar.Visible = true;
@@ -2031,10 +2214,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
             {
                 _verticalScrollBar.Visible = false;
+                _dataOffset = 0; // Reset offset when all rows fit
+                FillVisibleRows();
             }
             // Horizontal ScrollBar
             // Horizontal ScrollBar - NEW CALCULATION
-            if (_showHorizontalScrollBar && totalColumnWidth > visibleWidth)
+            if (_showHorizontalScrollBar && totalColumnWidth >= visibleWidth)
             {
                 _horizontalScrollBar.Minimum = 0;
                 // Corrected Maximum: Allow scrolling until the last column's right edge aligns with visible area's right edge
@@ -2055,19 +2240,24 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             PositionScrollBars();
         }
+        // Helper method to calculate visible row count dynamically
+        // Helper method to calculate visible row count using gridRect
+        private int GetVisibleRowCount()
+        {
+            return gridRect.Height / RowHeight;
+        }
         private void PositionScrollBars()
         {
-            if (_verticalScrollBar == null || _horizontalScrollBar == null)
-                return;
+            if (_verticalScrollBar == null || _horizontalScrollBar == null) return;
 
             int verticalScrollWidth = _verticalScrollBar.Width;
             int horizontalScrollHeight = _horizontalScrollBar.Height;
-            int visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeaderHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
+            int visibleHeight = gridRect.Height; // Use gridRect for row area
             int visibleWidth = DrawingRect.Width;
 
             if (_verticalScrollBar.Visible)
             {
-                _verticalScrollBar.Location = new Point(DrawingRect.Right - verticalScrollWidth, DrawingRect.Top + (ShowHeaderPanel ? headerPanelHeight : 0) + (ShowColumnHeaders ? ColumnHeaderHeight : 0));
+                _verticalScrollBar.Location = new Point(DrawingRect.Right - verticalScrollWidth, gridRect.Top); // Align with gridRect top
                 _verticalScrollBar.Height = visibleHeight - (_horizontalScrollBar.Visible ? horizontalScrollHeight : 0);
             }
 
@@ -2081,7 +2271,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_verticalScrollBar != null)
             {
-                int maxOffset = Math.Max(0, _fullData.Count - Rows.Count);
+               // UpdateRowCount();
+
+
+                int maxOffset = Math.Max(0, _fullData.Count - GetVisibleRowCount());
                 _dataOffset = Math.Min(_verticalScrollBar.Value, maxOffset);
               
             
@@ -2123,7 +2316,37 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MoveEditor(); // Move editor if active
             }
         }
-       
+        private void UpdateRowCount()
+        {
+            if (_fullData == null) return;
+            if (_fullData.Count == 0) return;
+            visibleHeight = gridRect.Height;
+            visibleRowCount = visibleHeight / _rowHeight;
+            int dataRowCount = _fullData.Count;
+            if (visibleRowCount > Rows.Count)
+            {
+                // create new rows
+                int rowCount = visibleRowCount - Rows.Count;
+                for (int i = 0; i < rowCount; i++)
+                {
+                    var row = new BeepGridRow();
+                    foreach (var col in Columns)
+                    {
+                        var cell = new BeepGridCell
+                        {
+                            CellValue = null,
+                            CellData = null,
+                            IsEditable = true,
+                            ColumnIndex = col.Index,
+                            IsVisible = col.Visible,
+                            RowIndex = Rows.Count
+                        };
+                        row.Cells.Add(cell);
+                    }
+                    Rows.Add(row);
+                }
+            }
+        }
         #endregion
         #region Resizing Logic
         private void BeepGrid_MouseDown(object sender, MouseEventArgs e)
@@ -2231,11 +2454,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-           // InitializeRows();
+            UpdateDrawingRect();
+            UpdateRowCount();
             FillVisibleRows();
             UpdateScrollBars();
+            UpdateCellPositions();
             Invalidate();
         }
+        // New method to update gridRect (example implementation)
+       
         #endregion
         #region Editor
         // One editor control per column (keyed by column index)
@@ -2462,9 +2689,26 @@ namespace TheTechIdea.Beep.Winform.Controls
                
             }
         }
-      
+
         #endregion Editor
         #region Events
+        public event EventHandler<BeepGridCellSelectedEventArgs> SelectedCellChanged;
+        public event EventHandler<BeepGridRowSelectedEventArgs> SelectedRowChanged;
+        public event EventHandler<BeepGridCellEventArgs> CellValueChanged;
+        public event EventHandler<BeepGridCellEventArgs> CellValueChanging;
+        public event EventHandler<BeepGridCellEventArgs> CellValidating;
+        public event EventHandler<BeepGridCellEventArgs> CellValidated;
+        public event EventHandler<BeepGridCellEventArgs> CellFormatting;
+        public event EventHandler<BeepGridCellEventArgs> CellFormatted;
+        public event EventHandler<BeepGridCellEventArgs> CellClick;
+        public event EventHandler<BeepGridCellEventArgs> CellDoubleClick;
+        public event EventHandler<BeepGridCellEventArgs> CellMouseEnter;
+        public event EventHandler<BeepGridCellEventArgs> CellMouseLeave;
+        public event EventHandler<BeepGridCellEventArgs> CellMouseDown;
+        public event EventHandler<BeepGridCellEventArgs> CellMouseUp;
+        public event EventHandler<BeepGridCellEventArgs> CellMouseWheel;
+
+
         private void Rows_ListChanged(object sender, ListChangedEventArgs e) => Invalidate();
         #endregion
         #region Theme

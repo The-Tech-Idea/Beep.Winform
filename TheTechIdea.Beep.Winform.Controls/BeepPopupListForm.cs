@@ -8,9 +8,6 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepPopupListForm : BeepPopupForm
     {
         #region "Popup List Properties"
-
-
-        private bool _isPopupOpen;
         private bool _popupmode = false;
         private int _maxListHeight = 100;
         private int _maxListWidth = 100;
@@ -202,6 +199,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public SimpleItem ShowPopup(string Title, Control triggerControl, BeepPopupFormPosition position, bool showtitle = false)
         {
+            if (_beepListBox.ListItems == null) return null;
+            if (_beepListBox.ListItems.Count == 0) return null;
             ShowTitle = showtitle;
             _beepListBox.TitleText = Title;
             int neededHeight = _beepListBox.GetMaxHeight();

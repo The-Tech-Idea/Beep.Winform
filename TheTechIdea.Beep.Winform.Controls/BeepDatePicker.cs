@@ -245,7 +245,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Format and Masking
-        private string GetCurrentFormat()
+        public string GetCurrentFormat()
         {
             return _dateFormatStyle switch
             {

@@ -740,13 +740,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void SetValue(object value)
         {
-            if(value is SimpleItem)
-                SelectedItem = (SimpleItem)value;
-           
+            if (value is SimpleItem item)
+            {
+                SelectedItem = item;
+            }
+            else if (value != null)
+            {
+                var item1 = ListItems.FirstOrDefault(i => i.Value?.ToString() == value.ToString());
+                if (item1 != null)
+                {
+                    SelectedItem = item1;
+                }
+            }
         }
+
         public override object GetValue()
         {
             return SelectedItem;
+        }
+
+        public void Reset()
+        {
+            _items.Clear();
+            _selectedIndex = -1;
+            _selectedItem = null;
+            Invalidate();
         }
 
         // ---------------------------------------

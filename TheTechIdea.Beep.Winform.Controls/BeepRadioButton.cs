@@ -4,55 +4,33 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-   
-    /// <summary>
-    /// A control that displays a list of options as radio buttons.
-    /// All drawing is performed inside the DrawingRect.
-    /// When one option is clicked, the SelectedValue property is updated
-    /// and the SelectedValueChanged event is raised.
-    /// </summary>
     [ToolboxItem(true)]
     [DisplayName("Beep Radio Button")]
     [Category("Beep Controls")]
-    [Description("A control that displays a list of radio button options. When one option is selected, it updates the SelectedValue property and fires an event.")]
+    [Description("A control that displays a list of radio button options with text and images. When one option is selected, it updates the SelectedValue property and fires an event.")]
     public class BeepRadioButton : BeepControl
     {
         #region Fields
-
-        // A designer–editable list of options.
-        private BindingList<string> _options = new BindingList<string>();
-
-        // The currently selected option.
+        private List<SimpleItem> _options = new List<SimpleItem>();
         private string _selectedValue = string.Empty;
-
-        // Used for hit testing and highlighting; stored in absolute coordinates.
         private List<Rectangle> _optionRectangles = new List<Rectangle>();
-
-        // The index of the option currently under the mouse pointer.
         private int _hoverIndex = -1;
-        // Orientation for layout.
         private RadioButtonOrientation _orientation = RadioButtonOrientation.Vertical;
+        private readonly BeepImage _imageDrawer = new BeepImage(); // Single instance for drawing
         #endregion
 
         #region Events
-
-        /// <summary>
-        /// Occurs when the selected value changes.
-        /// </summary>
         [Category("Action")]
         [Description("Occurs when the selected value changes.")]
         public event EventHandler<RadioButtonSelectedEventArgs> SelectedValueChanged;
-
         #endregion
 
         #region Properties
-      
-
-
         private Font _textFont = new Font("Arial", 10);
         [Browsable(true)]
         [MergableProperty(true)]
@@ -64,40 +42,31 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _textFont;
             set
             {
-
                 _textFont = value;
                 UseThemeFont = false;
                 Font = _textFont;
-               
                 Invalidate();
-
-
             }
         }
-        /// <summary>
-        /// Gets the list of options displayed by the control.
-        /// </summary>
+
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         [Category("Data")]
-        [Description("The list of options displayed by the control.")]
-        public BindingList<string> Options
+        [Description("The list of options displayed by the control, each with text and an optional image.")]
+        public List<SimpleItem> Options
         {
-            get { return _options; }
+            get => _options;
             set
             {
-                _options = value;
+                _options = value ?? new List<SimpleItem>();
                 Invalidate();
             }
         }
 
-        /// <summary>
-        /// Gets or sets the selected option.
-        /// </summary>
         [Category("Data")]
-        [Description("The currently selected option.")]
+        [Description("The currently selected option's value (Text property of SimpleItem).")]
         public string SelectedValue
         {
-            get { return _selectedValue; }
+            get => _selectedValue;
             set
             {
                 if (_selectedValue != value)
@@ -109,9 +78,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        /// <summary>
-        /// Gets the index of the selected option. Returns -1 if no option is selected.
-        /// </summary>
         [Browsable(false)]
         public int SelectedIndex
         {
@@ -119,19 +85,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (string.IsNullOrEmpty(_selectedValue))
                     return -1;
-                return _options.IndexOf(_selectedValue);
+                return _options.FindIndex(item => item.Text == _selectedValue);
             }
         }
-        /// <summary>
-        /// Gets or sets the layout orientation for the radio button options.
-        /// </summary>
+
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Determines if the options are laid out vertically (stacked) or horizontally (side-by-side).")]
         [DefaultValue(RadioButtonOrientation.Vertical)]
         public RadioButtonOrientation Orientation
         {
-            get { return _orientation; }
+            get => _orientation;
             set
             {
                 if (_orientation != value)
@@ -144,75 +108,61 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Constructor
-
         public BeepRadioButton()
         {
-            // Enable double buffering for smooth drawing.
-            this.DoubleBuffered = true;
-            this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
+            DoubleBuffered = true;
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
 
-            // Set default appearance.
-            this.BackColor = Color.White;
-            this.ForeColor = Color.Black;
-            this.Font = new Font("Segoe UI", 9);
+            BackColor = Color.White;
+            ForeColor = Color.Black;
+            Font = new Font("Segoe UI", 9);
 
-            // Repaint when the options collection changes.
-            _options.ListChanged += (s, e) => { Invalidate(); };
+            _imageDrawer.Theme = Theme; // Set initial theme for image drawing
         }
-
         #endregion
 
         #region Event Raisers
-
         protected virtual void OnSelectedValueChanged(RadioButtonSelectedEventArgs e)
         {
             SelectedValueChanged?.Invoke(this, e);
         }
-
         #endregion
 
         #region Painting
-
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            Graphics g = e.Graphics;
             UpdateDrawingRect();
-            Draw(g,DrawingRect);
+            Draw(e.Graphics, DrawingRect);
         }
+
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-            var g= graphics;
+            var g = graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Use DrawingRect as the drawing area.
-            Rectangle drawRect = this.DrawingRect;
-
-            // Set the clip to the DrawingRect.
+            Rectangle drawRect = rectangle;
             g.SetClip(drawRect);
-            // Translate the coordinate system so that (0,0) corresponds to drawRect.Location.
             g.TranslateTransform(drawRect.X, drawRect.Y);
 
+            _optionRectangles.Clear();
 
             if (_orientation == RadioButtonOrientation.Vertical)
             {
-                // Vertical layout: options are stacked.
-                int itemHeight = 30;           // Height per option.
-                int indicatorSize = 16;        // Size of the radio indicator (circle).
-                int paddingLeft = 10;          // Left padding inside DrawingRect.
-                int paddingTop = 5;            // Top padding inside DrawingRect.
-                int spacing = 5;               // Space between the radio indicator and the text.
+                int itemHeight = 30;
+                int indicatorSize = 16;
+                int paddingLeft = 10;
+                int paddingTop = 5;
+                int spacing = 5;
+                int imageSize = 20;
 
                 for (int i = 0; i < _options.Count; i++)
                 {
                     int top = paddingTop + i * itemHeight;
-                    // Create a rectangle for the entire option area (in local coordinates).
                     Rectangle localItemRect = new Rectangle(0, top, drawRect.Width, itemHeight);
-                    // Convert local coordinates to absolute coordinates for hit testing.
                     Rectangle absoluteItemRect = new Rectangle(drawRect.X, drawRect.Y + top, drawRect.Width, itemHeight);
                     _optionRectangles.Add(absoluteItemRect);
 
-                    // Highlight the option if the mouse is over it.
                     if (i == _hoverIndex)
                     {
                         using (SolidBrush brush = new SolidBrush(Color.LightGray))
@@ -221,14 +171,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                         }
                     }
 
-                    // Draw the radio indicator.
+                    // Draw radio indicator
                     Rectangle indicatorRect = new Rectangle(paddingLeft, top + (itemHeight - indicatorSize) / 2, indicatorSize, indicatorSize);
-                    using (Pen pen = new Pen(this.ForeColor, 2))
+                    using (Pen pen = new Pen(ForeColor, 2))
                     {
                         g.DrawEllipse(pen, indicatorRect);
                     }
-                    // If this option is selected, draw a filled inner circle.
-                    if (_options[i] == _selectedValue)
+                    if (_options[i].Text == _selectedValue)
                     {
                         int innerSize = indicatorSize / 2;
                         Rectangle innerRect = new Rectangle(
@@ -236,38 +185,44 @@ namespace TheTechIdea.Beep.Winform.Controls
                             indicatorRect.Y + (indicatorSize - innerSize) / 2,
                             innerSize,
                             innerSize);
-                        using (SolidBrush brush = new SolidBrush(this.ForeColor))
+                        using (SolidBrush brush = new SolidBrush(ForeColor))
                         {
                             g.FillEllipse(brush, innerRect);
                         }
                     }
 
-                    // Draw the option text.
-                    Rectangle textRect = new Rectangle(indicatorRect.Right + spacing, top, drawRect.Width - (indicatorRect.Right + spacing), itemHeight);
-                    TextRenderer.DrawText(g, _options[i], this.Font, textRect, this.ForeColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
+                    // Draw image if present
+                    int xOffset = indicatorRect.Right + spacing;
+                    if (!string.IsNullOrEmpty(_options[i].ImagePath))
+                    {
+                        _imageDrawer.ImagePath = _options[i].ImagePath;
+                        Rectangle imageRect = new Rectangle(xOffset, top + (itemHeight - imageSize) / 2, imageSize, imageSize);
+                        _imageDrawer.Draw(g, imageRect);
+                        xOffset += imageSize + spacing;
+                    }
+
+                    // Draw text
+                    Rectangle textRect = new Rectangle(xOffset, top, drawRect.Width - xOffset, itemHeight);
+                    TextRenderer.DrawText(g, _options[i].Text, Font, textRect, ForeColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
                 }
             }
-            else // Horizontal layout.
+            else // Horizontal
             {
-                int indicatorSize = 16;   // Size of the radio indicator (circle).
-                int padding = 5;          // Padding for each option.
-                int spacing = 5;          // Gap between options.
-                int x = padding;          // Starting x–coordinate within drawRect.
+                int indicatorSize = 16;
+                int padding = 5;
+                int spacing = 5;
+                int imageSize = 20;
+                int x = padding;
 
-                // For horizontal layout, each option's width is determined by its text size.
                 for (int i = 0; i < _options.Count; i++)
                 {
-                    string opt = _options[i];
-                    Size textSize = TextRenderer.MeasureText(opt, this.Font);
-                    // Calculate item width: indicator + spacing + text + extra padding on both sides.
-                    int itemWidth = indicatorSize + spacing + textSize.Width + 2 * padding;
-                    // Create the local rectangle for this option.
+                    string opt = _options[i].Text;
+                    Size textSize = TextRenderer.MeasureText(opt, Font);
+                    int itemWidth = indicatorSize + spacing + (string.IsNullOrEmpty(_options[i].ImagePath) ? 0 : imageSize + spacing) + textSize.Width + 2 * padding;
                     Rectangle localItemRect = new Rectangle(x, 0, itemWidth, drawRect.Height);
-                    // Convert local coordinates to absolute coordinates for hit testing.
-                    Rectangle absoluteItemRect = new Rectangle(drawRect.X + localItemRect.X, drawRect.Y + localItemRect.Y, localItemRect.Width, localItemRect.Height);
+                    Rectangle absoluteItemRect = new Rectangle(drawRect.X + x, drawRect.Y, itemWidth, drawRect.Height);
                     _optionRectangles.Add(absoluteItemRect);
 
-                    // Highlight the option if the mouse is over it.
                     if (i == _hoverIndex)
                     {
                         using (SolidBrush brush = new SolidBrush(Color.LightGray))
@@ -276,14 +231,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                         }
                     }
 
-                    // Draw the radio indicator relative to the current x.
+                    // Draw radio indicator
                     Rectangle indicatorRect = new Rectangle(x + padding, (drawRect.Height - indicatorSize) / 2, indicatorSize, indicatorSize);
-                    using (Pen pen = new Pen(this.ForeColor, 2))
+                    using (Pen pen = new Pen(ForeColor, 2))
                     {
                         g.DrawEllipse(pen, indicatorRect);
                     }
-                    // If this option is selected, draw a filled inner circle.
-                    if (_options[i] == _selectedValue)
+                    if (_options[i].Text == _selectedValue)
                     {
                         int innerSize = indicatorSize / 2;
                         Rectangle innerRect = new Rectangle(
@@ -291,35 +245,45 @@ namespace TheTechIdea.Beep.Winform.Controls
                             indicatorRect.Y + (indicatorSize - innerSize) / 2,
                             innerSize,
                             innerSize);
-                        using (SolidBrush brush = new SolidBrush(this.ForeColor))
+                        using (SolidBrush brush = new SolidBrush(ForeColor))
                         {
                             g.FillEllipse(brush, innerRect);
                         }
                     }
 
-                    // Draw the option text next to the indicator.
-                    Rectangle textRect = new Rectangle(x + padding + indicatorSize + spacing, 0, textSize.Width + 2 * padding, drawRect.Height);
-                    TextRenderer.DrawText(g, opt, this.Font, textRect, this.ForeColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
+                    // Draw image if present
+                    int xOffset = indicatorRect.Right + spacing;
+                    if (!string.IsNullOrEmpty(_options[i].ImagePath))
+                    {
+                        _imageDrawer.ImagePath = _options[i].ImagePath;
+                        Rectangle imageRect = new Rectangle(xOffset, (drawRect.Height - imageSize) / 2, imageSize, imageSize);
+                        _imageDrawer.Draw(g, imageRect);
+                        xOffset += imageSize + spacing;
+                    }
 
-                    // Update x for the next option.
+                    // Draw text
+                    Rectangle textRect = new Rectangle(xOffset, 0, textSize.Width + 2 * padding, drawRect.Height);
+                    TextRenderer.DrawText(g, opt, Font, textRect, ForeColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
+
                     x += itemWidth + spacing;
                 }
             }
 
-            // Reset the transformation and clipping.
             g.ResetTransform();
             g.ResetClip();
         }
-
+        public void Reset()
+        {
+            _options.Clear();
+            SelectedValue = null;
+        }
         #endregion
 
         #region Mouse Interaction
-
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
             int newHover = -1;
-            // _optionRectangles are stored in absolute coordinates.
             for (int i = 0; i < _optionRectangles.Count; i++)
             {
                 if (_optionRectangles[i].Contains(e.Location))
@@ -349,13 +313,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_optionRectangles[i].Contains(e.Location))
                 {
-                    SelectedValue = _options[i];
+                    SelectedValue = _options[i].Text;
                     break;
                 }
             }
         }
-
         #endregion
+
+        #region Theme and Value Management
         public override void ApplyTheme()
         {
             base.ApplyTheme();
@@ -365,33 +330,41 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
             }
-
             Font = _textFont;
+            _imageDrawer.Theme = Theme; // Update the single image drawer's theme
+            Invalidate();
         }
+
         public override void SetValue(object value)
         {
-           
-                SelectedValue = (string)value;
-           
+            if (value is SimpleItem item)
+            {
+                if (_options.Contains(item))
+                {
+                    SelectedValue = item.Text;
+                }
+            }
+            else if (value is string str)
+            {
+                // Fallback for string compatibility
+                if (_options.Exists(o => o.Text == str))
+                {
+                    SelectedValue = str;
+                }
+            }
         }
+
         public override object GetValue()
         {
-            return SelectedValue;
+            int index = SelectedIndex;
+            return index >= 0 ? _options[index] : null;
         }
+        #endregion
     }
-    /// <summary>
-    /// Provides data for the SelectedValueChanged event.
-    /// </summary>
+
     public class RadioButtonSelectedEventArgs : EventArgs
     {
-        /// <summary>
-        /// The index of the option that was selected.
-        /// </summary>
         public int SelectedIndex { get; }
-
-        /// <summary>
-        /// The value of the option that was selected.
-        /// </summary>
         public string SelectedValue { get; }
 
         public RadioButtonSelectedEventArgs(int index, string value)
@@ -400,5 +373,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             SelectedValue = value;
         }
     }
+
     public enum RadioButtonOrientation { Horizontal, Vertical }
 }

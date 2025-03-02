@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Desktop.Common
 
             // Create the main folder and mappings
             _beepDataPath = ContainerMisc.CreateMainFolder();
-            CreateBeepMapping(builder);
+     //       CreateBeepMapping(builder);
 
             return builder;
         }

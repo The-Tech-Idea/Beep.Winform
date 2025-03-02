@@ -461,7 +461,9 @@ namespace TheTechIdea.Beep.Desktop.Common
         Link,
         Switch,
         ListBox,
+        ListOfValue,
         NumericUpDown,
+        Radio,
         Custom
     }
     [Serializable]

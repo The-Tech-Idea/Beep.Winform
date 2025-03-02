@@ -7,9 +7,10 @@ using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
-using TheTechIdea.Beep.Winform.Controls.Grid;
-using TheTechIdea.Beep.Winform.Controls.Models;
+
 using TheTechIdea.Beep.Winform.Default.Views.Template;
+
+
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
@@ -57,8 +58,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
         //    base.Configure(settings);
            viewModel = new DriversConfigViewModel(beepservice.DMEEditor, beepservice.vis);
-           BeepGridColumnConfig classhandlers=beepSimpleGrid1.GetColumnByName("ClassHandler");
-            classhandlers.CellEditor = BeepGridColumnType.ComboBox;
+           BeepColumnConfig classhandlers=beepSimpleGrid1.GetColumnByName("ClassHandler");
+            classhandlers.CellEditor = BeepColumnType.ComboBox;
            
             foreach (var item in viewModel.DBAssemblyClasses)
             {
@@ -69,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 item1.Name = item.className;
                 classhandlers.Items.Add(item1);
             }
-            //BeepGridColumnConfig classhandlers = beepSimpleGrid1.GetColumnByName("ClassHandler");
+            //BeepColumnConfig classhandlers = beepSimpleGrid1.GetColumnByName("ClassHandler");
             //  this.beepDataGridView1.ColumnConfigs[]
 
             //    List<Icon> icons = new List<Icon>();

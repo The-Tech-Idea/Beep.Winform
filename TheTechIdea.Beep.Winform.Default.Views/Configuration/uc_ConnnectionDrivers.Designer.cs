@@ -1,4 +1,7 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
+﻿
+using TheTechIdea.Beep.Desktop.Common;
+
+namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
     partial class uc_ConnnectionDrivers
     {
@@ -68,7 +71,7 @@
             beepSimpleGrid1.Category = Utilities.DbFieldCategory.String;
             beepSimpleGrid1.ColumnHeaderFont = new Font("Arial", 8F);
             beepSimpleGrid1.ColumnHeaderHeight = 40;
-            beepSimpleGrid1.Columns = (List<Controls.Grid.BeepGridColumnConfig>)resources.GetObject("beepSimpleGrid1.Columns");
+            beepSimpleGrid1.Columns = (List<BeepColumnConfig>)resources.GetObject("beepSimpleGrid1.Columns");
             beepSimpleGrid1.ComponentName = "beepSimpleGrid1";
             beepSimpleGrid1.DataContext = null;
             beepSimpleGrid1.DataSource = driversConfigViewModelBindingSource;
@@ -130,7 +133,7 @@
             beepSimpleGrid1.InactiveBackColor = Color.Gray;
             beepSimpleGrid1.InactiveBorderColor = Color.Gray;
             beepSimpleGrid1.InactiveForeColor = Color.Black;
-            beepSimpleGrid1.Info = (Desktop.Common.SimpleItem)resources.GetObject("beepSimpleGrid1.Info");
+            beepSimpleGrid1.Info = null;
             beepSimpleGrid1.IsAcceptButton = false;
             beepSimpleGrid1.IsBorderAffectedByTheme = true;
             beepSimpleGrid1.IsCancelButton = false;

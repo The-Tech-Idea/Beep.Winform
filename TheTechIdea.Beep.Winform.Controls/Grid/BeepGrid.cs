@@ -18,6 +18,7 @@ using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 using TheTechIdea.Beep.Vis.Logic;
+using TheTechIdea.Beep.Desktop.Common;
 
 
 
@@ -143,13 +144,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// <summary>
         /// Stores configuration details for each column, such as filters and totals.
         /// </summary>
-        private List<BeepGridColumnConfig> columnConfigs = new List<BeepGridColumnConfig>();
+        private List<BeepColumnConfig> columnConfigs = new List<BeepColumnConfig>();
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
         [Editor(typeof(ColumnConfigCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public List<BeepGridColumnConfig> ColumnsConfigurations
+        public List<BeepColumnConfig> ColumnsConfigurations
         {
             get => columnConfigs;
             set
@@ -439,7 +440,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         {
             CreateComponent();
             Margin = new Padding(3);
-            columnConfigs = new List<BeepGridColumnConfig>();
+            columnConfigs = new List<BeepColumnConfig>();
             BindingNavigator = new BeepBindingNavigator();
             this.Resize += BeepGrid_Resize;
             SetUpGridView();
@@ -868,7 +869,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             decimal oldValue;
             if (dataGridView1.Columns[e.ColumnIndex] is BeepDataGridViewNumericColumn)
             {
-                BeepGridColumnConfig cfg = columnConfigs[e.ColumnIndex];
+                BeepColumnConfig cfg = columnConfigs[e.ColumnIndex];
                 string cellValue = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString();
 
                 if (!string.IsNullOrEmpty(cellValue))
@@ -896,7 +897,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
             if (columnConfigs != null && columnConfigs.Count > 0)
             {
-                BeepGridColumnConfig cfg = columnConfigs[e.ColumnIndex];
+                BeepColumnConfig cfg = columnConfigs[e.ColumnIndex];
                 if (dataGridView1.Columns[e.ColumnIndex] is BeepDataGridViewNumericColumn)
                 {
                     decimal newValue;
@@ -923,7 +924,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         {
             TextBox txt = (TextBox)sender;
             int idx = (int)txt.Tag;
-            BeepGridColumnConfig cfg = columnConfigs[idx];
+            BeepColumnConfig cfg = columnConfigs[idx];
             decimal total = dataGridView1.Rows
                 .Cast<DataGridViewRow>()
                 .Sum(row => Convert.ToDecimal(row.Cells[cfg.Index].Value));
@@ -1265,7 +1266,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 TotalBox = TotalBox,
                 GuidID = column.Tag.ToString()
             };
-            BeepGridColumnConfig cfg = new BeepGridColumnConfig()
+            BeepColumnConfig cfg = new BeepColumnConfig()
             {
                 Index = index,
                 ColumnName = name,
@@ -1861,7 +1862,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         //    // Iterate over each column in the DataGridView
         //    foreach (DataGridViewColumn column in dataGridView1.Columns)
         //    {
-        //        var config = new BeepGridColumnConfig
+        //        var config = new BeepColumnConfig
         //        {
         //            Name = column.Name,
         //            ColumnCaption = column.HeaderText,
@@ -1949,7 +1950,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             if (File.Exists(filePath))
             {
                 var json = File.ReadAllText(filePath);
-                columnConfigs = JsonConvert.DeserializeObject<List<BeepGridColumnConfig>>(json);
+                columnConfigs = JsonConvert.DeserializeObject<List<BeepColumnConfig>>(json);
                 //ApplyColumnConfigurations(); // Rebuild the grid with loaded columns
             }
         }

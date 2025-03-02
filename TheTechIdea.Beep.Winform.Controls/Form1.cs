@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             beepTreeControl1.CreateRootTree();
 
-            beepDataGridView1.DataSource = beepTreeControl1.Nodes.ToList();
+            //beepDataGridView1.DataSource = beepTreeControl1.Nodes.ToList();
          //  DriversConfigViewModel viewModel = new DriversConfigViewModel(beepService.DMEEditor, beepService.vis);
 
             //    beepGridHeader1.SetData(viewModel.DBWork.Units,viewModel.DBWork.EntityStructure);

@@ -6,7 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.ComponentModel.TypeConverter;
 
-namespace TheTechIdea.Beep.Winform.Controls.Converters
+namespace TheTechIdea.Beep.Desktop.Common.Converters
+
 {
     public class EnumTypeConverter : TypeConverter
     {

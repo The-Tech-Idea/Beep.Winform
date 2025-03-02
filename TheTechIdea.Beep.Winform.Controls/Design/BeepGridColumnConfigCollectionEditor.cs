@@ -1,12 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
-using System.Drawing.Design;
-using System.Windows.Forms;
-using System.Windows.Forms.Design;
+using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Utilities;
-using TheTechIdea.Beep.Winform.Controls.Grid;
-using TheTechIdea.Beep.Winform.Controls.Models;
+
 
 namespace TheTechIdea.Beep.Winform.Controls.Design
 {
@@ -17,13 +14,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
         // Define the type of items in the collection
         protected override Type CreateCollectionItemType()
         {
-            return typeof(BeepGridColumnConfig);
+            return typeof(BeepColumnConfig);
         }
 
         // Customize the creation of new instances
         protected override object CreateInstance(Type itemType)
         {
-            var instance = (BeepGridColumnConfig)base.CreateInstance(itemType);
+            var instance = (BeepColumnConfig)base.CreateInstance(itemType);
             // Use Context to get the current collection size
             if (Context?.Instance != null && Context.Instance is BeepSimpleGrid grid)
             {
@@ -41,14 +38,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
             instance.Width = 100;
             instance.Visible = true;
             instance.ColumnType = DbFieldCategory.String;
-            instance.CellEditor = BeepGridColumnType.Text;
+            instance.CellEditor = BeepColumnType.Text;
             return instance;
         }
 
         // Customize how items are displayed in the collection editor
         protected override string GetDisplayText(object value)
         {
-            if (value is BeepGridColumnConfig config)
+            if (value is BeepColumnConfig config)
             {
                 string display = $"{config.Index}: {config.ColumnCaption}";
                 if (!string.IsNullOrEmpty(config.ColumnName) && config.ColumnName != config.ColumnCaption)
@@ -73,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design
         protected override object SetItems(object editValue, object[] value)
         {
             var result = base.SetItems(editValue, value);
-            if (editValue is List<BeepGridColumnConfig> columns)
+            if (editValue is List<BeepColumnConfig> columns)
             {
                 // Reassign ColumnIndex based on order in the collection
                 for (int i = 0; i < columns.Count; i++)

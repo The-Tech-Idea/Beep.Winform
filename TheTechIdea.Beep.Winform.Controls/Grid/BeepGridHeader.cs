@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.DataBase;
+using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Vis.Logic;
@@ -50,12 +51,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// Stores configuration details for each column, such as filters and totals.
         /// </summary>
         /// 
-        private List<BeepGridColumnConfig> _columnconfig;
+        private List<BeepColumnConfig> _columnconfig;
         [Browsable(true)]
         [Category("Data")]
         [Description("Column Configurations for the grid.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public List<BeepGridColumnConfig> ColumnConfigs
+        public List<BeepColumnConfig> ColumnConfigs
         {
             get { return _columnconfig; }
             set { _columnconfig = value; }
@@ -672,7 +673,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             _headerLabels.Clear();
             _filterBoxes.Clear();
             _columnSortOrders.Clear();
-            if (ColumnConfigs == null) ColumnConfigs = new List<BeepGridColumnConfig>();
+            if (ColumnConfigs == null) ColumnConfigs = new List<BeepColumnConfig>();
             ColumnConfigs.Clear();
             sortIcons.Clear();
 
@@ -1103,7 +1104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         {
            // Console.WriteLine("Column Width Changed");
             // ColumnConfig with new width
-            BeepGridColumnConfig cfg = ColumnConfigs[ ColumnConfigs.FindIndex(p => p.ColumnName==e.Column.Name)];
+            BeepColumnConfig cfg = ColumnConfigs[ ColumnConfigs.FindIndex(p => p.ColumnName==e.Column.Name)];
             if (cfg == null) return;
            // Console.WriteLine($"Column Width Changed: From {cfg.Width} to {e.Column.Width} ");
             cfg.Width = e.Column.Width;
@@ -1180,7 +1181,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             decimal oldValue;
             if (TargetDataGridView.Columns[e.ColumnIndex] is BeepDataGridViewNumericColumn)
             {
-                BeepGridColumnConfig cfg = ColumnConfigs[e.ColumnIndex];
+                BeepColumnConfig cfg = ColumnConfigs[e.ColumnIndex];
                 string cellValue = TargetDataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString();
 
                 if (!string.IsNullOrEmpty(cellValue))
@@ -1208,7 +1209,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
             if (ColumnConfigs != null && ColumnConfigs.Count > 0)
             {
-                BeepGridColumnConfig cfg = ColumnConfigs[e.ColumnIndex];
+                BeepColumnConfig cfg = ColumnConfigs[e.ColumnIndex];
                 if (TargetDataGridView.Columns[e.ColumnIndex] is BeepDataGridViewNumericColumn)
                 {
                     decimal newValue;
@@ -1577,7 +1578,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 return;
             }
-            BeepGridColumnConfig cfg = new BeepGridColumnConfig()
+            BeepColumnConfig cfg = new BeepColumnConfig()
             {
                 Index = index,
                 ColumnName = name,

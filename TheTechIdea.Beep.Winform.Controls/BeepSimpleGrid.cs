@@ -203,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Data")]
         // [Editor(typeof(BeepGridColumnConfigCollectionEditor), typeof(UITypeEditor))] // Uncomment if you have a custom editor
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public List<BeepGridColumnConfig> Columns
+        public List<BeepColumnConfig> Columns
         {
             get
             {
@@ -458,7 +458,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepGridRow BottomRow { get; set; }
         public BeepBindingNavigator DataNavigator { get; set; }
 
-        private List<BeepGridColumnConfig> _columns = new List<BeepGridColumnConfig>();
+        private List<BeepColumnConfig> _columns = new List<BeepColumnConfig>();
         #endregion "Configuration Properties"
         #endregion "Properties"
         #region Constructor
@@ -815,7 +815,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else
                 {
                     // Add new column if it doesn’t exist, with defaults
-                    var newColumn = new BeepGridColumnConfig
+                    var newColumn = new BeepColumnConfig
                     {
                         ColumnName = field.fieldname,
                         ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(field.fieldname),
@@ -854,8 +854,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 foreach (var field in Entity.Fields)
                 {
-                    // Create a new BeepGridColumnConfig using PropertyTypeName as a string
-                    var colConfig = new BeepGridColumnConfig
+                    // Create a new BeepColumnConfig using PropertyTypeName as a string
+                    var colConfig = new BeepColumnConfig
                     {
                         ColumnName = field.fieldname,  // The name in the data source
                         ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(field.fieldname),  // The user-facing caption
@@ -949,7 +949,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     // Use AssemblyQualifiedName for PropertyTypeName
                     string propertyTypeName = prop.PropertyType.AssemblyQualifiedName;
-                    var columnConfig = new BeepGridColumnConfig
+                    var columnConfig = new BeepColumnConfig
                     {
                         ColumnCaption = prop.Name,
                         ColumnName = prop.Name,
@@ -1390,31 +1390,31 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             switch (column.CellEditor)
             {
-                case BeepGridColumnType.Text:
+                case BeepColumnType.Text:
                     return new BeepTextBox { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.CheckBoxBool:
+                case BeepColumnType.CheckBoxBool:
                     return new BeepCheckBoxBool { Theme = Theme,HideText=true,Text=string.Empty, IsChild = true };
-                case BeepGridColumnType.CheckBoxString:
+                case BeepColumnType.CheckBoxString:
                     return new BeepCheckBoxString { Theme = Theme, HideText = true, Text = string.Empty, IsChild = true };
-                case BeepGridColumnType.CheckBoxChar:
+                case BeepColumnType.CheckBoxChar:
                     return new BeepCheckBoxChar { Theme = Theme, HideText = true, Text = string.Empty, IsChild = true };
-                case BeepGridColumnType.ComboBox:
+                case BeepColumnType.ComboBox:
                     return new BeepComboBox { Theme = Theme, IsChild = true, ListItems = new BindingList<SimpleItem>(column.Items) };
-                case BeepGridColumnType.DateTime:
+                case BeepColumnType.DateTime:
                     return new BeepDatePicker { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.Image:
+                case BeepColumnType.Image:
                     return new BeepImage { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.Button:
+                case BeepColumnType.Button:
                     return new BeepButton { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.ProgressBar:
+                case BeepColumnType.ProgressBar:
                     return new BeepProgressBar { Theme = Theme, IsChild = true };
-                case BeepGridColumnType.NumericUpDown:
+                case BeepColumnType.NumericUpDown:
                     return new BeepNumericUpDown { Theme = Theme, IsChild = true };
                 default:
                     return new BeepTextBox { Theme = Theme, IsChild = true };
             }
         }
-        private void UpdateCellControl(IBeepUIComponent control, BeepGridColumnConfig column, object value)
+        private void UpdateCellControl(IBeepUIComponent control, BeepColumnConfig column, object value)
         {
             if (control == null) return;
             string stringValue = value?.ToString() ?? ""; // Ensure it's always a string
@@ -2392,7 +2392,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // 🔹 Retrieve PropertyType from the corresponding column
-            BeepGridColumnConfig columnConfig = Columns.FirstOrDefault(c => c.Index == _editingCell.ColumnIndex);
+            BeepColumnConfig columnConfig = Columns.FirstOrDefault(c => c.Index == _editingCell.ColumnIndex);
             if (columnConfig == null)
             {
             //    Debug.WriteLine($"⚠️ Column config not found. Skipping update.");
@@ -2505,7 +2505,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
         #region Helper Methods
-        public BeepGridColumnConfig GetColumnByName(string columnName)
+        public BeepColumnConfig GetColumnByName(string columnName)
         {
             // Find index first
             int index = Columns.FindIndex(c => c.ColumnName.Equals(columnName,StringComparison.InvariantCultureIgnoreCase));
@@ -2513,22 +2513,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             return Columns[index];
             
         }
-        public Dictionary<string,BeepGridColumnConfig> GetDictionaryColumns()
+        public Dictionary<string,BeepColumnConfig> GetDictionaryColumns()
         {
-            Dictionary<string, BeepGridColumnConfig> dict = new Dictionary<string, BeepGridColumnConfig>();
+            Dictionary<string, BeepColumnConfig> dict = new Dictionary<string, BeepColumnConfig>();
             foreach (var col in Columns)
             {
                 dict.Add(col.ColumnName, col);
             }
             return dict;
         }
-        public BeepGridColumnConfig GetColumnByIndex(int index)
+        public BeepColumnConfig GetColumnByIndex(int index)
         {  // Find index first
             int retindex = Columns.FindIndex(c => c.Index == index);
             if (retindex == -1) return null;
             return Columns[retindex];
         }
-        public BeepGridColumnConfig GetColumnByCaption(string caption)
+        public BeepColumnConfig GetColumnByCaption(string caption)
         {
             int index = Columns.FindIndex(c => c.ColumnName.Equals(caption, StringComparison.InvariantCultureIgnoreCase));
             if (index == -1) return null;
@@ -2549,18 +2549,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             return DbFieldCategory.String;
         }
 
-        private BeepGridColumnType MapPropertyTypeToCellEditor(Type type)
+        private BeepColumnType MapPropertyTypeToCellEditor(Type type)
         {
-            if (type == typeof(string)) return BeepGridColumnType.Text;
-            if (type == typeof(int) || type == typeof(long)) return BeepGridColumnType.NumericUpDown; // Integer-based controls
-            if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return BeepGridColumnType.Text; // Use a formatted text field for decimal numbers
-            if (type == typeof(DateTime)) return BeepGridColumnType.DateTime;
-            if (type == typeof(bool)) return BeepGridColumnType.CheckBoxBool;
-            if (type == typeof(Char)) return BeepGridColumnType.CheckBoxChar;
-            if (type == typeof(Guid)) return BeepGridColumnType.Text; // Could be a readonly label or a dropdown if referencing something
+            if (type == typeof(string)) return BeepColumnType.Text;
+            if (type == typeof(int) || type == typeof(long)) return BeepColumnType.NumericUpDown; // Integer-based controls
+            if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return BeepColumnType.Text; // Use a formatted text field for decimal numbers
+            if (type == typeof(DateTime)) return BeepColumnType.DateTime;
+            if (type == typeof(bool)) return BeepColumnType.CheckBoxBool;
+            if (type == typeof(Char)) return BeepColumnType.CheckBoxChar;
+            if (type == typeof(Guid)) return BeepColumnType.Text; // Could be a readonly label or a dropdown if referencing something
 
             // Fallback to text if the type is unknown
-            return BeepGridColumnType.Text;
+            return BeepColumnType.Text;
         }
         private DbFieldCategory MapPropertyTypeToDbFieldCategory(string propertyTypeName)
         {
@@ -2592,13 +2592,13 @@ namespace TheTechIdea.Beep.Winform.Controls
           //  Debug.WriteLine($"MapPropertyTypeToDbFieldCategory: Unknown type '{type.FullName}', defaulting to String");
             return DbFieldCategory.String;
         }
-        private BeepGridColumnType MapPropertyTypeToCellEditor(string propertyTypeName)
+        private BeepColumnType MapPropertyTypeToCellEditor(string propertyTypeName)
         {
             // Default to Text if typeName is null or empty
             if (string.IsNullOrWhiteSpace(propertyTypeName))
             {
             //    Debug.WriteLine("MapPropertyTypeToCellEditor: propertyTypeName is null or empty, defaulting to Text");
-                return BeepGridColumnType.Text;
+                return BeepColumnType.Text;
             }
 
             // Attempt to resolve the Type from the AssemblyQualifiedName
@@ -2606,21 +2606,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (type == null)
             {
               //  Debug.WriteLine($"MapPropertyTypeToCellEditor: Could not resolve type '{propertyTypeName}', defaulting to Text");
-                return BeepGridColumnType.Text;
+                return BeepColumnType.Text;
             }
 
-            // Map resolved Type to BeepGridColumnType
-            if (type == typeof(string)) return BeepGridColumnType.Text;
-            if (type == typeof(int) || type == typeof(long)) return BeepGridColumnType.NumericUpDown;
-            if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return BeepGridColumnType.Text; // Use formatted text for decimals
-            if (type == typeof(DateTime)) return BeepGridColumnType.DateTime;
-            if (type == typeof(bool)) return BeepGridColumnType.CheckBoxBool;
-            if (type == typeof(Char)) return BeepGridColumnType.CheckBoxChar;
-            if (type == typeof(Guid)) return BeepGridColumnType.Text;
+            // Map resolved Type to BeepColumnType
+            if (type == typeof(string)) return BeepColumnType.Text;
+            if (type == typeof(int) || type == typeof(long)) return BeepColumnType.NumericUpDown;
+            if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return BeepColumnType.Text; // Use formatted text for decimals
+            if (type == typeof(DateTime)) return BeepColumnType.DateTime;
+            if (type == typeof(bool)) return BeepColumnType.CheckBoxBool;
+            if (type == typeof(Char)) return BeepColumnType.CheckBoxChar;
+            if (type == typeof(Guid)) return BeepColumnType.Text;
 
             // Fallback to Text for unknown types
           //  Debug.WriteLine($"MapPropertyTypeToCellEditor: Unknown type '{type.FullName}', defaulting to Text");
-            return BeepGridColumnType.Text;
+            return BeepColumnType.Text;
         }
         #endregion
         protected override void Dispose(bool disposing)

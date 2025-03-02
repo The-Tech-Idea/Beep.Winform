@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
                 item1.Name = item.className;
                 items.Add(item1);
             }
-            beepComboBox1.ListItems= items;
+           // beepComboBox1.ListItems= items;
         }
 
        

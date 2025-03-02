@@ -1,20 +1,16 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing.Design;
-using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Utilities;
-using TheTechIdea.Beep.Winform.Controls.Converters;
-using TheTechIdea.Beep.Winform.Controls.Design;
-using TheTechIdea.Beep.Winform.Controls.Design.Forms;
-using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Desktop.Common.Converters;
 
-namespace TheTechIdea.Beep.Winform.Controls.Grid
+
+namespace TheTechIdea.Beep.Desktop.Common
 {
     [Serializable]
-    public class BeepGridColumnConfig : INotifyPropertyChanged
+    public class BeepColumnConfig : INotifyPropertyChanged
     {
-        public BeepGridColumnConfig()
+        public BeepColumnConfig()
         {
             GuidID = Guid.NewGuid().ToString();
             _items = new List<SimpleItem>(); // Initialize to avoid null
@@ -86,15 +82,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         }
         private bool ShouldSerializeColumnType() => _columnType != DbFieldCategory.String;
 
-        private BeepGridColumnType _cellEditor = BeepGridColumnType.Text;
+        private BeepColumnType _cellEditor = BeepColumnType.Text;
         [Category("Appearance")]
         [Description("The editor type for the column cells.")]
-        public BeepGridColumnType CellEditor
+        public BeepColumnType CellEditor
         {
             get => _cellEditor;
             set { _cellEditor = value; OnPropertyChanged(nameof(CellEditor)); }
         }
-        private bool ShouldSerializeCellEditor() => _cellEditor != BeepGridColumnType.Text;
+        private bool ShouldSerializeCellEditor() => _cellEditor != BeepColumnType.Text;
 
         private string _format;
         [Category("Appearance")]
@@ -256,6 +252,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 FillitemsFromEnum();
                 OnPropertyChanged(nameof(EnumSourceType));
             }
+        }
+        private DateTime _date;
+        [Category("Data")]
+        [Description("The Date for the column.")]
+        public DateTime Date
+        {
+            get => _date;
+            set { _date = value; OnPropertyChanged(nameof(Date)); }
         }
         //[Category("Data")]
         //[Description("Click to select an enum type.")]
@@ -441,9 +445,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             set => _backColor = value;
         }
     }
-
+    public enum BeepColumnType
+    {
+        Text,
+        CheckBoxBool,
+        CheckBoxChar,
+        CheckBoxString,
+        ComboBox,
+        DateTime,
+        Image,
+        ProgressBar,
+        Rating,
+        StarRating,
+        Button,
+        Link,
+        Switch,
+        ListBox,
+        NumericUpDown,
+        Custom
+    }
     [Serializable]
-    public class BeepGridColumnConfigCollection : BindingList<BeepGridColumnConfig>
+    public class BeepGridColumnConfigCollection : BindingList<BeepColumnConfig>
     {
         public BeepGridColumnConfigCollection() : base() { }
     }

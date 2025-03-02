@@ -1,6 +1,9 @@
-﻿
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using System.Drawing;
 using System.Globalization;
+using System.Text.RegularExpressions;
+
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -8,21 +11,15 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [DisplayName("Beep Date Picker")]
-    [Description("A control that allows users to select a date from a calendar.")]
+    [Description("A control that allows users to enter a date with format masking, supporting multiple cultures.")]
     public class BeepDatePicker : BeepControl
     {
-        #region "Properties"
-        private bool _isToggling = false;
+        #region Properties
         private TextBox _textBox;
-        private Button _calendarButton;
-        private MonthCalendar _monthCalendar;
-        private Form _popupForm;
         private string _customDateFormat;
-        private int buttonWidth = 25;
-        private bool isPopupOpening = false; // Flag to track the popup state
-        private System.Windows.Forms.Timer popupDelayTimer;       // Timer to add a small delay
-        int padding;
-        int spacing;
+        private DateFormatStyle _dateFormatStyle = DateFormatStyle.ShortDate;
+        private CultureInfo _culture = CultureInfo.CurrentCulture;
+        private int _padding = 2;
 
         [Browsable(true)]
         [Category("Date Settings")]
@@ -32,275 +29,378 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _textBox.Text;
             set
             {
+                
                 if (string.IsNullOrWhiteSpace(value))
                 {
                     _textBox.Text = string.Empty;
                 }
-                else if (DateTime.TryParse(value, out DateTime result))
+                else if (DateTime.TryParse(value, _culture, DateTimeStyles.None, out DateTime result))
                 {
-                    _textBox.Text = result.ToString(_customDateFormat);
-                    _monthCalendar.SetDate(result);
+                    _textBox.Text = FormatDate(result);
                 }
                 else
                 {
-                    throw new FormatException("Invalid date format.");
+                    _textBox.Text = string.Empty;
                 }
+                ApplyMask();
+                Invalidate();
             }
         }
 
         [Browsable(true)]
         [Category("Date Settings")]
-        [Description("Sets the date format.")]
+        [Description("Sets the predefined date format style.")]
+        [DefaultValue(DateFormatStyle.ShortDate)]
+        public DateFormatStyle DateFormatStyle
+        {
+            get => _dateFormatStyle;
+            set
+            {
+                _dateFormatStyle = value;
+                ApplyMask();
+                UpdateTextBoxFromValue();
+                _textBox.PlaceholderText = GetPlaceholderText();
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Date Settings")]
+        [Description("Sets a custom date format string, used when DateFormatStyle is Custom.")]
+        [DefaultValue("d")]
         public string DateFormat
         {
             get => _customDateFormat;
             set
             {
-                _customDateFormat = value;
-                if (_monthCalendar != null)
+                _customDateFormat = string.IsNullOrEmpty(value) ? _culture.DateTimeFormat.ShortDatePattern : value;
+                if (_dateFormatStyle == DateFormatStyle.Custom)
                 {
-                    //_monthCalendar.CustomFormat = value;
-                    UpdateTextBoxFromCalendar();
+                    ApplyMask();
+                    UpdateTextBoxFromValue();
+                    _textBox.PlaceholderText = GetPlaceholderText();
+                }
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Date Settings")]
+        [Description("Sets the culture for date formatting and parsing. Defaults to current culture.")]
+        public CultureInfo Culture
+        {
+            get => _culture;
+            set
+            {
+                _culture = value ?? CultureInfo.CurrentCulture;
+                ApplyMask();
+                UpdateTextBoxFromValue();
+                _textBox.PlaceholderText = GetPlaceholderText();
+                Invalidate();
+            }
+        }
+        #endregion
+
+        #region Constructor
+        public BeepDatePicker()
+        {
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
+            DoubleBuffered = true;
+
+            Size = new Size(120, 25);
+            _customDateFormat = _culture.DateTimeFormat.ShortDatePattern;
+            BoundProperty = "SelectedDate";
+
+            InitializeComponents();
+            ApplyTheme();
+        }
+        #endregion
+
+        #region Initialization
+        private void InitializeComponents()
+        {
+            _textBox = new TextBox
+            {
+                BorderStyle = BorderStyle.None,
+                Text = DateTime.Now.ToString(GetCurrentFormat()),
+                PlaceholderText = GetPlaceholderText()
+            };
+            _textBox.TextChanged += TextBox_TextChanged;
+            _textBox.KeyPress += TextBox_KeyPress;
+            _textBox.Validating += TextBox_Validating;
+            
+            Controls.Add(_textBox);
+
+            ApplyMask();
+            AdjustLayout();
+        }
+        #endregion
+
+        #region Event Handlers
+        private void TextBox_TextChanged(object sender, EventArgs e)
+        {
+            Invalidate();
+        }
+
+        private void TextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            string mask = GetCurrentMask();
+            string currentText = _textBox.Text;
+            int cursorPos = _textBox.SelectionStart;
+
+            if (!char.IsControl(e.KeyChar) && cursorPos < mask.Length)
+            {
+                char maskChar = mask[cursorPos];
+                if (!IsValidInput(e.KeyChar, maskChar))
+                {
+                    e.Handled = true;
                 }
             }
         }
 
-        [Browsable(true)]
-        [Category("Date Settings")]
-        [Description("Sets the minimum allowable date.")]
-        public DateTime MinDate
-        {
-            get => _monthCalendar?.MinDate ?? DateTimePicker.MinimumDateTime;
-            set
-            {
-                if (_monthCalendar != null)
-                    _monthCalendar.MinDate = value;
-            }
-        }
-
-        [Browsable(true)]
-        [Category("Date Settings")]
-        [Description("Sets the maximum allowable date.")]
-        public DateTime MaxDate
-        {
-            get => _monthCalendar?.MaxDate ?? DateTimePicker.MaximumDateTime;
-            set
-            {
-                if (_monthCalendar != null)
-                    _monthCalendar.MaxDate = value;
-            }
-        }
-        #endregion "Properties"
-
-        public BeepDatePicker()
-        {
-            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
-            {
-                Width = 80;
-                Height = 30;
-            }
-            _customDateFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern; // Default to system format
-            InitializeComponents();
-            // Initialize the delay timer
-            popupDelayTimer = new System.Windows.Forms.Timer
-            {
-                Interval = 200 // Adjust the delay as needed (in milliseconds)
-            };
-            popupDelayTimer.Tick += (s, e) =>
-            {
-                isPopupOpening = false; // Reset the flag after the delay
-                popupDelayTimer.Stop();
-            };
-            BoundProperty="SelectedDate";
-
-
-        }
-        protected override void InitLayout()
-        {
-            base.InitLayout();
-        
-        
-        }
-        void GetHeight()
-        {
-            padding = BorderThickness + 2;
-            spacing = 5;
-           // buttonHeight = _textBox.PreferredHeight;
-            Height = _textBox.PreferredHeight + (padding * 2);
-        }
-        private void InitializeComponents()
-        {
-            // Initialize TextBox for manual input
-            _textBox = new TextBox
-            {
-                BorderStyle = BorderStyle.None,
-               // Dock = DockStyle.Fill,
-                Text = DateTime.Now.ToString(_customDateFormat)
-            };
-            _textBox.TextChanged += TextBox_TextChanged;
-            _textBox.Validating += TextBox_Validating;
-
-            // Initialize Calendar Button
-            _calendarButton = new Button
-            {
-             //   Dock = DockStyle.Right,
-                Text = "📅", // Unicode calendar icon
-                Width = Height, // Square button
-                FlatStyle = FlatStyle.Flat
-            };
-            _calendarButton.Click += CalendarButton_Click;
-
-            // Initialize MonthCalendar within a popup form
-            _popupForm = new Form
-            {
-                FormBorderStyle = FormBorderStyle.None,
-                ShowInTaskbar = false,
-                StartPosition = FormStartPosition.Manual,
-                BackColor = Color.White,
-                Size = new Size(200, 160)
-            };
-            // Initialize MonthCalendar for selecting dates
-            _monthCalendar = new MonthCalendar
-            {
-                Visible = true,
-                MaxSelectionCount = 1
-            };
-            _monthCalendar.DateSelected += MonthCalendar_DateSelected;
-            // _monthCalendar.LostFocus += (s, e) => _monthCalendar.Visible = false;
-            _popupForm.Width = _monthCalendar.Width+50;
-            _popupForm.Height = _monthCalendar.Height + 6;
-            _popupForm.Controls.Add(_monthCalendar);
-            _monthCalendar.Dock = DockStyle.Fill;
-            _popupForm.Deactivate += (s, e) => _popupForm.Hide();
-          //  _popupForm.Leave += (s, e) => _popupForm.Hide();
-            // Add TextBox and Button
-            Controls.Add(_textBox);
-            Controls.Add(_calendarButton);
-            AdjustLayout();
-        }
-        private void TextBox_TextChanged(object sender, EventArgs e)
-        {
-            if (!string.IsNullOrWhiteSpace(_textBox.Text) && DateTime.TryParse(_textBox.Text, out DateTime result))
-            {
-                _monthCalendar.SetDate(result);
-            }
-        }
-        private void UpdateTextBoxFromCalendar()
-        {
-            _textBox.Text = _monthCalendar.SelectionStart.ToString(_customDateFormat);
-        }
         private void TextBox_Validating(object sender, CancelEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(_textBox.Text) && !DateTime.TryParse(_textBox.Text, out _))
+            if (!string.IsNullOrWhiteSpace(_textBox.Text) && !DateTime.TryParse(_textBox.Text, _culture, DateTimeStyles.None, out _))
             {
-                e.Cancel = true; // Prevent focus change
-                MessageBox.Show("Invalid date format.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                UpdateTextBoxFromCalendar(); // Reset to last valid value
+                e.Cancel = true;
+                MessageBox.Show($"Invalid date format. Expected: {GetCurrentFormat()}", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                _textBox.Text = DateTime.Today.ToString(GetCurrentFormat());
             }
         }
-        private void MonthCalendar_DateSelected(object sender, DateRangeEventArgs e)
-        {
-            // Update TextBox when a date is selected
-            _textBox.Text = _monthCalendar.SelectionStart.ToString(_customDateFormat);
-            _popupForm.Hide();
-        }
-        private void CalendarButton_Click(object sender, EventArgs e)
-        {
-            if (_isToggling) return;
+        #endregion
 
-            _isToggling = true;
-
-            if (_popupForm.Visible)
-            {
-                _popupForm.Hide();
-            }
-            else
-            {
-                PositionPopupForm();
-                _popupForm.Show();
-                _popupForm.BringToFront();
-            }
-
-            Task.Delay(200).ContinueWith(_ => _isToggling = false);
-        }
-        private void PositionPopupForm()
-        {
-            var screenLocation = PointToScreen(new Point(0, Height));
-            _popupForm.Location = new Point(screenLocation.X, screenLocation.Y);
-        }
-        public override void ApplyTheme()
-        {
-            base.ApplyTheme();
-            if (_textBox != null && _calendarButton != null)
-            {
-                _textBox.BackColor = _currentTheme.TextBoxBackColor;
-                _textBox.ForeColor = _currentTheme.TextBoxForeColor;
-
-                _calendarButton.BackColor = _currentTheme.TextBoxBackColor;
-                _calendarButton.ForeColor = _currentTheme.TextBoxForeColor;
-
-                _monthCalendar.TitleBackColor = _currentTheme.BackgroundColor;
-                _monthCalendar.TitleForeColor = _currentTheme.PrimaryTextColor;
-                _monthCalendar.TrailingForeColor = _currentTheme.TextBoxForeColor;
-                _monthCalendar.BackColor = _currentTheme.TextBoxBackColor;
-                _monthCalendar.ForeColor = _currentTheme.PrimaryTextColor;
-            }
-           
-        }
+        #region Layout and Rendering
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-   
-            if (_textBox != null && _calendarButton!=null) {
-
-                // Ensure the height is fixed
-              //  Height = _textBox.PreferredHeight;
-                AdjustLayout();
-            }
-           
+            AdjustLayout();
+            Invalidate();
         }
+
         private void AdjustLayout()
         {
-            if (DrawingRect == Rectangle.Empty)
-                UpdateDrawingRect();
-
+            UpdateDrawingRect();
             GetHeight();
-            // int buttonWidth = Height - padding * 2; // Square button
-            int textBoxWidth = DrawingRect.Width - buttonWidth - padding * 2; // TextBox width
-            int centerY = DrawingRect.Top + (DrawingRect.Height - _textBox.Height) / 2;
 
-            // Set TextBox bounds
-            _textBox.Location = new Point(DrawingRect.Left + padding, centerY);
-            _textBox.Width = textBoxWidth;
-            _textBox.Height = _textBox.PreferredHeight;
-
-            // Set Calendar Button bounds
-            _calendarButton.Location = new Point(_textBox.Right + padding, centerY);
-            _calendarButton.Width = buttonWidth;
-            _calendarButton.Height = _textBox.PreferredHeight;
-
-            // Hide DatePicker off the screen
-           // _datePicker.Location = new Point(-Width, -Height);
+            _textBox.Location = new Point(DrawingRect.Left + _padding, DrawingRect.Top + _padding);
+            _textBox.Size = new Size(DrawingRect.Width - (_padding * 2), DrawingRect.Height - (_padding * 2));
         }
+
+        private void GetHeight()
+        {
+            _padding = BorderThickness + 2;
+            Height = _textBox.PreferredHeight + (_padding * 2);
+        }
+
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-            if (!string.IsNullOrEmpty(Text))
+            try
             {
-                Color textColor = ForeColor;
-                TextRenderer.DrawText(graphics, Text, Font, rectangle, textColor);
-            }
+                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
+                Region originalClip = graphics.Clip;
+                graphics.SetClip(rectangle);
+
+                using (SolidBrush backgroundBrush = new SolidBrush(_currentTheme.TextBoxBackColor))
+                {
+                    graphics.FillRectangle(backgroundBrush, rectangle);
+                }
+
+                if (BorderThickness > 0)
+                {
+                    using (Pen borderPen = new Pen(_currentTheme.BorderColor, BorderThickness))
+                    {
+                        Rectangle borderRect = rectangle;
+                        borderRect.Inflate(-BorderThickness / 2, -BorderThickness / 2);
+                        graphics.DrawRectangle(borderPen, borderRect);
+                    }
+                }
+
+                Rectangle textRect = new Rectangle(
+                    rectangle.X + _padding,
+                    rectangle.Y + _padding,
+                    rectangle.Width - (_padding * 2),
+                    rectangle.Height - (_padding * 2));
+
+                string textToDraw = _textBox.Text;
+                if (!string.IsNullOrEmpty(textToDraw))
+                {
+                    TextRenderer.DrawText(
+                        graphics,
+                        textToDraw,
+                        _textBox.Font,
+                        textRect,
+                        _currentTheme.TextBoxForeColor,
+                        TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                }
+
+                graphics.Clip = originalClip;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in BeepDatePicker.Draw: {ex.Message}");
+            }
         }
+        #endregion
+
+        #region Format and Masking
+        private string GetCurrentFormat()
+        {
+            return _dateFormatStyle switch
+            {
+                DateFormatStyle.ShortDate => _culture.DateTimeFormat.ShortDatePattern,
+                DateFormatStyle.LongDate => _culture.DateTimeFormat.LongDatePattern,
+                DateFormatStyle.YearMonth => "MMMM yyyy",
+                DateFormatStyle.Custom => _customDateFormat,
+                DateFormatStyle.FullDateTime => $"{_culture.DateTimeFormat.LongDatePattern} {_culture.DateTimeFormat.LongTimePattern}",
+                DateFormatStyle.ShortDateTime => $"{_culture.DateTimeFormat.ShortDatePattern} HH:mm",
+                DateFormatStyle.DayMonthYear => "dd MMMM yyyy",
+                DateFormatStyle.ISODate => "yyyy-MM-dd",
+                DateFormatStyle.ISODateTime => "yyyy-MM-dd HH:mm:ss",
+                DateFormatStyle.TimeOnly => "HH:mm:ss",
+                DateFormatStyle.ShortTime => "HH:mm",
+                DateFormatStyle.MonthDay => "MMMM dd",
+                DateFormatStyle.DayOfWeek => "dddd",
+                DateFormatStyle.RFC1123 => "ddd, dd MMM yyyy HH:mm:ss 'GMT'",
+                DateFormatStyle.UniversalSortable => "yyyy-MM-dd HH:mm:ss'Z'",
+                _ => _culture.DateTimeFormat.ShortDatePattern
+            };
+        }
+
+        private string GetCurrentMask()
+        {
+            return _dateFormatStyle switch
+            {
+                DateFormatStyle.ShortDate => ConvertFormatToMask(_culture.DateTimeFormat.ShortDatePattern),
+                DateFormatStyle.LongDate => _culture.DateTimeFormat.LongDatePattern, // Free-form
+                DateFormatStyle.YearMonth => "MMMM yyyy",                            // Free-form
+                DateFormatStyle.Custom => ConvertFormatToMask(_customDateFormat),
+                DateFormatStyle.FullDateTime => ConvertFormatToMask($"{_culture.DateTimeFormat.LongDatePattern} HH:mm:ss"),
+                DateFormatStyle.ShortDateTime => ConvertFormatToMask($"{_culture.DateTimeFormat.ShortDatePattern} HH:mm"),
+                DateFormatStyle.DayMonthYear => "00 MMMM yyyy",
+                DateFormatStyle.ISODate => "0000-00-00",
+                DateFormatStyle.ISODateTime => "0000-00-00 00:00:00",
+                DateFormatStyle.TimeOnly => "00:00:00",
+                DateFormatStyle.ShortTime => "00:00",
+                DateFormatStyle.MonthDay => "MMMM 00",
+                DateFormatStyle.DayOfWeek => "dddd",                                 // Free-form
+                DateFormatStyle.RFC1123 => "ddd, 00 MMM yyyy 00:00:00 GMT",
+                DateFormatStyle.UniversalSortable => "0000-00-00 00:00:00Z",
+                _ => ConvertFormatToMask(_culture.DateTimeFormat.ShortDatePattern)
+            };
+        }
+
+        private string ConvertFormatToMask(string format)
+        {
+            return Regex.Replace(format,
+                @"[dMyHhmsf]+",
+                match => new string(match.Value[0] switch
+                {
+                    'd' => '0',
+                    'M' => '0',
+                    'y' => '0',
+                    'H' => '0',
+                    'h' => '0',
+                    'm' => '0',
+                    's' => '0',
+                    'f' => '0',
+                    _ => match.Value[0]
+                }, match.Length));
+        }
+        private string GetPlaceholderText()
+        {
+            string format = GetCurrentFormat();
+            return Regex.Replace(format, @"[dMyHhmsf]+", match => match.Value[0] switch
+            {
+                'd' => "DD",
+                'M' => "MM",
+                'y' => "YYYY",
+                'H' or 'h' => "HH",
+                'm' => "MM",
+                's' => "SS",
+                'f' => "FF",
+                _ => match.Value
+            });
+        }
+        private bool IsValidInput(char input, char maskChar)
+        {
+            return maskChar switch
+            {
+                '0' => char.IsDigit(input),
+                'd' or 'M' or 'y' or 'H' or 'h' or 'm' or 's' => char.IsLetterOrDigit(input),
+                _ => true // Allow separators like /, -, :, space
+            };
+        }
+
+        private void ApplyMask()
+        {
+            string mask = GetCurrentMask();
+            if (!Regex.IsMatch(mask, @"^[dMyHmsf]+$")) // If mask contains digits
+            {
+                _textBox.MaxLength = mask.Length;
+            }
+            else
+            {
+                _textBox.MaxLength = 50; // Arbitrary max for free-form text
+            }
+        }
+
+        private void UpdateTextBoxFromValue()
+        {
+            if (!string.IsNullOrWhiteSpace(_textBox.Text) && DateTime.TryParse(_textBox.Text, _culture, DateTimeStyles.None, out DateTime result))
+            {
+                _textBox.Text = FormatDate(result);
+            }
+            else
+            {
+                _textBox.Text = DateTime.Today.ToString(GetCurrentFormat());
+            }
+        }
+
+        private string FormatDate(DateTime date)
+        {
+            return date.ToString(GetCurrentFormat(), _culture);
+        }
+        #endregion
+
+        #region Theme and Value Management
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            if (_textBox != null)
+            {
+                _textBox.BackColor = _currentTheme.TextBoxBackColor;
+                _textBox.ForeColor = _currentTheme.TextBoxForeColor;
+            }
+            Invalidate();
+        }
+
         public override void SetValue(object value)
         {
-            if (value != null)
-            {
-                SelectedDate = value.ToString();
-            }
+            SelectedDate = value?.ToString();
         }
+
         public override object GetValue()
         {
             return SelectedDate;
         }
+
+        public void Reset()
+        {
+            SelectedDate = null;
+        }
+        #endregion
+
+        #region Disposal
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _textBox?.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+        #endregion
     }
 }

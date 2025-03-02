@@ -13,8 +13,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region "Fields"
         protected int _resizeMargin = 5; // Margin for resizing
-        protected int _borderRadius = 5;
-        protected int _borderThickness = 4; // Thickness of the custom border
+        protected int _borderRadius = 3;
+        protected int _borderThickness = 1; // Thickness of the custom border
         private Color _borderColor = Color.Red; // Default border color
         private const int ButtonSize = 30;
         private Point lastMousePosition;
@@ -212,7 +212,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Using Center alignment ensures the stroke straddles the border path.
                     borderPen.Alignment = PenAlignment.Center;
                     // Adjust the rectangle to prevent clipping
-                    Rectangle rect = new Rectangle(1,1, this.Width - 1, this.Height - 1);
+                    Rectangle rect = new Rectangle(
+                            _borderThickness / 2,
+                            _borderThickness / 2,
+                            Width - _borderThickness,
+                            Height - _borderThickness);
                     using (GraphicsPath path = GetRoundedRectanglePath(rect, _borderRadius))
                     {
                         e.Graphics.DrawPath(borderPen, path);
@@ -225,7 +229,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            Rectangle rect = new Rectangle(1, 1, this.Width, this.Height);
+            Rectangle rect = new Rectangle(0, 0, this.Width, this.Height);
             using (GraphicsPath path = GetRoundedRectanglePath(rect, _borderRadius))
             {
                 this.Region = new Region(path);

@@ -61,7 +61,7 @@
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(4, 4);
             panel1.Name = "panel1";
-            panel1.Size = new Size(473, 56);
+            panel1.Size = new Size(450, 56);
             panel1.TabIndex = 0;
             // 
             // DialogImage
@@ -272,7 +272,7 @@
             CloseButton.Items = (List<object>)resources.GetObject("CloseButton.Items");
             CloseButton.LeftoffsetForDrawingRect = 0;
             CloseButton.LinkedProperty = null;
-            CloseButton.Location = new Point(421, 6);
+            CloseButton.Location = new Point(398, 6);
             CloseButton.Margin = new Padding(0);
             CloseButton.MaxImageSize = new Size(32, 32);
             CloseButton.Name = "CloseButton";
@@ -347,7 +347,7 @@
             TitleLabel.DataSourceProperty = null;
             TitleLabel.DisabledBackColor = Color.Gray;
             TitleLabel.DisabledForeColor = Color.Empty;
-            TitleLabel.DrawingRect = new Rectangle(1, 1, 281, 20);
+            TitleLabel.DrawingRect = new Rectangle(1, 1, 258, 20);
             TitleLabel.Easing = EasingType.Linear;
             TitleLabel.FieldID = null;
             TitleLabel.FocusBackColor = Color.Gray;
@@ -422,7 +422,7 @@
             TitleLabel.ShowRightBorder = false;
             TitleLabel.ShowShadow = false;
             TitleLabel.ShowTopBorder = false;
-            TitleLabel.Size = new Size(283, 22);
+            TitleLabel.Size = new Size(260, 22);
             TitleLabel.SlideFrom = SlideDirection.Left;
             TitleLabel.StaticNotMoving = false;
             TitleLabel.TabIndex = 0;
@@ -445,9 +445,9 @@
             panel2.Controls.Add(RightButton);
             panel2.Controls.Add(LeftButton);
             panel2.Dock = DockStyle.Bottom;
-            panel2.Location = new Point(4, 226);
+            panel2.Location = new Point(4, 248);
             panel2.Name = "panel2";
-            panel2.Size = new Size(473, 59);
+            panel2.Size = new Size(450, 59);
             panel2.TabIndex = 1;
             // 
             // MiddleButton
@@ -539,7 +539,7 @@
             MiddleButton.Items = (List<object>)resources.GetObject("MiddleButton.Items");
             MiddleButton.LeftoffsetForDrawingRect = 0;
             MiddleButton.LinkedProperty = null;
-            MiddleButton.Location = new Point(177, 13);
+            MiddleButton.Location = new Point(166, 13);
             MiddleButton.Margin = new Padding(0);
             MiddleButton.MaxImageSize = new Size(32, 32);
             MiddleButton.Name = "MiddleButton";
@@ -671,7 +671,7 @@
             RightButton.Items = (List<object>)resources.GetObject("RightButton.Items");
             RightButton.LeftoffsetForDrawingRect = 0;
             RightButton.LinkedProperty = null;
-            RightButton.Location = new Point(353, 13);
+            RightButton.Location = new Point(330, 13);
             RightButton.Margin = new Padding(0);
             RightButton.MaxImageSize = new Size(32, 32);
             RightButton.Name = "RightButton";
@@ -855,7 +855,7 @@
             panel3.Dock = DockStyle.Fill;
             panel3.Location = new Point(4, 60);
             panel3.Name = "panel3";
-            panel3.Size = new Size(473, 166);
+            panel3.Size = new Size(450, 188);
             panel3.TabIndex = 2;
             // 
             // InputTextBox
@@ -870,6 +870,7 @@
             InputTextBox.ApplyThemeToChilds = true;
             InputTextBox.AutoCompleteMode = AutoCompleteMode.None;
             InputTextBox.AutoCompleteSource = AutoCompleteSource.None;
+            InputTextBox.BackColor = Color.White;
             InputTextBox.BadgeBackColor = Color.Red;
             InputTextBox.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             InputTextBox.BadgeForeColor = Color.White;
@@ -895,7 +896,7 @@
             InputTextBox.DateTimeFormat = "MM/dd/yyyy HH:mm:ss";
             InputTextBox.DisabledBackColor = Color.Gray;
             InputTextBox.DisabledForeColor = Color.Empty;
-            InputTextBox.DrawingRect = new Rectangle(2, 2, 435, 21);
+            InputTextBox.DrawingRect = new Rectangle(2, 2, 412, 21);
             InputTextBox.Easing = EasingType.Linear;
             InputTextBox.FieldID = null;
             InputTextBox.FocusBackColor = Color.Gray;
@@ -944,7 +945,7 @@
             InputTextBox.Items = (List<object>)resources.GetObject("InputTextBox.Items");
             InputTextBox.LeftoffsetForDrawingRect = 0;
             InputTextBox.LinkedProperty = null;
-            InputTextBox.Location = new Point(18, 128);
+            InputTextBox.Location = new Point(21, 145);
             InputTextBox.MaskFormat = Vis.Modules.TextBoxMaskFormat.None;
             InputTextBox.MaxImageSize = new Size(16, 16);
             InputTextBox.Modified = false;
@@ -979,7 +980,7 @@
             InputTextBox.ShowShadow = false;
             InputTextBox.ShowTopBorder = true;
             InputTextBox.ShowVerticalScrollBar = false;
-            InputTextBox.Size = new Size(439, 25);
+            InputTextBox.Size = new Size(416, 25);
             InputTextBox.SlideFrom = SlideDirection.Left;
             InputTextBox.StaticNotMoving = false;
             InputTextBox.TabIndex = 4;
@@ -1008,6 +1009,7 @@
             CaptionTextBox.ApplyThemeToChilds = true;
             CaptionTextBox.AutoCompleteMode = AutoCompleteMode.None;
             CaptionTextBox.AutoCompleteSource = AutoCompleteSource.None;
+            CaptionTextBox.BackColor = Color.White;
             CaptionTextBox.BadgeBackColor = Color.Red;
             CaptionTextBox.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             CaptionTextBox.BadgeForeColor = Color.White;
@@ -1033,7 +1035,7 @@
             CaptionTextBox.DateTimeFormat = "MM/dd/yyyy HH:mm:ss";
             CaptionTextBox.DisabledBackColor = Color.Gray;
             CaptionTextBox.DisabledForeColor = Color.Empty;
-            CaptionTextBox.DrawingRect = new Rectangle(1, 1, 440, 74);
+            CaptionTextBox.DrawingRect = new Rectangle(1, 1, 417, 74);
             CaptionTextBox.Easing = EasingType.Linear;
             CaptionTextBox.FieldID = null;
             CaptionTextBox.FocusBackColor = Color.Gray;
@@ -1117,7 +1119,7 @@
             CaptionTextBox.ShowShadow = false;
             CaptionTextBox.ShowTopBorder = false;
             CaptionTextBox.ShowVerticalScrollBar = false;
-            CaptionTextBox.Size = new Size(442, 76);
+            CaptionTextBox.Size = new Size(419, 76);
             CaptionTextBox.SlideFrom = SlideDirection.Left;
             CaptionTextBox.StaticNotMoving = false;
             CaptionTextBox.TabIndex = 3;
@@ -1164,7 +1166,7 @@
             SelectFromListComboBox.DataSourceProperty = null;
             SelectFromListComboBox.DisabledBackColor = Color.Gray;
             SelectFromListComboBox.DisabledForeColor = Color.Empty;
-            SelectFromListComboBox.DrawingRect = new Rectangle(0, 0, 439, 21);
+            SelectFromListComboBox.DrawingRect = new Rectangle(0, 0, 416, 25);
             SelectFromListComboBox.Easing = EasingType.Linear;
             SelectFromListComboBox.FieldID = null;
             SelectFromListComboBox.FocusBackColor = Color.White;
@@ -1198,6 +1200,7 @@
             SelectFromListComboBox.IsFrameless = false;
             SelectFromListComboBox.IsHovered = false;
             SelectFromListComboBox.IsNew = false;
+            SelectFromListComboBox.IsPopupOpen = false;
             SelectFromListComboBox.IsPressed = false;
             SelectFromListComboBox.IsReadOnly = false;
             SelectFromListComboBox.IsRequired = false;
@@ -1214,6 +1217,7 @@
             SelectFromListComboBox.OverrideFontSize = TypeStyleFontSize.None;
             SelectFromListComboBox.ParentBackColor = Color.Empty;
             SelectFromListComboBox.ParentControl = null;
+            SelectFromListComboBox.PopPosition = Vis.Modules.BeepPopupFormPosition.Bottom;
             SelectFromListComboBox.PressedBackColor = Color.FromArgb(0, 120, 215);
             SelectFromListComboBox.PressedBorderColor = Color.Gray;
             SelectFromListComboBox.PressedForeColor = Color.Black;
@@ -1232,7 +1236,7 @@
             SelectFromListComboBox.ShowRightBorder = false;
             SelectFromListComboBox.ShowShadow = false;
             SelectFromListComboBox.ShowTopBorder = false;
-            SelectFromListComboBox.Size = new Size(439, 21);
+            SelectFromListComboBox.Size = new Size(416, 25);
             SelectFromListComboBox.SlideFrom = SlideDirection.Left;
             SelectFromListComboBox.StaticNotMoving = false;
             SelectFromListComboBox.TabIndex = 2;
@@ -1249,7 +1253,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BorderColor = Color.FromArgb(200, 200, 200);
-            ClientSize = new Size(481, 289);
+            ClientSize = new Size(458, 311);
             Controls.Add(panel3);
             Controls.Add(panel2);
             Controls.Add(panel1);

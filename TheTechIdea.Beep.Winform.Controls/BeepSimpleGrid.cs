@@ -1024,7 +1024,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
             }
-         //   UpdateScrollBars();
+            UpdateScrollBars();
         }
         private void UpdateDataRecordFromRow(BeepGridCell editingCell)
         {
@@ -2035,9 +2035,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    ShowCellEditor(_selectedCell, cellLocation);
             //}
             SelectedRow = Rows[rowIndex];
-
-            SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(rowIndex, Rows[rowIndex]));
-            SelectedCellChanged?.Invoke(this, new BeepGridCellSelectedEventArgs(rowIndex, columnIndex, Rows[rowIndex].Cells[columnIndex]));
+            // put row data in the selected row
+            SelectedRow.RowData = _fullData[rowIndex];
+            SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(rowIndex, SelectedRow));
+            SelectedCellChanged?.Invoke(this, new BeepGridCellSelectedEventArgs(rowIndex, columnIndex, _selectedCell));
             Invalidate();
         }
         public void SelectCell(BeepGridCell cell)
@@ -2200,7 +2201,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int visibleWidth = DrawingRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
             int visibleRowCount = GetVisibleRowCount();
             // **Vertical ScrollBar Fix**
-            Debug.WriteLine($"visiblerowcount :{visibleRowCount }");
+           // Debug.WriteLine($"visiblerowcount :{visibleRowCount }");
             if (_showVerticalScrollBar && _fullData.Count >= visibleRowCount)
             {
                 int maxOffset = Math.Max(0, _fullData.Count - visibleRowCount);
@@ -2213,9 +2214,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                _verticalScrollBar.Visible = false;
-                _dataOffset = 0; // Reset offset when all rows fit
-                FillVisibleRows();
+                if (_verticalScrollBar.Visible)
+                {
+                    _verticalScrollBar.Visible = false;
+                    _dataOffset = 0; // Reset offset when all rows fit
+                    FillVisibleRows();
+                }
+           
             }
             // Horizontal ScrollBar
             // Horizontal ScrollBar - NEW CALCULATION
@@ -2234,11 +2239,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                _horizontalScrollBar.Visible = false;
-                _xOffset = 0; // Reset offset when no scrollbar
+                if (_horizontalScrollBar.Visible)
+                {
+                    _horizontalScrollBar.Visible = false;
+                    _xOffset = 0; // Reset offset when no scrollbar
+                }
+               
             }
 
-            PositionScrollBars();
+          //  PositionScrollBars();
         }
         // Helper method to calculate visible row count dynamically
         // Helper method to calculate visible row count using gridRect
@@ -2318,7 +2327,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void UpdateRowCount()
         {
-            if (_fullData == null) return;
+            if(_fullData==null) return;
             if (_fullData.Count == 0) return;
             visibleHeight = gridRect.Height;
             visibleRowCount = visibleHeight / _rowHeight;

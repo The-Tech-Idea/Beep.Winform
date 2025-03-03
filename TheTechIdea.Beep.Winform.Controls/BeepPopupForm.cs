@@ -434,12 +434,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Reuse the existing ShowMainPopup method that takes (Control, Point)
             ShowPopup(triggerControl, location);
         }
-
+        // In BeepPopupForm.cs
+        public virtual void ShowPopup(Point anchorPoint, BeepPopupFormPosition position)
+        {
+            Point location = CalculatePopupLocation(anchorPoint, position);
+            ShowPopup(null, location); // Use null TriggerControl
+        }
         /// <summary>
         /// Calculates the popup form location based on the triggerControl’s screen
         /// coordinates and the specified BeepPopupFormPosition.
         /// </summary>
-        private Point CalculatePopupLocation(Control triggerControl, BeepPopupFormPosition position)
+        public Point CalculatePopupLocation(Control triggerControl, BeepPopupFormPosition position)
         {
             // Convert trigger control’s (0,0) into screen coordinates
             Point triggerScreenLocation = triggerControl.PointToScreen(Point.Empty);

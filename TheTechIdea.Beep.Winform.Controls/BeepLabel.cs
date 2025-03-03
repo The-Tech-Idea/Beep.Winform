@@ -468,7 +468,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
-            Debug.WriteLine($"⚠️ BeepTextBox lost focus. Saving: {Text}");
+          //  Debug.WriteLine($"⚠️ BeepTextBox lost focus. Saving: {Text}");
            
 
         }

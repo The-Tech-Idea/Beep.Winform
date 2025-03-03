@@ -116,13 +116,13 @@ namespace TheTechIdea.Beep.Desktop.Common.Helpers
                 {
                     // Set the "Theme" property on the control
                     themeProperty.SetValue(control, theme);
-                    Debug.WriteLine($"Theme property set on control: {control.Name}");
+                //    Debug.WriteLine($"Theme property set on control: {control.Name}");
                     return; // Exit after setting the property
                 }
 
 
 
-                Debug.WriteLine("No 'Theme' property found on the control or its components.");
+             //   Debug.WriteLine("No 'Theme' property found on the control or its components.");
             }
             catch (Exception ex)
             {

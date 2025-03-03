@@ -28,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepService.vis.Container = this.uc_Container1;
             beepMenuAppBar1.beepServices = beepService;
             beepMenuAppBar1.CreateMenuItems();
+            beepSimpleGrid1.DataSource = beepService.DMEEditor.ConfigEditor.DataSourcesClasses;
             BindingList<SimpleItem> items = new BindingList<SimpleItem>();
             foreach (var item in Dependencies.DMEEditor.ConfigEditor.DataSourcesClasses)
             {

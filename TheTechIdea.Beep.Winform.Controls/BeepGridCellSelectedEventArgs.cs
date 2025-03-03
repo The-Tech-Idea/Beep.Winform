@@ -23,15 +23,15 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         public BeepGridRowSelectedEventArgs(int row, BeepGridRow rowdata)
         {
-            Row = row;
-            RowData = rowdata;
+            RowIndex = row;
+            Row = rowdata;
         }
         public BeepGridRowSelectedEventArgs(int row)
         {
-            Row = row;
+            RowIndex = row;
         }
-        public int Row { get; }
-        public BeepGridRow RowData { get; set; }
+        public BeepGridRow Row { get; }
+        public int RowIndex { get; set; }
 
     }
 }

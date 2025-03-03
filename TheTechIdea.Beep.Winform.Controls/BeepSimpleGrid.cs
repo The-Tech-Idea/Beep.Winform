@@ -1052,7 +1052,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-   
         public void MoveNextRow()
         {
             ScrollBy(1);  // +1 means scroll down one row
@@ -1130,7 +1129,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                //     Debug.WriteLine($"➡ Moving to next column: {nextColumn}");
                     EnsureColumnVisible(nextColumn);
                     SelectCell(_selectedRowIndex, nextColumn);
-                    Focus();
+                    //Focus();
                 }
             }
             catch (Exception ex)
@@ -1263,26 +1262,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void UpdateCellPositions()
         {
-            int yOffset = _dataOffset * _rowHeight;
+            int yOffset = _dataOffset * RowHeight; // Use RowHeight directly
             int xOffset = _xOffset;
 
             for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
             {
                 var row = Rows[rowIndex];
-                row.UpperY = rowIndex * _rowHeight - yOffset; // 🔹 Adjust row Y position
+                // Position relative to gridRect.Top, adjusted for scroll
+                row.UpperY = gridRect.Top + (rowIndex * RowHeight) - yOffset;
 
-                int x = -xOffset;
+                int x = gridRect.Left - xOffset; // Start at gridRect.Left, adjust for scroll
                 for (int colIndex = 0; colIndex < Columns.Count; colIndex++)
                 {
                     if (Columns[colIndex].Visible)
                     {
                         var cell = row.Cells[colIndex];
                         cell.X = x;
-                      
+                        cell.Y = row.UpperY; // Ensure cell.Y matches row
+                        cell.Width = Columns[colIndex].Width;
+                        cell.Height = RowHeight;
                         x += Columns[colIndex].Width;
                     }
                 }
             }
+
+            System.Diagnostics.Debug.WriteLine($"UpdateCellPositions: yOffset={yOffset}, xOffset={xOffset}, RowsCount={Rows.Count}, gridRect={gridRect}");
         }
         protected override bool ProcessKeyPreview(ref Message m)
         {
@@ -1333,29 +1337,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             return base.ProcessKeyPreview(ref m);
         }
-        protected override bool ProcessDialogKey(Keys keyData)
-        {
-            var keyCode = (keyData & Keys.KeyCode);
-            bool shiftPressed = (keyData & Keys.Shift) == Keys.Shift;
+        //protected override bool ProcessDialogKey(Keys keyData)
+        //{
+        //    var keyCode = (keyData & Keys.KeyCode);
+        //    bool shiftPressed = (keyData & Keys.Shift) == Keys.Shift;
 
-            switch (keyCode)
-            {
-                case Keys.Tab:
-                    if (shiftPressed)
-                    {
-                        MovePreviousCell(); // Optional: Handle Shift+Tab if desired
-                    }
-                    else
-                    {
-                        MoveNextCell();
-                    }
-                    Invalidate();
-                    return true; // Stop default tab navigation
+        //    switch (keyCode)
+        //    {
+        //        case Keys.Tab:
+        //            if (shiftPressed)
+        //            {
+        //                MovePreviousCell(); // Optional: Handle Shift+Tab if desired
+        //            }
+        //            else
+        //            {
+        //                MoveNextCell();
+        //            }
+        //            Invalidate();
+        //            return true; // Stop default tab navigation
 
-                default:
-                    return base.ProcessDialogKey(keyData); // Let base class handle other keys
-            }
-        }
+        //        default:
+        //            return base.ProcessDialogKey(keyData); // Let base class handle other keys
+        //    }
+        //}
         private void BeepGrid_PreviewKeyDown(object? sender, PreviewKeyDownEventArgs e)
         {
             
@@ -1408,12 +1412,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
         }
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-            base.OnMouseDown(e);
-            this.Focus(); // Ensure the grid gets keyboard focus when clicked
-        }
-
+       
         #endregion
         #region Control Creation and Updating
         private BeepControl CreateCellControlForEditing(BeepGridCell cell)
@@ -1756,6 +1755,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawRowsBorders(g, gridRect);
 
             PositionScrollBars();
+            // Ensure editor control is visible if present
+            if (IsEditorShown && _editingControl != null && _editingControl.Parent == this)
+            {
+                _editingControl.Invalidate(); // Force editor redraw if needed
+            }
         }
         private void DrawBottomAggregationRow(Graphics g, Rectangle rect)
         {
@@ -1903,54 +1907,80 @@ namespace TheTechIdea.Beep.Winform.Controls
              
                 // 🔹 Update the control value to match the cell's data
                 UpdateCellControl(columnEditor, Columns[cell.ColumnIndex], cell.CellValue);
-
+               
                 // 🔹 Draw the editor or its representation
                 switch (columnEditor)
                 {
                     case BeepTextBox textBox:
+                        textBox.ForeColor = _currentTheme.GridForeColor;
+                        textBox.BackColor = _currentTheme.GridBackColor;
                         textBox.Draw(g, TargetRect);
                         break;
                     case BeepCheckBoxBool checkBox1:
+                        checkBox1.ForeColor = _currentTheme.GridForeColor;
+                        checkBox1.BackColor = _currentTheme.GridBackColor;
                         checkBox1.Draw(g, TargetRect );
                         break;
                     case BeepCheckBoxChar checkBox2:
+                        checkBox2.ForeColor = _currentTheme.GridForeColor;
+                        checkBox2.BackColor = _currentTheme.GridBackColor;
                         checkBox2.Draw(g, TargetRect);
                         break;
                     case BeepCheckBoxString checkBox3:
+                        checkBox3.ForeColor = _currentTheme.GridForeColor;
+                        checkBox3.BackColor = _currentTheme.GridBackColor;
                         checkBox3.Draw(g, TargetRect);
                         break;
                     case BeepComboBox comboBox:
+                        comboBox.ForeColor = _currentTheme.GridForeColor;
+                        comboBox.BackColor = _currentTheme.GridBackColor;
                         comboBox.Draw(g, TargetRect);
                         break;
                     case BeepDatePicker datePicker:
+                        datePicker.ForeColor = _currentTheme.GridForeColor;
+                        datePicker.BackColor = _currentTheme.GridBackColor;
                         datePicker.Draw(g, TargetRect);
                         break;
                     case BeepImage image:
                         image.DrawImage(g, TargetRect);
                         break;
                     case BeepButton button:
+                        button.ForeColor = _currentTheme.GridForeColor;
+                        button.BackColor = _currentTheme.GridBackColor;
                         button.Draw(g, TargetRect);
                         break;
                     case BeepProgressBar progressBar:
+                        progressBar.ForeColor = _currentTheme.GridForeColor;
+                        progressBar.BackColor = _currentTheme.GridBackColor;
                         progressBar.Draw(g, TargetRect);
                         break;
                     case BeepStarRating starRating:
+                        starRating.ForeColor = _currentTheme.GridForeColor;
+                        starRating.BackColor = _currentTheme.GridBackColor;
                         starRating.Draw(g, TargetRect);
                         break;
                     case BeepNumericUpDown numericUpDown:
+                        numericUpDown.ForeColor = _currentTheme.GridForeColor;
+                        numericUpDown.BackColor = _currentTheme.GridBackColor;
                         numericUpDown.Draw(g, TargetRect);
                         break;
                     case BeepSwitch switchControl:
+                        switchControl.ForeColor = _currentTheme.GridForeColor;
+                        switchControl.BackColor = _currentTheme.GridBackColor;
                         switchControl.Draw(g, TargetRect);
                         break;
                     case BeepListofValuesBox listBox:
+                        listBox.ForeColor = _currentTheme.GridForeColor;
+                        listBox.BackColor = _currentTheme.GridBackColor;
                         listBox.Draw(g, TargetRect);
                         break;
                     case BeepLabel label:
+                        label.ForeColor = _currentTheme.GridForeColor;
+                        label.BackColor = _currentTheme.GridBackColor;
                         label.Draw(g, TargetRect);
                         break;
                     default:
-                        g.DrawString(cell.UIComponent.ToString(), Font, new SolidBrush(_currentTheme.PrimaryTextColor),
+                        g.DrawString(cell.UIComponent.ToString(), Font, new SolidBrush(_currentTheme.GridForeColor),
                             TargetRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
                         break;
                 }
@@ -2015,7 +2045,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (IsEditorShown)
             {
-                CloseCurrentEditor();
+                CloseCurrentEditorIn();
             }
             if (rowIndex < 0 || rowIndex >= Rows.Count) return;
             if (columnIndex < 0 || columnIndex >= Columns.Count) return;
@@ -2028,24 +2058,61 @@ namespace TheTechIdea.Beep.Winform.Controls
             int cellX = _selectedCell.X;
             int cellY = _selectedCell.Y;
             Point cellLocation = new Point(cellX, cellY);
-
-            //if (_selectedCell.IsEditable)
-            //{
-            //    IsEditorShown = true;
-            //    ShowCellEditor(_selectedCell, cellLocation);
-            //}
             SelectedRow = Rows[rowIndex];
             // put row data in the selected row
             SelectedRow.RowData = _fullData[rowIndex];
-            SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(rowIndex, SelectedRow));
-            SelectedCellChanged?.Invoke(this, new BeepGridCellSelectedEventArgs(rowIndex, columnIndex, _selectedCell));
-            Invalidate();
+             SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(rowIndex, SelectedRow));
+             SelectedCellChanged?.Invoke(this, new BeepGridCellSelectedEventArgs(rowIndex, columnIndex, _selectedCell));
+           Invalidate();
         }
         public void SelectCell(BeepGridCell cell)
         {
             if (cell == null) return;
             _editingRowIndex = cell.RowIndex; // Absolute index in _fullData
             SelectCell(cell.RowIndex, cell.ColumnIndex);
+        }
+        private void MoveEditorIn()
+        {
+            if (_editingCell == null || _editingControl == null || !IsEditorShown)
+            {
+                System.Diagnostics.Debug.WriteLine("MoveEditor: Skipped - null reference or editor not shown");
+                return;
+            }
+
+            // Get the cell’s rectangle relative to gridRect
+            Rectangle cellRect = GetCellRectangleIn(_editingCell);
+
+            // Adjust for scrolling offsets
+            int yOffset = _dataOffset * RowHeight;
+            int xOffset = _xOffset;
+            cellRect.Y -= yOffset; // Shift up by vertical scroll
+            cellRect.X -= xOffset; // Shift left by horizontal scroll
+
+            // Define grid bounds
+            int gridLeft = 0; // Relative to gridRect’s client area
+            int gridRight = gridRect.Width;
+            int gridTop = 0;
+            int gridBottom = gridRect.Height;
+
+            // Check if the editor is fully out of view
+            bool isFullyOutOfView =
+                (cellRect.Right < gridLeft) ||  // Completely off to the left
+                (cellRect.Left > gridRight) ||  // Completely off to the right
+                (cellRect.Bottom < gridTop) ||  // Scrolled out past the top
+                (cellRect.Top > gridBottom);    // Completely off below
+
+            if (isFullyOutOfView)
+            {
+                System.Diagnostics.Debug.WriteLine($"MoveEditor: Editor out of view - Hiding (CellRect={cellRect})");
+                _editingControl.Visible = false;
+            }
+            else
+            {
+                // Position editor within gridRect’s client coordinates
+                _editingControl.Location = new Point(cellRect.X, cellRect.Y);
+                _editingControl.Visible = true;
+                System.Diagnostics.Debug.WriteLine($"MoveEditor: Editor moved to {cellRect.X},{cellRect.Y}");
+            }
         }
         private void MoveEditor()
         {
@@ -2115,6 +2182,52 @@ namespace TheTechIdea.Beep.Winform.Controls
                 currentX += Columns[i].Width;
             }
             return null;
+        }
+        private Rectangle GetCellRectangleIn(BeepGridCell cell)
+        {
+            if (cell == null)
+            {
+                System.Diagnostics.Debug.WriteLine("GetCellRectangle: Cell is null");
+                return Rectangle.Empty;
+            }
+
+            // Find cell’s row index in Rows to match GetCellAtLocation’s coordinate system
+            int rowIndex = -1;
+            for (int r = 0; r < Rows.Count; r++)
+            {
+                if (Rows[r].Cells.Contains(cell))
+                {
+                    rowIndex = r;
+                    break;
+                }
+            }
+            if (rowIndex == -1)
+            {
+                System.Diagnostics.Debug.WriteLine("GetCellRectangle: Cell not found in Rows");
+                return Rectangle.Empty;
+            }
+
+            int colIndex = Rows[rowIndex].Cells.IndexOf(cell);
+            if (colIndex == -1)
+            {
+                System.Diagnostics.Debug.WriteLine("GetCellRectangle: Cell not found in row");
+                return Rectangle.Empty;
+            }
+
+            // Calculate position matching GetCellAtLocation
+            int y = gridRect.Top + (rowIndex * RowHeight); // No _dataOffset here, handled in Rows
+            int x = gridRect.Left;
+            for (int i = 0; i < colIndex; i++)
+            {
+                if (Columns[i].Visible)
+                    x += Columns[i].Width;
+            }
+            int width = Columns[colIndex].Width;
+            int height = RowHeight;
+
+            Rectangle rect = new Rectangle(x, y, width, height);
+            System.Diagnostics.Debug.WriteLine($"GetCellRectangle: Cell={x},{y}, Size={width}x{height}, _dataOffset={_dataOffset}, _xOffset={_xOffset}");
+            return rect;
         }
         private Rectangle GetCellRectangle(BeepGridCell cell)
         {
@@ -2304,7 +2417,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             
 
                 Invalidate();
-                MoveEditor(); // 🔹 Move editor if needed
+                MoveEditorIn(); // 🔹 Move editor if needed
             }
         }
         private void HorizontalScrollBar_Scroll(object sender, EventArgs e)
@@ -2322,7 +2435,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 UpdateCellPositions(); // Update cell positions based on new offset
                 Invalidate();
-                MoveEditor(); // Move editor if active
+                MoveEditorIn(); // Move editor if active
             }
         }
         private void UpdateRowCount()
@@ -2391,7 +2504,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 int deltaY = e.Y - _lastMousePos.Y;
                 _rowHeight = Math.Max(10, _rowHeight + deltaY); // Prevent negative height
                 _lastMousePos = e.Location;
-                InitializeRows(); // Recreate rows with new height
+               // InitializeRows(); // Recreate rows with new height
                 UpdateScrollBars();
                 Invalidate();
             }
@@ -2416,8 +2529,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _resizingColumn = false;
             _resizingRow = false;
             this.Cursor = Cursors.Default;
-            FillVisibleRows(); // Ensure data is redrawn after resizing
-          //  Invalidate();
+           // FillVisibleRows(); // Ensure data is redrawn after resizing
+           Invalidate();
         }
         private bool IsNearColumnBorder(Point location, out int columnIndex)
         {
@@ -2471,9 +2584,63 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
         // New method to update gridRect (example implementation)
-       
+
         #endregion
         #region Editor
+        private void ShowCellEditorIn(BeepGridCell cell, Point location)
+        {
+            if (!cell.IsEditable)
+                return;
+
+            int colIndex = cell.ColumnIndex;
+            string columnName = Columns[colIndex].ColumnName;
+
+            // Close any existing editor
+            CloseCurrentEditor();
+
+            _editingCell = cell;
+            Size cellSize = new Size(cell.Width, cell.Height);
+
+            // Create or reuse editor control
+            _editingControl = CreateCellControlForEditing(cell);
+            _editingControl.Size = cellSize;
+            _editingControl.Location = new Point(cell.X, cell.Y);
+            _editingControl.Theme = Theme;
+
+            UpdateCellControl(_editingControl, Columns[colIndex], cell.CellValue);
+
+            // Attach event handlers
+            _editingControl.TabKeyPressed -= Tabhandler;
+            _editingControl.TabKeyPressed += Tabhandler;
+            _editingControl.EscapeKeyPressed -= Canclehandler;
+            _editingControl.EscapeKeyPressed += Canclehandler;
+
+            // Add to grid’s Controls collection
+            if (_editingControl.Parent != this)
+            {
+                this.Controls.Add(_editingControl);
+            }
+            _editingControl.BringToFront();
+            _editingControl.Focus();
+            IsEditorShown = true;
+
+            System.Diagnostics.Debug.WriteLine($"ShowCellEditor: Cell={cell.X},{cell.Y}, Size={cellSize}");
+        }
+        private void CloseCurrentEditorIn()
+        {
+            if (_editingControl != null && IsEditorShown)
+            {
+                if (_editingControl.Parent == this)
+                {
+                    this.Controls.Remove(_editingControl);
+                }
+                _editingControl.Dispose();
+                _editingControl = null;
+            }
+            _editingCell = null;
+            IsEditorShown = false;
+            Invalidate(); // Redraw grid after editor closes
+        }
         // One editor control per column (keyed by column index)
         private Dictionary<string, IBeepUIComponent> _columnEditors = new Dictionary<string, IBeepUIComponent>();
         // The currently active editor and cell being edited
@@ -2503,7 +2670,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     StartPosition = FormStartPosition.Manual,
                     ShowInTaskbar = false,
                     AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                    TopMost = true,
+                    TopMost = false,
                     MinimumSize = cellSize, // Force exact size
                     MaximumSize = cellSize
                 };
@@ -2552,26 +2719,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             _editingControl.EscapeKeyPressed += Canclehandler;
            //    _editingControl.LostFocus -= LostFocusHandler;
            //   _editingControl.LostFocus += LostFocusHandler;
-            _editorPopupForm.Show();
-            Task.Delay(50).ContinueWith(t =>
-            {
-                _editorPopupForm.SetValue(cell.CellValue);
-             //   Debug.WriteLine($"✅ After popup is fully visible, setting text: {_editingControl.Text}");
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+            _editorPopupForm.Show(this);
+            //Task.Delay(50).ContinueWith(t =>
+            //{
+            //    _editorPopupForm.SetValue(cell.CellValue);
+            // //   Debug.WriteLine($"✅ After popup is fully visible, setting text: {_editingControl.Text}");
+            //}, TaskScheduler.FromCurrentSynchronizationContext());
+            _editorPopupForm.SetValue(cell.CellValue);
             _editingControl.Focus();
             IsEditorShown = true;
            // Debug.WriteLine($"✅ after popform Show the Editor BeepTextBox text   Show : {_editingControl.Text}");
         }
         private void LostFocusHandler(object? sender, EventArgs e)
         {
-            CloseCurrentEditor();
+            CloseCurrentEditorIn();
         }
-
         private void Canclehandler(object? sender, EventArgs e)
         {
             CancelEditing();
         }
-      
         private void Tabhandler(object? sender, EventArgs e)
         {
            MoveNextCell();
@@ -2608,7 +2774,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             IsEditorShown = false;
         }
-   
         private void SaveEditedValue()
         {
             if (_editorPopupForm == null || _editingCell == null)
@@ -2666,11 +2831,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void CancelEditing()
         {
             // Optionally, revert the editor's value if needed.
-            CloseCurrentEditor();
+            CloseCurrentEditorIn();
         }
         private void BeepGrid_MouseClick(object sender, MouseEventArgs e)
         {
             var clickedCell = GetCellAtLocation(e.Location);
+            _selectedCell = clickedCell;
             if (_editingCell != null && clickedCell != null &&
                 _editingCell.Id == clickedCell.Id)  // Compare by unique Id
             {
@@ -2680,18 +2846,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-            //    if (_editingCell != null) _editingCell.IsSelected = false;
-                CloseCurrentEditor();
+                 CloseCurrentEditorIn();
                 // reset the cell selection
-                if (clickedCell != null )
+                if (_selectedCell != null )
                 {
-                    _editingCell = clickedCell;
-                    _selectedCell = clickedCell;
+                    _editingCell = _selectedCell;
+                
                     SelectCell(_selectedCell);
                    
                     if (!_columns[_selectedCell.ColumnIndex].ReadOnly)
                     {
-                        ShowCellEditor(_selectedCell, e.Location);
+                       ShowCellEditorIn(_selectedCell, e.Location);
                     }
                   
                 }

@@ -1286,7 +1286,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            System.Diagnostics.Debug.WriteLine($"UpdateCellPositions: yOffset={yOffset}, xOffset={xOffset}, RowsCount={Rows.Count}, gridRect={gridRect}");
+           // System.Diagnostics.Debug.WriteLine($"UpdateCellPositions: yOffset={yOffset}, xOffset={xOffset}, RowsCount={Rows.Count}, gridRect={gridRect}");
         }
         protected override bool ProcessKeyPreview(ref Message m)
         {
@@ -2075,7 +2075,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_editingCell == null || _editingControl == null || !IsEditorShown)
             {
-                System.Diagnostics.Debug.WriteLine("MoveEditor: Skipped - null reference or editor not shown");
+              //  System.Diagnostics.Debug.WriteLine("MoveEditor: Skipped - null reference or editor not shown");
                 return;
             }
 
@@ -2103,7 +2103,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (isFullyOutOfView)
             {
-                System.Diagnostics.Debug.WriteLine($"MoveEditor: Editor out of view - Hiding (CellRect={cellRect})");
+                //System.Diagnostics.Debug.WriteLine($"MoveEditor: Editor out of view - Hiding (CellRect={cellRect})");
                 _editingControl.Visible = false;
             }
             else
@@ -2111,7 +2111,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Position editor within gridRect’s client coordinates
                 _editingControl.Location = new Point(cellRect.X, cellRect.Y);
                 _editingControl.Visible = true;
-                System.Diagnostics.Debug.WriteLine($"MoveEditor: Editor moved to {cellRect.X},{cellRect.Y}");
+             //   System.Diagnostics.Debug.WriteLine($"MoveEditor: Editor moved to {cellRect.X},{cellRect.Y}");
             }
         }
         private void MoveEditor()
@@ -2187,7 +2187,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (cell == null)
             {
-                System.Diagnostics.Debug.WriteLine("GetCellRectangle: Cell is null");
+              //  System.Diagnostics.Debug.WriteLine("GetCellRectangle: Cell is null");
                 return Rectangle.Empty;
             }
 
@@ -2203,14 +2203,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (rowIndex == -1)
             {
-                System.Diagnostics.Debug.WriteLine("GetCellRectangle: Cell not found in Rows");
+              //  System.Diagnostics.Debug.WriteLine("GetCellRectangle: Cell not found in Rows");
                 return Rectangle.Empty;
             }
 
             int colIndex = Rows[rowIndex].Cells.IndexOf(cell);
             if (colIndex == -1)
             {
-                System.Diagnostics.Debug.WriteLine("GetCellRectangle: Cell not found in row");
+               // System.Diagnostics.Debug.WriteLine("GetCellRectangle: Cell not found in row");
                 return Rectangle.Empty;
             }
 
@@ -2226,7 +2226,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int height = RowHeight;
 
             Rectangle rect = new Rectangle(x, y, width, height);
-            System.Diagnostics.Debug.WriteLine($"GetCellRectangle: Cell={x},{y}, Size={width}x{height}, _dataOffset={_dataOffset}, _xOffset={_xOffset}");
+         //   System.Diagnostics.Debug.WriteLine($"GetCellRectangle: Cell={x},{y}, Size={width}x{height}, _dataOffset={_dataOffset}, _xOffset={_xOffset}");
             return rect;
         }
         private Rectangle GetCellRectangle(BeepGridCell cell)

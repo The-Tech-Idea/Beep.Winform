@@ -2624,7 +2624,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _editingControl.Focus();
             IsEditorShown = true;
 
-            System.Diagnostics.Debug.WriteLine($"ShowCellEditor: Cell={cell.X},{cell.Y}, Size={cellSize}");
+          //  System.Diagnostics.Debug.WriteLine($"ShowCellEditor: Cell={cell.X},{cell.Y}, Size={cellSize}");
         }
         private void CloseCurrentEditorIn()
         {

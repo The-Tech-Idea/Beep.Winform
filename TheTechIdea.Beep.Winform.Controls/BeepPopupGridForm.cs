@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
+using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Grid;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -17,6 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Fields
         private BeepSimpleGrid _grid;
         private object _selectedRowData;
+      
         #endregion
 
         #region Properties
@@ -30,7 +33,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _grid.DataSource = value;
-                // Grid fills itself when DataSource is set
                 AdjustSize();
             }
         }
@@ -62,53 +64,54 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Constructor
-        public BeepPopupGridForm()
+        public BeepPopupGridForm() 
         {
+           
             InitializeComponent();
             this.SuspendLayout();
             this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.Manual;
             this.ShowInTaskbar = false;
-            this.Size = new Size(300, 200); // Default size, adjusted later
-            this.Deactivate += (s, e) => this.Hide();
+            this.Size = new Size(300, 200);
+            this.Deactivate += (s, e) => this.CloseCascade();
             this.ResumeLayout(false);
             InitializeGrid();
         }
 
-        public BeepPopupGridForm(object dataSource, List<BeepColumnConfig> columns) : this()
+        public void Init(object dataSource, List<BeepColumnConfig> columns, IBeepService beepService)
         {
+            
             Columns = columns;
-            DataSource = dataSource; // Grid will fill itself
+            DataSource = dataSource;
         }
         #endregion
 
         #region Initialization
-       
+      
 
         private void InitializeGrid()
         {
-            _grid = new BeepSimpleGrid
+            _grid = new BeepSimpleGrid()
             {
                 Dock = DockStyle.Fill,
                 ShowColumnHeaders = false,
                 ShowNavigator = false,
                 Theme = Theme
             };
-            _grid.SelectedRowChanged += _grid_SelectedRowChanged;
+            _grid.SelectedRowChanged += Grid_SelectedRowChanged; // Updated to match BeepSimpleGrid
             this.Controls.Add(_grid);
         }
-
-
         #endregion
 
         #region Event Handlers
-        private void _grid_SelectedRowChanged(object? sender, BeepGridRowSelectedEventArgs e)
+        private void Grid_SelectedRowChanged(object sender, BeepGridRowSelectedEventArgs e)
         {
             if (e.Row != null && e.Row.RowData != null)
             {
                 SelectedRowData = e.Row.RowData;
                 OnRowSelected(SelectedRowData);
-                this.Hide();
+                _grid.Dispose();
+                this.Close();
             }
         }
         #endregion
@@ -138,17 +141,72 @@ namespace TheTechIdea.Beep.Winform.Controls
         public object ShowPopup(Point anchorPoint, BeepPopupFormPosition position)
         {
             AdjustSize();
-            base.ShowPopup(anchorPoint, position); // Now matches new base overload
+            base.ShowPopup(anchorPoint, position);
             return SelectedRowData;
         }
+        // New method to change column width
+        public void SetColumnWidth(string columnName, int width)
+        {
+            var column = _grid.GetColumnByName(columnName);
+            if (column != null)
+            {
+                column.Width = Math.Max(20, width); // Ensure minimum width
+                AdjustSize();
+                _grid.Invalidate(); // Redraw grid with updated column width
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"SetColumnWidth: Column '{columnName}' not found.");
+            }
+        }
+        public object ShowPopupList(Control triggerControl, object griddata, string keycolumn, string valuecolumn, int keyColumnWidth, int valueColumnWidth)
+        {
+            if (griddata == null || !(griddata is IList || griddata is IEnumerable))
+            {
+                System.Diagnostics.Debug.WriteLine("ShowPopupList: Invalid griddata - must be IList or IEnumerable");
+                return null;
+            }
+
+            DataSource = griddata; // Let BeepSimpleGrid auto-generate columns
+
+            foreach (var column in Columns)
+            {
+                if (column.ColumnName.Equals( keycolumn,StringComparison.InvariantCultureIgnoreCase))
+                {
+                    column.Width = keyColumnWidth;
+                    column.Visible = true;
+                    column.ReadOnly = true;
+                }
+                else if (column.ColumnName.Equals(valuecolumn, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    column.Width = valueColumnWidth;
+                    column.Visible = true;
+                    column.ReadOnly = true;
+                }
+                else
+                {
+                    column.Visible = false;
+                }
+            }
+            // rearrange columns to ensure key column is first
+            Columns.Sort((a, b) => a.ColumnName.Equals(keycolumn, StringComparison.InvariantCultureIgnoreCase) ? -1 : 1);
+            AdjustSize();
+            base.ShowPopup(triggerControl, BeepPopupFormPosition.Bottom);
+            return SelectedRowData;
+        }
+
+      
         #endregion
+
         #region Helper Methods
         private void AdjustSize()
         {
+            if (_grid.Rows == null || _grid.Rows.Count == 0) return;
+
             int rowHeight = _grid.RowHeight;
-            int visibleRowCount = Math.Min(_grid.Rows.Count, 10); // Cap at 10 rows, adjust as needed
-            int gridHeight = visibleRowCount * rowHeight + (_grid.BorderThickness * 2);
-            int gridWidth = Math.Max(300, _grid.Columns.Where(c => c.Visible).Sum(c => c.Width));
+            int visibleRowCount = Math.Min(_grid.Rows.Count, 10);
+            int gridHeight = visibleRowCount * rowHeight + (_grid.BorderThickness * 2)+10;
+            int gridWidth = Columns.Where(c => c.Visible).Sum(c => c.Width)+10;
 
             this.Size = new Size(gridWidth, gridHeight);
             _grid.Size = this.Size;
@@ -165,16 +223,5 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion
-    }
-
-    // Assuming RowClickedEventArgs exists in BeepSimpleGrid
-    public class RowClickedEventArgs : EventArgs
-    {
-        public BeepGridRow Row { get; }
-
-        public RowClickedEventArgs(BeepGridRow row)
-        {
-            Row = row;
-        }
     }
 }

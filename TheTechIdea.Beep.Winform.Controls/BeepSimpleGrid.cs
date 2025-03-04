@@ -1,5 +1,6 @@
 ﻿
 
+using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Data;
@@ -867,7 +868,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Invalidate();
         }
-     
         public void CreateColumnsForEntity()
         {
             try
@@ -921,9 +921,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Debug.WriteLine($"Error adding columns for Entity {Entity?.EntityName}: {ex.Message}");
             }
         }
-
         private void InitializeRows()
         {
+            if (Rows == null) Rows = new BindingList<BeepGridRow>();
             Rows.Clear();
             if (_fullData == null || !_fullData.Any()) return; // No rows if no data
             int visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeaderHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
@@ -2471,6 +2471,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
         #region Resizing Logic
+        // New method to change column width
+        public void SetColumnWidth(string columnName, int width)
+        {
+         
+            var column = GetColumnByName(columnName); 
+            if (column != null)
+            {
+                column.Width = Math.Max(20, width); // Ensure minimum width
+              
+                Invalidate(); // Redraw grid with updated column width
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"SetColumnWidth: Column '{columnName}' not found.");
+            }
+        }
         private void BeepGrid_MouseDown(object sender, MouseEventArgs e)
         {
             if (IsNearColumnBorder(e.Location, out _resizingIndex))
@@ -2630,6 +2646,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_editingControl != null && IsEditorShown)
             {
+                SaveEditedValue();
                 if (_editingControl.Parent == this)
                 {
                     this.Controls.Remove(_editingControl);
@@ -2776,13 +2793,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void SaveEditedValue()
         {
-            if (_editorPopupForm == null || _editingCell == null)
+            if ( _editingCell == null)
             {
            //     Debug.WriteLine($"⚠️ Editing control or cell is null!");
                 return;
             }
 
-            object newValue = _editorPopupForm.GetValue();
+            object newValue = _editingControl.GetValue();
           //  Debug.WriteLine($"🔄 Saving value: {newValue} (Old: {_editingCell.CellData})");
 
             // 🔹 Check if the new value is empty or null
@@ -2863,7 +2880,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                
             }
         }
-
         #endregion Editor
         #region Events
         public event EventHandler<BeepGridCellSelectedEventArgs> SelectedCellChanged;

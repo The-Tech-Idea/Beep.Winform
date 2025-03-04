@@ -59,13 +59,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         //    base.Configure(settings);
            viewModel = new DriversConfigViewModel(beepservice.DMEEditor, beepservice.vis);
            BeepColumnConfig classhandlers=beepSimpleGrid1.GetColumnByName("ClassHandler");
-            classhandlers.CellEditor = BeepColumnType.ComboBox;
-           
+          //  classhandlers.CellEditor = BeepColumnType.ListOfValue;
+            int idx=0;
             foreach (var item in viewModel.DBAssemblyClasses)
             {
                 SimpleItem item1 = new SimpleItem();
                 item1.Display = item.className;
-                item1.Value = item.className;
+                item1.Value = idx++;
                 item1.Text = item.className;    
                 item1.Name = item.className;
                 classhandlers.Items.Add(item1);

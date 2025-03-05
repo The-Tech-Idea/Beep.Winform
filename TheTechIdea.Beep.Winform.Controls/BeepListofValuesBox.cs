@@ -207,7 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _dropdownButton.Height = buttonHeight - 2;
             _dropdownButton.MaxImageSize = new Size(_dropdownButton.Width - 4, _dropdownButton.Height - 4);
 
-            System.Diagnostics.Debug.WriteLine($"AdjustLayout: DrawingRect.Width={totalWidth}, KeyWidth={_keyTextBox.Width}, ValueWidth={_valueTextBox.Width}, ButtonWidth={_dropdownButton.Width}, Border1={_border1.Location}, Border2={_border2.Location}");
+          //  System.Diagnostics.Debug.WriteLine($"AdjustLayout: DrawingRect.Width={totalWidth}, KeyWidth={_keyTextBox.Width}, ValueWidth={_valueTextBox.Width}, ButtonWidth={_dropdownButton.Width}, Border1={_border1.Location}, Border2={_border2.Location}");
         }
 
         protected override void OnResize(EventArgs e)

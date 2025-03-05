@@ -322,6 +322,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ScrollbarBackColor { get; set; }
         public Color ScrollbarThumbColor { get; set; }
         public Color ScrollbarTrackColor { get; set; }
+        public Color ScrollbarHoverThumbColor { get; set; }
+        public Color ScrollbarHoverTrackColor { get; set; }
+        public Color ScrollbarActiveThumbColor { get; set; }
 
         public Font GetBlockHeaderFont()
         {

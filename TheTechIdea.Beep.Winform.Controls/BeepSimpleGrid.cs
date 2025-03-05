@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Data;
@@ -17,6 +15,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 using TheTechIdea.Beep.Winform.Controls.Grid;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using Timer = System.Windows.Forms.Timer;
 
 
 
@@ -446,9 +445,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         // Scrollbar Properties
+        private int _scrollTargetVertical; // Target scroll position (vertical)
+        private int _scrollTargetHorizontal; // Target scroll position (horizontal)
         private BeepScrollBar _verticalScrollBar;
         private BeepScrollBar _horizontalScrollBar;
         private bool _showVerticalScrollBar = true;
+        private Timer _scrollTimer; // For smooth scrolling
+        private int _scrollTarget; // Target scroll position
+        private int _scrollStep = 5; // Pixels per animation step
         [Browsable(true)]
         [Category("Layout")]
         public bool ShowVerticalScrollBar
@@ -544,6 +548,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                
             };
+            _scrollTimer = new Timer { Interval = 16 }; // ~60 FPS for smooth animation
+            _scrollTimer.Tick += ScrollTimer_Tick;
             ApplyThemeToChilds = false;
             Controls.Add(DataNavigator);
 
@@ -1692,7 +1698,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             var g = e.Graphics;
             var drawingBounds = DrawingRect;
-
+            // Update scrollbar visibility first
+            UpdateScrollBars(); // Ensure visibility is current before adjusting gridRect
+        
             bottomPanelY = drawingBounds.Bottom;
             botomspacetaken = 0;
             topPanelY = drawingBounds.Top;
@@ -1732,7 +1740,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 headerPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), headerPanelHeight);
                 DrawHeaderPanel(g, headerPanelRect);
                 topPanelY += headerPanelHeight;
-                botomspacetaken += headerPanelHeight;
+             //   botomspacetaken += headerPanelHeight;
             }
 
             if (_showColumnHeaders)
@@ -1740,13 +1748,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 columnsheaderPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), ColumnHeaderHeight);
                 PaintColumnHeaders(g, columnsheaderPanelRect);
                 topPanelY += ColumnHeaderHeight;
-                botomspacetaken += ColumnHeaderHeight;
+             //   botomspacetaken += ColumnHeaderHeight;
             }
 
-            int availableHeight = drawingBounds.Height - botomspacetaken - (_horizontalScrollBar.Visible ? _horizontalScrollBar.Height : 0);
+            int availableHeight = drawingBounds.Height - topPanelY-botomspacetaken -  (_horizontalScrollBar.Visible ? _horizontalScrollBar.Height : 0);
             int availableWidth = drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
             gridRect = new Rectangle(drawingBounds.Left, topPanelY, availableWidth, availableHeight);
-           
+
             PaintRows(g, gridRect);
 
             if (_showverticalgridlines)
@@ -1759,6 +1767,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (IsEditorShown && _editingControl != null && _editingControl.Parent == this)
             {
                 _editingControl.Invalidate(); // Force editor redraw if needed
+            }
+            if  (_horizontalScrollBar.Visible )
+            {
+                _horizontalScrollBar.Invalidate(); // Force editor redraw if needed
+            }
+            if (_verticalScrollBar.Visible)
+            {
+                _horizontalScrollBar.Invalidate(); // Force editor redraw if needed
             }
         }
         private void DrawBottomAggregationRow(Graphics g, Rectangle rect)
@@ -1835,6 +1851,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             for (int i = 0; i < Rows.Count; i++)
             {
                 var row = Rows[i];
+                if (yOffset + RowHeight > bounds.Bottom)
+                    break; // Stop before drawing outside bounds
                 var rowRect = new Rectangle(bounds.Left, yOffset, bounds.Width, RowHeight);
                 PaintRow(g, row, rowRect);
                 yOffset += _rowHeight;
@@ -1843,27 +1861,34 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void PaintRow(Graphics g, BeepGridRow row, Rectangle rowRect)
         {
-            int xOffset = rowRect.Left - XOffset; // Apply scrolling offset
-            for (int i = 0; i < row.Cells.Count && i < Columns.Count; i++)
+            using (Region clipRegion = new Region(gridRect))
             {
-                var cell = row.Cells[i];
-                if (!Columns[i].Visible) continue;
-                // 🔹 Update BeepGridCell with new calculated position
-                cell.X = xOffset;
-                cell.Y = rowRect.Top;
-                cell.Width = Columns[i].Width;
-                cell.Height = rowRect.Height;
-
-                var cellRect = new Rectangle(cell.X, cell.Y, cell.Width, cell.Height);
-                Color selectedbordercolor = _currentTheme.ActiveBorderColor;
-                Color backcolor=cell.RowIndex== _selectedRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
-                if (cellRect.Right >= gridRect.Left && cellRect.Left < gridRect.Right) // Draw only visible cells
+                g.Clip = clipRegion;
+                int xOffset = rowRect.Left - XOffset;
+                for (int i = 0; i < row.Cells.Count && i < Columns.Count; i++)
                 {
-                    PaintCell(g, cell, cellRect, backcolor);
+                    var cell = row.Cells[i];
+                    if (!Columns[i].Visible) continue;
+
+                    cell.X = xOffset;
+                    cell.Y = rowRect.Top;
+                    cell.Width = Columns[i].Width;
+                    cell.Height = rowRect.Height;
+
+                    var cellRect = new Rectangle(cell.X, cell.Y, cell.Width, cell.Height);
+                    Color selectedbordercolor = _currentTheme.ActiveBorderColor;
+                    Color backcolor = cell.RowIndex == _selectedRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
+
+                    // Still check visibility for efficiency, but clipping ensures no overflow
+                    if (cellRect.Left >= gridRect.Left && cellRect.Right <= gridRect.Right &&
+                        cellRect.Top >= gridRect.Top && cellRect.Bottom <= gridRect.Bottom)
+                    {
+                        PaintCell(g, cell, cellRect, backcolor);
+                    }
+
+                    xOffset += Columns[i].Width;
                 }
-               
-                xOffset += Columns[i].Width;
-              //  if (xOffset > rowRect.Right) break; // Stop drawing if outside the visible area
+                g.ResetClip();
             }
         }
         private void PaintCell(Graphics g, BeepGridCell cell, Rectangle cellRect,Color backcolor)
@@ -2262,43 +2287,130 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion Cell Editing
         #region Scrollbar Management
-        private void ScrollBy(int delta)
+        private void StartSmoothScroll(int targetVertical, int targetHorizontal = -1)
         {
-            // Calculate the new offset
-            int newOffset = _dataOffset + delta;
+            int maxVerticalOffset = Math.Max(0, _fullData.Count - GetVisibleRowCount());
+            _scrollTargetVertical = Math.Max(0, Math.Min(targetVertical, maxVerticalOffset));
+            bool verticalChanged = _scrollTargetVertical != _dataOffset;
 
-            // Calculate the maximum possible offset (so the last page of Rows is still visible)
-            // For example, if _fullData.Count=100 and Rows.Count=10, 
-            // then the highest offset is 90 (showing items 90..99).
-            int maxOffset = Math.Max(0, _fullData.Count - GetVisibleRowCount());
-
-            // Clamp newOffset between 0 and maxOffset
-            if (newOffset < 0)
-                newOffset = 0;
-            else if (newOffset > maxOffset)
-                newOffset = maxOffset;
-
-            // Only do the work if the offset actually changed
-            if (newOffset != _dataOffset)
+            if (targetHorizontal >= 0)
             {
-                _dataOffset = newOffset;
-                FillVisibleRows();
-                UpdateScrollBars();
-                Invalidate();
+                int totalColumnWidth = Columns.Where(o => o.Visible).Sum(col => col.Width);
+                int visibleColumnCount = Columns.Count(o => o.Visible);
+                // Add 1px border between each pair of columns (n-1 borders) and possibly at ends
+                int borderWidth = 1; // Adjust if your border thickness differs
+                int totalBorderWidth = visibleColumnCount > 0 ? (visibleColumnCount - 1) * borderWidth : 0; // Between columns only
+                totalColumnWidth += totalBorderWidth; // Add borders to total width
+                int visibleWidth = gridRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
+                int maxXOffset = Math.Max(0, totalColumnWidth );
+                _scrollTargetHorizontal = Math.Max(0, Math.Min(targetHorizontal, maxXOffset));
+            }
+            else
+            {
+                _scrollTargetHorizontal = _xOffset;
+            }
+            bool horizontalChanged = _scrollTargetHorizontal != _xOffset;
+
+            if (verticalChanged || horizontalChanged)
+            {
+                _scrollTimer.Start();
+               // System.Diagnostics.Debug.WriteLine($"StartSmoothScroll: TargetH={_scrollTargetHorizontal}, _xOffset={_xOffset}, MaxXOffset={maxXOffset}, TotalWidth={totalColumnWidth}, VisibleWidth={visibleWidth}, HorizontalChanged={horizontalChanged}");
             }
         }
-        private void OnScroll(object sender, ScrollEventArgs e)
+        private void ScrollTimer_Tick(object sender, EventArgs e)
         {
-            int visibleRowCount = GetVisibleRowCount();
+            bool updated = false;
 
-            _dataOffset = _verticalScrollBar.Value;
+            // Vertical scrolling
+            if (_dataOffset < _scrollTargetVertical)
+            {
+                _dataOffset = Math.Min(_dataOffset + _scrollStep, _scrollTargetVertical);
+                updated = true;
+            }
+            else if (_dataOffset > _scrollTargetVertical)
+            {
+                _dataOffset = Math.Max(_dataOffset - _scrollStep, _scrollTargetVertical);
+                updated = true;
+            }
+
+            // Horizontal scrolling
+            if (_xOffset < _scrollTargetHorizontal)
+            {
+                _xOffset = Math.Min(_xOffset + _scrollStep, _scrollTargetHorizontal);
+                updated = true;
+            }
+            else if (_xOffset > _scrollTargetHorizontal)
+            {
+                _xOffset = Math.Max(_xOffset - _scrollStep, _scrollTargetHorizontal);
+                updated = true;
+            }
+
+            if (!updated)
+            {
+                _scrollTimer.Stop();
+            }
+
             FillVisibleRows();
-            UpdateScrollBars();
+            UpdateCellPositions();
+            UpdateScrollBars(); // Sync scrollbar values
             Invalidate();
         }
+        // Mouse wheel support for smooth scrolling
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            base.OnMouseWheel(e);
+            if (_verticalScrollBar.Visible)
+            {
+                int delta = e.Delta > 0 ? -_verticalScrollBar.SmallChange : _verticalScrollBar.SmallChange;
+                StartSmoothScroll(_dataOffset + delta);
+            }
+        }
+        private void ScrollBy(int delta)
+        {
+            int newOffset = _dataOffset + delta;
+            int maxOffset = Math.Max(0, _fullData.Count - GetVisibleRowCount());
+            newOffset = Math.Max(0, Math.Min(newOffset, maxOffset));
+            if (newOffset != _dataOffset)
+            {
+                StartSmoothScroll(newOffset);
+            }
+        }
+        //private void ScrollBy(int delta)
+        //{
+        //    // Calculate the new offset
+        //    int newOffset = _dataOffset + delta;
+
+        //    // Calculate the maximum possible offset (so the last page of Rows is still visible)
+        //    // For example, if _fullData.Count=100 and Rows.Count=10, 
+        //    // then the highest offset is 90 (showing items 90..99).
+        //    int maxOffset = Math.Max(0, _fullData.Count - GetVisibleRowCount());
+
+        //    // Clamp newOffset between 0 and maxOffset
+        //    if (newOffset < 0)
+        //        newOffset = 0;
+        //    else if (newOffset > maxOffset)
+        //        newOffset = maxOffset;
+
+        //    // Only do the work if the offset actually changed
+        //    if (newOffset != _dataOffset)
+        //    {
+        //        _dataOffset = newOffset;
+        //        FillVisibleRows();
+        //        UpdateScrollBars();
+        //        Invalidate();
+        //    }
+        //}
+        //private void OnScroll(object sender, ScrollEventArgs e)
+        //{
+        //    int visibleRowCount = GetVisibleRowCount();
+
+        //    _dataOffset = _verticalScrollBar.Value;
+        //    FillVisibleRows();
+        //    UpdateScrollBars();
+        //    Invalidate();
+        //}
         private void UpdateScrollBars()
         {
-           
             if (_verticalScrollBar == null || _horizontalScrollBar == null)
                 return;
 
@@ -2308,18 +2420,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _horizontalScrollBar.Visible = false;
                 return;
             }
+
             int totalRowHeight = _fullData.Count * RowHeight;
             int totalColumnWidth = Columns.Where(o => o.Visible).Sum(col => col.Width);
-            int visibleHeight = gridRect.Height; // Use gridRect for row area
-            int visibleWidth = DrawingRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
+            int visibleColumnCount = Columns.Count(o => o.Visible);
+            int borderWidth = 1; // Adjust if your border thickness differs
+            int totalBorderWidth = visibleColumnCount > 0 ? (visibleColumnCount - 1) * borderWidth : 0; // Between columns only
+            totalColumnWidth += totalBorderWidth; // Add borders to total width
+            int visibleHeight = gridRect.Height;
+            int visibleWidth = gridRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
             int visibleRowCount = GetVisibleRowCount();
-            // **Vertical ScrollBar Fix**
-           // Debug.WriteLine($"visiblerowcount :{visibleRowCount }");
+
+            // Vertical ScrollBar (unchanged)
             if (_showVerticalScrollBar && _fullData.Count >= visibleRowCount)
             {
                 int maxOffset = Math.Max(0, _fullData.Count - visibleRowCount);
                 _verticalScrollBar.Minimum = 0;
-                _verticalScrollBar.Maximum = maxOffset + visibleRowCount - 1; // Include visible rows in range
+                _verticalScrollBar.Maximum = maxOffset + visibleRowCount - 1;
                 _verticalScrollBar.LargeChange = visibleRowCount;
                 _verticalScrollBar.SmallChange = 1;
                 _verticalScrollBar.Value = Math.Min(_dataOffset, maxOffset);
@@ -2330,38 +2447,101 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_verticalScrollBar.Visible)
                 {
                     _verticalScrollBar.Visible = false;
-                    _dataOffset = 0; // Reset offset when all rows fit
+                    _dataOffset = 0;
                     FillVisibleRows();
                 }
-           
             }
+
             // Horizontal ScrollBar
-            // Horizontal ScrollBar - NEW CALCULATION
-            if (_showHorizontalScrollBar && totalColumnWidth >= visibleWidth)
+            if (_showHorizontalScrollBar && totalColumnWidth > visibleWidth)
             {
+                int maxXOffset = Math.Max(0, totalColumnWidth );
                 _horizontalScrollBar.Minimum = 0;
-                // Corrected Maximum: Allow scrolling until the last column's right edge aligns with visible area's right edge
-                _horizontalScrollBar.Maximum = totalColumnWidth; // Full width, not reduced by visibleWidth
-                _horizontalScrollBar.SmallChange = Columns.Where(c => c.Visible).Min(c => c.Width) / 2; // Smallest column half-width
-                _horizontalScrollBar.LargeChange = visibleWidth; // Full visible width
-                _horizontalScrollBar.Value = Math.Max(0, Math.Min(_xOffset, _horizontalScrollBar.Maximum));
+                _horizontalScrollBar.Maximum = maxXOffset;
+                _horizontalScrollBar.LargeChange = visibleWidth;
+                _horizontalScrollBar.SmallChange = Columns.Where(c => c.Visible).Min(c => c.Width) / 2;
+                _horizontalScrollBar.Value = Math.Max(0, Math.Min(_xOffset, maxXOffset));
                 _horizontalScrollBar.Visible = true;
 
-                // Debug output
-              //  Debug.WriteLine($"Horizontal Scroll: TotalWidth={totalColumnWidth}, VisibleWidth={visibleWidth}, Max={_horizontalScrollBar.Maximum}, Value={_horizontalScrollBar.Value}");
+              //  System.Diagnostics.Debug.WriteLine($"HScroll: TotalWidth={totalColumnWidth}, VisibleWidth={visibleWidth}, Max={_horizontalScrollBar.Maximum}, Value={_horizontalScrollBar.Value}, _xOffset={_xOffset}, Borders={totalBorderWidth}");
             }
             else
             {
                 if (_horizontalScrollBar.Visible)
                 {
                     _horizontalScrollBar.Visible = false;
-                    _xOffset = 0; // Reset offset when no scrollbar
+                    _xOffset = 0;
                 }
-               
             }
 
-          //  PositionScrollBars();
+            PositionScrollBars();
         }
+        //private void UpdateScrollBars()
+        //{
+
+        //    if (_verticalScrollBar == null || _horizontalScrollBar == null)
+        //        return;
+
+        //    if (_fullData == null || !_fullData.Any())
+        //    {
+        //        _verticalScrollBar.Visible = false;
+        //        _horizontalScrollBar.Visible = false;
+        //        return;
+        //    }
+        //    int totalRowHeight = _fullData.Count * RowHeight;
+        //    int totalColumnWidth = Columns.Where(o => o.Visible).Sum(col => col.Width);
+        //    int visibleHeight = gridRect.Height; // Use gridRect for row area
+        //    int visibleWidth = DrawingRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
+        //    int visibleRowCount = GetVisibleRowCount();
+        //    // **Vertical ScrollBar Fix**
+        //   // Debug.WriteLine($"visiblerowcount :{visibleRowCount }");
+        //    if (_showVerticalScrollBar && _fullData.Count >= visibleRowCount)
+        //    {
+        //        int maxOffset = Math.Max(0, _fullData.Count - visibleRowCount);
+        //        _verticalScrollBar.Minimum = 0;
+        //        _verticalScrollBar.Maximum = maxOffset + visibleRowCount - 1; // Include visible rows in range
+        //        _verticalScrollBar.LargeChange = visibleRowCount;
+        //        _verticalScrollBar.SmallChange = 1;
+        //        _verticalScrollBar.Value = Math.Min(_dataOffset, maxOffset);
+        //        _verticalScrollBar.Visible = true;
+        //    }
+        //    else
+        //    {
+        //        if (_verticalScrollBar.Visible)
+        //        {
+        //            _verticalScrollBar.Visible = false;
+        //            _dataOffset = 0; // Reset offset when all rows fit
+        //            FillVisibleRows();
+        //        }
+
+        //    }
+        //    // Horizontal ScrollBar
+        //    // Horizontal ScrollBar - NEW CALCULATION
+        //    if (_showHorizontalScrollBar && totalColumnWidth >= visibleWidth)
+        //    {
+        //        _horizontalScrollBar.Minimum = 0;
+        //        // Corrected Maximum: Allow scrolling until the last column's right edge aligns with visible area's right edge
+        //        _horizontalScrollBar.Maximum = totalColumnWidth; // Full width, not reduced by visibleWidth
+        //        _horizontalScrollBar.SmallChange = Columns.Where(c => c.Visible).Min(c => c.Width) / 2; // Smallest column half-width
+        //        _horizontalScrollBar.LargeChange = visibleWidth; // Full visible width
+        //        _horizontalScrollBar.Value = Math.Max(0, Math.Min(_xOffset, _horizontalScrollBar.Maximum));
+        //        _horizontalScrollBar.Visible = true;
+
+        //        // Debug output
+        //      //  Debug.WriteLine($"Horizontal Scroll: TotalWidth={totalColumnWidth}, VisibleWidth={visibleWidth}, Max={_horizontalScrollBar.Maximum}, Value={_horizontalScrollBar.Value}");
+        //    }
+        //    else
+        //    {
+        //        if (_horizontalScrollBar.Visible)
+        //        {
+        //            _horizontalScrollBar.Visible = false;
+        //            _xOffset = 0; // Reset offset when no scrollbar
+        //        }
+
+        //    }
+
+        //  //  PositionScrollBars();
+        //}
         // Helper method to calculate visible row count dynamically
         // Helper method to calculate visible row count using gridRect
         private int GetVisibleRowCount()
@@ -2375,69 +2555,90 @@ namespace TheTechIdea.Beep.Winform.Controls
             int verticalScrollWidth = _verticalScrollBar.Width;
             int horizontalScrollHeight = _horizontalScrollBar.Height;
             int visibleHeight = gridRect.Height; // Use gridRect for row area
-            int visibleWidth = DrawingRect.Width;
+            int visibleWidth = gridRect.Width;
 
             if (_verticalScrollBar.Visible)
             {
-                _verticalScrollBar.Location = new Point(DrawingRect.Right - verticalScrollWidth, gridRect.Top); // Align with gridRect top
+                _verticalScrollBar.Location = new Point(gridRect.Right - verticalScrollWidth, gridRect.Top); // Align with gridRect top
                 _verticalScrollBar.Height = visibleHeight - (_horizontalScrollBar.Visible ? horizontalScrollHeight : 0);
             }
 
             if (_horizontalScrollBar.Visible)
             {
-                _horizontalScrollBar.Location = new Point(DrawingRect.Left, DrawingRect.Bottom - horizontalScrollHeight - (_showNavigator ? navigatorPanelHeight : 0));
+                _horizontalScrollBar.Location = new Point(gridRect.Left, gridRect.Bottom  );
                 _horizontalScrollBar.Width = visibleWidth - (_verticalScrollBar.Visible ? verticalScrollWidth : 0);
             }
         }
+        // Update scrollbars based on data and visible area
+
         private void VerticalScrollBar_Scroll(object sender, EventArgs e)
         {
-            if (_verticalScrollBar != null)
-            {
-               // UpdateRowCount();
-
-
-                int maxOffset = Math.Max(0, _fullData.Count - GetVisibleRowCount());
-                _dataOffset = Math.Min(_verticalScrollBar.Value, maxOffset);
-              
-            
-                FillVisibleRows(); // Fill visible rows based on new offset 
-                UpdateCellPositions(); // Update cell positions based on new offset
-                if (_editingCell != null)
-                {
-                    if (_editingRowIndex >= 0 && _editingRowIndex >= _dataOffset && _editingRowIndex < _dataOffset + Rows.Count)
-                    {
-                        int newRowIndex = _editingRowIndex - _dataOffset; // Relative index in Rows
-                        if (newRowIndex >= 0 && newRowIndex < Rows.Count)
-                        {
-                            _editingCell = Rows[newRowIndex].Cells[_editingCell.ColumnIndex]; // Assuming ColumnIndex exists
-                          //  Debug.WriteLine($"Updated _editingCell to rowIndex={newRowIndex}");
-                        }
-                    }
-                }
-            
-
-                Invalidate();
-                MoveEditorIn(); // 🔹 Move editor if needed
-            }
+            StartSmoothScroll(_verticalScrollBar.Value);
         }
+
+        private void VerticalScrollBar_ValueChanged(object sender, EventArgs e)
+        {
+            StartSmoothScroll(_verticalScrollBar.Value);
+        }
+
         private void HorizontalScrollBar_Scroll(object sender, EventArgs e)
         {
-            if (_horizontalScrollBar != null)
-            {
-                int totalColumnWidth = Columns.Where(c => c.Visible).Sum(col => col.Width);
-                int visibleWidth = DrawingRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
-
-                // Update _xOffset based on scrollbar value, clamped to valid range
-                _xOffset = Math.Max(0, Math.Min(_horizontalScrollBar.Value, totalColumnWidth - visibleWidth));
-
-                // Debugging output
-                //  Debug.WriteLine($"Scroll Event: _xOffset={_xOffset}, ScrollValue={_horizontalScrollBar.Value}, Max={_horizontalScrollBar.Maximum}");
-
-                UpdateCellPositions(); // Update cell positions based on new offset
-                Invalidate();
-                MoveEditorIn(); // Move editor if active
-            }
+            StartSmoothScroll(_dataOffset, _horizontalScrollBar.Value);
         }
+
+        private void HorizontalScrollBar_ValueChanged(object sender, EventArgs e)
+        {
+            StartSmoothScroll(_dataOffset, _horizontalScrollBar.Value);
+        }
+        //private void VerticalScrollBar_Scroll(object sender, EventArgs e)
+        //{
+        //    if (_verticalScrollBar != null)
+        //    {
+        //       // UpdateRowCount();
+
+
+        //        int maxOffset = Math.Max(0, _fullData.Count - GetVisibleRowCount());
+        //        _dataOffset = Math.Min(_verticalScrollBar.Value, maxOffset);
+
+
+        //        FillVisibleRows(); // Fill visible rows based on new offset 
+        //        UpdateCellPositions(); // Update cell positions based on new offset
+        //        if (_editingCell != null)
+        //        {
+        //            if (_editingRowIndex >= 0 && _editingRowIndex >= _dataOffset && _editingRowIndex < _dataOffset + Rows.Count)
+        //            {
+        //                int newRowIndex = _editingRowIndex - _dataOffset; // Relative index in Rows
+        //                if (newRowIndex >= 0 && newRowIndex < Rows.Count)
+        //                {
+        //                    _editingCell = Rows[newRowIndex].Cells[_editingCell.ColumnIndex]; // Assuming ColumnIndex exists
+        //                  //  Debug.WriteLine($"Updated _editingCell to rowIndex={newRowIndex}");
+        //                }
+        //            }
+        //        }
+
+
+        //        Invalidate();
+        //        MoveEditorIn(); // 🔹 Move editor if needed
+        //    }
+        //}
+        //private void HorizontalScrollBar_Scroll(object sender, EventArgs e)
+        //{
+        //    if (_horizontalScrollBar != null)
+        //    {
+        //        int totalColumnWidth = Columns.Where(c => c.Visible).Sum(col => col.Width);
+        //        int visibleWidth = DrawingRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
+
+        //        // Update _xOffset based on scrollbar value, clamped to valid range
+        //        _xOffset = Math.Max(0, Math.Min(_horizontalScrollBar.Value, totalColumnWidth - visibleWidth));
+
+        //        // Debugging output
+        //        //  Debug.WriteLine($"Scroll Event: _xOffset={_xOffset}, ScrollValue={_horizontalScrollBar.Value}, Max={_horizontalScrollBar.Maximum}");
+
+        //        UpdateCellPositions(); // Update cell positions based on new offset
+        //        Invalidate();
+        //        MoveEditorIn(); // Move editor if active
+        //    }
+        //}
         private void UpdateRowCount()
         {
             if(_fullData==null) return;

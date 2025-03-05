@@ -2574,6 +2574,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void VerticalScrollBar_Scroll(object sender, EventArgs e)
         {
             StartSmoothScroll(_verticalScrollBar.Value);
+            MoveEditorIn(); // Move editor if active
         }
 
         private void VerticalScrollBar_ValueChanged(object sender, EventArgs e)
@@ -2584,11 +2585,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void HorizontalScrollBar_Scroll(object sender, EventArgs e)
         {
             StartSmoothScroll(_dataOffset, _horizontalScrollBar.Value);
+            MoveEditorIn(); // Move editor if active
         }
 
         private void HorizontalScrollBar_ValueChanged(object sender, EventArgs e)
         {
             StartSmoothScroll(_dataOffset, _horizontalScrollBar.Value);
+
+
         }
         //private void VerticalScrollBar_Scroll(object sender, EventArgs e)
         //{

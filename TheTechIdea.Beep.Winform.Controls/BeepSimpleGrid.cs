@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected int bottomagregationPanelHeight = 12;
         protected int footerPanelHeight = 12;
         protected int navigatorPanelHeight = 20;
-
+        private int _stickyWidth = 0; // Cache sticky column width
         private Rectangle footerPanelRect;
         private Rectangle headerPanelRect;
         private Rectangle columnsheaderPanelRect;
@@ -82,6 +82,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _defaultcolumnheaderwidth = 50;
         private TextImageRelation textImageRelation = TextImageRelation.ImageAboveText;
 
+        private int _startviewrow = 0;
+        private int _endviewrow = 0;
         #endregion Fields
         #region Title Properties
         [Browsable(true)]
@@ -959,6 +961,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     };
                     row.Cells.Add(cell);
                 }
+                row.Index = i;
+                row.DisplayIndex = i;
                 Rows.Add(row);
             }
 
@@ -1003,12 +1007,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void FillVisibleRows()
         {
             if (_fullData == null || !_fullData.Any()) return;
-
+            
             for (int i = 0; i < Rows.Count; i++)
             {
                 int dataIndex = _dataOffset + i;
                 var row = Rows[i];
-                if (dataIndex < _fullData.Count)
+
+                if (dataIndex >= 0 && dataIndex < _fullData.Count)
                 {
                     var dataItem = _fullData[dataIndex];
                     for (int j = 0; j < row.Cells.Count && j < Columns.Count; j++)
@@ -1018,19 +1023,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                         var value = prop?.GetValue(dataItem) ?? string.Empty;
                         row.Cells[j].CellValue = value;
                         row.Cells[j].CellData = value;
+                        row.IsDataLoaded = true;
                     }
                 }
-                else
-                {
-                    // Clear cells beyond data (optional, since we won’t draw these rows)
-                    foreach (var cell in row.Cells)
-                    {
-                        cell.CellValue = null;
-                        cell.CellData = null;
-                    }
-                }
+                //else
+                //{
+                //    // Clear cells beyond data (optional, since we won’t draw these rows)
+                //    foreach (var cell in row.Cells)
+                //    {
+                //        cell.CellValue = null;
+                //        cell.CellData = null;
+                //    }
+                //}
             }
             UpdateScrollBars();
+            Invalidate();
         }
         private void UpdateDataRecordFromRow(BeepGridCell editingCell)
         {
@@ -1143,7 +1150,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Debug.WriteLine($"MoveNextCell crashed: {ex.Message}\nStackTrace: {ex.StackTrace}");
             }
         }
-        // Helper method to find the last visible column
         private int GetLastVisibleColumn()
         {
             try
@@ -1167,8 +1173,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return -1;
             }
         }
-
-        // Helper method to find the next visible column
         private int GetNextVisibleColumn(int currentIndex)
         {
             try
@@ -1266,34 +1270,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Debug.WriteLine($"EnsureColumnVisible crashed: {ex.Message}\nStackTrace: {ex.StackTrace}");
             }
         }
-        private void UpdateCellPositions()
-        {
-            int yOffset = _dataOffset * RowHeight; // Use RowHeight directly
-            int xOffset = _xOffset;
-
-            for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
-            {
-                var row = Rows[rowIndex];
-                // Position relative to gridRect.Top, adjusted for scroll
-                row.UpperY = gridRect.Top + (rowIndex * RowHeight) - yOffset;
-
-                int x = gridRect.Left - xOffset; // Start at gridRect.Left, adjust for scroll
-                for (int colIndex = 0; colIndex < Columns.Count; colIndex++)
-                {
-                    if (Columns[colIndex].Visible)
-                    {
-                        var cell = row.Cells[colIndex];
-                        cell.X = x;
-                        cell.Y = row.UpperY; // Ensure cell.Y matches row
-                        cell.Width = Columns[colIndex].Width;
-                        cell.Height = RowHeight;
-                        x += Columns[colIndex].Width;
-                    }
-                }
-            }
-
-           // System.Diagnostics.Debug.WriteLine($"UpdateCellPositions: yOffset={yOffset}, xOffset={xOffset}, RowsCount={Rows.Count}, gridRect={gridRect}");
-        }
         protected override bool ProcessKeyPreview(ref Message m)
         {
             if (m.Msg == 0x0100) // WM_KEYDOWN
@@ -1343,29 +1319,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             return base.ProcessKeyPreview(ref m);
         }
-        //protected override bool ProcessDialogKey(Keys keyData)
-        //{
-        //    var keyCode = (keyData & Keys.KeyCode);
-        //    bool shiftPressed = (keyData & Keys.Shift) == Keys.Shift;
-
-        //    switch (keyCode)
-        //    {
-        //        case Keys.Tab:
-        //            if (shiftPressed)
-        //            {
-        //                MovePreviousCell(); // Optional: Handle Shift+Tab if desired
-        //            }
-        //            else
-        //            {
-        //                MoveNextCell();
-        //            }
-        //            Invalidate();
-        //            return true; // Stop default tab navigation
-
-        //        default:
-        //            return base.ProcessDialogKey(keyData); // Let base class handle other keys
-        //    }
-        //}
         private void BeepGrid_PreviewKeyDown(object? sender, PreviewKeyDownEventArgs e)
         {
             
@@ -1700,7 +1653,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             var drawingBounds = DrawingRect;
             // Update scrollbar visibility first
             UpdateScrollBars(); // Ensure visibility is current before adjusting gridRect
-        
+            PositionScrollBars();
             bottomPanelY = drawingBounds.Bottom;
             botomspacetaken = 0;
             topPanelY = drawingBounds.Top;
@@ -1754,7 +1707,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             int availableHeight = drawingBounds.Height - topPanelY-botomspacetaken -  (_horizontalScrollBar.Visible ? _horizontalScrollBar.Height : 0);
             int availableWidth = drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
             gridRect = new Rectangle(drawingBounds.Left, topPanelY, availableWidth, availableHeight);
-
+          //  UpdateRowCount();
+            UpdateStickyWidth();
             PaintRows(g, gridRect);
 
             if (_showverticalgridlines)
@@ -1762,7 +1716,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_showhorizontalgridlines)
                 DrawRowsBorders(g, gridRect);
 
-            PositionScrollBars();
+           
             // Ensure editor control is visible if present
             if (IsEditorShown && _editingControl != null && _editingControl.Parent == this)
             {
@@ -1816,48 +1770,157 @@ namespace TheTechIdea.Beep.Winform.Controls
                 g.DrawLine(pen, rect.Left, rect.Top, rect.Right, rect.Top);
             }
         }
-        private void PaintColumnHeaders(Graphics g, Rectangle bounds)
+        private void UpdateStickyWidth()
         {
-            int xOffset = bounds.Left - XOffset; // Ensure same offset as rows
-            for (int i = 0; i < Columns.Count; i++)
+            _stickyWidth = Columns.Where(c => c.Sticked && c.Visible).Sum(c => c.Width);
+         //   System.Diagnostics.Debug.WriteLine($"UpdateStickyWidth: StickyWidth={_stickyWidth}, StickedColumns={Columns.Count(c => c.Sticked && c.Visible)}");
+           // Invalidate(); // Redraw when sticky width changes
+        }
+
+        // Helper method with centered text
+        private void PaintHeaderCell(Graphics g, BeepColumnConfig col, Rectangle cellRect, StringFormat format)
+        {
+            using (Brush bgBrush = new SolidBrush(_currentTheme.HeaderBackColor))
+            using (Brush textBrush = new SolidBrush(_currentTheme.ButtonForeColor)) // Your preferred color
             {
-                var col = Columns[i];
-                if (!col.Visible) continue;
-
-                string headerText = col.ColumnCaption;
-                var columnRect = new Rectangle(xOffset, bounds.Top, col.Width, bounds.Height);
-
-                if (columnRect.Right >= bounds.Left && columnRect.Left < bounds.Right + Columns.Last().Width) // Only draw visible columns
-                {
-                    using (var textBrush = new SolidBrush(_currentTheme.ButtonForeColor))
-                    {
-                        g.DrawString(headerText, _columnHeadertextFont ?? Font, textBrush, columnRect,
-                            new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
-                    }
-                }
-
-                xOffset += col.Width;
-               // if (xOffset > bounds.Right) break; // Stop drawing when out of bounds
-            }
-
-            using (var pen = new Pen(_currentTheme.GridLineColor))
-            {
-                g.DrawLine(pen, bounds.Left, bounds.Bottom, bounds.Right, bounds.Bottom);
+                g.FillRectangle(bgBrush, cellRect);
+                g.DrawRectangle(Pens.Black, cellRect);
+                g.DrawString(col.ColumnName, _columnHeadertextFont ?? Font, textBrush, cellRect, format);
             }
         }
+        //private void PaintColumnHeaders(Graphics g, Rectangle bounds)
+        //{
+        //    int xOffset = bounds.Left - XOffset; // Ensure same offset as rows
+        //    for (int i = 0; i < Columns.Count; i++)
+        //    {
+        //        var col = Columns[i];
+        //        if (!col.Visible) continue;
+
+        //        string headerText = col.ColumnCaption;
+        //        var columnRect = new Rectangle(xOffset, bounds.Top, col.Width, bounds.Height);
+
+        //        if (columnRect.Right >= bounds.Left && columnRect.Left < bounds.Right + Columns.Last().Width) // Only draw visible columns
+        //        {
+        //            using (var textBrush = new SolidBrush(_currentTheme.ButtonForeColor))
+        //            {
+        //                g.DrawString(headerText, _columnHeadertextFont ?? Font, textBrush, columnRect,
+        //                    new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+        //            }
+        //        }
+
+        //        xOffset += col.Width;
+        //       // if (xOffset > bounds.Right) break; // Stop drawing when out of bounds
+        //    }
+
+        //    using (var pen = new Pen(_currentTheme.GridLineColor))
+        //    {
+        //        g.DrawLine(pen, bounds.Left, bounds.Bottom, bounds.Right, bounds.Bottom);
+        //    }
+        //}
+        //private void PaintRows(Graphics g, Rectangle bounds)
+        //{
+        //    int yOffset = bounds.Top;
+        //    for (int i = 0; i < Rows.Count; i++)
+        //    {
+        //        var row = Rows[i];
+        //        if (yOffset + RowHeight > bounds.Bottom)
+        //            break; // Stop before drawing outside bounds
+        //        var rowRect = new Rectangle(bounds.Left, yOffset, bounds.Width, RowHeight);
+        //        PaintRow(g, row, rowRect);
+        //        yOffset += _rowHeight;
+        //        if (yOffset >= bounds.Bottom) break;
+        //    }
+        //}
         private void PaintRows(Graphics g, Rectangle bounds)
         {
             int yOffset = bounds.Top;
-            for (int i = 0; i < Rows.Count; i++)
+            var stickyColumns = Columns.Where(c => c.Sticked && c.Visible).ToList();
+            int stickyWidth = _stickyWidth;
+
+            // Define sticky and scrolling regions
+            Rectangle stickyRegion = new Rectangle(bounds.Left, bounds.Top, stickyWidth, bounds.Height);
+            Rectangle scrollingRegion = new Rectangle(bounds.Left + stickyWidth, bounds.Top, bounds.Width - stickyWidth, bounds.Height);
+
+            // Draw scrolling columns first
+            using (Region clipRegion = new Region(scrollingRegion))
             {
-                var row = Rows[i];
-                if (yOffset + RowHeight > bounds.Bottom)
-                    break; // Stop before drawing outside bounds
-                var rowRect = new Rectangle(bounds.Left, yOffset, bounds.Width, RowHeight);
-                PaintRow(g, row, rowRect);
-                yOffset += _rowHeight;
-                if (yOffset >= bounds.Bottom) break;
+                g.Clip = clipRegion;
+                for (int i = 0; i < Rows.Count; i++)
+                {
+                    if (yOffset + RowHeight > bounds.Bottom)
+                        break;
+
+                    var row = Rows[i];
+                    int scrollingStartX = bounds.Left + stickyWidth - _xOffset; // Full scroll range
+                    var rowRect = new Rectangle(scrollingStartX, yOffset, Math.Max(0, bounds.Width - stickyWidth + _xOffset), RowHeight);
+
+                    PaintScrollingRow(g, row, rowRect);
+                    yOffset += _rowHeight;
+
+                    if (i == 0 || yOffset + RowHeight > bounds.Bottom - RowHeight)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"PaintRows: Row[{i}] Y={rowRect.Y}, X={rowRect.X}, Right={rowRect.Right}, StickyWidth={stickyWidth}, Bounds={bounds}, XOffset={_xOffset}");
+                    }
+                }
             }
+
+            // Reset yOffset for sticky columns
+            yOffset = bounds.Top;
+
+            // Draw sticky columns last (on top)
+            using (Region clipRegion = new Region(stickyRegion))
+            {
+                g.Clip = clipRegion;
+                foreach (var stickyCol in stickyColumns)
+                {
+                    int stickyX = bounds.Left + stickyColumns.TakeWhile(c => c != stickyCol).Sum(c => c.Width);
+                    for (int i = 0; i < Rows.Count; i++)
+                    {
+                        if (yOffset + RowHeight > bounds.Bottom)
+                            break;
+
+                        var row = Rows[i];
+                        var cell = row.Cells[Columns.IndexOf(stickyCol)];
+                        var cellRect = new Rectangle(stickyX, yOffset, stickyCol.Width, RowHeight);
+                        Color backcolor = cell.RowIndex == _selectedRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
+                        PaintCell(g, cell, cellRect, backcolor);
+                        yOffset += _rowHeight;
+                    }
+                    yOffset = bounds.Top;
+                }
+            }
+            g.ResetClip();
+        }
+        private void PaintScrollingRow(Graphics g, BeepGridRow row, Rectangle rowRect)
+        {
+            int stickyWidth = _stickyWidth;
+            int xOffset = rowRect.Left;
+
+            // Clip scrolling content to start at stickyWidth
+            Rectangle scrollingClip = new Rectangle(rowRect.Left, rowRect.Top, rowRect.Width, rowRect.Height);
+            scrollingClip.X = Math.Max(scrollingClip.X, gridRect.Left + stickyWidth); // Enforce sticky boundary
+            scrollingClip.Width = Math.Max(0, scrollingClip.Width - (scrollingClip.X - rowRect.Left)); // Adjust width
+
+            using (Region clipRegion = new Region(scrollingClip))
+            {
+                g.Clip = clipRegion;
+                for (int i = 0; i < row.Cells.Count && i < Columns.Count; i++)
+                {
+                    if (!Columns[i].Visible || Columns[i].Sticked) continue;
+
+                    var cell = row.Cells[i];
+                    cell.X = xOffset;
+                    cell.Y = rowRect.Top;
+                    cell.Width = Columns[i].Width;
+                    cell.Height = rowRect.Height;
+
+                    var cellRect = new Rectangle(cell.X, cell.Y, cell.Width, cell.Height);
+                    Color backcolor = cell.RowIndex == _selectedRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
+                    PaintCell(g, cell, cellRect, backcolor);
+                    xOffset += Columns[i].Width;
+                }
+            }
+            g.ResetClip();
         }
         private void PaintRow(Graphics g, BeepGridRow row, Rectangle rowRect)
         {
@@ -1876,8 +1939,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     cell.Height = rowRect.Height;
 
                     var cellRect = new Rectangle(cell.X, cell.Y, cell.Width, cell.Height);
+                    bool isHovered = rowRect.Contains(PointToClient(MousePosition));
                     Color selectedbordercolor = _currentTheme.ActiveBorderColor;
-                    Color backcolor = cell.RowIndex == _selectedRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
+                    Color backcolor = isHovered ? _currentTheme.HoverLinkColor :
+                     row.Index == _selectedRowIndex ? _currentTheme.SelectedRowBackColor :
+                     _currentTheme.GridBackColor;
 
                     // Still check visibility for efficiency, but clipping ensures no overflow
                     if (cellRect.Left >= gridRect.Left && cellRect.Right <= gridRect.Right &&
@@ -2011,26 +2077,26 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        private void DrawColumnBorders(Graphics g, Rectangle bounds)
-        {
-            int xOffset = bounds.Left - XOffset; // Adjust for scrolling
-            using (var pen = new Pen(_currentTheme.GridLineColor))
-            {
-                for (int i = 0; i < Columns.Count; i++)
-                {
-                    if (!Columns[i].Visible) continue;
-                    int columnRight = xOffset + Columns[i].Width;
+        //private void DrawColumnBorders(Graphics g, Rectangle bounds)
+        //{
+        //    int xOffset = bounds.Left - XOffset; // Adjust for scrolling
+        //    using (var pen = new Pen(_currentTheme.GridLineColor))
+        //    {
+        //        for (int i = 0; i < Columns.Count; i++)
+        //        {
+        //            if (!Columns[i].Visible) continue;
+        //            int columnRight = xOffset + Columns[i].Width;
 
-                    if (columnRight >= bounds.Left && columnRight < bounds.Right) // Ensure only visible borders are drawn
-                    {
-                        g.DrawLine(pen, columnRight, bounds.Top, columnRight, bounds.Bottom);
-                    }
+        //            if (columnRight >= bounds.Left && columnRight < bounds.Right) // Ensure only visible borders are drawn
+        //            {
+        //                g.DrawLine(pen, columnRight, bounds.Top, columnRight, bounds.Bottom);
+        //            }
 
-                    xOffset += Columns[i].Width;
-                    if (xOffset > bounds.Right) break; // Stop drawing when out of bounds
-                }
-            }
-        }
+        //            xOffset += Columns[i].Width;
+        //            if (xOffset > bounds.Right) break; // Stop drawing when out of bounds
+        //        }
+        //    }
+        //}
         private void DrawRowsBorders(Graphics g, Rectangle bounds)
         {
             int yOffset = bounds.Top;
@@ -2043,6 +2109,106 @@ namespace TheTechIdea.Beep.Winform.Controls
                         g.DrawLine(pen, bounds.Left, yOffset, bounds.Right, yOffset);
                 }
             }
+        }
+        private void DrawColumnBorders(Graphics g, Rectangle bounds)
+        {
+            int xOffset = bounds.Left;
+            int stickyWidth = _stickyWidth;
+            var stickyColumns = Columns.Where(c => c.Sticked && c.Visible).ToList();
+
+            // Draw sticky column borders
+            using (Region clipRegion = new Region(new Rectangle(bounds.Left, bounds.Top, stickyWidth, bounds.Height)))
+            {
+                g.Clip = clipRegion;
+                foreach (var col in stickyColumns)
+                {
+                    xOffset += col.Width;
+                    if (xOffset < bounds.Left + stickyWidth) // Internal sticky borders
+                    {
+                        using (Pen borderPen = new Pen(_currentTheme.GridLineColor))
+                        {
+                            g.DrawLine(borderPen, xOffset, bounds.Top, xOffset, bounds.Bottom);
+                        }
+                    }
+                }
+            }
+
+            // Draw scrolling column borders
+            using (Region clipRegion = new Region(new Rectangle(bounds.Left + stickyWidth, bounds.Top, bounds.Width - stickyWidth, bounds.Height)))
+            {
+                g.Clip = clipRegion;
+                xOffset = bounds.Left + stickyWidth - _xOffset; // Start after sticky, shift with _xOffset
+                foreach (var col in Columns.Where(c => !c.Sticked && c.Visible))
+                {
+                    xOffset += col.Width;
+                    using (Pen borderPen = new Pen(_currentTheme.GridLineColor))
+                    {
+                        g.DrawLine(borderPen, xOffset, bounds.Top, xOffset, bounds.Bottom);
+                    }
+                }
+            }
+
+            // Separator after sticky columns
+            if (stickyWidth > 0)
+            {
+                g.ResetClip();
+                using (Pen borderPen = new Pen(_currentTheme.GridLineColor))
+                {
+                    g.DrawLine(borderPen, bounds.Left + stickyWidth, bounds.Top, bounds.Left + stickyWidth, bounds.Bottom);
+                }
+            }
+
+            System.Diagnostics.Debug.WriteLine($"DrawColumnBorders: StickyWidth={stickyWidth}, LastXOffset={xOffset}, Bounds={bounds}, XOffset={_xOffset}");
+        }
+        private void PaintColumnHeaders(Graphics g, Rectangle headerRect)
+        {
+            int xOffset = headerRect.Left;
+            int stickyWidth = _stickyWidth;
+
+            StringFormat centerFormat = new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center
+            };
+
+            // Define sticky and scrolling regions
+            Rectangle stickyRegion = new Rectangle(headerRect.Left, headerRect.Top, stickyWidth, headerRect.Height);
+            Rectangle scrollingRegion = new Rectangle(headerRect.Left + stickyWidth, headerRect.Top, headerRect.Width - stickyWidth, headerRect.Height);
+
+            // Draw sticky column headers
+            using (Region clipRegion = new Region(stickyRegion))
+            {
+                g.Clip = clipRegion;
+                foreach (var col in Columns.Where(c => c.Sticked && c.Visible))
+                {
+                    var headerCellRect = new Rectangle(xOffset, headerRect.Top, col.Width, headerRect.Height);
+                    PaintHeaderCell(g, col, headerCellRect, centerFormat);
+                    xOffset += col.Width;
+                    System.Diagnostics.Debug.WriteLine($"StickyHeader: Col={col.ColumnName}, X={headerCellRect.X}, Width={col.Width}");
+                }
+            }
+
+            // Draw scrolling column headers
+            using (Region clipRegion = new Region(scrollingRegion))
+            {
+                g.Clip = clipRegion;
+                int scrollingXOffset = headerRect.Left + stickyWidth - _xOffset; // Start after sticky, shift with _xOffset
+                foreach (var col in Columns.Where(c => !c.Sticked && c.Visible))
+                {
+                    var headerCellRect = new Rectangle(scrollingXOffset, headerRect.Top, col.Width, headerRect.Height);
+                    PaintHeaderCell(g, col, headerCellRect, centerFormat);
+                    scrollingXOffset += col.Width;
+                }
+            }
+
+            // Separator after sticky headers
+            if (stickyWidth > 0)
+            {
+                g.ResetClip();
+                g.DrawLine(Pens.Gray, headerRect.Left + stickyWidth, headerRect.Top, headerRect.Left + stickyWidth, headerRect.Bottom);
+            }
+
+            System.Diagnostics.Debug.WriteLine($"PaintColumnHeaders: StickyWidth={stickyWidth}, HeaderRect={headerRect}, XOffset={_xOffset}");
         }
         private void DrawHeaderPanel(Graphics g, Rectangle rect)
         {
@@ -2086,8 +2252,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             SelectedRow = Rows[rowIndex];
             // put row data in the selected row
             SelectedRow.RowData = _fullData[rowIndex];
-             SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(rowIndex, SelectedRow));
-             SelectedCellChanged?.Invoke(this, new BeepGridCellSelectedEventArgs(rowIndex, columnIndex, _selectedCell));
+            SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(rowIndex, SelectedRow));
+            SelectedCellChanged?.Invoke(this, new BeepGridCellSelectedEventArgs(rowIndex, columnIndex, _selectedCell));
            Invalidate();
         }
         public void SelectCell(BeepGridCell cell)
@@ -2138,6 +2304,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _editingControl.Visible = true;
              //   System.Diagnostics.Debug.WriteLine($"MoveEditor: Editor moved to {cellRect.X},{cellRect.Y}");
             }
+        }
+       
+        private BeepGridRow GetRowAtLocation(Point location)
+        {
+            // First, ensure the point is inside the grid's drawing area.
+            if (!gridRect.Contains(location))
+                return null;
+            // Compute the Y coordinate relative to gridRect.
+            int yRelative = location.Y - gridRect.Top;
+            int rowIndex = yRelative / RowHeight;
+            if (rowIndex < 0 || rowIndex >= Rows.Count)
+                return null;
+            return Rows[rowIndex];
         }
         private void MoveEditor()
         {
@@ -2320,6 +2499,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void ScrollTimer_Tick(object sender, EventArgs e)
         {
             bool updated = false;
+            double easingFactor = 0.2; // Already smooth, adjust if needed
 
             // Vertical scrolling
             if (_dataOffset < _scrollTargetVertical)
@@ -2348,12 +2528,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!updated)
             {
                 _scrollTimer.Stop();
+            }else
+            {
+                UpdateCellPositions();
+                FillVisibleRows();
+                UpdateScrollBars(); // Sync scrollbar values
+                Invalidate();
             }
 
-            FillVisibleRows();
-            UpdateCellPositions();
-            UpdateScrollBars(); // Sync scrollbar values
-            Invalidate();
+           
         }
         // Mouse wheel support for smooth scrolling
         protected override void OnMouseWheel(MouseEventArgs e)
@@ -2570,24 +2753,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         // Update scrollbars based on data and visible area
-
         private void VerticalScrollBar_Scroll(object sender, EventArgs e)
         {
             StartSmoothScroll(_verticalScrollBar.Value);
             MoveEditorIn(); // Move editor if active
         }
-
         private void VerticalScrollBar_ValueChanged(object sender, EventArgs e)
         {
             StartSmoothScroll(_verticalScrollBar.Value);
         }
-
         private void HorizontalScrollBar_Scroll(object sender, EventArgs e)
         {
             StartSmoothScroll(_dataOffset, _horizontalScrollBar.Value);
             MoveEditorIn(); // Move editor if active
         }
-
         private void HorizontalScrollBar_ValueChanged(object sender, EventArgs e)
         {
             StartSmoothScroll(_dataOffset, _horizontalScrollBar.Value);
@@ -2643,6 +2822,35 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        MoveEditorIn(); // Move editor if active
         //    }
         //}
+        private void UpdateCellPositions()
+        {
+            int yOffset = _dataOffset * RowHeight; // Use RowHeight directly
+            int xOffset = _xOffset;
+
+            for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
+            {
+                var row = Rows[rowIndex];
+                // Position relative to gridRect.Top, adjusted for scroll
+                row.UpperY = gridRect.Top + (rowIndex * RowHeight) - yOffset;
+
+                int x = gridRect.Left - xOffset; // Start at gridRect.Left, adjust for scroll
+                for (int colIndex = 0; colIndex < Columns.Count; colIndex++)
+                {
+                    if (Columns[colIndex].Visible)
+                    {
+                        var cell = row.Cells[colIndex];
+                        cell.X = x;
+                        cell.Y = row.UpperY; // Ensure cell.Y matches row
+                        cell.Width = Columns[colIndex].Width;
+                        cell.Height = RowHeight;
+                        x += Columns[colIndex].Width;
+                    }
+                }
+            }
+
+          
+            // System.Diagnostics.Debug.WriteLine($"UpdateCellPositions: yOffset={yOffset}, xOffset={xOffset}, RowsCount={Rows.Count}, gridRect={gridRect}");
+        }
         private void UpdateRowCount()
         {
             if(_fullData==null) return;
@@ -2654,6 +2862,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // create new rows
                 int rowCount = visibleRowCount - Rows.Count;
+                int index = Rows.Count;
                 for (int i = 0; i < rowCount; i++)
                 {
                     var row = new BeepGridRow();
@@ -2670,6 +2879,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                         };
                         row.Cells.Add(cell);
                     }
+                    row.Index = index;
+                    row.DisplayIndex = index;
+                    index++;
                     Rows.Add(row);
                 }
             }
@@ -2801,7 +3013,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateRowCount();
             FillVisibleRows();
             UpdateScrollBars();
-            UpdateCellPositions();
+           
             Invalidate();
         }
         // New method to update gridRect (example implementation)

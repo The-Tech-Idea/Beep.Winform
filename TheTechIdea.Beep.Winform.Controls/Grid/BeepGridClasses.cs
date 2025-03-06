@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public string Id { get; set; }
         public int Index { get; set; }
         public int DisplayIndex { get; set; }
+        public bool IsDataLoaded { get; set; } = false;
         public BindingList<BeepGridCell> Cells { get; set; } = new BindingList<BeepGridCell>();
         public object RowData { get; set; }
         public bool IsSelected { get; set; }
@@ -25,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public bool IsReadOnly { get; set; }
         public bool IsEditable { get; set; }
         public bool IsVisible { get; set; }
+       
         public int UpperX { get; set; } // Updated dynamically
         public int UpperY { get; set; } // Updated dynamically
         public int Width { get; set; } = 100; // Default cell width

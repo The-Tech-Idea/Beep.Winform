@@ -1426,16 +1426,32 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-            // Draw Image and Text
-            if (beepImage.Visible)
+            // Clip all drawing to the rectangle bounds
+            using (Region clipRegion = new Region(rectangle))
             {
-                beepImage.Draw(graphics, rectangle);
-            }
-            // Draw Text
-            //Debug.WriteLine($"Drawing Text {Text}");
-            if (!string.IsNullOrEmpty(Text))
-            {
-                TextRenderer.DrawText(graphics, Text, Font, rectangle, ForeColor, TextFormatFlags.Left);
+                graphics.Clip = clipRegion;
+
+                // Draw Image and Text
+                if (beepImage.Visible)
+                {
+                    beepImage.Draw(graphics, rectangle);
+                }
+
+                // Draw Text with multiline support, clipping, and truncation
+                if (!string.IsNullOrEmpty(Text))
+                {
+                    TextFormatFlags flags = TextFormatFlags.Left | TextFormatFlags.EndEllipsis | TextFormatFlags.WordBreak; // WordBreak for multiline
+                    if (!Multiline) // Single-line fallback
+                    {
+                        flags &= ~TextFormatFlags.WordBreak;
+                        flags |= TextFormatFlags.SingleLine;
+                    }
+
+                    // Use TextRenderer for better control over multiline text
+                    TextRenderer.DrawText(graphics, Text, Font, rectangle, ForeColor, flags);
+                }
+
+                graphics.ResetClip();
             }
         }
 

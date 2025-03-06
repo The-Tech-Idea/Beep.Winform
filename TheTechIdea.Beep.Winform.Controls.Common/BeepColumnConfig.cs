@@ -182,6 +182,16 @@ namespace TheTechIdea.Beep.Desktop.Common
             set { _readOnly = value; OnPropertyChanged(nameof(ReadOnly)); }
         }
 
+        private bool _issticked=false;
+        [Category("Behavior")]
+        [Description("Indicates whether the column is Sticked.")]
+        public bool Sticked
+        {
+            get => _issticked;
+            set { _issticked = value; OnPropertyChanged(nameof(Sticked)); }
+        }
+       
+
         private string _guidID;
         [Browsable(false)]
         public string GuidID

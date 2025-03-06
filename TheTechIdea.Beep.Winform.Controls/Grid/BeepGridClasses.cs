@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         public string Id { get; set; }
         public int Index { get; set; }
         public int DisplayIndex { get; set; }
+        public int OldDisplayIndex { get; set; }
         public bool IsDataLoaded { get; set; } = false;
         public BindingList<BeepGridCell> Cells { get; set; } = new BindingList<BeepGridCell>();
         public object RowData { get; set; }

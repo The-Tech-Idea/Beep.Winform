@@ -9,6 +9,7 @@ using System.Reflection;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Desktop.Common.Helpers;
+using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
@@ -484,11 +485,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool IsEditorShown { get; private set; }
         #endregion "Appearance Properties"
         #region "Configuration Properties"
+        
         public BindingList<BeepGridRow> Rows { get; set; } = new BindingList<BeepGridRow>();
         public BeepGridRow BottomRow { get; set; }
         public BeepBindingNavigator DataNavigator { get; set; }
 
         private List<BeepColumnConfig> _columns = new List<BeepColumnConfig>();
+
+
         #endregion "Configuration Properties"
         #endregion "Properties"
         #region Constructor
@@ -999,6 +1003,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _columns.Add(columnConfig);
                 }
             }
+           
+            originalList.Clear();
+            originalList.AddRange(_fullData); // Snapshot initial data
+            Trackings.Clear();
+            for (int i = 0; i < _fullData.Count; i++)
+            {
+                Trackings.Add(new Tracking(Guid.NewGuid(), i, i) { EntityState = EntityState.Unchanged });
+            }
             InitializeRows();
             UpdateScrollBars();
         }
@@ -1007,16 +1019,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void FillVisibleRows()
         {
             if (_fullData == null || !_fullData.Any()) return;
-            
-                for (int i = 0; i < Rows.Count; i++)
-                {
-                    int dataIndex = _dataOffset + i;
-                    var row = Rows[i];
+
+            // Store previous DisplayIndex values before updating
+            foreach (var row in Rows)
+            {
+                row.OldDisplayIndex = row.DisplayIndex; // Save the old DisplayIndex
+            }
+
+            for (int i = 0; i < Rows.Count; i++)
+            {
+                int dataIndex = _dataOffset + i;
+                var row = Rows[i];
                 try
                 {
                     if (dataIndex >= 0 && dataIndex < _fullData.Count)
                     {
                         var dataItem = _fullData[dataIndex];
+                        EnsureTrackingForItem(dataItem, dataIndex);
+
+                        // Update DisplayIndex to the current absolute position in _fullData
+                        row.DisplayIndex = dataIndex;
+
+                        // Fill row with data
                         for (int j = 0; j < row.Cells.Count && j < Columns.Count; j++)
                         {
                             var col = Columns[j];
@@ -1027,53 +1051,108 @@ namespace TheTechIdea.Beep.Winform.Controls
                             row.IsDataLoaded = true;
                         }
                     }
+                    else
+                    {
+                        foreach (var cell in row.Cells)
+                        {
+                            cell.CellValue = null;
+                            cell.CellData = null;
+                        }
+                        row.IsDataLoaded = false;
+                        row.DisplayIndex = -1; // Out of bounds
+
+                        // Clear selection if out of bounds
+                        if (_selectedRowIndex == i)
+                        {
+                            _selectedRowIndex = -1;
+                            _selectedRow = null;
+                            SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(-1, null));
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"FillVisibleRows Error at Row {i}, DataIndex {dataIndex}: {ex.Message}\nStackTrace: {ex.StackTrace}");
                 }
-                //else
-                //{
-                //    // Clear cells beyond data (optional, since we won’t draw these rows)
-                //    foreach (var cell in row.Cells)
-                //    {
-                //        cell.CellValue = null;
-                //        cell.CellData = null;
-                //    }
-                //}
             }
-              
-         
+
+            // Sync tracking and adjust selection
+            UpdateTrackingIndices();
+            SyncSelectedRowIndexAndEditor();
+
             UpdateScrollBars();
             Invalidate();
-
         }
-        private void UpdateDataRecordFromRow(BeepGridCell editingCell)
-        {
-            BeepGridRow row = Rows[editingCell.RowIndex];
+        //private void FillVisibleRows()
+        //{
+        //    if (_fullData == null || !_fullData.Any()) return;
 
-            if (_fullData == null || !_fullData.Any()) return;
-            int rowIndex = Rows.IndexOf(row);
-            if (rowIndex < 0) return;
-            int dataIndex = _dataOffset + rowIndex;
-            if (dataIndex < _fullData.Count)
-            {
-                var dataItem = _fullData[dataIndex];
-                foreach (var cell in row.Cells)
-                {
-                    if (cell.IsDirty)
-                    {
-                        var prop = dataItem.GetType().GetProperty(Columns[cell.ColumnIndex].ColumnName);
-                        if (prop != null)
-                        {
-                            object convertedValue = MiscFunctions.ConvertValueToPropertyType(prop.PropertyType, cell.CellValue);
-                            prop.SetValue(dataItem, convertedValue);
-                        }
-                        row.IsDirty = true;
-                    }
-                }
-            }
-        }
+        //        for (int i = 0; i < Rows.Count; i++)
+        //        {
+        //            int dataIndex = _dataOffset + i;
+        //            var row = Rows[i];
+        //        try
+        //        {
+        //            if (dataIndex >= 0 && dataIndex < _fullData.Count)
+        //            {
+        //                var dataItem = _fullData[dataIndex];
+        //                for (int j = 0; j < row.Cells.Count && j < Columns.Count; j++)
+        //                {
+        //                    var col = Columns[j];
+        //                    var prop = dataItem.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
+        //                    var value = prop?.GetValue(dataItem) ?? string.Empty;
+        //                    row.Cells[j].CellValue = value;
+        //                    row.Cells[j].CellData = value;
+        //                    row.IsDataLoaded = true;
+        //                }
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Debug.WriteLine($"FillVisibleRows Error at Row {i}, DataIndex {dataIndex}: {ex.Message}\nStackTrace: {ex.StackTrace}");
+        //        }
+        //        //else
+        //        //{
+        //        //    // Clear cells beyond data (optional, since we won’t draw these rows)
+        //        //    foreach (var cell in row.Cells)
+        //        //    {
+        //        //        cell.CellValue = null;
+        //        //        cell.CellData = null;
+        //        //    }
+        //        //}
+        //    }
+
+
+        //    UpdateScrollBars();
+        //    Invalidate();
+
+        //}
+        //private void UpdateDataRecordFromRow(BeepGridCell editingCell)
+        //{
+        //    BeepGridRow row = Rows[editingCell.RowIndex];
+
+        //    if (_fullData == null || !_fullData.Any()) return;
+        //    int rowIndex = Rows.IndexOf(row);
+        //    if (rowIndex < 0) return;
+        //    int dataIndex = _dataOffset + rowIndex;
+        //    if (dataIndex < _fullData.Count)
+        //    {
+        //        var dataItem = _fullData[dataIndex];
+        //        foreach (var cell in row.Cells)
+        //        {
+        //            if (cell.IsDirty)
+        //            {
+        //                var prop = dataItem.GetType().GetProperty(Columns[cell.ColumnIndex].ColumnName);
+        //                if (prop != null)
+        //                {
+        //                    object convertedValue = MiscFunctions.ConvertValueToPropertyType(prop.PropertyType, cell.CellValue);
+        //                    prop.SetValue(dataItem, convertedValue);
+        //                }
+        //                row.IsDirty = true;
+        //            }
+        //        }
+        //    }
+        //}
         public void MoveNextRow()
         {
             ScrollBy(1);  // +1 means scroll down one row
@@ -2253,12 +2332,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             _selectedRowIndex = rowIndex;
             _selectedColumnIndex = columnIndex;
             _selectedCell = Rows[rowIndex].Cells[columnIndex];
-
+            // Set OilDisplayIndex when selecting a row
+      
             // 🔹 Use updated X and Y positions
             int cellX = _selectedCell.X;
             int cellY = _selectedCell.Y;
             Point cellLocation = new Point(cellX, cellY);
             SelectedRow = Rows[rowIndex];
+         
             // put row data in the selected row
             SelectedRow.RowData = _fullData[rowIndex];
             SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(rowIndex, SelectedRow));
@@ -3326,6 +3407,472 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         private void Rows_ListChanged(object sender, ListChangedEventArgs e) => Invalidate();
+        #endregion
+        #region Change Management
+        private List<object> originalList = new List<object>(); // Original data snapshot
+        private List<object> deletedList = new List<object>();  // Tracks deleted items
+        public List<Tracking> Trackings { get; set; } = new List<Tracking>(); // Tracks item indices and states
+        private Dictionary<object, Dictionary<string, object>> ChangedValues = new Dictionary<object, Dictionary<string, object>>(); // Tracks changed fields per item
+        public bool IsLogging { get; set; } = false; // Toggle logging
+        public Dictionary<DateTime, EntityUpdateInsertLog> UpdateLog { get; set; } = new Dictionary<DateTime, EntityUpdateInsertLog>(); // Logs updates
+
+        // Adjust _selectedRowIndex based on _fullData position
+        // Adjust selection to follow the selected item across view changes
+        private void AdjustSelectedIndexForView()
+        {
+            if (_selectedRow != null && _fullData.Any())
+            {
+                // Get the absolute index of the selected item in _fullData
+                int selectedDataIndex = -1;
+                for (int i = 0; i < Rows.Count; i++)
+                {
+                    if (Rows[i] == _selectedRow)
+                    {
+                        selectedDataIndex = _dataOffset + i;
+                        break;
+                    }
+                }
+
+                if (selectedDataIndex >= 0 && selectedDataIndex < _fullData.Count)
+                {
+                    // Check if the selected item is still in the visible view
+                    int newRowIndex = selectedDataIndex - _dataOffset;
+                    if (newRowIndex >= 0 && newRowIndex < Rows.Count)
+                    {
+                        // Update selection if the row has changed
+                        if (_selectedRowIndex != newRowIndex || _selectedRow != Rows[newRowIndex])
+                        {
+                            _selectedRowIndex = newRowIndex;
+                            _selectedRow = Rows[newRowIndex];
+                            SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(selectedDataIndex, _selectedRow));
+                        }
+                    }
+                    else
+                    {
+                        // Selected item scrolled out of view
+                        _selectedRowIndex = -1;
+                        _selectedRow = null;
+                        SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(-1, null));
+                    }
+                }
+                else
+                {
+                    // Selected item no longer exists in _fullData
+                    _selectedRowIndex = -1;
+                    _selectedRow = null;
+                    SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(-1, null));
+                }
+            }
+        }
+        // Helper method to ensure tracking for an item
+     // Ensure tracking for an item
+        private void EnsureTrackingForItem(object item, int currentIndex)
+        {
+            int originalIndex = originalList.IndexOf(item);
+            if (originalIndex < 0)
+            {
+                originalList.Add(item);
+                originalIndex = originalList.Count - 1;
+            }
+
+            Tracking tracking = Trackings.FirstOrDefault(t => t.OriginalIndex == originalIndex);
+            if (tracking == null)
+            {
+                tracking = new Tracking(Guid.NewGuid(), originalIndex, currentIndex)
+                {
+                    EntityState = EntityState.Unchanged
+                };
+                Trackings.Add(tracking);
+            }
+            else if (tracking.CurrentIndex != currentIndex)
+            {
+                tracking.CurrentIndex = currentIndex;
+                if (IsLogging)
+                {
+                    UpdateLog[DateTime.Now] = new EntityUpdateInsertLog
+                    {
+                        TrackingRecord = tracking,
+                        UpdatedFields = ChangedValues.ContainsKey(item) ? ChangedValues[item] : null
+                    };
+                }
+            }
+        }
+        // Sync tracking indices with _fullData
+        private void UpdateTrackingIndices()
+        {
+            foreach (var tracking in Trackings)
+            {
+                int currentIndex = _fullData.IndexOf(originalList[tracking.OriginalIndex]);
+                if (currentIndex >= 0 && tracking.CurrentIndex != currentIndex)
+                {
+                    tracking.CurrentIndex = currentIndex;
+                    if (IsLogging)
+                    {
+                        UpdateLogEntries(tracking, currentIndex);
+                    }
+                }
+            }
+        }
+        // Sync _selectedRowIndex and move the editor
+        private void SyncSelectedRowIndexAndEditor()
+        {
+            if (_selectedRow != null && _fullData.Any())
+            {
+                // Find the selected row's old position using OilDisplayIndex
+                int selectedDataIndex = -1;
+                int oldRowIndex = -1;
+                int oldColumnIndex = _selectedCell != null ? _selectedCell.ColumnIndex : -1;
+                for (int i = 0; i < Rows.Count; i++)
+                {
+                    if (Rows[i] == _selectedRow)
+                    {
+                        oldRowIndex = i;
+                        selectedDataIndex = Rows[i].OldDisplayIndex; // Old DisplayIndex
+                        break;
+                    }
+                }
+
+                if (selectedDataIndex >= 0 && selectedDataIndex < _fullData.Count)
+                {
+                    // Find the new position of the selected record in Rows
+                    int newRowIndex = -1;
+                    for (int i = 0; i < Rows.Count; i++)
+                    {
+                        if (Rows[i].DisplayIndex == selectedDataIndex)
+                        {
+                            newRowIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (newRowIndex >= 0)
+                    {
+                        // Update selection to the new position
+                        _selectedRowIndex = newRowIndex;
+                        _selectedRow = Rows[newRowIndex];
+
+                        // Update _selectedCell if it exists
+                        if (oldColumnIndex >= 0 && oldColumnIndex < Columns.Count)
+                        {
+                            _selectedCell = _selectedRow.Cells[oldColumnIndex];
+                        }
+
+                        // Move the editor if active
+                        if (_selectedCell != null && _editingControl != null && _editingControl.Visible)
+                        {
+                            MoveEditorIn();
+                        }
+
+                        // Detect movement direction
+                        if (oldRowIndex != -1 && oldRowIndex != newRowIndex)
+                        {
+                            string direction = newRowIndex < oldRowIndex ? "up" : "down";
+                            Debug.WriteLine($"Selected row moved {direction}: OldRowIndex={oldRowIndex}, NewRowIndex={newRowIndex}, DisplayIndex={_selectedRow.DisplayIndex}");
+                        }
+
+                        SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(selectedDataIndex, _selectedRow));
+                    }
+                    else
+                    {
+                        // Selected record scrolled out of view, hide editor
+                        _selectedRowIndex = -1;
+                        _selectedRow = null;
+                        _selectedCell = null;
+                        if (_editingControl != null && _editingControl.Visible)
+                        {
+                            _editingControl.Visible = false;
+                        }
+                        SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(-1, null));
+                    }
+                }
+                else
+                {
+                    // Selected record no longer exists, hide editor
+                    _selectedRowIndex = -1;
+                    _selectedRow = null;
+                    _selectedCell = null;
+                    if (_editingControl != null && _editingControl.Visible)
+                    {
+                        _editingControl.Visible = false;
+                    }
+                    SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(-1, null));
+                }
+            }
+        }
+        // Clear all tracking data
+        private void ClearAll()
+        {
+            originalList.Clear();
+            deletedList.Clear();
+            Trackings.Clear();
+            ChangedValues.Clear();
+            UpdateLog.Clear();
+        }
+
+        // Start editing a cell and initialize tracking if needed
+        public void BeginEdit()
+        {
+            if (_selectedCell != null)
+            {
+                ShowCellEditor(_selectedCell, new Point(_selectedCell.X, _selectedCell.Y));
+                EnsureTrackingForItem(_fullData[_dataOffset + _selectedCell.RowIndex]);
+            }
+        }
+
+        // Update tracking indices after filtering or sorting visible rows
+        private void UpdateIndexTrackingAfterFilterOrSort()
+        {
+            for (int i = 0; i < Rows.Count; i++)
+            {
+                int dataIndex = _dataOffset + i;
+                if (dataIndex >= 0 && dataIndex < _fullData.Count)
+                {
+                    object item = _fullData[dataIndex];
+                    int originalIndex = originalList.IndexOf(item);
+
+                    if (originalIndex != -1)
+                    {
+                        int trackingIdx = Trackings.FindIndex(t => t.OriginalIndex == originalIndex);
+                        if (trackingIdx != -1)
+                        {
+                            Trackings[trackingIdx].CurrentIndex = dataIndex;
+                            UpdateLogEntries(Trackings[trackingIdx], dataIndex);
+                        }
+                        else
+                        {
+                            Tracking newTracking = new Tracking(Guid.NewGuid(), originalIndex, dataIndex)
+                            {
+                                EntityState = EntityState.Unchanged
+                            };
+                            Trackings.Add(newTracking);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Ensure tracking consistency between originalList and _fullData
+        private void EnsureTrackingConsistency()
+        {
+            for (int i = 0; i < _fullData.Count; i++)
+            {
+                object item = _fullData[i];
+                int originalIndex = originalList.IndexOf(item);
+                Tracking tracking = Trackings.FirstOrDefault(t => t.CurrentIndex == i);
+
+                if (tracking != null)
+                {
+                    tracking.OriginalIndex = originalIndex >= 0 ? originalIndex : i;
+                }
+                else if (originalIndex >= 0)
+                {
+                    Trackings.Add(new Tracking(Guid.NewGuid(), originalIndex, i) { EntityState = EntityState.Unchanged });
+                }
+            }
+        }
+
+        // Update log entries with new index
+        private void UpdateLogEntries(Tracking tracking, int newIndex)
+        {
+            if (IsLogging && UpdateLog != null)
+            {
+                foreach (var logEntry in UpdateLog.Values)
+                {
+                    if (logEntry.TrackingRecord != null && logEntry.TrackingRecord.UniqueId == tracking.UniqueId)
+                    {
+                        logEntry.TrackingRecord.CurrentIndex = newIndex;
+                    }
+                }
+            }
+        }
+
+        // Reset _fullData to original state (not implemented fully yet)
+        private void ResetToOriginal()
+        {
+            _fullData.Clear();
+            _fullData.AddRange(originalList);
+            deletedList.Clear();
+            Trackings.Clear();
+            ChangedValues.Clear();
+            InitializeRows();
+            FillVisibleRows();
+            UpdateScrollBars();
+            Invalidate();
+        }
+
+        // Update tracking after inserting or deleting an item
+        private void UpdateItemIndexMapping(int startIndex, bool isInsert)
+        {
+            if (isInsert)
+            {
+                for (int i = startIndex; i < _fullData.Count; i++)
+                {
+                    object item = _fullData[i];
+                    int originalIndex = originalList.IndexOf(item);
+                    if (originalIndex == -1) // New item
+                    {
+                        originalList.Add(item);
+                        originalIndex = originalList.Count - 1;
+                    }
+                    Tracking tracking = new Tracking(Guid.NewGuid(), originalIndex, i)
+                    {
+                        EntityState = EntityState.Added
+                    };
+                    Trackings.Add(tracking);
+                }
+            }
+            else // Deletion
+            {
+                for (int i = startIndex; i < _fullData.Count; i++)
+                {
+                    Tracking tracking = Trackings.FirstOrDefault(t => t.CurrentIndex == i);
+                    if (tracking != null)
+                    {
+                        tracking.CurrentIndex = i;
+                    }
+                }
+            }
+        }
+
+        // Get original index of an item
+        public int GetOriginalIndex(object item)
+        {
+            return originalList.IndexOf(item);
+        }
+
+        // Get item from original list by index
+        public object GetItemFromOriginalList(int index)
+        {
+            return (index >= 0 && index < originalList.Count) ? originalList[index] : null;
+        }
+
+        // Get item from current _fullData by index
+        public object GetItemFromCurrentList(int index)
+        {
+            return (index >= 0 && index < _fullData.Count) ? _fullData[index] : null;
+        }
+
+        // Get tracking info for an item
+        public Tracking GetTrackingItem(object item)
+        {
+            int originalIndex = originalList.IndexOf(item);
+            if (originalIndex >= 0)
+            {
+                return Trackings.FirstOrDefault(t => t.OriginalIndex == originalIndex);
+            }
+
+            int currentIndex = _fullData.IndexOf(item);
+            if (currentIndex >= 0)
+            {
+                return Trackings.FirstOrDefault(t => t.CurrentIndex == currentIndex);
+            }
+
+            int deletedIndex = deletedList.IndexOf(item);
+            if (deletedIndex >= 0)
+            {
+                return Trackings.FirstOrDefault(t => t.CurrentIndex == deletedIndex && t.EntityState == EntityState.Deleted);
+            }
+
+            return null;
+        }
+
+        // Get changed fields between old and new versions of an item
+        private Dictionary<string, object> GetChangedFields(object oldItem, object newItem)
+        {
+            var changedFields = new Dictionary<string, object>();
+            if (oldItem == null || newItem == null || oldItem.GetType() != newItem.GetType())
+                return changedFields;
+
+            foreach (var property in oldItem.GetType().GetProperties())
+            {
+                var oldValue = property.GetValue(oldItem);
+                var newValue = property.GetValue(newItem);
+
+                if (!Equals(oldValue, newValue))
+                {
+                    changedFields[property.Name] = newValue;
+                }
+            }
+
+            return changedFields;
+        }
+
+        // Helper to ensure an item is tracked
+        private void EnsureTrackingForItem(object item)
+        {
+            int currentIndex = _fullData.IndexOf(item);
+            if (currentIndex < 0) return;
+
+            int originalIndex = originalList.IndexOf(item);
+            if (originalIndex < 0)
+            {
+                originalList.Add(item);
+                originalIndex = originalList.Count - 1;
+            }
+
+            if (!Trackings.Any(t => t.OriginalIndex == originalIndex))
+            {
+                Trackings.Add(new Tracking(Guid.NewGuid(), originalIndex, currentIndex) { EntityState = EntityState.Unchanged });
+            }
+        }
+
+        // Hook into existing methods to track changes
+        private void UpdateDataRecordFromRow(BeepGridCell editingCell)
+        {
+            BeepGridRow row = Rows[editingCell.RowIndex];
+            if (_fullData == null || !_fullData.Any()) return;
+
+            int rowIndex = Rows.IndexOf(row);
+            if (rowIndex < 0) return;
+
+            int dataIndex = _dataOffset + rowIndex;
+            if (dataIndex < _fullData.Count)
+            {
+                object dataItem = _fullData[dataIndex];
+                object originalItem = GetItemFromOriginalList(GetOriginalIndex(dataItem));
+                foreach (var cell in row.Cells)
+                {
+                    if (cell.IsDirty)
+                    {
+                        var prop = dataItem.GetType().GetProperty(Columns[cell.ColumnIndex].ColumnName);
+                        if (prop != null)
+                        {
+                            object convertedValue = MiscFunctions.ConvertValueToPropertyType(prop.PropertyType, cell.CellValue);
+                            prop.SetValue(dataItem, convertedValue);
+
+                            // Track changes
+                            if (IsLogging)
+                            {
+                                Tracking tracking = GetTrackingItem(dataItem);
+                                if (tracking != null && tracking.EntityState != EntityState.Added)
+                                {
+                                    tracking.EntityState = EntityState.Modified;
+                                    if (!ChangedValues.ContainsKey(dataItem))
+                                    {
+                                        ChangedValues[dataItem] = GetChangedFields(originalItem, dataItem);
+                                    }
+                                    else
+                                    {
+                                        var changes = GetChangedFields(originalItem, dataItem);
+                                        foreach (var kvp in changes)
+                                        {
+                                            ChangedValues[dataItem][kvp.Key] = kvp.Value;
+                                        }
+                                    }
+                                    UpdateLog[DateTime.Now] = new EntityUpdateInsertLog
+                                    {
+                                        TrackingRecord = tracking,
+                                        UpdatedFields = ChangedValues[dataItem]
+
+                                    };
+                                }
+                            }
+                        }
+                        row.IsDirty = true;
+                    }
+                }
+            }
+        }
         #endregion
         #region Theme
         public override void ApplyTheme()

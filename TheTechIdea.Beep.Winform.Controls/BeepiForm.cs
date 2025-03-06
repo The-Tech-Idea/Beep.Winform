@@ -85,6 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Sets the color of the form's border.")]

@@ -255,13 +255,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             get => _theme;
             set
             {
-              //  //Debug.WriteLine($"Theme Changed {value.ToString()} - {_theme.ToString()}");
+               
                 if (_theme != value)
                 {
+                  //  Debug.WriteLine($"Started Theme Changed {value.ToString()} - {_theme.ToString()}");
                     _theme = value;
                    
                     OnThemeChanged?.Invoke(_theme);
                     ApplyThemeToAllBeepControls(_form);
+                   // Debug.WriteLine($"Finished Theme Changed {value.ToString()} - {_theme.ToString()}");
                 }
             }
         }

@@ -1179,7 +1179,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                         var themeProperty = TypeDescriptor.GetProperties(control)["Theme"];
                         if (themeProperty != null && themeProperty.PropertyType == typeof(EnumBeepThemes))
                         {
-                            themeProperty.SetValue(control, _currentTheme);
+                            themeProperty.SetValue(control, Theme);
                         }
                     }
 

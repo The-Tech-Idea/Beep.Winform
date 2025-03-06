@@ -1008,23 +1008,29 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_fullData == null || !_fullData.Any()) return;
             
-            for (int i = 0; i < Rows.Count; i++)
-            {
-                int dataIndex = _dataOffset + i;
-                var row = Rows[i];
-
-                if (dataIndex >= 0 && dataIndex < _fullData.Count)
+                for (int i = 0; i < Rows.Count; i++)
                 {
-                    var dataItem = _fullData[dataIndex];
-                    for (int j = 0; j < row.Cells.Count && j < Columns.Count; j++)
+                    int dataIndex = _dataOffset + i;
+                    var row = Rows[i];
+                try
+                {
+                    if (dataIndex >= 0 && dataIndex < _fullData.Count)
                     {
-                        var col = Columns[j];
-                        var prop = dataItem.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
-                        var value = prop?.GetValue(dataItem) ?? string.Empty;
-                        row.Cells[j].CellValue = value;
-                        row.Cells[j].CellData = value;
-                        row.IsDataLoaded = true;
+                        var dataItem = _fullData[dataIndex];
+                        for (int j = 0; j < row.Cells.Count && j < Columns.Count; j++)
+                        {
+                            var col = Columns[j];
+                            var prop = dataItem.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
+                            var value = prop?.GetValue(dataItem) ?? string.Empty;
+                            row.Cells[j].CellValue = value;
+                            row.Cells[j].CellData = value;
+                            row.IsDataLoaded = true;
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"FillVisibleRows Error at Row {i}, DataIndex {dataIndex}: {ex.Message}\nStackTrace: {ex.StackTrace}");
                 }
                 //else
                 //{
@@ -1036,8 +1042,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //    }
                 //}
             }
+              
+         
             UpdateScrollBars();
             Invalidate();
+
         }
         private void UpdateDataRecordFromRow(BeepGridCell editingCell)
         {
@@ -1859,7 +1868,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     if (i == 0 || yOffset + RowHeight > bounds.Bottom - RowHeight)
                     {
-                        System.Diagnostics.Debug.WriteLine($"PaintRows: Row[{i}] Y={rowRect.Y}, X={rowRect.X}, Right={rowRect.Right}, StickyWidth={stickyWidth}, Bounds={bounds}, XOffset={_xOffset}");
+                     //   System.Diagnostics.Debug.WriteLine($"PaintRows: Row[{i}] Y={rowRect.Y}, X={rowRect.X}, Right={rowRect.Right}, StickyWidth={stickyWidth}, Bounds={bounds}, XOffset={_xOffset}");
                     }
                 }
             }
@@ -2158,7 +2167,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            System.Diagnostics.Debug.WriteLine($"DrawColumnBorders: StickyWidth={stickyWidth}, LastXOffset={xOffset}, Bounds={bounds}, XOffset={_xOffset}");
+            //System.Diagnostics.Debug.WriteLine($"DrawColumnBorders: StickyWidth={stickyWidth}, LastXOffset={xOffset}, Bounds={bounds}, XOffset={_xOffset}");
         }
         private void PaintColumnHeaders(Graphics g, Rectangle headerRect)
         {
@@ -2184,7 +2193,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     var headerCellRect = new Rectangle(xOffset, headerRect.Top, col.Width, headerRect.Height);
                     PaintHeaderCell(g, col, headerCellRect, centerFormat);
                     xOffset += col.Width;
-                    System.Diagnostics.Debug.WriteLine($"StickyHeader: Col={col.ColumnName}, X={headerCellRect.X}, Width={col.Width}");
+                //    System.Diagnostics.Debug.WriteLine($"StickyHeader: Col={col.ColumnName}, X={headerCellRect.X}, Width={col.Width}");
                 }
             }
 
@@ -2208,7 +2217,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 g.DrawLine(Pens.Gray, headerRect.Left + stickyWidth, headerRect.Top, headerRect.Left + stickyWidth, headerRect.Bottom);
             }
 
-            System.Diagnostics.Debug.WriteLine($"PaintColumnHeaders: StickyWidth={stickyWidth}, HeaderRect={headerRect}, XOffset={_xOffset}");
+          //  System.Diagnostics.Debug.WriteLine($"PaintColumnHeaders: StickyWidth={stickyWidth}, HeaderRect={headerRect}, XOffset={_xOffset}");
         }
         private void DrawHeaderPanel(Graphics g, Rectangle rect)
         {

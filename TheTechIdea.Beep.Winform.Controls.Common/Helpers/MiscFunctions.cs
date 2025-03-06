@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -381,64 +382,111 @@ namespace TheTechIdea.Beep.Desktop.Common.Helpers
         /// Converts a value to the expected property type.
         /// Handles cases where numbers need to be converted between types safely.
         /// </summary>
+        // Cache conversion functions for common types
+        private static readonly Dictionary<Type, Func<string, object>> TypeConverters = new Dictionary<Type, Func<string, object>>
+    {
+        { typeof(bool), s => bool.TryParse(s, out bool result) ? result : false },
+        { typeof(char), s => s.Length > 0 ? s[0] : '\0' },
+        { typeof(string), s => s }, // Empty string is valid for string
+        { typeof(int), s => int.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out int result) ? result : 0 },
+        { typeof(long), s => long.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out long result) ? result : 0L },
+        { typeof(float), s => float.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out float result) ? result : 0f },
+        { typeof(double), s => double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out double result) ? result : 0d },
+        { typeof(decimal), s => decimal.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal result) ? result : 0m },
+        { typeof(DateTime), s => DateTime.TryParse(s, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result) ? result : DateTime.MinValue }
+    };
+
+        // Cache default values for common value types
+        private static readonly Dictionary<Type, object> DefaultValues = new Dictionary<Type, object>
+    {
+        { typeof(bool), false },
+        { typeof(char), '\0' },
+        { typeof(int), 0 },
+        { typeof(long), 0L },
+        { typeof(float), 0f },
+        { typeof(double), 0d },
+        { typeof(decimal), 0m },
+        { typeof(DateTime), DateTime.MinValue }
+    };
+
         public static object ConvertValueToPropertyType(Type targetType, object value)
         {
+            // Handle null or DBNull
             if (value == null || value == DBNull.Value)
-                return targetType.IsValueType ? Activator.CreateInstance(targetType) : null;
+            {
+                return targetType.IsValueType ? GetDefaultValue(targetType) : null;
+            }
+
+            // Get string representation once
+            string stringValue = value.ToString();
+
+            // Explicitly handle empty string
+            if (stringValue == "") // Direct comparison for empty string
+            {
+                if (targetType == typeof(string))
+                    return string.Empty; // Valid case for string
+                //Debug.WriteLine($"ConvertValueToPropertyType: Empty string for type {targetType}, returning default");
+                return targetType.IsValueType ? GetDefaultValue(targetType) : null;
+            }
 
             try
             {
-                if (value == null)
+                // Handle nullable types
+                Type underlyingType = Nullable.GetUnderlyingType(targetType);
+                if (underlyingType != null)
                 {
-                    return targetType.IsValueType ? Activator.CreateInstance(targetType) : null;
-                    // For bool: returns false
-                    // For char: returns '\0'
-                    // For string: returns null
+                    return ConvertValueToPropertyType(underlyingType, value); // Recurse for nullable underlying type
                 }
 
-                if (targetType == typeof(bool))
+                // Fast path for exact type match
+                if (value.GetType() == targetType)
                 {
-                    if (bool.TryParse(value.ToString(), out bool result))
-                        return result;
-                    return false; // Default for invalid bool
+                    return value;
                 }
-                if (targetType == typeof(char))
+
+                // Use cached converter if available
+                if (TypeConverters.TryGetValue(targetType, out var converter))
                 {
-                    if (value is char c)
-                        return c;
-                    if (!string.IsNullOrEmpty(value.ToString()) && value.ToString().Length > 0)
-                        return value.ToString()[0];
-                    return '\0'; // Default for invalid char
+                    return converter(stringValue);
                 }
-                if (targetType == typeof(string))
-                {
-                    return value.ToString();
-                }
-                if (targetType == typeof(int))
-                    return Convert.ToInt32(value);  // 🔹 Converts decimals/floats safely to int
-                if (targetType == typeof(long))
-                    return Convert.ToInt64(value);
-                if (targetType == typeof(float))
-                    return Convert.ToSingle(value);
-                if (targetType == typeof(double))
-                    return Convert.ToDouble(value);
-                if (targetType == typeof(decimal))
-                    return Convert.ToDecimal(value);
-                if (targetType == typeof(bool))
-                    return Convert.ToBoolean(value);
-                if (targetType == typeof(string))
-                    return value.ToString();
-                if (targetType == typeof(DateTime))
-                    return Convert.ToDateTime(value);
+
+                // Enum handling
                 if (targetType.IsEnum)
-                    return Enum.Parse(targetType, value.ToString());
+                {
+                    if (Enum.TryParse(targetType, stringValue, true, out object enumResult))
+                        return enumResult;
+                    Debug.WriteLine($"ConvertValueToPropertyType: Invalid enum value '{stringValue}' for {targetType}, returning default");
+                    return GetDefaultValue(targetType);
+                }
 
-                return Convert.ChangeType(value, targetType);
+                // Fallback to Convert.ChangeType
+                return Convert.ChangeType(value, targetType, CultureInfo.InvariantCulture);
             }
-            catch
+            catch (FormatException ex)
             {
-                return targetType.IsValueType ? Activator.CreateInstance(targetType) : null;
+                Debug.WriteLine($"ConvertValueToPropertyType Format Error: TargetType={targetType}, Value='{stringValue}', Error={ex.Message}");
+                return targetType.IsValueType ? GetDefaultValue(targetType) : null;
             }
+            catch (ArgumentException ex)
+            {
+                Debug.WriteLine($"ConvertValueToPropertyType Argument Error: TargetType={targetType}, Value='{stringValue}', Error={ex.Message}");
+                return targetType.IsValueType ? GetDefaultValue(targetType) : null;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ConvertValueToPropertyType Unexpected Error: TargetType={targetType}, Value='{stringValue}', Error={ex.Message}");
+                return targetType.IsValueType ? GetDefaultValue(targetType) : null;
+            }
+        }
+
+        private static object GetDefaultValue(Type targetType)
+        {
+            if (DefaultValues.TryGetValue(targetType, out object defaultValue))
+            {
+                return defaultValue;
+            }
+            // Fallback for unhandled value types (rare)
+            return Activator.CreateInstance(targetType);
         }
     }
 }

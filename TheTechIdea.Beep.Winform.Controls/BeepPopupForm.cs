@@ -312,7 +312,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        return false;
 
         //    // Get the control's bounds in screen coordinates
-        //    Rectangle controlBounds = new Rectangle(control.PointToScreen(Point.Empty), control.Size);
+        //    Rectangle controlBounds = new Rectangle(control.PointToScreen(Point.Empty), control.Value);
 
         //    // Get the mouse position
         //    Point mousePos = Cursor.Position;
@@ -452,7 +452,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // NOTE: If you need to ensure your popup has an updated size
             // before calculating, you can measure or set it. For example:
-            //   this.Size = new Size(desiredWidth, desiredHeight);
+            //   this.Value = new Value(desiredWidth, desiredHeight);
 
             // Default to bottom as an example
             Point location = triggerScreenLocation;

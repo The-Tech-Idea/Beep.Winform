@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MultiSelect = true
             };
             _fileListView.Columns.Add("Name", 400);
-            _fileListView.Columns.Add("Size", 100);
+            _fileListView.Columns.Add("Value", 100);
             _fileListView.Columns.Add("Type", 200);
             _fileListView.ItemSelectionChanged += OnFileSelected;
 

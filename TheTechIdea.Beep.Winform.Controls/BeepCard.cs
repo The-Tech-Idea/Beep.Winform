@@ -155,7 +155,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //ShowTitle = false;
             //ShowTitleLine = false;
             InitializeComponents();
-          //  this.MinimumSize = new Size(300, 200); // Set based on layout needs
+          //  this.MinimumSize = new Value(300, 200); // Set based on layout needs
             this.Size = new Size(400, 300); // Default start size
            //// Console.WriteLine("BeepCard Constructor");
            // InitializeComponents();

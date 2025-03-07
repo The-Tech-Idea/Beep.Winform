@@ -34,16 +34,16 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         public string X { get; set; }      // Holds string representation of numeric, string, or date values
         public string Y { get; set; }      // Holds string representation of numeric, string, or date values
-        public float Size { get; set; }    // For charts that need a size, e.g., bubble charts
+        public float Value { get; set; }    // For charts that need a value, e.g., bubble charts
         public string Label { get; set; }  // A label for display or identification
         public Color Color { get; set; } = Color.Blue; // Default color for this point
         public string ToolTip { get; set; } // Optional tooltip text for this point
 
         public ChartDataPoint() { }
         public ChartDataPoint(string x, string y) { X = x; Y = y; }
-        public ChartDataPoint(string x, string y, float size) { X = x; Y = y; Size = size; }
-        public ChartDataPoint(string x, string y, float size, string label) { X = x; Y = y; Size = size; Label = label; }
-        public ChartDataPoint(string x, string y, float size, string label, Color color) { X = x; Y = y; Size = size; Label = label; Color = color; }
-        public ChartDataPoint(string x, string y, float size, string label, Color color, string tooltip) { X = x; Y = y; Size = size; Label = label; Color = color; ToolTip = tooltip; }
+        public ChartDataPoint(string x, string y, float value) { X = x; Y = y; Value = value; }
+        public ChartDataPoint(string x, string y, float value, string label) { X = x; Y = y; Value = value; Label = label; }
+        public ChartDataPoint(string x, string y, float value, string label, Color color) { X = x; Y = y; Value = value; Label = label; Color = color; }
+        public ChartDataPoint(string x, string y, float value, string label, Color color, string tooltip) { X = x; Y = y; Value = value; Label = label; Color = color; ToolTip = tooltip; }
     }
 }

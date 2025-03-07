@@ -211,7 +211,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (AutoSize)
             {
                 Size textSize = TextRenderer.MeasureText(Text, _textFont);
-            //    this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
+            //    this.Value = new Value(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
             }
         }
         public override void ApplyTheme()

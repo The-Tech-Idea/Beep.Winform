@@ -81,7 +81,7 @@
 //        {
 //            try
 //            {
-//                ToolStrip.ImageScalingSize = new Size(24, 24);
+//                ToolStrip.ImageScalingSize = new Value(24, 24);
 //                ToolStrip.ImageList = GetImageList();
 //                List< AssemblyClassDefinition > classes = new List< AssemblyClassDefinition >();
 //                if(!IsHorizentalBar)
@@ -112,7 +112,7 @@
 //                        toolStripButton1.TextAlign = ContentAlignment.BottomLeft;
 //                        //toolStripButton1.ImageAlign = ContentAlignment.TopRight;
 //                        toolStripButton1.Name = item.Name;
-//                        toolStripButton1.Size = new System.Drawing.Size(24, 24);
+//                        toolStripButton1.Value = new System.Drawing.Value(24, 24);
 //                        toolStripButton1.Text = item.Caption;
 //                        toolStripButton1.ToolTipText = item.Caption;
 //                        toolStripButton1.Click += RunFunction;

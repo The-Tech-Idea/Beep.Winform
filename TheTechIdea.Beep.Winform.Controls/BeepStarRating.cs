@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Size of each star.")]
+        [Description("Value of each star.")]
         public int StarSize
         {
             get => _starSize;

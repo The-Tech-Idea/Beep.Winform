@@ -608,7 +608,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsShadowAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
             AutoSize = false; // Prevents automatic shrinking
-           // Size = DefaultSize; // Ensures a default size
+           // Value = DefaultSize; // Ensures a default size
             //   ApplyTheme(); // Ensure _currentTheme is initialized
             // Ensure size adjustments occur after initialization
             UpdateDrawingRect();
@@ -725,7 +725,7 @@ namespace TheTechIdea.Beep.Winform.Controls
       
         #endregion "Paint and Invalidate"
         #region "Size and Position"
-        // protected override Size DefaultSize => GetDefaultSize();
+        // protected override Value DefaultSize => GetDefaultSize();
         private int GetSingleLineHeight()
         {
             UpdateDrawingRect(); // Ensure DrawingRect is current

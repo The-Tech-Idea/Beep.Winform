@@ -230,84 +230,53 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-                System.Diagnostics.Trace.WriteLine("BeepChart OnPaint Called");
+                base.OnPaint(e);
                 if (ClientRectangle.Width <= 0 || ClientRectangle.Height <= 0)
-                {
-                    System.Diagnostics.Trace.WriteLine("Invalid client dimensions, skipping render");
-                    e.Graphics.Clear(Color.White);
                     return;
-                }
 
-                 UpdateChartDrawingRect(e.Graphics);
+                UpdateChartDrawingRect(e.Graphics);
                 e.Graphics.Clear(DesignMode ? Color.White : ChartBackColor);
                 e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-                if (DesignMode && DataSeries != null && DataSeries.Any())
+                // Only draw axes if NOT pie
+                if (ChartType != ChartType.Pie)
                 {
-                    System.Diagnostics.Trace.WriteLine("Design-time rendering: Drawing sample data");
-                    DrawAxes(e.Graphics);
-                    DrawAxisTitles(e.Graphics);
-                    // ← Add this
-                    DrawAxisTicks(e.Graphics);
-                    if (ChartType != ChartType.Pie)
-                    {
-                        System.Diagnostics.Trace.WriteLine("Drawing data series (design-time)");
-                        DrawDataSeries(e.Graphics);
-                    }
-                    else
-                    {
-                        System.Diagnostics.Trace.WriteLine("Drawing pie series (design-time)");
-                        DrawPieSeries(e.Graphics);
-                    }
-                    if (ShowLegend && ChartType != ChartType.Pie)
-                    {
-                        System.Diagnostics.Trace.WriteLine("Drawing legend (design-time)");
-                        DrawLegend(e.Graphics);
-                    }
+                    DrawAxes(e.Graphics);         // the axis lines
+                   
+                    DrawAxisTitles(e.Graphics);   // axis titles
+                    DrawAxisTicks(e.Graphics);    // numeric/text ticks (if you have them)
                 }
-                else if (CustomDraw)
+
+                // Then draw data
+                if (ChartType == ChartType.Pie)
                 {
-                    System.Diagnostics.Trace.WriteLine("Drawing custom series");
-                    DrawCustomSeries(e.Graphics);
+                    DrawPieSeries(e.Graphics);
+                    DrawPieLegend(e.Graphics);
                 }
                 else
                 {
-                    System.Diagnostics.Trace.WriteLine("Drawing axes");
-                    DrawAxes(e.Graphics);
-                    System.Diagnostics.Trace.WriteLine("Drawing axis labels");
-                    DrawAxisTitles(e.Graphics);
-                    DrawAxisTicks(e.Graphics);
-                    if (ChartType != ChartType.Pie)
-                    {
-                        System.Diagnostics.Trace.WriteLine("Drawing data series");
-                        DrawDataSeries(e.Graphics);
-                    }
-                    else
-                    {
-                        System.Diagnostics.Trace.WriteLine("Drawing pie series");
-                        DrawPieSeries(e.Graphics);
-                    }
+                    if(ChartType== ChartType.Line)    DrawDataSeries(e.Graphics); //Line series
+                    if (ChartType == ChartType.Bar)   DrawBarSeries(e.Graphics);    // bar series
+                    if (ChartType == ChartType.Bubble) DrawBubbleSeries(e.Graphics); // bubble series
                 }
 
-                if ( ShowLegend )
+                // Draw legend if needed
+                if (!DesignMode && ShowLegend  && ChartType!= ChartType.Pie)
                 {
-                    System.Diagnostics.Trace.WriteLine("Drawing legend");
                     DrawLegend(e.Graphics);
                 }
 
-                if (hoveredPoint != null && !DesignMode && dataPointToolTip != null)
+                if (hoveredPoint != null && dataPointToolTip != null)
                 {
-                    System.Diagnostics.Trace.WriteLine("Showing tooltip");
                     ShowTooltip(hoveredPoint);
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Trace.WriteLine($"OnPaint Error: {ex.Message}\n{ex.StackTrace}");
-                e.Graphics.Clear(Color.Red);
-                e.Graphics.DrawString("Error rendering chart", new Font("Arial", 10), Brushes.White, 10, 10);
+                // ...
             }
         }
+
 
         protected override void OnMouseWheel(MouseEventArgs e)
         {
@@ -457,6 +426,68 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Drawing Methods
+        private void DrawBubbleSeries(Graphics g)
+        {
+            try
+            {
+                if (!DataSeries.Any() || !DataSeries.Any(s => s.Points != null && s.Points.Any()))
+                    return;
+
+                float maxBubbleSize = 50f; // Max bubble diameter in pixels
+                float minBubbleSize = 5f;  // Min bubble diameter in pixels
+
+                float maxX = DataSeries.SelectMany(s => s.Points).Max(p => ConvertXValue(p) is float x ? x : 0);
+                float minX = DataSeries.SelectMany(s => s.Points).Min(p => ConvertXValue(p) is float x ? x : 0);
+                float maxY = DataSeries.SelectMany(s => s.Points).Max(p => ConvertYValue(p) is float y ? y : 0);
+                float minY = DataSeries.SelectMany(s => s.Points).Min(p => ConvertYValue(p) is float y ? y : 0);
+                float maxValue = DataSeries.SelectMany(s => s.Points).Max(p => p.Value);
+
+                foreach (var series in DataSeries)
+                {
+                    if (!series.Visible) continue;
+
+                    foreach (var point in series.Points)
+                    {
+                        float x = ConvertXValue(point) is float xVal ? xVal : 0;
+                        float y = ConvertYValue(point) is float yVal ? yVal : 0;
+                        float bubbleSize = (point.Value / maxValue) * maxBubbleSize;
+                        bubbleSize = Math.Max(bubbleSize, minBubbleSize);
+
+                        float screenX = ChartDrawingRect.Left + ((x - minX) / (maxX - minX)) * ChartDrawingRect.Width;
+                        float screenY = ChartDrawingRect.Bottom - ((y - minY) / (maxY - minY)) * ChartDrawingRect.Height;
+
+                        Color bubbleColor = point.Color != Color.Empty
+                            ? point.Color
+                            : ChartDefaultSeriesColors[DataSeries.IndexOf(series) % ChartDefaultSeriesColors.Count];
+
+                        using (Brush brush = new SolidBrush(Color.FromArgb(150, bubbleColor))) // Semi-transparent
+                        {
+                            g.FillEllipse(brush, screenX - bubbleSize / 2, screenY - bubbleSize / 2, bubbleSize, bubbleSize);
+                        }
+                        using (Pen pen = new Pen(ChartLineColor, 1))
+                        {
+                            g.DrawEllipse(pen, screenX - bubbleSize / 2, screenY - bubbleSize / 2, bubbleSize, bubbleSize);
+                        }
+
+                        // Draw value inside the bubble
+                        using (Font labelFont = new Font("Arial", 8))
+                        using (Brush textBrush = new SolidBrush(ChartTextColor))
+                        {
+                            string bubbleLabel = point.Value.ToString();
+                            SizeF textSize = g.MeasureString(bubbleLabel, labelFont);
+                            g.DrawString(bubbleLabel, labelFont, textBrush,
+                                         screenX - textSize.Width / 2,
+                                         screenY - textSize.Height / 2);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine($"DrawBubbleSeries Error: {ex.Message}");
+            }
+        }
+
         private void UpdateChartDrawingRectBase()
         {
             try
@@ -655,66 +686,61 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        private void DrawNumericAxisTicks(Graphics g, int numberOfXTicks, int numberOfYTicks)
+        private void DrawBarSeries(Graphics g)
         {
-            // Only do this if the user set numeric axes:
-            if (BottomAxisType != AxisType.Numeric || LeftAxisType != AxisType.Numeric)
-                return;
-
-            float xRange = ViewportXMax - ViewportXMin;
-            float yRange = ViewportYMax - ViewportYMin;
-            if (xRange <= 0 || yRange <= 0)
-                return;
-
-            using (Font tickFont = new Font("Arial", 8))
-            using (Brush textBrush = new SolidBrush(ChartTextColor))
-            using (Pen tickPen = new Pen(ChartGridLineColor, 1))
+            try
             {
-                // ------------------
-                // X Axis Ticks
-                // ------------------
-                float xStep = xRange / numberOfXTicks;
-                for (int i = 0; i <= numberOfXTicks; i++)
+                if (!DataSeries.Any() || !DataSeries.Any(s => s.Points != null && s.Points.Any()))
+                    return;
+
+                int barWidth = ChartDrawingRect.Width / DataSeries.First().Points.Count / DataSeries.Count;
+                int seriesIndex = 0;
+                float maxValue = DataSeries.SelectMany(s => s.Points).Max(p => p.Value);
+
+                foreach (var series in DataSeries)
                 {
-                    float val = ViewportXMin + i * xStep;
-                    float xPos = ChartDrawingRect.Left
-                                 + (val - ViewportXMin) / xRange * ChartDrawingRect.Width;
+                    if (!series.Visible) continue;
 
-                    // small line below X axis
-                    g.DrawLine(tickPen,
-                        xPos, ChartDrawingRect.Bottom,
-                        xPos, ChartDrawingRect.Bottom + 4);
+                    int pointIndex = 0;
+                    foreach (var point in series.Points)
+                    {
+                        float barHeight = (point.Value / maxValue) * ChartDrawingRect.Height;
+                        int barX = ChartDrawingRect.Left + (pointIndex * barWidth * DataSeries.Count) + (seriesIndex * barWidth);
+                        int barY = ChartDrawingRect.Bottom - (int)barHeight;
 
-                    // label
-                    string label = val.ToString("0.##");
-                    SizeF size = g.MeasureString(label, tickFont);
-                    g.DrawString(label, tickFont, textBrush,
-                        xPos - size.Width / 2,
-                        ChartDrawingRect.Bottom + 4);
+                        Color barColor = point.Color != Color.Empty
+                            ? point.Color
+                            : ChartDefaultSeriesColors[seriesIndex % ChartDefaultSeriesColors.Count];
+
+                        using (Brush brush = new SolidBrush(barColor))
+                        {
+                            g.FillRectangle(brush, barX, barY, barWidth - 2, barHeight);
+                        }
+
+                        using (Pen pen = new Pen(ChartLineColor, 1))
+                        {
+                            g.DrawRectangle(pen, barX, barY, barWidth - 2, barHeight);
+                        }
+
+                        // Draw value on top of the bar
+                        using (Font labelFont = new Font("Arial", 8))
+                        using (Brush textBrush = new SolidBrush(ChartTextColor))
+                        {
+                            string barLabel = point.Value.ToString();
+                            SizeF textSize = g.MeasureString(barLabel, labelFont);
+                            g.DrawString(barLabel, labelFont, textBrush,
+                                         barX + (barWidth - textSize.Width) / 2,
+                                         barY - textSize.Height - 2);
+                        }
+
+                        pointIndex++;
+                    }
+                    seriesIndex++;
                 }
-
-                // ------------------
-                // Y Axis Ticks
-                // ------------------
-                float yStep = yRange / numberOfYTicks;
-                for (int i = 0; i <= numberOfYTicks; i++)
-                {
-                    float val = ViewportYMin + i * yStep;
-                    float yPos = ChartDrawingRect.Bottom
-                                 - (val - ViewportYMin) / yRange * ChartDrawingRect.Height;
-
-                    // small line left of Y axis
-                    g.DrawLine(tickPen,
-                        ChartDrawingRect.Left - 4, yPos,
-                        ChartDrawingRect.Left, yPos);
-
-                    // label
-                    string label = val.ToString("0.##");
-                    SizeF size = g.MeasureString(label, tickFont);
-                    g.DrawString(label, tickFont, textBrush,
-                        ChartDrawingRect.Left - size.Width - 6,
-                        yPos - size.Height / 2);
-                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine($"DrawBarSeries Error: {ex.Message}");
             }
         }
 
@@ -722,13 +748,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-                if (!DataSeries.Any() || !DataSeries.Any(s => s.Points != null && s.Points.Any())) return;
+                if (!DataSeries.Any() || !DataSeries.Any(s => s.Points != null && s.Points.Any()))
+                    return;
 
                 var series = DataSeries.First();
-                if (!series.Visible) return;
+                if (!series.Visible)
+                    return;
 
-                float totalY = series.Points.Sum(p => Math.Max(ConvertYValue(p) is float yVal ? yVal : 0, 0));
-                if (totalY <= 0) return;
+                float totalValue = series.Points.Sum(p => p.Value);
+                if (totalValue <= 0)
+                    return;
 
                 int pieDiameter = Math.Min(ChartDrawingRect.Width, ChartDrawingRect.Height) - 20;
                 Rectangle pieRect = new Rectangle(
@@ -738,29 +767,58 @@ namespace TheTechIdea.Beep.Winform.Controls
                     pieDiameter
                 );
 
+                float centerX = pieRect.Left + pieDiameter / 2f;
+                float centerY = pieRect.Top + pieDiameter / 2f;
+                float radius = pieDiameter / 2f;
+
                 float startAngle = 0f;
                 int colorIndex = 0;
 
-                foreach (var point in series.Points)
+                using (Font labelFont = new Font("Arial", 8))
+                using (Brush labelBrush = new SolidBrush(ChartTextColor))
                 {
-                    float y = Math.Max(ConvertYValue(point) is float yVal ? yVal : 0, 0);
-                    if (y <= 0) continue;
-
-                    float sweepAngle = (y / totalY) * 360f;
-                    Color sliceColor = point.Color != Color.Empty ? point.Color : ChartDefaultSeriesColors[colorIndex % ChartDefaultSeriesColors.Count];
-
-                    using (Brush brush = new SolidBrush(sliceColor))
+                    foreach (var point in series.Points)
                     {
-                        g.FillPie(brush, pieRect, startAngle, sweepAngle);
-                    }
+                        float sliceValue = point.Value;
+                        if (sliceValue <= 0) continue;
 
-                    using (Pen pen = new Pen(ChartLineColor, 1))
-                    {
-                        g.DrawPie(pen, pieRect, startAngle, sweepAngle);
-                    }
+                        float sweepAngle = (sliceValue / totalValue) * 360f;
+                        Color sliceColor = point.Color != Color.Empty
+                            ? point.Color
+                            : ChartDefaultSeriesColors[colorIndex % ChartDefaultSeriesColors.Count];
 
-                    startAngle += sweepAngle;
-                    colorIndex++;
+                        using (Brush brush = new SolidBrush(sliceColor))
+                        {
+                            g.FillPie(brush, pieRect, startAngle, sweepAngle);
+                        }
+
+                        using (Pen pen = new Pen(ChartLineColor, 1))
+                        {
+                            g.DrawPie(pen, pieRect, startAngle, sweepAngle);
+                        }
+
+                        // Draw labels inside slices
+                        float midAngle = startAngle + sweepAngle / 2f;
+                        double midAngleRad = midAngle * (Math.PI / 180f);
+
+                        // Position label inside pie slice
+                        float labelRadius = radius * 0.6f;
+                        float labelX = centerX + (float)Math.Cos(midAngleRad) * labelRadius;
+                        float labelY = centerY + (float)Math.Sin(midAngleRad) * labelRadius;
+
+                        string sliceLabel = $"{sliceValue}"; // or customize as desired
+
+                        SizeF textSize = g.MeasureString(sliceLabel, labelFont);
+                        using (Brush textBrush = new SolidBrush(ChartTextColor))
+                        {
+                            g.DrawString(sliceLabel, labelFont, textBrush,
+                                         labelX - textSize.Width / 2,
+                                         labelY - textSize.Height / 2);
+                        }
+
+                        startAngle += sweepAngle;
+                        colorIndex++;
+                    }
                 }
             }
             catch (Exception ex)
@@ -768,6 +826,65 @@ namespace TheTechIdea.Beep.Winform.Controls
                 System.Diagnostics.Trace.WriteLine($"DrawPieSeries Error: {ex.Message}");
             }
         }
+        private void DrawPieLegend(Graphics g)
+        {
+            // Typically you only support one 'pie' series in the chart:
+            var pieSeries = DataSeries.FirstOrDefault(s => s.ChartType == ChartType.Pie && s.Visible);
+            if (pieSeries == null || !pieSeries.Points.Any())
+                return;
+
+            // Decide where to place your legend – for example, to the right of the chart:
+            int legendX = ChartDrawingRect.Right + 10;
+            int legendY = ChartDrawingRect.Top;
+            int itemHeight = 20;
+
+            using (Font font = new Font("Arial", 8))
+            using (Brush textBrush = new SolidBrush(ChartLegendTextColor))
+            using (Brush backBrush = new SolidBrush(ChartLegendBackColor))
+            {
+                // We’ll figure out how tall to make the background box:
+                int legendHeight = pieSeries.Points.Count * itemHeight + 10;
+                int legendWidth = 120; // Or measure the largest text
+
+                // Draw a background rectangle behind the legend items
+                g.FillRectangle(backBrush, legendX, legendY, legendWidth, legendHeight);
+
+                int currentY = legendY + 2;
+                int colorIndex = 0;
+
+                foreach (var point in pieSeries.Points)
+                {
+                    // Pick color for this slice
+                    Color sliceColor = point.Color != Color.Empty
+                        ? point.Color
+                        : ChartDefaultSeriesColors[colorIndex % ChartDefaultSeriesColors.Count];
+
+                    // Draw a small color swatch
+                    using (Brush swatchBrush = new SolidBrush(sliceColor))
+                    {
+                        g.FillRectangle(swatchBrush, legendX + 2, currentY, 15, 15);
+                    }
+                    // Outline it
+                    using (Pen pen = new Pen(ChartLegendShapeColor, 1))
+                    {
+                        g.DrawRectangle(pen, legendX + 2, currentY, 15, 15);
+                    }
+
+                    // Decide what text to show for this slice
+                    // If you’re using the .X property for the slice name:
+                    string labelText = !string.IsNullOrEmpty(point.X)
+                        ? point.X
+                        : $"Slice {colorIndex + 1}";
+
+                    // Draw text to the right of the color swatch
+                    g.DrawString(labelText, font, textBrush, legendX + 20, currentY);
+
+                    currentY += itemHeight;
+                    colorIndex++;
+                }
+            }
+        }
+
 
         private void DrawLegend(Graphics g)
         {

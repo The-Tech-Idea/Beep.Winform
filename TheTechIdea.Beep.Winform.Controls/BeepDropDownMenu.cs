@@ -223,7 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             //// Set the button's location and size
             //TriangleButton.Location = new Point(xPos, centerY);
-            //TriangleButton.Size = new Size(_buttonsize, dropdownButtonHeight);
+            //TriangleButton.Value = new Value(_buttonsize, dropdownButtonHeight);
             if (_dropDownButton != null)
             {
                 int dropdownButtonHeight = TitleBottomY - 4;

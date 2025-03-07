@@ -128,7 +128,7 @@
 //                BeepAppTree.ObjectType = Visutil.BeepObjectsName;
 //                BeepAppTree.TreeV = MainSplitPanel.StandardTree;
 
-//                //  you can change icon size in StandardTree controls  ex. Apptree.IconsSize = new Size(24, 24);
+//                //  you can change icon size in StandardTree controls  ex. Apptree.IconsSize = new Value(24, 24);
 
 //                SendMessege(progress, "Loading Beep Data Management Functions and StandardTree");
 

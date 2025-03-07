@@ -99,7 +99,7 @@
 //            {
 //                item = new ToolStripMenuItem();
 //                item.Name = attrib.Name;
-//                item.Size = new System.Drawing.Size(20, 20);
+//                item.Value = new System.Drawing.Value(20, 20);
 //                item.Text = attrib.Caption;
 //                item.Tag = attrib.TypeId;
 //                item.ForeColor = Color.Black;
@@ -126,7 +126,7 @@
 //        {
 //            try
 //            {
-//                MenuStrip.ImageScalingSize = new Size(20, 20);
+//                MenuStrip.ImageScalingSize = new Value(20, 20);
 
 
 //                List<AssemblyClassDefinition> extentions = DMEEditor.ConfigEditor.GlobalFunctions.Where(o=>o.classProperties!=null && o.classProperties.ObjectType!=null && (o.classProperties.Showin== ShowinType.Menu || o.classProperties.Showin == ShowinType.Both) && o.classProperties.ObjectType.Equals(ObjectType,StringComparison.CurrentCultureIgnoreCase)).OrderBy(p => p.Order).ToList();
@@ -140,7 +140,7 @@
 //                        ToolStripMenuItem Extensionsmenu = GetToolStripMenuItem(attrib);
 
 //                        //Extensionsmenu.Name = attrib.Name;
-//                        //Extensionsmenu.Size = new System.Drawing.Size(20, 20);
+//                        //Extensionsmenu.Value = new System.Drawing.Value(20, 20);
 //                        //Extensionsmenu.Text = attrib.Caption;
 //                        //Extensionsmenu.Tag = attrib.TypeId;
 //                        //Extensionsmenu.ForeColor = Color.Black;
@@ -153,7 +153,7 @@
 //                            if(MenuitemExist(Extensionsmenu,item.Caption)) { continue; }
 //                            ToolStripMenuItem menuItem = new ToolStripMenuItem();
 //                            menuItem.Name = item.Name;
-//                            menuItem.Size = new System.Drawing.Size(32, 32);
+//                            menuItem.Value = new System.Drawing.Value(32, 32);
 //                            menuItem.Text = item.Caption;
 //                            menuItem.Tag = cls;
 //                            if (item.CommandAttr.Key != BeepKeys.None)
@@ -199,7 +199,7 @@
 //                {
 //                    ToolStripMenuItem Configmenu = new ToolStripMenuItem();
 //                    Configmenu.Name = "Config";
-//                    // Configmenu.Size = new System.Drawing.Size(37, 20);
+//                    // Configmenu.Value = new System.Drawing.Value(37, 20);
 //                    Configmenu.Text = "Configuration";
 //                    Configmenu.Tag = "Config";
 //                    Configmenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
@@ -208,7 +208,7 @@
 //                    {
 //                        ToolStripMenuItem menuItem = new ToolStripMenuItem();
 //                        menuItem.Name = item.NodeName;
-//                        //  menuItem.Size = new System.Drawing.Size(37, 20);
+//                        //  menuItem.Value = new System.Drawing.Value(37, 20);
 //                        menuItem.Text = item.NodeName;
 //                        menuItem.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
 //                        menuItem.ImageScaling = ToolStripItemImageScaling.SizeToFit;

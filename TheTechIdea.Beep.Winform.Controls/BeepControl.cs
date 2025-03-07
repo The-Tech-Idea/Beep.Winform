@@ -2097,7 +2097,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size textSize = TextRenderer.MeasureText(Text, Font);
 
             // Get the original image size and limit it by the MaxImageSize property if necessary
-            //Size imageSize = beepImage != null && beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
+            //Value imageSize = beepImage != null && beepImage.HasImage ? beepImage.GetImageSize() : Value.Empty;
 
             // Restrict the image size using the MaxImageSize property
             if (imageSize.Width > MaxImageSize.Width || imageSize.Height > MaxImageSize.Height)

@@ -62,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Change Size of main Button inside control")]
+        [Description("Change Value of main Button inside control")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int ButtonWidth
         {
@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Change Size of  images inside control")]
+        [Description("Change Value of  images inside control")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int RightButtonSize
         {

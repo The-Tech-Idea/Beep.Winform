@@ -749,7 +749,7 @@
             beepChart1.LeftAxisType = Vis.Modules.AxisType.Numeric;
             beepChart1.LeftoffsetForDrawingRect = 0;
             beepChart1.LinkedProperty = null;
-            beepChart1.Location = new Point(386, 120);
+            beepChart1.Location = new Point(386, 127);
             beepChart1.Name = "beepChart1";
             beepChart1.OverrideFontSize = Winform.Controls.TypeStyleFontSize.None;
             beepChart1.ParentBackColor = Color.Empty;

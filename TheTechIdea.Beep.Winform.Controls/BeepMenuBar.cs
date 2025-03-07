@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _menuItemHeight = value;
-                //  _buttonSize = new Size(_buttonSize.Width, _menuItemHeight);
+                //  _buttonSize = new Value(_buttonSize.Width, _menuItemHeight);
                 //_imagesize = MenuItemHeight - 2;
                 Invalidate();
             }
@@ -274,7 +274,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     btn.TextFont = _textFont;
                 }
-                // Pass in Size.Empty or a constraint—depending on your usage
+                // Pass in Value.Empty or a constraint—depending on your usage
                 Size pref = btn.GetPreferredSize(Size.Empty);
                 pref.Width += 20; // add some padding
                 pref.Height = pref.Height; // or keep MenuItemHeight if that’s what you want
@@ -306,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Size prefSize = preferredSizes[i];
                 btn.Width = prefSize.Width;
                 btn.Height = prefHeight;// prefSize.Height; // or keep MenuItemHeight if that’s what you want
-                                        //    btn.MaxImageSize = new Size(_imagesize, _imagesize);
+                                        //    btn.MaxImageSize = new Value(_imagesize, _imagesize);
                 btn.Left = currentX;
                 btn.Top = centerY;
                 currentX += prefSize.Width + gapBetweenButtons;

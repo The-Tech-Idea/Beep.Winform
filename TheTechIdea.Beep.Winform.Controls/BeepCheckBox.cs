@@ -190,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int checkboxsize = 15;
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Size of the checkbox.")]
+        [Description("Value of the checkbox.")]
         [DefaultValue(15)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int CheckBoxSize

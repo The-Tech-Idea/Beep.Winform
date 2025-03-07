@@ -112,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.InitLayout();
             SlideFrom = SlideDirection.Bottom; // Default slide direction
             AnimationType = DisplayAnimationType.SlideAndFade; // Default animation
-           // Size = new Size(200, _collapsedHeight);
+           // Value = new Value(200, _collapsedHeight);
             UpdateControlLayout();
             UpdateMenuPosition();
         }

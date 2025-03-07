@@ -52,7 +52,7 @@
 //            MenuPanel1.Location = new Point(0, 0);
 //            MenuPanel1.Margin = new Padding(4, 3, 4, 3);
 //            MenuPanel1.Name = "MenuPanel1";
-//            MenuPanel1.Size = new Size(1400, 61);
+//            MenuPanel1.Value = new Value(1400, 61);
 //            MenuPanel1.TabIndex = 1;
 //            // 
 //            // toolStripHoriz
@@ -63,7 +63,7 @@
 //            toolStripHoriz.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
 //            toolStripHoriz.Location = new Point(0, 24);
 //            toolStripHoriz.Name = "toolStripHoriz";
-//            toolStripHoriz.Size = new Size(1400, 37);
+//            toolStripHoriz.Value = new Value(1400, 37);
 //            toolStripHoriz.TabIndex = 5;
 //            toolStripHoriz.Text = "toolStrip2";
 //            // 
@@ -75,7 +75,7 @@
 //            SearchtoolStripButton.ImageScaling = ToolStripItemImageScaling.None;
 //            SearchtoolStripButton.ImageTransparentColor = Color.Magenta;
 //            SearchtoolStripButton.Name = "SearchtoolStripButton";
-//            SearchtoolStripButton.Size = new Size(23, 34);
+//            SearchtoolStripButton.Value = new Value(23, 34);
 //            SearchtoolStripButton.ToolTipText = "Search";
 //            // 
 //            // SearchtoolStripTextBox
@@ -87,7 +87,7 @@
 //            SearchtoolStripTextBox.BorderStyle = BorderStyle.FixedSingle;
 //            SearchtoolStripTextBox.Name = "SearchtoolStripTextBox";
 //            SearchtoolStripTextBox.Padding = new Padding(5);
-//            SearchtoolStripTextBox.Size = new Size(110, 37);
+//            SearchtoolStripTextBox.Value = new Value(110, 37);
 //            SearchtoolStripTextBox.ToolTipText = "Enter Text To Search for";
 //            // 
 //            // HometoolStripButton1
@@ -96,7 +96,7 @@
 //            HometoolStripButton1.Image = Properties.Resources._128_home_button;
 //            HometoolStripButton1.ImageTransparentColor = Color.Magenta;
 //            HometoolStripButton1.Name = "HometoolStripButton1";
-//            HometoolStripButton1.Size = new Size(23, 34);
+//            HometoolStripButton1.Value = new Value(23, 34);
 //            HometoolStripButton1.Text = "Home";
 //            // 
 //            // menuControl1
@@ -107,7 +107,7 @@
 //            menuControl1.Name = "menuControl1";
 //            menuControl1.Padding = new Padding(7, 2, 0, 2);
 //            menuControl1.RenderMode = ToolStripRenderMode.Professional;
-//            menuControl1.Size = new Size(1400, 24);
+//            menuControl1.Value = new Value(1400, 24);
 //            menuControl1.TabIndex = 0;
 //            menuControl1.Text = "menuStrip1";
 //            // 
@@ -141,7 +141,7 @@
 //            uc_MainSplitPanel1.CurrentBranch = null;
 //            uc_MainSplitPanel1.Progress = null;
 //            uc_MainSplitPanel1.RootBranch = null;
-//            uc_MainSplitPanel1.Size = new Size(1363, 664);
+//            uc_MainSplitPanel1.Value = new Value(1363, 664);
 //            uc_MainSplitPanel1.SourceConnection = null;
 //            uc_MainSplitPanel1.StartLoggin = false;
 //            uc_MainSplitPanel1.TabIndex = 2;
@@ -153,13 +153,13 @@
 //            // 
 //            toolStripVertical.BackColor = Color.White;
 //            toolStripVertical.Dock = DockStyle.Left;
-//            toolStripVertical.ImageScalingSize = new Size(32, 32);
+//            toolStripVertical.ImageScalingSize = new Value(32, 32);
 //            toolStripVertical.Items.AddRange(new ToolStripItem[] { CollapseTreetoolStripButton, LogWindowstoolStripButton });
 //            toolStripVertical.LayoutStyle = ToolStripLayoutStyle.VerticalStackWithOverflow;
 //            toolStripVertical.Location = new Point(0, 61);
 //            toolStripVertical.Name = "toolStripVertical";
 //            toolStripVertical.RenderMode = ToolStripRenderMode.Professional;
-//            toolStripVertical.Size = new Size(37, 664);
+//            toolStripVertical.Value = new Value(37, 664);
 //            toolStripVertical.TabIndex = 3;
 //            // 
 //            // CollapseTreetoolStripButton
@@ -168,7 +168,7 @@
 //            CollapseTreetoolStripButton.Image = Properties.Resources.hamburgerblue;
 //            CollapseTreetoolStripButton.ImageTransparentColor = Color.Magenta;
 //            CollapseTreetoolStripButton.Name = "CollapseTreetoolStripButton";
-//            CollapseTreetoolStripButton.Size = new Size(34, 36);
+//            CollapseTreetoolStripButton.Value = new Value(34, 36);
 //            CollapseTreetoolStripButton.Text = "StandardTree Config/Hide";
 //            // 
 //            // LogWindowstoolStripButton
@@ -177,22 +177,22 @@
 //            LogWindowstoolStripButton.Image = Properties.Resources.log;
 //            LogWindowstoolStripButton.ImageTransparentColor = Color.Magenta;
 //            LogWindowstoolStripButton.Name = "LogWindowstoolStripButton";
-//            LogWindowstoolStripButton.Size = new Size(34, 36);
+//            LogWindowstoolStripButton.Value = new Value(34, 36);
 //            LogWindowstoolStripButton.Text = "Log Window Config/Hide";
 //            // 
 //            // Frm_Main
 //            // 
 //            AutoScaleDimensions = new SizeF(7F, 15F);
 //            AutoScaleMode = AutoScaleMode.TextFont;
-//            ClientSize = new Size(1400, 725);
+//            ClientSize = new Value(1400, 725);
 //            Controls.Add(uc_MainSplitPanel1);
 //            Controls.Add(toolStripVertical);
 //            Controls.Add(MenuPanel1);
 //            HelpButton = true;
 //            Icon = (Icon)resources.GetObject("$this.Icon");
 //            Margin = new Padding(4, 3, 4, 3);
-//            MaximumSize = new Size(4011, 1600);
-//            MinimumSize = new Size(219, 40);
+//            MaximumSize = new Value(4011, 1600);
+//            MinimumSize = new Value(219, 40);
 //            Name = "Frm_Main";
 //            StartPosition = FormStartPosition.CenterScreen;
 //            Text = "Beep - The Data  Platform";

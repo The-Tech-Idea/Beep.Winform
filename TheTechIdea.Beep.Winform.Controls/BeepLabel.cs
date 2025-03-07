@@ -293,8 +293,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    //int singleLineHeight = GetSingleLineHeight();
 
         //    //// Set Minimum and Maximum height to enforce fixed height
-        //    //this.MinimumSize = new Size(0, singleLineHeight);
-        //    //this.MaximumSize = new Size(0, singleLineHeight);
+        //    //this.MinimumSize = new Value(0, singleLineHeight);
+        //    //this.MaximumSize = new Value(0, singleLineHeight);
 
         //    //height = singleLineHeight;
         //    //specified &= ~BoundsSpecified.Height; // Remove the Height flag to prevent external changes
@@ -368,7 +368,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             //};
             // Measure and scale the font to fit within the control bounds
-            Font scaledFont = _textFont;// GetScaledFont(g, Text, contentRect.Size, TextFont);
+            Font scaledFont = _textFont;// GetScaledFont(g, Text, contentRect.Value, TextFont);
             if (UseScaledFont)
             {
                 scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
@@ -505,7 +505,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  }
 
             // Return the control's current size if AutoSize is disabled
-            //return base.Size;
+            //return base.Value;
         }
         public TextFormatFlags GetTextFormatFlags(ContentAlignment alignment)
         {

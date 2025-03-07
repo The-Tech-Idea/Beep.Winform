@@ -2360,7 +2360,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         /// <param name="cellstyle">Computed Style of cell being measured</param>
         /// <param name="basewidth">Initial width for size calculation</param>
         /// <param name="format">Computed string format for cell data</param>
-        /// <returns>Size of printed cell</returns>
+        /// <returns>Value of printed cell</returns>
         private SizeF calccellsize(Graphics g, DataGridViewCell cell, DataGridViewCellStyle cellstyle, 
             float basewidth, float overridewidth, StringFormat format)
         {

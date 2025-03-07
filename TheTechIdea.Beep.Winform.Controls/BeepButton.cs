@@ -605,7 +605,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Compute what size we *should* be.
                 Size preferred = GetPreferredSize(Size.Empty);
 
-                // Update the actual Size if it differs
+                // Update the actual Value if it differs
                 if (Size != preferred)
                 {
                     this.Size = preferred;
@@ -620,7 +620,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Compute what size we *should* be.
                 Size preferred = GetPreferredSize(Size.Empty);
 
-                // Update the actual Size if it differs
+                // Update the actual Value if it differs
                 if (Size != preferred)
                 {
                     this.Size = preferred;
@@ -653,7 +653,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             };
             // Measure and scale the font to fit within the control bounds
-            Font scaledFont = _textFont;// GetScaledFont(g, Text, contentRect.Size, TextFont);
+            Font scaledFont = _textFont;// GetScaledFont(g, Text, contentRect.Value, TextFont);
             if (UseScaledFont)
             {
                 scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
@@ -897,7 +897,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  }
 
             // Return the control's current size if AutoSize is disabled
-            //return base.Size;
+            //return base.Value;
         }
         #endregion "Paint"
         #region "Mouse and Click"

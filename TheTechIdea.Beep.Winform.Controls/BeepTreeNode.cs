@@ -1190,7 +1190,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NodeMainMiddlebutton.IsShadowAffectedByTheme = false;
                 NodeMainMiddlebutton.IsBorderAffectedByTheme = false;
                 NodeMainMiddlebutton.MaxImageSize = new System.Drawing.Size(MaxImageSize, MaxImageSize);
-               // NodeMainMiddlebutton.Size = new System.Drawing.Size(NodeWidth - 2 * NodeHeight, NodeHeight);
+               // NodeMainMiddlebutton.Value = new System.Drawing.Value(NodeWidth - 2 * NodeHeight, NodeHeight);
                 //   NodeMainMiddlebutton.TextFont=BeepThemesManager.ToFont(_currentTheme.LabelSmall);
 
               //  NodeMainMiddlebutton.
@@ -1770,7 +1770,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (isSizeCached && Tree != null && cachedWidth == Tree.Width - 20)
             {
-                // Size is already cached and fits the current StandardTree width
+                // Value is already cached and fits the current StandardTree width
                 return;
             }
 

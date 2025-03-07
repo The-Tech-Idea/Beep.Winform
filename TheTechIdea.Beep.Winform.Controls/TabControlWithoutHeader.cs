@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Set the size of the control to match the first TabPage
             //if (TabPages.Count > 0)
             //{
-            //    Size = TabPages[0].Size;
+            //    Value = TabPages[0].Value;
             //}
         }
 

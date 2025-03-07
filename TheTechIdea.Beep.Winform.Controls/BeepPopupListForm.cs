@@ -150,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    }else
             //        btn.TextFont = _beepListBox.Font;
 
-            //    Menuitemheight = _beepListBox.GetPreferredSize(Size.Empty).Height;
+            //    Menuitemheight = _beepListBox.GetPreferredSize(Value.Empty).Height;
             //}
             _beepListBox.MenuItemHeight = Menuitemheight;
 

@@ -2520,7 +2520,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int height = RowHeight;
 
             Rectangle rect = new Rectangle(x, y, width, height);
-         //   System.Diagnostics.Debug.WriteLine($"GetCellRectangle: Cell={x},{y}, Size={width}x{height}, _dataOffset={_dataOffset}, _xOffset={_xOffset}");
+         //   System.Diagnostics.Debug.WriteLine($"GetCellRectangle: Cell={x},{y}, Value={width}x{height}, _dataOffset={_dataOffset}, _xOffset={_xOffset}");
             return rect;
         }
         private Rectangle GetCellRectangle(BeepGridCell cell)
@@ -3147,7 +3147,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _editingControl.Focus();
             IsEditorShown = true;
 
-          //  System.Diagnostics.Debug.WriteLine($"ShowCellEditor: Cell={cell.X},{cell.Y}, Size={cellSize}");
+          //  System.Diagnostics.Debug.WriteLine($"ShowCellEditor: Cell={cell.X},{cell.Y}, Value={cellSize}");
         }
         private void CloseCurrentEditorIn()
         {
@@ -3222,7 +3222,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _editorPopupForm.ClientSize = cellSize; // 👈 Ensures no extra space due to window frame
             _editingControl.Size = cellSize; // 👈 Matches cell exactly
             _editingControl.Dock = DockStyle.Fill; // 👈 Ensures it doesn't resize incorrectly
-          //  Debug.WriteLine($"Editor size: {_editingControl.Size}");
+          //  Debug.WriteLine($"Editor size: {_editingControl.Value}");
          //   Debug.WriteLine($"Popup size: {_editorPopupForm.ClientSize}");
             // **🔹 Position popup exactly at the cell location (relative to BeepSimpleGrid)**
             Point screenLocation = this.PointToScreen(new Point(cell.X, cell.Y));

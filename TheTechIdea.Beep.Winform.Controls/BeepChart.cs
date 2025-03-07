@@ -748,8 +748,89 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
         private void DrawBarSeries(Graphics g)
+        {
+            try
+            {
+                if (!DataSeries.Any() || !DataSeries.Any(s => s.Points != null && s.Points.Any()))
+                    return;
+
+                Dictionary<string, int> yCategories = new Dictionary<string, int>();
+                int yCategoryIndex = 0;
+
+                foreach (var series in DataSeries)
+                {
+                    foreach (var point in series.Points)
+                    {
+                        if (ConvertYValue(point) is string yStr)
+                        {
+                            if (!yCategories.ContainsKey(yStr))
+                                yCategories[yStr] = yCategoryIndex++;
+                        }
+                    }
+                }
+
+                int barWidth = ChartDrawingRect.Width / DataSeries.First().Points.Count / DataSeries.Count;
+                int seriesIndex = 0;
+                float maxValue = DataSeries.SelectMany(s => s.Points).Max(p => p.Value);
+
+                foreach (var series in DataSeries)
+                {
+                    if (!series.Visible) continue;
+
+                    int pointIndex = 0;
+                    foreach (var point in series.Points)
+                    {
+                        float barX = ChartDrawingRect.Left + (pointIndex * barWidth * DataSeries.Count) + (seriesIndex * barWidth);
+                        float barHeight = (point.Value / maxValue) * ChartDrawingRect.Height;
+
+                        float barY;
+                        if (ConvertYValue(point) is string yStr && yCategories.ContainsKey(yStr))
+                        {
+                            barY = ChartDrawingRect.Bottom - ((yCategories[yStr] + 1) / (float)yCategories.Count * ChartDrawingRect.Height);
+                        }
+                        else
+                        {
+                            barY = ChartDrawingRect.Bottom - barHeight;
+                        }
+
+                        Color barColor = point.Color != Color.Empty
+                            ? series.Color
+                            : ChartDefaultSeriesColors[seriesIndex % ChartDefaultSeriesColors.Count];
+
+                        using (Brush brush = new SolidBrush(barColor))
+                        {
+                            g.FillRectangle(brush, barX, barY, barWidth - 2, barHeight);
+                        }
+
+                        using (Pen pen = new Pen(ChartLineColor, 1))
+                        {
+                            g.DrawRectangle(pen, barX, barY, barWidth - 2, barHeight);
+                        }
+
+                        // Draw Y-label near the bar
+                        using (Font labelFont = new Font("Arial", 8))
+                        using (Brush textBrush = new SolidBrush(ChartTextColor))
+                        {
+                            string barLabel = point.Y.ToString();
+                            SizeF textSize = g.MeasureString(barLabel, labelFont);
+                            g.DrawString(barLabel, labelFont, textBrush,
+                                         barX + (barWidth - textSize.Width) / 2,
+                                         barY - textSize.Height - 2);
+                        }
+
+                        pointIndex++;
+                    }
+                    seriesIndex++;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine($"DrawBarSeries Error: {ex.Message}");
+            }
+        }
+
+        private void DrawBarSeriesUsingValue(Graphics g)
         {
             try
             {

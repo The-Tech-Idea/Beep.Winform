@@ -786,8 +786,7 @@
             beepChart1.ViewportXMin = 0F;
             beepChart1.ViewportYMax = 0F;
             beepChart1.ViewportYMin = 0F;
-            beepChart1.XAxisTitle = "X";
-            beepChart1.YAxisTitle = "Y";
+          
             // 
             // MainForm
             // 

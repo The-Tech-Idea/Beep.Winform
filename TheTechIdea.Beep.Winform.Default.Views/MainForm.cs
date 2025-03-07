@@ -41,7 +41,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views
                 item1.Name = item.className;
                 items.Add(item1);
             }
-            beepChart1.ChartType = ChartType.Area;
+            beepChart1.ChartType = ChartType.Bar;
+            beepChart1.XAxisTitle= "X Axis ..";
+            beepChart1.YAxisTitle = "Y Axis ..";
             beepChart1.DataSeries = new List<ChartDataSeries>
     {
         new ChartDataSeries
@@ -53,9 +55,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             ShowInLegend = true,
             Points = new List<ChartDataPoint>
             {
-                new ChartDataPoint("1", "A", 10f, "A", Color.Red),
-                new ChartDataPoint("2", "B", 15f, "B", Color.Green),
-                new ChartDataPoint("3", "C", 20f, "C", Color.Blue)
+                new ChartDataPoint("1", "A", 5f, "A", Color.Azure),
+                new ChartDataPoint("2", "B", 7f, "B", Color.Bisque),
+                new ChartDataPoint("3", "C", 9f, "C", Color.Brown)
             }
 
         }, new ChartDataSeries
@@ -68,8 +70,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             Color=Color.Coral,
             Points = new List<ChartDataPoint>
             {
-                new ChartDataPoint("2", "D", 10f, "A", Color.Red),
-                new ChartDataPoint("5", "E", 15f, "B", Color.Green),
+                new ChartDataPoint("2", "D", 10f, "A", Color.DarkCyan),
+                new ChartDataPoint("5", "E", 15f, "B", Color.Tan),
                 new ChartDataPoint("6", "F", 20f, "C", Color.Blue)
             }
         }

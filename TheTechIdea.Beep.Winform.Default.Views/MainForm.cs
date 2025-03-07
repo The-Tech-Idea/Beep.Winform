@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 namespace TheTechIdea.Beep.Winform.Default.Views
@@ -28,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepService.vis.Container = this.uc_Container1;
             beepMenuAppBar1.beepServices = beepService;
             beepMenuAppBar1.CreateMenuItems();
-            beepSimpleGrid1.DataSource = beepService.DMEEditor.ConfigEditor.DataSourcesClasses;
+         //   beepSimpleGrid1.DataSource = beepService.DMEEditor.ConfigEditor.DataSourcesClasses;
             BindingList<SimpleItem> items = new BindingList<SimpleItem>();
             foreach (var item in Dependencies.DMEEditor.ConfigEditor.DataSourcesClasses)
             {
@@ -39,7 +40,39 @@ namespace TheTechIdea.Beep.Winform.Default.Views
                 item1.Name = item.className;
                 items.Add(item1);
             }
-           // beepComboBox1.ListItems= items;
+            beepChart1.DataSeries = new List<ChartDataSeries>
+    {
+        new ChartDataSeries
+        {
+            Name = "Series 1",
+            ShowLine = true,
+            ShowPoint = true,
+            ShowLabel=true,
+            ShowInLegend = true,
+            Points = new List<ChartDataPoint>
+            {
+                new ChartDataPoint("1", "5", 10f, "A", Color.Red),
+                new ChartDataPoint("2", "15", 15f, "B", Color.Green),
+                new ChartDataPoint("3", "8", 20f, "C", Color.Blue)
+            }
+
+        }, new ChartDataSeries
+        {
+            Name = "Series 2",
+            ShowLine = true,
+            ShowPoint = true,
+            ShowLabel=true,
+            ShowInLegend = true,
+            Color=Color.Coral,
+            Points = new List<ChartDataPoint>
+            {
+                new ChartDataPoint("2", "10", 10f, "A", Color.Red),
+                new ChartDataPoint("5", "25", 15f, "B", Color.Green),
+                new ChartDataPoint("6", "28", 20f, "C", Color.Blue)
+            }
+        }
+    };
+            // beepComboBox1.ListItems= items;
         }
 
        

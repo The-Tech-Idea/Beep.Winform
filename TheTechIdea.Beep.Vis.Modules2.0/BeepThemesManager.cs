@@ -14,7 +14,583 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public static class BeepThemesManager
     {
-        public static Dictionary<EnumBeepThemes, (Color ScrollbarBackColor, Color ScrollbarThumbColor, Color ScrollbarTrackColor, Color ScrollbarThumbColorHover, Color ScrollbarThumbColorActive)> ThemeScrollBarColors =
+
+
+            public static Dictionary<EnumBeepThemes, (
+                Color ChartBackColor,
+                Color ChartLineColor,
+                Color ChartFillColor,
+                Color ChartAxisColor,
+                Color ChartTitleColor,
+                Color ChartTextColor,
+                Color ChartLegendBackColor,
+                Color ChartLegendTextColor,
+                Color ChartLegendShapeColor,
+                Color ChartGridLineColor,
+                List<Color> ChartDefaultSeriesColors
+            )> ThemeChartColors = new Dictionary<EnumBeepThemes, (Color, Color, Color, Color, Color, Color, Color, Color, Color, Color, List<Color>)>
+            {
+            { EnumBeepThemes.DefaultTheme, (
+                ChartBackColor: Color.White,
+                ChartLineColor: Color.Blue,
+                ChartFillColor: Color.LightBlue,
+                ChartAxisColor: Color.Black,
+                ChartTitleColor: Color.Black,
+                ChartTextColor: Color.Black,
+                ChartLegendBackColor: Color.LightGray,
+                ChartLegendTextColor: Color.Black,
+                ChartLegendShapeColor: Color.Gray,
+                ChartGridLineColor: Color.LightGray,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Blue, Color.Red, Color.Green, Color.Purple, Color.Orange,
+                    Color.Yellow, Color.Cyan, Color.Magenta, Color.Brown, Color.Pink,
+                    Color.Teal, Color.Lime
+                }
+            ) },
+            { EnumBeepThemes.WinterTheme, (
+                ChartBackColor: Color.WhiteSmoke,
+                ChartLineColor: Color.SteelBlue,
+                ChartFillColor: Color.LightSteelBlue,
+                ChartAxisColor: Color.DarkSlateGray,
+                ChartTitleColor: Color.MidnightBlue,
+                ChartTextColor: Color.SlateGray,
+                ChartLegendBackColor: Color.LightBlue,
+                ChartLegendTextColor: Color.DarkBlue,
+                ChartLegendShapeColor: Color.CadetBlue,
+                ChartGridLineColor: Color.Gainsboro,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.SteelBlue, Color.LightSkyBlue, Color.Teal, Color.PowderBlue, Color.Cyan,
+                    Color.SlateBlue, Color.Aqua, Color.DodgerBlue, Color.LightSteelBlue, Color.MediumTurquoise,
+                    Color.Navy, Color.AliceBlue
+                }
+            ) },
+            { EnumBeepThemes.CandyTheme, (
+                ChartBackColor: Color.Pink,
+                ChartLineColor: Color.DeepPink,
+                ChartFillColor: Color.LightPink,
+                ChartAxisColor: Color.HotPink,
+                ChartTitleColor: Color.MediumVioletRed,
+                ChartTextColor: Color.DarkMagenta,
+                ChartLegendBackColor: Color.MistyRose,
+                ChartLegendTextColor: Color.Purple,
+                ChartLegendShapeColor: Color.Orchid,
+                ChartGridLineColor: Color.Thistle,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.DeepPink, Color.HotPink, Color.Magenta, Color.Plum, Color.Violet,
+                    Color.Fuchsia, Color.PaleVioletRed, Color.MediumOrchid, Color.Lavender, Color.Crimson,
+                    Color.FromArgb(255, 152, 152), // Rose
+                    Color.Salmon
+                }
+            ) },
+            { EnumBeepThemes.ZenTheme, (
+                ChartBackColor: Color.Beige,
+                ChartLineColor: Color.MediumSeaGreen,
+                ChartFillColor: Color.LightGreen,
+                ChartAxisColor: Color.DarkOliveGreen,
+                ChartTitleColor: Color.ForestGreen,
+                ChartTextColor: Color.SeaGreen,
+                ChartLegendBackColor: Color.LightGray,
+                ChartLegendTextColor: Color.DarkGreen,
+                ChartLegendShapeColor: Color.Olive,
+                ChartGridLineColor: Color.PaleGreen,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.MediumSeaGreen, Color.LimeGreen, Color.OliveDrab, Color.SpringGreen, Color.Teal,
+                    Color.DarkGreen, Color.Chartreuse, Color.SeaGreen, Color.MintCream, Color.ForestGreen,
+                    Color.FromArgb(188, 184, 138), // Sage
+                    Color.FromArgb(138, 154, 91)   // MossGreen
+                }
+            ) },
+            { EnumBeepThemes.RetroTheme, (
+                ChartBackColor: Color.Bisque,
+                ChartLineColor: Color.DarkGoldenrod,
+                ChartFillColor: Color.LightGoldenrodYellow,
+                ChartAxisColor: Color.SaddleBrown,
+                ChartTitleColor: Color.Chocolate,
+                ChartTextColor: Color.Peru,
+                ChartLegendBackColor: Color.AntiqueWhite,
+                ChartLegendTextColor: Color.Brown,
+                ChartLegendShapeColor: Color.Goldenrod,
+                ChartGridLineColor: Color.Tan,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.DarkGoldenrod, Color.Goldenrod, Color.Peru, Color.Sienna, Color.Orange,
+                    Color.BurlyWood, Color.Chocolate, Color.Tan, Color.Wheat, Color.SandyBrown,
+                    Color.NavajoWhite, Color.Coral
+                }
+            ) },
+            { EnumBeepThemes.RoyalTheme, (
+                ChartBackColor: Color.MidnightBlue,
+                ChartLineColor: Color.Gold,
+                ChartFillColor: Color.LightGoldenrodYellow,
+                ChartAxisColor: Color.DarkSlateBlue,
+                ChartTitleColor: Color.Goldenrod,
+                ChartTextColor: Color.White,
+                ChartLegendBackColor: Color.DarkBlue,
+                ChartLegendTextColor: Color.LightYellow,
+                ChartLegendShapeColor: Color.RoyalBlue,
+                ChartGridLineColor: Color.SlateBlue,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Gold, Color.RoyalBlue, Color.Purple, Color.Crimson, Color.Indigo,
+                    Color.Violet, Color.DarkOrchid, Color.MediumPurple, Color.LightGoldenrodYellow, Color.Plum,
+                    Color.DarkViolet, Color.MediumSlateBlue
+                }
+            ) },
+            { EnumBeepThemes.HighlightTheme, (
+                ChartBackColor: Color.Yellow,
+                ChartLineColor: Color.OrangeRed,
+                ChartFillColor: Color.LightYellow,
+                ChartAxisColor: Color.DarkOrange,
+                ChartTitleColor: Color.Red,
+                ChartTextColor: Color.Black,
+                ChartLegendBackColor: Color.Gold,
+                ChartLegendTextColor: Color.DarkRed,
+                ChartLegendShapeColor: Color.Orange,
+                ChartGridLineColor: Color.LightGoldenrodYellow,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.OrangeRed, Color.Yellow, Color.Red, Color.Orange, Color.Crimson,
+                    Color.Gold, Color.DarkRed, Color.Coral, Color.Tomato, Color.Firebrick,
+                    Color.Salmon, Color.IndianRed
+                }
+            ) },
+            { EnumBeepThemes.DarkTheme, (
+                ChartBackColor: Color.Black,
+                ChartLineColor: Color.Gray,
+                ChartFillColor: Color.DimGray,
+                ChartAxisColor: Color.DarkGray,
+                ChartTitleColor: Color.White,
+                ChartTextColor: Color.LightGray,
+                ChartLegendBackColor: Color.SlateGray,
+                ChartLegendTextColor: Color.White,
+                ChartLegendShapeColor: Color.Silver,
+                ChartGridLineColor: Color.DarkSlateGray,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Gray, Color.LightGray, Color.Silver, Color.DarkGray, Color.White,
+                    Color.SlateGray, Color.LightSlateGray, Color.DimGray, Color.Gainsboro, Color.Black,
+                    Color.FromArgb(128, 128, 128), // MediumGray
+                    Color.Snow
+                }
+            ) },
+            { EnumBeepThemes.OceanTheme, (
+                ChartBackColor: Color.DarkCyan,
+                ChartLineColor: Color.Teal,
+                ChartFillColor: Color.LightSeaGreen,
+                ChartAxisColor: Color.DarkSlateGray,
+                ChartTitleColor: Color.Aqua,
+                ChartTextColor: Color.White,
+                ChartLegendBackColor: Color.SeaGreen,
+                ChartLegendTextColor: Color.LightCyan,
+                ChartLegendShapeColor: Color.Turquoise,
+                ChartGridLineColor: Color.MediumAquamarine,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Teal, Color.Aqua, Color.Cyan, Color.Turquoise, Color.SeaGreen,
+                    Color.DarkTurquoise, Color.LightSeaGreen, Color.MediumTurquoise, Color.Aquamarine, Color.CadetBlue,
+                    Color.PaleTurquoise, Color.SkyBlue
+                }
+            ) },
+            { EnumBeepThemes.LightTheme, (
+                ChartBackColor: Color.White,
+                ChartLineColor: Color.LightGray,
+                ChartFillColor: Color.Gainsboro,
+                ChartAxisColor: Color.Gray,
+                ChartTitleColor: Color.Black,
+                ChartTextColor: Color.DarkGray,
+                ChartLegendBackColor: Color.WhiteSmoke,
+                ChartLegendTextColor: Color.Black,
+                ChartLegendShapeColor: Color.Silver,
+                ChartGridLineColor: Color.LightGray,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.LightGray, Color.Silver, Color.Gray, Color.DarkGray, Color.Black,
+                    Color.SlateGray, Color.LightSlateGray, Color.Gainsboro, Color.WhiteSmoke, Color.Snow,
+                    Color.AliceBlue, Color.Lavender
+                }
+            ) },
+            { EnumBeepThemes.PastelTheme, (
+                ChartBackColor: Color.LavenderBlush,
+                ChartLineColor: Color.Plum,
+                ChartFillColor: Color.Thistle,
+                ChartAxisColor: Color.MediumOrchid,
+                ChartTitleColor: Color.DarkOrchid,
+                ChartTextColor: Color.SlateGray,
+                ChartLegendBackColor: Color.Lavender,
+                ChartLegendTextColor: Color.DarkSlateGray,
+                ChartLegendShapeColor: Color.Violet,
+                ChartGridLineColor: Color.MistyRose,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Plum, Color.Lavender, Color.Pink, Color.Violet, Color.Orchid,
+                    Color.PaleVioletRed, Color.MediumPurple, Color.Thistle, Color.LightPink, Color.FromArgb(224, 176, 255), // Mauve
+                    Color.LavenderBlush, Color.Bisque
+                }
+            ) },
+            { EnumBeepThemes.MidnightTheme, (
+                ChartBackColor: Color.Black,
+                ChartLineColor: Color.MidnightBlue,
+                ChartFillColor: Color.DarkSlateGray,
+                ChartAxisColor: Color.SteelBlue,
+                ChartTitleColor: Color.White,
+                ChartTextColor: Color.LightSteelBlue,
+                ChartLegendBackColor: Color.DarkBlue,
+                ChartLegendTextColor: Color.White,
+                ChartLegendShapeColor: Color.DodgerBlue,
+                ChartGridLineColor: Color.SlateGray,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.MidnightBlue, Color.SteelBlue, Color.DodgerBlue, Color.Navy, Color.CornflowerBlue,
+                    Color.RoyalBlue, Color.DarkSlateBlue, Color.SlateBlue, Color.LightSlateGray, Color.MediumSlateBlue,
+                    Color.Indigo, Color.BlueViolet
+                }
+            ) },
+            { EnumBeepThemes.SpringTheme, (
+                ChartBackColor: Color.MediumSpringGreen,
+                ChartLineColor: Color.Chartreuse,
+                ChartFillColor: Color.LightGreen,
+                ChartAxisColor: Color.SeaGreen,
+                ChartTitleColor: Color.ForestGreen,
+                ChartTextColor: Color.DarkGreen,
+                ChartLegendBackColor: Color.PaleGreen,
+                ChartLegendTextColor: Color.Green,
+                ChartLegendShapeColor: Color.LimeGreen,
+                ChartGridLineColor: Color.Honeydew,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Chartreuse, Color.LimeGreen, Color.SpringGreen, Color.MediumSeaGreen, Color.Teal,
+                    Color.DarkGreen, Color.OliveDrab, Color.SeaGreen, Color.LawnGreen, Color.MintCream,
+                    Color.LightGreen, Color.YellowGreen
+                }
+            ) },
+            { EnumBeepThemes.ForestTheme, (
+                ChartBackColor: Color.DarkOliveGreen,
+                ChartLineColor: Color.ForestGreen,
+                ChartFillColor: Color.OliveDrab,
+                ChartAxisColor: Color.DarkGreen,
+                ChartTitleColor: Color.SeaGreen,
+                ChartTextColor: Color.LightGreen,
+                ChartLegendBackColor: Color.DarkSeaGreen,
+                ChartLegendTextColor: Color.White,
+                ChartLegendShapeColor: Color.MediumSeaGreen,
+                ChartGridLineColor: Color.PaleGreen,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.ForestGreen, Color.OliveDrab, Color.DarkGreen, Color.SeaGreen, Color.MediumSeaGreen,
+                    Color.DarkOliveGreen, Color.Olive, Color.LimeGreen, Color.GreenYellow, Color.Chartreuse,
+                    Color.FromArgb(188, 184, 138), // Sage
+                    Color.FromArgb(138, 154, 91)   // MossGreen
+                }
+            ) },
+            { EnumBeepThemes.NeonTheme, (
+                ChartBackColor: Color.Black,
+                ChartLineColor: Color.Lime,
+                ChartFillColor: Color.Fuchsia,
+                ChartAxisColor: Color.DeepPink,
+                ChartTitleColor: Color.Yellow,
+                ChartTextColor: Color.Cyan,
+                ChartLegendBackColor: Color.DarkSlateGray,
+                ChartLegendTextColor: Color.White,
+                ChartLegendShapeColor: Color.HotPink,
+                ChartGridLineColor: Color.DimGray,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Lime, Color.Fuchsia, Color.Yellow, Color.Cyan, Color.HotPink,
+                    Color.FromArgb(125, 249, 255), // ElectricBlue
+                    Color.FromArgb(57, 255, 20),   // NeonGreen
+                    Color.Magenta, Color.OrangeRed, Color.FromArgb(159, 0, 255), // VividPurple
+                    Color.FromArgb(252, 15, 192),  // ShockingPink
+                    Color.Turquoise
+                }
+            ) },
+            { EnumBeepThemes.RusticTheme, (
+                ChartBackColor: Color.SaddleBrown,
+                ChartLineColor: Color.Chocolate,
+                ChartFillColor: Color.Tan,
+                ChartAxisColor: Color.DarkRed,
+                ChartTitleColor: Color.Sienna,
+                ChartTextColor: Color.BurlyWood,
+                ChartLegendBackColor: Color.Peru,
+                ChartLegendTextColor: Color.DarkSlateGray,
+                ChartLegendShapeColor: Color.Brown,
+                ChartGridLineColor: Color.Wheat,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Chocolate, Color.Tan, Color.Sienna, Color.Brown, Color.DarkRed,
+                    Color.Peru, Color.SaddleBrown, Color.Coral, Color.IndianRed, Color.RosyBrown,
+                    Color.Moccasin, Color.Bisque
+                }
+            ) },
+            { EnumBeepThemes.GalaxyTheme, (
+                ChartBackColor: Color.DarkSlateBlue,
+                ChartLineColor: Color.Indigo,
+                ChartFillColor: Color.MidnightBlue,
+                ChartAxisColor: Color.DarkViolet,
+                ChartTitleColor: Color.MediumPurple,
+                ChartTextColor: Color.LightSteelBlue,
+                ChartLegendBackColor: Color.SlateBlue,
+                ChartLegendTextColor: Color.White,
+                ChartLegendShapeColor: Color.BlueViolet,
+                ChartGridLineColor: Color.DarkSlateGray,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Indigo, Color.MidnightBlue, Color.DarkViolet, Color.MediumPurple, Color.BlueViolet,
+                    Color.Purple, Color.SlateBlue, Color.DarkOrchid, Color.RoyalBlue, Color.Violet,
+                    Color.Plum, Color.Lavender
+                }
+            ) },
+            { EnumBeepThemes.DesertTheme, (
+                ChartBackColor: Color.SandyBrown,
+                ChartLineColor: Color.Peru,
+                ChartFillColor: Color.Tan,
+                ChartAxisColor: Color.Sienna,
+                ChartTitleColor: Color.Chocolate,
+                ChartTextColor: Color.DarkGoldenrod,
+                ChartLegendBackColor: Color.Bisque,
+                ChartLegendTextColor: Color.Brown,
+                ChartLegendShapeColor: Color.DarkOrange,
+                ChartGridLineColor: Color.Wheat,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Peru, Color.Tan, Color.Sienna, Color.Chocolate, Color.DarkOrange,
+                    Color.SandyBrown, Color.Coral, Color.BurlyWood, Color.Goldenrod, Color.Orange,
+                    Color.NavajoWhite, Color.PeachPuff
+                }
+            ) },
+            { EnumBeepThemes.VintageTheme, (
+                ChartBackColor: Color.Bisque,
+                ChartLineColor: Color.Sienna,
+                ChartFillColor: Color.Brown,
+                ChartAxisColor: Color.DarkSlateGray,
+                ChartTitleColor: Color.Peru,
+                ChartTextColor: Color.Tan,
+                ChartLegendBackColor: Color.AntiqueWhite,
+                ChartLegendTextColor: Color.DarkRed,
+                ChartLegendShapeColor: Color.Chocolate,
+                ChartGridLineColor: Color.Wheat,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Sienna, Color.Brown, Color.Peru, Color.Chocolate, Color.DarkRed,
+                    Color.Tan, Color.Coral, Color.RosyBrown, Color.IndianRed, Color.SaddleBrown,
+                    Color.BurlyWood, Color.Moccasin
+                }
+            ) },
+            { EnumBeepThemes.ModernDarkTheme, (
+                ChartBackColor: Color.DarkSlateGray,
+                ChartLineColor: Color.Gray,
+                ChartFillColor: Color.DimGray,
+                ChartAxisColor: Color.SlateGray,
+                ChartTitleColor: Color.White,
+                ChartTextColor: Color.LightGray,
+                ChartLegendBackColor: Color.LightSlateGray,
+                ChartLegendTextColor: Color.White,
+                ChartLegendShapeColor: Color.Silver,
+                ChartGridLineColor: Color.DarkGray,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Gray, Color.DimGray, Color.SlateGray, Color.LightSlateGray, Color.Silver,
+                    Color.DarkGray, Color.LightGray, Color.Gainsboro, Color.Black, Color.White,
+                    Color.FromArgb(128, 128, 128), // MediumGray
+                    Color.Snow
+                }
+            ) },
+            { EnumBeepThemes.MaterialDesignTheme, (
+                ChartBackColor: Color.LightSlateGray,
+                ChartLineColor: Color.CornflowerBlue,
+                ChartFillColor: Color.SlateGray,
+                ChartAxisColor: Color.RoyalBlue,
+                ChartTitleColor: Color.SteelBlue,
+                ChartTextColor: Color.White,
+                ChartLegendBackColor: Color.DarkSlateGray,
+                ChartLegendTextColor: Color.LightBlue,
+                ChartLegendShapeColor: Color.DodgerBlue,
+                ChartGridLineColor: Color.Gainsboro,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.CornflowerBlue, Color.SlateGray, Color.RoyalBlue, Color.SteelBlue, Color.DodgerBlue,
+                    Color.LightBlue, Color.MediumBlue, Color.SkyBlue, Color.LightSteelBlue, Color.Navy,
+                    Color.Aqua, Color.Turquoise
+                }
+            ) },
+            { EnumBeepThemes.NeumorphismTheme, (
+                ChartBackColor: Color.WhiteSmoke,
+                ChartLineColor: Color.LightGray,
+                ChartFillColor: Color.Gainsboro,
+                ChartAxisColor: Color.DarkGray,
+                ChartTitleColor: Color.Silver,
+                ChartTextColor: Color.Gray,
+                ChartLegendBackColor: Color.White,
+                ChartLegendTextColor: Color.DarkSlateGray,
+                ChartLegendShapeColor: Color.LightSlateGray,
+                ChartGridLineColor: Color.Snow,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.LightGray, Color.Gainsboro, Color.DarkGray, Color.Silver, Color.LightSlateGray,
+                    Color.Gray, Color.SlateGray, Color.WhiteSmoke, Color.Snow, Color.Black,
+                    Color.FromArgb(128, 128, 128), // MediumGray
+                    Color.AliceBlue
+                }
+            ) },
+            { EnumBeepThemes.GlassmorphismTheme, (
+                ChartBackColor: Color.Black,
+                ChartLineColor: Color.LightSteelBlue,
+                ChartFillColor: Color.Transparent,
+                ChartAxisColor: Color.SteelBlue,
+                ChartTitleColor: Color.DodgerBlue,
+                ChartTextColor: Color.White,
+                ChartLegendBackColor: Color.FromArgb(50, Color.Gray),
+                ChartLegendTextColor: Color.LightCyan,
+                ChartLegendShapeColor: Color.Cyan,
+                ChartGridLineColor: Color.DarkSlateGray,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.LightSteelBlue, Color.SteelBlue, Color.DodgerBlue, Color.Cyan, Color.Aqua,
+                    Color.LightBlue, Color.SkyBlue, Color.Turquoise, Color.MediumTurquoise, Color.PaleTurquoise,
+                    Color.Navy, Color.CornflowerBlue
+                }
+            ) },
+            { EnumBeepThemes.FlatDesignTheme, (
+                ChartBackColor: Color.Gainsboro,
+                ChartLineColor: Color.Gray,
+                ChartFillColor: Color.LightGray,
+                ChartAxisColor: Color.DarkGray,
+                ChartTitleColor: Color.Black,
+                ChartTextColor: Color.SlateGray,
+                ChartLegendBackColor: Color.WhiteSmoke,
+                ChartLegendTextColor: Color.Black,
+                ChartLegendShapeColor: Color.Silver,
+                ChartGridLineColor: Color.Snow,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Gray, Color.LightGray, Color.DarkGray, Color.Silver, Color.SlateGray,
+                    Color.LightSlateGray, Color.Gainsboro, Color.Black, Color.WhiteSmoke, Color.Snow,
+                    Color.FromArgb(128, 128, 128), // MediumGray
+                    Color.Lavender
+                }
+            ) },
+            { EnumBeepThemes.CyberpunkNeonTheme, (
+                ChartBackColor: Color.Black,
+                ChartLineColor: Color.Fuchsia,
+                ChartFillColor: Color.Aqua,
+                ChartAxisColor: Color.Magenta,
+                ChartTitleColor: Color.Purple,
+                ChartTextColor: Color.Lime,
+                ChartLegendBackColor: Color.DarkSlateGray,
+                ChartLegendTextColor: Color.Yellow,
+                ChartLegendShapeColor: Color.HotPink,
+                ChartGridLineColor: Color.FromArgb(128, 128, 128), // MediumGray
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Fuchsia, Color.Aqua, Color.Magenta, Color.Purple, Color.Lime,
+                    Color.Yellow, Color.Cyan, Color.HotPink, Color.FromArgb(125, 249, 255), // ElectricBlue
+                    Color.FromArgb(57, 255, 20),   // NeonGreen
+                    Color.FromArgb(159, 0, 255),   // VividPurple
+                    Color.FromArgb(252, 15, 192)   // ShockingPink
+                }
+            ) },
+            { EnumBeepThemes.GradientBurstTheme, (
+                ChartBackColor: Color.DarkMagenta,
+                ChartLineColor: Color.OrangeRed,
+                ChartFillColor: Color.DeepSkyBlue,
+                ChartAxisColor: Color.Crimson,
+                ChartTitleColor: Color.DodgerBlue,
+                ChartTextColor: Color.White,
+                ChartLegendBackColor: Color.Purple,
+                ChartLegendTextColor: Color.Yellow,
+                ChartLegendShapeColor: Color.Orange,
+                ChartGridLineColor: Color.DarkSlateBlue,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.OrangeRed, Color.DeepSkyBlue, Color.Crimson, Color.DodgerBlue, Color.Purple,
+                    Color.Yellow, Color.Magenta, Color.Cyan, Color.Lime, Color.HotPink,
+                    Color.Turquoise, Color.Violet
+                }
+            ) },
+            { EnumBeepThemes.HighContrastTheme, (
+                ChartBackColor: Color.Black,
+                ChartLineColor: Color.White,
+                ChartFillColor: Color.Gray,
+                ChartAxisColor: Color.LightGray,
+                ChartTitleColor: Color.Yellow,
+                ChartTextColor: Color.White,
+                ChartLegendBackColor: Color.DarkGray,
+                ChartLegendTextColor: Color.White,
+                ChartLegendShapeColor: Color.Silver,
+                ChartGridLineColor: Color.SlateGray,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.White, Color.Gray, Color.LightGray, Color.Silver, Color.Yellow,
+                    Color.Red, Color.Blue, Color.Green, Color.Purple, Color.Orange,
+                    Color.Cyan, Color.Magenta
+                }
+            ) },
+            { EnumBeepThemes.MonochromeTheme, (
+                ChartBackColor: Color.Black,
+                ChartLineColor: Color.DarkGray,
+                ChartFillColor: Color.LightGray,
+                ChartAxisColor: Color.Gray,
+                ChartTitleColor: Color.White,
+                ChartTextColor: Color.Silver,
+                ChartLegendBackColor: Color.SlateGray,
+                ChartLegendTextColor: Color.White,
+                ChartLegendShapeColor: Color.LightSlateGray,
+                ChartGridLineColor: Color.DimGray,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.DarkGray, Color.LightGray, Color.Gray, Color.Silver, Color.LightSlateGray,
+                    Color.SlateGray, Color.Black, Color.White, Color.Gainsboro, Color.DimGray,
+                    Color.FromArgb(128, 128, 128), // MediumGray
+                    Color.Snow
+                }
+            ) },
+            { EnumBeepThemes.LuxuryGoldTheme, (
+                ChartBackColor: Color.DarkSlateGray,
+                ChartLineColor: Color.Gold,
+                ChartFillColor: Color.DarkGoldenrod,
+                ChartAxisColor: Color.Goldenrod,
+                ChartTitleColor: Color.LightGoldenrodYellow,
+                ChartTextColor: Color.White,
+                ChartLegendBackColor: Color.Black,
+                ChartLegendTextColor: Color.Gold,
+                ChartLegendShapeColor: Color.Yellow,
+                ChartGridLineColor: Color.DimGray,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Gold, Color.DarkGoldenrod, Color.Goldenrod, Color.LightGoldenrodYellow, Color.Yellow,
+                    Color.Orange, Color.Coral, Color.Tan, Color.Wheat, Color.Bisque,
+                    Color.NavajoWhite, Color.PeachPuff
+                }
+            ) },
+            { EnumBeepThemes.SunsetTheme, (
+                ChartBackColor: Color.OrangeRed,
+                ChartLineColor: Color.Crimson,
+                ChartFillColor: Color.DarkOrange,
+                ChartAxisColor: Color.Red,
+                ChartTitleColor: Color.Orange,
+                ChartTextColor: Color.Yellow,
+                ChartLegendBackColor: Color.Tomato,
+                ChartLegendTextColor: Color.DarkRed,
+                ChartLegendShapeColor: Color.Coral,
+                ChartGridLineColor: Color.LightSalmon,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Crimson, Color.DarkOrange, Color.Red, Color.Orange, Color.Yellow,
+                    Color.Tomato, Color.Coral, Color.Salmon, Color.IndianRed, Color.Firebrick,
+                    Color.LightCoral, Color.PeachPuff
+                }
+            ) },
+            { EnumBeepThemes.AutumnTheme, (
+                ChartBackColor: Color.DarkOrange,
+                ChartLineColor: Color.Brown,
+                ChartFillColor: Color.Orange,
+                ChartAxisColor: Color.Sienna,
+                ChartTitleColor: Color.Peru,
+                ChartTextColor: Color.Tan,
+                ChartLegendBackColor: Color.Chocolate,
+                ChartLegendTextColor: Color.White,
+                ChartLegendShapeColor: Color.DarkGoldenrod,
+                ChartGridLineColor: Color.Wheat,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.Brown, Color.Orange, Color.Sienna, Color.Peru, Color.DarkGoldenrod,
+                    Color.Chocolate, Color.Tan, Color.Coral, Color.IndianRed, Color.RosyBrown,
+                    Color.BurlyWood, Color.SandyBrown
+                }
+            ) },
+            { EnumBeepThemes.EarthyTheme, (
+                ChartBackColor: Color.Tan,
+                ChartLineColor: Color.SaddleBrown,
+                ChartFillColor: Color.Peru,
+                ChartAxisColor: Color.Sienna,
+                ChartTitleColor: Color.Chocolate,
+                ChartTextColor: Color.BurlyWood,
+                ChartLegendBackColor: Color.Wheat,
+                ChartLegendTextColor: Color.DarkSlateGray,
+                ChartLegendShapeColor: Color.DarkOliveGreen,
+                ChartGridLineColor: Color.Bisque,
+                ChartDefaultSeriesColors: new List<Color> {
+                    Color.SaddleBrown, Color.Peru, Color.Sienna, Color.Chocolate, Color.DarkOliveGreen,
+                    Color.Tan, Color.BurlyWood, Color.OliveDrab, Color.SandyBrown, Color.Brown,
+                    Color.Moccasin, Color.NavajoWhite
+                }
+            ) }
+            };
+  
+   
+    public static Dictionary<EnumBeepThemes, (Color ScrollbarBackColor, Color ScrollbarThumbColor, Color ScrollbarTrackColor, Color ScrollbarThumbColorHover, Color ScrollbarThumbColorActive)> ThemeScrollBarColors =
   new Dictionary<EnumBeepThemes, (Color, Color, Color, Color, Color)>
   {
     { EnumBeepThemes.DefaultTheme, (Color.LightGray, Color.Gray, Color.DarkGray, Color.LightSlateGray, Color.SlateGray) },

@@ -86,8 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
 
         // Layout heights
         private int _topPanelHeight = 30;  // row #1
-        private int _headerPanelHeight = 30;  // row #2
-        private int _filterPanelHeight = 30;  // row #3 if visible
+     
         private bool _showFilter = false;     // filter row toggled
         private int padding = 2;
         private bool isinit = true;

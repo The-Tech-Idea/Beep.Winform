@@ -215,7 +215,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             public Color ChartLineColor { get; set; }
             public Color ChartFillColor { get; set; }
             public Color ChartAxisColor { get; set; }
-            public Color SidebarIconColor { get; set; }
+            public Color ChartTitleColor { get; set; }
+        public Color ChartTextColor { get; set; }
+        public Color ChartLegendBackColor { get; set; }
+        public Color ChartLegendTextColor { get; set; }
+        public Color ChartLegendShapeColor { get; set; }
+        public Color ChartGridLineColor { get; set; }
+        public List<Color> ChartDefaultSeriesColors { get; set; }
+        public Color SidebarIconColor { get; set; }
             public Color SidebarSelectedIconColor { get; set; }
             public Color SidebarTextColor { get; set; }
             public Color SidebarSelectedTextColor { get; set; }

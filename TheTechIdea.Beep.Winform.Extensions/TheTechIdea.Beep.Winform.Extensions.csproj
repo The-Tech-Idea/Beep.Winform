@@ -43,7 +43,6 @@
 	  <ProjectReference Include="..\TheTechIdea.Beep.Vis.Logic\TheTechIdea.Beep.Vis.Logic.csproj" />
 	  <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
 	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Desktop.Common.csproj" />
-	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
 	</ItemGroup>
 	
 </Project>

@@ -255,9 +255,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                    if(ChartType== ChartType.Line)    DrawDataSeries(e.Graphics); //Line series
+                    if(ChartType== ChartType.Line)    DrawLineSeries(e.Graphics); //Line series
                     if (ChartType == ChartType.Bar)   DrawBarSeries(e.Graphics);    // bar series
                     if (ChartType == ChartType.Bubble) DrawBubbleSeries(e.Graphics); // bubble series
+                    if (ChartType == ChartType.Area) DrawAreaSeries(e.Graphics);
                 }
 
                 // Draw legend if needed
@@ -581,7 +582,66 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        private void DrawAreaSeries(Graphics g)
+        {
+            if (!DataSeries.Any())
+                return;
 
+            foreach (var series in DataSeries)
+            {
+                if (!series.Visible || series.Points == null || !series.Points.Any())
+                    continue;
+
+                // Convert all data points to screen coordinates first
+                var screenPoints = series.Points.Select(p =>
+                {
+                    float xVal = (ConvertXValue(p) is float xv) ? xv : 0;
+                    float yVal = (ConvertYValue(p) is float yv) ? yv : 0;
+
+                    float xScreen = ChartDrawingRect.Left +
+                        (xVal - ViewportXMin) / (ViewportXMax - ViewportXMin) * ChartDrawingRect.Width;
+
+                    float yScreen = ChartDrawingRect.Bottom -
+                        (yVal - ViewportYMin) / (ViewportYMax - ViewportYMin) * ChartDrawingRect.Height;
+
+                    return new PointF(xScreen, yScreen);
+                }).ToList();
+
+                if (screenPoints.Count < 2)
+                    continue;
+
+                // Create the area polygon points (including baseline)
+                var areaPoints = new List<PointF>(screenPoints)
+        {
+            new PointF(screenPoints.Last().X, ChartDrawingRect.Bottom), // Bottom right corner
+            new PointF(screenPoints.First().X, ChartDrawingRect.Bottom) // Bottom left corner
+        };
+
+                // Fill the area under the curve
+                using (Brush areaBrush = new SolidBrush(Color.FromArgb(100, series.Color)))
+                {
+                    g.FillPolygon(areaBrush, areaPoints.ToArray());
+                }
+
+                // Draw the boundary line
+                using (Pen pen = new Pen(series.Color != Color.Empty ? series.Color : ChartLineColor, 2))
+                {
+                    g.DrawLines(pen, screenPoints.ToArray());
+                }
+
+                // Draw points if needed
+                if (series.ShowPoint)
+                {
+                    using (Brush pointBrush = new SolidBrush(series.Color))
+                    {
+                        foreach (var point in screenPoints)
+                        {
+                            g.FillEllipse(pointBrush, point.X - 3, point.Y - 3, 6, 6);
+                        }
+                    }
+                }
+            }
+        }
         private void DrawAxes(Graphics g)
         {
             using (Pen pen = new Pen(ChartAxisColor, 1))
@@ -625,7 +685,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        private void DrawDataSeries(Graphics g)
+        private void DrawLineSeries(Graphics g)
         {
             if (!DataSeries.Any())
                 return;
@@ -647,13 +707,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                     float yScreen = ChartDrawingRect.Bottom -
                         (yVal - ViewportYMin) / (ViewportYMax - ViewportYMin) * ChartDrawingRect.Height;
 
-                    return new { DataPoint = p, ScreenX = xScreen, ScreenY = yScreen };
+                    return new PointF(xScreen, yScreen);
                 }).ToList();
 
-                // Draw lines / area if needed
-                using (Pen pen = new Pen(series.Color != Color.Empty ? series.Color : ChartLineColor, 2))
+                // Draw lines if needed
+                if (series.ShowLine && screenPoints.Count > 1)
                 {
-                    // etc...
+                    using (Pen pen = new Pen(series.Color != Color.Empty ? series.Color : ChartLineColor, 2))
+                    {
+                        g.DrawLines(pen, screenPoints.ToArray());
+                    }
                 }
 
                 // Draw points and labels
@@ -661,24 +724,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     using (Font labelFont = new Font("Arial", 8))
                     using (Brush labelBrush = new SolidBrush(ChartTextColor))
+                    using (Brush pointBrush = new SolidBrush(series.Color != Color.Empty ? series.Color : Color.Black))
                     {
                         foreach (var sp in screenPoints)
                         {
                             // Draw the point
-                            g.FillEllipse(Brushes.Black, sp.ScreenX - 2, sp.ScreenY - 2, 4, 4);
+                            g.FillEllipse(pointBrush, sp.X - 2, sp.Y - 2, 4, 4);
 
                             if (series.ShowLabel)
                             {
-                                // What text do you want?  
-                                // e.g. "X=..., Y=..."
-                                string labelText = $"({sp.DataPoint.X}, {sp.DataPoint.Y})";
+                                // Define label text
+                                string labelText = $"({sp.X:0.##}, {sp.Y:0.##})";
 
-                                // or use sp.DataPoint.ToolTip or sp.DataPoint.Label if you have that
-                                // string labelText = sp.DataPoint.Label ?? $"{sp.DataPoint.X}, {sp.DataPoint.Y}";
-
-                                // draw near the point
+                                // Draw label near the point
                                 g.DrawString(labelText, labelFont, labelBrush,
-                                             sp.ScreenX + 3, sp.ScreenY - 15);
+                                             sp.X + 3, sp.Y - 15);
                             }
                         }
                     }

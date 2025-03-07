@@ -175,7 +175,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         Line,
         Bar,
         Pie,
-        Bubble
+        Bubble,Area
     }
     public enum ChartStyle
     {

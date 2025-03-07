@@ -278,15 +278,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             if (LicenseManager.UsageMode != LicenseUsageMode.Designtime)
             {
-                float delta = e.Delta > 0 ? 0.9f : 1.1f;
-                zoomFactor *= delta;
+                float zoomFactorChange = e.Delta > 0 ? 0.9f : 1.1f;
+
+                float mouseXRatio = (e.X - ChartDrawingRect.Left) / (float)ChartDrawingRect.Width;
+                float mouseYRatio = 1.0f - (e.Y - ChartDrawingRect.Top) / (float)ChartDrawingRect.Height;
+
+                float newXMin = ViewportXMin + (ViewportXMax - ViewportXMin) * mouseXRatio * (1 - zoomFactorChange);
+                float newXMax = ViewportXMax - (ViewportXMax - ViewportXMin) * (1 - mouseXRatio) * (1 - zoomFactorChange);
+                float newYMin = ViewportYMin + (ViewportYMax - ViewportYMin) * mouseYRatio * (1 - zoomFactorChange);
+                float newYMax = ViewportYMax - (ViewportYMax - ViewportYMin) * (1 - mouseYRatio) * (1 - zoomFactorChange);
+
+                ViewportXMin = newXMin;
+                ViewportXMax = newXMax;
+                ViewportYMin = newYMin;
+                ViewportYMax = newYMax;
+
+                zoomFactor *= zoomFactorChange;
                 zoomFactor = Math.Max(0.1f, Math.Min(10.0f, zoomFactor));
-                AutoScaleViewport();
+
                 Invalidate();
             }
             base.OnMouseWheel(e);
@@ -297,11 +310,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (LicenseManager.UsageMode != LicenseUsageMode.Designtime)
             {
                 lastMouseDownPoint = e.Location;
-                // Invalidate only if panning or state changes
-                if (lastMouseDownPoint != Point.Empty)
-                {
-                    Invalidate();
-                }
             }
             base.OnMouseDown(e);
         }
@@ -316,7 +324,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     int deltaY = lastMouseDownPoint.Y - e.Y;
                     PanViewport(deltaX, deltaY);
                     lastMouseDownPoint = e.Location;
-                    if ((DateTime.Now - lastInvalidateTime).TotalMilliseconds > 50) // Debounce 50ms
+
+                    if ((DateTime.Now - lastInvalidateTime).TotalMilliseconds > 50)
                     {
                         Invalidate();
                         lastInvalidateTime = DateTime.Now;
@@ -325,10 +334,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else
                 {
                     ChartDataPoint newHoveredPoint = GetHoveredDataPoint(e.Location);
-                    if (newHoveredPoint != hoveredPoint) // Invalidate only if hovered point changes
+                    if (newHoveredPoint != hoveredPoint)
                     {
                         hoveredPoint = newHoveredPoint;
-                        if ((DateTime.Now - lastInvalidateTime).TotalMilliseconds > 50) // Debounce 50ms
+                        if ((DateTime.Now - lastInvalidateTime).TotalMilliseconds > 50)
                         {
                             Invalidate();
                             lastInvalidateTime = DateTime.Now;
@@ -338,19 +347,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             base.OnMouseMove(e);
         }
-       
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
             if (LicenseManager.UsageMode != LicenseUsageMode.Designtime)
             {
                 lastMouseDownPoint = Point.Empty;
-                //Invalidate only if state changes
-                if ((DateTime.Now - lastInvalidateTime).TotalMilliseconds > 50) // Debounce 50ms
-                {
-                    Invalidate();
-                    lastInvalidateTime = DateTime.Now;
-                }
+                Invalidate();
             }
             base.OnMouseUp(e);
         }
@@ -1306,15 +1309,62 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (!DataSeries.Any() || !DataSeries.Any(s => s.Points != null && s.Points.Any())) return;
 
-                ViewportXMin = DataSeries.Min(s => s.Points.Min(p => ConvertXValue(p) is float x ? x : 0));
-                ViewportXMax = DataSeries.Max(s => s.Points.Max(p => ConvertXValue(p) is float x ? x : 0));
-                ViewportYMin = DataSeries.Min(s => s.Points.Min(p => ConvertYValue(p) is float y ? y : 0));
-                ViewportYMax = DataSeries.Max(s => s.Points.Max(p => ConvertYValue(p) is float y ? y : 0));
+                float xMin = float.MaxValue, xMax = float.MinValue;
+                float yMin = float.MaxValue, yMax = float.MinValue;
+
+                Dictionary<string, int> xCategories = new Dictionary<string, int>();
+                Dictionary<string, int> yCategories = new Dictionary<string, int>();
+                int xCategoryIndex = 0, yCategoryIndex = 0;
+
+                foreach (var series in DataSeries)
+                {
+                    foreach (var point in series.Points)
+                    {
+                        var xValue = ConvertXValue(point);
+                        if (xValue is float xVal)
+                        {
+                            xMin = Math.Min(xMin, xVal);
+                            xMax = Math.Max(xMax, xVal);
+                        }
+                        else if (xValue is string xStr)
+                        {
+                            if (!xCategories.ContainsKey(xStr))
+                                xCategories[xStr] = xCategoryIndex++;
+                            xMin = Math.Min(xMin, xCategories[xStr]);
+                            xMax = Math.Max(xMax, xCategories[xStr]);
+                        }
+
+                        var yValue = ConvertYValue(point);
+                        if (yValue is float yVal)
+                        {
+                            yMin = Math.Min(yMin, yVal);
+                            yMax = Math.Max(yMax, yVal);
+                        }
+                        else if (yValue is string yStr)
+                        {
+                            if (!yCategories.ContainsKey(yStr))
+                                yCategories[yStr] = yCategoryIndex++;
+                            yMin = Math.Min(yMin, yCategories[yStr]);
+                            yMax = Math.Max(yMax, yCategories[yStr]);
+                        }
+                    }
+                }
+
+                if (xMin == float.MaxValue || xMax == float.MinValue || yMin == float.MaxValue || yMax == float.MinValue)
+                    return;
+
+                ViewportXMin = xMin;
+                ViewportXMax = xMax;
+                ViewportYMin = yMin;
+                ViewportYMax = yMax;
 
                 float xPadding = (ViewportXMax - ViewportXMin) * 0.1f;
                 float yPadding = (ViewportYMax - ViewportYMin) * 0.1f;
-                ViewportXMin -= xPadding; ViewportXMax += xPadding;
-                ViewportYMin -= yPadding; ViewportYMax += yPadding;
+
+                ViewportXMin -= xPadding;
+                ViewportXMax += xPadding;
+                ViewportYMin -= yPadding;
+                ViewportYMax += yPadding;
 
                 EnforceViewportLimits();
                 Invalidate();
@@ -1324,7 +1374,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 System.Diagnostics.Trace.WriteLine($"AutoScaleViewport Error: {ex.Message}");
             }
         }
-
         private void EnforceViewportLimits()
         {
             if (ViewportXMin > ViewportXMax)

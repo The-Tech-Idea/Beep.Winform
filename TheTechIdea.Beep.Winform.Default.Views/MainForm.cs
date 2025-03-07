@@ -41,25 +41,42 @@ namespace TheTechIdea.Beep.Winform.Default.Views
                 item1.Name = item.className;
                 items.Add(item1);
             }
-            beepChart1.ChartType = ChartType.Pie;
+            beepChart1.ChartType = ChartType.Area;
             beepChart1.DataSeries = new List<ChartDataSeries>
-{
-    new ChartDataSeries
     {
-        Name = "Pie Series",
-        ChartType = ChartType.Pie,
-        Points = new List<ChartDataPoint>
+        new ChartDataSeries
         {
-            new ChartDataPoint("Apples","0",100,  "Category: Apples", Color.Red),
-            new ChartDataPoint("Bananas","0",120,  "Category: Bananas",Color.Yellow),
-            new ChartDataPoint("Cherries","0",80,  "Category: Cherries", Color.Magenta),
-        }
-    }
-};
+            Name = "Series 1",
+            ShowLine = true,
+            ShowPoint = true,
+            ShowLabel=true,
+            ShowInLegend = true,
+            Points = new List<ChartDataPoint>
+            {
+                new ChartDataPoint("1", "A", 10f, "A", Color.Red),
+                new ChartDataPoint("2", "B", 15f, "B", Color.Green),
+                new ChartDataPoint("3", "C", 20f, "C", Color.Blue)
+            }
 
+        }, new ChartDataSeries
+        {
+            Name = "Series 2",
+            ShowLine = true,
+            ShowPoint = true,
+            ShowLabel=true,
+            ShowInLegend = true,
+            Color=Color.Coral,
+            Points = new List<ChartDataPoint>
+            {
+                new ChartDataPoint("2", "D", 10f, "A", Color.Red),
+                new ChartDataPoint("5", "E", 15f, "B", Color.Green),
+                new ChartDataPoint("6", "F", 20f, "C", Color.Blue)
+            }
+        }
+    };
             // beepComboBox1.ListItems= items;
         }
 
-
+       
     }
 }

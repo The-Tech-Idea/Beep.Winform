@@ -23,9 +23,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _dataSeries = value ?? new List<ChartDataSeries>();
                 if (LicenseManager.UsageMode != LicenseUsageMode.Designtime)
-                {
+                { 
+                    // 1) Auto-detect axis types (optional convenience)
+                    DetectAxisTypes();
+
                     AutoScaleViewport();
-                    Invalidate();
+                   // Invalidate();
                 }
             }
         }
@@ -425,7 +428,32 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return 0;
             }
         }
+        private void DetectAxisTypes()
+        {
+            // You might check the first non-empty series to guess X or Y axis types
+            var firstSeries = _dataSeries.FirstOrDefault(s => s.Points != null && s.Points.Any());
+            if (firstSeries != null)
+            {
+                // Check the first point’s X and Y, or a sampling
+                string exampleX = firstSeries.Points[0].X;
+                string exampleY = firstSeries.Points[0].Y;
 
+                // Try numeric
+                if (float.TryParse(exampleX, out _))
+                    BottomAxisType = AxisType.Numeric;
+                else if (DateTime.TryParse(exampleX, out _))
+                    BottomAxisType = AxisType.Date;
+                else
+                    BottomAxisType = AxisType.Text;
+
+                if (float.TryParse(exampleY, out _))
+                    LeftAxisType = AxisType.Numeric;
+                else if (DateTime.TryParse(exampleY, out _))
+                    LeftAxisType = AxisType.Date;
+                else
+                    LeftAxisType = AxisType.Text;
+            }
+        }
         #endregion
 
         #region Drawing Methods

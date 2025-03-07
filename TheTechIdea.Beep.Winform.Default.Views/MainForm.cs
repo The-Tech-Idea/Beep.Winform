@@ -51,9 +51,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             ShowInLegend = true,
             Points = new List<ChartDataPoint>
             {
-                new ChartDataPoint("1", "5", 10f, "A", Color.Red),
-                new ChartDataPoint("2", "15", 15f, "B", Color.Green),
-                new ChartDataPoint("3", "8", 20f, "C", Color.Blue)
+                new ChartDataPoint("1", "A", 10f, "A", Color.Red),
+                new ChartDataPoint("2", "B", 15f, "B", Color.Green),
+                new ChartDataPoint("3", "C", 20f, "C", Color.Blue)
             }
 
         }, new ChartDataSeries
@@ -66,9 +66,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             Color=Color.Coral,
             Points = new List<ChartDataPoint>
             {
-                new ChartDataPoint("2", "10", 10f, "A", Color.Red),
-                new ChartDataPoint("5", "25", 15f, "B", Color.Green),
-                new ChartDataPoint("6", "28", 20f, "C", Color.Blue)
+                new ChartDataPoint("2", "D", 10f, "A", Color.Red),
+                new ChartDataPoint("5", "E", 15f, "B", Color.Green),
+                new ChartDataPoint("6", "F", 20f, "C", Color.Blue)
             }
         }
     };

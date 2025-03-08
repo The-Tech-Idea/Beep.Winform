@@ -233,6 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Multiline=true,
                 //ScrollBars = System.Windows.Forms.ScrollBars.Both,
                 ReadOnly = true,
+                ScrollBars= ScrollBars.None,
                 Text = paragraphText  // Default text
             };
             Controls.Add(paragraphLabel);

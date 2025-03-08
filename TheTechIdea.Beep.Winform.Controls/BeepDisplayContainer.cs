@@ -18,10 +18,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepDisplayContainer()
         {
-            if (TabPages.Count == 0)
-            {
-                AddControl("Default Tab", null, ContainerTypeEnum.TabbedPanel);
-            }
+            //if (TabPages.Count == 0)
+            //{
+            //    AddControl("Default Tab", null, ContainerTypeEnum.TabbedPanel);
+            //}
         }
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new TabPage SelectedTab
@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Add TabPage to dictionary and UI container
             _controls[TitleText] = tabPage;
-            TabPages.Add(tabPage);
+          //  TabPages.Add(tabPage);
 
             // Trigger AddinAdded event
             AddinAdded?.Invoke(this, new ContainerEvents
@@ -94,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void Clear()
         {
             _controls.Clear();
-            TabPages.Clear();
+           // TabPages.Clear();
         }
         public bool IsControlExit(IDM_Addin control)
         {
@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             var tabPage = _controls[TitleText];
             _controls.Remove(TitleText);
-            TabPages.Remove(tabPage);
+           // TabPages.Remove(tabPage);
 
             AddinRemoved?.Invoke(this, new ContainerEvents
             {

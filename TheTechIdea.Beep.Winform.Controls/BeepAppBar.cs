@@ -725,9 +725,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             BackColor = _currentTheme.TitleBarBackColor;
 
             _logo.Theme = Theme;
+            
             TitleLabel.Theme = Theme;
-            //TitleLabel.ForeColor = _currentTheme.TitleBarForeColor;
-            //TitleLabel.BackColor = _currentTheme.TitleBarBackColor;
             if (UseThemeFont)
             {
                 TitleLabel.UseThemeFont = true;

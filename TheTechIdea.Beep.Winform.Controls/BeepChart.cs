@@ -87,6 +87,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         private ToolTip dataPointToolTip;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public event EventHandler<CustomDrawSeriesEventArgs> CustomDrawSeries;
+
         private ChartDataPoint hoveredPoint;
         private Point lastMouseDownPoint;
         private float zoomFactor = 1.0f;
@@ -491,7 +494,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 System.Diagnostics.Trace.WriteLine($"DrawBubbleSeries Error: {ex.Message}");
             }
         }
-
         private void UpdateChartDrawingRectBase()
         {
             try
@@ -514,7 +516,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ChartDrawingRect = ClientRectangle;
             }
         }
-
         private void UpdateChartDrawingRect(Graphics g)
         {
             try
@@ -584,7 +585,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ChartDrawingRect = ClientRectangle;
             }
         }
-
         private void DrawAreaSeries(Graphics g)
         {
             if (!DataSeries.Any())
@@ -653,7 +653,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 g.DrawLine(pen, ChartDrawingRect.Left, ChartDrawingRect.Bottom, ChartDrawingRect.Left, ChartDrawingRect.Top);
             }
         }
-
         private void DrawAxisTitles(Graphics g)
         {
             using (Font titleFont = new Font("Arial", 10, FontStyle.Bold))
@@ -687,7 +686,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //g.DrawString(YAxisTitle, labelFont, brush, ChartDrawingRect.Left - 15, ChartDrawingRect.Top + 5);
             }
         }
-
         private void DrawLineSeries(Graphics g)
         {
             if (!DataSeries.Any())
@@ -829,7 +827,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 System.Diagnostics.Trace.WriteLine($"DrawBarSeries Error: {ex.Message}");
             }
         }
-
         private void DrawBarSeriesUsingValue(Graphics g)
         {
             try
@@ -887,7 +884,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 System.Diagnostics.Trace.WriteLine($"DrawBarSeries Error: {ex.Message}");
             }
         }
-
         private void DrawPieSeries(Graphics g)
         {
             try
@@ -1028,8 +1024,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
-
         private void DrawLegend(Graphics g)
         {
             try
@@ -1079,10 +1073,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 System.Diagnostics.Trace.WriteLine($"DrawLegend Error: {ex.Message}");
             }
         }
-
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public event EventHandler<CustomDrawSeriesEventArgs> CustomDrawSeries;
-
         private void DrawCustomSeries(Graphics g)
         {
             try

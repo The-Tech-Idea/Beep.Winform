@@ -126,17 +126,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ContainerPanel.Visible = false;
                 TabContainerPanel.Visible = true;
 
-                // Ensure the test button is in a tab
-                if (!TabContainerPanel.TabPages.ContainsKey("TestTab"))
-                {
-                    var testTab = new TabPage
-                    {
-                        Text = "Test Tab",
-                        Name = "TestTab"
-                    };
-                    testTab.Controls.Add(_testButton);
-                    TabContainerPanel.TabPages.Add(testTab);
-                }
+                //// Ensure the test button is in a tab
+                //if (!TabContainerPanel.TabPages.ContainsKey("TestTab"))
+                //{
+                //    var testTab = new TabPage
+                //    {
+                //        Text = "Test Tab",
+                //        Name = "TestTab"
+                //    };
+                //    testTab.Controls.Add(_testButton);
+                //    TabContainerPanel.TabPages.Add(testTab);
+                //}
 
                 // Move single panel control to tabs
                 if (_singlePanelAddin != null)

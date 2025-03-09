@@ -5,8 +5,6 @@ using System.Data;
 using System.Drawing.Design;
 using System.Drawing.Printing;
 using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Beep.Winform.Controls.Basic;
-using TheTechIdea.Beep.Winform.Controls.Filter;
 using TheTechIdea.Beep.Winform.Controls.Grid.DataColumns;
 
 
@@ -1669,20 +1667,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="EventArgs"/> that contains the event data.</param>
-        private void FilterpictureBox1_Click(object sender, EventArgs e)
-        {
-            if (EntityStructure != null)
-            {
-                using (BeepFilter frmfilter = new BeepFilter())
-                {
-                    frmfilter.SetFilters(EntityStructure);
-                    if (frmfilter.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                    {
-                        EntityStructure = frmfilter.Entity;
-                    }
-                }
-            }
-        }
+        //private void FilterpictureBox1_Click(object sender, EventArgs e)
+        //{
+        //    if (EntityStructure != null)
+        //    {
+        //        using (BeepFilter frmfilter = new BeepFilter())
+        //        {
+        //            frmfilter.SetFilters(EntityStructure);
+        //            if (frmfilter.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        //            {
+        //                EntityStructure = frmfilter.Entity;
+        //            }
+        //        }
+        //    }
+        //}
 
         #endregion
         #region "Layout Load and Save"

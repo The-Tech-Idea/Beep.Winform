@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 
@@ -402,7 +403,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             int tabCount = TabCount;
             Point clientPoint = e.Location; // Use event coordinates directly
-
+                                            // Guard against zero tabs to prevent division by zero
+            if (tabCount == 0)
+            {
+                Debug.WriteLine("No tabs present, ignoring click.");
+                return;
+            }
             switch (_headerPosition)
             {
                 case TabHeaderPosition.Top:
@@ -512,7 +518,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.CloseFigure();
             return path;
         }
-        private void ApplyTheme()
+        public void ApplyTheme()
         {
             if (_currentTheme == null)
                 return;
@@ -523,6 +529,33 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 page.BackColor = _currentTheme.PanelBackColor;
                 page.ForeColor = _currentTheme.ButtonForeColor;
+                // check if the page has a control and pass theme to it
+                if (page.Controls.Count > 0)
+                {
+                    foreach (Control ctrl in page.Controls)
+                    {
+                        if (ctrl is IBeepUIComponent )
+                        {
+                            IBeepUIComponent bp=(IBeepUIComponent)ctrl;
+                            bp.Theme = Theme;
+                           // bp.ApplyTheme();
+                        }
+                        if(ctrl is IDM_Addin)
+                        {
+                           
+                            foreach (var item in ctrl.Controls)
+                            {
+                                if (item is IBeepUIComponent)
+                                {
+                                    IBeepUIComponent bp = (IBeepUIComponent)item;
+                                    bp.Theme = Theme;
+                                    // bp.ApplyTheme();
+                                }
+                            }
+                            
+                        }
+                    }
+                }
             }
 
             Invalidate();

@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTreeControl1.init(beepService);
             beepTreeControl1.CreateRootTree();
             beepAppBar1.ShowBadgeOnNotificationIcon("1");
-
+           
             beepMenuAppBar1.beepServices = beepService;
             beepMenuAppBar1.CreateMenuItems();
             //   beepSimpleGrid1.DataSource = beepService.DMEEditor.ConfigEditor.DataSourcesClasses;

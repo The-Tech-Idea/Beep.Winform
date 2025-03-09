@@ -1647,27 +1647,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnMouseDown(MouseEventArgs e)
         {
+            Debug.WriteLine($"MouseDown in BeepControl at {e.Location}");
             base.OnMouseDown(e);
-            // BorderColor = _currentTheme.ActiveBorderColor;
-            if (e.Button == MouseButtons.Left)
+
+            // Only process hit test if there are items in HitList
+            if (e.Button == MouseButtons.Left )
             {
-                // Perform the hit test
                 HitTest(e.Location);
                 IsPressed = true;
-             //   IsFocused = true;
-
             }
+
+            // Do not consume the event; allow it to bubble to child controls
         }
+
         protected override void OnMouseUp(MouseEventArgs e)
         {
+            Debug.WriteLine($"MouseUp in BeepControl at {e.Location}");
             base.OnMouseUp(e);
             IsPressed = false;
-           
         }
+
         protected override void OnMouseHover(EventArgs e)
         {
             base.OnMouseHover(e);
             IsHovered = true;
+            Debug.WriteLine("MouseHover in BeepControl");
         }
         #endregion "Mouse events"
         #region "Key events"
@@ -2403,6 +2407,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "IBeepUIComoponent Distinct Control Implementation"
         #endregion "IBeepUIComoponent"
         #region "HitTest and HitList"
+        // Add this method to the BeepControl class
+        // Add to the BeepControl class
+        public virtual void ReceiveMouseClick(Point clientLocation)
+        {
+            // Default implementation does nothing; derived classes can override
+            Debug.WriteLine($"ReceiveMouseClick in BeepControl at {clientLocation} (no action taken)");
+        }
+
+        public static void SendMouseClick(BeepControl targetControl, Point screenLocation)
+        {
+            if (targetControl != null && targetControl.IsAccessible)
+            {
+                Point clientPoint = targetControl.PointToClient(screenLocation);
+                Debug.WriteLine($"Sending MouseClick to {targetControl.Name} at client coordinates: {clientPoint}");
+                targetControl.ReceiveMouseClick(clientPoint);
+            }
+            else
+            {
+                Debug.WriteLine($"Cannot send MouseClick: Target control is null or inaccessible");
+            }
+        }
         public event EventHandler<ControlHitTestArgs> OnControlHitTest;
         public List<ControlHitTest> HitList { get; set; } = new List<ControlHitTest>();
         public void AddHitTest(ControlHitTest hitTest)
@@ -2440,13 +2465,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void HitTest(Point location)
         {
+            Debug.WriteLine($"HitTest called at {location}, HitList Count: {HitList.Count}");
             foreach (var hitTest in HitList)
             {
                 hitTest.IsHit = hitTest.TargetRect.Contains(location);
                 if (hitTest.IsHit)
                 {
+                    Debug.WriteLine($"Hit detected at {location} for {hitTest.Name}");
                     OnControlHitTest?.Invoke(this, new ControlHitTestArgs(hitTest));
-                    if(hitTest.HitAction != null)
+                    if (hitTest.HitAction != null)
                     {
                         hitTest.HitAction.Invoke();
                     }

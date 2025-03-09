@@ -468,16 +468,17 @@ namespace TheTechIdea.Beep.Desktop.Common
                         result.Message = $"Display Container is not set";
                         return result;
                     }
-                    // Remove the current view in SinglePanel mode
-                    if (_containerType == ContainerTypeEnum.SinglePanel && _currentView != null)
-                    {
-                        _displayContainer.RemoveControl(_currentView.Details.AddinName, _currentView);
-                    }
+                    //// Remove the current view in SinglePanel mode
+                    //if (_containerType == ContainerTypeEnum.SinglePanel && _currentView != null)
+                    //{
+                    //    _displayContainer.RemoveControl(_currentView.Details.AddinName, _currentView);
+                    //}
+                    _displayContainer?.AddControl(routeName, view, _containerType);
                     if (view is INavigable navigableView)
                     {
                         navigableView.OnNavigatedTo(parameters ?? new Dictionary<string, object>());
-                    }else
-                        _displayContainer?.AddControl(routeName, view, _containerType);
+                    }
+                      
                 }
                 else
                 {

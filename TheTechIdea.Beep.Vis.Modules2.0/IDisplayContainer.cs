@@ -13,6 +13,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         bool RemoveControlByName(string guidid);
         bool ShowControl(string TitleText, IDM_Addin control);
         bool IsControlExit(IDM_Addin control);
+        ContainerTypeEnum ContainerType { get; set; }
 
         //IAppManager VisManager { get; set; }
         //IDMEEditor Editor { get; set; }
@@ -31,7 +32,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public class ContainerEvents : EventArgs
     {
         public ContainerEvents() { }
-       public ContainerTypeEnum ContainerType { get; set; }
+         public ContainerTypeEnum ContainerType { get; set; }
         public string TitleText { get; set; }   
         public IDM_Addin Control { get; set; }
         public string Guidid { get; set; }

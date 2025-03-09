@@ -24,10 +24,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             InitializeComponent();
             beepService = service; // serviceProvider.GetService<IBeepService>();
             Dependencies.DMEEditor = beepService.DMEEditor;
+            beepService.vis.Container =beepDisplayContainer1;
+            beepService.vis.Container.ContainerType = ContainerTypeEnum.TabbedPanel ;
             beepTreeControl1.init(beepService);
             beepTreeControl1.CreateRootTree();
             beepAppBar1.ShowBadgeOnNotificationIcon("1");
-            beepService.vis.Container = this.uc_Container1;
+
             beepMenuAppBar1.beepServices = beepService;
             beepMenuAppBar1.CreateMenuItems();
             //   beepSimpleGrid1.DataSource = beepService.DMEEditor.ConfigEditor.DataSourcesClasses;

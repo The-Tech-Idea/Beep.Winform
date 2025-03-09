@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
@@ -18,6 +19,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A fully custom tab control with themed headers and SVG close buttons.")]
     public class BeepTabs : TabControl
     {
+        // Add to the BeepTabs class
+        public event EventHandler<TabRemovedEventArgs> TabRemoved;
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
         protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
         [Browsable(true)]
@@ -394,7 +397,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void BeepTabs_MouseClick(object sender, MouseEventArgs e)
         {
+            Debug.WriteLine($"MouseClick in BeepTabs at screen: {e.Location}, client: {PointToClient(Cursor.Position)}");
+            Console.WriteLine($"MouseClick in BeepTabs at screen: {e.Location}, client: {PointToClient(Cursor.Position)}");
+
             int tabCount = TabCount;
+            Point clientPoint = e.Location; // Use event coordinates directly
+
             switch (_headerPosition)
             {
                 case TabHeaderPosition.Top:
@@ -409,14 +417,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                             int adjustedWidth = tabWidth + (i == tabCount - 1 ? remainingPixels : 0);
                             Rectangle tabRect = new Rectangle(currentX, yPos, adjustedWidth, HeaderHeight);
                             Rectangle closeRect = GetCloseButtonRect(tabRect, false);
-                            if (closeRect.Contains(e.Location))
+                            string tabText = TabPages[i].Text;
+                            Debug.WriteLine($"Tab {i} rect: {tabRect}, Close rect: {closeRect}");
+                            if (closeRect.Contains(clientPoint))
                             {
+                                Debug.WriteLine($"Close button clicked for tab {i}");
                                 try { TabPages.RemoveAt(i); } catch (Exception ex) { Console.WriteLine("Error removing tab: " + ex.Message); }
+                                TabRemoved?.Invoke(this, new TabRemovedEventArgs { TabText = tabText });
                                 return;
                             }
-                            if (tabRect.Contains(e.Location))
+                            if (tabRect.Contains(clientPoint))
                             {
                                 SelectedIndex = i;
+                                Debug.WriteLine($"Tab {i} selected");
                                 return;
                             }
                             currentX += adjustedWidth;
@@ -432,17 +445,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                         int currentY = 0;
                         for (int i = 0; i < tabCount; i++)
                         {
-                            int adjustedHeight = tabHeight + (i == TabCount - 1 ? remainingPixels : 0);
+                            int adjustedHeight = tabHeight + (i == tabCount - 1 ? remainingPixels : 0);
                             Rectangle tabRect = new Rectangle(xPos, currentY, HeaderHeight, adjustedHeight);
                             Rectangle closeRect = GetCloseButtonRect(tabRect, true);
-                            if (closeRect.Contains(e.Location))
+                            string tabText = TabPages[i].Text;
+                            Debug.WriteLine($"Tab {i} rect: {tabRect}, Close rect: {closeRect}");
+                            if (closeRect.Contains(clientPoint))
                             {
+                                Debug.WriteLine($"Close button clicked for tab {i}");
                                 try { TabPages.RemoveAt(i); } catch (Exception ex) { Console.WriteLine("Error removing tab: " + ex.Message); }
+                                TabRemoved?.Invoke(this, new TabRemovedEventArgs { TabText = tabText });
                                 return;
                             }
-                            if (tabRect.Contains(e.Location))
+                            if (tabRect.Contains(clientPoint))
                             {
                                 SelectedIndex = i;
+                                Debug.WriteLine($"Tab {i} selected");
                                 return;
                             }
                             currentY += adjustedHeight;
@@ -500,7 +518,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             BackColor = _currentTheme.PanelBackColor;
             ForeColor = _currentTheme.ButtonForeColor;
+            // change tab pages color
+            foreach (TabPage page in TabPages)
+            {
+                page.BackColor = _currentTheme.PanelBackColor;
+                page.ForeColor = _currentTheme.ButtonForeColor;
+            }
+
             Invalidate();
         }
+        // Add to the BeepTabs class
+        public  void ReceiveMouseClick(Point clientLocation)
+        {
+            Debug.WriteLine($"ReceiveMouseClick in BeepTabs at {clientLocation}");
+            OnMouseClick(new MouseEventArgs(MouseButtons.Left, 1, clientLocation.X, clientLocation.Y, 0));
+        }
+    }
+    public class TabRemovedEventArgs : EventArgs
+    {
+        public string TabText { get; set; }
     }
 }

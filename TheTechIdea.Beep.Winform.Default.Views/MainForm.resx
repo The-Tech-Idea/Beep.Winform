@@ -182,7 +182,7 @@
         CAkCAAAAAAAAAAAAAAAQAgAAAAAAAAAL
 </value>
   </data>
-  <data name="beepCard1.Info" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="beepDisplayContainer1.Info" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAEVUaGVUZWNoSWRlYS5CZWVwLkRlc2t0b3AuQ29tbW9uLCBDdWx0
         dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwMAwAAAElTeXN0ZW0sIFZlcnNpb249NC4wLjAu
@@ -213,8 +213,8 @@
         dHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1udWxsXV0DAAAACCJUaGVUZWNoSWRlYS5CZWVwLlZp
         cy5FbnVtUG9pbnRUeXBlBAAAACJUaGVUZWNoSWRlYS5CZWVwLlZpcy5FbnVtUG9pbnRUeXBlBAAAAClU
         aGVUZWNoSWRlYS5CZWVwLlZpcy5Nb2R1bGVzLk1lbnVJdGVtVHlwZQUAAAAtVGhlVGVjaElkZWEuQmVl
-        cC5VdGlsaXRpZXMuRGF0YXNvdXJjZUNhdGVnb3J5BAAAAAgICAgICAECAAAAAAAAAAYGAAAAJGQxNzk4
-        OTAzLTY1ZWUtNDdhNi04ODYyLTU5ZThjZWQxN2VhOAoKCgoKCgkHAAAACgoKAAAAAAoKBfj///8iVGhl
+        cC5VdGlsaXRpZXMuRGF0YXNvdXJjZUNhdGVnb3J5BAAAAAgICAgICAECAAAAAAAAAAYGAAAAJDE5OTAz
+        YzJmLTRkMWUtNGY1NC05OGRkLTBjNzljMWM5MzA2OAoKCgoKCgkHAAAACgoKAAAAAAoKBfj///8iVGhl
         VGVjaElkZWEuQmVlcC5WaXMuRW51bVBvaW50VHlwZQEAAAAHdmFsdWVfXwAIBAAAAAAAAAAKCgoB9///
         //j///8AAAAACgX2////KVRoZVRlY2hJZGVhLkJlZXAuVmlzLk1vZHVsZXMuTWVudUl0ZW1UeXBlAQAA
         AAd2YWx1ZV9fAAgFAAAAAAAAAAX1////LVRoZVRlY2hJZGVhLkJlZXAuVXRpbGl0aWVzLkRhdGFzb3Vy
@@ -236,7 +236,7 @@
         Y2hJZGVhLkJlZXAuRGVza3RvcC5Db21tb24uU2ltcGxlSXRlbQIAAAAL
 </value>
   </data>
-  <data name="beepCard1.Items" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="beepDisplayContainer1.Items" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAEAQAAAH9TeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYy5MaXN0YDFbW1N5
         c3RlbS5PYmplY3QsIG1zY29ybGliLCBWZXJzaW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVi

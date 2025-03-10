@@ -13,8 +13,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region "Fields"
         protected int _resizeMargin = 5; // Margin for resizing
-        protected int _borderRadius = 15;
-        protected int _borderThickness = 2; // Thickness of the custom border
+        protected int _borderRadius = 5;
+        protected int _borderThickness =3; // Thickness of the custom border
         private Color _borderColor = Color.Red; // Default border color
         private const int ButtonSize = 30;
         private Point lastMousePosition;
@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //     //Debug.WriteLine("BeepiForm Constructor 11");
             // Initialize();
             // Set padding so controls dock within the interior
-            this.Padding = new Padding(_borderThickness);
+          //  this.Padding = new Padding(_borderThickness);
 
             // Create and configure the inner content panel.
            
@@ -140,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  //Debug.WriteLine("BeepiForm Constructor 22");
             // Initialize();
             // Set padding so controls dock within the interior
-            this.Padding = new Padding(_borderThickness);
+           // this.Padding = new Padding(_borderThickness);
 
             // Create and configure the inner content panel.
            

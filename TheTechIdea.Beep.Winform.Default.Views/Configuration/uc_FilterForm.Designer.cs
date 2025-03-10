@@ -61,7 +61,7 @@
             beepFilter1.DataSourceProperty = null;
             beepFilter1.DisabledBackColor = Color.Gray;
             beepFilter1.DisabledForeColor = Color.Empty;
-            beepFilter1.DisplayStyle = Winform.Controls.FilterCriteriaDisplayStyle.Visual;
+           
             beepFilter1.Dock = DockStyle.Fill;
             beepFilter1.DrawingRect = new Rectangle(1, 1, 765, 529);
             beepFilter1.Easing = Winform.Controls.EasingType.Linear;

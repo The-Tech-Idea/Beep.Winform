@@ -214,6 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 TabContainerPanel.TabPages.Add(tabPage);
+                
                 _controls[TitleText] = (control, tabPage);
                 TabContainerPanel.SelectedTab = tabPage;
                 TabContainerPanel.Invalidate();

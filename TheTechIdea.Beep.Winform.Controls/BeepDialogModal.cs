@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string Saveicon = "TheTechIdea.Beep.Winform.GFX.SVG.save.svg";
         private string SaveAllicon = "TheTechIdea.Beep.Winform.GFX.SVG.saveall.svg";
         private string DontSaveicon = "TheTechIdea.Beep.Winform.GFX.SVG.dontsave.svg";
-        private string Closeicon = "TheTechIdea.Beep.Winform.GFX.SVG.close.svg";
+        private string Closeicon = "TheTechIdea.Beep.Winform.GFX.SVG.closesquare.svg";
         private string Helpicon = "TheTechIdea.Beep.Winform.GFX.SVG.help.svg";
         private string TryAgainicon = "TheTechIdea.Beep.Winform.GFX.SVG.tryagain.svg";
         private string Continueicon = "TheTechIdea.Beep.Winform.GFX.SVG.continue.svg";

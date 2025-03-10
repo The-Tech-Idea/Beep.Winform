@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             btnSort = CreateButton("Sort", Button_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.sort.svg");
             btnPrint = CreateButton("Print", Button_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg");
             btnExport = CreateButton("Export", Button_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.export.svg");
-            btnClose = CreateButton("Close", Button_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg");
+            btnClose = CreateButton("Close", Button_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.closesquare.svg");
             btnHelp = CreateButton("Help", Button_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.info.svg");
             btnSettings = CreateButton("Settings", Button_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.settings.svg");
             btnAbout = CreateButton("About", Button_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.about.svg");

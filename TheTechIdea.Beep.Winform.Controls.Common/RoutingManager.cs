@@ -226,7 +226,7 @@ namespace TheTechIdea.Beep.Desktop.Common
 
                 if (!popup)
                 {
-                    _displayContainer?.AddControl(routeName, view, _containerType);
+                    _displayContainer?.AddControl(view.Details.AddinName, view, _containerType);
                 }
                 else
                 {
@@ -473,7 +473,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                     //{
                     //    _displayContainer.RemoveControl(_currentView.Details.AddinName, _currentView);
                     //}
-                    _displayContainer?.AddControl(routeName, view, _containerType);
+                    _displayContainer?.AddControl(view.Details.AddinName, view, _containerType);
                     if (view is INavigable navigableView)
                     {
                         navigableView.OnNavigatedTo(parameters ?? new Dictionary<string, object>());

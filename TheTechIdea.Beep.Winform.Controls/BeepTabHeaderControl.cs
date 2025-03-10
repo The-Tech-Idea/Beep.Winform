@@ -488,7 +488,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Margin = new Padding(1),
                 UseScaledFont = true,
                 GuidID=item.GuidId,
-                ExtendButtonImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg"
+                ExtendButtonImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.closesquare.svg"
             };
 
             btn.ButtonClick += (s, e) =>

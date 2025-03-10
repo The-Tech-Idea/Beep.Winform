@@ -79,7 +79,8 @@
     <None Remove="GFX\SVG\back.svg" />
     <None Remove="GFX\SVG\cancel.svg" />
     <None Remove="GFX\SVG\cassandra.svg" />
-    <None Remove="GFX\SVG\close.svg" />
+    <None Remove="GFX\SVG\checkround.svg" />
+    <None Remove="GFX\SVG\checksquare.svg" />
     <None Remove="GFX\SVG\closered.svg" />
     <None Remove="GFX\SVG\cockroachdb.svg" />
     <None Remove="GFX\SVG\comment.svg" />
@@ -188,11 +189,12 @@
     <None Remove="GFX\SVG\sqlserver.svg" />
     <None Remove="GFX\SVG\square-minus.svg" />
     <None Remove="GFX\SVG\square-plus.svg" />
-    <None Remove="GFX\SVG\squareclose.svg" />
+    <None Remove="GFX\SVG\squareclosesquare.svg" />
     <None Remove="GFX\SVG\star.svg" />
     <None Remove="GFX\SVG\sum.svg" />
     <None Remove="GFX\SVG\theme.svg" />
     <None Remove="GFX\SVG\thumb-up.svg" />
+    <None Remove="GFX\SVG\tick.svg" />
     <None Remove="GFX\SVG\trash.svg" />
     <None Remove="GFX\SVG\tryagain.svg" />
     <None Remove="GFX\SVG\undo.svg" />
@@ -210,6 +212,9 @@
     <EmbeddedResource Include="GFX\SVG\alert.svg" />
     <EmbeddedResource Include="GFX\SVG\cancel.svg" />
     <EmbeddedResource Include="GFX\SVG\cassandra.svg" />
+    <EmbeddedResource Include="GFX\SVG\checkround.svg" />
+    <EmbeddedResource Include="GFX\SVG\checksquare.svg" />
+    <EmbeddedResource Include="GFX\SVG\close.svg" />
     <EmbeddedResource Include="GFX\SVG\closered.svg" />
     <EmbeddedResource Include="GFX\SVG\cockroachdb.svg" />
     <EmbeddedResource Include="GFX\SVG\continue.svg" />
@@ -274,7 +279,7 @@
     <EmbeddedResource Include="GFX\SVG\sqlite-1.svg" />
     <EmbeddedResource Include="GFX\SVG\sqlite.svg" />
     <EmbeddedResource Include="GFX\SVG\sqlserver.svg" />
-    <EmbeddedResource Include="GFX\SVG\squareclose.svg" />
+    <EmbeddedResource Include="GFX\SVG\squareclosesquare.svg" />
     <EmbeddedResource Include="GFX\SVG\stakeholder.svg" />
     <EmbeddedResource Include="GFX\SVG\about.svg" />
     <EmbeddedResource Include="GFX\SVG\add.svg" />
@@ -289,7 +294,6 @@
     <EmbeddedResource Include="GFX\SVG\angle-small-up.svg" />
     <EmbeddedResource Include="GFX\SVG\back-button.svg" />
     <EmbeddedResource Include="GFX\SVG\back.svg" />
-    <EmbeddedResource Include="GFX\SVG\close.svg" />
     <EmbeddedResource Include="GFX\SVG\comment.svg" />
     <EmbeddedResource Include="GFX\SVG\dislike.svg" />
     <EmbeddedResource Include="GFX\SVG\doorclosed.svg" />
@@ -336,6 +340,7 @@
     <EmbeddedResource Include="GFX\SVG\sum.svg" />
     <EmbeddedResource Include="GFX\SVG\theme.svg" />
     <EmbeddedResource Include="GFX\SVG\thumb-up.svg" />
+    <EmbeddedResource Include="GFX\SVG\tick.svg" />
     <EmbeddedResource Include="GFX\SVG\trash.svg" />
     <EmbeddedResource Include="GFX\SVG\tryagain.svg" />
     <EmbeddedResource Include="GFX\SVG\undo.svg" />

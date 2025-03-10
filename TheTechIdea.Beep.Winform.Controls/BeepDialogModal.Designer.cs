@@ -239,7 +239,7 @@
             CloseButton.ImageAlign = ContentAlignment.MiddleCenter;
             CloseButton.ImageClicked = null;
             CloseButton.ImageEmbededin = ImageEmbededin.Button;
-            CloseButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg";
+            CloseButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.closesquare.svg";
             CloseButton.InactiveBackColor = Color.Gray;
             CloseButton.InactiveBorderColor = Color.Gray;
             CloseButton.InactiveForeColor = Color.Black;

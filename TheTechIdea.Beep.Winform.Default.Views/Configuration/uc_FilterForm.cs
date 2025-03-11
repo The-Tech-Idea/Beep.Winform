@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
+using TheTechIdea.Beep.Vis.Modules;
 
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
@@ -47,9 +48,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         }
         public override void OnNavigatedTo(Dictionary<string, object> parameters)
         {
+           
             base.OnNavigatedTo(parameters);
             beepFilter1.DataSource = beepservice.DMEEditor.ConfigEditor.DataSourcesClasses;
-
+           
         }
     }
 }

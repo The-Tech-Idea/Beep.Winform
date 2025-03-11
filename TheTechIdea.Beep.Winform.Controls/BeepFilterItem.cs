@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
-using System.Windows.Forms;
 using TheTechIdea.Beep.Desktop.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -159,6 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Text = condition.LogicalOperator.ToString(),
                     BackColor = Color.FromArgb(255, 182, 193),
+                    ForeColor = Color.Black,
                     AutoSize = true,
                     Margin = new Padding(2),
                     Padding = new Padding(2),
@@ -172,6 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Text = condition.FieldName ?? "Select Field",
                 BackColor = Color.FromArgb(255, 255, 224),
+                ForeColor = Color.Black,
                 AutoSize = true,
                 Margin = new Padding(2),
                 Padding = new Padding(2),
@@ -184,6 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Text = condition.Operator.ToString().Replace("Is", "is ").ToLower(),
                 BackColor = Color.FromArgb(224, 255, 224),
+                ForeColor = Color.Black,
                 AutoSize = true,
                 Margin = new Padding(2),
                 Padding = new Padding(2),
@@ -198,6 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Text = condition.Value?.ToString() ?? "Value",
                     BackColor = Color.FromArgb(224, 238, 255),
+                    ForeColor = Color.Black,
                     AutoSize = true,
                     Margin = new Padding(2),
                     Padding = new Padding(2),
@@ -214,6 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Text = condition.Value2?.ToString() ?? "Value",
                     BackColor = Color.FromArgb(224, 238, 255),
+                    ForeColor = Color.Black,
                     AutoSize = true,
                     Margin = new Padding(2),
                     Padding = new Padding(2),
@@ -228,6 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Text = condition.Value?.ToString() ?? "Value",
                     BackColor = Color.FromArgb(224, 238, 255),
+                    ForeColor = Color.Black,
                     AutoSize = true,
                     Margin = new Padding(2),
                     Padding = new Padding(2),

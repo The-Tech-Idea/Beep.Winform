@@ -26,6 +26,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _advancedImagePath;
         // Property for the image path (SVG, PNG, JPG, BMP)
         protected string _imagepath;
+
+        private int _baseSize = 50; // Default size
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The default size of the image before scaling.")]
+        public int BaseSize
+        {
+            get => _baseSize;
+            set
+            {
+                _baseSize = value;
+                if (Size.Width <= _baseSize) // If not scaled, apply base size
+                {
+                    Size = new Size(_baseSize, _baseSize);
+                }
+                Invalidate();
+            }
+        }
         Color fillColor;
         Color strokeColor;
         [Browsable(true)]
@@ -83,7 +102,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
+        private float _velocity = 0.0f;
+        [Category("Behavior")]
+        [Description("Sets the velocity of the spin in degrees per frame.")]
+        public float Velocity
+        {
+            get => _velocity;
+            set
+            {
+                _velocity = value;
+                Invalidate(); // Repaint when the velocity changes
+            }
+        }
         private float _manualRotationAngle = 0; // Manual rotation angle
         private bool _allowManualRotation = true; // Allows toggling between manual and spinning
 
@@ -190,7 +220,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
+        private float _scaleFactor = 1.0f;
+        [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public float ScaleFactor
+        {
+            get => _scaleFactor;
+            set
+            {
+                _scaleFactor = value;
+                Invalidate(); // Repaint when the scale factor changes
+            }
+        }
         private ImageScaleMode _scaleMode = ImageScaleMode.KeepAspectRatio;
         [Category("Appearance")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
@@ -466,6 +507,59 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Theme Properties"
         #region "Image Drawing Methods"
+        public void Draw(Graphics g, Rectangle destRect, Rectangle drawRect)
+        {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+            var originalTransform = g.Transform;
+            try
+            {
+                float effectiveRotation = _manualRotationAngle + (IsSpinning ? _rotationAngle : 0);
+
+                // Find the actual center of drawRect for proper positioning
+                PointF center = new PointF(drawRect.X + drawRect.Width / 2f, drawRect.Y + drawRect.Height / 2f);
+
+                // Translate to the new center for proper rotation
+                g.TranslateTransform(center.X, center.Y);
+                g.RotateTransform(effectiveRotation);
+                g.TranslateTransform(-center.X, -center.Y);
+
+                if (isSvg && svgDocument != null)
+                {
+                    var imageSize = svgDocument.GetDimensions();
+                    var scaledBounds = GetScaledBounds(new SizeF(imageSize.Width, imageSize.Height), drawRect);
+
+                    if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
+                    {
+                        // Move image to its correct position inside drawRect
+                        g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
+                        g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
+                        svgDocument.Draw(g);
+                    }
+                }
+                else if (regularImage != null)
+                {
+                    var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), drawRect);
+
+                    if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
+                    {
+                        g.DrawImage(regularImage, new RectangleF(
+                            scaledBounds.X,
+                            scaledBounds.Y,
+                            scaledBounds.Width,
+                            scaledBounds.Height
+                        ));
+                    }
+                }
+            }
+            finally
+            {
+                g.Transform = originalTransform; // Restore graphics state
+            }
+        }
 
         public void DrawImage(Graphics g, Rectangle imageRect)
         {
@@ -522,8 +616,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 g.Transform = originalTransform;
             }
         }
-
-
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -541,8 +633,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             );
             DrawBadge(e.Graphics);
         }
-
-
+        #endregion "Image Drawing Methods"
+        #region "Loading Images"
         public bool IsSvgPath(string path)
         {
             return Path.GetExtension(path)?.ToLower() == ".svg";
@@ -764,14 +856,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             return true;
         }
-        private void DisposeImages()
-        {
-            regularImage?.Dispose();
-            regularImage = null;
-            svgDocument = null;
-        }
-
-        #endregion "Image Drawing Methods"
+        #endregion "Loading Images"
         #region "Designer Support"
 
 
@@ -1025,6 +1110,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             base.Dispose(disposing);
         }
+        private void DisposeImages()
+        {
+            regularImage?.Dispose();
+            regularImage = null;
+            svgDocument = null;
+        }
+
 
     }
     public enum ImageEmbededin

@@ -146,6 +146,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.IsFocused = false;
             beepSimpleGrid1.IsFrameless = false;
             beepSimpleGrid1.IsHovered = false;
+            beepSimpleGrid1.IsLogging = false;
             beepSimpleGrid1.IsNew = false;
             beepSimpleGrid1.IsPressed = false;
             beepSimpleGrid1.IsReadOnly = false;
@@ -182,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ShowFilterButton = true;
             beepSimpleGrid1.ShowFocusIndicator = false;
             beepSimpleGrid1.ShowFooter = false;
-            beepSimpleGrid1.ShowHeaderPanel = true;
+            beepSimpleGrid1.ShowHeaderPanel = false;
             beepSimpleGrid1.ShowHeaderPanelBorder = true;
             beepSimpleGrid1.ShowHorizontalGridLines = true;
             beepSimpleGrid1.ShowHorizontalScrollBar = true;
@@ -209,6 +210,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.TitleTextFont = new Font("Segoe UI", 9F);
             beepSimpleGrid1.ToolTipText = "";
             beepSimpleGrid1.TopoffsetForDrawingRect = 0;
+            beepSimpleGrid1.UpdateLog = (Dictionary<DateTime, Editor.EntityUpdateInsertLog>)resources.GetObject("beepSimpleGrid1.UpdateLog");
             beepSimpleGrid1.UseGradientBackground = false;
             beepSimpleGrid1.UseThemeFont = true;
             beepSimpleGrid1.XOffset = 0;

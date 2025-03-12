@@ -100,7 +100,8 @@ namespace TheTechIdea.Beep.Desktop.Common
         public int Y { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
-        
+        public int BaseSize { get; set; } = 50; // Individual base size
+        public float MaxScale { get; set; } = 1.4f; // Individual max scale
         public string ContainerGuidID { get; set; }
         public int ContainerID { get; set; }
 

@@ -6,10 +6,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
+using TheTechIdea.Beep.Report;
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
@@ -318,7 +315,34 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             FilterChanged?.Invoke(this, new FilterChangedEventArgs(Conditions));
         }
+        // New method to generate IAppFilter objects
+        public List<IAppFilter> GenerateAppFilters()
+        {
+            List<IAppFilter> appFilters = new List<IAppFilter>();
+            int idCounter = 1;
 
+            foreach (var condition in Conditions)
+            {
+                if (string.IsNullOrEmpty(condition.FieldName) || condition.Value == null)
+                    continue;
+
+                var appFilter = new AppFilter
+                {
+                    ID = idCounter++,
+                    GuidID = Guid.NewGuid().ToString(),
+                    FieldName = condition.FieldName,
+                    Operator = condition.Operator.ToString(),
+                    FilterValue = condition.Value?.ToString(),
+                    FilterValue1 = condition.Operator == FilterOperator.IsBetween ? condition.Value2?.ToString() : null,
+                    valueType = condition.DataType.Name // e.g., "string", "int", "DateTime"
+                };
+
+                appFilters.Add(appFilter);
+                Debug.WriteLine($"Generated AppFilter: FieldName={appFilter.FieldName}, Operator={appFilter.Operator}, FilterValue={appFilter.FilterValue}, FilterValue1={appFilter.FilterValue1}, valueType={appFilter.valueType}");
+            }
+
+            return appFilters;
+        }
         private string BuildFilterExpression()
         {
             if (Conditions.Count == 0)

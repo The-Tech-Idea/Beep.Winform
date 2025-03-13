@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
+
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Vis.Modules;
-using System.Diagnostics;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

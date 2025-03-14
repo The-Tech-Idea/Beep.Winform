@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         IDM_Addin CurrentControl { get; }
         bool UseCustomCreator { get; set; }
         IDisplayContainer DisplayContainer { get; set; }
-
+        IBreadCrumbDisplay CrumbDisplay { get; set; }
         ContainerTypeEnum ContainerType { get; set; }
 
         event EventHandler<string> Navigated;

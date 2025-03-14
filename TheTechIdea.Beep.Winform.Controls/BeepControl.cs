@@ -148,6 +148,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "protected Properties"
         #region "Public Properties"
         //    public IContainer Components => this.Components;
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("The Text  represent for the control.")]
+        public override string Text
+        {
+            get => _text;
+            set
+            {
+                _text = value;
+                _isControlinvalidated = true;
+                Invalidate();  // Trigger repaint when the text changes
+            }
+        }
         private SimpleItem _info = new SimpleItem();
         [Browsable(true)]
         [Category("Appearance")]
@@ -250,6 +263,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected bool _isChild;
         protected Color parentbackcolor;
         protected Color _tempbackcolor;
+
+      
+       
 
         [Browsable(true)]
         [Category("Appearance")]

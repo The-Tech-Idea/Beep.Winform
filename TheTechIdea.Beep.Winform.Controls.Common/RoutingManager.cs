@@ -40,6 +40,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         private string _defaultRoute;
         private IDM_Addin _currentView;
         private Type _errorViewType;
+        private IBreadCrumbDisplay _crumbdisplay;
         #endregion "Fields"
         #region "Properties"
         public EnumBeepThemes Theme { get; set; }
@@ -54,6 +55,11 @@ namespace TheTechIdea.Beep.Desktop.Common
         {
             get => _useCustomCreator;
             set => _useCustomCreator = value;
+        }
+        public IBreadCrumbDisplay CrumbDisplay
+        {
+            get { return _crumbdisplay; }
+            set { _crumbdisplay = value; }
         }
         public IDisplayContainer DisplayContainer
         {

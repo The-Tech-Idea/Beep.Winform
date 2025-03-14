@@ -368,7 +368,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Containers\uc_Container.cs" />
-    <Compile Update="DataNavigator\BeepBindingNavigator.cs" />
+    <Compile Update="BeepBindingNavigator.cs" />
     <Compile Update="Design\Forms\DataBlocksCollectionForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -408,6 +408,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="DataNavigator\" />
     <Folder Include="GFX\PNG\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Wait\" />

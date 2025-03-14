@@ -53,10 +53,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         }
         public override void Configure(Dictionary<string, object> settings)
         {
-               //    //DBWork = new UnitofWork<ConnectionDriversConfig>(DMEEditor, true,new ObservableBindingList<ConnectionDriversConfig>(DMEEditor.ConfigEditor.DataDriversClasses), "GuidID");
-        //    //DBWork.PrimaryKey = "GuidID";
-
-        //    base.Configure(settings);
            viewModel = new DriversConfigViewModel(beepservice.DMEEditor, beepservice.vis);
            BeepColumnConfig classhandlers=beepSimpleGrid1.GetColumnByName("ClassHandler");
           //  classhandlers.CellEditor = BeepColumnType.ListOfValue;
@@ -70,61 +66,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 item1.Name = item.className;
                 classhandlers.Items.Add(item1);
             }
-            //BeepColumnConfig classhandlers = beepSimpleGrid1.GetColumnByName("ClassHandler");
-            //  this.beepDataGridView1.ColumnConfigs[]
-
-            //    List<Icon> icons = new List<Icon>();
-            //    this.classHandlerComboBox.DisplayMember = "className";
-            //    this.classHandlerComboBox.ValueMember = "className";
-            //    foreach (AssemblyClassDefinition cls in DMEEditor.ConfigEditor.DataSourcesClasses)
-            //    {
-            //        this.classHandlerComboBox.Items.Add(cls);
-            //    }
-            //    foreach (var item in viewModel.DataSourceCategories)
-            //    {
-            //        DatasourceCategoryComboBox.Items.Add(item);
-            //    }
-            //    foreach (var item in viewModel.DataSourceTypes)
-            //    {
-            //        DatasourceTypeComboBox.Items.Add(item);
-            //    }
-            //    foreach (string filename in viewModel.ListofImages)
-            //    {
-            //        try
-            //        {
-            //            // string filename = Path.GetFileName(filename_w_path);
-
-            //            this.iconname.Items.Add(filename);
-            //            //Icon ic = new Icon(filename_w_path);
-            //            //  icons.Add(ic);
-
-            //        }
-            //        catch (FileLoadException ex)
-            //        {
-            //            ErrorObject.Flag = Errors.Failed;
-            //            ErrorObject.Ex = ex;
-            //            Logger.WriteLog($"Error Loading icons ({ex.Message})");
-            //        }
-            //    }
-
-            //    //foreach (ImageConfiguration config in Visutil.visHelper.ImgAssemblies)
-
-            //    //DBWork = new UnitofWork<ConnectionDriversConfig>(DMEEditor, true,new ObservableBindingList<ConnectionDriversConfig>(DMEEditor.ConfigEditor.DataDriversClasses), "GuidID");
-            //    //DBWork.PrimaryKey = "GuidID";
-
-
-            //    connectiondriversConfigBindingSource.Data = viewModel.DBWork.Units;
-            //    connectiondriversConfigBindingSource.CurrentItemChanged += ConnectiondriversConfigBindingSource_CurrentItemChanged;
-            //    BeepbindingNavigator1.BindingSource = connectiondriversConfigBindingSource;
-            //    //BeepbindingNavigator1.SetConfig(DMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, new string[] { }, e, DMEEditor.ErrorObject);
-            //    //BeepbindingNavigator1.HightlightColor = Color.Yellow;
-            //    BeepbindingNavigator1.SaveCalled += BeepbindingNavigator1_SaveCalled;
-            //    this.connectiondriversConfigDataGridView.DataError += ConnectiondriversConfigDataGridView_DataError;
+          //  beepSimpleGrid1.DataNavigator=beepBindingNavigator1;
         }
         public override void OnNavigatedTo(Dictionary<string, object> parameters)
         {
             base.OnNavigatedTo(parameters);
             beepSimpleGrid1.DataSource = viewModel.DBWork.Units;
+
 
         }
     }

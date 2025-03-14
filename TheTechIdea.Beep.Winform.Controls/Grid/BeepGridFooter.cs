@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
-using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid
 {

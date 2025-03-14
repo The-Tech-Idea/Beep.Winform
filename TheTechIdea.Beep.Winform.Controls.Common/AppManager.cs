@@ -95,6 +95,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public IBeepUIComponent SecondaryMenuStrip { get; set; }
         public IDM_Addin CurrentDisplayedAddin { get; set; }
         public IDM_Addin MainDisplay { get; set; }
+        public IBreadCrumbDisplay CrumbDisplay { get; set; }
         public IPopupDisplayContainer PopupDisplay { get; set; }
         IDisplayContainer _displaycontainer;
         public IDisplayContainer Container
@@ -651,7 +652,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                 CloseWaitForm();
                 RoutingManager.DisplayContainer= Container;
                 ShowPopup(MainDisplay);
-               
+                 
                 
             }
             catch (Exception ex)

@@ -79,6 +79,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public IPopupDisplayContainer PopupDisplay { get; set; }
         public IFunctionandExtensionsHelpers Helpers { get; set; }
         public IRoutingManager RoutingManager { get; set; }
+        public IBreadCrumbDisplay CrumbDisplay
+        {
+            get { return _crumbdisplay; }
+            set { _crumbdisplay = value; }
+        }
         bool _isLogOn = false;
         public bool IsLogOn
         {
@@ -190,6 +195,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         private bool disposedValue;
 
         private bool CurrentSingltonChecked;
+        private IBreadCrumbDisplay _crumbdisplay;
 
         public IErrorsInfo PressKey(KeyCombination keyCombination)
         {

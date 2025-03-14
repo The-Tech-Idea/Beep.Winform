@@ -11,7 +11,6 @@ using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.BindingNavigator;
 using TheTechIdea.Beep.Winform.Controls.Design;
 using TheTechIdea.Beep.Winform.Controls.Grid.DataColumns;
 

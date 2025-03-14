@@ -30,6 +30,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         IDisplayContainer Container { get; set; }
         IRoutingManager RoutingManager { get; set; }
         IPopupDisplayContainer PopupDisplay { get; set; }
+        IBreadCrumbDisplay CrumbDisplay { get; set; }
         bool IsDataModified { get; set; }
         bool IsShowingMainForm { get; set; }
         bool IsShowingWaitForm { get; set; }

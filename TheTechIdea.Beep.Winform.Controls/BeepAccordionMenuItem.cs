@@ -125,12 +125,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             mainButton.MouseEnter += (s, e) =>
             {
-              //  buttonRowPanel.BackColor = _currentTheme?.ButtonBackColor ?? Color.Gray;
+               buttonRowPanel.BackColor = _currentTheme?.ButtonHoverBackColor ?? Color.Gray;
                 highlightPanel.BackColor = _currentTheme?.ButtonHoverBackColor ?? Color.Gray;
             };
             mainButton.MouseLeave += (s, e) =>
             {
-                //buttonRowPanel.BackColor = _currentTheme?.ButtonBackColor ?? Color.FromArgb(51, 51, 51);
+                buttonRowPanel.BackColor = _currentTheme?.ButtonBackColor ?? Color.FromArgb(51, 51, 51);
                 highlightPanel.BackColor = _currentTheme?.ButtonBackColor ?? Color.FromArgb(51, 51, 51);
             };
             mainButton.Click += (s, e) => ItemClick?.Invoke(this, new BeepMouseEventArgs("ItemClicked", item));

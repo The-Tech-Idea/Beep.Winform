@@ -167,7 +167,11 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         Horizontal,
         Vertical,
-        Diagonal45
+        Diagonal45,
+        Right,
+        Left,
+        Above,
+        Below
     }
 
     public enum ChartType

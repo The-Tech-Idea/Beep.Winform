@@ -339,6 +339,30 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color TestimonialDateColor { get; set; } = Color.DarkGray;
         public Color TestimonialRatingColor { get; set; } = Color.Gold;
         public Color TestimonialStatusColor { get; set; } = Color.Green;
+        public Color CompanyPopoverBackgroundColor { get; set; } = Color.White;
+        public Color CompanyTitleColor { get; set; } = Color.Black;
+        public Color CompanySubtitleColor { get; set; } = Color.DarkBlue;
+        public Color CompanyDescriptionColor { get; set; } = Color.Gray;
+        public Color CompanyLinkColor { get; set; } = Color.Gray;
+        public Color CompanyButtonBackgroundColor { get; set; } = Color.Blue;
+        public Color CompanyButtonTextColor { get; set; } = Color.White;
+     
+        public Color CompanyDropdownBackgroundColor { get; set; } = Color.White;
+        public Color CompanyDropdownTextColor { get; set; } = Color.Black;
+        public Color CompanyLogoBackgroundColor { get; set; } = Color.Gray;
+
+        // New Login properties
+        public Color LoginPopoverBackgroundColor { get; set; } = Color.White;
+        public Color LoginTitleColor { get; set; } = Color.Black;
+        public Color LoginSubtitleColor { get; set; } = Color.DarkBlue;
+        public Color LoginDescriptionColor { get; set; } = Color.Gray;
+        public Color LoginLinkColor { get; set; } = Color.Blue;
+        public Color LoginButtonBackgroundColor { get; set; } = Color.Blue;
+        public Color LoginButtonTextColor { get; set; } = Color.White;
+        public Color LoginDropdownBackgroundColor { get; set; } = Color.White;
+        public Color LoginDropdownTextColor { get; set; } = Color.Black;
+        public Color LoginLogoBackgroundColor { get; set; } = Color.LightGray;
+
 
         public Font GetBlockHeaderFont()
         {

@@ -200,31 +200,31 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
         }
-        //private bool _autoSize = false;
-        //[Browsable(true)]
-        //[Category("Layout")]
-        //[Description("Automatically resize the control based on the text and image size.")]
-        //public bool AutoSize
-        //{
-        //    get => _autoSize;
-        //    set
-        //    {
-        //        _autoSize = value;
-        //        if (_autoSize)
-        //        {
-        //            // Immediately recalc once
-        //            this.Size = GetPreferredSize(Size.Empty);
-        //        }
-        //        Invalidate();
-        //    }
-        //}
+        private bool _autoSize = false;
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Automatically resize the control based on the text and image size.")]
+        public override bool AutoSize
+        {
+            get => _autoSize;
+            set
+            {
+                _autoSize = value;
+                if (_autoSize)
+                {
+                    // Immediately recalc once
+                    this.Size = GetPreferredSize(Size.Empty);
+                }
+                Invalidate();
+            }
+        }
 
         #endregion "Properties"
         #region "Constructors"
         public BeepLabel():base()
         {
             DoubleBuffered = true;
-            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+          //  SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
         //    SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
 
             InitializeComponents();
@@ -251,15 +251,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
             }
         }
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            // If single line, don't allow a bigger or smaller height than necessary
+        //protected override void OnResize(EventArgs e)
+        //{
+        //    base.OnResize(e);
+        //    // If single line, don't allow a bigger or smaller height than necessary
          
-            UpdateDrawingRect();
-            Invalidate();
+        //    UpdateDrawingRect();
+        //    Invalidate();
 
-        }
+        //}
         protected override Size DefaultSize
         {
             get

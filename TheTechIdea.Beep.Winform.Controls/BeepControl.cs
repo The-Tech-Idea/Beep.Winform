@@ -145,6 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _canbepressed = true;
         private bool _canbefocused = true;
         private bool _canbedefault = false;
+        private Rectangle borderRectangle;
         #endregion "protected Properties"
         #region "Public Properties"
         //    public IContainer Components => this.Components;
@@ -839,9 +840,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.SetStyle(ControlStyles.ContainerControl, true);
             this.SetStyle(ControlStyles.UserPaint, true);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true); 
-         //  base.ProcessTabKey(true);
-          
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            //  base.ProcessTabKey(true);
+   
             InitializeTooltip();
             ShowAllBorders = true;
             //  BackColor = Color.Transparent;
@@ -851,6 +852,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             DataBindings.CollectionChanged += DataBindings_CollectionChanged;
 
         }
+    
+
         #endregion "Constructors"
         #region "Feature Management"
         protected void BeepControl_LocationChanged(object? sender, EventArgs e)
@@ -1032,7 +1035,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Rectangle regionRect = new Rectangle(0, 0, this.Width, this.Height);
             if (IsRounded)
             {
-                using (GraphicsPath path = GetRoundedRectanglePath(regionRect, BorderRadius))
+                using (GraphicsPath path = GetRoundedRectPath(regionRect, BorderRadius))
                 {
                     this.Region = new Region(path);
                 }
@@ -1137,13 +1140,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
 
             Rectangle outerRectangle = new Rectangle(0, 0, Width, Height);
-            Rectangle borderRectangle = new Rectangle(
-                shadowOffset+ _borderThickness,
-                shadowOffset+ _borderThickness,
-                Width - (_borderThickness + shadowOffset),
-                Height - (_borderThickness + shadowOffset)
-            );
-            
+             borderRectangle = new Rectangle(
+          shadowOffset + _borderThickness,
+          shadowOffset + _borderThickness,
+          Width - (_borderThickness + shadowOffset * 2), // Adjusted for symmetry
+          Height - (_borderThickness + shadowOffset * 2)  // Adjusted for symmetry
+      );
+
             if (UseGradientBackground)
             {
                 using (var brush = new LinearGradientBrush(borderRectangle, GradientStartColor, GradientEndColor, GradientDirection))
@@ -1177,14 +1180,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                         //{
                         //    this.Region = new Region(path);
                         //}
-                        using (GraphicsPath path = GetRoundedRectanglePath(borderRectangle, BorderRadius))
+                        using (GraphicsPath path = GetRoundedRectPath(borderRectangle, BorderRadius))
                         {
                             // Now draw the border
                             if (BorderThickness > 0)
                             {
                                 using (Pen borderPen = new Pen(BorderColor, BorderThickness))
                                 {
-                                    borderPen.Alignment = PenAlignment.Inset;
+                                    borderPen.Alignment = PenAlignment.Center;
                                     e.Graphics.DrawPath(borderPen, path);
                                 }
                             }
@@ -1587,41 +1590,41 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.CloseFigure();
             return path;
         }
-        private GraphicsPath GetRoundedRectanglePath(Rectangle rect, int radius)
-        {
-            GraphicsPath path = new GraphicsPath();
-            int diameter = radius * 2;
+        //private GraphicsPath GetRoundedRectanglePath(Rectangle rect, int radius)
+        //{
+        //    GraphicsPath path = new GraphicsPath();
+        //    int diameter = radius * 2;
 
-            // If radius is 0 or less, return a normal rectangle.
-            if (radius <= 0)
-            {
-                path.AddRectangle(rect);
-                return path;
-            }
+        //    // If radius is 0 or less, return a normal rectangle.
+        //    if (radius <= 0)
+        //    {
+        //        path.AddRectangle(rect);
+        //        return path;
+        //    }
 
-            // Ensure the diameter does not exceed the bounds of the rectangle.
-            if (diameter > rect.Width)
-                diameter = rect.Width;
-            if (diameter > rect.Height)
-                diameter = rect.Height;
+        //    // Ensure the diameter does not exceed the bounds of the rectangle.
+        //    if (diameter > rect.Width)
+        //        diameter = rect.Width;
+        //    if (diameter > rect.Height)
+        //        diameter = rect.Height;
 
-            // Define a rectangle for each corner arc.
-            Rectangle topLeftArc = new Rectangle(rect.X, rect.Y, diameter, diameter);
-            Rectangle topRightArc = new Rectangle(rect.Right - diameter, rect.Y, diameter, diameter);
-            Rectangle bottomRightArc = new Rectangle(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter);
-            Rectangle bottomLeftArc = new Rectangle(rect.X, rect.Bottom - diameter, diameter, diameter);
+        //    // Define a rectangle for each corner arc.
+        //    Rectangle topLeftArc = new Rectangle(rect.X, rect.Y, diameter, diameter);
+        //    Rectangle topRightArc = new Rectangle(rect.Right - diameter, rect.Y, diameter, diameter);
+        //    Rectangle bottomRightArc = new Rectangle(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter);
+        //    Rectangle bottomLeftArc = new Rectangle(rect.X, rect.Bottom - diameter, diameter, diameter);
 
-            // Add arcs for each corner.
-            path.AddArc(topLeftArc, 180, 90);   // Top-left
-            path.AddArc(topRightArc, 270, 90);  // Top-right
-            path.AddArc(bottomRightArc, 0, 90); // Bottom-right
-            path.AddArc(bottomLeftArc, 90, 90); // Bottom-left
+        //    // Add arcs for each corner.
+        //    path.AddArc(topLeftArc, 180, 90);   // Top-left
+        //    path.AddArc(topRightArc, 270, 90);  // Top-right
+        //    path.AddArc(bottomRightArc, 0, 90); // Bottom-right
+        //    path.AddArc(bottomLeftArc, 90, 90); // Bottom-left
 
-            // Close the path to complete the rounded rectangle.
-            path.CloseFigure();
+        //    // Close the path to complete the rounded rectangle.
+        //    path.CloseFigure();
 
-            return path;
-        }
+        //    return path;
+        //}
         #endregion "Painting"
 
         #endregion "Drawing Methods"
@@ -2650,7 +2653,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 int offsetY = -2;
                 badgeRect.Offset(offsetX, offsetY);
 
-                using (GraphicsPath path = GetRoundedRectanglePath(badgeRect, badgeRect.Height / 2))
+                using (GraphicsPath path = GetRoundedRectPath(badgeRect, badgeRect.Height / 2))
                 {
                     using (SolidBrush brush = new SolidBrush(BadgeBackColor))
                     {

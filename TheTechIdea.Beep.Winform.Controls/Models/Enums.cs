@@ -60,13 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         Checked,
         Indeterminate
     }
-    public enum TextAlignment
-    {
-        Right,
-        Left,
-        Above,
-        Below
-    }
+   
     public enum CheckMarkShape
     {
         Square,

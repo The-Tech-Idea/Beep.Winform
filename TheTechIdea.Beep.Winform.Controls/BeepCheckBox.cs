@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Report;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -208,72 +209,90 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => base.TabStop;
             set => base.TabStop = value;
         }
-
+        private bool _autoSize = false;
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Automatically resize the control based on the text and image size.")]
+        public override bool AutoSize
+        {
+            get => _autoSize;
+            set
+            {
+                _autoSize = value;
+                if (_autoSize)
+                {
+                    // Immediately recalc once
+                    this.Size = GetPreferredSize(Size.Empty);
+                }
+                Invalidate();
+            }
+        }
         #endregion
         #endregion
         #region Methods
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            AdjustSize(); // Call directly, no need for recursion flag if we avoid recursive property sets
-        }
-        private void AdjustSize()
-        {
-            bool hasText = !HideText && !string.IsNullOrEmpty(Text);
-            Size textSize = hasText ? TextRenderer.MeasureText(Text, Font) : Size.Empty;
-            int checkBoxSize = CheckBoxSize;
+        //protected override void OnResize(EventArgs e)
+        //{
+        //    base.OnResize(e);
+        //    UpdateDrawingRect();
+        //    AdjustSize(); // Call directly, no need for recursion flag if we avoid recursive property sets
+        //}
+        //private void AdjustSize()
+        //{
+        //    bool hasText = !HideText && !string.IsNullOrEmpty(Text);
+        //    Size textSize = hasText ? TextRenderer.MeasureText(Text, Font) : Size.Empty;
+        //    int checkBoxSize = CheckBoxSize;
 
-            int newWidth, newHeight;
+        //    int newWidth, newHeight;
 
-            if (!hasText)
-            {
-                // Center checkbox, minimal size
-                newWidth = Padding.Left + checkBoxSize + Padding.Right;
-                newHeight = Padding.Top + checkBoxSize + Padding.Bottom;
-            }
-            else
-            {
-                switch (TextAlignRelativeToCheckBox)
-                {
-                    case TextAlignment.Right: // Text right, checkbox left
-                        newWidth = Padding.Left + checkBoxSize + Spacing + textSize.Width + Padding.Right;
-                        newHeight = Padding.Top + Math.Max(checkBoxSize, textSize.Height) + Padding.Bottom;
-                        break;
+        //    if (!hasText)
+        //    {
+        //        // Center checkbox, minimal size
+        //        newWidth = Padding.Left + checkBoxSize + Padding.Right;
+        //        newHeight = Padding.Top + checkBoxSize + Padding.Bottom;
+        //    }
+        //    else
+        //    {
+        //        switch (TextAlignRelativeToCheckBox)
+        //        {
+        //            case TextAlignment.Right: // Text right, checkbox left
+        //                newWidth = Padding.Left + checkBoxSize + Spacing + textSize.Width + Padding.Right;
+        //                newHeight = Padding.Top + Math.Max(checkBoxSize, textSize.Height) + Padding.Bottom;
+        //                break;
 
-                    case TextAlignment.Left: // Text left, checkbox right
-                        newWidth = Padding.Left + textSize.Width + Spacing + checkBoxSize + Padding.Right;
-                        newHeight = Padding.Top + Math.Max(checkBoxSize, textSize.Height) + Padding.Bottom;
-                        break;
+        //            case TextAlignment.Left: // Text left, checkbox right
+        //                newWidth = Padding.Left + textSize.Width + Spacing + checkBoxSize + Padding.Right;
+        //                newHeight = Padding.Top + Math.Max(checkBoxSize, textSize.Height) + Padding.Bottom;
+        //                break;
 
-                    case TextAlignment.Above: // Text above, checkbox below
-                        newWidth = Padding.Left + Math.Max(checkBoxSize, textSize.Width) + Padding.Right;
-                        newHeight = Padding.Top + textSize.Height + Spacing + checkBoxSize + Padding.Bottom;
-                        break;
+        //            case TextAlignment.Above: // Text above, checkbox below
+        //                newWidth = Padding.Left + Math.Max(checkBoxSize, textSize.Width) + Padding.Right;
+        //                newHeight = Padding.Top + textSize.Height + Spacing + checkBoxSize + Padding.Bottom;
+        //                break;
 
-                    case TextAlignment.Below: // Text below, checkbox above
-                        newWidth = Padding.Left + Math.Max(checkBoxSize, textSize.Width) + Padding.Right;
-                        newHeight = Padding.Top + checkBoxSize + Spacing + textSize.Height + Padding.Bottom;
-                        break;
+        //            case TextAlignment.Below: // Text below, checkbox above
+        //                newWidth = Padding.Left + Math.Max(checkBoxSize, textSize.Width) + Padding.Right;
+        //                newHeight = Padding.Top + checkBoxSize + Spacing + textSize.Height + Padding.Bottom;
+        //                break;
 
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(TextAlignRelativeToCheckBox));
-                }
-            }
+        //            default:
+        //                throw new ArgumentOutOfRangeException(nameof(TextAlignRelativeToCheckBox));
+        //        }
+        //    }
 
-            // Only set size if different to avoid unnecessary recursion
-            if (Width != newWidth || Height != newHeight)
-            {
-                Width = Math.Max(Width, newWidth); // Preserve larger width if set externally
-                Height = Math.Max(Height, newHeight); // Preserve larger height if set externally
-            }
+        //    //// Only set size if different to avoid unnecessary recursion
+        //    //if (Width != newWidth || Height != newHeight)
+        //    //{
+        //    //    Width = Math.Max(Width, newWidth); // Preserve larger width if set externally
+        //    //    Height = Math.Max(Height, newHeight); // Preserve larger height if set externally
+        //    //}
 
-            // No need for Invalidate here; OnResize already triggers a repaint
-        }
+        //    // No need for Invalidate here; OnResize already triggers a repaint
+        //}
         protected override void OnTextChanged(EventArgs e)
         {
             base.OnTextChanged(e);
             // Force a layout update when the text changes.
-            OnResize(EventArgs.Empty);
+           // OnResize(EventArgs.Empty);
         }
         private void UpdateCurrentValue()
         {
@@ -331,28 +350,51 @@ namespace TheTechIdea.Beep.Winform.Controls
             graphics.CompositingQuality = CompositingQuality.HighQuality;
             graphics.ResetTransform();
 
-          //  Debug.WriteLine($"Draw called: Rectangle = {rectangle}, State = {_state}, CurrentValue = {_currentValue}, TextAlign = {_textAlignRelativeToCheckBox}");
-
             if (_currentTheme == null)
             {
-            //    Debug.WriteLine("Theme is null, using fallback colors");
-               // _currentTheme = new Theme(); // Replace with your theme class or a default instance
+                // Ensure a default theme is set to avoid null reference
+                _currentTheme = BeepThemesManager.DefaultTheme; // Use the default theme from BeepThemesManager
             }
 
             Rectangle checkBoxRect;
             Rectangle textRect = Rectangle.Empty;
-            bool hasText = !HideText || !string.IsNullOrEmpty(Text);
+            bool hasText = !HideText && !string.IsNullOrEmpty(Text);
 
             // Calculate sizes
             int checkBoxSize = Math.Min(CheckBoxSize, Math.Min(rectangle.Width - Padding.Horizontal, rectangle.Height - Padding.Vertical));
             Size textSize = hasText ? TextRenderer.MeasureText(Text, Font) : Size.Empty;
 
+            // Calculate the combined bounding box for checkbox and text
+            Size combinedSize;
+            switch (_textAlignRelativeToCheckBox)
+            {
+                case TextAlignment.Right:
+                case TextAlignment.Left:
+                    combinedSize = new Size(
+                        checkBoxSize + (hasText ? Spacing + textSize.Width : 0),
+                        Math.Max(checkBoxSize, hasText ? textSize.Height : 0)
+                    );
+                    break;
+                case TextAlignment.Above:
+                case TextAlignment.Below:
+                    combinedSize = new Size(
+                        Math.Max(checkBoxSize, hasText ? textSize.Width : 0),
+                        checkBoxSize + (hasText ? Spacing + textSize.Height : 0)
+                    );
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(_textAlignRelativeToCheckBox));
+            }
+
+            // Center the combined bounding box within the rectangle
+            int combinedX = rectangle.X + (rectangle.Width - combinedSize.Width) / 2;
+            int combinedY = rectangle.Y + (rectangle.Height - combinedSize.Height) / 2;
+
+            // Position checkbox and text within the centered combined bounding box
             if (!hasText)
             {
                 // Center checkbox when no text
-                int centerX = rectangle.X + (rectangle.Width - checkBoxSize) / 2;
-                int centerY = rectangle.Y + (rectangle.Height - checkBoxSize) / 2;
-                checkBoxRect = new Rectangle(centerX, centerY, checkBoxSize, checkBoxSize);
+                checkBoxRect = new Rectangle(combinedX, combinedY, checkBoxSize, checkBoxSize);
             }
             else
             {
@@ -360,49 +402,43 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     case TextAlignment.Right: // Text right, checkbox left
                         checkBoxRect = new Rectangle(
-                            rectangle.X + Padding.Left,
-                            rectangle.Y + Padding.Top,
+                            combinedX,
+                            combinedY + (combinedSize.Height - checkBoxSize) / 2, // Center vertically within combined height
                             checkBoxSize,
                             checkBoxSize
                         );
                         textRect = new Rectangle(
                             checkBoxRect.Right + Spacing,
-                            rectangle.Y + (rectangle.Height - textSize.Height) / 2,
-                            rectangle.Width - (checkBoxRect.Right - rectangle.X) - Padding.Right,
+                            combinedY + (combinedSize.Height - textSize.Height) / 2,
+                            textSize.Width,
                             textSize.Height
                         );
                         break;
 
                     case TextAlignment.Left: // Text left, checkbox right
                         textRect = new Rectangle(
-                            rectangle.X + Padding.Left,
-                            rectangle.Y + (rectangle.Height - textSize.Height) / 2,
+                            combinedX,
+                            combinedY + (combinedSize.Height - textSize.Height) / 2,
                             textSize.Width,
                             textSize.Height
                         );
                         checkBoxRect = new Rectangle(
                             textRect.Right + Spacing,
-                            rectangle.Y + Padding.Top,
+                            combinedY + (combinedSize.Height - checkBoxSize) / 2,
                             checkBoxSize,
                             checkBoxSize
                         );
-                        // Adjust if checkbox exceeds bounds
-                        if (checkBoxRect.Right > rectangle.Right - Padding.Right)
-                        {
-                            checkBoxRect.X = rectangle.Right - Padding.Right - checkBoxSize;
-                            textRect.Width = checkBoxRect.X - Spacing - textRect.X;
-                        }
                         break;
 
                     case TextAlignment.Above: // Text above, checkbox below
                         textRect = new Rectangle(
-                            rectangle.X + Padding.Left,
-                            rectangle.Y + Padding.Top,
-                            rectangle.Width - Padding.Horizontal,
+                            combinedX + (combinedSize.Width - textSize.Width) / 2, // Center text horizontally
+                            combinedY,
+                            textSize.Width,
                             textSize.Height
                         );
                         checkBoxRect = new Rectangle(
-                            rectangle.X + (rectangle.Width - checkBoxSize) / 2,
+                            combinedX + (combinedSize.Width - checkBoxSize) / 2, // Center checkbox horizontally
                             textRect.Bottom + Spacing,
                             checkBoxSize,
                             checkBoxSize
@@ -411,15 +447,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     case TextAlignment.Below: // Text below, checkbox above
                         checkBoxRect = new Rectangle(
-                            rectangle.X + (rectangle.Width - checkBoxSize) / 2,
-                            rectangle.Y + Padding.Top,
+                            combinedX + (combinedSize.Width - checkBoxSize) / 2, // Center checkbox horizontally
+                            combinedY,
                             checkBoxSize,
                             checkBoxSize
                         );
                         textRect = new Rectangle(
-                            rectangle.X + Padding.Left,
+                            combinedX + (combinedSize.Width - textSize.Width) / 2, // Center text horizontally
                             checkBoxRect.Bottom + Spacing,
-                            rectangle.Width - Padding.Horizontal,
+                            textSize.Width,
                             textSize.Height
                         );
                         break;
@@ -429,24 +465,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-         //   Debug.WriteLine($"CheckBoxRect = {checkBoxRect}");
-          //  if (hasText)
-           //     Debug.WriteLine($"TextRect = {textRect}");
-
             // Draw background
             Color backColor = _state == CheckBoxState.Checked ? Color.LightGreen :
                              (_state == CheckBoxState.Indeterminate ? Color.Yellow : Color.White);
             using (Brush backBrush = new SolidBrush(backColor))
             {
-                graphics.FillRectangle(backBrush, checkBoxRect);
-           //     Debug.WriteLine($"Filled background with {backColor}");
+                using (GraphicsPath path = GetRoundedRectPath(checkBoxRect, 4)) // Add rounded corners with radius 4
+                {
+                    graphics.FillPath(backBrush, path);
+                }
             }
 
-            // Draw border
+            // Draw border with rounded corners
             using (Pen borderPen = new Pen(_currentTheme.BorderColor, 2))
             {
-                graphics.DrawRectangle(borderPen, checkBoxRect);
-            //    Debug.WriteLine("Drew border");
+                borderPen.Alignment = PenAlignment.Center; // Use Center to ensure full rounded corners
+                using (GraphicsPath path = GetRoundedRectPath(checkBoxRect, 4)) // Same radius as background
+                {
+                    graphics.DrawPath(borderPen, path);
+                }
             }
 
             // Draw state-specific mark
@@ -454,28 +491,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 case CheckBoxState.Checked:
                     DrawCheckMark(graphics, checkBoxRect);
-             //       Debug.WriteLine("Drew checkmark");
                     break;
                 case CheckBoxState.Indeterminate:
                     DrawIndeterminateMark(graphics, checkBoxRect);
-               //     Debug.WriteLine("Drew indeterminate mark");
                     break;
                 case CheckBoxState.Unchecked:
                     DrawUnChecked(graphics, checkBoxRect);
-                //    Debug.WriteLine("Drew unchecked outline");
                     break;
             }
 
             // Draw text if present
             if (hasText)
             {
-                DrawAlignedText(graphics, Text, Font,_currentTheme.AccentTextColor, textRect);
-            //    Debug.WriteLine($"Drew text '{Text}' at {textRect}");
+                DrawAlignedText(graphics, Text, Font, _currentTheme.AccentTextColor, textRect);
             }
 
-            // Test drawing (optional, remove once confirmed)
-            graphics.DrawEllipse(Pens.Red, checkBoxRect);
-          //  Debug.WriteLine("Drew test red ellipse");
+            // Optional: Remove test drawing once confirmed
+            // graphics.DrawEllipse(Pens.Red, checkBoxRect);
         }
         protected override void OnPaint(PaintEventArgs pe)
         {
@@ -540,6 +572,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 g.DrawRectangle(pen, bounds);
               //  Debug.WriteLine("DrawUnChecked: Drew outline");
             }
+        }
+        public override Size GetPreferredSize(Size proposedSize)
+        {
+            bool hasText = !HideText && !string.IsNullOrEmpty(Text);
+            Size textSize = hasText ? TextRenderer.MeasureText(Text, Font) : Size.Empty;
+            int checkBoxSize = CheckBoxSize;
+
+            int width = Padding.Left + checkBoxSize + (hasText ? Spacing + textSize.Width : 0) + Padding.Right;
+            int height = Padding.Top + Math.Max(checkBoxSize, hasText ? textSize.Height : 0) + Padding.Bottom;
+
+            return new Size(Math.Max(width, 100), Math.Max(height, 30)); // Minimum size to prevent collapse
         }
         #endregion
         #region IBeepComponent Implementation

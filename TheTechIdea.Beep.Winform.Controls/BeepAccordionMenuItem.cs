@@ -10,7 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Editors;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    [Browsable(false)]
+    [ToolboxItem(false)]
     public class BeepAccordionMenuItem : BeepControl
     {
         private Panel buttonRowPanel;

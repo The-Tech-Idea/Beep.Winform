@@ -267,7 +267,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-       
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("The Text  represent for the control.")]
+        public override string Text
+        {
+            get => _text;
+            set
+            {
+                _text = value;
+                _isControlinvalidated = true;
+                _innerTextBox.Text = value;
+                Invalidate();  // Trigger repaint when the text changes
+            }
+        }
         #region "Format and Masking"
         [Browsable(true)]
         [Category("Behavior")]

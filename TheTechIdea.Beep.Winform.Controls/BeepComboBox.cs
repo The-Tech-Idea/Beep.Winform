@@ -30,9 +30,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler PopupClosed;
         private BeepTextBox _comboTextBox;
         private BeepButton _dropDownButton;
-        private BeepListBox _beepListBox;
+        private BeepPopupListForm _beepListBox;
         private bool _isExpanded;
-
+        private SimpleItem _selectedItem;
+        private int _selectedItemIndex=-1;
         private int _collapsedHeight = 0;
         private int _buttonWidth = 25;
         private int _maxListHeight = 200;
@@ -42,14 +43,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         // If you like, define a min or max width
         private int _minWidth = 80;
 
-
-
+        private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
         public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
         protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
         {
             SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
         }
-
         // Delegate beepListBox CurrentMenutems
         [Browsable(true)]
         [Localizable(true)]
@@ -57,73 +56,40 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public BindingList<SimpleItem> ListItems
         {
-            get => _beepListBox.ListItems;
+            get => _listItems;
             set
             {
+                _listItems = value;
                 _beepListBox.ListItems = value;
-                _beepListBox.InitializeMenu();
             }
+
         }
         public SimpleItem SelectedItem
         {
-            get => _beepListBox.SelectedItem;
+            get => _selectedItem;
             set
             {
-                if (value == null)
-                {
-                    // Reset case: clear selection
-                    _beepListBox.SelectedItem = null;
-                    _beepListBox.SelectedIndex = -1; // Ensure no item is selected
-                    _comboTextBox.Text = string.Empty; // Clear the text display
-                    OnSelectedItemChanged(null); // Notify listeners of reset
-                }
-                else if (_beepListBox.ListItems != null && _beepListBox.ListItems.Count > 0)
-                {
-                    // Set to a valid item
-                    int index = _beepListBox.ListItems.IndexOf(value);
-                    if (index >= 0)
-                    {
-                        _beepListBox.SelectedItem = value;
-                        SelectedIndex = index; // This will update text and raise event
-                    }
-                    // If value isn't in the list, do nothing or optionally add it
-                }
-                Invalidate(); // Ensure redraw in grid
+                if (value == null) return;
+                _selectedItem = value;
+
+             
+                _selectedItemIndex = _listItems.IndexOf(_selectedItem);
+                _comboTextBox.Text = value.Text;
+                OnSelectedItemChanged(_selectedItem); //
             }
         }
 
         [Browsable(false)]
         public int SelectedIndex
         {
-            get => _beepListBox.SelectedIndex;
+            get => _selectedItemIndex;
             set
             {
-                if (_beepListBox.ListItems == null || _beepListBox.ListItems.Count == 0)
+                if (value >= 0 && value < _listItems.Count)
                 {
-                    _beepListBox.SelectedIndex = -1;
-                    _comboTextBox.Text = string.Empty;
-                    _beepListBox.SelectedItem = null;
-                    OnSelectedItemChanged(null);
+                    SelectedItem = _listItems[value];
+                   
                 }
-                else if (value >= -1 && value < _beepListBox.ListItems.Count)
-                {
-                    _beepListBox.SelectedIndex = value;
-                    if (value == -1)
-                    {
-                        // Reset case
-                        _beepListBox.SelectedItem = null;
-                        _comboTextBox.Text = string.Empty;
-                        OnSelectedItemChanged(null);
-                    }
-                    else
-                    {
-                        // Valid selection
-                        _beepListBox.SelectedItem = _beepListBox.ListItems[value];
-                        _comboTextBox.Text = _beepListBox.ListItems[value].Text;
-                        OnSelectedItemChanged(_beepListBox.SelectedItem);
-                    }
-                }
-                Invalidate(); // Ensure redraw in grid
             }
         }
         [Browsable(true)]
@@ -146,16 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls
              
             }
         }
-        private BeepPopupFormPosition _beepPopupFormPosition = BeepPopupFormPosition.Bottom;
-        [Browsable(true)]
-        [Category("Appearance")]
-
-        public BeepPopupFormPosition PopPosition
-        {
-            get { return _beepPopupFormPosition; }
-            set { _beepPopupFormPosition = value; }
-
-        }
+     
         public DbFieldCategory Category { get; set; } = DbFieldCategory.Numeric;
 
         public BeepComboBox()
@@ -201,24 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(_dropDownButton);
             SetDropDownButtonImage();
             // 4) Create beepListBox
-            _beepListBox = new BeepListBox
-            {
-                IsChild = false,
-                Visible = false,
-                ShowAllBorders = false,
-                ShowShadow = false,
-                IsBorderAffectedByTheme = false,
-                IsRoundedAffectedByTheme = false,
-                ImageSize =  20,
-                ShowTitle= false,
-            };
-            _beepListBox.ItemClicked += (sender, item) =>
-            {
-                _comboTextBox.Text = item.Text;
-                SelectedIndex = _beepListBox.ListItems.IndexOf(item);
-                Collapse();
-            };
-            Controls.Add(_beepListBox);
+          
 
             // Theming, etc.
             ApplyTheme();
@@ -490,7 +430,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             menuDialog.Theme = Theme;
 
             menuDialog.SelectedItemChanged += MenuDialog_SelectedItemChanged;
-            SimpleItem x = menuDialog.ShowPopup(Text, this, _beepPopupFormPosition);
+            SimpleItem x = menuDialog.ShowPopup(Text, this, BeepPopupFormPosition.Bottom);
             _isPopupOpen = true;
             PopupOpened?.Invoke(this, EventArgs.Empty);
         }
@@ -498,8 +438,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void MenuDialog_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
             SelectedItem = e.SelectedItem;
-            _comboTextBox.Text = e.SelectedItem.Text;
-            OnSelectedItemChanged(e.SelectedItem);
+     //       _comboTextBox.Text = e.SelectedItem.Text;
+        //    OnSelectedItemChanged(e.SelectedItem);
             ClosePopup();
         }
         public void ClosePopup()
@@ -523,67 +463,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Parent.Resize += (s, ev) => Invalidate();
             }
         }
-        //protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        //{
-        //    if (keyData == Keys.Enter && _isPopupOpen)
-        //    {
-        //        if (_beepListBox.SelectedItem != null)
-        //        {
-        //            MenuDialog_SelectedItemChanged(this,
-        //                new SelectedItemChangedEventArgs(_beepListBox.SelectedItem));
-        //        }
-        //        return true;
-        //    }
-        //    else if (keyData == Keys.Down && !_isPopupOpen)
-        //    {
-        //        ToggleMenu();
-        //        return true;
-        //    }
-        //    if(keyData == Keys.Escape && _isPopupOpen)
-        //    {
-        //        ClosePopup();
-        //        return true;
-        //    }
-        //    if(keyData==Keys.Tab && _isPopupOpen)
-        //    {
-        //        ClosePopup();
-        //        return true;
-        //    }
-        //    if(keyData == Keys.Tab && !_isPopupOpen)
-        //    {
-              
-        //        return false;
-        //    }
-        //    return base.ProcessCmdKey(ref msg, keyData);
-        //}
-        //#region Keyboard Event Handlers
-       
-
-        //// Provide visual feedback when the control receives focus
-        //protected override void OnGotFocus(EventArgs e)
-        //{
-        //    base.OnGotFocus(e);
-        //    Invalidate(); // Redraw to show focus indication
-        //}
-
-        //protected override void OnLostFocus(EventArgs e)
-        //{
-        //    base.OnLostFocus(e);
-        //    Invalidate(); // Redraw to remove focus indication
-        //}
-
-        //// Optional: Handle arrow keys or other navigation if desired
-        //protected override bool IsInputKey(Keys keyData)
-        //{
-        //    // Allow arrow keys and other navigation keys to be processed
-        //    if (keyData == Keys.Up || keyData == Keys.Down || keyData == Keys.Left || keyData == Keys.Right)
-        //    {
-        //        return true;
-        //    }
-        //    return base.IsInputKey(keyData);
-        //}
-        //#endregion
-        protected override void Dispose(bool disposing)
+       protected override void Dispose(bool disposing)
         {
             if (disposing)
             {

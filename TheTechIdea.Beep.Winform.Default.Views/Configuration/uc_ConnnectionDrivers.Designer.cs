@@ -36,7 +36,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             DataBase.EntityStructure entityStructure1 = new DataBase.EntityStructure();
             driversConfigViewModelBindingSource = new BindingSource(components);
             beepSimpleGrid1 = new TheTechIdea.Beep.Winform.Controls.BeepSimpleGrid();
-            beepBindingNavigator1 = new TheTechIdea.Beep.Winform.Controls.BeepBindingNavigator();
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).BeginInit();
             SuspendLayout();
             // 
@@ -75,7 +74,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.Columns = (List<BeepColumnConfig>)resources.GetObject("beepSimpleGrid1.Columns");
             beepSimpleGrid1.ComponentName = "beepSimpleGrid1";
             beepSimpleGrid1.DataContext = null;
-            beepSimpleGrid1.DataNavigator = beepBindingNavigator1;
             beepSimpleGrid1.DataSource = driversConfigViewModelBindingSource;
             beepSimpleGrid1.DataSourceProperty = null;
             beepSimpleGrid1.DataSourceType = Winform.Controls.Models.GridDataSourceType.Fixed;
@@ -83,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.DisabledBackColor = Color.Gray;
             beepSimpleGrid1.DisabledForeColor = Color.Empty;
             beepSimpleGrid1.Dock = DockStyle.Fill;
-            beepSimpleGrid1.DrawingRect = new Rectangle(1, 1, 1030, 658);
+            beepSimpleGrid1.DrawingRect = new Rectangle(1, 1, 1030, 681);
             beepSimpleGrid1.Easing = Winform.Controls.EasingType.Linear;
             entityStructure1.Caption = null;
             entityStructure1.Category = null;
@@ -199,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ShowTopBorder = true;
             beepSimpleGrid1.ShowVerticalGridLines = true;
             beepSimpleGrid1.ShowVerticalScrollBar = true;
-            beepSimpleGrid1.Size = new Size(1032, 660);
+            beepSimpleGrid1.Size = new Size(1032, 683);
             beepSimpleGrid1.SlideFrom = Winform.Controls.SlideDirection.Left;
             beepSimpleGrid1.StaticNotMoving = false;
             beepSimpleGrid1.TabIndex = 0;
@@ -217,124 +215,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.UseThemeFont = true;
             beepSimpleGrid1.XOffset = 0;
             // 
-            // beepBindingNavigator1
-            // 
-            beepBindingNavigator1.ActiveBackColor = Color.Gray;
-            beepBindingNavigator1.AnimationDuration = 500;
-            beepBindingNavigator1.AnimationType = Winform.Controls.DisplayAnimationType.None;
-            beepBindingNavigator1.ApplyThemeToChilds = false;
-            beepBindingNavigator1.BadgeBackColor = Color.Red;
-            beepBindingNavigator1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
-            beepBindingNavigator1.BadgeForeColor = Color.White;
-            beepBindingNavigator1.BadgeShape = Winform.Controls.BadgeShape.Circle;
-            beepBindingNavigator1.BadgeText = "";
-            beepBindingNavigator1.BlockID = null;
-            beepBindingNavigator1.BorderColor = Color.Black;
-            beepBindingNavigator1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            beepBindingNavigator1.BorderRadius = 3;
-            beepBindingNavigator1.BorderStyle = BorderStyle.FixedSingle;
-            beepBindingNavigator1.BorderThickness = 1;
-            beepBindingNavigator1.BottomoffsetForDrawingRect = 0;
-            beepBindingNavigator1.BoundProperty = null;
-            beepBindingNavigator1.ButtonBorderSize = 0;
-            beepBindingNavigator1.CanBeFocused = true;
-            beepBindingNavigator1.CanBeHovered = false;
-            beepBindingNavigator1.CanBePressed = true;
-            beepBindingNavigator1.Category = Utilities.DbFieldCategory.String;
-            beepBindingNavigator1.ComponentName = "beepBindingNavigator1";
-            beepBindingNavigator1.ControlHeight = 30;
-            beepBindingNavigator1.DataContext = null;
-            beepBindingNavigator1.DataSource = null;
-            beepBindingNavigator1.DataSourceProperty = null;
-            beepBindingNavigator1.DisabledBackColor = Color.Gray;
-            beepBindingNavigator1.DisabledForeColor = Color.Empty;
-            beepBindingNavigator1.DMEEditor = null;
-            beepBindingNavigator1.Dock = DockStyle.Bottom;
-            beepBindingNavigator1.DrawingRect = new Rectangle(1, 1, 1030, 21);
-            beepBindingNavigator1.Easing = Winform.Controls.EasingType.Linear;
-            beepBindingNavigator1.FieldID = null;
-            beepBindingNavigator1.FocusBackColor = Color.Gray;
-            beepBindingNavigator1.FocusBorderColor = Color.Gray;
-            beepBindingNavigator1.FocusForeColor = Color.Black;
-            beepBindingNavigator1.FocusIndicatorColor = Color.Blue;
-            beepBindingNavigator1.Form = null;
-            beepBindingNavigator1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepBindingNavigator1.GradientEndColor = Color.Gray;
-            beepBindingNavigator1.GradientStartColor = Color.Gray;
-            beepBindingNavigator1.GuidID = "e02342ed-f4b5-4663-b5cc-46cf61711e9a";
-            beepBindingNavigator1.HoverBackColor = Color.Gray;
-            beepBindingNavigator1.HoverBorderColor = Color.Gray;
-            beepBindingNavigator1.HoveredBackcolor = Color.Wheat;
-            beepBindingNavigator1.HoverForeColor = Color.Black;
-            beepBindingNavigator1.Id = -1;
-            beepBindingNavigator1.InactiveBackColor = Color.Gray;
-            beepBindingNavigator1.InactiveBorderColor = Color.Gray;
-            beepBindingNavigator1.InactiveForeColor = Color.Black;
-            beepBindingNavigator1.Info = (SimpleItem)resources.GetObject("beepBindingNavigator1.Info");
-            beepBindingNavigator1.IsAcceptButton = false;
-            beepBindingNavigator1.IsBorderAffectedByTheme = true;
-            beepBindingNavigator1.IsCancelButton = false;
-            beepBindingNavigator1.IsChild = false;
-            beepBindingNavigator1.IsCustomeBorder = false;
-            beepBindingNavigator1.IsDefault = false;
-            beepBindingNavigator1.IsDeleted = false;
-            beepBindingNavigator1.IsDirty = false;
-            beepBindingNavigator1.IsEditable = false;
-            beepBindingNavigator1.IsFocused = false;
-            beepBindingNavigator1.IsFrameless = false;
-            beepBindingNavigator1.IsHovered = false;
-            beepBindingNavigator1.IsNew = false;
-            beepBindingNavigator1.IsPressed = false;
-            beepBindingNavigator1.IsReadOnly = false;
-            beepBindingNavigator1.IsRequired = false;
-            beepBindingNavigator1.IsRounded = false;
-            beepBindingNavigator1.IsRoundedAffectedByTheme = true;
-            beepBindingNavigator1.IsSelected = false;
-            beepBindingNavigator1.IsShadowAffectedByTheme = true;
-            beepBindingNavigator1.IsVisible = false;
-            beepBindingNavigator1.Items = (List<object>)resources.GetObject("beepBindingNavigator1.Items");
-            beepBindingNavigator1.LeftoffsetForDrawingRect = 0;
-            beepBindingNavigator1.LinkedProperty = null;
-            beepBindingNavigator1.Location = new Point(0, 660);
-            beepBindingNavigator1.Name = "beepBindingNavigator1";
-            beepBindingNavigator1.OverrideFontSize = Winform.Controls.TypeStyleFontSize.None;
-            beepBindingNavigator1.ParentBackColor = Color.Empty;
-            beepBindingNavigator1.ParentControl = null;
-            beepBindingNavigator1.PressedBackColor = Color.Gray;
-            beepBindingNavigator1.PressedBorderColor = Color.Gray;
-            beepBindingNavigator1.PressedForeColor = Color.Black;
-            beepBindingNavigator1.RightoffsetForDrawingRect = 0;
-            beepBindingNavigator1.SavedGuidID = null;
-            beepBindingNavigator1.SavedID = null;
-            beepBindingNavigator1.ShadowColor = Color.Black;
-            beepBindingNavigator1.ShadowOffset = 0;
-            beepBindingNavigator1.ShadowOpacity = 0.5F;
-            beepBindingNavigator1.ShowAllBorders = true;
-            beepBindingNavigator1.ShowBottomBorder = true;
-            beepBindingNavigator1.ShowFocusIndicator = false;
-            beepBindingNavigator1.ShowLeftBorder = true;
-            beepBindingNavigator1.ShowRightBorder = true;
-            beepBindingNavigator1.ShowShadow = false;
-            beepBindingNavigator1.ShowTopBorder = true;
-            beepBindingNavigator1.Size = new Size(1032, 23);
-            beepBindingNavigator1.SlideFrom = Winform.Controls.SlideDirection.Left;
-            beepBindingNavigator1.StaticNotMoving = false;
-            beepBindingNavigator1.TabIndex = 1;
-            beepBindingNavigator1.TempBackColor = Color.Empty;
-            beepBindingNavigator1.Text = "beepBindingNavigator1";
-            beepBindingNavigator1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
-            beepBindingNavigator1.ToolTipText = "";
-            beepBindingNavigator1.TopoffsetForDrawingRect = 0;
-            beepBindingNavigator1.UseGradientBackground = false;
-            beepBindingNavigator1.UseThemeFont = true;
-            beepBindingNavigator1.VerifyDelete = true;
-            // 
             // uc_ConnnectionDrivers
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(beepSimpleGrid1);
-            Controls.Add(beepBindingNavigator1);
             Name = "uc_ConnnectionDrivers";
             Size = new Size(1032, 683);
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).EndInit();
@@ -344,6 +229,5 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         #endregion
         private BindingSource driversConfigViewModelBindingSource;
         private Controls.BeepSimpleGrid beepSimpleGrid1;
-        private Controls.BeepBindingNavigator beepBindingNavigator1;
     }
 }

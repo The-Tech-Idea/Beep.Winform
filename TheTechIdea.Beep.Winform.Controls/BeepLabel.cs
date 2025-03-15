@@ -200,24 +200,25 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
         }
-        private bool _autoSize = false;
-        [Browsable(true)]
-        [Category("Layout")]
-        [Description("Automatically resize the control based on the text and image size.")]
-        public bool AutoSize
-        {
-            get => _autoSize;
-            set
-            {
-                _autoSize = value;
-                if (value)
-                {
-                    Size textSize = TextRenderer.MeasureText(Text, _textFont);
-                    this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
-                }
-                Invalidate(); // Repaint on change
-            }
-        }
+        //private bool _autoSize = false;
+        //[Browsable(true)]
+        //[Category("Layout")]
+        //[Description("Automatically resize the control based on the text and image size.")]
+        //public bool AutoSize
+        //{
+        //    get => _autoSize;
+        //    set
+        //    {
+        //        _autoSize = value;
+        //        if (_autoSize)
+        //        {
+        //            // Immediately recalc once
+        //            this.Size = GetPreferredSize(Size.Empty);
+        //        }
+        //        Invalidate();
+        //    }
+        //}
+
         #endregion "Properties"
         #region "Constructors"
         public BeepLabel():base()
@@ -305,6 +306,20 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Constructors"
         #region "Painting"
+        protected override void OnTextChanged(EventArgs e)
+        {
+            base.OnTextChanged(e);
+
+            // If AutoSize is enabled, recalc whenever text changes
+            if (AutoSize)
+            {
+                Size newPreferred = GetPreferredSize(Size.Empty);
+                this.Size = newPreferred;
+            }
+
+            Invalidate();
+        }
+
         private void InitializeComponents()
         {
 

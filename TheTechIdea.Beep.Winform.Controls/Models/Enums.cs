@@ -6,6 +6,15 @@ using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Winform.Controls.Models
 {
+    public enum TestimonialViewType
+    {
+        Classic,    // Default testimonial with image on left
+        Minimal,    // Centered layout with company logo
+        Compact,    // Smallest version, reduced padding
+        SocialCard  // New modern social media-style testimonial
+    }
+
+
     public enum DateFormatStyle
     {
         ShortDate,        // "MM/dd/yyyy"

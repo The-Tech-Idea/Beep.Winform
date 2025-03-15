@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls
       
         #region "Popup List Properties"
         private BeepPopupForm _popupForm;
-        private BeepListBox _beepListBox;
+
         private bool _isPopupOpen;
         private bool _popupmode = false;
         private int _maxListHeight = 100;
@@ -66,38 +66,44 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _popupmode = value;
             }
         }
+
+        private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
+
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public BindingList<SimpleItem> ListItems
         {
-            get => _beepListBox.ListItems;
-            set => _beepListBox.ListItems = value;
+            get => _listItems;
+            set => _listItems = value;
         }
         // The item currently chosen by the user
         private SimpleItem _selectedItem;
+        private int _selectedItemIndex;
         public SimpleItem SelectedItem
         {
             get => _selectedItem;
              set
             {
-
-                    _selectedItem = value;
-                    OnSelectedItemChanged(_selectedItem); //
+                _selectedItem = value;
+                _selectedItemIndex = _listItems.IndexOf(_selectedItem);
+                OnSelectedItemChanged(_selectedItem); //
+             
 
             }
         }
         [Browsable(false)]
         public int SelectedIndex
         {
-            get => _beepListBox.SelectedIndex;
+            get => _selectedItemIndex;
             set
             {
-                if (value >= 0 && value < _beepListBox.ListItems.Count)
+                if (value == null) return;
+                if (value >= 0 && value < _listItems.Count)
                 {
-                    _beepListBox.SelectedIndex = value;
-                    SelectedItem = _beepListBox.ListItems[value];
+                    SelectedItem = _listItems[value];
+
                 }
             }
         }
@@ -476,31 +482,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             Padding = new Padding(0);
             Margin = new Padding(0);
        
-            InitListbox();
+          //  InitListbox();
                                        //  Controls.Add(beepImage);
         }
-        private void InitListbox()
-        {
-            // Rebuild beepListBox's layout
-            _beepListBox = new BeepListBox
-            {
-                TitleText = "Select an item",
-                ShowTitle = false,
-                ShowTitleLine = false,
-                Width = _maxListWidth,
-                Height = _maxListHeight,
-                ShowAllBorders = false,
-                IsBorderAffectedByTheme = false,
-                IsRoundedAffectedByTheme = false,
-                IsShadowAffectedByTheme = false,
-
-            };
-            _beepListBox.ItemClicked += (sender, item) =>
-            {
-                SelectedItem = item;
-                ClosePopup();
-            };
-        }
+       
         #endregion "Constructor"
         #region "Popup List Methods"
         BeepPopupListForm menuDialog;
@@ -562,7 +547,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
            
 
-            if (_beepListBox != null)   _beepListBox.Theme = Theme;
+          //  if (_beepListBox != null)   _beepListBox.Theme = Theme;
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);

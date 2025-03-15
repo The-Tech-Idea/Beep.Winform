@@ -1217,7 +1217,7 @@
             SelectFromListComboBox.OverrideFontSize = TypeStyleFontSize.None;
             SelectFromListComboBox.ParentBackColor = Color.Empty;
             SelectFromListComboBox.ParentControl = null;
-            SelectFromListComboBox.PopPosition = Vis.Modules.BeepPopupFormPosition.Bottom;
+          
             SelectFromListComboBox.PressedBackColor = Color.FromArgb(0, 120, 215);
             SelectFromListComboBox.PressedBorderColor = Color.Gray;
             SelectFromListComboBox.PressedForeColor = Color.Black;

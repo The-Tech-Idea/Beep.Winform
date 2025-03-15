@@ -1,8 +1,5 @@
-﻿
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
@@ -15,8 +12,44 @@ namespace TheTechIdea.Beep.Vis.Modules
     public static class BeepThemesManager
     {
 
+        public static Dictionary<EnumBeepThemes, (Color TestimonialBackColor, Color TestimonialTextColor, Color TestimonialNameColor, Color TestimonialDetailsColor, Color TestimonialDateColor, Color TestimonialRatingColor, Color TestimonialStatusColor)> ThemeTestimonialColors =
+    new Dictionary<EnumBeepThemes, (Color, Color, Color, Color, Color, Color, Color)>
+    {
+        { EnumBeepThemes.DefaultTheme, (Color.White, Color.Black, Color.DarkBlue, Color.Gray, Color.DarkGray, Color.Gold, Color.Green) },
+        { EnumBeepThemes.WinterTheme, (Color.WhiteSmoke, Color.SteelBlue, Color.Navy, Color.LightBlue, Color.CadetBlue, Color.Gold, Color.Teal) },
+        { EnumBeepThemes.CandyTheme, (Color.MistyRose, Color.DeepPink, Color.MediumVioletRed, Color.Pink, Color.HotPink, Color.Gold, Color.Magenta) },
+        { EnumBeepThemes.ZenTheme, (Color.Beige, Color.DarkSlateGray, Color.SeaGreen, Color.LightGray, Color.DarkSeaGreen, Color.Gold, Color.Olive) },
+        { EnumBeepThemes.RetroTheme, (Color.Bisque, Color.Brown, Color.SaddleBrown, Color.DarkGoldenrod, Color.Chocolate, Color.Gold, Color.DarkRed) },
+        { EnumBeepThemes.RoyalTheme, (Color.MidnightBlue, Color.LightGoldenrodYellow, Color.Gold, Color.DarkSlateBlue, Color.DarkGoldenrod, Color.Gold, Color.DarkBlue) },
+        { EnumBeepThemes.HighlightTheme, (Color.Yellow, Color.OrangeRed, Color.Red, Color.DarkOrange, Color.Orange, Color.Gold, Color.OrangeRed) },
+        { EnumBeepThemes.DarkTheme, (Color.Black, Color.LightGray, Color.White, Color.SlateGray, Color.Gray, Color.Gold, Color.DarkRed) },
+        { EnumBeepThemes.OceanTheme, (Color.DarkCyan, Color.White, Color.Aqua, Color.Teal, Color.LightSeaGreen, Color.Gold, Color.Cyan) },
+        { EnumBeepThemes.LightTheme, (Color.White, Color.Black, Color.DarkBlue, Color.Gray, Color.LightGray, Color.Gold, Color.DarkGreen) },
+        { EnumBeepThemes.PastelTheme, (Color.LavenderBlush, Color.MediumOrchid, Color.DarkOrchid, Color.Thistle, Color.Plum, Color.Gold, Color.Purple) },
+        { EnumBeepThemes.MidnightTheme, (Color.Black, Color.MidnightBlue, Color.White, Color.DarkSlateGray, Color.DarkBlue, Color.Gold, Color.SteelBlue) },
+        { EnumBeepThemes.SpringTheme, (Color.MediumSpringGreen, Color.ForestGreen, Color.LimeGreen, Color.SeaGreen, Color.Chartreuse, Color.Gold, Color.Green) },
+        { EnumBeepThemes.ForestTheme, (Color.DarkOliveGreen, Color.LightGreen, Color.OliveDrab, Color.ForestGreen, Color.MediumSeaGreen, Color.Gold, Color.DarkGreen) },
+        { EnumBeepThemes.NeonTheme, (Color.Black, Color.Lime, Color.HotPink, Color.DeepPink, Color.YellowGreen, Color.Gold, Color.Cyan) },
+        { EnumBeepThemes.RusticTheme, (Color.SaddleBrown, Color.Chocolate, Color.Tan, Color.Sienna, Color.DarkRed, Color.Gold, Color.Maroon) },
+        { EnumBeepThemes.GalaxyTheme, (Color.DarkSlateBlue, Color.Indigo, Color.MidnightBlue, Color.DarkViolet, Color.MediumPurple, Color.Gold, Color.DeepSkyBlue) },
+        { EnumBeepThemes.DesertTheme, (Color.SandyBrown, Color.Peru, Color.Sienna, Color.Tan, Color.Chocolate, Color.Gold, Color.Brown) },
+        { EnumBeepThemes.VintageTheme, (Color.Bisque, Color.Sienna, Color.Brown, Color.Peru, Color.DarkSlateGray, Color.Gold, Color.DarkRed) },
+        { EnumBeepThemes.ModernDarkTheme, (Color.DarkSlateGray, Color.Gray, Color.White, Color.LightSlateGray, Color.SlateGray, Color.Gold, Color.Black) },
+        { EnumBeepThemes.MaterialDesignTheme, (Color.LightSlateGray, Color.CornflowerBlue, Color.SlateGray, Color.SteelBlue, Color.RoyalBlue, Color.Gold, Color.DodgerBlue) },
+        { EnumBeepThemes.NeumorphismTheme, (Color.WhiteSmoke, Color.DarkGray, Color.LightGray, Color.Gainsboro, Color.Silver, Color.Gold, Color.DimGray) },
+        { EnumBeepThemes.GlassmorphismTheme, (Color.Black, Color.LightSteelBlue, Color.DarkSlateGray, Color.SteelBlue, Color.DodgerBlue, Color.Gold, Color.White) },
+        { EnumBeepThemes.FlatDesignTheme, (Color.Gainsboro, Color.Gray, Color.White, Color.LightGray, Color.Silver, Color.Gold, Color.DarkGray) },
+        { EnumBeepThemes.CyberpunkNeonTheme, (Color.Black, Color.Fuchsia, Color.Aqua, Color.Magenta, Color.Purple, Color.Gold, Color.Lime) },
+        { EnumBeepThemes.GradientBurstTheme, (Color.DarkMagenta, Color.DeepSkyBlue, Color.OrangeRed, Color.Crimson, Color.DodgerBlue, Color.Gold, Color.MediumPurple) },
+        { EnumBeepThemes.HighContrastTheme, (Color.Black, Color.White, Color.Gray, Color.LightGray, Color.Silver, Color.Gold, Color.Yellow) },
+        { EnumBeepThemes.MonochromeTheme, (Color.Black, Color.DarkGray, Color.LightGray, Color.Gray, Color.SlateGray, Color.Gold, Color.White) },
+        { EnumBeepThemes.LuxuryGoldTheme, (Color.DarkSlateGray, Color.Gold, Color.DarkGoldenrod, Color.LightGoldenrodYellow, Color.Goldenrod, Color.Gold, Color.DarkGray) },
+        { EnumBeepThemes.SunsetTheme, (Color.OrangeRed, Color.Crimson, Color.DarkOrange, Color.Orange, Color.Red, Color.Gold, Color.Salmon) },
+        { EnumBeepThemes.AutumnTheme, (Color.DarkOrange, Color.Brown, Color.Orange, Color.Peru, Color.Sienna, Color.Gold, Color.DarkRed) },
+        { EnumBeepThemes.EarthyTheme, (Color.Tan, Color.SaddleBrown, Color.Peru, Color.Sienna, Color.Chocolate, Color.Gold, Color.OliveDrab) }
+    };
 
-            public static Dictionary<EnumBeepThemes, (
+        public static Dictionary<EnumBeepThemes, (
                 Color ChartBackColor,
                 Color ChartLineColor,
                 Color ChartFillColor,

@@ -1029,14 +1029,38 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void UpdateControlRegion()
         {
-            if (this.Width <= 0 || this.Height <= 0)
+            if (Width <= 0 || Height <= 0)
                 return;
-            // For initial testing, use the full client rectangle
-            Rectangle regionRect = new Rectangle(0, 0, this.Width, this.Height);
+
+            // Suppose we want a 10px border & 5px shadow
+            int border = BorderThickness; // e.g. 10
+            int shadow = ShowShadow ? shadowOffset : 0; // e.g. 5
+
+            // If the path is the entire bounding box plus the shadow,
+            // we can define regionRect that includes those offsets. 
+            // For example:
+            Rectangle regionRect = new Rectangle(
+                0,
+                0,
+                this.Width,
+                this.Height
+            );
+
+            // Then, if you’re rounding, maybe *inset* the corners 
+            // by half the border so the stroke is fully visible:
+            int halfPen = (int)Math.Ceiling(border / 2f);
+            // But you have to decide how you want the shadow area treated.
+
             if (IsRounded)
             {
+                // For illustration, let's do a corner radius that 
+                // doesn't cut off the shadow. We'll just apply 
+                // “regionRect” as the bounding rectangle:
                 using (GraphicsPath path = GetRoundedRectPath(regionRect, BorderRadius))
                 {
+                    // Possibly offset the path outward if needed
+                    // so the shadow is included within the region?
+
                     this.Region = new Region(path);
                 }
             }
@@ -1045,6 +1069,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 this.Region = new Region(regionRect);
             }
         }
+
 
         // Override background painting for optimized repaint
         protected override void OnPaintBackground(PaintEventArgs e)
@@ -1082,9 +1107,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Math.Max(0, calculatedWidth),  // Prevent negative dimensions
                 Math.Max(0, calculatedHeight) // Prevent negative dimensions
             );
-
+            UpdateBorderRectangle();
             // Log or debug the dimensions if needed
             //  //Debug.WriteLine($"DrawingRect: {DrawingRect}");
+        }
+        private void UpdateBorderRectangle()
+        {
+            // If you have shadows:
+            int shadowOffsetValue = ShowShadow ? shadowOffset : 0;
+
+            // If you want a 10px border, halfPen is 5
+            // so the stroke sits fully inside the control
+            int halfPen = (int)Math.Ceiling(BorderThickness / 2f);
+
+            // Start from the top-left corner + shadow + halfPen
+            // Then subtract them again on right/bottom
+            borderRectangle = new Rectangle(
+                shadowOffsetValue + halfPen,
+                shadowOffsetValue + halfPen,
+                Width - (shadowOffsetValue + halfPen) * 2,
+                Height - (shadowOffsetValue + halfPen) * 2
+            );
         }
         public virtual bool SetFont()
         {
@@ -1122,11 +1165,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             var g = e.Graphics;
 
-            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+           // g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             g.TextContrast = 12;
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            g.SmoothingMode = SmoothingMode.None;
+          //  g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
             // g.CompositingQuality = CompositingQuality.HighQuality;
             if (IsChild)
             {
@@ -1137,16 +1180,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             shadowOffset = ShowShadow ? 3 : 0;
 
             // Update the drawing rectangle to reflect shadow and border changes
-            UpdateDrawingRect();
+          
 
             Rectangle outerRectangle = new Rectangle(0, 0, Width, Height);
-             borderRectangle = new Rectangle(
-          shadowOffset + _borderThickness,
-          shadowOffset + _borderThickness,
-          Width - (_borderThickness + shadowOffset * 2), // Adjusted for symmetry
-          Height - (_borderThickness + shadowOffset * 2)  // Adjusted for symmetry
-      );
-
+      //       borderRectangle = new Rectangle(
+      //    shadowOffset + _borderThickness,
+      //    shadowOffset + _borderThickness,
+      //    Width - (_borderThickness + shadowOffset * 2), // Adjusted for symmetry
+      //    Height - (_borderThickness + shadowOffset * 2)  // Adjusted for symmetry
+      //);
+            UpdateDrawingRect();
             if (UseGradientBackground)
             {
                 using (var brush = new LinearGradientBrush(borderRectangle, GradientStartColor, GradientEndColor, GradientDirection))
@@ -1187,7 +1230,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             {
                                 using (Pen borderPen = new Pen(BorderColor, BorderThickness))
                                 {
-                                    borderPen.Alignment = PenAlignment.Center;
+                                    borderPen.Alignment = PenAlignment.Inset;
                                     e.Graphics.DrawPath(borderPen, path);
                                 }
                             }
@@ -1590,41 +1633,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.CloseFigure();
             return path;
         }
-        //private GraphicsPath GetRoundedRectanglePath(Rectangle rect, int radius)
-        //{
-        //    GraphicsPath path = new GraphicsPath();
-        //    int diameter = radius * 2;
-
-        //    // If radius is 0 or less, return a normal rectangle.
-        //    if (radius <= 0)
-        //    {
-        //        path.AddRectangle(rect);
-        //        return path;
-        //    }
-
-        //    // Ensure the diameter does not exceed the bounds of the rectangle.
-        //    if (diameter > rect.Width)
-        //        diameter = rect.Width;
-        //    if (diameter > rect.Height)
-        //        diameter = rect.Height;
-
-        //    // Define a rectangle for each corner arc.
-        //    Rectangle topLeftArc = new Rectangle(rect.X, rect.Y, diameter, diameter);
-        //    Rectangle topRightArc = new Rectangle(rect.Right - diameter, rect.Y, diameter, diameter);
-        //    Rectangle bottomRightArc = new Rectangle(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter);
-        //    Rectangle bottomLeftArc = new Rectangle(rect.X, rect.Bottom - diameter, diameter, diameter);
-
-        //    // Add arcs for each corner.
-        //    path.AddArc(topLeftArc, 180, 90);   // Top-left
-        //    path.AddArc(topRightArc, 270, 90);  // Top-right
-        //    path.AddArc(bottomRightArc, 0, 90); // Bottom-right
-        //    path.AddArc(bottomLeftArc, 90, 90); // Bottom-left
-
-        //    // Close the path to complete the rounded rectangle.
-        //    path.CloseFigure();
-
-        //    return path;
-        //}
+       
         #endregion "Painting"
 
         #endregion "Drawing Methods"

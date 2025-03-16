@@ -180,12 +180,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ShowBottomBorder = true;
             beepSimpleGrid1.ShowBottomRow = false;
             beepSimpleGrid1.ShowColumnHeaders = true;
-            beepSimpleGrid1.ShowFilterButton = true;
+            beepSimpleGrid1.ShowFilter = true;
             beepSimpleGrid1.ShowFocusIndicator = false;
             beepSimpleGrid1.ShowFooter = false;
             beepSimpleGrid1.ShowHeaderPanel = false;
             beepSimpleGrid1.ShowHeaderPanelBorder = true;
-            beepSimpleGrid1.ShowHorizontalGridLines = true;
+            beepSimpleGrid1.ShowHorizontalGridLines = false;
             beepSimpleGrid1.ShowHorizontalScrollBar = true;
             beepSimpleGrid1.ShowLeftBorder = true;
             beepSimpleGrid1.ShowNavigator = true;
@@ -195,7 +195,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ShowShadow = false;
             beepSimpleGrid1.ShowSortIcons = true;
             beepSimpleGrid1.ShowTopBorder = true;
-            beepSimpleGrid1.ShowVerticalGridLines = true;
+            beepSimpleGrid1.ShowVerticalGridLines = false;
             beepSimpleGrid1.ShowVerticalScrollBar = true;
             beepSimpleGrid1.Size = new Size(1032, 683);
             beepSimpleGrid1.SlideFrom = Winform.Controls.SlideDirection.Left;

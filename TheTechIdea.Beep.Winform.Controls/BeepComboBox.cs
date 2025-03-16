@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _buttonWidth = 25;
         private int _maxListHeight = 200;
         private int _padding = 2;
-        private int _extraspace = 1; // extra space for the dropdown button
+        private int _extraspace = 4; // extra space for the dropdown button
 
         // If you like, define a min or max width
         private int _minWidth = 80;
@@ -117,17 +117,17 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepComboBox()
         {
-            SetStyle(ControlStyles.AllPaintingInWmPaint |
-             ControlStyles.UserPaint |
-             ControlStyles.OptimizedDoubleBuffer, true);
-            DoubleBuffered = true;
+            //SetStyle(ControlStyles.AllPaintingInWmPaint |
+            // ControlStyles.UserPaint |
+            // ControlStyles.OptimizedDoubleBuffer, true);
+            //DoubleBuffered = true;
             // Ensure child controls don't handle their own painting when in a grid
            
             // If user did not specify size, define default
             if (Width < _minWidth) Width = 150;
 
             // 1) Create & add beepTextBox
-            _comboTextBox = new BeepTextBox { IsChild = true,ShowAllBorders=false,ReadOnly=true };
+            _comboTextBox = new BeepTextBox { IsChild = true,ShowAllBorders=false };
             // Toggle dropdown if user clicks text
            // _comboTextBox.Click += (s, e) => ToggleMenu();
             Controls.Add(_comboTextBox);
@@ -169,11 +169,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void ToggleMenu()
         {
-            SetDropDownButtonImage();
+         
             if (_isExpanded)
                 Collapse();
             else
                 Expand();
+            SetDropDownButtonImage();
         }
         /// <summary>
         /// Sets the dropdown button's image based on the expansion state.
@@ -216,20 +217,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = _minWidth;
 
             if (_comboTextBox == null) return;
-
+            UpdateDrawingRect();
             GetControlHeight();
-            if (!_isExpanded && Height != _collapsedHeight)
+            if (!_isExpanded && Height > _collapsedHeight)
                 Height = _collapsedHeight;
 
-            UpdateDrawingRect();
+          
             int topSectionHeight = _collapsedHeight;
 
             // Position components relative to control's client area
             if (_comboTextBox != null)
             {
                 _comboTextBox.Location = new Point(_padding, _padding);
-                _comboTextBox.Width = Math.Max(1, Width - _buttonWidth - (_padding * 2));
-                _comboTextBox.Height = Math.Max(1, topSectionHeight - (_padding * 2));
+                _comboTextBox.Width =  DrawingRect.Width - _buttonWidth;
+                //_comboTextBox.Height = DrawingRect.Height - (_padding * 2));
             }
 
             if (_dropDownButton != null)
@@ -239,46 +240,38 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _dropDownButton.Height = _comboTextBox.Height;
                 _dropDownButton.Text = _isExpanded ? "▲" : "▼";
             }
+            UpdateDrawingRect();
 
-            if (_beepListBox != null)
-            {
-                _beepListBox.Visible = _isExpanded;
-                if (_isExpanded)
-                {
-                    _beepListBox.Location = new Point(_padding, topSectionHeight + _padding);
-                    _beepListBox.Width = Math.Max(1, Width - (_padding * 2));
-                    _beepListBox.Height = Math.Max(1, Height - topSectionHeight - _padding);
-                }
-            }
 
             Invalidate(); // Force redraw after resize
         }
 
-        protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
-        {
-            // Enforce minWidth
-            if ((specified & BoundsSpecified.Width) == BoundsSpecified.Width && width < _minWidth)
-            {
-                width = _minWidth;
-            }
+        //protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+        //{
+        //    // Enforce minWidth
+        //    if ((specified & BoundsSpecified.Width) == BoundsSpecified.Width && width < _minWidth)
+        //    {
+        //        width = _minWidth;
+        //    }
 
-            // If not expanded, forcibly revert height to collapsed
-            if (!_isExpanded && (specified & BoundsSpecified.Height) == BoundsSpecified.Height)
-            {
+        //    // If not expanded, forcibly revert height to collapsed
+        //    if (!_isExpanded && (specified & BoundsSpecified.Height) == BoundsSpecified.Height)
+        //    {
                
-                height = GetControlHeight(); 
-            }
+        //        height = GetControlHeight(); 
+        //    }
 
-            base.SetBoundsCore(x, y, width, height, specified);
-        }
+        //    base.SetBoundsCore(x, y, width, height, specified);
+        //}
 
         #endregion
         private int GetControlHeight()
         {
-            int singleLine = Math.Max(1, _comboTextBox.SingleLineHeight);
-            _collapsedHeight = singleLine + (_padding * 2) + _extraspace;
+            int singleLine = _comboTextBox.PreferredHeight;
+            _collapsedHeight = _comboTextBox.PreferredHeight + (_padding * 2) + _extraspace;
             return _collapsedHeight;
         }
+       
         public override void ApplyTheme()
         {
             base.ApplyTheme();

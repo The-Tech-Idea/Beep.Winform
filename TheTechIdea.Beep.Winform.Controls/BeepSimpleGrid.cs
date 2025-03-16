@@ -30,6 +30,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region Properties
         #region Fields
+        private BeepTextBox filterTextBox;
+        private BeepComboBox filterColumnComboBox;
         protected int headerPanelHeight = 20;
         protected int bottomagregationPanelHeight = 12;
         protected int footerPanelHeight = 12;
@@ -291,12 +293,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Layout")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public bool ShowFilterButton
+        public bool ShowFilter
         {
-            get => _showFilterButton;
+            get => _showFilterpanel;
             set
             {
-                _showFilterButton = value;
+                _showFilterpanel = value;
                 Invalidate();
             }
         }
@@ -621,7 +623,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             _horizontalScrollBar.Scroll += HorizontalScrollBar_Scroll;
             Controls.Add(_horizontalScrollBar);
+            // Initialize filter controls
+            filterTextBox = new BeepTextBox
+            {
+                Theme = Theme,
+                IsChild = true,
+                Width = 150,
+                Height = 20,
+                PlaceholderText = "Filter grid..."
+            };
+            filterTextBox.TextChanged += FilterTextBox_TextChanged;
+            Controls.Add(filterTextBox);
 
+            filterColumnComboBox = new BeepComboBox
+            {
+                Theme = Theme,
+                IsChild = true,
+                Width = 120,
+                Height = 20,
+               
+            };
+            filterColumnComboBox.SelectedItemChanged += FilterColumnComboBox_SelectedIndexChanged;
+            Controls.Add(filterColumnComboBox);
             InitializeRows();
         }
 
@@ -1424,8 +1447,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             InitializeRows();
             UpdateScrollBars();
-            // Attach _fullData to DataNavigator as an IList
-         if(DataNavigator != null)            DataNavigator.DataSource = _fullData;
+            // Populate columns in ComboBox (including "All Columns" option)
+            filterColumnComboBox.Items.Add(new SimpleItem { Text = "All Columns", Value = null });
+            foreach (var col in Columns)
+            {
+                if (col.Visible)
+                    filterColumnComboBox.Items.Add(new SimpleItem { Text = col.ColumnCaption ?? col.ColumnName, Value = col.ColumnName });
+            }
+            filterColumnComboBox.SelectedIndex = 0; // Default to "All Columns"
+                                                    // Attach _fullData to DataNavigator as an IList
+            if (DataNavigator != null)            DataNavigator.DataSource = _fullData;
         }
         #endregion
         #region Data Filling and Navigation
@@ -2149,14 +2180,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 bottomagregationPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), bottomagregationPanelHeight);
                 DrawBottomAggregationRow(g, bottomagregationPanelRect);
             }
-
+            if(_showFilterpanel)
+            {
+                int filterPanelHeight = 40;
+                filterPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), filterPanelHeight);
+                DrawFilterPanel(g, filterPanelRect);
+                topPanelY += filterPanelHeight+10;
+            }else
+            {
+                filterPanelRect = new Rectangle(-100, -100, drawingBounds.Width, 30);
+                DrawFilterPanel(g, filterPanelRect);
+            }
             if (_showHeaderPanel)
             {
                 headerPanelHeight = titleLabel?.GetPreferredSize(Size.Empty).Height ?? headerPanelHeight;
                 headerPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), headerPanelHeight);
                 DrawHeaderPanel(g, headerPanelRect);
                 topPanelY += headerPanelHeight;
-             //   botomspacetaken += headerPanelHeight;
+                //   botomspacetaken += headerPanelHeight;
             }
 
             if (_showColumnHeaders)
@@ -2194,6 +2235,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _horizontalScrollBar.Invalidate(); // Force editor redraw if needed
             }
         }
+
+        private void DrawFilterPanel(Graphics g, Rectangle filterPanelRect)
+        {
+            int filterX = 10; // Left padding
+            // Position Filter controls on filterpanelrect
+            if (filterColumnComboBox != null)
+            {
+                filterColumnComboBox.Location = new Point(filterPanelRect.X + filterX, filterPanelRect.Y+5);
+                filterColumnComboBox.Size = new Size(200, 25);
+                filterX += filterColumnComboBox.Width + 10; // Add padding
+                filterTextBox.Location = new Point(filterPanelRect.X + filterX, filterPanelRect.Y + 5);
+                filterTextBox.Size = new Size(200, 24);
+            }
+        }
+
         private void DrawBottomAggregationRow(Graphics g, Rectangle rect)
         {
             using (var brush = new SolidBrush(_currentTheme.BackColor))
@@ -2248,7 +2304,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             using (Brush textBrush = new SolidBrush(_currentTheme.ButtonForeColor)) // Your preferred color
             {
                 g.FillRectangle(bgBrush, cellRect);
-                g.DrawRectangle(Pens.Black, cellRect);
+               // g.DrawRectangle(Pens.Black, cellRect);
                 g.DrawString(col.ColumnName, _columnHeadertextFont ?? Font, textBrush, cellRect, format);
             }
         }
@@ -2603,6 +2659,62 @@ namespace TheTechIdea.Beep.Winform.Controls
             titleLabel.DrawToGraphics(g, rect);
         }
         #endregion
+        #region Filter Panel
+        private void ApplyFilter(string filterText, string columnName)
+        {
+            if (string.IsNullOrWhiteSpace(filterText) || _fullData == null)
+            {
+                FillVisibleRows(); // Reset to full data
+                DataNavigator.BindingSource.DataSource = _fullData;
+                return;
+            }
+
+            filterText = filterText.ToLowerInvariant();
+            List<object> filteredData;
+
+            if (string.IsNullOrEmpty(columnName)) // Global search (All Columns)
+            {
+                filteredData = _fullData.Where(item =>
+                    Columns.Where(c => c.Visible).Any(col =>
+                    {
+                        var prop = item.GetType().GetProperty(col.ColumnName);
+                        var value = prop?.GetValue(item)?.ToString()?.ToLowerInvariant();
+                        return value != null && value.Contains(filterText);
+                    })).ToList();
+            }
+            else // Column-specific search
+            {
+                filteredData = _fullData.Where(item =>
+                {
+                    var prop = item.GetType().GetProperty(columnName);
+                    var value = prop?.GetValue(item)?.ToString()?.ToLowerInvariant();
+                    return value != null && value.Contains(filterText);
+                }).ToList();
+            }
+
+            // Update grid with filtered data
+            _dataOffset = 0; // Reset scroll position
+            DataNavigator.BindingSource.DataSource = filteredData;
+            FillVisibleRows();
+            UpdateScrollBars();
+            Invalidate();
+        }
+        private void FilterTextBox_TextChanged(object sender, EventArgs e)
+        {
+            string selectedColumn = filterColumnComboBox.SelectedItem is SimpleItem item && item.Value != null
+                ? item.Value.ToString()
+                : null;
+            ApplyFilter(filterTextBox.Text, selectedColumn);
+        }
+
+        private void FilterColumnComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string selectedColumn = filterColumnComboBox.SelectedItem is SimpleItem item && item.Value != null
+                ? item.Value.ToString()
+                : null;
+            ApplyFilter(filterTextBox.Text, selectedColumn);
+        }
+        #endregion Filter Panel
         #region Cell Editing
         public void SelectCell(int rowIndex, int columnIndex)
         {
@@ -2932,40 +3044,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 StartSmoothScroll(newOffset);
             }
         }
-        //private void ScrollBy(int delta)
-        //{
-        //    // Calculate the new offset
-        //    int newOffset = _dataOffset + delta;
-
-        //    // Calculate the maximum possible offset (so the last page of Rows is still visible)
-        //    // For example, if _fullData.Count=100 and Rows.Count=10, 
-        //    // then the highest offset is 90 (showing items 90..99).
-        //    int maxOffset = Math.Max(0, _fullData.Count - GetVisibleRowCount());
-
-        //    // Clamp newOffset between 0 and maxOffset
-        //    if (newOffset < 0)
-        //        newOffset = 0;
-        //    else if (newOffset > maxOffset)
-        //        newOffset = maxOffset;
-
-        //    // Only do the work if the offset actually changed
-        //    if (newOffset != _dataOffset)
-        //    {
-        //        _dataOffset = newOffset;
-        //        FillVisibleRows();
-        //        UpdateScrollBars();
-        //        Invalidate();
-        //    }
-        //}
-        //private void OnScroll(object sender, ScrollEventArgs e)
-        //{
-        //    int visibleRowCount = GetVisibleRowCount();
-
-        //    _dataOffset = _verticalScrollBar.Value;
-        //    FillVisibleRows();
-        //    UpdateScrollBars();
-        //    Invalidate();
-        //}
+       
         private void UpdateScrollBars()
         {
             if (_verticalScrollBar == null || _horizontalScrollBar == null)
@@ -3637,6 +3716,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public List<Tracking> Trackings { get; set; } = new List<Tracking>(); // Tracks item indices and states
         private Dictionary<object, Dictionary<string, object>> ChangedValues = new Dictionary<object, Dictionary<string, object>>(); // Tracks changed fields per item
         private bool _navigatorDrawn = false;
+        private bool _showFilterpanel;
+        private Rectangle filterPanelRect;
 
         public bool IsLogging { get; set; } = false; // Toggle logging
         public Dictionary<DateTime, EntityUpdateInsertLog> UpdateLog { get; set; } = new Dictionary<DateTime, EntityUpdateInsertLog>(); // Logs updates

@@ -19,19 +19,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showSelectionColumn = true;
         private List<BeepDataRecord> _dataRecords = new();
 
-        public BindingList<BeepGridRow> Rows { get; set; } = new BindingList<BeepGridRow>();
-        public BeepGridRow CurrentRow { get; set; }
-        public BeepGridCell CurrentCell { get; set; }
+        public BindingList<BeepRowConfig> Rows { get; set; } = new BindingList<BeepRowConfig>();
+        public BeepRowConfig CurrentRow { get; set; }
+        public BeepCellConfig CurrentCell { get; set; }
         public List<BeepColumnConfig> Columns { get; set; } = new List<BeepColumnConfig>();
 
         #region "Events Delegates"
-        public event EventHandler<BeepGridRowEventArgs> OnRowSelected;
-        public event EventHandler<BeepGridRowEventArgs> OnRowValidate;
-        public event EventHandler<BeepGridRowEventArgs> OnRowDelete;
-        public event EventHandler<BeepGridRowEventArgs> OnRowAdded;
-        public event EventHandler<BeepGridRowEventArgs> OnRowUpdate;
-        public event EventHandler<BeepGridCellEventArgs> OnCellSelected;
-        public event EventHandler<BeepGridCellEventArgs> OnCellValidate;
+        public event EventHandler<BeepRowEventArgs> OnRowSelected;
+        public event EventHandler<BeepRowEventArgs> OnRowValidate;
+        public event EventHandler<BeepRowEventArgs> OnRowDelete;
+        public event EventHandler<BeepRowEventArgs> OnRowAdded;
+        public event EventHandler<BeepRowEventArgs> OnRowUpdate;
+        public event EventHandler<BeepCellEventArgs> OnCellSelected;
+        public event EventHandler<BeepCellEventArgs> OnCellValidate;
         #endregion
 
         #region "Constructor"

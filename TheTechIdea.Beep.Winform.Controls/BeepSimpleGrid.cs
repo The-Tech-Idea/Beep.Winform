@@ -30,6 +30,11 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region Properties
         #region Fields
+        private bool _navigatorDrawn = false;
+        private bool _showFilterpanel=false;
+        private Rectangle filterPanelRect;
+        private bool _filterpaneldrawn=false;
+
         private BeepTextBox filterTextBox;
         private BeepComboBox filterColumnComboBox;
         protected int headerPanelHeight = 20;
@@ -60,10 +65,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _resizeMargin = 2;
         private Point _lastMousePos;
         private int _editingRowIndex = -1; // Add this field to track absolute row index in _fullData
-        private BeepGridRow _hoveredRow = null;
-        private BeepGridRow _selectedRow = null;
-        private BeepGridCell _hoveredCell = null;
-        private BeepGridCell _selectedCell = null;
+        private BeepRowConfig _hoveredRow = null;
+        private BeepRowConfig _selectedRow = null;
+        private BeepCellConfig _hoveredCell = null;
+        private BeepCellConfig _selectedCell = null;
         private int _hoveredRowIndex = -1;
         private int _hoveredCellIndex = -1;
         private int _selectedRowIndex = -1;
@@ -92,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Layout")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        private BeepGridRow SelectedRow
+        private BeepRowConfig SelectedRow
         {
             get => _selectedRow;
             set
@@ -299,6 +304,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showFilterpanel = value;
+
+                    _filterpaneldrawn = false;
+
                 Invalidate();
             }
         }
@@ -488,8 +496,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Appearance Properties"
         #region "Configuration Properties"
         
-        public BindingList<BeepGridRow> Rows { get; set; } = new BindingList<BeepGridRow>();
-        public BeepGridRow BottomRow { get; set; }
+        public BindingList<BeepRowConfig> Rows { get; set; } = new BindingList<BeepRowConfig>();
+        public BeepRowConfig BottomRow { get; set; }
         private BeepBindingNavigator _dataNavigator;
         [Browsable(true)]
         [Category("Data")]
@@ -522,6 +530,87 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         #endregion "Configuration Properties"
+        #region "Checkboxes and Selections"
+        private bool _showCheckboxes = false;
+        [Browsable(true)]
+        [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public bool ShowCheckboxes
+        {
+            get => _showCheckboxes;
+            set
+            {
+                _showCheckboxes = value;
+                Invalidate();
+            }
+        }
+
+        private bool _showSelection = true;
+        [Browsable(true)]
+        [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public bool ShowSelection
+        {
+            get => _showSelection;
+            set
+            {
+                _showSelection = value;
+                Invalidate();
+            }
+        }
+
+        private List<int> _selectedRows = new List<int>();
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public List<int> SelectedRows
+        {
+            get => _selectedRows;
+            set
+            {
+                _selectedRows = value ?? new List<int>(); // Ensure it's never null
+                Invalidate();
+            }
+        }
+
+        private List<BeepRowConfig> _selectedgridrows = new List<BeepRowConfig>();
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public List<BeepRowConfig> SelectedGridRows
+        {
+            get => _selectedgridrows;
+            set
+            {
+                _selectedgridrows = value ?? new List<BeepRowConfig>(); // Ensure it's never null
+                Invalidate();
+            }
+        }
+
+        // New property for selection column width
+        private int _selectionColumnWidth = 30;
+        [Browsable(true)]
+        [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int SelectionColumnWidth
+        {
+            get => _selectionColumnWidth;
+            set
+            {
+                _selectionColumnWidth = value;
+                Invalidate();
+            }
+        }
+        public event EventHandler SelectedRowsChanged;
+
+        protected virtual void OnSelectedRowsChanged()
+        {
+            SelectedRowsChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void RaiseSelectedRowsChanged()
+        {
+            OnSelectedRowsChanged();
+        }
+        #endregion "Checkboxes and Selections"
         #endregion "Properties"
         #region Constructor
         public BeepSimpleGrid():base()
@@ -953,9 +1042,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SendLog($"Error starting edit: {ex.Message}");
             }
         }
-        private void UpdateDataRecordFromRow(BeepGridCell editingCell)
+        private void UpdateDataRecordFromRow(BeepCellConfig editingCell)
         {
-            BeepGridRow row = Rows[editingCell.RowIndex];
+            BeepRowConfig row = Rows[editingCell.RowIndex];
             if (_fullData == null || !_fullData.Any()) return;
 
             int rowIndex = Rows.IndexOf(row);
@@ -1265,7 +1354,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void SyncColumnsWithEntity(IEntityStructure entity)
         {
-          //  Debug.WriteLine("Syncing Columns with Entity");
+            // Debug.WriteLine("Syncing Columns with Entity");
+
+            // Preserve special columns ("Sel" and "RowNum") by removing them temporarily
+            var selColumn = _columns.FirstOrDefault(c => c.ColumnName == "Sel");
+            var rowNumColumn = _columns.FirstOrDefault(c => c.ColumnName == "RowNum");
+            _columns.RemoveAll(c => c.ColumnName == "Sel" || c.ColumnName == "RowNum");
 
             // Map existing columns by name for quick lookup
             var columnMap = _columns.ToDictionary(c => c.ColumnName, c => c, StringComparer.OrdinalIgnoreCase);
@@ -1278,9 +1372,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Update type-related properties, preserve designer settings
                     existingColumn.PropertyTypeName = field.fieldtype ?? existingColumn.PropertyTypeName ?? typeof(object).AssemblyQualifiedName;
                     existingColumn.ColumnType = MapPropertyTypeToDbFieldCategory(existingColumn.PropertyTypeName);
-              //      existingColumn.CellEditor = MapPropertyTypeToCellEditor(existingColumn.PropertyTypeName);
+                    existingColumn.CellEditor = MapPropertyTypeToCellEditor(existingColumn.PropertyTypeName);
                     // Designer settings like Width, Visible, ColumnCaption remain unchanged
-                //    Debug.WriteLine($"Synced Column '{field.fieldname}': Type = {existingColumn.PropertyTypeName}");
+                    Debug.WriteLine($"Synced Column '{field.fieldname}': Type = {existingColumn.PropertyTypeName}");
                 }
                 else
                 {
@@ -1299,12 +1393,60 @@ namespace TheTechIdea.Beep.Winform.Controls
                     newColumn.ColumnType = MapPropertyTypeToDbFieldCategory(newColumn.PropertyTypeName);
                     newColumn.CellEditor = MapPropertyTypeToCellEditor(newColumn.PropertyTypeName);
                     _columns.Add(newColumn);
-                  //  Debug.WriteLine($"Added new Column '{field.fieldname}': Type = {newColumn.PropertyTypeName}");
+                    Debug.WriteLine($"Added new Column '{field.fieldname}': Type = {newColumn.PropertyTypeName}");
                 }
             }
 
-            // Remove columns not in the new Entity (optional, comment out if you want to keep extras)
-            _columns.RemoveAll(c => !entity.Fields.Any(f => f.fieldname.Equals(c.ColumnName, StringComparison.OrdinalIgnoreCase)));
+            // Re-add special columns at the beginning
+            List<BeepColumnConfig> updatedColumns = new List<BeepColumnConfig>();
+
+            // Add checkbox/selection column if enabled
+
+                if (selColumn == null)
+                {
+                    selColumn = new BeepColumnConfig
+                    {
+                        ColumnCaption = _showCheckboxes ? "☑" : "Sel",
+                        ColumnName = "Sel",
+                        Width = _selectionColumnWidth,
+                        Visible = true,
+                        Sticked = true,
+                       
+                        IsSelectionCheckBox = true,
+                        PropertyTypeName = typeof(bool).AssemblyQualifiedName,
+                        CellEditor = BeepColumnType.CheckBoxBool
+                    };
+                    selColumn.ColumnType = MapPropertyTypeToDbFieldCategory(selColumn.PropertyTypeName);
+                }
+                updatedColumns.Add(selColumn);
+   
+
+            // Add row number column if enabled
+
+                if (rowNumColumn == null)
+                {
+                    rowNumColumn = new BeepColumnConfig
+                    {
+                        ColumnCaption = "#",
+                        ColumnName = "RowNum",
+                        Width = 30,
+                        Visible = true,
+                        Sticked = true,
+                        ReadOnly = true,
+                        IsRowNumColumn = true,
+                        PropertyTypeName = typeof(int).AssemblyQualifiedName,
+                        CellEditor = BeepColumnType.Text
+                    };
+                    rowNumColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
+                }
+                updatedColumns.Add(rowNumColumn);
+      
+
+            // Add the synced entity columns
+            updatedColumns.AddRange(_columns);
+
+            // Update _columns with the new list
+            _columns = updatedColumns;
 
             // Re-index columns
             for (int i = 0; i < _columns.Count; i++)
@@ -1318,38 +1460,83 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-                // Clear any existing columns if that's what you intend
+                // Clear any existing columns
                 Columns.Clear();
 
+                // Add checkbox/selection column if enabled
+
+                    var selColumn = new BeepColumnConfig
+                    {
+                        ColumnCaption = _showCheckboxes ? "☑" : "Sel",
+                        ColumnName = "Sel",
+                        Width = _selectionColumnWidth,
+                        Index = 0,
+                        Visible = true,
+                        Sticked = true,
+                       
+                        IsSelectionCheckBox = true,
+                        PropertyTypeName = typeof(bool).AssemblyQualifiedName,
+                        CellEditor = BeepColumnType.CheckBoxBool,
+                        GuidID = Guid.NewGuid().ToString(),
+                        SortMode = DataGridViewColumnSortMode.NotSortable,
+                        Resizable = DataGridViewTriState.False,
+                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                    };
+                    selColumn.ColumnType = MapPropertyTypeToDbFieldCategory(selColumn.PropertyTypeName);
+                    Columns.Add(selColumn);
+  
+
+                // Add row number column if enabled
+
+                    var rowNumColumn = new BeepColumnConfig
+                    {
+                        ColumnCaption = "#",
+                        ColumnName = "RowNum",
+                        Width = 30,
+                        Index = _showCheckboxes || _showSelection ? 1 : 0,
+                        Visible = true,
+                        Sticked = true,
+                        ReadOnly = true,
+                        IsRowNumColumn = true,
+                        PropertyTypeName = typeof(int).AssemblyQualifiedName,
+                        CellEditor = BeepColumnType.Text,
+                        GuidID = Guid.NewGuid().ToString(),
+                        SortMode = DataGridViewColumnSortMode.NotSortable,
+                        Resizable = DataGridViewTriState.False,
+                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                    };
+                    rowNumColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
+                    Columns.Add(rowNumColumn);
+         
+
+                // Add entity-derived columns
+                int startIndex = Columns.Count; // Start indexing after special columns
                 foreach (var field in Entity.Fields)
                 {
-                    // Create a new BeepColumnConfig using PropertyTypeName as a string
                     var colConfig = new BeepColumnConfig
                     {
-                        ColumnName = field.fieldname,  // The name in the data source
-                        ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(field.fieldname),  // The user-facing caption
-                        PropertyTypeName = field.fieldtype,  // Store the string representation of the type
+                        ColumnName = field.fieldname,
+                        ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(field.fieldname),
+                        PropertyTypeName = field.fieldtype,
                         GuidID = Guid.NewGuid().ToString(),
                         Visible = true,
                         Width = 100,
                         SortMode = DataGridViewColumnSortMode.Automatic,
                         Resizable = DataGridViewTriState.True,
-                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                        Index = startIndex++
                     };
 
-                    // Map PropertyTypeName to ColumnType and CellEditor using existing methods
                     colConfig.ColumnType = MapPropertyTypeToDbFieldCategory(colConfig.PropertyTypeName);
                     colConfig.CellEditor = MapPropertyTypeToCellEditor(colConfig.PropertyTypeName);
 
-                    // Additional customizations based on type (optional, if you want specific overrides)
                     Type fieldType = Type.GetType(colConfig.PropertyTypeName, throwOnError: false) ?? typeof(object);
                     if (fieldType == typeof(DateTime))
                     {
-                        colConfig.Format = "g"; // Add format for DateTime if needed
+                        colConfig.Format = "g";
                     }
                     else if (fieldType.IsEnum)
                     {
-                        // Optionally populate Items with enum values
                         var values = Enum.GetValues(fieldType);
                         colConfig.Items = new List<SimpleItem>();
                         foreach (var val in values)
@@ -1358,7 +1545,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                         }
                     }
 
-                    // Add the column config to the grid’s Columns list
                     Columns.Add(colConfig);
                 }
             }
@@ -1369,7 +1555,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void InitializeRows()
         {
-            if (Rows == null) Rows = new BindingList<BeepGridRow>();
+            if (Rows == null) Rows = new BindingList<BeepRowConfig>();
             Rows.Clear();
             if (_fullData == null || !_fullData.Any()) return; // No rows if no data
             int visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeaderHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
@@ -1380,12 +1566,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             int rowCount = Math.Min(visibleRowCount, dataRowCount);
             for (int i = 0; i < rowCount; i++)
             {
-                var row = new BeepGridRow();
+                var row = new BeepRowConfig();
                 foreach (var col in Columns)
                 {
                     // Create a new cell that will later be filled with data.
                     // Note: We no longer assign UIComponent here.
-                    var cell = new BeepGridCell
+                    var cell = new BeepCellConfig
                     {
                         // Do not default CellValue to string.Empty if FillVisibleRows will update it.
                         // You can leave it null or use a default if desired.
@@ -1415,7 +1601,43 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 var firstItem = _fullData.First();
                 var properties = firstItem.GetType().GetProperties();
-                int index = 0;
+                int index = 0;// Add checkbox/selection column if enabled
+
+                    var selColumn = new BeepColumnConfig
+                    {
+                        ColumnCaption = _showCheckboxes ? "☑" : "Sel",
+                        ColumnName = "Sel",
+                        Width = _selectionColumnWidth, // Use the defined selection column width
+                        Index = index++,
+                        Visible = true, // Controlled by ShowCheckboxes/ShowSelection
+                        Sticked = true,
+                        IsSelectionCheckBox=true,
+                       
+                        PropertyTypeName = typeof(bool).AssemblyQualifiedName, // Use bool for checkbox
+                        CellEditor = BeepColumnType.CheckBoxBool // Use checkbox editor
+                    };
+                    selColumn.ColumnType = MapPropertyTypeToDbFieldCategory(selColumn.PropertyTypeName);
+                    _columns.Add(selColumn);
+
+
+                // Add row number column if enabled
+
+                    var rowNumColumn = new BeepColumnConfig
+                    {
+                        ColumnCaption = "#",
+                        ColumnName = "RowNum",
+                        Width = 30, // Fixed width for row numbers
+                        Index = index++,
+                        Visible = true, // Controlled by ShowRowNumbers
+                        Sticked = true,
+                        ReadOnly = true,
+                        IsRowNumColumn = true,
+                        PropertyTypeName = typeof(int).AssemblyQualifiedName, // Use int for row numbers
+                        CellEditor = BeepColumnType.Text // Display as text
+                    };
+                    rowNumColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
+                    _columns.Add(rowNumColumn);
+
                 foreach (var prop in properties)
                 {
                     // Use AssemblyQualifiedName for PropertyTypeName
@@ -1484,14 +1706,32 @@ namespace TheTechIdea.Beep.Winform.Controls
                         // Update DisplayIndex to the current absolute position in _fullData
                         row.DisplayIndex = dataIndex;
 
-                        // Fill row with data
-                        for (int j = 0; j < row.Cells.Count && j < Columns.Count; j++)
+                        // Fill row with data for all columns
+                        for (int j = 0; j < Columns.Count; j++)
                         {
                             var col = Columns[j];
-                            var prop = dataItem.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
-                            var value = prop?.GetValue(dataItem) ?? string.Empty;
-                            row.Cells[j].CellValue = value;
-                            row.Cells[j].CellData = value;
+                            var cell = row.Cells[j];
+
+                            if (col.ColumnName == "Sel" && (_showCheckboxes || _showSelection))
+                            {
+                                // Check if this row’s DisplayIndex is in the selected grid rows
+                                bool isSelected = _selectedgridrows.Any(r => r.DisplayIndex == dataIndex);
+                                cell.CellValue = isSelected;
+                                cell.CellData = isSelected;
+                            }
+                            else if (col.ColumnName == "RowNum" && _showRowNumbers)
+                            {
+                                // Set row number based on absolute data index
+                                cell.CellValue = dataIndex + 1; // Display 1-based index
+                                cell.CellData = dataIndex + 1;
+                            }
+                            else
+                            {
+                                var prop = dataItem.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
+                                var value = prop?.GetValue(dataItem) ?? string.Empty;
+                                cell.CellValue = value;
+                                cell.CellData = value;
+                            }
                             row.IsDataLoaded = true;
                         }
                     }
@@ -1503,14 +1743,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                             cell.CellData = null;
                         }
                         row.IsDataLoaded = false;
-                        row.DisplayIndex = -1; // Out of bounds
+                        row.DisplayIndex = -1;
 
                         // Clear selection if out of bounds
                         if (_selectedRowIndex == i)
                         {
                             _selectedRowIndex = -1;
                             _selectedRow = null;
-                            SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(-1, null));
+                            SelectedRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(-1, null));
                         }
                     }
                 }
@@ -1520,14 +1760,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
+            // Update _selectedRows and _selectedgridrows to reflect visible rows
+            var newSelectedRows = new List<int>();
+            var newSelectedGridRows = new List<BeepRowConfig>();
+            foreach (var row in _selectedgridrows)
+            {
+                int newIndex = row.DisplayIndex - _dataOffset;
+                if (newIndex >= 0 && newIndex < Rows.Count && Rows[newIndex].DisplayIndex == row.DisplayIndex)
+                {
+                    newSelectedRows.Add(newIndex);
+                    newSelectedGridRows.Add(Rows[newIndex]);
+                }
+            }
+            _selectedRows = newSelectedRows;
+            _selectedgridrows = newSelectedGridRows;
+
             // Sync tracking and adjust selection
             UpdateTrackingIndices();
             SyncSelectedRowIndexAndEditor();
-            // Sync navigator position with selected row
-            //if (_selectedRow != null && _selectedRow.DisplayIndex >= 0 && _selectedRow.DisplayIndex < _fullData.Count)
-            //{
-            //    DataNavigator.BindingSource.Position = _selectedRow.DisplayIndex;
-            //}
             UpdateScrollBars();
             Invalidate();
         }
@@ -1859,7 +2109,7 @@ namespace TheTechIdea.Beep.Winform.Controls
        
         #endregion
         #region Control Creation and Updating
-        private BeepControl CreateCellControlForEditing(BeepGridCell cell)
+        private BeepControl CreateCellControlForEditing(BeepCellConfig cell)
         {
             // Get the column definition based on cell.ColumnIndex.
             var column = Columns[cell.ColumnIndex];
@@ -2147,7 +2397,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 bottomPanelY -= navigatorPanelHeight;
                 botomspacetaken += navigatorPanelHeight;
             }
-                if (!_navigatorDrawn)
+            if (!_navigatorDrawn)
             {
                 _navigatorDrawn = true;
                 if (_showNavigator)
@@ -2180,16 +2430,26 @@ namespace TheTechIdea.Beep.Winform.Controls
                 bottomagregationPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), bottomagregationPanelHeight);
                 DrawBottomAggregationRow(g, bottomagregationPanelRect);
             }
-            if(_showFilterpanel)
+            int filterPanelHeight = 40;
+
+          
+            if (!_filterpaneldrawn)
             {
-                int filterPanelHeight = 40;
-                filterPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), filterPanelHeight);
-                DrawFilterPanel(g, filterPanelRect);
-                topPanelY += filterPanelHeight+10;
-            }else
+                _filterpaneldrawn = true;
+                if (_showFilterpanel)
+                {
+                    filterPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), filterPanelHeight);
+                    DrawFilterPanel(g, filterPanelRect);
+                }
+                else
+                {
+                    filterPanelRect = new Rectangle(-100, -100, drawingBounds.Width, 30);
+                    DrawFilterPanel(g, filterPanelRect);
+                }
+            }
+            if (_showFilterpanel)
             {
-                filterPanelRect = new Rectangle(-100, -100, drawingBounds.Width, 30);
-                DrawFilterPanel(g, filterPanelRect);
+                topPanelY += filterPanelHeight + 10;
             }
             if (_showHeaderPanel)
             {
@@ -2211,7 +2471,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             int availableHeight = drawingBounds.Height - topPanelY-botomspacetaken -  (_horizontalScrollBar.Visible ? _horizontalScrollBar.Height : 0);
             int availableWidth = drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
             gridRect = new Rectangle(drawingBounds.Left, topPanelY, availableWidth, availableHeight);
-          //  UpdateRowCount();
+
+            // Draw CheckBox or RowNumber column if enabled
+
+            // ---------------------------------------------------------------------
             UpdateStickyWidth();
             PaintRows(g, gridRect);
 
@@ -2219,7 +2482,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawColumnBorders(g, gridRect);
             if (_showhorizontalgridlines)
                 DrawRowsBorders(g, gridRect);
-          
+           
 
             // Ensure editor control is visible if present
             if (IsEditorShown && _editingControl != null && _editingControl.Parent == this)
@@ -2235,7 +2498,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _horizontalScrollBar.Invalidate(); // Force editor redraw if needed
             }
         }
-
         private void DrawFilterPanel(Graphics g, Rectangle filterPanelRect)
         {
             int filterX = 10; // Left padding
@@ -2249,7 +2511,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 filterTextBox.Size = new Size(200, 24);
             }
         }
-
         private void DrawBottomAggregationRow(Graphics g, Rectangle rect)
         {
             using (var brush = new SolidBrush(_currentTheme.BackColor))
@@ -2292,11 +2553,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void UpdateStickyWidth()
         {
-            _stickyWidth = Columns.Where(c => c.Sticked && c.Visible).Sum(c => c.Width);
-         //   System.Diagnostics.Debug.WriteLine($"UpdateStickyWidth: StickyWidth={_stickyWidth}, StickedColumns={Columns.Count(c => c.Sticked && c.Visible)}");
-           // Invalidate(); // Redraw when sticky width changes
-        }
+            var stickyColumns = Columns.Where(c => c.Sticked && c.Visible).ToList();
+            int baseStickyWidth = stickyColumns.Sum(c => c.Width);
 
+            // Cap _stickyWidth to prevent overflow within gridRect
+            _stickyWidth = Math.Min(baseStickyWidth, gridRect.Width);
+            System.Diagnostics.Debug.WriteLine($"UpdateStickyWidth: _stickyWidth={_stickyWidth}, BaseSticky={baseStickyWidth}, GridRect.Width={gridRect.Width}");
+        }
         // Helper method with centered text
         private void PaintHeaderCell(Graphics g, BeepColumnConfig col, Rectangle cellRect, StringFormat format)
         {
@@ -2375,7 +2638,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             g.ResetClip();
         }
-        private void PaintScrollingRow(Graphics g, BeepGridRow row, Rectangle rowRect)
+        private void PaintScrollingRow(Graphics g, BeepRowConfig row, Rectangle rowRect)
         {
             int xOffset = rowRect.Left; // Starts at scrollingRegion.Left - _xOffset from PaintRows
             int rightBoundary = rowRect.Right; // Enforce rowRect’s right edge
@@ -2405,7 +2668,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (xOffset >= rightBoundary) break; // Exit if past boundary
             }
         }
-        private void PaintCell(Graphics g, BeepGridCell cell, Rectangle cellRect,Color backcolor)
+        private void PaintCell(Graphics g, BeepCellConfig cell, Rectangle cellRect,Color backcolor)
         {
             // If this cell is being edited, skip drawing so that
             // the editor control remains visible.
@@ -2591,6 +2854,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void PaintColumnHeaders(Graphics g, Rectangle headerRect)
         {
             int xOffset = headerRect.Left;
+
+            UpdateStickyWidth();
             int stickyWidth = _stickyWidth;
 
             StringFormat centerFormat = new StringFormat
@@ -2599,28 +2864,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 LineAlignment = StringAlignment.Center
             };
 
-            // Define sticky and scrolling regions
             Rectangle stickyRegion = new Rectangle(headerRect.Left, headerRect.Top, stickyWidth, headerRect.Height);
-            Rectangle scrollingRegion = new Rectangle(headerRect.Left + stickyWidth, headerRect.Top, headerRect.Width - stickyWidth, headerRect.Height);
+            Rectangle scrollingRegion = new Rectangle(headerRect.Left + stickyWidth, headerRect.Top,
+                                                     headerRect.Width - stickyWidth, headerRect.Height);
 
-            // Draw sticky column headers
-            using (Region clipRegion = new Region(stickyRegion))
-            {
-                g.Clip = clipRegion;
-                foreach (var col in Columns.Where(c => c.Sticked && c.Visible))
-                {
-                    var headerCellRect = new Rectangle(xOffset, headerRect.Top, col.Width, headerRect.Height);
-                    PaintHeaderCell(g, col, headerCellRect, centerFormat);
-                    xOffset += col.Width;
-                //    System.Diagnostics.Debug.WriteLine($"StickyHeader: Col={col.ColumnName}, X={headerCellRect.X}, Width={col.Width}");
-                }
-            }
-
-            // Draw scrolling column headers
+            // Draw scrolling column headers first
             using (Region clipRegion = new Region(scrollingRegion))
             {
                 g.Clip = clipRegion;
-                int scrollingXOffset = headerRect.Left + stickyWidth - _xOffset; // Start after sticky, shift with _xOffset
+                int scrollingXOffset = headerRect.Left + stickyWidth - _xOffset;
                 foreach (var col in Columns.Where(c => !c.Sticked && c.Visible))
                 {
                     var headerCellRect = new Rectangle(scrollingXOffset, headerRect.Top, col.Width, headerRect.Height);
@@ -2629,14 +2881,31 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            // Separator after sticky headers
+            // Draw sticky column headers last
+            using (Region clipRegion = new Region(stickyRegion))
+            {
+                g.Clip = clipRegion;
+                xOffset = headerRect.Left;
+
+                foreach (var col in Columns.Where(c => c.Sticked && c.Visible))
+                {
+                    var headerCellRect = new Rectangle(xOffset, headerRect.Top, col.Width, headerRect.Height);
+                    PaintHeaderCell(g, col, headerCellRect, centerFormat);
+                    xOffset += col.Width;
+                    System.Diagnostics.Debug.WriteLine($"StickyHeader: Col={col.ColumnName}, X={headerCellRect.X}, Width={col.Width}");
+                }
+            }
+
             if (stickyWidth > 0)
             {
                 g.ResetClip();
-                g.DrawLine(Pens.Gray, headerRect.Left + stickyWidth, headerRect.Top, headerRect.Left + stickyWidth, headerRect.Bottom);
+                using (Pen borderPen = new Pen(_currentTheme.GridLineColor))
+                {
+                    g.DrawLine(borderPen, headerRect.Left + stickyWidth, headerRect.Top, headerRect.Left + stickyWidth, headerRect.Bottom);
+                }
             }
 
-          //  System.Diagnostics.Debug.WriteLine($"PaintColumnHeaders: StickyWidth={stickyWidth}, HeaderRect={headerRect}, XOffset={_xOffset}");
+            System.Diagnostics.Debug.WriteLine($"PaintColumnHeaders: StickyWidth={stickyWidth}, HeaderRect={headerRect}, XOffset={_xOffset}");
         }
         private void DrawHeaderPanel(Graphics g, Rectangle rect)
         {
@@ -2738,11 +3007,11 @@ namespace TheTechIdea.Beep.Winform.Controls
          
             // put row data in the selected row
             SelectedRow.RowData = _fullData[rowIndex];
-            SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(rowIndex, SelectedRow));
-            SelectedCellChanged?.Invoke(this, new BeepGridCellSelectedEventArgs(rowIndex, columnIndex, _selectedCell));
+            SelectedRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(rowIndex, SelectedRow));
+            SelectedCellChanged?.Invoke(this, new BeepCellSelectedEventArgs(rowIndex, columnIndex, _selectedCell));
            Invalidate();
         }
-        public void SelectCell(BeepGridCell cell)
+        public void SelectCell(BeepCellConfig cell)
         {
             if (cell == null) return;
             _editingRowIndex = cell.RowIndex; // Absolute index in _fullData
@@ -2792,7 +3061,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
        
-        private BeepGridRow GetRowAtLocation(Point location)
+        private BeepRowConfig GetRowAtLocation(Point location)
         {
             // First, ensure the point is inside the grid's drawing area.
             if (!gridRect.Contains(location))
@@ -2843,7 +3112,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _editorPopupForm.Location = screenLocation;
             _editorPopupForm.Visible = true;
         }
-        private BeepGridCell GetCellAtLocation(Point location)
+        private BeepCellConfig GetCellAtLocation(Point location)
         {
             // First, ensure the point is inside the grid's drawing area.
             if (!gridRect.Contains(location))
@@ -2873,7 +3142,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             return null;
         }
-        private Rectangle GetCellRectangleIn(BeepGridCell cell)
+        private Rectangle GetCellRectangleIn(BeepCellConfig cell)
         {
             if (cell == null)
             {
@@ -2919,7 +3188,7 @@ namespace TheTechIdea.Beep.Winform.Controls
          //   System.Diagnostics.Debug.WriteLine($"GetCellRectangle: Cell={x},{y}, Value={width}x{height}, _dataOffset={_dataOffset}, _xOffset={_xOffset}");
             return rect;
         }
-        private Rectangle GetCellRectangle(BeepGridCell cell)
+        private Rectangle GetCellRectangle(BeepCellConfig cell)
         {
             // Find which row and column this cell belongs to.
             int rowIndex = -1, colIndex = -1;
@@ -3252,10 +3521,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 int index = Rows.Count;
                 for (int i = 0; i < rowCount; i++)
                 {
-                    var row = new BeepGridRow();
+                    var row = new BeepRowConfig();
                     foreach (var col in Columns)
                     {
-                        var cell = new BeepGridCell
+                        var cell = new BeepCellConfig
                         {
                             CellValue = null,
                             CellData = null,
@@ -3397,6 +3666,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnResize(e);
             _navigatorDrawn=false;
+            _filterpaneldrawn = false;
             UpdateDrawingRect();
             UpdateRowCount();
             FillVisibleRows();
@@ -3408,7 +3678,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion
         #region Editor
-        private void ShowCellEditorIn(BeepGridCell cell, Point location)
+        private void ShowCellEditorIn(BeepCellConfig cell, Point location)
         {
             if (!cell.IsEditable)
                 return;
@@ -3467,9 +3737,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Dictionary<string, IBeepUIComponent> _columnEditors = new Dictionary<string, IBeepUIComponent>();
         // The currently active editor and cell being edited
         private BeepControl _editingControl = null;
-        private BeepGridCell _editingCell = null;
+        private BeepCellConfig _editingCell = null;
         private IBeepComponentForm _editorPopupForm;
-        private void ShowCellEditor(BeepGridCell cell, Point location)
+        private void ShowCellEditor(BeepCellConfig cell, Point location)
         {
             if (!cell.IsEditable)
                 return;
@@ -3658,54 +3928,82 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void BeepGrid_MouseClick(object sender, MouseEventArgs e)
         {
             var clickedCell = GetCellAtLocation(e.Location);
-            _selectedCell = clickedCell;
-            if (_editingCell != null && clickedCell != null &&
-                _editingCell.Id == clickedCell.Id)  // Compare by unique Id
+            if (clickedCell != null)
             {
-                // The same cell was clicked—save its current value
+                int colIndex = clickedCell.ColumnIndex;
+                if (Columns[colIndex].ColumnName == "Sel" && (_showCheckboxes || _showSelection))
+                {
+                    int rowIndex = clickedCell.RowIndex;
+                    if (rowIndex >= 0 && rowIndex < Rows.Count)
+                    {
+                        int dataIndex = _dataOffset + rowIndex; // Absolute index in _fullData
+
+                        bool isSelected = (bool)(clickedCell.CellValue ?? false);
+                        var row = Rows[rowIndex];
+                        if (isSelected)
+                        {
+                            row.IsSelected = true;
+                            _selectedRows.Remove(rowIndex);
+                            _selectedgridrows.RemoveAll(r => r.DisplayIndex == dataIndex);
+                            clickedCell.CellValue = false;
+                            clickedCell.CellData = false;
+                        }
+                        else
+                        {   row.IsSelected=false;
+                            _selectedRows.Add(rowIndex);
+                            _selectedgridrows.Add(row);
+                            clickedCell.CellValue = true;
+                            clickedCell.CellData = true;
+                        }
+
+                        Invalidate();
+                        RaiseSelectedRowsChanged();
+                    }
+                    return; // Exit to avoid cell selection logic
+                }
+            }
+
+            _selectedCell = clickedCell;
+            if (_editingCell != null && clickedCell != null && _editingCell.Id == clickedCell.Id)
+            {
                 SaveEditedValue();
                 return;
             }
             else
             {
-                 CloseCurrentEditorIn();
-                // reset the cell selection
-                if (_selectedCell != null )
+                CloseCurrentEditorIn();
+                if (_selectedCell != null)
                 {
                     _editingCell = _selectedCell;
-                
                     SelectCell(_selectedCell);
-                    // Update Navigator position to match selected row
                     if (DataNavigator != null && _selectedRow != null && _selectedRow.DisplayIndex >= 0)
                     {
                         DataNavigator.BindingSource.Position = _selectedRow.DisplayIndex;
                     }
                     if (!_columns[_selectedCell.ColumnIndex].ReadOnly)
                     {
-                       ShowCellEditorIn(_selectedCell, e.Location);
+                        ShowCellEditorIn(_selectedCell, e.Location);
                     }
-                  
                 }
-               
             }
         }
         #endregion Editor
         #region Events
-        public event EventHandler<BeepGridCellSelectedEventArgs> SelectedCellChanged;
-        public event EventHandler<BeepGridRowSelectedEventArgs> SelectedRowChanged;
-        public event EventHandler<BeepGridCellEventArgs> CellValueChanged;
-        public event EventHandler<BeepGridCellEventArgs> CellValueChanging;
-        public event EventHandler<BeepGridCellEventArgs> CellValidating;
-        public event EventHandler<BeepGridCellEventArgs> CellValidated;
-        public event EventHandler<BeepGridCellEventArgs> CellFormatting;
-        public event EventHandler<BeepGridCellEventArgs> CellFormatted;
-        public event EventHandler<BeepGridCellEventArgs> CellClick;
-        public event EventHandler<BeepGridCellEventArgs> CellDoubleClick;
-        public event EventHandler<BeepGridCellEventArgs> CellMouseEnter;
-        public event EventHandler<BeepGridCellEventArgs> CellMouseLeave;
-        public event EventHandler<BeepGridCellEventArgs> CellMouseDown;
-        public event EventHandler<BeepGridCellEventArgs> CellMouseUp;
-        public event EventHandler<BeepGridCellEventArgs> CellMouseWheel;
+        public event EventHandler<BeepCellSelectedEventArgs> SelectedCellChanged;
+        public event EventHandler<BeepRowSelectedEventArgs> SelectedRowChanged;
+        public event EventHandler<BeepCellEventArgs> CellValueChanged;
+        public event EventHandler<BeepCellEventArgs> CellValueChanging;
+        public event EventHandler<BeepCellEventArgs> CellValidating;
+        public event EventHandler<BeepCellEventArgs> CellValidated;
+        public event EventHandler<BeepCellEventArgs> CellFormatting;
+        public event EventHandler<BeepCellEventArgs> CellFormatted;
+        public event EventHandler<BeepCellEventArgs> CellClick;
+        public event EventHandler<BeepCellEventArgs> CellDoubleClick;
+        public event EventHandler<BeepCellEventArgs> CellMouseEnter;
+        public event EventHandler<BeepCellEventArgs> CellMouseLeave;
+        public event EventHandler<BeepCellEventArgs> CellMouseDown;
+        public event EventHandler<BeepCellEventArgs> CellMouseUp;
+        public event EventHandler<BeepCellEventArgs> CellMouseWheel;
 
 
         private void Rows_ListChanged(object sender, ListChangedEventArgs e) => Invalidate();
@@ -3715,10 +4013,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private List<object> deletedList = new List<object>();  // Tracks deleted items
         public List<Tracking> Trackings { get; set; } = new List<Tracking>(); // Tracks item indices and states
         private Dictionary<object, Dictionary<string, object>> ChangedValues = new Dictionary<object, Dictionary<string, object>>(); // Tracks changed fields per item
-        private bool _navigatorDrawn = false;
-        private bool _showFilterpanel;
-        private Rectangle filterPanelRect;
-
+  
         public bool IsLogging { get; set; } = false; // Toggle logging
         public Dictionary<DateTime, EntityUpdateInsertLog> UpdateLog { get; set; } = new Dictionary<DateTime, EntityUpdateInsertLog>(); // Logs updates
 
@@ -3750,7 +4045,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             _selectedRowIndex = newRowIndex;
                             _selectedRow = Rows[newRowIndex];
-                            SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(selectedDataIndex, _selectedRow));
+                            SelectedRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(selectedDataIndex, _selectedRow));
                         }
                     }
                     else
@@ -3758,7 +4053,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         // Selected item scrolled out of view
                         _selectedRowIndex = -1;
                         _selectedRow = null;
-                        SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(-1, null));
+                        SelectedRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(-1, null));
                     }
                 }
                 else
@@ -3766,7 +4061,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Selected item no longer exists in _fullData
                     _selectedRowIndex = -1;
                     _selectedRow = null;
-                    SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(-1, null));
+                    SelectedRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(-1, null));
                 }
             }
         }
@@ -3876,7 +4171,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             Debug.WriteLine($"Selected row moved {direction}: OldRowIndex={oldRowIndex}, NewRowIndex={newRowIndex}, DisplayIndex={_selectedRow.DisplayIndex}");
                         }
 
-                        SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(selectedDataIndex, _selectedRow));
+                        SelectedRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(selectedDataIndex, _selectedRow));
                     }
                     else
                     {
@@ -3888,7 +4183,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             _editingControl.Visible = false;
                         }
-                        SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(-1, null));
+                        SelectedRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(-1, null));
                     }
                 }
                 else
@@ -3901,7 +4196,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         _editingControl.Visible = false;
                     }
-                    SelectedRowChanged?.Invoke(this, new BeepGridRowSelectedEventArgs(-1, null));
+                    SelectedRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(-1, null));
                 }
             }
         }

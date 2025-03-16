@@ -173,12 +173,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.RowHeight = 25;
             beepSimpleGrid1.SavedGuidID = null;
             beepSimpleGrid1.SavedID = null;
+            beepSimpleGrid1.SelectionColumnWidth = 30;
             beepSimpleGrid1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
             beepSimpleGrid1.ShadowOffset = 0;
             beepSimpleGrid1.ShadowOpacity = 0.5F;
             beepSimpleGrid1.ShowAllBorders = true;
             beepSimpleGrid1.ShowBottomBorder = true;
             beepSimpleGrid1.ShowBottomRow = false;
+            beepSimpleGrid1.ShowCheckboxes = true;
             beepSimpleGrid1.ShowColumnHeaders = true;
             beepSimpleGrid1.ShowFilter = true;
             beepSimpleGrid1.ShowFocusIndicator = false;
@@ -192,6 +194,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ShowRightBorder = true;
             beepSimpleGrid1.ShowRowHeaders = true;
             beepSimpleGrid1.ShowRowNumbers = true;
+            beepSimpleGrid1.ShowSelection = true;
             beepSimpleGrid1.ShowShadow = false;
             beepSimpleGrid1.ShowSortIcons = true;
             beepSimpleGrid1.ShowTopBorder = true;

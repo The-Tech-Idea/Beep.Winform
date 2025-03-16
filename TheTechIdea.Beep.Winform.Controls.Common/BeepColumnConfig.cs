@@ -24,7 +24,71 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
 
         #region Properties
-      
+        private bool _isPrimaryKey;
+        [Category("Data")]
+        [Description("Indicates whether the column is a primary key.")]
+        public bool IsPrimaryKey
+        {
+            get => _isPrimaryKey;
+            set { _isPrimaryKey = value; OnPropertyChanged(nameof(IsPrimaryKey)); }
+        }
+        private bool _isunbound= false;
+        [Category("Data")]
+        [Description("Indicates whether the column is unbound.")]
+        public bool IsUnbound
+        {
+            get => _isunbound;
+            set { _isunbound = value; OnPropertyChanged(nameof(IsUnbound)); }
+        }
+        private bool _isForeignKey;
+        [Category("Data")]
+        [Description("Indicates whether the column is a foreign key.")]
+        public bool IsForeignKey
+        {
+            get => _isForeignKey;
+            set { _isForeignKey = value; OnPropertyChanged(nameof(IsForeignKey)); }
+        }
+        private bool _isAutoIncrement;
+        [Category("Data")]
+        [Description("Indicates whether the column is an auto-incrementing identity.")]
+        public bool IsAutoIncrement
+        {
+            get => _isAutoIncrement;
+            set { _isAutoIncrement = value; OnPropertyChanged(nameof(IsAutoIncrement)); }
+        }
+        private bool _isUnique;
+        [Category("Data")]
+        [Description("Indicates whether the column is unique.")]
+        public bool IsUnique
+        {
+            get => _isUnique;
+            set { _isUnique = value; OnPropertyChanged(nameof(IsUnique)); }
+        }
+        private bool _isNullable;
+        [Category("Data")]
+        [Description("Indicates whether the column allows null values.")]
+        public bool IsNullable
+        {
+            get => _isNullable;
+            set { _isNullable = value; OnPropertyChanged(nameof(IsNullable)); }
+        }
+        private bool _isRowNumColumn = false;
+        [Category("Behavior")]
+        [Description("Indicates whether the column is an Rownum column.")]
+        public bool IsRowNumColumn
+        {
+            get => _isRowNumColumn;
+            set { _isRowNumColumn = value; OnPropertyChanged(nameof(IsRowNumColumn)); }
+        }
+        private bool _isSelectionCheckBox = false;
+        [Category("Behavior")]
+        [Description("Indicates whether the column is a selection checkbox.")]
+        public bool IsSelectionCheckBox
+        {
+            get => _isSelectionCheckBox;
+            set { _isSelectionCheckBox = value; OnPropertyChanged(nameof(IsSelectionCheckBox)); }
+        }
+
         private string _propertyTypeName = "Column"; // Default value
         [Browsable(false)]
         public string PropertyTypeName

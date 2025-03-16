@@ -325,7 +325,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
-        private void Grid_SelectedRowChanged(object sender, BeepGridRowSelectedEventArgs e)
+        private void Grid_SelectedRowChanged(object sender, BeepRowSelectedEventArgs e)
         {
             if (e.Row != null && e.Row.RowData is SimpleItem item)
             {

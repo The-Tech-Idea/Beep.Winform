@@ -5,7 +5,7 @@ using TheTechIdea.Beep.Winform.Controls.Grid.DataColumns;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid
 {
-    public class BeepGridPersistence
+    public class BeepGridPersistence 
     {
         // Method to save the current grid layout to a file
         public static void SaveGridLayout(BeepGrid grid)
@@ -51,14 +51,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
     }
 
     // Class to hold the grid column configuration
-    public class GridColumnConfig
-    {
-        public string ColumnType { get; set; }
-        public string HeaderText { get; set; }
-        public string DataPropertyName { get; set; }
-        public bool Visible { get; set; }
-        public int Width { get; set; }
-        public string Name { get; set; }
-        public Dictionary<string, object> AdditionalProperties { get; set; }
-    }
+   
 }

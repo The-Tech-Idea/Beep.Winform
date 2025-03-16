@@ -352,125 +352,24 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_currentTheme == null)
             {
-                // Ensure a default theme is set to avoid null reference
                 _currentTheme = BeepThemesManager.DefaultTheme; // Use the default theme from BeepThemesManager
             }
 
-            Rectangle checkBoxRect;
-            Rectangle textRect = Rectangle.Empty;
-            bool hasText = !HideText && !string.IsNullOrEmpty(Text);
-
-            // Calculate sizes
+            // Use CheckBoxSize, constrained by the rectangle
             int checkBoxSize = Math.Min(CheckBoxSize, Math.Min(rectangle.Width - Padding.Horizontal, rectangle.Height - Padding.Vertical));
-            Size textSize = hasText ? TextRenderer.MeasureText(Text, Font) : Size.Empty;
-
-            // Calculate the combined bounding box for checkbox and text
-            Size combinedSize;
-            switch (_textAlignRelativeToCheckBox)
-            {
-                case TextAlignment.Right:
-                case TextAlignment.Left:
-                    combinedSize = new Size(
-                        checkBoxSize + (hasText ? Spacing + textSize.Width : 0),
-                        Math.Max(checkBoxSize, hasText ? textSize.Height : 0)
-                    );
-                    break;
-                case TextAlignment.Above:
-                case TextAlignment.Below:
-                    combinedSize = new Size(
-                        Math.Max(checkBoxSize, hasText ? textSize.Width : 0),
-                        checkBoxSize + (hasText ? Spacing + textSize.Height : 0)
-                    );
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(_textAlignRelativeToCheckBox));
-            }
-
-            // Center the combined bounding box within the rectangle
-            int combinedX = rectangle.X + (rectangle.Width - combinedSize.Width) / 2;
-            int combinedY = rectangle.Y + (rectangle.Height - combinedSize.Height) / 2;
-
-            // Position checkbox and text within the centered combined bounding box
-            if (!hasText)
-            {
-                // Center checkbox when no text
-                checkBoxRect = new Rectangle(combinedX, combinedY, checkBoxSize, checkBoxSize);
-            }
-            else
-            {
-                switch (_textAlignRelativeToCheckBox)
-                {
-                    case TextAlignment.Right: // Text right, checkbox left
-                        checkBoxRect = new Rectangle(
-                            combinedX,
-                            combinedY + (combinedSize.Height - checkBoxSize) / 2, // Center vertically within combined height
-                            checkBoxSize,
-                            checkBoxSize
-                        );
-                        textRect = new Rectangle(
-                            checkBoxRect.Right + Spacing,
-                            combinedY + (combinedSize.Height - textSize.Height) / 2,
-                            textSize.Width,
-                            textSize.Height
-                        );
-                        break;
-
-                    case TextAlignment.Left: // Text left, checkbox right
-                        textRect = new Rectangle(
-                            combinedX,
-                            combinedY + (combinedSize.Height - textSize.Height) / 2,
-                            textSize.Width,
-                            textSize.Height
-                        );
-                        checkBoxRect = new Rectangle(
-                            textRect.Right + Spacing,
-                            combinedY + (combinedSize.Height - checkBoxSize) / 2,
-                            checkBoxSize,
-                            checkBoxSize
-                        );
-                        break;
-
-                    case TextAlignment.Above: // Text above, checkbox below
-                        textRect = new Rectangle(
-                            combinedX + (combinedSize.Width - textSize.Width) / 2, // Center text horizontally
-                            combinedY,
-                            textSize.Width,
-                            textSize.Height
-                        );
-                        checkBoxRect = new Rectangle(
-                            combinedX + (combinedSize.Width - checkBoxSize) / 2, // Center checkbox horizontally
-                            textRect.Bottom + Spacing,
-                            checkBoxSize,
-                            checkBoxSize
-                        );
-                        break;
-
-                    case TextAlignment.Below: // Text below, checkbox above
-                        checkBoxRect = new Rectangle(
-                            combinedX + (combinedSize.Width - checkBoxSize) / 2, // Center checkbox horizontally
-                            combinedY,
-                            checkBoxSize,
-                            checkBoxSize
-                        );
-                        textRect = new Rectangle(
-                            combinedX + (combinedSize.Width - textSize.Width) / 2, // Center text horizontally
-                            checkBoxRect.Bottom + Spacing,
-                            textSize.Width,
-                            textSize.Height
-                        );
-                        break;
-
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(_textAlignRelativeToCheckBox));
-                }
-            }
+            Rectangle checkBoxRect = new Rectangle(
+                rectangle.X + (rectangle.Width - checkBoxSize) / 2, // Center horizontally
+                rectangle.Y + (rectangle.Height - checkBoxSize) / 2, // Center vertically
+                checkBoxSize,
+                checkBoxSize
+            );
 
             // Draw background
             Color backColor = _state == CheckBoxState.Checked ? Color.LightGreen :
                              (_state == CheckBoxState.Indeterminate ? Color.Yellow : Color.White);
             using (Brush backBrush = new SolidBrush(backColor))
             {
-                using (GraphicsPath path = GetRoundedRectPath(checkBoxRect, 4)) // Add rounded corners with radius 4
+                using (GraphicsPath path = GetRoundedRectPath(checkBoxRect, 4)) // Rounded corners with radius 4
                 {
                     graphics.FillPath(backBrush, path);
                 }
@@ -479,8 +378,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw border with rounded corners
             using (Pen borderPen = new Pen(_currentTheme.BorderColor, 2))
             {
-                borderPen.Alignment = PenAlignment.Center; // Use Center to ensure full rounded corners
-                using (GraphicsPath path = GetRoundedRectPath(checkBoxRect, 4)) // Same radius as background
+                borderPen.Alignment = PenAlignment.Center;
+                using (GraphicsPath path = GetRoundedRectPath(checkBoxRect, 4))
                 {
                     graphics.DrawPath(borderPen, path);
                 }
@@ -500,14 +399,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
 
-            // Draw text if present
-            if (hasText)
-            {
-                DrawAlignedText(graphics, Text, Font, _currentTheme.AccentTextColor, textRect);
-            }
-
-            // Optional: Remove test drawing once confirmed
-            // graphics.DrawEllipse(Pens.Red, checkBoxRect);
+            // No text rendering since HideText is true by default
         }
         protected override void OnPaint(PaintEventArgs pe)
         {
@@ -579,8 +471,32 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size textSize = hasText ? TextRenderer.MeasureText(Text, Font) : Size.Empty;
             int checkBoxSize = CheckBoxSize;
 
-            int width = Padding.Left + checkBoxSize + (hasText ? Spacing + textSize.Width : 0) + Padding.Right;
-            int height = Padding.Top + Math.Max(checkBoxSize, hasText ? textSize.Height : 0) + Padding.Bottom;
+            int width, height;
+
+            if (!hasText)
+            {
+                // Use CheckBoxSize only when no text, fitting the grid cell
+                width = Padding.Left + checkBoxSize + Padding.Right;
+                height = Padding.Top + checkBoxSize + Padding.Bottom;
+            }
+            else
+            {
+                switch (TextAlignRelativeToCheckBox)
+                {
+                    case TextAlignment.Right:
+                    case TextAlignment.Left:
+                        width = Padding.Left + checkBoxSize + Spacing + textSize.Width + Padding.Right;
+                        height = Padding.Top + Math.Max(checkBoxSize, textSize.Height) + Padding.Bottom;
+                        break;
+                    case TextAlignment.Above:
+                    case TextAlignment.Below:
+                        width = Padding.Left + Math.Max(checkBoxSize, textSize.Width) + Padding.Right;
+                        height = Padding.Top + checkBoxSize + Spacing + textSize.Height + Padding.Bottom;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(TextAlignRelativeToCheckBox));
+                }
+            }
 
             return new Size(Math.Max(width, 100), Math.Max(height, 30)); // Minimum size to prevent collapse
         }
@@ -662,18 +578,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
         #region Helper Methods
         protected override void OnMouseClick(MouseEventArgs e)
-        {// Ensure clicking also sets focus
+        {
             if (!Focused)
             {
                 Focus();
             }
             base.OnMouseClick(e);
             UpdateDrawingRect();
-            // Get the checkbox rectangle using the CheckBoxSize property
-            var checkBoxRect = GetCheckBoxRectangle(DrawingRect);
 
-            // Toggle state if HideText is true or the click is inside the checkbox rectangle
-            if (HideText || checkBoxRect.Contains(e.Location))
+            // Calculate the checkbox rectangle centered within the DrawingRect
+            int checkBoxSize = Math.Min(CheckBoxSize, Math.Min(DrawingRect.Width - Padding.Horizontal, DrawingRect.Height - Padding.Vertical));
+            Rectangle checkBoxRect = new Rectangle(
+                DrawingRect.X + (DrawingRect.Width - checkBoxSize) / 2,
+                DrawingRect.Y + (DrawingRect.Height - checkBoxSize) / 2,
+                checkBoxSize,
+                checkBoxSize
+            );
+
+            // Toggle state only if click is inside the checkbox rectangle
+            if (checkBoxRect.Contains(e.Location))
             {
                 _state = _state == CheckBoxState.Checked ? CheckBoxState.Unchecked : CheckBoxState.Checked;
                 OnStateChanged(); // Update CurrentValue and redraw

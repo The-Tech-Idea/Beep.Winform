@@ -98,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowNavigator = false,
                 Theme = Theme
             };
-            _grid.SelectedRowChanged += Grid_SelectedRowChanged; // Updated to match BeepSimpleGrid
+            _grid.CurrentRowChanged += Grid_SelectedRowChanged; // Updated to match BeepSimpleGrid
             this.Controls.Add(_grid);
         }
         #endregion

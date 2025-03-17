@@ -135,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowAllBorders=true
                 
             };
-            _grid.SelectedRowChanged += Grid_SelectedRowChanged;
+            _grid.CurrentRowChanged += Grid_SelectedRowChanged;
             _border1 = new Panel { BorderStyle = BorderStyle.FixedSingle };
             _border2 = new Panel { BorderStyle = BorderStyle.FixedSingle };
             Controls.Add(_keyTextBox);

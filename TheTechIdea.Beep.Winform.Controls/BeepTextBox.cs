@@ -801,6 +801,20 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             AdjustTextBoxHeight();
             PositionInnerTextBoxAndImage();
+            // Update inner TextBox text alignment to match drawn text
+            switch (TextAlignment)
+            {
+                case HorizontalAlignment.Center:
+                    _innerTextBox.TextAlign = HorizontalAlignment.Center;
+                    break;
+                case HorizontalAlignment.Right:
+                    _innerTextBox.TextAlign = HorizontalAlignment.Right;
+                    break;
+                case HorizontalAlignment.Left:
+                default:
+                    _innerTextBox.TextAlign = HorizontalAlignment.Left;
+                    break;
+            }
         }
         private void AdjustTextBoxHeight()
         {
@@ -822,7 +836,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 int adjustedHeight = Math.Min(singleLineHeight, fillHeight);
                 _innerTextBox.Size = new Size(Math.Max(1, fillWidth), adjustedHeight);
             }
+            _innerTextBox.Width = Math.Max(1, fillWidth);
             _innerTextBox.Location = new Point(DrawingRect.X + xpadding, DrawingRect.Y + padding);
+        
         }
         private void PositionInnerTextBoxAndImage()
         {
@@ -1444,24 +1460,59 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 graphics.Clip = clipRegion;
 
-                // Draw Image and Text
-                if (beepImage.Visible)
+                // Draw Image if visible
+                if (beepImage != null && beepImage.Visible)
                 {
                     beepImage.Draw(graphics, rectangle);
                 }
 
-                // Draw Text with multiline support, clipping, and truncation
+                // Draw Text with centered alignment
                 if (!string.IsNullOrEmpty(Text))
                 {
-                    TextFormatFlags flags = TextFormatFlags.Left | TextFormatFlags.EndEllipsis | TextFormatFlags.WordBreak; // WordBreak for multiline
-                    if (!Multiline) // Single-line fallback
+                    TextFormatFlags flags = TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix;
+                    if (Multiline)
                     {
-                        flags &= ~TextFormatFlags.WordBreak;
-                        flags |= TextFormatFlags.SingleLine;
+                        flags |= TextFormatFlags.WordBreak; // Allow word wrapping for multiline
+                    }
+                    else
+                    {
+                        flags |= TextFormatFlags.SingleLine; // Force single line for non-multiline
                     }
 
-                    // Use TextRenderer for better control over multiline text
-                    TextRenderer.DrawText(graphics, Text, Font, rectangle, ForeColor, flags);
+                    // Determine horizontal alignment based on TextAlignment property
+                    switch (TextAlignment)
+                    {
+                        case HorizontalAlignment.Center:
+                            flags |= TextFormatFlags.HorizontalCenter;
+                            break;
+                        case HorizontalAlignment.Right:
+                            flags |= TextFormatFlags.Right;
+                            break;
+                        case HorizontalAlignment.Left:
+                        default:
+                            flags |= TextFormatFlags.Left;
+                            break;
+                    }
+
+                    // Measure text size
+                    Size textSize = TextRenderer.MeasureText(graphics, Text, Font, new Size(rectangle.Width, int.MaxValue), flags);
+
+                    // Calculate text position for vertical centering
+                    int textX = rectangle.X;
+                    int textY = rectangle.Y + (rectangle.Height - textSize.Height) / 2;
+
+                    // Adjust text rectangle for centering and clipping
+                    Rectangle textRect = new Rectangle(textX, textY, rectangle.Width, textSize.Height);
+                    if (textRect.Height > rectangle.Height)
+                    {
+                        textRect.Height = rectangle.Height; // Clip height to fit
+                    }
+
+                    // Draw the text
+                    TextRenderer.DrawText(graphics, Text, Font, textRect, ForeColor, flags);
+
+                    // Debug output to verify alignment
+                    Debug.WriteLine($"Draw: Text='{Text}', Rect={rectangle}, TextRect={textRect}, TextSize={textSize}, Alignment={TextAlignment}");
                 }
 
                 graphics.ResetClip();
@@ -1500,7 +1551,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _innerTextBox.ForeColor = _currentTheme.TextBoxForeColor;
             // Remove borders to prevent interference
             _innerTextBox.BorderStyle = BorderStyle.None;
-
+            BorderColor=_currentTheme.BorderColor;
             // Force the text box to refresh
             _innerTextBox.Refresh();
             if (UseThemeFont)

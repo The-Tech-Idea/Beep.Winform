@@ -24,6 +24,14 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
 
         #region Properties
+        private bool _isRowID;
+        [Category("Data")]
+        [Description("Indicates whether the column is a RowID.")]
+        public bool IsRowID
+        {
+            get => _isRowID;
+            set { _isRowID = value; OnPropertyChanged(nameof(IsRowID)); }
+        }
         private bool _isPrimaryKey;
         [Category("Data")]
         [Description("Indicates whether the column is a primary key.")]

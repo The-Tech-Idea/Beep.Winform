@@ -195,7 +195,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Title Properties"
         #region "Data Source Properties"
-
+        private Dictionary<int, bool> _persistentSelectedRows = new Dictionary<int, bool>(); // Add this field to track selection by RowID
         private object _dataSource;
         object finalData;
         private List<object> _fullData;
@@ -1372,7 +1372,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Update type-related properties, preserve designer settings
                     existingColumn.PropertyTypeName = field.fieldtype ?? existingColumn.PropertyTypeName ?? typeof(object).AssemblyQualifiedName;
                     existingColumn.ColumnType = MapPropertyTypeToDbFieldCategory(existingColumn.PropertyTypeName);
-                    existingColumn.CellEditor = MapPropertyTypeToCellEditor(existingColumn.PropertyTypeName);
+                 //   existingColumn.CellEditor = MapPropertyTypeToCellEditor(existingColumn.PropertyTypeName);
                     // Designer settings like Width, Visible, ColumnCaption remain unchanged
                     Debug.WriteLine($"Synced Column '{field.fieldname}': Type = {existingColumn.PropertyTypeName}");
                 }
@@ -1406,7 +1406,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     selColumn = new BeepColumnConfig
                     {
-                        ColumnCaption = _showCheckboxes ? "☑" : "Sel",
+                        ColumnCaption =  "☑" ,
                         ColumnName = "Sel",
                         Width = _selectionColumnWidth,
                         Visible = true,
@@ -1467,7 +1467,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     var selColumn = new BeepColumnConfig
                     {
-                        ColumnCaption = _showCheckboxes ? "☑" : "Sel",
+                        ColumnCaption =  "☑",
                         ColumnName = "Sel",
                         Width = _selectionColumnWidth,
                         Index = 0,
@@ -1594,72 +1594,102 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void InitializeData()
         {
+            // Wrap _fullData objects with RowID
             _fullData = finalData is IEnumerable<object> enumerable ? enumerable.ToList() : new List<object>();
+            var wrappedData = new List<object>();
+            for (int i = 0; i < _fullData.Count; i++)
+            {
+                wrappedData.Add(new DataRowWrapper(_fullData[i], i));
+            }
+            _fullData = wrappedData;
             _dataOffset = 0;
 
             if (_columns.Count == 0 && _fullData.Any())
             {
-                var firstItem = _fullData.First();
-                var properties = firstItem.GetType().GetProperties();
-                int index = 0;// Add checkbox/selection column if enabled
-
-                    var selColumn = new BeepColumnConfig
-                    {
-                        ColumnCaption = _showCheckboxes ? "☑" : "Sel",
-                        ColumnName = "Sel",
-                        Width = _selectionColumnWidth, // Use the defined selection column width
-                        Index = index++,
-                        Visible = true, // Controlled by ShowCheckboxes/ShowSelection
-                        Sticked = true,
-                        IsSelectionCheckBox=true,
-                       
-                        PropertyTypeName = typeof(bool).AssemblyQualifiedName, // Use bool for checkbox
-                        CellEditor = BeepColumnType.CheckBoxBool // Use checkbox editor
-                    };
-                    selColumn.ColumnType = MapPropertyTypeToDbFieldCategory(selColumn.PropertyTypeName);
-                    _columns.Add(selColumn);
-
-
-                // Add row number column if enabled
-
-                    var rowNumColumn = new BeepColumnConfig
-                    {
-                        ColumnCaption = "#",
-                        ColumnName = "RowNum",
-                        Width = 30, // Fixed width for row numbers
-                        Index = index++,
-                        Visible = true, // Controlled by ShowRowNumbers
-                        Sticked = true,
-                        ReadOnly = true,
-                        IsRowNumColumn = true,
-                        PropertyTypeName = typeof(int).AssemblyQualifiedName, // Use int for row numbers
-                        CellEditor = BeepColumnType.Text // Display as text
-                    };
-                    rowNumColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
-                    _columns.Add(rowNumColumn);
-
-                foreach (var prop in properties)
+                var firstItem = _fullData.First() as DataRowWrapper;
+                if (firstItem != null)
                 {
-                    // Use AssemblyQualifiedName for PropertyTypeName
-                    string propertyTypeName = prop.PropertyType.AssemblyQualifiedName;
-                    var columnConfig = new BeepColumnConfig
+                    var originalData = firstItem.OriginalData;
+                    var properties = originalData.GetType().GetProperties(); // Get properties of the original data object
+                    int index = 0;
+
+                    // Add checkbox/selection column if enabled
+
+                        var selColumn = new BeepColumnConfig
+                        {
+                            ColumnCaption = "☑",
+                            ColumnName = "Sel",
+                            Width = _selectionColumnWidth,
+                            Index = index++,
+                            Visible = true,
+                            Sticked = true,
+                            ReadOnly = false,
+                            IsSelectionCheckBox = true,
+                            PropertyTypeName = typeof(bool).AssemblyQualifiedName,
+                            CellEditor = BeepColumnType.CheckBoxBool
+                        };
+                        selColumn.ColumnType = MapPropertyTypeToDbFieldCategory(selColumn.PropertyTypeName);
+                        _columns.Add(selColumn);
+               
+
+                    // Add row number column if enabled
+
+                        var rowNumColumn = new BeepColumnConfig
+                        {
+                            ColumnCaption = "#",
+                            ColumnName = "RowNum",
+                            Width = 30,
+                            Index = index++,
+                            Visible = true,
+                            Sticked = true,
+                            ReadOnly = true,
+                            IsRowNumColumn = true,
+                            PropertyTypeName = typeof(int).AssemblyQualifiedName,
+                            CellEditor = BeepColumnType.Text
+                        };
+                        rowNumColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
+                        _columns.Add(rowNumColumn);
+            
+
+                    // Add RowID column (hidden, for internal use)
+                    var rowIDColumn = new BeepColumnConfig
                     {
-                        ColumnCaption = prop.Name,
-                        ColumnName = prop.Name,
-                        Width = 100,
+                        ColumnCaption = "RowID",
+                        ColumnName = "RowID",
+                        Width = 0, // Hidden
                         Index = index++,
-                        Visible = true,
-                        PropertyTypeName = propertyTypeName // Full AssemblyQualifiedName
+                        Visible = false,
+                        Sticked = false,
+                        ReadOnly = true,
+                        IsRowID=true,
+                        PropertyTypeName = typeof(int).AssemblyQualifiedName,
+                        CellEditor = BeepColumnType.Text
                     };
+                    rowIDColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowIDColumn.PropertyTypeName);
+                    _columns.Add(rowIDColumn);
 
-                    // Map using PropertyTypeName string
-                    columnConfig.ColumnType = MapPropertyTypeToDbFieldCategory(propertyTypeName);
-                    columnConfig.CellEditor = MapPropertyTypeToCellEditor(propertyTypeName);
+                    // Add data columns from properties of the original data object
+                    foreach (var prop in properties)
+                    {
+                        string propertyTypeName = prop.PropertyType.AssemblyQualifiedName;
+                        var columnConfig = new BeepColumnConfig
+                        {
+                            ColumnCaption = prop.Name,
+                            ColumnName = prop.Name,
+                            Width = 100,
+                            Index = index++,
+                            Visible = true,
+                            PropertyTypeName = propertyTypeName
+                        };
 
-                    _columns.Add(columnConfig);
+                        columnConfig.ColumnType = MapPropertyTypeToDbFieldCategory(propertyTypeName);
+                        columnConfig.CellEditor = MapPropertyTypeToCellEditor(propertyTypeName);
+
+                        _columns.Add(columnConfig);
+                    }
                 }
             }
-           
+
             originalList.Clear();
             originalList.AddRange(_fullData); // Snapshot initial data
             Trackings.Clear();
@@ -1669,6 +1699,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             InitializeRows();
             UpdateScrollBars();
+
             // Populate columns in ComboBox (including "All Columns" option)
             filterColumnComboBox.Items.Add(new SimpleItem { Text = "All Columns", Value = null });
             foreach (var col in Columns)
@@ -1677,8 +1708,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     filterColumnComboBox.Items.Add(new SimpleItem { Text = col.ColumnCaption ?? col.ColumnName, Value = col.ColumnName });
             }
             filterColumnComboBox.SelectedIndex = 0; // Default to "All Columns"
-                                                    // Attach _fullData to DataNavigator as an IList
-            if (DataNavigator != null)            DataNavigator.DataSource = _fullData;
+
+            // Attach _fullData to DataNavigator as an IList
+            if (DataNavigator != null) DataNavigator.DataSource = _fullData;
         }
         #endregion
         #region Data Filling and Navigation
@@ -1700,39 +1732,50 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     if (dataIndex >= 0 && dataIndex < _fullData.Count)
                     {
-                        var dataItem = _fullData[dataIndex];
-                        EnsureTrackingForItem(dataItem, dataIndex);
-
-                        // Update DisplayIndex to the current absolute position in _fullData
-                        row.DisplayIndex = dataIndex;
-
-                        // Fill row with data for all columns
-                        for (int j = 0; j < Columns.Count; j++)
+                        var dataItem = _fullData[dataIndex] as DataRowWrapper;
+                        if (dataItem != null)
                         {
-                            var col = Columns[j];
-                            var cell = row.Cells[j];
+                            EnsureTrackingForItem(dataItem.OriginalData, dataIndex);
 
-                            if (col.ColumnName == "Sel" && (_showCheckboxes || _showSelection))
+                            // Update DisplayIndex to the current absolute position in _fullData
+                            row.DisplayIndex = dataIndex;
+
+                            // Fill row with data for all columns
+                            for (int j = 0; j < Columns.Count; j++)
                             {
-                                // Check if this row’s DisplayIndex is in the selected grid rows
-                                bool isSelected = _selectedgridrows.Any(r => r.DisplayIndex == dataIndex);
-                                cell.CellValue = isSelected;
-                                cell.CellData = isSelected;
+                                var col = Columns[j];
+                                var cell = row.Cells[j];
+
+                                if (col.IsSelectionCheckBox)
+                                {
+                                    // Use RowID to check persistent selection state
+                                    int rowID = dataItem.RowID;
+                                    bool isSelected = _persistentSelectedRows.ContainsKey(rowID) && _persistentSelectedRows[rowID];
+                                    cell.CellValue = isSelected;
+                                    cell.CellData = isSelected;
+                                  //  Debug.WriteLine($"FillVisibleRows: Row {i}, DataIndex {dataIndex}, RowID {rowID}, Sel = {isSelected}, _persistentSelectedRows.Count = {_persistentSelectedRows.Count}");
+                                }
+                                else if (col.IsRowNumColumn)
+                                {
+                                    // Set row number based on absolute data index
+                                    cell.CellValue = dataIndex + 1; // Display 1-based index
+                                    cell.CellData = dataIndex + 1;
+                                }
+                                else if (col.IsRowID )
+                                {
+                                    // Set RowID (hidden column)
+                                    cell.CellValue = dataItem.RowID;
+                                    cell.CellData = dataItem.RowID;
+                                }
+                                else
+                                {
+                                    var prop = dataItem.OriginalData.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
+                                    var value = prop?.GetValue(dataItem.OriginalData) ?? string.Empty;
+                                    cell.CellValue = value;
+                                    cell.CellData = value;
+                                }
+                                row.IsDataLoaded = true;
                             }
-                            else if (col.ColumnName == "RowNum" && _showRowNumbers)
-                            {
-                                // Set row number based on absolute data index
-                                cell.CellValue = dataIndex + 1; // Display 1-based index
-                                cell.CellData = dataIndex + 1;
-                            }
-                            else
-                            {
-                                var prop = dataItem.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
-                                var value = prop?.GetValue(dataItem) ?? string.Empty;
-                                cell.CellValue = value;
-                                cell.CellData = value;
-                            }
-                            row.IsDataLoaded = true;
                         }
                     }
                     else
@@ -1760,16 +1803,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            // Update _selectedRows and _selectedgridrows to reflect visible rows
+            // Update _selectedRows and _selectedgridrows based on persistent selection state using RowID
             var newSelectedRows = new List<int>();
             var newSelectedGridRows = new List<BeepRowConfig>();
-            foreach (var row in _selectedgridrows)
+            for (int i = 0; i < Rows.Count; i++)
             {
-                int newIndex = row.DisplayIndex - _dataOffset;
-                if (newIndex >= 0 && newIndex < Rows.Count && Rows[newIndex].DisplayIndex == row.DisplayIndex)
+                int dataIndex = _dataOffset + i;
+                if (dataIndex >= 0 && dataIndex < _fullData.Count)
                 {
-                    newSelectedRows.Add(newIndex);
-                    newSelectedGridRows.Add(Rows[newIndex]);
+                    var dataItem = _fullData[dataIndex] as DataRowWrapper;
+                    if (dataItem != null)
+                    {
+                        int rowID = dataItem.RowID;
+                        if (_persistentSelectedRows.ContainsKey(rowID) && _persistentSelectedRows[rowID])
+                        {
+                            newSelectedRows.Add(i); // Visible index
+                            newSelectedGridRows.Add(Rows[i]); // Current row instance
+                        }
+                    }
                 }
             }
             _selectedRows = newSelectedRows;
@@ -3936,30 +3987,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                     int rowIndex = clickedCell.RowIndex;
                     if (rowIndex >= 0 && rowIndex < Rows.Count)
                     {
-                        int dataIndex = _dataOffset + rowIndex; // Absolute index in _fullData
+                        int dataIndex = _dataOffset + rowIndex;
+                        var dataItem = _fullData[dataIndex] as DataRowWrapper;
+                        int rowID = dataItem.RowID;
 
                         bool isSelected = (bool)(clickedCell.CellValue ?? false);
-                        var row = Rows[rowIndex];
-                        if (isSelected)
-                        {
-                            row.IsSelected = true;
-                            _selectedRows.Remove(rowIndex);
-                            _selectedgridrows.RemoveAll(r => r.DisplayIndex == dataIndex);
-                            clickedCell.CellValue = false;
-                            clickedCell.CellData = false;
-                        }
-                        else
-                        {   row.IsSelected=false;
-                            _selectedRows.Add(rowIndex);
-                            _selectedgridrows.Add(row);
-                            clickedCell.CellValue = true;
-                            clickedCell.CellData = true;
-                        }
+                        _persistentSelectedRows[rowID] = !isSelected;
+                        clickedCell.CellValue = !isSelected;
+                        clickedCell.CellData = !isSelected;
 
+                        Debug.WriteLine($"BeepGrid_MouseClick: Row {rowIndex}, DataIndex {dataIndex}, RowID {rowID}, Sel = {!isSelected}, _persistentSelectedRows.Count = {_persistentSelectedRows.Count}");
                         Invalidate();
                         RaiseSelectedRowsChanged();
                     }
-                    return; // Exit to avoid cell selection logic
+                    return;
                 }
             }
 
@@ -4580,6 +4621,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.Dispose(disposing);
             if (disposing)
             {
+                _persistentSelectedRows.Clear(); // Clear p
                 if (_verticalScrollBar != null)
                 {
                     _verticalScrollBar.Dispose();

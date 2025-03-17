@@ -3982,7 +3982,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (clickedCell != null)
             {
                 int colIndex = clickedCell.ColumnIndex;
-                if (Columns[colIndex].ColumnName == "Sel" && (_showCheckboxes || _showSelection))
+                if (Columns[colIndex].IsSelectionCheckBox && (_showCheckboxes || _showSelection))
                 {
                     int rowIndex = clickedCell.RowIndex;
                     if (rowIndex >= 0 && rowIndex < Rows.Count)
@@ -3996,7 +3996,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         clickedCell.CellValue = !isSelected;
                         clickedCell.CellData = !isSelected;
 
-                        Debug.WriteLine($"BeepGrid_MouseClick: Row {rowIndex}, DataIndex {dataIndex}, RowID {rowID}, Sel = {!isSelected}, _persistentSelectedRows.Count = {_persistentSelectedRows.Count}");
+                        //Debug.WriteLine($"BeepGrid_MouseClick: Row {rowIndex}, DataIndex {dataIndex}, RowID {rowID}, Sel = {!isSelected}, _persistentSelectedRows.Count = {_persistentSelectedRows.Count}");
                         Invalidate();
                         RaiseSelectedRowsChanged();
                     }
@@ -4021,7 +4021,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         DataNavigator.BindingSource.Position = _selectedRow.DisplayIndex;
                     }
-                    if (!_columns[_selectedCell.ColumnIndex].ReadOnly)
+                    if (!_columns[_selectedCell.ColumnIndex].ReadOnly && _columns[_selectedCell.ColumnIndex].CellEditor!= BeepColumnType.Image  )
                     {
                         ShowCellEditorIn(_selectedCell, e.Location);
                     }

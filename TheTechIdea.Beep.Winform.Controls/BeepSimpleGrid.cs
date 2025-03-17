@@ -2,6 +2,7 @@
 using System.Collections;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Drawing.Design;
 using System.Globalization;
@@ -1040,6 +1041,62 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SendLog($"Error starting edit: {ex.Message}");
             }
         }
+     
+        private void SendLog(string message)
+        {
+            Console.WriteLine(message);
+            Debug.WriteLine(message);
+        }
+        private void SyncWithNavigatorPosition()
+        {
+            int targetIndex = DataNavigator.BindingSource.Position;
+            if (targetIndex >= 0 && targetIndex < _fullData.Count)
+            {
+                int visibleRowCount = GetVisibleRowCount();
+                int newOffset = Math.Max(0, Math.Min(targetIndex - (visibleRowCount / 2), _fullData.Count - visibleRowCount));
+                if (newOffset != _dataOffset)
+                {
+                    StartSmoothScroll(newOffset);
+                }
+
+                int newRowIndex = targetIndex - _dataOffset;
+                if (newRowIndex >= 0 && newRowIndex < Rows.Count)
+                {
+                    SelectCell(newRowIndex, _selectedColumnIndex >= 0 ? _selectedColumnIndex : 0);
+                }
+            }
+        }
+        #endregion Data Navigator
+        #region DataSource Update
+        private void InsertIntoDataSource(object newData)
+        {
+            // Example: Insert into a database using IDBConnection
+            if (Entity != null && DataSource is BindingSource bs && bs.DataSource is IDBConnection connection)
+            {
+                // Implement insert logic (e.g., using connection.ExecuteInsert)
+                Debug.WriteLine($"Inserted new record: {newData}");
+            }
+        }
+
+        private void UpdateInDataSource(object originalData, Dictionary<string, object> changes)
+        {
+            // Example: Update in a database using IDBConnection
+            if (Entity != null && DataSource is BindingSource bs && bs.DataSource is IDBConnection connection)
+            {
+                // Implement update logic (e.g., using connection.ExecuteUpdate with originalData and changes)
+                Debug.WriteLine($"Updated record: Original={originalData}, Changes={string.Join(", ", changes.Select(kvp => $"{kvp.Key}={kvp.Value}"))}");
+            }
+        }
+
+        private void DeleteFromDataSource(object originalData)
+        {
+            // Example: Delete from a database using IDBConnection
+            if (Entity != null && DataSource is BindingSource bs && bs.DataSource is IDBConnection connection)
+            {
+                // Implement delete logic (e.g., using connection.ExecuteDelete)
+                Debug.WriteLine($"Deleted record: {originalData}");
+            }
+        }
         private void UpdateDataRecordFromRow(BeepCellConfig editingCell)
         {
             if (Rows == null || editingCell == null || editingCell.RowIndex < 0 || editingCell.RowIndex >= Rows.Count || _fullData == null || !_fullData.Any())
@@ -1048,7 +1105,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BeepRowConfig row = Rows[editingCell.RowIndex];
 
             // Find the "RowID" cell in the row to get the stable identifier
-            BeepColumnConfig rowidcol = Columns.Find(p=>p.IsRowID)      ;
+            BeepColumnConfig rowidcol = Columns.Find(p => p.IsRowID);
             var rowIDCell = row.Cells.FirstOrDefault(c => Columns[c.ColumnIndex].IsRowID);
             if (rowIDCell == null || rowIDCell.CellValue == null || !int.TryParse(rowIDCell.CellValue.ToString(), out int rowID))
             {
@@ -1087,7 +1144,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     var col = Columns[cell.ColumnIndex];
                     // Skip special columns like "Sel", "RowNum", and "RowID"
-                    if (col.IsSelectionCheckBox|| col.IsRowNumColumn|| col.IsRowID)
+                    if (col.IsSelectionCheckBox || col.IsRowNumColumn || col.IsRowID)
                         continue;
 
                     var prop = originalData.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
@@ -1153,31 +1210,176 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-        private void SendLog(string message)
+        private void SaveToDataSource()
         {
-            Console.WriteLine(message);
-            Debug.WriteLine(message);
-        }
-        private void SyncWithNavigatorPosition()
-        {
-            int targetIndex = DataNavigator.BindingSource.Position;
-            if (targetIndex >= 0 && targetIndex < _fullData.Count)
+            try
             {
-                int visibleRowCount = GetVisibleRowCount();
-                int newOffset = Math.Max(0, Math.Min(targetIndex - (visibleRowCount / 2), _fullData.Count - visibleRowCount));
-                if (newOffset != _dataOffset)
+                if (_fullData == null || originalList == null || DataSource == null)
                 {
-                    StartSmoothScroll(newOffset);
+                    Debug.WriteLine("SaveToDataSource: _fullData, originalList, or DataSource is null. Cannot sync changes.");
+                    return;
                 }
 
-                int newRowIndex = targetIndex - _dataOffset;
-                if (newRowIndex >= 0 && newRowIndex < Rows.Count)
+                // Handle the DataSource based on its type
+                if (DataSource is BindingSource bindingSource)
                 {
-                    SelectCell(newRowIndex, _selectedColumnIndex >= 0 ? _selectedColumnIndex : 0);
+                    // Scenario 1: DataSource is BindingSource
+                    // Use BindingSource to manage changes
+                    foreach (var tracking in Trackings.Where(t => t.EntityState == EntityState.Added || t.EntityState == EntityState.Modified))
+                    {
+                        var wrappedItem = _fullData[tracking.CurrentIndex] as DataRowWrapper;
+                        if (wrappedItem != null)
+                        {
+                            switch (wrappedItem.RowState)
+                            {
+                                case DataRowState.Added:
+                                    if (tracking.EntityState == EntityState.Added)
+                                    {
+                                        Debug.WriteLine($"Saving Added Record - RowID: {wrappedItem.RowID}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
+                                        bindingSource.Add(wrappedItem.OriginalData); // Add to BindingSource
+                                        originalList.Add(wrappedItem);
+                                        tracking.EntityState = EntityState.Unchanged;
+                                        wrappedItem.RowState = DataRowState.Unchanged;
+                                    }
+                                    break;
+
+                                case DataRowState.Modified:
+                                    if (tracking.EntityState == EntityState.Modified && ChangedValues.ContainsKey(wrappedItem))
+                                    {
+                                        int originalIndex = originalList.IndexOf(wrappedItem);
+                                        var originalWrapped = originalList[originalIndex] as DataRowWrapper;
+                                        Debug.WriteLine($"Saving Modified Record - RowID: {wrappedItem.RowID}, OriginalIndex: {originalIndex}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
+                                        // Modifications already applied to OriginalData (referenced by BindingSource)
+                                        // Example: UpdateInDataSource(originalWrapped?.OriginalData, ChangedValues[wrappedItem]);
+                                        tracking.EntityState = EntityState.Unchanged;
+                                        wrappedItem.RowState = DataRowState.Unchanged;
+                                        ChangedValues.Remove(wrappedItem);
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+
+                    // Process deleted records
+                    for (int i = 0; i < deletedList.Count; i++)
+                    {
+                        var wrappedItem = deletedList[i] as DataRowWrapper;
+                        if (wrappedItem != null && wrappedItem.RowState == DataRowState.Deleted)
+                        {
+                            Tracking tracking = GetTrackingItem(wrappedItem);
+                            if (tracking != null && tracking.EntityState == EntityState.Deleted)
+                            {
+                                Debug.WriteLine($"Saving Deleted Record - RowID: {wrappedItem.RowID}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
+                                int sourceIndex = bindingSource.IndexOf(wrappedItem.OriginalData);
+                                if (sourceIndex >= 0)
+                                {
+                                    bindingSource.RemoveAt(sourceIndex); // Remove from BindingSource
+                                }
+                                originalList.Remove(wrappedItem);
+                                Trackings.Remove(tracking);
+                                deletedList.RemoveAt(i);
+                                i--; // Adjust index after removal
+                            }
+                        }
+                    }
+
+                    // Notify BindingSource of changes
+                    bindingSource.ResetBindings(false);
                 }
+                else if (DataSource is IList list)
+                {
+                    // Scenario 2: DataSource is IList (propagate to finalData)
+                    IList dataSourceList = list;
+
+                    // Process added and modified records using Trackings
+                    foreach (var tracking in Trackings.Where(t => t.EntityState == EntityState.Added || t.EntityState == EntityState.Modified))
+                    {
+                        var wrappedItem = _fullData[tracking.CurrentIndex] as DataRowWrapper;
+                        if (wrappedItem != null)
+                        {
+                            switch (wrappedItem.RowState)
+                            {
+                                case DataRowState.Added:
+                                    if (tracking.EntityState == EntityState.Added)
+                                    {
+                                        Debug.WriteLine($"Saving Added Record - RowID: {wrappedItem.RowID}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
+                                        dataSourceList.Add(wrappedItem.OriginalData);
+                                        originalList.Add(wrappedItem);
+                                        tracking.EntityState = EntityState.Unchanged;
+                                        wrappedItem.RowState = DataRowState.Unchanged;
+                                    }
+                                    break;
+
+                                case DataRowState.Modified:
+                                    if (tracking.EntityState == EntityState.Modified && ChangedValues.ContainsKey(wrappedItem))
+                                    {
+                                        int originalIndex = originalList.IndexOf(wrappedItem);
+                                        var originalWrapped = originalList[originalIndex] as DataRowWrapper;
+                                        Debug.WriteLine($"Saving Modified Record - RowID: {wrappedItem.RowID}, OriginalIndex: {originalIndex}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
+                                        // Modifications already applied to OriginalData
+                                        // Example: UpdateInDataSource(originalWrapped?.OriginalData, ChangedValues[wrappedItem]);
+                                        tracking.EntityState = EntityState.Unchanged;
+                                        wrappedItem.RowState = DataRowState.Unchanged;
+                                        ChangedValues.Remove(wrappedItem);
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+
+                    // Process deleted records
+                    for (int i = 0; i < deletedList.Count; i++)
+                    {
+                        var wrappedItem = deletedList[i] as DataRowWrapper;
+                        if (wrappedItem != null && wrappedItem.RowState == DataRowState.Deleted)
+                        {
+                            Tracking tracking = GetTrackingItem(wrappedItem);
+                            if (tracking != null && tracking.EntityState == EntityState.Deleted)
+                            {
+                                Debug.WriteLine($"Saving Deleted Record - RowID: {wrappedItem.RowID}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
+                                int sourceIndex = -1;
+                                for (int j = 0; j < dataSourceList.Count; j++)
+                                {
+                                    if (ReferenceEquals(dataSourceList[j], wrappedItem.OriginalData))
+                                    {
+                                        sourceIndex = j;
+                                        break;
+                                    }
+                                }
+                                if (sourceIndex >= 0)
+                                {
+                                    dataSourceList.RemoveAt(sourceIndex);
+                                }
+                                originalList.Remove(wrappedItem);
+                                Trackings.Remove(tracking);
+                                deletedList.RemoveAt(i);
+                                i--; // Adjust index after removal
+                            }
+                        }
+                    }
+
+                    // For IList, rely on its notification mechanism (if any) or manual grid update
+                    FillVisibleRows();
+                }
+                else
+                {
+                    Debug.WriteLine("SaveToDataSource: DataSource is neither BindingSource nor IList. Cannot sync changes.");
+                    return;
+                }
+
+                // Update the grid state
+                UpdateScrollBars();
+                Invalidate();
+
+                Debug.WriteLine("SaveToDataSource: All changes processed and synchronized with DataSource.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"SaveToDataSource Error: {ex.Message}");
+                SendLog($"Error saving to data source: {ex.Message}");
             }
         }
-        #endregion Data Navigator
+        #endregion DataSource Update
         #region Initialization
         private void DataSetup()
         {

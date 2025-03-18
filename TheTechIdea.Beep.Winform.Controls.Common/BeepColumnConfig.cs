@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Desktop.Common.Converters;
+using TheTechIdea.Beep.Vis.Modules;
 
 
 namespace TheTechIdea.Beep.Desktop.Common
@@ -342,6 +343,14 @@ namespace TheTechIdea.Beep.Desktop.Common
         {
             get => _date;
             set { _date = value; OnPropertyChanged(nameof(Date)); }
+        }
+        private AggregationType aggregationType;
+        [Category("Data")]
+        [Description("The Aggregation Type for the column.")]
+        public AggregationType AggregationType
+        {
+            get => aggregationType;
+            set { aggregationType = value; OnPropertyChanged(nameof(AggregationType)); }
         }
         //[Category("Data")]
         //[Description("Click to select an enum type.")]

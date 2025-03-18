@@ -6,6 +6,20 @@ using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
+  
+    public enum AggregationType
+    {
+        None,
+        Sum,
+        Average,
+        Count,
+        Min,
+        Max,
+        First,
+        Last,
+        DistinctCount,
+        Custom
+    }
     public enum TestimonialViewType
     {
         Classic,    // Default testimonial with image on left

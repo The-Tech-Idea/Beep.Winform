@@ -1,12 +1,6 @@
 ﻿using Autofac;
 using Autofac.Core;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TheTechIdea.Beep.Desktop.Common.KeyManagement;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Managers;
 

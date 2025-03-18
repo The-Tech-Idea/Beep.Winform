@@ -396,9 +396,6 @@
     </Compile>
     <Compile Update="Containers\uc_Container.cs" />
     <Compile Update="BeepBindingNavigator.cs" />
-    <Compile Update="Design\Forms\DataBlocksCollectionForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Update="Grid\BeepGrid.cs" />
     <Compile Update="MainForm\uc_MainSplitPanel.cs" />
     <Compile Update="Managers\Wizards\Frm_Wizard.cs" />
@@ -436,7 +433,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GFX\PNG\" />
+    <Folder Include="Models\" />
     <Folder Include="Properties\DataSources\" />
+    <Folder Include="Totals\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GFX\SVG\square-minus.svg" />

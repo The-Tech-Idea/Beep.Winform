@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepTextBox filterTextBox;
         private BeepComboBox filterColumnComboBox;
         protected int headerPanelHeight = 20;
-        protected int bottomagregationPanelHeight = 12;
+        protected int bottomagregationPanelHeight = 20;
         protected int footerPanelHeight = 12;
         protected int navigatorPanelHeight = 20;
         private int _stickyWidth = 0; // Cache sticky column width
@@ -374,16 +374,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-        private bool _showBottomRow = false;
+        private bool _showaggregationRow = false;
         [Browsable(true)]
         [Category("Layout")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public bool ShowBottomRow
+        public bool ShowAggregationRow
         {
-            get => _showBottomRow;
+            get => _showaggregationRow;
             set
             {
-                _showBottomRow = value;
+                _showaggregationRow = value;
                 Invalidate();
             }
         }
@@ -496,7 +496,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Configuration Properties"
         
         public BindingList<BeepRowConfig> Rows { get; set; } = new BindingList<BeepRowConfig>();
-        public BeepRowConfig BottomRow { get; set; }
+        public BeepRowConfig aggregationRow { get; set; }
         private BeepBindingNavigator _dataNavigator;
         [Browsable(true)]
         [Category("Data")]
@@ -1670,7 +1670,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         Width = _selectionColumnWidth,
                         Visible = true,
                         Sticked = true,
-                       
+                        IsUnbound = true,
                         IsSelectionCheckBox = true,
                         PropertyTypeName = typeof(bool).AssemblyQualifiedName,
                         CellEditor = BeepColumnType.CheckBoxBool
@@ -1692,13 +1692,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                         Visible = true,
                         Sticked = true,
                         ReadOnly = true,
+                        IsUnbound = true,
                         IsRowNumColumn = true,
+                        AggregationType = AggregationType.Count,
                         PropertyTypeName = typeof(int).AssemblyQualifiedName,
                         CellEditor = BeepColumnType.Text
                     };
                     rowNumColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
                 }
-               
+            updatedColumns.Add(rowNumColumn);
             if (rowIDColumn == null)
             {
                 rowIDColumn = new BeepColumnConfig
@@ -1711,6 +1713,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Sticked = true,
                     ReadOnly = true,
                     IsRowID = true,
+                    IsUnbound = true,
                     PropertyTypeName = typeof(int).AssemblyQualifiedName,
                     CellEditor = BeepColumnType.Text,
                     GuidID = Guid.NewGuid().ToString(),
@@ -1753,7 +1756,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         Index = 0,
                         Visible = true,
                         Sticked = true,
-                       
+                        IsUnbound = true,
                         IsSelectionCheckBox = true,
                         PropertyTypeName = typeof(bool).AssemblyQualifiedName,
                         CellEditor = BeepColumnType.CheckBoxBool,
@@ -1778,12 +1781,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                         Sticked = true,
                         ReadOnly = true,
                         IsRowNumColumn = true,
+                        IsUnbound = true,
                         PropertyTypeName = typeof(int).AssemblyQualifiedName,
                         CellEditor = BeepColumnType.Text,
                         GuidID = Guid.NewGuid().ToString(),
                         SortMode = DataGridViewColumnSortMode.NotSortable,
                         Resizable = DataGridViewTriState.False,
-                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                        AggregationType= AggregationType.Count
                     };
                     rowNumColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
                     Columns.Add(rowNumColumn);
@@ -1799,6 +1804,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Sticked = true,
                     ReadOnly = true,
                     IsRowID = true,
+                    IsUnbound = true,
                     PropertyTypeName = typeof(int).AssemblyQualifiedName,
                     CellEditor = BeepColumnType.Text,
                     GuidID = Guid.NewGuid().ToString(),
@@ -1888,7 +1894,28 @@ namespace TheTechIdea.Beep.Winform.Controls
                 row.DisplayIndex = i;
                 Rows.Add(row);
             }
-
+            // Initialize aggregationRow if ShowAggregationRow is true
+             aggregationRow = new BeepRowConfig
+            {
+                Index = Rows.Count, // Last index
+                DisplayIndex = -1,  // Indicate it's a sticky row
+                IsAggregation = true
+            };
+            foreach (var col in Columns)
+            {
+                var cell = new BeepCellConfig
+                {
+                    CellValue = null,
+                    CellData = null,
+                    IsEditable = false, // Aggregation cells are read-only
+                    ColumnIndex = col.Index,
+                    IsVisible = col.Visible,
+                    RowIndex = Rows.Count,
+                    IsAggregation = true // Mark as aggregation cell
+                };
+                aggregationRow.Cells.Add(cell);
+            }
+          //  Rows.Add(aggregationRow);
             UpdateScrollBars();
         }
         private void InitializeData()
@@ -2050,35 +2077,39 @@ namespace TheTechIdea.Beep.Winform.Controls
                             {
                                 var col = Columns[j];
                                 var cell = row.Cells[j];
+    
+                                    if (col.IsSelectionCheckBox)
+                                    {
+                                        // Use RowID to check persistent selection state
+                                        int rowID = dataItem.RowID;
+                                        bool isSelected = _persistentSelectedRows.ContainsKey(rowID) && _persistentSelectedRows[rowID];
+                                        cell.CellValue = isSelected;
+                                        cell.CellData = isSelected;
+                                        //  Debug.WriteLine($"FillVisibleRows: Row {i}, DataIndex {dataIndex}, RowID {rowID}, Sel = {isSelected}, _persistentSelectedRows.Count = {_persistentSelectedRows.Count}");
+                                    }
+                                    else if (col.IsRowNumColumn)
+                                    {
+                                        // Set row number based on absolute data index
+                                        cell.CellValue = dataIndex + 1; // Display 1-based index
+                                        cell.CellData = dataIndex + 1;
+                                    }
+                                    else if (col.IsRowID)
+                                    {
+                                        // Set RowID (hidden column)
+                                        cell.CellValue = dataItem.RowID;
+                                        cell.CellData = dataItem.RowID;
+                                    }
+                                    else
+                                    {
+                                        var prop = dataItem.OriginalData.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
+                                        var value = prop?.GetValue(dataItem.OriginalData) ?? string.Empty;
+                                        cell.CellValue = value;
+                                        cell.CellData = value;
+                                    }
 
-                                if (col.IsSelectionCheckBox)
-                                {
-                                    // Use RowID to check persistent selection state
-                                    int rowID = dataItem.RowID;
-                                    bool isSelected = _persistentSelectedRows.ContainsKey(rowID) && _persistentSelectedRows[rowID];
-                                    cell.CellValue = isSelected;
-                                    cell.CellData = isSelected;
-                                  //  Debug.WriteLine($"FillVisibleRows: Row {i}, DataIndex {dataIndex}, RowID {rowID}, Sel = {isSelected}, _persistentSelectedRows.Count = {_persistentSelectedRows.Count}");
-                                }
-                                else if (col.IsRowNumColumn)
-                                {
-                                    // Set row number based on absolute data index
-                                    cell.CellValue = dataIndex + 1; // Display 1-based index
-                                    cell.CellData = dataIndex + 1;
-                                }
-                                else if (col.IsRowID )
-                                {
-                                    // Set RowID (hidden column)
-                                    cell.CellValue = dataItem.RowID;
-                                    cell.CellData = dataItem.RowID;
-                                }
-                                else
-                                {
-                                    var prop = dataItem.OriginalData.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
-                                    var value = prop?.GetValue(dataItem.OriginalData) ?? string.Empty;
-                                    cell.CellValue = value;
-                                    cell.CellData = value;
-                                }
+                                
+
+                              
                                 row.IsDataLoaded = true;
                             }
                         }
@@ -2107,7 +2138,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Debug.WriteLine($"FillVisibleRows Error at Row {i}, DataIndex {dataIndex}: {ex.Message}\nStackTrace: {ex.StackTrace}");
                 }
             }
-
+            // Update aggregationRow separately if it exists
+            if (_showaggregationRow && aggregationRow != null)
+            {
+                for (int j = 0; j < aggregationRow.Cells.Count && j < Columns.Count; j++)
+                {
+                    var col = Columns[j];
+                    var cell = aggregationRow.Cells[j];
+                    if (cell.IsAggregation)
+                    {
+                        object aggregatedValue = ComputeAggregation(col, _fullData);
+                        cell.CellValue = aggregatedValue?.ToString() ?? "";
+                        cell.CellData = aggregatedValue;
+                       // Debug.WriteLine($"FillVisibleRows (Aggregation): Col[{j}] CellValue={cell.CellValue}");
+                    }
+                }
+            }
             // Update _selectedRows and _selectedgridrows based on persistent selection state using RowID
             var newSelectedRows = new List<int>();
             var newSelectedGridRows = new List<BeepRowConfig>();
@@ -2156,14 +2202,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SyncWithNavigatorPosition();
             }
         }
-        //public void MoveNextRow()
-        //{
-           
-        //}
-        //public void MovePreviousRow()
-        //{
-          
-        //}
+      
         public void MoveNextCell()
         {
             try
@@ -2738,16 +2777,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Painting
         protected override void OnPaint(PaintEventArgs e)
         {
-           // base.OnPaint(e);
+            // base.OnPaint(e);
             UpdateDrawingRect();
             var g = e.Graphics;
             var drawingBounds = DrawingRect;
+
             // Update scrollbar visibility first
-            UpdateScrollBars(); // Ensure visibility is current before adjusting gridRect
-          
+            UpdateScrollBars();
+
+            // Draw Bottom Items before Drawing the Grid
             bottomPanelY = drawingBounds.Bottom;
             botomspacetaken = 0;
             topPanelY = drawingBounds.Top;
+
+            // Reserve space for horizontal scrollbar if visible
+            if (_horizontalScrollBar.Visible)
+            {
+                bottomPanelY -= _horizontalScrollBar.Height;
+                botomspacetaken += _horizontalScrollBar.Height;
+            }
+
             if (_showNavigator)
             {
                 bottomPanelY -= navigatorPanelHeight;
@@ -2758,8 +2807,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _navigatorDrawn = true;
                 if (_showNavigator)
                 {
-                    //bottomPanelY -= navigatorPanelHeight;
-                    //botomspacetaken += navigatorPanelHeight;
                     navigatorPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), navigatorPanelHeight);
                     DrawNavigationRow(g, navigatorPanelRect);
                 }
@@ -2769,7 +2816,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     DrawNavigationRow(g, navigatorPanelRect);
                 }
             }
-           
 
             if (_showFooter)
             {
@@ -2779,16 +2825,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawFooterRow(g, footerPanelRect);
             }
 
-            if (_showBottomRow)
+            if (_showaggregationRow)
             {
                 bottomPanelY -= bottomagregationPanelHeight;
                 botomspacetaken += bottomagregationPanelHeight;
                 bottomagregationPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), bottomagregationPanelHeight);
                 DrawBottomAggregationRow(g, bottomagregationPanelRect);
             }
-            int filterPanelHeight = 40;
 
-          
+            // Draw Top Items before Drawing the Grid
+            int filterPanelHeight = 40;
             if (!_filterpaneldrawn)
             {
                 _filterpaneldrawn = true;
@@ -2813,24 +2859,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 headerPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), headerPanelHeight);
                 DrawHeaderPanel(g, headerPanelRect);
                 topPanelY += headerPanelHeight;
-                //   botomspacetaken += headerPanelHeight;
             }
-
             if (_showColumnHeaders)
             {
                 columnsheaderPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), ColumnHeaderHeight);
                 PaintColumnHeaders(g, columnsheaderPanelRect);
                 topPanelY += ColumnHeaderHeight;
-             //   botomspacetaken += ColumnHeaderHeight;
             }
 
-            int availableHeight = drawingBounds.Height - topPanelY-botomspacetaken -  (_horizontalScrollBar.Visible ? _horizontalScrollBar.Height : 0);
+            // Grid would Draw on the remaining space
+            int availableHeight = drawingBounds.Height - topPanelY - botomspacetaken;
             int availableWidth = drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
             gridRect = new Rectangle(drawingBounds.Left, topPanelY, availableWidth, availableHeight);
 
-            // Draw CheckBox or RowNumber column if enabled
-
-            // ---------------------------------------------------------------------
+            // Draw grid content
             UpdateStickyWidth();
             PaintRows(g, gridRect);
 
@@ -2838,20 +2880,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawColumnBorders(g, gridRect);
             if (_showhorizontalgridlines)
                 DrawRowsBorders(g, gridRect);
-           
+
+            // Position scrollbars after rendering
+            PositionScrollBars();
 
             // Ensure editor control is visible if present
             if (IsEditorShown && _editingControl != null && _editingControl.Parent == this)
             {
                 _editingControl.Invalidate(); // Force editor redraw if needed
             }
-            if  (_horizontalScrollBar.Visible )
+            if (_horizontalScrollBar.Visible)
             {
-                _horizontalScrollBar.Invalidate(); // Force editor redraw if needed
+                _horizontalScrollBar.Invalidate(); // Force horizontal scrollbar redraw
             }
             if (_verticalScrollBar.Visible)
             {
-                _horizontalScrollBar.Invalidate(); // Force editor redraw if needed
+                _verticalScrollBar.Invalidate(); // Force vertical scrollbar redraw
             }
         }
         private void DrawFilterPanel(Graphics g, Rectangle filterPanelRect)
@@ -2871,17 +2915,45 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             using (var brush = new SolidBrush(_currentTheme.BackColor))
             using (var pen = new Pen(_currentTheme.GridLineColor))
+            using (var thickPen = new Pen(_currentTheme.GridLineColor, 2)) // Thicker pen for emphasis
             {
                 g.FillRectangle(brush, rect);
-                g.DrawLine(pen, rect.Left, rect.Top, rect.Right, rect.Top);
-                if (BottomRow != null)
+
+                // Draw a prominent top line
+                g.DrawLine(thickPen, rect.Left, rect.Top, rect.Right, rect.Top);
+                // Optional: Add a second line for extra emphasis (e.g., 1 pixel below)
+                // g.DrawLine(pen, rect.Left, rect.Top + 1, rect.Right, rect.Top + 1);
+
+                if (aggregationRow != null)
                 {
-                    int xOffset = rect.Left + XOffset;
-                    for (int i = 0; i < BottomRow.Cells.Count && i < Columns.Count; i++)
+                    // Draw scrolling columns, adjusted for horizontal scroll
+                    var scrollingColumns = Columns.Where(c => !c.Sticked && c.Visible).ToList();
+                    int scrollingXOffset = rect.Left + _stickyWidth - _xOffset; // Start after sticky columns, adjusted by scroll
+                    foreach (var scrollingCol in scrollingColumns)
                     {
-                        var cellRect = new Rectangle(xOffset, rect.Top, Columns[i].Width, rect.Height);
-                        PaintCell(g, BottomRow.Cells[i], cellRect,_currentTheme.GridBackColor);
-                        xOffset += Columns[i].Width;
+                        int columnIndex = Columns.IndexOf(scrollingCol);
+                        if (columnIndex >= 0 && columnIndex < aggregationRow.Cells.Count)
+                        {
+                            var cell = aggregationRow.Cells[columnIndex];
+                            var cellRect = new Rectangle(scrollingXOffset, rect.Top, scrollingCol.Width, rect.Height);
+                            PaintCell(g, cell, cellRect, _currentTheme.GridBackColor);
+                            scrollingXOffset += scrollingCol.Width;
+                        }
+                    }
+                    // Draw sticky columns first
+                    var stickyColumns = Columns.Where(c => c.Sticked && c.Visible).ToList();
+                    int stickyXOffset = rect.Left;
+                    foreach (var stickyCol in stickyColumns)
+                    {
+                        int columnIndex = Columns.IndexOf(stickyCol);
+                        if (columnIndex >= 0 && columnIndex < aggregationRow.Cells.Count)
+                        {
+                            var cell = aggregationRow.Cells[columnIndex];
+                            int stickyX = stickyXOffset;
+                            var cellRect = new Rectangle(stickyX, rect.Top, stickyCol.Width, rect.Height);
+                            PaintCell(g, cell, cellRect, _currentTheme.GridBackColor);
+                            stickyXOffset += stickyCol.Width;
+                        }
                     }
                 }
             }
@@ -2916,7 +2988,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             _stickyWidth = Math.Min(baseStickyWidth, gridRect.Width);
           //  System.Diagnostics.Debug.WriteLine($"UpdateStickyWidth: _stickyWidth={_stickyWidth}, BaseSticky={baseStickyWidth}, GridRect.Width={gridRect.Width}");
         }
-        // Helper method with centered text
         private void PaintHeaderCell(Graphics g, BeepColumnConfig col, Rectangle cellRect, StringFormat format)
         {
             using (Brush bgBrush = new SolidBrush(_currentTheme.HeaderBackColor))
@@ -2951,8 +3022,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     var row = Rows[i];
                     // Align rowRect with scrollingRegion, accounting for scroll
-                    int scrollingStartX = scrollingRegion.Left - _xOffset;
-                    int scrollingWidth = scrollingRegion.Width + _xOffset; // Allow full scroll range within clip
+                    int scrollingStartX = Math.Max(bounds.Left, scrollingRegion.Left - _xOffset);
+                    int scrollingWidth = scrollingRegion.Width + Math.Max(0, _xOffset - _stickyWidth); // Adjust width if scrolled beyond sticky region
                     var rowRect = new Rectangle(scrollingStartX, yOffset, scrollingWidth, RowHeight);
 
                     PaintScrollingRow(g, row, rowRect);
@@ -3015,7 +3086,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     cell.Width = Math.Max(0, rightBoundary - xOffset); // Truncate last cell if needed
                     if (cell.Width <= 0) break; // No room left
                 }
-
+                //  // Stop if cell would exceed rowRect.Left
+                  if (xOffset < rowRect.Left)
+                {
+                    xOffset += Columns[i].Width;
+                    continue;
+                }
                 var cellRect = new Rectangle(cell.X, cell.Y, cell.Width, cell.Height);
                 Color backcolor = cell.RowIndex == _currentRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
                 PaintCell(g, cell, cellRect, backcolor);
@@ -3024,16 +3100,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (xOffset >= rightBoundary) break; // Exit if past boundary
             }
         }
-        private void PaintCell(Graphics g, BeepCellConfig cell, Rectangle cellRect,Color backcolor)
+        private void PaintCell(Graphics g, BeepCellConfig cell, Rectangle cellRect, Color backcolor)
         {
             // If this cell is being edited, skip drawing so that
             // the editor control remains visible.
-          //  if (_selectedCell == cell && !_columns[_selectedCell.ColumnIndex].ReadOnly) return;
+            //  if (_selectedCell == cell && !_columns[_selectedCell.ColumnIndex].ReadOnly) return;
             Rectangle TargetRect = cellRect;
             using (var cellBrush = new SolidBrush(backcolor))
             {
                 g.FillRectangle(cellBrush, TargetRect);
-            }               
+            }
             if (_selectedCell == cell)
             {
                 using (var cellBrush = new SolidBrush(_currentTheme.GridRowHoverBackColor)) // ✅ Use a highlight color
@@ -3045,7 +3121,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     g.DrawRectangle(borderPen, TargetRect);
                 }
             }
-            
+
             // Get the column editor if available
             if (!_columnEditors.TryGetValue(Columns[cell.ColumnIndex].ColumnName, out IBeepUIComponent columnEditor))
 
@@ -3058,89 +3134,104 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (columnEditor != null)
             {
-             
-                // 🔹 Correctly update control bounds
                 var editor = (Control)columnEditor;
                 editor.Bounds = new Rectangle(TargetRect.X, TargetRect.Y, TargetRect.Width, TargetRect.Height);
-             
-                // 🔹 Update the control value to match the cell's data
                 UpdateCellControl(columnEditor, Columns[cell.ColumnIndex], cell.CellValue);
-               
-                // 🔹 Draw the editor or its representation
-                switch (columnEditor)
+
+                // Force BeepTextBox for aggregation cells
+                if (cell.IsAggregation)
                 {
-                    case BeepTextBox textBox:
-                        textBox.ForeColor = _currentTheme.GridForeColor;
-                        textBox.BackColor = _currentTheme.GridBackColor;
-                        textBox.Draw(g, TargetRect);
-                        break;
-                    case BeepCheckBoxBool checkBox1:
-                        checkBox1.ForeColor = _currentTheme.GridForeColor;
-                        checkBox1.BackColor = _currentTheme.GridBackColor;
-                        checkBox1.Draw(g, TargetRect );
-                        break;
-                    case BeepCheckBoxChar checkBox2:
-                        checkBox2.ForeColor = _currentTheme.GridForeColor;
-                        checkBox2.BackColor = _currentTheme.GridBackColor;
-                        checkBox2.Draw(g, TargetRect);
-                        break;
-                    case BeepCheckBoxString checkBox3:
-                        checkBox3.ForeColor = _currentTheme.GridForeColor;
-                        checkBox3.BackColor = _currentTheme.GridBackColor;
-                        checkBox3.Draw(g, TargetRect);
-                        break;
-                    case BeepComboBox comboBox:
-                        comboBox.ForeColor = _currentTheme.GridForeColor;
-                        comboBox.BackColor = _currentTheme.GridBackColor;
-                        comboBox.Draw(g, TargetRect);
-                        break;
-                    case BeepDatePicker datePicker:
-                        datePicker.ForeColor = _currentTheme.GridForeColor;
-                        datePicker.BackColor = _currentTheme.GridBackColor;
-                        datePicker.Draw(g, TargetRect);
-                        break;
-                    case BeepImage image:
-                        image.DrawImage(g, TargetRect);
-                        break;
-                    case BeepButton button:
-                        button.ForeColor = _currentTheme.GridForeColor;
-                        button.BackColor = _currentTheme.GridBackColor;
-                        button.Draw(g, TargetRect);
-                        break;
-                    case BeepProgressBar progressBar:
-                        progressBar.ForeColor = _currentTheme.GridForeColor;
-                        progressBar.BackColor = _currentTheme.GridBackColor;
-                        progressBar.Draw(g, TargetRect);
-                        break;
-                    case BeepStarRating starRating:
-                        starRating.ForeColor = _currentTheme.GridForeColor;
-                        starRating.BackColor = _currentTheme.GridBackColor;
-                        starRating.Draw(g, TargetRect);
-                        break;
-                    case BeepNumericUpDown numericUpDown:
-                        numericUpDown.ForeColor = _currentTheme.GridForeColor;
-                        numericUpDown.BackColor = _currentTheme.GridBackColor;
-                        numericUpDown.Draw(g, TargetRect);
-                        break;
-                    case BeepSwitch switchControl:
-                        switchControl.ForeColor = _currentTheme.GridForeColor;
-                        switchControl.BackColor = _currentTheme.GridBackColor;
-                        switchControl.Draw(g, TargetRect);
-                        break;
-                    case BeepListofValuesBox listBox:
-                        listBox.ForeColor = _currentTheme.GridForeColor;
-                        listBox.BackColor = _currentTheme.GridBackColor;
-                        listBox.Draw(g, TargetRect);
-                        break;
-                    case BeepLabel label:
-                        label.ForeColor = _currentTheme.GridForeColor;
-                        label.BackColor = _currentTheme.GridBackColor;
-                        label.Draw(g, TargetRect);
-                        break;
-                    default:
-                        g.DrawString(cell.UIComponent.ToString(), Font, new SolidBrush(_currentTheme.GridForeColor),
-                            TargetRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
-                        break;
+                    BeepTextBox textBox = columnEditor as BeepTextBox ?? new BeepTextBox
+                    {
+                        Theme = Theme,
+                        IsReadOnly = true, // Aggregation cells are read-only
+                        Text = cell.CellValue?.ToString() ?? ""
+                    };
+                    textBox.ForeColor = _currentTheme.GridForeColor;
+                    textBox.BackColor = _currentTheme.GridBackColor;
+                    textBox.Draw(g, TargetRect);
+                }
+                else
+                {
+                    // Draw the editor based on column type for non-aggregation cells
+                    switch (columnEditor)
+                    {
+                        case BeepTextBox textBox:
+                            textBox.ForeColor = _currentTheme.GridForeColor;
+                            textBox.BackColor = _currentTheme.GridBackColor;
+                            textBox.Draw(g, TargetRect);
+                            break;
+                        case BeepCheckBoxBool checkBox1:
+                            checkBox1.ForeColor = _currentTheme.GridForeColor;
+                            checkBox1.BackColor = _currentTheme.GridBackColor;
+                            checkBox1.Draw(g, TargetRect);
+                            break;
+                        case BeepCheckBoxChar checkBox2:
+                            checkBox2.ForeColor = _currentTheme.GridForeColor;
+                            checkBox2.BackColor = _currentTheme.GridBackColor;
+                            checkBox2.Draw(g, TargetRect);
+                            break;
+                        case BeepCheckBoxString checkBox3:
+                            checkBox3.ForeColor = _currentTheme.GridForeColor;
+                            checkBox3.BackColor = _currentTheme.GridBackColor;
+                            checkBox3.Draw(g, TargetRect);
+                            break;
+                        case BeepComboBox comboBox:
+                            comboBox.ForeColor = _currentTheme.GridForeColor;
+                            comboBox.BackColor = _currentTheme.GridBackColor;
+                            comboBox.Draw(g, TargetRect);
+                            break;
+                        case BeepDatePicker datePicker:
+                            datePicker.ForeColor = _currentTheme.GridForeColor;
+                            datePicker.BackColor = _currentTheme.GridBackColor;
+                            datePicker.Draw(g, TargetRect);
+                            break;
+                        case BeepImage image:
+                            image.DrawImage(g, TargetRect);
+                            break;
+                        case BeepButton button:
+                            button.ForeColor = _currentTheme.GridForeColor;
+                            button.BackColor = _currentTheme.GridBackColor;
+                            button.Draw(g, TargetRect);
+                            break;
+                        case BeepProgressBar progressBar:
+                            progressBar.ForeColor = _currentTheme.GridForeColor;
+                            progressBar.BackColor = _currentTheme.GridBackColor;
+                            progressBar.Draw(g, TargetRect);
+                            break;
+                        case BeepStarRating starRating:
+                            starRating.ForeColor = _currentTheme.GridForeColor;
+                            starRating.BackColor = _currentTheme.GridBackColor;
+                            starRating.Draw(g, TargetRect);
+                            break;
+                        case BeepNumericUpDown numericUpDown:
+                            numericUpDown.ForeColor = _currentTheme.GridForeColor;
+                            numericUpDown.BackColor = _currentTheme.GridBackColor;
+                            numericUpDown.Draw(g, TargetRect);
+                            break;
+                        case BeepSwitch switchControl:
+                            switchControl.ForeColor = _currentTheme.GridForeColor;
+                            switchControl.BackColor = _currentTheme.GridBackColor;
+                            switchControl.Draw(g, TargetRect);
+                            break;
+                        case BeepListofValuesBox listBox:
+                            listBox.ForeColor = _currentTheme.GridForeColor;
+                            listBox.BackColor = _currentTheme.GridBackColor;
+                            listBox.Draw(g, TargetRect);
+                            break;
+                        case BeepLabel label:
+                            label.ForeColor = _currentTheme.GridForeColor;
+                            label.BackColor = _currentTheme.GridBackColor;
+                            label.Draw(g, TargetRect);
+                            break;
+                        default:
+                            using (var textBrush = new SolidBrush(_currentTheme.GridForeColor))
+                            {
+                                g.DrawString(cell.CellValue?.ToString() ?? "", Font, textBrush, TargetRect,
+                                    new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+                            }
+                            break;
+                    }
                 }
             }
         }
@@ -3284,6 +3375,150 @@ namespace TheTechIdea.Beep.Winform.Controls
             titleLabel.DrawToGraphics(g, rect);
         }
         #endregion
+        #region Aggregation Panel
+        private object ComputeAggregation(BeepColumnConfig column, List<object> data)
+        {
+            if (column.AggregationType == AggregationType.None || data == null || !data.Any())
+                return null;
+            var wrappedData = data.Cast<DataRowWrapper>().Where(w => w != null && w.RowState != DataRowState.Deleted);
+           
+
+            // Handle unbound columns by getting value from the aggregation row
+            // Aggregate values from Rows for unbound columns
+            if (column.IsUnbound)
+            {
+                if(column.AggregationType==  AggregationType.Count)
+                {
+                    return wrappedData.Count();
+                }
+                if (Rows == null || !Rows.Any())
+                    return "";
+
+                int columnIndex = Columns.IndexOf(column);
+                if (columnIndex < 0 || columnIndex >= Columns.Count)
+                    return "";
+
+                var cellValues = Rows
+                    .Select(r => r.Cells.Count > columnIndex ? r.Cells[columnIndex].CellValue : null)
+                    .Where(v => v != null);
+
+                if (!cellValues.Any())
+                    return "";
+
+                switch (column.AggregationType)
+                {
+                    case AggregationType.Sum:
+                        if (cellValues.All(v => IsNumeric(v)))
+                            return ConvertValuesToDouble(cellValues).Sum();
+                        return "";
+
+                    case AggregationType.Average:
+                        if (cellValues.All(v => IsNumeric(v)))
+                            return ConvertValuesToDouble(cellValues).Average();
+                        return "";
+
+                    case AggregationType.Count:
+                        return cellValues.Count();
+
+                    case AggregationType.Min:
+                        if (cellValues.All(v => IsComparable(v)))
+                            return cellValues.Cast<IComparable>().Min();
+                        return "";
+
+                    case AggregationType.Max:
+                        if (cellValues.All(v => IsComparable(v)))
+                            return cellValues.Cast<IComparable>().Max();
+                        return "";
+
+                    case AggregationType.First:
+                        return cellValues.FirstOrDefault();
+
+                    case AggregationType.Last:
+                        return cellValues.LastOrDefault();
+
+                    case AggregationType.DistinctCount:
+                        return cellValues.Distinct().Count();
+
+                    case AggregationType.Custom:
+                        return "Custom (Not Implemented)";
+
+                    default:
+                        return null;
+                }
+            }
+
+            var property = column.ColumnName != null ? wrappedData.FirstOrDefault()?.OriginalData?.GetType().GetProperty(column.ColumnName) : null;
+
+            IEnumerable<object> values = wrappedData.Select(w => property.GetValue(w.OriginalData)).Where(v => v != null);
+
+            if (property == null)
+                return "";
+            switch (column.AggregationType)
+            {
+                case AggregationType.Sum:
+                    if (IsNumericType(property.PropertyType))
+                        return values.Cast<double>().Sum();
+                    return "";
+
+                case AggregationType.Average:
+                    if (IsNumericType(property.PropertyType))
+                        return values.Cast<double>().Average();
+                    return "";
+
+                case AggregationType.Count:
+                    return values.Count();
+
+                case AggregationType.Min:
+                    if (IsNumericType(property.PropertyType) || property.PropertyType == typeof(DateTime))
+                        return values.Cast<IComparable>().Min();
+                    return "";
+
+                case AggregationType.Max:
+                    if (IsNumericType(property.PropertyType) || property.PropertyType == typeof(DateTime))
+                        return values.Cast<IComparable>().Max();
+                    return "";
+
+                case AggregationType.First:
+                    return values.FirstOrDefault();
+
+                case AggregationType.Last:
+                    return values.LastOrDefault();
+
+                case AggregationType.DistinctCount:
+                    return values.Distinct().Count();
+
+                case AggregationType.Custom:
+                    // Implement custom aggregation logic here (e.g., via a delegate or configuration)
+                    return "Custom (Not Implemented)";
+
+                default:
+                    return null;
+            }
+        }
+        private bool IsComparable(object value)
+        {
+            return value is IComparable || IsNumeric(value) || value is DateTime;
+        }
+        // Helper methods to handle type conversion and validation
+        private bool IsNumeric(object value)
+        {
+            return value is sbyte || value is byte || value is short || value is ushort ||
+                   value is int || value is uint || value is long || value is ulong ||
+                   value is float || value is double || value is decimal;
+        }
+        private IEnumerable<double> ConvertValuesToDouble(IEnumerable<object> values)
+        {
+            return values.Select(v => Convert.ToDouble(v));
+        }
+        private bool IsNumericType(Type type)
+        {
+            return type == typeof(int) ||
+                   type == typeof(long) ||
+                   type == typeof(float) ||
+                   type == typeof(double) ||
+                   type == typeof(decimal);
+        }
+        #endregion Aggregation Panel
         #region Filter Panel
         private void ApplyFilter(string filterText, string columnName)
         {
@@ -3681,7 +3916,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 StartSmoothScroll(newOffset);
             }
         }
-       
         private void UpdateScrollBars()
         {
             if (_verticalScrollBar == null || _horizontalScrollBar == null)
@@ -3694,23 +3928,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
-            int totalRowHeight = _fullData.Count * RowHeight;
-            int totalColumnWidth = Columns.Where(o => o.Visible).Sum(col => col.Width);
-            int visibleColumnCount = Columns.Count(o => o.Visible);
-            int borderWidth = 1; // Adjust if your border thickness differs
-            int totalBorderWidth = visibleColumnCount > 0 ? (visibleColumnCount - 1) * borderWidth : 0; // Between columns only
-            totalColumnWidth += totalBorderWidth; // Add borders to total width
+            int totalRowHeight = (_fullData.Count * RowHeight) + (_showaggregationRow ? bottomagregationPanelHeight : 0);
             int visibleHeight = gridRect.Height;
-            int visibleWidth = gridRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
             int visibleRowCount = GetVisibleRowCount();
+            int aggregationRows = _showaggregationRow ? 1 : 0;
 
-            // Vertical ScrollBar (unchanged)
-            if (_showVerticalScrollBar && _fullData.Count >= visibleRowCount)
+            int maxOffset = Math.Max(0, _fullData.Count - visibleRowCount );
+
+            if (_showVerticalScrollBar && _fullData.Count >= visibleRowCount )
             {
-                int maxOffset = Math.Max(0, _fullData.Count - visibleRowCount);
                 _verticalScrollBar.Minimum = 0;
-                _verticalScrollBar.Maximum = maxOffset + visibleRowCount - 1;
-                _verticalScrollBar.LargeChange = visibleRowCount;
+                _verticalScrollBar.Maximum = maxOffset + visibleRowCount;
+                _verticalScrollBar.LargeChange = visibleRowCount ;
                 _verticalScrollBar.SmallChange = 1;
                 _verticalScrollBar.Value = Math.Min(_dataOffset, maxOffset);
                 _verticalScrollBar.Visible = true;
@@ -3724,20 +3953,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                     FillVisibleRows();
                 }
             }
-            // Horizontal ScrollBar
+
+            int totalColumnWidth = Columns.Where(o => o.Visible).Sum(col => col.Width);
+            int visibleColumnCount = Columns.Count(o => o.Visible);
+            int borderWidth = 1;
+            int totalBorderWidth = visibleColumnCount > 0 ? (visibleColumnCount - 1) * borderWidth : 0;
+            totalColumnWidth += totalBorderWidth;
+            int visibleWidth = gridRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
+
             bool horizontalScrollNeeded = _showHorizontalScrollBar && totalColumnWidth > visibleWidth;
-            // Horizontal ScrollBar
             if (horizontalScrollNeeded)
             {
-                int maxXOffset = Math.Max(0, totalColumnWidth - visibleWidth); // Correct range
+                int maxXOffset = Math.Max(0, totalColumnWidth - visibleWidth);
                 _horizontalScrollBar.Minimum = 0;
                 _horizontalScrollBar.Maximum = totalColumnWidth;
                 _horizontalScrollBar.LargeChange = visibleWidth;
                 _horizontalScrollBar.SmallChange = Columns.Where(c => c.Visible).Min(c => c.Width) / 2;
                 _horizontalScrollBar.Value = Math.Max(0, Math.Min(_xOffset, maxXOffset));
                 _horizontalScrollBar.Visible = true;
-
-              //  System.Diagnostics.Debug.WriteLine($"HScroll: TotalWidth={totalColumnWidth}, VisibleWidth={visibleWidth}, Max={_horizontalScrollBar.Maximum}, Value={_horizontalScrollBar.Value}, _xOffset={_xOffset}, Borders={totalBorderWidth}");
             }
             else
             {
@@ -3748,7 +3981,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            PositionScrollBars();
+          //  PositionScrollBars();
         }
         private void UpdateCachedHorizontalMetrics()
         {
@@ -3771,19 +4004,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             int visibleHeight = gridRect.Height; // Use gridRect for row area
             int visibleWidth = gridRect.Width;
 
+            // Calculate the bottom position considering the aggregation row
+            int aggregationRowBottom = bottomPanelY + (_showaggregationRow ? bottomagregationPanelHeight : 0);
+
             if (_verticalScrollBar.Visible)
             {
                 _verticalScrollBar.Location = new Point(gridRect.Right - verticalScrollWidth, gridRect.Top); // Align with gridRect top
-                _verticalScrollBar.Height = visibleHeight - (_horizontalScrollBar.Visible ? horizontalScrollHeight : 0);
+                _verticalScrollBar.Height = gridRect.Height;// aggregationRowBottom - gridRect.Top - (_horizontalScrollBar.Visible ? horizontalScrollHeight : 0);
             }
 
             if (_horizontalScrollBar.Visible)
             {
-                _horizontalScrollBar.Location = new Point(gridRect.Left, gridRect.Bottom  );
+                _horizontalScrollBar.Location = new Point(gridRect.Left, aggregationRowBottom);
                 _horizontalScrollBar.Width = visibleWidth - (_verticalScrollBar.Visible ? verticalScrollWidth : 0);
             }
         }
-        // Update scrollbars based on data and visible area
         private void VerticalScrollBar_Scroll(object sender, EventArgs e)
         {
             StartSmoothScroll(_verticalScrollBar.Value);
@@ -3842,19 +4077,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void UpdateRowCount()
         {
-            if(_fullData==null) return;
+            if (_fullData == null) return;
             if (_fullData.Count == 0) return;
+
             visibleHeight = gridRect.Height;
             visibleRowCount = visibleHeight / _rowHeight;
             int dataRowCount = _fullData.Count;
-            if (visibleRowCount > Rows.Count)
+            int currentRowCount = Rows.Count;
+
+            // Calculate the number of regular rows needed, reserving space for aggregation row
+            int requiredRegularRows = visibleRowCount - (_showaggregationRow ? 1 : 0);
+
+            if (requiredRegularRows > currentRowCount)
             {
-                // create new rows
-                int rowCount = visibleRowCount - Rows.Count;
-                int index = Rows.Count;
-                for (int i = 0; i < rowCount; i++)
+                // Add new regular rows
+                int rowCountToAdd = requiredRegularRows - currentRowCount;
+                int index = currentRowCount;
+
+                for (int i = 0; i < rowCountToAdd; i++)
                 {
-                    var row = new BeepRowConfig();
+                    var row = new BeepRowConfig
+                    {
+                        Index = index + i,
+                        DisplayIndex = _dataOffset + (index + i), // Map to visible data index
+                        IsAggregation = false
+                    };
                     foreach (var col in Columns)
                     {
                         var cell = new BeepCellConfig
@@ -3864,14 +4111,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                             IsEditable = true,
                             ColumnIndex = col.Index,
                             IsVisible = col.Visible,
-                            RowIndex = Rows.Count
+                            RowIndex = index + i,
+                            IsAggregation = false
                         };
                         row.Cells.Add(cell);
                     }
-                    row.Index = index;
-                    row.DisplayIndex = index;
-                    index++;
-                    Rows.Add(row);
+                    Rows.Add(row); // Add at the end
                 }
             }
         }
@@ -4261,6 +4506,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void BeepGrid_MouseClick(object sender, MouseEventArgs e)
         {
             var clickedCell = GetCellAtLocation(e.Location);
+            if (clickedCell == null) return;
+            if (clickedCell.IsAggregation) return;
             if (clickedCell != null)
             {
                 int colIndex = clickedCell.ColumnIndex;

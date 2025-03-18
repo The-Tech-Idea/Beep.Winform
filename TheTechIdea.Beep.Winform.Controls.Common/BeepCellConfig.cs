@@ -33,6 +33,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public bool IsReadOnly { get; set; }
         public bool IsEditable { get; set; } = true;
         public bool IsVisible { get; set; }
+        public bool IsAggregation { get; set; } = false;
         public object CellData { get; set; }
         = new object();
         public object CellValue { get; set; }

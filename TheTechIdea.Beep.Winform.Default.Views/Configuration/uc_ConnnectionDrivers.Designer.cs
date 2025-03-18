@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.BorderStyle = BorderStyle.FixedSingle;
             beepSimpleGrid1.BorderThickness = 1;
             beepSimpleGrid1.BottomoffsetForDrawingRect = 0;
-            beepSimpleGrid1.BottomRow = null;
+            beepSimpleGrid1.aggregationRow = null;
             beepSimpleGrid1.BoundProperty = null;
             beepSimpleGrid1.CanBeFocused = true;
             beepSimpleGrid1.CanBeHovered = false;
@@ -178,9 +178,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
             beepSimpleGrid1.ShadowOffset = 0;
             beepSimpleGrid1.ShadowOpacity = 0.5F;
+            beepSimpleGrid1.ShowAggregationRow = true;
             beepSimpleGrid1.ShowAllBorders = true;
             beepSimpleGrid1.ShowBottomBorder = true;
-            beepSimpleGrid1.ShowBottomRow = false;
             beepSimpleGrid1.ShowCheckboxes = true;
             beepSimpleGrid1.ShowColumnHeaders = true;
             beepSimpleGrid1.ShowFilter = true;
@@ -208,7 +208,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.TempBackColor = Color.Empty;
             beepSimpleGrid1.Text = "beepSimpleGrid1";
             beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageAboveText;
-            beepSimpleGrid1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepSimpleGrid1.Theme = EnumBeepThemes.DefaultTheme;
             beepSimpleGrid1.Title = "BeepSimpleGrid Title";
             beepSimpleGrid1.TitleText = "Simple BeepGrid";
             beepSimpleGrid1.TitleTextFont = new Font("Segoe UI", 9F);

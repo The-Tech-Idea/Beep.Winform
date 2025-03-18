@@ -252,11 +252,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateEditModeControls();
             editPanel.PerformLayout(); // Force layout update
             editPanel.Focus(); // Ensure focus is on edit panel
-            Debug.WriteLine($"Switched to edit mode, checkButton.Visible={checkButton.Visible}, removeButton.Visible={removeButton.Visible}, editPanel.Controls.Count={editPanel.Controls.Count}");
-            foreach (Control c in editPanel.Controls)
-            {
-                Debug.WriteLine($"Control in editPanel: {c.Text}, Visible={c.Visible}, Type={c.GetType().Name}");
-            }
+        //    Debug.WriteLine($"Switched to edit mode, checkButton.Visible={checkButton.Visible}, removeButton.Visible={removeButton.Visible}, editPanel.Controls.Count={editPanel.Controls.Count}");
+            //foreach (Control c in editPanel.Controls)
+            //{
+            //    Debug.WriteLine($"Control in editPanel: {c.Text}, Visible={c.Visible}, Type={c.GetType().Name}");
+            //}
         }
 
         private void ExitEditMode()
@@ -266,7 +266,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             checkButton.Visible = false;
             UpdateDisplay();
             RaiseConditionChanged();
-            Debug.WriteLine("Exited edit mode");
+      //      Debug.WriteLine("Exited edit mode");
         }
 
         private void UpdateEditModeControls()
@@ -446,7 +446,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void RaiseConditionChanged()
         {
             ConditionChanged?.Invoke(this, new FilterChangedEventArgs(new List<FilterCondition> { condition }));
-            Debug.WriteLine($"Condition changed: {condition}");
+         //   Debug.WriteLine($"Condition changed: {condition}");
         }
     }
 }

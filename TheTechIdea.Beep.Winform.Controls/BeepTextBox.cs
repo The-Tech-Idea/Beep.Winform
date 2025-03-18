@@ -1512,7 +1512,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     TextRenderer.DrawText(graphics, Text, Font, textRect, ForeColor, flags);
 
                     // Debug output to verify alignment
-                    Debug.WriteLine($"Draw: Text='{Text}', Rect={rectangle}, TextRect={textRect}, TextSize={textSize}, Alignment={TextAlignment}");
+                  //  Debug.WriteLine($"Draw: Text='{Text}', Rect={rectangle}, TextRect={textRect}, TextSize={textSize}, Alignment={TextAlignment}");
                 }
 
                 graphics.ResetClip();

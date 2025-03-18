@@ -76,9 +76,11 @@
     <None Remove="GFX\SVG\angle-small-up.svg" />
     <None Remove="GFX\SVG\back-button.svg" />
     <None Remove="GFX\SVG\back.svg" />
+    <None Remove="GFX\SVG\backwards.svg" />
     <None Remove="GFX\SVG\cancel.svg" />
     <None Remove="GFX\SVG\cassandra.svg" />
     <None Remove="GFX\SVG\cat.svg" />
+    <None Remove="GFX\SVG\check.svg" />
     <None Remove="GFX\SVG\checkround.svg" />
     <None Remove="GFX\SVG\checksquare.svg" />
     <None Remove="GFX\SVG\closered.svg" />
@@ -103,6 +105,7 @@
     <None Remove="GFX\SVG\duckdb.svg" />
     <None Remove="GFX\SVG\edit.svg" />
     <None Remove="GFX\SVG\elasticsearch.svg" />
+    <None Remove="GFX\SVG\email.svg" />
     <None Remove="GFX\SVG\enter.svg" />
     <None Remove="GFX\SVG\equalizercontrol.svg" />
     <None Remove="GFX\SVG\error.svg" />
@@ -116,6 +119,9 @@
     <None Remove="GFX\SVG\firebird.svg" />
     <None Remove="GFX\SVG\firstrecord.svg" />
     <None Remove="GFX\SVG\floppy-disk.svg" />
+    <None Remove="GFX\SVG\forward.svg" />
+    <None Remove="GFX\SVG\gear.svg" />
+    <None Remove="GFX\SVG\go-back.svg" />
     <None Remove="GFX\SVG\hadoop.svg" />
     <None Remove="GFX\SVG\hamburger.svg" />
     <None Remove="GFX\SVG\hbase.svg" />
@@ -129,6 +135,7 @@
     <None Remove="GFX\SVG\input.svg" />
     <None Remove="GFX\SVG\json.svg" />
     <None Remove="GFX\SVG\kafka.svg" />
+    <None Remove="GFX\SVG\keys.svg" />
     <None Remove="GFX\SVG\kitty.svg" />
     <None Remove="GFX\SVG\know.svg" />
     <None Remove="GFX\SVG\l.svg" />
@@ -156,6 +163,7 @@
     <None Remove="GFX\SVG\oracle-logo-3.svg" />
     <None Remove="GFX\SVG\oracle-logo.svg" />
     <None Remove="GFX\SVG\oracle.svg" />
+    <None Remove="GFX\SVG\pencil.svg" />
     <None Remove="GFX\SVG\personedit.svg" />
     <None Remove="GFX\SVG\personminus.svg" />
     <None Remove="GFX\SVG\personplus.svg" />
@@ -164,6 +172,7 @@
     <None Remove="GFX\SVG\power.svg" />
     <None Remove="GFX\SVG\previous.svg" />
     <None Remove="GFX\SVG\print.svg" />
+    <None Remove="GFX\SVG\print1.svg" />
     <None Remove="GFX\SVG\question.svg" />
     <None Remove="GFX\SVG\ravendb.svg" />
     <None Remove="GFX\SVG\realm.svg" />
@@ -178,6 +187,7 @@
     <None Remove="GFX\SVG\scylladb.svg" />
     <None Remove="GFX\SVG\search.svg" />
     <None Remove="GFX\SVG\searchappbar.svg" />
+    <None Remove="GFX\SVG\search_1.svg" />
     <None Remove="GFX\SVG\settings.svg" />
     <None Remove="GFX\SVG\share.svg" />
     <None Remove="GFX\SVG\simpleinfoapps.svg" />
@@ -213,9 +223,11 @@
     <EmbeddedResource Include="GFX\SVG\alarm.svg" />
     <EmbeddedResource Include="GFX\SVG\alarmclock.svg" />
     <EmbeddedResource Include="GFX\SVG\alert.svg" />
+    <EmbeddedResource Include="GFX\SVG\backwards.svg" />
     <EmbeddedResource Include="GFX\SVG\cancel.svg" />
     <EmbeddedResource Include="GFX\SVG\cassandra.svg" />
     <EmbeddedResource Include="GFX\SVG\cat.svg" />
+    <EmbeddedResource Include="GFX\SVG\check.svg" />
     <EmbeddedResource Include="GFX\SVG\checkround.svg" />
     <EmbeddedResource Include="GFX\SVG\checksquare.svg" />
     <EmbeddedResource Include="GFX\SVG\close.svg" />
@@ -236,12 +248,16 @@
     <EmbeddedResource Include="GFX\SVG\duckdb.svg" />
     <EmbeddedResource Include="GFX\SVG\edit.svg" />
     <EmbeddedResource Include="GFX\SVG\elasticsearch.svg" />
+    <EmbeddedResource Include="GFX\SVG\email.svg" />
     <EmbeddedResource Include="GFX\SVG\equalizercontrol.svg" />
     <EmbeddedResource Include="GFX\SVG\error.svg" />
     <EmbeddedResource Include="GFX\SVG\file.svg" />
     <EmbeddedResource Include="GFX\SVG\firebase-2.svg" />
     <EmbeddedResource Include="GFX\SVG\firebase.svg" />
     <EmbeddedResource Include="GFX\SVG\firebird.svg" />
+    <EmbeddedResource Include="GFX\SVG\forward.svg" />
+    <EmbeddedResource Include="GFX\SVG\gear.svg" />
+    <EmbeddedResource Include="GFX\SVG\go-back.svg" />
     <EmbeddedResource Include="GFX\SVG\hadoop.svg" />
     <EmbeddedResource Include="GFX\SVG\hbase.svg" />
     <EmbeddedResource Include="GFX\SVG\heart.svg" />
@@ -251,6 +267,7 @@
     <EmbeddedResource Include="GFX\SVG\input.svg" />
     <EmbeddedResource Include="GFX\SVG\json.svg" />
     <EmbeddedResource Include="GFX\SVG\kafka.svg" />
+    <EmbeddedResource Include="GFX\SVG\keys.svg" />
     <EmbeddedResource Include="GFX\SVG\kitty.svg" />
     <EmbeddedResource Include="GFX\SVG\know.svg" />
     <EmbeddedResource Include="GFX\SVG\left-arrow.svg" />
@@ -266,7 +283,9 @@
     <EmbeddedResource Include="GFX\SVG\oracle-logo-3.svg" />
     <EmbeddedResource Include="GFX\SVG\oracle-logo.svg" />
     <EmbeddedResource Include="GFX\SVG\oracle.svg" />
+    <EmbeddedResource Include="GFX\SVG\pencil.svg" />
     <EmbeddedResource Include="GFX\SVG\postgre.svg" />
+    <EmbeddedResource Include="GFX\SVG\print1.svg" />
     <EmbeddedResource Include="GFX\SVG\question.svg" />
     <EmbeddedResource Include="GFX\SVG\ravendb.svg" />
     <EmbeddedResource Include="GFX\SVG\realm.svg" />
@@ -279,6 +298,7 @@
     <EmbeddedResource Include="GFX\SVG\saveall.svg" />
     <EmbeddedResource Include="GFX\SVG\scylladb.svg" />
     <EmbeddedResource Include="GFX\SVG\searchappbar.svg" />
+    <EmbeddedResource Include="GFX\SVG\search_1.svg" />
     <EmbeddedResource Include="GFX\SVG\simpleinfoapps.svg" />
     <EmbeddedResource Include="GFX\SVG\snowflake.svg" />
     <EmbeddedResource Include="GFX\SVG\sql-server.svg" />

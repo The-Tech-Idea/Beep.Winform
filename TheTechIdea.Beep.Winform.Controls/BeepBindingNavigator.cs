@@ -107,8 +107,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             MainPanel.Bounds = DrawingRect;
 
             FindButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.search_1.svg", buttonSize, FindpictureBox_Click);
-            EditButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.edit.svg", buttonSize, EditpictureBox_Click);
-            PrinterButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg", buttonSize, PrinterpictureBox_Click);
+            EditButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.pencil.svg", buttonSize, EditpictureBox_Click);
+            PrinterButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.print1.svg", buttonSize, PrinterpictureBox_Click);
             MessageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg", buttonSize, MessagepictureBox_Click);
             SaveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.check.svg", buttonSize, SavepictureBox_Click);
             PreviousButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.backwards.svg", buttonSize, PreviouspictureBox_Click);
@@ -125,8 +125,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsRoundedAffectedByTheme = false
             };
             NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.forward.svg", buttonSize, NextpictureBox_Click);
-            NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.pencil.svg", buttonSize, NewButton_Click);
-            RemoveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.remove.svg", buttonSize, RemovepictureBox_Click);
+            NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg", buttonSize, NewButton_Click);
+            RemoveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg", buttonSize, RemovepictureBox_Click);
             RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.go-back.svg", buttonSize, RollbackpictureBox_Click);
 
             var buttons = new List<Control>

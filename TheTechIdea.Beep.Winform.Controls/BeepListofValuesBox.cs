@@ -266,7 +266,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _grid.BringToFront();
                 _isGridVisible = true;
                 _grid.Invalidate();
-                System.Diagnostics.Debug.WriteLine($"Dropdown: Grid Visible, Items={_items.Count}, Columns={string.Join(", ", _grid.Columns.Select(c => $"{c.ColumnName}: {c.Width}, Visible={c.Visible}"))}");
+             //   System.Diagnostics.Debug.WriteLine($"Dropdown: Grid Visible, Items={_items.Count}, Columns={string.Join(", ", _grid.Columns.Select(c => $"{c.ColumnName}: {c.Width}, Visible={c.Visible}"))}");
             }
             Invalidate();
         }
@@ -320,7 +320,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             else if (_items.Count > 0)
             {   
                 ShowGrid();
-                System.Diagnostics.Debug.WriteLine($"Dropdown: Grid Visible, Items={_items.Count}, Columns={string.Join(", ", _grid.Columns.Select(c => $"{c.ColumnName}: {c.Width}, Visible={c.Visible}"))}");
+             //   System.Diagnostics.Debug.WriteLine($"Dropdown: Grid Visible, Items={_items.Count}, Columns={string.Join(", ", _grid.Columns.Select(c => $"{c.ColumnName}: {c.Width}, Visible={c.Visible}"))}");
             }
             Invalidate();
         }
@@ -332,7 +332,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SetSelectedItem(item);
                 _grid.Visible = false;
                 _isGridVisible = false;
-                System.Diagnostics.Debug.WriteLine($"Grid Selected: Value={item.Value}, Text={item.Text}");
+             //   System.Diagnostics.Debug.WriteLine($"Grid Selected: Value={item.Value}, Text={item.Text}");
                 Invalidate();
             }
         }

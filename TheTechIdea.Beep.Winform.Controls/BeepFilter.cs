@@ -97,13 +97,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (dataSource == null)
             {
-                Debug.WriteLine("DataSource is null, no fields extracted");
+             //   Debug.WriteLine("DataSource is null, no fields extracted");
                 return;
             }
 
             if (dataSource is DataTable dataTable)
             {
-                Debug.WriteLine("Extracting fields from DataTable");
+             //   Debug.WriteLine("Extracting fields from DataTable");
                 foreach (DataColumn column in dataTable.Columns)
                 {
                     fieldNames.Add(column.ColumnName);
@@ -112,19 +112,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else if (dataSource is BindingSource bindingSrc)
             {
-                Debug.WriteLine($"Extracting fields from BindingSource: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
+             //   Debug.WriteLine($"Extracting fields from BindingSource: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
                 var data = bindingSrc.DataSource ?? bindingSrc.List;
 
                 if (!string.IsNullOrEmpty(bindingSrc.DataMember))
                 {
-                    Debug.WriteLine($"Processing DataMember: {bindingSrc.DataMember}");
+                //    Debug.WriteLine($"Processing DataMember: {bindingSrc.DataMember}");
                     if (data != null)
                     {
                         PropertyInfo prop = data.GetType().GetProperty(bindingSrc.DataMember, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
                         if (prop != null)
                         {
                             var memberData = prop.GetValue(data);
-                            Debug.WriteLine($"Resolved DataMember to type: {memberData?.GetType()}");
+                      //      Debug.WriteLine($"Resolved DataMember to type: {memberData?.GetType()}");
 
                             if (memberData is DataTable dt)
                             {
@@ -178,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                    Debug.WriteLine("No DataMember specified, using BindingSource.List or DataSource");
+               //     Debug.WriteLine("No DataMember specified, using BindingSource.List or DataSource");
                     if (data is DataTable dt)
                     {
                         foreach (DataColumn column in dt.Columns)
@@ -200,7 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else if (dataSource is IList list && list.Count > 0)
             {
-                Debug.WriteLine("Extracting fields from IList");
+             //   Debug.WriteLine("Extracting fields from IList");
                 var itemType = list[0].GetType();
                 foreach (var prop in itemType.GetProperties())
                 {
@@ -210,7 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                Debug.WriteLine($"Unrecognized DataSource type: {dataSource.GetType()}, attempting to extract properties");
+           //     Debug.WriteLine($"Unrecognized DataSource type: {dataSource.GetType()}, attempting to extract properties");
                 foreach (var prop in dataSource.GetType().GetProperties())
                 {
                     fieldNames.Add(prop.Name);
@@ -218,12 +218,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            Debug.WriteLine($"Extracted fields: {string.Join(", ", fieldNames)}");
+          //  Debug.WriteLine($"Extracted fields: {string.Join(", ", fieldNames)}");
         }
 
         private void AddNewCondition(FilterLogicalOperator logicalOperator = FilterLogicalOperator.And)
         {
-            Debug.WriteLine($"Adding new condition with logical operator: {logicalOperator}");
+         //   Debug.WriteLine($"Adding new condition with logical operator: {logicalOperator}");
             var newItem = new BeepFilterItem(fieldNames, fieldTypes)
             {
                 UseMenuForOperandsAndOperators = UseMenuForOperandsAndOperators,
@@ -244,7 +244,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             filterPanel.Controls.Add(newItem);
             filterItems.Add(newItem);
             UpdateConditions();
-            Debug.WriteLine($"Added new condition, total items: {filterItems.Count}");
+         //   Debug.WriteLine($"Added new condition, total items: {filterItems.Count}");
         }
 
         private void UpdateFilterItems()
@@ -261,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void UpdateConditions()
         {
             FilterChanged?.Invoke(this, new FilterChangedEventArgs(Conditions));
-            Debug.WriteLine($"Filter conditions updated: {string.Join(" ", Conditions)}");
+        //    Debug.WriteLine($"Filter conditions updated: {string.Join(" ", Conditions)}");
         }
 
         public void ApplyFilter()
@@ -272,11 +272,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 try
                 {
                     dataTable.DefaultView.RowFilter = filterExpression;
-                    Debug.WriteLine($"Applied filter to DataTable: {filterExpression}");
+           //         Debug.WriteLine($"Applied filter to DataTable: {filterExpression}");
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"Error applying filter: {ex.Message}");
+                   Debug.WriteLine($"Error applying filter: {ex.Message}");
                 }
             }
             else if (dataSource is BindingSource bindingSrc && bindingSrc.DataSource is DataTable dt)
@@ -285,7 +285,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 try
                 {
                     dt.DefaultView.RowFilter = filterExpression;
-                    Debug.WriteLine($"Applied filter to BindingSource DataTable: {filterExpression}");
+             //       Debug.WriteLine($"Applied filter to BindingSource DataTable: {filterExpression}");
                 }
                 catch (Exception ex)
                 {
@@ -306,12 +306,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (dataSource is DataTable dataTable)
             {
                 dataTable.DefaultView.RowFilter = "";
-                Debug.WriteLine("Cleared filter on DataTable");
+           //     Debug.WriteLine("Cleared filter on DataTable");
             }
             else if (dataSource is BindingSource bindingSrc && bindingSrc.DataSource is DataTable dt)
             {
                 dt.DefaultView.RowFilter = "";
-                Debug.WriteLine("Cleared filter on BindingSource DataTable");
+           //     Debug.WriteLine("Cleared filter on BindingSource DataTable");
             }
             FilterChanged?.Invoke(this, new FilterChangedEventArgs(Conditions));
         }
@@ -338,7 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 };
 
                 appFilters.Add(appFilter);
-                Debug.WriteLine($"Generated AppFilter: FieldName={appFilter.FieldName}, Operator={appFilter.Operator}, FilterValue={appFilter.FilterValue}, FilterValue1={appFilter.FilterValue1}, valueType={appFilter.valueType}");
+          //      Debug.WriteLine($"Generated AppFilter: FieldName={appFilter.FieldName}, Operator={appFilter.Operator}, FilterValue={appFilter.FilterValue}, FilterValue1={appFilter.FilterValue1}, valueType={appFilter.valueType}");
             }
 
             return appFilters;

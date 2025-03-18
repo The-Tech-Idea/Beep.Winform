@@ -952,7 +952,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 bs.ResetBindings(false); // Refresh navigator
                 Invalidate();
-                Debug.WriteLine("Data saved locally in grid.");
+              //  Debug.WriteLine("Data saved locally in grid.");
                 MessageBox.Show("Changes saved locally. Implement external persistence if needed.", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -1235,7 +1235,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 case DataRowState.Added:
                                     if (tracking.EntityState == EntityState.Added)
                                     {
-                                        Debug.WriteLine($"Saving Added Record - RowID: {wrappedItem.RowID}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
+                                     //   Debug.WriteLine($"Saving Added Record - RowID: {wrappedItem.RowID}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
                                         bindingSource.Add(wrappedItem.OriginalData); // Add to BindingSource
                                         originalList.Add(wrappedItem);
                                         tracking.EntityState = EntityState.Unchanged;
@@ -1248,7 +1248,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                     {
                                         int originalIndex = originalList.IndexOf(wrappedItem);
                                         var originalWrapped = originalList[originalIndex] as DataRowWrapper;
-                                        Debug.WriteLine($"Saving Modified Record - RowID: {wrappedItem.RowID}, OriginalIndex: {originalIndex}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
+                                      //  Debug.WriteLine($"Saving Modified Record - RowID: {wrappedItem.RowID}, OriginalIndex: {originalIndex}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
                                         // Modifications already applied to OriginalData (referenced by BindingSource)
                                         // Example: UpdateInDataSource(originalWrapped?.OriginalData, ChangedValues[wrappedItem]);
                                         tracking.EntityState = EntityState.Unchanged;
@@ -1269,7 +1269,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             Tracking tracking = GetTrackingItem(wrappedItem);
                             if (tracking != null && tracking.EntityState == EntityState.Deleted)
                             {
-                                Debug.WriteLine($"Saving Deleted Record - RowID: {wrappedItem.RowID}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
+                             //   Debug.WriteLine($"Saving Deleted Record - RowID: {wrappedItem.RowID}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
                                 int sourceIndex = bindingSource.IndexOf(wrappedItem.OriginalData);
                                 if (sourceIndex >= 0)
                                 {
@@ -1302,7 +1302,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 case DataRowState.Added:
                                     if (tracking.EntityState == EntityState.Added)
                                     {
-                                        Debug.WriteLine($"Saving Added Record - RowID: {wrappedItem.RowID}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
+                                 //       Debug.WriteLine($"Saving Added Record - RowID: {wrappedItem.RowID}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
                                         dataSourceList.Add(wrappedItem.OriginalData);
                                         originalList.Add(wrappedItem);
                                         tracking.EntityState = EntityState.Unchanged;
@@ -1315,7 +1315,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                     {
                                         int originalIndex = originalList.IndexOf(wrappedItem);
                                         var originalWrapped = originalList[originalIndex] as DataRowWrapper;
-                                        Debug.WriteLine($"Saving Modified Record - RowID: {wrappedItem.RowID}, OriginalIndex: {originalIndex}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
+                                 //      Debug.WriteLine($"Saving Modified Record - RowID: {wrappedItem.RowID}, OriginalIndex: {originalIndex}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
                                         // Modifications already applied to OriginalData
                                         // Example: UpdateInDataSource(originalWrapped?.OriginalData, ChangedValues[wrappedItem]);
                                         tracking.EntityState = EntityState.Unchanged;
@@ -1336,7 +1336,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             Tracking tracking = GetTrackingItem(wrappedItem);
                             if (tracking != null && tracking.EntityState == EntityState.Deleted)
                             {
-                                Debug.WriteLine($"Saving Deleted Record - RowID: {wrappedItem.RowID}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
+                          //      Debug.WriteLine($"Saving Deleted Record - RowID: {wrappedItem.RowID}, TrackingUniqueId: {wrappedItem.TrackingUniqueId}");
                                 int sourceIndex = -1;
                                 for (int j = 0; j < dataSourceList.Count; j++)
                                 {
@@ -1633,7 +1633,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     existingColumn.ColumnType = MapPropertyTypeToDbFieldCategory(existingColumn.PropertyTypeName);
                  //   existingColumn.CellEditor = MapPropertyTypeToCellEditor(existingColumn.PropertyTypeName);
                     // Designer settings like Width, Visible, ColumnCaption remain unchanged
-                    Debug.WriteLine($"Synced Column '{field.fieldname}': Type = {existingColumn.PropertyTypeName}");
+                  //  Debug.WriteLine($"Synced Column '{field.fieldname}': Type = {existingColumn.PropertyTypeName}");
                 }
                 else
                 {
@@ -1652,7 +1652,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     newColumn.ColumnType = MapPropertyTypeToDbFieldCategory(newColumn.PropertyTypeName);
                     newColumn.CellEditor = MapPropertyTypeToCellEditor(newColumn.PropertyTypeName);
                     _columns.Add(newColumn);
-                    Debug.WriteLine($"Added new Column '{field.fieldname}': Type = {newColumn.PropertyTypeName}");
+                  //  Debug.WriteLine($"Added new Column '{field.fieldname}': Type = {newColumn.PropertyTypeName}");
                 }
             }
 
@@ -2914,7 +2914,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Cap _stickyWidth to prevent overflow within gridRect
             _stickyWidth = Math.Min(baseStickyWidth, gridRect.Width);
-            System.Diagnostics.Debug.WriteLine($"UpdateStickyWidth: _stickyWidth={_stickyWidth}, BaseSticky={baseStickyWidth}, GridRect.Width={gridRect.Width}");
+          //  System.Diagnostics.Debug.WriteLine($"UpdateStickyWidth: _stickyWidth={_stickyWidth}, BaseSticky={baseStickyWidth}, GridRect.Width={gridRect.Width}");
         }
         // Helper method with centered text
         private void PaintHeaderCell(Graphics g, BeepColumnConfig col, Rectangle cellRect, StringFormat format)
@@ -2958,12 +2958,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     PaintScrollingRow(g, row, rowRect);
                     yOffset += _rowHeight;
 
-                    if (i == 0 || yOffset + RowHeight > bounds.Bottom - RowHeight)
-                    {
-                        System.Diagnostics.Debug.WriteLine(
-                            $"PaintRows Scrolling: Row[{i}] Y={rowRect.Y}, X={rowRect.X}, Right={rowRect.Right}, " +
-                            $"StickyWidth={_stickyWidth}, ScrollingRegion={scrollingRegion}, Bounds={bounds}, XOffset={_xOffset}");
-                    }
+                    //if (i == 0 || yOffset + RowHeight > bounds.Bottom - RowHeight)
+                    //{
+                    //    System.Diagnostics.Debug.WriteLine(
+                    //        $"PaintRows Scrolling: Row[{i}] Y={rowRect.Y}, X={rowRect.X}, Right={rowRect.Right}, " +
+                    //        $"StickyWidth={_stickyWidth}, ScrollingRegion={scrollingRegion}, Bounds={bounds}, XOffset={_xOffset}");
+                    //}
                 }
             }
 
@@ -3248,7 +3248,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     var headerCellRect = new Rectangle(xOffset, headerRect.Top, col.Width, headerRect.Height);
                     PaintHeaderCell(g, col, headerCellRect, centerFormat);
                     xOffset += col.Width;
-                    System.Diagnostics.Debug.WriteLine($"StickyHeader: Col={col.ColumnName}, X={headerCellRect.X}, Width={col.Width}");
+                  //  System.Diagnostics.Debug.WriteLine($"StickyHeader: Col={col.ColumnName}, X={headerCellRect.X}, Width={col.Width}");
                 }
             }
 
@@ -3261,7 +3261,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            System.Diagnostics.Debug.WriteLine($"PaintColumnHeaders: StickyWidth={stickyWidth}, HeaderRect={headerRect}, XOffset={_xOffset}");
+         //   System.Diagnostics.Debug.WriteLine($"PaintColumnHeaders: StickyWidth={stickyWidth}, HeaderRect={headerRect}, XOffset={_xOffset}");
         }
         private void DrawHeaderPanel(Graphics g, Rectangle rect)
         {
@@ -3605,7 +3605,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _scrollTimer.Tick += ScrollTimer_Tick;
                 }
                 _scrollTimer.Start();
-                Debug.WriteLine($"StartSmoothScroll: TargetV={_scrollTargetVertical}, TargetH={_scrollTargetHorizontal}, CurrentV={_dataOffset}, CurrentH={_xOffset}");
+             //   Debug.WriteLine($"StartSmoothScroll: TargetV={_scrollTargetVertical}, TargetH={_scrollTargetHorizontal}, CurrentV={_dataOffset}, CurrentH={_xOffset}");
             }
         }
         private void ScrollTimer_Tick(object sender, EventArgs e)
@@ -3658,7 +3658,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                     // Invalidate only the scrolled region
                 Rectangle scrollRegion = new Rectangle(gridRect.Left - _xOffset, gridRect.Top, gridRect.Width, gridRect.Height);
                 Invalidate(scrollRegion); // Invalidate only the visible area
-                Debug.WriteLine($"ScrollTimer_Tick: OffsetV={_dataOffset}, OffsetH={_xOffset}, Updated={updated}");
+             //   Debug.WriteLine($"ScrollTimer_Tick: OffsetV={_dataOffset}, OffsetH={_xOffset}, Updated={updated}");
             }
         }
         // Mouse wheel support for smooth scrolling
@@ -3838,7 +3838,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            Debug.WriteLine($"UpdateCellPositions: yOffset={yOffset}, xOffset={_xOffset}, VisibleRows={endRow - startRow}, Columns={Columns.Count(c => c.Visible)}");
+           // Debug.WriteLine($"UpdateCellPositions: yOffset={yOffset}, xOffset={_xOffset}, VisibleRows={endRow - startRow}, Columns={Columns.Count(c => c.Visible)}");
         }
         private void UpdateRowCount()
         {
@@ -4535,7 +4535,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         if (oldRowIndex != -1 && oldRowIndex != newRowIndex)
                         {
                             string direction = newRowIndex < oldRowIndex ? "up" : "down";
-                            Debug.WriteLine($"Selected row moved {direction}: OldRowIndex={oldRowIndex}, NewRowIndex={newRowIndex}, DisplayIndex={_currentRow.DisplayIndex}");
+                           // Debug.WriteLine($"Selected row moved {direction}: OldRowIndex={oldRowIndex}, NewRowIndex={newRowIndex}, DisplayIndex={_currentRow.DisplayIndex}");
                         }
 
                         CurrentRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(selectedDataIndex, _currentRow));

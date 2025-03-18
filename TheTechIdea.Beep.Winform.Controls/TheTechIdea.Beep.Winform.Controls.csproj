@@ -31,7 +31,6 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-		<None Include="Models\Enums.cs" />
 	</ItemGroup>
   <ItemGroup>
     <Compile Remove="AppBar\**" />

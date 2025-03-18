@@ -106,12 +106,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             MainPanel.Bounds = DrawingRect;
 
-            FindButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg", buttonSize, FindpictureBox_Click);
+            FindButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.search_1.svg", buttonSize, FindpictureBox_Click);
             EditButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.edit.svg", buttonSize, EditpictureBox_Click);
             PrinterButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg", buttonSize, PrinterpictureBox_Click);
-            MessageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.share.svg", buttonSize, MessagepictureBox_Click);
-            SaveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.save.svg", buttonSize, SavepictureBox_Click);
-            PreviousButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.previous.svg", buttonSize, PreviouspictureBox_Click);
+            MessageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg", buttonSize, MessagepictureBox_Click);
+            SaveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.check.svg", buttonSize, SavepictureBox_Click);
+            PreviousButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.backwards.svg", buttonSize, PreviouspictureBox_Click);
             Recordnumberinglabel1 = new BeepLabel
             {
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -124,10 +124,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 IsRoundedAffectedByTheme = false
             };
-            NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.next.svg", buttonSize, NextpictureBox_Click);
-            NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.add.svg", buttonSize, NewButton_Click);
+            NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.forward.svg", buttonSize, NextpictureBox_Click);
+            NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.pencil.svg", buttonSize, NewButton_Click);
             RemoveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.remove.svg", buttonSize, RemovepictureBox_Click);
-            RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.rollback.svg", buttonSize, RollbackpictureBox_Click);
+            RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.go-back.svg", buttonSize, RollbackpictureBox_Click);
 
             var buttons = new List<Control>
             {

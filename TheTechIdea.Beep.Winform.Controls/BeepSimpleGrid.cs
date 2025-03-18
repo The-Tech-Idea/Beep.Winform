@@ -14,7 +14,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Models;
+
 using Timer = System.Windows.Forms.Timer;
 
 
@@ -1071,31 +1071,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void InsertIntoDataSource(object newData)
         {
             // Example: Insert into a database using IDBConnection
-            if (Entity != null && DataSource is BindingSource bs && bs.DataSource is IDBConnection connection)
-            {
-                // Implement insert logic (e.g., using connection.ExecuteInsert)
-                Debug.WriteLine($"Inserted new record: {newData}");
-            }
+            //if (Entity != null && DataSource is BindingSource bs && bs.DataSource is IDBConnection connection)
+            //{
+            //    // Implement insert logic (e.g., using connection.ExecuteInsert)
+            //    Debug.WriteLine($"Inserted new record: {newData}");
+            //}
         }
 
         private void UpdateInDataSource(object originalData, Dictionary<string, object> changes)
         {
-            // Example: Update in a database using IDBConnection
-            if (Entity != null && DataSource is BindingSource bs && bs.DataSource is IDBConnection connection)
-            {
-                // Implement update logic (e.g., using connection.ExecuteUpdate with originalData and changes)
-                Debug.WriteLine($"Updated record: Original={originalData}, Changes={string.Join(", ", changes.Select(kvp => $"{kvp.Key}={kvp.Value}"))}");
-            }
+            //// Example: Update in a database using IDBConnection
+            //if (Entity != null && DataSource is BindingSource bs && bs.DataSource is IDBConnection connection)
+            //{
+            //    // Implement update logic (e.g., using connection.ExecuteUpdate with originalData and changes)
+            //    Debug.WriteLine($"Updated record: Original={originalData}, Changes={string.Join(", ", changes.Select(kvp => $"{kvp.Key}={kvp.Value}"))}");
+            //}
         }
 
         private void DeleteFromDataSource(object originalData)
         {
             // Example: Delete from a database using IDBConnection
-            if (Entity != null && DataSource is BindingSource bs && bs.DataSource is IDBConnection connection)
-            {
-                // Implement delete logic (e.g., using connection.ExecuteDelete)
-                Debug.WriteLine($"Deleted record: {originalData}");
-            }
+            //if (Entity != null && DataSource is BindingSource bs && bs.DataSource is IDBConnection connection)
+            //{
+            //    // Implement delete logic (e.g., using connection.ExecuteDelete)
+            //    Debug.WriteLine($"Deleted record: {originalData}");
+            //}
         }
         private void UpdateDataRecordFromRow(BeepCellConfig editingCell)
         {

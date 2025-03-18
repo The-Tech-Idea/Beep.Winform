@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheTechIdea.Beep.Winform.Controls.Native
+namespace TheTechIdea.Beep.Desktop.Common.Native
 {
     #region User32Native
 

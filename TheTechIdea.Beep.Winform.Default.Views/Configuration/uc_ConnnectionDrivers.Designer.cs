@@ -1,5 +1,6 @@
 ﻿
 using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
@@ -76,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.DataContext = null;
             beepSimpleGrid1.DataSource = driversConfigViewModelBindingSource;
             beepSimpleGrid1.DataSourceProperty = null;
-            beepSimpleGrid1.DataSourceType = Winform.Controls.Models.GridDataSourceType.Fixed;
+            beepSimpleGrid1.DataSourceType = GridDataSourceType.Fixed;
             beepSimpleGrid1.DefaultColumnHeaderWidth = 50;
             beepSimpleGrid1.DisabledBackColor = Color.Gray;
             beepSimpleGrid1.DisabledForeColor = Color.Empty;

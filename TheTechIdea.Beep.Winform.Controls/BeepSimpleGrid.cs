@@ -2995,7 +2995,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 g.FillRectangle(bgBrush, cellRect);
                // g.DrawRectangle(Pens.Black, cellRect);
-                g.DrawString(col.ColumnName, _columnHeadertextFont ?? Font, textBrush, cellRect, format);
+                g.DrawString(col.ColumnCaption, _columnHeadertextFont ?? Font, textBrush, cellRect, format);
             }
         }
         private void PaintRows(Graphics g, Rectangle bounds)
@@ -3017,24 +3017,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                 g.Clip = clipRegion;
                 for (int i = 0; i < Rows.Count; i++)
                 {
-                    if (yOffset + RowHeight > bounds.Bottom)
-                        break;
-
                     var row = Rows[i];
+                   // int displayY = row.IsAggregation && _showaggregationRow ? bounds.Bottom - bottomagregationPanelHeight : yOffset;
+                    int displayY =  yOffset;
+                    // Stop if yOffset exceeds bounds for non-aggregation rows
+                    //if (!row.IsAggregation && yOffset + RowHeight > bounds.Bottom - (_showaggregationRow ? bottomagregationPanelHeight : 0))
+                    //    break;
+                    // Stop if yOffset exceeds bounds for non-aggregation rows
+                    if ( yOffset + RowHeight > bounds.Bottom )
+                        break;
                     // Align rowRect with scrollingRegion, accounting for scroll
-                    int scrollingStartX = Math.Max(bounds.Left, scrollingRegion.Left - _xOffset);
-                    int scrollingWidth = scrollingRegion.Width + Math.Max(0, _xOffset - _stickyWidth); // Adjust width if scrolled beyond sticky region
-                    var rowRect = new Rectangle(scrollingStartX, yOffset, scrollingWidth, RowHeight);
+                    int scrollingStartX = scrollingRegion.Left - _xOffset;
+                    int totalScrollableWidth = Columns.Where(c => !c.Sticked && c.Visible).Sum(c => c.Width) +
+                                              (Columns.Count(c => !c.Sticked && c.Visible) - 1) * 1;
+                    int scrollingWidth = Math.Max(scrollingRegion.Width + _xOffset, totalScrollableWidth);
+                    var rowRect = new Rectangle(scrollingStartX, displayY, scrollingWidth, RowHeight);
 
                     PaintScrollingRow(g, row, rowRect);
-                    yOffset += _rowHeight;
+                    if (!row.IsAggregation) yOffset += _rowHeight; // Only increment yOffset for non-aggregation rows
 
-                    //if (i == 0 || yOffset + RowHeight > bounds.Bottom - RowHeight)
-                    //{
-                    //    System.Diagnostics.Debug.WriteLine(
-                    //        $"PaintRows Scrolling: Row[{i}] Y={rowRect.Y}, X={rowRect.X}, Right={rowRect.Right}, " +
-                    //        $"StickyWidth={_stickyWidth}, ScrollingRegion={scrollingRegion}, Bounds={bounds}, XOffset={_xOffset}");
-                    //}
+                    Debug.WriteLine($"PaintRows Scrolling: Row[{i}] DisplayY={displayY}, IsAggregation={row.IsAggregation}, " +
+                        $"Bounds.Bottom={bounds.Bottom}, bottomagregationPanelHeight={bottomagregationPanelHeight}, YOffset={yOffset}, RowCount={Rows.Count}");
                 }
             }
 
@@ -3050,25 +3053,37 @@ namespace TheTechIdea.Beep.Winform.Controls
                     int stickyX = bounds.Left + stickyColumns.TakeWhile(c => c != stickyCol).Sum(c => c.Width);
                     for (int i = 0; i < Rows.Count; i++)
                     {
-                        if (yOffset + RowHeight > bounds.Bottom)
+                        var row = Rows[i];
+                        // int displayY = row.IsAggregation && _showaggregationRow ? bounds.Bottom - bottomagregationPanelHeight : yOffset;
+                        int displayY = yOffset;
+                        // Stop if yOffset exceeds bounds for non-aggregation rows
+                        //if (!row.IsAggregation && yOffset + RowHeight > bounds.Bottom - (_showaggregationRow ? bottomagregationPanelHeight : 0))
+                        //    break;
+                        // Stop if yOffset exceeds bounds for non-aggregation rows
+                        if (yOffset + RowHeight > bounds.Bottom )
                             break;
 
-                        var row = Rows[i];
                         var cell = row.Cells[Columns.IndexOf(stickyCol)];
-                        var cellRect = new Rectangle(stickyX, yOffset, stickyCol.Width, RowHeight);
+                        var cellRect = new Rectangle(stickyX, displayY, stickyCol.Width, RowHeight);
                         Color backcolor = cell.RowIndex == _currentRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
                         PaintCell(g, cell, cellRect, backcolor);
-                        yOffset += _rowHeight;
+                        if (!row.IsAggregation) yOffset += _rowHeight; // Only increment yOffset for non-aggregation rows
                     }
                     yOffset = bounds.Top;
                 }
             }
+
             g.ResetClip();
         }
+
         private void PaintScrollingRow(Graphics g, BeepRowConfig row, Rectangle rowRect)
         {
             int xOffset = rowRect.Left; // Starts at scrollingRegion.Left - _xOffset from PaintRows
             int rightBoundary = rowRect.Right; // Enforce rowRect’s right edge
+            int totalScrollableWidth = Columns.Where(c => !c.Sticked && c.Visible).Sum(c => c.Width) +
+                                      (Columns.Count(c => !c.Sticked && c.Visible) - 1) * 1; // Include border width
+
+       //     Debug.WriteLine($"PaintScrollingRow: Row[{row.Index}] rightBoundary={rightBoundary}, totalScrollableWidth={totalScrollableWidth}, _xOffset={_xOffset}");
 
             for (int i = 0; i < row.Cells.Count && i < Columns.Count; i++)
             {
@@ -3086,17 +3101,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                     cell.Width = Math.Max(0, rightBoundary - xOffset); // Truncate last cell if needed
                     if (cell.Width <= 0) break; // No room left
                 }
-                //  // Stop if cell would exceed rowRect.Left
-                  if (xOffset < rowRect.Left)
-                {
-                    xOffset += Columns[i].Width;
-                    continue;
-                }
+
                 var cellRect = new Rectangle(cell.X, cell.Y, cell.Width, cell.Height);
                 Color backcolor = cell.RowIndex == _currentRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
                 PaintCell(g, cell, cellRect, backcolor);
 
+                //Debug.WriteLine($"PaintScrollingRow: Cell[{i}] X={xOffset}, Y={cellRect.Y}, Width={cell.Width}, " +
+                //    $"CellValue={cell.CellValue}, rightBoundary={rightBoundary}");
+
                 xOffset += Columns[i].Width;
+                if (xOffset >= rightBoundary && xOffset < totalScrollableWidth + rowRect.Left)
+                    rightBoundary = Math.Min(rowRect.Left + totalScrollableWidth, rowRect.Right); // Extend boundary if within scrollable range
                 if (xOffset >= rightBoundary) break; // Exit if past boundary
             }
         }
@@ -3302,8 +3317,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             int xOffset = headerRect.Left;
 
+            // Ensure _stickyWidth is calculated and capped
             UpdateStickyWidth();
             int stickyWidth = _stickyWidth;
+            stickyWidth = Math.Min(stickyWidth, headerRect.Width); // Prevent overflow
 
             StringFormat centerFormat = new StringFormat
             {
@@ -3311,6 +3328,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 LineAlignment = StringAlignment.Center
             };
 
+            // Define sticky and scrolling regions
             Rectangle stickyRegion = new Rectangle(headerRect.Left, headerRect.Top, stickyWidth, headerRect.Height);
             Rectangle scrollingRegion = new Rectangle(headerRect.Left + stickyWidth, headerRect.Top,
                                                      headerRect.Width - stickyWidth, headerRect.Height);
@@ -3319,12 +3337,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             using (Region clipRegion = new Region(scrollingRegion))
             {
                 g.Clip = clipRegion;
-                int scrollingXOffset = headerRect.Left + stickyWidth - _xOffset;
+                int scrollingXOffset = headerRect.Left + stickyWidth - _xOffset; // Adjusted for horizontal scroll
                 foreach (var col in Columns.Where(c => !c.Sticked && c.Visible))
                 {
                     var headerCellRect = new Rectangle(scrollingXOffset, headerRect.Top, col.Width, headerRect.Height);
                     PaintHeaderCell(g, col, headerCellRect, centerFormat);
                     scrollingXOffset += col.Width;
+
+                    // Debug output for scrolling headers
+                    Debug.WriteLine($"PaintColumnHeaders Scrolling: Col={col.ColumnName}, X={scrollingXOffset}, Width={col.Width}, _xOffset={_xOffset}");
                 }
             }
 
@@ -3339,7 +3360,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     var headerCellRect = new Rectangle(xOffset, headerRect.Top, col.Width, headerRect.Height);
                     PaintHeaderCell(g, col, headerCellRect, centerFormat);
                     xOffset += col.Width;
-                  //  System.Diagnostics.Debug.WriteLine($"StickyHeader: Col={col.ColumnName}, X={headerCellRect.X}, Width={col.Width}");
+
+                    // Debug output for sticky headers
+                    Debug.WriteLine($"PaintColumnHeaders Sticky: Col={col.ColumnName}, X={xOffset}, Width={col.Width}");
                 }
             }
 
@@ -3352,7 +3375,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-         //   System.Diagnostics.Debug.WriteLine($"PaintColumnHeaders: StickyWidth={stickyWidth}, HeaderRect={headerRect}, XOffset={_xOffset}");
+            Debug.WriteLine($"PaintColumnHeaders: StickyWidth={stickyWidth}, HeaderRect={headerRect}, _xOffset={_xOffset}");
         }
         private void DrawHeaderPanel(Graphics g, Rectangle rect)
         {
@@ -3968,9 +3991,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _horizontalScrollBar.Minimum = 0;
                 _horizontalScrollBar.Maximum = totalColumnWidth;
                 _horizontalScrollBar.LargeChange = visibleWidth;
-                _horizontalScrollBar.SmallChange = Columns.Where(c => c.Visible).Min(c => c.Width) / 2;
+                _horizontalScrollBar.SmallChange = Columns.Where(c => !c.Sticked && c.Visible).Min(c => c.Width) / 2;
                 _horizontalScrollBar.Value = Math.Max(0, Math.Min(_xOffset, maxXOffset));
                 _horizontalScrollBar.Visible = true;
+
+              //  Debug.WriteLine($"UpdateScrollBars Horizontal: totalColumnWidth={totalColumnWidth}, visibleWidth={visibleWidth}, stickyWidth={stickyWidth}, maxXOffset={maxXOffset}, _xOffset={_xOffset}");
             }
             else
             {
@@ -3981,7 +4006,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-          //  PositionScrollBars();
+            //  PositionScrollBars();
         }
         private void UpdateCachedHorizontalMetrics()
         {

@@ -2552,6 +2552,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentRowIndex < Rows.Count - 1)
             {
                 SelectCell(_currentRowIndex + 1, _selectedColumnIndex);
+                ScrollBy(1);
             }
         }
 
@@ -2560,6 +2561,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentRowIndex > 0)
             {
                 SelectCell(_currentRowIndex - 1, _selectedColumnIndex);
+                ScrollBy(-1);
             }
         }
       
@@ -2778,13 +2780,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                     case Keys.Up:
                         if (_currentRowIndex > 0)
                         {
-                            SelectCell(_currentRowIndex - 1, _selectedColumnIndex);
+                            MovePreviousRow();
                         }
                         break;
                     case Keys.Down:
                         if (_currentRowIndex < Rows.Count - 1)
                         {
-                            SelectCell(_currentRowIndex + 1, _selectedColumnIndex);
+                           MoveNextRow();
                         }
                         break;
                     case Keys.Left:
@@ -4898,7 +4900,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             var clickedCell = GetCellAtLocation(e.Location);
             if (clickedCell == null) return;
-            if (clickedCell.IsAggregation) return;
+           // if (clickedCell.IsAggregation) return;
             if (clickedCell != null)
             {
                 int colIndex = clickedCell.ColumnIndex;

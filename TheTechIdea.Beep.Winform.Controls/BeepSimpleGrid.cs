@@ -3036,8 +3036,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     PaintScrollingRow(g, row, rowRect);
                     if (!row.IsAggregation) yOffset += _rowHeight; // Only increment yOffset for non-aggregation rows
 
-                    Debug.WriteLine($"PaintRows Scrolling: Row[{i}] DisplayY={displayY}, IsAggregation={row.IsAggregation}, " +
-                        $"Bounds.Bottom={bounds.Bottom}, bottomagregationPanelHeight={bottomagregationPanelHeight}, YOffset={yOffset}, RowCount={Rows.Count}");
                 }
             }
 
@@ -3082,8 +3080,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int rightBoundary = rowRect.Right; // Enforce rowRect’s right edge
             int totalScrollableWidth = Columns.Where(c => !c.Sticked && c.Visible).Sum(c => c.Width) +
                                       (Columns.Count(c => !c.Sticked && c.Visible) - 1) * 1; // Include border width
-
-       //     Debug.WriteLine($"PaintScrollingRow: Row[{row.Index}] rightBoundary={rightBoundary}, totalScrollableWidth={totalScrollableWidth}, _xOffset={_xOffset}");
+            int leftBoundary = rowRect.Left + _stickyWidth; // Left edge of the scrolling region
 
             for (int i = 0; i < row.Cells.Count && i < Columns.Count; i++)
             {
@@ -3094,6 +3091,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 cell.Y = rowRect.Top;
                 cell.Width = Columns[i].Width;
                 cell.Height = rowRect.Height;
+
+                // Skip cells that are completely outside the left boundary
+                if (xOffset + cell.Width <= leftBoundary)
+                {
+                    xOffset += Columns[i].Width;
+                    continue; // Skip drawing this cell
+                }
+
+                // Adjust cell if it partially overlaps the left boundary
+                if (xOffset < leftBoundary)
+                {
+                    cell.Width = Math.Max(0, cell.Width - (leftBoundary - xOffset));
+                    cell.X = leftBoundary;
+                }
 
                 // Stop if cell would exceed rowRect.Right
                 if (xOffset + cell.Width > rightBoundary)
@@ -3106,9 +3117,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Color backcolor = cell.RowIndex == _currentRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
                 PaintCell(g, cell, cellRect, backcolor);
 
-                //Debug.WriteLine($"PaintScrollingRow: Cell[{i}] X={xOffset}, Y={cellRect.Y}, Width={cell.Width}, " +
-                //    $"CellValue={cell.CellValue}, rightBoundary={rightBoundary}");
-
+              
                 xOffset += Columns[i].Width;
                 if (xOffset >= rightBoundary && xOffset < totalScrollableWidth + rowRect.Left)
                     rightBoundary = Math.Min(rowRect.Left + totalScrollableWidth, rowRect.Right); // Extend boundary if within scrollable range

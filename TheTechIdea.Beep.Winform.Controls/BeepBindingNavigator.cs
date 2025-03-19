@@ -317,9 +317,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             try
             {
                 SendLog("Add New Record");
+                NewRecordCreated?.Invoke(this, _bindingsource);
                 _bindingsource.AddNew();
                 _bindingsource.ResetBindings(false);
-                NewRecordCreated?.Invoke(this, _bindingsource);
+               
             }
             catch (Exception ex)
             {

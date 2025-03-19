@@ -48,6 +48,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // beepSimpleGrid1
             // 
             beepSimpleGrid1.ActiveBackColor = Color.FromArgb(0, 120, 215);
+            beepSimpleGrid1.aggregationRow = null;
             beepSimpleGrid1.AnimationDuration = 500;
             beepSimpleGrid1.AnimationType = Winform.Controls.DisplayAnimationType.None;
             beepSimpleGrid1.ApplyThemeToChilds = false;
@@ -64,7 +65,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.BorderStyle = BorderStyle.FixedSingle;
             beepSimpleGrid1.BorderThickness = 1;
             beepSimpleGrid1.BottomoffsetForDrawingRect = 0;
-            beepSimpleGrid1.aggregationRow = null;
             beepSimpleGrid1.BoundProperty = null;
             beepSimpleGrid1.CanBeFocused = true;
             beepSimpleGrid1.CanBeHovered = false;
@@ -75,6 +75,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.Columns = (List<BeepColumnConfig>)resources.GetObject("beepSimpleGrid1.Columns");
             beepSimpleGrid1.ComponentName = "beepSimpleGrid1";
             beepSimpleGrid1.DataContext = null;
+            beepSimpleGrid1.DataNavigator = null;
             beepSimpleGrid1.DataSource = driversConfigViewModelBindingSource;
             beepSimpleGrid1.DataSourceProperty = null;
             beepSimpleGrid1.DataSourceType = GridDataSourceType.Fixed;

@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         {
            viewModel = new DriversConfigViewModel(beepservice.DMEEditor, beepservice.vis);
            BeepColumnConfig classhandlers=beepSimpleGrid1.GetColumnByName("ClassHandler");
-          //  classhandlers.CellEditor = BeepColumnType.ListOfValue;
+            classhandlers.CellEditor = BeepColumnType.ListOfValue;
             int idx=0;
             foreach (var item in viewModel.DBAssemblyClasses)
             {

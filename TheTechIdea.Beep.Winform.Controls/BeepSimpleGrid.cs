@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Drawing.Design;
 using System.Globalization;
 using System.Reflection;
+using System.Windows.Forms;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Desktop.Common;
 using TheTechIdea.Beep.Desktop.Common.Helpers;
@@ -198,6 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private object _dataSource;
         object finalData;
         private List<object> _fullData;
+        Type _entityType;
         private int _dataOffset = 0;
         public IEntityStructure Entity { get; set; }
 
@@ -661,20 +663,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             _horizontalScrollBar.Scroll += HorizontalScrollBar_Scroll;
             Controls.Add(_horizontalScrollBar);
-            DataNavigator = new BeepBindingNavigator
-            {
-                ShowAllBorders = false,
-                ShowShadow = false,
-                IsBorderAffectedByTheme = false,
-                IsShadowAffectedByTheme = false,
-                Theme = Theme,
+            //DataNavigator = new BeepBindingNavigator
+            //{
+            //    ShowAllBorders = false,
+            //    ShowShadow = false,
+            //    IsBorderAffectedByTheme = false,
+            //    IsShadowAffectedByTheme = false,
+            //    Theme = Theme,
 
-            };
-            AttachNavigatorEvents();
+            //};
+            //AttachNavigatorEvents();
             _scrollTimer = new Timer { Interval = 16 }; // ~60 FPS for smooth animation
             _scrollTimer.Tick += ScrollTimer_Tick;
             ApplyThemeToChilds = false;
-            Controls.Add(DataNavigator);
+            //Controls.Add(DataNavigator);
 
             titleLabel = new BeepLabel
             {
@@ -733,6 +735,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             filterColumnComboBox.SelectedItemChanged += FilterColumnComboBox_SelectedIndexChanged;
             Controls.Add(filterColumnComboBox);
+            CreateNavigationButtons();
+            
             InitializeRows();
         }
 
@@ -768,7 +772,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             DataNavigator.ListChanged -= DataNavigator_ListChanged;       // Optional, for list changes
             DataNavigator.DataSourceChanged -= DataNavigator_DataSourceChanged; // Optional, for data source changes
         }
-
         private void DataNavigator_PositionChanged(object sender, EventArgs e)
         {
             int targetIndex = DataNavigator?.BindingSource.Position ?? -1;
@@ -793,14 +796,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
         private void DataNavigator_CurrentChanged(object sender, EventArgs e)
         {
             // Optional: Handle current item change if needed (e.g., highlight current row)
             FillVisibleRows();
             Invalidate();
         }
-
         private void DataNavigator_ListChanged(object sender, ListChangedEventArgs e)
         {
             // Optional: Handle list changes (e.g., add/remove items)
@@ -808,11 +809,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateScrollBars();
             Invalidate();
         }
-
         private void DataNavigator_DataSourceChanged(object sender, EventArgs e)
         {
             // Optional: Handle data source change (e.g., reload grid)
-            _fullData = DataNavigator.BindingSource.DataSource as List<object> ?? new List<object>();
+          //  _fullData = DataNavigator.BindingSource.DataSource as List<object> ?? new List<object>();
             InitializeRows();
             FillVisibleRows();
             UpdateScrollBars();
@@ -834,7 +834,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SendLog($"Error in printing: {ex.Message}");
             }
         }
-
         private void DataNavigator_SendMessage(object sender, BindingSource bs)
         {
             try
@@ -858,7 +857,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SendLog($"Error in sending message: {ex.Message}");
             }
         }
-
         private void DataNavigator_ShowSearch(object sender, BindingSource bs)
         {
             try
@@ -884,40 +882,79 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SendLog($"Error in search: {ex.Message}");
             }
         }
+        // Simplify DataNavigator_DeleteCalled to focus on grid state updates
+        private void DataNavigator_DeleteCalled(object sender, BindingSource bs)
+        {
+            try
+            {
+                if (_currentRow != null && _fullData.Any())
+                {
+                    int dataIndex = _currentRow.DisplayIndex;
+                    if (dataIndex >= 0 && dataIndex < _fullData.Count)
+                    {
+                        var item = _fullData[dataIndex];
+                        var wrapper = item as DataRowWrapper;
+                        if (wrapper == null)
+                        {
+                            Debug.WriteLine($"DataNavigator_DeleteCalled: Item at index {dataIndex} is not a DataRowWrapper");
+                            return;
+                        }
 
+                        // Remove from the data source and update _fullData, Trackings, originalList, etc.
+                        DeleteFromDataSource(wrapper.OriginalData);
+
+                        // Update the grid's state
+                        if (_fullData.Any())
+                        {
+                            int newSelectedIndex = Math.Min(dataIndex, _fullData.Count - 1);
+                            if (_dataSource is BindingSource && bs == _bindingSource)
+                            {
+                                bs.Position = newSelectedIndex;
+                            }
+                            StartSmoothScroll(Math.Max(0, newSelectedIndex - GetVisibleRowCount() + 1));
+                            FillVisibleRows();
+                            if (newSelectedIndex >= _dataOffset && newSelectedIndex < _dataOffset + Rows.Count)
+                            {
+                                SelectCell(newSelectedIndex - _dataOffset, _selectedColumnIndex >= 0 ? _selectedColumnIndex : 0);
+                            }
+                        }
+                        else
+                        {
+                            _currentRow = null;
+                            _currentRowIndex = -1;
+                            if (_dataSource is BindingSource && bs == _bindingSource)
+                            {
+                                bs.Position = -1;
+                            }
+                            FillVisibleRows();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DeleteCalled Error: {ex.Message}");
+                SendLog($"Error deleting record: {ex.Message}");
+            }
+        }
+        // Update DataNavigator_NewRecordCreated to use CreateNewRecordForBindingSource when _dataSource is a BindingSource
         private void DataNavigator_NewRecordCreated(object sender, BindingSource bs)
         {
             try
             {
-                if (Entity != null)
+                if (_dataSource is BindingSource)
                 {
-                    var newItem = Activator.CreateInstance(Type.GetType(Entity.EntityName));
-                    _fullData.Add(newItem);
-                    Tracking newTracking = new Tracking(Guid.NewGuid(), originalList.Count, _fullData.Count - 1)
-                    {
-                        EntityState = EntityState.Added
-                    };
-                    originalList.Add(newItem);
-                    Trackings.Add(newTracking);
-
-                    // Notify BindingSource
-                    bs.ResetBindings(false);
-                    bs.Position = bs.Count - 1;
-
-                    int newOffset = Math.Max(0, _fullData.Count - GetVisibleRowCount());
-                    StartSmoothScroll(newOffset);
-                    FillVisibleRows();
-
-                    int newRowIndex = _fullData.Count - 1 - _dataOffset;
-                    if (newRowIndex >= 0 && newRowIndex < Rows.Count)
-                    {
-                        SelectCell(newRowIndex, 0);
-                        BeginEdit();
-                    }
+                    // Create a new record for the BindingSource
+                    CreateNewRecordForBindingSource();
+                }
+                else if (_dataSource is IList)
+                {
+                    // Create a new record for the IList
+                    CreateNewRecordForIList();
                 }
                 else
                 {
-                    Debug.WriteLine("Cannot add new record: Entity structure not defined.");
+                    Debug.WriteLine("DataNavigator_NewRecordCreated: Unsupported data source type");
                 }
             }
             catch (Exception ex)
@@ -926,7 +963,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SendLog($"Error adding new record: {ex.Message}");
             }
         }
-
+        private void DataNavigator_EditCalled(object sender, BindingSource bs)
+        {
+            try
+            {
+                if (_selectedCell != null)
+                {
+                    BeginEdit();
+                 //   Debug.WriteLine($"EditCalled: Editing cell at row {_selectedCell.RowIndex}, column {_selectedCell.ColumnIndex}");
+                }
+                else
+                {
+                //    Debug.WriteLine("EditCalled: No cell selected to edit.");
+                    MessageBox.Show("Please select a cell to edit.", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"EditCalled Error: {ex.Message}");
+                SendLog($"Error starting edit: {ex.Message}");
+            }
+        }
         private void DataNavigator_SaveCalled(object sender, BindingSource bs)
         {
             try
@@ -952,7 +1009,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 bs.ResetBindings(false); // Refresh navigator
                 Invalidate();
-              //  Debug.WriteLine("Data saved locally in grid.");
+                //  Debug.WriteLine("Data saved locally in grid.");
                 MessageBox.Show("Changes saved locally. Implement external persistence if needed.", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -961,87 +1018,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SendLog($"Error saving data: {ex.Message}");
             }
         }
-
-        private void DataNavigator_DeleteCalled(object sender, BindingSource bs)
-        {
-            try
-            {
-                if (_currentRow != null && _fullData.Any())
-                {
-                    int dataIndex = _currentRow.DisplayIndex;
-                    if (dataIndex >= 0 && dataIndex < _fullData.Count)
-                    {
-                        var item = _fullData[dataIndex];
-                        Tracking tracking = GetTrackingItem(item);
-                        if (tracking != null)
-                        {
-                            tracking.EntityState = EntityState.Deleted;
-                            deletedList.Add(item);
-                            _fullData.RemoveAt(dataIndex);
-
-                            // Notify BindingSource
-                            bs.ResetBindings(false);
-
-                            if (_fullData.Any())
-                            {
-                                int newSelectedIndex = Math.Min(dataIndex, _fullData.Count - 1);
-                                bs.Position = newSelectedIndex;
-                                StartSmoothScroll(Math.Max(0, newSelectedIndex - GetVisibleRowCount() + 1));
-                                FillVisibleRows();
-                                if (newSelectedIndex >= _dataOffset && newSelectedIndex < _dataOffset + Rows.Count)
-                                {
-                                    SelectCell(newSelectedIndex - _dataOffset, _selectedColumnIndex >= 0 ? _selectedColumnIndex : 0);
-                                }
-                            }
-                            else
-                            {
-                                _currentRow = null;
-                                _currentRowIndex = -1;
-                                bs.Position = -1;
-                                FillVisibleRows();
-                            }
-
-                            if (IsLogging)
-                            {
-                                UpdateLog[DateTime.Now] = new EntityUpdateInsertLog
-                                {
-                                    TrackingRecord = tracking,
-                                    LogAction = LogAction.Delete
-                                };
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"DeleteCalled Error: {ex.Message}");
-                SendLog($"Error deleting record: {ex.Message}");
-            }
-        }
-
-        private void DataNavigator_EditCalled(object sender, BindingSource bs)
-        {
-            try
-            {
-                if (_selectedCell != null)
-                {
-                    BeginEdit();
-                 //   Debug.WriteLine($"EditCalled: Editing cell at row {_selectedCell.RowIndex}, column {_selectedCell.ColumnIndex}");
-                }
-                else
-                {
-                //    Debug.WriteLine("EditCalled: No cell selected to edit.");
-                    MessageBox.Show("Please select a cell to edit.", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"EditCalled Error: {ex.Message}");
-                SendLog($"Error starting edit: {ex.Message}");
-            }
-        }
-     
         private void SendLog(string message)
         {
             Console.WriteLine(message);
@@ -1068,34 +1044,375 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion Data Navigator
         #region DataSource Update
-        private void InsertIntoDataSource(object newData)
+        private void CreateNewRecordForBindingSource()
         {
-            // Example: Insert into a database using IDBConnection
-            //if (Entity != null && DataSource is BindingSource bs && bs.DataSource is IDBConnection connection)
-            //{
-            //    // Implement insert logic (e.g., using connection.ExecuteInsert)
-            //    Debug.WriteLine($"Inserted new record: {newData}");
-            //}
+            try
+            {
+                if (Entity == null)
+                {
+                    Debug.WriteLine("CreateNewRecordForBindingSource: Cannot add new record: Entity structure not defined.");
+                    return;
+                }
+
+                // Create a new record of the appropriate type
+                var newItem = Activator.CreateInstance(Type.GetType(Entity.EntityName));
+
+                // Add to the BindingSource
+                if (_bindingSource != null)
+                {
+                    _bindingSource.Add(newItem); // Add to BindingSource, which triggers BindingSource_ListChanged
+                    Debug.WriteLine($"CreateNewRecordForBindingSource: Added new record to BindingSource: {newItem}");
+
+                    // The BindingSource_ListChanged event (ListChangedType.ItemAdded) will handle adding to _fullData, Trackings, and originalList
+                    // We just need to update the grid's selection and scroll position
+                    int newOffset = Math.Max(0, _fullData.Count - GetVisibleRowCount());
+                    StartSmoothScroll(newOffset);
+                    int newRowIndex = _fullData.Count - 1 - _dataOffset;
+                    if (newRowIndex >= 0 && newRowIndex < Rows.Count)
+                    {
+                        SelectCell(newRowIndex, 0);
+                        BeginEdit();
+                    }
+
+                    // Log the operation if IsLogging is enabled
+                    if (IsLogging)
+                    {
+                        var tracking = Trackings.LastOrDefault(); // Get the tracking entry added by BindingSource_ListChanged
+                        if (tracking != null)
+                        {
+                            UpdateLog[DateTime.Now] = new EntityUpdateInsertLog
+                            {
+                                TrackingRecord = tracking,
+                                LogAction = LogAction.Insert,
+                                UpdatedFields = new Dictionary<string, object>()
+                            };
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine($"CreateNewRecordForBindingSource: _bindingSource is null, cannot add new record");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"CreateNewRecordForBindingSource Error: {ex.Message}");
+                SendLog($"Error adding new record: {ex.Message}");
+            }
         }
 
+        // Existing CreateNewRecordForIList (already includes logging and error handling)
+        private void CreateNewRecordForIList()
+        {
+            try
+            {
+                if (Entity == null)
+                {
+                    Debug.WriteLine("CreateNewRecordForIList: Cannot add new record: Entity structure not defined.");
+                    return;
+                }
+
+                // Create a new record of the appropriate type
+                var newItem = Activator.CreateInstance(_entityType);
+
+                // Add to the IList data source
+                if (_dataSource is IList list)
+                {
+                    list.Add(newItem);
+                    Debug.WriteLine($"CreateNewRecordForIList: Added new record to IList: {newItem}");
+                }
+                else
+                {
+                    Debug.WriteLine($"CreateNewRecordForIList: _dataSource is not an IList");
+                    return;
+                }
+
+                // Wrap the new record in a DataRowWrapper and add to _fullData
+                var wrapper = new DataRowWrapper(newItem, _fullData.Count)
+                {
+                    TrackingUniqueId = Guid.NewGuid(),
+                    RowState = DataRowState.Added,
+                    DateTimeChange = DateTime.Now
+                };
+                _fullData.Add(wrapper);
+
+                // Update Trackings and originalList
+                Tracking newTracking = new Tracking(Guid.NewGuid(), originalList.Count, _fullData.Count - 1)
+                {
+                    EntityState = EntityState.Added
+                };
+                originalList.Add(wrapper);
+                Trackings.Add(newTracking);
+
+                // Update the grid's state
+                int newOffset = Math.Max(0, _fullData.Count - GetVisibleRowCount());
+                StartSmoothScroll(newOffset);
+                FillVisibleRows();
+
+                int newRowIndex = _fullData.Count - 1 - _dataOffset;
+                if (newRowIndex >= 0 && newRowIndex < Rows.Count)
+                {
+                    SelectCell(newRowIndex, 0);
+                    BeginEdit();
+                }
+
+                if (IsLogging)
+                {
+                    UpdateLog[DateTime.Now] = new EntityUpdateInsertLog
+                    {
+                        TrackingRecord = newTracking,
+                        LogAction = LogAction.Insert,
+                        UpdatedFields = new Dictionary<string, object>()
+                    };
+                }
+
+                Debug.WriteLine($"CreateNewRecordForIList: Added new record to _fullData at index {_fullData.Count - 1}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"CreateNewRecordForIList Error: {ex.Message}");
+                SendLog($"Error adding new record: {ex.Message}");
+            }
+        }
+        private void InsertIntoDataSource(object newData)
+        {
+            if (_dataSource is BindingSource)
+            {
+                if (_bindingSource != null)
+                {
+                    _bindingSource.Add(newData); // Add to BindingSource, which notifies listeners
+                    Debug.WriteLine($"InsertIntoDataSource: Added new record to BindingSource: {newData}");
+                }
+                else
+                {
+                    Debug.WriteLine($"InsertIntoDataSource: _bindingSource is null, cannot add new record");
+                }
+            }
+            else if (_dataSource is IList list)
+            {
+                list.Add(newData); // Add to IList
+                Debug.WriteLine($"InsertIntoDataSource: Added new record to IList: {newData}");
+            }
+            else
+            {
+                Debug.WriteLine($"InsertIntoDataSource: Unsupported data source type: {_dataSource?.GetType()}");
+            }
+        }
         private void UpdateInDataSource(object originalData, Dictionary<string, object> changes)
         {
-            //// Example: Update in a database using IDBConnection
-            //if (Entity != null && DataSource is BindingSource bs && bs.DataSource is IDBConnection connection)
-            //{
-            //    // Implement update logic (e.g., using connection.ExecuteUpdate with originalData and changes)
-            //    Debug.WriteLine($"Updated record: Original={originalData}, Changes={string.Join(", ", changes.Select(kvp => $"{kvp.Key}={kvp.Value}"))}");
-            //}
+            if (_dataSource is BindingSource)
+            {
+                if (_bindingSource != null)
+                {
+                    int dataIndex = _bindingSource.IndexOf(originalData);
+                    if (dataIndex >= 0 && dataIndex < _bindingSource.Count)
+                    {
+                        _bindingSource[dataIndex] = originalData; // Update the item in the BindingSource
+                        _bindingSource.ResetItem(dataIndex); // Notify listeners of the change
+                        Debug.WriteLine($"UpdateInDataSource: Updated record in BindingSource at index {dataIndex}: Original={originalData}, Changes={string.Join(", ", changes.Select(kvp => $"{kvp.Key}={kvp.Value}"))}");
+                    }
+                    else
+                    {
+                        // If the item is no longer in the BindingSource's List (e.g., filtered out), refresh _fullData
+                        DataSetup();
+                        InitializeData();
+                        Debug.WriteLine($"UpdateInDataSource: Item not found in BindingSource, refreshed grid");
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine($"UpdateInDataSource: _bindingSource is null, cannot update record");
+                }
+            }
+            else if (_dataSource is IList list)
+            {
+                int dataIndex = list.IndexOf(originalData);
+                if (dataIndex >= 0 && dataIndex < list.Count)
+                {
+                    list[dataIndex] = originalData; // Update the item in the IList
+                    Debug.WriteLine($"UpdateInDataSource: Updated record in IList at index {dataIndex}: Original={originalData}, Changes={string.Join(", ", changes.Select(kvp => $"{kvp.Key}={kvp.Value}"))}");
+                }
+                else
+                {
+                    Debug.WriteLine($"UpdateInDataSource: Item not found in IList at index {dataIndex}");
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"UpdateInDataSource: Unsupported data source type: {_dataSource?.GetType()}");
+            }
         }
 
         private void DeleteFromDataSource(object originalData)
         {
-            // Example: Delete from a database using IDBConnection
-            //if (Entity != null && DataSource is BindingSource bs && bs.DataSource is IDBConnection connection)
-            //{
-            //    // Implement delete logic (e.g., using connection.ExecuteDelete)
-            //    Debug.WriteLine($"Deleted record: {originalData}");
-            //}
+            try
+            {
+                if (originalData == null)
+                {
+                    Debug.WriteLine("DeleteFromDataSource: Original data is null, cannot delete record");
+                    return;
+                }
+
+                // Find the DataRowWrapper in _fullData to get the dataIndex
+                DataRowWrapper wrapper = null;
+                int dataIndex = -1;
+                for (int i = 0; i < _fullData.Count; i++)
+                {
+                    var item = _fullData[i] as DataRowWrapper;
+                    if (item != null && item.OriginalData == originalData)
+                    {
+                        wrapper = item;
+                        dataIndex = i;
+                        break;
+                    }
+                }
+
+                if (wrapper == null || dataIndex < 0)
+                {
+                    Debug.WriteLine($"DeleteFromDataSource: Could not find DataRowWrapper for originalData in _fullData");
+                    return;
+                }
+
+                // Get the tracking entry before removing
+                Tracking tracking = GetTrackingItem(wrapper);
+                if (tracking != null)
+                {
+                    tracking.EntityState = EntityState.Deleted;
+                }
+
+                if (_dataSource is BindingSource)
+                {
+                    if (_bindingSource != null)
+                    {
+                        int bsIndex = _bindingSource.IndexOf(originalData);
+                        if (bsIndex >= 0 && bsIndex < _bindingSource.Count)
+                        {
+                            // Remove from _fullData, Trackings, and originalList before removing from BindingSource
+                            _fullData.RemoveAt(dataIndex);
+                            originalList.RemoveAt(dataIndex);
+                            Trackings.Remove(tracking);
+                            deletedList.Add(wrapper);
+
+                            // Update indices in _fullData
+                            for (int i = 0; i < _fullData.Count; i++)
+                            {
+                                var dataRow = _fullData[i] as DataRowWrapper;
+                                if (dataRow != null)
+                                {
+                                    dataRow.RowID = i;
+                                }
+                            }
+
+                            // Log the operation if IsLogging is enabled
+                            if (IsLogging && tracking != null)
+                            {
+                                UpdateLog[DateTime.Now] = new EntityUpdateInsertLog
+                                {
+                                    TrackingRecord = tracking,
+                                    LogAction = LogAction.Delete,
+                                    UpdatedFields = new Dictionary<string, object>()
+                                };
+                            }
+
+                            // Remove from BindingSource
+                            _bindingSource.RemoveAt(bsIndex); // This will trigger BindingSource_ListChanged, but we've already handled the updates
+                            Debug.WriteLine($"DeleteFromDataSource: Deleted record from BindingSource at index {bsIndex}: {originalData}");
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"DeleteFromDataSource: Item not found in BindingSource at index {bsIndex}");
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"DeleteFromDataSource: _bindingSource is null, cannot delete record");
+                    }
+                }
+                else if (_dataSource is IList list)
+                {
+                    int listIndex = list.IndexOf(originalData);
+                    if (listIndex >= 0 && listIndex < list.Count)
+                    {
+                        // Remove from IList
+                        list.RemoveAt(listIndex);
+                        Debug.WriteLine($"DeleteFromDataSource: Deleted record from IList at index {listIndex}: {originalData}");
+
+                        // Remove from _fullData
+                        _fullData.RemoveAt(dataIndex);
+
+                        // Update indices in _fullData
+                        for (int i = 0; i < _fullData.Count; i++)
+                        {
+                            var dataRow = _fullData[i] as DataRowWrapper;
+                            if (dataRow != null)
+                            {
+                                dataRow.RowID = i;
+                            }
+                        }
+
+                        // Update Trackings and originalList
+                        originalList.RemoveAt(dataIndex);
+                        Trackings.Remove(tracking);
+                        deletedList.Add(wrapper);
+
+                        // Log the operation if IsLogging is enabled
+                        if (IsLogging && tracking != null)
+                        {
+                            UpdateLog[DateTime.Now] = new EntityUpdateInsertLog
+                            {
+                                TrackingRecord = tracking,
+                                LogAction = LogAction.Delete,
+                                UpdatedFields = new Dictionary<string, object>()
+                            };
+                        }
+
+                        Debug.WriteLine($"DeleteFromDataSource: Updated _fullData, Trackings, and originalList after deleting record at index {dataIndex}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"DeleteFromDataSource: Item not found in IList at index {listIndex}");
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine($"DeleteFromDataSource: Unsupported data source type: {_dataSource?.GetType()}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DeleteFromDataSource Error: {ex.Message}");
+                SendLog($"Error deleting record: {ex.Message}");
+            }
+        }
+        // Function to update a BindingSource data source
+        private void UpdateBindingSourceDataSource(int dataIndex, object updatedItem)
+        {
+            if (_bindingSource != null && dataIndex >= 0 && dataIndex < _bindingSource.Count)
+            {
+                _bindingSource[dataIndex] = updatedItem; // Update the item in the BindingSource
+                _bindingSource.ResetItem(dataIndex); // Notify listeners of the change
+                Debug.WriteLine($"UpdateBindingSourceDataSource: Updated item at index {dataIndex} in BindingSource and notified listeners");
+            }
+            else
+            {
+                // If the item is no longer in the BindingSource's List (e.g., filtered out), refresh _fullData
+                DataSetup();
+                InitializeData();
+                Debug.WriteLine($"UpdateBindingSourceDataSource: Item at index {dataIndex} not found in BindingSource, refreshed grid");
+            }
+        }
+        // Function to update an IList data source
+        private void UpdateIListDataSource(int dataIndex, object updatedItem)
+        {
+            if (_dataSource is IList list && dataIndex >= 0 && dataIndex < list.Count)
+            {
+                list[dataIndex] = updatedItem; // Update the item in the IList
+                Debug.WriteLine($"UpdateIListDataSource: Updated item at index {dataIndex} in IList");
+            }
+            else
+            {
+                Debug.WriteLine($"UpdateIListDataSource: Invalid index {dataIndex} or _dataSource is not an IList");
+            }
         }
         private void UpdateDataRecordFromRow(BeepCellConfig editingCell)
         {
@@ -1138,6 +1455,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             object originalItem = originalWrappedItem?.OriginalData;
 
             bool hasChanges = false;
+            Dictionary<string, object> changes = new Dictionary<string, object>();
             foreach (var cell in row.Cells)
             {
                 if (cell.IsDirty)
@@ -1155,6 +1473,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         if (!Equals(convertedValue, originalValue)) // Check for actual change
                         {
                             prop.SetValue(originalData, convertedValue);
+                            changes[col.ColumnName ?? col.ColumnCaption] = convertedValue;
                             hasChanges = true;
                         }
 
@@ -1179,8 +1498,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                                     }
                                     else
                                     {
-                                        var changes = GetChangedFields(originalWrappedItem, dataItem);
-                                        foreach (var kvp in changes)
+                                        var updatedChanges = GetChangedFields(originalWrappedItem, dataItem);
+                                        foreach (var kvp in updatedChanges)
                                         {
                                             ChangedValues[dataItem][kvp.Key] = kvp.Value;
                                         }
@@ -1198,15 +1517,32 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            // Notify the data navigator of the change
-            if (DataNavigator != null && hasChanges)
-            {
-                DataNavigator.BindingSource.ResetBindings(false); // Notify navigator of item changes
-            }
-
-            // Refresh the grid to reflect the updated data
+            // Update the underlying data source if there are changes
             if (hasChanges)
             {
+                if (_dataSource is BindingSource)
+                {
+                    UpdateBindingSourceDataSource(dataIndex, originalData);
+                }
+                else if (_dataSource is IList)
+                {
+                    UpdateIListDataSource(dataIndex, originalData);
+                }
+
+                // Notify the data navigator of the change
+                if (DataNavigator != null)
+                {
+                    if (_dataSource is BindingSource && DataNavigator.BindingSource == _bindingSource)
+                    {
+                        // Already notified via UpdateBindingSourceDataSource
+                    }
+                    else
+                    {
+                        DataNavigator.BindingSource?.ResetBindings(false); // Notify navigator of item changes
+                    }
+                }
+
+                // Redraw the grid to reflect any visual changes
                 Invalidate();
             }
         }
@@ -1381,6 +1717,73 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion DataSource Update
         #region Initialization
+        private object SetupBindingSource()
+        {
+            object resolvedData = null; // Unified variable for final data or type resolution
+                                        //  Debug.WriteLine($"BindingSource Detected: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
+            IEntityStructure entity = null;
+            if (DataSource == null)
+            {
+                //   Debug.WriteLine("BindingSource.DataSource is null, checking BindingSource.List");
+                resolvedData = _bindingSource.List; // Could be IList, DataView, etc.
+            }
+            else if (_bindingSource.DataSource is Type type)
+            {
+                // Handle Type (design-time or runtime)
+                //  Debug.WriteLine($"{(DesignMode ? "Design-time" : "Runtime")}: DataSource is Type = {type.FullName}");
+                if (!string.IsNullOrEmpty(_bindingSource.DataMember))
+                {
+                    PropertyInfo dataMemberProp = type.GetProperty(_bindingSource.DataMember, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                    if (dataMemberProp != null)
+                    {
+                        Type itemType = GetItemTypeFromDataMember(dataMemberProp.PropertyType);
+                        if (itemType != null)
+                        {
+                            //       Debug.WriteLine($"Resolved ItemType from DataMember '{bindingSrc.DataMember}' = {itemType.FullName}");
+                            entity = EntityHelper.GetEntityStructureFromType(itemType);
+                        }
+                        else
+                        {
+                            //     Debug.WriteLine($"Could not extract item type from DataMember '{bindingSrc.DataMember}' property type: {dataMemberProp.PropertyType}");
+                        }
+                    }
+                    else
+                    {
+                        //   Debug.WriteLine($"DataMember '{bindingSrc.DataMember}' not found on Type {type.FullName}");
+                    }
+                }
+                else
+                {
+                    //   Debug.WriteLine("No DataMember specified with Type DataSource, using Type directly");
+                    entity = EntityHelper.GetEntityStructureFromType(type);
+                }
+            }
+            else
+            {
+                // Handle instance (could be DataTable, IList, or class with DataMember)
+                if (!string.IsNullOrEmpty(_bindingSource.DataMember))
+                {
+                    PropertyInfo prop = _bindingSource.DataSource.GetType().GetProperty(_bindingSource.DataMember, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                    if (prop != null)
+                    {
+                        resolvedData = prop.GetValue(_bindingSource.DataSource);
+                        //  Debug.WriteLine($"Resolved data from DataMember = {resolvedData?.GetType()}");
+                    }
+                    else
+                    {
+                        //  Debug.WriteLine($"DataMember '{bindingSrc.DataMember}' not found on instance, using BindingSource.List or DataSource");
+                        resolvedData = _bindingSource.List != null && _bindingSource.List.Count > 0 ? _bindingSource.List : _bindingSource.DataSource;
+                    }
+                }
+                else
+                {
+                    //  Debug.WriteLine("No DataMember, attempting auto-detection or using BindingSource.List");
+                    resolvedData = GetCollectionPropertyFromInstance(_bindingSource.DataSource) ?? (_bindingSource.List != null && _bindingSource.List.Count > 0 ? _bindingSource.List : _bindingSource.DataSource);
+                    //  Debug.WriteLine($"Resolved data = {resolvedData?.GetType()}");
+                }
+            }
+            return resolvedData;
+        }
         private void DataSetup()
         {
             IEntityStructure entity = null;
@@ -1396,67 +1799,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
               //  Debug.WriteLine($"BindingSource Detected: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
                 var dataSource = bindingSrc.DataSource;
+                AssignBindingSource(bindingSrc);
 
-                if (dataSource == null)
-                {
-                 //   Debug.WriteLine("BindingSource.DataSource is null, checking BindingSource.List");
-                    resolvedData = bindingSrc.List; // Could be IList, DataView, etc.
-                }
-                else if (dataSource is Type type)
-                {
-                    // Handle Type (design-time or runtime)
-                  //  Debug.WriteLine($"{(DesignMode ? "Design-time" : "Runtime")}: DataSource is Type = {type.FullName}");
-                    if (!string.IsNullOrEmpty(bindingSrc.DataMember))
-                    {
-                        PropertyInfo dataMemberProp = type.GetProperty(bindingSrc.DataMember, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                        if (dataMemberProp != null)
-                        {
-                            Type itemType = GetItemTypeFromDataMember(dataMemberProp.PropertyType);
-                            if (itemType != null)
-                            {
-                         //       Debug.WriteLine($"Resolved ItemType from DataMember '{bindingSrc.DataMember}' = {itemType.FullName}");
-                                entity = EntityHelper.GetEntityStructureFromType(itemType);
-                            }
-                            else
-                            {
-                           //     Debug.WriteLine($"Could not extract item type from DataMember '{bindingSrc.DataMember}' property type: {dataMemberProp.PropertyType}");
-                            }
-                        }
-                        else
-                        {
-                         //   Debug.WriteLine($"DataMember '{bindingSrc.DataMember}' not found on Type {type.FullName}");
-                        }
-                    }
-                    else
-                    {
-                     //   Debug.WriteLine("No DataMember specified with Type DataSource, using Type directly");
-                        entity = EntityHelper.GetEntityStructureFromType(type);
-                    }
-                }
-                else
-                {
-                    // Handle instance (could be DataTable, IList, or class with DataMember)
-                    if (!string.IsNullOrEmpty(bindingSrc.DataMember))
-                    {
-                        PropertyInfo prop = dataSource.GetType().GetProperty(bindingSrc.DataMember, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                        if (prop != null)
-                        {
-                            resolvedData = prop.GetValue(dataSource);
-                          //  Debug.WriteLine($"Resolved data from DataMember = {resolvedData?.GetType()}");
-                        }
-                        else
-                        {
-                          //  Debug.WriteLine($"DataMember '{bindingSrc.DataMember}' not found on instance, using BindingSource.List or DataSource");
-                            resolvedData = bindingSrc.List != null && bindingSrc.List.Count > 0 ? bindingSrc.List : dataSource;
-                        }
-                    }
-                    else
-                    {
-                      //  Debug.WriteLine("No DataMember, attempting auto-detection or using BindingSource.List");
-                        resolvedData = GetCollectionPropertyFromInstance(dataSource) ?? (bindingSrc.List != null && bindingSrc.List.Count > 0 ? bindingSrc.List : dataSource);
-                      //  Debug.WriteLine($"Resolved data = {resolvedData?.GetType()}");
-                    }
-                }
+                resolvedData = SetupBindingSource();
             }
             else if (_dataSource is DataTable dataTable)
             {
@@ -1919,9 +2264,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateScrollBars();
         }
         private void InitializeData()
-        {
+        {// Determine _entityType from finalData before wrapping
+            _entityType = null;
+           
             // Wrap _fullData objects with RowID
             _fullData = finalData is IEnumerable<object> enumerable ? enumerable.ToList() : new List<object>();
+            if (_fullData != null)
+            {
+                if (_fullData.Count > 0)
+                {
+                    var firstItem1 = _fullData.First();
+                    if (firstItem1 != null)
+                    {
+                        _entityType = firstItem1.GetType();
+                        Debug.WriteLine($"InitializeData: Determined _entityType from first item in finalData: {_entityType.FullName}");
+                    }
+                }
+
+            }
             var wrappedData = new List<object>();
             for (int i = 0; i < _fullData.Count; i++)
             {
@@ -1935,13 +2295,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             _fullData = wrappedData;
             _dataOffset = 0;
-
+          
+        
             if (_columns.Count == 0 && _fullData.Any())
             {
                 var firstItem = _fullData.First() as DataRowWrapper;
                 if (firstItem != null)
                 {
+                  
                     var originalData = firstItem.OriginalData;
+                    _entityType = originalData.GetType();
                     var properties = originalData.GetType().GetProperties(); // Get properties of the original data object
                     int index = 0;
 
@@ -2181,25 +2544,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateTrackingIndices();
             SyncSelectedRowIndexAndEditor();
             UpdateScrollBars();
+            UpdateRecordNumber();
             Invalidate();
         }
         private void MoveNextRow()
         {
-            if (DataNavigator.BindingSource.Position < _fullData.Count - 1)
+            if (_currentRowIndex < Rows.Count - 1)
             {
-                ScrollBy(1);  // +1 means scroll down one row
-                DataNavigator.BindingSource.MoveNext();
-                SyncWithNavigatorPosition();
+                SelectCell(_currentRowIndex + 1, _selectedColumnIndex);
             }
         }
 
         private void MovePreviousRow()
         {
-            if (DataNavigator.BindingSource.Position > 0)
+            if (_currentRowIndex > 0)
             {
-                ScrollBy(-1); // -1 means scroll up one row
-                DataNavigator.BindingSource.MovePrevious();
-                SyncWithNavigatorPosition();
+                SelectCell(_currentRowIndex - 1, _selectedColumnIndex);
             }
         }
       
@@ -2444,9 +2804,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                         CloseCurrentEditor();
                         break;
                 }
-               
+
                 return true; // Consume the key
             }
+
+            UpdateRecordNumber();
             return base.ProcessKeyPreview(ref m);
         }
         private void BeepGrid_PreviewKeyDown(object? sender, PreviewKeyDownEventArgs e)
@@ -2472,16 +2834,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     MoveNextCell();
                     break;
                 case Keys.Up:
-                    if (_currentRowIndex > 0)
-                    {
-                        SelectCell(_currentRowIndex - 1, _selectedColumnIndex);
-                    }
+                    MovePreviousRow();
                     break;
                 case Keys.Down:
-                    if (_currentRowIndex < Rows.Count - 1)
-                    {
-                        SelectCell(_currentRowIndex + 1, _selectedColumnIndex);
-                    }
+                    MoveNextRow();
                     break;
                 case Keys.Left:
                     if (_selectedColumnIndex > 0)
@@ -2897,6 +3253,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _verticalScrollBar.Invalidate(); // Force vertical scrollbar redraw
             }
+            if(buttons.Count > 0)
+            {
+                foreach (var button in buttons)
+                {
+                    button.Invalidate();
+                }
+            }
         }
         private void DrawFilterPanel(Graphics g, Rectangle filterPanelRect)
         {
@@ -2969,16 +3332,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
             }
         }
-        private void DrawNavigationRow(Graphics g, Rectangle rect)
-        {
-            DataNavigator.Location = new Point(rect.Left+1, rect.Top + 1);
-            DataNavigator.Size = new Size(rect.Width-2, rect.Height-2);
-          //  DataNavigator.Invalidate();
-            using (var pen = new Pen(_currentTheme.GridLineColor))
-            {
-                g.DrawLine(pen, rect.Left, rect.Top, rect.Right, rect.Top);
-            }
-        }
+     
         private void UpdateStickyWidth()
         {
             var stickyColumns = Columns.Where(c => c.Sticked && c.Visible).ToList();
@@ -2987,6 +3341,70 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Cap _stickyWidth to prevent overflow within gridRect
             _stickyWidth = Math.Min(baseStickyWidth, gridRect.Width);
           //  System.Diagnostics.Debug.WriteLine($"UpdateStickyWidth: _stickyWidth={_stickyWidth}, BaseSticky={baseStickyWidth}, GridRect.Width={gridRect.Width}");
+        }
+        private void PaintColumnHeaders(Graphics g, Rectangle headerRect)
+        {
+            int xOffset = headerRect.Left;
+
+            // Ensure _stickyWidth is calculated and capped
+            UpdateStickyWidth();
+            int stickyWidth = _stickyWidth;
+            stickyWidth = Math.Min(stickyWidth, headerRect.Width); // Prevent overflow
+
+            StringFormat centerFormat = new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center
+            };
+
+            // Define sticky and scrolling regions
+            Rectangle stickyRegion = new Rectangle(headerRect.Left, headerRect.Top, stickyWidth, headerRect.Height);
+            Rectangle scrollingRegion = new Rectangle(headerRect.Left + stickyWidth, headerRect.Top,
+                                                     headerRect.Width - stickyWidth, headerRect.Height);
+
+            // Draw scrolling column headers first
+            using (Region clipRegion = new Region(scrollingRegion))
+            {
+                g.Clip = clipRegion;
+                int scrollingXOffset = headerRect.Left + stickyWidth - _xOffset; // Adjusted for horizontal scroll
+                foreach (var col in Columns.Where(c => !c.Sticked && c.Visible))
+                {
+                    var headerCellRect = new Rectangle(scrollingXOffset, headerRect.Top, col.Width, headerRect.Height);
+                    PaintHeaderCell(g, col, headerCellRect, centerFormat);
+                    scrollingXOffset += col.Width;
+
+                    // Debug output for scrolling headers
+                    Debug.WriteLine($"PaintColumnHeaders Scrolling: Col={col.ColumnName}, X={scrollingXOffset}, Width={col.Width}, _xOffset={_xOffset}");
+                }
+            }
+
+            // Draw sticky column headers last
+            using (Region clipRegion = new Region(stickyRegion))
+            {
+                g.Clip = clipRegion;
+                xOffset = headerRect.Left;
+
+                foreach (var col in Columns.Where(c => c.Sticked && c.Visible))
+                {
+                    var headerCellRect = new Rectangle(xOffset, headerRect.Top, col.Width, headerRect.Height);
+                    PaintHeaderCell(g, col, headerCellRect, centerFormat);
+                    xOffset += col.Width;
+
+                    // Debug output for sticky headers
+                    Debug.WriteLine($"PaintColumnHeaders Sticky: Col={col.ColumnName}, X={xOffset}, Width={col.Width}");
+                }
+            }
+
+            if (stickyWidth > 0)
+            {
+                g.ResetClip();
+                using (Pen borderPen = new Pen(_currentTheme.GridLineColor))
+                {
+                    g.DrawLine(borderPen, headerRect.Left + stickyWidth, headerRect.Top, headerRect.Left + stickyWidth, headerRect.Bottom);
+                }
+            }
+
+            Debug.WriteLine($"PaintColumnHeaders: StickyWidth={stickyWidth}, HeaderRect={headerRect}, _xOffset={_xOffset}");
         }
         private void PaintHeaderCell(Graphics g, BeepColumnConfig col, Rectangle cellRect, StringFormat format)
         {
@@ -3073,15 +3491,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             g.ResetClip();
         }
-
         private void PaintScrollingRow(Graphics g, BeepRowConfig row, Rectangle rowRect)
         {
             int xOffset = rowRect.Left; // Starts at scrollingRegion.Left - _xOffset from PaintRows
-            int rightBoundary = rowRect.Right; //
-                                               //rowRect’s right edge
+            int rightBoundary = rowRect.Right; // rowRect’s right edge
             int totalScrollableWidth = Columns.Where(c => !c.Sticked && c.Visible).Sum(c => c.Width) +
                                       (Columns.Count(c => !c.Sticked && c.Visible) - 1) * 1; // Include border width
-            int leftBoundary = rowRect.Left + _stickyWidth; // Left edge of the scrolling region
+            int leftBoundary = rowRect.Left; // Left edge of the scrolling region (already includes _stickyWidth)
 
             // Adjust initial xOffset to prevent drawing beyond leftBoundary
             if (xOffset < leftBoundary)
@@ -3090,7 +3506,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 xOffset = leftBoundary;
             }
 
-           
             for (int i = 0; i < row.Cells.Count && i < Columns.Count; i++)
             {
                 if (!Columns[i].Visible || Columns[i].Sticked) continue;
@@ -3125,6 +3540,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (xOffset >= rightBoundary && xOffset < rowRect.Left + totalScrollableWidth)
                     rightBoundary = Math.Min(rowRect.Left + totalScrollableWidth, rowRect.Right); // Extend boundary if within scrollable range
                 if (xOffset >= rightBoundary) break; // Exit if past boundary
+
+                // Debug output for scrolling cells
+             //   Debug.WriteLine($"PaintScrollingRow: Row={cell.RowIndex}, Col={Columns[i].ColumnName}, X={cell.X}, Width={cell.Width}, LeftBoundary={leftBoundary}, RightBoundary={rightBoundary}");
             }
         }
         private void PaintCell(Graphics g, BeepCellConfig cell, Rectangle cellRect, Color backcolor)
@@ -3325,70 +3743,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             //System.Diagnostics.Debug.WriteLine($"DrawColumnBorders: StickyWidth={stickyWidth}, LastXOffset={xOffset}, Bounds={bounds}, XOffset={_xOffset}");
         }
-        private void PaintColumnHeaders(Graphics g, Rectangle headerRect)
-        {
-            int xOffset = headerRect.Left;
-
-            // Ensure _stickyWidth is calculated and capped
-            UpdateStickyWidth();
-            int stickyWidth = _stickyWidth;
-            stickyWidth = Math.Min(stickyWidth, headerRect.Width); // Prevent overflow
-
-            StringFormat centerFormat = new StringFormat
-            {
-                Alignment = StringAlignment.Center,
-                LineAlignment = StringAlignment.Center
-            };
-
-            // Define sticky and scrolling regions
-            Rectangle stickyRegion = new Rectangle(headerRect.Left, headerRect.Top, stickyWidth, headerRect.Height);
-            Rectangle scrollingRegion = new Rectangle(headerRect.Left + stickyWidth, headerRect.Top,
-                                                     headerRect.Width - stickyWidth, headerRect.Height);
-
-            // Draw scrolling column headers first
-            using (Region clipRegion = new Region(scrollingRegion))
-            {
-                g.Clip = clipRegion;
-                int scrollingXOffset = headerRect.Left + stickyWidth - _xOffset; // Adjusted for horizontal scroll
-                foreach (var col in Columns.Where(c => !c.Sticked && c.Visible))
-                {
-                    var headerCellRect = new Rectangle(scrollingXOffset, headerRect.Top, col.Width, headerRect.Height);
-                    PaintHeaderCell(g, col, headerCellRect, centerFormat);
-                    scrollingXOffset += col.Width;
-
-                    // Debug output for scrolling headers
-                    Debug.WriteLine($"PaintColumnHeaders Scrolling: Col={col.ColumnName}, X={scrollingXOffset}, Width={col.Width}, _xOffset={_xOffset}");
-                }
-            }
-
-            // Draw sticky column headers last
-            using (Region clipRegion = new Region(stickyRegion))
-            {
-                g.Clip = clipRegion;
-                xOffset = headerRect.Left;
-
-                foreach (var col in Columns.Where(c => c.Sticked && c.Visible))
-                {
-                    var headerCellRect = new Rectangle(xOffset, headerRect.Top, col.Width, headerRect.Height);
-                    PaintHeaderCell(g, col, headerCellRect, centerFormat);
-                    xOffset += col.Width;
-
-                    // Debug output for sticky headers
-                    Debug.WriteLine($"PaintColumnHeaders Sticky: Col={col.ColumnName}, X={xOffset}, Width={col.Width}");
-                }
-            }
-
-            if (stickyWidth > 0)
-            {
-                g.ResetClip();
-                using (Pen borderPen = new Pen(_currentTheme.GridLineColor))
-                {
-                    g.DrawLine(borderPen, headerRect.Left + stickyWidth, headerRect.Top, headerRect.Left + stickyWidth, headerRect.Bottom);
-                }
-            }
-
-            Debug.WriteLine($"PaintColumnHeaders: StickyWidth={stickyWidth}, HeaderRect={headerRect}, _xOffset={_xOffset}");
-        }
+     
         private void DrawHeaderPanel(Graphics g, Rectangle rect)
         {
             using (var borderPen = new Pen(_currentTheme.BorderColor))
@@ -3560,7 +3915,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (string.IsNullOrWhiteSpace(filterText) || _fullData == null)
             {
                 FillVisibleRows(); // Reset to full data
-                DataNavigator.BindingSource.DataSource = _fullData;
+               _bindingSource.DataSource = _fullData;
                 return;
             }
 
@@ -3589,7 +3944,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Update grid with filtered data
             _dataOffset = 0; // Reset scroll position
-            DataNavigator.BindingSource.DataSource = filteredData;
+            _bindingSource.DataSource = filteredData;
             FillVisibleRows();
             UpdateScrollBars();
             Invalidate();
@@ -3635,7 +3990,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             CurrentRow.RowData = _fullData[rowIndex];
             CurrentRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(rowIndex, CurrentRow));
             CurrentCellChanged?.Invoke(this, new BeepCellSelectedEventArgs(rowIndex, columnIndex, _selectedCell));
-           Invalidate();
+            UpdateRecordNumber();
+            Invalidate();
         }
         public void SelectCell(BeepCellConfig cell)
         {
@@ -3686,7 +4042,6 @@ namespace TheTechIdea.Beep.Winform.Controls
              //   System.Diagnostics.Debug.WriteLine($"MoveEditor: Editor moved to {cellRect.X},{cellRect.Y}");
             }
         }
-       
         private BeepRowConfig GetRowAtLocation(Point location)
         {
             // First, ensure the point is inside the grid's drawing area.
@@ -4076,7 +4431,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         }
-
         private void UpdateCellPositions()
         {
             int yOffset = _dataOffset * RowHeight; // Use RowHeight directly
@@ -4172,7 +4526,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine($"SetColumnWidth: Column '{columnName}' not found.");
+              //  System.Diagnostics.Debug.WriteLine($"SetColumnWidth: Column '{columnName}' not found.");
             }
         }
         private void BeepGrid_MouseDown(object sender, MouseEventArgs e)
@@ -4739,35 +5093,72 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Sync tracking indices with _fullData
         private void UpdateTrackingIndices()
         {
+            // Create a list to store Tracking entries that need to be removed
+            var staleTrackings = new List<Tracking>();
+
             foreach (var tracking in Trackings)
             {
+                // Validate OriginalIndex to prevent out-of-range access
+                if (tracking.OriginalIndex < 0 || tracking.OriginalIndex >= originalList.Count)
+                {
+                  //  Debug.WriteLine($"UpdateTrackingIndices: Invalid OriginalIndex {tracking.OriginalIndex} for Tracking {tracking.UniqueId}, marking for removal");
+                    staleTrackings.Add(tracking);
+                    continue;
+                }
+
+                // Get the original DataRowWrapper from originalList
+                var originalWrapped = originalList[tracking.OriginalIndex] as DataRowWrapper;
+                if (originalWrapped == null)
+                {
+                 //   Debug.WriteLine($"UpdateTrackingIndices: No DataRowWrapper found at OriginalIndex {tracking.OriginalIndex} for Tracking {tracking.UniqueId}, marking for removal");
+                    staleTrackings.Add(tracking);
+                    continue;
+                }
+
+                // Find the current index in _fullData by matching TrackingUniqueId
                 int currentIndex = -1;
                 for (int i = 0; i < _fullData.Count; i++)
                 {
                     var wrappedItem = _fullData[i] as DataRowWrapper;
-                    var originalWrapped = originalList[tracking.OriginalIndex] as DataRowWrapper;
-                    if (wrappedItem != null && originalWrapped != null && wrappedItem.TrackingUniqueId == originalWrapped.TrackingUniqueId)
+                    if (wrappedItem != null && wrappedItem.TrackingUniqueId == tracking.UniqueId)
                     {
                         currentIndex = i;
                         break;
                     }
                 }
 
-                if (currentIndex >= 0 && tracking.CurrentIndex != currentIndex)
+                if (currentIndex >= 0)
                 {
-                    var wrappedItem = _fullData[currentIndex] as DataRowWrapper;
-                    if (wrappedItem != null)
+                    // Record found in _fullData, update CurrentIndex if needed
+                    if (tracking.CurrentIndex != currentIndex)
                     {
-                        tracking.CurrentIndex = currentIndex;
-                        // Only update RowState to Modified if data has changed (handled elsewhere); for now, sync state
-                        tracking.EntityState = MapRowStateToEntityState(wrappedItem.RowState);
-                        if (IsLogging)
+                        var wrappedItem = _fullData[currentIndex] as DataRowWrapper;
+                        if (wrappedItem != null)
                         {
-                            UpdateLogEntries(tracking, currentIndex);
+                            tracking.CurrentIndex = currentIndex;
+                            // Only update RowState to Modified if data has changed (handled elsewhere); for now, sync state
+                            tracking.EntityState = MapRowStateToEntityState(wrappedItem.RowState);
+                            if (IsLogging)
+                            {
+                                UpdateLogEntries(tracking, currentIndex);
+                            }
+                          //  Debug.WriteLine($"UpdateTrackingIndices: Tracking {tracking.UniqueId}, OriginalIndex {tracking.OriginalIndex}, Updated CurrentIndex to {currentIndex}, RowState {wrappedItem.RowState}");
                         }
-                        Debug.WriteLine($"UpdateTrackingIndices: Tracking {tracking.UniqueId}, OriginalIndex {tracking.OriginalIndex}, Updated CurrentIndex to {currentIndex}, RowState {wrappedItem.RowState}");
                     }
                 }
+                else
+                {
+                    // Record not found in _fullData, mark Tracking for removal
+                 //   Debug.WriteLine($"UpdateTrackingIndices: Record for Tracking {tracking.UniqueId} not found in _fullData, marking for removal");
+                    staleTrackings.Add(tracking);
+                }
+            }
+
+            // Remove stale Tracking entries
+            foreach (var staleTracking in staleTrackings)
+            {
+                Trackings.Remove(staleTracking);
+              //  Debug.WriteLine($"UpdateTrackingIndices: Removed stale Tracking {staleTracking.UniqueId}");
             }
         }
 
@@ -5139,6 +5530,609 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
             Invalidate();
+        }
+        #endregion
+        #region BindingSource Management
+      
+        private BindingSource _bindingSource;
+        private void AssignBindingSource(BindingSource bindingSrc)
+        {
+           // Debug.WriteLine($"AssignBindingSource: BindingSource Detected, DataSource = {bindingSrc?.DataSource?.GetType()}, DataMember = {bindingSrc?.DataMember}");
+
+            // Unsubscribe from previous BindingSource if it exists
+            if (_bindingSource != null)
+            {
+                _bindingSource.ListChanged -= BindingSource_ListChanged;
+            }
+
+            // Set the new BindingSource
+            _bindingSource = bindingSrc;
+
+            // If _dataSource is an IList, wrap it in a BindingSource
+            if (_dataSource is IList list && !(_dataSource is BindingSource))
+            {
+                _bindingSource = new BindingSource { DataSource = list };
+            }
+
+            // Subscribe to ListChanged event
+            if (_bindingSource != null)
+            {
+                _bindingSource.ListChanged += BindingSource_ListChanged;
+            }
+        }
+        private void BindingSource_ListChanged(object sender, ListChangedEventArgs e)
+        {
+          //  Debug.WriteLine($"BindingSource_ListChanged: Type={e.ListChangedType}, NewIndex={e.NewIndex}, OldIndex={e.OldIndex}, _fullData.Count={_fullData?.Count}");
+
+            switch (e.ListChangedType)
+            {
+                case ListChangedType.ItemAdded:
+                    HandleItemAdded(e.NewIndex);
+                    break;
+
+                case ListChangedType.ItemChanged:
+                    HandleItemChanged(e.NewIndex);
+                    break;
+
+                case ListChangedType.ItemDeleted:
+                    HandleItemDeleted(e.NewIndex);
+                    break;
+
+                case ListChangedType.Reset:
+                    // Full reset (e.g., filter or sort applied, or data source changed)
+                    DataSetup();
+                    InitializeData();
+                    break;
+
+                case ListChangedType.ItemMoved:
+                    HandleItemMoved(e.OldIndex, e.NewIndex);
+                    break;
+
+                default:
+                    // Handle other changes (e.g., property descriptor changes) by refreshing
+                    DataSetup();
+                    InitializeData();
+                    break;
+            }
+
+            // Update tracking indices and selection state
+            UpdateTrackingIndices();
+            SyncSelectedRowIndexAndEditor();
+
+            FillVisibleRows();
+            UpdateScrollBars();
+            Invalidate();
+        }
+        private void HandleItemAdded(int newIndex)
+        {
+            if (newIndex < 0 || _bindingSource == null || newIndex >= _bindingSource.Count) return;
+
+            var newItem = _bindingSource[newIndex];
+            var wrapper = new DataRowWrapper(newItem, newIndex)
+            {
+                TrackingUniqueId = Guid.NewGuid(),
+                RowState = DataRowState.Added,
+                DateTimeChange = DateTime.Now
+            };
+
+            // Insert into _fullData at the correct position
+            if (newIndex <= _fullData.Count)
+            {
+                _fullData.Insert(newIndex, wrapper);
+            }
+            else
+            {
+                _fullData.Add(wrapper);
+            }
+
+            // Update indices in _fullData
+            for (int i = 0; i < _fullData.Count; i++)
+            {
+                var dataRow = _fullData[i] as DataRowWrapper;
+                if (dataRow != null)
+                {
+                    dataRow.RowID = i;
+                }
+            }
+
+            // Ensure tracking for the new item
+            EnsureTrackingForItem(wrapper);
+
+            // Adjust _dataOffset if needed
+            if (_dataOffset > newIndex)
+            {
+                _dataOffset++;
+            }
+
+            UpdateRowCount();
+        }
+        private void HandleItemChanged(int index)
+        {
+            if (index < 0 || index >= _fullData.Count || _bindingSource == null || index >= _bindingSource.Count) return;
+
+            var updatedItem = _bindingSource[index];
+            var wrapper = _fullData[index] as DataRowWrapper;
+            if (wrapper != null)
+            {
+                wrapper.OriginalData = updatedItem;
+                wrapper.RowState = DataRowState.Modified;
+                wrapper.DateTimeChange = DateTime.Now;
+
+                // Ensure tracking for the updated item
+                EnsureTrackingForItem(wrapper);
+            }
+        }
+        private void HandleItemDeleted(int index)
+        {
+            if (index < 0 || index >= _fullData.Count) return;
+
+            var wrapper = _fullData[index] as DataRowWrapper;
+            if (wrapper != null)
+            {
+                wrapper.RowState = DataRowState.Deleted;
+                wrapper.DateTimeChange = DateTime.Now;
+
+                // Ensure tracking for the deleted item
+                EnsureTrackingForItem(wrapper);
+
+                // Update Trackings and originalList
+                var tracking = Trackings.FirstOrDefault(t => t.OriginalIndex == index);
+                if (tracking != null)
+                {
+                    tracking.EntityState = EntityState.Deleted;
+                    Trackings.Remove(tracking);
+                }
+                originalList.RemoveAt(index);
+            }
+
+            // Remove from _fullData
+            _fullData.RemoveAt(index);
+
+            // Update indices in _fullData
+            for (int i = 0; i < _fullData.Count; i++)
+            {
+                var dataRow = _fullData[i] as DataRowWrapper;
+                if (dataRow != null)
+                {
+                    dataRow.RowID = i;
+                }
+            }
+
+            // Adjust _dataOffset if needed
+            if (_dataOffset > index)
+            {
+                _dataOffset--;
+            }
+
+            UpdateRowCount();
+        }
+        private void HandleItemMoved(int oldIndex, int newIndex)
+        {
+            if (oldIndex < 0 || oldIndex >= _fullData.Count || newIndex < 0 || newIndex >= _fullData.Count) return;
+
+            var item = _fullData[oldIndex];
+            _fullData.RemoveAt(oldIndex);
+            _fullData.Insert(newIndex, item);
+
+            // Update indices in _fullData
+            for (int i = 0; i < _fullData.Count; i++)
+            {
+                var dataRow = _fullData[i] as DataRowWrapper;
+                if (dataRow != null)
+                {
+                    dataRow.RowID = i;
+                    // Ensure tracking for the moved item
+                    EnsureTrackingForItem(dataRow);
+                }
+            }
+
+            // Update Trackings to match the new order
+            var tracking = Trackings.FirstOrDefault(t => t.OriginalIndex == oldIndex);
+            if (tracking != null)
+            {
+                tracking.OriginalIndex = newIndex;
+                tracking.CurrentIndex = newIndex;
+            }
+
+            // Adjust _dataOffset if needed
+            if (_dataOffset == oldIndex)
+            {
+                _dataOffset = newIndex;
+            }
+            else if (_dataOffset > oldIndex && _dataOffset <= newIndex)
+            {
+                _dataOffset--;
+            }
+            else if (_dataOffset < oldIndex && _dataOffset >= newIndex)
+            {
+                _dataOffset++;
+            }
+        }
+        #endregion BindingSource Management
+        #region Drawing Navigator
+        public event EventHandler CallPrinter;
+        public event EventHandler SendMessage;
+        public event EventHandler ShowSearch;
+        public event EventHandler NewRecordCreated;
+        public event EventHandler SaveCalled;
+        public event EventHandler DeleteCalled;
+        public event EventHandler EditCalled;
+        public bool VerifyDelete = false;
+        private BeepLabel Recordnumberinglabel1;
+        private BeepButton FindButton, NewButton, EditButton, PreviousButton, NextButton, RemoveButton, RollbackButton, SaveButton, PrinterButton, MessageButton;
+        private int spacing = 5; // Spacing between buttons
+        private int labelWidth = 100; // Width of the label
+        private Size buttonSize = new Size(16, 16);
+        private List<Control> buttons=new List<Control>();
+        Panel MainPanel;
+        private void DrawNavigationRow(Graphics g, Rectangle rect)
+        {
+           // DataNavigator.Location = new Point(rect.Left + 1, rect.Top + 1);
+           // DataNavigator.Size = new Size(rect.Width - 2, rect.Height - 2);
+            //  DataNavigator.Invalidate();
+            MainPanel.Location = new Point(rect.Left + 1, rect.Top + 1);
+            MainPanel.Size = new Size(rect.Width - 2, rect.Height - 2);
+            PositionControls( spacing);
+          //  MainPanel.Invalidate();
+            using (var pen = new Pen(_currentTheme.GridLineColor))
+            {
+                g.DrawLine(pen, rect.Left, rect.Top, rect.Right, rect.Top);
+            }
+        }
+        private void CreateNavigationButtons()
+        {
+          
+
+            MainPanel = new Panel
+            {
+                //Dock = DockStyle.Fill,
+                
+            };
+         
+           // MainPanel.Bounds = DrawingRect;
+
+            FindButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.search_1.svg", buttonSize, FindpictureBox_Click);
+            EditButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.pencil.svg", buttonSize, EditpictureBox_Click);
+            PrinterButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.print1.svg", buttonSize, PrinterpictureBox_Click);
+            MessageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg", buttonSize, MessagepictureBox_Click);
+            SaveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.check.svg", buttonSize, SavepictureBox_Click);
+            PreviousButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.backwards.svg", buttonSize, PreviouspictureBox_Click);
+            Recordnumberinglabel1 = new BeepLabel
+            {
+                TextAlign = ContentAlignment.MiddleCenter,
+                Size = new Size(labelWidth, buttonSize.Height),
+                Text = "0",
+                ShowAllBorders = true,
+                IsRounded = false,
+                IsChild = false,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                IsRoundedAffectedByTheme = false
+            };
+            NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.forward.svg", buttonSize, NextpictureBox_Click);
+            NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg", buttonSize, NewButton_Click);
+            RemoveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg", buttonSize, RemovepictureBox_Click);
+            RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.go-back.svg", buttonSize, RollbackpictureBox_Click);
+
+             buttons = new List<Control>
+            {
+                FindButton, EditButton, PrinterButton, MessageButton, SaveButton,
+                PreviousButton, Recordnumberinglabel1, NextButton, NewButton, RemoveButton, RollbackButton
+            };
+           Controls.Add(MainPanel);
+           
+
+        }
+        private BeepButton CreateButton(string imagePath, Size size, EventHandler clickHandler)
+        {
+            var button = new BeepButton
+            {
+                ImagePath = imagePath,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                HideText = true,
+                IsFrameless = true,
+                Size = size,
+                IsChild = true,
+                Anchor = AnchorStyles.None,
+                Margin = new Padding(0),
+                Padding = new Padding(0),
+                MaxImageSize = new Size(size.Width - 1, size.Height - 1)
+            };
+            button.Click += clickHandler;
+            return button;
+        }
+        private void PositionControls( int spacing)
+        {
+            if (MainPanel == null || buttons == null || buttons.Count == 0) return;
+
+            int totalWidth = buttons.Sum(c => c.Width) + spacing * (buttons.Count - 1);
+            int startX = (MainPanel.Width - totalWidth) / 2;
+            int currentX = startX;
+            int centerY = (MainPanel.Height - buttons[0].Height) / 2;
+
+            foreach (var control in buttons)
+            {
+                if (!MainPanel.Controls.Contains(control))
+                {
+                    MainPanel.Controls.Add(control);
+                }
+                control.Left = currentX;
+                control.Top = centerY;
+                currentX += control.Width + spacing;
+            }
+        }
+
+        private void UpdateRecordNumber()
+        {
+            if (Recordnumberinglabel1 == null) return;
+
+            if (_fullData != null && _fullData.Any())
+            {
+                int position = _currentRowIndex + _dataOffset + 1; // Position is based on _currentRowIndex and _dataOffset
+                Recordnumberinglabel1.Text = $"{position} From {_fullData.Count}";
+            }
+            else
+            {
+                Recordnumberinglabel1.Text = "-";
+            }
+        }
+
+        private void UpdateNavigationButtonState()
+        {
+            if (_fullData == null)
+            {
+                PreviousButton.Enabled = false;
+                NextButton.Enabled = false;
+                RemoveButton.Enabled = false;
+                SaveButton.Enabled = false;
+                return;
+            }
+
+            int position = _currentRowIndex + _dataOffset; // Current position in _fullData
+            PreviousButton.Enabled = position > 0;
+            NextButton.Enabled = position < _fullData.Count - 1;
+            RemoveButton.Enabled = _fullData.Count > 0;
+            SaveButton.Enabled = _fullData.Count > 0;
+        }
+
+        private void SavepictureBox_Click(object sender, EventArgs e)
+        {
+            try
+            {
+           //     SendLog("Save Record");
+                SaveCalled?.Invoke(sender, null); // Remove _bindingSource from the event
+                MessageBox.Show(Parent, "Record Saved", "Beep", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                SendLog($"Binding Navigator {ex.Message}");
+                MessageBox.Show(Parent, ex.Message, "Beep", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void NewButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+              //  SendLog("Add New Record");
+
+                if (_dataSource is BindingSource)
+                {
+                    CreateNewRecordForBindingSource();
+                }
+                else if (_dataSource is IList)
+                {
+                    CreateNewRecordForIList();
+                }
+                else
+                {
+               //     Debug.WriteLine("NewButton_Click: Unsupported data source type");
+                    return;
+                }
+
+                // Update UI
+                UpdateRecordNumber();
+                UpdateNavigationButtonState();
+
+                NewRecordCreated?.Invoke(this, EventArgs.Empty); // Remove _bindingSource from the event
+            }
+            catch (Exception ex)
+            {
+                SendLog($"Binding Navigator {ex.Message}");
+            }
+        }
+
+        private void RemovepictureBox_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SendLog("Remove Record");
+                DeleteCalled?.Invoke(sender, EventArgs.Empty); // Remove _bindingSource from the event
+
+                if (_fullData != null && _fullData.Any() && _currentRow != null)
+                {
+                    if (VerifyDelete && MessageBox.Show(Parent, "Are you sure you want to Delete Record?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK)
+                        return;
+
+                    int dataIndex = _currentRow.DisplayIndex;
+                    if (dataIndex >= 0 && dataIndex < _fullData.Count)
+                    {
+                        var item = _fullData[dataIndex];
+                        var wrapper = item as DataRowWrapper;
+                        if (wrapper != null)
+                        {
+                            if (_dataSource is BindingSource && _bindingSource != null)
+                            {
+                                // For BindingSource, use _bindingSource.RemoveCurrent()
+                                int bsIndex = _bindingSource.IndexOf(wrapper.OriginalData);
+                                if (bsIndex >= 0 && bsIndex < _bindingSource.Count)
+                                {
+                                    _bindingSource.RemoveCurrent(); // This will trigger BindingSource_ListChanged
+                                    Debug.WriteLine($"Remove: Removed record from BindingSource at index {bsIndex}");
+                                }
+                                else
+                                {
+                                    Debug.WriteLine($"Remove: Item not found in BindingSource at index {bsIndex}");
+                                    return;
+                                }
+                            }
+                            else if (_dataSource is IList)
+                            {
+                                // For IList, use DeleteFromDataSource
+                                DeleteFromDataSource(wrapper.OriginalData);
+                            }
+                            else
+                            {
+                                Debug.WriteLine($"Remove: Unsupported data source type: {_dataSource?.GetType()}");
+                                return;
+                            }
+
+                            // Update UI
+                            UpdateRecordNumber();
+                            UpdateNavigationButtonState();
+
+                            // Update selection and scroll position
+                            if (_fullData.Any())
+                            {
+                                int newSelectedIndex = Math.Min(dataIndex, _fullData.Count - 1);
+                                StartSmoothScroll(Math.Max(0, newSelectedIndex - GetVisibleRowCount() + 1));
+                                if (newSelectedIndex >= _dataOffset && newSelectedIndex < _dataOffset + Rows.Count)
+                                {
+                                    _currentRowIndex = newSelectedIndex - _dataOffset;
+                                    _currentRow = Rows[_currentRowIndex];
+                                    SelectCell(_currentRowIndex, _selectedColumnIndex >= 0 ? _selectedColumnIndex : 0);
+                                }
+                            }
+                            else
+                            {
+                                _currentRow = null;
+                                _currentRowIndex = -1;
+                            }
+
+                            FillVisibleRows();
+                            UpdateScrollBars();
+                            Invalidate();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                SendLog($"Binding Navigator {ex.Message}");
+            }
+        }
+
+        private void NextpictureBox_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SendLog("Next Record");
+                MoveNextRow();
+
+                // Update UI
+                UpdateRecordNumber();
+                UpdateNavigationButtonState();
+
+                FillVisibleRows();
+                UpdateScrollBars();
+                Invalidate();
+            }
+            catch (Exception ex)
+            {
+                SendLog($"Binding Navigator {ex.Message}");
+            }
+        }
+
+        private void PreviouspictureBox_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SendLog("Previous Record");
+                MovePreviousRow();
+
+                // Update UI
+                UpdateRecordNumber();
+                UpdateNavigationButtonState();
+
+                FillVisibleRows();
+                UpdateScrollBars();
+                Invalidate();
+            }
+            catch (Exception ex)
+            {
+                SendLog($"Binding Navigator {ex.Message}");
+            }
+        }
+
+        private void RollbackpictureBox_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (MessageBox.Show(Parent, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+                {
+                    // Reset the current row to its original state
+                    if (_currentRow != null)
+                    {
+                        int dataIndex = _currentRow.DisplayIndex;
+                        if (dataIndex >= 0 && dataIndex < _fullData.Count)
+                        {
+                            var wrapper = _fullData[dataIndex] as DataRowWrapper;
+                            if (wrapper != null)
+                            {
+                                // Reset the row’s cells to their original values
+                                foreach (var cell in _currentRow.Cells)
+                                {
+                                    var col = Columns[cell.ColumnIndex];
+                                    if (col.IsSelectionCheckBox || col.IsRowNumColumn || col.IsRowID)
+                                        continue;
+
+                                    var prop = wrapper.OriginalData.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
+                                    if (prop != null)
+                                    {
+                                        cell.CellValue = prop.GetValue(wrapper.OriginalData);
+                                        cell.IsDirty = false;
+                                    }
+                                }
+                                wrapper.RowState = DataRowState.Unchanged;
+                                wrapper.DateTimeChange = DateTime.Now;
+                                _currentRow.IsDirty = false;
+
+                                // Ensure tracking for the reset item
+                                EnsureTrackingForItem(wrapper);
+                            }
+                        }
+                    }
+
+                    // Update UI
+                    UpdateRecordNumber();
+                    UpdateNavigationButtonState();
+
+                    FillVisibleRows();
+                    UpdateScrollBars();
+                    Invalidate();
+                }
+            }
+            catch (Exception ex)
+            {
+                SendLog($"Binding Navigator {ex.Message}");
+            }
+        }
+
+        private void EditpictureBox_Click(object sender, EventArgs e)
+        {
+            EditCalled?.Invoke(sender, EventArgs.Empty);
+        }
+        private void FindpictureBox_Click(object sender, EventArgs e)
+        {
+            ShowSearch?.Invoke(this, EventArgs.Empty);
+        }
+        private void PrinterpictureBox_Click(object sender, EventArgs e)
+        {
+            CallPrinter?.Invoke(this, EventArgs.Empty);
+        }
+        private void MessagepictureBox_Click(object sender, EventArgs e)
+        {
+            SendMessage?.Invoke(this, EventArgs.Empty);
         }
         #endregion
         #region Helper Methods

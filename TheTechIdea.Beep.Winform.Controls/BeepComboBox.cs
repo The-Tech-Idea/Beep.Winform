@@ -60,6 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _listItems = value;
+                if (_beepListBox == null) _beepListBox = new BeepPopupListForm();
                 _beepListBox.ListItems = value;
             }
 
@@ -392,6 +393,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                
             }
+            if(value is string)
+            {
+                SelectedItem = ListItems.FirstOrDefault(x => x.Text == value.ToString());
+            }
+            _comboTextBox.Invalidate();
+            Invalidate();
         }
         public override object GetValue()
         {

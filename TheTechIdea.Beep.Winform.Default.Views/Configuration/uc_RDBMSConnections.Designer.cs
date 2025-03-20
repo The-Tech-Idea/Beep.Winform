@@ -1,10 +1,6 @@
-﻿
-using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Models;
-
-namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
+﻿namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
-    partial class uc_ConnnectionDrivers
+    partial class uc_RDBMSConnections
     {
         /// <summary> 
         /// Required designer variable.
@@ -33,16 +29,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(uc_ConnnectionDrivers));
-            driversConfigViewModelBindingSource = new BindingSource(components);
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(uc_RDBMSConnections));
+            DataBase.EntityStructure entityStructure1 = new DataBase.EntityStructure();
             beepSimpleGrid1 = new TheTechIdea.Beep.Winform.Controls.BeepSimpleGrid();
-            ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).BeginInit();
+            dataConnectionViewModelBindingSource = new BindingSource(components);
+            ((System.ComponentModel.ISupportInitialize)dataConnectionViewModelBindingSource).BeginInit();
             SuspendLayout();
-            // 
-            // driversConfigViewModelBindingSource
-            // 
-            driversConfigViewModelBindingSource.DataMember = "ConnectionDriversConfigs";
-            driversConfigViewModelBindingSource.DataSource = typeof(MVVM.ViewModels.BeepConfig.DriversConfigViewModel);
             // 
             // beepSimpleGrid1
             // 
@@ -71,20 +63,50 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.Category = Utilities.DbFieldCategory.String;
             beepSimpleGrid1.ColumnHeaderFont = new Font("Arial", 8F);
             beepSimpleGrid1.ColumnHeaderHeight = 40;
-            beepSimpleGrid1.Columns = (List<BeepColumnConfig>)resources.GetObject("beepSimpleGrid1.Columns");
+            beepSimpleGrid1.Columns = (List<Controls.Models.BeepColumnConfig>)resources.GetObject("beepSimpleGrid1.Columns");
             beepSimpleGrid1.ComponentName = "beepSimpleGrid1";
             beepSimpleGrid1.DataContext = null;
             beepSimpleGrid1.DataNavigator = null;
-            beepSimpleGrid1.DataSource = driversConfigViewModelBindingSource;
+            beepSimpleGrid1.DataSource = dataConnectionViewModelBindingSource;
             beepSimpleGrid1.DataSourceProperty = null;
-            beepSimpleGrid1.DataSourceType = GridDataSourceType.Fixed;
+            beepSimpleGrid1.DataSourceType = Vis.Modules.GridDataSourceType.Fixed;
             beepSimpleGrid1.DefaultColumnHeaderWidth = 50;
             beepSimpleGrid1.DisabledBackColor = Color.Gray;
             beepSimpleGrid1.DisabledForeColor = Color.Empty;
             beepSimpleGrid1.Dock = DockStyle.Fill;
-            beepSimpleGrid1.DrawingRect = new Rectangle(1, 1, 1030, 681);
+            beepSimpleGrid1.DrawingRect = new Rectangle(1, 1, 1154, 661);
             beepSimpleGrid1.Easing = Winform.Controls.EasingType.Linear;
-            beepSimpleGrid1.Entity = null;
+            entityStructure1.Caption = null;
+            entityStructure1.Category = null;
+            entityStructure1.Created = false;
+            entityStructure1.CustomBuildQuery = null;
+            entityStructure1.DatabaseType = Utilities.DataSourceType.NONE;
+            entityStructure1.DatasourceEntityName = null;
+            entityStructure1.DataSourceID = null;
+            entityStructure1.DefaultChartType = null;
+            entityStructure1.Description = null;
+            entityStructure1.Drawn = false;
+            entityStructure1.Editable = false;
+            entityStructure1.EndRow = 0;
+            entityStructure1.EntityName = "ConnectionProperties";
+            entityStructure1.EntityPath = null;
+            entityStructure1.GuidID = "bb9abeea-37b7-48dd-9b66-3a898a28f160";
+            entityStructure1.Id = 0;
+            entityStructure1.IsCreated = false;
+            entityStructure1.IsIdentity = false;
+            entityStructure1.IsLoaded = false;
+            entityStructure1.IsSaved = false;
+            entityStructure1.IsSynced = false;
+            entityStructure1.KeyToken = null;
+            entityStructure1.OriginalEntityName = null;
+            entityStructure1.ParentId = 0;
+            entityStructure1.SchemaOrOwnerOrDatabase = null;
+            entityStructure1.Show = false;
+            entityStructure1.StartRow = 0;
+            entityStructure1.StatusDescription = null;
+            entityStructure1.ViewID = 0;
+            entityStructure1.Viewtype = Utilities.ViewType.Table;
+            beepSimpleGrid1.Entity = entityStructure1;
             beepSimpleGrid1.FieldID = null;
             beepSimpleGrid1.FocusBackColor = Color.White;
             beepSimpleGrid1.FocusBorderColor = Color.Gray;
@@ -95,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepSimpleGrid1.GradientEndColor = Color.FromArgb(230, 230, 230);
             beepSimpleGrid1.GradientStartColor = Color.White;
-            beepSimpleGrid1.GuidID = "a26279e6-a48d-4861-b7a9-dc3c63da8402";
+            beepSimpleGrid1.GuidID = "d24e2a3e-2858-43c7-9f06-8803215888e4";
             beepSimpleGrid1.HoverBackColor = Color.FromArgb(230, 230, 230);
             beepSimpleGrid1.HoverBorderColor = Color.FromArgb(0, 120, 215);
             beepSimpleGrid1.HoveredBackcolor = Color.Wheat;
@@ -104,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.InactiveBackColor = Color.Gray;
             beepSimpleGrid1.InactiveBorderColor = Color.Gray;
             beepSimpleGrid1.InactiveForeColor = Color.Black;
-            beepSimpleGrid1.Info = (SimpleItem)resources.GetObject("beepSimpleGrid1.Info");
+            beepSimpleGrid1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepSimpleGrid1.Info");
             beepSimpleGrid1.IsAcceptButton = false;
             beepSimpleGrid1.IsBorderAffectedByTheme = true;
             beepSimpleGrid1.IsCancelButton = false;
@@ -171,14 +193,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ShowTopBorder = true;
             beepSimpleGrid1.ShowVerticalGridLines = true;
             beepSimpleGrid1.ShowVerticalScrollBar = true;
-            beepSimpleGrid1.Size = new Size(1032, 683);
+            beepSimpleGrid1.Size = new Size(1156, 663);
             beepSimpleGrid1.SlideFrom = Winform.Controls.SlideDirection.Left;
             beepSimpleGrid1.StaticNotMoving = false;
             beepSimpleGrid1.TabIndex = 0;
             beepSimpleGrid1.TempBackColor = Color.Empty;
             beepSimpleGrid1.Text = "beepSimpleGrid1";
             beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageAboveText;
-            beepSimpleGrid1.Theme = EnumBeepThemes.DefaultTheme;
+            beepSimpleGrid1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
             beepSimpleGrid1.Title = "BeepSimpleGrid Title";
             beepSimpleGrid1.TitleText = "Simple BeepGrid";
             beepSimpleGrid1.TitleTextFont = new Font("Segoe UI", 9F);
@@ -189,19 +211,25 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.UseThemeFont = true;
             beepSimpleGrid1.XOffset = 0;
             // 
-            // uc_ConnnectionDrivers
+            // dataConnectionViewModelBindingSource
+            // 
+            dataConnectionViewModelBindingSource.DataMember = "DataConnections";
+            dataConnectionViewModelBindingSource.DataSource = typeof(MVVM.ViewModels.BeepConfig.DataConnectionViewModel);
+            // 
+            // uc_RDBMSConnections
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(beepSimpleGrid1);
-            Name = "uc_ConnnectionDrivers";
-            Size = new Size(1032, 683);
-            ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).EndInit();
+            Name = "uc_RDBMSConnections";
+            Size = new Size(1156, 663);
+            ((System.ComponentModel.ISupportInitialize)dataConnectionViewModelBindingSource).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
-        private BindingSource driversConfigViewModelBindingSource;
+
         private Controls.BeepSimpleGrid beepSimpleGrid1;
+        private BindingSource dataConnectionViewModelBindingSource;
     }
 }

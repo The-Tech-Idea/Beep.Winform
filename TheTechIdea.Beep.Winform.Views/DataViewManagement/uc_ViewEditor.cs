@@ -18,7 +18,7 @@ using TheTechIdea.Beep.Winform.Controls.Basic;
 namespace TheTechIdea.ETL
 {
     [AddinAttribute(Caption = "View Editor", Name = "uc_ViewEditor", misc = "VIEW", addinType = AddinType.Control, ObjectType = "Beep")]
-    public partial class uc_ViewEditor : uc_Addin
+    public partial class uc_ViewEditor : TemplateUserControl
     {
         public uc_ViewEditor()
         {

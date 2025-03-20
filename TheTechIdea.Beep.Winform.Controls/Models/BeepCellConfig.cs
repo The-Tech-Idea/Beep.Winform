@@ -37,6 +37,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public object CellData { get; set; }
         = new object();
         public object CellValue { get; set; }
+        public object ParentCellValue { get; set; }
+        public SimpleItem ParentItem { get; set; }
         public string CellType { get; set; }
         public string CellFormat { get; set; }
         public string CellAlignment { get; set; }
@@ -45,9 +47,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public string CellFont { get; set; }
         public string CellToolTip { get; set; }
         public object OldValue { get; set; } = new object();
+        public SimpleItem Item { get; set; }
+        public List<SimpleItem> FilterdList { get; set; } = new List<SimpleItem>();
 
         public event EventHandler<BeepCellEventArgs> OnCellSelected;
         public event EventHandler<BeepCellEventArgs> OnCellValidate;
+        public event EventHandler<BeepCellEventArgs> OnCellValueChanged;
 
         public IBeepUIComponent UIComponent { get; set; }
         // Method to trigger OnCellSelected event

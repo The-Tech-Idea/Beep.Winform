@@ -59,6 +59,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             get { return _valueField; }
             set { _valueField = value; }
         }
+        private string _parentvalue; // used for to store the name of field that has value to store
+        public string ParentValue
+        {
+            get { return _parentvalue; }
+            set { _parentvalue = value; }
+        }
         [NonSerialized]
         private SimpleItem _parentItem; // used for to store the parent item
         public SimpleItem ParentItem

@@ -43,7 +43,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
         public static AssemblyClassDefinition GetAssemblyClassDefinitionByGuid(string Guid)
         {
-            return DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.GuidID == Guid).FirstOrDefault();
+            AssemblyClassDefinition ret= DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.GuidID.Equals(Guid, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault(); 
+            if (ret == null)
+            {
+                ret= DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.GuidID.Equals(Guid, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            }
+            return ret;
         }
         public static List<AssemblyClassDefinition> GetAssemblyClassDefinitionForMenu(string ObjectType="Beep")
         {

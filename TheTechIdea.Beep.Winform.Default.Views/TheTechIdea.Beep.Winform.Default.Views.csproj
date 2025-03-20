@@ -28,6 +28,12 @@
 		<Copy SourceFiles="$(TargetDir)$(Assemblyname).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(Assemblyname)\$(TargetFramework)" SkipUnchangedFiles="false" />
 	</Target>
 	<ItemGroup>
+	  <None Remove="GFX\SVG\rdbmsConnections.svg" />
+	</ItemGroup>
+	<ItemGroup>
+	  <EmbeddedResource Include="GFX\SVG\rdbmsConnections.svg" />
+	</ItemGroup>
+	<ItemGroup>
 		<None Include="..\..\InstallationScripts\LogoGFx\128\SimpleODM.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>

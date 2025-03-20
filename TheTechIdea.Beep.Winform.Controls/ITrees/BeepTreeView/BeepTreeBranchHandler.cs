@@ -367,8 +367,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 {
                     Tree.SelectedBranchs.Remove(Branch.BranchID);
                 }
-               
-                beepTreeControl.RemoveNode(branchitem.Id);
+               if(branchitem!=null)     beepTreeControl.RemoveNode(branchitem.Id);
 
                 // DMEEditor.AddLogMessage("Success", "removed node and childs", DateTime.Now, 0, null, Errors.Ok);
             }

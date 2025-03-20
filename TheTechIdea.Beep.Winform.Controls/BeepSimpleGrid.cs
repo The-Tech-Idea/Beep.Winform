@@ -9,14 +9,15 @@ using System.Globalization;
 using System.Reflection;
 using System.Windows.Forms;
 using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Beep.Desktop.Common;
-using TheTechIdea.Beep.Desktop.Common.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models;
+
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Shared;
+//
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 
 using Timer = System.Windows.Forms.Timer;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 
@@ -1717,7 +1718,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion DataSource Update
         #region Initialization
-        private object SetupBindingSource()
+        private Tuple<object,IEntityStructure> SetupBindingSource()
         {
             object resolvedData = null; // Unified variable for final data or type resolution
                                         //  Debug.WriteLine($"BindingSource Detected: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
@@ -1782,26 +1783,28 @@ namespace TheTechIdea.Beep.Winform.Controls
                     //  Debug.WriteLine($"Resolved data = {resolvedData?.GetType()}");
                 }
             }
-            return resolvedData;
+            return Tuple.Create(resolvedData, entity);
         }
         private void DataSetup()
         {
             IEntityStructure entity = null;
             object resolvedData = null; // Unified variable for final data or type resolution
-          //  Debug.WriteLine($"DataSetup Started: _dataSource Type = {_dataSource?.GetType()}, DesignMode = {DesignMode}, Columns Count = {_columns.Count}");
+           //Debug.WriteLine($"DataSetup Started: _dataSource Type = {_dataSource?.GetType()}, DesignMode = {DesignMode}, Columns Count = {_columns.Count}");
 
             // Step 1: Handle different _dataSource types
             if (_dataSource == null)
             {
-               // Debug.WriteLine("DataSource is null, no entity generated");
+                Debug.WriteLine("DataSource is null, no entity generated");
             }
             else if (_dataSource is BindingSource bindingSrc)
             {
-              //  Debug.WriteLine($"BindingSource Detected: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
+             //   Debug.WriteLine($"BindingSource Detected: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
                 var dataSource = bindingSrc.DataSource;
                 AssignBindingSource(bindingSrc);
 
-                resolvedData = SetupBindingSource();
+                var ret = SetupBindingSource();
+                resolvedData = ret.Item1;
+                entity = ret.Item2;
             }
             else if (_dataSource is DataTable dataTable)
             {
@@ -1810,21 +1813,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else if (_dataSource is IList iList)
             {
-               // Debug.WriteLine("DataSource is IList");
+              //  Debug.WriteLine("DataSource is IList");
                 resolvedData = iList;
             }
             else
             {
-              //  Debug.WriteLine($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting auto-detection");
+//Debug.WriteLine($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting auto-detection");
                 resolvedData = GetCollectionPropertyFromInstance(_dataSource) ?? _dataSource;
             }
 
-            // Step 2: Process resolvedData to set finalData and entity
+            //Step 2: Process resolvedData to set finalData and entity
             if (entity == null) // Entity not set yet (i.e., not a Type case)
             {
                 if (resolvedData == null)
                 {
-                  //  Debug.WriteLine("Resolved data is null, no entity generated");
+                   Debug.WriteLine("Resolved data is null, no entity generated");
                 }
                 else if (resolvedData is DataTable dt)
                 {
@@ -1837,7 +1840,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Type itemType = list[0]?.GetType();
                     if (itemType != null)
                     {
-                    //    Debug.WriteLine($"Extracted item type from IList: {itemType.FullName}");
+                       // Debug.WriteLine($"Extracted item type from IList: {itemType.FullName}");
                         entity = EntityHelper.GetEntityStructureFromType(itemType);
                     }
                     else
@@ -1847,7 +1850,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                   // Debug.WriteLine($"Resolved data is not a recognized collection type: {resolvedData.GetType()}, using as-is");
+                    Debug.WriteLine($"Resolved data is not a recognized collection type: {resolvedData.GetType()}, using as-is");
                     finalData = resolvedData;
                     entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
                 }
@@ -1855,13 +1858,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
             {
                 // Entity already set from Type handling, finalData remains null (structure only)
-               // Debug.WriteLine("Entity set from Type handling, finalData remains null");
+                Debug.WriteLine("Entity set from Type handling, finalData remains null");
             }
 
             //Step 3: Process entity and columns
             if (entity != null)
             {
-              //  Debug.WriteLine($"New Entity: {entity.EntityName}, Existing Entity: {Entity?.EntityName}, Columns Count = {_columns.Count}");
+            //   Debug.WriteLine($"New Entity: {entity.EntityName}, Existing Entity: {Entity?.EntityName}, Columns Count = {_columns.Count}");
                 if (_columns.Any() )
                 {
                     if (Entity != null && entity.EntityName.Equals(Entity.EntityName))
@@ -1879,17 +1882,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                   // Debug.WriteLine("No designer Columns or not protected, regenerating");
+                //    Debug.WriteLine("No designer Columns or not protected, regenerating");
                     Entity = entity;
                     CreateColumnsForEntity();
                 }
             }
             else if (_columns.Any() && columnssetupusingeditordontchange)
             {
-              //  Debug.WriteLine("No new Entity, keeping designer Columns");
+               Debug.WriteLine("No new Entity, keeping designer Columns");
             }
 
-            //Debug.WriteLine($"DataSetup Completed: finalData = {finalData?.GetType()}, Entity = {Entity?.EntityName}, Columns Count = {_columns.Count}");
+           // Debug.WriteLine($"DataSetup Completed: finalData = {finalData?.GetType()}, Entity = {Entity?.EntityName}, Columns Count = {_columns.Count}");
         }
         private object GetCollectionPropertyFromInstance(object instance)
         {

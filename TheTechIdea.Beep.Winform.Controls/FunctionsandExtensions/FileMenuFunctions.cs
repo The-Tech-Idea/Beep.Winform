@@ -4,7 +4,7 @@ using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Utilities;
 
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Vis.Logic;
+
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.ConfigUtil;
 

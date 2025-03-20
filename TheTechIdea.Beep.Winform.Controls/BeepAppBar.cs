@@ -1,10 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Desktop.Common;
-using System.Runtime.InteropServices;
-using TheTechIdea.Beep.Report;
-using System.Diagnostics;
+using TheTechIdea.Beep.Winform.Controls.Models;
+
 
 
 namespace TheTechIdea.Beep.Winform.Controls

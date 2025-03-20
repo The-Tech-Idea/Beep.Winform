@@ -1,5 +1,5 @@
 ﻿using System.Data;
-using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

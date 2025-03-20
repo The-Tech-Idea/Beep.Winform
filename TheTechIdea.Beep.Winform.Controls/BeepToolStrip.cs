@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Drawing.Design;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Editors;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

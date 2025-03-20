@@ -14,8 +14,9 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Winform.Controls.Editors;
-using TheTechIdea.Beep.Vis.Logic;
-using TheTechIdea.Beep.Desktop.Common;
+
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 
 

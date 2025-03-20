@@ -4,11 +4,11 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.AppManager;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Beep.DataView;
+
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Helpers;
+
 using TheTechIdea.Beep.Vis;
-using TheTechIdea.Beep.Vis.Logic;
+
 using TheTechIdea.Beep.Utilities;
 using BeepDialogResult = TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
 
@@ -19,9 +19,9 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
     {
         public IDMEEditor DMEEditor { get; set; }
         public IPassedArgs Passedargs { get; set; }
-    
-        
-      
+
+
+
         private FunctionandExtensionsHelpers ExtensionsHelpers;
         public DataSourceMenuFunctions(IDMEEditor pdMEEditor, Vis.Modules.IAppManager pvisManager,ITree ptreeControl)
         {
@@ -146,27 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
 
                                 }
                             }
-                            if (ExtensionsHelpers.CurrentBranch.BranchClass == "VIEW")
-                            {
-                                DataViewDataSource ds = (DataViewDataSource)DMEEditor.GetDataSource(ExtensionsHelpers.CurrentBranch.DataSourceName);
-                                
-                                Passedarguments.ParameterString1 = $"Creating {ls.Count()} entities ...";
-                                ExtensionsHelpers.Vismanager.PasstoWaitForm((PassedArgs)Passedarguments);
-                                foreach (var item in ls)
-                                {
-                                    Passedarguments.ParameterString1 = $"Adding {item} and Child if there is ...";
-                                    ExtensionsHelpers.Vismanager.PasstoWaitForm((PassedArgs)Passedarguments);
-                                    ds.AddEntitytoDataView(item);
-                                }
-                                Passedarguments.Messege = $"Done ...";
-                                ExtensionsHelpers.Vismanager.PasstoWaitForm((PassedArgs)Passedarguments);
-                                Passedarguments.ParameterString1 = $"Done ...";
-                                ExtensionsHelpers.Vismanager.CloseWaitForm();
-                                ds.WriteDataViewFile(ds.DatasourceName);
-                            }
-                            else
-                            {
-                                
+                          
                                 ExtensionsHelpers.Vismanager.CloseWaitForm();
                                 bool getdata=false; 
                                 if (ExtensionsHelpers.Vismanager.DialogManager.InputBoxYesNo("Beep", "Do you want to Copy Data Also?") == BeepDialogResult.Yes)
@@ -197,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                                 ExtensionsHelpers.Vismanager.CloseWaitForm();
                                 DMEEditor.ETL.Script = script;
                                 ExtensionsHelpers.Vismanager.ShowPage("uc_CopyEntities", (PassedArgs)Passedargs, DisplayType.InControl);
-                            }
+                          
                             ExtensionsHelpers.CurrentBranch.CreateChildNodes();
 
                         }
@@ -910,91 +890,91 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
           
 
         }
-        [CommandAttribute(Caption = "Drop", PointType = EnumPointType.Entity, iconimage = "remove.png", ObjectType = "Beep", Showin = ShowinType.Menu)]
-        public IErrorsInfo DropEntity(IPassedArgs Passedarguments)
-        {
-            DMEEditor.ErrorObject.Flag = Errors.Ok;
-            EntityStructure ent = new EntityStructure();
-            ExtensionsHelpers.GetValues(Passedarguments);
-            if (ExtensionsHelpers.CurrentBranch == null)
-            {
-                return DMEEditor.ErrorObject;
-            }
-            if (ExtensionsHelpers.CurrentBranch.BranchType == EnumPointType.Entity)
-            {
-                try
-                {
-                    bool entityexist = true;
+        //[CommandAttribute(Caption = "Drop", PointType = EnumPointType.Entity, iconimage = "remove.png", ObjectType = "Beep", Showin = ShowinType.Menu)]
+        //public IErrorsInfo DropEntity(IPassedArgs Passedarguments)
+        //{
+        //    DMEEditor.ErrorObject.Flag = Errors.Ok;
+        //    EntityStructure ent = new EntityStructure();
+        //    ExtensionsHelpers.GetValues(Passedarguments);
+        //    if (ExtensionsHelpers.CurrentBranch == null)
+        //    {
+        //        return DMEEditor.ErrorObject;
+        //    }
+        //    if (ExtensionsHelpers.CurrentBranch.BranchType == EnumPointType.Entity)
+        //    {
+        //        try
+        //        {
+        //            bool entityexist = true;
 
-                    Passedarguments.ObjectName = ExtensionsHelpers.ParentBranch.BranchText;
-                    Passedarguments.CurrentEntity = ExtensionsHelpers.CurrentBranch.BranchText;
-                    Passedarguments.ObjectType = ExtensionsHelpers.CurrentBranch.BranchClass;
-                    Passedarguments.DatasourceName = ExtensionsHelpers.ParentBranch.BranchText;
-                    Passedarguments.EventType = "VIEWSTRUCTURE";
-                    IDataSource DataSource = DMEEditor.GetDataSource(ExtensionsHelpers.ParentBranch.BranchText);
-                    if (ExtensionsHelpers.Vismanager.DialogManager.InputBoxYesNo("Beep DM", "Are you sure you ?") == BeepDialogResult.Yes)
-                    {
+        //            Passedarguments.ObjectName = ExtensionsHelpers.ParentBranch.BranchText;
+        //            Passedarguments.CurrentEntity = ExtensionsHelpers.CurrentBranch.BranchText;
+        //            Passedarguments.ObjectType = ExtensionsHelpers.CurrentBranch.BranchClass;
+        //            Passedarguments.DatasourceName = ExtensionsHelpers.ParentBranch.BranchText;
+        //            Passedarguments.EventType = "VIEWSTRUCTURE";
+        //            IDataSource DataSource = DMEEditor.GetDataSource(ExtensionsHelpers.ParentBranch.BranchText);
+        //            if (ExtensionsHelpers.Vismanager.DialogManager.InputBoxYesNo("Beep DM", "Are you sure you ?") == BeepDialogResult.Yes)
+        //            {
 
-                        EntityStructure entity = DataSource.GetEntityStructure(ExtensionsHelpers.CurrentBranch.BranchText, true);
-                        if (entity != null)
-                        {
-                            entityexist = entity !=null;
-                            if (entityexist)
-                            {
+        //                EntityStructure entity = DataSource.GetEntityStructure(ExtensionsHelpers.CurrentBranch.BranchText, true);
+        //                if (entity != null)
+        //                {
+        //                    entityexist = entity !=null;
+        //                    if (entityexist)
+        //                    {
                                
-                                    try
-                                    {
-                                        string dropsql = RDBMSHelper.GetDropEntity(DataSource.DatasourceType, entity.DatasourceEntityName);
-                                        if(DataSource.DatasourceType== DataSourceType.LiteDB)
-                                        {
-                                            ILocalDB localDB = (ILocalDB)DataSource;
-                                            localDB.DropEntity(entity.DatasourceEntityName);
-                                        }
-                                        if(DataSource.Category== DatasourceCategory.RDBMS)
-                                        {
-                                        DataSource.ExecuteSql(dropsql);
-                                        }
+        //                            try
+        //                            {
+        //                                string dropsql = RDBMSHelper.GetDropEntity(DataSource.DatasourceType, entity.DatasourceEntityName);
+        //                                if(DataSource.DatasourceType== DataSourceType.LiteDB)
+        //                                {
+        //                                    ILocalDB localDB = (ILocalDB)DataSource;
+        //                                    localDB.DropEntity(entity.DatasourceEntityName);
+        //                                }
+        //                                if(DataSource.Category== DatasourceCategory.RDBMS)
+        //                                {
+        //                                DataSource.ExecuteSql(dropsql);
+        //                                }
     
-                                        entityexist = false;
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        DMEEditor.ErrorObject.Flag = Errors.Failed;
-                                        DMEEditor.ErrorObject.Ex = ex;
-                                        DMEEditor.AddLogMessage("Fail", $"Error Drpping Entity {entity.EntityName} - {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
-                                    }
+        //                                entityexist = false;
+        //                            }
+        //                            catch (Exception ex)
+        //                            {
+        //                                DMEEditor.ErrorObject.Flag = Errors.Failed;
+        //                                DMEEditor.ErrorObject.Ex = ex;
+        //                                DMEEditor.AddLogMessage("Fail", $"Error Drpping Entity {entity.EntityName} - {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+        //                            }
                                     
                                    
                                 
                                 
-                            }
-                            if (DMEEditor.ErrorObject.Flag == Errors.Ok && !entityexist)
-                            {
-                                ExtensionsHelpers.TreeEditor.Treebranchhandler.RemoveBranch(ExtensionsHelpers.CurrentBranch);
-                                DataSource.Entities.RemoveAt(DataSource.Entities.FindIndex(p => p.DatasourceEntityName == entity.DatasourceEntityName));
-                                DMEEditor.AddLogMessage("Success", $"Droped Entity {entity.EntityName}", DateTime.Now, -1, null, Errors.Ok);
-                            }
-                            else
-                            {
+        //                    }
+        //                    if (DMEEditor.ErrorObject.Flag == Errors.Ok && !entityexist)
+        //                    {
+        //                        ExtensionsHelpers.TreeEditor.Treebranchhandler.RemoveBranch(ExtensionsHelpers.CurrentBranch);
+        //                        DataSource.Entities.RemoveAt(DataSource.Entities.FindIndex(p => p.DatasourceEntityName == entity.DatasourceEntityName));
+        //                        DMEEditor.AddLogMessage("Success", $"Droped Entity {entity.EntityName}", DateTime.Now, -1, null, Errors.Ok);
+        //                    }
+        //                    else
+        //                    {
 
-                                DMEEditor.AddLogMessage("Fail", $"Error Drpping Entity {entity.EntityName} - {DMEEditor.ErrorObject.Message}", DateTime.Now, -1, null, Errors.Failed);
-                            }
-                        }
+        //                        DMEEditor.AddLogMessage("Fail", $"Error Drpping Entity {entity.EntityName} - {DMEEditor.ErrorObject.Message}", DateTime.Now, -1, null, Errors.Failed);
+        //                    }
+        //                }
 
-                    }
-                }
-                catch (Exception ex)
-                {
-                    DMEEditor.ErrorObject.Flag = Errors.Failed;
-                    DMEEditor.ErrorObject.Ex = ex;
-                    DMEEditor.AddLogMessage("Fail", $"Error running Import {ent.EntityName} - {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
-                }
-            }
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            DMEEditor.ErrorObject.Flag = Errors.Failed;
+        //            DMEEditor.ErrorObject.Ex = ex;
+        //            DMEEditor.AddLogMessage("Fail", $"Error running Import {ent.EntityName} - {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+        //        }
+        //    }
 
-            return DMEEditor.ErrorObject;
+        //    return DMEEditor.ErrorObject;
       
 
-        }
+        //}
 
     }
 }

@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using Timer = System.Windows.Forms.Timer;
 using System.Diagnostics;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

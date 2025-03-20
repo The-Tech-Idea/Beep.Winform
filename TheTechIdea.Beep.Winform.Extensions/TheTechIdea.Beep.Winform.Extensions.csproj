@@ -34,15 +34,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="Autofac" Version="8.2.0" />
 	  <PackageReference Include="System.Text.Json" Version="9.0.0" />
 	  <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.42" />
 	  <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.39" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\TheTechIdea.Beep.Vis.Logic\TheTechIdea.Beep.Vis.Logic.csproj" />
 	  <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
-	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Desktop.Common.csproj" />
+	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
 	</ItemGroup>
 	
 </Project>

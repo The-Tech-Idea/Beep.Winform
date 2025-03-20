@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
+﻿using TheTechIdea.Beep.Winform.Controls.Models;
+
+namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
     partial class uc_FilterForm
     {
@@ -89,7 +91,7 @@
             beepListBox1.InactiveBackColor = Color.Gray;
             beepListBox1.InactiveBorderColor = Color.Gray;
             beepListBox1.InactiveForeColor = Color.Black;
-            beepListBox1.Info = (Desktop.Common.SimpleItem)resources.GetObject("beepListBox1.Info");
+       //     beepListBox1.Info = (SimpleItem)resources.GetObject("beepListBox1.Info");
             beepListBox1.IsAcceptButton = false;
             beepListBox1.IsBorderAffectedByTheme = true;
             beepListBox1.IsCancelButton = false;
@@ -216,7 +218,7 @@
             beepCard1.InactiveBackColor = Color.Gray;
             beepCard1.InactiveBorderColor = Color.Gray;
             beepCard1.InactiveForeColor = Color.Black;
-            beepCard1.Info = (Desktop.Common.SimpleItem)resources.GetObject("beepCard1.Info");
+       //     beepCard1.Info = (SimpleItem)resources.GetObject("beepCard1.Info");
             beepCard1.IsAcceptButton = false;
             beepCard1.IsBorderAffectedByTheme = true;
             beepCard1.IsCancelButton = false;
@@ -337,7 +339,7 @@
             beepButton2.InactiveBackColor = Color.Gray;
             beepButton2.InactiveBorderColor = Color.Gray;
             beepButton2.InactiveForeColor = Color.Black;
-            beepButton2.Info = (Desktop.Common.SimpleItem)resources.GetObject("beepButton2.Info");
+      //      beepButton2.Info = (SimpleItem)resources.GetObject("beepButton2.Info");
             beepButton2.IsAcceptButton = false;
             beepButton2.IsBorderAffectedByTheme = true;
             beepButton2.IsCancelButton = false;
@@ -471,7 +473,7 @@
             beepTextBox1.InactiveBackColor = Color.Gray;
             beepTextBox1.InactiveBorderColor = Color.Gray;
             beepTextBox1.InactiveForeColor = Color.Black;
-            beepTextBox1.Info = (Desktop.Common.SimpleItem)resources.GetObject("beepTextBox1.Info");
+          //  beepTextBox1.Info = (SimpleItem)resources.GetObject("beepTextBox1.Info");
             beepTextBox1.IsAcceptButton = false;
             beepTextBox1.IsBorderAffectedByTheme = false;
             beepTextBox1.IsCancelButton = false;
@@ -597,7 +599,7 @@
             beepComboBox1.InactiveBackColor = Color.Gray;
             beepComboBox1.InactiveBorderColor = Color.Gray;
             beepComboBox1.InactiveForeColor = Color.Black;
-            beepComboBox1.Info = (Desktop.Common.SimpleItem)resources.GetObject("beepComboBox1.Info");
+       //     beepComboBox1.Info = (SimpleItem)resources.GetObject("beepComboBox1.Info");
             beepComboBox1.IsAcceptButton = false;
             beepComboBox1.IsBorderAffectedByTheme = true;
             beepComboBox1.IsCancelButton = false;

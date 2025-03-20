@@ -1,6 +1,6 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using System.ComponentModel;
-using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 

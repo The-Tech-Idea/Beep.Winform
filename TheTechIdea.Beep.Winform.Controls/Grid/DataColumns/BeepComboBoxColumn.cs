@@ -3,7 +3,8 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls;
-using System.ComponentModel; // Ensure correct namespace for BeepComboBox
+using System.ComponentModel;
+using TheTechIdea.Beep.Winform.Controls.Models; // Ensure correct namespace for BeepComboBox
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
 {
@@ -56,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
             this.SelectedItemChanged += BeepComboBoxEditingControl_SelectedItemChanged;
         }
 
-        private void BeepComboBoxEditingControl_SelectedItemChanged(object? sender, Desktop.Common.SelectedItemChangedEventArgs e)
+        private void BeepComboBoxEditingControl_SelectedItemChanged(object? sender,SelectedItemChangedEventArgs e)
         {
             valueChanged = true;
             dataGridView?.NotifyCurrentCellDirty(true);

@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Controls
+﻿using TheTechIdea.Beep.Winform.Controls.Models;
+
+namespace TheTechIdea.Beep.Winform.Controls
 {
     partial class BeepDialogModal
     {
@@ -119,7 +121,7 @@
             DialogImage.InactiveBackColor = Color.Gray;
             DialogImage.InactiveBorderColor = Color.Gray;
             DialogImage.InactiveForeColor = Color.Black;
-            DialogImage.Info = (Desktop.Common.SimpleItem)resources.GetObject("DialogImage.Info");
+            DialogImage.Info = (SimpleItem)resources.GetObject("DialogImage.Info");
             DialogImage.IsAcceptButton = false;
             DialogImage.IsBorderAffectedByTheme = true;
             DialogImage.IsCancelButton = false;
@@ -243,7 +245,7 @@
             CloseButton.InactiveBackColor = Color.Gray;
             CloseButton.InactiveBorderColor = Color.Gray;
             CloseButton.InactiveForeColor = Color.Black;
-            CloseButton.Info = (Desktop.Common.SimpleItem)resources.GetObject("CloseButton.Info");
+            CloseButton.Info = (SimpleItem)resources.GetObject("CloseButton.Info");
             CloseButton.IsAcceptButton = false;
             CloseButton.IsBorderAffectedByTheme = true;
             CloseButton.IsCancelButton = false;
@@ -372,7 +374,7 @@
             TitleLabel.InactiveBackColor = Color.Gray;
             TitleLabel.InactiveBorderColor = Color.Gray;
             TitleLabel.InactiveForeColor = Color.Black;
-            TitleLabel.Info = (Desktop.Common.SimpleItem)resources.GetObject("TitleLabel.Info");
+            TitleLabel.Info = (SimpleItem)resources.GetObject("TitleLabel.Info");
             TitleLabel.IsAcceptButton = false;
             TitleLabel.IsBorderAffectedByTheme = false;
             TitleLabel.IsCancelButton = false;
@@ -510,7 +512,7 @@
             MiddleButton.InactiveBackColor = Color.Gray;
             MiddleButton.InactiveBorderColor = Color.Gray;
             MiddleButton.InactiveForeColor = Color.Black;
-            MiddleButton.Info = (Desktop.Common.SimpleItem)resources.GetObject("MiddleButton.Info");
+            MiddleButton.Info = (SimpleItem)resources.GetObject("MiddleButton.Info");
             MiddleButton.IsAcceptButton = false;
             MiddleButton.IsBorderAffectedByTheme = true;
             MiddleButton.IsCancelButton = false;
@@ -642,7 +644,7 @@
             RightButton.InactiveBackColor = Color.Gray;
             RightButton.InactiveBorderColor = Color.Gray;
             RightButton.InactiveForeColor = Color.Black;
-            RightButton.Info = (Desktop.Common.SimpleItem)resources.GetObject("RightButton.Info");
+            RightButton.Info = (SimpleItem)resources.GetObject("RightButton.Info");
             RightButton.IsAcceptButton = false;
             RightButton.IsBorderAffectedByTheme = true;
             RightButton.IsCancelButton = false;
@@ -774,7 +776,7 @@
             LeftButton.InactiveBackColor = Color.Gray;
             LeftButton.InactiveBorderColor = Color.Gray;
             LeftButton.InactiveForeColor = Color.Black;
-            LeftButton.Info = (Desktop.Common.SimpleItem)resources.GetObject("LeftButton.Info");
+            LeftButton.Info = (SimpleItem)resources.GetObject("LeftButton.Info");
             LeftButton.IsAcceptButton = false;
             LeftButton.IsBorderAffectedByTheme = true;
             LeftButton.IsCancelButton = false;
@@ -920,7 +922,7 @@
             InputTextBox.InactiveBackColor = Color.Gray;
             InputTextBox.InactiveBorderColor = Color.Gray;
             InputTextBox.InactiveForeColor = Color.Black;
-            InputTextBox.Info = (Desktop.Common.SimpleItem)resources.GetObject("InputTextBox.Info");
+            InputTextBox.Info = (SimpleItem)resources.GetObject("InputTextBox.Info");
             InputTextBox.IsAcceptButton = false;
             InputTextBox.IsBorderAffectedByTheme = false;
             InputTextBox.IsCancelButton = false;
@@ -1059,7 +1061,7 @@
             CaptionTextBox.InactiveBackColor = Color.Gray;
             CaptionTextBox.InactiveBorderColor = Color.Gray;
             CaptionTextBox.InactiveForeColor = Color.Black;
-            CaptionTextBox.Info = (Desktop.Common.SimpleItem)resources.GetObject("CaptionTextBox.Info");
+            CaptionTextBox.Info = (SimpleItem)resources.GetObject("CaptionTextBox.Info");
             CaptionTextBox.IsAcceptButton = false;
             CaptionTextBox.IsBorderAffectedByTheme = false;
             CaptionTextBox.IsCancelButton = false;
@@ -1186,7 +1188,7 @@
             SelectFromListComboBox.InactiveBackColor = Color.Gray;
             SelectFromListComboBox.InactiveBorderColor = Color.Gray;
             SelectFromListComboBox.InactiveForeColor = Color.Black;
-            SelectFromListComboBox.Info = (Desktop.Common.SimpleItem)resources.GetObject("SelectFromListComboBox.Info");
+            SelectFromListComboBox.Info = (SimpleItem)resources.GetObject("SelectFromListComboBox.Info");
             SelectFromListComboBox.IsAcceptButton = false;
             SelectFromListComboBox.IsBorderAffectedByTheme = true;
             SelectFromListComboBox.IsCancelButton = false;

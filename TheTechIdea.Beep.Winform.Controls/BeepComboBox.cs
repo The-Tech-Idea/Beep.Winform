@@ -4,11 +4,11 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Utilities;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-// using TheTechIdea.Beep.Desktop.Common; // if needed
+// using TheTechIdea.Beep.Winform.Controls.Models; // if needed
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

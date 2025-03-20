@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views
+﻿using TheTechIdea.Beep.Winform.Controls.Models;
+
+namespace TheTechIdea.Beep.Winform.Default.Views
 {
     partial class MainForm
     {
@@ -114,7 +116,7 @@
             beepTreeControl1.InactiveBackColor = Color.Gray;
             beepTreeControl1.InactiveBorderColor = Color.Gray;
             beepTreeControl1.InactiveForeColor = Color.Black;
-            beepTreeControl1.Info = (Desktop.Common.SimpleItem)resources.GetObject("beepTreeControl1.Info");
+      
             beepTreeControl1.IsAcceptButton = false;
             beepTreeControl1.IsBorderAffectedByTheme = true;
             beepTreeControl1.IsCancelButton = false;
@@ -247,7 +249,7 @@
             beepAppBar1.InactiveBackColor = Color.Gray;
             beepAppBar1.InactiveBorderColor = Color.Gray;
             beepAppBar1.InactiveForeColor = Color.Black;
-            beepAppBar1.Info = (Desktop.Common.SimpleItem)resources.GetObject("beepAppBar1.Info");
+           
             beepAppBar1.IsAcceptButton = false;
             beepAppBar1.IsBorderAffectedByTheme = false;
             beepAppBar1.IsCancelButton = false;
@@ -370,7 +372,7 @@
             beepMenuAppBar1.InactiveBackColor = Color.Gray;
             beepMenuAppBar1.InactiveBorderColor = Color.Gray;
             beepMenuAppBar1.InactiveForeColor = Color.Black;
-            beepMenuAppBar1.Info = (Desktop.Common.SimpleItem)resources.GetObject("beepMenuAppBar1.Info");
+      
             beepMenuAppBar1.IsAcceptButton = false;
             beepMenuAppBar1.IsBorderAffectedByTheme = true;
             beepMenuAppBar1.IsCancelButton = false;
@@ -489,7 +491,7 @@
             beepBreadcrumps1.InactiveBackColor = Color.Gray;
             beepBreadcrumps1.InactiveBorderColor = Color.Gray;
             beepBreadcrumps1.InactiveForeColor = Color.Black;
-            beepBreadcrumps1.Info = (Desktop.Common.SimpleItem)resources.GetObject("beepBreadcrumps1.Info");
+    
             beepBreadcrumps1.IsAcceptButton = false;
             beepBreadcrumps1.IsBorderAffectedByTheme = true;
             beepBreadcrumps1.IsCancelButton = false;
@@ -600,7 +602,7 @@
             beepDisplayContainer1.InactiveBackColor = Color.Gray;
             beepDisplayContainer1.InactiveBorderColor = Color.Gray;
             beepDisplayContainer1.InactiveForeColor = Color.Black;
-            beepDisplayContainer1.Info = (Desktop.Common.SimpleItem)resources.GetObject("beepDisplayContainer1.Info");
+         
             beepDisplayContainer1.IsAcceptButton = false;
             beepDisplayContainer1.IsBorderAffectedByTheme = true;
             beepDisplayContainer1.IsCancelButton = false;
@@ -709,7 +711,7 @@
             beepFilter1.InactiveBackColor = Color.Gray;
             beepFilter1.InactiveBorderColor = Color.Gray;
             beepFilter1.InactiveForeColor = Color.Black;
-            beepFilter1.Info = (Desktop.Common.SimpleItem)resources.GetObject("beepFilter1.Info");
+        
             beepFilter1.IsAcceptButton = false;
             beepFilter1.IsBorderAffectedByTheme = true;
             beepFilter1.IsCancelButton = false;

@@ -2,10 +2,11 @@
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Globalization;
-using TheTechIdea.Beep.Shared;
+//
 using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 using System.Runtime.InteropServices;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls

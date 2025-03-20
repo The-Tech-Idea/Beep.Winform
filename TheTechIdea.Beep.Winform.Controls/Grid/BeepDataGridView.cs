@@ -6,13 +6,14 @@ using System.Drawing.Design;
 using System.Reflection;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Beep.Desktop.Common;
-using TheTechIdea.Beep.Shared;
+using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
-using TheTechIdea.Beep.Vis.Logic;
+
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Design;
+
 using TheTechIdea.Beep.Winform.Controls.Grid.DataColumns;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid
 {
@@ -27,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
     public class BeepDataGridView:BeepControl
     {
         #region Properties
-        public DMEEditor DMEEditor { get; set; }
+        public IDMEEditor DMEEditor { get; set; }
         private DataGridView _targetGrid;
         private BeepGridFooter _linkedFooter;
         private bool _isUpdating;

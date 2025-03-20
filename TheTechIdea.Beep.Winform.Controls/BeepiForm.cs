@@ -27,18 +27,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         private readonly IBeepService beepservices;
         private bool ishandled = false;
         private bool _inpopupmode = false;
+        private string _title = "BeepiForm";
         // Panel to hold your actual content.
-      //private Panel contentPanel;
+        //private Panel contentPanel;
 
 
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
         protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
         private bool _applythemetochilds = true;
 
+        public event EventHandler OnFormClose;
+        public event EventHandler OnFormLoad;
+        public event EventHandler OnFormShown;
+        public event EventHandler<FormClosingEventArgs> PreClose;
 
 
         #endregion "Fields"
         #region "Properties"
+        [Browsable(true)]
+        [Category("Appearance")]
+        public string Title
+        {
+            get { return _title; }
+            set { _title = value; }
+        }
         [Browsable(true)]
         [Category("Appearance")]
         public bool ApplyThemeToChilds
@@ -514,6 +526,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                     adjustedHeight
                 );
             }
+        }
+
+      public void AddControl(Control control,string addiname)
+        {
+            // add control and adjust its size and position and bring to front
+            if (control == null)
+            {
+                return;
+            }
+            if (control == this)
+            {
+                return;
+            }
+
+            Controls.Add(control);
+            control.BringToFront();
+            control.Dock = DockStyle.Fill;
+            Title = addiname;
+
         }
 
         public override Size GetPreferredSize(Size proposedSize)

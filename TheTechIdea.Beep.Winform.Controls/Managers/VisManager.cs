@@ -7,13 +7,14 @@ using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Utilities;
 
 using TheTechIdea.Beep.Winform.Controls.Managers.Wizards;
-using TheTechIdea.Beep.Winform.Controls.Template;
 
-using TheTechIdea.Beep.Vis.Logic;
+
+
 using System.Data;
 using System.Runtime.InteropServices;
 using BeepDialogResult = TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions;
 
 namespace TheTechIdea.Beep.Winform.Controls.Managers
 {
@@ -565,7 +566,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         private IDM_Addin ShowUserControlDialog(string formname, IDMEEditor pDMEEditor, string[] args, IPassedArgs e)
         {
             ErrorsandMesseges.Flag = Errors.Ok;
-            BeepForm form = new BeepForm();
+            BeepiForm form = new BeepiForm();
             // var path = Path.Combine(dllpath, dllname);
             IDM_Addin addin = null;
             if (e == null)

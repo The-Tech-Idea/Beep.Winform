@@ -1,7 +1,7 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Vis;
-using TheTechIdea.Beep.Vis.Logic;
+
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Editor;
 

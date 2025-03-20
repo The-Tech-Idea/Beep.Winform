@@ -4,8 +4,6 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.ConfigUtil;
-
-using TheTechIdea.Beep.Vis.Logic;
 using TheTechIdea.Beep.Editor;
 
 namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions

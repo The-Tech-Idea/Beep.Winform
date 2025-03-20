@@ -2,7 +2,7 @@
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Wizards;
-using TheTechIdea.Beep.Winform.Controls.Template;
+
 using Label = System.Windows.Forms.Label;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.ConfigUtil;
@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers.Wizards
             Nodes = new LinkedList<IWizardNode>();
             DMEEditor = pDMEEditor;
             visManager = pvisManager;
-            WizardParentForm = new BeepForm();
+            WizardParentForm = new BeepiForm();
             ColorsTemplate=new ColorTemplate();
             ColorsTemplate.ForColor = Color.White;
             ColorsTemplate.BackColor = Color.SteelBlue;
@@ -378,14 +378,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers.Wizards
         private Button HomeNavButton = new Button();
         private Button ExitButton = new Button();
         private Panel DisplayPanel = new Panel();
-        private BeepForm WizardParentForm;
+        private BeepiForm WizardParentForm;
         private Label TitleLabel = new Label();
         private Label DescriptionLabel = new Label();
         private Panel HilightPanel = new Panel();
 
         public void InitWizardForm()
         {
-            WizardParentForm=new BeepForm();
+            WizardParentForm=new BeepiForm();
             FooterPanel = new Panel();
             SidePanel = new Panel();
             NextButton = new Button();

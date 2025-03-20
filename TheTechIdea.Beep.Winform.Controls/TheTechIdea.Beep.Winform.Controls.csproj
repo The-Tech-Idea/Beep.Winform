@@ -386,7 +386,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.0" />
     <PackageReference Include="Svg" Version="3.4.7" />
-    <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.42" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.39" />
   </ItemGroup>
   <ItemGroup>
@@ -397,7 +396,6 @@
     <Compile Update="Containers\uc_Container.cs" />
     <Compile Update="BeepBindingNavigator.cs" />
     <Compile Update="Grid\BeepGrid.cs" />
-    <Compile Update="MainForm\uc_MainSplitPanel.cs" />
     <Compile Update="Managers\Wizards\Frm_Wizard.cs" />
     <Compile Update="BeepCheckBox.cs" />
     <Compile Update="BeepProgressBar.cs">
@@ -413,7 +411,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Update="Template\BeepForm.cs" />
     <Compile Update="BeepWait.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -432,8 +429,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Design\" />
     <Folder Include="GFX\PNG\" />
-    <Folder Include="Models\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Totals\" />
   </ItemGroup>
@@ -442,8 +439,7 @@
     <EmbeddedResource Include="GFX\SVG\square-plus.svg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TheTechIdea.Beep.Vis.Logic\TheTechIdea.Beep.Vis.Logic.csproj" />
+    <ProjectReference Include="..\..\Beep.Containers\Beep.Containers.Models\TheTechIdea.Beep.Container.Model.csproj" />
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
-    <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Desktop.Common.csproj" />
   </ItemGroup>
 </Project>

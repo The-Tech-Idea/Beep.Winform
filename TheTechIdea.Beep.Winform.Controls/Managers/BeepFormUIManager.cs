@@ -1,9 +1,9 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using System.ComponentModel;
 using System.ComponentModel.Design;
-using TheTechIdea.Beep.Desktop.Common;
-using System.Diagnostics;
-using TheTechIdea.Beep.Desktop.Common.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models;
+
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Managers

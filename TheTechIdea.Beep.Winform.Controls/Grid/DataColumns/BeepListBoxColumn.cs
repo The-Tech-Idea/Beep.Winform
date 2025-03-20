@@ -3,7 +3,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls;
-using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Winform.Controls.Models;
 using System.ComponentModel; // Ensure correct namespace for BeepListBox
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns

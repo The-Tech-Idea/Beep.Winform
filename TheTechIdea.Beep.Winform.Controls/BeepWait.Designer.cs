@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Controls
+﻿using TheTechIdea.Beep.Winform.Controls.Models;
+
+namespace TheTechIdea.Beep.Winform.Controls
 {
     partial class BeepWait
     {
@@ -101,7 +103,7 @@
             Title.InactiveBackColor = Color.Gray;
             Title.InactiveBorderColor = Color.Gray;
             Title.InactiveForeColor = Color.Black;
-            Title.Info = (Desktop.Common.SimpleItem)resources.GetObject("Title.Info");
+ 
             Title.IsAcceptButton = false;
             Title.IsBorderAffectedByTheme = true;
             Title.IsCancelButton = false;
@@ -223,7 +225,7 @@
             LogopictureBox.InactiveBackColor = Color.Gray;
             LogopictureBox.InactiveBorderColor = Color.Gray;
             LogopictureBox.InactiveForeColor = Color.Black;
-            LogopictureBox.Info = (Desktop.Common.SimpleItem)resources.GetObject("LogopictureBox.Info");
+       
             LogopictureBox.IsAcceptButton = false;
             LogopictureBox.IsBorderAffectedByTheme = true;
             LogopictureBox.IsCancelButton = false;
@@ -344,7 +346,7 @@
             beepLabel1.InactiveBackColor = Color.Gray;
             beepLabel1.InactiveBorderColor = Color.Gray;
             beepLabel1.InactiveForeColor = Color.Black;
-            beepLabel1.Info = (Desktop.Common.SimpleItem)resources.GetObject("beepLabel1.Info");
+          
             beepLabel1.IsAcceptButton = false;
             beepLabel1.IsBorderAffectedByTheme = true;
             beepLabel1.IsCancelButton = false;
@@ -467,7 +469,7 @@
             beepLabel2.InactiveBackColor = Color.Gray;
             beepLabel2.InactiveBorderColor = Color.Gray;
             beepLabel2.InactiveForeColor = Color.Black;
-            beepLabel2.Info = (Desktop.Common.SimpleItem)resources.GetObject("beepLabel2.Info");
+         
             beepLabel2.IsAcceptButton = false;
             beepLabel2.IsBorderAffectedByTheme = true;
             beepLabel2.IsCancelButton = false;
@@ -595,7 +597,7 @@
             messege.InactiveBackColor = Color.Gray;
             messege.InactiveBorderColor = Color.Gray;
             messege.InactiveForeColor = Color.Black;
-            messege.Info = (Desktop.Common.SimpleItem)resources.GetObject("messege.Info");
+           
             messege.IsAcceptButton = false;
             messege.IsBorderAffectedByTheme = false;
             messege.IsCancelButton = false;
@@ -728,7 +730,7 @@
             _spinnerImage.InactiveBackColor = Color.Gray;
             _spinnerImage.InactiveBorderColor = Color.Gray;
             _spinnerImage.InactiveForeColor = Color.Black;
-            _spinnerImage.Info = (Desktop.Common.SimpleItem)resources.GetObject("_spinnerImage.Info");
+           
             _spinnerImage.IsAcceptButton = false;
             _spinnerImage.IsBorderAffectedByTheme = true;
             _spinnerImage.IsCancelButton = false;

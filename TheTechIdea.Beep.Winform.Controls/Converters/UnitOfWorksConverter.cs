@@ -67,7 +67,7 @@ public class UnitOfWorksConverter : TypeConverter
        // Console.WriteLine($"Checking type: {type?.Name}");
         return type != null &&
                (type == typeof(IUnitofWork) ||
-                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(UnitofWork<>)) ||
+                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IUnitofWork<>)) ||
                 type.GetInterfaces().Any(i => i == typeof(IUnitofWork) ||
                                               (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IUnitofWork<>))));
     }

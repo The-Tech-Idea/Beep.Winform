@@ -4,16 +4,16 @@ using System.Xml.Linq;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
-using TheTechIdea.Beep.Desktop.Common;
-using TheTechIdea.Beep.Desktop.Common.Helpers;
+
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
-using TheTechIdea.Beep.Vis.Logic;
+
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
-using static TheTechIdea.Beep.Utilities.Util;
+using static TheTechIdea.Beep.Winform.Controls.Helpers.ControlExtensions;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
@@ -119,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         {
             try
             {
-                ControlExtensions.RunFunctionFromExtensions(this, branch, MethodName);
+                DynamicFunctionCallingManager.RunFunctionFromExtensions(this, branch, MethodName);
 
             }
             catch (Exception ex)

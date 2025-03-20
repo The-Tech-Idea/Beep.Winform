@@ -6,12 +6,13 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Beep.Desktop.Common;
+
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Shared;
-using TheTechIdea.Beep.Vis.Logic;
+
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Grid.DataColumns; // If your code references it
+using TheTechIdea.Beep.Winform.Controls.Grid.DataColumns;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models; // If your code references it
 
 namespace TheTechIdea.Beep.Winform.Controls.Grid
 {

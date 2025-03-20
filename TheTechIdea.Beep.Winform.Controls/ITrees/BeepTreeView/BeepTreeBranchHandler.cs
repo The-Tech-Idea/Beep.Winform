@@ -3,7 +3,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.DataView;
-using TheTechIdea.Beep.Desktop.Common;
+using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
@@ -249,7 +249,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 }
                 if (CategoryBranch.BranchType == EnumPointType.Entity && CategoryBranch.BranchClass == "VIEW" && CurrentBranch.BranchClass == "VIEW" && CategoryBranch.DataSourceName == CurrentBranch.DataSourceName)
                 {
-                    DataViewDataSource vds = (DataViewDataSource)DMEEditor.GetDataSource(CurrentBranch.DataSourceName);
+                    IDataViewDataSource vds = (IDataViewDataSource)DMEEditor.GetDataSource(CurrentBranch.DataSourceName);
                     if (vds.Entities[vds.EntityListIndex(CategoryBranch.MiscID)].Id == vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId)
                     {
 
@@ -317,7 +317,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 }
                 if (ParentBranch.BranchType == EnumPointType.Entity && ParentBranch.BranchClass == "VIEW" && CurrentBranch.BranchClass == "VIEW" && ParentBranch.DataSourceName == CurrentBranch.DataSourceName)
                 {
-                    DataViewDataSource vds = (DataViewDataSource)DMEEditor.GetDataSource(CurrentBranch.DataSourceName);
+                    IDataViewDataSource vds = (IDataViewDataSource)DMEEditor.GetDataSource(CurrentBranch.DataSourceName);
                     if (vds.Entities[vds.EntityListIndex(ParentBranch.MiscID)].Id == vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId)
                     {
 

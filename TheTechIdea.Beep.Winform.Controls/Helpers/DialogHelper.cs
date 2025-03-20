@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Desktop.Common;
-using Autofac.Features.OwnedInstances;
 
-namespace TheTechIdea.Beep.Winform.Controls
+using TheTechIdea.Beep.Winform.Controls.Models;
+
+namespace TheTechIdea.Beep.Winform.Controls.Helpers
 {
     public static class DialogHelper
     {

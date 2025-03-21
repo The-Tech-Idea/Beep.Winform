@@ -194,10 +194,67 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Dictionary<int, bool> _persistentSelectedRows = new Dictionary<int, bool>(); // Add this field to track selection by RowID
         private object _dataSource;
         object finalData;
+        private bool _isInitializing = true; // Flag to track initialization
+        private object _pendingDataSource; // Store DataSource until initialization is complete
         private List<object> _fullData;
         Type _entityType;
         private int _dataOffset = 0;
-        public IEntityStructure Entity { get; set; }
+        private string entityname;
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool IsInitializing
+        {
+            get => _isInitializing;
+            set => _isInitializing = value;
+        }
+        [Browsable(true)]
+        [Category("Data")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public string EntityName
+        {
+            get => entityname;
+            set
+            {
+                entityname = value;
+                //if (!string.IsNullOrEmpty(entityname))
+                //{
+                //    _entityType = Type.GetType(entityname);
+                //}
+            }
+        }
+        private EntityStructure _entity;
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public EntityStructure Entity
+        {
+            get => _entity;
+            set
+            {
+                SendLog("1 Entity Setter: " + value?.EntityName);
+                _entity = value;
+                if (_entity != null)
+                {
+                   
+                    SendLog("2 Entity Setter: " + _entity.EntityName);
+                    if (!string.IsNullOrEmpty(_entity.EntityName))
+                    {
+                        try
+                        {
+                            entityname = _entity.EntityName;
+                            SendLog("3 Entity Setter: " + _entity.EntityName);
+                            _entityType = Type.GetType(_entity.EntityName);
+                        }
+                        catch (Exception)
+                        {
+                            SendLog("4 Entity Setter: " + _entity.EntityName);
+
+                        }
+                       
+                    }
+                    
+                }
+            }
+        }
 
         [Browsable(true)]
         [Category("Data")]
@@ -209,12 +266,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _dataSource;
             set
             {
-                _dataSource = value;
-                DataSetup();
-                InitializeData();
-                FillVisibleRows();
-                UpdateScrollBars();
-                Invalidate();
+                SendLog($"DataSource Setter: Type = {value?.GetType()?.Name}, DesignMode = {DesignMode}, IsInitializing = {_isInitializing}");
+                if (_isInitializing)
+                {
+                    _pendingDataSource = value; // Defer setting until initialization is complete
+                    SendLog("Deferring DataSource setup until initialization completes");
+                }
+                else
+                {
+                    _dataSource = value;
+                    DataSetup();
+                    InitializeData();
+                    FillVisibleRows();
+                    UpdateScrollBars();
+                    Invalidate();
+                }
             }
         }
         public string QueryFunctionName { get; set; }
@@ -242,16 +308,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             set
             {
-                //   SendLog($"Columns Setter: Count = {value?.Count}, DesignMode = {DesignMode}");
-                if (value != null && value != _columns)
-                {
+                  SendLog($"Columns Setter: Count = {value?.Count}, DesignMode = {DesignMode}");
+
+                    SendLog("Columns set via property, marking as designer-configured");
                     _columns = value;
+                if (_columns != null)
+                {
                     if (_columns.Any())
                     {
                         columnssetupusingeditordontchange = true;
-                        //     SendLog("Columns set via property, marking as designer-configured");
+
                     }
+
                 }
+
                 UpdateScrollBars();
                 Invalidate();
             }
@@ -621,7 +691,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             SetStyle(ControlStyles.Selectable | ControlStyles.UserMouse , true);
             TabStop = true;
             this.Focus();
-
+            _isInitializing = true;
             this.PreviewKeyDown += BeepGrid_PreviewKeyDown;
 
             this.KeyDown += BeepSimpleGrid_KeyDown; 
@@ -1713,11 +1783,29 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion DataSource Update
         #region Initialization
-        private Tuple<object,IEntityStructure> SetupBindingSource()
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            if (_isInitializing)
+            {
+                SendLog("OnHandleCreated: Completing deferred initialization");
+                if (_pendingDataSource != null)
+                {
+                    _dataSource = _pendingDataSource;
+                    DataSetup();
+                    InitializeData();
+                    FillVisibleRows();
+                    UpdateScrollBars();
+                    Invalidate();
+                }
+                _isInitializing = false; // Initialization complete
+            }
+        }
+        private Tuple<object,EntityStructure> SetupBindingSource()
         {
             object resolvedData = null; // Unified variable for final data or type resolution
                                         //  SendLog($"BindingSource Detected: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
-            IEntityStructure entity = null;
+            EntityStructure entity = null;
             if (DataSource == null)
             {
                 //   SendLog("BindingSource.DataSource is null, checking BindingSource.List");
@@ -1782,9 +1870,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DataSetup()
         {
-            IEntityStructure entity = null;
+            EntityStructure entity = null;
             object resolvedData = null; // Unified variable for final data or type resolution
-           SendLog($"DataSetup Started: _dataSource Type = {_dataSource?.GetType()}, DesignMode = {DesignMode}, Columns Count = {_columns.Count}");
+           SendLog($"DataSetup Started: _dataSource Type = {_dataSource?.GetType()}, DesignMode = {DesignMode},");
 
             // Step 1: Handle different _dataSource types
             if (_dataSource == null)
@@ -1813,7 +1901,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting auto-detection");
+                SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting auto-detection");
                 resolvedData = GetCollectionPropertyFromInstance(_dataSource) ?? _dataSource;
             }
             if (resolvedData == null)
@@ -1824,7 +1912,7 @@ SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting a
             {
                 finalData = dt;
 
-                    entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
+                entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
             }
             else if (resolvedData is IList list && list.Count > 0)
             {
@@ -1848,15 +1936,15 @@ SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting a
                 finalData = resolvedData;
                 entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
             }
-          
 
+            if (_columns == null) _columns = new List<BeepColumnConfig>();
             //Step 3: Process entity and columns
             if (entity != null)
             {
-              SendLog($"New Entity: {entity.EntityName}, Existing Entity: {Entity?.EntityName}, Columns Count = {_columns.Count}");
+              SendLog($"New Entity: {entity.EntityName}, Existing Entity: {EntityName}");
                 if (_columns.Any() )
                 {
-                    if (Entity != null && entity.EntityName.Equals(Entity.EntityName))
+                    if (!string.IsNullOrEmpty(EntityName) && entity.EntityName.Equals(EntityName))
                     {
                         SendLog("Preserving designer Columns, syncing fields");
                       //  SyncFields(entity);
@@ -1866,7 +1954,7 @@ SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting a
                     {
                         SendLog("New Entity with designer Columns, updating Entity only");
                         Entity = entity;
-                        CreateColumnsForEntity();
+                       CreateColumnsForEntity();
                     }
                 }
                 else
@@ -1876,9 +1964,11 @@ SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting a
                     CreateColumnsForEntity();
                 }
             }
-            else if (_columns.Any() && columnssetupusingeditordontchange)
+            else 
             {
-               SendLog("No new Entity, keeping designer Columns");
+                _columns=new List<BeepColumnConfig>();
+                Entity = null;
+                SendLog("No new Entity, keeping designer Columns");
             }
 
             SendLog($"DataSetup Completed: finalData = {finalData?.GetType()}, Entity = {Entity?.EntityName}, Columns Count = {_columns.Count}");
@@ -2257,7 +2347,7 @@ SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting a
         }
         private void InitializeData()
         {// Determine _entityType from finalData before wrapping
-            _entityType = null;
+           
            
             // Wrap _fullData objects with RowID
             _fullData = finalData is IEnumerable<object> enumerable ? enumerable.ToList() : new List<object>();
@@ -2266,7 +2356,7 @@ SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting a
                 if (_fullData.Count > 0)
                 {
                     var firstItem1 = _fullData.First();
-                    if (firstItem1 != null)
+                    if (firstItem1 != null && _entityType==null)
                     {
                         _entityType = firstItem1.GetType();
                         SendLog($"InitializeData: Determined _entityType from first item in finalData: {_entityType.FullName}");
@@ -3546,6 +3636,11 @@ SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting a
                         var cellRect = new Rectangle(stickyX, displayY, stickyCol.Width, RowHeight);
                         Color backcolor = cell.RowIndex == _currentRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
                         PaintCell(g, cell, cellRect, backcolor);
+                        // set cell coordinates and size in cell
+                        cell.X = cellRect.X;
+                        cell.Y = cellRect.Y;
+                        cell.Width = cellRect.Width;
+                        cell.Height = cellRect.Height;
                         if (!row.IsAggregation) yOffset += _rowHeight; // Only increment yOffset for non-aggregation rows
                     }
                     yOffset = bounds.Top;
@@ -3598,7 +3693,11 @@ SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting a
                 var cellRect = new Rectangle(cell.X, cell.Y, cell.Width, cell.Height);
                 Color backcolor = cell.RowIndex == _currentRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
                 PaintCell(g, cell, cellRect, backcolor);
-
+                // set cell coordinates and size in cell
+                cell.X = cellRect.X;
+                cell.Y = cellRect.Y;
+                cell.Width = cellRect.Width;
+                cell.Height = cellRect.Height;
                 xOffset += Columns[i].Width;
                 if (xOffset >= rightBoundary && xOffset < rowRect.Left + totalScrollableWidth)
                     rightBoundary = Math.Min(rowRect.Left + totalScrollableWidth, rowRect.Right); // Extend boundary if within scrollable range
@@ -4766,6 +4865,8 @@ SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting a
             }
             _editingCell = null;
             IsEditorShown = false;
+            SendLog("Popup editor closed successfully.");
+            EditorClosed?.Invoke(this, EventArgs.Empty); // Raise the event
             Invalidate(); // Redraw grid after editor closes
         }
         // One editor control per column (keyed by column index)
@@ -4899,6 +5000,8 @@ SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting a
 
              //   SendLog("Popup editor closed successfully.");
             }
+            SendLog("Popup editor closed successfully.");
+            EditorClosed?.Invoke(this, EventArgs.Empty); // Raise the event
             IsEditorShown = false;
         }
         private void SaveEditedValue()
@@ -4998,6 +5101,7 @@ SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting a
             }
             else
             {
+                if (_columns == null) return;
                 CloseCurrentEditorIn();
                 if (_selectedCell != null)
                 {
@@ -5007,6 +5111,7 @@ SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting a
                     {
                         DataNavigator.BindingSource.Position = _currentRow.DisplayIndex;
                     }
+                    if (_columns == null) return;
                     if (!_columns[_selectedCell.ColumnIndex].ReadOnly && _columns[_selectedCell.ColumnIndex].CellEditor!= BeepColumnType.Image  )
                     {
                         ShowCellEditorIn(_selectedCell, e.Location);
@@ -5016,6 +5121,8 @@ SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting a
         }
         #endregion Editor
         #region Events
+        // Add an event for editor closing
+        public event EventHandler EditorClosed;
         public event EventHandler<BeepCellSelectedEventArgs> CurrentCellChanged;
         public event EventHandler<BeepRowSelectedEventArgs> CurrentRowChanged;
         public event EventHandler<BeepCellEventArgs> CellValueChanged;

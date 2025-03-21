@@ -84,7 +84,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.Dock = DockStyle.Fill;
             beepSimpleGrid1.DrawingRect = new Rectangle(1, 1, 1030, 681);
             beepSimpleGrid1.Easing = Winform.Controls.EasingType.Linear;
-            beepSimpleGrid1.Entity = null;
+            beepSimpleGrid1.EntityName = "ConnectionDriversConfig";
             beepSimpleGrid1.FieldID = null;
             beepSimpleGrid1.FocusBackColor = Color.White;
             beepSimpleGrid1.FocusBorderColor = Color.Gray;
@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepSimpleGrid1.GradientEndColor = Color.FromArgb(230, 230, 230);
             beepSimpleGrid1.GradientStartColor = Color.White;
-            beepSimpleGrid1.GuidID = "a26279e6-a48d-4861-b7a9-dc3c63da8402";
+            beepSimpleGrid1.GuidID = "01ab1f67-9171-4859-b5cb-5bd86c4d7176";
             beepSimpleGrid1.HoverBackColor = Color.FromArgb(230, 230, 230);
             beepSimpleGrid1.HoverBorderColor = Color.FromArgb(0, 120, 215);
             beepSimpleGrid1.HoveredBackcolor = Color.Wheat;

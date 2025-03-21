@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
+﻿using System.ComponentModel;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
+    [ToolboxBitmap(typeof(BeepChart), "BeepChart.bmp")]
+    [Description("A custom chart control for WinForms.")]
+    [DefaultProperty("DataSeries")]
+    [DisplayName("BeepChart")]
+    [Category("Beep Controls")]
     public class BeepChart : BeepControl
     {
         #region Fields and Properties

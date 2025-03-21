@@ -289,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CloseButton.RightoffsetForDrawingRect = 0;
             CloseButton.SavedGuidID = null;
             CloseButton.SavedID = null;
-            CloseButton.SelectedBorderColor = Color.Blue;
+           
             CloseButton.SelectedIndex = -1;
             CloseButton.SelectedItem = null;
             CloseButton.ShadowColor = Color.Black;
@@ -556,7 +556,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             MiddleButton.RightoffsetForDrawingRect = 0;
             MiddleButton.SavedGuidID = null;
             MiddleButton.SavedID = null;
-            MiddleButton.SelectedBorderColor = Color.Blue;
+        
             MiddleButton.SelectedIndex = -1;
             MiddleButton.SelectedItem = null;
             MiddleButton.ShadowColor = Color.Black;
@@ -688,7 +688,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RightButton.RightoffsetForDrawingRect = 0;
             RightButton.SavedGuidID = null;
             RightButton.SavedID = null;
-            RightButton.SelectedBorderColor = Color.Blue;
+            
             RightButton.SelectedIndex = -1;
             RightButton.SelectedItem = null;
             RightButton.ShadowColor = Color.Black;
@@ -820,7 +820,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LeftButton.RightoffsetForDrawingRect = 0;
             LeftButton.SavedGuidID = null;
             LeftButton.SavedID = null;
-            LeftButton.SelectedBorderColor = Color.Blue;
+          
             LeftButton.SelectedIndex = -1;
             LeftButton.SelectedItem = null;
             LeftButton.ShadowColor = Color.Black;

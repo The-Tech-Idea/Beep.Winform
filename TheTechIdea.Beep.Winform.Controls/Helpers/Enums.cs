@@ -13,4 +13,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         Left,
         Right
     }
+    public enum ButtonShape
+    {
+        Rectangle,
+        Circle,
+        RoundedRectangle,
+        Ellipse
+    }
+
+    public enum TextLocation
+    {
+        Above,
+        Below,
+        Left,
+        Right,
+        Inside
+    }
+
 }

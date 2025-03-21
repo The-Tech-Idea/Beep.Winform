@@ -15,7 +15,7 @@ using TheTechIdea.Beep.Winform.Default.Views.Template;
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
     [AddinAttribute(Caption = "Connection Drivers", Name = "uc_ConnectionDrivers", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.InControl, ObjectType = "Beep")]
-    [AddinVisSchema(BranchID = 3, RootNodeName = "Configuration", Order = 3, ID = 3, BranchText = "Connection Drivers", BranchType = EnumPointType.Function, IconImageName = "driversconfig.png", BranchClass = "ADDIN", BranchDescription = "Data Sources Connection Drivers Setup Screen")]
+    [AddinVisSchema(BranchID = 3, RootNodeName = "Configuration", Order = 3, ID = 3, BranchText = "Connection Drivers", BranchType = EnumPointType.Function, IconImageName = "drivers.svg", BranchClass = "ADDIN", BranchDescription = "Data Sources Connection Drivers Setup Screen")]
 
     public partial class uc_ConnnectionDrivers : TemplateUserControl, IAddinVisSchema
     {
@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public int Level { get; set; }
         public EnumPointType BranchType { get; set; } = EnumPointType.Entity;
         public int BranchID { get; set; } = 3;
-        public string IconImageName { get; set; } = "connectiondrivers.ico";
+        public string IconImageName { get; set; } = "drivers.svg";
         public string BranchStatus { get; set; }
         public int ParentBranchID { get; set; }
         public string BranchDescription { get; set; } = "Data Sources Connection Drivers Setup Screen";

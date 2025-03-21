@@ -32,6 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _grid.DataSource;
             set
             {
+                _grid.IsInitializing = false;
                 _grid.DataSource = value;
                 AdjustSize();
             }
@@ -59,6 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<object> RowSelected;
         protected virtual void OnRowSelected(object selectedRow)
         {
+
             RowSelected?.Invoke(this, selectedRow);
         }
         #endregion
@@ -110,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 SelectedRowData = e.Row.RowData;
                 OnRowSelected(SelectedRowData);
-                _grid.Dispose();
+              //  _grid.Dispose();
                 this.Close();
             }
         }

@@ -1,8 +1,9 @@
-﻿
-using System.ComponentModel;
-//
+﻿using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -24,16 +25,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Properties
 
         private Type _currentRowType;
+        private Panel _mainPanel; // Main container
         private TableLayoutPanel _tableLayout;
         private int _fieldCount;
         private object _originalDataRecord;
         public bool AutoSave { get; set; } = false;
         private bool _isdirty = false;
+
         public bool IsDirty
         {
             get { _isdirty = RecordStatus == RecordStatus.Updated; return _isdirty; }
             set { _isdirty = value; }
-        
         }
 
         private Dictionary<string, object> _originalValues = new Dictionary<string, object>();
@@ -43,7 +45,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Category("Data")]
         public string DataRecordType { get; private set; }
-
 
         private RecordStatus _recordStatus = RecordStatus.Unchanged;
 
@@ -114,7 +115,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<RecordStatus> RecordStatusChanged;
         public event EventHandler<IBeepUIComponent> OnFieldCreated;
 
-
         #endregion
 
         #region Constructor
@@ -123,12 +123,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InitializeComponent();
             this.AutoScroll = false;
-           
         }
 
         public BeepDataRecord(object row, bool isNew = false) : this()
         {
-           // Console.WriteLine("BeepDataRecord Constructor");
             SetDataRecord(row, isNew);
         }
 
@@ -136,15 +134,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _fields = new List<IBeepUIComponent>();
 
+            _mainPanel = new Panel // Replace with BeepPanel if available
+            {
+                Dock = DockStyle.Fill,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                BackColor = _currentTheme?.PanelBackColor ?? Color.White
+            };
+            Controls.Add(_mainPanel);
+
             _tableLayout = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                AutoSize = false,
-                AutoSizeMode = AutoSizeMode.GrowOnly,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 AutoScroll = false
             };
+            _mainPanel.Controls.Add(_tableLayout);
 
-            Controls.Add(_tableLayout);
+            ApplyTheme();
         }
 
         #endregion
@@ -154,30 +162,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void SetDataRecord(object row, bool isNew = false)
         {
             if (row == null) return;
-           // Console.WriteLine("SetDataRecord 1");
+
             if (_currentRowType == row.GetType())
             {
-               // Console.WriteLine("SetDataRecord 2");
                 DataRecord = row;
                 BindDataRecord();
             }
             else
             {
-               // Console.WriteLine("SetDataRecord 3");
                 _currentRowType = row.GetType();
                 DataRecord = row;
                 GenerateFieldsFromDataRecord();
             }
-           // Console.WriteLine("SetDataRecord 4");
-            _originalDataRecord = EntityHelper.DeepCopyUsingSerialize(row); // Store the original copy
-           // Console.WriteLine("SetDataRecord 5");
-            // Store original field values
+
+            _originalDataRecord = EntityHelper.DeepCopyUsingSerialize(row);
             _originalValues.Clear();
             foreach (var prop in row.GetType().GetProperties())
             {
                 _originalValues[prop.Name] = prop.GetValue(row);
             }
-           // Console.WriteLine("SetDataRecord 6");
             RecordStatus = isNew ? RecordStatus.New : RecordStatus.Unchanged;
         }
 
@@ -185,10 +188,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_originalDataRecord != null)
             {
-                SetDataRecord(EntityHelper.DeepCopyUsingSerialize(_originalDataRecord)); // Restore original
+                SetDataRecord(EntityHelper.DeepCopyUsingSerialize(_originalDataRecord));
             }
         }
-
 
         public void BindDataRecord()
         {
@@ -241,10 +243,28 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             foreach (var prop in properties)
             {
-               // Console.WriteLine("GenerateFieldsFromDataRecord 1");
                 IBeepUIComponent field = ControlExtensions.CreateFieldBasedOnCategory(prop.Name, prop.PropertyType);
                 if (field != null)
                 {
+                    // Configure the control
+                    field.ComponentName = prop.Name;
+                    field.BoundProperty = prop.Name;
+                  
+                    if (field is BeepTextBox textBox)
+                    {
+                        textBox.ShowAllBorders = false;
+                    }
+                    else if (field is BeepComboBox comboBox && prop.PropertyType.IsEnum)
+                    {
+                        // Populate combo box with enum values if applicable
+                        comboBox.ListItems = new BindingList<SimpleItem>(
+                            Enum.GetValues(prop.PropertyType)
+                                .Cast<object>()
+                                .Select(e => new SimpleItem { Text = e.ToString(), Value = e })
+                                .ToList()
+                        );
+                    }
+
                     field.OnValueChanged += Field_OnValueChanged;
                     field.OnValidate += Field_OnValidate;
                     field.OnSelected += Field_OnSelected;
@@ -252,12 +272,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     field.Theme = Theme;
                     field.ApplyTheme();
 
-                    OnFieldCreated?.Invoke(this, field); // 🔹 Allows external customization
-
+                    OnFieldCreated?.Invoke(this, field);
                     _fields.Add(field);
                 }
             }
-            FieldCount=Fields.Count;
+            FieldCount = Fields.Count;
             UpdateLayout();
             BindDataRecord();
         }
@@ -265,6 +284,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Layout Management
+
         public void UpdateLayout()
         {
             if (_tableLayout == null) return;
@@ -286,11 +306,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SetupVerticalLayout();
 
             _tableLayout.ResumeLayout(true);
+            _mainPanel.Invalidate();
         }
 
-        /// <summary>
-        /// Sets up a layout where labels are above fields (if ShowFieldPrompts = true).
-        /// </summary>
         private void SetupHorizontalLayout()
         {
             int columns = FieldCount;
@@ -299,63 +317,62 @@ namespace TheTechIdea.Beep.Winform.Controls
             _tableLayout.ColumnCount = columns;
             _tableLayout.RowCount = rows;
 
-            // Define column styles (equal distribution)
             for (int i = 0; i < columns; i++)
                 _tableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / columns));
 
-            // Define row styles (label row + field row)
             for (int i = 0; i < rows; i++)
                 _tableLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
             int fieldIndex = 0;
-            for (int col = 0; col < columns; col++)
+            for (int col = 0; col < columns && fieldIndex < _fields.Count; col++)
             {
-                if (fieldIndex >= _fields.Count)
-                    break;
-
                 var field = _fields[fieldIndex];
-
                 if (field is Control control)
                 {
+                    control.Dock = DockStyle.Fill;
                     if (ShowFieldPrompts)
                     {
                         var label = CreateFieldLabel(field);
-                        _tableLayout.Controls.Add(label, col, 0);  // Add label to row 0
-                        _tableLayout.Controls.Add(control, col, 1); // Add field to row 1
+                        _tableLayout.Controls.Add(label, col, 0);
+                        _tableLayout.Controls.Add(control, col, 1);
                     }
                     else
                     {
-                        _tableLayout.Controls.Add(control, col, 0); // Add field directly if no labels
+                        _tableLayout.Controls.Add(control, col, 0);
                     }
                 }
-
                 fieldIndex++;
             }
         }
 
-        /// <summary>
-        /// Sets up a layout where labels are to the left of fields (if ShowFieldPrompts = true).
-        /// </summary>
         private void SetupVerticalLayout()
         {
             int columns = ShowFieldPrompts ? 2 : 1;
             int rows = _fields.Count;
 
+            _mainPanel.Controls.Clear();
+            _tableLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                AutoScroll = false
+            };
+            _mainPanel.Controls.Add(_tableLayout);
+
             _tableLayout.ColumnCount = columns;
             _tableLayout.RowCount = rows;
 
-            // Define column styles
             if (ShowFieldPrompts)
             {
-                _tableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150f)); // Fixed width for labels
-                _tableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f)); // Fields take remaining space
+                _tableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150f));
+                _tableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
             }
             else
             {
-                _tableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f)); // Fields take full width
+                _tableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
             }
 
-            // Define row styles (one per field)
             for (int i = 0; i < rows; i++)
                 _tableLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
@@ -364,24 +381,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (field is Control control)
                 {
+                    control.Dock = DockStyle.Fill;
                     if (ShowFieldPrompts)
                     {
                         var label = CreateFieldLabel(field);
-                        _tableLayout.Controls.Add(label, 0, row);  // Add label to column 0
-                        _tableLayout.Controls.Add(control, 1, row); // Add field to column 1
+                        _tableLayout.Controls.Add(label, 0, row);
+                        _tableLayout.Controls.Add(control, 1, row);
                     }
                     else
                     {
-                        _tableLayout.Controls.Add(control, 0, row); // Add field directly if no labels
+                        _tableLayout.Controls.Add(control, 0, row);
                     }
                 }
                 row++;
             }
         }
 
-        /// <summary>
-        /// Handles cases where there are no fields to display.
-        /// </summary>
         private void SetupEmptyLayout()
         {
             _tableLayout.RowCount = 1;
@@ -389,32 +404,35 @@ namespace TheTechIdea.Beep.Winform.Controls
             _tableLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
             _tableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
 
-            var placeholder = new Label
+            var placeholder = new BeepLabel
             {
                 Text = "No fields available",
                 TextAlign = ContentAlignment.MiddleCenter,
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                Theme = Theme
             };
+            placeholder.ApplyTheme();
             _tableLayout.Controls.Add(placeholder, 0, 0);
         }
 
-        /// <summary>
-        /// Creates a label for a field, using the ComponentName or FieldPrompts.
-        /// </summary>
-        private Label CreateFieldLabel(IBeepUIComponent field)
+        private BeepLabel CreateFieldLabel(IBeepUIComponent field)
         {
-            return new Label
+            var label = new BeepLabel
             {
                 Text = FieldPrompts.ContainsKey(field.ComponentName)
                     ? FieldPrompts[field.ComponentName]
                     : field.ComponentName.Replace("_", " "),
                 AutoSize = true,
                 TextAlign = ContentAlignment.MiddleLeft,
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                Theme = Theme
             };
+            label.ApplyTheme();
+            return label;
         }
 
         #endregion
+
         #region Event Handlers
 
         private void Field_OnValueChanged(object sender, BeepComponentEventArgs e)
@@ -442,7 +460,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (propInfo != null)
                 {
                     propInfo.SetValue(DataRecord, _originalValues[fieldName]);
-                    BindDataRecord(); // Refresh UI
+                    BindDataRecord();
                 }
             }
         }
@@ -462,39 +480,35 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool isValid = true;
             foreach (var field in _fields)
             {
-                if (field is IBeepUIComponent component)
+                if (field.IsRequired && string.IsNullOrEmpty(field.GetValue()?.ToString()))
                 {
-                    if (component.IsRequired && string.IsNullOrEmpty(component.GetValue()?.ToString()))
-                    {
-                        isValid = false;
-                        field.BorderColor = Color.Red;  // Highlight required field
-                        field.ShowToolTip("This field is required.");
-                    }
-                    else
-                    {
-                        field.BorderColor = Color.Gray;
-                        field.HideToolTip();
-                    }
+                    isValid = false;
+                    field.BorderColor = Color.Red;
+                    field.ShowToolTip("This field is required.");
+                }
+                else
+                {
+                    field.BorderColor = Color.Gray;
+                    field.HideToolTip();
                 }
             }
-
             RecordValidated?.Invoke(this, isValid);
         }
 
-
         #endregion
+
         #region IEditableObject Implementation
 
         public void BeginEdit()
         {
-            _originalDataRecord = EntityHelper.DeepCopyUsingSerialize(DataRecord); // Store the current state
+            _originalDataRecord = EntityHelper.DeepCopyUsingSerialize(DataRecord);
         }
 
         public void CancelEdit()
         {
             if (_originalDataRecord != null)
             {
-                SetDataRecord(EntityHelper.DeepCopyUsingSerialize(_originalDataRecord)); // Restore the backup
+                SetDataRecord(EntityHelper.DeepCopyUsingSerialize(_originalDataRecord));
                 _originalDataRecord = null;
             }
         }
@@ -507,5 +521,38 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion
 
+        #region Theme Application
+
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            _mainPanel.BackColor = _currentTheme.PanelBackColor;
+            _tableLayout.BackColor = _currentTheme.PanelBackColor;
+            foreach (var field in _fields)
+            {
+                field.Theme = Theme;
+                field.ApplyTheme();
+            }
+        }
+
+        #endregion
+
+        #region Disposal
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _tableLayout?.Dispose();
+                _mainPanel?.Dispose();
+                foreach (var field in _fields)
+                {
+                    if (field is Control control) control.Dispose();
+                }
+            }
+            base.Dispose(disposing);
+        }
+
+        #endregion
     }
 }

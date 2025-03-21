@@ -9,9 +9,6 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 
 using TheTechIdea.Beep.Vis.Modules;
-
-using TheTechIdea.Beep.Addin;
-
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 using System.Linq.Expressions;

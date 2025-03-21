@@ -168,46 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SelectedItem = null; // This will trigger the reset logic in the setter
         }
-        private void ToggleMenu()
-        {
-         
-            if (_isExpanded)
-                Collapse();
-            else
-                Expand();
-            SetDropDownButtonImage();
-        }
-        /// <summary>
-        /// Sets the dropdown button's image based on the expansion state.
-        /// </summary>
-        private void SetDropDownButtonImage()
-        {
-            if (_isExpanded)
-            {
-                _dropDownButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-up.svg";
-            }
-            else
-            {
-                _dropDownButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-down.svg";
-            }
-        }
-        private void Expand()
-        {
-            _isExpanded = true;
-            this.BringToFront();
-            if (IsPopupOpen)
-            {
-                TogglePopup();
-            }
-           
-        }
-
-        private void Collapse()
-        {
-            _isExpanded = false;
-            TogglePopup();
-        }
-
+    
         #region Resizing Logic
 
         protected override void OnResize(EventArgs e)
@@ -317,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
 
-                // Define areas for text and dropdown indicator
+                //// Define areas for text and dropdown indicator
                 int buttonWidth = _buttonWidth; // Use the control's button width
                 Rectangle textRect = new Rectangle(
                     rectangle.X + _padding,
@@ -325,11 +286,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     rectangle.Width - buttonWidth - (2 * _padding),
                     rectangle.Height - (2 * _padding));
 
-                Rectangle buttonRect = new Rectangle(
-                    rectangle.Right - buttonWidth - _padding,
-                    rectangle.Y + _padding,
-                    buttonWidth,
-                    rectangle.Height - (2 * _padding));
+                //Rectangle buttonRect = new Rectangle(
+                //    rectangle.Right - buttonWidth - _padding,
+                //    rectangle.Y + _padding,
+                //    buttonWidth,
+                //    rectangle.Height - (2 * _padding));
 
                 // Draw text (selected item or textbox content)
                 string textToDraw = _comboTextBox?.Text ?? SelectedItem?.Text ?? string.Empty;
@@ -344,35 +305,35 @@ namespace TheTechIdea.Beep.Winform.Controls
                         TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
                 }
 
-                // Draw dropdown indicator (simple triangle)
-                using (SolidBrush buttonBrush = new SolidBrush(_currentTheme.ButtonBackColor))
-                {
-                    graphics.FillRectangle(buttonBrush, buttonRect);
-                }
+                //// Draw dropdown indicator (simple triangle)
+                //using (SolidBrush buttonBrush = new SolidBrush(_currentTheme.ButtonBackColor))
+                //{
+                //    graphics.FillRectangle(buttonBrush, buttonRect);
+                //}
 
-                using (Pen arrowPen = new Pen(_currentTheme.ButtonForeColor, 2))
-                {
-                    PointF[] arrowPoints = _isExpanded
-                        ? new PointF[] // Up arrow
-                        {
-                    new PointF(buttonRect.X + buttonRect.Width / 4, buttonRect.Bottom - buttonRect.Height / 4),
-                    new PointF(buttonRect.X + buttonRect.Width / 2, buttonRect.Y + buttonRect.Height / 4),
-                    new PointF(buttonRect.Right - buttonRect.Width / 4, buttonRect.Bottom - buttonRect.Height / 4)
-                        }
-                        : new PointF[] // Down arrow
-                        {
-                    new PointF(buttonRect.X + buttonRect.Width / 4, buttonRect.Y + buttonRect.Height / 4),
-                    new PointF(buttonRect.X + buttonRect.Width / 2, buttonRect.Bottom - buttonRect.Height / 4),
-                    new PointF(buttonRect.Right - buttonRect.Width / 4, buttonRect.Y + buttonRect.Height / 4)
-                        };
-                    graphics.DrawLines(arrowPen, arrowPoints);
-                }
+                //using (Pen arrowPen = new Pen(_currentTheme.ButtonForeColor, 2))
+                //{
+                //    PointF[] arrowPoints = _isExpanded
+                //        ? new PointF[] // Up arrow
+                //        {
+                //    new PointF(buttonRect.X + buttonRect.Width / 4, buttonRect.Bottom - buttonRect.Height / 4),
+                //    new PointF(buttonRect.X + buttonRect.Width / 2, buttonRect.Y + buttonRect.Height / 4),
+                //    new PointF(buttonRect.Right - buttonRect.Width / 4, buttonRect.Bottom - buttonRect.Height / 4)
+                //        }
+                //        : new PointF[] // Down arrow
+                //        {
+                //    new PointF(buttonRect.X + buttonRect.Width / 4, buttonRect.Y + buttonRect.Height / 4),
+                //    new PointF(buttonRect.X + buttonRect.Width / 2, buttonRect.Bottom - buttonRect.Height / 4),
+                //    new PointF(buttonRect.Right - buttonRect.Width / 4, buttonRect.Y + buttonRect.Height / 4)
+                //        };
+                //    graphics.DrawLines(arrowPen, arrowPoints);
+                //}
 
-                // Draw button border
-                using (Pen buttonBorderPen = new Pen(_currentTheme.BorderColor, 1))
-                {
-                    graphics.DrawRectangle(buttonBorderPen, buttonRect);
-                }
+                //// Draw button border
+                //using (Pen buttonBorderPen = new Pen(_currentTheme.BorderColor, 1))
+                //{
+                //    graphics.DrawRectangle(buttonBorderPen, buttonRect);
+                //}
 
                 // Restore graphics state
                 graphics.Clip = originalClip;
@@ -410,7 +371,35 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Color tmpfillcolor;
         private Color tmpstrokecolor;
         private bool _isPopupOpen=false;
+        private void ToggleMenu()
+        {
 
+            if (_isExpanded)
+                Collapse();
+            else
+                Expand();
+            SetDropDownButtonImage();
+        }
+        /// <summary>
+        /// Sets the dropdown button's image based on the expansion state.
+        /// </summary>
+        private void SetDropDownButtonImage()
+        {
+            _dropDownButton.ImagePath = _isPopupOpen
+                ? "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-up.svg"
+                : "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-down.svg";
+        }
+        private void Expand()
+        {
+            if (!_isPopupOpen)
+                ShowPopup();
+        }
+
+        private void Collapse()
+        {
+            if (_isPopupOpen)
+                ClosePopup();
+        }
         private void TogglePopup()
         {
             if (_isPopupOpen)
@@ -420,31 +409,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void ShowPopup()
         {
-            if (_isPopupOpen) return;
-            if (ListItems.Count == 0)
-            {
+            if (_isPopupOpen || ListItems.Count == 0)
                 return;
-            }
-            menuDialog = new BeepPopupListForm(ListItems.ToList());
 
-            menuDialog.Theme = Theme;
-
+            menuDialog = new BeepPopupListForm(ListItems.ToList())
+            {
+                Theme = Theme
+            };
             menuDialog.SelectedItemChanged += MenuDialog_SelectedItemChanged;
-            SimpleItem x = menuDialog.ShowPopup(Text, this, BeepPopupFormPosition.Bottom);
+            menuDialog.ShowPopup(Text, this, BeepPopupFormPosition.Bottom);
             _isPopupOpen = true;
+            _isExpanded = true; // Sync state if still needed
             PopupOpened?.Invoke(this, EventArgs.Empty);
+            SetDropDownButtonImage();
         }
 
-        private void MenuDialog_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
-        {
-            SelectedItem = e.SelectedItem;
-     //       _comboTextBox.Text = e.SelectedItem.Text;
-        //    OnSelectedItemChanged(e.SelectedItem);
-            ClosePopup();
-        }
         public void ClosePopup()
         {
-            _isPopupOpen = false;
+            if (!_isPopupOpen)
+                return;
+
             if (menuDialog != null)
             {
                 menuDialog.SelectedItemChanged -= MenuDialog_SelectedItemChanged;
@@ -452,7 +436,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 menuDialog.Dispose();
                 menuDialog = null;
             }
+            _isPopupOpen = false;
+            _isExpanded = false; // Sync state if still needed
+            PopupClosed?.Invoke(this, EventArgs.Empty);
+            SetDropDownButtonImage();
         }
+        private void MenuDialog_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
+        {
+            SelectedItem = e.SelectedItem;
+     //       _comboTextBox.Text = e.SelectedItem.Text;
+        //    OnSelectedItemChanged(e.SelectedItem);
+            ClosePopup();
+        }
+    
         #endregion "Popup List Methods"
         protected override void OnParentChanged(EventArgs e)
         {

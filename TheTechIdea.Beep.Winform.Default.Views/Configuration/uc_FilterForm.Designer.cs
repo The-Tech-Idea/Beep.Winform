@@ -383,7 +383,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton2.RightoffsetForDrawingRect = 0;
             beepButton2.SavedGuidID = null;
             beepButton2.SavedID = null;
-            beepButton2.SelectedBorderColor = Color.Blue;
+          
             beepButton2.SelectedIndex = -1;
             beepButton2.SelectedItem = null;
             beepButton2.ShadowColor = Color.Black;

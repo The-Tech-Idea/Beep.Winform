@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Color tmpforcolor;
       
         #region "Popup List Properties"
-        private BeepPopupForm _popupForm;
+      //  private BeepPopupForm _popupForm;
 
         private bool _isPopupOpen;
         private bool _popupmode = false;
@@ -115,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _isPopupOpen = value;
-                if (_popupForm != null)
+                if (menuDialog != null)
                 {
                     if (_isPopupOpen)
                     {
@@ -222,28 +222,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
         }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public Color BorderColor
-        {
-            get => borderColor;
-            set
-            {
-                borderColor = value;
-                Invalidate();  // Trigger repaint
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public Color SelectedBorderColor
-        {
-            get => selectedBorderColor;
-            set
-            {
-                selectedBorderColor = value;
-                Invalidate();  // Trigger repaint
-            }
-        }
+        //[Browsable(true)]
+        //[Category("Appearance")]
+        //public Color BorderColor
+        //{
+        //    get => borderColor;
+        //    set
+        //    {
+        //        borderColor = value;
+        //        Invalidate();  // Trigger repaint
+        //    }
+        //}
+        //[Browsable(true)]
+        //[Category("Appearance")]
+        //public Color SelectedBorderColor
+        //{
+        //    get => selectedBorderColor;
+        //    set
+        //    {
+        //        selectedBorderColor = value;
+        //        Invalidate();  // Trigger repaint
+        //    }
+        //}
         [Browsable(true)]
         [Category("Appearance")]
         public TextImageRelation TextImageRelation
@@ -512,18 +512,30 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             menuDialog.SelectedItemChanged += MenuDialog_SelectedItemChanged;
            SimpleItem x = menuDialog.ShowPopup(Text, this, _beepPopupFormPosition);
-           
+            _isPopupOpen = true;
+            Invalidate();
         }
 
         private void MenuDialog_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
           SelectedItem = e.SelectedItem;
+
+        ClosePopup();
         }
         public void ClosePopup()
         {
-           
+
+            if (!_isPopupOpen) return;
+
+            if (menuDialog != null)
+            {
+                menuDialog.SelectedItemChanged -= MenuDialog_SelectedItemChanged;
+                menuDialog.Close();
+                menuDialog.Dispose();
+                menuDialog = null;
+            }
             _isPopupOpen = false;
-            if(menuDialog!=null)     menuDialog.Close();
+            Invalidate();
         }
         #endregion "Popup List Methods"
         #region "Theme"
@@ -545,7 +557,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.ButtonForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
-           
+          
 
           //  if (_beepListBox != null)   _beepListBox.Theme = Theme;
             if (UseThemeFont)
@@ -909,10 +921,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-            
+
             if (_popupmode)
             {
                 TogglePopup();
+            }
+            else if (beepImageHitTest != null && beepImageHitTest.TargetRect.Contains(e.Location))
+            {
+                // Image clicked, handled by BeepImage_MouseDown
             }
             else
             {
@@ -920,16 +936,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     IsSelected = !IsSelected;
                 }
-                if (IsSelected)
-                {
-                    ForeColor = _currentTheme.ButtonActiveForeColor;
-                    BackColor = _currentTheme.ButtonActiveBackColor;
-                }else
-                {
-                    ForeColor = _currentTheme.ButtonForeColor;
-                    BackColor = _currentTheme.ButtonBackColor;
-                }
-
+                Invalidate();
             }
         }
         #endregion "Mouse and Click"

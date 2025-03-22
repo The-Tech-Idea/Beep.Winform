@@ -3205,7 +3205,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
 
                 case BeepImage image:
-                    image.ImagePath = ImageListHelper.GetImagePathFromName(value.ToString());
+                    if (column.ParentColumnName != null)
+                    {
+                        BeepColumnConfig parentColumn = Columns.FirstOrDefault(c => c.ColumnName == column.ParentColumnName);
+                        if (parentColumn != null)
+                        {
+                            UpdateCellFromParent(cell);
+                        }
+                    }
+                    image.ImagePath = ImageListHelper.GetImagePathFromName(cell.CellValue.ToString());
                     break;
 
                 case BeepButton button:
@@ -3591,17 +3599,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                     //if (!row.IsAggregation && yOffset + RowHeight > bounds.Bottom - (_showaggregationRow ? bottomagregationPanelHeight : 0))
                     //    break;
                     // Stop if yOffset exceeds bounds for non-aggregation rows
-                    if ( yOffset + RowHeight > bounds.Bottom )
+                    if (yOffset + row.Height > bounds.Bottom)
                         break;
                     // Align rowRect with scrollingRegion, accounting for scroll
                     int scrollingStartX = scrollingRegion.Left - _xOffset;
                     int totalScrollableWidth = Columns.Where(c => !c.Sticked && c.Visible).Sum(c => c.Width) +
                                               (Columns.Count(c => !c.Sticked && c.Visible) - 1) * 1;
                     int scrollingWidth = Math.Max(scrollingRegion.Width + _xOffset, totalScrollableWidth);
-                    var rowRect = new Rectangle(scrollingStartX, displayY, scrollingWidth, RowHeight);
+                    var rowRect = new Rectangle(scrollingStartX, displayY, scrollingWidth, row.Height);
 
                     PaintScrollingRow(g, row, rowRect);
-                    if (!row.IsAggregation) yOffset += _rowHeight; // Only increment yOffset for non-aggregation rows
+                    if (!row.IsAggregation) yOffset += row.Height; // Only increment yOffset for non-aggregation rows
 
                 }
             }
@@ -3625,11 +3633,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                         //if (!row.IsAggregation && yOffset + RowHeight > bounds.Bottom - (_showaggregationRow ? bottomagregationPanelHeight : 0))
                         //    break;
                         // Stop if yOffset exceeds bounds for non-aggregation rows
-                        if (yOffset + RowHeight > bounds.Bottom )
+                        if (yOffset + row.Height > bounds.Bottom)
                             break;
 
                         var cell = row.Cells[Columns.IndexOf(stickyCol)];
-                        var cellRect = new Rectangle(stickyX, displayY, stickyCol.Width, RowHeight);
+                        var cellRect = new Rectangle(stickyX, displayY, stickyCol.Width, row.Height);
                         Color backcolor = cell.RowIndex == _currentRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
                         PaintCell(g, cell, cellRect, backcolor);
                         // set cell coordinates and size in cell
@@ -3637,7 +3645,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         cell.Y = cellRect.Y;
                         cell.Width = cellRect.Width;
                         cell.Height = cellRect.Height;
-                        if (!row.IsAggregation) yOffset += _rowHeight; // Only increment yOffset for non-aggregation rows
+                        if (!row.IsAggregation) yOffset += row.Height; // Only increment yOffset for non-aggregation rows
                     }
                     yOffset = bounds.Top;
                 }
@@ -3709,6 +3717,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // the editor control remains visible.
             //  if (_selectedCell == cell && !_columns[_selectedCell.ColumnIndex].ReadOnly) return;
             Rectangle TargetRect = cellRect;
+            cell.Rect = TargetRect;
+
             BeepColumnConfig column = Columns[cell.ColumnIndex];
             BeepRowConfig row = Rows[cell.RowIndex];
             using (var cellBrush = new SolidBrush(backcolor))
@@ -3741,7 +3751,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 var editor = (Control)columnEditor;
                 editor.Bounds = new Rectangle(TargetRect.X, TargetRect.Y, TargetRect.Width, TargetRect.Height);
-                UpdateCellControl(columnEditor, Columns[cell.ColumnIndex],cell, cell.CellValue);
+                 var checkValueupdate=new BeepCellEventArgs(cell);
+                CellPreUpdateCellValue?.Invoke(this, checkValueupdate);
+                if(!checkValueupdate.Cancel)
+                {
+                    UpdateCellControl(columnEditor, Columns[cell.ColumnIndex], cell, cell.CellValue);
+
+                }
 
                 // Force BeepTextBox for aggregation cells
                 if (cell.IsAggregation)
@@ -3758,6 +3774,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
+                   
+                    var checkCustomDraw = new BeepCellEventArgs(cell);
+                    checkCustomDraw.Graphics= g;
+                    CellCustomCellDraw?.Invoke(this, checkCustomDraw);
+                    if(checkCustomDraw.Cancel)
+                    {
+                        return;
+                    }
                     // Draw the editor based on column type for non-aggregation cells
                     switch (columnEditor)
                     {
@@ -3849,7 +3873,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 for (int i = 0; i < Rows.Count; i++)
                 {
-                    yOffset += _rowHeight;
+                    var row = Rows[i];
+                    yOffset += row.Height;
                     if (yOffset < bounds.Bottom)
                         g.DrawLine(pen, bounds.Left, yOffset, bounds.Right, yOffset);
                 }
@@ -4266,84 +4291,93 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private BeepCellConfig GetCellAtLocation(Point location)
         {
-            // First, ensure the point is inside the grid's drawing area.
+            // Ensure the point is inside the grid's drawing area
             if (!gridRect.Contains(location))
+            {
+                MiscFunctions.SendLog($"GetCellAtLocation: Location {location} outside gridRect {gridRect}");
                 return null;
+            }
 
-            // Compute the Y coordinate relative to gridRect.
+            // Compute the Y coordinate relative to gridRect
             int yRelative = location.Y - gridRect.Top;
-            int rowIndex = yRelative / RowHeight;
-            if (rowIndex < 0 || rowIndex >= Rows.Count)
+            if (yRelative < 0)
+            {
+                MiscFunctions.SendLog($"GetCellAtLocation: yRelative {yRelative} above grid");
                 return null;
+            }
+
+            // Find the row by summing row heights
+            int currentY = 0;
+            int rowIndex = -1;
+            for (int i = 0; i < Rows.Count; i++)
+            {
+                int rowHeight = Rows[i].Height;
+                if (yRelative >= currentY && yRelative < currentY + rowHeight)
+                {
+                    rowIndex = i;
+                    break;
+                }
+                currentY += rowHeight;
+            }
+            if (rowIndex == -1 || rowIndex >= Rows.Count)
+            {
+                MiscFunctions.SendLog($"GetCellAtLocation: No row found for yRelative {yRelative}");
+                return null;
+            }
             var row = Rows[rowIndex];
 
-            // Compute the X coordinate relative to gridRect.
-            // Note: We add XOffset because our content is shifted to the right by the scroll offset.
-            int xRelative = location.X - gridRect.Left + XOffset;
-            int currentX = 0;
-            for (int i = 0; i < Columns.Count; i++)
+            // Compute the X coordinate relative to gridRect
+            int xRelative = location.X - gridRect.Left;
+            int stickyWidthTotal = _stickyWidth; // Set in PaintRows
+            int xAdjusted = xRelative;
+
+            // Handle sticky columns
+            if (xRelative < stickyWidthTotal)
             {
-                if (!Columns[i].Visible)
-                    continue;
-                if (xRelative >= currentX && xRelative < currentX + Columns[i].Width)
+                int currentX = 0;
+                for (int i = 0; i < Columns.Count; i++)
                 {
-                    // Return the cell at column i (assuming 1-to-1 correspondence).
-                    return row.Cells[i];
+                    var column = Columns[i];
+                    if (!column.Visible || !column.Sticked) continue;
+                    if (xRelative >= currentX && xRelative < currentX + column.Width)
+                    {
+                        return row.Cells[i];
+                    }
+                    currentX += column.Width;
                 }
-                currentX += Columns[i].Width;
+                return null;
             }
+            else
+            {
+                // Adjust for scrolling non-sticky columns
+                xAdjusted += _xOffset;
+                int currentX = stickyWidthTotal; // Start after sticky region
+                for (int i = 0; i < Columns.Count; i++)
+                {
+                    var column = Columns[i];
+                    if (!column.Visible || column.Sticked) continue;
+                    if (xAdjusted >= currentX && xAdjusted < currentX + column.Width)
+                    {
+                        return row.Cells[i];
+                    }
+                    currentX += column.Width;
+                }
+            }
+
+            MiscFunctions.SendLog($"GetCellAtLocation: No cell found at {location}");
             return null;
         }
         private Rectangle GetCellRectangleIn(BeepCellConfig cell)
         {
             if (cell == null)
             {
-              //   MiscFunctions.SendLog("GetCellRectangle: Cell is null");
+                MiscFunctions.SendLog("GetCellRectangleIn: Cell is null");
                 return Rectangle.Empty;
             }
 
-            // Find cell’s row index in Rows to match GetCellAtLocation’s coordinate system
+            // Find cell’s row and column indices
             int rowIndex = -1;
-            for (int r = 0; r < Rows.Count; r++)
-            {
-                if (Rows[r].Cells.Contains(cell))
-                {
-                    rowIndex = r;
-                    break;
-                }
-            }
-            if (rowIndex == -1)
-            {
-              //   MiscFunctions.SendLog("GetCellRectangle: Cell not found in Rows");
-                return Rectangle.Empty;
-            }
-
-            int colIndex = Rows[rowIndex].Cells.IndexOf(cell);
-            if (colIndex == -1)
-            {
-               //  MiscFunctions.SendLog("GetCellRectangle: Cell not found in row");
-                return Rectangle.Empty;
-            }
-
-            // Calculate position matching GetCellAtLocation
-            int y = gridRect.Top + (rowIndex * RowHeight); // No _dataOffset here, handled in Rows
-            int x = gridRect.Left;
-            for (int i = 0; i < colIndex; i++)
-            {
-                if (Columns[i].Visible)
-                    x += Columns[i].Width;
-            }
-            int width = Columns[colIndex].Width;
-            int height = RowHeight;
-
-            Rectangle rect = new Rectangle(x, y, width, height);
-         //    MiscFunctions.SendLog($"GetCellRectangle: Cell={x},{y}, Value={width}x{height}, _dataOffset={_dataOffset}, _xOffset={_xOffset}");
-            return rect;
-        }
-        private Rectangle GetCellRectangle(BeepCellConfig cell)
-        {
-            // Find which row and column this cell belongs to.
-            int rowIndex = -1, colIndex = -1;
+            int colIndex = -1;
             for (int r = 0; r < Rows.Count; r++)
             {
                 int c = Rows[r].Cells.IndexOf(cell);
@@ -4355,20 +4389,108 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
             if (rowIndex == -1 || colIndex == -1)
-                return Rectangle.Empty;
-
-            // Calculate Y coordinate: gridRect.Top is the start of rows.
-            int y = gridRect.Top + rowIndex * RowHeight;
-
-            // Calculate X coordinate: start at gridRect.Left and add the widths of the previous visible columns.
-            int x = gridRect.Left - XOffset;
-            for (int i = 0; i < colIndex; i++)
             {
-                if (Columns[i].Visible)
-                    x += Columns[i].Width;
+                MiscFunctions.SendLog("GetCellRectangleIn: Cell not found in Rows");
+                return Rectangle.Empty;
             }
-            int width = Columns[colIndex].Width;
-            int height = RowHeight;
+
+            // Calculate Y position by summing row heights up to this row
+            int y = gridRect.Top;
+            for (int i = 0; i < rowIndex; i++)
+            {
+                y += Rows[i].Height;
+            }
+
+            // Calculate X position
+            int x = gridRect.Left;
+            var column = Columns[colIndex];
+            if (column.Sticked)
+            {
+                // Sticky columns start at gridRect.Left with offset
+                for (int i = 0; i < colIndex; i++)
+                {
+                    if (Columns[i].Visible && Columns[i].Sticked)
+                        x += Columns[i].Width;
+                }
+            }
+            else
+            {
+                // Non-sticky columns adjust for _xOffset and sticky width
+                x += _stickyWidth - _xOffset;
+                for (int i = 0; i < colIndex; i++)
+                {
+                    if (Columns[i].Visible && !Columns[i].Sticked)
+                        x += Columns[i].Width;
+                }
+            }
+
+            int width = column.Width;
+            int height = Rows[rowIndex].Height;
+
+            Rectangle rect = new Rectangle(x, y, width, height);
+            MiscFunctions.SendLog($"GetCellRectangleIn: Cell={x},{y}, Size={width}x{height}, RowIndex={rowIndex}, ColIndex={colIndex}");
+            return rect;
+        }
+        private Rectangle GetCellRectangle(BeepCellConfig cell)
+        {
+            if (cell == null)
+            {
+                MiscFunctions.SendLog("GetCellRectangle: Cell is null");
+                return Rectangle.Empty;
+            }
+
+            // Find cell’s row and column indices
+            int rowIndex = -1;
+            int colIndex = -1;
+            for (int r = 0; r < Rows.Count; r++)
+            {
+                int c = Rows[r].Cells.IndexOf(cell);
+                if (c != -1)
+                {
+                    rowIndex = r;
+                    colIndex = c;
+                    break;
+                }
+            }
+            if (rowIndex == -1 || colIndex == -1)
+            {
+                MiscFunctions.SendLog("GetCellRectangle: Cell not found in Rows");
+                return Rectangle.Empty;
+            }
+
+            // Calculate Y position by summing row heights up to this row
+            int y = gridRect.Top;
+            for (int i = 0; i < rowIndex; i++)
+            {
+                y += Rows[i].Height;
+            }
+
+            // Calculate X position
+            int x = gridRect.Left;
+            var column = Columns[colIndex];
+            if (column.Sticked)
+            {
+                // Sticky columns start at gridRect.Left with offset
+                for (int i = 0; i < colIndex; i++)
+                {
+                    if (Columns[i].Visible && Columns[i].Sticked)
+                        x += Columns[i].Width;
+                }
+            }
+            else
+            {
+                // Non-sticky columns adjust for _xOffset and sticky width
+                x += _stickyWidth - _xOffset;
+                for (int i = 0; i < colIndex; i++)
+                {
+                    if (Columns[i].Visible && !Columns[i].Sticked)
+                        x += Columns[i].Width;
+                }
+            }
+
+            int width = column.Width;
+            int height = Rows[rowIndex].Height;
+
             return new Rectangle(x, y, width, height);
         }
         #endregion Cell Editing
@@ -4730,12 +4852,33 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else if (_resizingRow && _resizingIndex >= 0)
             {
+                // int deltaY = e.Y - _lastMousePos.Y;
+                // _rowHeight = Math.Max(10, _rowHeight + deltaY); // Prevent negative height
+                // _lastMousePos = e.Location;
+                //// InitializeRows(); // Recreate rows with new height
+                // UpdateScrollBars();
+                // Invalidate();
                 int deltaY = e.Y - _lastMousePos.Y;
-                _rowHeight = Math.Max(10, _rowHeight + deltaY); // Prevent negative height
-                _lastMousePos = e.Location;
-               // InitializeRows(); // Recreate rows with new height
-                UpdateScrollBars();
-                Invalidate();
+                int currentRowHeight = Rows[_resizingIndex].Height; // Get the current height of the row being resized
+                int newHeight = Math.Max(10, currentRowHeight + deltaY); // Prevent negative height
+                if (newHeight != currentRowHeight) // Compare to the row’s current height
+                {
+                    // Update the specific row’s height first
+                    Rows[_resizingIndex].Height = newHeight;
+
+                    // Synchronize height for all rows and the global _rowHeight
+                    //foreach (var row in Rows)
+                    //{
+                    //    row.Height = newHeight;
+                    //}
+                  //  _rowHeight = newHeight; // Keep _rowHeight in sync as a fallback
+
+                    _lastMousePos = e.Location;
+                    UpdateRowCount(); // Recalculate visible rows based on new height
+                    FillVisibleRows(); // Reposition rows with updated height
+                    UpdateScrollBars(); // Adjust scrollbars for new row height
+                    Invalidate(); // Redraw the grid
+                }
             }
             else
             {
@@ -4784,21 +4927,44 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private bool IsNearRowBorder(Point location, out int rowIndex)
         {
-            // Calculate the Y coordinate relative to the grid's drawing area (rows start at gridRect.Top).
+            // Calculate the Y coordinate relative to the grid's drawing area (rows start at gridRect.Top)
             int yRelative = location.Y - gridRect.Top;
-            int row = yRelative / RowHeight;
-            if (row < 0 || row >= Rows.Count)
+            if (yRelative < 0) // Above the grid
             {
                 rowIndex = -1;
                 return false;
             }
-            // The bottom edge of this row (in relative coordinates) is at (row + 1) * RowHeight.
-            int rowBottom = (row + 1) * RowHeight;
-            if (Math.Abs(yRelative - rowBottom) <= _resizeMargin)
+
+            // Iterate through rows to find the one containing yRelative
+            int currentY = 0;
+            for (int i = 0; i < Rows.Count; i++)
             {
-                rowIndex = row;
-                return true;
+                int rowHeight = Rows[i].Height; // Use individual row height
+                int rowBottom = currentY + rowHeight;
+
+                // Check if yRelative is within this row
+                if (yRelative >= currentY && yRelative <= rowBottom)
+                {
+                    // Check if near the bottom border of this row
+                    if (Math.Abs(yRelative - rowBottom) <= _resizeMargin)
+                    {
+                        rowIndex = i;
+                        return true;
+                    }
+                    // If near the top border of the first row (optional)
+                    if (i == 0 && Math.Abs(yRelative - currentY) <= _resizeMargin)
+                    {
+                        rowIndex = -1; // Could return 0 if resizing from top is allowed
+                        return false; // Typically, we don’t resize from the top of the first row
+                    }
+                    rowIndex = -1;
+                    return false; // Not near a border within this row
+                }
+
+                currentY += rowHeight; // Move to the next row’s top
             }
+
+            // If beyond the last row
             rowIndex = -1;
             return false;
         }
@@ -5143,7 +5309,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepCellEventArgs> CellMouseLeave;
         public event EventHandler<BeepCellEventArgs> CellMouseDown;
         public event EventHandler<BeepCellEventArgs> CellMouseUp;
-        public event EventHandler<BeepCellEventArgs> CellMouseWheel;
+        public event EventHandler<BeepCellEventArgs> CellPreUpdateCellValue;
+        public event EventHandler<BeepCellEventArgs> CellCustomCellDraw;
 
 
         private void Rows_ListChanged(object sender, ListChangedEventArgs e) => Invalidate();

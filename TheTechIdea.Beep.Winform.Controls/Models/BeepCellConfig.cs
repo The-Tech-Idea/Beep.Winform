@@ -28,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public int Y { get; set; } // Updated dynamically
         public int Width { get; set; } = 100; // Default cell width
         public int Height { get; set; } = 30; // Default cell height
+        public Rectangle Rect{ get; set; } // Updated dynamically
         public bool IsSelected { get; set; }
         public bool IsDirty { get; set; }
         public bool IsReadOnly { get; set; }
@@ -98,7 +99,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
     public class BeepCellEventArgs : EventArgs
     {
         public BeepCellConfig Cell { get; }
-
+        public bool Cancel { get; set; }= false;
+        public Graphics Graphics { get; set; }
         public BeepCellEventArgs(BeepCellConfig cell) => Cell = cell;
     }
 }

@@ -3489,7 +3489,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Cap _stickyWidth to prevent overflow within gridRect
             _stickyWidth = Math.Min(baseStickyWidth, gridRect.Width);
-          //  System.Diagnostics.MiscFunctions.SendLog($"UpdateStickyWidth: _stickyWidth={_stickyWidth}, BaseSticky={baseStickyWidth}, GridRect.Width={gridRect.Width}");
+          //   MiscFunctions.SendLog($"UpdateStickyWidth: _stickyWidth={_stickyWidth}, BaseSticky={baseStickyWidth}, GridRect.Width={gridRect.Width}");
         }
         private void PaintColumnHeaders(Graphics g, Rectangle headerRect)
         {
@@ -3793,6 +3793,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             datePicker.Draw(g, TargetRect);
                             break;
                         case BeepImage image:
+                            image.Size=new Size(column.MaxImageWidth, column.MaxImageHeight);
                             image.DrawImage(g, TargetRect);
                             break;
                         case BeepButton button:
@@ -3902,9 +3903,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            //System.Diagnostics.MiscFunctions.SendLog($"DrawColumnBorders: StickyWidth={stickyWidth}, LastXOffset={xOffset}, Bounds={bounds}, XOffset={_xOffset}");
+            // MiscFunctions.SendLog($"DrawColumnBorders: StickyWidth={stickyWidth}, LastXOffset={xOffset}, Bounds={bounds}, XOffset={_xOffset}");
         }
-     
         private void DrawHeaderPanel(Graphics g, Rectangle rect)
         {
             using (var borderPen = new Pen(_currentTheme.BorderColor))
@@ -4164,7 +4164,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_editingCell == null || _editingControl == null || !IsEditorShown)
             {
-              //  System.Diagnostics.MiscFunctions.SendLog("MoveEditor: Skipped - null reference or editor not shown");
+              //   MiscFunctions.SendLog("MoveEditor: Skipped - null reference or editor not shown");
                 return;
             }
 
@@ -4175,14 +4175,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             int yOffset = _dataOffset * RowHeight;
             int xOffset = _xOffset;
             cellRect.Y -= yOffset; // Shift up by vertical scroll
-            cellRect.X -= xOffset; // Shift left by horizontal scroll
-
+          //  cellRect.X -= xOffset; // Shift left by horizontal scroll
+            var column = Columns[_editingCell.ColumnIndex];
+            if (!column.Sticked) // Only adjust X for scrollable columns
+            {
+                cellRect.X -= _xOffset; // Shift left by horizontal scroll
+            }
             // Define grid bounds
             int gridLeft = 0; // Relative to gridRect’s client area
             int gridRight = gridRect.Width;
             int gridTop = 0;
             int gridBottom = gridRect.Height;
-
+            // Define sticky column region
+            int stickyWidthTotal = _stickyWidth; // Set in PaintRows
+            int stickyLeft = gridRect.Left;
+            int stickyRight = gridRect.Left + stickyWidthTotal;
+            // Check if the editor overlaps the sticky column region (for scrollable columns only)
+            bool overlapsStickyRegion = !column.Sticked && stickyWidthTotal > 0 &&
+                                        cellRect.X < stickyRight && cellRect.Right > stickyLeft;
             // Check if the editor is fully out of view
             bool isFullyOutOfView =
                 (cellRect.Right < gridLeft) ||  // Completely off to the left
@@ -4190,9 +4200,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 (cellRect.Bottom < gridTop) ||  // Scrolled out past the top
                 (cellRect.Top > gridBottom);    // Completely off below
 
-            if (isFullyOutOfView)
+            if (isFullyOutOfView || overlapsStickyRegion)
             {
-                //System.Diagnostics.MiscFunctions.SendLog($"MoveEditor: Editor out of view - Hiding (CellRect={cellRect})");
+                // MiscFunctions.SendLog($"MoveEditor: Editor out of view - Hiding (CellRect={cellRect})");
                 _editingControl.Visible = false;
             }
             else
@@ -4200,7 +4210,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Position editor within gridRect’s client coordinates
                 _editingControl.Location = new Point(cellRect.X, cellRect.Y);
                 _editingControl.Visible = true;
-             //   System.Diagnostics.MiscFunctions.SendLog($"MoveEditor: Editor moved to {cellRect.X},{cellRect.Y}");
+             //    MiscFunctions.SendLog($"MoveEditor: Editor moved to {cellRect.X},{cellRect.Y}");
             }
         }
         private BeepRowConfig GetRowAtLocation(Point location)
@@ -4288,7 +4298,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (cell == null)
             {
-              //  System.Diagnostics.MiscFunctions.SendLog("GetCellRectangle: Cell is null");
+              //   MiscFunctions.SendLog("GetCellRectangle: Cell is null");
                 return Rectangle.Empty;
             }
 
@@ -4304,14 +4314,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (rowIndex == -1)
             {
-              //  System.Diagnostics.MiscFunctions.SendLog("GetCellRectangle: Cell not found in Rows");
+              //   MiscFunctions.SendLog("GetCellRectangle: Cell not found in Rows");
                 return Rectangle.Empty;
             }
 
             int colIndex = Rows[rowIndex].Cells.IndexOf(cell);
             if (colIndex == -1)
             {
-               // System.Diagnostics.MiscFunctions.SendLog("GetCellRectangle: Cell not found in row");
+               //  MiscFunctions.SendLog("GetCellRectangle: Cell not found in row");
                 return Rectangle.Empty;
             }
 
@@ -4327,7 +4337,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int height = RowHeight;
 
             Rectangle rect = new Rectangle(x, y, width, height);
-         //   System.Diagnostics.MiscFunctions.SendLog($"GetCellRectangle: Cell={x},{y}, Value={width}x{height}, _dataOffset={_dataOffset}, _xOffset={_xOffset}");
+         //    MiscFunctions.SendLog($"GetCellRectangle: Cell={x},{y}, Value={width}x{height}, _dataOffset={_dataOffset}, _xOffset={_xOffset}");
             return rect;
         }
         private Rectangle GetCellRectangle(BeepCellConfig cell)
@@ -4687,7 +4697,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-              //  System.Diagnostics.MiscFunctions.SendLog($"SetColumnWidth: Column '{columnName}' not found.");
+              //   MiscFunctions.SendLog($"SetColumnWidth: Column '{columnName}' not found.");
             }
         }
         private void BeepGrid_MouseDown(object sender, MouseEventArgs e)
@@ -4845,7 +4855,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _editingControl.Focus();
             IsEditorShown = true;
 
-          //  System.Diagnostics.MiscFunctions.SendLog($"ShowCellEditor: Cell={cell.X},{cell.Y}, Value={cellSize}");
+          //   MiscFunctions.SendLog($"ShowCellEditor: Cell={cell.X},{cell.Y}, Value={cellSize}");
         }
         private void CloseCurrentEditorIn()
         {

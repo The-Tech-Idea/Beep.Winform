@@ -457,7 +457,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             get => _decimalPlaces;
             set { _decimalPlaces = value; OnPropertyChanged(nameof(DecimalPlaces)); }
         }
-        private int _maximageheight;
+        private int _maximageheight=32;
         [Category("Data")]
         [Description("The Maximum Image Height for the column.")]
         public int MaxImageHeight
@@ -465,7 +465,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             get => _maximageheight;
             set { _maximageheight = value; OnPropertyChanged(nameof(MaxImageHeight)); }
         }
-        private int _maximagewidth;
+        private int _maximagewidth=32;
         [Category("Data")]
         [Description("The Maximum Image Width for the column.")]
         public int MaxImageWidth

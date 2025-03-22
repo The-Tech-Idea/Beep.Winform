@@ -117,6 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _dropdownButton.Click += DropdownButton_Click;
 
             _popupGridForm = new BeepPopupGridForm();
+            _popupGridForm.BorderThickness = 4;
             _popupGridForm.RowSelected += PopupGridForm_RowSelected;
             _popupGridForm.Theme = Theme;
 
@@ -234,12 +235,25 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void PopupGridForm_RowSelected(object sender, object selectedRow)
         {
-            DataRowWrapper rowWrapper = (DataRowWrapper)selectedRow;
-           
-            if (rowWrapper.OriginalData is SimpleItem item)
+            if(selectedRow == null) return;
+            if(selectedRow is DataRowWrapper rowWrapper)
             {
-                SetSelectedItem(item);
+                if (rowWrapper.OriginalData is SimpleItem item)
+                {
+                    SetSelectedItem(item);
+                    return;
+                }
             }
+            if(selectedRow is SimpleItem item1)
+            {
+                SetSelectedItem(item1);
+            }
+            //DataRowWrapper rowWrapper = (DataRowWrapper)selectedRow;
+
+            //if (rowWrapper.OriginalData is SimpleItem item)
+            //{
+            //    SetSelectedItem(item);
+            //}
         }
 
         private void KeyTextBox_TextChanged(object sender, EventArgs e)

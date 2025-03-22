@@ -122,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             //   SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
             UpdateStyles();
-
+         //   Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
             // Apply border and custom form styles
             FormBorderStyle = FormBorderStyle.None;
             //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
@@ -144,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             //   SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
             UpdateStyles();
-
+         //   Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
             // Apply border and custom form styles
             FormBorderStyle = FormBorderStyle.None;
             //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
@@ -213,10 +213,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnPaint(e);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            e.Graphics.CompositingQuality = CompositingQuality.HighQuality;
-            e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            //e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            //e.Graphics.CompositingQuality = CompositingQuality.HighQuality;
+            //e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            //e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
             if (_borderThickness > 0)
             {
@@ -498,12 +498,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public Rectangle GetAdjustedClientRectangle()
         {
-            int adjustedWidth = Math.Max(0, ClientSize.Width - (2 * _borderThickness));
-            int adjustedHeight = Math.Max(0, ClientSize.Height - (2 * _borderThickness));
+            int adjustedWidth = Math.Max(0, Width - (2 * _borderThickness));
+            int adjustedHeight = Math.Max(0, Height - (2 * _borderThickness));
 
             return new Rectangle(
-                _borderThickness,
-                _borderThickness,
+                0,
+                0,
                 adjustedWidth,
                 adjustedHeight
             );
@@ -528,24 +528,48 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-      public void AddControl(Control control,string addiname)
+        public virtual void AddControl(Control control, string addiname)
         {
-            // add control and adjust its size and position and bring to front
-            if (control == null)
-            {
+            if (control == null || control == this)
                 return;
-            }
-            if (control == this)
+
+            // Use the greater of the border thickness or radius as an offset.
+            int offset = Math.Max(_borderThickness, _borderRadius);
+
+            // Calculate the available content area (client area minus the offset).
+            int currentContentWidth = ClientSize.Width - offset * 2;
+            int currentContentHeight = ClientSize.Height - offset * 2;
+
+            // Determine the desired content size: at least the control's MinimumSize.
+            int desiredContentWidth = Math.Max(currentContentWidth, control.MinimumSize.Width);
+            int desiredContentHeight = Math.Max(currentContentHeight, control.MinimumSize.Height);
+
+            // Calculate the new form size needed to fit the desired content area plus offsets.
+            int desiredFormWidth = desiredContentWidth + offset * 2;
+            int desiredFormHeight = desiredContentHeight + offset * 2;
+
+            // If the form's current client area is too small, resize the form.
+            if (currentContentWidth < control.MinimumSize.Width ||
+                currentContentHeight < control.MinimumSize.Height)
             {
-                return;
+                this.Size = new Size(desiredFormWidth, desiredFormHeight);
             }
 
-            Controls.Add(control);
+            // Recalculate the adjusted rectangle based on the (possibly updated) ClientSize.
+            Rectangle adjustedRect = new Rectangle(
+                offset,
+                offset,
+                ClientSize.Width - offset * 2,
+                ClientSize.Height - offset * 2
+            );
+
+            // Position the control within the adjusted client area.
+            control.Bounds = adjustedRect;
+            Controls.Add(control); AdjustControls();
             control.BringToFront();
-            control.Dock = DockStyle.Fill;
-            Title = addiname;
-
         }
+
+
 
         public override Size GetPreferredSize(Size proposedSize)
         {

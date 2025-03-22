@@ -1,47 +1,68 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
-
-
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [DisplayName("Beep Date Picker")]
-    [Description("A control that allows users to enter a date with format masking, supporting multiple cultures.")]
+    [Description("A control that allows users to enter a date with format masking and a dropdown calendar, supporting multiple cultures.")]
     public class BeepDatePicker : BeepControl
     {
-        #region Properties
+        #region Fields
         private TextBox _textBox;
+        private BeepButton _dropdownButton;
         private string _customDateFormat;
         private DateFormatStyle _dateFormatStyle = DateFormatStyle.ShortDate;
         private CultureInfo _culture = CultureInfo.CurrentCulture;
         private int _padding = 2;
+        private DateTime _selectedDate = DateTime.Today;
+        #endregion
+
+        #region Properties
+        [Browsable(true)]
+        [Category("Date Settings")]
+        [Description("Sets or gets the selected date as a DateTime object.")]
+        public DateTime SelectedDateTime
+        {
+            get => _selectedDate;
+            set
+            {
+                _selectedDate = value;
+                UpdateTextBoxFromValue();
+                Invalidate();
+            }
+        }
 
         [Browsable(true)]
         [Category("Date Settings")]
         [Description("Sets the selected date as a string.")]
         public string SelectedDate
         {
-            get => _textBox.Text;
+            get => _textBox?.Text ?? string.Empty;
             set
             {
-                
+                if (_textBox == null) return;
                 if (string.IsNullOrWhiteSpace(value))
                 {
                     _textBox.Text = string.Empty;
+                    _selectedDate = DateTime.MinValue;
                 }
                 else if (DateTime.TryParse(value, _culture, DateTimeStyles.None, out DateTime result))
                 {
+                    _selectedDate = result;
                     _textBox.Text = FormatDate(result);
                 }
                 else
                 {
                     _textBox.Text = string.Empty;
+                    _selectedDate = DateTime.MinValue;
                 }
                 ApplyMask();
                 Invalidate();
@@ -60,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _dateFormatStyle = value;
                 ApplyMask();
                 UpdateTextBoxFromValue();
-                _textBox.PlaceholderText = GetPlaceholderText();
+                if (_textBox != null) _textBox.PlaceholderText = GetPlaceholderText();
                 Invalidate();
             }
         }
@@ -79,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     ApplyMask();
                     UpdateTextBoxFromValue();
-                    _textBox.PlaceholderText = GetPlaceholderText();
+                    if (_textBox != null) _textBox.PlaceholderText = GetPlaceholderText();
                 }
                 Invalidate();
             }
@@ -93,6 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _culture;
             set
             {
+                if (_textBox == null) return;
                 _culture = value ?? CultureInfo.CurrentCulture;
                 ApplyMask();
                 UpdateTextBoxFromValue();
@@ -107,8 +129,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
             DoubleBuffered = true;
+        }
 
-            Size = new Size(120, 25);
+        protected override Size DefaultSize => new Size(150, 25);
+
+        protected override void InitLayout()
+        {
+            base.InitLayout();
+
             _customDateFormat = _culture.DateTimeFormat.ShortDatePattern;
             BoundProperty = "SelectedDate";
 
@@ -123,14 +151,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             _textBox = new TextBox
             {
                 BorderStyle = BorderStyle.None,
-                Text = DateTime.Now.ToString(GetCurrentFormat()),
+                Text = FormatDate(_selectedDate),
                 PlaceholderText = GetPlaceholderText()
             };
             _textBox.TextChanged += TextBox_TextChanged;
             _textBox.KeyPress += TextBox_KeyPress;
             _textBox.Validating += TextBox_Validating;
-            
+
+            _dropdownButton = new BeepButton
+            {
+                Text = "▼",
+                HideText = true,
+                ShowAllBorders = false,
+                IsShadowAffectedByTheme = false,
+                IsChild = true,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                TextImageRelation = TextImageRelation.Overlay,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.dropdown-select.svg"
+            };
+            _dropdownButton.Click += DropdownButton_Click;
+
             Controls.Add(_textBox);
+            Controls.Add(_dropdownButton);
 
             ApplyMask();
             AdjustLayout();
@@ -140,6 +183,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Event Handlers
         private void TextBox_TextChanged(object sender, EventArgs e)
         {
+            if (DateTime.TryParse(_textBox.Text, _culture, DateTimeStyles.None, out DateTime result))
+            {
+                _selectedDate = result;
+            }
             Invalidate();
         }
 
@@ -161,12 +208,27 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void TextBox_Validating(object sender, CancelEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(_textBox.Text) && !DateTime.TryParse(_textBox.Text, _culture, DateTimeStyles.None, out _))
+            if (string.IsNullOrWhiteSpace(_textBox.Text))
+            {
+                _selectedDate = DateTime.MinValue;
+                return;
+            }
+
+            if (!DateTime.TryParse(_textBox.Text, _culture, DateTimeStyles.None, out DateTime result))
             {
                 e.Cancel = true;
                 MessageBox.Show($"Invalid date format. Expected: {GetCurrentFormat()}", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                _textBox.Text = DateTime.Today.ToString(GetCurrentFormat());
+                _textBox.Text = FormatDate(_selectedDate);
             }
+            else
+            {
+                _selectedDate = result;
+            }
+        }
+
+        private void DropdownButton_Click(object sender, EventArgs e)
+        {
+            ShowCalendarPopup();
         }
         #endregion
 
@@ -180,16 +242,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void AdjustLayout()
         {
+            if (_textBox == null || _dropdownButton == null) return;
             UpdateDrawingRect();
             GetHeight();
 
+            int buttonWidth = DrawingRect.Height - (_padding * 2);
             _textBox.Location = new Point(DrawingRect.Left + _padding, DrawingRect.Top + _padding);
-            _textBox.Size = new Size(DrawingRect.Width - (_padding * 2), DrawingRect.Height - (_padding * 2));
+            _textBox.Size = new Size(DrawingRect.Width - buttonWidth - (_padding * 3), DrawingRect.Height - (_padding * 2));
+
+            _dropdownButton.Location = new Point(_textBox.Right + _padding, DrawingRect.Top + _padding);
+            _dropdownButton.Size = new Size(buttonWidth, DrawingRect.Height - (_padding * 2));
+            _dropdownButton.MaxImageSize = new Size(buttonWidth - 4, buttonWidth - 4);
         }
 
         private void GetHeight()
         {
             _padding = BorderThickness + 2;
+            if (_textBox == null) return;
             Height = _textBox.PreferredHeight + (_padding * 2);
         }
 
@@ -218,30 +287,54 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
 
-                Rectangle textRect = new Rectangle(
-                    rectangle.X + _padding,
-                    rectangle.Y + _padding,
-                    rectangle.Width - (_padding * 2),
-                    rectangle.Height - (_padding * 2));
-
-                string textToDraw = _textBox.Text;
-                if (!string.IsNullOrEmpty(textToDraw))
-                {
-                    TextRenderer.DrawText(
-                        graphics,
-                        textToDraw,
-                        _textBox.Font,
-                        textRect,
-                        _currentTheme.TextBoxForeColor,
-                        TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
-                }
-
                 graphics.Clip = originalClip;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error in BeepDatePicker.Draw: {ex.Message}");
             }
+        }
+        #endregion
+
+        #region Popup Calendar
+        private void ShowCalendarPopup()
+        {
+            var popup = new BeepPopupModalForm();
+
+            var calendar = new NoBorderMonthCalendar
+            {
+                ShowToday = true,
+                ShowTodayCircle = true,
+                MaxSelectionCount = 1,
+                ForeColor = _currentTheme.TextBoxForeColor,
+                BackColor = _currentTheme.TextBoxBackColor
+            };
+            calendar.ForeColor = _currentTheme.TextBoxForeColor;
+            calendar.BackColor = _currentTheme.TextBoxBackColor;
+            if (_selectedDate != DateTime.MinValue)
+            {
+                calendar.SetDate(_selectedDate);
+            }
+            calendar.DateSelected += (s, e) =>
+            {
+                _selectedDate = e.Start;
+                _textBox.Text = FormatDate(_selectedDate);
+                popup.Close();
+            };
+
+            //Panel panel = new Panel();
+            popup.Theme = Theme;
+            //panel.BorderStyle = BorderStyle.None;
+            //panel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+            //panel.Size = new Size(calendar.Width + 9, calendar.Height + 9);
+            //panel.Controls.Add(calendar);
+            //calendar.Dock = DockStyle.Fill;
+            //popup.Size = new Size(panel.Width + 12, panel.Height + 12);
+            //popup.Controls.Add(panel);
+            popup.Size = new Size(calendar.Width + 12, calendar.Height + 12);
+            popup.AddControl(calendar,"Calendar");
+            popup.ShowPopup(this, BeepPopupFormPosition.Bottom);
+
         }
         #endregion
 
@@ -274,8 +367,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             return _dateFormatStyle switch
             {
                 DateFormatStyle.ShortDate => ConvertFormatToMask(_culture.DateTimeFormat.ShortDatePattern),
-                DateFormatStyle.LongDate => _culture.DateTimeFormat.LongDatePattern, // Free-form
-                DateFormatStyle.YearMonth => "MMMM yyyy",                            // Free-form
+                DateFormatStyle.LongDate => _culture.DateTimeFormat.LongDatePattern,
+                DateFormatStyle.YearMonth => "MMMM yyyy",
                 DateFormatStyle.Custom => ConvertFormatToMask(_customDateFormat),
                 DateFormatStyle.FullDateTime => ConvertFormatToMask($"{_culture.DateTimeFormat.LongDatePattern} HH:mm:ss"),
                 DateFormatStyle.ShortDateTime => ConvertFormatToMask($"{_culture.DateTimeFormat.ShortDatePattern} HH:mm"),
@@ -285,7 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DateFormatStyle.TimeOnly => "00:00:00",
                 DateFormatStyle.ShortTime => "00:00",
                 DateFormatStyle.MonthDay => "MMMM 00",
-                DateFormatStyle.DayOfWeek => "dddd",                                 // Free-form
+                DateFormatStyle.DayOfWeek => "dddd",
                 DateFormatStyle.RFC1123 => "ddd, 00 MMM yyyy 00:00:00 GMT",
                 DateFormatStyle.UniversalSortable => "0000-00-00 00:00:00Z",
                 _ => ConvertFormatToMask(_culture.DateTimeFormat.ShortDatePattern)
@@ -309,6 +402,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _ => match.Value[0]
                 }, match.Length));
         }
+
         private string GetPlaceholderText()
         {
             string format = GetCurrentFormat();
@@ -324,6 +418,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _ => match.Value
             });
         }
+
         private bool IsValidInput(char input, char maskChar)
         {
             return maskChar switch
@@ -336,6 +431,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ApplyMask()
         {
+            if (_textBox == null) return;
             string mask = GetCurrentMask();
             if (!Regex.IsMatch(mask, @"^[dMyHmsf]+$")) // If mask contains digits
             {
@@ -349,13 +445,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void UpdateTextBoxFromValue()
         {
-            if (!string.IsNullOrWhiteSpace(_textBox.Text) && DateTime.TryParse(_textBox.Text, _culture, DateTimeStyles.None, out DateTime result))
+            if (_textBox == null) return;
+            if (_selectedDate != DateTime.MinValue)
             {
-                _textBox.Text = FormatDate(result);
+                _textBox.Text = FormatDate(_selectedDate);
             }
             else
             {
-                _textBox.Text = DateTime.Today.ToString(GetCurrentFormat());
+                _textBox.Text = string.Empty;
             }
         }
 
@@ -374,22 +471,33 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _textBox.BackColor = _currentTheme.TextBoxBackColor;
                 _textBox.ForeColor = _currentTheme.TextBoxForeColor;
             }
+            if (_dropdownButton != null)
+            {
+                _dropdownButton.Theme = Theme;
+            }
             Invalidate();
         }
 
         public override void SetValue(object value)
         {
-            SelectedDate = value?.ToString();
+            if (value is DateTime dt)
+            {
+                SelectedDateTime = dt;
+            }
+            else
+            {
+                SelectedDate = value?.ToString();
+            }
         }
 
         public override object GetValue()
         {
-            return SelectedDate;
+            return _selectedDate == DateTime.MinValue ? null : _selectedDate;
         }
 
         public void Reset()
         {
-            SelectedDate = null;
+            SelectedDateTime = DateTime.Today;
         }
         #endregion
 
@@ -399,6 +507,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (disposing)
             {
                 _textBox?.Dispose();
+                _dropdownButton?.Dispose();
             }
             base.Dispose(disposing);
         }

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using TheTechIdea.Beep.Addin;
@@ -37,6 +34,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             {
                 return null;
             }
+        }
+        private static bool isLogOn = false;
+        public static  void SendLog(string message)
+        {
+            if(isLogOn)
+            {
+                Console.WriteLine(message);
+                Debug.WriteLine(message);
+            }
+          
         }
         public static string GetAssemblyName(string assemblyFullNameOrPath)
         {

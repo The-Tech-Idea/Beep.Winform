@@ -4,8 +4,6 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 using TheTechIdea.Beep.Container.Services;
-using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
-using TheTechIdea.Beep.Vis.Modules;
 
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
@@ -19,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         {
             InitializeComponent();
             beepservice = service;
-            AddinName = "Filter ";
+          
 
             Details.AddinName = "Filter";
         }

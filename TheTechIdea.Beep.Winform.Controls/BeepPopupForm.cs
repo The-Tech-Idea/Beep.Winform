@@ -45,8 +45,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowInTaskbar = false;
             TopMost = true;
             InPopMode = true;
+            Padding = new Padding(2);
             // Initialize the close timer
-           _closeTimer = new Timer { Interval = _closeTimeout };
+            _closeTimer = new Timer { Interval = _closeTimeout };
               _closeTimer.Tick += CloseTimer_Tick;
             // Initialize timers
             //_timerTriggerLeave = new Timer { Interval = _triggerLeaveTimeout };

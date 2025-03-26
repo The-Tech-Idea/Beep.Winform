@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _grid.IsInitializing = false;
                 _grid.DataSource = value;
-                AdjustSize();
+  //              AdjustSize();
             }
         }
 
@@ -153,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (column != null)
             {
                 column.Width = Math.Max(20, width); // Ensure minimum width
-                AdjustSize();
+              //  AdjustSize();
                 _grid.Invalidate(); // Redraw grid with updated column width
             }
             else

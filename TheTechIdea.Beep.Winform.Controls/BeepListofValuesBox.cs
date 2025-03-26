@@ -39,10 +39,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _items = value ?? new List<SimpleItem>();
                 UpdateDisplayValue();
-                if (_popupGridForm != null)
-                {
-                    _popupGridForm.DataSource = _items;
-                }
+                //if (_popupGridForm != null)
+                //{
+                //    _popupGridForm.DataSource = _items;
+                //}
                 Invalidate();
             }
         }

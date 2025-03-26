@@ -26,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region Properties
         #region Fields
+        private Dictionary<int, int> _rowHeights = new Dictionary<int, int>(); // Key: DisplayIndex, Value: Height
         private bool _navigatorDrawn = false;
         private bool _showFilterpanel=false;
         private Rectangle filterPanelRect;
@@ -2315,6 +2316,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 row.Index = i;
                 row.DisplayIndex = i;
+                row.Height = _rowHeight;
                 Rows.Add(row);
             }
             // Initialize aggregationRow if ShowAggregationRow is true
@@ -2489,97 +2491,79 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Data Filling and Navigation
         private void FillVisibleRows()
         {
-            if (_fullData == null || !_fullData.Any()) return;
-
-            // Store previous DisplayIndex values before updating
-            foreach (var row in Rows)
+            if (_fullData == null || !_fullData.Any())
             {
-                row.OldDisplayIndex = row.DisplayIndex; // Save the old DisplayIndex
+                MiscFunctions.SendLog("FillVisibleRows: No data available");
+                Rows.Clear();
+                return;
             }
 
-            for (int i = 0; i < Rows.Count; i++)
+            int visibleRowCount = GetVisibleRowCount();
+            int startRow = Math.Max(0, _dataOffset);
+            int endRow = Math.Min(_dataOffset + visibleRowCount, _fullData.Count);
+
+            // Clear and recreate only visible rows
+            Rows.Clear();
+            for (int i = startRow; i < endRow; i++)
             {
-                int dataIndex = _dataOffset + i;
-                var row = Rows[i];
-                try
+                int dataIndex = i;
+                var row = new BeepRowConfig
                 {
-                    if (dataIndex >= 0 && dataIndex < _fullData.Count)
+                    Index = i - _dataOffset,
+                    DisplayIndex = dataIndex,
+                    IsAggregation = false,
+                    Height = _rowHeights.ContainsKey(dataIndex) ? _rowHeights[dataIndex] : _rowHeight,
+                    OldDisplayIndex = dataIndex // Initially same as DisplayIndex
+                };
+                var dataItem = _fullData[dataIndex] as DataRowWrapper;
+                if (dataItem != null)
+                {
+                    EnsureTrackingForItem(dataItem);
+                    row.IsDataLoaded = true;
+
+                    for (int j = 0; j < Columns.Count; j++)
                     {
-                        var dataItem = _fullData[dataIndex] as DataRowWrapper;
-                        if (dataItem != null)
+                        var col = Columns[j];
+                        var cell = new BeepCellConfig
                         {
-                            EnsureTrackingForItem(dataItem); // Pass the wrapped item
-
-                            // Update DisplayIndex to the current absolute position in _fullData
-                            row.DisplayIndex = dataIndex;
-
-                            // Fill row with data for all columns
-                            for (int j = 0; j < Columns.Count; j++)
-                            {
-                                var col = Columns[j];
-                                var cell = row.Cells[j];
-    
-                                    if (col.IsSelectionCheckBox)
-                                    {
-                                        // Use RowID to check persistent selection state
-                                        int rowID = dataItem.RowID;
-                                        bool isSelected = _persistentSelectedRows.ContainsKey(rowID) && _persistentSelectedRows[rowID];
-                                        cell.CellValue = isSelected;
-                                        cell.CellData = isSelected;
-                                        //  MiscFunctions.SendLog($"FillVisibleRows: Row {i}, DataIndex {dataIndex}, RowID {rowID}, Sel = {isSelected}, _persistentSelectedRows.Count = {_persistentSelectedRows.Count}");
-                                    }
-                                    else if (col.IsRowNumColumn)
-                                    {
-                                        // Set row number based on absolute data index
-                                        cell.CellValue = dataIndex + 1; // Display 1-based index
-                                        cell.CellData = dataIndex + 1;
-                                    }
-                                    else if (col.IsRowID)
-                                    {
-                                        // Set RowID (hidden column)
-                                        cell.CellValue = dataItem.RowID;
-                                        cell.CellData = dataItem.RowID;
-                                    }
-                                    else
-                                    {
-                                        var prop = dataItem.OriginalData.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
-                                        var value = prop?.GetValue(dataItem.OriginalData) ?? string.Empty;
-                                        cell.CellValue = value;
-                                        cell.CellData = value;
-                                    }
-
-                                
-
-                              
-                                row.IsDataLoaded = true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        foreach (var cell in row.Cells)
+                            RowIndex = i - _dataOffset,
+                            ColumnIndex = col.Index,
+                            IsVisible = col.Visible,
+                            IsEditable = true,
+                            IsAggregation = false,
+                            Height = row.Height
+                        };
+                        if (col.IsSelectionCheckBox)
                         {
-                            cell.CellValue = null;
-                            cell.CellData = null;
+                            int rowID = dataItem.RowID;
+                            bool isSelected = _persistentSelectedRows.ContainsKey(rowID) && _persistentSelectedRows[rowID];
+                            cell.CellValue = isSelected;
+                            cell.CellData = isSelected;
                         }
-                        row.IsDataLoaded = false;
-                        row.DisplayIndex = -1;
-
-                        // Clear selection if out of bounds
-                        if (_currentRowIndex == i)
+                        else if (col.IsRowNumColumn)
                         {
-                            _currentRowIndex = -1;
-                            _currentRow = null;
-                            CurrentRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(-1, null));
+                            cell.CellValue = dataIndex + 1;
+                            cell.CellData = dataIndex + 1;
                         }
+                        else if (col.IsRowID)
+                        {
+                            cell.CellValue = dataItem.RowID;
+                            cell.CellData = dataItem.RowID;
+                        }
+                        else
+                        {
+                            var prop = dataItem.OriginalData.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
+                            var value = prop?.GetValue(dataItem.OriginalData) ?? string.Empty;
+                            cell.CellValue = value;
+                            cell.CellData = value;
+                        }
+                        row.Cells.Add(cell);
                     }
                 }
-                catch (Exception ex)
-                {
-                    MiscFunctions.SendLog($"FillVisibleRows Error at Row {i}, DataIndex {dataIndex}: {ex.Message}\nStackTrace: {ex.StackTrace}");
-                }
+                Rows.Add(row);
             }
-            // Update aggregationRow separately if it exists
+
+            // Update aggregationRow separately
             if (_showaggregationRow && aggregationRow != null)
             {
                 for (int j = 0; j < aggregationRow.Cells.Count && j < Columns.Count; j++)
@@ -2591,39 +2575,36 @@ namespace TheTechIdea.Beep.Winform.Controls
                         object aggregatedValue = ComputeAggregation(col, _fullData);
                         cell.CellValue = aggregatedValue?.ToString() ?? "";
                         cell.CellData = aggregatedValue;
-                       // MiscFunctions.SendLog($"FillVisibleRows (Aggregation): Col[{j}] CellValue={cell.CellValue}");
                     }
                 }
             }
-            // Update _selectedRows and _selectedgridrows based on persistent selection state using RowID
+
+            // Update _selectedRows and _selectedgridrows
             var newSelectedRows = new List<int>();
             var newSelectedGridRows = new List<BeepRowConfig>();
             for (int i = 0; i < Rows.Count; i++)
             {
                 int dataIndex = _dataOffset + i;
-                if (dataIndex >= 0 && dataIndex < _fullData.Count)
+                var dataItem = _fullData[dataIndex] as DataRowWrapper;
+                if (dataItem != null)
                 {
-                    var dataItem = _fullData[dataIndex] as DataRowWrapper;
-                    if (dataItem != null)
+                    int rowID = dataItem.RowID;
+                    if (_persistentSelectedRows.ContainsKey(rowID) && _persistentSelectedRows[rowID])
                     {
-                        int rowID = dataItem.RowID;
-                        if (_persistentSelectedRows.ContainsKey(rowID) && _persistentSelectedRows[rowID])
-                        {
-                            newSelectedRows.Add(i); // Visible index
-                            newSelectedGridRows.Add(Rows[i]); // Current row instance
-                        }
+                        newSelectedRows.Add(i);
+                        newSelectedGridRows.Add(Rows[i]);
                     }
                 }
             }
             _selectedRows = newSelectedRows;
             _selectedgridrows = newSelectedGridRows;
-
-            // Sync tracking and adjust selection
             UpdateTrackingIndices();
             SyncSelectedRowIndexAndEditor();
+            UpdateCellPositions();
             UpdateScrollBars();
             UpdateRecordNumber();
             Invalidate();
+            MiscFunctions.SendLog($"FillVisibleRows: Updated {Rows.Count} visible rows, _fullData.Count={_fullData.Count}");
         }
         private void MoveNextRow()
         {
@@ -2633,7 +2614,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ScrollBy(1);
             }
         }
-
         private void MovePreviousRow()
         {
             if (_currentRowIndex > 0)
@@ -2642,7 +2622,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ScrollBy(-1);
             }
         }
-      
         public void MoveNextCell()
         {
             try
@@ -3489,7 +3468,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
             }
         }
-     
         private void UpdateStickyWidth()
         {
             var stickyColumns = Columns.Where(c => c.Sticked && c.Visible).ToList();
@@ -4678,7 +4656,33 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private int GetVisibleRowCount()
         {
-            return gridRect.Height / RowHeight;
+            if (_fullData == null || _fullData.Count == 0)
+            {
+                MiscFunctions.SendLog("GetVisibleRowCount: No data available");
+                return 0;
+            }
+
+            // Use _fullData.Count as the upper limit, not Rows.Count
+            int totalHeight = 0;
+            int visibleCount = 0;
+            for (int i = _dataOffset; i < _fullData.Count; i++)
+            {
+                // Use Rows[i] if available, fallback to _rowHeight
+                int rowHeight = (i < Rows.Count) ? Rows[i].Height : _rowHeight;
+                if (rowHeight <= 0)
+                {
+                    MiscFunctions.SendLog($"GetVisibleRowCount: Invalid height for row {i}, using default {_rowHeight}");
+                    rowHeight = _rowHeight;
+                }
+                totalHeight += rowHeight;
+                if (totalHeight > gridRect.Height)
+                    break;
+                visibleCount++;
+            }
+
+            int result = Math.Max(1, visibleCount);
+            MiscFunctions.SendLog($"GetVisibleRowCount: gridRect.Height={gridRect.Height}, totalHeight={totalHeight}, visibleCount={result}, _dataOffset={_dataOffset}");
+            return result;
         }
         private void PositionScrollBars()
         {
@@ -4726,38 +4730,50 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void UpdateCellPositions()
         {
-            int yOffset = _dataOffset * RowHeight; // Use RowHeight directly
-            int xOffset = _xOffset;
+            if (Rows == null || Rows.Count == 0)
+            {
+                MiscFunctions.SendLog("UpdateCellPositions: No rows to update");
+                return;
+            }
 
-            // Only update positions for visible rows
-            int startRow = Math.Max(0, _dataOffset);
-            int endRow = Math.Min(_dataOffset + GetVisibleRowCount(), Rows.Count);
+            // yOffset is now 0 since Rows only contains visible rows
+            int currentY = gridRect.Top;
 
+            // Update positions for all visible rows
             for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
             {
                 var row = Rows[rowIndex];
-                row.UpperY = gridRect.Top + (rowIndex * RowHeight) - yOffset;
+                row.UpperY = currentY;
 
-                int x = gridRect.Left - xOffset;
+                int x = gridRect.Left;
+                int stickyWidthTotal = _stickyWidth;
+                int scrollableX = x + stickyWidthTotal - _xOffset;
+
                 for (int colIndex = 0; colIndex < Columns.Count; colIndex++)
                 {
                     if (Columns[colIndex].Visible)
                     {
                         var cell = row.Cells[colIndex];
-                        cell.X = x;
+                        if (Columns[colIndex].Sticked)
+                        {
+                            cell.X = x;
+                            x += Columns[colIndex].Width;
+                        }
+                        else
+                        {
+                            cell.X = scrollableX;
+                            scrollableX += Columns[colIndex].Width;
+                        }
                         cell.Y = row.UpperY;
                         cell.Width = Columns[colIndex].Width;
-                        cell.Height = RowHeight;
-                        x += Columns[colIndex].Width;
-
-                        // Optimize by checking if cell is within visible area
-                        if (cell.X + cell.Width < gridRect.Left || cell.X > gridRect.Right)
-                            continue; // Skip off-screen cells
+                        cell.Height = row.Height;
                     }
                 }
+
+                currentY += row.Height;
             }
 
-           // MiscFunctions.SendLog($"UpdateCellPositions: yOffset={yOffset}, xOffset={_xOffset}, VisibleRows={endRow - startRow}, Columns={Columns.Count(c => c.Visible)}");
+            MiscFunctions.SendLog($"UpdateCellPositions: yOffset=0, xOffset={_xOffset}, VisibleRows={Rows.Count}, TotalRows={Rows.Count}");
         }
         private void UpdateRowCount()
         {
@@ -4806,7 +4822,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
         #region Resizing Logic
-        // New method to change column width
         public void SetColumnWidth(string columnName, int width)
         {
          
@@ -4844,7 +4859,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 int deltaX = e.X - _lastMousePos.X;
                 if (_resizingIndex < Columns.Count)
                 {
-                    Columns[_resizingIndex].Width = Math.Max(20, Columns[_resizingIndex].Width + deltaX); // Prevent negative width
+                    Columns[_resizingIndex].Width = Math.Max(20, Columns[_resizingIndex].Width + deltaX);
                 }
                 _lastMousePos = e.Location;
                 UpdateScrollBars();
@@ -4852,32 +4867,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else if (_resizingRow && _resizingIndex >= 0)
             {
-                // int deltaY = e.Y - _lastMousePos.Y;
-                // _rowHeight = Math.Max(10, _rowHeight + deltaY); // Prevent negative height
-                // _lastMousePos = e.Location;
-                //// InitializeRows(); // Recreate rows with new height
-                // UpdateScrollBars();
-                // Invalidate();
                 int deltaY = e.Y - _lastMousePos.Y;
-                int currentRowHeight = Rows[_resizingIndex].Height; // Get the current height of the row being resized
-                int newHeight = Math.Max(10, currentRowHeight + deltaY); // Prevent negative height
-                if (newHeight != currentRowHeight) // Compare to the row’s current height
+                int currentRowHeight = Rows[_resizingIndex].Height;
+                int newHeight = Math.Max(10, currentRowHeight + deltaY);
+                if (newHeight != currentRowHeight)
                 {
-                    // Update the specific row’s height first
+                    int displayIndex = Rows[_resizingIndex].DisplayIndex;
                     Rows[_resizingIndex].Height = newHeight;
-
-                    // Synchronize height for all rows and the global _rowHeight
-                    //foreach (var row in Rows)
-                    //{
-                    //    row.Height = newHeight;
-                    //}
-                  //  _rowHeight = newHeight; // Keep _rowHeight in sync as a fallback
+                    foreach (var cell in Rows[_resizingIndex].Cells)
+                    {
+                        cell.Height = newHeight;
+                    }
+                    _rowHeights[displayIndex] = newHeight; // Track resized height
 
                     _lastMousePos = e.Location;
-                    UpdateRowCount(); // Recalculate visible rows based on new height
-                    FillVisibleRows(); // Reposition rows with updated height
-                    UpdateScrollBars(); // Adjust scrollbars for new row height
-                    Invalidate(); // Redraw the grid
+                    FillVisibleRows(); // Refresh visible rows with new height
+                    UpdateCellPositions();
+                    UpdateScrollBars();
+                    Invalidate();
                 }
             }
             else
@@ -4980,10 +4987,46 @@ namespace TheTechIdea.Beep.Winform.Controls
            
             Invalidate();
         }
-        // New method to update gridRect (example implementation)
-
         #endregion
         #region Editor
+        private object GetCellValue(object dataItem, BeepColumnConfig column)
+        {
+            if (dataItem == null || column == null)
+            {
+                MiscFunctions.SendLog($"GetCellValue: Null dataItem or column");
+                return null;
+            }
+
+            try
+            {
+                var wrapper = dataItem as DataRowWrapper;
+                object item = wrapper != null ? wrapper.OriginalData : dataItem;
+
+                // Use ColumnName or ColumnCaption to get the property
+                string propertyName = !string.IsNullOrEmpty(column.ColumnName) ? column.ColumnName : column.ColumnCaption;
+                if (string.IsNullOrEmpty(propertyName))
+                {
+                    MiscFunctions.SendLog($"GetCellValue: Column {column.Index} has no ColumnName or ColumnCaption");
+                    return null;
+                }
+
+                PropertyInfo prop = item.GetType().GetProperty(propertyName);
+                if (prop != null)
+                {
+                    return prop.GetValue(item);
+                }
+                else
+                {
+                    MiscFunctions.SendLog($"GetCellValue: Property '{propertyName}' not found in data item type {item.GetType().Name}");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                MiscFunctions.SendLog($"GetCellValue: Error retrieving value for column {column.ColumnName ?? column.ColumnCaption}: {ex.Message}");
+                return null;
+            }
+        }
         private void ShowCellEditorIn(BeepCellConfig cell, Point location)
         {
             if (!cell.IsEditable)
@@ -5511,80 +5554,87 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Sync _currentRowIndex and move the editor
         private void SyncSelectedRowIndexAndEditor()
         {
-            if (_currentRow != null && _fullData.Any())
+            if (_fullData == null || !_fullData.Any())
             {
-                int selectedDataIndex = -1;
-                int oldRowIndex = -1;
-                int oldColumnIndex = _selectedCell != null ? _selectedCell.ColumnIndex : -1;
+                _currentRowIndex = -1;
+                _currentRow = null;
+                _selectedCell = null;
+                if (_editingControl != null && _editingControl.Visible)
+                {
+                    _editingControl.Visible = false;
+                }
+                CurrentRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(-1, null));
+                return;
+            }
+
+            // Use _currentRowIndex as the visible index within Rows, map to DisplayIndex
+            int oldRowIndex = _currentRowIndex;
+            int oldColumnIndex = _selectedCell != null ? _selectedCell.ColumnIndex : -1;
+            int selectedDataIndex = _currentRow != null ? _currentRow.DisplayIndex : -1;
+
+            if (selectedDataIndex >= 0 && selectedDataIndex < _fullData.Count)
+            {
+                int newRowIndex = -1;
                 for (int i = 0; i < Rows.Count; i++)
                 {
-                    if (Rows[i] == _currentRow)
+                    if (Rows[i].DisplayIndex == selectedDataIndex)
                     {
-                        oldRowIndex = i;
-                        selectedDataIndex = Rows[i].OldDisplayIndex; // Old DisplayIndex
+                        newRowIndex = i;
                         break;
                     }
                 }
 
-                if (selectedDataIndex >= 0 && selectedDataIndex < _fullData.Count)
+                if (newRowIndex >= 0)
                 {
-                    int newRowIndex = -1;
-                    for (int i = 0; i < Rows.Count; i++)
+                    // Row is visible in the current view
+                    _currentRowIndex = newRowIndex;
+                    _currentRow = Rows[newRowIndex];
+
+                    if (oldColumnIndex >= 0 && oldColumnIndex < Columns.Count)
                     {
-                        if (Rows[i].DisplayIndex == selectedDataIndex)
-                        {
-                            newRowIndex = i;
-                            break;
-                        }
+                        _selectedCell = _currentRow.Cells[oldColumnIndex];
                     }
 
-                    if (newRowIndex >= 0)
+                    if (_selectedCell != null && _editingControl != null && _editingControl.Visible)
                     {
-                        _currentRowIndex = newRowIndex;
-                        _currentRow = Rows[newRowIndex];
-
-                        if (oldColumnIndex >= 0 && oldColumnIndex < Columns.Count)
-                        {
-                            _selectedCell = _currentRow.Cells[oldColumnIndex];
-                        }
-
-                        if (_selectedCell != null && _editingControl != null && _editingControl.Visible)
-                        {
-                            MoveEditorIn();
-                        }
-
-                        if (oldRowIndex != -1 && oldRowIndex != newRowIndex)
-                        {
-                            string direction = newRowIndex < oldRowIndex ? "up" : "down";
-                           // MiscFunctions.SendLog($"Selected row moved {direction}: OldRowIndex={oldRowIndex}, NewRowIndex={newRowIndex}, DisplayIndex={_currentRow.DisplayIndex}");
-                        }
-
-                        CurrentRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(selectedDataIndex, _currentRow));
+                        MoveEditorIn();
                     }
-                    else
+
+                    if (oldRowIndex != newRowIndex && oldRowIndex != -1)
                     {
-                        _currentRowIndex = -1;
-                        _currentRow = null;
-                        _selectedCell = null;
-                        if (_editingControl != null && _editingControl.Visible)
-                        {
-                            _editingControl.Visible = false;
-                        }
-                        CurrentRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(-1, null));
+                        string direction = newRowIndex < oldRowIndex ? "up" : "down";
+                        MiscFunctions.SendLog($"Selected row moved {direction}: OldRowIndex={oldRowIndex}, NewRowIndex={newRowIndex}, DisplayIndex={_currentRow.DisplayIndex}");
                     }
+
+                    CurrentRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(selectedDataIndex, _currentRow));
                 }
                 else
                 {
+                    // Row is not visible; keep selectedDataIndex but clear visible selection
                     _currentRowIndex = -1;
-                    _currentRow = null;
+                    _currentRow = null; // No visible row instance
                     _selectedCell = null;
                     if (_editingControl != null && _editingControl.Visible)
                     {
                         _editingControl.Visible = false;
                     }
-                    CurrentRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(-1, null));
+                    CurrentRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(selectedDataIndex, null));
                 }
             }
+            else
+            {
+                // Invalid or no selection
+                _currentRowIndex = -1;
+                _currentRow = null;
+                _selectedCell = null;
+                if (_editingControl != null && _editingControl.Visible)
+                {
+                    _editingControl.Visible = false;
+                }
+                CurrentRowChanged?.Invoke(this, new BeepRowSelectedEventArgs(-1, null));
+            }
+
+          //  MiscFunctions.SendLog($"SyncSelectedRowIndexAndEditor: selectedDataIndex={selectedDataIndex}, newRowIndex={newRowIndex}, _currentRowIndex={_currentRowIndex}");
         }
 
         // Clear all tracking data

@@ -192,6 +192,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Title Properties"
         #region "Data Source Properties"
+        public string QueryFunctionName { get; set; }
+        public string QueryFunction { get; set; }
         private Dictionary<int, bool> _persistentSelectedRows = new Dictionary<int, bool>(); // Add this field to track selection by RowID
         private object _dataSource;
         object finalData;
@@ -284,10 +286,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        public string QueryFunctionName { get; set; }
-        public string QueryFunction { get; set; }
+     
         #endregion "Data Source Properties"
         #region "Appearance Properties"
+        public BindingList<BeepRowConfig> Rows { get; set; } = new BindingList<BeepRowConfig>();
+        public BeepRowConfig aggregationRow { get; set; }
+        private List<BeepColumnConfig> _columns = new List<BeepColumnConfig>();
         private bool columnssetupusingeditordontchange = false;
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -298,7 +302,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         [Browsable(true)]
         [Category("Data")]
-        // [Editor(typeof(BeepGridColumnConfigCollectionEditor), typeof(UITypeEditor))] // Uncomment if you have a custom editor
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public List<BeepColumnConfig> Columns
         {
@@ -563,9 +566,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool IsEditorShown { get; private set; }
         #endregion "Appearance Properties"
         #region "Configuration Properties"
-        
-        public BindingList<BeepRowConfig> Rows { get; set; } = new BindingList<BeepRowConfig>();
-        public BeepRowConfig aggregationRow { get; set; }
         private BeepBindingNavigator _dataNavigator;
         [Browsable(true)]
         [Category("Data")]
@@ -593,9 +593,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
-        private List<BeepColumnConfig> _columns = new List<BeepColumnConfig>();
-
 
         #endregion "Configuration Properties"
         #region "Checkboxes and Selections"

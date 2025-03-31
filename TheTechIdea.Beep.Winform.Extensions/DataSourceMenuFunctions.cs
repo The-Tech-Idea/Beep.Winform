@@ -11,8 +11,9 @@ using TheTechIdea.Beep.Vis;
 
 using TheTechIdea.Beep.Utilities;
 using BeepDialogResult = TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
+using System.Windows.Forms;
 
-namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
+namespace TheTechIdea.Beep.Winform.Extensions
 {
     [AddinAttribute(Caption = "Data Menu", Name = "DataSourceMenuFunctions", misc = "IFunctionExtension",menu ="Beep", ObjectType = "Beep",  addinType = AddinType.Class, iconimage = "datasources.svg",order =3,Showin = ShowinType.Menu)]
     public class DataSourceMenuFunctions : IFunctionExtension
@@ -274,14 +275,14 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                                 ExtensionsHelpers.Vismanager.DialogManager.MsgBox("Beep", $"View Name Exist, please Try another one");
                                 return;
                                 }
-                                if (ExtensionsHelpers.CreateView(viewname) == Errors.Ok)
-                                {
-                                    ls = ExtensionsHelpers.CreateEntitiesListFromDataSource(ExtensionsHelpers.CurrentBranch.BranchText);
-                                    if (ExtensionsHelpers.AddEntitiesToView(viewname+".json", ls, Passedarguments) == Errors.Ok)
-                                    {
-                                        ExtensionsHelpers.ViewRootBranch.CreateChildNodes();
-                                    }
-                                }
+                                //if (ExtensionsHelpers.CreateView(viewname) == Errors.Ok)
+                                //{
+                                //    ls = ExtensionsHelpers.CreateEntitiesListFromDataSource(ExtensionsHelpers.CurrentBranch.BranchText);
+                                //    if (ExtensionsHelpers.AddEntitiesToView(viewname+".json", ls, Passedarguments) == Errors.Ok)
+                                //    {
+                                //        ExtensionsHelpers.ViewRootBranch.CreateChildNodes();
+                                //    }
+                                //}
                             }
                         //}
                     }
@@ -547,17 +548,16 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                                 IDataSource ds = DMEEditor.GetDataSource(ExtensionsHelpers.CurrentBranch.DataSourceName);
                                 if (ds != null)
                                 {
-                                    if(ds.Openconnection()== System.Data.ConnectionState.Open)
+                                    if (ds.Openconnection() == System.Data.ConnectionState.Open)
                                     {
-                                       
-                                        EntityStructure entstruc = (EntityStructure)ds.GetEntityStructure(ExtensionsHelpers.CurrentBranch.BranchText,true).Clone();
-                                       // Type enttype = ds.GetEntityType(ExtensionsHelpers.CurrentBranch.BranchText);
-                                        object ls = ds.GetEntity(ExtensionsHelpers.CurrentBranch.BranchText,null);
-                                        SaveFileDialog fileDialog = new SaveFileDialog();
-                                        fileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                                        fileDialog.RestoreDirectory = true;
-                                        fileDialog.ShowDialog();
-                                        if (!string.IsNullOrEmpty(fileDialog.FileName))
+
+                                        EntityStructure entstruc = (EntityStructure)ds.GetEntityStructure(ExtensionsHelpers.CurrentBranch.BranchText, true).Clone();
+                                        // Type enttype = ds.GetEntityType(ExtensionsHelpers.CurrentBranch.BranchText);
+                                        object ls = ds.GetEntity(ExtensionsHelpers.CurrentBranch.BranchText, null);
+                                        string filename=string.Empty;
+                                        filename = ExtensionsHelpers.Vismanager.DialogManager.SaveFileDialog("", Environment.CurrentDirectory, null);
+
+                                            if (!string.IsNullOrEmpty(filename))
                                         {
                                             Passedarguments.Messege = $"Saving entity Data to File";
                                             ExtensionsHelpers.Vismanager.ShowWaitForm((PassedArgs)Passedarguments);
@@ -565,9 +565,9 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                                             if (ls.GetType()==typeof(DataTable))
                                             {
 
-                                              DMEEditor.Utilfunction.ToCSVFile((DataTable)ls, fileDialog.FileName);
+                                              DMEEditor.Utilfunction.ToCSVFile((DataTable)ls, filename);
                                             }else
-                                             DMEEditor.Utilfunction.ToCSVFile((System.Collections.IList)ls,  fileDialog.FileName);
+                                             DMEEditor.Utilfunction.ToCSVFile((System.Collections.IList)ls,  filename);
                                             ExtensionsHelpers.Vismanager.CloseWaitForm();
                                             ExtensionsHelpers.Vismanager.DialogManager.MsgBox("Beep", "Data Saved");
                                         }
@@ -646,7 +646,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
 
                     Passedarguments.DatasourceName = ExtensionsHelpers.CurrentBranch.BranchText;
                     IDataSource ds = DMEEditor.GetDataSource(Passedarguments.DatasourceName);
-                    AppTemplate app = ExtensionsHelpers.CreateReportDefinitionFromView(ds);
+                    //AppTemplate app = ExtensionsHelpers.CreateReportDefinitionFromView(ds);
                     //if (!CurrentBranch.BranchClass.Equals("View", StringComparison.InvariantCultureIgnoreCase))
                     //{
                     //    Vismanager.ShowPage("uc_CreateEntity", (PassedArgs)Passedarguments, DisplayType.InControl);

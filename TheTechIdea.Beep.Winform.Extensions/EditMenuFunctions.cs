@@ -6,7 +6,8 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Editor;
 
-namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
+
+namespace TheTechIdea.Beep.Winform.Extensions
 {
     [AddinAttribute(Caption = "Edit", Name = "EditMenuFunctions", ObjectType = "Beep", misc = "IFunctionExtension", menu = "Beep", addinType = AddinType.Class, iconimage = "edit.svg", order = 2, Showin = ShowinType.Menu)]
     public class EditMenuFunctions : IFunctionExtension
@@ -322,7 +323,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
                 int id = ExtensionsHelpers.CurrentBranch.ID;
                 IBranch CategoryBranch = ExtensionsHelpers.CurrentBranch;
                 IBranch RootBranch = ExtensionsHelpers.RootBranch;
-                TreeNode CategoryBranchNode = (TreeNode)ExtensionsHelpers.TreeEditor.GetTreeNodeByID(CategoryBranch.BranchID);
+                IBranch CategoryBranchNode = (IBranch)ExtensionsHelpers.TreeEditor.GetTreeNodeByID(CategoryBranch.BranchID);
                 var ls = ExtensionsHelpers.TreeEditor.Branches.Where(x => x.ParentBranchID == id).ToList();
                 if (ls.Count() > 0)
                 {

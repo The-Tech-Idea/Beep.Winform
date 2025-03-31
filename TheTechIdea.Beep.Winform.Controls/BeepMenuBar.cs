@@ -340,14 +340,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (x != null)
             {
-                SelectedIndex = items.IndexOf(x);
-                currentMenu = x.Children;
-                CurrentMenuForm = sender as BeepPopupListForm;
-                CurrenItemButton = CurrentMenuForm.CurrenItemButton;
+                SelectedItem = x;
+           //     SelectedIndex = items.IndexOf(x);
+               
                 // Get the button's screen position
 
                 if (x.Children.Count > 0)
                 {
+                    currentMenu = x.Children;
+                    CurrentMenuForm = sender as BeepPopupListForm;
+                    CurrenItemButton = CurrentMenuForm.CurrenItemButton;
                     Point buttonScreenPosition = CurrenItemButton.PointToScreen(Point.Empty);
                     Point p = new Point(buttonScreenPosition.X + CurrentMenuForm.Width, buttonScreenPosition.Y);
                     ShowChildPopup(CurrentMenuForm, x, p);

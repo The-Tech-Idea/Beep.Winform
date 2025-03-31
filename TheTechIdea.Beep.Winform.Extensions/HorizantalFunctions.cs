@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.ConfigUtil;
 
 
-namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
+namespace TheTechIdea.Beep.Winform.Extensions
 {
     [AddinAttribute(Caption = "Data Menu", Name = "DataSourceMenuFunctions", misc = "IFunctionExtension", menu = "Beep", ObjectType = "Beep", addinType = AddinType.Class, iconimage = "datasources.png", order = 3, Showin = ShowinType.HorZToolbar)]
     public class HorizantalFunctions : IFunctionExtension

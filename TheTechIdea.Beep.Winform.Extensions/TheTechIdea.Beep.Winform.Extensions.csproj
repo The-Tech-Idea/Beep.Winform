@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
  	<PropertyGroup>
-		<TargetFrameworks>net8.0-windows</TargetFrameworks>
+		<TargetFrameworks>net8.0</TargetFrameworks>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<LangVersion>latest</LangVersion>
@@ -17,7 +17,7 @@
 		<Title>TheTechIdea.Beep.Winform.Extensions</Title>
 		<Product>TheTechIdea.Beep.Winform.Extensions</Product>
 		<AssemblyName>TheTechIdea.Beep.Winform.Extensions</AssemblyName>
-		<Version>1.0.4</Version>
+		<Version>1.0.7</Version>
 	</PropertyGroup>
 	<Target Name="CopyPackage" AfterTargets="Pack">
 		<Copy SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="..\..\..\LocalNugetFiles" />
@@ -34,7 +34,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Autofac" Version="8.2.0" />
 	  <PackageReference Include="System.Text.Json" Version="9.0.0" />
 	  <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.42" />
 	  <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.39" />
@@ -42,7 +41,6 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
-	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
 	</ItemGroup>
 	
 </Project>

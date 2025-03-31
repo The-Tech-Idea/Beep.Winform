@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.ConfigUtil;
 
 
-namespace TheTechIdea.Beep.Winform.Controls.FunctionsandExtensions
+namespace TheTechIdea.Beep.Winform.Extensions
 {
     [AddinAttribute(Caption = "File", Name = "FileMenuFunctions", ObjectType = "Beep", menu = "Beep", misc = "IFunctionExtension", addinType = AddinType.Class,iconimage ="File.svg",order =1, Showin = ShowinType.Menu)]
     public class FileMenuFunctions : IFunctionExtension

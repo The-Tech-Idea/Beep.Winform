@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public static IServiceCollection RegisterVisManager(this IServiceCollection services)
         {
             Services = services;
-            Services.AddSingleton<IAppManager,VisManager>();
+            Services.AddSingleton<IAppManager,AppManager>();
             return Services;
         }
         public static IAppManager SetBeepReference(this IAppManager ViewManager, IBeepService beepService)

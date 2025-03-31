@@ -171,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
 
                 var extensions = DMEEditor.ConfigEditor.GlobalFunctions
-                    .Where(o => o.classProperties?.ObjectType?.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase) == true)
+                    .Where(o => o.classProperties?.ObjectType?.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase) == true && o.classProperties.BranchType== br.BranchType)
                     .OrderBy(p => p.Order)
                     .ToList();
 

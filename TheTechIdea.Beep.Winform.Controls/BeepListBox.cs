@@ -323,6 +323,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BorderSize = 0,
                // OverrideFontSize = TypeStyleFontSize.Small,
                 Tag = item,
+                Info = item,
                 IsChild = _isItemChilds,
                 UseScaledFont =false,
                 ApplyThemeOnImage = false,

@@ -1,11 +1,15 @@
-﻿using TheTechIdea.Beep.Addin;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Winform.Extensions
+namespace TheTechIdea.Beep.Vis.Modules
 {
     public interface IFunctionandExtensionsHelpers
     {
+  
         IBranch AIRootBranch { get; set; }
         IBranch CloudRootBranch { get; set; }
         IBranch ConfigRootBranch { get; set; }
@@ -43,5 +47,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
         event EventHandler<IPassedArgs> PreShowItem;
 
         void GetValues(IPassedArgs Passedarguments);
+        void GetValues();
+      
     }
 }

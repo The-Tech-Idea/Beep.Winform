@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 
@@ -26,6 +27,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             Dependencies.DMEEditor = beepService.DMEEditor;
             beepService.vis.Container =beepDisplayContainer1;
             beepService.vis.Container.ContainerType = ContainerTypeEnum.TabbedPanel ;
+           
             beepTreeControl1.init(beepService);
             beepTreeControl1.CreateRootTree();
             beepAppBar1.ShowBadgeOnNotificationIcon("1");

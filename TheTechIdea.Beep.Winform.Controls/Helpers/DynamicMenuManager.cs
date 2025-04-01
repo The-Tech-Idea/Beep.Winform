@@ -1,4 +1,5 @@
 ﻿
+using System.ComponentModel;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Editor;
@@ -110,7 +111,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     ObjectType = branch.ObjectType,
                     BranchClass = branch.BranchClass,
                     PointType = branch.BranchType,
-                    BranchName = branch.BranchText
+                    BranchName = branch.BranchText,
+                    MenuName = branch.MenuID,
                 };
 
                 Menus.Add(menuCollection);
@@ -399,6 +401,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     main.ObjectType = item.classProperties.ObjectType;
                     main.BranchClass = item.classProperties.ClassType;
                    main.AssemblyClassDefinitionID = item.GuidID;
+                    main.MenuName = item.classProperties.menu;
+                    main.MenuID = item.classProperties.menu;
                     main.ImagePath = ImageListHelper.GetImagePathFromName(item.classProperties.iconimage);
                     for (int i = 0; i < item.Methods.Count; i++)
                     {
@@ -412,11 +416,76 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                         mi.Value = item.Methods[i].CommandAttr;
                         mi.BranchName = item.Methods[i].Name;
                         mi.PackageName = item.PackageName;
+                        mi.MenuName = item.classProperties.menu;
+                        mi.MenuID = item.classProperties.menu;
                         mi.ImagePath = ImageListHelper.GetImagePathFromName(item.Methods[i].iconimage);
                         main.Children.Add(mi);
                     }
                     ret.Add(main);
                 }
+            }
+            catch (Exception ex)
+            {
+                DMEEditor.AddLogMessage(ex.Message, "Error creating menu items", DateTime.Now, -1, "CreateMenuItems", Errors.Failed);
+            }
+            return ret;
+        }
+        public static List<SimpleItem> CreateCombinedMenuItems(IDMEEditor DMEEditor, string ObjectType = "Beep")
+        {
+            List<SimpleItem> ret = new List<SimpleItem>();
+            AssemblyClassDefinitionManager.DMEEditor = DMEEditor;
+            try
+            {
+                var extensions = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionForMenu(ObjectType);
+                foreach (var item in extensions)
+                {
+                    SimpleItem main = new SimpleItem();
+                    main.Name = item.className;
+                    main.Text = item.classProperties.Caption;
+                    main.PackageName = item.PackageName;
+                    main.ObjectType = item.classProperties.ObjectType;
+                    main.BranchClass = item.classProperties.ClassType;
+                    main.AssemblyClassDefinitionID = item.GuidID;
+                    main.MenuName = item.classProperties.menu;
+                    main.MenuID = item.classProperties.menu;
+                    main.ImagePath = ImageListHelper.GetImagePathFromName(item.classProperties.iconimage);
+                    for (int i = 0; i < item.Methods.Count; i++)
+                    {
+                        SimpleItem mi = new SimpleItem();
+                        mi.Name = item.Methods[i].Caption;
+                        mi.Text = item.Methods[i].Caption;
+                        mi.MethodName = item.Methods[i].Name;
+                        mi.ObjectType = item.Methods[i].ObjectType;
+                        mi.BranchClass = item.Methods[i].ClassType;
+                        mi.PointType = item.Methods[i].PointType;
+                        mi.Value = item.Methods[i].CommandAttr;
+                        mi.BranchName = item.Methods[i].Name;
+                        mi.PackageName = item.PackageName;
+                        mi.MenuName = item.classProperties.menu;
+                        mi.MenuID = item.classProperties.menu;
+                        mi.AssemblyClassDefinitionID = item.GuidID;
+                        mi.ImagePath = ImageListHelper.GetImagePathFromName(item.Methods[i].iconimage);
+                        main.Children.Add(mi);
+                    }
+                    ret.Add(main);
+                }
+                BindingList<SimpleItem> preparedItems = new BindingList<SimpleItem>();
+                // Group items by MenuName.
+                var groups = ret
+                    .Where(item => item != null)
+                    .GroupBy(item => item.MenuName);
+                foreach (var group in groups)
+                {
+                    SimpleItem groupItem = new SimpleItem();
+                    groupItem.Name = group.Key;
+                    groupItem.Text = group.Key;
+                    groupItem.MenuName = group.Key;
+                    groupItem.MenuID = group.Key;
+                    groupItem.ImagePath = ImageListHelper.GetImagePathFromName($"{group.Key}.svg");
+                    groupItem.Children = new BindingList<SimpleItem>(group.ToList());
+                    preparedItems.Add(groupItem);
+                }
+                ret = preparedItems.ToList();
             }
             catch (Exception ex)
             {

@@ -2,6 +2,8 @@
 
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.ConfigUtil;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -11,12 +13,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _popupmode = false;
         private int _maxListHeight = 100;
         private int _maxListWidth = 100;
-        public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
-        protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool IsTitleVisible
         {
-            SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
+            get => _beepListBox.ShowTitle;
+            set
+            {
+                _beepListBox.ShowTitle = value;
+            }
         }
 
+
+      
         [Browsable(true)]
         [Category("Appearance")]
         public bool PopupMode
@@ -183,10 +193,30 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 CurrenItemButton = _beepListBox.CurrenItemButton;
             }
-         //   DialogResult = DialogResult.OK; // Mark the dialog as "OK"
-           // Close();
+            //if(SelectedItem.MethodName != null)
+            //{
+            //    RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.Text);
+            //}
+            //   DialogResult = DialogResult.OK; // Mark the dialog as "OK"
+            // Close();
         }
+        public IErrorsInfo RunMethodFromGlobalFunctions(SimpleItem item, string MethodName)
+        {
+            ErrorsInfo errorsInfo = new ErrorsInfo();
+            try
+            {
+                DynamicFunctionCallingManager.RunFunctionFromExtensions(item, MethodName);
 
+            }
+            catch (Exception ex)
+            {
+                errorsInfo.Flag = Errors.Failed;
+                errorsInfo.Message = ex.Message;
+                errorsInfo.Ex = ex;
+            }
+            return errorsInfo;
+
+        }
         private void BeepListBox_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
             SelectedItem = e.SelectedItem;
@@ -194,7 +224,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             if(SelectedItem != null)
             {
                 CurrenItemButton =_beepListBox.CurrenItemButton;
+                if(SelectedItem.Children.Count > 0)
+                {
+                    if(ChildPopupForm != null)
+                    {
+                        ChildPopupForm.Close();
+                    }
+                    ChildPopupForm = new BeepPopupListForm(SelectedItem.Children.ToList());
+                  
+                    ChildPopupForm.ShowPopup(this, BeepPopupFormPosition.Right);
+                    ChildPopupForm.SelectedItemChanged += ChildPopupForm_SelectedItemChanged;
+
+                }
             }
+        }
+
+        private void ChildPopupForm_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
+        {
+            SelectedItem = e.SelectedItem;
         }
 
         public SimpleItem ShowPopup(string Title, Control triggerControl, BeepPopupFormPosition position, bool showtitle = false)

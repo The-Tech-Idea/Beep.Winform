@@ -37,13 +37,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         public void init(IBeepService service)
         {
             VisManager = service.vis;
+            VisManager.Tree = this;
             DMEEditor = service.DMEEditor;
             Treebranchhandler = new BeepTreeBranchHandler(service, this);
             DropHandler = new BeepTreeNodeDragandDropHandler(service, this);
             this.NodeRightClicked += BeepTreeControl_NodeRightClicked;
             this.MenuItemSelected += BeepTreeControl_MenuItemSelected;
+            DynamicFunctionCallingManager.TreeEditor = this;
+            ExtensionsHelpers = new FunctionandExtensionsHelpers( DMEEditor, VisManager, this);
         }
         #region "Properties"
+        private IFunctionandExtensionsHelpers _extensionsHelpers;
+        public  IFunctionandExtensionsHelpers ExtensionsHelpers
+        {
+            get { return _extensionsHelpers; }
+            set { _extensionsHelpers = value; }
+        }
+        public bool IsCheckBoxon { get; set; } = false;
         public ITreeBranchHandler Treebranchhandler { get; set; }
         public BeepTreeNodeDragandDropHandler DropHandler { get; set; }
         public IBranch SelectedBranch { get; set; }
@@ -305,6 +315,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         {
             // Update the checkbox visibility for all NodesControls
             ShowCheckBox = val;
+            IsCheckBoxon = val;
             RearrangeTree();
         }
 

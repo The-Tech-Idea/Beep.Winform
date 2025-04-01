@@ -32,13 +32,23 @@
             _beepListBox = new BeepListBox();
             SuspendLayout();
             // 
+            // beepuiManager1
+            // 
+            beepuiManager1.BeepiForm = this;
+            beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            // 
             // _beepListBox
             // 
             _beepListBox.ActiveBackColor = Color.Gray;
             _beepListBox.AnimationDuration = 500;
             _beepListBox.AnimationType = DisplayAnimationType.None;
             _beepListBox.ApplyThemeToChilds = true;
-            _beepListBox.BackColor = Color.FromArgb(245, 245, 245);
+            _beepListBox.BackColor = Color.FromArgb(240, 240, 240);
+            _beepListBox.BadgeBackColor = Color.Red;
+            _beepListBox.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
+            _beepListBox.BadgeForeColor = Color.White;
+            _beepListBox.BadgeShape = BadgeShape.Circle;
+            _beepListBox.BadgeText = "";
             _beepListBox.BlockID = null;
             _beepListBox.BorderColor = Color.Black;
             _beepListBox.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -65,8 +75,8 @@
             _beepListBox.FocusBorderColor = Color.Gray;
             _beepListBox.FocusForeColor = Color.Black;
             _beepListBox.FocusIndicatorColor = Color.Blue;
-            _beepListBox.Font = new Font("Segoe UI", 17.6F);
-            _beepListBox.ForeColor = Color.FromArgb(44, 62, 80);
+            _beepListBox.Font = new Font("Segoe UI", 14F);
+            _beepListBox.ForeColor = Color.FromArgb(0, 0, 0);
             _beepListBox.Form = null;
             _beepListBox.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             _beepListBox.GradientEndColor = Color.Gray;
@@ -81,20 +91,30 @@
             _beepListBox.InactiveBackColor = Color.Gray;
             _beepListBox.InactiveBorderColor = Color.Gray;
             _beepListBox.InactiveForeColor = Color.Black;
+            _beepListBox.Info = (Models.SimpleItem)resources.GetObject("_beepListBox.Info");
             _beepListBox.IsAcceptButton = false;
             _beepListBox.IsBorderAffectedByTheme = true;
             _beepListBox.IsCancelButton = false;
             _beepListBox.IsChild = false;
             _beepListBox.IsCustomeBorder = false;
             _beepListBox.IsDefault = false;
+            _beepListBox.IsDeleted = false;
+            _beepListBox.IsDirty = false;
+            _beepListBox.IsEditable = false;
             _beepListBox.IsFocused = false;
             _beepListBox.IsFrameless = false;
             _beepListBox.IsHovered = false;
             _beepListBox.IsItemChilds = true;
+            _beepListBox.IsNew = false;
             _beepListBox.IsPressed = false;
+            _beepListBox.IsReadOnly = false;
+            _beepListBox.IsRequired = false;
             _beepListBox.IsRounded = true;
             _beepListBox.IsRoundedAffectedByTheme = true;
+            _beepListBox.IsSelected = false;
             _beepListBox.IsShadowAffectedByTheme = true;
+            _beepListBox.IsVisible = false;
+            _beepListBox.Items = (List<object>)resources.GetObject("_beepListBox.Items");
             _beepListBox.LeftoffsetForDrawingRect = 0;
             _beepListBox.LinkedProperty = null;
             _beepListBox.Location = new Point(3, 3);
@@ -102,6 +122,7 @@
             _beepListBox.Name = "_beepListBox";
             _beepListBox.OverrideFontSize = TypeStyleFontSize.None;
             _beepListBox.ParentBackColor = Color.Empty;
+            _beepListBox.ParentControl = null;
             _beepListBox.PressedBackColor = Color.Gray;
             _beepListBox.PressedBorderColor = Color.Gray;
             _beepListBox.PressedForeColor = Color.Black;
@@ -122,28 +143,32 @@
             _beepListBox.ShowLeftBorder = true;
             _beepListBox.ShowRightBorder = true;
             _beepListBox.ShowShadow = false;
-            _beepListBox.ShowTitle = true;
-            _beepListBox.ShowTitleLine = true;
+            _beepListBox.ShowTitle = false;
+            _beepListBox.ShowTitleLine = false;
             _beepListBox.ShowTitleLineinFullWidth = true;
             _beepListBox.ShowTopBorder = true;
             _beepListBox.Size = new Size(631, 765);
             _beepListBox.SlideFrom = SlideDirection.Left;
             _beepListBox.StaticNotMoving = false;
             _beepListBox.TabIndex = 0;
-            _beepListBox.Theme = Vis.Modules.EnumBeepThemes.FlatDesignTheme;
+            _beepListBox.TempBackColor = Color.Empty;
+            _beepListBox.TextFont = new Font("Segoe UI", 14F);
+            _beepListBox.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
             _beepListBox.TitleAlignment = ContentAlignment.TopLeft;
-            _beepListBox.TitleBottomY = 43;
+            _beepListBox.TitleBottomY = 0;
             _beepListBox.TitleLineColor = Color.Gray;
             _beepListBox.TitleLineThickness = 2;
             _beepListBox.TitleText = "List Box";
             _beepListBox.ToolTipText = "";
             _beepListBox.TopoffsetForDrawingRect = 0;
             _beepListBox.UseGradientBackground = false;
+            _beepListBox.UseThemeFont = true;
             // 
             // BeepPopupListForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BorderColor = Color.FromArgb(200, 200, 200);
             ClientSize = new Size(637, 771);
             Controls.Add(_beepListBox);
             Name = "BeepPopupListForm";

@@ -77,6 +77,8 @@
     <None Remove="GFX\SVG\back-button.svg" />
     <None Remove="GFX\SVG\back.svg" />
     <None Remove="GFX\SVG\backwards.svg" />
+    <None Remove="GFX\SVG\beep.svg" />
+    <None Remove="GFX\SVG\beepsetup.svg" />
     <None Remove="GFX\SVG\cancel.svg" />
     <None Remove="GFX\SVG\cassandra.svg" />
     <None Remove="GFX\SVG\cat.svg" />
@@ -224,6 +226,8 @@
     <EmbeddedResource Include="GFX\SVG\alarmclock.svg" />
     <EmbeddedResource Include="GFX\SVG\alert.svg" />
     <EmbeddedResource Include="GFX\SVG\backwards.svg" />
+    <EmbeddedResource Include="GFX\SVG\beep.svg" />
+    <EmbeddedResource Include="GFX\SVG\beepsetup.svg" />
     <EmbeddedResource Include="GFX\SVG\cancel.svg" />
     <EmbeddedResource Include="GFX\SVG\cassandra.svg" />
     <EmbeddedResource Include="GFX\SVG\cat.svg" />

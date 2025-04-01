@@ -5,6 +5,8 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.ConfigUtil;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -42,10 +44,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         public EventHandler<BeepEventDataArgs> ImageClicked { get; set; }
         private Color tmpbackcolor;
         private Color tmpforcolor;
-      
-        #region "Popup List Properties"
-      //  private BeepPopupForm _popupForm;
 
+        #region "Popup List Properties"
+        //  private BeepPopupForm _popupForm;
+       // BeepPopupListForm menuDialog;
+        private Color tmpfillcolor;
+        private Color tmpstrokecolor;
         private bool _isPopupOpen;
         private bool _popupmode = false;
         private int _maxListHeight = 100;
@@ -65,6 +69,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _popupmode = value;
             }
+        }
+        BeepPopupListForm menuDialog;
+        // popup list items form
+        [Browsable(false)]
+        public BeepPopupListForm PopupListForm
+        {
+            get => menuDialog;
+            set => menuDialog = value;
         }
 
         private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
@@ -488,9 +500,7 @@ namespace TheTechIdea.Beep.Winform.Controls
        
         #endregion "Constructor"
         #region "Popup List Methods"
-        BeepPopupListForm menuDialog;
-        private Color tmpfillcolor;
-        private Color tmpstrokecolor;
+      
 
         private void TogglePopup()
         {
@@ -515,12 +525,40 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isPopupOpen = true;
             Invalidate();
         }
+        public IErrorsInfo RunMethodFromGlobalFunctions(SimpleItem item, string MethodName)
+        {
+            ErrorsInfo errorsInfo = new ErrorsInfo();
+            try
+            {
+                DynamicFunctionCallingManager.RunFunctionFromExtensions(item, MethodName);
 
+            }
+            catch (Exception ex)
+            {
+                errorsInfo.Flag = Errors.Failed;
+                errorsInfo.Message = ex.Message;
+                errorsInfo.Ex = ex;
+            }
+            return errorsInfo;
+
+        }
         private void MenuDialog_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
           SelectedItem = e.SelectedItem;
+          if(SelectedItem.Children.Count==0)
+            {
+                ClosePopup();
+            }
+            else
+            {
+                if(SelectedItem.MethodName != null)
+                {
+                    RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.MethodName);
+                }
+               
+            }
+             
 
-        ClosePopup();
         }
         public void ClosePopup()
         {
@@ -530,7 +568,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (menuDialog != null)
             {
                 menuDialog.SelectedItemChanged -= MenuDialog_SelectedItemChanged;
-                menuDialog.Close();
+                menuDialog.CloseCascade();
+              //  menuDialog.Close();
                 menuDialog.Dispose();
                 menuDialog = null;
             }

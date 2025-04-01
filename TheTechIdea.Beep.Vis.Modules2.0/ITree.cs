@@ -9,6 +9,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public interface ITree
     {
+        bool IsCheckBoxon { get; set; } 
         string CategoryIcon { get; set; }
         string SelectIcon { get; set; }
         string TreeType { get; set; }
@@ -24,6 +25,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         List<MenuList> Menus { get; set; }
         IAppManager VisManager { get; set; }
         int SelectedBranchID { get; set; }
+        IFunctionandExtensionsHelpers ExtensionsHelpers { get; set; }
         void RefreshTree();
         void RefreshTree(IBranch branch);
         void RefreshTree(int branchid);

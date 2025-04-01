@@ -15,6 +15,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     public static class DynamicFunctionCallingManager
     {
         public static IDMEEditor DMEEditor { get; set; }
+        public static IAppManager Vismanager { get; set; }
+        public static ITree TreeEditor { get; set; }
+        public static void RunFunctionFromExtensions( SimpleItem item, string MethodName)
+        {
+            AssemblyClassDefinitionManager.DMEEditor = DMEEditor;
+            IBranch br = null;
+            AssemblyClassDefinition assemblydef = new AssemblyClassDefinition();
+            MethodInfo method = null;
+            MethodsClass methodsClass;
+            dynamic fc = null;
+            assemblydef = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionByGuid(item.AssemblyClassDefinitionID);
+           
+                 fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { Vismanager });
+            //  dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] {  });
+            if (fc == null)
+            {
+                return;
+            }
+
+            //Type t = ((IFunctionExtension)fc).GetType();
+            //   AssemblyClassDefinition cls = tree.DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
+
+            methodsClass = assemblydef.Methods.Where(x => x.Caption == MethodName).FirstOrDefault();
+
+          
+            method = methodsClass.Info;
+            if (method.GetParameters().Length > 0)
+            {
+                method.Invoke(fc, new object[] { DMEEditor.Passedarguments });
+            }
+            else
+                method.Invoke(fc, null);
+        }
         public static void RunFunctionFromExtensions(this ITree tree, SimpleItem item, string MethodName)
         {
             AssemblyClassDefinitionManager.DMEEditor = tree.DMEEditor;
@@ -23,14 +56,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             MethodInfo method = null;
             MethodsClass methodsClass;
             assemblydef = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionByGuid(item.AssemblyClassDefinitionID);
-            dynamic fc = tree.DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { tree.DMEEditor, tree.VisManager, tree });
+            dynamic fc = tree.DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { Vismanager });
             //  dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] { DMEEditor, Vismanager, this });
             if (fc == null)
             {
                 return;
             }
 
-            Type t = ((IFunctionExtension)fc).GetType();
+           // Type t = ((IFunctionExtension)fc).GetType();
             //   AssemblyClassDefinition cls = tree.DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
 
             methodsClass = assemblydef.Methods.Where(x => x.Caption == MethodName).FirstOrDefault();

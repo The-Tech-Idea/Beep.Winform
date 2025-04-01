@@ -131,6 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public string ObjectType { get; set; }
         public string BranchClass { get; set; }
         public string BranchName { get; set; }
+        public string MenuName { get; set; }
 
     }
     public class SimpleMenuList

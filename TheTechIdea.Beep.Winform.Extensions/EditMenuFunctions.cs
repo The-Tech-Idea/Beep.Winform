@@ -14,14 +14,24 @@ namespace TheTechIdea.Beep.Winform.Extensions
     {
         public IDMEEditor DMEEditor { get; set; }
         public IPassedArgs Passedargs { get; set; }
-      
-        private FunctionandExtensionsHelpers ExtensionsHelpers;
-        public EditMenuFunctions(IDMEEditor pdMEEditor, Vis.Modules.IAppManager pvisManager, ITree ptreeControl)
+
+        public IFunctionandExtensionsHelpers ExtensionsHelpers { get; set; }
+        public EditMenuFunctions(IAppManager pvisManager)
         {
-            DMEEditor = pdMEEditor;
-         
-            ExtensionsHelpers = new FunctionandExtensionsHelpers(DMEEditor, pvisManager, ptreeControl);
+            DMEEditor = pvisManager.DMEEditor;
+            if (pvisManager.Tree != null)
+            {
+                tree = (ITree)pvisManager.Tree;
+                ExtensionsHelpers = tree.ExtensionsHelpers;
+            }
         }
+        private ITree tree;
+        //public EditMenuFunctions(IDMEEditor pdMEEditor, Vis.Modules.IAppManager pvisManager, ITree ptreeControl)
+        //{
+        //    DMEEditor = pdMEEditor;
+
+        //    ExtensionsHelpers = new FunctionandExtensionsHelpers(DMEEditor, pvisManager, ptreeControl);
+        //}
 
         //[CommandAttribute(Caption = "Config Log", Name = "Showlog", Click = true, iconimage = "log.png", ObjectType = "Beep", PointType = EnumPointType.Global, Showin = ShowinType.Both)]
         //public IErrorsInfo showlog(IPassedArgs Passedarguments)
@@ -62,12 +72,12 @@ namespace TheTechIdea.Beep.Winform.Extensions
 
         }
         [CommandAttribute(Caption = "Config/Hide Log Panel", Name = "LogPanelCollapse", Click = true, iconimage = "expandlog.png", ObjectType = "Beep", PointType = EnumPointType.Global, Showin = ShowinType.Menu, Key = BeepKeys.L, Alt = true)]
-        public IErrorsInfo LogPanelCollapse(IPassedArgs Passedarguments)
+        public IErrorsInfo LogPanelCollapse()
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;
             try
             {
-                ExtensionsHelpers.GetValues(Passedarguments);
+                ExtensionsHelpers.GetValues();
                 ExtensionsHelpers.Vismanager.ShowLogWindow = !ExtensionsHelpers.Vismanager.ShowLogWindow;
 
                 //  DMEEditor.AddLogMessage("Success", $"Turn on/off entities", DateTime.Now, 0, null, Errors.Ok);
@@ -80,13 +90,13 @@ namespace TheTechIdea.Beep.Winform.Extensions
 
         }
         [CommandAttribute(Caption = "Turnon/Off CheckBox's", Name = "Turnon/Off CheckBox", Click = true, iconimage = "check.png", ObjectType = "Beep", PointType = EnumPointType.Global, Showin = ShowinType.Both,Key = BeepKeys.T,Alt =true)]
-        public void TurnonOffCheckBox(bool val)
+        public IErrorsInfo TurnonOffCheckBox()
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;
             try
             {
-                //ExtensionsHelpers.GetValues(Passedarguments);
-                //ExtensionsHelpers.TreeEditor.TurnonOffCheckBox(Passedarguments);
+                ExtensionsHelpers.GetValues();
+                ExtensionsHelpers.TreeEditor.TurnonOffCheckBox(!ExtensionsHelpers.TreeEditor.IsCheckBoxon);
                 //ExtensionsHelpers.TreeEditor.SelectedBranchs.Clear();
                 //  DMEEditor.AddLogMessage("Success", $"Turn on/off entities", DateTime.Now, 0, null, Errors.Ok);
             }
@@ -94,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
             {
                 DMEEditor.AddLogMessage("Fail", $"Could not turn on/offf entities {ex.Message}", DateTime.Now, 0, null, Errors.Failed);
             }
-            //return DMEEditor.ErrorObject;
+            return DMEEditor.ErrorObject;
 
         }
         [CommandAttribute(Name = "EditDefaults", Caption = "Edit Default", Click = true, iconimage = "editdefaults.png", ObjectType = "Beep", PointType = EnumPointType.DataPoint, Showin = ShowinType.Menu)]

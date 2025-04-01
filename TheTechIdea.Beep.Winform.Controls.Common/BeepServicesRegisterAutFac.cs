@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Desktop.Common.KeyManagement;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Container;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 
@@ -25,6 +26,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public static IAppManager AppManager { get; private set; }
         public static IKeyHandlingManager keyhandler { get; private set; }
 
+      
         public static ContainerBuilder RegisterBeep(this ContainerBuilder builder, string directorypath, string containername, BeepConfigType configType, bool addAsSingleton = true)
         {
             Builder = builder;
@@ -208,6 +210,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             // Extracted service retrieval and initial configuration into a separate method
             beepService = AutoFacContainer.Resolve<IBeepService>()!;
             AppManager = AutoFacContainer.Resolve<IAppManager>()!;
+            beepService.vis = AppManager;
             keyhandler = AutoFacContainer.Resolve<IKeyHandlingManager>()!;
             // Resolve a specific view model by key (type name)
 

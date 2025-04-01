@@ -19,20 +19,20 @@ namespace TheTechIdea.Beep.Winform.Extensions
     public class DataSourceMenuFunctions : IFunctionExtension
     {
         public IDMEEditor DMEEditor { get; set; }
-        public IPassedArgs Passedargs { get; set; }
-
-
-
-        private FunctionandExtensionsHelpers ExtensionsHelpers;
-        public DataSourceMenuFunctions(IDMEEditor pdMEEditor, Vis.Modules.IAppManager pvisManager,ITree ptreeControl)
-        {
-            DMEEditor = pdMEEditor;
-        
-            ExtensionsHelpers=new FunctionandExtensionsHelpers(DMEEditor, pvisManager, ptreeControl);
-        }
-      
+        public IPassedArgs Passedargs  {get; set; }
+        public IFunctionandExtensionsHelpers ExtensionsHelpers { get; set; }
        
-
+        public DataSourceMenuFunctions(IAppManager pvisManager)
+        {
+            DMEEditor = pvisManager.DMEEditor;
+            if (pvisManager.Tree != null)
+            {
+                tree=(ITree)pvisManager.Tree;
+                ExtensionsHelpers = tree.ExtensionsHelpers  ;
+            }
+        }
+        private ITree tree;
+      
         [CommandAttribute(Name = "Copy Entities", Caption = "Copy Entities", Click = true, iconimage = "copy.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu,Key = BeepKeys.A,Ctrl =true)]
         public IErrorsInfo CopyEntities(IPassedArgs Passedarguments)
         {

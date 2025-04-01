@@ -3,6 +3,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.ConfigUtil;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -29,7 +31,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         private LinkedList<MenuitemTracking> ListForms = new LinkedList<MenuitemTracking>();
         private bool childmenusisopen = false;
 
-        public static BeepPopupForm ActivePopupForm { get; private set; }
+        public  BeepPopupForm ActivePopupForm { get; private set; }
+        private BeepButton _activeMenuButton;
+        public  BeepButton ActiveMenuButton
+        {
+            get => _activeMenuButton;
+            set
+            {
+                if (_activeMenuButton != value)
+                {
+                    _activeMenuButton = value;
+                }
+            }
+        }
+
 
         #region "Properties"
         private Font _textFont = new Font("Arial", 10);
@@ -205,10 +220,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitMenu();
             ApplyTheme();
         }
-        //private void Items_ListChanged(object? sender, ListChangedEventArgs e)
-        //{
-        //    InitMenu();
-        //}
         public void InitMenu()
         {
             //// Console.WriteLine("InitMenu");
@@ -226,6 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     continue;
                 }
+
                 // Create the button
                 BeepButton btn = new BeepButton
                 {
@@ -248,7 +260,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Anchor = AnchorStyles.None,
                     TextFont = _textFont,
                     UseThemeFont = true,
-                    //  AutoSize = true,
+                    PopupMode = true,
+                    ListItems = item.Children,
                     GuidID = item != null ? item.GuidId : Guid.NewGuid().ToString()
                 };
 
@@ -256,7 +269,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Attach your click handler
                 btn.Click -= Btn_Click; // ensure no duplicates
                 btn.Click += Btn_Click;
-
+                btn.SelectedItemChanged += Menu_SelectedItemChanged;
                 // Add to Controls
                 container.Controls.Add(btn);
                 //  menumainbar.Add(item.Text, btn);
@@ -315,63 +328,25 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             //   // Console.WriteLine("InitMenu done.");
         }
-        private void ShowMainMenuBarList(SimpleItem item, BeepButton button)
-        {
-            ListForms.Clear();
-            MenuitemTracking menuitemTracking = new MenuitemTracking();
-            menuitemTracking.ParentItem = item;
-            menuitemTracking.Menu = new BeepPopupListForm(item.Children.ToList());
-            CurrentMenuForm = menuitemTracking.Menu;
-            ActivePopupForm = menuitemTracking.Menu;
-            menuitemTracking.Menu.Theme = Theme;
-            ListForms.AddLast(menuitemTracking);
-            //menuitemTracking.Menu.IsTimerActive=false;
-            currentMenu = item.Children;
-            menuitemTracking.Menu.SelectedItemChanged += Menu_SelectedItemChanged;
-            //point adjustment
-            Point p = new Point(0, this.Height - button.Height);
-            SimpleItem x = menuitemTracking.Menu.ShowPopup(item.Text, button, p, BeepPopupFormPosition.Bottom);
-
-
-        }
+        
         private void Menu_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
             SimpleItem x = e.SelectedItem;
 
             if (x != null)
             {
+                //if (ActivePopupForm != null)
+                //{
+                //    ActivePopupForm.Close();
+                //}
                 SelectedItem = x;
-           //     SelectedIndex = items.IndexOf(x);
-               
-                // Get the button's screen position
-
-                if (x.Children.Count > 0)
+                if (SelectedItem.MethodName != null)
                 {
-                    currentMenu = x.Children;
-                    CurrentMenuForm = sender as BeepPopupListForm;
-                    CurrenItemButton = CurrentMenuForm.CurrenItemButton;
-                    Point buttonScreenPosition = CurrenItemButton.PointToScreen(Point.Empty);
-                    Point p = new Point(buttonScreenPosition.X + CurrentMenuForm.Width, buttonScreenPosition.Y);
-                    ShowChildPopup(CurrentMenuForm, x, p);
+                    RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.Text);
                 }
-
             }
         }
-        private void ShowChildPopup(BeepPopupListForm parent, SimpleItem item, Point location)
-        {
-            MenuitemTracking menuitemTracking = new MenuitemTracking();
-            menuitemTracking.ParentItem = item;
-            menuitemTracking.Menu = new BeepPopupListForm(item.Children.ToList());
-            ActivePopupForm = menuitemTracking.Menu;
-            menuitemTracking.Menu.Theme = Theme;
-            MenuitemTracking LastItem = ListForms.Last.Value;
-            currentMenu = item.Children;
-            // CurrentMenuForm = LastItem.Menu;
-            parent.SetChildPopupForm(menuitemTracking.Menu);
-            ListForms.AddLast(menuitemTracking);
-            menuitemTracking.Menu.SelectedItemChanged += Menu_SelectedItemChanged;
-            SimpleItem x = menuitemTracking.Menu.ShowPopup(item.Text, location, BeepPopupFormPosition.Right);
-        }
+        
         private void Btn_Click(object? sender, EventArgs e)
         {
 
@@ -380,29 +355,54 @@ namespace TheTechIdea.Beep.Winform.Controls
             // UnpressAllButtons();
 
             SimpleItem item = (SimpleItem)btn.Tag;
-            if (_lastbuttonclicked != null)
-            {
-                _lastbuttonclicked.IsSelected = false;
-                _lastbuttonclicked.ClosePopup();
-            }
-            _lastbuttonclicked = btn;
-            _lastbuttonclicked.IsSelected = true;
-            if (ActivePopupForm != null)
-            {
-                ActivePopupForm.Close();
-            }
+            //if (_lastbuttonclicked != null)
+            //{
+            //    _lastbuttonclicked.IsSelected = false;
+            //    _lastbuttonclicked.ClosePopup();
+            //}
+            //_lastbuttonclicked = btn;
+            //_lastbuttonclicked.IsSelected = true;
+            //if (ActivePopupForm != null)
+            //{
+            //    ActivePopupForm.Close();
+            //}
             if (item.Children.Count > 0)
             {
 
-                ShowMainMenuBarList(item, btn);
+               // ShowMainMenuBarList(item, btn);
             }
             else
             {
                 currentMenu = items;
-
-                SelectedIndex = items.IndexOf(item);
+                SelectedItem = item;
+              
+                //SelectedIndex = items.IndexOf(item);
 
             }
+            if(ActiveMenuButton != null)
+            {
+                ActiveMenuButton.IsSelected = false;
+                ActiveMenuButton.ClosePopup();
+            }
+            _activeMenuButton = btn;
+            ActivePopupForm =btn.PopupListForm;
+        }
+        public IErrorsInfo RunMethodFromGlobalFunctions(SimpleItem item, string MethodName)
+        {
+            ErrorsInfo errorsInfo = new ErrorsInfo();
+            try
+            {
+                DynamicFunctionCallingManager.RunFunctionFromExtensions( item, MethodName);
+
+            }
+            catch (Exception ex)
+            {
+                errorsInfo.Flag = Errors.Failed;
+                errorsInfo.Message = ex.Message;
+                errorsInfo.Ex = ex;
+            }
+            return errorsInfo;
+
         }
         protected override void OnFontChanged(EventArgs e)
         {

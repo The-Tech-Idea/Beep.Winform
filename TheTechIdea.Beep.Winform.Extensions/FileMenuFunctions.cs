@@ -14,19 +14,21 @@ namespace TheTechIdea.Beep.Winform.Extensions
     [AddinAttribute(Caption = "File", Name = "FileMenuFunctions", ObjectType = "Beep", menu = "Beep", misc = "IFunctionExtension", addinType = AddinType.Class,iconimage ="File.svg",order =1, Showin = ShowinType.Menu)]
     public class FileMenuFunctions : IFunctionExtension
     {
-        public IDMEEditor DMEEditor { get ; set ; }
+        public IDMEEditor DMEEditor { get; set; }
         public IPassedArgs Passedargs { get; set; }
-     
-        private FunctionandExtensionsHelpers ExtensionsHelpers;
 
-       
-        public FileMenuFunctions(IDMEEditor pdMEEditor, Vis.Modules.IAppManager pvisManager, ITree ptreeControl)
+        public IFunctionandExtensionsHelpers ExtensionsHelpers { get; set; }
+        public FileMenuFunctions(IAppManager pvisManager)
         {
-            DMEEditor = pdMEEditor;
-           
-            ExtensionsHelpers = new FunctionandExtensionsHelpers(DMEEditor, pvisManager, ptreeControl);
+            DMEEditor = pvisManager.DMEEditor;
+            if (pvisManager.Tree != null)
+            {
+                tree = (ITree)pvisManager.Tree;
+                ExtensionsHelpers = tree.ExtensionsHelpers;
+            }
         }
-      
+        private ITree tree;
+
         [CommandAttribute(Caption = "Data Connection", Name = "dataconnection", Click = true, iconimage = "datasources.svg", ObjectType = "Beep", PointType = EnumPointType.Global, Showin = ShowinType.Menu)]
         public IErrorsInfo dataconnection(IPassedArgs Passedarguments)
         {

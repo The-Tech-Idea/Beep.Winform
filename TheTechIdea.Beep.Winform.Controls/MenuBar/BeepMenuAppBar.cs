@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MenuBar
         {
             try
             {
-                foreach (var item in DynamicMenuManager.CreateMenuItems(DMEEditor, "Beep"))
+                foreach (var item in DynamicMenuManager.CreateCombinedMenuItems(DMEEditor, "Beep"))
                 {
                     MenuItems.Add(item);
                 }

@@ -15,18 +15,26 @@ namespace TheTechIdea.Beep.Winform.Extensions
     {
         public IDMEEditor DMEEditor { get; set; }
         public IPassedArgs Passedargs { get; set; }
-        public ErrorsInfo ErrorsandMesseges { get; set; } = new ErrorsInfo();
 
+        public IFunctionandExtensionsHelpers ExtensionsHelpers { get; set; }
+        public IErrorsInfo ErrorsandMesseges { get; private set; }
 
-        private FunctionandExtensionsHelpers ExtensionsHelpers;
-        public HorizantalFunctions(IDMEEditor pdMEEditor, Vis.Modules.IAppManager pvisManager, ITree ptreeControl)
+        //public HorizantalFunctions(IDMEEditor pdMEEditor, Vis.Modules.IAppManager pvisManager, ITree ptreeControl)
+        //{
+        //    DMEEditor = pdMEEditor;
+
+        //    ExtensionsHelpers = new FunctionandExtensionsHelpers(DMEEditor, pvisManager, ptreeControl);
+        //}
+        public HorizantalFunctions(IAppManager pvisManager)
         {
-            DMEEditor = pdMEEditor;
-
-            ExtensionsHelpers = new FunctionandExtensionsHelpers(DMEEditor, pvisManager, ptreeControl);
+            DMEEditor = pvisManager.DMEEditor;
+            if (pvisManager.Tree != null)
+            {
+                tree = (ITree)pvisManager.Tree;
+                ExtensionsHelpers = tree.ExtensionsHelpers;
+            }
         }
-
-
+        private ITree tree;
 
         [CommandAttribute(Caption = "Refresh", Name = "Refresh", Click = true, iconimage = "refresh.png", ObjectType = "Beep", PointType = EnumPointType.Global, Showin = ShowinType.HorZToolbar, IsLeftAligned = false)]
         public IErrorsInfo Refresh(IPassedArgs Passedarguments)

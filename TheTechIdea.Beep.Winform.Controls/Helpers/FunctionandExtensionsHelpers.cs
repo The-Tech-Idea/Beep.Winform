@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Addin;
 
 
 
-namespace TheTechIdea.Beep.Winform.Extensions
+namespace TheTechIdea.Beep.Winform.Controls.Helpers
 {
     public class FunctionandExtensionsHelpers : IFunctionandExtensionsHelpers
     {
@@ -143,6 +143,10 @@ namespace TheTechIdea.Beep.Winform.Extensions
 
         }
 
-
+        public void GetValues()
+        {
+            Passedargs=new PassedArgs();
+            GetValues(Passedargs);
+        }
     }
 }

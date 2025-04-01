@@ -1,0 +1,74 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0-windows</TargetFrameworks>
+	  <Nullable>enable</Nullable>
+	  <UseWindowsForms>true</UseWindowsForms>
+	  <ImplicitUsings>enable</ImplicitUsings>
+	  <LangVersion>12.0</LangVersion>
+	  <Authors>The Tech Idea</Authors>
+	  <Company>The Tech Idea</Company>
+	  <Copyright>2022</Copyright>
+	  <PackageIcon>SimpleODM.png</PackageIcon>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <IncludeSymbols>False</IncludeSymbols>
+	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  <PackageId>TheTechIdea.Beep.Winform.Controls.Integrated</PackageId>
+	  <Title>TheTechIdea.Beep.Winform.Controls.Integrated</Title>
+	  <Product>TheTechIdea.Beep.Winform.Controls.Integrated</Product>
+	  <AssemblyName>TheTechIdea.Beep.Winform.Controls.Integrated</AssemblyName>
+	  <Version>1.0.0</Version>
+	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+  <Target Name="CopyPackage" AfterTargets="Pack">
+	  <Copy SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="..\..\..\LocalNugetFiles" />
+  </Target>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	  <Copy SourceFiles="$(TargetDir)$(Assemblyname).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(Assemblyname)\$(TargetFramework)" SkipUnchangedFiles="false" />
+  </Target>
+  <ItemGroup>
+	  <None Include="..\..\InstallationScripts\LogoGFx\128\SimpleODM.png">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+	  </None>
+  </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.0" />
+		<PackageReference Include="Svg" Version="3.4.7" />
+		<PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.39" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Beep.Containers\Beep.Containers.Models\TheTechIdea.Beep.Container.Model.csproj" />
+	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="BeepDataBlock.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="BeepDataConnection.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Grid\BeepDataGridView.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Grid\BeepGrid.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Grid\BeepGridFooter.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="Grid\BeepGridHeader.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="ITrees\BeepTreeView\BeepAppTree.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	  <Compile Update="MenuBar\BeepMenuAppBar.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	</ItemGroup>
+</Project>

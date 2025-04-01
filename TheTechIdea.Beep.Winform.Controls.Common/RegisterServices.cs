@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Autofac.Core;
 using Microsoft.Extensions.DependencyInjection;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView;
@@ -7,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Managers;
 
 namespace TheTechIdea.Beep.Desktop.Common
 {
-    public static class RegisterBeepWinformServices
+    public  static partial class RegisterBeepWinformServices
     {
         public static ContainerBuilder RegisterControlManager(this ContainerBuilder builder)
         {

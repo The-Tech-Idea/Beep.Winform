@@ -35,17 +35,12 @@
   <ItemGroup>
     <Compile Remove="AppBar\**" />
     <Compile Remove="Dashboard\**" />
-    <Compile Remove="Grid\NewFolder\**" />
     <Compile Remove="Services\**" />
     <EmbeddedResource Remove="AppBar\**" />
     <EmbeddedResource Remove="Dashboard\**" />
-    <EmbeddedResource Remove="Grid\DataColumns\**" />
-    <EmbeddedResource Remove="Grid\NewFolder\**" />
     <EmbeddedResource Remove="Services\**" />
     <None Remove="AppBar\**" />
     <None Remove="Dashboard\**" />
-    <None Remove="Grid\DataColumns\**" />
-    <None Remove="Grid\NewFolder\**" />
     <None Remove="Services\**" />
   </ItemGroup>
   
@@ -53,8 +48,6 @@
     <Compile Remove="BeepButtonPopList.cs" />
     <Compile Remove="BeepGlobalThemeManager.cs" />
     <Compile Remove="BeepTabs_old.cs" />
-    <Compile Remove="Grid\DesignerForm\CustomDataGridViewDesigner.cs" />
-    <Compile Remove="Grid\ExtendedDataGridViewColumnCollectionEditor.cs" />
     <Compile Remove="Managers\BeepDataBlockManager.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -391,16 +384,13 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.0" />
     <PackageReference Include="Svg" Version="3.4.7" />
-    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.39" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="BeepDataBlock.cs" />
     <Compile Update="BeepFieldFilter.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Containers\uc_Container.cs" />
     <Compile Update="BeepBindingNavigator.cs" />
-    <Compile Update="Grid\BeepGrid.cs" />
     <Compile Update="Managers\Wizards\Frm_Wizard.cs" />
     <Compile Update="BeepCheckBox.cs" />
     <Compile Update="BeepProgressBar.cs">
@@ -434,7 +424,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Design\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Resources\" />
     <Folder Include="Totals\" />
@@ -444,7 +433,6 @@
     <EmbeddedResource Include="GFX\SVG\square-plus.svg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Beep.Containers\Beep.Containers.Models\TheTechIdea.Beep.Container.Model.csproj" />
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
   </ItemGroup>
 </Project>

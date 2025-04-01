@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 using TheTechIdea.Beep.ConfigUtil;
-using TheTechIdea.Beep.Container.Services;
+
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Point dragStartFormPoint;
         private Point resizeStartCursorPoint;
         private Size resizeStartFormSize;
-        private readonly IBeepService beepservices;
+       // private readonly IBeepService beepservices;
         private bool ishandled = false;
         private bool _inpopupmode = false;
         private string _title = "BeepiForm";
@@ -113,29 +113,29 @@ namespace TheTechIdea.Beep.Winform.Controls
   
         #endregion "Properties"
         #region "Constructors"
-        public BeepiForm(IBeepService beepService)
-        {
-            //   //Debug.WriteLine("BeepiForm Constructor 1");
-            InitializeComponent();
-            beepservices = beepService;
-            ishandled = false;
-            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-            //   SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
-            UpdateStyles();
-         //   Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
-            // Apply border and custom form styles
-            FormBorderStyle = FormBorderStyle.None;
-            //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
-            //      Margin = new Padding(_resizeMargin);
-            //     //Debug.WriteLine("BeepiForm Constructor 11");
-            // Initialize();
-            // Set padding so controls dock within the interior
-          //  this.Padding = new Padding(_borderThickness);
+        //public BeepiForm(IBeepService beepService)
+        //{
+        //    //   //Debug.WriteLine("BeepiForm Constructor 1");
+        //    InitializeComponent();
+        //    beepservices = beepService;
+        //    ishandled = false;
+        //    SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+        //    //   SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
+        //    UpdateStyles();
+        // //   Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
+        //    // Apply border and custom form styles
+        //    FormBorderStyle = FormBorderStyle.None;
+        //    //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
+        //    //      Margin = new Padding(_resizeMargin);
+        //    //     //Debug.WriteLine("BeepiForm Constructor 11");
+        //    // Initialize();
+        //    // Set padding so controls dock within the interior
+        //  //  this.Padding = new Padding(_borderThickness);
 
-            // Create and configure the inner content panel.
+        //    // Create and configure the inner content panel.
            
 
-        }
+        //}
         public BeepiForm()
         {
             // //Debug.WriteLine("BeepiForm Constructor 2");

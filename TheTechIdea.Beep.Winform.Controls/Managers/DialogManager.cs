@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
-using TheTechIdea.Beep.Addin;
+
 using TheTechIdea.Beep.ConfigUtil;
-using TheTechIdea.Beep.Container.Services;
-using TheTechIdea.Beep.DataBase;
+
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
@@ -19,17 +13,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 {
     public class DialogManager : IDialogManager
     {
-        private readonly IBeepService _beepServices;
+     //   private readonly IBeepService _beepServices;
         public IDMEEditor DMEEditor { get; set; }
         public Control DisplayPanel { get; set; }
         public Control CrudFilterPanel { get; set; }
         public BindingSource EntityBindingSource { get; set; }
         public ErrorsInfo ErrorsandMesseges { get; set; }
 
-        public DialogManager(IBeepService services)
+        public DialogManager()
         {
-            _beepServices = services ?? throw new ArgumentNullException(nameof(services));
-            DMEEditor = _beepServices.DMEEditor;
+            //_beepServices = services ?? throw new ArgumentNullException(nameof(services));
+          //  DMEEditor = _beepServices.DMEEditor;
             ErrorsandMesseges = new ErrorsInfo { Flag = Errors.Ok };
         }
 
@@ -158,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage("Error", $"ShowAlert failed: {ex.Message}", DateTime.Now, -1, "ShowAlert", Errors.Failed);
+             //   DMEEditor.AddLogMessage("Error", $"ShowAlert failed: {ex.Message}", DateTime.Now, -1, "ShowAlert", Errors.Failed);
                 return false;
             }
         }

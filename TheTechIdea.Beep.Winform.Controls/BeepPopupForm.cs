@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Container.Services;
+
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -51,10 +51,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializePopupForm();
         }
 
-        public BeepPopupForm(IBeepService beepService) : base(beepService)
-        {
-            InitializePopupForm();
-        }
+        //public BeepPopupForm(IBeepService beepService) : base(beepService)
+        //{
+        //    InitializePopupForm();
+        //}
 
         private void InitializePopupForm()
         {

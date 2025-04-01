@@ -517,7 +517,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.CloseFigure();
             return path;
         }
-        public void ApplyTheme()
+        public virtual void ApplyTheme()
         {
             if (_currentTheme == null)
                 return;

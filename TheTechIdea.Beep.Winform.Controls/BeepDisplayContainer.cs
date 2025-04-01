@@ -392,7 +392,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-         //   Debug.WriteLine("Applying theme to BeepDisplayContainer");
+         //   Debug.WriteLine("Applying theme to BeepDisplayContainer")
         //    Console.WriteLine("Applying theme to BeepDisplayContainer");
             base.ApplyTheme();
          //   Debug.WriteLine("Applying theme to BeepDisplayContainer 1");
@@ -433,11 +433,13 @@ namespace TheTechIdea.Beep.Winform.Controls
        //     Console.WriteLine("Applying theme to BeepDisplayContainer 3");
             // Set background color for the container
             ContainerPanel.BackColor = _currentTheme.PanelBackColor;
+            
             BackColor = _currentTheme.PanelBackColor;
             if (TabContainerPanel != null)
             {
              //   TabContainerPanel.BackColor = _currentTheme.PanelBackColor;
                 TabContainerPanel.Theme = Theme;
+                TabContainerPanel.ApplyTheme();
             }
 
            

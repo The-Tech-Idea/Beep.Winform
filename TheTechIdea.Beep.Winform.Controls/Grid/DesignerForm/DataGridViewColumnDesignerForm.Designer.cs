@@ -81,7 +81,7 @@
             // 
             // Changebutton
             // 
-            this.Changebutton.BackgroundImage = global::TheTechIdea.Beep.Winform.Controls.Properties.Resources._065_check;
+        //    this.Changebutton.BackgroundImage = global::TheTechIdea.Beep.Winform.Controls.Properties.Resources._065_check;
             this.Changebutton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.Changebutton.Location = new System.Drawing.Point(767, 10);
             this.Changebutton.Name = "Changebutton";

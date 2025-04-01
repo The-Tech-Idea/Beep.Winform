@@ -379,7 +379,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //SelectedIndex = items.IndexOf(item);
 
             }
-            if(ActiveMenuButton != null)
+            if(ActiveMenuButton != null && ActiveMenuButton!=btn)
             {
                 ActiveMenuButton.IsSelected = false;
                 ActiveMenuButton.ClosePopup();
@@ -417,11 +417,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
+            base.ApplyTheme();
             if (IsChild && Parent != null)
             {
                 ParentBackColor = Parent.BackColor;
             }
-            base.ApplyTheme();
+          
 
            //// Console.WriteLine("ApplyTheme in menubar");
             BackColor = _currentTheme.ButtonBackColor;

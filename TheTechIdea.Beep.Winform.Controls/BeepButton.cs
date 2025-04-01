@@ -512,16 +512,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void ShowPopup()
         {
             if (_isPopupOpen) return;
-            if(ListItems.Count == 0)
+            if (ListItems.Count == 0)
             {
                 return;
             }
-             menuDialog = new BeepPopupListForm(ListItems.ToList());
-           
-            menuDialog.Theme = Theme;
 
+            // Close any existing popup before showing a new one
+            ClosePopup();
+
+            menuDialog = new BeepPopupListForm(ListItems.ToList());
+            menuDialog.Theme = Theme;
             menuDialog.SelectedItemChanged += MenuDialog_SelectedItemChanged;
-           SimpleItem x = menuDialog.ShowPopup(Text, this, _beepPopupFormPosition);
+
+            // Use the synchronous ShowPopup method
+            SimpleItem x = menuDialog.ShowPopup(Text, this, _beepPopupFormPosition);
             _isPopupOpen = true;
             Invalidate();
         }

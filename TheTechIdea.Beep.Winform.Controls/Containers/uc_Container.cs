@@ -8,12 +8,13 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Vis;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Containers
 {
     public partial class uc_Container : BeepControl, IDisplayContainer
     {
-        private static readonly Image CloseImage = global::TheTechIdea.Beep.Winform.Controls.Properties.Resources.close;
+        private  Image CloseImage;// = global::TheTechIdea.Beep.Winform.Controls.Properties.Resources.close;
         public ContainerTypeEnum ContainerType { get; set; }
         private Panel ContainerPanel = new Panel();
         private TabControl TabContainerPanel = new TabControl();
@@ -37,6 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Containers
         {
             InitializeComponent();
             TabContainerPanel.TabIndexChanged += TabContainerPanel_TabIndexChanged;
+            CloseImage= (Image?)ImageListHelper.GetImageFromName("42-dot.png");
+
         }
 
         private void TabContainerPanel_TabIndexChanged(object? sender, EventArgs e)

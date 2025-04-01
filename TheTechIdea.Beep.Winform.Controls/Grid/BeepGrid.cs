@@ -1049,10 +1049,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                                 sortIcons[headerLabel].Image = null;
                                 break;
                             case SortOrder.Ascending:
-                                sortIcons[headerLabel].Image = Properties.Resources.SortAscending;
+                          //      sortIcons[headerLabel].Image = Properties.Resources.SortAscending;
                                 break;
                             case SortOrder.Descending:
-                                sortIcons[headerLabel].Image = Properties.Resources.SortDescending;
+                           //     sortIcons[headerLabel].Image = Properties.Resources.SortDescending;
                                 break;
                         }
                     }

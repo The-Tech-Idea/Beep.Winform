@@ -5,29 +5,28 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     public partial class BeepPopupForm : BeepiForm
     {
-        private Timer _closeTimer;
+        private System.Windows.Forms.Timer _closeTimer;
         private bool _isClosing = false;
         private bool _isOpeningChild = false; // Flag to prevent closing during child creation
+        private bool _justOpened = false; // Flag to indicate the popup was just opened
         private int _closeTimeout = 500; // Time in milliseconds before checking if popup should close
         public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
         protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
         {
             SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
         }
-
         public Control TriggerControl { get; set; }
         public event EventHandler OnLeave;
         public event EventHandler OnClose;
 
         public BeepPopupForm ParentPopupForm { get; set; }
         private BeepPopupForm _childPopupForm;
-        public virtual BeepPopupForm ChildPopupForm
+        public BeepPopupForm ChildPopupForm
         {
             get => _childPopupForm;
             set
@@ -65,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InPopMode = true;
             Padding = new Padding(2);
 
-            _closeTimer = new Timer { Interval = _closeTimeout };
+            _closeTimer = new System.Windows.Forms.Timer { Interval = _closeTimeout };
             _closeTimer.Tick += CloseTimer_Tick;
 
             this.MouseEnter += BeepPopupForm_MouseEnter;
@@ -219,8 +218,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
-            // Small delay to ensure child popup is fully rendered before checking cascade
-            await Task.Delay(50);
+            // If the popup was just opened, give it time to fully render
+            if (_justOpened)
+            {
+                await Task.Delay(100); // Increased delay to ensure popup is fully rendered
+                _justOpened = false;
+            }
 
             // Check if mouse is over the entire cascade (including children)
             if (IsMouseOverTriggerOrPopupCascade())
@@ -309,6 +312,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             AttachMouseEvents(this);
 
             // Start the timer after the popup is fully shown
+            _justOpened = true; // Set flag to indicate the popup was just opened
             Task.Delay(50).ContinueWith(_ => StartTimers(), TaskScheduler.FromCurrentSynchronizationContext());
         }
 
@@ -374,6 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Small delay to ensure the popup is fully shown and mouse events are processed
             await Task.Delay(50);
+            _justOpened = true; // Set flag to indicate the popup was just opened
             StartTimers();
         }
 

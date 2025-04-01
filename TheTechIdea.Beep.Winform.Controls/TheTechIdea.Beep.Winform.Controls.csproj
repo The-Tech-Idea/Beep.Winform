@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="BeepiForm.Designer.cs~RF145a38e5.TMP" />
+    <None Remove="GFX\PNG\042-dot.png" />
     <None Remove="GFX\SVG\abort.svg" />
     <None Remove="GFX\SVG\about.svg" />
     <None Remove="GFX\SVG\add.svg" />
@@ -192,6 +193,7 @@
     <None Remove="GFX\SVG\search_1.svg" />
     <None Remove="GFX\SVG\settings.svg" />
     <None Remove="GFX\SVG\share.svg" />
+    <None Remove="GFX\SVG\SimpleInfoapps.ico" />
     <None Remove="GFX\SVG\simpleinfoapps.svg" />
     <None Remove="GFX\SVG\snowflake.svg" />
     <None Remove="GFX\SVG\sort.svg" />
@@ -219,6 +221,10 @@
     <None Remove="GFX\SVG\x.svg" />
     <None Remove="GFX\SVG\xls.svg" />
     <None Remove="GFX\SVG\yes.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="GFX\PNG\042-dot.png" />
+    <EmbeddedResource Include="GFX\SVG\simpleInfoapps.ico" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GFX\SVG\abort.svg" />
@@ -381,11 +387,6 @@
     <EmbeddedResource Include="GFX\SVG\x.svg" />
     <EmbeddedResource Include="GFX\SVG\xls.svg" />
     <EmbeddedResource Include="GFX\SVG\yes.svg" />
-    <EmbeddedResource Include="Resources/073-lock.svg" />
-    <EmbeddedResource Include="Resources/072-bookmark.svg" />
-    <EmbeddedResource Include="Resources/004-notification-bell.svg" />
-    <EmbeddedResource Include="Resources/057-drag.svg" />
-    <EmbeddedResource Include="Resources/041-group.svg" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.0" />
@@ -434,8 +435,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Design\" />
-    <Folder Include="GFX\PNG\" />
     <Folder Include="Properties\DataSources\" />
+    <Folder Include="Resources\" />
     <Folder Include="Totals\" />
   </ItemGroup>
   <ItemGroup>

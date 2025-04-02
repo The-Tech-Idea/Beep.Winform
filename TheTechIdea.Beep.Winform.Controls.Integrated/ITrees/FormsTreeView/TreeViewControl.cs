@@ -31,7 +31,7 @@
 //        }
 //        public TreeViewControl(IDMEEditor pDMEEditor, IAppManager pVismanager)
 //        {
-//            DMEEditor = pDMEEditor;
+//            Editor = pDMEEditor;
 //            VisManager = pVismanager;
 //        }
 //        #region "Addin Properties"
@@ -46,7 +46,7 @@
 //        public string NameSpace { get; set; }
 //        public IErrorsInfo ErrorObject { get; set; }
 //        public IDMLogger Logger { get; set; }
-//        public IDMEEditor DMEEditor { get; set; }
+//        public IDMEEditor Editor { get; set; }
 //        public EntityStructure EntityStructure { get; set; }
 //        public string EntityName { get; set; }
 //        public IPassedArgs Passedarg { get; set; }
@@ -118,9 +118,9 @@
 //            catch (Exception ex)
 //            {
 //                string mes = $"Could not add method from Extension {item.Name} to menu ";
-//                DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+//                Editor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
 //            };
-//            return DMEEditor.ErrorObject;
+//            return Editor.ErrorObject;
 
 //        }
 //        private bool IsMenuCreated(IBranch br)
@@ -153,17 +153,17 @@
 //            {
 //                //bool HasConstructor=false;
 //                SetupTreeView();
-//                treeNodeDragandDropHandler = new TreeNodeDragandDropHandler(DMEEditor, this);
-//                Treebranchhandler = new TreeBranchHandler(DMEEditor, this, this);
+//                treeNodeDragandDropHandler = new TreeNodeDragandDropHandler(Editor, this);
+//                Treebranchhandler = new TreeBranchHandler(Editor, this, this);
 //                Branches = new List<IBranch>();
 //                IBranch Genrebr = null;
-//                // AssemblyClassDefinition GenreBrAssembly = DMEEditor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).FirstOrDefault()!;
-//                foreach (AssemblyClassDefinition GenreBrAssembly in DMEEditor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).OrderBy(x => x.Order))
+//                // AssemblyClassDefinition GenreBrAssembly = Editor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).FirstOrDefault()!;
+//                foreach (AssemblyClassDefinition GenreBrAssembly in Editor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).OrderBy(x => x.Order))
 //                {
 //                    if (GenreBrAssembly != null)
 //                    {
 
-//                        Type adc = DMEEditor.assemblyHandler.GetType(GenreBrAssembly.PackageName);
+//                        Type adc = Editor.assemblyHandler.GetType(GenreBrAssembly.PackageName);
 //                        ConstructorInfo ctor = adc.GetConstructors().Where(o => o.GetParameters().Length == 0).FirstOrDefault()!;
 //                        if (ctor != null)
 //                        {
@@ -221,15 +221,15 @@
 //                            }
 //                            catch (Exception ex)
 //                            {
-//                                DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+//                                Editor.AddLogMessage("Error", $"Creating StandardTree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
 //                            }
 //                        }
 //                    }
 //                }
 
-//                foreach (AssemblyClassDefinition cls in DMEEditor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null).OrderBy(x => x.Order))
+//                foreach (AssemblyClassDefinition cls in Editor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null).OrderBy(x => x.Order))
 //                {
-//                    Type adc = DMEEditor.assemblyHandler.GetType(cls.PackageName);
+//                    Type adc = Editor.assemblyHandler.GetType(cls.PackageName);
 //                    ConstructorInfo ctor = adc.GetConstructors().Where(o => o.GetParameters().Length == 0).FirstOrDefault()!;
 
 //                    if (ctor != null)
@@ -315,19 +315,19 @@
 //                        }
 //                        catch (Exception ex)
 //                        {
-//                            DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+//                            Editor.AddLogMessage("Error", $"Creating StandardTree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
 //                        }
 //                    }
 //                }
 //            }
 //            catch (Exception ex)
 //            {
-//                DMEEditor.ErrorObject.Ex = ex;
-//                DMEEditor.ErrorObject.Flag = Errors.Failed;
-//                DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+//                Editor.ErrorObject.Ex = ex;
+//                Editor.ErrorObject.Flag = Errors.Failed;
+//                Editor.AddLogMessage("Error", $"Creating StandardTree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
 
 //            };
-//            return DMEEditor.ErrorObject;
+//            return Editor.ErrorObject;
 //        }
 //        private void CreateNode(int id, IBranch br, TreeView tree)
 //        {
@@ -366,14 +366,14 @@
 //                CreateGlobalMenu(br);
 //            }
 
-//            br.DMEEditor = DMEEditor;
-//            if (!DMEEditor.ConfigEditor.objectTypes.Any(i => i.ObjectType == br.BranchClass && i.ObjectName == br.BranchType.ToString() + "_" + br.BranchClass))
+//            br.Editor = Editor;
+//            if (!Editor.ConfigEditor.objectTypes.Any(i => i.ObjectType == br.BranchClass && i.ObjectName == br.BranchType.ToString() + "_" + br.BranchClass))
 //            {
-//                DMEEditor.ConfigEditor.objectTypes.Add(new Workflow.ObjectTypes { ObjectType = br.BranchClass, ObjectName = br.BranchType.ToString() + "_" + br.BranchClass });
+//                Editor.ConfigEditor.objectTypes.Add(new Workflow.ObjectTypes { ObjectType = br.BranchClass, ObjectName = br.BranchType.ToString() + "_" + br.BranchClass });
 //            }
 //            try
 //            {
-//                br.SetConfig(this, DMEEditor, br.ParentBranch, br.BranchText, br.ID, br.BranchType, null);
+//                br.SetConfig(this, Editor, br.ParentBranch, br.BranchText, br.ID, br.BranchType, null);
 //            }
 //            catch (Exception ex)
 //            {
@@ -404,7 +404,7 @@
 //                }
 //                else
 //                    menuList = GetMenuList(br);
-//                List<AssemblyClassDefinition> extentions = DMEEditor.ConfigEditor.GlobalFunctions.Where(o => o.classProperties != null && o.classProperties.ObjectType != null && o.classProperties.ObjectType.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase)).OrderBy(p => p.Order).ToList(); //&&  o.classProperties.menu.Equals(br.BranchClass, StringComparison.InvariantCultureIgnoreCase)
+//                List<AssemblyClassDefinition> extentions = Editor.ConfigEditor.GlobalFunctions.Where(o => o.classProperties != null && o.classProperties.ObjectType != null && o.classProperties.ObjectType.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase)).OrderBy(p => p.Order).ToList(); //&&  o.classProperties.menu.Equals(br.BranchClass, StringComparison.InvariantCultureIgnoreCase)
 //                foreach (AssemblyClassDefinition cls in extentions)
 //                {
 //                    if (!menuList.classDefinitions.Any(p => p.PackageName.Equals(cls.PackageName, StringComparison.CurrentCultureIgnoreCase)))
@@ -449,11 +449,11 @@
 //                        }
 //                    }
 //                }
-//                return DMEEditor.ErrorObject;
+//                return Editor.ErrorObject;
 //            }
 //            catch (Exception ex)
 //            {
-//                return DMEEditor.ErrorObject;
+//                return Editor.ErrorObject;
 //            }
 //        }
 //        public ContextMenuStrip CreateMenuMethods(IBranch branch)
@@ -478,7 +478,7 @@
 //                menuList = GetMenuList(branch);
 //            try
 //            {
-//                AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == branch.ToString()).FirstOrDefault();
+//                AssemblyClassDefinition cls = Editor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == branch.ToString()).FirstOrDefault();
 //                if (!menuList.classDefinitions.Any(p => p.PackageName.Equals(cls.PackageName, StringComparison.InvariantCultureIgnoreCase)))
 //                {
 //                    menuList.classDefinitions.Add(cls);
@@ -498,7 +498,7 @@
 //                            catch (Exception)
 //                            {
 //                                string mes = $"Could not get image {item.iconimage} for menthod on branch {branch.BranchText}";
-//                                DMEEditor.AddLogMessage("Beep", mes, DateTime.Now, -1, mes, Errors.Failed);
+//                                Editor.AddLogMessage("Beep", mes, DateTime.Now, -1, mes, Errors.Failed);
 //                            }
 
 //                        }
@@ -510,7 +510,7 @@
 //            catch (Exception ex)
 //            {
 //                string mes = "Could not add method to menu " + branch.BranchText;
-//                DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+//                Editor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
 //            };
 //            return ls;
 //        }
@@ -534,15 +534,15 @@
 //                assemblydef = (AssemblyClassDefinition)item.Tag;
 //                MethodName = item.Text;
 //            }
-//            dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { DMEEditor, VisManager, this });
-//            //  dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] { DMEEditor, Vismanager, this });
+//            dynamic fc = Editor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { Editor, VisManager, this });
+//            //  dynamic fc = Editor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] { Editor, Vismanager, this });
 //            if (fc == null)
 //            {
 //                return;
 //            }
 
 //            Type t = ((IFunctionExtension)fc).GetType();
-//            AssemblyClassDefinition cls = DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
+//            AssemblyClassDefinition cls = Editor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
 //            if (cls != null)
 //            {
 //                if (TreeV.SelectedNode != null)
@@ -554,16 +554,16 @@
 //            }
 //            methodsClass = cls.Methods.Where(x => x.Caption == MethodName).FirstOrDefault();
 
-//            if (DMEEditor.Passedarguments == null)
+//            if (Editor.Passedarguments == null)
 //            {
-//                DMEEditor.Passedarguments = new PassedArgs();
+//                Editor.Passedarguments = new PassedArgs();
 //            }
 //            if (br != null)
 //            {
-//                DMEEditor.Passedarguments.ObjectName = br.BranchText;
-//                DMEEditor.Passedarguments.DatasourceName = br.DataSourceName;
-//                DMEEditor.Passedarguments.Id = br.BranchID;
-//                DMEEditor.Passedarguments.ParameterInt1 = br.BranchID;
+//                Editor.Passedarguments.ObjectName = br.BranchText;
+//                Editor.Passedarguments.DatasourceName = br.DataSourceName;
+//                Editor.Passedarguments.Id = br.BranchID;
+//                Editor.Passedarguments.ParameterInt1 = br.BranchID;
 //                if (!IsMethodApplicabletoNode(cls, br)) return;
 
 //            }
@@ -577,7 +577,7 @@
 
 //                if (args.Cancel)
 //                {
-//                    DMEEditor.AddLogMessage("Beep", $"You dont have Access Privilige on {MethodName}", DateTime.Now, 0, MethodName, Errors.Failed);
+//                    Editor.AddLogMessage("Beep", $"You dont have Access Privilige on {MethodName}", DateTime.Now, 0, MethodName, Errors.Failed);
 //                    ErrorsandMesseges.Flag = Errors.Failed;
 //                    ErrorsandMesseges.Message = $"Function Access Denied";
 //                    return;
@@ -585,7 +585,7 @@
 //                method = methodsClass.Info;
 //                if (method.GetParameters().Length > 0)
 //                {
-//                    method.Invoke(fc, new object[] { DMEEditor.Passedarguments });
+//                    method.Invoke(fc, new object[] { Editor.Passedarguments });
 //                }
 //                else
 //                    method.Invoke(fc, null);
@@ -600,16 +600,16 @@
 //            }
 //            if (br != null)
 //            {
-//                if (DMEEditor.Passedarguments == null)
+//                if (Editor.Passedarguments == null)
 //                {
-//                    DMEEditor.Passedarguments = new PassedArgs();
+//                    Editor.Passedarguments = new PassedArgs();
 //                }
 
 //                AssemblyClassDefinition assemblydef = (AssemblyClassDefinition)item.Tag;
-//                dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { DMEEditor, VisManager, this });
+//                dynamic fc = Editor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { Editor, VisManager, this });
 //                Type t = ((IFunctionExtension)fc).GetType();
-//                //dynamic fc = Activator.CreateInstance(assemblydef.type, new object[] { DMEEditor, Vismanager, this });
-//                AssemblyClassDefinition cls = DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
+//                //dynamic fc = Activator.CreateInstance(assemblydef.type, new object[] { Editor, Vismanager, this });
+//                AssemblyClassDefinition cls = Editor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
 //                MethodInfo method = null;
 //                MethodsClass methodsClass;
 //                if (!IsMethodApplicabletoNode(cls, br)) return;
@@ -644,7 +644,7 @@
 //                    PreCallModule?.Invoke(this, args);
 //                    if (args.Cancel)
 //                    {
-//                        DMEEditor.AddLogMessage("Beep", $"You dont have Access Privilige on {br.BranchText}", DateTime.Now, 0, br.BranchText, Errors.Failed);
+//                        Editor.AddLogMessage("Beep", $"You dont have Access Privilige on {br.BranchText}", DateTime.Now, 0, br.BranchText, Errors.Failed);
 //                        ErrorsandMesseges.Flag = Errors.Failed;
 //                        ErrorsandMesseges.Message = $"Function Access Denied";
 //                        return;
@@ -652,7 +652,7 @@
 //                    method = methodsClass.Info;
 //                    if (method.GetParameters().Length > 0)
 //                    {
-//                        method.Invoke(fc, new object[] { DMEEditor.Passedarguments });
+//                        method.Invoke(fc, new object[] { Editor.Passedarguments });
 //                    }
 //                    else
 //                        method.Invoke(fc, null);
@@ -667,7 +667,7 @@
 //            try
 //            {
 //                Type t = branch.GetType();
-//                AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.className == t.Name).FirstOrDefault();
+//                AssemblyClassDefinition cls = Editor.ConfigEditor.BranchesClasses.Where(x => x.className == t.Name).FirstOrDefault();
 //                MethodInfo method = null;
 //                MethodsClass methodsClass;
 //                try
@@ -682,7 +682,7 @@
 //                if (methodsClass != null)
 //                {
 
-//                    if (!IsMethodApplicabletoNode(cls, (IBranch)branch)) return DMEEditor.ErrorObject;
+//                    if (!IsMethodApplicabletoNode(cls, (IBranch)branch)) return Editor.ErrorObject;
 //                    PassedArgs args = new PassedArgs();
 //                    args.ObjectName = MethodName;
 //                    args.ObjectType = methodsClass.ObjectType;
@@ -690,7 +690,7 @@
 //                    PreCallModule?.Invoke(this, args);
 //                    if (args.Cancel)
 //                    {
-//                        DMEEditor.AddLogMessage("Beep", $"You dont have Access Privilige on {MethodName}", DateTime.Now, 0, MethodName, Errors.Failed);
+//                        Editor.AddLogMessage("Beep", $"You dont have Access Privilige on {MethodName}", DateTime.Now, 0, MethodName, Errors.Failed);
 //                        ErrorsandMesseges.Flag = Errors.Failed;
 //                        ErrorsandMesseges.Message = $"Function Access Denied";
 //                        return ErrorsandMesseges;
@@ -699,22 +699,22 @@
 //                    method = methodsClass.Info;
 //                    if (method.GetParameters().Length > 0)
 //                    {
-//                        method.Invoke(branch, new object[] { DMEEditor.Passedarguments.Objects[0].obj });
+//                        method.Invoke(branch, new object[] { Editor.Passedarguments.Objects[0].obj });
 //                    }
 //                    else
 //                        method.Invoke(branch, null);
 
 
-//                    //  DMEEditor.AddLogMessage("Success", "Running method", DateTime.Now, 0, null, Errors.Ok);
+//                    //  Editor.AddLogMessage("Success", "Running method", DateTime.Now, 0, null, Errors.Ok);
 //                }
 
 //            }
 //            catch (Exception ex)
 //            {
 //                string mes = "Could not Run Method " + MethodName;
-//                DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+//                Editor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
 //            };
-//            return DMEEditor.ErrorObject;
+//            return Editor.ErrorObject;
 //        }
 //        public void Run(IPassedArgs pPassedarg)
 //        {
@@ -737,7 +737,7 @@
 //        }
 //        public IErrorsInfo TurnonOffCheckBox(IPassedArgs Passedarguments)
 //        {
-//            DMEEditor.ErrorObject.Flag = Errors.Ok;
+//            Editor.ErrorObject.Flag = Errors.Ok;
 //            try
 //            {
 
@@ -748,9 +748,9 @@
 //            }
 //            catch (Exception ex)
 //            {
-//                DMEEditor.AddLogMessage("Fail", $"Could not select entities {ex.Message}", DateTime.Now, 0, Passedarguments.DatasourceName, Errors.Failed);
+//                Editor.AddLogMessage("Fail", $"Could not select entities {ex.Message}", DateTime.Now, 0, Passedarguments.DatasourceName, Errors.Failed);
 //            }
-//            return DMEEditor.ErrorObject;
+//            return Editor.ErrorObject;
 
 //        }
 //        #region "TreeNode Handling"
@@ -861,12 +861,12 @@
 //            if (br != null)
 //            {
 //                SelectedBranchID = br.ID;
-//                DMEEditor.Passedarguments.CurrentEntity = br.BranchText;
+//                Editor.Passedarguments.CurrentEntity = br.BranchText;
 //                if (br.BranchType == EnumPointType.DataPoint)
 //                {
 //                    if (!string.IsNullOrEmpty(br.DataSourceName))
 //                    {
-//                        DMEEditor.Passedarguments.DatasourceName = br.DataSourceName;
+//                        Editor.Passedarguments.DatasourceName = br.DataSourceName;
 //                    }
 
 //                }
@@ -898,7 +898,7 @@
 //                        default:
 //                            break;
 //                    }
-//                    AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == br.Name && x.Methods.Where(y => y.DoubleClick == true || y.Click == true).Any()).FirstOrDefault();
+//                    AssemblyClassDefinition cls = Editor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == br.Name && x.Methods.Where(y => y.DoubleClick == true || y.Click == true).Any()).FirstOrDefault();
 //                    if (cls != null)
 //                    {
 //                        if (!IsMethodApplicabletoNode(cls, br)) return;

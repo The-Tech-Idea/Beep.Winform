@@ -426,7 +426,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         {
           
           //  BindingNavigator.SetConfig(pDMEEditor, plogger, putil, args, e, per);
-          //  DMEEditor = pDMEEditor;
+          //  Editor = pDMEEditor;
             dataGridView1.AllowUserToAddRows = false;
          //   util = putil;
             WireAllControls();
@@ -1491,7 +1491,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         #region "Click and Mouse Events"
 
         /// <summary>
-        /// Handles DataGridView data error events, logging error messages in the DMEEditor.
+        /// Handles DataGridView data error events, logging error messages in the Editor.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="DataGridViewDataErrorEventArgs"/> that contains the event data.</param>

@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             if (!string.IsNullOrEmpty(Passedarguments.DatasourceName))
             {
                 DataSource = DMEEditor.GetDataSource(Passedarguments.DatasourceName);
-                //  DMEEditor.OpenDataSource(Passedarguments.DatasourceName);
+                //  Editor.OpenDataSource(Passedarguments.DatasourceName);
             }
             if (progress == null)
             {

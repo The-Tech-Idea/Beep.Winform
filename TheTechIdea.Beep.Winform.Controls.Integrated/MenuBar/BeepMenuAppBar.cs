@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MenuBar
             set { _beepServices = value;
                 if (value != null) 
                     { DMEEditor = _beepServices.DMEEditor; 
-                      AssemblyClassDefinitionManager.DMEEditor = DMEEditor; 
+                      AssemblyClassDefinitionManager.Editor = DMEEditor; 
                     }
                 }
         }

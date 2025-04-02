@@ -104,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
 
 
                 IBranch Genrebr = null;
-                // AssemblyClassDefinition GenreBrAssembly = DMEEditor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).FirstOrDefault()!;
+                // AssemblyClassDefinition GenreBrAssembly = Editor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).FirstOrDefault()!;
                 foreach (AssemblyClassDefinition GenreBrAssembly in DMEEditor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).OrderBy(x => x.Order))
                 {
                     if (GenreBrAssembly != null)
@@ -163,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
                             }
                             catch (Exception ex)
                             {
-                                DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                                MiscFunctions.AddLogMessage("Error", $"Creating Tree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                             }
                         }
                     }
@@ -259,7 +259,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
                         }
                         catch (Exception ex)
                         {
-                            DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                            MiscFunctions.AddLogMessage("Error", $"Creating Tree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                         }
                     }
                 }
@@ -268,7 +268,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
             {
                 DMEEditor.ErrorObject.Ex = ex;
                 DMEEditor.ErrorObject.Flag = Errors.Failed;
-                DMEEditor.AddLogMessage("Error", $"Creating Tree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                MiscFunctions.AddLogMessage("Error", $"Creating Tree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
 
             };
             return DMEEditor.ErrorObject;
@@ -302,10 +302,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
             }
             //n.ContextMenuStrip = 
             Console.WriteLine(br.BranchText);
-            //CreateMenuMethods(DMEEditor, br);
+            //CreateMenuMethods(Editor, br);
             if (br.ObjectType != null && br.BranchClass != null)
             {
-             //   CreateGlobalMenu(DMEEditor,br);
+             //   CreateGlobalMenu(Editor,br);
             }
 
             br.DMEEditor = DMEEditor;
@@ -350,7 +350,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
                 MethodName = item.Text;
             }
             dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] {DMEEditor });
-            //  dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] { DMEEditor, Vismanager, this });
+            //  dynamic fc = Editor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] { Editor, Vismanager, this });
             if (fc == null)
             {
                 return;
@@ -390,7 +390,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
                 AssemblyClassDefinition assemblydef = (AssemblyClassDefinition)item.Tag;
                 dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { DMEEditor });
                 Type t = ((IFunctionExtension)fc).GetType();
-                //dynamic fc = Activator.CreateInstance(assemblydef.type, new object[] { DMEEditor, Vismanager, this });
+                //dynamic fc = Activator.CreateInstance(assemblydef.type, new object[] { Editor, Vismanager, this });
                 AssemblyClassDefinition cls = DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
                 MethodInfo method = null;
                 MethodsClass methodsClass;
@@ -459,14 +459,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
                         method.Invoke(branch, null);
 
 
-                    //  DMEEditor.AddLogMessage("Success", "Running method", DateTime.Now, 0, null, Errors.Ok);
+                    //  MiscFunctions.AddLogMessage("Success", "Running method", DateTime.Now, 0, null, Errors.Ok);
                 }
 
             }
             catch (Exception ex)
             {
                 string mes = "Could not Run Method " + MethodName;
-                DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+                MiscFunctions.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
             };
             return DMEEditor.ErrorObject;
         }

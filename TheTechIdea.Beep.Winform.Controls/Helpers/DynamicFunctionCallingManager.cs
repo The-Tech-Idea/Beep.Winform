@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static ITree TreeEditor { get; set; }
         public static void RunFunctionFromExtensions( SimpleItem item, string MethodName)
         {
-            AssemblyClassDefinitionManager.DMEEditor = DMEEditor;
+            AssemblyClassDefinitionManager.Editor = DMEEditor;
             IBranch br = null;
             AssemblyClassDefinition assemblydef = new AssemblyClassDefinition();
             MethodInfo method = null;
@@ -28,14 +28,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             assemblydef = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionByGuid(item.AssemblyClassDefinitionID);
            
                  fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { Vismanager });
-            //  dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] {  });
+            //  dynamic fc = Editor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] {  });
             if (fc == null)
             {
                 return;
             }
 
             //Type t = ((IFunctionExtension)fc).GetType();
-            //   AssemblyClassDefinition cls = tree.DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
+            //   AssemblyClassDefinition cls = tree.Editor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
 
             methodsClass = assemblydef.Methods.Where(x => x.Caption == MethodName).FirstOrDefault();
 
@@ -50,21 +50,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
         public static void RunFunctionFromExtensions(this ITree tree, SimpleItem item, string MethodName)
         {
-            AssemblyClassDefinitionManager.DMEEditor = tree.DMEEditor;
+            AssemblyClassDefinitionManager.Editor = tree.DMEEditor;
             IBranch br = null;
             AssemblyClassDefinition assemblydef = new AssemblyClassDefinition();
             MethodInfo method = null;
             MethodsClass methodsClass;
             assemblydef = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionByGuid(item.AssemblyClassDefinitionID);
             dynamic fc = tree.DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { Vismanager });
-            //  dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] { DMEEditor, Vismanager, this });
+            //  dynamic fc = Editor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] { Editor, Vismanager, this });
             if (fc == null)
             {
                 return;
             }
 
            // Type t = ((IFunctionExtension)fc).GetType();
-            //   AssemblyClassDefinition cls = tree.DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
+            //   AssemblyClassDefinition cls = tree.Editor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
 
             methodsClass = assemblydef.Methods.Where(x => x.Caption == MethodName).FirstOrDefault();
 
@@ -91,7 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
             //    if (args.Cancel)
             //    {
-            //        tree.DMEEditor.AddLogMessage("Beep", $"You dont have Access Privilige on {MethodName}", DateTime.Now, 0, MethodName, Errors.Failed);
+            //        MiscFunctions.AddLogMessage("Beep", $"You dont have Access Privilige on {MethodName}", DateTime.Now, 0, MethodName, Errors.Failed);
             //        ErrorsandMesseges.Flag = Errors.Failed;
             //        ErrorsandMesseges.Message = $"Function Access Denied";
             //        return;
@@ -147,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     //PreCallModule?.Invoke(this, args);
                     //if (args.Cancel)
                     //{
-                    //    DMEEditor.AddLogMessage("Beep", $"You dont have Access Privilige on {MethodName}", DateTime.Now, 0, MethodName, Errors.Failed);
+                    //    MiscFunctions.AddLogMessage("Beep", $"You dont have Access Privilige on {MethodName}", DateTime.Now, 0, MethodName, Errors.Failed);
                     //    ErrorsandMesseges.Flag = Errors.Failed;
                     //    ErrorsandMesseges.Message = $"Function Access Denied";
                     //    return ErrorsandMesseges;
@@ -162,14 +162,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                         method.Invoke(branch, null);
 
 
-                    //  DMEEditor.AddLogMessage("Success", "Running method", DateTime.Now, 0, null, Errors.Ok);
+                    //  MiscFunctions.AddLogMessage("Success", "Running method", DateTime.Now, 0, null, Errors.Ok);
                 }
 
             }
             catch (Exception ex)
             {
                 string mes = "Could not Run Method " + MethodName;
-                tree.DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+                MiscFunctions.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
             };
             return tree.DMEEditor.ErrorObject;
         }
@@ -184,7 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
                 IFunctionExtension fc = (IFunctionExtension)DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { DMEEditor, br });
                 Type t = fc.GetType();
-                //dynamic fc = Activator.CreateInstance(assemblydef.type, new object[] { DMEEditor, Vismanager, this });
+                //dynamic fc = Activator.CreateInstance(assemblydef.type, new object[] { Editor, Vismanager, this });
                 AssemblyClassDefinition cls = DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
                 MethodInfo method = null;
                 MethodsClass methodsClass;
@@ -222,7 +222,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
         public static void RunMethodFromExtension(this ITree tree, IBranch br, string MethodName)
         {
-            AssemblyClassDefinitionManager.DMEEditor = tree.DMEEditor;
+            AssemblyClassDefinitionManager.Editor = tree.DMEEditor;
             AssemblyClassDefinition assemblydef = new AssemblyClassDefinition();
             MethodInfo method = null;
             MethodsClass methodsClass;

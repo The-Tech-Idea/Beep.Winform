@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             if (cls == null)
             {
                 string message = $"No class definition found for branch {branch.BranchText}";
-                DMEEditor.AddLogMessage("Error", message, DateTime.Now, -1, message, Errors.Failed);
+                MiscFunctions.AddLogMessage("Error", message, DateTime.Now, -1, message, Errors.Failed);
                 return new List<SimpleItem>();
             }
 
@@ -149,7 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             catch (Exception ex)
             {
                 string message = $"Could not add methods to menu {branch.BranchText}";
-                DMEEditor.AddLogMessage(ex.Message, message, DateTime.Now, -1, message, Errors.Failed);
+                MiscFunctions.AddLogMessage(ex.Message, message, DateTime.Now, -1, message, Errors.Failed);
             }
 
             return menuCollection.Items.ToList();
@@ -233,7 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage(ex.Message, "Error creating global menu", DateTime.Now, -1, "CreateGlobalMenu", Errors.Failed);
+                MiscFunctions.AddLogMessage(ex.Message, "Error creating global menu", DateTime.Now, -1, "CreateGlobalMenu", Errors.Failed);
                 return DMEEditor.ErrorObject;
             }
         }
@@ -316,7 +316,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             catch (Exception ex)
             {
                 string mes = $"Could not add method from Extension {item.Name} to menu ";
-                tree.DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+                MiscFunctions.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
             };
             return tree.DMEEditor.ErrorObject;
 
@@ -324,7 +324,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static List<SimpleItem> CreateToolBarMenuItems(IDMEEditor DMEEditor, string ObjectType = "Beep", bool IsHorizantal = true)
         {
             List<SimpleItem> ret = new List<SimpleItem>();
-            AssemblyClassDefinitionManager.DMEEditor = DMEEditor;
+            AssemblyClassDefinitionManager.Editor = DMEEditor;
             try
             {
                 var extensions = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionToolbar(ObjectType);
@@ -356,7 +356,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage(ex.Message, "Error creating toolbar menu", DateTime.Now, -1, "CreateToolBarMethods", Errors.Failed);
+                MiscFunctions.AddLogMessage(ex.Message, "Error creating toolbar menu", DateTime.Now, -1, "CreateToolBarMethods", Errors.Failed);
             }
             return ret;
         }
@@ -381,14 +381,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage(ex.Message, "Error creating addins", DateTime.Now, -1, "CreateConfigAdminMenu", Errors.Failed);
+                MiscFunctions.AddLogMessage(ex.Message, "Error creating addins", DateTime.Now, -1, "CreateConfigAdminMenu", Errors.Failed);
             }
             return ret;
         }
         public static List<SimpleItem> CreateMenuItems(IDMEEditor DMEEditor, string ObjectType = "Beep")
         {
             List<SimpleItem> ret = new List<SimpleItem>();
-            AssemblyClassDefinitionManager.DMEEditor = DMEEditor;
+            AssemblyClassDefinitionManager.Editor = DMEEditor;
             try
             {
                 var extensions = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionForMenu(ObjectType);
@@ -426,14 +426,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage(ex.Message, "Error creating menu items", DateTime.Now, -1, "CreateMenuItems", Errors.Failed);
+                MiscFunctions.AddLogMessage(ex.Message, "Error creating menu items", DateTime.Now, -1, "CreateMenuItems", Errors.Failed);
             }
             return ret;
         }
         public static List<SimpleItem> CreateCombinedMenuItems(IDMEEditor DMEEditor, string ObjectType = "Beep")
         {
             List<SimpleItem> ret = new List<SimpleItem>();
-            AssemblyClassDefinitionManager.DMEEditor = DMEEditor;
+            AssemblyClassDefinitionManager.Editor = DMEEditor;
             try
             {
                 var extensions = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionForMenu(ObjectType);
@@ -489,7 +489,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             catch (Exception ex)
             {
-                DMEEditor.AddLogMessage(ex.Message, "Error creating menu items", DateTime.Now, -1, "CreateMenuItems", Errors.Failed);
+                MiscFunctions.AddLogMessage(ex.Message, "Error creating menu items", DateTime.Now, -1, "CreateMenuItems", Errors.Failed);
             }
             return ret;
         }

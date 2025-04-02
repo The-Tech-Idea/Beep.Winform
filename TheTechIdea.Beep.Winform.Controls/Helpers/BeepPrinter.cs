@@ -168,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
             //w.WriteLine(line.ToString());
             //w.Flush();
             //w.Close();
-            DME.AddLogMessage("Beep", line.ToString(), DateTime.Now, -1, null, Errors.Ok);
+          //  DME.AddLogMessage("Beep", line.ToString(), DateTime.Now, -1, null, Errors.Ok);
         }
     }
 

@@ -495,5 +495,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             // Fallback for unhandled value types (rare)
             return Activator.CreateInstance(targetType);
         }
+        public static void AddLogMessage(string Source, string Message, DateTime Time, int ErrorCode, string ObjectName, Errors ErrorType)
+        {
+          SendLog($"{Source} : {Message} : {Time} : {ErrorCode} : {ObjectName} : {ErrorType}");
+        }
     }
 }

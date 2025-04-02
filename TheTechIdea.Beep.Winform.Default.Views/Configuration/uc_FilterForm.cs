@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         {
            
             base.OnNavigatedTo(parameters);
-            //beepFilter1.DataSource = beepservice.DMEEditor.ConfigEditor.DataSourcesClasses;
+            //beepFilter1.DataSource = beepservice.Editor.ConfigEditor.DataSourcesClasses;
            
         }
     }

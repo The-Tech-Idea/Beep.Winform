@@ -443,17 +443,17 @@ public static class ControlExtensions
     //    {
     //        if (ParentBranch.ChildBranchs.Where(x => x.BranchText == Branch.BranchText).Any())
     //        {
-    //            DMEEditor.AddLogMessage("Error", "Branch already exist", DateTime.Now, -1, null, Errors.Failed);
-    //            return DMEEditor.ErrorObject;
+    //            MiscFunctions.AddLogMessage("Error", "Branch already exist", DateTime.Now, -1, null, Errors.Failed);
+    //            return Editor.ErrorObject;
     //        }
     //        parentnode = GetNodeByGuidID(ParentBranch.GuidID);
     //        ParentBranch.ChildBranchs.Add(Branch);
     //        Branch.ParentBranch = ParentBranch;
     //        Branch.ParentBranchID = ParentBranch.ID;
     //        Branch.ParentGuidID = ParentBranch.GuidID;
-    //        DynamicMenuManager.CreateMenuMethods(DMEEditor, Branch);
-    //        DynamicMenuManager.CreateGlobalMenu(DMEEditor, Branch);
-    //        Branch.DMEEditor = DMEEditor;
+    //        DynamicMenuManager.CreateMenuMethods(Editor, Branch);
+    //        DynamicMenuManager.CreateGlobalMenu(Editor, Branch);
+    //        Branch.Editor = Editor;
     //        Branch.Visutil = VisManager;
     //        Branch.TreeEditor = this;
     //        if (parentnode != null)
@@ -466,9 +466,9 @@ public static class ControlExtensions
     //    catch (Exception ex)
     //    {
     //        string mes = "Could not Add Branch to " + ParentBranch.BranchText;
-    //        DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+    //        MiscFunctions.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
     //    };
-    //    return DMEEditor.ErrorObject;
+    //    return Editor.ErrorObject;
     //}
     public static BindingList<SimpleItem> AddBranchToTree(this ITree tree, SimpleItem parent,SimpleItem child,IBranch br)
     {
@@ -512,11 +512,11 @@ public static class ControlExtensions
         {
            
             int SeqID = 0;
-            //tree. = new TreeNodeDragandDropHandler(DMEEditor, this);
-            //tree.Treebranchhandler = new TreeBranchHandler(DMEEditor, this);
+            //tree. = new TreeNodeDragandDropHandler(Editor, this);
+            //tree.Treebranchhandler = new TreeBranchHandler(Editor, this);
           
             IBranch Genrebr = null;
-            // AssemblyClassDefinition GenreBrAssembly = DMEEditor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).FirstOrDefault()!;
+            // AssemblyClassDefinition GenreBrAssembly = Editor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).FirstOrDefault()!;
             foreach (AssemblyClassDefinition GenreBrAssembly in DMEEditor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).OrderBy(x => x.Order))
             {
                 SeqID++;
@@ -557,7 +557,7 @@ public static class ControlExtensions
                         }
                         catch (Exception ex)
                         {
-                            DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                            MiscFunctions.AddLogMessage("Error", $"Creating StandardTree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                         }
                     }
                 }
@@ -630,7 +630,7 @@ public static class ControlExtensions
                     }
                     catch (Exception ex)
                     {
-                        DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                        MiscFunctions.AddLogMessage("Error", $"Creating StandardTree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                     }
                 }
             }
@@ -639,7 +639,7 @@ public static class ControlExtensions
         {
             DMEEditor.ErrorObject.Ex = ex;
             DMEEditor.ErrorObject.Flag = Errors.Failed;
-            DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+            MiscFunctions.AddLogMessage("Error", $"Creating StandardTree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
 
         };
 
@@ -655,29 +655,29 @@ public static class ControlExtensions
     //    MethodInfo method = null;
     //    MethodsClass methodsClass;
         
-    //    assemblydef = AssemblyDefinitionsHelper.GetAssemblyGlobalFunctionsClassDefinitionByGuid(tree.DMEEditor, item.AssemblyClassDefinitionID);
-    //    dynamic fc = tree.DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { tree.DMEEditor, tree.VisManager, tree });
-    //    //  dynamic fc = DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] { DMEEditor, Vismanager, this });
+    //    assemblydef = AssemblyDefinitionsHelper.GetAssemblyGlobalFunctionsClassDefinitionByGuid(tree.Editor, item.AssemblyClassDefinitionID);
+    //    dynamic fc = tree.Editor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { tree.Editor, tree.VisManager, tree });
+    //    //  dynamic fc = Editor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] { Editor, Vismanager, this });
     //    if (fc == null)
     //    {
     //        return;
     //    }
 
     //    Type t = ((IFunctionExtension)fc).GetType();
-    // //   AssemblyClassDefinition cls = tree.DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
+    // //   AssemblyClassDefinition cls = tree.Editor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
        
     //    methodsClass = assemblydef.Methods.Where(x => x.Caption == MethodName).FirstOrDefault();
 
-    //    if (tree.DMEEditor.Passedarguments == null)
+    //    if (tree.Editor.Passedarguments == null)
     //    {
-    //        tree.DMEEditor.Passedarguments = new PassedArgs();
+    //        tree.Editor.Passedarguments = new PassedArgs();
     //    }
     //    if (br != null)
     //    {
-    //        tree.DMEEditor.Passedarguments.ObjectName = br.BranchText;
-    //        tree.DMEEditor.Passedarguments.DatasourceName = br.DataSourceName;
-    //        tree.DMEEditor.Passedarguments.Id = br.BranchID;
-    //        tree.DMEEditor.Passedarguments.ParameterInt1 = br.BranchID;
+    //        tree.Editor.Passedarguments.ObjectName = br.BranchText;
+    //        tree.Editor.Passedarguments.DatasourceName = br.DataSourceName;
+    //        tree.Editor.Passedarguments.Id = br.BranchID;
+    //        tree.Editor.Passedarguments.ParameterInt1 = br.BranchID;
     //        if (!IsMethodApplicabletoNode(assemblydef, br)) return;
 
     //    }
@@ -691,7 +691,7 @@ public static class ControlExtensions
 
     //    //    if (args.Cancel)
     //    //    {
-    //    //        tree.DMEEditor.AddLogMessage("Beep", $"You dont have Access Privilige on {MethodName}", DateTime.Now, 0, MethodName, Errors.Failed);
+    //    //        MiscFunctions.AddLogMessage("Beep", $"You dont have Access Privilige on {MethodName}", DateTime.Now, 0, MethodName, Errors.Failed);
     //    //        ErrorsandMesseges.Flag = Errors.Failed;
     //    //        ErrorsandMesseges.Message = $"Function Access Denied";
     //    //        return;
@@ -701,7 +701,7 @@ public static class ControlExtensions
     //    method = methodsClass.Info;
     //    if (method.GetParameters().Length > 0)
     //    {
-    //        method.Invoke(fc, new object[] { tree.DMEEditor.Passedarguments });
+    //        method.Invoke(fc, new object[] { tree.Editor.Passedarguments });
     //    }
     //    else
     //        method.Invoke(fc, null);
@@ -726,7 +726,7 @@ public static class ControlExtensions
     //    try
     //    {
     //        Type t = branch.GetType();
-    //        AssemblyClassDefinition cls = tree.DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.className == t.Name).FirstOrDefault();
+    //        AssemblyClassDefinition cls = tree.Editor.ConfigEditor.BranchesClasses.Where(x => x.className == t.Name).FirstOrDefault();
     //        MethodInfo method = null;
     //        MethodsClass methodsClass;
     //        try
@@ -739,7 +739,7 @@ public static class ControlExtensions
     //        }
     //        if (methodsClass != null)
     //        {
-    //            if (!IsMethodApplicabletoNode(cls, (IBranch)branch)) return tree.DMEEditor.ErrorObject;
+    //            if (!IsMethodApplicabletoNode(cls, (IBranch)branch)) return tree.Editor.ErrorObject;
     //            //PassedArgs args = new PassedArgs();
     //            //args.ObjectName = MethodName;
     //            //args.ObjectType = methodsClass.ObjectType;
@@ -747,7 +747,7 @@ public static class ControlExtensions
     //            //PreCallModule?.Invoke(this, args);
     //            //if (args.Cancel)
     //            //{
-    //            //    DMEEditor.AddLogMessage("Beep", $"You dont have Access Privilige on {MethodName}", DateTime.Now, 0, MethodName, Errors.Failed);
+    //            //    MiscFunctions.AddLogMessage("Beep", $"You dont have Access Privilige on {MethodName}", DateTime.Now, 0, MethodName, Errors.Failed);
     //            //    ErrorsandMesseges.Flag = Errors.Failed;
     //            //    ErrorsandMesseges.Message = $"Function Access Denied";
     //            //    return ErrorsandMesseges;
@@ -756,22 +756,22 @@ public static class ControlExtensions
     //            method = methodsClass.Info;
     //            if (method.GetParameters().Length > 0)
     //            {
-    //                method.Invoke(branch, new object[] { tree.DMEEditor.Passedarguments.Objects[0].obj });
+    //                method.Invoke(branch, new object[] { tree.Editor.Passedarguments.Objects[0].obj });
     //            }
     //            else
     //                method.Invoke(branch, null);
 
 
-    //            //  DMEEditor.AddLogMessage("Success", "Running method", DateTime.Now, 0, null, Errors.Ok);
+    //            //  MiscFunctions.AddLogMessage("Success", "Running method", DateTime.Now, 0, null, Errors.Ok);
     //        }
 
     //    }
     //    catch (Exception ex)
     //    {
     //        string mes = "Could not Run Method " + MethodName;
-    //        tree.DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+    //        MiscFunctions.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
     //    };
-    //    return tree.DMEEditor.ErrorObject;
+    //    return tree.Editor.ErrorObject;
     //}
     public static List<IBranch> CreateTree(this ITree tree)
     {
@@ -779,8 +779,8 @@ public static class ControlExtensions
         try
         {
             tree.SeqID = 0;
-            //tree. = new TreeNodeDragandDropHandler(DMEEditor, this);
-            //tree.Treebranchhandler = new TreeBranchHandler(DMEEditor, this);
+            //tree. = new TreeNodeDragandDropHandler(Editor, this);
+            //tree.Treebranchhandler = new TreeBranchHandler(Editor, this);
             tree.Branches = new List<IBranch>();
             tree.GenerBranchs = new List<Tuple<IBranch, string>>();
             IBranch Genrebr = null;
@@ -814,7 +814,7 @@ public static class ControlExtensions
                         }
                         catch (Exception ex)
                         {
-                            tree.DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                            MiscFunctions.AddLogMessage("Error", $"Creating StandardTree Root Node {GenreBrAssembly.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                         }
                     }
                 }
@@ -879,7 +879,7 @@ public static class ControlExtensions
                     }
                     catch (Exception ex)
                     {
-                        tree.DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+                        MiscFunctions.AddLogMessage("Error", $"Creating StandardTree Root Node {cls.PackageName} {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
                     }
                 }
             }
@@ -888,7 +888,7 @@ public static class ControlExtensions
         {
             tree.DMEEditor.ErrorObject.Ex = ex;
             tree.DMEEditor.ErrorObject.Flag = Errors.Failed;
-            tree.DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+            MiscFunctions.AddLogMessage("Error", $"Creating StandardTree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
 
         };
 
@@ -941,7 +941,7 @@ public static class ControlExtensions
         {
             tree.DMEEditor.ErrorObject.Ex = ex;
             tree.DMEEditor.ErrorObject.Flag = Errors.Failed;
-            tree.DMEEditor.AddLogMessage("Error", $"Creating Branch Node {br.BranchText} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+            MiscFunctions.AddLogMessage("Error", $"Creating Branch Node {br.BranchText} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
             return null;
         }
 
@@ -994,7 +994,7 @@ public static class ControlExtensions
         {
             tree.DMEEditor.ErrorObject.Ex = ex;
             tree.DMEEditor.ErrorObject.Flag = Errors.Failed;
-            tree.DMEEditor.AddLogMessage("Error", $"Creating Branch Node {br.BranchText} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
+            MiscFunctions.AddLogMessage("Error", $"Creating Branch Node {br.BranchText} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
             return null;
         }
 
@@ -1182,13 +1182,13 @@ public static class ControlExtensions
         catch (Exception ex)
         {
             string mes = "Could not add method to menu " + branch.BranchText;
-            tree.DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+            MiscFunctions.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
         };
         return menuList.Items;
     }
     public static void Nodemenu_ItemClicked(this ITree tree, SimpleItem item,  string MethodName)
     {
-        AssemblyClassDefinition cls = AssemblyDefinitionsHelper.GetAssemblyBranchsClassDefinitionByGuid(tree.DMEEditor, item.AssemblyClassDefinitionID);
+        AssemblyClassDefinition cls = AssemblyClassDefinitionManager.GetAssemblyBranchsClassDefinitionByGuid(tree.DMEEditor, item.AssemblyClassDefinitionID);
         IBranch br = tree.Branches.Where(p => p.GuidID == item.GuidId).FirstOrDefault();
         if (cls != null)
         {
@@ -1277,7 +1277,7 @@ public static class ControlExtensions
                 //PreCallModule?.Invoke(this, args);
                 //if (args.Cancel)
                 //{
-                //    DMEEditor.AddLogMessage("Beep", $"You dont have Access Privilige on {MethodName}", DateTime.Now, 0, MethodName, Errors.Failed);
+                //    MiscFunctions.AddLogMessage("Beep", $"You dont have Access Privilige on {MethodName}", DateTime.Now, 0, MethodName, Errors.Failed);
                 //    ErrorsandMesseges.Flag = Errors.Failed;
                 //    ErrorsandMesseges.Message = $"Function Access Denied";
                 //    return ErrorsandMesseges;
@@ -1292,14 +1292,14 @@ public static class ControlExtensions
                     method.Invoke(branch, null);
 
 
-                //  DMEEditor.AddLogMessage("Success", "Running method", DateTime.Now, 0, null, Errors.Ok);
+                //  MiscFunctions.AddLogMessage("Success", "Running method", DateTime.Now, 0, null, Errors.Ok);
             }
 
         }
         catch (Exception ex)
         {
             string mes = "Could not Run Method " + MethodName;
-            tree.DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+            MiscFunctions.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
         };
         return tree.DMEEditor.ErrorObject;
     }
@@ -1325,7 +1325,7 @@ public static class ControlExtensions
         catch (Exception ex)
         {
             string mes = $"Could not add method from Extension {br.Name} to menu ";
-            tree.DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+            MiscFunctions.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
         };
         return nodemenu;
     }
@@ -1354,7 +1354,7 @@ public static class ControlExtensions
         catch (Exception ex)
         {
             string mes = $"Could not add method from Extension {item.Name} to menu ";
-            tree.DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+            MiscFunctions.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
         };
         return tree.DMEEditor.ErrorObject;
 

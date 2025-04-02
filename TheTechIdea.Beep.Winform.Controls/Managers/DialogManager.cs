@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         public DialogManager()
         {
             //_beepServices = services ?? throw new ArgumentNullException(nameof(services));
-          //  DMEEditor = _beepServices.DMEEditor;
+          //  Editor = _beepServices.Editor;
             ErrorsandMesseges = new ErrorsInfo { Flag = Errors.Ok };
         }
 
@@ -152,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
             catch (Exception ex)
             {
-             //   DMEEditor.AddLogMessage("Error", $"ShowAlert failed: {ex.Message}", DateTime.Now, -1, "ShowAlert", Errors.Failed);
+             //   MiscFunctions.AddLogMessage("Error", $"ShowAlert failed: {ex.Message}", DateTime.Now, -1, "ShowAlert", Errors.Failed);
                 return false;
             }
         }

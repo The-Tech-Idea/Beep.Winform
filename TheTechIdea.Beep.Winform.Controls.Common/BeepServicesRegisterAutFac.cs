@@ -204,7 +204,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         {
             DynamicFunctionCallingManager.DMEEditor = beepService.DMEEditor;
             DynamicFunctionCallingManager.Vismanager = beepService.vis;
-            AssemblyClassDefinitionManager.DMEEditor = beepService.DMEEditor;
+            AssemblyClassDefinitionManager.Editor = beepService.DMEEditor;
         }
         public static void ConfigureServices(IContainer autofacContainer)
         {
@@ -220,7 +220,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             keyhandler = AutoFacContainer.Resolve<IKeyHandlingManager>()!;
             DynamicFunctionCallingManager.DMEEditor = beepService.DMEEditor;
             DynamicFunctionCallingManager.Vismanager = beepService.vis;
-            AssemblyClassDefinitionManager.DMEEditor = beepService.DMEEditor;
+            AssemblyClassDefinitionManager.Editor = beepService.DMEEditor;
             // Resolve a specific view model by key (type name)
 
             // Assuming these method calls setup and configure the services as necessary

@@ -20,7 +20,7 @@
 //        public int SelectedBranchID { get; set; } = 0;
 //        public TreeNodeEvents(IDMEEditor pDMEEditor, TreeViewControl ptreeControl)
 //        {
-//            DMEEditor = pDMEEditor;
+//            Editor = pDMEEditor;
 //            treeControl = ptreeControl;
 //            StandardTree = ptreeControl;
 //            Treecontrol = ptreeControl;
@@ -35,7 +35,7 @@
 //            TreeV.AfterSelect += TreeV_AfterSelect;
 
 //        }
-//        public IDMEEditor DMEEditor { get; set; }
+//        public IDMEEditor Editor { get; set; }
 //        public TreeViewControl treeControl { get; set; }
 //        private ITree StandardTree { get; set; }
 //        private TreeViewControl Treecontrol { get; set; }
@@ -214,7 +214,7 @@
 //                if (e.Button == MouseButtons.Left)
 //                {
 
-//                    DMEEditor.Passedarguments = new PassedArgs
+//                    Editor.Passedarguments = new PassedArgs
 //                    {
 //                        Addin = null,
 //                        AddinName = br.BranchText,
@@ -272,7 +272,7 @@
 //            catch (Exception ex)
 //            {
 
-//                DMEEditor.AddLogMessage("Fail", $"Error in Showing View on StandardTree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
+//                Editor.AddLogMessage("Fail", $"Error in Showing View on StandardTree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
 
 //            }
 
@@ -286,7 +286,7 @@
 //            }
 //            catch (Exception ex)
 //            {
-//                DMEEditor.AddLogMessage("Fail", $"Error in Setting Check for Node StandardTree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
+//                Editor.AddLogMessage("Fail", $"Error in Setting Check for Node StandardTree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
 //            }
 
 

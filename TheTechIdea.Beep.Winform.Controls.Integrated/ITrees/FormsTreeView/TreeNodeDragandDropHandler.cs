@@ -15,7 +15,7 @@
 //    {
 //        public TreeNodeDragandDropHandler(IDMEEditor pDMEEditor, TreeViewControl ptreeControl)
 //        {
-//            DMEEditor = pDMEEditor;
+//            Editor = pDMEEditor;
 //            treeControl = ptreeControl;
 //            TreeV = ptreeControl.TreeV;
 
@@ -27,7 +27,7 @@
 //            TreeV.DragOver += Tree_DragOver;
 
 //        }
-//        public IDMEEditor DMEEditor { get; set; }
+//        public IDMEEditor Editor { get; set; }
 //        public TreeViewControl treeControl { get; set; }
 
 //        public System.Windows.Forms.TreeView TreeV { get; set; }
@@ -78,7 +78,7 @@
 
 //                string targetBranchClass = targetBranch.GetType().Name;
 //                string dragedBranchClass = dragedBranch.GetType().Name;
-//                Function2FunctionAction functionAction = DMEEditor.ConfigEditor.Function2Functions.Where(x => x.FromClass == dragedBranchClass && x.ToClass == targetBranchClass && x.Event == "DragandDrop").FirstOrDefault();
+//                Function2FunctionAction functionAction = Editor.ConfigEditor.Function2Functions.Where(x => x.FromClass == dragedBranchClass && x.ToClass == targetBranchClass && x.Event == "DragandDrop").FirstOrDefault();
 //                //---------------------------------------------------------
 //                if (targetBranch.BranchClass == dragedBranch.BranchClass)
 //                {
@@ -128,7 +128,7 @@
 //                    switch (targetBranch.BranchType)
 //                    {
 //                        case EnumPointType.Root:
-//                            DMEEditor.Passedarguments = new PassedArgs
+//                            Editor.Passedarguments = new PassedArgs
 //                            {
 //                                ObjectName = "DATABASE",
 //                                ObjectType = "TABLE",
@@ -142,7 +142,7 @@
 //                            SendActionFromBranchToBranch(targetBranch, dragedBranch, functionAction.ToMethod);
 //                            break;
 //                        case EnumPointType.DataPoint:
-//                            DMEEditor.Passedarguments = new PassedArgs
+//                            Editor.Passedarguments = new PassedArgs
 //                            {
 //                                ObjectName = "DATABASE",
 //                                ObjectType = "TABLE",
@@ -164,9 +164,9 @@
 
 //                            break;
 //                        case EnumPointType.Entity:
-//                            IDataSource ds = DMEEditor.GetDataSource(dragedBranch.DataSourceName);
+//                            IDataSource ds = Editor.GetDataSource(dragedBranch.DataSourceName);
 //                            EntityStructure ent = ds.GetEntityStructure(dragedBranch.BranchText, true);
-//                            DMEEditor.Passedarguments = new PassedArgs
+//                            Editor.Passedarguments = new PassedArgs
 //                            {
 //                                ObjectName = "DATABASE",
 //                                ObjectType = "TABLE",
@@ -229,7 +229,7 @@
 //        }
 //        public IErrorsInfo SendActionFromBranchToBranch(IBranch ParentBranch, IBranch CurrentBranch, string ActionType)
 //        {
-//            return DMEEditor.ErrorObject;
+//            return Editor.ErrorObject;
 //        }
 //        private void Tree_ItemDrag(object sender, ItemDragEventArgs e)
 

@@ -15,7 +15,7 @@
 //    {
 //        public TreeBranchHandler(IDMEEditor pDMEEditor, ITree ptreeControl, TreeViewControl treecontrol)
 //        {
-//            DMEEditor = pDMEEditor;
+//            Editor = pDMEEditor;
 //            StandardTree = ptreeControl;
 //            AppManager = StandardTree.VisManager;
 //            Treecontrol = treecontrol;
@@ -25,13 +25,13 @@
 //        }
 //        public System.Windows.Forms.TreeView TreeV { get; set; }
 //        private TreeViewControl Treecontrol { get; set; }
-//        public IDMEEditor DMEEditor { get; set; }
+//        public IDMEEditor Editor { get; set; }
 //        private ITree StandardTree { get; set; }
 //        private IAppManager AppManager { get; set; }
 //        #region "Branch Handling"
 //        public IErrorsInfo CreateBranch(IBranch Branch)
 //        {
-//            return DMEEditor.ErrorObject;
+//            return Editor.ErrorObject;
 //        }
 //        public IErrorsInfo AddBranch(IBranch ParentBranch, IBranch Branch)
 //        {
@@ -39,7 +39,7 @@
 //            {
 //                Treecontrol.TreeV.BeginUpdate();
 //                Branch.BranchID = Branch.ID;
-//                AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == Branch.ToString()).FirstOrDefault()!;
+//                AssemblyClassDefinition cls = Editor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == Branch.ToString()).FirstOrDefault()!;
 //                Branch.Name = cls.PackageName;
 
 //                TreeNode p = Treecontrol.GetTreeNodeByID(ParentBranch.BranchID, TreeV.Nodes);
@@ -70,17 +70,17 @@
 //               // Console.WriteLine(Branch.BranchText);
 //                Treecontrol.CreateMenuMethods(Branch);
 //                Treecontrol.CreateGlobalMenu(Branch);
-//                Branch.DMEEditor = DMEEditor;
+//                Branch.Editor = Editor;
 //                StandardTree.Branches.Add(Branch);
-//                if (!DMEEditor.ConfigEditor.objectTypes.Any(i => i.ObjectType == Branch.BranchClass && i.ObjectName == Branch.BranchType.ToString() + "_" + Branch.BranchClass))
+//                if (!Editor.ConfigEditor.objectTypes.Any(i => i.ObjectType == Branch.BranchClass && i.ObjectName == Branch.BranchType.ToString() + "_" + Branch.BranchClass))
 //                {
-//                    DMEEditor.ConfigEditor.objectTypes.Add(new Workflow.ObjectTypes { ObjectType = Branch.BranchClass, ObjectName = Branch.BranchType.ToString() + "_" + Branch.BranchClass });
+//                    Editor.ConfigEditor.objectTypes.Add(new Workflow.ObjectTypes { ObjectType = Branch.BranchClass, ObjectName = Branch.BranchType.ToString() + "_" + Branch.BranchClass });
 //                }
 //                if (Branch.BranchType == EnumPointType.Entity)
 //                {
 //                    if (Branch.BranchClass == "VIEW")
 //                    {
-//                        //   DataViewDataSource dataViewDatasource = (DataViewDataSource)DMEEditor.GetDataSource(Branch.DataSourceName);
+//                        //   DataViewDataSource dataViewDatasource = (DataViewDataSource)Editor.GetDataSource(Branch.DataSourceName);
 //                        EntityStructure e = Branch.EntityStructure;
 //                        EntityStructure parententity = GetBranch(Branch.ParentBranchID).EntityStructure;
 //                        if (e != null && parententity != null)
@@ -151,15 +151,15 @@
 //            catch (Exception ex)
 //            {
 //                string mes = "Could not Add Branch to " + ParentBranch.BranchText;
-//                DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+//                Editor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
 //            };
-//            return DMEEditor.ErrorObject;
+//            return Editor.ErrorObject;
 
 //        }
 //        public string CheckifBranchExistinCategory(string BranchName, string pRootName)
 //        {
 //            //bool retval = false;
-//            List<CategoryFolder> ls = DMEEditor.ConfigEditor.CategoryFolders.Where(x => x.RootName == pRootName).ToList();
+//            List<CategoryFolder> ls = Editor.ConfigEditor.CategoryFolders.Where(x => x.RootName == pRootName).ToList();
 //            foreach (CategoryFolder item in ls)
 //            {
 //                foreach (string f in item.items)
@@ -177,7 +177,7 @@
 
 //            try
 //            {
-//                CategoryFolder f = DMEEditor.ConfigEditor.CategoryFolders.Where(x => x.RootName == root && x.FolderName == foldername).FirstOrDefault();
+//                CategoryFolder f = Editor.ConfigEditor.CategoryFolders.Where(x => x.RootName == root && x.FolderName == foldername).FirstOrDefault();
 //                if (f != null)
 //                {
 //                    f.items.Remove(entityname);
@@ -188,7 +188,7 @@
 //            catch (Exception ex)
 //            {
 //                string mes = "";
-//                DMEEditor.AddLogMessage(ex.Message, "Could not remove entity from category" + mes, DateTime.Now, -1, mes, Errors.Failed);
+//                Editor.AddLogMessage(ex.Message, "Could not remove entity from category" + mes, DateTime.Now, -1, mes, Errors.Failed);
 //                return false;
 //            };
 //        }
@@ -214,14 +214,14 @@
 //                }
 
 
-//                // DMEEditor.AddLogMessage("Success", "removed node and childs", DateTime.Now, 0, null, Errors.Ok);
+//                // Editor.AddLogMessage("Success", "removed node and childs", DateTime.Now, 0, null, Errors.Ok);
 //            }
 //            catch (Exception ex)
 //            {
 //                string mes = "Could not  remove node and childs";
-//                DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+//                Editor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
 //            };
-//            return DMEEditor.ErrorObject;
+//            return Editor.ErrorObject;
 
 //        }
 //        public IErrorsInfo RemoveChildBranchs(IBranch branch)
@@ -267,14 +267,14 @@
 
 
 
-//                //  DMEEditor.AddLogMessage("Success", "removed childs", DateTime.Now, 0, null, Errors.Ok);
+//                //  Editor.AddLogMessage("Success", "removed childs", DateTime.Now, 0, null, Errors.Ok);
 //            }
 //            catch (Exception ex)
 //            {
 //                string mes = "Could not  remove   childs";
-//                DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+//                Editor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
 //            };
-//            return DMEEditor.ErrorObject;
+//            return Editor.ErrorObject;
 //        }
 //        public IBranch GetBranch(int pID)
 //        {
@@ -302,7 +302,7 @@
 
 //                }
 
-//                CategoryFolder CurFodler = DMEEditor.ConfigEditor.CategoryFolders.Where(y => y.RootName == ParentBranch.BranchClass).FirstOrDefault();
+//                CategoryFolder CurFodler = Editor.ConfigEditor.CategoryFolders.Where(y => y.RootName == ParentBranch.BranchClass).FirstOrDefault();
 //                if (CurFodler != null)
 //                {
 //                    if (CurFodler.items.Contains(CurrentBranch.BranchText) == false)
@@ -311,7 +311,7 @@
 //                    }
 //                }
 
-//                CategoryFolder NewFolder = DMEEditor.ConfigEditor.CategoryFolders.Where(y => y.FolderName == ParentBranch.BranchText && y.RootName == ParentBranch.BranchClass).FirstOrDefault();
+//                CategoryFolder NewFolder = Editor.ConfigEditor.CategoryFolders.Where(y => y.FolderName == ParentBranch.BranchText && y.RootName == ParentBranch.BranchClass).FirstOrDefault();
 //                if (NewFolder != null)
 //                {
 //                    if (NewFolder.items.Contains(CurrentBranch.BranchText) == false)
@@ -321,7 +321,7 @@
 //                }
 //                if (ParentBranch.BranchType == EnumPointType.Entity && ParentBranch.BranchClass == "VIEW" && CurrentBranch.BranchClass == "VIEW" && ParentBranch.DataSourceName == CurrentBranch.DataSourceName)
 //                {
-//                    DataViewDataSource vds = (DataViewDataSource)DMEEditor.GetDataSource(CurrentBranch.DataSourceName);
+//                    DataViewDataSource vds = (DataViewDataSource)Editor.GetDataSource(CurrentBranch.DataSourceName);
 //                    if (vds.Entities[vds.EntityListIndex(ParentBranch.MiscID)].Id == vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId)
 //                    {
 
@@ -336,16 +336,16 @@
 
 //                ParentBranchNode.Nodes.Add(CurrentBranchNode);
 
-//                DMEEditor.ConfigEditor.SaveCategoryFoldersValues();
+//                Editor.ConfigEditor.SaveCategoryFoldersValues();
 
-//                DMEEditor.AddLogMessage("Success", "Moved Branch successfully", DateTime.Now, 0, null, Errors.Ok);
+//                Editor.AddLogMessage("Success", "Moved Branch successfully", DateTime.Now, 0, null, Errors.Ok);
 //            }
 //            catch (Exception ex)
 //            {
 //                string mes = "Could not Moved Branch";
-//                DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+//                Editor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
 //            };
-//            return DMEEditor.ErrorObject;
+//            return Editor.ErrorObject;
 //        }
 //        public IErrorsInfo RemoveBranch(int id)
 //        {
@@ -357,39 +357,39 @@
 //            catch (Exception ex)
 //            {
 //                string mes = "Could not  remove node and childs";
-//                DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+//                Editor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
 //            };
-//            return DMEEditor.ErrorObject;
+//            return Editor.ErrorObject;
 
 //        }
 //        public IErrorsInfo AddCategory(IBranch Rootbr, string foldername)
 //        {
 //            try
 //            {
-//                if (DMEEditor.Passedarguments == null)
+//                if (Editor.Passedarguments == null)
 //                {
-//                    DMEEditor.Passedarguments = new PassedArgs();
+//                    Editor.Passedarguments = new PassedArgs();
 //                }
 //                if (foldername != null)
 //                {
 //                    if (foldername.Length > 0)
 //                    {
-//                        if (!DMEEditor.ConfigEditor.CategoryFolders.Where(p => p.RootName.Equals(Rootbr.BranchClass, StringComparison.InvariantCultureIgnoreCase) && p.ParentName.Equals(Rootbr.BranchText, StringComparison.InvariantCultureIgnoreCase) && p.FolderName.Equals(foldername, StringComparison.InvariantCultureIgnoreCase)).Any())
+//                        if (!Editor.ConfigEditor.CategoryFolders.Where(p => p.RootName.Equals(Rootbr.BranchClass, StringComparison.InvariantCultureIgnoreCase) && p.ParentName.Equals(Rootbr.BranchText, StringComparison.InvariantCultureIgnoreCase) && p.FolderName.Equals(foldername, StringComparison.InvariantCultureIgnoreCase)).Any())
 //                        {
-//                            CategoryFolder x = DMEEditor.ConfigEditor.AddFolderCategory(foldername, Rootbr.BranchClass, Rootbr.BranchText);
+//                            CategoryFolder x = Editor.ConfigEditor.AddFolderCategory(foldername, Rootbr.BranchClass, Rootbr.BranchText);
 //                            Rootbr.CreateCategoryNode(x);
-//                            DMEEditor.ConfigEditor.SaveCategoryFoldersValues();
+//                            Editor.ConfigEditor.SaveCategoryFoldersValues();
 //                        }
 //                    }
 //                }
-//                DMEEditor.AddLogMessage("Success", "Added Category", DateTime.Now, 0, null, Errors.Failed);
+//                Editor.AddLogMessage("Success", "Added Category", DateTime.Now, 0, null, Errors.Failed);
 //            }
 //            catch (Exception ex)
 //            {
 //                string mes = "Could not Add Category";
-//                DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+//                Editor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
 //            };
-//            return DMEEditor.ErrorObject;
+//            return Editor.ErrorObject;
 //        }
 //        public IErrorsInfo RemoveCategoryBranch(int id)
 //        {
@@ -409,20 +409,20 @@
 //                }
 
 //                TreeV.Nodes.Remove(CategoryBranchNode);
-//                CategoryFolder Folder = DMEEditor.ConfigEditor.CategoryFolders.Where(y => y.FolderName == CategoryBranch.BranchText && y.RootName == CategoryBranch.BranchClass).FirstOrDefault();
-//                DMEEditor.ConfigEditor.CategoryFolders.Remove(Folder);
+//                CategoryFolder Folder = Editor.ConfigEditor.CategoryFolders.Where(y => y.FolderName == CategoryBranch.BranchText && y.RootName == CategoryBranch.BranchClass).FirstOrDefault();
+//                Editor.ConfigEditor.CategoryFolders.Remove(Folder);
 
-//                DMEEditor.ConfigEditor.SaveCategoryFoldersValues();
-//                DMEEditor.AddLogMessage("Success", "Removed Branch successfully", DateTime.Now, 0, null, Errors.Ok);
+//                Editor.ConfigEditor.SaveCategoryFoldersValues();
+//                Editor.AddLogMessage("Success", "Removed Branch successfully", DateTime.Now, 0, null, Errors.Ok);
 
 //            }
 //            catch (Exception ex)
 //            {
 //                string mes = "";
-//                DMEEditor.AddLogMessage(ex.Message, "Could not remove category" + mes, DateTime.Now, -1, mes, Errors.Failed);
+//                Editor.AddLogMessage(ex.Message, "Could not remove category" + mes, DateTime.Now, -1, mes, Errors.Failed);
 
 //            };
-//            return DMEEditor.ErrorObject;
+//            return Editor.ErrorObject;
 
 //        }
 //        public IErrorsInfo SendActionFromBranchToBranch(IBranch ToBranch, IBranch CurrentBranch, string ActionType)
@@ -434,19 +434,19 @@
 //            try
 //            {
 
-//                Function2FunctionAction functionAction = DMEEditor.ConfigEditor.Function2Functions.Where(x => x.FromClass == dragedBranchClass && x.ToClass == targetBranchClass && x.ToMethod == ActionType).FirstOrDefault();
+//                Function2FunctionAction functionAction = Editor.ConfigEditor.Function2Functions.Where(x => x.FromClass == dragedBranchClass && x.ToClass == targetBranchClass && x.ToMethod == ActionType).FirstOrDefault();
 //                if (functionAction != null)
 //                {
 //                    Treecontrol.RunMethod(ToBranch, ActionType);
 //                }
-//                //   DMEEditor.AddLogMessage("Success", "Added Database Connection", DateTime.Now, 0, null, Errors.Ok);
+//                //   Editor.AddLogMessage("Success", "Added Database Connection", DateTime.Now, 0, null, Errors.Ok);
 //            }
 //            catch (Exception ex)
 //            {
 //                string mes = "Could not send action to branch";
-//                DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+//                Editor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
 //            };
-//            return DMEEditor.ErrorObject;
+//            return Editor.ErrorObject;
 
 //        }
 //        #endregion
@@ -726,7 +726,7 @@
 //            catch (Exception ex)
 //            {
 
-//                DMEEditor.AddLogMessage("Fail", $"Error in Showing View on StandardTree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
+//                Editor.AddLogMessage("Fail", $"Error in Showing View on StandardTree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
 
 //            }
 
@@ -742,7 +742,7 @@
 //            }
 //            catch (Exception ex)
 //            {
-//                DMEEditor.AddLogMessage("Fail", $"Error in Setting Check for Node StandardTree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
+//                Editor.AddLogMessage("Fail", $"Error in Setting Check for Node StandardTree ({ex.Message}) ", DateTime.Now, 0, null, Errors.Failed);
 //            }
 
 
@@ -799,7 +799,7 @@
 //                    RemoveEntityFromCategory(ParentBranch.BranchClass, currentParentFoelder, CurrentBranch.BranchText);
 //                }
 //                TreeV.Nodes.Remove(CurrentBranchNode);
-//                CategoryFolder CurFodler = DMEEditor.ConfigEditor.CategoryFolders.Where(y => y.RootName == CategoryBranch.BranchClass && y.FolderName == CategoryBranch.BranchText).FirstOrDefault();
+//                CategoryFolder CurFodler = Editor.ConfigEditor.CategoryFolders.Where(y => y.RootName == CategoryBranch.BranchClass && y.FolderName == CategoryBranch.BranchText).FirstOrDefault();
 //                if (CurFodler != null)
 //                {
 //                    if (CurFodler.items.Contains(CurrentBranch.BranchText) == false)
@@ -808,7 +808,7 @@
 //                    }
 //                }
 
-//                CategoryFolder NewFolder = DMEEditor.ConfigEditor.CategoryFolders.Where(y => y.FolderName == CategoryBranch.BranchText && y.RootName == CategoryBranch.BranchClass).FirstOrDefault();
+//                CategoryFolder NewFolder = Editor.ConfigEditor.CategoryFolders.Where(y => y.FolderName == CategoryBranch.BranchText && y.RootName == CategoryBranch.BranchClass).FirstOrDefault();
 //                if (NewFolder != null)
 //                {
 //                    if (NewFolder.items.Contains(CurrentBranch.BranchText) == false)
@@ -818,7 +818,7 @@
 //                }
 //                if (CategoryBranch.BranchType == EnumPointType.Entity && CategoryBranch.BranchClass == "VIEW" && CurrentBranch.BranchClass == "VIEW" && CategoryBranch.DataSourceName == CurrentBranch.DataSourceName)
 //                {
-//                    DataViewDataSource vds = (DataViewDataSource)DMEEditor.GetDataSource(CurrentBranch.DataSourceName);
+//                    DataViewDataSource vds = (DataViewDataSource)Editor.GetDataSource(CurrentBranch.DataSourceName);
 //                    if (vds.Entities[vds.EntityListIndex(CategoryBranch.MiscID)].Id == vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId)
 //                    {
 
@@ -833,17 +833,17 @@
 
 //                CategoryBranchNode.Nodes.Add(CurrentBranchNode);
 
-//                DMEEditor.ConfigEditor.SaveCategoryFoldersValues();
+//                Editor.ConfigEditor.SaveCategoryFoldersValues();
 
 
-//                DMEEditor.AddLogMessage("Success", "Moved Branch successfully", DateTime.Now, 0, null, Errors.Ok);
+//                Editor.AddLogMessage("Success", "Moved Branch successfully", DateTime.Now, 0, null, Errors.Ok);
 //            }
 //            catch (Exception ex)
 //            {
 //                string mes = "Could not Moved Branch";
-//                DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+//                Editor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
 //            };
-//            return DMEEditor.ErrorObject;
+//            return Editor.ErrorObject;
 //        }
 //        #endregion
 

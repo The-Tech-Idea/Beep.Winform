@@ -88,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     //   {
     //       public VisHelper(IDMEEditor pDMEEditor, IAppManager pVismanager)
     //       {
-    //           DMEEditor = pDMEEditor;
+    //           Editor = pDMEEditor;
     //           Vismanager = pVismanager;
 
     //           ImageList16 = new ImageList();
@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     //           ImageList128.Images.Clear(); // Clear existing images if any
 
     //       }
-    //       public IDMEEditor DMEEditor { get; set; }
+    //       public IDMEEditor Editor { get; set; }
     //       public List<ImageConfiguration> ImgAssemblies { get; set; } = new List<ImageConfiguration>();
     //       public List<MenuList> Menus { get; set; } = new List<MenuList>();
     //       public List<string> Images { get; set; } = new List<string>();
@@ -323,7 +323,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     //               Assembly.GetExecutingAssembly(),
     //               Assembly.GetCallingAssembly(),
     //               Assembly.GetEntryAssembly()!       }.ToList();
-    //           assemblies.AddRange(DMEEditor.ConfigEditor.LoadedAssemblies);
+    //           assemblies.AddRange(Editor.ConfigEditor.LoadedAssemblies);
     //           List<Assembly> LoadedAssemblies = DependencyContext.Default.RuntimeLibraries
     //.SelectMany(library => library.GetDefaultAssemblyNames(DependencyContext.Default))
     //.Select(Assembly.Load)
@@ -430,18 +430,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     //               string drname = null;
     //               string iconname = null;
     //               ConnectionDriversConfig connectionDrivers;
-    //               if (DMEEditor.ConfigEditor.DataConnections.Where(c => c.ConnectionName == Connectioname).Any())
+    //               if (Editor.ConfigEditor.DataConnections.Where(c => c.ConnectionName == Connectioname).Any())
     //               {
-    //                   drname = DMEEditor.ConfigEditor.DataConnections.Where(c => c.ConnectionName == Connectioname).FirstOrDefault().DriverName;
+    //                   drname = Editor.ConfigEditor.DataConnections.Where(c => c.ConnectionName == Connectioname).FirstOrDefault().DriverName;
     //               }
 
     //               if (drname != null)
     //               {
-    //                   string drversion = DMEEditor.ConfigEditor.DataConnections.Where(c => c.ConnectionName == Connectioname).FirstOrDefault().DriverVersion;
-    //                   if (DMEEditor.ConfigEditor.DataDriversClasses.Where(c => c.version == drversion && c.DriverClass == drname).Any())
+    //                   string drversion = Editor.ConfigEditor.DataConnections.Where(c => c.ConnectionName == Connectioname).FirstOrDefault().DriverVersion;
+    //                   if (Editor.ConfigEditor.DataDriversClasses.Where(c => c.version == drversion && c.DriverClass == drname).Any())
     //                   {
 
-    //                       connectionDrivers = DMEEditor.ConfigEditor.DataDriversClasses.Where(c => c.version == drversion && c.DriverClass == drname).FirstOrDefault();
+    //                       connectionDrivers = Editor.ConfigEditor.DataDriversClasses.Where(c => c.version == drversion && c.DriverClass == drname).FirstOrDefault();
     //                       if (connectionDrivers != null)
     //                       {
     //                           iconname = connectionDrivers.iconname;
@@ -449,7 +449,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     //                   }
     //                   else
     //                   {
-    //                       connectionDrivers = DMEEditor.ConfigEditor.DataDriversClasses.Where(c => c.DriverClass == drname).FirstOrDefault();
+    //                       connectionDrivers = Editor.ConfigEditor.DataDriversClasses.Where(c => c.DriverClass == drname).FirstOrDefault();
     //                       if (connectionDrivers != null)
     //                       {
     //                           iconname = connectionDrivers.iconname;

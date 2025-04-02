@@ -855,7 +855,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                     if (attrib.addinType == AddinType.Class)
                     {
                         addin = (IDM_Addin)Activator.CreateInstance(type);
-                        //   addin.SetConfig(pDMEEditor, DMEEditor.Logger, DMEEditor.Utilfunction, args, e, ErrorsandMesseges);
+                        //   addin.SetConfig(pDMEEditor, Editor.Logger, Editor.Utilfunction, args, e, ErrorsandMesseges);
                         CurrentDisplayedAddin = addin;
                         IsDataModified = false;
                         addin.Run(e);

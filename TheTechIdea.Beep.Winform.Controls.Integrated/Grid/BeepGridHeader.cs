@@ -1163,7 +1163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
             catch (Exception ex)
             {
-                //DMEEditor.AddLogMessage("Beep", $"Error in Cell Validation in Grid: {ex.Message}", DateTime.Now, 0, "", Errors.Failed);
+                //Editor.AddLogMessage("Beep", $"Error in Cell Validation in Grid: {ex.Message}", DateTime.Now, 0, "", Errors.Failed);
             }
         }
 
@@ -1227,13 +1227,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
         }
         /// <summary>
-        /// Handles DataGridView data error events, logging error messages in the DMEEditor.
+        /// Handles DataGridView data error events, logging error messages in the Editor.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="DataGridViewDataErrorEventArgs"/> that contains the event data.</param>
         private void DataGridView1_DataError(object? sender, DataGridViewDataErrorEventArgs e)
         {
-           // DMEEditor.AddLogMessage("Error", $"Error in Grid {e.Exception.Message}", DateTime.Now, 0, "", Errors.Failed);
+           // Editor.AddLogMessage("Error", $"Error in Grid {e.Exception.Message}", DateTime.Now, 0, "", Errors.Failed);
         }
         #endregion DataGridView Cell Editing
         #region DataGridView Scrolling

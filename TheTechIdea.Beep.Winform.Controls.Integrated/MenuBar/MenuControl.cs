@@ -28,7 +28,7 @@
 //        }
 //        public void  SetMenuControl(IDMEEditor pDMEEditor, TreeViewControl ptreeControl)
 //        {
-//            DMEEditor = pDMEEditor;
+//            Editor = pDMEEditor;
 //            Treecontrol = ptreeControl;
 //            vismanager =Treecontrol.VisManager;
 //            TreeV = Treecontrol.TreeV;
@@ -51,7 +51,7 @@
 //        public string NameSpace { get ; set ; }
 //        public IErrorsInfo ErrorObject { get ; set ; }
 //        public IDMLogger Logger { get ; set ; }
-//        public IDMEEditor DMEEditor { get ; set ; }
+//        public IDMEEditor Editor { get ; set ; }
 //        public EntityStructure EntityStructure { get ; set ; }
       
 //        public string EntityName { get ; set ; }
@@ -77,7 +77,7 @@
 //        }
 //        public void SetConfig(IDMEEditor pbl, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
 //        {
-//            DMEEditor = pbl;
+//            Editor = pbl;
 //        }
 //        public ToolStripMenuItem GetToolStripMenuItem(string Name)
 //        {
@@ -129,7 +129,7 @@
 //                MenuStrip.ImageScalingSize = new Value(20, 20);
 
 
-//                List<AssemblyClassDefinition> extentions = DMEEditor.ConfigEditor.GlobalFunctions.Where(o=>o.classProperties!=null && o.classProperties.ObjectType!=null && (o.classProperties.Showin== ShowinType.Menu || o.classProperties.Showin == ShowinType.Both) && o.classProperties.ObjectType.Equals(ObjectType,StringComparison.CurrentCultureIgnoreCase)).OrderBy(p => p.Order).ToList();
+//                List<AssemblyClassDefinition> extentions = Editor.ConfigEditor.GlobalFunctions.Where(o=>o.classProperties!=null && o.classProperties.ObjectType!=null && (o.classProperties.Showin== ShowinType.Menu || o.classProperties.Showin == ShowinType.Both) && o.classProperties.ObjectType.Equals(ObjectType,StringComparison.CurrentCultureIgnoreCase)).OrderBy(p => p.Order).ToList();
 //                foreach (AssemblyClassDefinition cls in extentions)
 //                {
 //                    Type type = cls.type;
@@ -204,7 +204,7 @@
 //                    Configmenu.Tag = "Config";
 //                    Configmenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
 //                    Configmenu.ImageIndex = vismanager.visHelper.GetImageIndex("configuration.ico"  );
-//                    foreach (AddinTreeStructure item in DMEEditor.ConfigEditor.AddinTreeStructure)
+//                    foreach (AddinTreeStructure item in Editor.ConfigEditor.AddinTreeStructure)
 //                    {
 //                        ToolStripMenuItem menuItem = new ToolStripMenuItem();
 //                        menuItem.Name = item.NodeName;
@@ -224,12 +224,12 @@
 //                ////-------------------------------------------------------------------------------------------
                 
                 
-//                return DMEEditor.ErrorObject;
+//                return Editor.ErrorObject;
 //            }
 //            catch (Exception ex)
 //            {
 
-//                return DMEEditor.ErrorObject;
+//                return Editor.ErrorObject;
 //            }
 //        }
 //        private void RunToolStripFunction(object sender, EventArgs e)
@@ -255,7 +255,7 @@
 //                EventType = "Run"
 
 //            };
-//            vismanager.ShowUserControlPopUp(menuItem.Tag.ToString(), DMEEditor, null, Passedarguments);
+//            vismanager.ShowUserControlPopUp(menuItem.Tag.ToString(), Editor, null, Passedarguments);
 //        }
 
 //        public void Run(params object[] args)

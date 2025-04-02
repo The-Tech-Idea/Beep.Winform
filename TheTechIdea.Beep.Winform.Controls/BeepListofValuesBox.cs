@@ -229,7 +229,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _popupGridForm = new BeepPopupGridForm();
                     _popupGridForm.RowSelected += PopupGridForm_RowSelected;
                     _popupGridForm.Theme = Theme;
-                _popupGridForm.ShowPopupList(this, _items, "Value", "Text", _keyTextBox.Width, _valueTextBox.Width);
+                    _popupGridForm.ShowPopupList(this, _items, "Value", "Text", _keyTextBox.Width, _valueTextBox.Width);
             }
         }
 

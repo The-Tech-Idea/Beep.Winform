@@ -26,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region Properties
         #region Fields
+        private bool _deferRedraw = false;
         private Dictionary<int, int> _rowHeights = new Dictionary<int, int>(); // Key: DisplayIndex, Value: Height
         private bool _navigatorDrawn = false;
         private bool _showFilterpanel=false;
@@ -805,7 +806,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion
-        #region Data Navigator
+        #region External Data Navigator
         private void AttachNavigatorEvents()
         {
             DataNavigator.CallPrinter += DataNavigator_CallPrinter;
@@ -1053,7 +1054,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             try
             {
                 // Save changes to _fullData (external persistence delegated to caller)
-                CloseCurrentEditorIn(); // Ensure any open editor is saved
+                CloseCurrentEditor(); // Ensure any open editor is saved
                 foreach (var row in Rows)
                 {
                     if (row.IsDirty)
@@ -1102,64 +1103,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        #endregion Data Navigator
+        #endregion External Data Navigator
         #region DataSource Update
-        private void CreateNewRecordForBindingSource()
-        {
-            try
-            {
-                if (Entity == null)
-                {
-                    MiscFunctions.SendLog("CreateNewRecordForBindingSource: Cannot add new record: Entity structure not defined.");
-                    return;
-                }
-
-                // Create a new record of the appropriate type
-                var newItem = Activator.CreateInstance(Type.GetType(Entity.EntityName));
-
-                // Add to the BindingSource
-                if (_bindingSource != null)
-                {
-                    _bindingSource.Add(newItem); // Add to BindingSource, which triggers BindingSource_ListChanged
-                    MiscFunctions.SendLog($"CreateNewRecordForBindingSource: Added new record to BindingSource: {newItem}");
-
-                    // The BindingSource_ListChanged event (ListChangedType.ItemAdded) will handle adding to _fullData, Trackings, and originalList
-                    // We just need to update the grid's selection and scroll position
-                    int newOffset = Math.Max(0, _fullData.Count - GetVisibleRowCount());
-                    StartSmoothScroll(newOffset);
-                    int newRowIndex = _fullData.Count - 1 - _dataOffset;
-                    if (newRowIndex >= 0 && newRowIndex < Rows.Count)
-                    {
-                        SelectCell(newRowIndex, 0);
-                        BeginEdit();
-                    }
-
-                    // Log the operation if IsLogging is enabled
-                    if (IsLogging)
-                    {
-                        var tracking = Trackings.LastOrDefault(); // Get the tracking entry added by BindingSource_ListChanged
-                        if (tracking != null)
-                        {
-                            UpdateLog[DateTime.Now] = new EntityUpdateInsertLog
-                            {
-                                TrackingRecord = tracking,
-                                LogAction = LogAction.Insert,
-                                UpdatedFields = new Dictionary<string, object>()
-                            };
-                        }
-                    }
-                }
-                else
-                {
-                    MiscFunctions.SendLog($"CreateNewRecordForBindingSource: _bindingSource is null, cannot add new record");
-                }
-            }
-            catch (Exception ex)
-            {
-                MiscFunctions.SendLog($"CreateNewRecordForBindingSource Error: {ex.Message}");
-                MiscFunctions.SendLog($"Error adding new record: {ex.Message}");
-            }
-        }
 
         // Existing CreateNewRecordForIList (already includes logging and error handling)
         private void CreateNewRecordForIList()
@@ -1234,6 +1179,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MiscFunctions.SendLog($"Error adding new record: {ex.Message}");
             }
         }
+        private void UpdateIListDataSource(int dataIndex, object updatedItem)
+        {
+            if (_dataSource is IList list && dataIndex >= 0 && dataIndex < list.Count)
+            {
+                list[dataIndex] = updatedItem; // Update the item in the IList
+                MiscFunctions.SendLog($"UpdateIListDataSource: Updated item at index {dataIndex} in IList");
+            }
+            else
+            {
+                MiscFunctions.SendLog($"UpdateIListDataSource: Invalid index {dataIndex} or _dataSource is not an IList");
+            }
+        }
         private void InsertIntoDataSource(object newData)
         {
             if (_dataSource is BindingSource)
@@ -1302,7 +1259,44 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MiscFunctions.SendLog($"UpdateInDataSource: Unsupported data source type: {_dataSource?.GetType()}");
             }
         }
+        private void CreateNewRecordForBindingSource()
+        {
+            try
+            {
+                if (Entity == null)
+                {
+                    MiscFunctions.SendLog("CreateNewRecordForBindingSource: Cannot add new record: Entity structure not defined.");
+                    MessageBox.Show("Entity structure not defined.", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
+         //       Type entityType = Type.GetType(Entity.EntityName);
+                if (_entityType == null)
+                {
+                    MiscFunctions.SendLog($"CreateNewRecordForBindingSource: Invalid entity type name: {Entity.EntityName}");
+                    MessageBox.Show($"Invalid entity type: {Entity.EntityName}", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (_bindingSource == null)
+                {
+                    MiscFunctions.SendLog("CreateNewRecordForBindingSource: _bindingSource is null, cannot add new record");
+                    MessageBox.Show("BindingSource is not initialized.", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                var newItem = Activator.CreateInstance(_entityType);
+                _isAddingNewRecord = true; // Set flag before adding
+                _bindingSource.Add(newItem);
+                MiscFunctions.SendLog($"CreateNewRecordForBindingSource: Added new record to BindingSource: {newItem}");
+            }
+            catch (Exception ex)
+            {
+                MiscFunctions.SendLog($"CreateNewRecordForBindingSource Error: {ex.Message}");
+                MessageBox.Show($"Error adding new record: {ex.Message}", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _isAddingNewRecord = false; // Reset on error
+            }
+        }
         private void DeleteFromDataSource(object originalData)
         {
             try
@@ -1313,79 +1307,31 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return;
                 }
 
-                // Find the DataRowWrapper in _fullData to get the dataIndex
-                DataRowWrapper wrapper = null;
-                int dataIndex = -1;
-                for (int i = 0; i < _fullData.Count; i++)
-                {
-                    var item = _fullData[i] as DataRowWrapper;
-                    if (item != null && item.OriginalData == originalData)
-                    {
-                        wrapper = item;
-                        dataIndex = i;
-                        break;
-                    }
-                }
-
+                DataRowWrapper wrapper = _fullData.OfType<DataRowWrapper>().FirstOrDefault(w => w.OriginalData == originalData);
+                int dataIndex = wrapper != null ? _fullData.IndexOf(wrapper) : -1;
                 if (wrapper == null || dataIndex < 0)
                 {
-                    MiscFunctions.SendLog($"DeleteFromDataSource: Could not find DataRowWrapper for originalData in _fullData");
+                    MiscFunctions.SendLog("DeleteFromDataSource: Could not find DataRowWrapper for originalData in _fullData");
                     return;
                 }
 
-                // Get the tracking entry before removing
                 Tracking tracking = GetTrackingItem(wrapper);
                 if (tracking != null)
                 {
                     tracking.EntityState = EntityState.Deleted;
                 }
 
-                if (_dataSource is BindingSource)
+                if (_dataSource is BindingSource && _bindingSource != null)
                 {
-                    if (_bindingSource != null)
+                    int bsIndex = _bindingSource.IndexOf(originalData);
+                    if (bsIndex >= 0 && bsIndex < _bindingSource.Count)
                     {
-                        int bsIndex = _bindingSource.IndexOf(originalData);
-                        if (bsIndex >= 0 && bsIndex < _bindingSource.Count)
-                        {
-                            // Remove from _fullData, Trackings, and originalList before removing from BindingSource
-                            _fullData.RemoveAt(dataIndex);
-                            originalList.RemoveAt(dataIndex);
-                            Trackings.Remove(tracking);
-                            deletedList.Add(wrapper);
-
-                            // Update indices in _fullData
-                            for (int i = 0; i < _fullData.Count; i++)
-                            {
-                                var dataRow = _fullData[i] as DataRowWrapper;
-                                if (dataRow != null)
-                                {
-                                    dataRow.RowID = i;
-                                }
-                            }
-
-                            // Log the operation if IsLogging is enabled
-                            if (IsLogging && tracking != null)
-                            {
-                                UpdateLog[DateTime.Now] = new EntityUpdateInsertLog
-                                {
-                                    TrackingRecord = tracking,
-                                    LogAction = LogAction.Delete,
-                                    UpdatedFields = new Dictionary<string, object>()
-                                };
-                            }
-
-                            // Remove from BindingSource
-                            _bindingSource.RemoveAt(bsIndex); // This will trigger BindingSource_ListChanged, but we've already handled the updates
-                            MiscFunctions.SendLog($"DeleteFromDataSource: Deleted record from BindingSource at index {bsIndex}: {originalData}");
-                        }
-                        else
-                        {
-                            MiscFunctions.SendLog($"DeleteFromDataSource: Item not found in BindingSource at index {bsIndex}");
-                        }
+                        _bindingSource.RemoveAt(bsIndex); // Let HandleItemDeleted update state
+                        MiscFunctions.SendLog($"DeleteFromDataSource: Triggered deletion from BindingSource at index {bsIndex}: {originalData}");
                     }
                     else
                     {
-                        MiscFunctions.SendLog($"DeleteFromDataSource: _bindingSource is null, cannot delete record");
+                        MiscFunctions.SendLog($"DeleteFromDataSource: Item not found in BindingSource at index {bsIndex}");
                     }
                 }
                 else if (_dataSource is IList list)
@@ -1393,30 +1339,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                     int listIndex = list.IndexOf(originalData);
                     if (listIndex >= 0 && listIndex < list.Count)
                     {
-                        // Remove from IList
                         list.RemoveAt(listIndex);
-                        MiscFunctions.SendLog($"DeleteFromDataSource: Deleted record from IList at index {listIndex}: {originalData}");
-
-                        // Remove from _fullData
                         _fullData.RemoveAt(dataIndex);
-
-                        // Update indices in _fullData
                         for (int i = 0; i < _fullData.Count; i++)
                         {
-                            var dataRow = _fullData[i] as DataRowWrapper;
-                            if (dataRow != null)
-                            {
-                                dataRow.RowID = i;
-                            }
+                            if (_fullData[i] is DataRowWrapper dataRow) dataRow.RowID = i;
                         }
-
-                        // Update Trackings and originalList
                         originalList.RemoveAt(dataIndex);
-                        Trackings.Remove(tracking);
+                        if (tracking != null) Trackings.Remove(tracking);
                         deletedList.Add(wrapper);
 
-                        // Log the operation if IsLogging is enabled
-                        if (IsLogging && tracking != null)
+                        if (IsLogging)
                         {
                             UpdateLog[DateTime.Now] = new EntityUpdateInsertLog
                             {
@@ -1424,9 +1357,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 LogAction = LogAction.Delete,
                                 UpdatedFields = new Dictionary<string, object>()
                             };
+                            if (tracking == null)
+                            {
+                                MiscFunctions.SendLog("DeleteFromDataSource: Tracking not found for IList deletion");
+                            }
                         }
 
-                        MiscFunctions.SendLog($"DeleteFromDataSource: Updated _fullData, Trackings, and originalList after deleting record at index {dataIndex}");
+                        MiscFunctions.SendLog($"DeleteFromDataSource: Deleted record from IList at index {listIndex} and updated state");
                     }
                     else
                     {
@@ -1441,83 +1378,64 @@ namespace TheTechIdea.Beep.Winform.Controls
             catch (Exception ex)
             {
                 MiscFunctions.SendLog($"DeleteFromDataSource Error: {ex.Message}");
-                MiscFunctions.SendLog($"Error deleting record: {ex.Message}");
             }
         }
-        // Function to update a BindingSource data source
         private void UpdateBindingSourceDataSource(int dataIndex, object updatedItem)
         {
-            if (_bindingSource == null)
+            try
             {
-                MiscFunctions.SendLog("UpdateBindingSourceDataSource: _bindingSource is null, cannot update");
-                return;
-            }
-
-            if (dataIndex >= 0 && dataIndex < _bindingSource.Count)
-            {
-                // Update the item at the known index
-                _bindingSource[dataIndex] = updatedItem;
-                _bindingSource.ResetItem(dataIndex);
-                MiscFunctions.SendLog($"UpdateBindingSourceDataSource: Updated item at index {dataIndex} in BindingSource and notified listeners");
-            }
-            else
-            {
-                // Index is invalid (e.g., item filtered out or _fullData out of sync)
-                MiscFunctions.SendLog($"UpdateBindingSourceDataSource: Index {dataIndex} out of bounds (Count: {_bindingSource.Count}), attempting to resolve");
-
-                // Get the original DataRowWrapper from _fullData to find the original item
-                if (dataIndex >= 0 && dataIndex < _fullData.Count)
+                if (_bindingSource == null)
                 {
-                    var wrapper = _fullData[dataIndex] as DataRowWrapper;
-                    if (wrapper != null)
+                    MiscFunctions.SendLog("UpdateBindingSourceDataSource: _bindingSource is null, cannot update");
+                    return;
+                }
+
+                if (dataIndex >= 0 && dataIndex < _bindingSource.Count)
+                {
+                    _bindingSource[dataIndex] = updatedItem;
+                    _bindingSource.ResetItem(dataIndex);
+                    MiscFunctions.SendLog($"UpdateBindingSourceDataSource: Updated item at index {dataIndex} in BindingSource");
+                }
+                else
+                {
+                    MiscFunctions.SendLog($"UpdateBindingSourceDataSource: Index {dataIndex} out of bounds (Count: {_bindingSource.Count}), attempting to resolve");
+
+                    if (dataIndex >= 0 && dataIndex < _fullData.Count)
                     {
-                        object originalItem = wrapper.OriginalData; // Before updates
-                        int bsIndex = _bindingSource.IndexOf(originalItem); // Search using original item
-                        if (bsIndex >= 0)
+                        var wrapper = _fullData[dataIndex] as DataRowWrapper;
+                        if (wrapper != null)
                         {
-                            _bindingSource[bsIndex] = updatedItem;
-                            _bindingSource.ResetItem(bsIndex);
-                            MiscFunctions.SendLog($"UpdateBindingSourceDataSource: Found original item at index {bsIndex} in BindingSource, updated with new values");
+                            object originalItem = wrapper.OriginalData;
+                            int bsIndex = _bindingSource.IndexOf(originalItem);
+                            if (bsIndex >= 0)
+                            {
+                                _bindingSource[bsIndex] = updatedItem;
+                                _bindingSource.ResetItem(bsIndex);
+                                MiscFunctions.SendLog($"UpdateBindingSourceDataSource: Updated original item at index {bsIndex} in BindingSource");
+                            }
+                            else
+                            {
+                                MiscFunctions.SendLog($"UpdateBindingSourceDataSource: Original item not found in BindingSource, skipping update (possibly filtered out)");
+                                // Optionally update _fullData only and log
+                                wrapper.OriginalData = updatedItem;
+                                wrapper.RowState = DataRowState.Modified;
+                                wrapper.DateTimeChange = DateTime.Now;
+                            }
                         }
                         else
                         {
-                            // Item not in current BindingSource view (e.g., filtered out), re-add it
-                            MiscFunctions.SendLog($"UpdateBindingSourceDataSource: Original item not found in BindingSource, attempting to re-add updated item");
-                            try
-                            {
-                                _bindingSource.Add(updatedItem);
-                                _bindingSource.ResetBindings(false);
-                                SyncFullDataFromBindingSource(); // Re-sync _fullData
-                                MiscFunctions.SendLog($"UpdateBindingSourceDataSource: Added updated item to BindingSource and re-synced _fullData");
-                            }
-                            catch (Exception ex)
-                            {
-                                MiscFunctions.SendLog($"UpdateBindingSourceDataSource: Failed to re-add item to BindingSource: {ex.Message}");
-                            }
+                            MiscFunctions.SendLog($"UpdateBindingSourceDataSource: No valid DataRowWrapper at index {dataIndex} in _fullData");
                         }
                     }
                     else
                     {
-                        MiscFunctions.SendLog($"UpdateBindingSourceDataSource: No valid DataRowWrapper at index {dataIndex} in _fullData");
+                        MiscFunctions.SendLog($"UpdateBindingSourceDataSource: Index {dataIndex} invalid for _fullData (Count: {_fullData.Count}), skipping update");
                     }
                 }
-                else
-                {
-                    MiscFunctions.SendLog($"UpdateBindingSourceDataSource: Index {dataIndex} invalid for _fullData (Count: {_fullData.Count}), skipping update");
-                }
             }
-        }
-        // Function to update an IList data source
-        private void UpdateIListDataSource(int dataIndex, object updatedItem)
-        {
-            if (_dataSource is IList list && dataIndex >= 0 && dataIndex < list.Count)
+            catch (Exception ex)
             {
-                list[dataIndex] = updatedItem; // Update the item in the IList
-                MiscFunctions.SendLog($"UpdateIListDataSource: Updated item at index {dataIndex} in IList");
-            }
-            else
-            {
-                MiscFunctions.SendLog($"UpdateIListDataSource: Invalid index {dataIndex} or _dataSource is not an IList");
+                MiscFunctions.SendLog($"UpdateBindingSourceDataSource Error at index {dataIndex}: {ex.Message}");
             }
         }
         private void UpdateDataRecordFromRow(BeepCellConfig editingCell)
@@ -1527,7 +1445,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             BeepRowConfig row = Rows[editingCell.RowIndex];
 
-            // Find the "RowID" cell in the row to get the stable identifier
+            // Find the "RowID" cell to get the stable identifier
             BeepColumnConfig rowidcol = Columns.Find(p => p.IsRowID);
             var rowIDCell = row.Cells.FirstOrDefault(c => Columns[c.ColumnIndex].IsRowID);
             if (rowIDCell == null || rowIDCell.CellValue == null || !int.TryParse(rowIDCell.CellValue.ToString(), out int rowID))
@@ -1557,11 +1475,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             object originalData = dataItem.OriginalData;
-            var originalWrappedItem = GetItemFromOriginalList(GetOriginalIndex(dataItem)) as DataRowWrapper;
-            object originalItem = originalWrappedItem?.OriginalData;
-
             bool hasChanges = false;
-            Dictionary<string, object> changes = new Dictionary<string, object>();
+
+            // Apply changes to originalData
             foreach (var cell in row.Cells)
             {
                 if (cell.IsDirty)
@@ -1578,68 +1494,29 @@ namespace TheTechIdea.Beep.Winform.Controls
                         if (!Equals(convertedValue, originalValue))
                         {
                             prop.SetValue(originalData, convertedValue);
-                            changes[col.ColumnName ?? col.ColumnCaption] = convertedValue;
                             hasChanges = true;
-                        }
-
-                        if (hasChanges && dataItem.RowState != DataRowState.Added && dataItem.RowState != DataRowState.Deleted)
-                        {
-                            dataItem.RowState = DataRowState.Modified;
-                            dataItem.DateTimeChange = DateTime.Now;
-                        }
-
-                        if (IsLogging)
-                        {
-                            Tracking tracking = GetTrackingItem(dataItem);
-                            if (tracking != null)
-                            {
-                                tracking.EntityState = MapRowStateToEntityState(dataItem.RowState);
-                                if (hasChanges && tracking.EntityState != EntityState.Added && tracking.EntityState != EntityState.Deleted)
-                                {
-                                    if (!ChangedValues.ContainsKey(dataItem))
-                                    {
-                                        ChangedValues[dataItem] = GetChangedFields(originalWrappedItem, dataItem);
-                                    }
-                                    else
-                                    {
-                                        var updatedChanges = GetChangedFields(originalWrappedItem, dataItem);
-                                        foreach (var kvp in updatedChanges)
-                                        {
-                                            ChangedValues[dataItem][kvp.Key] = kvp.Value;
-                                        }
-                                    }
-                                    UpdateLog[DateTime.Now] = new EntityUpdateInsertLog
-                                    {
-                                        TrackingRecord = tracking,
-                                        UpdatedFields = ChangedValues[dataItem]
-                                    };
-                                }
-                            }
                         }
                     }
                     row.IsDirty = true;
                 }
             }
 
-            // Update the underlying BindingSource if there are changes
-            if (hasChanges)
+            if (hasChanges && _bindingSource != null)
             {
-                // Since _dataSource is always a BindingSource (via updated DataSetup)
-                UpdateBindingSourceDataSource(dataIndex, originalData);
-
-                // Notify DataNavigator (always using _bindingSource)
-                if (DataNavigator != null)
+                // Trigger BindingSource_ListChanged to handle state updates
+                int bsIndex = _bindingSource.IndexOf(originalData);
+                if (bsIndex >= 0 && bsIndex < _bindingSource.Count)
                 {
-                    if (DataNavigator.BindingSource != _bindingSource)
-                    {
-                        DataNavigator.DataSource = _bindingSource; // Ensure consistency
-                    }
-                    // Notification handled by UpdateBindingSourceDataSource, but ensure UI sync
-                    DataNavigator.BindingSource?.ResetBindings(false);
+                    _bindingSource[bsIndex] = originalData; // Update BindingSource, triggering ItemChanged
+                    _bindingSource.ResetItem(bsIndex); // Ensure event fires
+                }
+                else
+                {
+                    MiscFunctions.SendLog($"UpdateDataRecordFromRow: Item not found in BindingSource at index {bsIndex}, skipping update");
                 }
 
-                // Redraw the grid to reflect changes
-                Invalidate();
+                // UI sync will be handled by BindingSource_ListChanged
+             //   Invalidate();
             }
         }
         private void SaveToDataSource()
@@ -1855,6 +1732,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                                   MiscFunctions.SendLog($"Resolved ItemType from DataMember '{_bindingSource.DataMember}' = {itemType.FullName}");
                             entity = EntityHelper.GetEntityStructureFromType(itemType);
+                            _entityType = type;
                         }
                         else
                         {
@@ -1870,6 +1748,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                      MiscFunctions.SendLog("No DataMember specified with Type DataSource, using Type directly");
                     entity = EntityHelper.GetEntityStructureFromType(type);
+                    _entityType = type;
                 }
             }
             else
@@ -1957,6 +1836,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             else if (resolvedData is IList list && list.Count > 0)
             {
                 Type itemType = list[0]?.GetType();
+               _entityType = itemType;
                 if (itemType != null)
                 {
                     MiscFunctions.SendLog($"Extracted item type from IList: {itemType.FullName}");
@@ -1990,7 +1870,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     else
                     {
                         MiscFunctions.SendLog("New Entity with designer Columns, updating Entity only");
-                        Entity = entity;
+                       Entity = entity;
                         CreateColumnsForEntity();
                     }
                 }
@@ -2000,6 +1880,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Entity = entity;
                     CreateColumnsForEntity();
                 }
+                Entity = entity;
             }
             else
             {
@@ -2007,114 +1888,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Entity = null;
                 MiscFunctions.SendLog("No new Entity, keeping designer Columns");
             }
-
+         
             MiscFunctions.SendLog($"DataSetup Completed: finalData = {finalData?.GetType()}, Entity = {Entity?.EntityName}, Columns Count = {_columns.Count}");
         }
-        //private void DataSetup()
-        //{
-        //    EntityStructure entity = null;
-        //    object resolvedData = null; // Unified variable for final data or type resolution
-        //   MiscFunctions.SendLog($"DataSetup Started: _dataSource Type = {_dataSource?.GetType()}, DesignMode = {DesignMode},");
-
-        //    // Step 1: Handle different _dataSource types
-        //    if (_dataSource == null)
-        //    {
-        //        MiscFunctions.SendLog("DataSource is null, no entity generated");
-        //    }
-        //    else if (_dataSource is BindingSource bindingSrc)
-        //    {
-        //     //   MiscFunctions.SendLog($"BindingSource Detected: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
-        //        var dataSource = bindingSrc.DataSource;
-        //        AssignBindingSource(bindingSrc);
-
-        //        var ret = SetupBindingSource();
-        //        resolvedData = ret.Item1;
-        //        entity = ret.Item2;
-        //    }
-        //    else if (_dataSource is DataTable dataTable)
-        //    {
-        //       MiscFunctions.SendLog("DataSource is DataTable");
-        //        resolvedData = dataTable;
-        //    }
-        //    else if (_dataSource is IList iList)
-        //    {
-        //        MiscFunctions.SendLog("DataSource is IList");
-        //        resolvedData = iList;
-        //    }
-        //    else
-        //    {
-        //        MiscFunctions.SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting auto-detection");
-        //        resolvedData = GetCollectionPropertyFromInstance(_dataSource) ?? _dataSource;
-        //    }
-        //    if (resolvedData == null)
-        //    {
-        //        MiscFunctions.SendLog("Resolved data is null, no entity generated");
-        //    }
-        //    else if (resolvedData is DataTable dt)
-        //    {
-        //        finalData = dt;
-
-        //        entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
-        //    }
-        //    else if (resolvedData is IList list && list.Count > 0)
-        //    {
-        //        finalData = list;
-        //        Type itemType = list[0]?.GetType();
-
-        //            if (itemType != null)
-        //            {
-        //                 MiscFunctions.SendLog($"Extracted item type from IList: {itemType.FullName}");
-        //                entity = EntityHelper.GetEntityStructureFromType(itemType);
-        //            }
-        //            else
-        //            {
-        //                entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
-        //            }
-
-        //    }
-        //    else
-        //    {
-        //        MiscFunctions.SendLog($"Resolved data is not a recognized collection type: {resolvedData.GetType()}, using as-is");
-        //        finalData = resolvedData;
-        //        entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
-        //    }
-
-        //    if (_columns == null) _columns = new List<BeepColumnConfig>();
-        //    //Step 3: Process entity and columns
-        //    if (entity != null)
-        //    {
-        //      MiscFunctions.SendLog($"New Entity: {entity.EntityName}, Existing Entity: {EntityName}");
-        //        if (_columns.Any() )
-        //        {
-        //            if (!string.IsNullOrEmpty(EntityName) && entity.EntityName.Equals(EntityName))
-        //            {
-        //                MiscFunctions.SendLog("Preserving designer Columns, syncing fields");
-        //              //  SyncFields(entity);
-        //                SyncColumnsWithEntity(entity);
-        //            }
-        //            else
-        //            {
-        //                MiscFunctions.SendLog("New Entity with designer Columns, updating Entity only");
-        //                Entity = entity;
-        //               CreateColumnsForEntity();
-        //            }
-        //        }
-        //        else
-        //        {
-        //           MiscFunctions.SendLog("No designer Columns or not protected, regenerating");
-        //            Entity = entity;
-        //            CreateColumnsForEntity();
-        //        }
-        //    }
-        //    else 
-        //    {
-        //        _columns=new List<BeepColumnConfig>();
-        //        Entity = null;
-        //        MiscFunctions.SendLog("No new Entity, keeping designer Columns");
-        //    }
-
-        //    MiscFunctions.SendLog($"DataSetup Completed: finalData = {finalData?.GetType()}, Entity = {Entity?.EntityName}, Columns Count = {_columns.Count}");
-        //}
+   
         private object GetCollectionPropertyFromInstance(object instance)
         {
             if (instance == null) return null;
@@ -2524,9 +2301,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             _fullData = new List<object>();
             var enumerator = _bindingSource.GetEnumerator();
             int i = 0;
+            bool isFirstItem = true;
+
             while (enumerator.MoveNext())
             {
                 var item = enumerator.Current;
+                if (item == null) continue;
+
+                // Set _entityType based on the first valid item
+                if (isFirstItem)
+                {
+                    _entityType = item.GetType();
+                    MiscFunctions.SendLog($"SyncFullDataFromBindingSource: Set _entityType to {_entityType.FullName}");
+                    isFirstItem = false;
+                }
+
                 var wrapper = new DataRowWrapper(item, i++)
                 {
                     TrackingUniqueId = Guid.NewGuid(),
@@ -2534,6 +2323,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     DateTimeChange = DateTime.Now
                 };
                 _fullData.Add(wrapper);
+            }
+
+            if (_entityType == null)
+            {
+                MiscFunctions.SendLog("SyncFullDataFromBindingSource: No valid items found to set _entityType.");
             }
         }
         private void WrapFullData()
@@ -2822,7 +2616,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
-            int visibleRowCount = GetVisibleRowCount();
+            int visibleRowCount = GetVisibleRowCount()==1 ?  _fullData.Count: GetVisibleRowCount();
             int startRow = Math.Max(0, _dataOffset);
             int endRow = Math.Min(_dataOffset + visibleRowCount, _fullData.Count);
 
@@ -4458,7 +4252,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (IsEditorShown)
             {
-                CloseCurrentEditorIn();
+                CloseCurrentEditor();
             }
             if (rowIndex < 0 || rowIndex >= Rows.Count) return;
             if (columnIndex < 0 || columnIndex >= Columns.Count) return;
@@ -4487,59 +4281,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _editingRowIndex = cell.RowIndex; // Absolute index in _fullData
             SelectCell(cell.RowIndex, cell.ColumnIndex);
         }
-        private void MoveEditorIn()
-        {
-            if (_editingCell == null || _editingControl == null || !IsEditorShown)
-            {
-              //   MiscFunctions.SendLog("MoveEditor: Skipped - null reference or editor not shown");
-                return;
-            }
-
-            // Get the cell’s rectangle relative to gridRect
-            Rectangle cellRect = GetCellRectangleIn(_editingCell);
-
-            // Adjust for scrolling offsets
-            int yOffset = _dataOffset * RowHeight;
-            int xOffset = _xOffset;
-            cellRect.Y -= yOffset; // Shift up by vertical scroll
-          //  cellRect.X -= xOffset; // Shift left by horizontal scroll
-            var column = Columns[_editingCell.ColumnIndex];
-            if (!column.Sticked) // Only adjust X for scrollable columns
-            {
-                cellRect.X -= _xOffset; // Shift left by horizontal scroll
-            }
-            // Define grid bounds
-            int gridLeft = 0; // Relative to gridRect’s client area
-            int gridRight = gridRect.Width;
-            int gridTop = 0;
-            int gridBottom = gridRect.Height;
-            // Define sticky column region
-            int stickyWidthTotal = _stickyWidth; // Set in PaintRows
-            int stickyLeft = gridRect.Left;
-            int stickyRight = gridRect.Left + stickyWidthTotal;
-            // Check if the editor overlaps the sticky column region (for scrollable columns only)
-            bool overlapsStickyRegion = !column.Sticked && stickyWidthTotal > 0 &&
-                                        cellRect.X < stickyRight && cellRect.Right > stickyLeft;
-            // Check if the editor is fully out of view
-            bool isFullyOutOfView =
-                (cellRect.Right < gridLeft) ||  // Completely off to the left
-                (cellRect.Left > gridRight) ||  // Completely off to the right
-                (cellRect.Bottom < gridTop) ||  // Scrolled out past the top
-                (cellRect.Top > gridBottom);    // Completely off below
-
-            if (isFullyOutOfView || overlapsStickyRegion)
-            {
-                // MiscFunctions.SendLog($"MoveEditor: Editor out of view - Hiding (CellRect={cellRect})");
-                _editingControl.Visible = false;
-            }
-            else
-            {
-                // Position editor within gridRect’s client coordinates
-                _editingControl.Location = new Point(cellRect.X, cellRect.Y);
-                _editingControl.Visible = true;
-             //    MiscFunctions.SendLog($"MoveEditor: Editor moved to {cellRect.X},{cellRect.Y}");
-            }
-        }
+     
         private BeepCellConfig GetCellAtLocation(Point location)
         {
             // Ensure the point is inside the grid's drawing area
@@ -5200,7 +4942,60 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
         #region Editor
-       private void ShowCellEditorIn(BeepCellConfig cell, Point location)
+        private void MoveEditorIn()
+        {
+            if (_editingCell == null || _editingControl == null || !IsEditorShown)
+            {
+                //   MiscFunctions.SendLog("MoveEditor: Skipped - null reference or editor not shown");
+                return;
+            }
+
+            // Get the cell’s rectangle relative to gridRect
+            Rectangle cellRect = GetCellRectangleIn(_editingCell);
+
+            // Adjust for scrolling offsets
+            int yOffset = _dataOffset * RowHeight;
+            int xOffset = _xOffset;
+            cellRect.Y -= yOffset; // Shift up by vertical scroll
+                                   //  cellRect.X -= xOffset; // Shift left by horizontal scroll
+            var column = Columns[_editingCell.ColumnIndex];
+            if (!column.Sticked) // Only adjust X for scrollable columns
+            {
+                cellRect.X -= _xOffset; // Shift left by horizontal scroll
+            }
+            // Define grid bounds
+            int gridLeft = 0; // Relative to gridRect’s client area
+            int gridRight = gridRect.Width;
+            int gridTop = 0;
+            int gridBottom = gridRect.Height;
+            // Define sticky column region
+            int stickyWidthTotal = _stickyWidth; // Set in PaintRows
+            int stickyLeft = gridRect.Left;
+            int stickyRight = gridRect.Left + stickyWidthTotal;
+            // Check if the editor overlaps the sticky column region (for scrollable columns only)
+            bool overlapsStickyRegion = !column.Sticked && stickyWidthTotal > 0 &&
+                                        cellRect.X < stickyRight && cellRect.Right > stickyLeft;
+            // Check if the editor is fully out of view
+            bool isFullyOutOfView =
+                (cellRect.Right < gridLeft) ||  // Completely off to the left
+                (cellRect.Left > gridRight) ||  // Completely off to the right
+                (cellRect.Bottom < gridTop) ||  // Scrolled out past the top
+                (cellRect.Top > gridBottom);    // Completely off below
+
+            if (isFullyOutOfView || overlapsStickyRegion)
+            {
+                // MiscFunctions.SendLog($"MoveEditor: Editor out of view - Hiding (CellRect={cellRect})");
+                _editingControl.Visible = false;
+            }
+            else
+            {
+                // Position editor within gridRect’s client coordinates
+                _editingControl.Location = new Point(cellRect.X, cellRect.Y);
+                _editingControl.Visible = true;
+                //    MiscFunctions.SendLog($"MoveEditor: Editor moved to {cellRect.X},{cellRect.Y}");
+            }
+        }
+        private void ShowCellEditor(BeepCellConfig cell, Point location)
         {
             if (!cell.IsEditable)
                 return;
@@ -5225,8 +5020,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Attach event handlers
             _editingControl.TabKeyPressed -= Tabhandler;
             _editingControl.TabKeyPressed += Tabhandler;
-            _editingControl.EscapeKeyPressed -= Canclehandler;
-            _editingControl.EscapeKeyPressed += Canclehandler;
+            _editingControl.EscapeKeyPressed -= Cancelhandler;
+            _editingControl.EscapeKeyPressed += Cancelhandler;
 
             // Add to grid’s Controls collection
             if (_editingControl.Parent != this)
@@ -5239,118 +5034,21 @@ namespace TheTechIdea.Beep.Winform.Controls
 
           //   MiscFunctions.SendLog($"ShowCellEditor: Cell={cell.X},{cell.Y}, Value={cellSize}");
         }
-        private void CloseCurrentEditorIn()
-        {
-            if (_editingControl != null && IsEditorShown)
-            {
-                SaveEditedValue();
-                if (_editingControl.Parent == this)
-                {
-                    this.Controls.Remove(_editingControl);
-                }
-                _editingControl.Dispose();
-                _editingControl = null;
-            }
-            _editingCell = null;
-            IsEditorShown = false;
-            MiscFunctions.SendLog("Popup editor closed successfully.");
-            EditorClosed?.Invoke(this, EventArgs.Empty); // Raise the event
-            Invalidate(); // Redraw grid after editor closes
-        }
+       
         // One editor control per column (keyed by column index)
         private Dictionary<string, IBeepUIComponent> _columnEditors = new Dictionary<string, IBeepUIComponent>();
         // The currently active editor and cell being edited
         private BeepControl _editingControl = null;
         private BeepCellConfig _editingCell = null;
+     
+        private BeepCellConfig _tempcell = null;
         private IBeepComponentForm _editorPopupForm;
-        private void ShowCellEditor(BeepCellConfig cell, Point location)
-        {
-            if (!cell.IsEditable)
-                return;
-
-            int colIndex = cell.ColumnIndex;
-            string columnName = Columns[colIndex].ColumnName;
-            if(_editingControl!=null) 
-
-            // Close any existing editor before opening a new one
-            CloseCurrentEditor();
-
-            _editingCell = cell;
-            Size cellSize = new Size(cell.Width, cell.Height);
-            // Create the popup form if it's null
-            if (_editorPopupForm == null)
-            {
-                _editorPopupForm = new IBeepComponentForm
-                {
-                    FormBorderStyle = FormBorderStyle.None,
-                    StartPosition = FormStartPosition.Manual,
-                    ShowInTaskbar = false,
-                    AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                    TopMost = false,
-                    MinimumSize = cellSize, // Force exact size
-                    MaximumSize = cellSize
-                };
-
-            }
-            // Apply size
-            _editorPopupForm.Size = cellSize;
-            _editorPopupForm.ClientSize = cellSize;
-            // Retrieve or create editor control
-            _editingControl = CreateCellControlForEditing(cell);
-                
-           
-
-            // Ensure the control is only added once
-            if (_editingControl.Parent != _editorPopupForm)
-            {
-                _editorPopupForm.AddComponent(_editingControl);
-            }
-            _editingControl.Theme = Theme;
-          
-            // **🔹 Force the popup form and editor control to match the exact cell size**
-            // _editingControl.IsFrameless = true;
-            //   _editingControl.ShowAllBorders = false;
-        //    MiscFunctions.SendLog($"Cell size: {cellSize}");
-            _editorPopupForm.ClientSize = cellSize; // 👈 Ensures no extra space due to window frame
-            _editingControl.Size = cellSize; // 👈 Matches cell exactly
-            _editingControl.Dock = DockStyle.Fill; // 👈 Ensures it doesn't resize incorrectly
-          //  MiscFunctions.SendLog($"Editor size: {_editingControl.Value}");
-         //   MiscFunctions.SendLog($"Popup size: {_editorPopupForm.ClientSize}");
-            // **🔹 Position popup exactly at the cell location (relative to BeepSimpleGrid)**
-            Point screenLocation = this.PointToScreen(new Point(cell.X, cell.Y));
-            _editorPopupForm.Location = screenLocation;
-            _editingControl.Theme = Theme;
-            // **Set initial text**
-            //  _editingControl.Text = cell.CellValue;
-          
-            UpdateCellControl(_editingControl, Columns[colIndex], cell, cell.CellValue);
-            // 🔹 Confirm value in editor **after setting**
-
-         //   MiscFunctions.SendLog($"🔄 Setting BeepTextBox text before popupform is Show: {_editingControl.Text}");
-          //  _editorPopupForm.SetValue(cell.CellValue);
-          
-            _editingControl.TabKeyPressed -= Tabhandler;
-             _editingControl.TabKeyPressed += Tabhandler;
-            _editingControl.EscapeKeyPressed -= Canclehandler;
-            _editingControl.EscapeKeyPressed += Canclehandler;
-           //    _editingControl.LostFocus -= LostFocusHandler;
-           //   _editingControl.LostFocus += LostFocusHandler;
-            _editorPopupForm.Show(this);
-            //Task.Delay(50).ContinueWith(t =>
-            //{
-            //    _editorPopupForm.SetValue(cell.CellValue);
-            // //   MiscFunctions.SendLog($"✅ After popup is fully visible, setting text: {_editingControl.Text}");
-            //}, TaskScheduler.FromCurrentSynchronizationContext());
-            _editorPopupForm.SetValue(cell.CellValue);
-            _editingControl.Focus();
-            IsEditorShown = true;
-           // MiscFunctions.SendLog($"✅ after popform Show the Editor BeepTextBox text   Show : {_editingControl.Text}");
-        }
+      
         private void LostFocusHandler(object? sender, EventArgs e)
         {
-            CloseCurrentEditorIn();
+            CloseCurrentEditor  ();
         }
-        private void Canclehandler(object? sender, EventArgs e)
+        private void Cancelhandler(object? sender, EventArgs e)
         {
             CancelEditing();
         }
@@ -5358,49 +5056,37 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
            MoveNextCell();
         }
-        private void CloseCurrentEditor()
+        private BeepCellConfig CloseCurrentEditor()
         {
-            if (_editingControl != null)
+            BeepCellConfig x = null;
+            if (_editingControl != null && IsEditorShown)
             {
-                // Save the current value before closing
-              //  _editingCell.IsEditable = false;
-           //     MiscFunctions.SendLog($"✅ before closing Editor Text After Update: {_editingControl.Text}");
-
-                SaveEditedValue();
-             //   MiscFunctions.SendLog($"✅ After Save Text After : {_editingControl.Text}");
-                // Remove editor control from popup (prevents premature disposal)
-                if (_editorPopupForm != null && _editingControl.Parent == _editorPopupForm)
+                x = _editingCell;
+                x.CellValue = _editingControl.GetValue();
+              
+                if (_editingControl.Parent == this)
                 {
-                    _editorPopupForm.Controls.Remove(_editingControl);
+                    this.Controls.Remove(_editingControl);
                 }
-
-                // Close and dispose of the popup form safely
-                if (_editorPopupForm != null)
-                {
-                    _editorPopupForm.Close();
-                    _editorPopupForm.Dispose();
-                    _editorPopupForm = null;
-                }
-
-                // Reset references (but don't dispose `_editingControl` yet)
-                _editingCell = null;
-                 _editingControl = null;
-
-             //   MiscFunctions.SendLog("Popup editor closed successfully.");
+                _editingControl.Dispose();
+                _editingControl = null;
             }
-            MiscFunctions.SendLog("Popup editor closed successfully.");
-            EditorClosed?.Invoke(this, EventArgs.Empty); // Raise the event
+
+            _editingCell = null;
             IsEditorShown = false;
+            MiscFunctions.SendLog("Editor closed successfully.");
+            EditorClosed?.Invoke(this, EventArgs.Empty);
+            return x;
         }
         private void SaveEditedValue()
         {
-            if ( _editingCell == null || _editingControl==null)
+            if (_tempcell == null )
             {
            //     MiscFunctions.SendLog($"⚠️ Editing control or cell is null!");
                 return;
             }
 
-            object newValue = _editingControl.GetValue();
+            object newValue = _tempcell.CellValue;
           //  MiscFunctions.SendLog($"🔄 Saving value: {newValue} (Old: {_editingCell.CellData})");
 
             // 🔹 Check if the new value is empty or null
@@ -5411,7 +5097,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // 🔹 Retrieve PropertyType from the corresponding column
-            BeepColumnConfig columnConfig = Columns.FirstOrDefault(c => c.Index == _editingCell.ColumnIndex);
+            BeepColumnConfig columnConfig = Columns.FirstOrDefault(c => c.Index == _tempcell.ColumnIndex);
             if (columnConfig == null)
             {
             //    MiscFunctions.SendLog($"⚠️ Column config not found. Skipping update.");
@@ -5421,7 +5107,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
              //🔹 Convert new value to the correct type before comparing
             object convertedNewValue = MiscFunctions.ConvertValueToPropertyType(propertyType, newValue);
-            object convertedOldValue = MiscFunctions.ConvertValueToPropertyType(propertyType, _editingCell.CellData);
+            object convertedOldValue = MiscFunctions.ConvertValueToPropertyType(propertyType, _tempcell.CellData);
 
             // 🔹 Skip update if the new value is the same as the old value
             if (convertedNewValue != null && convertedOldValue != null && convertedNewValue.Equals(convertedOldValue))
@@ -5431,25 +5117,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // 🔹 Update cell's stored value
-            _editingCell.OldValue = _editingCell.CellData;
-            _editingCell.CellData =  convertedNewValue;
-            _editingCell.CellValue = convertedNewValue;
-            _editingCell.IsDirty = true;
+            _tempcell.OldValue = _tempcell.CellData;
+            _tempcell.CellData =  convertedNewValue;
+            _tempcell.CellValue = convertedNewValue;
+            _tempcell.IsDirty = true;
 
             // 🔹 Update the corresponding data record
-            UpdateDataRecordFromRow(_editingCell);
-            CellValueChanged?.Invoke(this, new BeepCellEventArgs(_editingCell));
+            UpdateDataRecordFromRow(_tempcell);
+            CellValueChanged?.Invoke(this, new BeepCellEventArgs(_tempcell));
             // 🔹 Trigger validation if necessary
-            _editingCell.ValidateCell();
+            _tempcell.ValidateCell();
 
-           // MiscFunctions.SendLog($"✅ Cell updated. New: {_editingCell.CellValue}");
-
-            Invalidate(); // 🔹 Redraw grid if necessary
+            MiscFunctions.SendLog($"✅ Cell updated. New: {_tempcell.CellValue}");
+            _tempcell = null;
+           // Invalidate(); // 🔹 Redraw grid if necessary
         }
         private void CancelEditing()
         {
             // Optionally, revert the editor's value if needed.
-            CloseCurrentEditorIn();
+            CloseCurrentEditor();
         }
         private void BeepGrid_MouseClick(object sender, MouseEventArgs e)
         {
@@ -5481,18 +5167,36 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            _selectedCell = clickedCell;
+        
             if (_editingCell != null && clickedCell != null && _editingCell.Id == clickedCell.Id)
             {
                 SaveEditedValue();
                 return;
             }
-            else
+            bool wasEditorShown = IsEditorShown;
+            bool hasChanges = false;
+            if (wasEditorShown)
             {
-                if (_columns == null) return;
-                CloseCurrentEditorIn();
-                if (_selectedCell != null)
+                // Close editor first
+                SuspendLayout(); // Prevent redraw during closure
+                if (_editingCell != null && _editingCell.IsDirty)
                 {
+                    hasChanges = true; // Mark for update after closure
+                }
+              _tempcell=  CloseCurrentEditor();
+                Application.DoEvents(); // Ensure closure completes
+                ResumeLayout(false); // Resume layout without redraw
+
+                // Save data only after editor is fully closed
+                if (hasChanges)
+                {
+                    SaveEditedValue();
+                }
+            }
+            _selectedCell = clickedCell;
+            if (_selectedCell != null && _columns != null)
+            {
+  
                     _editingCell = _selectedCell;
                     SelectCell(_selectedCell);
                     if (DataNavigator != null && _currentRow != null && _currentRow.DisplayIndex >= 0)
@@ -5502,9 +5206,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (_columns == null) return;
                     if (!_columns[_selectedCell.ColumnIndex].ReadOnly && _columns[_selectedCell.ColumnIndex].CellEditor!= BeepColumnType.Image  )
                     {
-                        ShowCellEditorIn(_selectedCell, e.Location);
+                        ShowCellEditor(_selectedCell, e.Location);
                     }
-                }
+                // Redraw only after new editor is positioned
+                if (wasEditorShown) Invalidate();
             }
         }
         #endregion Editor
@@ -6102,7 +5807,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
         #region BindingSource Management
-      
+        private bool _isAddingNewRecord = false;
         private BindingSource _bindingSource;
         private void AssignBindingSource(BindingSource bindingSrc)
         {
@@ -6137,6 +5842,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 case ListChangedType.ItemAdded:
                     HandleItemAdded(e.NewIndex);
+                    if (_isAddingNewRecord && e.NewIndex >= 0 && e.NewIndex < _fullData.Count)
+                    {
+                        // UI updates specific to new record addition
+                        int newOffset = Math.Max(0, _fullData.Count - GetVisibleRowCount());
+                        StartSmoothScroll(newOffset);
+                        int newRowIndex = _fullData.Count - 1 - _dataOffset;
+                        if (newRowIndex >= 0 && newRowIndex < Rows.Count)
+                        {
+                            SelectCell(newRowIndex, 0);
+                            BeginEdit();
+                        }
+                        _isAddingNewRecord = false; // Reset flag after handling
+
+                        // Optional: User feedback
+                        MessageBox.Show("New record added successfully.", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
                     break;
 
                 case ListChangedType.ItemChanged:
@@ -6174,153 +5895,206 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void HandleItemAdded(int newIndex)
         {
-            if (newIndex < 0 || _bindingSource == null || newIndex >= _bindingSource.Count) return;
-
-            var newItem = _bindingSource[newIndex];
-            var wrapper = new DataRowWrapper(newItem, newIndex)
+            try
             {
-                TrackingUniqueId = Guid.NewGuid(),
-                RowState = DataRowState.Added,
-                DateTimeChange = DateTime.Now
-            };
-
-            // Ensure _fullData aligns with BindingSource
-            if (newIndex <= _fullData.Count)
-            {
-                _fullData.Insert(newIndex, wrapper);
-            }
-            else
-            {
-                _fullData.Add(wrapper); // Fallback for out-of-bounds
-            }
-
-            // Update RowIDs
-            for (int i = 0; i < _fullData.Count; i++)
-            {
-                if (_fullData[i] is DataRowWrapper dataRow)
+                if (newIndex < 0 || _bindingSource == null || newIndex >= _bindingSource.Count)
                 {
-                    dataRow.RowID = i;
+                    MiscFunctions.SendLog($"HandleItemAdded: Invalid index {newIndex} or null BindingSource, skipping");
+                    return;
                 }
-            }
 
-            // Add to originalList if not already present
-            if (!originalList.Contains(wrapper))
-            {
-                originalList.Add(wrapper);
-            }
-
-            // Ensure tracking
-            EnsureTrackingForItem(wrapper);
-
-            // Adjust _dataOffset
-            if (_dataOffset > newIndex)
-            {
-                _dataOffset++;
-            }
-
-            // Log if enabled
-            if (IsLogging)
-            {
-                var tracking = Trackings.FirstOrDefault(t => t.UniqueId == wrapper.TrackingUniqueId);
-                if (tracking != null)
+                var newItem = _bindingSource[newIndex];
+                var wrapper = new DataRowWrapper(newItem, newIndex)
                 {
+                    TrackingUniqueId = Guid.NewGuid(),
+                    RowState = DataRowState.Added,
+                    DateTimeChange = DateTime.Now
+                };
+
+                // Append to _fullData to avoid order issues; BindingSource_ListChanged will re-sync if needed
+                if (newIndex == _fullData.Count)
+                {
+                    _fullData.Add(wrapper);
+                }
+                else
+                {
+                    _fullData.Insert(newIndex, wrapper);
+                    MiscFunctions.SendLog($"HandleItemAdded: Inserted at {newIndex} instead of appending due to BindingSource order");
+                }
+
+                // Update RowIDs
+                for (int i = 0; i < _fullData.Count; i++)
+                {
+                    if (_fullData[i] is DataRowWrapper dataRow)
+                    {
+                        dataRow.RowID = i;
+                    }
+                }
+
+                // Add to originalList if not present
+                if (!originalList.Contains(wrapper))
+                {
+                    originalList.Add(wrapper);
+                }
+
+                // Ensure tracking is added before logging
+                EnsureTrackingForItem(wrapper);
+
+                // Adjust _dataOffset
+                if (_dataOffset > newIndex)
+                {
+                    _dataOffset++;
+                }
+
+                // Log the operation
+                if (IsLogging)
+                {
+                    var tracking = Trackings.FirstOrDefault(t => t.UniqueId == wrapper.TrackingUniqueId);
                     UpdateLog[DateTime.Now] = new EntityUpdateInsertLog
                     {
                         TrackingRecord = tracking,
                         LogAction = LogAction.Insert,
                         UpdatedFields = new Dictionary<string, object>()
                     };
+                    if (tracking == null)
+                    {
+                        MiscFunctions.SendLog("HandleItemAdded: Tracking entry not found for new item, logging without tracking");
+                    }
                 }
-            }
 
-            UpdateRowCount();
+                UpdateRowCount();
+            }
+            catch (Exception ex)
+            {
+                MiscFunctions.SendLog($"HandleItemAdded Error at index {newIndex}: {ex.Message}");
+                // Continue to allow BindingSource_ListChanged to proceed with UI updates
+            }
         }
         private void HandleItemChanged(int index)
         {
-            if (index < 0 || index >= _fullData.Count || _bindingSource == null || index >= _bindingSource.Count) return;
-
-            var updatedItem = _bindingSource[index];
-            var wrapper = _fullData[index] as DataRowWrapper;
-            if (wrapper != null)
+            try
             {
-                var oldData = wrapper.OriginalData;
-                if (!Equals(oldData, updatedItem)) // Check for actual change
+                if (index < 0 || index >= _fullData.Count || _bindingSource == null || index >= _bindingSource.Count)
                 {
-                    wrapper.OriginalData = updatedItem;
-                    wrapper.RowState = DataRowState.Modified;
-                    wrapper.DateTimeChange = DateTime.Now;
+                    MiscFunctions.SendLog($"HandleItemChanged: Invalid index {index} or null BindingSource, skipping");
+                    return;
+                }
 
-                    EnsureTrackingForItem(wrapper);
-
-                    if (IsLogging)
+                var updatedItem = _bindingSource[index];
+                var wrapper = _fullData[index] as DataRowWrapper;
+                if (wrapper != null)
+                {
+                    var oldData = wrapper.OriginalData;
+                    var changes = GetChangedFields(oldData, updatedItem);
+                    if (changes.Any()) // Only proceed if there are actual changes
                     {
-                        var tracking = Trackings.FirstOrDefault(t => t.UniqueId == wrapper.TrackingUniqueId);
-                        if (tracking != null)
+                        wrapper.OriginalData = updatedItem;
+                        wrapper.RowState = DataRowState.Modified;
+                        wrapper.DateTimeChange = DateTime.Now;
+
+                        EnsureTrackingForItem(wrapper);
+
+                        if (IsLogging)
                         {
-                            var changes = GetChangedFields(oldData, updatedItem);
-                            if (changes.Any())
+                            Tracking tracking = GetTrackingItem(wrapper);
+                            if (tracking != null)
                             {
+                                tracking.EntityState = MapRowStateToEntityState(wrapper.RowState);
+                                if (!ChangedValues.ContainsKey(wrapper))
+                                {
+                                    ChangedValues[wrapper] = changes;
+                                }
+                                else
+                                {
+                                    foreach (var kvp in changes)
+                                    {
+                                        ChangedValues[wrapper][kvp.Key] = kvp.Value;
+                                    }
+                                }
                                 UpdateLog[DateTime.Now] = new EntityUpdateInsertLog
                                 {
                                     TrackingRecord = tracking,
                                     LogAction = LogAction.Update,
-                                    UpdatedFields = changes
+                                    UpdatedFields = ChangedValues[wrapper]
                                 };
+                            }
+                            else
+                            {
+                                MiscFunctions.SendLog($"HandleItemChanged: Tracking not found for item at index {index}");
                             }
                         }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                MiscFunctions.SendLog($"HandleItemChanged Error at index {index}: {ex.Message}");
+            }
         }
         private void HandleItemDeleted(int index)
         {
-            if (index < 0 || index >= _fullData.Count || _bindingSource == null || index >= _bindingSource.Count) return;
-
-            var wrapper = _fullData[index] as DataRowWrapper;
-            if (wrapper != null)
+            try
             {
-                wrapper.RowState = DataRowState.Deleted;
-                wrapper.DateTimeChange = DateTime.Now;
-
-                EnsureTrackingForItem(wrapper);
-
-                var tracking = Trackings.FirstOrDefault(t => t.UniqueId == wrapper.TrackingUniqueId);
-                if (tracking != null)
+                if (index < 0 || index >= _fullData.Count || _bindingSource == null || index >= _bindingSource.Count)
                 {
-                    tracking.EntityState = EntityState.Deleted;
-                    Trackings.Remove(tracking);
+                    MiscFunctions.SendLog($"HandleItemDeleted: Invalid index {index} or null BindingSource, skipping");
+                    return;
+                }
 
-                    if (IsLogging)
+                var wrapper = _fullData[index] as DataRowWrapper;
+                if (wrapper != null)
+                {
+                    wrapper.RowState = DataRowState.Deleted;
+                    wrapper.DateTimeChange = DateTime.Now;
+
+                    EnsureTrackingForItem(wrapper);
+
+                    var tracking = Trackings.FirstOrDefault(t => t.UniqueId == wrapper.TrackingUniqueId);
+                    if (tracking != null)
                     {
-                        UpdateLog[DateTime.Now] = new EntityUpdateInsertLog
+                        tracking.EntityState = EntityState.Deleted;
+                        Trackings.Remove(tracking);
+
+                        if (IsLogging)
                         {
-                            TrackingRecord = tracking,
-                            LogAction = LogAction.Delete,
-                            UpdatedFields = new Dictionary<string, object>()
-                        };
+                            UpdateLog[DateTime.Now] = new EntityUpdateInsertLog
+                            {
+                                TrackingRecord = tracking,
+                                LogAction = LogAction.Delete,
+                                UpdatedFields = new Dictionary<string, object>()
+                            };
+                        }
+                    }
+                    else if (IsLogging)
+                    {
+                        MiscFunctions.SendLog($"HandleItemDeleted: Tracking not found for item at index {index}");
+                    }
+
+                    originalList.RemoveAt(index);
+                    deletedList.Add(wrapper);
+                }
+
+                _fullData.RemoveAt(index);
+
+                for (int i = 0; i < _fullData.Count; i++)
+                {
+                    if (_fullData[i] is DataRowWrapper dataRow)
+                    {
+                        dataRow.RowID = i;
                     }
                 }
 
-                originalList.RemoveAt(index);
-                deletedList.Add(wrapper); // Track deleted item
-            }
-
-            _fullData.RemoveAt(index);
-
-            for (int i = 0; i < _fullData.Count; i++)
-            {
-                if (_fullData[i] is DataRowWrapper dataRow)
+                if (_dataOffset > index)
                 {
-                    dataRow.RowID = i;
+                    _dataOffset--;
                 }
-            }
 
-            if (_dataOffset > index)
+                UpdateRowCount();
+            }
+            catch (Exception ex)
             {
-                _dataOffset--;
+                MiscFunctions.SendLog($"HandleItemDeleted Error at index {index}: {ex.Message}");
             }
-
-            UpdateRowCount();
         }
         private void HandleItemMoved(int oldIndex, int newIndex)
         {
@@ -6374,7 +6148,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion BindingSource Management
-        #region Drawing Navigator
+        #region Internal Navigator
         public event EventHandler CallPrinter;
         public event EventHandler SendMessage;
         public event EventHandler ShowSearch;
@@ -6539,9 +6313,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-              //  MiscFunctions.SendLog("Add New Record");
+                MiscFunctions.SendLog("Add New Record");
 
-                if (_dataSource is BindingSource)
+                if (_bindingSource !=null)
                 {
                     CreateNewRecordForBindingSource();
                 }
@@ -6551,19 +6325,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-               //     MiscFunctions.SendLog("NewButton_Click: Unsupported data source type");
+                    MiscFunctions.SendLog("NewButton_Click: Unsupported data source type");
+                    MessageBox.Show("Unsupported data source type.", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 // Update UI
                 UpdateRecordNumber();
                 UpdateNavigationButtonState();
+                FillVisibleRows();      // Ensure visible rows reflect the new record
+                UpdateScrollBars();     // Adjust scrollbars if needed
+                Invalidate();           // Redraw the grid
 
-                NewRecordCreated?.Invoke(this, EventArgs.Empty); // Remove _bindingSource from the event
+                NewRecordCreated?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
-                MiscFunctions.SendLog($"Binding Navigator {ex.Message}");
+                MiscFunctions.SendLog($"NewButton_Click Error: {ex.Message}");
+                MessageBox.Show($"Error adding new record: {ex.Message}", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -6572,78 +6351,90 @@ namespace TheTechIdea.Beep.Winform.Controls
             try
             {
                 MiscFunctions.SendLog("Remove Record");
-                DeleteCalled?.Invoke(sender, EventArgs.Empty); // Remove _bindingSource from the event
+                DeleteCalled?.Invoke(sender, EventArgs.Empty);
 
-                if (_fullData != null && _fullData.Any() && _currentRow != null)
+                if (_fullData == null || !_fullData.Any() || _currentRow == null)
                 {
-                    if (VerifyDelete && MessageBox.Show(Parent, "Are you sure you want to Delete Record?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK)
-                        return;
+                    MiscFunctions.SendLog("No record selected to delete.");
+                    return;
+                }
 
-                    int dataIndex = _currentRow.DisplayIndex;
-                    if (dataIndex >= 0 && dataIndex < _fullData.Count)
+                if (VerifyDelete && MessageBox.Show(Parent, "Are you sure you want to delete the record?", "BeepSimpleGrid", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK)
+                    return;
+
+                int dataIndex = _currentRow.DisplayIndex;
+                if (dataIndex < 0 || dataIndex >= _fullData.Count)
+                {
+                    MiscFunctions.SendLog($"Invalid data index: {dataIndex}");
+                    return;
+                }
+
+                var item = _fullData[dataIndex];
+                var wrapper = item as DataRowWrapper;
+                if (wrapper == null)
+                {
+                    MiscFunctions.SendLog($"Item at index {dataIndex} is not a DataRowWrapper");
+                    return;
+                }
+
+                if (_dataSource is BindingSource && _bindingSource != null)
+                {
+                    int bsIndex = _bindingSource.IndexOf(wrapper.OriginalData);
+                    if (bsIndex >= 0 && bsIndex < _bindingSource.Count)
                     {
-                        var item = _fullData[dataIndex];
-                        var wrapper = item as DataRowWrapper;
-                        if (wrapper != null)
-                        {
-                            if (_dataSource is BindingSource && _bindingSource != null)
-                            {
-                                // For BindingSource, use _bindingSource.RemoveCurrent()
-                                int bsIndex = _bindingSource.IndexOf(wrapper.OriginalData);
-                                if (bsIndex >= 0 && bsIndex < _bindingSource.Count)
-                                {
-                                    _bindingSource.RemoveCurrent(); // This will trigger BindingSource_ListChanged
-                                    MiscFunctions.SendLog($"Remove: Removed record from BindingSource at index {bsIndex}");
-                                }
-                                else
-                                {
-                                    MiscFunctions.SendLog($"Remove: Item not found in BindingSource at index {bsIndex}");
-                                    return;
-                                }
-                            }
-                            else if (_dataSource is IList)
-                            {
-                                // For IList, use DeleteFromDataSource
-                                DeleteFromDataSource(wrapper.OriginalData);
-                            }
-                            else
-                            {
-                                MiscFunctions.SendLog($"Remove: Unsupported data source type: {_dataSource?.GetType()}");
-                                return;
-                            }
-
-                            // Update UI
-                            UpdateRecordNumber();
-                            UpdateNavigationButtonState();
-
-                            // Update selection and scroll position
-                            if (_fullData.Any())
-                            {
-                                int newSelectedIndex = Math.Min(dataIndex, _fullData.Count - 1);
-                                StartSmoothScroll(Math.Max(0, newSelectedIndex - GetVisibleRowCount() + 1));
-                                if (newSelectedIndex >= _dataOffset && newSelectedIndex < _dataOffset + Rows.Count)
-                                {
-                                    _currentRowIndex = newSelectedIndex - _dataOffset;
-                                    _currentRow = Rows[_currentRowIndex];
-                                    SelectCell(_currentRowIndex, _selectedColumnIndex >= 0 ? _selectedColumnIndex : 0);
-                                }
-                            }
-                            else
-                            {
-                                _currentRow = null;
-                                _currentRowIndex = -1;
-                            }
-
-                            FillVisibleRows();
-                            UpdateScrollBars();
-                            Invalidate();
-                        }
+                        _bindingSource.RemoveCurrent();
+                        MiscFunctions.SendLog($"Removed record from BindingSource at index {bsIndex}");
+                    }
+                    else
+                    {
+                        MiscFunctions.SendLog($"Item not found in BindingSource at index {bsIndex}");
+                        return;
                     }
                 }
+                else if (_dataSource is IList)
+                {
+                    DeleteFromDataSource(wrapper.OriginalData);
+                    MiscFunctions.SendLog($"Removed record from IList at index {dataIndex}");
+                }
+                else
+                {
+                    MiscFunctions.SendLog($"Remove: Unsupported data source type: {_dataSource?.GetType()}");
+                    MessageBox.Show("Unsupported data source type.", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Update UI (for IList or post-BindingSource event)
+                UpdateRecordNumber();
+                UpdateNavigationButtonState();
+
+                if (_fullData.Any())
+                {
+                    int newSelectedIndex = Math.Min(dataIndex, _fullData.Count - 1);
+                    StartSmoothScroll(Math.Max(0, newSelectedIndex - GetVisibleRowCount() + 1));
+                    if (newSelectedIndex >= _dataOffset && newSelectedIndex < _dataOffset + Rows.Count)
+                    {
+                        _currentRowIndex = newSelectedIndex - _dataOffset;
+                        _currentRow = Rows[_currentRowIndex];
+                        int colIndex = _selectedColumnIndex >= 0 && _selectedColumnIndex < Columns.Count ? _selectedColumnIndex : 0;
+                        SelectCell(_currentRowIndex, colIndex);
+                    }
+                }
+                else
+                {
+                    _currentRow = null;
+                    _currentRowIndex = -1;
+                }
+
+                FillVisibleRows();
+                UpdateScrollBars();
+                Invalidate();
+
+                MessageBox.Show("Record deleted successfully.", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MiscFunctions.SendLog($"Binding Navigator {ex.Message}");
+                MiscFunctions.SendLog($"RemovepictureBox_Click Error: {ex.Message}");
+                MessageBox.Show($"Error deleting record: {ex.Message}", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -6759,7 +6550,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SendMessage?.Invoke(this, EventArgs.Empty);
         }
-        #endregion
+        #endregion 
         #region Helper Methods
         public BeepColumnConfig GetColumnByName(string columnName)
         {

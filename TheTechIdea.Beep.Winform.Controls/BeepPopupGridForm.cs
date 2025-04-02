@@ -165,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 System.Diagnostics.Debug.WriteLine("ShowPopupList: Invalid griddata - must be IList or IEnumerable");
                 return null;
             }
-
+            _grid.ShowHeaderPanel = false;
             DataSource = griddata; // Let BeepSimpleGrid auto-generate columns
 
             foreach (var column in Columns)

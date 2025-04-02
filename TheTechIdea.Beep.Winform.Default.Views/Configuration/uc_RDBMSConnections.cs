@@ -85,6 +85,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             BeepColumnConfig driverversion = beepSimpleGrid1.GetColumnByName("DriverVersion");
             driverversion.ParentColumnName = "DriverName";
             driverversion.Items = versions;
+            beepSimpleGrid1.SaveCalled += BeepSimpleGrid1_SaveCalled;
             // idx = 0;
             //foreach (var item in viewModel.PackageVersions)
             //{
@@ -95,6 +96,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //    driveritem.Name = item;
             //    driverversion.Items.Add(driveritem);
             //}
+        }
+
+        private void BeepSimpleGrid1_SaveCalled(object? sender, EventArgs e)
+        {
+            viewModel.Save();
         }
 
         private void BeepSimpleGrid1_CellValueChanged(object? sender, BeepCellEventArgs e)

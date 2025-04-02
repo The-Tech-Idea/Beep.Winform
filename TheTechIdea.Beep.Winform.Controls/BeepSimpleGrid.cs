@@ -2483,7 +2483,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (DataNavigator != null) DataNavigator.DataSource = _fullData;
         }
-
         private void SyncFullDataFromBindingSource()
         {
             _fullData = new List<object>();
@@ -2501,7 +2500,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _fullData.Add(wrapper);
             }
         }
-
         private void WrapFullData()
         {
             var wrappedData = new List<object>();
@@ -2517,7 +2515,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             _fullData = wrappedData;
         }
-
         private void InitializeColumnsAndTracking()
         {
             if (_columns.Count == 0 && _fullData.Any())

@@ -12,6 +12,31 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
 {
     public partial class TemplateUserControl: UserControl,IDM_Addin
     {
+     
+        public IAppManager appManager;
+        public IDMEEditor Editor { get; }
+        public TemplateUserControl()
+        {
+            InitializeComponent();
+            Details = new AddinDetails();
+            Dependencies = new Dependencies();
+            Details.ObjectType = "UserControl";
+        }
+        public TemplateUserControl(IBeepService service) : base()
+        {
+            InitializeComponent();
+            Details = new AddinDetails();
+            Dependencies = new Dependencies();
+            Details.ObjectType = "UserControl";
+            Dependencies.DMEEditor = service.DMEEditor;
+            Dependencies.Logger = service.lg;
+            Editor = service.DMEEditor;
+            appManager = service.vis;
+            beepService = service;
+            Dependencies.DMEEditor = beepService.DMEEditor;
+            BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
+        }
+        #region "IDM_Addin Implementation"
         private readonly IBeepService? beepService;
 
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
@@ -29,51 +54,28 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
                 ApplyTheme();
             }
         }
-
-        private IDMEEditor Editor { get; }
-        public TemplateUserControl()
-        {
-            InitializeComponent();
-            Details = new AddinDetails();
-            Dependencies = new Dependencies();
-            Details.ObjectType = "UserControl";
-        }
-        public TemplateUserControl(IBeepService service) : base()
-        {
-            InitializeComponent();
-            Details = new AddinDetails();
-            Dependencies = new Dependencies();
-            Details.ObjectType = "UserControl";
-            Dependencies.DMEEditor = service.DMEEditor;
-            Dependencies.Logger = service.lg;
-           
-            beepService = service;
-            Dependencies.DMEEditor = beepService.DMEEditor;
-            BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
-        }
-
         private void BeepThemesManager_ThemeChanged(object? sender, ThemeChangeEventsArgs e)
         {
             Theme = e.NewTheme;
         }
 
-        public AddinDetails Details { get  ; set  ; }
-        public Dependencies Dependencies { get  ; set  ; }
-        public string GuidID { get  ; set  ; }
+        public AddinDetails Details { get; set; }
+        public Dependencies Dependencies { get; set; }
+        public string GuidID { get; set; }
 
         public event EventHandler OnStart;
         public event EventHandler OnStop;
         public event EventHandler<ErrorEventArgs> OnError;
 
-        
+
         public virtual void Configure(Dictionary<string, object> settings)
         {
-            
+
         }
 
         public virtual void Dispose()
         {
-           
+
         }
 
         public virtual string GetErrorDetails()
@@ -91,13 +93,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
                     }
                 }
             }
-           
+
             return errormessage;
         }
 
         public virtual void Initialize()
         {
-           
+
         }
 
         public virtual void OnNavigatedTo(Dictionary<string, object> parameters)
@@ -107,17 +109,17 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
 
         public virtual void Resume()
         {
-            
+
         }
 
         public virtual void Run(IPassedArgs pPassedarg)
         {
-           
+
         }
 
         public virtual void Run(params object[] args)
         {
-           
+
         }
 
         public virtual Task<IErrorsInfo> RunAsync(IPassedArgs pPassedarg)
@@ -150,12 +152,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
 
         public virtual void SetError(string message)
         {
-           
+
         }
 
         public virtual void Suspend()
         {
-            
+
         }
         public void ApplyTheme()
         {
@@ -166,11 +168,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
                 {
                     // apply theme to usercontrol
                     ((IBeepUIComponent)item).Theme = Theme;
-                   // ((IBeepUIComponent)item).ApplyTheme();
+                    // ((IBeepUIComponent)item).ApplyTheme();
 
                 }
             }
 
         }
+        #endregion "IDM_Addin Implementation"
+
     }
 }

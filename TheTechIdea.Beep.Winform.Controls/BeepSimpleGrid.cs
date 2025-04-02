@@ -1866,107 +1866,219 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             EntityStructure entity = null;
             object resolvedData = null; // Unified variable for final data or type resolution
-           MiscFunctions.SendLog($"DataSetup Started: _dataSource Type = {_dataSource?.GetType()}, DesignMode = {DesignMode},");
+            MiscFunctions.SendLog($"DataSetup Started: _dataSource Type = {_dataSource?.GetType()}, DesignMode = {DesignMode}");
 
-            // Step 1: Handle different _dataSource types
+            // Step 1: Handle different _dataSource types and wrap in BindingSource
             if (_dataSource == null)
             {
-                MiscFunctions.SendLog("DataSource is null, no entity generated");
+                MiscFunctions.SendLog("DataSource is null, initializing empty BindingSource");
+                _bindingSource = new BindingSource();
+                finalData = _bindingSource;
             }
             else if (_dataSource is BindingSource bindingSrc)
             {
-             //   MiscFunctions.SendLog($"BindingSource Detected: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
-                var dataSource = bindingSrc.DataSource;
+                MiscFunctions.SendLog($"BindingSource Detected: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
                 AssignBindingSource(bindingSrc);
-
                 var ret = SetupBindingSource();
                 resolvedData = ret.Item1;
                 entity = ret.Item2;
+                finalData = _bindingSource; // Use the BindingSource directly
             }
             else if (_dataSource is DataTable dataTable)
             {
-               MiscFunctions.SendLog("DataSource is DataTable");
+                MiscFunctions.SendLog("DataSource is DataTable, wrapping in BindingSource");
+                _bindingSource = new BindingSource { DataSource = dataTable };
+                AssignBindingSource(_bindingSource);
                 resolvedData = dataTable;
+                finalData = _bindingSource;
             }
             else if (_dataSource is IList iList)
             {
-                MiscFunctions.SendLog("DataSource is IList");
+                MiscFunctions.SendLog("DataSource is IList, wrapping in BindingSource");
+                _bindingSource = new BindingSource { DataSource = iList };
+                AssignBindingSource(_bindingSource);
                 resolvedData = iList;
+                finalData = _bindingSource;
             }
             else
             {
-                MiscFunctions.SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting auto-detection");
+                MiscFunctions.SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting auto-detection and wrapping in BindingSource");
                 resolvedData = GetCollectionPropertyFromInstance(_dataSource) ?? _dataSource;
+                _bindingSource = new BindingSource { DataSource = resolvedData };
+                AssignBindingSource(_bindingSource);
+                finalData = _bindingSource;
             }
+
+            // Step 2: Resolve entity structure from resolvedData
             if (resolvedData == null)
             {
                 MiscFunctions.SendLog("Resolved data is null, no entity generated");
             }
             else if (resolvedData is DataTable dt)
             {
-                finalData = dt;
-
-                entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
+                entity = EntityHelper.GetEntityStructureFromListorTable(dt);
             }
             else if (resolvedData is IList list && list.Count > 0)
             {
-                finalData = list;
                 Type itemType = list[0]?.GetType();
-
-                    if (itemType != null)
-                    {
-                         MiscFunctions.SendLog($"Extracted item type from IList: {itemType.FullName}");
-                        entity = EntityHelper.GetEntityStructureFromType(itemType);
-                    }
-                    else
-                    {
-                        entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
-                    }
-
+                if (itemType != null)
+                {
+                    MiscFunctions.SendLog($"Extracted item type from IList: {itemType.FullName}");
+                    entity = EntityHelper.GetEntityStructureFromType(itemType);
+                }
+                else
+                {
+                    entity = EntityHelper.GetEntityStructureFromListorTable(list);
+                }
             }
             else
             {
                 MiscFunctions.SendLog($"Resolved data is not a recognized collection type: {resolvedData.GetType()}, using as-is");
-                finalData = resolvedData;
-                entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
+                entity = EntityHelper.GetEntityStructureFromListorTable(resolvedData);
             }
 
+            // Ensure _columns is initialized
             if (_columns == null) _columns = new List<BeepColumnConfig>();
-            //Step 3: Process entity and columns
+
+            // Step 3: Process entity and columns
             if (entity != null)
             {
-              MiscFunctions.SendLog($"New Entity: {entity.EntityName}, Existing Entity: {EntityName}");
-                if (_columns.Any() )
+                MiscFunctions.SendLog($"New Entity: {entity.EntityName}, Existing Entity: {EntityName}");
+                if (_columns.Any())
                 {
                     if (!string.IsNullOrEmpty(EntityName) && entity.EntityName.Equals(EntityName))
                     {
                         MiscFunctions.SendLog("Preserving designer Columns, syncing fields");
-                      //  SyncFields(entity);
                         SyncColumnsWithEntity(entity);
                     }
                     else
                     {
                         MiscFunctions.SendLog("New Entity with designer Columns, updating Entity only");
                         Entity = entity;
-                       CreateColumnsForEntity();
+                        CreateColumnsForEntity();
                     }
                 }
                 else
                 {
-                   MiscFunctions.SendLog("No designer Columns or not protected, regenerating");
+                    MiscFunctions.SendLog("No designer Columns or not protected, regenerating");
                     Entity = entity;
                     CreateColumnsForEntity();
                 }
             }
-            else 
+            else
             {
-                _columns=new List<BeepColumnConfig>();
+                _columns = new List<BeepColumnConfig>();
                 Entity = null;
                 MiscFunctions.SendLog("No new Entity, keeping designer Columns");
             }
 
             MiscFunctions.SendLog($"DataSetup Completed: finalData = {finalData?.GetType()}, Entity = {Entity?.EntityName}, Columns Count = {_columns.Count}");
         }
+        //private void DataSetup()
+        //{
+        //    EntityStructure entity = null;
+        //    object resolvedData = null; // Unified variable for final data or type resolution
+        //   MiscFunctions.SendLog($"DataSetup Started: _dataSource Type = {_dataSource?.GetType()}, DesignMode = {DesignMode},");
+
+        //    // Step 1: Handle different _dataSource types
+        //    if (_dataSource == null)
+        //    {
+        //        MiscFunctions.SendLog("DataSource is null, no entity generated");
+        //    }
+        //    else if (_dataSource is BindingSource bindingSrc)
+        //    {
+        //     //   MiscFunctions.SendLog($"BindingSource Detected: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
+        //        var dataSource = bindingSrc.DataSource;
+        //        AssignBindingSource(bindingSrc);
+
+        //        var ret = SetupBindingSource();
+        //        resolvedData = ret.Item1;
+        //        entity = ret.Item2;
+        //    }
+        //    else if (_dataSource is DataTable dataTable)
+        //    {
+        //       MiscFunctions.SendLog("DataSource is DataTable");
+        //        resolvedData = dataTable;
+        //    }
+        //    else if (_dataSource is IList iList)
+        //    {
+        //        MiscFunctions.SendLog("DataSource is IList");
+        //        resolvedData = iList;
+        //    }
+        //    else
+        //    {
+        //        MiscFunctions.SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting auto-detection");
+        //        resolvedData = GetCollectionPropertyFromInstance(_dataSource) ?? _dataSource;
+        //    }
+        //    if (resolvedData == null)
+        //    {
+        //        MiscFunctions.SendLog("Resolved data is null, no entity generated");
+        //    }
+        //    else if (resolvedData is DataTable dt)
+        //    {
+        //        finalData = dt;
+
+        //        entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
+        //    }
+        //    else if (resolvedData is IList list && list.Count > 0)
+        //    {
+        //        finalData = list;
+        //        Type itemType = list[0]?.GetType();
+
+        //            if (itemType != null)
+        //            {
+        //                 MiscFunctions.SendLog($"Extracted item type from IList: {itemType.FullName}");
+        //                entity = EntityHelper.GetEntityStructureFromType(itemType);
+        //            }
+        //            else
+        //            {
+        //                entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
+        //            }
+
+        //    }
+        //    else
+        //    {
+        //        MiscFunctions.SendLog($"Resolved data is not a recognized collection type: {resolvedData.GetType()}, using as-is");
+        //        finalData = resolvedData;
+        //        entity = EntityHelper.GetEntityStructureFromListorTable(finalData);
+        //    }
+
+        //    if (_columns == null) _columns = new List<BeepColumnConfig>();
+        //    //Step 3: Process entity and columns
+        //    if (entity != null)
+        //    {
+        //      MiscFunctions.SendLog($"New Entity: {entity.EntityName}, Existing Entity: {EntityName}");
+        //        if (_columns.Any() )
+        //        {
+        //            if (!string.IsNullOrEmpty(EntityName) && entity.EntityName.Equals(EntityName))
+        //            {
+        //                MiscFunctions.SendLog("Preserving designer Columns, syncing fields");
+        //              //  SyncFields(entity);
+        //                SyncColumnsWithEntity(entity);
+        //            }
+        //            else
+        //            {
+        //                MiscFunctions.SendLog("New Entity with designer Columns, updating Entity only");
+        //                Entity = entity;
+        //               CreateColumnsForEntity();
+        //            }
+        //        }
+        //        else
+        //        {
+        //           MiscFunctions.SendLog("No designer Columns or not protected, regenerating");
+        //            Entity = entity;
+        //            CreateColumnsForEntity();
+        //        }
+        //    }
+        //    else 
+        //    {
+        //        _columns=new List<BeepColumnConfig>();
+        //        Entity = null;
+        //        MiscFunctions.SendLog("No new Entity, keeping designer Columns");
+        //    }
+
+        //    MiscFunctions.SendLog($"DataSetup Completed: finalData = {finalData?.GetType()}, Entity = {Entity?.EntityName}, Columns Count = {_columns.Count}");
+        //}
         private object GetCollectionPropertyFromInstance(object instance)
         {
             if (instance == null) return null;
@@ -2341,52 +2453,86 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateScrollBars();
         }
         private void InitializeData()
-        {// Determine _entityType from finalData before wrapping
-           
-           
-            // Wrap _fullData objects with RowID
-            _fullData = finalData is IEnumerable<object> enumerable ? enumerable.ToList() : new List<object>();
-            if (_fullData != null)
+        {
+            if (_bindingSource != null)
             {
-                if (_fullData.Count > 0)
-                {
-                    var firstItem1 = _fullData.First();
-                    if (firstItem1 != null && _entityType==null)
-                    {
-                        _entityType = firstItem1.GetType();
-                        MiscFunctions.SendLog($"InitializeData: Determined _entityType from first item in finalData: {_entityType.FullName}");
-                    }
-                }
-
+                SyncFullDataFromBindingSource(); // Initial sync from BindingSource
             }
+            else
+            {
+                // Fallback (shouldn’t occur with updated DataSetup, but kept for robustness)
+                _fullData = finalData is IEnumerable<object> enumerable ? enumerable.ToList() : new List<object>();
+                WrapFullData();
+            }
+            _dataOffset = 0;
+
+            // Determine _entityType if not already set (moved from DataSetup for consistency)
+            if (_fullData != null && _fullData.Count > 0 && _entityType == null)
+            {
+                var firstItem = _fullData.First() as DataRowWrapper;
+                if (firstItem != null)
+                {
+                    _entityType = firstItem.OriginalData.GetType();
+                    MiscFunctions.SendLog($"InitializeData: Determined _entityType from first item in _fullData: {_entityType.FullName}");
+                }
+            }
+
+            InitializeColumnsAndTracking();
+            InitializeRows();
+            UpdateScrollBars();
+
+            if (DataNavigator != null) DataNavigator.DataSource = _fullData;
+        }
+
+        private void SyncFullDataFromBindingSource()
+        {
+            _fullData = new List<object>();
+            var enumerator = _bindingSource.GetEnumerator();
+            int i = 0;
+            while (enumerator.MoveNext())
+            {
+                var item = enumerator.Current;
+                var wrapper = new DataRowWrapper(item, i++)
+                {
+                    TrackingUniqueId = Guid.NewGuid(),
+                    RowState = DataRowState.Unchanged,
+                    DateTimeChange = DateTime.Now
+                };
+                _fullData.Add(wrapper);
+            }
+        }
+
+        private void WrapFullData()
+        {
             var wrappedData = new List<object>();
             for (int i = 0; i < _fullData.Count; i++)
             {
                 var wrapper = new DataRowWrapper(_fullData[i], i)
                 {
-                    TrackingUniqueId = Guid.NewGuid(), // Set a unique identifier for tracking
-                    RowState = DataRowState.Unchanged, // Initial state
+                    TrackingUniqueId = Guid.NewGuid(),
+                    RowState = DataRowState.Unchanged,
                     DateTimeChange = DateTime.Now
                 };
                 wrappedData.Add(wrapper);
             }
             _fullData = wrappedData;
-            _dataOffset = 0;
-          
-        
+        }
+
+        private void InitializeColumnsAndTracking()
+        {
             if (_columns.Count == 0 && _fullData.Any())
             {
                 var firstItem = _fullData.First() as DataRowWrapper;
                 if (firstItem != null)
                 {
-                  
                     var originalData = firstItem.OriginalData;
                     _entityType = originalData.GetType();
-                    var properties = originalData.GetType().GetProperties(); // Get properties of the original data object
+                    var properties = _entityType.GetProperties();
                     int index = 0;
 
                     // Add checkbox/selection column if enabled
-
+                    if (_showCheckboxes || _showSelection)
+                    {
                         var selColumn = new BeepColumnConfig
                         {
                             ColumnCaption = "☑",
@@ -2402,10 +2548,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                         };
                         selColumn.ColumnType = MapPropertyTypeToDbFieldCategory(selColumn.PropertyTypeName);
                         _columns.Add(selColumn);
-               
+                    }
 
                     // Add row number column if enabled
-
+                    if (_showRowNumbers)
+                    {
                         var rowNumColumn = new BeepColumnConfig
                         {
                             ColumnCaption = "#",
@@ -2421,19 +2568,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                         };
                         rowNumColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
                         _columns.Add(rowNumColumn);
-            
+                    }
 
                     // Add RowID column (hidden, for internal use)
                     var rowIDColumn = new BeepColumnConfig
                     {
                         ColumnCaption = "RowID",
                         ColumnName = "RowID",
-                        Width = 0, // Hidden
+                        Width = 0,
                         Index = index++,
                         Visible = false,
                         Sticked = false,
                         ReadOnly = true,
-                        IsRowID=true,
+                        IsRowID = true,
                         PropertyTypeName = typeof(int).AssemblyQualifiedName,
                         CellEditor = BeepColumnType.Text
                     };
@@ -2453,26 +2600,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                             Visible = true,
                             PropertyTypeName = propertyTypeName
                         };
-
                         columnConfig.ColumnType = MapPropertyTypeToDbFieldCategory(propertyTypeName);
                         columnConfig.CellEditor = MapPropertyTypeToCellEditor(propertyTypeName);
-
                         _columns.Add(columnConfig);
                     }
                 }
             }
 
+            // Initialize tracking and snapshot
             originalList.Clear();
-            originalList.AddRange(_fullData); // Snapshot initial data
+            originalList.AddRange(_fullData);
             Trackings.Clear();
             for (int i = 0; i < _fullData.Count; i++)
             {
                 Trackings.Add(new Tracking(Guid.NewGuid(), i, i) { EntityState = EntityState.Unchanged });
             }
-            InitializeRows();
-            UpdateScrollBars();
 
-            // Populate columns in ComboBox (including "All Columns" option)
+            // Populate filterColumnComboBox
+            filterColumnComboBox.Items.Clear();
             filterColumnComboBox.Items.Add(new SimpleItem { Text = "All Columns", Value = null });
             foreach (var col in Columns)
             {
@@ -2480,12 +2625,161 @@ namespace TheTechIdea.Beep.Winform.Controls
                     filterColumnComboBox.Items.Add(new SimpleItem { Text = col.ColumnCaption ?? col.ColumnName, Value = col.ColumnName });
             }
             filterColumnComboBox.SelectedIndex = 0; // Default to "All Columns"
-
-            // Attach _fullData to DataNavigator as an IList
-            if (DataNavigator != null) DataNavigator.DataSource = _fullData;
         }
+        //private void InitializeData()
+        //{// Determine _entityType from finalData before wrapping
+
+
+        //    // Wrap _fullData objects with RowID
+        //    _fullData = finalData is IEnumerable<object> enumerable ? enumerable.ToList() : new List<object>();
+        //    if (_fullData != null)
+        //    {
+        //        if (_fullData.Count > 0)
+        //        {
+        //            var firstItem1 = _fullData.First();
+        //            if (firstItem1 != null && _entityType==null)
+        //            {
+        //                _entityType = firstItem1.GetType();
+        //                MiscFunctions.SendLog($"InitializeData: Determined _entityType from first item in finalData: {_entityType.FullName}");
+        //            }
+        //        }
+
+        //    }
+        //    var wrappedData = new List<object>();
+        //    for (int i = 0; i < _fullData.Count; i++)
+        //    {
+        //        var wrapper = new DataRowWrapper(_fullData[i], i)
+        //        {
+        //            TrackingUniqueId = Guid.NewGuid(), // Set a unique identifier for tracking
+        //            RowState = DataRowState.Unchanged, // Initial state
+        //            DateTimeChange = DateTime.Now
+        //        };
+        //        wrappedData.Add(wrapper);
+        //    }
+        //    _fullData = wrappedData;
+        //    _dataOffset = 0;
+
+
+        //    if (_columns.Count == 0 && _fullData.Any())
+        //    {
+        //        var firstItem = _fullData.First() as DataRowWrapper;
+        //        if (firstItem != null)
+        //        {
+
+        //            var originalData = firstItem.OriginalData;
+        //            _entityType = originalData.GetType();
+        //            var properties = originalData.GetType().GetProperties(); // Get properties of the original data object
+        //            int index = 0;
+
+        //            // Add checkbox/selection column if enabled
+
+        //                var selColumn = new BeepColumnConfig
+        //                {
+        //                    ColumnCaption = "☑",
+        //                    ColumnName = "Sel",
+        //                    Width = _selectionColumnWidth,
+        //                    Index = index++,
+        //                    Visible = true,
+        //                    Sticked = true,
+        //                    ReadOnly = false,
+        //                    IsSelectionCheckBox = true,
+        //                    PropertyTypeName = typeof(bool).AssemblyQualifiedName,
+        //                    CellEditor = BeepColumnType.CheckBoxBool
+        //                };
+        //                selColumn.ColumnType = MapPropertyTypeToDbFieldCategory(selColumn.PropertyTypeName);
+        //                _columns.Add(selColumn);
+
+
+        //            // Add row number column if enabled
+
+        //                var rowNumColumn = new BeepColumnConfig
+        //                {
+        //                    ColumnCaption = "#",
+        //                    ColumnName = "RowNum",
+        //                    Width = 30,
+        //                    Index = index++,
+        //                    Visible = true,
+        //                    Sticked = true,
+        //                    ReadOnly = true,
+        //                    IsRowNumColumn = true,
+        //                    PropertyTypeName = typeof(int).AssemblyQualifiedName,
+        //                    CellEditor = BeepColumnType.Text
+        //                };
+        //                rowNumColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
+        //                _columns.Add(rowNumColumn);
+
+
+        //            // Add RowID column (hidden, for internal use)
+        //            var rowIDColumn = new BeepColumnConfig
+        //            {
+        //                ColumnCaption = "RowID",
+        //                ColumnName = "RowID",
+        //                Width = 0, // Hidden
+        //                Index = index++,
+        //                Visible = false,
+        //                Sticked = false,
+        //                ReadOnly = true,
+        //                IsRowID=true,
+        //                PropertyTypeName = typeof(int).AssemblyQualifiedName,
+        //                CellEditor = BeepColumnType.Text
+        //            };
+        //            rowIDColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowIDColumn.PropertyTypeName);
+        //            _columns.Add(rowIDColumn);
+
+        //            // Add data columns from properties of the original data object
+        //            foreach (var prop in properties)
+        //            {
+        //                string propertyTypeName = prop.PropertyType.AssemblyQualifiedName;
+        //                var columnConfig = new BeepColumnConfig
+        //                {
+        //                    ColumnCaption = prop.Name,
+        //                    ColumnName = prop.Name,
+        //                    Width = 100,
+        //                    Index = index++,
+        //                    Visible = true,
+        //                    PropertyTypeName = propertyTypeName
+        //                };
+
+        //                columnConfig.ColumnType = MapPropertyTypeToDbFieldCategory(propertyTypeName);
+        //                columnConfig.CellEditor = MapPropertyTypeToCellEditor(propertyTypeName);
+
+        //                _columns.Add(columnConfig);
+        //            }
+        //        }
+        //    }
+
+        //    originalList.Clear();
+        //    originalList.AddRange(_fullData); // Snapshot initial data
+        //    Trackings.Clear();
+        //    for (int i = 0; i < _fullData.Count; i++)
+        //    {
+        //        Trackings.Add(new Tracking(Guid.NewGuid(), i, i) { EntityState = EntityState.Unchanged });
+        //    }
+        //    InitializeRows();
+        //    UpdateScrollBars();
+
+        //    // Populate columns in ComboBox (including "All Columns" option)
+        //    filterColumnComboBox.Items.Add(new SimpleItem { Text = "All Columns", Value = null });
+        //    foreach (var col in Columns)
+        //    {
+        //        if (col.Visible)
+        //            filterColumnComboBox.Items.Add(new SimpleItem { Text = col.ColumnCaption ?? col.ColumnName, Value = col.ColumnName });
+        //    }
+        //    filterColumnComboBox.SelectedIndex = 0; // Default to "All Columns"
+
+        //    // Attach _fullData to DataNavigator as an IList
+        //    if (DataNavigator != null) DataNavigator.DataSource = _fullData;
+        //}
         #endregion
         #region Data Filling and Navigation
+        public void RefreshGrid()
+        {
+            DataSetup();
+            InitializeData();
+            FillVisibleRows();
+            UpdateScrollBars();
+            Invalidate();
+        }
         private void FillVisibleRows()
         {
             if (_fullData == null || !_fullData.Any())

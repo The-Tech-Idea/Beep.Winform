@@ -86,6 +86,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             driverversion.ParentColumnName = "DriverName";
             driverversion.Items = versions;
             beepSimpleGrid1.SaveCalled += BeepSimpleGrid1_SaveCalled;
+            beepSimpleGrid1.ShowCheckboxes = true;
             // idx = 0;
             //foreach (var item in viewModel.PackageVersions)
             //{

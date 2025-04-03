@@ -26,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region Properties
         #region Fields
+        private BeepCheckBoxBool _selectAllCheckBox;
         private bool _deferRedraw = false;
         private Dictionary<int, int> _rowHeights = new Dictionary<int, int>(); // Key: DisplayIndex, Value: Height
         private bool _navigatorDrawn = false;
@@ -803,6 +804,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             CreateNavigationButtons();
             
             InitializeRows();
+            // Initialize the Select All checkbox
+            _selectAllCheckBox = new BeepCheckBoxBool
+            {
+                Theme = Theme,
+                IsChild = true,
+                CheckBoxSize = 16, // Matches typical checkbox size, adjustable
+                CheckedValue = true,
+                UncheckedValue = false,
+                CurrentValue = false,
+                Visible = false,
+                HideText = true // No text needed in header
+            };
+            _selectAllCheckBox.StateChanged += SelectAllCheckBox_StateChanged;
+            Controls.Add(_selectAllCheckBox);
+
         }
 
         #endregion
@@ -1446,9 +1462,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             BeepRowConfig row = Rows[editingCell.RowIndex];
 
             // Find the "RowID" cell to get the stable identifier
-            BeepColumnConfig rowidcol = Columns.Find(p => p.IsRowID);
-            var rowIDCell = row.Cells.FirstOrDefault(c => Columns[c.ColumnIndex].IsRowID);
-            if (rowIDCell == null || rowIDCell.CellValue == null || !int.TryParse(rowIDCell.CellValue.ToString(), out int rowID))
+            BeepColumnConfig rowIdCol = Columns.Find(p => p.IsRowID);
+            var rowIdCell = row.Cells.FirstOrDefault(c => Columns[c.ColumnIndex].IsRowID);
+            if (rowIdCell == null || rowIdCell.CellValue == null || !int.TryParse(rowIdCell.CellValue.ToString(), out int rowID))
             {
                 MiscFunctions.SendLog($"UpdateDataRecordFromRow: Failed to retrieve RowID for row at index {editingCell.RowIndex}");
                 return;
@@ -1476,6 +1492,17 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             object originalData = dataItem.OriginalData;
             bool hasChanges = false;
+            int bsIndex = -1;
+
+            // Find the index in BindingSource *before* modifying originalData
+            if (_bindingSource != null)
+            {
+                bsIndex = _bindingSource.IndexOf(originalData);
+                if (bsIndex < 0)
+                {
+                    MiscFunctions.SendLog($"UpdateDataRecordFromRow: Original item not found in BindingSource before update, RowID={rowID}");
+                }
+            }
 
             // Apply changes to originalData
             foreach (var cell in row.Cells)
@@ -1503,20 +1530,38 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (hasChanges && _bindingSource != null)
             {
-                // Trigger BindingSource_ListChanged to handle state updates
-                int bsIndex = _bindingSource.IndexOf(originalData);
                 if (bsIndex >= 0 && bsIndex < _bindingSource.Count)
                 {
-                    _bindingSource[bsIndex] = originalData; // Update BindingSource, triggering ItemChanged
-                    _bindingSource.ResetItem(bsIndex); // Ensure event fires
+                    // Update BindingSource with the modified object using the pre-found index
+                    _bindingSource[bsIndex] = originalData;
+                    _bindingSource.ResetItem(bsIndex); // Trigger ItemChanged event
+                    MiscFunctions.SendLog($"UpdateDataRecordFromRow: Updated BindingSource at index {bsIndex} with RowID={rowID}");
                 }
                 else
                 {
-                    MiscFunctions.SendLog($"UpdateDataRecordFromRow: Item not found in BindingSource at index {bsIndex}, skipping update");
+                    // Fallback: Re-search using RowID if index is invalid post-modification
+                    for (int i = 0; i < _bindingSource.Count; i++)
+                    {
+                        var bsItem = _bindingSource[i];
+                        var wrapper = _fullData.FirstOrDefault(w => w is DataRowWrapper dw && dw.OriginalData == bsItem) as DataRowWrapper;
+                        if (wrapper != null && wrapper.RowID == rowID)
+                        {
+                            _bindingSource[i] = originalData;
+                            _bindingSource.ResetItem(i);
+                            MiscFunctions.SendLog($"UpdateDataRecordFromRow: Updated BindingSource via RowID={rowID} at index {i}");
+                            break;
+                        }
+                    }
+                    if (bsIndex < 0)
+                    {
+                        MiscFunctions.SendLog($"UpdateDataRecordFromRow: Item with RowID={rowID} not found in BindingSource after update, skipping");
+                    }
                 }
 
-                // UI sync will be handled by BindingSource_ListChanged
-             //   Invalidate();
+                // Update the wrapper in _fullData
+                dataItem.OriginalData = originalData;
+                dataItem.RowState = DataRowState.Modified;
+                dataItem.DateTimeChange = DateTime.Now;
             }
         }
         private void SaveToDataSource()
@@ -2721,6 +2766,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateCellPositions();
             UpdateScrollBars();
             UpdateRecordNumber();
+            UpdateSelectionState();
             Invalidate();
             MiscFunctions.SendLog($"FillVisibleRows: Updated {Rows.Count} visible rows, _fullData.Count={_fullData.Count}");
         }
@@ -3490,10 +3536,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawColumnBorders(g, gridRect);
             if (_showhorizontalgridlines)
                 DrawRowsBorders(g, gridRect);
-
+            UpdateHeaderLayout();
             // Position scrollbars after rendering
             PositionScrollBars();
-
+            if (_showCheckboxes)
+            {
+                _selectAllCheckBox.Invalidate();
+            }
             // Ensure editor control is visible if present
             if (IsEditorShown && _editingControl != null && _editingControl.Parent == this)
             {
@@ -3598,7 +3647,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void PaintColumnHeaders(Graphics g, Rectangle headerRect)
         {
             int xOffset = headerRect.Left;
-
+            var selColumn = Columns.FirstOrDefault(c => c.IsSelectionCheckBox);
+            if (_showCheckboxes)
+            {
+                selColumn.Visible = true;
+            }
+            else
+                selColumn.Visible = false;
             // Ensure _stickyWidth is calculated and capped
             UpdateStickyWidth();
             int stickyWidth = _stickyWidth;
@@ -3665,15 +3720,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             using (Brush textBrush = new SolidBrush(_currentTheme.ButtonForeColor)) // Your preferred color
             {
                 g.FillRectangle(bgBrush, cellRect);
-               // g.DrawRectangle(Pens.Black, cellRect);
-                g.DrawString(col.ColumnCaption, _columnHeadertextFont ?? Font, textBrush, cellRect, format);
+                if (!col.IsSelectionCheckBox) // Skip drawing text for selection column
+                {
+                    string caption = col.ColumnCaption ?? col.ColumnName ?? "";
+                    g.DrawString(caption, _columnHeadertextFont ?? Font, textBrush, cellRect, format);
+                }
             }
         }
         private void PaintRows(Graphics g, Rectangle bounds)
         {
             int yOffset = bounds.Top;
+            var selColumn = Columns.FirstOrDefault(c => c.IsSelectionCheckBox);
+            if (_showCheckboxes)
+            {
+                selColumn.Visible = true;
+            }else
+                selColumn.Visible = false;
             var stickyColumns = Columns.Where(c => c.Sticked && c.Visible).ToList();
-
+          
             // Ensure _stickyWidth is calculated and capped
             _stickyWidth = stickyColumns.Sum(c => c.Width);
             _stickyWidth = Math.Min(_stickyWidth, bounds.Width); // Prevent overflow
@@ -4047,6 +4111,87 @@ namespace TheTechIdea.Beep.Winform.Controls
             titleLabel.DrawToGraphics(g, rect);
         }
         #endregion
+        #region Selection Methods
+        private void UpdateRowsSelection()
+        {
+            if (_showCheckboxes && Rows != null)
+            {
+                int selColumnIndex = _columns.FindIndex(c => c.IsSelectionCheckBox);
+                if (selColumnIndex == -1) return;
+
+                foreach (var row in Rows)
+                {
+                    int dataIndex = row.DisplayIndex; // Assuming DisplayIndex maps to _fullData
+                    if (dataIndex >= 0 && dataIndex < _fullData.Count)
+                    {
+                        var wrapper = _fullData[dataIndex] as DataRowWrapper;
+                        if (wrapper != null)
+                        {
+                            bool isSelected = _persistentSelectedRows.ContainsKey(wrapper.RowID) && _persistentSelectedRows[wrapper.RowID];
+                            var cell = row.Cells[selColumnIndex];
+                            if (cell.UIComponent is BeepCheckBoxBool checkBox)
+                            {
+                                checkBox.State = isSelected ? CheckBoxState.Checked : CheckBoxState.Unchecked;
+                            }
+                            else
+                            {
+                                cell.CellValue = isSelected; // Fallback if no UIComponent
+                            }
+                        }
+                    }
+                }
+                MiscFunctions.SendLog($"UpdateRowsSelection: Updated {Rows.Count} rows with selection state");
+            }
+        }
+
+        private void SelectAllCheckBox_StateChanged(object sender, EventArgs e)
+        {
+            bool selectAll = _selectAllCheckBox.State == CheckBoxState.Checked;
+            _selectedRows.Clear();
+            _selectedgridrows.Clear();
+
+            if (selectAll)
+            {
+                for (int i = 0; i < _fullData.Count; i++)
+                {
+                    _selectedRows.Add(i);
+                    if (i >= _dataOffset && i < _dataOffset + Rows.Count)
+                    {
+                        _selectedgridrows.Add(Rows[i - _dataOffset]);
+                    }
+                }
+            }
+
+            _persistentSelectedRows.Clear();
+            if (selectAll)
+            {
+                foreach (var row in _fullData.OfType<DataRowWrapper>())
+                {
+                    _persistentSelectedRows[row.RowID] = true;
+                }
+            }
+            UpdateRowsSelection();
+            RaiseSelectedRowsChanged();
+            Invalidate();
+        }
+
+        private void UpdateSelectionState()
+        {
+            if (_showCheckboxes && _fullData.Any())
+            {
+                bool allSelected = _fullData.All(d =>
+                {
+                    var wrapper = d as DataRowWrapper;
+                    return wrapper != null && _persistentSelectedRows.ContainsKey(wrapper.RowID) && _persistentSelectedRows[wrapper.RowID];
+                });
+                _selectAllCheckBox.State = allSelected ? CheckBoxState.Checked : CheckBoxState.Unchecked;
+            }
+            else
+            {
+                _selectAllCheckBox.State = CheckBoxState.Unchecked;
+            }
+        }
+        #endregion 
         #region Aggregation Panel
         private object ComputeAggregation(BeepColumnConfig column, List<object> data)
         {
@@ -4510,7 +4655,33 @@ namespace TheTechIdea.Beep.Winform.Controls
              //   MiscFunctions.SendLog($"ScrollTimer_Tick: OffsetV={_dataOffset}, OffsetH={_xOffset}, Updated={updated}");
             }
         }
-        // Mouse wheel support for smooth scrolling
+        private void UpdateHeaderLayout()
+        {
+            if (_showCheckboxes && _showColumnHeaders && _columns.Any(c => c.IsSelectionCheckBox))
+            {
+                var selColumn = _columns.First(c => c.IsSelectionCheckBox);
+                int colIndex = _columns.IndexOf(selColumn);
+                int x = gridRect.X + (colIndex == 0 ? 0 : _columns.Take(colIndex).Sum(c => c.Width)) - _xOffset;
+                int y = columnsheaderPanelRect.Y + (columnsheaderPanelRect.Height - _selectAllCheckBox.CheckBoxSize) / 2;
+
+                // Ensure the checkbox stays within the header bounds
+                x = Math.Max(columnsheaderPanelRect.Left, Math.Min(x, columnsheaderPanelRect.Right - _selectAllCheckBox.CheckBoxSize));
+                y = Math.Max(columnsheaderPanelRect.Top, Math.Min(y, columnsheaderPanelRect.Bottom - _selectAllCheckBox.CheckBoxSize));
+                // Temporary hardcoded position for debugging
+                // x = 10; y = 10; // Uncomment to test at a fixed position
+                _selectAllCheckBox.Location = new Point(x + (_selectionColumnWidth - _selectAllCheckBox.CheckBoxSize) / 2, y);
+                _selectAllCheckBox.Size = new Size(_selectAllCheckBox.CheckBoxSize, _selectAllCheckBox.CheckBoxSize);
+                _selectAllCheckBox.Visible = true;
+                _selectAllCheckBox.BringToFront(); // Ensure it’s on top of any custom painting
+                // MiscFunctions.SendLog($"SelectAllCheckBox positioned at X={_selectAllCheckBox.Location.X}, Y={_selectAllCheckBox.Location.Y}, Visible={_selectAllCheckBox.Visible}");
+            }
+            else
+            {
+                _selectAllCheckBox.Visible = false;
+                // MiscFunctions.SendLog("SelectAllCheckBox hidden due to conditions not met");
+            }
+        }
+
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             base.OnMouseWheel(e);
@@ -4596,7 +4767,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _xOffset = 0;
                 }
             }
-
+            UpdateHeaderLayout();
             //  PositionScrollBars();
         }
         private void UpdateCachedHorizontalMetrics()
@@ -4942,6 +5113,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
         #region Editor
+        // One editor control per column (keyed by column index)
+        private Dictionary<string, IBeepUIComponent> _columnEditors = new Dictionary<string, IBeepUIComponent>();
+        // The currently active editor and cell being edited
+        private BeepControl _editingControl = null;
+        private BeepCellConfig _editingCell = null;
+
+        private BeepCellConfig _tempcell = null;
+        private IBeepComponentForm _editorPopupForm;
         private void MoveEditorIn()
         {
             if (_editingCell == null || _editingControl == null || !IsEditorShown)
@@ -5007,6 +5186,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CloseCurrentEditor();
 
             _editingCell = cell;
+            _tempcell = cell;
             Size cellSize = new Size(cell.Width, cell.Height);
 
             // Create or reuse editor control
@@ -5034,16 +5214,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
           //   MiscFunctions.SendLog($"ShowCellEditor: Cell={cell.X},{cell.Y}, Value={cellSize}");
         }
-       
-        // One editor control per column (keyed by column index)
-        private Dictionary<string, IBeepUIComponent> _columnEditors = new Dictionary<string, IBeepUIComponent>();
-        // The currently active editor and cell being edited
-        private BeepControl _editingControl = null;
-        private BeepCellConfig _editingCell = null;
-     
-        private BeepCellConfig _tempcell = null;
-        private IBeepComponentForm _editorPopupForm;
-      
         private void LostFocusHandler(object? sender, EventArgs e)
         {
             CloseCurrentEditor  ();
@@ -5063,7 +5233,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 x = _editingCell;
                 x.CellValue = _editingControl.GetValue();
-              
+                x.IsDirty = true;
                 if (_editingControl.Parent == this)
                 {
                     this.Controls.Remove(_editingControl);
@@ -5077,6 +5247,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             MiscFunctions.SendLog("Editor closed successfully.");
             EditorClosed?.Invoke(this, EventArgs.Empty);
             return x;
+        }
+        private void UpdateSelectedCell(BeepCellConfig EditedCelled, Point location)
+        {
+            if (_selectedCell == null) return;
+            _selectedCell = EditedCelled;
         }
         private void SaveEditedValue()
         {
@@ -5117,18 +5292,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // 🔹 Update cell's stored value
-            _tempcell.OldValue = _tempcell.CellData;
-            _tempcell.CellData =  convertedNewValue;
-            _tempcell.CellValue = convertedNewValue;
-            _tempcell.IsDirty = true;
+            _selectedCell.OldValue = _tempcell.CellData;
+            _selectedCell.CellData =  convertedNewValue;
+            _selectedCell.CellValue = convertedNewValue;
+            _selectedCell.IsDirty = true;
 
             // 🔹 Update the corresponding data record
-            UpdateDataRecordFromRow(_tempcell);
-            CellValueChanged?.Invoke(this, new BeepCellEventArgs(_tempcell));
+            UpdateDataRecordFromRow(_selectedCell);
+            CellValueChanged?.Invoke(this, new BeepCellEventArgs(_selectedCell));
             // 🔹 Trigger validation if necessary
-            _tempcell.ValidateCell();
+            _selectedCell.ValidateCell();
 
-            MiscFunctions.SendLog($"✅ Cell updated. New: {_tempcell.CellValue}");
+            MiscFunctions.SendLog($"✅ Cell updated. New: {_selectedCell.CellValue}");
             _tempcell = null;
            // Invalidate(); // 🔹 Redraw grid if necessary
         }
@@ -5141,7 +5316,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             var clickedCell = GetCellAtLocation(e.Location);
             if (clickedCell == null) return;
-           // if (clickedCell.IsAggregation) return;
             if (clickedCell != null)
             {
                 int colIndex = clickedCell.ColumnIndex;
@@ -5160,8 +5334,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                         clickedCell.CellData = !isSelected;
 
                         //MiscFunctions.SendLog($"BeepGrid_MouseClick: Row {rowIndex}, DataIndex {dataIndex}, RowID {rowID}, Sel = {!isSelected}, _persistentSelectedRows.Count = {_persistentSelectedRows.Count}");
-                        Invalidate();
+                       
                         RaiseSelectedRowsChanged();
+                        Invalidate();
                     }
                     return;
                 }
@@ -5178,14 +5353,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (wasEditorShown)
             {
                 // Close editor first
-                SuspendLayout(); // Prevent redraw during closure
+              //  SuspendLayout(); // Prevent redraw during closure
                 if (_editingCell != null && _editingCell.IsDirty)
                 {
                     hasChanges = true; // Mark for update after closure
                 }
               _tempcell=  CloseCurrentEditor();
-                Application.DoEvents(); // Ensure closure completes
-                ResumeLayout(false); // Resume layout without redraw
+            //    ResumeLayout(false); // Resume layout without redraw
 
                 // Save data only after editor is fully closed
                 if (hasChanges)
@@ -6716,6 +6890,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Columns.Clear();
                     Columns = null;
+                }
+                if (disposing && _selectAllCheckBox != null)
+                {
+                    _selectAllCheckBox.Dispose();
+                    _selectAllCheckBox = null;
                 }
             }
         }

@@ -17,7 +17,7 @@
     <Title>TheTechIdea.Beep.Winform.Controls</Title>
     <Product>TheTechIdea.Beep.Winform.Controls</Product>
     <AssemblyName>TheTechIdea.Beep.Winform.Controls</AssemblyName>
-    <Version>1.0.163</Version>
+    <Version>1.0.164</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
   <Target Name="CopyPackage" AfterTargets="Pack">
@@ -107,12 +107,15 @@
     <None Remove="GFX\SVG\error.svg" />
     <None Remove="GFX\SVG\exit.svg" />
     <None Remove="GFX\SVG\export.svg" />
+    <None Remove="GFX\SVG\fastbackword.svg" />
+    <None Remove="GFX\SVG\fastforward.svg" />
     <None Remove="GFX\SVG\favorite.svg" />
     <None Remove="GFX\SVG\file.svg" />
     <None Remove="GFX\SVG\filter.svg" />
     <None Remove="GFX\SVG\firebase-2.svg" />
     <None Remove="GFX\SVG\firebase.svg" />
     <None Remove="GFX\SVG\firebird.svg" />
+    <None Remove="GFX\SVG\firstpage.svg" />
     <None Remove="GFX\SVG\firstrecord.svg" />
     <None Remove="GFX\SVG\floppy-disk.svg" />
     <None Remove="GFX\SVG\forward.svg" />
@@ -135,6 +138,7 @@
     <None Remove="GFX\SVG\kitty.svg" />
     <None Remove="GFX\SVG\know.svg" />
     <None Remove="GFX\SVG\l.svg" />
+    <None Remove="GFX\SVG\lastpage.svg" />
     <None Remove="GFX\SVG\lastrecord.svg" />
     <None Remove="GFX\SVG\left-arrow.svg" />
     <None Remove="GFX\SVG\like.svg" />
@@ -186,6 +190,7 @@
     <None Remove="GFX\SVG\search_1.svg" />
     <None Remove="GFX\SVG\settings.svg" />
     <None Remove="GFX\SVG\share.svg" />
+    <None Remove="GFX\SVG\signout.svg" />
     <None Remove="GFX\SVG\SimpleInfoapps.ico" />
     <None Remove="GFX\SVG\simpleinfoapps.svg" />
     <None Remove="GFX\SVG\snowflake.svg" />
@@ -217,6 +222,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GFX\PNG\042-dot.png" />
+    <EmbeddedResource Include="GFX\SVG\fastbackword.svg" />
+    <EmbeddedResource Include="GFX\SVG\fastforward.svg" />
+    <EmbeddedResource Include="GFX\SVG\firstpage.svg" />
+    <EmbeddedResource Include="GFX\SVG\lastpage.svg" />
+    <EmbeddedResource Include="GFX\SVG\signout.svg" />
     <EmbeddedResource Include="GFX\SVG\simpleInfoapps.ico" />
   </ItemGroup>
   <ItemGroup>

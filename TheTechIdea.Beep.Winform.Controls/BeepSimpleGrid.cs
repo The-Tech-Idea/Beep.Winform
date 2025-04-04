@@ -13,6 +13,7 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using System.Data.Common;
 
 
 
@@ -818,6 +819,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             _selectAllCheckBox.StateChanged += SelectAllCheckBox_StateChanged;
             Controls.Add(_selectAllCheckBox);
+            // Subscribe to the Resize event to handle control resizing
+           
 
         }
 
@@ -2767,6 +2770,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateScrollBars();
             UpdateRecordNumber();
             UpdateSelectionState();
+            UpdateNavigationButtonState();
             Invalidate();
             MiscFunctions.SendLog($"FillVisibleRows: Updated {Rows.Count} visible rows, _fullData.Count={_fullData.Count}");
         }
@@ -3440,7 +3444,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Update scrollbar visibility first
             UpdateScrollBars();
-
+          
             // Draw Bottom Items before Drawing the Grid
             bottomPanelY = drawingBounds.Bottom;
             botomspacetaken = 0;
@@ -3459,11 +3463,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 botomspacetaken += navigatorPanelHeight;
             }
             if (!_navigatorDrawn)
-            {
+            { 
                 _navigatorDrawn = true;
                 if (_showNavigator)
                 {
-                    navigatorPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), navigatorPanelHeight);
+                    navigatorPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Bottom- navigatorPanelHeight, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), navigatorPanelHeight);
                     DrawNavigationRow(g, navigatorPanelRect);
                 }
                 else
@@ -3637,6 +3641,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void UpdateStickyWidth()
         {
+            var selColumn = Columns.FirstOrDefault(c => c.IsSelectionCheckBox);
+            if (_showCheckboxes)
+            {
+                selColumn.Visible = true;
+            }
+            else
+                selColumn.Visible = false;
             var stickyColumns = Columns.Where(c => c.Sticked && c.Visible).ToList();
             int baseStickyWidth = stickyColumns.Sum(c => c.Width);
 
@@ -3762,11 +3773,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (yOffset + row.Height > bounds.Bottom)
                         break;
                     // Align rowRect with scrollingRegion, accounting for scroll
-                    int scrollingStartX = scrollingRegion.Left - _xOffset;
-                    int totalScrollableWidth = Columns.Where(c => !c.Sticked && c.Visible).Sum(c => c.Width) +
-                                              (Columns.Count(c => !c.Sticked && c.Visible) - 1) * 1;
-                    int scrollingWidth = Math.Max(scrollingRegion.Width + _xOffset, totalScrollableWidth);
-                    var rowRect = new Rectangle(scrollingStartX, displayY, scrollingWidth, row.Height);
+                    //int scrollingStartX = scrollingRegion.Left - _xOffset;
+                    //int totalScrollableWidth = Columns.Where(c => !c.Sticked && c.Visible).Sum(c => c.Width) +
+                    //                          (Columns.Count(c => !c.Sticked && c.Visible) - 1) * 1;
+                    //int scrollingWidth = Math.Max(scrollingRegion.Width + _xOffset, totalScrollableWidth);
+                    //var rowRect = new Rectangle(scrollingStartX, displayY, scrollingWidth, row.Height);
+                    var rowRect = new Rectangle(scrollingRegion.Left, displayY, scrollingRegion.Width, row.Height);
 
                     PaintScrollingRow(g, row, rowRect);
                     if (!row.IsAggregation) yOffset += row.Height; // Only increment yOffset for non-aggregation rows
@@ -3815,60 +3827,115 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void PaintScrollingRow(Graphics g, BeepRowConfig row, Rectangle rowRect)
         {
-            int xOffset = rowRect.Left; // Starts at scrollingRegion.Left - _xOffset from PaintRows
-            int rightBoundary = rowRect.Right; // rowRect’s right edge
-            int totalScrollableWidth = Columns.Where(c => !c.Sticked && c.Visible).Sum(c => c.Width) +
-                                      (Columns.Count(c => !c.Sticked && c.Visible) - 1) * 1; // Include border width
-            int leftBoundary = rowRect.Left; // Left edge of the scrolling region (already includes _stickyWidth)
+            //int xOffset = rowRect.Left; // Starts at scrollingRegion.Left - _xOffset from PaintRows
+            //int rightBoundary = gridRect.Right; // rowRect’s right edge
+            //int totalScrollableWidth = Columns.Where(c => !c.Sticked && c.Visible).Sum(c => c.Width) +
+            //                          (Columns.Count(c => !c.Sticked && c.Visible) - 1) * 1; // Include border width
+            //int leftBoundary = gridRect.Left; // Left edge of the scrolling region (already includes _stickyWidth)
 
-            // Adjust initial xOffset to prevent drawing beyond leftBoundary
-            if (xOffset < leftBoundary)
+            //// Adjust initial xOffset to prevent drawing beyond leftBoundary
+            //if (xOffset < leftBoundary)
+            //{
+            //    int overflow = leftBoundary - xOffset;
+            //    xOffset = leftBoundary;
+            //}
+
+            //for (int i = 0; i < row.Cells.Count && i < Columns.Count; i++)
+            //{
+            //    if (!Columns[i].Visible || Columns[i].Sticked) continue;
+
+            //    var cell = row.Cells[i];
+            //    cell.X = xOffset;
+            //    cell.Y = rowRect.Top;
+            //    cell.Width = Columns[i].Width;
+            //    cell.Height = rowRect.Height;
+
+            //    // Skip or adjust if cell starts outside leftBoundary
+            //    if (xOffset < leftBoundary)
+            //    {
+            //        int overflow = leftBoundary - xOffset;
+            //        cell.Width = Math.Max(0, cell.Width - overflow);
+            //        cell.X = leftBoundary;
+            //        if (cell.Width <= 0) continue; // Skip if fully outside
+            //    }
+
+            //    // Stop if cell would exceed rowRect.Right
+            //    if (xOffset + cell.Width > rightBoundary)
+            //    {
+            //        cell.Width = Math.Max(0, rightBoundary - xOffset); // Truncate last cell if needed
+            //        if (cell.Width <= 0) break; // No room left
+            //    }
+
+            //    var cellRect = new Rectangle(cell.X, cell.Y, cell.Width, cell.Height);
+            //    Color backcolor = cell.RowIndex == _currentRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
+            //    PaintCell(g, cell, cellRect, backcolor);
+            //    // set cell coordinates and size in cell
+            //    cell.X = cellRect.X;
+            //    cell.Y = cellRect.Y;
+            //    cell.Width = cellRect.Width;
+            //    cell.Height = cellRect.Height;
+            //    xOffset += Columns[i].Width;
+            //    if (xOffset >= rightBoundary && xOffset < rowRect.Left + totalScrollableWidth)
+            //        rightBoundary = Math.Min(rowRect.Left + totalScrollableWidth, rowRect.Right); // Extend boundary if within scrollable range
+            //    if (xOffset >= rightBoundary) break; // Exit if past boundary
+
+            //    // Debug output for scrolling cells
+            // //   MiscFunctions.SendLog($"PaintScrollingRow: Row={cell.RowIndex}, Col={Columns[i].ColumnName}, X={cell.X}, Width={cell.Width}, LeftBoundary={leftBoundary}, RightBoundary={rightBoundary}");
+            //}
+            // Calculate effective right boundary by subtracting the vertical scrollbar width if it's visible.
+            // Compute boundaries for the scrolling area:
+            // Assume gridRect represents the entire grid, and sticky columns occupy the left part.
+            int scrollingLeft = gridRect.Left + _stickyWidth;
+            int scrollingRight = gridRect.Right;
+            // If the vertical scrollbar is visible, subtract its width from the right boundary.
+            if (_verticalScrollBar != null && _verticalScrollBar.Visible)
             {
-                int overflow = leftBoundary - xOffset;
-                xOffset = leftBoundary;
+                scrollingRight -= _verticalScrollBar.Width;
             }
 
-            for (int i = 0; i < row.Cells.Count && i < Columns.Count; i++)
+            // We use rowRect for initial positioning, but clamp our effective boundaries:
+            int effectiveLeft = Math.Max(rowRect.Left, scrollingLeft);
+            int effectiveRight = Math.Min(rowRect.Right, scrollingRight);
+
+            int accumulatedWidth = 0;
+            foreach (var column in Columns.Where(c => !c.Sticked && c.Visible))
             {
-                if (!Columns[i].Visible || Columns[i].Sticked) continue;
+                // Calculate the X coordinate for the cell using the accumulated width and horizontal scroll.
+                int cellX = rowRect.Left + accumulatedWidth - _xOffset;
+                int cellWidth = column.Width;
 
-                var cell = row.Cells[i];
-                cell.X = xOffset;
-                cell.Y = rowRect.Top;
-                cell.Width = Columns[i].Width;
-                cell.Height = rowRect.Height;
-
-                // Skip or adjust if cell starts outside leftBoundary
-                if (xOffset < leftBoundary)
+                // If the cell starts before the effective left boundary, adjust it.
+                if (cellX < effectiveLeft)
                 {
-                    int overflow = leftBoundary - xOffset;
-                    cell.Width = Math.Max(0, cell.Width - overflow);
-                    cell.X = leftBoundary;
-                    if (cell.Width <= 0) continue; // Skip if fully outside
+                    int overflow = effectiveLeft - cellX;
+                    cellX = effectiveLeft;
+                    cellWidth = Math.Max(0, cellWidth - overflow);
                 }
 
-                // Stop if cell would exceed rowRect.Right
-                if (xOffset + cell.Width > rightBoundary)
+                // If the cell would extend beyond the effective right boundary, truncate its width.
+                if (cellX + cellWidth > effectiveRight)
                 {
-                    cell.Width = Math.Max(0, rightBoundary - xOffset); // Truncate last cell if needed
-                    if (cell.Width <= 0) break; // No room left
+                    cellWidth = Math.Max(0, effectiveRight - cellX);
                 }
 
-                var cellRect = new Rectangle(cell.X, cell.Y, cell.Width, cell.Height);
-                Color backcolor = cell.RowIndex == _currentRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
-                PaintCell(g, cell, cellRect, backcolor);
-                // set cell coordinates and size in cell
-                cell.X = cellRect.X;
-                cell.Y = cellRect.Y;
-                cell.Width = cellRect.Width;
-                cell.Height = cellRect.Height;
-                xOffset += Columns[i].Width;
-                if (xOffset >= rightBoundary && xOffset < rowRect.Left + totalScrollableWidth)
-                    rightBoundary = Math.Min(rowRect.Left + totalScrollableWidth, rowRect.Right); // Extend boundary if within scrollable range
-                if (xOffset >= rightBoundary) break; // Exit if past boundary
+                // Skip the cell if there’s no visible width.
+                if (cellWidth <= 0)
+                {
+                    accumulatedWidth += column.Width;
+                    continue;
+                }
 
-                // Debug output for scrolling cells
-             //   MiscFunctions.SendLog($"PaintScrollingRow: Row={cell.RowIndex}, Col={Columns[i].ColumnName}, X={cell.X}, Width={cell.Width}, LeftBoundary={leftBoundary}, RightBoundary={rightBoundary}");
+                // Define the cell rectangle and paint the cell.
+                Rectangle cellRect = new Rectangle(cellX, rowRect.Top, cellWidth, rowRect.Height);
+                Color backcolor = row.Cells[Columns.IndexOf(column)].RowIndex == _currentRowIndex
+                                  ? _currentTheme.SelectedRowBackColor
+                                  : _currentTheme.GridBackColor;
+                PaintCell(g, row.Cells[Columns.IndexOf(column)], cellRect, backcolor);
+
+                accumulatedWidth += column.Width;
+                // If we've reached the effective right boundary, exit the loop.
+                if (rowRect.Left + accumulatedWidth - _xOffset >= effectiveRight)
+                    break;
             }
         }
         private void PaintCell(Graphics g, BeepCellConfig cell, Rectangle cellRect, Color backcolor)
@@ -6331,71 +6398,112 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler DeleteCalled;
         public event EventHandler EditCalled;
         public bool VerifyDelete = false;
-        private BeepLabel Recordnumberinglabel1;
+        private BeepButton Recordnumberinglabel1; // Now a BeepButton
         private BeepButton FindButton, NewButton, EditButton, PreviousButton, NextButton, RemoveButton, RollbackButton, SaveButton, PrinterButton, MessageButton;
+        private BeepButton FirstPageButton, PrevPageButton, NextPageButton, LastPageButton;
+        private BeepButton PageLabel; // Now a BeepButton
         private int spacing = 5; // Spacing between buttons
-        private int labelWidth = 100; // Width of the label
+        private int labelWidth = 100; // Width of the record label
+        private int pageLabelWidth = 60; // Width of the page label
         private Size buttonSize = new Size(16, 16);
-        private List<Control> buttons=new List<Control>();
-        Panel MainPanel;
+        private List<Control> buttons = new List<Control>();
+        private List<Control> pagingButtons = new List<Control>();
+        private Panel MainPanel;
+        private int _currentPage = 1;
+        // Use visibleRowCount for paging instead of a hardcoded _recordsPerPage
+        private int _totalPages;// _fullData != null ? (int)Math.Ceiling((double)_fullData.Count / (GetVisibleRowCount() == 1 ? _fullData.Count : GetVisibleRowCount())) : 1;
+
         private void DrawNavigationRow(Graphics g, Rectangle rect)
         {
-           // DataNavigator.Location = new Point(rect.Left + 1, rect.Top + 1);
-           // DataNavigator.Size = new Size(rect.Width - 2, rect.Height - 2);
-            //  DataNavigator.Invalidate();
             MainPanel.Location = new Point(rect.Left + 1, rect.Top + 1);
             MainPanel.Size = new Size(rect.Width - 2, rect.Height - 2);
-            PositionControls( spacing);
-          //  MainPanel.Invalidate();
+            PositionControls(spacing);
+
             using (var pen = new Pen(_currentTheme.GridLineColor))
             {
                 g.DrawLine(pen, rect.Left, rect.Top, rect.Right, rect.Top);
             }
         }
+
         private void CreateNavigationButtons()
         {
-          
+            MainPanel = new Panel();
 
-            MainPanel = new Panel
-            {
-                //Dock = DockStyle.Fill,
-                
-            };
-         
-           // MainPanel.Bounds = DrawingRect;
-
+            // Main navigation buttons
             FindButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.search_1.svg", buttonSize, FindpictureBox_Click);
             EditButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.pencil.svg", buttonSize, EditpictureBox_Click);
             PrinterButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.print1.svg", buttonSize, PrinterpictureBox_Click);
             MessageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg", buttonSize, MessagepictureBox_Click);
             SaveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.check.svg", buttonSize, SavepictureBox_Click);
-            PreviousButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.backwards.svg", buttonSize, PreviouspictureBox_Click);
-            Recordnumberinglabel1 = new BeepLabel
-            {
-                TextAlign = ContentAlignment.MiddleCenter,
-                Size = new Size(labelWidth, buttonSize.Height),
-                Text = "0",
-                ShowAllBorders = true,
-                IsRounded = false,
-                IsChild = false,
-                IsBorderAffectedByTheme = false,
-                IsShadowAffectedByTheme = false,
-                IsRoundedAffectedByTheme = false
-            };
-            NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.forward.svg", buttonSize, NextpictureBox_Click);
             NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg", buttonSize, NewButton_Click);
             RemoveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg", buttonSize, RemovepictureBox_Click);
             RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.go-back.svg", buttonSize, RollbackpictureBox_Click);
 
-             buttons = new List<Control>
+            // Page label (as a BeepButton)
+            PageLabel = new BeepButton
             {
-                FindButton, EditButton, PrinterButton, MessageButton, SaveButton,
-                PreviousButton, Recordnumberinglabel1, NextButton, NewButton, RemoveButton, RollbackButton
+                Text = "Page 1 of 1",
+                Size = new Size(pageLabelWidth, buttonSize.Height),
+                HideText = false,
+                IsFrameless = true,
+                IsChild = true,
+                ShowAllBorders = false,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Visible = true
             };
-           Controls.Add(MainPanel);
-           
 
+            // Record number label (as a BeepButton)
+            Recordnumberinglabel1 = new BeepButton
+            {
+                Text = "0 From 0",
+                Size = new Size(labelWidth, buttonSize.Height),
+                HideText = false,
+                IsFrameless = true,
+                IsChild = true,
+                ShowAllBorders = true,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Visible = true
+            };
+
+            // Paging buttons with event handlers
+            FirstPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.firstpage.svg", buttonSize, FirstPageButton_Click);
+            PrevPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.backwards.svg", buttonSize, PrevPageButton_Click);
+            NextPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.forward.svg", buttonSize, NextPageButton_Click);
+            LastPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.lastpage.svg", buttonSize, LastPageButton_Click);
+            PreviousButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.backwards.svg", buttonSize, PreviouspictureBox_Click);
+            NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.forward.svg", buttonSize, NextpictureBox_Click);
+
+            buttons = new List<Control>
+    {
+        FindButton, EditButton, PrinterButton, MessageButton, SaveButton
+        , NextButton, NewButton, RemoveButton, RollbackButton,PreviousButton, Recordnumberinglabel1,NextButton
+    };
+
+            pagingButtons = new List<Control>
+    {
+        FirstPageButton, PrevPageButton, PageLabel, NextPageButton, LastPageButton,
+    };
+
+            Controls.Add(MainPanel);
+
+            // Subscribe to the Resize event to handle control resizing
+            this.Resize += BeepSimpleGrid_Resize;
+
+            // Initial update to ensure labels are populated
+            UpdateRecordNumber();
+            UpdatePagingControls();
         }
+
+        private void BeepSimpleGrid_Resize(object sender, EventArgs e)
+        {
+            // When the control resizes, trigger a redraw to update the layout
+            Invalidate();
+        }
+
         private BeepButton CreateButton(string imagePath, Size size, EventHandler clickHandler)
         {
             var button = new BeepButton
@@ -6409,19 +6517,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Anchor = AnchorStyles.None,
                 Margin = new Padding(0),
                 Padding = new Padding(0),
-                MaxImageSize = new Size(size.Width - 1, size.Height - 1)
+                MaxImageSize = new Size(size.Width - 1, size.Height - 1),
+                Visible = true // Ensure buttons are visible
             };
             button.Click += clickHandler;
             return button;
         }
-        private void PositionControls( int spacing)
+
+        private void PositionControls(int spacing)
         {
             if (MainPanel == null || buttons == null || buttons.Count == 0) return;
 
-            int totalWidth = buttons.Sum(c => c.Width) + spacing * (buttons.Count - 1);
-            int startX = (MainPanel.Width - totalWidth) / 2;
+            // Calculate the vertical center for the single row
+            int rowHeight = buttonSize.Height;
+            int centerY = (MainPanel.Height - rowHeight) / 2; // Center the single row vertically
+            if (centerY < 0) centerY = spacing; // Ensure buttons don't go above the top edge
+
+            // Position the main buttons on the left
+            int startX = spacing; // Start with a small padding from the left edge
             int currentX = startX;
-            int centerY = (MainPanel.Height - buttons[0].Height) / 2;
 
             foreach (var control in buttons)
             {
@@ -6433,6 +6547,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                 control.Top = centerY;
                 currentX += control.Width + spacing;
             }
+
+            // Position the paging buttons and labels on the right
+            int pagingTotalWidth = pagingButtons.Sum(c => c.Width) + spacing * (pagingButtons.Count - 1);
+            int pagingStartX = MainPanel.Width - pagingTotalWidth - spacing; // Align to the right with padding
+            if (pagingStartX < currentX) pagingStartX = currentX; // Ensure no overlap with main buttons
+            currentX = pagingStartX;
+
+            foreach (var control in pagingButtons)
+            {
+                if (!MainPanel.Controls.Contains(control))
+                {
+                    MainPanel.Controls.Add(control);
+                }
+                control.Visible = true; // Ensure all paging controls are visible
+                control.Left = currentX;
+                control.Top = centerY; // Same Y position as the main buttons (single row)
+                currentX += control.Width + spacing;
+            }
+
+            UpdatePagingControls();
+            UpdateRecordNumber();
         }
 
         private void UpdateRecordNumber()
@@ -6441,12 +6576,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_fullData != null && _fullData.Any())
             {
-                int position = _currentRowIndex + _dataOffset + 1; // Position is based on _currentRowIndex and _dataOffset
+                int position = _currentRowIndex + _dataOffset + 1;
                 Recordnumberinglabel1.Text = $"{position} From {_fullData.Count}";
             }
             else
             {
-                Recordnumberinglabel1.Text = "-";
+                Recordnumberinglabel1.Text = "0 From 0";
             }
         }
 
@@ -6458,22 +6593,133 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NextButton.Enabled = false;
                 RemoveButton.Enabled = false;
                 SaveButton.Enabled = false;
+                FirstPageButton.Enabled = false;
+                PrevPageButton.Enabled = false;
+                NextPageButton.Enabled = false;
+                LastPageButton.Enabled = false;
                 return;
             }
 
-            int position = _currentRowIndex + _dataOffset; // Current position in _fullData
+            int position = _currentRowIndex + _dataOffset;
             PreviousButton.Enabled = position > 0;
             NextButton.Enabled = position < _fullData.Count - 1;
             RemoveButton.Enabled = _fullData.Count > 0;
             SaveButton.Enabled = _fullData.Count > 0;
+
+            FirstPageButton.Enabled = _currentPage > 1;
+            PrevPageButton.Enabled = _currentPage > 1;
+            NextPageButton.Enabled = _currentPage < _totalPages;
+            LastPageButton.Enabled = _currentPage < _totalPages;
         }
+
+        private void UpdatePagingControls()
+        {
+            if (PageLabel == null) return;
+           
+            if (_fullData != null && _fullData.Any())
+            {
+                int visrowcount = GetVisibleRowCount();
+                _totalPages = _fullData != null ? (int)Math.Ceiling((double)_fullData.Count / (visrowcount == 1 ? _fullData.Count : visrowcount)) : 1;
+                _currentPage = Math.Max(1, Math.Min(_currentPage, _totalPages));
+                PageLabel.Text = $"Page {_currentPage} of {_totalPages}";
+                UpdateNavigationButtonState();
+            }
+
+           
+        }
+
+        private void FirstPageButton_Click(object sender, EventArgs e)
+        {
+            if (_currentPage == 1) return;
+            _currentPage = 1;
+            UpdatePage();
+        }
+
+        private void PrevPageButton_Click(object sender, EventArgs e)
+        {
+            if (_currentPage <= 1) return;
+            _currentPage--;
+            UpdatePage();
+        }
+
+        private void NextPageButton_Click(object sender, EventArgs e)
+        {
+            if (_currentPage >= _totalPages) return;
+            _currentPage++;
+            UpdatePage();
+        }
+
+        private void LastPageButton_Click(object sender, EventArgs e)
+        {
+            if (_currentPage == _totalPages) return;
+            _currentPage = _totalPages;
+            UpdatePage();
+        }
+
+        private void UpdatePage()
+        {
+            if (_fullData == null || !_fullData.Any())
+            {
+                _dataOffset = 0;
+                _currentPage = 1;
+                _currentRowIndex = -1;
+                _currentRow = null;
+                Rows.Clear();
+                UpdateScrollBars();
+                UpdateRecordNumber();
+                UpdatePagingControls();
+                Invalidate();
+                return;
+            }
+
+            int visibleRows = GetVisibleRowCount();
+            _totalPages = (int)Math.Ceiling((double)_fullData.Count / visibleRows);
+            _currentPage = Math.Max(1, Math.Min(_currentPage, _totalPages));
+
+            int recordsPerPage = visibleRows;
+            int newOffset = (_currentPage - 1) * recordsPerPage;
+
+            // Adjust newOffset for the last page to fill as many rows as possible.
+            if (newOffset + recordsPerPage > _fullData.Count)
+            {
+                newOffset = Math.Max(0, _fullData.Count - recordsPerPage);
+            }
+
+            _dataOffset = newOffset;
+            FillVisibleRows();
+
+            if (_fullData.Count - _dataOffset > 0)
+            {
+                // Start at the first row of the page.
+                _currentRowIndex = 0;
+                if (_currentRowIndex < Rows.Count)
+                {
+                    SelectCell(_currentRowIndex, _selectedColumnIndex >= 0 ? _selectedColumnIndex : 0);
+                }
+                else
+                {
+                    _currentRowIndex = -1;
+                    _currentRow = null;
+                }
+            }
+            else
+            {
+                _currentRowIndex = -1;
+                _currentRow = null;
+            }
+
+            UpdateScrollBars();
+            UpdateRecordNumber();
+            UpdatePagingControls();
+            Invalidate();
+        }
+
 
         private void SavepictureBox_Click(object sender, EventArgs e)
         {
             try
             {
-           //     MiscFunctions.SendLog("Save Record");
-                SaveCalled?.Invoke(sender, null); // Remove _bindingSource from the event
+                SaveCalled?.Invoke(sender, null);
                 MessageBox.Show(Parent, "Record Saved", "Beep", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -6489,7 +6735,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 MiscFunctions.SendLog("Add New Record");
 
-                if (_bindingSource !=null)
+                if (_bindingSource != null)
                 {
                     CreateNewRecordForBindingSource();
                 }
@@ -6504,13 +6750,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return;
                 }
 
-                // Update UI
                 UpdateRecordNumber();
                 UpdateNavigationButtonState();
-                FillVisibleRows();      // Ensure visible rows reflect the new record
-                UpdateScrollBars();     // Adjust scrollbars if needed
-                Invalidate();           // Redraw the grid
-
+                UpdatePagingControls();
+                FillVisibleRows();
+                UpdateScrollBars();
+                Invalidate();
                 NewRecordCreated?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
@@ -6577,9 +6822,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return;
                 }
 
-                // Update UI (for IList or post-BindingSource event)
                 UpdateRecordNumber();
                 UpdateNavigationButtonState();
+                UpdatePagingControls();
 
                 if (_fullData.Any())
                 {
@@ -6619,10 +6864,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MiscFunctions.SendLog("Next Record");
                 MoveNextRow();
 
-                // Update UI
                 UpdateRecordNumber();
                 UpdateNavigationButtonState();
-
+                UpdatePagingControls();
                 FillVisibleRows();
                 UpdateScrollBars();
                 Invalidate();
@@ -6640,10 +6884,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MiscFunctions.SendLog("Previous Record");
                 MovePreviousRow();
 
-                // Update UI
                 UpdateRecordNumber();
                 UpdateNavigationButtonState();
-
+                UpdatePagingControls();
                 FillVisibleRows();
                 UpdateScrollBars();
                 Invalidate();
@@ -6660,7 +6903,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (MessageBox.Show(Parent, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
                 {
-                    // Reset the current row to its original state
                     if (_currentRow != null)
                     {
                         int dataIndex = _currentRow.DisplayIndex;
@@ -6669,7 +6911,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                             var wrapper = _fullData[dataIndex] as DataRowWrapper;
                             if (wrapper != null)
                             {
-                                // Reset the row’s cells to their original values
                                 foreach (var cell in _currentRow.Cells)
                                 {
                                     var col = Columns[cell.ColumnIndex];
@@ -6687,16 +6928,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 wrapper.DateTimeChange = DateTime.Now;
                                 _currentRow.IsDirty = false;
 
-                                // Ensure tracking for the reset item
                                 EnsureTrackingForItem(wrapper);
                             }
                         }
                     }
 
-                    // Update UI
                     UpdateRecordNumber();
                     UpdateNavigationButtonState();
-
+                    UpdatePagingControls();
                     FillVisibleRows();
                     UpdateScrollBars();
                     Invalidate();
@@ -6712,20 +6951,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             EditCalled?.Invoke(sender, EventArgs.Empty);
         }
+
         private void FindpictureBox_Click(object sender, EventArgs e)
         {
             ShowSearch?.Invoke(this, EventArgs.Empty);
         }
+
         private void PrinterpictureBox_Click(object sender, EventArgs e)
         {
             CallPrinter?.Invoke(this, EventArgs.Empty);
         }
+
         private void MessagepictureBox_Click(object sender, EventArgs e)
         {
             SendMessage?.Invoke(this, EventArgs.Empty);
         }
-        #endregion 
+        #endregion
         #region Helper Methods
+
         public BeepColumnConfig GetColumnByName(string columnName)
         {
             // Find index first

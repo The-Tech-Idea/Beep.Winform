@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
         }
         #region "IDM_Addin Implementation"
-        private readonly IBeepService? beepService;
+        protected  IBeepService? beepService;
 
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
         protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;

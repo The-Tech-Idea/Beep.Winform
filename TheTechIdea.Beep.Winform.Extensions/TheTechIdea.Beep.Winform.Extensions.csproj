@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
  	<PropertyGroup>
-		<TargetFrameworks>net8.0</TargetFrameworks>
+		<TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<LangVersion>latest</LangVersion>
@@ -35,8 +35,8 @@
 
 	<ItemGroup>
 	  <PackageReference Include="System.Text.Json" Version="9.0.0" />
-	  <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.42" />
-	  <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.39" />
+	  <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.43" />
+	  <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.40" />
 	</ItemGroup>
 
 	<ItemGroup>

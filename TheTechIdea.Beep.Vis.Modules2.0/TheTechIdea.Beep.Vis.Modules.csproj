@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFrameworks>net8.0</TargetFrameworks>
+	  <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
     <RootNamespace>TheTechIdea.Beep.Vis.Modules</RootNamespace>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>1.0.131</Version>
+    <Version>1.0.132</Version>
     <Authors>The Tech Idea</Authors>
     <Description>Visualization Interfaces used to standarized GUI/UI for Beep Apps</Description>
     <PackageProjectUrl>https://github.com/The-Tech-Idea/BeepEnterprize.winform</PackageProjectUrl>
@@ -43,7 +43,7 @@
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
 	  <PackageReference Include="TheTechIdea.Beep.DataManagementModels">
-	    <Version>2.0.39</Version>
+	    <Version>2.0.40</Version>
 	  </PackageReference>
 	</ItemGroup>
 

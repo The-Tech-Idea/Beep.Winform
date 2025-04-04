@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private IBeepService beepservice;
         public void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
         {
-            SetConfig(pDMEEditor, plogger, putil, args, e, per);
+            
         }
         public override void Configure(Dictionary<string, object> settings)
         {

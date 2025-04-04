@@ -350,7 +350,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         {
             try
             {
-                BeepTreeNode BranchNode = (BeepTreeNode)beepTreeControl.GetBeepTreeNode(Branch.GuidID);
+                BeepTreeNode BranchNode = (BeepTreeNode)beepTreeControl.GetBeepTreeNodeByGuid(Branch.GuidID);
                 SimpleItem branchitem = beepTreeControl.GetNodeByGuidID(Branch.GuidID);
                 SimpleItem parentitem = beepTreeControl.GetNodeByGuidID(Branch.ParentBranch.GuidID);
                 string foldername = CheckifBranchExistinCategory(Branch.BranchText, Branch.BranchClass);
@@ -367,7 +367,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 {
                     Tree.SelectedBranchs.Remove(Branch.BranchID);
                 }
-               if(branchitem!=null)     beepTreeControl.RemoveNode(branchitem.Id);
+                IBranch parentbranch = Branch.ParentBranch;
+                parentbranch.ChildBranchs.Remove(Branch);
+               if (branchitem!=null)     beepTreeControl.RemoveNode(branchitem.Id);
 
                 // Editor.AddLogMessage("Success", "removed node and childs", DateTime.Now, 0, null, Errors.Ok);
             }

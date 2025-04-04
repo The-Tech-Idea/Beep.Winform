@@ -5332,11 +5332,11 @@ namespace TheTechIdea.Beep.Winform.Controls
           //  MiscFunctions.SendLog($"🔄 Saving value: {newValue} (Old: {_editingCell.CellData})");
 
             // 🔹 Check if the new value is empty or null
-            if (newValue == null || string.IsNullOrWhiteSpace(newValue.ToString()))
-            {
-             //   MiscFunctions.SendLog($"⚠️ New value is empty. Skipping update.");
-                return;
-            }
+            //if (newValue == null || string.IsNullOrWhiteSpace(newValue.ToString()))
+            //{
+            // //   MiscFunctions.SendLog($"⚠️ New value is empty. Skipping update.");
+            //    return;
+            //}
 
             // 🔹 Retrieve PropertyType from the corresponding column
             BeepColumnConfig columnConfig = Columns.FirstOrDefault(c => c.Index == _tempcell.ColumnIndex);
@@ -5415,25 +5415,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SaveEditedValue();
                 return;
             }
-            bool wasEditorShown = IsEditorShown;
-            bool hasChanges = false;
-            if (wasEditorShown)
-            {
-                // Close editor first
-              //  SuspendLayout(); // Prevent redraw during closure
-                if (_editingCell != null && _editingCell.IsDirty)
-                {
-                    hasChanges = true; // Mark for update after closure
-                }
+           
               _tempcell=  CloseCurrentEditor();
             //    ResumeLayout(false); // Resume layout without redraw
-
-                // Save data only after editor is fully closed
-                if (hasChanges)
-                {
-                    SaveEditedValue();
-                }
-            }
+            if(_tempcell!=null)                    SaveEditedValue();
+    
             _selectedCell = clickedCell;
             if (_selectedCell != null && _columns != null)
             {
@@ -5450,7 +5436,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         ShowCellEditor(_selectedCell, e.Location);
                     }
                 // Redraw only after new editor is positioned
-                if (wasEditorShown) Invalidate();
+               
             }
         }
         #endregion Editor

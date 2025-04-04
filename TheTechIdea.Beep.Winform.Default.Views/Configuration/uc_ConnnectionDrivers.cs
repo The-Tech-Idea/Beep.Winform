@@ -1,7 +1,7 @@
 ﻿using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
-
+using TheTechIdea.Beep.DriversConfigurations;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
@@ -49,20 +49,38 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
         public  void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
         {
-            SetConfig(pDMEEditor, plogger, putil, args, e, per);
+           
         }
         public override void Configure(Dictionary<string, object> settings)
         {
-           viewModel = new DriversConfigViewModel(beepservice.DMEEditor, beepservice.vis);
-           BeepColumnConfig classhandlers=beepSimpleGrid1.GetColumnByName("ClassHandler");
+            var x = Dependencies.DMEEditor.ConfigEditor.LoadConnectionDriversConfigValues();
+            if (x.Count > 0)
+            {
+                foreach (var item in x)
+                {
+                    if (item is ConnectionDriversConfig)
+                    {
+                        var driver = item;
+                        // check if the driver is already in the list
+                        if (beepservice.Config_editor.DataDriversClasses.Where(x => x.DriverClass == driver.DriverClass).Count() == 0)
+                        {
+                            // add the driver to the list
+                            beepservice.Config_editor.DataDriversClasses.Add(driver);
+                        }
+
+                    }
+                }
+            }
+            viewModel = new DriversConfigViewModel(beepservice.DMEEditor, beepservice.vis);
+            BeepColumnConfig classhandlers = beepSimpleGrid1.GetColumnByName("ClassHandler");
             classhandlers.CellEditor = BeepColumnType.ListOfValue;
-            int idx=0;
+            int idx = 0;
             foreach (var item in viewModel.DBAssemblyClasses)
             {
                 SimpleItem item1 = new SimpleItem();
                 item1.Display = item.className;
                 item1.Value = idx++;
-                item1.Text = item.className;    
+                item1.Text = item.className;
                 item1.Name = item.className;
                 classhandlers.Items.Add(item1);
             }
@@ -77,6 +95,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public override void OnNavigatedTo(Dictionary<string, object> parameters)
         {
             base.OnNavigatedTo(parameters);
+            
             beepSimpleGrid1.DataSource = viewModel.DBWork.Units;
 
 

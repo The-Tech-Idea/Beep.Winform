@@ -445,15 +445,16 @@ namespace TheTechIdea.Beep.Desktop.Common
                 if (view == null)
                 {
                     view = CreateUsingActivator(_routes[routeName]);
-                    if (view != null)
+           
+                }
+                if (view != null)
+                {
+                    view.Dependencies = new Dependencies
                     {
-                        view.Dependencies = new Dependencies
-                        {
-                            DMEEditor = Beepservices.DMEEditor,
-                            ErrorObject = Beepservices.DMEEditor.ErrorObject,
-                            Logger = Beepservices.lg
-                        };
-                    }
+                        DMEEditor = Beepservices.DMEEditor,
+                        ErrorObject = Beepservices.DMEEditor.ErrorObject,
+                        Logger = Beepservices.lg
+                    };
                 }
                 view.Configure(parameters);
                 if (view == null)

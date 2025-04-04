@@ -542,9 +542,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 br.ParentBranchID = ParentBranch.ID;
                 br.ParentGuidID = ParentBranch.GuidID;
                 SimpleItem item = ControlExtensions.CreateNode(this, id, br);
+                item.GuidId = br.GuidID;
+                item.ContainerGuidID = br.GuidID;
                 item.IsDrawn = false;
-                //n.ContextMenuStrip = 
-                br.GuidID = item.GuidId;
+
                // Console.WriteLine(br.BranchText);
                 DynamicMenuManager.CreateMenuMethods(DMEEditor, br);
                 if (br.ObjectType != null && br.BranchClass != null)
@@ -622,7 +623,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         {
             int id = SeqID;
             SimpleItem item = ControlExtensions.CreateNode(this, id, br);
-            br.GuidID = item.GuidId;
+            item.GuidId = br.GuidID;
+            item.ContainerGuidID = br.GuidID;
             //n.ContextMenuStrip = 
            // Console.WriteLine(br.BranchText);
             DynamicMenuManager.CreateMenuMethods(DMEEditor, br);

@@ -910,7 +910,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             // Measure and scale the font to fit within the control bounds
 
-
             Size textSize = TextRenderer.MeasureText(Text, _textFont);
             Size imageSize = beepImage?.HasImage == true ? beepImage.GetImageSize() : Size.Empty;
 
@@ -924,14 +923,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Width * scaleFactor),
                     (int)(imageSize.Height * scaleFactor));
             }
-
+            // Use a large enough virtual container for layout testing
+            //  Rectangle virtualContent = new Rectangle(0, 0, 1000, 1000);
             Rectangle textRect, imageRect;
             CalculateLayout(DrawingRect, imageSize, textSize, out imageRect, out textRect);
             // Clip text rectangle to control bounds to prevent overflow
             //  textRect.Intersect(DrawingRect);
             // Calculate the total width and height required for text and image with padding
-            int width = Math.Max(textRect.Right, imageRect.Right) + Padding.Left + Padding.Right;
-            int height = Math.Max(textRect.Bottom, imageRect.Bottom) + Padding.Top + Padding.Bottom;
+            // Calculate bounding size (not offset-based!)
+            Rectangle bounds = Rectangle.Union(imageRect, textRect);
+            int width = bounds.Width + Padding.Left + Padding.Right;
+            int height = bounds.Height + Padding.Top + Padding.Bottom;
 
             return new Size(width, height);
             //  }

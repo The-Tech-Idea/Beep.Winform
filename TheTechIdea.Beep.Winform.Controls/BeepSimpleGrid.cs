@@ -27,6 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region Properties
         #region Fields
+        private string _titleimagestring = "simpleinfoapps.svg";
         private BeepCheckBoxBool _selectAllCheckBox;
         private bool _deferRedraw = false;
         private Dictionary<int, int> _rowHeights = new Dictionary<int, int>(); // Key: DisplayIndex, Value: Height
@@ -37,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private BeepTextBox filterTextBox;
         private BeepComboBox filterColumnComboBox;
-        protected int headerPanelHeight = 20;
+        protected int headerPanelHeight = 30;
         protected int bottomagregationPanelHeight = 20;
         protected int footerPanelHeight = 12;
         protected int navigatorPanelHeight = 20;
@@ -50,6 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Rectangle filterButtonRect;
         private BeepLabel titleLabel;
         private BeepButton filterButton;
+        private BeepLabel percentageLabel; // New label for percentage (e.g., "36%")
         private int visibleHeight;
         private int visibleRowCount;
         private int bottomPanelY;
@@ -162,6 +164,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (titleLabel != null)
                 {
                     titleLabel.TextFont = _textFont;
+                }
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        [Description("Select the Header image file (SVG, PNG, JPG, etc.) to load.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public string TitleHeaderImage
+        {
+            get => _titleimagestring ?? "simpleinfoapps.svg";
+            set
+            {
+                _titleimagestring = value;
+                if (titleLabel != null)
+                {
+                    titleLabel.ImagePath = _titleimagestring;
                 }
                 Invalidate();
             }
@@ -524,12 +544,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         public GridDataSourceType DataSourceType { get; set; } = GridDataSourceType.Fixed;
-        private string _title = "BeepSimpleGrid Title";
-        public string Title
-        {
-            get => _title;
-            set => _title = value;
-        }
+      
 
         // Scrollbar Properties
         private int _scrollTargetVertical; // Target scroll position (vertical)
@@ -679,6 +694,39 @@ namespace TheTechIdea.Beep.Winform.Controls
             OnSelectedRowsChanged();
         }
         #endregion "Checkboxes and Selections"
+        private string _badgeText = "18";
+        [Browsable(true)]
+        [Category("Appearance")]
+        public string BadgeText
+        {
+            get => _badgeText;
+            set
+            {
+                _badgeText = value;
+                if (titleLabel != null)
+                {
+                    titleLabel.BadgeText = value;
+                }
+                Invalidate();
+            }
+        }
+
+        private string _percentageText = "36%";
+        [Browsable(true)]
+        [Category("Appearance")]
+        public string PercentageText
+        {
+            get => _percentageText;
+            set
+            {
+                _percentageText = value;
+                if (percentageLabel != null)
+                {
+                    percentageLabel.Text = value;
+                }
+                Invalidate();
+            }
+        }
         #endregion "Properties"
         #region Constructor
         public BeepSimpleGrid():base()
@@ -695,9 +743,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isInitializing = true;
             this.PreviewKeyDown += BeepGrid_PreviewKeyDown;
 
-            this.KeyDown += BeepSimpleGrid_KeyDown; 
-         
+            this.KeyDown += BeepSimpleGrid_KeyDown;
 
+            _scrollTimer = new Timer { Interval = 16 }; // ~60 FPS for smooth animation
+            _scrollTimer.Tick += ScrollTimer_Tick;
+            ApplyThemeToChilds = false;
             Width = 200;
             Height = 200;
             // Attach event handlers for mouse actions
@@ -709,7 +759,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             TabKeyPressed += Tabhandler;
             
             Rows.ListChanged += Rows_ListChanged;
-            ApplyThemeToChilds = false;
+          
             // Initialize scrollbars immediately to ensure they’re never null
             _verticalScrollBar = new BeepScrollBar
             {
@@ -728,6 +778,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Visible = false,
                 IsChild = true
             };
+        
             _horizontalScrollBar.Scroll += HorizontalScrollBar_Scroll;
             Controls.Add(_horizontalScrollBar);
             //DataNavigator = new BeepBindingNavigator
@@ -740,15 +791,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             //};
             //AttachNavigatorEvents();
-            _scrollTimer = new Timer { Interval = 16 }; // ~60 FPS for smooth animation
-            _scrollTimer.Tick += ScrollTimer_Tick;
-            ApplyThemeToChilds = false;
+            
             //Controls.Add(DataNavigator);
 
             titleLabel = new BeepLabel
             {
-                Text = string.IsNullOrEmpty(Title) ? "Beep Grid" : Title,
-                TextAlign = ContentAlignment.MiddleCenter,
+                TextAlign = ContentAlignment.MiddleLeft,
                 Theme = Theme,
                 ImageAlign = ContentAlignment.MiddleLeft,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
@@ -759,8 +807,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false
             };
-            titleLabel.BackColor = _currentTheme?.BackColor ?? Color.White;
-
+            titleLabel.ImagePath = _titleimagestring;
+            // titleLabel.BackColor = _currentTheme?.BackColor ?? Color.White;
+            Controls.Add(titleLabel);
             _verticalScrollBar = new BeepScrollBar
             {
                 ScrollOrientation = Orientation.Vertical,
@@ -787,7 +836,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChild = true,
                 Width = 150,
                 Height = 20,
-                PlaceholderText = "Filter grid..."
+                PlaceholderText = "Filter ......"
             };
             filterTextBox.TextChanged += FilterTextBox_TextChanged;
             Controls.Add(filterTextBox);
@@ -804,7 +853,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(filterColumnComboBox);
             CreateNavigationButtons();
             
-            InitializeRows();
+          
             // Initialize the Select All checkbox
             _selectAllCheckBox = new BeepCheckBoxBool
             {
@@ -819,9 +868,34 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             _selectAllCheckBox.StateChanged += SelectAllCheckBox_StateChanged;
             Controls.Add(_selectAllCheckBox);
-            // Subscribe to the Resize event to handle control resizing
-           
+            //filterButton = new BeepButton
+            //{
+            //    Text = "Filters",
+            //    Theme = Theme,
+            //    IsChild = true,
+            //    Width = 80,
+            //    Height = 24,
+            //    BorderRadius = 12,
+            //    BorderColor = Color.LightGray,
+            //    BackColor = Color.White,
+            //    ForeColor = Color.Black
+            //};
+            //filterButton.MouseClick += FilterButton_Click;
+            //Controls.Add(filterButton);
 
+            percentageLabel = new BeepLabel
+            {
+                Text = _percentageText,
+                Theme = Theme,
+                IsChild = true,
+                AutoSize = true,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ForeColor = Color.Black
+            };
+            Controls.Add(percentageLabel);
+            // Subscribe to the Resize event to handle control resizing
+
+            InitializeRows();
         }
 
         #endregion
@@ -3515,11 +3589,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (_showHeaderPanel)
             {
-                headerPanelHeight = titleLabel?.GetPreferredSize(Size.Empty).Height ?? headerPanelHeight;
+                int ttitleLabelHeight = headerPanelHeight;
+               
+                    ttitleLabelHeight = titleLabel.GetPreferredSize(Size.Empty).Height;
+
+                if(ttitleLabelHeight> headerPanelHeight)
+                {
+                    headerPanelHeight = ttitleLabelHeight;
+
+                }
+               
                 headerPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), headerPanelHeight);
                 DrawHeaderPanel(g, headerPanelRect);
                 topPanelY += headerPanelHeight;
             }
+            else
+            {
+                headerPanelHeight = 0;
+                headerPanelRect = new Rectangle(-100, -100, drawingBounds.Width, headerPanelHeight);
+                DrawHeaderPanel(g, headerPanelRect);
+            }
+
             if (_showColumnHeaders)
             {
                 columnsheaderPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), ColumnHeaderHeight);
@@ -3566,6 +3656,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     button.Invalidate();
                 }
+            }
+            if(ShowHeaderPanel)
+            {
+                titleLabel.Invalidate();
+                filterTextBox.Invalidate();
             }
         }
         private void DrawFilterPanel(Graphics g, Rectangle filterPanelRect)
@@ -4166,16 +4261,43 @@ namespace TheTechIdea.Beep.Winform.Controls
                     g.DrawLine(borderPen, rect.Left, rect.Bottom, rect.Right, rect.Bottom);
                 }
             }
-            titleLabel.TextFont = _textFont;
-            titleLabel.ImageAlign = ContentAlignment.MiddleLeft;
-            titleLabel.TextAlign = ContentAlignment.MiddleCenter;
+            int padding = 10;
+            int titleX = rect.Left + padding;
+            int titleY = rect.Top + (rect.Height - titleLabel.Height) / 2;
+            titleLabel.Location = new Point(titleX, titleY);
+            //titleLabel.Size = new Size(50, titleLabel.Height);
+            // Position the filter text box (search bar)
+            int rightMargin = padding;
+            int filterTextBoxX = rect.Right - filterTextBox.Width - rightMargin;
+            int filterTextBoxY = rect.Top + (rect.Height - filterTextBox.Height) / 2;
+            filterTextBox.Location = new Point(filterTextBoxX, filterTextBoxY);
+          
+            //titleLabel.ImageAlign = ContentAlignment.MiddleLeft;
+    //        titleLabel.TextAlign = ContentAlignment.MiddleLeft;
             titleLabel.TextImageRelation = TextImageRelation.ImageBeforeText;
-            titleLabel.Size = new Size(rect.Width - 2, rect.Height - 2);
-            titleLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
-            titleLabel.BackColor = _currentTheme.BackColor;
-            titleLabel.Text = TitleText;
-            titleLabel.Theme = Theme;
-            titleLabel.DrawToGraphics(g, rect);
+   
+            //titleLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+           // titleLabel.BackColor = _currentTheme.GridBackColor;
+            if (Entity != null && TitleText.Equals("Simple BeepGrid"))
+            {
+                titleLabel.Text = Entity.EntityName;
+            }
+            else
+            {
+                titleLabel.Text = TitleText;
+            }
+         //   titleLabel.MaxImageSize = new Size(30, titleLabel.Height-10);
+            // titleLabel.Theme = Theme;
+             titleLabel.Draw(g, rect);
+            // Position the filter button
+            // Position the percentage label
+            int percentageX = filterTextBoxX - percentageLabel.Width - padding;
+            int percentageY = rect.Top + (rect.Height - percentageLabel.Height) / 2;
+            percentageLabel.Location = new Point(percentageX, percentageY);
+            titleLabel.Location = new Point(titleX, titleY);
+            //int filterButtonX = percentageX - filterButton.Width - padding;
+            //int filterButtonY = rect.Top + (rect.Height - filterButton.Height) / 2;
+            //filterButton.Location = new Point(filterButtonX, filterButtonY);
         }
         #endregion
         #region Selection Methods
@@ -4450,7 +4572,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 : null;
             ApplyFilter(filterTextBox.Text, selectedColumn);
         }
-
+        private void FilterButton_Click(object sender, MouseEventArgs e)
+        {
+            ShowFilter = !ShowFilter; // Toggle filter panel visibility
+        }
         private void FilterColumnComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             string selectedColumn = filterColumnComboBox.SelectedItem is SimpleItem item && item.Value != null
@@ -6005,6 +6130,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (titleLabel != null)
             {
                 titleLabel.Theme = Theme;
+                titleLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
+              
             }
             if (DataNavigator != null)
             {

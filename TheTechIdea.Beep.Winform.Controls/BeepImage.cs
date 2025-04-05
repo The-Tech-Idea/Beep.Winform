@@ -6,6 +6,7 @@ using System.Drawing.Text;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Vis.Modules;
 using System.Diagnostics;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 
@@ -647,11 +648,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool retval = false;
             try
             {
+                
                 // Console.WriteLine($"Loading image: {path}");
                 if (IsEmbeddedResource(path))
                 {
                     // Console.WriteLine("Loading from embedded resource 1"); 
                     // Attempt to load from embedded resources
+                    bool isJustFileName = !path.Contains("\\") && !path.Contains("/") && path.Count(c => c == '.') == 1;
+                    if (isJustFileName)
+                    {
+                       string newpath=ImageListHelper.GetImagePathFromName(path);
+                        if (newpath != null)
+                        {
+                            path = newpath;
+                        }
+                    }
                     retval = LoadImageFromEmbeddedResource(path);
                     // Console.WriteLine("Loading from embedded resource 2");
                 }
@@ -716,7 +727,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return true; // Found as an embedded resource
                 }
             }
-
+            // if it's just a file name no path,its an embedded resource 
+            // Check if the path is just a filename (no path separators)
+            // Check if the path is just a filename (no path separators)
+            bool isJustFileName = !path.Contains("\\") && !path.Contains("/")  && path.Count(c => c == '.') == 1;
+            if (isJustFileName)
+            {
+                return true; // It's likely an embedded resource
+            }
             // If it's a valid file path, it's NOT an embedded resource
             if (File.Exists(path) || Directory.Exists(path))
             {

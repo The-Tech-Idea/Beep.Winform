@@ -163,6 +163,7 @@
     <None Remove="GFX\SVG\oracle-logo-3.svg" />
     <None Remove="GFX\SVG\oracle-logo.svg" />
     <None Remove="GFX\SVG\oracle.svg" />
+    <None Remove="GFX\SVG\paperclip.svg" />
     <None Remove="GFX\SVG\pencil.svg" />
     <None Remove="GFX\SVG\personedit.svg" />
     <None Remove="GFX\SVG\personminus.svg" />
@@ -226,6 +227,7 @@
     <EmbeddedResource Include="GFX\SVG\fastforward.svg" />
     <EmbeddedResource Include="GFX\SVG\firstpage.svg" />
     <EmbeddedResource Include="GFX\SVG\lastpage.svg" />
+    <EmbeddedResource Include="GFX\SVG\paperclip.svg" />
     <EmbeddedResource Include="GFX\SVG\signout.svg" />
     <EmbeddedResource Include="GFX\SVG\simpleInfoapps.ico" />
   </ItemGroup>

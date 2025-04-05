@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 headerLabel.ApplyTheme(_currentTheme);
 
                 // Draw the header label within the defined header rectangle
-                headerLabel.DrawToGraphics(e.Graphics, headerRect);
+                headerLabel.Draw(e.Graphics, headerRect);
 
                 // Optionally, draw a border around each row header
                 if (ShowRowHeaderBorders)
@@ -119,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ForeColor = _currentTheme.PrimaryTextColor
                 };
                 columnHeaderLabel.ApplyTheme(_currentTheme);
-                columnHeaderLabel.DrawToGraphics(e.Graphics, columnHeaderRect);
+                columnHeaderLabel.Draw(e.Graphics, columnHeaderRect);
             }
 
             // Draw Row Header Label
@@ -136,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ForeColor = _currentTheme.PrimaryTextColor
                 };
                 rowHeaderLabel.ApplyTheme(_currentTheme);
-                rowHeaderLabel.DrawToGraphics(e.Graphics, rowHeaderRect);
+                rowHeaderLabel.Draw(e.Graphics, rowHeaderRect);
             }
         }
 

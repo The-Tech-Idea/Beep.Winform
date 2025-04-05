@@ -201,7 +201,6 @@
             beepSimpleGrid1.Text = "beepSimpleGrid1";
             beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageAboveText;
             beepSimpleGrid1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
-            beepSimpleGrid1.Title = "BeepSimpleGrid Title";
             beepSimpleGrid1.TitleText = "Simple BeepGrid";
             beepSimpleGrid1.TitleTextFont = new Font("Segoe UI", 9F);
             beepSimpleGrid1.ToolTipText = "";

@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.DisabledBackColor = Color.Gray;
             beepSimpleGrid1.DisabledForeColor = Color.Empty;
             beepSimpleGrid1.Dock = DockStyle.Fill;
-            beepSimpleGrid1.DrawingRect = new Rectangle(1, 1, 1030, 681);
+            beepSimpleGrid1.DrawingRect = new Rectangle(1, 1, 1152, 722);
             beepSimpleGrid1.Easing = Winform.Controls.EasingType.Linear;
             beepSimpleGrid1.EntityName = "ConnectionDriversConfig";
             beepSimpleGrid1.FieldID = null;
@@ -135,6 +135,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.OverrideFontSize = Winform.Controls.TypeStyleFontSize.None;
             beepSimpleGrid1.ParentBackColor = Color.Empty;
             beepSimpleGrid1.ParentControl = null;
+            beepSimpleGrid1.PercentageText = "36%";
             beepSimpleGrid1.PressedBackColor = Color.FromArgb(0, 120, 215);
             beepSimpleGrid1.PressedBorderColor = Color.Gray;
             beepSimpleGrid1.PressedForeColor = Color.Black;
@@ -156,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ShowFilter = false;
             beepSimpleGrid1.ShowFocusIndicator = false;
             beepSimpleGrid1.ShowFooter = false;
-            beepSimpleGrid1.ShowHeaderPanel = false;
+            beepSimpleGrid1.ShowHeaderPanel = true;
             beepSimpleGrid1.ShowHeaderPanelBorder = true;
             beepSimpleGrid1.ShowHorizontalGridLines = true;
             beepSimpleGrid1.ShowHorizontalScrollBar = true;
@@ -171,7 +172,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ShowTopBorder = true;
             beepSimpleGrid1.ShowVerticalGridLines = true;
             beepSimpleGrid1.ShowVerticalScrollBar = true;
-            beepSimpleGrid1.Size = new Size(1032, 683);
+            beepSimpleGrid1.Size = new Size(1154, 724);
             beepSimpleGrid1.SlideFrom = Winform.Controls.SlideDirection.Left;
             beepSimpleGrid1.StaticNotMoving = false;
             beepSimpleGrid1.TabIndex = 0;
@@ -179,13 +180,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.Text = "beepSimpleGrid1";
             beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageAboveText;
             beepSimpleGrid1.Theme = EnumBeepThemes.DefaultTheme;
-            beepSimpleGrid1.Title = "BeepSimpleGrid Title";
+            beepSimpleGrid1.TitleHeaderImage = "H:\\dev\\iconPacks\\4205888-web-design-and-development\\4205888-web-design-and-development\\svg\\013-organigram.svg";
             beepSimpleGrid1.TitleText = "Simple BeepGrid";
             beepSimpleGrid1.TitleTextFont = new Font("Segoe UI", 9F);
             beepSimpleGrid1.ToolTipText = "";
             beepSimpleGrid1.TopoffsetForDrawingRect = 0;
             beepSimpleGrid1.UpdateLog = (Dictionary<DateTime, Editor.EntityUpdateInsertLog>)resources.GetObject("beepSimpleGrid1.UpdateLog");
-            beepSimpleGrid1.UseGradientBackground = false;
+            beepSimpleGrid1.UseGradientBackground = true;
             beepSimpleGrid1.UseThemeFont = true;
             beepSimpleGrid1.XOffset = 0;
             // 
@@ -195,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(beepSimpleGrid1);
             Name = "uc_ConnnectionDrivers";
-            Size = new Size(1032, 683);
+            Size = new Size(1154, 724);
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).EndInit();
             ResumeLayout(false);
         }

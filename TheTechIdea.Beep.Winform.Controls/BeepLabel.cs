@@ -344,43 +344,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-
-            var g = e.Graphics;
-
+            // Do not call base.OnPaint(e);
+            // e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             UpdateDrawingRect();
-            contentRect = DrawingRect;
-            // If you want to ensure at least a 1-pixel margin from the edge:
-            // contentRect.Inflate(-1, -1);
+
             // Draw the image and text
-            // Also apply the label’s own padding
-            // (Padding already might be set to some default; adapt as desired)
+            contentRect = DrawingRect;
 
-            //contentRect.X += Padding.Left;
-            //contentRect.Y += Padding.Top;
-            //contentRect.Width -= (Padding.Left + Padding.Right);
-            //contentRect.Height -= (Padding.Top + Padding.Bottom);
-
-            // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
-            //  DrawBackColor(e, _currentTheme.LabelBackColor, _currentTheme.ButtonHoverBackColor);
-            DrawToGraphics(e.Graphics);
-        }
-        private void DrawToGraphics(Graphics g)
-        {
-            // contentRect.Inflate(-Padding.Horizontal / 2, -Padding.Vertical / 2);
-            DrawToGraphics(g, contentRect);
-        }
-        public void DrawToGraphics(Graphics g, Rectangle drawrect)
-        {    // Adjust contentRect for padding
-
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-            //drawrect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
-            // contentRect.Inflate(-Padding.Left - Padding.Right, -Padding.Top - Padding.Bottom);
-            //if (!SetFont())
-            //{
+            // if (!SetFont())
+            // {
             //    TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-            //};
+            //  };
+            //   DrawBackColor(e, BackColor, _currentTheme.ButtonHoverBackColor);
+            DrawImageAndText(e.Graphics);
+        }
+        private void DrawImageAndText(Graphics g)
+        {
+            //// Console.WriteLine($"User ThemeFont is {UseThemeFont}");
+            if (!SetFont() && UseThemeFont)
+            {
+                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            }
+            ;
             // Measure and scale the font to fit within the control bounds
             Font scaledFont = _textFont;// GetScaledFont(g, Text, contentRect.Value, TextFont);
             if (UseScaledFont)
@@ -399,35 +384,58 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Width * scaleFactor),
                     (int)(imageSize.Height * scaleFactor));
             }
-
             Size textSize = TextRenderer.MeasureText(Text, scaledFont);
-
             // Calculate the layout of image and text
             Rectangle imageRect, textRect;
-            CalculateLayout(drawrect, imageSize, textSize, out imageRect, out textRect);
+            CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
             //Console.WriteLine("Drawing ImagePath 1");
             // Draw the image if available
             if (beepImage != null && beepImage.HasImage)
             {
+                if (beepImage.Size.Width > this.Size.Width || beepImage.Size.Height > this.Size.Height)
+                {
+                    imageSize = this.Size;
+                }
                 beepImage.MaximumSize = imageSize;
                 beepImage.Size = imageRect.Size;
-                //// Console.WriteLine("Label show ImagePath");
                 beepImage.DrawImage(g, imageRect);
-                // place beepimage in the same place imagerect is
-                //beepImage.Location = imageRect.Location;
+                //if (beepImageHitTest == null)
+                //{
+                //    beepImageHitTest = new ControlHitTest(imageRect, Point.Empty)
+                //    {
+                //        Name = "BeepImageRect",
+                //        ActionName = "ImageClicked",
+                //        HitAction = () =>
+                //        {
+                //            // Raise your ImageClicked event
+                //            var ev = new BeepEventDataArgs("ImageClicked", this);
+                //            ImageClicked?.Invoke(this, ev);
+                //        }
+                //    };
+
+                //}
+                //else
+                //{
+                //    beepImageHitTest.TargetRect = imageRect;
+                //}
+
+                //AddHitTest(beepImageHitTest);
             }
-
-
-            // Draw the text
-            if (!string.IsNullOrEmpty(Text))
+            if (!string.IsNullOrEmpty(Text) && !HideText)
             {
-                Color textColor = IsHovered ? _currentTheme.HoverLinkColor : ForeColor;
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-                TextRenderer.DrawText(g, Text, scaledFont, textRect, textColor, flags);
+                TextRenderer.DrawText(g, Text, scaledFont, textRect, ForeColor, flags);
             }
-            DrawBadge(g);
+            if (BadgeText != null)
+            {
+                DrawBadge(g);
+            }
+
             //}
         }
+       
+
+       
         #endregion "Painting"
         #region "Theme"
         public override void ApplyTheme()
@@ -490,8 +498,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Dynamically calculate the preferred size based on text and image sizes
         public override Size GetPreferredSize(Size proposedSize)
         {
-            //if (AutoSize)
-            //{
+            if (!SetFont() && UseThemeFont)
+            {
+                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            }
+             ;
+            // Measure and scale the font to fit within the control bounds
 
             Size textSize = TextRenderer.MeasureText(Text, _textFont);
             Size imageSize = beepImage?.HasImage == true ? beepImage.GetImageSize() : Size.Empty;
@@ -506,60 +518,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Width * scaleFactor),
                     (int)(imageSize.Height * scaleFactor));
             }
-
+            // Use a large enough virtual container for layout testing
+            //  Rectangle virtualContent = new Rectangle(0, 0, 1000, 1000);
             Rectangle textRect, imageRect;
             CalculateLayout(DrawingRect, imageSize, textSize, out imageRect, out textRect);
             // Clip text rectangle to control bounds to prevent overflow
             //  textRect.Intersect(DrawingRect);
             // Calculate the total width and height required for text and image with padding
-            int width = Math.Max(textRect.Right, imageRect.Right) + Padding.Left + Padding.Right;
-            int height = Math.Max(textRect.Bottom, imageRect.Bottom) + Padding.Top + Padding.Bottom;
+            // Calculate bounding size (not offset-based!)
+            Rectangle bounds = Rectangle.Union(imageRect, textRect);
+            int width = bounds.Width + Padding.Left + Padding.Right;
+            int height = bounds.Height + Padding.Top + Padding.Bottom;
 
             return new Size(width, height);
             //  }
 
             // Return the control's current size if AutoSize is disabled
             //return base.Value;
-        }
-        public TextFormatFlags GetTextFormatFlags(ContentAlignment alignment)
-        {
-            TextFormatFlags flags = TextFormatFlags.WordBreak
-                                    | TextFormatFlags.PreserveGraphicsClipping
-                                    | TextFormatFlags.NoPrefix
-                                    | TextFormatFlags.NoPadding;
-
-            switch (alignment)
-            {
-                case ContentAlignment.TopLeft:
-                    flags |= TextFormatFlags.Left | TextFormatFlags.Top;
-                    break;
-                case ContentAlignment.TopCenter:
-                    flags |= TextFormatFlags.HorizontalCenter | TextFormatFlags.Top;
-                    break;
-                case ContentAlignment.TopRight:
-                    flags |= TextFormatFlags.Right | TextFormatFlags.Top;
-                    break;
-                case ContentAlignment.MiddleLeft:
-                    flags |= TextFormatFlags.Left | TextFormatFlags.VerticalCenter;
-                    break;
-                case ContentAlignment.MiddleCenter:
-                    flags |= TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter;
-                    break;
-                case ContentAlignment.MiddleRight:
-                    flags |= TextFormatFlags.Right | TextFormatFlags.VerticalCenter;
-                    break;
-                case ContentAlignment.BottomLeft:
-                    flags |= TextFormatFlags.Left | TextFormatFlags.Bottom;
-                    break;
-                case ContentAlignment.BottomCenter:
-                    flags |= TextFormatFlags.HorizontalCenter | TextFormatFlags.Bottom;
-                    break;
-                case ContentAlignment.BottomRight:
-                    flags |= TextFormatFlags.Right | TextFormatFlags.Bottom;
-                    break;
-            }
-
-            return flags;
         }
         private void CalculateLayout(Rectangle contentRect, Size imageSize, Size textSize, out Rectangle imageRect, out Rectangle textRect)
         {
@@ -570,7 +545,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool hasText = !string.IsNullOrEmpty(Text) && !HideText; // Check if text is available and not hidden
 
             // Adjust contentRect for padding
-         //   contentRect.Inflate(-Padding.Horizontal / 2, -Padding.Vertical / 2);
+            contentRect.Inflate(-2, -2);
 
             if (hasImage && !hasText)
             {
@@ -662,6 +637,43 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return new Rectangle(new Point(x, y), size);
         }
+        private TextFormatFlags GetTextFormatFlags(ContentAlignment alignment)
+        {
+            TextFormatFlags flags = TextFormatFlags.SingleLine | TextFormatFlags.PreserveGraphicsClipping;
+
+            switch (alignment)
+            {
+                case ContentAlignment.TopLeft:
+                    flags |= TextFormatFlags.Left | TextFormatFlags.Top;
+                    break;
+                case ContentAlignment.TopCenter:
+                    flags |= TextFormatFlags.HorizontalCenter | TextFormatFlags.Top;
+                    break;
+                case ContentAlignment.TopRight:
+                    flags |= TextFormatFlags.Right | TextFormatFlags.Top;
+                    break;
+                case ContentAlignment.MiddleLeft:
+                    flags |= TextFormatFlags.Left | TextFormatFlags.VerticalCenter;
+                    break;
+                case ContentAlignment.MiddleCenter:
+                    flags |= TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter;
+                    break;
+                case ContentAlignment.MiddleRight:
+                    flags |= TextFormatFlags.Right | TextFormatFlags.VerticalCenter;
+                    break;
+                case ContentAlignment.BottomLeft:
+                    flags |= TextFormatFlags.Left | TextFormatFlags.Bottom;
+                    break;
+                case ContentAlignment.BottomCenter:
+                    flags |= TextFormatFlags.HorizontalCenter | TextFormatFlags.Bottom;
+                    break;
+                case ContentAlignment.BottomRight:
+                    flags |= TextFormatFlags.Right | TextFormatFlags.Bottom;
+                    break;
+            }
+
+            return flags;
+        }
         #endregion "Text and Alignment"
         #region "Mouse Events"
         protected override void OnMouseHover(EventArgs e)
@@ -701,7 +713,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-            DrawToGraphics(graphics,rectangle);
+            contentRect = rectangle;
+            DrawImageAndText(graphics);
         }
 
         #endregion "IBeep UI Component Implementation"

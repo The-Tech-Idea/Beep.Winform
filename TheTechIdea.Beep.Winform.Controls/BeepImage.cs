@@ -436,13 +436,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 fillColor = _currentTheme.ButtonHoverForeColor;
             }
 
-            //   Debug.WriteLine("Applying Theme to SVG Elements:");
+            //  MiscFunctions.SendLog("Applying Theme to SVG Elements:");
 
             foreach (var element in svgDocument.Descendants())
             {
                 if (element is SvgVisualElement visualElement)
                 {
-                    //      Debug.WriteLine($"Before: {element.GetType().Name}, Fill: {visualElement.Fill}, Stroke: {visualElement.Stroke}");
+                    //     MiscFunctions.SendLog($"Before: {element.GetType().Name}, Fill: {visualElement.Fill}, Stroke: {visualElement.Stroke}");
 
                     // Store original colors
                     tmpfillcolor = visualElement.Fill;
@@ -452,7 +452,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     visualElement.Fill = fillColor != Color.Empty ? new SvgColourServer(fillColor) : SvgPaintServer.None;
                     visualElement.Stroke = strokeColor != Color.Empty ? new SvgColourServer(strokeColor) : SvgPaintServer.None;
 
-                    //    Debug.WriteLine($"After: {element.GetType().Name}, Fill: {visualElement.Fill}, Stroke: {visualElement.Stroke}");
+                    //   MiscFunctions.SendLog($"After: {element.GetType().Name}, Fill: {visualElement.Fill}, Stroke: {visualElement.Stroke}");
                 }
 
                 // Fix SvgText-specific attributes
@@ -511,10 +511,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void Draw(Graphics g, Rectangle destRect, Rectangle drawRect)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
+  
             var originalTransform = g.Transform;
             try
             {
@@ -565,9 +562,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void DrawImage(Graphics g, Rectangle imageRect)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
             // Save the current transformation state
             var originalTransform = g.Transform;
 
@@ -622,9 +617,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnPaint(e);
             DrawingRect.Inflate(-1, -1); // Adjust for border thickness
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-            e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
             // Fill the background with BackColor
 
             // Use spin functionality if enabled
@@ -978,11 +971,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Designer Support"
         #region Event Handlers for Hover and Pressed State
-        //protected override void OnParentChanged(EventArgs e)
-        //{
-        //    base.OnParentChanged(e);
-        //    Invalidate(); // Force redraw when parent changes
-        //}
+        protected override void OnParentChanged(EventArgs e)
+        {
+            base.OnParentChanged(e);
+            Invalidate(); // Force redraw when parent changes
+        }
 
         protected override void OnVisibleChanged(EventArgs e)
         {

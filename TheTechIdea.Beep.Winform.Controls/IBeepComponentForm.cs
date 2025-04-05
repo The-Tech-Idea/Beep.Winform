@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void AddComponent(IBeepUIComponent component)
         {
-           // Debug.WriteLine($"🔄 Adding component {component.GetType().Name} to popup.");
+           //MiscFunctions.SendLog($"🔄 Adding component {component.GetType().Name} to popup.");
             Component = component;
             Control ctl = (Control)component;
 
@@ -35,11 +35,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 component.Form = this;
               
                 ctl.Dock = DockStyle.Fill;
-              //  Debug.WriteLine($"✅ Component added: {ctl.Name}");
+              // MiscFunctions.SendLog($"✅ Component added: {ctl.Name}");
             }
             else
             {
-              //  Debug.WriteLine($"⚠️ Component already exists in popup: {ctl.Name}");
+              // MiscFunctions.SendLog($"⚠️ Component already exists in popup: {ctl.Name}");
             }
         }
        
@@ -261,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public object GetValue()
         {
-          //  Debug.WriteLine($"Getting Value from BeepTextBox in Beepiform");
+          // MiscFunctions.SendLog($"Getting Value from BeepTextBox in Beepiform");
             return Component?.GetValue();
         }
 
@@ -272,7 +272,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
-             //   Debug.WriteLine($"⚠️ BeeIForm lost focus. Saving: {Value}");
+             //  MiscFunctions.SendLog($"⚠️ BeeIForm lost focus. Saving: {Value}");
       //      Component.SetValue(Value);  // Force saving before closing
             
         }
@@ -294,20 +294,20 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void SetValue(object value)
         {
-           // Debug.WriteLine($"SetValue: {value}");
+           //MiscFunctions.SendLog($"SetValue: {value}");
             Component?.SetValue(value);
             Value = value;
         }
         public new void Show()
         {
-          //  Debug.WriteLine($"🔄 Showing popup. Current editor text: {Component?.GetValue()}");
+          // MiscFunctions.SendLog($"🔄 Showing popup. Current editor text: {Component?.GetValue()}");
             base.Show();
-         //   Debug.WriteLine($"✅ After popup is visible, editor text: {Component?.GetValue()}");
+         //  MiscFunctions.SendLog($"✅ After popup is visible, editor text: {Component?.GetValue()}");
         }
 
         protected override void OnDeactivate(EventArgs e)
         {
-          //  Debug.WriteLine($"⚠️ Popup lost focus. Current text: {Component?.GetValue()}");
+          // MiscFunctions.SendLog($"⚠️ Popup lost focus. Current text: {Component?.GetValue()}");
             base.OnDeactivate(e);
         }
 

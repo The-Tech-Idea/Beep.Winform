@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             if(isLogOn)
             {
                 Console.WriteLine(message);
-                Debug.WriteLine(message);
+               MiscFunctions.SendLog(message);
             }
           
         }
@@ -124,17 +124,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 {
                     // Set the "Theme" property on the control
                     themeProperty.SetValue(control, theme);
-                //    Debug.WriteLine($"Theme property set on control: {control.Name}");
+                //   MiscFunctions.SendLog($"Theme property set on control: {control.Name}");
                     return; // Exit after setting the property
                 }
 
 
 
-             //   Debug.WriteLine("No 'Theme' property found on the control or its components.");
+             //  MiscFunctions.SendLog("No 'Theme' property found on the control or its components.");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error setting theme property: {ex.Message}");
+               MiscFunctions.SendLog($"Error setting theme property: {ex.Message}");
             }
         }
         public static Dictionary<string, object> ConvertPassedArgsToParameters(IPassedArgs passedArgs)
@@ -462,7 +462,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 {
                     if (Enum.TryParse(targetType, stringValue, true, out object enumResult))
                         return enumResult;
-                    Debug.WriteLine($"ConvertValueToPropertyType: Invalid enum value '{stringValue}' for {targetType}, returning default");
+                   MiscFunctions.SendLog($"ConvertValueToPropertyType: Invalid enum value '{stringValue}' for {targetType}, returning default");
                     return GetDefaultValue(targetType);
                 }
 
@@ -471,17 +471,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             catch (FormatException ex)
             {
-                Debug.WriteLine($"ConvertValueToPropertyType Format Error: TargetType={targetType}, Value='{stringValue}', Error={ex.Message}");
+               MiscFunctions.SendLog($"ConvertValueToPropertyType Format Error: TargetType={targetType}, Value='{stringValue}', Error={ex.Message}");
                 return targetType.IsValueType ? GetDefaultValue(targetType) : null;
             }
             catch (ArgumentException ex)
             {
-                Debug.WriteLine($"ConvertValueToPropertyType Argument Error: TargetType={targetType}, Value='{stringValue}', Error={ex.Message}");
+               MiscFunctions.SendLog($"ConvertValueToPropertyType Argument Error: TargetType={targetType}, Value='{stringValue}', Error={ex.Message}");
                 return targetType.IsValueType ? GetDefaultValue(targetType) : null;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ConvertValueToPropertyType Unexpected Error: TargetType={targetType}, Value='{stringValue}', Error={ex.Message}");
+               MiscFunctions.SendLog($"ConvertValueToPropertyType Unexpected Error: TargetType={targetType}, Value='{stringValue}', Error={ex.Message}");
                 return targetType.IsValueType ? GetDefaultValue(targetType) : null;
             }
         }

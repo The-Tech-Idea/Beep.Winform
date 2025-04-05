@@ -628,14 +628,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             AdjustTextBoxHeight();
             PositionInnerTextBoxAndImage();
-            //_innerTextBox.TextChanged += (s, e) =>
-            //{
-            //    Debug.WriteLine($"📝 BeepTextBox.TextChanged: {_innerTextBox.Text}");
-            //};
+            _innerTextBox.TextChanged += (s, e) =>
+            {
+                _text = _innerTextBox.Text;
+                TextChanged?.Invoke(this, EventArgs.Empty);
+                MiscFunctions.SendLog($"📝 BeepTextBox.TextChanged: {_innerTextBox.Text}");
+            };
 
             //_innerTextBox.GotFocus += (s, e) =>
             //{
-            //    Debug.WriteLine($"🎯 BeepTextBox Got Focus: {_innerTextBox.Text}");
+            //   MiscFunctions.SendLog($"🎯 BeepTextBox Got Focus: {_innerTextBox.Text}");
             //};
         }
 
@@ -715,7 +717,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void BeepTextBox_TextChanged(object sender, EventArgs e)
         {
-         //   Debug.WriteLine($"✅ BeepLabel TextChanged: {base.Text}");
+         //  MiscFunctions.SendLog($"✅ BeepLabel TextChanged: {base.Text}");
           
             _innerTextBox.Text = Text;
             if (_isApplyingMask)
@@ -1513,7 +1515,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     TextRenderer.DrawText(graphics, Text, Font, textRect, ForeColor, flags);
 
                     // Debug output to verify alignment
-                  //  Debug.WriteLine($"Draw: Text='{Text}', Rect={rectangle}, TextRect={textRect}, TextSize={textSize}, Alignment={TextAlignment}");
+                  // MiscFunctions.SendLog($"Draw: Text='{Text}', Rect={rectangle}, TextRect={textRect}, TextSize={textSize}, Alignment={TextAlignment}");
                 }
 
                 graphics.ResetClip();

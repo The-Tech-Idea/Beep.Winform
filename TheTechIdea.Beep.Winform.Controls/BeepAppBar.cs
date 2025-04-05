@@ -114,16 +114,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     if (!string.IsNullOrEmpty(_logoImage))
                     {
-
                         _logo.ImagePath = _logoImage;
                     }
                     else
                     {
-
                         _logo.ImagePath = _logoImage;
                     }
                 }
-
             }
         }
         public bool ShowHamburgerIcon
@@ -222,11 +219,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
      
 
-        private Size _logosize;
+        private Size _logosize=new Size(32,32);
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Set the logo size of the form.")]
-        [DefaultValue("32,32")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public Size LogoSize
         {
@@ -358,19 +354,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _logo = new BeepImage
             {
-                Top = DrawingRect.Top+1,
-                Height = DrawingRect.Height-2,
-                Width = 32,
-                Cursor = Cursors.Hand,
-                Theme = Theme,
-                ApplyThemeOnImage = _applyThemeOnImage,
+                Top = DrawingRect.Top+2,
+               Size=_logosize,
+               BackColor=Color.Black,
+              //  Theme = Theme,
+                ApplyThemeOnImage = false,
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
-                ShowAllBorders = this.ShowAllBorders,
+                ShowAllBorders = true,
                 ShowShadow = false,
                 IsChild = true,
                 Visible = true // Initially hidden
+                
             };
             if (!string.IsNullOrEmpty(_logoImage))
             {

@@ -114,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 {
                     // Set the "Theme" property on the control
                     themeProperty.SetValue(control, theme);
-                    Debug.WriteLine($"Theme property set on control: {control.Name}");
+                   MiscFunctions.SendLog($"Theme property set on control: {control.Name}");
                     return; // Exit after setting the property
                 }
                 // Check if the control has a "Theme" property in its components
@@ -123,14 +123,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 {
                     // Set the "Theme" property on the control's components
                     themePropertyInComponents.SetValue(control, theme);
-                    Debug.WriteLine($"Theme property set on control components: {control.Name}");
+                   MiscFunctions.SendLog($"Theme property set on control components: {control.Name}");
                     return; // Exit after setting the property
                 }
-                Debug.WriteLine("No 'Theme' property found on the control or its components.");
+               MiscFunctions.SendLog("No 'Theme' property found on the control or its components.");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error setting theme property: {ex.Message}");
+               MiscFunctions.SendLog($"Error setting theme property: {ex.Message}");
             }
         }
         public static void SetThemePropertyinControl(Control control, EnumBeepThemes theme, string propertyName)
@@ -147,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 {
                     // Set the "Theme" property on the control
                     themeProperty.SetValue(control, theme);
-                    Debug.WriteLine($"Theme property set on control: {control.Name}");
+                   MiscFunctions.SendLog($"Theme property set on control: {control.Name}");
                     return; // Exit after setting the property
                 }
                 // Check if the control has a "Theme" property in its components
@@ -156,14 +156,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 {
                     // Set the "Theme" property on the control's components
                     themePropertyInComponents.SetValue(control, theme);
-                    Debug.WriteLine($"Theme property set on control components: {control.Name}");
+                   MiscFunctions.SendLog($"Theme property set on control components: {control.Name}");
                     return; // Exit after setting the property
                 }
-                Debug.WriteLine("No 'Theme' property found on the control or its components.");
+               MiscFunctions.SendLog("No 'Theme' property found on the control or its components.");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error setting theme property: {ex.Message}");
+               MiscFunctions.SendLog($"Error setting theme property: {ex.Message}");
             }
         }
 

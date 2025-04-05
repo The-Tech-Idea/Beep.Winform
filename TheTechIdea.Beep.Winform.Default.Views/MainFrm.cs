@@ -1,50 +1,61 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Container.Services;
-
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
-
-using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 namespace TheTechIdea.Beep.Winform.Default.Views
 {
     [AddinAttribute(Caption = "Home", Name = "MainForm", misc = "Main", menu = "Main", addinType = AddinType.Page, displayType = DisplayType.Popup, ObjectType = "Beep")]
-    public partial class MainForm: TemplateForm
+
+    public partial class MainFrm : TemplateForm
     {
-       
+
         private readonly IBeepService? beepService;
 
         public IDMEEditor Editor { get; }
 
+        public MainFrm()
+        {
+            InitializeComponent();
 
-        public MainForm(IBeepService service) : base()
+        }
+        public MainFrm(IBeepService service) : base(service)
         {
             InitializeComponent();
             beepService = service; // serviceProvider.GetService<IBeepService>();
             Dependencies.DMEEditor = beepService.DMEEditor;
-            beepService.vis.Container =beepDisplayContainer1;
-            beepService.vis.Container.ContainerType = ContainerTypeEnum.TabbedPanel ;
-           
-            beepTreeControl1.init(beepService);
-            beepTreeControl1.CreateRootTree();
+            beepService.vis.Container = beepDisplayContainer1;
+            beepService.vis.Container.ContainerType = ContainerTypeEnum.TabbedPanel;
+
+            beepAppTree1.init(beepService);
+            beepAppTree1.CreateRootTree();
             beepAppBar1.ShowBadgeOnNotificationIcon("1");
            
             beepMenuAppBar1.beepServices = beepService;
             beepMenuAppBar1.CreateMenuItems();
+            beepuiManager1.LogoImage = beepService.vis.LogoUrl;
             //   beepSimpleGrid1.DataSource = beepService.Editor.ConfigEditor.DataSourcesClasses;
-            BindingList<SimpleItem> items = new BindingList<SimpleItem>();
-            foreach (var item in Dependencies.DMEEditor.ConfigEditor.DataSourcesClasses)
-            {
-                SimpleItem item1 = new SimpleItem();
-                item1.Display = item.className;
-                item1.Value = item.className;
-                item1.Text = item.className;
-                item1.Name = item.className;
-                items.Add(item1);
-            }
+            //BindingList<SimpleItem> items = new BindingList<SimpleItem>();
+            //foreach (var item in Dependencies.DMEEditor.ConfigEditor.DataSourcesClasses)
+            //{
+            //    SimpleItem item1 = new SimpleItem();
+            //    item1.Display = item.className;
+            //    item1.Value = item.className;
+            //    item1.Text = item.className;
+            //    item1.Name = item.className;
+            //    items.Add(item1);
+            //}
             //        beepChart1.ChartType = ChartType.Bar;
             //        beepChart1.XAxisTitle= "X Axis ..";
             //        beepChart1.YAxisTitle = "Y Axis ..";

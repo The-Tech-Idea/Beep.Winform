@@ -7,6 +7,7 @@ using System.Drawing.Text;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -39,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
      
 
-        private int _headerHeight = 60;
+        private int _headerHeight = 30;
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -326,11 +327,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool isSelected = (SelectedIndex == index);
             // Use a slightly darker shade for the selected tab, otherwise transparent to show the panel color
             Color backgroundColor = isSelected
-                ? ControlPaint.Dark(Parent?.BackColor ?? BackColor, 0.2f) // Slightly darker for selected
+                ? ControlPaint.Dark(_currentTheme?.ButtonBackColor ?? BackColor, 0.2f) // Slightly darker for selected
                 : Color.Transparent; // Let the panel color show through for unselected tabs
             Color textColor = isSelected
-                ? (_currentTheme?.ActiveTabForeColor ?? Color.White) // White text for selected
-                : (_currentTheme?.TabForeColor ?? Color.LightGray); // Light gray for unselected
+                ? (_currentTheme?.ButtonActiveForeColor ?? Color.White) // White text for selected
+                : (_currentTheme?.ButtonForeColor ?? Color.LightGray); // Light gray for unselected
 
             using (GraphicsPath path = GetRoundedRect(tabRect, 4)) // Reduced radius to minimize gaps
             using (SolidBrush brush = new SolidBrush(backgroundColor))
@@ -397,7 +398,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void BeepTabs_MouseClick(object sender, MouseEventArgs e)
         {
-            Debug.WriteLine($"MouseClick in BeepTabs at screen: {e.Location}, client: {PointToClient(Cursor.Position)}");
+           MiscFunctions.SendLog($"MouseClick in BeepTabs at screen: {e.Location}, client: {PointToClient(Cursor.Position)}");
             Console.WriteLine($"MouseClick in BeepTabs at screen: {e.Location}, client: {PointToClient(Cursor.Position)}");
 
             int tabCount = TabCount;
@@ -405,7 +406,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                             // Guard against zero tabs to prevent division by zero
             if (tabCount == 0)
             {
-                Debug.WriteLine("No tabs present, ignoring click.");
+               MiscFunctions.SendLog("No tabs present, ignoring click.");
                 return;
             }
             switch (_headerPosition)
@@ -423,10 +424,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                             Rectangle tabRect = new Rectangle(currentX, yPos, adjustedWidth, HeaderHeight);
                             Rectangle closeRect = GetCloseButtonRect(tabRect, false);
                             string tabText = TabPages[i].Text;
-                            Debug.WriteLine($"Tab {i} rect: {tabRect}, Close rect: {closeRect}");
+                           MiscFunctions.SendLog($"Tab {i} rect: {tabRect}, Close rect: {closeRect}");
                             if (closeRect.Contains(clientPoint))
                             {
-                                Debug.WriteLine($"Close button clicked for tab {i}");
+                               MiscFunctions.SendLog($"Close button clicked for tab {i}");
                                 try { TabPages.RemoveAt(i); } catch (Exception ex) { Console.WriteLine("Error removing tab: " + ex.Message); }
                                 TabRemoved?.Invoke(this, new TabRemovedEventArgs { TabText = tabText });
                                 return;
@@ -434,7 +435,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             if (tabRect.Contains(clientPoint))
                             {
                                 SelectedIndex = i;
-                                Debug.WriteLine($"Tab {i} selected");
+                               MiscFunctions.SendLog($"Tab {i} selected");
                                 return;
                             }
                             currentX += adjustedWidth;
@@ -454,10 +455,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                             Rectangle tabRect = new Rectangle(xPos, currentY, HeaderHeight, adjustedHeight);
                             Rectangle closeRect = GetCloseButtonRect(tabRect, true);
                             string tabText = TabPages[i].Text;
-                            Debug.WriteLine($"Tab {i} rect: {tabRect}, Close rect: {closeRect}");
+                           MiscFunctions.SendLog($"Tab {i} rect: {tabRect}, Close rect: {closeRect}");
                             if (closeRect.Contains(clientPoint))
                             {
-                                Debug.WriteLine($"Close button clicked for tab {i}");
+                               MiscFunctions.SendLog($"Close button clicked for tab {i}");
                                 try { TabPages.RemoveAt(i); } catch (Exception ex) { Console.WriteLine("Error removing tab: " + ex.Message); }
                                 TabRemoved?.Invoke(this, new TabRemovedEventArgs { TabText = tabText });
                                 return;
@@ -465,7 +466,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             if (tabRect.Contains(clientPoint))
                             {
                                 SelectedIndex = i;
-                                Debug.WriteLine($"Tab {i} selected");
+                               MiscFunctions.SendLog($"Tab {i} selected");
                                 return;
                             }
                             currentY += adjustedHeight;
@@ -562,7 +563,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Add to the BeepTabs class
         public  void ReceiveMouseClick(Point clientLocation)
         {
-            Debug.WriteLine($"ReceiveMouseClick in BeepTabs at {clientLocation}");
+           MiscFunctions.SendLog($"ReceiveMouseClick in BeepTabs at {clientLocation}");
             OnMouseClick(new MouseEventArgs(MouseButtons.Left, 1, clientLocation.X, clientLocation.Y, 0));
         }
     }

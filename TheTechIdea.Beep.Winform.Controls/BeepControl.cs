@@ -11,6 +11,7 @@ using System.IO;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Configuration;
 using System.Diagnostics;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -1675,7 +1676,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnMouseDown(MouseEventArgs e)
         {
-         //   Debug.WriteLine($"MouseDown in BeepControl at {e.Location}");
+         //  MiscFunctions.SendLog($"MouseDown in BeepControl at {e.Location}");
             base.OnMouseDown(e);
 
             // Only process hit test if there are items in HitList
@@ -1690,7 +1691,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
-         //   Debug.WriteLine($"MouseUp in BeepControl at {e.Location}");
+         //  MiscFunctions.SendLog($"MouseUp in BeepControl at {e.Location}");
             base.OnMouseUp(e);
             IsPressed = false;
         }
@@ -1699,7 +1700,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseHover(e);
             IsHovered = true;
-          //  Debug.WriteLine("MouseHover in BeepControl");
+          // MiscFunctions.SendLog("MouseHover in BeepControl");
         }
         #endregion "Mouse events"
         #region "Key events"
@@ -2440,7 +2441,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public virtual void ReceiveMouseClick(Point clientLocation)
         {
             // Default implementation does nothing; derived classes can override
-       //    Debug.WriteLine($"ReceiveMouseClick in BeepControl at {clientLocation} (no action taken)");
+       //   MiscFunctions.SendLog($"ReceiveMouseClick in BeepControl at {clientLocation} (no action taken)");
         }
 
         public static void SendMouseClick(BeepControl targetControl, Point screenLocation)
@@ -2448,12 +2449,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (targetControl != null && targetControl.IsAccessible)
             {
                 Point clientPoint = targetControl.PointToClient(screenLocation);
-            //    Debug.WriteLine($"Sending MouseClick to {targetControl.Name} at client coordinates: {clientPoint}");
+            //   MiscFunctions.SendLog($"Sending MouseClick to {targetControl.Name} at client coordinates: {clientPoint}");
                 targetControl.ReceiveMouseClick(clientPoint);
             }
             else
             {
-                Debug.WriteLine($"Cannot send MouseClick: Target control is null or inaccessible");
+               MiscFunctions.SendLog($"Cannot send MouseClick: Target control is null or inaccessible");
             }
         }
         public event EventHandler<ControlHitTestArgs> OnControlHitTest;
@@ -2493,13 +2494,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void HitTest(Point location)
         {
-        //    Debug.WriteLine($"HitTest called at {location}, HitList Count: {HitList.Count}");
+        //   MiscFunctions.SendLog($"HitTest called at {location}, HitList Count: {HitList.Count}");
             foreach (var hitTest in HitList)
             {
                 hitTest.IsHit = hitTest.TargetRect.Contains(location);
                 if (hitTest.IsHit)
                 {
-              //      Debug.WriteLine($"Hit detected at {location} for {hitTest.Name}");
+              //     MiscFunctions.SendLog($"Hit detected at {location} for {hitTest.Name}");
                     OnControlHitTest?.Invoke(this, new ControlHitTestArgs(hitTest));
                     if (hitTest.HitAction != null)
                     {

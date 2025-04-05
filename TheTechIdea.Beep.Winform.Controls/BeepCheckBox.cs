@@ -339,7 +339,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _state = CheckBoxState.Indeterminate;
                 }
             }
-         //   Debug.WriteLine($"State updated to {_state} for CurrentValue: {_currentValue}");
+         //  MiscFunctions.SendLog($"State updated to {_state} for CurrentValue: {_currentValue}");
             Invalidate(); // Redraw without calling OnStateChanged
         }
         #endregion
@@ -432,7 +432,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 textRect,
                 color,
                 TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
-           // Debug.WriteLine($"DrawAlignedText: Text = '{text}', Rect = {textRect}");
+           //MiscFunctions.SendLog($"DrawAlignedText: Text = '{text}', Rect = {textRect}");
         }
         private void DrawCheckMark(Graphics g, Rectangle bounds)
         {
@@ -445,7 +445,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             new PointF(bounds.X + bounds.Width * 3 / 4, bounds.Y + bounds.Height / 4)
                 };
                 g.DrawLines(pen, checkMarkPoints);
-             //   Debug.WriteLine($"DrawCheckMark: Points = [{checkMarkPoints[0]}, {checkMarkPoints[1]}, {checkMarkPoints[2]}]");
+             //  MiscFunctions.SendLog($"DrawCheckMark: Points = [{checkMarkPoints[0]}, {checkMarkPoints[1]}, {checkMarkPoints[2]}]");
             }
         }
         private void DrawIndeterminateMark(Graphics g, Rectangle bounds)
@@ -454,7 +454,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 g.FillRectangle(brush, bounds.X + bounds.Width / 4, bounds.Y + bounds.Height / 4,
                     bounds.Width / 2, bounds.Height / 2);
-             //   Debug.WriteLine("DrawIndeterminateMark: Filled inner rectangle");
+             //  MiscFunctions.SendLog("DrawIndeterminateMark: Filled inner rectangle");
             }
         }
         private void DrawUnChecked(Graphics g, Rectangle bounds)
@@ -462,7 +462,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             using (Pen pen = new Pen(Color.Black, 2))
             {
                 g.DrawRectangle(pen, bounds);
-              //  Debug.WriteLine("DrawUnChecked: Drew outline");
+              // MiscFunctions.SendLog("DrawUnChecked: Drew outline");
             }
         }
         public override Size GetPreferredSize(Size proposedSize)
@@ -508,7 +508,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (value != null)
             {
                 CurrentValue = (T)value;
-              //  Debug.WriteLine($"Setting Value for Checkbox {value.ToString()}");
+              // MiscFunctions.SendLog($"Setting Value for Checkbox {value.ToString()}");
             }
         }
         public override object GetValue()
@@ -611,7 +611,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             StateChanged?.Invoke(this, EventArgs.Empty);
             Invalidate();
-         //   Debug.WriteLine($"OnStateChanged: CurrentValue set to {_currentValue}");
+         //  MiscFunctions.SendLog($"OnStateChanged: CurrentValue set to {_currentValue}");
         }
         public override void ApplyTheme()
         {

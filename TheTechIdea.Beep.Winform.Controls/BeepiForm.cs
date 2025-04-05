@@ -1,11 +1,13 @@
 ﻿
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 using TheTechIdea.Beep.ConfigUtil;
 
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -41,7 +43,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler OnFormShown;
         public event EventHandler<FormClosingEventArgs> PreClose;
 
-
+        // Message filter for global mouse movements
+        private MouseMessageFilter _mouseMessageFilter;
         #endregion "Fields"
         #region "Properties"
         [Browsable(true)]
@@ -330,9 +333,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private bool IsNearEdge(Point location)
         {
-            return location.X >= Width - _resizeMargin || location.Y >= Height - _resizeMargin;
+            bool nearEdge = location.X >= ClientSize.Width - _resizeMargin || location.Y >= ClientSize.Height - _resizeMargin;
+            MiscFunctions.SendLog($"IsNearEdge: Location = {location}, ClientSize = {ClientSize}, _resizeMargin = {_resizeMargin}, NearEdge = {nearEdge}");
+            return nearEdge;
         }
-
         private void HandleResizing()
         {
 
@@ -349,6 +353,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             Point diff = Point.Subtract(Cursor.Position, new Size(dragStartCursorPoint));
             Location = Point.Add(dragStartFormPoint, new Size(diff));
+        }
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            base.OnFormClosed(e);
+            // Remove the message filter when the form closes
+            if (_mouseMessageFilter != null)
+            {
+                Application.RemoveMessageFilter(_mouseMessageFilter);
+                _mouseMessageFilter = null;
+            }
         }
         #endregion
         #region Theme Application
@@ -585,6 +599,60 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();
 
+        #endregion
+        #region Message Filter for Mouse Movements
+        private class MouseMessageFilter : IMessageFilter
+        {
+            private const int WM_MOUSEMOVE = 0x0200;
+            private readonly BeepiForm _form;
+
+            public MouseMessageFilter(BeepiForm form)
+            {
+                _form = form;
+            }
+
+            public bool PreFilterMessage(ref Message m)
+            {
+                if (m.Msg == WM_MOUSEMOVE)
+                {
+                    // Get the mouse position in screen coordinates
+                    Point screenPos = Cursor.Position;
+                    // Check if the mouse is over the form
+                    if (_form.ClientRectangle.Contains(_form.PointToClient(screenPos)))
+                    {
+                        _form.UpdateCursor(screenPos);
+                    }
+                    else
+                    {
+                        // If the mouse is outside the form, reset the cursor
+                        _form.Cursor = Cursors.Default;
+                       MiscFunctions.SendLog($"MouseMessageFilter: Mouse outside form, set cursor to Default, ScreenPos = {screenPos}");
+                    }
+                }
+                return false; // Allow the message to continue to the next filter or control
+            }
+        }
+        // Update cursor based on mouse position (called by the message filter)
+        private void UpdateCursor(Point mousePos)
+        {
+            if (_inpopupmode) return;
+
+            if (!isResizing && !isDragging)
+            {
+                // Convert screen coordinates to client coordinates
+                Point clientPos = PointToClient(mousePos);
+                if (IsNearEdge(clientPos))
+                {
+                    Cursor = Cursors.SizeNWSE;
+                   MiscFunctions.SendLog($"UpdateCursor: Set cursor to SizeNWSE, ClientPos = {clientPos}");
+                }
+                else
+                {
+                    Cursor = Cursors.Default;
+                   MiscFunctions.SendLog($"UpdateCursor: Set cursor to Default, ClientPos = {clientPos}");
+                }
+            }
+        }
         #endregion
     }
 }

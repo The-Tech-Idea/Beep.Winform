@@ -2013,7 +2013,6 @@ namespace TheTechIdea.Beep.Winform.Controls
          
             MiscFunctions.SendLog($"DataSetup Completed: finalData = {finalData?.GetType()}, Entity = {Entity?.EntityName}, Columns Count = {_columns.Count}");
         }
-   
         private object GetCollectionPropertyFromInstance(object instance)
         {
             if (instance == null) return null;
@@ -2400,7 +2399,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 WrapFullData();
             }
             _dataOffset = 0;
-
+            // Ensure originalList is populated with the initial wrapped data
+            if (originalList == null)
+            {
+                originalList = new List<object>();
+            }
+            originalList.Clear();
+            originalList.AddRange(_fullData); // Copy the initial wrapped data to originalList
             // Determine _entityType if not already set (moved from DataSetup for consistency)
             if (_fullData != null && _fullData.Count > 0 && _entityType == null)
             {
@@ -2415,8 +2420,30 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeColumnsAndTracking();
             InitializeRows();
             UpdateScrollBars();
-
+            // fill column in filterColumnComboBox
+            filterColumnComboBox.ListItems.Clear();
+            filterColumnComboBox.ListItems.Add(new SimpleItem { Text = "All Columns", Value = null });
+            foreach (var col in Columns)
+            {
+                if (col.Visible && !col.IsSelectionCheckBox & !col.IsRowNumColumn)
+                    filterColumnComboBox.ListItems.Add(new SimpleItem { Display=  col.ColumnCaption ?? col.ColumnName, Text = col.ColumnName ?? col.ColumnCaption , Value = col.ColumnName });
+            }
             if (DataNavigator != null) DataNavigator.DataSource = _fullData;
+        }
+        private void WrapFullData()
+        {
+            var wrappedData = new List<object>();
+            for (int i = 0; i < _fullData.Count; i++)
+            {
+                var wrapper = new DataRowWrapper(_fullData[i], i)
+                {
+                    TrackingUniqueId = Guid.NewGuid(),
+                    RowState = DataRowState.Unchanged,
+                    DateTimeChange = DateTime.Now
+                };
+                wrappedData.Add(wrapper);
+            }
+            _fullData = wrappedData;
         }
         private void SyncFullDataFromBindingSource()
         {
@@ -2451,21 +2478,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 MiscFunctions.SendLog("SyncFullDataFromBindingSource: No valid items found to set _entityType.");
             }
-        }
-        private void WrapFullData()
-        {
-            var wrappedData = new List<object>();
-            for (int i = 0; i < _fullData.Count; i++)
-            {
-                var wrapper = new DataRowWrapper(_fullData[i], i)
-                {
-                    TrackingUniqueId = Guid.NewGuid(),
-                    RowState = DataRowState.Unchanged,
-                    DateTimeChange = DateTime.Now
-                };
-                wrappedData.Add(wrapper);
-            }
-            _fullData = wrappedData;
         }
         private void InitializeColumnsAndTracking()
         {
@@ -4268,7 +4280,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             //titleLabel.Size = new Size(50, titleLabel.Height);
             // Position the filter text box (search bar)
             int rightMargin = padding;
-            int filterTextBoxX = rect.Right - filterTextBox.Width - rightMargin;
+            //   filterColumnComboBox
+            int ComboBoxfilterTextBoxX = rect.Right - filterColumnComboBox.Width - rightMargin;
+            int ComboBoxfilterTextBoxY = rect.Top + (rect.Height - filterTextBox.Height) / 2;
+            filterColumnComboBox.Location = new Point(ComboBoxfilterTextBoxX, ComboBoxfilterTextBoxY);
+           
+            int filterTextBoxX = filterColumnComboBox.Left - filterTextBox.Width - rightMargin;
             int filterTextBoxY = rect.Top + (rect.Height - filterTextBox.Height) / 2;
             filterTextBox.Location = new Point(filterTextBoxX, filterTextBoxY);
           
@@ -4526,44 +4543,165 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion Aggregation Panel
         #region Filter Panel
+        private List<object> _filteredData; // Add this field to BeepSimpleGrid to store the filtered data
+
+        /// <summary>
+        /// Applies a filter to the grid based on the given text and column name.
+        /// </summary>
+        /// <param name="filterText">The text to filter by.</param>
+        /// <param name="columnName">The name of the column to filter on, or null/empty for a global search.</param>
         private void ApplyFilter(string filterText, string columnName)
         {
-            if (string.IsNullOrWhiteSpace(filterText) || _fullData == null)
+            // Initialize _filteredData if null
+            if (_filteredData == null)
             {
-                FillVisibleRows(); // Reset to full data
-               _bindingSource.DataSource = _fullData;
+                _filteredData = new List<object>();
+            }
+
+            // Handle cases where data is not available
+            if (_fullData == null || !originalList.Any())
+            {
+                MiscFunctions.SendLog("ApplyFilter: Cannot apply filter - _fullData is null or originalList is empty");
+                _filteredData.Clear();
+                _fullData?.Clear(); // Clear _fullData if it exists, but don't reset to originalList
+                _dataOffset = 0;
+                InitializeRows(); // Reinitialize rows to reflect empty state
+                FillVisibleRows();
+                UpdateScrollBars();
+                Invalidate();
+                OnFilterChanged();
                 return;
             }
 
+            // If filter text is empty, reset to original data
+            if (string.IsNullOrWhiteSpace(filterText))
+            {
+                _filteredData.Clear();
+                _filteredData.AddRange(originalList); // Reset to original wrapped data
+                _fullData.Clear();
+                _fullData.AddRange(originalList); // Restore _fullData to the original state
+                _dataOffset = 0; // Reset scroll position
+                InitializeRows(); // Reinitialize rows to match the reset data
+                FillVisibleRows();
+                UpdateScrollBars();
+                Invalidate();
+                OnFilterChanged(); // Notify that the filter has been reset
+                return;
+            }
+
+            // Use _fullData as the source for filtering to apply the filter to the current working data
             filterText = filterText.ToLowerInvariant();
             List<object> filteredData;
 
-            if (string.IsNullOrEmpty(columnName)) // Global search (All Columns)
+            try
             {
-                filteredData = _fullData.Where(item =>
-                    Columns.Where(c => c.Visible).Any(col =>
-                    {
-                        var prop = item.GetType().GetProperty(col.ColumnName);
-                        var value = prop?.GetValue(item)?.ToString()?.ToLowerInvariant();
-                        return value != null && value.Contains(filterText);
-                    })).ToList();
-            }
-            else // Column-specific search
-            {
-                filteredData = _fullData.Where(item =>
+                if (string.IsNullOrEmpty(columnName)) // Global search (All Columns)
                 {
-                    var prop = item.GetType().GetProperty(columnName);
-                    var value = prop?.GetValue(item)?.ToString()?.ToLowerInvariant();
-                    return value != null && value.Contains(filterText);
-                }).ToList();
-            }
+                    filteredData = _fullData.Where(wrapper =>
+                    {
+                        var dataItem = wrapper as DataRowWrapper;
+                        if (dataItem == null || dataItem.OriginalData == null) return false;
 
-            // Update grid with filtered data
-            _dataOffset = 0; // Reset scroll position
-            _bindingSource.DataSource = filteredData;
-            FillVisibleRows();
-            UpdateScrollBars();
-            Invalidate();
+                        var item = dataItem.OriginalData;
+                        return Columns.Where(c => c.Visible).Any(col =>
+                        {
+                            try
+                            {
+                                var prop = item.GetType().GetProperty(col.ColumnName);
+                                if (prop == null) return false; // Property doesn't exist, skip
+                                var value = prop.GetValue(item);
+                                return value != null && value.ToString().ToLowerInvariant().Contains(filterText);
+                            }
+                            catch (Exception ex)
+                            {
+                                MiscFunctions.SendLog($"ApplyFilter (Global): Error accessing property {col.ColumnName} on item {item}: {ex.Message}");
+                                return false;
+                            }
+                        });
+                    }).ToList();
+                }
+                else // Column-specific search
+                {
+                    // Validate columnName
+                    var column = Columns.FirstOrDefault(c => c.ColumnName.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                    if (column == null)
+                    {
+                        MiscFunctions.SendLog($"ApplyFilter: Column '{columnName}' not found, resetting filter");
+                        filteredData = new List<object>(originalList);
+                        _filteredData.Clear();
+                        _filteredData.AddRange(originalList);
+                        _fullData.Clear();
+                        _fullData.AddRange(originalList);
+                    }
+                    else
+                    {
+                        filteredData = _fullData.Where(wrapper =>
+                        {
+                            var dataItem = wrapper as DataRowWrapper;
+                            if (dataItem == null || dataItem.OriginalData == null) return false;
+
+                            var item = dataItem.OriginalData;
+                            try
+                            {
+                                var prop = item.GetType().GetProperty(columnName);
+                                if (prop == null) return false; // Property doesn't exist, skip
+                                var value = prop.GetValue(item);
+                                return value != null && value.ToString().ToLowerInvariant().Contains(filterText);
+                            }
+                            catch (Exception ex)
+                            {
+                                MiscFunctions.SendLog($"ApplyFilter (Column-Specific): Error accessing property {columnName} on item {item}: {ex.Message}");
+                                return false;
+                            }
+                        }).ToList();
+                    }
+                }
+
+                // Update the filtered data and grid state
+                _filteredData.Clear();
+                _filteredData.AddRange(filteredData);
+
+                // Update _fullData to reflect the filtered data (still as DataRowWrapper objects)
+                _fullData.Clear();
+                _fullData.AddRange(filteredData);
+
+                // Reset scroll position
+                _dataOffset = 0;
+
+                // Reinitialize rows to match the new data count
+                InitializeRows();
+                FillVisibleRows();
+                UpdateScrollBars();
+                Invalidate();
+
+                // Notify that the filter has changed
+                OnFilterChanged();
+            }
+            catch (Exception ex)
+            {
+                MiscFunctions.SendLog($"ApplyFilter: Failed to apply filter - {ex.Message}");
+                // Reset to original data on failure
+                _filteredData.Clear();
+                _filteredData.AddRange(originalList);
+                _fullData.Clear();
+                _fullData.AddRange(originalList);
+                _dataOffset = 0;
+                InitializeRows();
+                FillVisibleRows();
+                UpdateScrollBars();
+                Invalidate();
+                OnFilterChanged();
+            }
+        }
+
+        /// <summary>
+        /// Event to notify that the filter has changed.
+        /// </summary>
+        public event EventHandler FilterChanged;
+
+        protected virtual void OnFilterChanged()
+        {
+            FilterChanged?.Invoke(this, EventArgs.Empty);
         }
         private void FilterTextBox_TextChanged(object sender, EventArgs e)
         {
@@ -6130,6 +6268,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (titleLabel != null)
             {
                 titleLabel.Theme = Theme;
+                titleLabel.ForeColor = _currentTheme.TitleForColor;
                 titleLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
               
             }

@@ -258,12 +258,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                
                 if (_theme != value)
                 {
-                  //  Debug.WriteLine($"Started Theme Changed {value.ToString()} - {_theme.ToString()}");
+                  // MiscFunctions.SendLog($"Started Theme Changed {value.ToString()} - {_theme.ToString()}");
                     _theme = value;
                    
                     OnThemeChanged?.Invoke(_theme);
                     ApplyThemeToAllBeepControls(_form);
-                   // Debug.WriteLine($"Finished Theme Changed {value.ToString()} - {_theme.ToString()}");
+                   //MiscFunctions.SendLog($"Finished Theme Changed {value.ToString()} - {_theme.ToString()}");
                 }
             }
         }

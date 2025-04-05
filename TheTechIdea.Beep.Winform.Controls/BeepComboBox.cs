@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Utilities;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 // using TheTechIdea.Beep.Winform.Controls.Models; // if needed
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -79,7 +80,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 OnSelectedItemChanged(_selectedItem); //
             }
         }
-
+        private string _selectedItemText = string.Empty;
+        [Browsable(true)]
+        
+        public string SelectedText
+        {
+            get => _comboTextBox.Text;
+         
+        }
         [Browsable(false)]
         public int SelectedIndex
         {
@@ -340,7 +348,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error in BeepComboBox.Draw: {ex.Message}");
+               MiscFunctions.SendLog($"Error in BeepComboBox.Draw: {ex.Message}");
             }
         }
         public override void SetValue(object value)

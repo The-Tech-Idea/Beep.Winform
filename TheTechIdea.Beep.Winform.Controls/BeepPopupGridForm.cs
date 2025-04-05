@@ -4,6 +4,7 @@ using System.ComponentModel;
 
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -155,14 +156,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine($"SetColumnWidth: Column '{columnName}' not found.");
+               MiscFunctions.SendLog($"SetColumnWidth: Column '{columnName}' not found.");
             }
         }
         public object ShowPopupList(Control triggerControl, object griddata, string keycolumn, string valuecolumn, int keyColumnWidth, int valueColumnWidth)
         {
             if (griddata == null || !(griddata is IList || griddata is IEnumerable))
             {
-                System.Diagnostics.Debug.WriteLine("ShowPopupList: Invalid griddata - must be IList or IEnumerable");
+               MiscFunctions.SendLog("ShowPopupList: Invalid griddata - must be IList or IEnumerable");
                 return null;
             }
             _grid.ShowHeaderPanel = false;

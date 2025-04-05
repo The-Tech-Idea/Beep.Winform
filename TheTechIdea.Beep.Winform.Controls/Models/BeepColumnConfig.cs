@@ -4,6 +4,7 @@ using System.Diagnostics;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Models
@@ -385,11 +386,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
                     {
                         Items.Add(new SimpleItem { Display = item.ToString(), Value = item });
                     }
-                    Debug.WriteLine($"Filled items from enum: {EnumSourceType}, Count: {Items.Count}");
+                   MiscFunctions.SendLog($"Filled items from enum: {EnumSourceType}, Count: {Items.Count}");
                 }
                 else
                 {
-                    Debug.WriteLine($"Invalid or non-enum type: {EnumSourceType}");
+                   MiscFunctions.SendLog($"Invalid or non-enum type: {EnumSourceType}");
                 }
             }
         }
@@ -495,7 +496,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"OnPropertyChanged Error: {ex.Message}");
+               MiscFunctions.SendLog($"OnPropertyChanged Error: {ex.Message}");
             }
         }
         #endregion

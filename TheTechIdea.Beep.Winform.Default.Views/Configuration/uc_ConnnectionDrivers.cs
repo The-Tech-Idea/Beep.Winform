@@ -53,24 +53,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         }
         public override void Configure(Dictionary<string, object> settings)
         {
-            var x = Dependencies.DMEEditor.ConfigEditor.LoadConnectionDriversConfigValues();
-            if (x.Count > 0)
-            {
-                foreach (var item in x)
-                {
-                    if (item is ConnectionDriversConfig)
-                    {
-                        var driver = item;
-                        // check if the driver is already in the list
-                        if (beepservice.Config_editor.DataDriversClasses.Where(x => x.DriverClass == driver.DriverClass).Count() == 0)
-                        {
-                            // add the driver to the list
-                            beepservice.Config_editor.DataDriversClasses.Add(driver);
-                        }
-
-                    }
-                }
-            }
+           
             viewModel = new DriversConfigViewModel(beepservice.DMEEditor, beepservice.vis);
             BeepColumnConfig classhandlers = beepSimpleGrid1.GetColumnByName("ClassHandler");
             classhandlers.CellEditor = BeepColumnType.ListOfValue;

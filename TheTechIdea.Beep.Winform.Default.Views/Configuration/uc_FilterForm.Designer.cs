@@ -33,14 +33,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(uc_FilterForm));
             beepRadioButton1 = new TheTechIdea.Beep.Winform.Controls.BeepRadioButton();
             beepSwitch1 = new TheTechIdea.Beep.Winform.Controls.BeepSwitch();
-            beepTabs1 = new TheTechIdea.Beep.Winform.Controls.BeepTabs();
-            tabPage1 = new TabPage();
-            tabPage2 = new TabPage();
             beepToolStrip1 = new TheTechIdea.Beep.Winform.Controls.BeepToolStrip();
             beepNumericUpDown1 = new TheTechIdea.Beep.Winform.Controls.BeepNumericUpDown();
             beepDatePicker1 = new TheTechIdea.Beep.Winform.Controls.BeepDatePicker();
             monthCalendar1 = new MonthCalendar();
-            beepTabs1.SuspendLayout();
+            beepCard1 = new TheTechIdea.Beep.Winform.Controls.BeepCard();
             SuspendLayout();
             // 
             // beepRadioButton1
@@ -266,48 +263,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSwitch1.TopoffsetForDrawingRect = 0;
             beepSwitch1.UseGradientBackground = false;
             beepSwitch1.UseThemeFont = true;
-            // 
-            // beepTabs1
-            // 
-            beepTabs1.Appearance = TabAppearance.FlatButtons;
-            beepTabs1.Controls.Add(tabPage1);
-            beepTabs1.Controls.Add(tabPage2);
-            beepTabs1.DrawMode = TabDrawMode.OwnerDrawFixed;
-            beepTabs1.ForeColor = Color.FromArgb(0, 0, 0);
-            beepTabs1.HeaderHeight = 60;
-            beepTabs1.HeaderPosition = Winform.Controls.TabHeaderPosition.Top;
-            beepTabs1.ItemSize = new Size(0, 1);
-            beepTabs1.Location = new Point(395, 180);
-            beepTabs1.Name = "beepTabs1";
-            beepTabs1.Padding = new Point(0, 0);
-            beepTabs1.SelectedIndex = 0;
-            beepTabs1.SelectTab = tabPage1;
-            beepTabs1.Size = new Size(370, 288);
-            beepTabs1.SizeMode = TabSizeMode.Fixed;
-            beepTabs1.TabIndex = 2;
-            beepTabs1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
-            // 
-            // tabPage1
-            // 
-            tabPage1.BackColor = Color.FromArgb(245, 245, 245);
-            tabPage1.ForeColor = Color.FromArgb(0, 0, 0);
-            tabPage1.Location = new Point(0, 60);
-            tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(370, 228);
-            tabPage1.TabIndex = 0;
-            tabPage1.Text = "tabPage1";
-            // 
-            // tabPage2
-            // 
-            tabPage2.BackColor = Color.FromArgb(245, 245, 245);
-            tabPage2.ForeColor = Color.FromArgb(0, 0, 0);
-            tabPage2.Location = new Point(0, 60);
-            tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(370, 228);
-            tabPage2.TabIndex = 1;
-            tabPage2.Text = "tabPage2";
             // 
             // beepToolStrip1
             // 
@@ -554,10 +509,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepDatePicker1.CanBePressed = true;
             beepDatePicker1.Category = Utilities.DbFieldCategory.String;
             beepDatePicker1.ComponentName = "beepDatePicker1";
-            beepDatePicker1.Culture = new System.Globalization.CultureInfo("en-US");
+            beepDatePicker1.Culture = new System.Globalization.CultureInfo("en-AE");
             beepDatePicker1.DataContext = null;
             beepDatePicker1.DataSourceProperty = null;
-            beepDatePicker1.DateFormat = "M/d/yyyy";
+            beepDatePicker1.DateFormat = "dd/MM/yyyy";
             beepDatePicker1.DisabledBackColor = Color.Gray;
             beepDatePicker1.DisabledForeColor = Color.Empty;
             beepDatePicker1.DrawingRect = new Rectangle(1, 1, 115, 20);
@@ -616,7 +571,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepDatePicker1.RightoffsetForDrawingRect = 0;
             beepDatePicker1.SavedGuidID = null;
             beepDatePicker1.SavedID = null;
-            beepDatePicker1.SelectedDate = "3/22/2025";
+            beepDatePicker1.SelectedDate = "22/03/2025";
             beepDatePicker1.SelectedDateTime = new DateTime(2025, 3, 22, 0, 0, 0, 0);
             beepDatePicker1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
             beepDatePicker1.ShadowOffset = 0;
@@ -646,20 +601,137 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             monthCalendar1.Name = "monthCalendar1";
             monthCalendar1.TabIndex = 6;
             // 
+            // beepCard1
+            // 
+            beepCard1.ActiveBackColor = Color.Gray;
+            beepCard1.AnimationDuration = 500;
+            beepCard1.AnimationType = Winform.Controls.DisplayAnimationType.None;
+            beepCard1.ApplyThemeToChilds = false;
+            beepCard1.BackColor = Color.FromArgb(210, 180, 140);
+            beepCard1.BadgeBackColor = Color.Red;
+            beepCard1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
+            beepCard1.BadgeForeColor = Color.White;
+            beepCard1.BadgeShape = Winform.Controls.BadgeShape.Circle;
+            beepCard1.BadgeText = "";
+            beepCard1.BlockID = null;
+            beepCard1.BorderColor = Color.Black;
+            beepCard1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            beepCard1.BorderRadius = 3;
+            beepCard1.BorderStyle = BorderStyle.FixedSingle;
+            beepCard1.BorderThickness = 1;
+            beepCard1.BottomoffsetForDrawingRect = 0;
+            beepCard1.BoundProperty = "ParagraphText";
+            beepCard1.ButtonText = "Action";
+            beepCard1.CanBeFocused = true;
+            beepCard1.CanBeHovered = false;
+            beepCard1.CanBePressed = true;
+            beepCard1.Category = Utilities.DbFieldCategory.String;
+            beepCard1.ComponentName = "beepCard1";
+            beepCard1.DataContext = null;
+            beepCard1.DataSourceProperty = null;
+            beepCard1.DisabledBackColor = Color.Gray;
+            beepCard1.DisabledForeColor = Color.Empty;
+            beepCard1.DrawingRect = new Rectangle(11, 11, 378, 278);
+            beepCard1.Easing = Winform.Controls.EasingType.Linear;
+            beepCard1.FieldID = null;
+            beepCard1.FocusBackColor = Color.Gray;
+            beepCard1.FocusBorderColor = Color.Gray;
+            beepCard1.FocusForeColor = Color.Black;
+            beepCard1.FocusIndicatorColor = Color.Blue;
+            beepCard1.Form = null;
+            beepCard1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
+            beepCard1.GradientEndColor = Color.Gray;
+            beepCard1.GradientStartColor = Color.Gray;
+            beepCard1.GuidID = "182deead-7099-48e0-bbbd-e6d504a20912";
+            beepCard1.HeaderAlignment = ContentAlignment.TopLeft;
+            beepCard1.HeaderText = "Card Title";
+            beepCard1.HoverBackColor = Color.Gray;
+            beepCard1.HoverBorderColor = Color.Gray;
+            beepCard1.HoveredBackcolor = Color.Wheat;
+            beepCard1.HoverForeColor = Color.Black;
+            beepCard1.Id = -1;
+            beepCard1.ImageAlignment = ContentAlignment.TopRight;
+            beepCard1.ImagePath = "H:\\dev\\iconPacks\\4205888-web-design-and-development\\4205888-web-design-and-development\\svg\\020-add.svg";
+            beepCard1.InactiveBackColor = Color.Gray;
+            beepCard1.InactiveBorderColor = Color.Gray;
+            beepCard1.InactiveForeColor = Color.Black;
+            beepCard1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepCard1.Info");
+            beepCard1.IsAcceptButton = false;
+            beepCard1.IsBorderAffectedByTheme = true;
+            beepCard1.IsCancelButton = false;
+            beepCard1.IsChild = false;
+            beepCard1.IsCustomeBorder = false;
+            beepCard1.IsDefault = false;
+            beepCard1.IsDeleted = false;
+            beepCard1.IsDirty = false;
+            beepCard1.IsEditable = false;
+            beepCard1.IsFocused = false;
+            beepCard1.IsFrameless = false;
+            beepCard1.IsHovered = false;
+            beepCard1.IsNew = false;
+            beepCard1.IsPressed = false;
+            beepCard1.IsReadOnly = false;
+            beepCard1.IsRequired = false;
+            beepCard1.IsRounded = true;
+            beepCard1.IsRoundedAffectedByTheme = true;
+            beepCard1.IsSelected = false;
+            beepCard1.IsShadowAffectedByTheme = true;
+            beepCard1.IsVisible = false;
+            beepCard1.Items = (List<object>)resources.GetObject("beepCard1.Items");
+            beepCard1.LeftoffsetForDrawingRect = 0;
+            beepCard1.LinkedProperty = null;
+            beepCard1.Location = new Point(429, 275);
+            beepCard1.MaxImageSize = 64;
+            beepCard1.Name = "beepCard1";
+            beepCard1.OverrideFontSize = Winform.Controls.TypeStyleFontSize.None;
+            beepCard1.Padding = new Padding(10);
+            beepCard1.ParagraphText = "Card Description";
+            beepCard1.ParentBackColor = Color.Empty;
+            beepCard1.ParentControl = null;
+            beepCard1.PressedBackColor = Color.Gray;
+            beepCard1.PressedBorderColor = Color.Gray;
+            beepCard1.PressedForeColor = Color.Black;
+            beepCard1.RightoffsetForDrawingRect = 0;
+            beepCard1.SavedGuidID = null;
+            beepCard1.SavedID = null;
+            beepCard1.ShadowColor = Color.Black;
+            beepCard1.ShadowOffset = 0;
+            beepCard1.ShadowOpacity = 0.5F;
+            beepCard1.ShowAllBorders = true;
+            beepCard1.ShowBottomBorder = true;
+            beepCard1.ShowButton = true;
+            beepCard1.ShowFocusIndicator = false;
+            beepCard1.ShowLeftBorder = true;
+            beepCard1.ShowRightBorder = true;
+            beepCard1.ShowShadow = false;
+            beepCard1.ShowTopBorder = true;
+            beepCard1.Size = new Size(400, 300);
+            beepCard1.SlideFrom = Winform.Controls.SlideDirection.Left;
+            beepCard1.StaticNotMoving = false;
+            beepCard1.TabIndex = 7;
+            beepCard1.TempBackColor = Color.Empty;
+            beepCard1.Text = "beepCard1";
+            beepCard1.TextAlignment = ContentAlignment.TopLeft;
+            beepCard1.Theme = Vis.Modules.EnumBeepThemes.RusticTheme;
+            beepCard1.ToolTipText = "";
+            beepCard1.TopoffsetForDrawingRect = 0;
+            beepCard1.UseGradientBackground = false;
+            beepCard1.UseThemeFont = true;
+            beepCard1.ViewMode = Winform.Controls.CardViewMode.ImageLeft;
+            // 
             // uc_FilterForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(beepCard1);
             Controls.Add(monthCalendar1);
             Controls.Add(beepDatePicker1);
             Controls.Add(beepNumericUpDown1);
             Controls.Add(beepToolStrip1);
-            Controls.Add(beepTabs1);
             Controls.Add(beepSwitch1);
             Controls.Add(beepRadioButton1);
             Name = "uc_FilterForm";
-            Size = new Size(869, 579);
-            beepTabs1.ResumeLayout(false);
+            Size = new Size(1044, 738);
             ResumeLayout(false);
         }
 
@@ -667,12 +739,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
         private Controls.BeepRadioButton beepRadioButton1;
         private Controls.BeepSwitch beepSwitch1;
-        private Controls.BeepTabs beepTabs1;
-        private TabPage tabPage1;
-        private TabPage tabPage2;
         private Controls.BeepToolStrip beepToolStrip1;
         private Controls.BeepNumericUpDown beepNumericUpDown1;
         private Controls.BeepDatePicker beepDatePicker1;
         private MonthCalendar monthCalendar1;
+        private Controls.BeepCard beepCard1;
     }
 }

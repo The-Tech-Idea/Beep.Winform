@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected int headerPanelHeight = 30;
         protected int bottomagregationPanelHeight = 20;
         protected int footerPanelHeight = 12;
-        protected int navigatorPanelHeight = 20;
+        protected int navigatorPanelHeight = 30;
         private int _stickyWidth = 0; // Cache sticky column width
         private Rectangle footerPanelRect;
         private Rectangle headerPanelRect;
@@ -3213,7 +3213,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void UpdateCellControl(IBeepUIComponent control, BeepColumnConfig column,BeepCellConfig cell, object value)
         {
             if (control == null) return;
-            BeepRowConfig row = Rows[cell.RowIndex];
+    //        BeepRowConfig row = Rows[cell.RowIndex];
             if (value == null)
             {
                 switch (control)
@@ -4051,10 +4051,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             // the editor control remains visible.
             //  if (_selectedCell == cell && !_columns[_selectedCell.ColumnIndex].ReadOnly) return;
             Rectangle TargetRect = cellRect;
+            BeepColumnConfig column ;
+       
             cell.Rect = TargetRect;
-
-            BeepColumnConfig column = Columns[cell.ColumnIndex];
-            BeepRowConfig row = Rows[cell.RowIndex];
+            if (cell.IsAggregation)
+            {
+                column = Columns[cell.ColumnIndex];
+                
+            }
+            else
+            {
+                 column = Columns[cell.ColumnIndex];
+                 
+            }
+        
             using (var cellBrush = new SolidBrush(backcolor))
             {
                 g.FillRectangle(cellBrush, TargetRect);
@@ -6265,12 +6275,41 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.ApplyTheme();
             this.BackColor = _currentTheme.GridBackColor;
             this.ForeColor = _currentTheme.GridForeColor;
+            MainPanel.BackColor = _currentTheme.ButtonBackColor;
             if (titleLabel != null)
             {
-                titleLabel.Theme = Theme;
-                titleLabel.ForeColor = _currentTheme.TitleForColor;
                 titleLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
+                titleLabel.Theme = Theme;
+               // titleLabel.ForeColor = _currentTheme.GridForeColor;
+               
+                titleLabel.Invalidate();
+
+
+            }
+            if (Recordnumberinglabel1 != null) {
+                //   Recordnumberinglabel1.ForeColor = _currentTheme.GridForeColor;
+                Recordnumberinglabel1.TextFont = BeepThemesManager.ToFont(_currentTheme.BodyStyle);
+                Recordnumberinglabel1.Theme = Theme;
               
+            }
+            if (PageLabel != null)
+            {
+                //PageLabel.ForeColor = _currentTheme.GridForeColor;
+                PageLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.BodyStyle);
+                PageLabel.Theme = Theme;
+              
+                NextPageButton.Theme = Theme;
+                PrevPageButton.Theme = Theme;
+                FirstPageButton.Theme = Theme;
+                LastPageButton.Theme = Theme;
+                NextButton.Theme = Theme;
+                PreviousButton.Theme = Theme;
+                PrinterButton.Theme = Theme;
+                SaveButton.Theme = Theme;
+                RollbackButton.Theme = Theme;
+                RemoveButton.Theme = Theme;
+
+                //  PageLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             }
             if (DataNavigator != null)
             {
@@ -6657,7 +6696,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int spacing = 5; // Spacing between buttons
         private int labelWidth = 100; // Width of the record label
         private int pageLabelWidth = 60; // Width of the page label
-        private Size buttonSize = new Size(16, 16);
+        private Size buttonSize = new Size(20, 20);
         private List<Control> buttons = new List<Control>();
         private List<Control> pagingButtons = new List<Control>();
         private Panel MainPanel;
@@ -6684,12 +6723,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Main navigation buttons
             FindButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.search_1.svg", buttonSize, FindpictureBox_Click);
             EditButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.pencil.svg", buttonSize, EditpictureBox_Click);
-            PrinterButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.print1.svg", buttonSize, PrinterpictureBox_Click);
+            PrinterButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg", buttonSize, PrinterpictureBox_Click);
             MessageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg", buttonSize, MessagepictureBox_Click);
             SaveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.check.svg", buttonSize, SavepictureBox_Click);
-            NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg", buttonSize, NewButton_Click);
-            RemoveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg", buttonSize, RemovepictureBox_Click);
-            RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.go-back.svg", buttonSize, RollbackpictureBox_Click);
+            NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.add.svg", buttonSize, NewButton_Click);
+            RemoveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.remove.svg", buttonSize, RemovepictureBox_Click);
+            RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.undo.svg", buttonSize, RollbackpictureBox_Click);
 
             // Page label (as a BeepButton)
             PageLabel = new BeepButton
@@ -6765,12 +6804,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 HideText = true,
                 IsFrameless = true,
                 Size = size,
-                IsChild = true,
+                IsChild = false,
                 Anchor = AnchorStyles.None,
                 Margin = new Padding(0),
+                ApplyThemeOnImage = false,
                 Padding = new Padding(0),
-                MaxImageSize = new Size(size.Width - 1, size.Height - 1),
+                ImageEmbededin= ImageEmbededin.DataGridView,
+                MaxImageSize = new Size(size.Width - 4, size.Height - 4),
                 Visible = true // Ensure buttons are visible
+                
             };
             button.Click += clickHandler;
             return button;
@@ -7390,6 +7432,31 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _selectAllCheckBox.Dispose();
                     _selectAllCheckBox = null;
+                }
+               if(disposing && filterTextBox != null)
+                {
+                    filterTextBox.Dispose();
+                    filterTextBox = null;
+                }
+                if (filterButton != null)
+                {
+                    filterButton.Dispose();
+                    filterButton = null;
+                }
+                if (MainPanel != null)
+                {
+                    MainPanel.Dispose();
+                    MainPanel = null;
+                }
+                if (_fullData != null)
+                {
+                    _fullData.Clear();
+                    _fullData = null;
+                }
+                if (_bindingSource != null)
+                {
+                    _bindingSource.ListChanged -= BindingSource_ListChanged;
+                    _bindingSource = null;
                 }
             }
         }

@@ -149,10 +149,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
             beepSimpleGrid1.ShadowOffset = 0;
             beepSimpleGrid1.ShadowOpacity = 0.5F;
-            beepSimpleGrid1.ShowAggregationRow = false;
+            beepSimpleGrid1.ShowAggregationRow = true;
             beepSimpleGrid1.ShowAllBorders = true;
             beepSimpleGrid1.ShowBottomBorder = true;
-            beepSimpleGrid1.ShowCheckboxes = false;
+            beepSimpleGrid1.ShowCheckboxes = true;
             beepSimpleGrid1.ShowColumnHeaders = true;
             beepSimpleGrid1.ShowFilter = false;
             beepSimpleGrid1.ShowFocusIndicator = false;

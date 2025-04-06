@@ -291,7 +291,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             if (_form != null)
             {
 
-                    Theme = BeepThemesManager.CurrentTheme;
+                Theme = BeepThemesManager.CurrentTheme;
                 BeepiForm.ApplyTheme();
                 ApplyThemeToAllBeepControls(_form); // Apply the initial theme
                   
@@ -634,7 +634,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     // Recursively apply theme to all child controls
                     foreach (Control child in container.Controls)
                     {
-
+                       
                         ApplyThemeToAllBeepControls(child);
                     }
                 }

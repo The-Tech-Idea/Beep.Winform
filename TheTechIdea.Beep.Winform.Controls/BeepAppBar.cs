@@ -517,7 +517,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
             themeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.theme.svg";
-            themeIcon.Click += ButtonClicked;
+          //  themeIcon.Click += ButtonClicked;
             themeIcon.SelectedItemChanged += ThemeIcon_SelectedItemChanged;
             Controls.Add(themeIcon);
         }

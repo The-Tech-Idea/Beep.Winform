@@ -1350,14 +1350,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _toggleButton.ApplyThemeOnImage = true;
                 _toggleButton.Theme = Theme;
             }
-           // NodeMainMiddlebutton.ForeColor = _currentTheme.AccentColor;
-           // NodeMainMiddlebutton.BackColor = _currentTheme.PanelBackColor;
+
             _nodePanel.BackColor = _currentTheme.ButtonBackColor;
             _childrenPanel.BackColor = _currentTheme.ButtonBackColor;
             this.BackColor = _currentTheme.ButtonBackColor;
      
 
-            //     Noderightbutton.BackColor = _currentTheme.PanelBackColor;
         }
         //public void HilightNode()
         //{

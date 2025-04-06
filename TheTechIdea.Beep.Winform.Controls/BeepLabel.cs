@@ -3,38 +3,44 @@ using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 
-
-
-
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [Category("Controls")]
     [DisplayName("Beep Label")]
-    [Description("A label control with support for images.")]
+    [Description("A label control with support for images and multi-line text.")]
     public class BeepLabel : BeepControl
     {
-        #region "Properties"
+        #region "Fields"
         private BeepImage beepImage;
         private TextImageRelation textImageRelation = TextImageRelation.ImageBeforeText;
         private ContentAlignment imageAlign = ContentAlignment.MiddleLeft;
-        private Size _maxImageSize = new Size(16, 16); // Default max image size
+        private Size _maxImageSize = new Size(16, 16);
         private bool _hideText = false;
-        int offset = 3;
+        private int offset = 3;
         private Color _backcolor;
-        public  Color LabelBackColor
+        private ContentAlignment _textAlign = ContentAlignment.MiddleLeft;
+        private bool _useScaledfont = false;
+        private bool _multiline = false;
+        private Rectangle contentRect;
+        private Font _textFont;
+        #endregion "Fields"
+
+        #region "Properties"
+        [Browsable(true)]
+        [Category("Appearance")]
+        public Color LabelBackColor
         {
-            get=> _backcolor;
+            get => _backcolor;
             set
             {
                 base.BackColor = value;
                 _backcolor = value;
-                 BackColor = value;
+                BackColor = value;
                 Invalidate();
             }
         }
 
-        private bool _useScaledfont = false;
         [Browsable(true)]
         [Category("Appearance")]
         public bool UseScaledFont
@@ -43,16 +49,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _useScaledfont = value;
-                Invalidate();  // Trigger repaint
+                Invalidate();
             }
         }
-        //[Browsable(true)]
-        //[Category("Appearance")]
-        //public int PreferredHeight
-        //{
-        //    get => GetSingleLineHeight();
-
-        //}
 
         [Browsable(true)]
         [Category("Behavior")]
@@ -62,12 +61,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _hideText = value;
-                Invalidate(); // Trigger repaint when the state changes
+                Invalidate();
             }
         }
-
-        // Add TextAlign property in BeepControl
-        private ContentAlignment _textAlign = ContentAlignment.MiddleLeft;
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -78,26 +74,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _textAlign = value;
-                Invalidate(); // Redraw control to apply new alignment
+                Invalidate();
             }
         }
 
-
-        // Properties for customization
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("ImagePath alignment relative to text (Left or Right).")]
+        [Description("Image alignment relative to text (Left or Right).")]
         public TextImageRelation TextImageRelation
         {
             get => textImageRelation;
             set
             {
                 textImageRelation = value;
-                Invalidate(); // Repaint on change
-                //UpdateSize(); // Update size when layout changes
+                Invalidate();
             }
         }
-        bool _applyThemeOnImage = false;
+
+        private bool _applyThemeOnImage = false;
+
+        [Browsable(true)]
+        [Category("Appearance")]
         public bool ApplyThemeOnImage
         {
             get => _applyThemeOnImage;
@@ -107,18 +104,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 beepImage.ApplyThemeOnImage = value;
                 if (value)
                 {
-
-                    if (ApplyThemeOnImage)
-                    {
-                        beepImage.Theme = Theme;
-
-                        beepImage.ApplyThemeToSvg();
-
-                    }
+                    beepImage.Theme = Theme;
+                    beepImage.ApplyThemeToSvg();
                 }
                 Invalidate();
             }
         }
+
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Align image within the BeepLabel (Left, Center, Right).")]
@@ -128,8 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 imageAlign = value;
-                Invalidate(); // Repaint on change
-                              // UpdateSize();
+                Invalidate();
             }
         }
 
@@ -145,7 +136,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (beepImage == null)
                 {
                     beepImage = new BeepImage();
-
                 }
                 if (beepImage != null)
                 {
@@ -157,8 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         beepImage.ApplyThemeToSvg();
                         beepImage.ApplyTheme();
                     }
-                    Invalidate(); // Repaint when the image changes
-                                  // UpdateSize();
+                    Invalidate();
                 }
             }
         }
@@ -172,14 +161,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _maxImageSize = value;
-                Invalidate(); // Repaint on change
-                              //  UpdateSize(); // Adjust size when MaxImageSize changes
+                Invalidate();
             }
         }
-        Rectangle contentRect;
-        private int padding;
-        private int spacing;
-        private Font _textFont ;
+
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Text Font displayed in the control.")]
@@ -189,15 +174,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _textFont;
             set
             {
-
                 _textFont = value;
                 UseThemeFont = false;
                 Font = value;
-               //// Console.WriteLine("TextFont Changed");
-             //   ApplyTheme();
                 Invalidate();
-
-
             }
         }
         private bool _autoSize = false;
@@ -212,169 +192,119 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _autoSize = value;
                 if (_autoSize)
                 {
-                    // Immediately recalc once
-                    this.Size = GetPreferredSize(Size.Empty);
+                    this.Size = GetPreferredSize(new Size(this.Width, 0));
                 }
                 Invalidate();
             }
         }
 
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Determines whether the text can span multiple lines.")]
+        public bool Multiline
+        {
+            get => _multiline;
+            set
+            {
+                _multiline = value;
+                Invalidate();
+                if (AutoSize)
+                {
+                    this.Size = GetPreferredSize(new Size(this.Width, 0));
+                }
+            }
+        }
         #endregion "Properties"
+
         #region "Constructors"
-        public BeepLabel():base()
+        public BeepLabel() : base()
         {
             DoubleBuffered = true;
-          //  SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-        //    SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
-
             InitializeComponents();
             beepImage.ImageEmbededin = ImageEmbededin.Label;
-            //  SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
-           // AutoSize = false;
-                        BoundProperty = "Text";
-
+            BoundProperty = "Text";
         }
+
         protected override void InitLayout()
         {
             base.InitLayout();
             UpdateDrawingRect();
-
         }
+
         protected override void OnFontChanged(EventArgs e)
         {
             base.OnFontChanged(e);
             _textFont = Font;
-         //  // Console.WriteLine("Font Changed");
             if (AutoSize)
             {
-                Size textSize = TextRenderer.MeasureText(Text, _textFont);
-                this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
+                this.Size = GetPreferredSize(new Size(this.Width, 0));
             }
         }
-        //protected override void OnResize(EventArgs e)
-        //{
-        //    base.OnResize(e);
-        //    // If single line, don't allow a bigger or smaller height than necessary
-         
-        //    UpdateDrawingRect();
-        //    Invalidate();
 
-        //}
         protected override Size DefaultSize
         {
             get
             {
-                // If you need to measure actual text, do:
-                // (But beware that CreateGraphics() in a property can be tricky in some scenarios)
-             
                 using (Graphics g = CreateGraphics())
                 {
                     Size measured = TextRenderer.MeasureText(
                         g,
-                        string.IsNullOrEmpty(Text) ? "A" : Text, // Fallback to "A" if empty
-                        _textFont,
+                        string.IsNullOrEmpty(Text) ? "A" : Text,
+                        _textFont ?? Font,
                         new Size(int.MaxValue, int.MaxValue),
                         TextFormatFlags.SingleLine
                     );
-                    // Add some margin/padding
                     return new Size(200, measured.Height + 6);
                 }
             }
         }
-        //protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
-        //{
-
-        //    // Update DrawingRect to get accurate measurements
-        //    UpdateDrawingRect();
-        //    //if (_currentTheme != null)
-        //    //{
-        //    //    ApplyTheme();
-        //    //}
-        //    //int singleLineHeight = GetSingleLineHeight();
-
-        //    //// Set Minimum and Maximum height to enforce fixed height
-        //    //this.MinimumSize = new Value(0, singleLineHeight);
-        //    //this.MaximumSize = new Value(0, singleLineHeight);
-
-        //    //height = singleLineHeight;
-        //    //specified &= ~BoundsSpecified.Height; // Remove the Height flag to prevent external changes
-
-
-
-        //    base.SetBoundsCore(x, y, width, height, specified);
-        //}
-
         #endregion "Constructors"
+
         #region "Painting"
         protected override void OnTextChanged(EventArgs e)
         {
             base.OnTextChanged(e);
-
-            // If AutoSize is enabled, recalc whenever text changes
             if (AutoSize)
             {
-                Size newPreferred = GetPreferredSize(Size.Empty);
+                Size newPreferred = GetPreferredSize(new Size(this.Width, 0));
                 this.Size = newPreferred;
             }
-
             Invalidate();
         }
 
         private void InitializeComponents()
         {
-
             beepImage = new BeepImage
             {
                 IsChild = true,
                 Visible = false,
-                Dock = DockStyle.None, // We'll manually position it
+                Dock = DockStyle.None,
                 Margin = new Padding(0),
-                Location = new Point(0, 0), // Set initial position (will adjust in layout)
-                Size = _maxImageSize // Set the size based on the max image size
+                Location = new Point(0, 0),
+                Size = _maxImageSize
             };
-            //  beepImage.MouseHover += BeepImage_MouseHover;
-            //   beepImage.MouseLeave += BeepImage_MouseLeave;
-
-            //  beepImage.Click += BeepImage_Click;
             Padding = new Padding(1);
             Margin = new Padding(0);
-
-
         }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            // Do not call base.OnPaint(e);
-            // e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             UpdateDrawingRect();
-
-            // Draw the image and text
             contentRect = DrawingRect;
-
-            // if (!SetFont())
-            // {
-            //    TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-            //  };
-            //   DrawBackColor(e, BackColor, _currentTheme.ButtonHoverBackColor);
             DrawImageAndText(e.Graphics);
         }
+
         private void DrawImageAndText(Graphics g)
         {
-            //// Console.WriteLine($"User ThemeFont is {UseThemeFont}");
             if (!SetFont() && UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             }
-            ;
-            // Measure and scale the font to fit within the control bounds
-            Font scaledFont = _textFont;// GetScaledFont(g, Text, contentRect.Value, TextFont);
-            if (UseScaledFont)
-            {
-                scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
-            }
+
+            Font scaledFont = _useScaledfont ? GetScaledFont(g, Text, contentRect.Size, _textFont) : _textFont;
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
 
-            // Limit image size to MaxImageSize
             if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
             {
                 float scaleFactor = Math.Min(
@@ -384,12 +314,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Width * scaleFactor),
                     (int)(imageSize.Height * scaleFactor));
             }
-            Size textSize = TextRenderer.MeasureText(Text, scaledFont);
-            // Calculate the layout of image and text
+
+            Size textSize;
+            if (_multiline)
+            {
+                textSize = TextRenderer.MeasureText(g, Text, scaledFont, new Size(contentRect.Width, int.MaxValue), GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
+            }
+            else
+            {
+                textSize = TextRenderer.MeasureText(g, Text, scaledFont, new Size(int.MaxValue, int.MaxValue), GetTextFormatFlags(TextAlign) | TextFormatFlags.SingleLine);
+            }
+
             Rectangle imageRect, textRect;
             CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
-            //Console.WriteLine("Drawing ImagePath 1");
-            // Draw the image if available
+
             if (beepImage != null && beepImage.HasImage)
             {
                 if (beepImage.Size.Width > this.Size.Width || beepImage.Size.Height > this.Size.Height)
@@ -399,75 +337,59 @@ namespace TheTechIdea.Beep.Winform.Controls
                 beepImage.MaximumSize = imageSize;
                 beepImage.Size = imageRect.Size;
                 beepImage.DrawImage(g, imageRect);
-                //if (beepImageHitTest == null)
-                //{
-                //    beepImageHitTest = new ControlHitTest(imageRect, Point.Empty)
-                //    {
-                //        Name = "BeepImageRect",
-                //        ActionName = "ImageClicked",
-                //        HitAction = () =>
-                //        {
-                //            // Raise your ImageClicked event
-                //            var ev = new BeepEventDataArgs("ImageClicked", this);
-                //            ImageClicked?.Invoke(this, ev);
-                //        }
-                //    };
-
-                //}
-                //else
-                //{
-                //    beepImageHitTest.TargetRect = imageRect;
-                //}
-
-                //AddHitTest(beepImageHitTest);
             }
+
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
+                if (_multiline)
+                {
+                    flags |= TextFormatFlags.WordBreak;
+                }
+                else
+                {
+                    flags |= TextFormatFlags.SingleLine;
+                }
                 TextRenderer.DrawText(g, Text, scaledFont, textRect, ForeColor, flags);
             }
+
             if (BadgeText != null)
             {
                 DrawBadge(g);
             }
-
-            //}
         }
-       
-
-       
         #endregion "Painting"
+
         #region "Theme"
         public override void ApplyTheme()
         {
-           //// Console.WriteLine("1 Label Apply Theme TextFont");
-            //  base.ApplyTheme();
             if (_currentTheme != null)
             {
                 BackColor = _currentTheme.LabelBackColor;
                 ForeColor = _currentTheme.LabelForeColor;
                 HoverBackColor = _currentTheme.ButtonHoverBackColor;
                 HoverForeColor = _currentTheme.ButtonHoverForeColor;
-                // Only apply the theme's font if UseThemeFont is true
+
                 if (UseThemeFont)
                 {
                     _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                 }
-               
                 Font = _textFont;
-                if (IsChild && Parent!=null)
+
+                if (IsChild && Parent != null)
                 {
                     parentbackcolor = Parent.BackColor;
                 }
-                //  // Console.WriteLine("2 Label Apply Theme TextFont");
+
                 ApplyThemeToSvg();
                 Invalidate();
                 Refresh();
             }
         }
+
         public void ApplyThemeToSvg()
         {
-            if (beepImage != null) // Safely apply theme to beepImage
+            if (beepImage != null)
             {
                 if (ApplyThemeOnImage)
                 {
@@ -486,29 +408,34 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion "Theme"
+
         #region "Text and Alignment"
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
-          // MiscFunctions.SendLog($"⚠️ BeepTextBox lost focus. Saving: {Text}");
-           
-
         }
 
-        // Dynamically calculate the preferred size based on text and image sizes
         public override Size GetPreferredSize(Size proposedSize)
         {
             if (!SetFont() && UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             }
-             ;
-            // Measure and scale the font to fit within the control bounds
 
-            Size textSize = TextRenderer.MeasureText(Text, _textFont);
+            // Use the control's current width as the constraint for multi-line text
+            int maxWidth = proposedSize.Width > 0 ? proposedSize.Width : (this.Width > 0 ? this.Width : 200);
+            Size textSize;
+            if (_multiline)
+            {
+                textSize = TextRenderer.MeasureText(Text, _textFont, new Size(maxWidth, int.MaxValue), GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
+            }
+            else
+            {
+                textSize = TextRenderer.MeasureText(Text, _textFont, new Size(int.MaxValue, int.MaxValue), GetTextFormatFlags(TextAlign) | TextFormatFlags.SingleLine);
+            }
+
             Size imageSize = beepImage?.HasImage == true ? beepImage.GetImageSize() : Size.Empty;
 
-            // Scale the image to respect MaxImageSize if needed
             if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
             {
                 float scaleFactor = Math.Min(
@@ -518,52 +445,51 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Width * scaleFactor),
                     (int)(imageSize.Height * scaleFactor));
             }
-            // Use a large enough virtual container for layout testing
-            //  Rectangle virtualContent = new Rectangle(0, 0, 1000, 1000);
+
+            // Calculate layout without depending on DrawingRect
+            Rectangle contentRect = new Rectangle(0, 0, maxWidth, textSize.Height);
             Rectangle textRect, imageRect;
-            CalculateLayout(DrawingRect, imageSize, textSize, out imageRect, out textRect);
-            // Clip text rectangle to control bounds to prevent overflow
-            //  textRect.Intersect(DrawingRect);
-            // Calculate the total width and height required for text and image with padding
-            // Calculate bounding size (not offset-based!)
+            CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
+
             Rectangle bounds = Rectangle.Union(imageRect, textRect);
             int width = bounds.Width + Padding.Left + Padding.Right;
             int height = bounds.Height + Padding.Top + Padding.Bottom;
 
             return new Size(width, height);
-            //  }
-
-            // Return the control's current size if AutoSize is disabled
-            //return base.Value;
         }
+
         private void CalculateLayout(Rectangle contentRect, Size imageSize, Size textSize, out Rectangle imageRect, out Rectangle textRect)
         {
             imageRect = Rectangle.Empty;
             textRect = Rectangle.Empty;
 
             bool hasImage = imageSize != Size.Empty;
-            bool hasText = !string.IsNullOrEmpty(Text) && !HideText; // Check if text is available and not hidden
+            bool hasText = !string.IsNullOrEmpty(Text) && !HideText;
 
-            // Adjust contentRect for padding
             contentRect.Inflate(-2, -2);
 
             if (hasImage && !hasText)
             {
-                // Center image in the button if there is no text
                 imageRect = AlignRectangle(contentRect, imageSize, ContentAlignment.MiddleCenter);
             }
             else if (hasText && !hasImage)
             {
-                // Only text is present, align text within the button
+                if (_multiline)
+                {
+                    textSize = TextRenderer.MeasureText(Text, _textFont, new Size(contentRect.Width, int.MaxValue), GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
+                }
                 textRect = AlignRectangle(contentRect, textSize, TextAlign);
             }
             else if (hasImage && hasText)
             {
-                // Layout logic based on TextImageRelation when both text and image are present
+                if (_multiline)
+                {
+                    textSize = TextRenderer.MeasureText(Text, _textFont, new Size(contentRect.Width, int.MaxValue), GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
+                }
+
                 switch (this.TextImageRelation)
                 {
                     case TextImageRelation.Overlay:
-                        // ImagePath and text overlap
                         imageRect = AlignRectangle(contentRect, imageSize, ImageAlign);
                         textRect = AlignRectangle(contentRect, textSize, TextAlign);
                         break;
@@ -590,12 +516,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+
         private Rectangle AlignRectangle(Rectangle container, Size size, ContentAlignment alignment)
         {
             int x = 0;
             int y = 0;
 
-            // Horizontal alignment
             switch (alignment)
             {
                 case ContentAlignment.TopLeft:
@@ -615,7 +541,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
 
-            // Vertical alignment
             switch (alignment)
             {
                 case ContentAlignment.TopLeft:
@@ -637,9 +562,19 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return new Rectangle(new Point(x, y), size);
         }
+
         private TextFormatFlags GetTextFormatFlags(ContentAlignment alignment)
         {
-            TextFormatFlags flags = TextFormatFlags.SingleLine | TextFormatFlags.PreserveGraphicsClipping;
+            TextFormatFlags flags = TextFormatFlags.PreserveGraphicsClipping;
+
+            if (_multiline)
+            {
+                flags |= TextFormatFlags.WordBreak;
+            }
+            else
+            {
+                flags |= TextFormatFlags.SingleLine;
+            }
 
             switch (alignment)
             {
@@ -675,49 +610,51 @@ namespace TheTechIdea.Beep.Winform.Controls
             return flags;
         }
         #endregion "Text and Alignment"
+
         #region "Mouse Events"
         protected override void OnMouseHover(EventArgs e)
         {
             IsHovered = true;
-
         }
+
         protected override void OnMouseLeave(EventArgs e)
         {
             IsHovered = false;
         }
+
         protected override void OnMouseEnter(EventArgs e)
         {
             IsHovered = true;
         }
         #endregion "Mouse Events"
+
         #region "IBeep UI Component Implementation"
         public override void SetValue(object value)
         {
             Text = value?.ToString();
-
         }
+
         public override object GetValue()
         {
             return Text;
-
         }
+
         public override void ClearValue()
         {
             Text = "";
-
         }
-        public override bool ValidateData(out string messege)
+
+        public override bool ValidateData(out string message)
         {
-            messege = "";
+            message = "";
             return true;
         }
+
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
             contentRect = rectangle;
             DrawImageAndText(graphics);
         }
-
         #endregion "IBeep UI Component Implementation"
-
     }
 }

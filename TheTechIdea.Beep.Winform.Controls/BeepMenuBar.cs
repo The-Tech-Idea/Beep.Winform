@@ -188,7 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
             UpdateDrawingRect();
-            ApplyThemeToChilds = false;
+            ApplyThemeToChilds = true;
             container = new Panel()
             {
                 Left = DrawingRect.Left,

@@ -389,7 +389,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void ApplyThemeToSvg()
         {
-            if (svgDocument == null || _currentTheme == null) return;
+            if (svgDocument == null || _currentTheme == null)
+            {
+                // Log if SVG document or theme is null
+                MiscFunctions.SendLog("ApplyThemeToSvg: svgDocument or _currentTheme is null");
+                return;
+            }
 
             // Determine fill & stroke colors based on the theme
             Color strokeColor, fillColor;
@@ -436,44 +441,73 @@ namespace TheTechIdea.Beep.Winform.Controls
                 fillColor = _currentTheme.ButtonHoverForeColor;
             }
 
-            //  MiscFunctions.SendLog("Applying Theme to SVG Elements:");
+            // Log the colors being applied
+            MiscFunctions.SendLog($"ApplyThemeToSvg: Applying fillColor={fillColor}, strokeColor={strokeColor} for ImageEmbededin={_imageEmbededin}");
 
+            // Recursively apply colors to all SVG visual elements
             foreach (var element in svgDocument.Descendants())
             {
+                // Apply to SvgVisualElement (e.g., paths, shapes)
                 if (element is SvgVisualElement visualElement)
                 {
-                    //     MiscFunctions.SendLog($"Before: {element.GetType().Name}, Fill: {visualElement.Fill}, Stroke: {visualElement.Stroke}");
+                    // Log the element and its original colors
+                    MiscFunctions.SendLog($"Before: {element.GetType().Name}, Fill={visualElement.Fill}, Stroke={visualElement.Stroke}");
 
                     // Store original colors
                     tmpfillcolor = visualElement.Fill;
                     tmpstrokecolor = visualElement.Stroke;
 
-                    // Apply theme colors
-                    visualElement.Fill = fillColor != Color.Empty ? new SvgColourServer(fillColor) : SvgPaintServer.None;
-                    visualElement.Stroke = strokeColor != Color.Empty ? new SvgColourServer(strokeColor) : SvgPaintServer.None;
+                    // Apply theme colors, preserving transparency if the original color was transparent
+                    if (fillColor != Color.Empty)
+                    {
+                        visualElement.Fill = new SvgColourServer(fillColor);
+                    }
+                    else if (visualElement.Fill != null && visualElement.Fill != SvgPaintServer.None)
+                    {
+                        // Preserve the original fill if the theme color is empty
+                        visualElement.Fill = tmpfillcolor;
+                    }
+                    else
+                    {
+                        visualElement.Fill = SvgPaintServer.None;
+                    }
 
-                    //   MiscFunctions.SendLog($"After: {element.GetType().Name}, Fill: {visualElement.Fill}, Stroke: {visualElement.Stroke}");
+                    if (strokeColor != Color.Empty)
+                    {
+                        visualElement.Stroke = new SvgColourServer(strokeColor);
+                    }
+                    else if (visualElement.Stroke != null && visualElement.Stroke != SvgPaintServer.None)
+                    {
+                        // Preserve the original stroke if the theme color is empty
+                        visualElement.Stroke = tmpstrokecolor;
+                    }
+                    else
+                    {
+                        visualElement.Stroke = SvgPaintServer.None;
+                    }
+
+                    // Log the updated colors
+                    MiscFunctions.SendLog($"After: {element.GetType().Name}, Fill={visualElement.Fill}, Stroke={visualElement.Stroke}");
                 }
 
                 // Fix SvgText-specific attributes
                 if (element is SvgText svgText)
                 {
-                    // Fix text-anchor if invalid
                     try
                     {
                         if (svgText.TextAnchor != SvgTextAnchor.Start &&
                             svgText.TextAnchor != SvgTextAnchor.Middle &&
                             svgText.TextAnchor != SvgTextAnchor.End)
                         {
-                            svgText.TextAnchor = SvgTextAnchor.Start; // Default to start
+                            svgText.TextAnchor = SvgTextAnchor.Start;
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        svgText.TextAnchor = SvgTextAnchor.Start; // Fallback
+                        MiscFunctions.SendLog($"Error setting TextAnchor: {ex.Message}");
+                        svgText.TextAnchor = SvgTextAnchor.Start;
                     }
 
-                    // Fix stroke-opacity if invalid
                     try
                     {
                         if (svgText.StrokeOpacity < 0 || float.IsNaN(svgText.StrokeOpacity) || svgText.StrokeOpacity > 1)
@@ -481,12 +515,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                             svgText.StrokeOpacity = 1.0f;
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        svgText.StrokeOpacity = 1.0f; // Fallback
+                        MiscFunctions.SendLog($"Error setting StrokeOpacity: {ex.Message}");
+                        svgText.StrokeOpacity = 1.0f;
                     }
 
-                    // Fix stroke if invalid
                     try
                     {
                         if (svgText.Stroke == null || svgText.Stroke == SvgPaintServer.None)
@@ -494,16 +528,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                             svgText.Stroke = new SvgColourServer(Color.Black);
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        svgText.Stroke = new SvgColourServer(Color.Black); // Fallback
+                        MiscFunctions.SendLog($"Error setting Stroke: {ex.Message}");
+                        svgText.Stroke = new SvgColourServer(Color.Black);
                     }
                 }
             }
 
             Invalidate();
         }
-
 
 
         #endregion "Theme Properties"

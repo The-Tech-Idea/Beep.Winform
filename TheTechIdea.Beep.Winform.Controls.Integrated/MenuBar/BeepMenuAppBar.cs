@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MenuBar
 
         public BeepMenuAppBar():base()
         {
-
+            
         }
         public IErrorsInfo CreateMenuItems()
         {

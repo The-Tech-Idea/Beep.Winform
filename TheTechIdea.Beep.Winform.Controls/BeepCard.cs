@@ -1,48 +1,53 @@
 ﻿using System.ComponentModel;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
-
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
+    public enum CardViewMode
+    {
+        FullImage,    // Image at top, text and button below (First image)
+        Compact,      // No image, text and button only (Second image)
+        ImageLeft     // Image on left, text and button on right (Third image)
+    }
+
     [ToolboxItem(true)]
     [DisplayName("Beep Card")]
     [Category("Beep Controls")]
-    [Description("A card control that displays an image, header, and paragraph.")]
+    [Description("A card control that displays an image, header, paragraph, and action button with multiple views.")]
     public class BeepCard : BeepControl
     {
-        #region "Properties"
+        #region "Fields"
         private BeepImage imageBox;
         private BeepLabel headerLabel;
-        private BeepTextBox paragraphLabel;
+        private BeepLabel paragraphLabel;
+        private BeepButton actionButton;
         private string headerText = "Card Title";
         private string paragraphText = "Card Description";
+        private string buttonText = "Action";
         private int maxImageSize = 64;
         private ContentAlignment headerAlignment = ContentAlignment.TopLeft;
         private ContentAlignment imageAlignment = ContentAlignment.TopRight;
-        private ContentAlignment textAlignment = ContentAlignment.BottomCenter;
+        private ContentAlignment textAlignment = ContentAlignment.TopLeft;
+        private CardViewMode viewMode = CardViewMode.FullImage;
+        private bool showButton = true;
+        private string imagePath = string.Empty; // Store the image path directly
+        #endregion "Fields"
 
-
-        // Properties
-
-        //private bool _multiline = false;
-
-        //// show the inner textbox properties like multiline
-        //[Browsable(true)]
-        //[Category("Appearance")]
-        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        //public bool Multiline
-        //{
-        //    get => _multiline;
-        //    set
-        //    {
-        //        _multiline = value;
-        //        paragraphLabel.Multiline = value;
-        //        RefreshLayout();
-
-        //    }
-        //}
+        #region "Properties"
+        [Category("Appearance")]
+        [Description("The view mode of the card (FullImage, Compact, ImageLeft).")]
+        public CardViewMode ViewMode
+        {
+            get => viewMode;
+            set
+            {
+                viewMode = value;
+                RefreshLayout();
+            }
+        }
 
         [Category("Appearance")]
         [Description("Text displayed as the header of the card.")]
@@ -53,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 headerText = value;
                 headerLabel.Text = value;
-              //  RefreshLayout();
+                RefreshLayout();
             }
         }
 
@@ -66,7 +71,63 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 paragraphText = value;
                 paragraphLabel.Text = value;
-              //  RefreshLayout();
+                RefreshLayout();
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("Text displayed on the action button.")]
+        public string ButtonText
+        {
+            get => buttonText;
+            set
+            {
+                buttonText = value;
+                actionButton.Text = value;
+                RefreshLayout();
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("Determines whether the action button is visible.")]
+        public bool ShowButton
+        {
+            get => showButton;
+            set
+            {
+                showButton = value;
+                actionButton.Visible = value;
+                RefreshLayout();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
+        public string ImagePath
+        {
+            get => imagePath;
+            set
+            {
+                imagePath = value;
+                imageBox.ImagePath = value;
+                imageBox.Visible = !string.IsNullOrEmpty(value);
+                RefreshLayout();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Maximum size of the image displayed on the card.")]
+        public int MaxImageSize
+        {
+            get => maxImageSize;
+            set
+            {
+                maxImageSize = value;
+                imageBox.Size = new Size(value, value);
+                RefreshLayout();
             }
         }
 
@@ -95,36 +156,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RefreshLayout();
             }
         }
-        private string imagepath=string.Empty;
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
-        [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
-        public string ImagePath
-        {
-            get => imagepath;
-            set
-            {
-                
-                imagepath = value;
-                imageBox.ImagePath = value;
-                imageBox.Visible = !string.IsNullOrEmpty(value);
-              //  RefreshLayout();
-            }
-        }
-
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Maximum size of the image displayed on the card.")]
-        public int MaxImageSize
-        {
-            get => imageBox.Size.Width;
-            set
-            {
-                imageBox.Size=new Size(value,value);
-              //  RefreshLayout();
-            }
-        }
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -135,61 +166,38 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 textAlignment = value;
+                paragraphLabel.TextAlign = value;
                 RefreshLayout();
             }
         }
         #endregion "Properties"
-
-        // Expose _borderThickness from BeepPanel
 
         // Constructor
         public BeepCard()
         {
             DoubleBuffered = true;
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-           // SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
-
             IsChild = false;
             Padding = new Padding(0);
             BoundProperty = "ParagraphText";
-            //ShowTitle = false;
-            //ShowTitleLine = false;
             InitializeComponents();
-          //  this.MinimumSize = new Value(300, 200); // Set based on layout needs
-            this.Size = new Size(400, 300); // Default start size
-           //// Console.WriteLine("BeepCard Constructor");
-           // InitializeComponents();
-          // // Console.WriteLine("BeepCard Constructor End");
+            this.Size = new Size(400, 300);
             ApplyThemeToChilds = false;
-            ApplyTheme(); // Apply the default theme initially
-
+            ApplyTheme();
         }
+
         protected override void InitLayout()
         {
             base.InitLayout();
-           // InitializeComponents();
-          //  PerformLayout();
-            ApplyTheme(); // Apply the default theme initially
-          //  _isControlinvalidated = true;
-           // Invalidate();
+            ApplyTheme();
+            RefreshLayout();
         }
-        //protected override void OnPaint(PaintEventArgs e)
-        //{
-        //    base.OnPaint(e);
-        //    if (_isControlinvalidated)
-        //    {
-        //        InitializeComponents(); _isControlinvalidated = false;
-        //    }
-        // }
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
-           
-        }
+
         // Initialize the components
         private void InitializeComponents()
         {
             Controls.Clear();
+
             imageBox = new BeepImage
             {
                 Size = new Size(maxImageSize, maxImageSize),
@@ -198,47 +206,54 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ApplyThemeOnImage = false,
-                ImagePath = imagepath,
                 IsFrameless = true,
-                Visible = false  // Initially hide image until set
+                Visible = !string.IsNullOrEmpty(imagePath)
             };
             Controls.Add(imageBox);
 
             headerLabel = new BeepLabel
             {
                 TextAlign = ContentAlignment.MiddleLeft,
-                Text = headerText,  // Default text
+                Text = headerText,
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 Theme = Theme,
-                Height=23,
+                Height = 23,
                 IsFrameless = true,
                 IsChild = false,
                 IsShadowAffectedByTheme = false,
-                IsBorderAffectedByTheme = false,
-                
+                IsBorderAffectedByTheme = false
             };
             Controls.Add(headerLabel);
 
-            paragraphLabel = new BeepTextBox
+            paragraphLabel = new BeepLabel
             {
-               
-                ImageAlign = ContentAlignment.MiddleCenter,
+                TextAlign = ContentAlignment.TopLeft,
                 Theme = Theme,
                 IsFrameless = true,
                 IsChild = false,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
-               // AutoScroll=true,
-                Multiline=true,
-                //ScrollBars = System.Windows.Forms.ScrollBars.Both,
-                ReadOnly = true,
-                ScrollBars= ScrollBars.None,
-                Text = paragraphText  // Default text
+                AutoSize = false,
+                Text = paragraphText,
+                Multiline=true
             };
             Controls.Add(paragraphLabel);
-            paragraphLabel.MouseEnter += (s, e) => { BorderColor = HoverBackColor;  };
+            paragraphLabel.MouseEnter += (s, e) => { BorderColor = HoverBackColor; };
             paragraphLabel.MouseLeave += (s, e) => { BorderColor = _currentTheme.BorderColor; };
+
+            actionButton = new BeepButton
+            {
+                Text = buttonText,
+                Theme = Theme,
+                IsFrameless = true,
+                IsChild = false,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+                Visible = showButton
+            };
+            Controls.Add(actionButton);
+
             ApplyTheme();
             RefreshLayout();
         }
@@ -247,126 +262,191 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             if (_currentTheme == null) return;
-           // headerLabel.Theme = Theme;
-            imageBox.IsFrameless = true;
-           // paragraphLabel.Theme = Theme;
+            BackColor = _currentTheme.CardBackColor;
             headerLabel.ForeColor = _currentTheme.CardHeaderStyle.TextColor;
-            headerLabel.Font = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
+            headerLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
             headerLabel.BackColor = _currentTheme.CardBackColor;
+
             paragraphLabel.ForeColor = _currentTheme.CardTextForeColor;
             paragraphLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
             paragraphLabel.BackColor = _currentTheme.CardBackColor;
-            BackColor = _currentTheme.CardBackColor;
+            actionButton.Theme = Theme;
+            //actionButton.BackColor = _currentTheme.ButtonBackColor;
+            //actionButton.ForeColor = _currentTheme.ButtonForeColor;
+            //actionButton.HoverBackColor = _currentTheme.ButtonHoverBackColor;
+            //actionButton.HoverForeColor = _currentTheme.ButtonHoverForeColor;
+            //actionButton.PressedBackColor = _currentTheme.ButtonActiveBackColor;
+            //actionButton.PressedForeColor = _currentTheme.ButtonActiveForeColor;
+            //actionButton.TextFont = _currentTheme.GetButtonFont();
             imageBox.Theme = Theme;
-            _isControlinvalidated = true;
-           // Invalidate();
+            imageBox.BackColor = _currentTheme.CardBackColor;
+            imageBox.Invalidate();
+
+            Invalidate();
         }
+
         // Handle layout adjustments
         protected override void OnResize(EventArgs eventargs)
         {
             base.OnResize(eventargs);
             RefreshLayout();
         }
-        // Adjust the layout of the image and text
+
+        // Adjust the layout based on the view mode
         private void RefreshLayout()
         {
-            // Basic checks & padding
-            Padding = new Padding(2);
+            Padding = new Padding(10);
             int padding = Padding.All;
             UpdateDrawingRect();
 
-            // Exit early if control is too small
             if (DrawingRect.Width <= padding * 2 || DrawingRect.Height <= padding * 2)
                 return;
 
             int availableWidth = Math.Max(0, DrawingRect.Width - padding * 2);
             int availableHeight = Math.Max(0, DrawingRect.Height - padding * 2);
 
-            // 1) Measure the header text to get the row height needed
-            //    (We only really need its height now; for width, we’ll fill instead.)
-            Size measuredHeader = TextRenderer.MeasureText(headerLabel.Text, headerLabel.Font);
-            int headerMeasuredHeight = measuredHeader.Height; // This is the “natural” text height
+            // Declare variables at method level to avoid redeclaration
+            int paragraphY = 0;
+            int remainingHeight = 0;
 
-            // 2) Determine the image’s actual size (bounded by maxImageSize, half the row, etc.)
-            Size imageSize = new Size(
-                Math.Min(maxImageSize, availableWidth / 2),
-                Math.Min(maxImageSize, availableHeight / 2)
-            );
-            imageBox.Size = imageSize;
+            // Measure the header and paragraph text
+            Size measuredHeader = headerLabel.GetPreferredSize(Size.Empty);//  TextRenderer.MeasureText(headerLabel.Text, headerLabel.Font);
+            int headerMeasuredHeight = measuredHeader.Height;
 
-            // 3) Figure out how tall the top row is (whichever is bigger: the image or the header text)
-            int topRowHeight = Math.Max(headerMeasuredHeight, imageSize.Height);
-            int topRowY = DrawingRect.Top + padding;
+            Size measuredParagraph = paragraphLabel.GetPreferredSize(Size.Empty); TextRenderer.MeasureText(paragraphLabel.Text, paragraphLabel.Font);
+            int paragraphMeasuredHeight = measuredParagraph.Height;
 
-            // --------------------------------------------
-            // EXAMPLE: If HeaderAlignment is Left, place header on the left, image on the right.
-            // --------------------------------------------
-            if (HeaderAlignment == ContentAlignment.TopLeft
-                || HeaderAlignment == ContentAlignment.MiddleLeft)
+            // Measure the button
+            Size measuredButton = TextRenderer.MeasureText(actionButton.Text, actionButton.Font);
+            int buttonHeight = measuredButton.Height + 20;
+            int buttonWidth = measuredButton.Width + 40;
+
+            actionButton.Size = new Size(buttonWidth, buttonHeight);
+
+            // Set image visibility based on view mode
+            switch (viewMode)
             {
-                // (A) Place the image on the right side
-                int imageX = DrawingRect.Right - padding - imageSize.Width;
-                int imageY = topRowY + (topRowHeight - imageSize.Height) / 2;
-                imageBox.Location = new Point(imageX, imageY);
+                case CardViewMode.FullImage:
+                    // View 1: Image at top, text and button below (First image)
+                    imageBox.Visible = !string.IsNullOrEmpty(imagePath);
 
-                // (B) Make headerLabel fill from the left to just before the image
-                int labelX = DrawingRect.Left + padding;
-                int labelWidth = Math.Max(0, imageX - labelX - 5);
-                // ‘5’ is optional spacing between text & image
-                int labelHeight = headerMeasuredHeight;
+                    if (imageBox.Visible)
+                    {
+                        // Image spans the full width at the top, taking ~60% of the height
+                        int imageHeight = (int)(availableHeight * 0.6);
+                        imageBox.Size = new Size(availableWidth, imageHeight);
+                        imageBox.Location = new Point(DrawingRect.Left + padding, DrawingRect.Top + padding);
 
-                // (C) Vertical positioning for the header
-                int headerY = topRowY + (topRowHeight - labelHeight) / 2;
+                        // Header below the image
+                        int headerY = imageBox.Bottom + padding;
+                        headerLabel.Location = new Point(DrawingRect.Left + padding, headerY);
+                        headerLabel.Size = new Size(availableWidth, headerMeasuredHeight);
+                        headerLabel.TextAlign = ContentAlignment.TopLeft;
 
-                // Set the new position & size
-                headerLabel.Location = new Point(labelX, headerY);
-                headerLabel.Size = new Size(labelWidth, labelHeight);
+                        // Paragraph below the header
+                        paragraphY = headerLabel.Bottom + padding;
+                        remainingHeight = DrawingRect.Bottom - paragraphY - buttonHeight - padding * 2;
+                        paragraphLabel.Location = new Point(DrawingRect.Left + padding, paragraphY);
+                        paragraphLabel.Size = new Size(availableWidth, Math.Max(0, remainingHeight));
+                        paragraphLabel.TextAlign = ContentAlignment.TopLeft;
 
-                // Optionally ensure the text itself is left-aligned within that box
-                headerLabel.TextAlign = ContentAlignment.MiddleLeft;
+                        // Button at the bottom right
+                        actionButton.Location = new Point(DrawingRect.Right - padding - buttonWidth, DrawingRect.Bottom - padding - buttonHeight);
+                    }
+                    else
+                    {
+                        // No image, stack header, paragraph, and button
+                        headerLabel.Location = new Point(DrawingRect.Left + padding, DrawingRect.Top + padding);
+                        headerLabel.Size = new Size(availableWidth, headerMeasuredHeight);
+                        headerLabel.TextAlign = ContentAlignment.TopLeft;
+
+                        paragraphY = headerLabel.Bottom + padding;
+                        remainingHeight = DrawingRect.Bottom - paragraphY - buttonHeight - padding * 2;
+                        paragraphLabel.Location = new Point(DrawingRect.Left + padding, paragraphY);
+                        paragraphLabel.Size = new Size(availableWidth, Math.Max(0, remainingHeight));
+                        paragraphLabel.TextAlign = ContentAlignment.TopLeft;
+
+                        actionButton.Location = new Point(DrawingRect.Right - padding - buttonWidth, DrawingRect.Bottom - padding - buttonHeight);
+                    }
+                    break;
+
+                case CardViewMode.Compact:
+                    // View 2: No image, text and button only (Second image)
+                    imageBox.Visible = false;
+
+                    // Header at the top
+                    headerLabel.Location = new Point(DrawingRect.Left + padding, DrawingRect.Top + padding);
+                    headerLabel.Size = new Size(availableWidth, headerMeasuredHeight);
+                    headerLabel.TextAlign = ContentAlignment.TopLeft;
+
+                    // Paragraph below the header
+                    paragraphY = headerLabel.Bottom + padding;
+                    remainingHeight = DrawingRect.Bottom - paragraphY - buttonHeight - padding * 2;
+                    paragraphLabel.Location = new Point(DrawingRect.Left + padding, paragraphY);
+                    paragraphLabel.Size = new Size(availableWidth, Math.Max(0, remainingHeight));
+                    paragraphLabel.TextAlign = ContentAlignment.TopLeft;
+
+                    // Button at the bottom right
+                    actionButton.Location = new Point(DrawingRect.Right - padding - buttonWidth, DrawingRect.Bottom - padding - buttonHeight);
+                    break;
+
+                case CardViewMode.ImageLeft:
+                    // View 3: Image on left, text and button on right (Third image)
+                    imageBox.Visible = !string.IsNullOrEmpty(imagePath);
+
+                    if (imageBox.Visible)
+                    {
+                        // Image on the left, taking ~1/3 of the width and full height (minus padding)
+                        int imageWidth = (int)(availableWidth * 0.33);
+                        int imageHeight = availableHeight - buttonHeight - padding;
+                        imageBox.Size = new Size(imageWidth, imageHeight);
+                        imageBox.Location = new Point(DrawingRect.Left + padding, DrawingRect.Top + padding);
+
+                        // Text area on the right
+                        int textAreaX = imageBox.Right + padding;
+                        int textAreaWidth = Math.Max(0, DrawingRect.Right - padding - textAreaX);
+                        int textAreaHeight = availableHeight - buttonHeight - padding;
+
+                        // Header at the top of the text area
+                        headerLabel.Location = new Point(textAreaX, DrawingRect.Top + padding);
+                        headerLabel.Size = new Size(textAreaWidth, headerMeasuredHeight);
+                        headerLabel.TextAlign = ContentAlignment.TopLeft;
+
+                        // Paragraph below the header
+                        paragraphY = headerLabel.Bottom + padding;
+                        remainingHeight = DrawingRect.Bottom - paragraphY - buttonHeight - padding * 2;
+                        paragraphLabel.Location = new Point(textAreaX, paragraphY);
+                        paragraphLabel.Size = new Size(textAreaWidth, Math.Max(0, remainingHeight));
+                        paragraphLabel.TextAlign = ContentAlignment.TopLeft;
+
+                        // Button at the bottom right of the text area
+                        actionButton.Location = new Point(DrawingRect.Right - padding - buttonWidth, DrawingRect.Bottom - padding - buttonHeight);
+                    }
+                    else
+                    {
+                        // No image, stack header, paragraph, and button
+                        headerLabel.Location = new Point(DrawingRect.Left + padding, DrawingRect.Top + padding);
+                        headerLabel.Size = new Size(availableWidth, headerMeasuredHeight);
+                        headerLabel.TextAlign = ContentAlignment.TopLeft;
+
+                        paragraphY = headerLabel.Bottom + padding;
+                        remainingHeight = DrawingRect.Bottom - paragraphY - buttonHeight - padding * 2;
+                        paragraphLabel.Location = new Point(DrawingRect.Left + padding, paragraphY);
+                        paragraphLabel.Size = new Size(availableWidth, Math.Max(0, remainingHeight));
+                        paragraphLabel.TextAlign = ContentAlignment.TopLeft;
+
+                        actionButton.Location = new Point(DrawingRect.Right - padding - buttonWidth, DrawingRect.Bottom - padding - buttonHeight);
+                    }
+                    break;
             }
-            else if (HeaderAlignment == ContentAlignment.TopRight
-                  || HeaderAlignment == ContentAlignment.MiddleRight)
-            {
-                // (A) Place the image on the left side
-                int imageX = DrawingRect.Left + padding;
-                int imageY = topRowY + (topRowHeight - imageSize.Height) / 2;
-                imageBox.Location = new Point(imageX, imageY);
 
-                // (B) Make headerLabel fill from right after the image to the control’s right edge
-                int labelX = imageX + imageSize.Width + 5; // some spacing
-                int labelWidth = Math.Max(0, (DrawingRect.Right - padding) - labelX);
-                int labelHeight = headerMeasuredHeight;
-
-                int headerY = topRowY + (topRowHeight - labelHeight) / 2;
-                headerLabel.Location = new Point(labelX, headerY);
-                headerLabel.Size = new Size(labelWidth, labelHeight);
-
-                headerLabel.TextAlign = ContentAlignment.MiddleRight;
-                // or MiddleLeft if you prefer text pinned left in that region
-            }
-            else
-            {
-                // Example: If you want "Center" alignment, you could do something else:
-                // * Place image somewhere in the row.
-                // * Then let the label fill the remaining space, maybe centered horizontally.
-                // (Implementation depends on your exact needs.)
-            }
-
-            // 4) Next, position the paragraph label below
-            int contentTop = Math.Max(headerLabel.Bottom, imageBox.Bottom) + padding;
-            int remainingHeight = DrawingRect.Bottom - contentTop - padding;
-
-            paragraphLabel.Size = new Size(availableWidth, Math.Max(0, remainingHeight));
-            paragraphLabel.Location = new Point(DrawingRect.Left + padding, contentTop);
-
-            // 5) Ensure the header is on top if needed
+            // Ensure proper z-order
             headerLabel.BringToFront();
+            paragraphLabel.BringToFront();
+            actionButton.BringToFront();
             Controls.SetChildIndex(headerLabel, 0);
-
-            // 6) Let paragraph label anchor to all sides
-            paragraphLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left
-                                  | AnchorStyles.Right | AnchorStyles.Top;
+            Controls.SetChildIndex(paragraphLabel, 1);
+            Controls.SetChildIndex(actionButton, 2);
         }
 
         private GraphicsPath RoundedRect(Rectangle bounds, int radius)
@@ -393,10 +473,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.CloseFigure();
             return path;
         }
+
         public override string ToString()
         {
             return GetType().Name.Replace("Control", "").Replace("Beep", "Beep ");
         }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -404,6 +486,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 imageBox?.Dispose();
                 headerLabel?.Dispose();
                 paragraphLabel?.Dispose();
+                actionButton?.Dispose();
             }
             base.Dispose(disposing);
         }

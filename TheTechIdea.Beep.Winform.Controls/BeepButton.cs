@@ -595,7 +595,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            
+            base.ApplyTheme();
             BackColor = _currentTheme.ButtonBackColor;
             ForeColor = _currentTheme.ButtonForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
@@ -606,7 +606,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-                
+                 Font = _textFont;
             }
             if (IsChild && Parent!=null)
             {
@@ -688,10 +688,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawImageAndText(Graphics g)
         {
            //// Console.WriteLine($"User ThemeFont is {UseThemeFont}");
-            if (!SetFont() && UseThemeFont)
-            {
-                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-            };
+            //if (!SetFont() && UseThemeFont)
+            //{
+            //    _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            //};
             // Measure and scale the font to fit within the control bounds
             Font scaledFont = _textFont;// GetScaledFont(g, Text, contentRect.Value, TextFont);
             if (UseScaledFont)
@@ -904,10 +904,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override Size GetPreferredSize(Size proposedSize)
         {
-            if (!SetFont() && UseThemeFont)
-            {
-                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-            };
+            //if (!SetFont() && UseThemeFont)
+            //{
+            //    _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            //};
             // Measure and scale the font to fit within the control bounds
 
             Size textSize = TextRenderer.MeasureText(Text, _textFont);

@@ -284,7 +284,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Width = 7,
                     Dock = DockStyle.Left,
-                    BackColor = _currentTheme.SideMenuBackColor,
+                    BackColor = this.BackColor,
                     Visible = true,
 
                 };
@@ -294,7 +294,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Width = 2,
                     Dock = DockStyle.Left,
-                    BackColor = _currentTheme.SideMenuBackColor,
+                    BackColor = this.BackColor,
                     Visible = true,
                 };
                 // Add Beepbutton and highlight panel to the panel
@@ -376,14 +376,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             button.MouseEnter += (s, e) =>
             {
                base.OnMouseEnter(e);
-                 menuItemPanel.BackColor = _currentTheme.ButtonHoverBackColor;
+               //  menuItemPanel.BackColor = _currentTheme.ButtonHoverBackColor;
                 if (_showHilightBox) highlightPanel.BackColor = _currentTheme.AccentColor;
             };
             button.MouseLeave += (s, e) =>
             {
                 base.OnMouseLeave(e);
-                 menuItemPanel.BackColor = _currentTheme.ButtonBackColor;
-                if (_showHilightBox) highlightPanel.BackColor = _currentTheme.SideMenuBackColor;
+              //   menuItemPanel.BackColor = BackColor;
+                if (_showHilightBox) highlightPanel.BackColor = BackColor;
             };
             button.Click += Button_Click;
 
@@ -626,15 +626,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             //base.ApplyTheme();
             // Apply theme to the main menu panel (background gradient or solid color)
             BackColor = _currentTheme.ButtonBackColor;
-
-          //  _currentTheme.ButtonBackColor = _currentTheme.BackgroundColor;
+            ForeColor = _currentTheme.ButtonForeColor;
+            //  _currentTheme.ButtonBackColor = _currentTheme.BackgroundColor;
             // Apply theme to each item (button and highlight panel)
+            SetColors();
+            Invalidate();
+            // Optionally, apply any additional theming for the overall side menu layout here (e.g., ShowVerticalScrollBar, borders, or custom UI components)
+        }
+        public void SetColors()
+        {
             foreach (Control control in this.Controls)
             {
                 if (control is Panel menuItemPanel)
                 {
                     // Apply background color for the menu item panel
-                    menuItemPanel.BackColor = _currentTheme.ButtonBackColor;
+                    menuItemPanel.BackColor = BackColor;
 
                     // Loop through the controls inside the panel (button and highlight panel)
                     foreach (Control subControl in menuItemPanel.Controls)
@@ -642,40 +648,43 @@ namespace TheTechIdea.Beep.Winform.Controls
                         switch (subControl)
                         {
                             case BeepButton button:
-                                button.Theme = Theme;
+                              //  button.Theme = Theme;
                                 if (UseThemeFont)
                                 {
                                     button.UseThemeFont = true;
-                                   _textFont = BeepThemesManager.ToFont(_currentTheme.OrderedList);
-                                    button.Font = _textFont;
+                                    _textFont = BeepThemesManager.ToFont(_currentTheme.OrderedList);
+                                  
                                 }
                                 else
                                 {
                                     button.UseThemeFont = false;
-                                    button.TextFont = _textFont;
+                                   
                                 }
                                 Font = _textFont;
-                                
-                                button.BackColor = _currentTheme.ButtonBackColor;
-                                button.ForeColor = _currentTheme.ButtonForeColor;
-                                button.HoverBackColor = _currentTheme.ButtonHoverBackColor;
-                                button.HoverForeColor = _currentTheme.ButtonHoverForeColor;
+                                button.Font = _textFont;
+                                button.Theme = Theme;
+                                button.BackColor = BackColor;
+                                button.ForeColor = ForeColor;
+                                button.HoverBackColor = BackColor;
+                                button.HoverForeColor = ForeColor;
                                 button.UseScaledFont = true;
-                               // button.ForeColor = ColorUtils.GetForColor(BackColor, _currentTheme.ButtonForeColor);
+                              //  button.IsChild = false;
+                              // 
+                                button.Invalidate();
+                                // button.ForeColor = ColorUtils.GetForColor(BackColor, _currentTheme.ButtonForeColor);
                                 break;
 
                             case Panel highlightPanel:
                                 // Apply the highlight color for the side highlight panel
-                                highlightPanel.BackColor = _currentTheme.ButtonBackColor;
+                                highlightPanel.BackColor = BackColor;
+                                highlightPanel.Invalidate();
                                 break;
                         }
                     }
 
-                  
+
                 }
             }
-            Invalidate();
-            // Optionally, apply any additional theming for the overall side menu layout here (e.g., ShowVerticalScrollBar, borders, or custom UI components)
         }
         //protected override void OnMouseEnter(EventArgs e)
         //{

@@ -15544,7 +15544,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             GridRowSelectedForeColor = Color.White,
             GridRowHoverBorderColor = Color.Gray,
             GridRowSelectedBorderColor = Color.FromArgb(0, 120, 215),
-            CardBackColor = Color.FromArgb(255, 69, 58), // Soft reddish tone
+            CardBackColor = Color.DarkGray,
             // **Card Styles**
             CardHeaderStyle = new TypographyStyle
             {
@@ -15561,7 +15561,8 @@ namespace TheTechIdea.Beep.Vis.Modules
                 FontWeight = FontWeight.Regular,
                 TextColor = Color.FromArgb(255, 0, 0, 0),
             },
-
+            CardTitleForeColor = Color.FromArgb(255, 0, 0, 0),
+            CardTextForeColor = Color.White,
             // **UI Elements**
             CloseButtonColor = Color.FromArgb(232, 17, 35),      // Close Button Red
             MaxButtonColor = Color.FromArgb(0, 120, 215),        // Maximize Button Blue
@@ -15761,8 +15762,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             DashboardBackColor = Color.White,
             DashboardCardBackColor = Color.WhiteSmoke,
             DashboardCardHoverBackColor = Color.FromArgb(248, 248, 248),
-            CardTitleForeColor = Color.FromArgb(255, 0, 0, 0),
-            CardTextForeColor = Color.Gray,
+           
 
             // **Data Visualization (Charts)**
             ChartBackColor = Color.White,

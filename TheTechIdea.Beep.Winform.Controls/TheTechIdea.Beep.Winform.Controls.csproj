@@ -73,6 +73,7 @@
     <None Remove="GFX\SVG\backwards.svg" />
     <None Remove="GFX\SVG\beep.svg" />
     <None Remove="GFX\SVG\beepsetup.svg" />
+    <None Remove="GFX\SVG\bullet.svg" />
     <None Remove="GFX\SVG\cancel.svg" />
     <None Remove="GFX\SVG\cassandra.svg" />
     <None Remove="GFX\SVG\cat.svg" />
@@ -212,6 +213,8 @@
     <None Remove="GFX\SVG\thumb-up.svg" />
     <None Remove="GFX\SVG\tick.svg" />
     <None Remove="GFX\SVG\trash.svg" />
+    <None Remove="GFX\SVG\trenddown.svg" />
+    <None Remove="GFX\SVG\trendup.svg" />
     <None Remove="GFX\SVG\tryagain.svg" />
     <None Remove="GFX\SVG\undo.svg" />
     <None Remove="GFX\SVG\user.svg" />
@@ -223,6 +226,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GFX\PNG\042-dot.png" />
+    <EmbeddedResource Include="GFX\SVG\bullet.svg" />
     <EmbeddedResource Include="GFX\SVG\fastbackword.svg" />
     <EmbeddedResource Include="GFX\SVG\fastforward.svg" />
     <EmbeddedResource Include="GFX\SVG\firstpage.svg" />
@@ -384,6 +388,8 @@
     <EmbeddedResource Include="GFX\SVG\thumb-up.svg" />
     <EmbeddedResource Include="GFX\SVG\tick.svg" />
     <EmbeddedResource Include="GFX\SVG\trash.svg" />
+    <EmbeddedResource Include="GFX\SVG\trenddown.svg" />
+    <EmbeddedResource Include="GFX\SVG\trendup.svg" />
     <EmbeddedResource Include="GFX\SVG\tryagain.svg" />
     <EmbeddedResource Include="GFX\SVG\undo.svg" />
     <EmbeddedResource Include="GFX\SVG\user.svg" />

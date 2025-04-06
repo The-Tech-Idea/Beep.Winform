@@ -263,10 +263,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_currentTheme == null) return;
             BackColor = _currentTheme.CardBackColor;
+            headerLabel.Theme = Theme;
             headerLabel.ForeColor = _currentTheme.CardHeaderStyle.TextColor;
             headerLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
             headerLabel.BackColor = _currentTheme.CardBackColor;
-
+            paragraphLabel.Theme = Theme;
             paragraphLabel.ForeColor = _currentTheme.CardTextForeColor;
             paragraphLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
             paragraphLabel.BackColor = _currentTheme.CardBackColor;

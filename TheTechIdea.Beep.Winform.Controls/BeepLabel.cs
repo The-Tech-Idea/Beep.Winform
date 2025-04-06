@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ContentAlignment imageAlign = ContentAlignment.MiddleLeft;
         private Size _maxImageSize = new Size(16, 16);
         private bool _hideText = false;
-        private int offset = 3;
+        private int offset = 6;
         private Color _backcolor;
         private ContentAlignment _textAlign = ContentAlignment.MiddleLeft;
         private bool _useScaledfont = false;
@@ -423,7 +423,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Use the control's current width as the constraint for multi-line text
-            int maxWidth = proposedSize.Width > 0 ? proposedSize.Width : (this.Width > 0 ? this.Width : 200);
+            int maxWidth = proposedSize.Width > 0 ? proposedSize.Width : (DrawingRect.Width > 0 ? DrawingRect.Width : 200);
             Size textSize;
             if (_multiline)
             {
@@ -486,7 +486,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     textSize = TextRenderer.MeasureText(Text, _textFont, new Size(contentRect.Width, int.MaxValue), GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
                 }
+                // Calculate the total width required for text, image, and spacing
+                int totalWidth = textSize.Width + offset + imageSize.Width;
+                int totalHeight = Math.Max(textSize.Height, imageSize.Height);
 
+                // Adjust contentRect to fit the total content
+                contentRect.Width = Math.Min(contentRect.Width, totalWidth);
+                contentRect.Height = Math.Min(contentRect.Height, totalHeight);
                 switch (this.TextImageRelation)
                 {
                     case TextImageRelation.Overlay:
@@ -496,23 +502,76 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     case TextImageRelation.ImageBeforeText:
                         imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, imageSize.Width, contentRect.Height), imageSize, ImageAlign);
-                        textRect = AlignRectangle(new Rectangle(contentRect.Left + imageSize.Width + Padding.Horizontal, contentRect.Top, contentRect.Width - imageSize.Width - Padding.Horizontal, contentRect.Height), textSize, TextAlign);
+                        textRect = AlignRectangle(new Rectangle(contentRect.Left + imageSize.Width + offset, contentRect.Top, contentRect.Width - imageSize.Width - offset, contentRect.Height), textSize, TextAlign);
                         break;
 
                     case TextImageRelation.TextBeforeImage:
                         textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, textSize.Width, contentRect.Height), textSize, TextAlign);
-                        imageRect = AlignRectangle(new Rectangle(contentRect.Left + textSize.Width + Padding.Horizontal, contentRect.Top, contentRect.Width - textSize.Width - Padding.Horizontal, contentRect.Height), imageSize, ImageAlign);
+                        imageRect = AlignRectangle(new Rectangle(contentRect.Left + textSize.Width + offset, contentRect.Top, contentRect.Width - textSize.Width - offset, contentRect.Height), imageSize, ImageAlign);
                         break;
 
                     case TextImageRelation.ImageAboveText:
                         imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, contentRect.Width, imageSize.Height), imageSize, ImageAlign);
-                        textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + imageSize.Height + Padding.Vertical, contentRect.Width, contentRect.Height - imageSize.Height - Padding.Vertical), textSize, TextAlign);
+                        textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + imageSize.Height + offset, contentRect.Width, contentRect.Height - imageSize.Height - offset), textSize, TextAlign);
                         break;
 
                     case TextImageRelation.TextAboveImage:
                         textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, contentRect.Width, textSize.Height), textSize, TextAlign);
-                        imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + textSize.Height + Padding.Vertical, contentRect.Width, contentRect.Height - textSize.Height - Padding.Vertical), imageSize, ImageAlign);
+                        imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + textSize.Height + offset, contentRect.Width, contentRect.Height - textSize.Height - offset), imageSize, ImageAlign);
                         break;
+                }
+                // Adjust positions based on TextAlign and ImageAlign within the contentRect
+                if (TextImageRelation == TextImageRelation.TextBeforeImage)
+                {
+                    // Recalculate the total content width and adjust positions
+                    int contentWidth = textRect.Width + offset + imageRect.Width;
+                    int contentHeight = Math.Max(textRect.Height, imageRect.Height);
+
+                    // Center the entire content (text + image) within the contentRect based on TextAlign
+                    int contentX = contentRect.Left;
+                    int contentY = contentRect.Top;
+
+                    switch (TextAlign)
+                    {
+                        case ContentAlignment.TopLeft:
+                        case ContentAlignment.MiddleLeft:
+                        case ContentAlignment.BottomLeft:
+                            contentX = contentRect.Left;
+                            break;
+                        case ContentAlignment.TopCenter:
+                        case ContentAlignment.MiddleCenter:
+                        case ContentAlignment.BottomCenter:
+                            contentX = contentRect.Left + (contentRect.Width - contentWidth) / 2;
+                            break;
+                        case ContentAlignment.TopRight:
+                        case ContentAlignment.MiddleRight:
+                        case ContentAlignment.BottomRight:
+                            contentX = contentRect.Right - contentWidth;
+                            break;
+                    }
+
+                    switch (TextAlign)
+                    {
+                        case ContentAlignment.TopLeft:
+                        case ContentAlignment.TopCenter:
+                        case ContentAlignment.TopRight:
+                            contentY = contentRect.Top;
+                            break;
+                        case ContentAlignment.MiddleLeft:
+                        case ContentAlignment.MiddleCenter:
+                        case ContentAlignment.MiddleRight:
+                            contentY = contentRect.Top + (contentRect.Height - contentHeight) / 2;
+                            break;
+                        case ContentAlignment.BottomLeft:
+                        case ContentAlignment.BottomCenter:
+                        case ContentAlignment.BottomRight:
+                            contentY = contentRect.Bottom - contentHeight;
+                            break;
+                    }
+
+                    // Adjust text and image positions within the content area
+                    textRect = new Rectangle(contentX, contentY + (contentHeight - textRect.Height) / 2, textRect.Width, textRect.Height);
+                    imageRect = new Rectangle(contentX + textRect.Width + offset, contentY + (contentHeight - imageRect.Height) / 2, imageRect.Width, imageRect.Height);
                 }
             }
         }

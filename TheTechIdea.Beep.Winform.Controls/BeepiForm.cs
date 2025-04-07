@@ -193,8 +193,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnShown(e);
             beepuiManager1.Initialize(this); // Explicitly initialize the manager with the form
-            
 
+            Application.AddMessageFilter(_mouseMessageFilter);  // ✅ Hook into message loop
             //if (InvokeRequired)
             //{
             //    Invoke(new Action(() => Theme = BeepThemesManager.CurrentTheme));

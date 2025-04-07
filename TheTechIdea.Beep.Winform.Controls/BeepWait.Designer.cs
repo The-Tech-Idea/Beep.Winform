@@ -62,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.BlockID = null;
             Title.BorderColor = Color.Black;
             Title.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            Title.BorderRadius = 1;
+            Title.BorderRadius = 20;
             Title.BorderStyle = BorderStyle.FixedSingle;
             Title.BorderThickness = 1;
             Title.BottomoffsetForDrawingRect = 0;
@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.DisabledBackColor = Color.Gray;
             Title.DisabledForeColor = Color.Empty;
             Title.Dock = DockStyle.Top;
-            Title.DrawingRect = new Rectangle(1, 1, 459, 33);
+            Title.DrawingRect = new Rectangle(1, 1, 461, 33);
             Title.Easing = EasingType.Linear;
             Title.FieldID = null;
             Title.FocusBackColor = Color.Gray;
@@ -103,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.InactiveBackColor = Color.Gray;
             Title.InactiveBorderColor = Color.Gray;
             Title.InactiveForeColor = Color.Black;
- 
+            Title.Info = (SimpleItem)resources.GetObject("Title.Info");
             Title.IsAcceptButton = false;
             Title.IsBorderAffectedByTheme = true;
             Title.IsCancelButton = false;
@@ -129,9 +129,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.LabelBackColor = Color.Empty;
             Title.LeftoffsetForDrawingRect = 0;
             Title.LinkedProperty = null;
-            Title.Location = new Point(4, 4);
+            Title.Location = new Point(3, 3);
             Title.Margin = new Padding(0);
             Title.MaxImageSize = new Size(16, 16);
+            Title.Multiline = false;
             Title.Name = "Title";
             Title.OverrideFontSize = TypeStyleFontSize.None;
             Title.Padding = new Padding(1);
@@ -153,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.ShowRightBorder = false;
             Title.ShowShadow = false;
             Title.ShowTopBorder = false;
-            Title.Size = new Size(461, 35);
+            Title.Size = new Size(463, 35);
             Title.SlideFrom = SlideDirection.Left;
             Title.StaticNotMoving = false;
             Title.TabIndex = 8;
@@ -184,10 +185,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.BadgeForeColor = Color.White;
             LogopictureBox.BadgeShape = BadgeShape.Circle;
             LogopictureBox.BadgeText = "";
+            LogopictureBox.BaseSize = 50;
             LogopictureBox.BlockID = null;
             LogopictureBox.BorderColor = Color.FromArgb(255, 255, 255);
             LogopictureBox.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            LogopictureBox.BorderRadius = 1;
+            LogopictureBox.BorderRadius = 3;
             LogopictureBox.BorderStyle = BorderStyle.FixedSingle;
             LogopictureBox.BorderThickness = 1;
             LogopictureBox.BottomoffsetForDrawingRect = 0;
@@ -225,7 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.InactiveBackColor = Color.Gray;
             LogopictureBox.InactiveBorderColor = Color.Gray;
             LogopictureBox.InactiveForeColor = Color.Black;
-       
+            LogopictureBox.Info = (SimpleItem)resources.GetObject("LogopictureBox.Info");
             LogopictureBox.IsAcceptButton = false;
             LogopictureBox.IsBorderAffectedByTheme = true;
             LogopictureBox.IsCancelButton = false;
@@ -236,16 +238,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.IsDirty = false;
             LogopictureBox.IsEditable = false;
             LogopictureBox.IsFocused = false;
-            LogopictureBox.IsFrameless = false;
+            LogopictureBox.IsFrameless = true;
             LogopictureBox.IsHovered = false;
             LogopictureBox.IsNew = false;
             LogopictureBox.IsPressed = false;
             LogopictureBox.IsReadOnly = false;
             LogopictureBox.IsRequired = false;
-            LogopictureBox.IsRounded = true;
-            LogopictureBox.IsRoundedAffectedByTheme = true;
+            LogopictureBox.IsRounded = false;
+            LogopictureBox.IsRoundedAffectedByTheme = false;
             LogopictureBox.IsSelected = false;
-            LogopictureBox.IsShadowAffectedByTheme = true;
+            LogopictureBox.IsShadowAffectedByTheme = false;
             LogopictureBox.IsSpinning = false;
             LogopictureBox.IsStillImage = false;
             LogopictureBox.IsVisible = false;
@@ -264,6 +266,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.RightoffsetForDrawingRect = 0;
             LogopictureBox.SavedGuidID = null;
             LogopictureBox.SavedID = null;
+            LogopictureBox.ScaleFactor = 1F;
             LogopictureBox.ScaleMode = Vis.Modules.ImageScaleMode.KeepAspectRatio;
             LogopictureBox.ShadowColor = Color.FromArgb(0, 0, 0);
             LogopictureBox.ShadowOffset = 0;
@@ -289,6 +292,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.UseGradientBackground = false;
             LogopictureBox.UseThemeFont = true;
             LogopictureBox.UseWaitCursor = true;
+            LogopictureBox.Velocity = 0F;
             // 
             // beepLabel1
             // 
@@ -307,7 +311,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.BlockID = null;
             beepLabel1.BorderColor = Color.Black;
             beepLabel1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            beepLabel1.BorderRadius = 3;
+            beepLabel1.BorderRadius = 20;
             beepLabel1.BorderStyle = BorderStyle.FixedSingle;
             beepLabel1.BorderThickness = 1;
             beepLabel1.BottomoffsetForDrawingRect = 0;
@@ -346,7 +350,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.InactiveBackColor = Color.Gray;
             beepLabel1.InactiveBorderColor = Color.Gray;
             beepLabel1.InactiveForeColor = Color.Black;
-          
+            beepLabel1.Info = (SimpleItem)resources.GetObject("beepLabel1.Info");
             beepLabel1.IsAcceptButton = false;
             beepLabel1.IsBorderAffectedByTheme = true;
             beepLabel1.IsCancelButton = false;
@@ -357,16 +361,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.IsDirty = false;
             beepLabel1.IsEditable = false;
             beepLabel1.IsFocused = false;
-            beepLabel1.IsFrameless = false;
+            beepLabel1.IsFrameless = true;
             beepLabel1.IsHovered = false;
             beepLabel1.IsNew = false;
             beepLabel1.IsPressed = false;
             beepLabel1.IsReadOnly = false;
             beepLabel1.IsRequired = false;
             beepLabel1.IsRounded = true;
-            beepLabel1.IsRoundedAffectedByTheme = true;
+            beepLabel1.IsRoundedAffectedByTheme = false;
             beepLabel1.IsSelected = false;
-            beepLabel1.IsShadowAffectedByTheme = true;
+            beepLabel1.IsShadowAffectedByTheme = false;
             beepLabel1.IsVisible = false;
             beepLabel1.Items = (List<object>)resources.GetObject("beepLabel1.Items");
             beepLabel1.LabelBackColor = Color.Empty;
@@ -375,6 +379,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.Location = new Point(4, 326);
             beepLabel1.Margin = new Padding(0);
             beepLabel1.MaxImageSize = new Size(16, 16);
+            beepLabel1.Multiline = false;
             beepLabel1.Name = "beepLabel1";
             beepLabel1.OverrideFontSize = TypeStyleFontSize.None;
             beepLabel1.Padding = new Padding(1);
@@ -430,7 +435,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.BlockID = null;
             beepLabel2.BorderColor = Color.Black;
             beepLabel2.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            beepLabel2.BorderRadius = 3;
+            beepLabel2.BorderRadius = 20;
             beepLabel2.BorderStyle = BorderStyle.FixedSingle;
             beepLabel2.BorderThickness = 1;
             beepLabel2.BottomoffsetForDrawingRect = 0;
@@ -469,7 +474,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.InactiveBackColor = Color.Gray;
             beepLabel2.InactiveBorderColor = Color.Gray;
             beepLabel2.InactiveForeColor = Color.Black;
-         
+            beepLabel2.Info = (SimpleItem)resources.GetObject("beepLabel2.Info");
             beepLabel2.IsAcceptButton = false;
             beepLabel2.IsBorderAffectedByTheme = true;
             beepLabel2.IsCancelButton = false;
@@ -480,16 +485,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.IsDirty = false;
             beepLabel2.IsEditable = false;
             beepLabel2.IsFocused = false;
-            beepLabel2.IsFrameless = false;
+            beepLabel2.IsFrameless = true;
             beepLabel2.IsHovered = false;
             beepLabel2.IsNew = false;
             beepLabel2.IsPressed = false;
             beepLabel2.IsReadOnly = false;
             beepLabel2.IsRequired = false;
             beepLabel2.IsRounded = true;
-            beepLabel2.IsRoundedAffectedByTheme = true;
+            beepLabel2.IsRoundedAffectedByTheme = false;
             beepLabel2.IsSelected = false;
-            beepLabel2.IsShadowAffectedByTheme = true;
+            beepLabel2.IsShadowAffectedByTheme = false;
             beepLabel2.IsVisible = false;
             beepLabel2.Items = (List<object>)resources.GetObject("beepLabel2.Items");
             beepLabel2.LabelBackColor = Color.Empty;
@@ -498,6 +503,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.Location = new Point(374, 326);
             beepLabel2.Margin = new Padding(0);
             beepLabel2.MaxImageSize = new Size(16, 16);
+            beepLabel2.Multiline = false;
             beepLabel2.Name = "beepLabel2";
             beepLabel2.OverrideFontSize = TypeStyleFontSize.None;
             beepLabel2.Padding = new Padding(1);
@@ -548,13 +554,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.ApplyThemeToChilds = true;
             messege.AutoCompleteMode = AutoCompleteMode.None;
             messege.AutoCompleteSource = AutoCompleteSource.None;
+            messege.BackColor = Color.White;
             messege.BadgeBackColor = Color.Red;
             messege.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             messege.BadgeForeColor = Color.White;
             messege.BadgeShape = BadgeShape.Circle;
             messege.BadgeText = "";
             messege.BlockID = null;
-            messege.BorderColor = Color.Black;
+            messege.BorderColor = Color.FromArgb(200, 200, 200);
             messege.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             messege.BorderRadius = 3;
             messege.BorderStyle = BorderStyle.FixedSingle;
@@ -597,7 +604,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.InactiveBackColor = Color.Gray;
             messege.InactiveBorderColor = Color.Gray;
             messege.InactiveForeColor = Color.Black;
-           
+            messege.Info = (SimpleItem)resources.GetObject("messege.Info");
             messege.IsAcceptButton = false;
             messege.IsBorderAffectedByTheme = false;
             messege.IsCancelButton = false;
@@ -608,14 +615,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.IsDirty = false;
             messege.IsEditable = false;
             messege.IsFocused = false;
-            messege.IsFrameless = false;
+            messege.IsFrameless = true;
             messege.IsHovered = false;
             messege.IsNew = false;
             messege.IsPressed = false;
             messege.IsReadOnly = false;
             messege.IsRequired = false;
-            messege.IsRounded = true;
-            messege.IsRoundedAffectedByTheme = true;
+            messege.IsRounded = false;
+            messege.IsRoundedAffectedByTheme = false;
             messege.IsSelected = false;
             messege.IsShadowAffectedByTheme = false;
             messege.IsVisible = false;
@@ -688,10 +695,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.BadgeForeColor = Color.White;
             _spinnerImage.BadgeShape = BadgeShape.Circle;
             _spinnerImage.BadgeText = "";
+            _spinnerImage.BaseSize = 50;
             _spinnerImage.BlockID = null;
             _spinnerImage.BorderColor = Color.Black;
             _spinnerImage.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            _spinnerImage.BorderRadius = 3;
+            _spinnerImage.BorderRadius = 20;
             _spinnerImage.BorderStyle = BorderStyle.FixedSingle;
             _spinnerImage.BorderThickness = 1;
             _spinnerImage.BottomoffsetForDrawingRect = 0;
@@ -706,7 +714,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.DisabledBackColor = Color.Gray;
             _spinnerImage.DisabledForeColor = Color.Empty;
             _spinnerImage.Dock = DockStyle.Top;
-            _spinnerImage.DrawingRect = new Rectangle(0, 0, 461, 112);
+            _spinnerImage.DrawingRect = new Rectangle(0, 0, 463, 112);
             _spinnerImage.Easing = EasingType.Linear;
             _spinnerImage.FieldID = null;
             _spinnerImage.FillColor = Color.Black;
@@ -730,7 +738,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.InactiveBackColor = Color.Gray;
             _spinnerImage.InactiveBorderColor = Color.Gray;
             _spinnerImage.InactiveForeColor = Color.Black;
-           
+            _spinnerImage.Info = (SimpleItem)resources.GetObject("_spinnerImage.Info");
             _spinnerImage.IsAcceptButton = false;
             _spinnerImage.IsBorderAffectedByTheme = true;
             _spinnerImage.IsCancelButton = false;
@@ -757,7 +765,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.Items = (List<object>)resources.GetObject("_spinnerImage.Items");
             _spinnerImage.LeftoffsetForDrawingRect = 0;
             _spinnerImage.LinkedProperty = null;
-            _spinnerImage.Location = new Point(4, 39);
+            _spinnerImage.Location = new Point(3, 38);
             _spinnerImage.ManualRotationAngle = 0F;
             _spinnerImage.Name = "_spinnerImage";
             _spinnerImage.OverrideFontSize = TypeStyleFontSize.None;
@@ -769,6 +777,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.RightoffsetForDrawingRect = 0;
             _spinnerImage.SavedGuidID = null;
             _spinnerImage.SavedID = null;
+            _spinnerImage.ScaleFactor = 1F;
             _spinnerImage.ScaleMode = Vis.Modules.ImageScaleMode.KeepAspectRatio;
             _spinnerImage.ShadowColor = Color.Black;
             _spinnerImage.ShadowOffset = 0;
@@ -780,7 +789,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.ShowRightBorder = false;
             _spinnerImage.ShowShadow = false;
             _spinnerImage.ShowTopBorder = false;
-            _spinnerImage.Size = new Size(461, 112);
+            _spinnerImage.Size = new Size(463, 112);
             _spinnerImage.SlideFrom = SlideDirection.Left;
             _spinnerImage.SpinSpeed = 5F;
             _spinnerImage.StaticNotMoving = false;
@@ -794,6 +803,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.UseGradientBackground = false;
             _spinnerImage.UseThemeFont = true;
             _spinnerImage.UseWaitCursor = true;
+            _spinnerImage.Velocity = 0F;
             // 
             // BeepWait
             // 
@@ -808,6 +818,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(Title);
             Margin = new Padding(4, 3, 4, 3);
             Name = "BeepWait";
+            Padding = new Padding(3);
             ShowInTaskbar = false;
             Text = "BeepWait";
             TopMost = true;

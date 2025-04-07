@@ -232,8 +232,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowCheckBox = false,
                 ShowHilightBox = true,
                 ShowTitleLine = false,
-                MenuItemHeight = 20,
-                ImageSize = 12,
+                MenuItemHeight = 30,
+                ImageSize = 20,
                 ShowTitle=false,
                 AutoSize = false // We'll set the size in RefreshLayout
             };
@@ -249,7 +249,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 AutoSize = true,
-                Size = new Size(16, 16) // Small icon size
+                Size = new Size(32, 32) // Small icon size
             };
             Controls.Add(actionIcon1);
 
@@ -262,7 +262,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 AutoSize = true,
-                Size = new Size(16, 16) // Small icon size
+                Size = new Size(32, 32) // Small icon size
             };
             Controls.Add(actionIcon2);
 
@@ -275,10 +275,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 AutoSize = true,
-                Size = new Size(32, 32) // Larger icon size for card icon
+                Size = new Size(64, 64) // Larger icon size for card icon
             };
             Controls.Add(cardIcon);
-
+            AutoScroll = false;
             ApplyTheme();
             RefreshLayout();
         }
@@ -361,7 +361,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             int listHeight = featuresListBox.GetMaxHeight();
             featuresListBox.Location = new Point(DrawingRect.Left + padding, listTop);
             featuresListBox.Size = new Size(availableWidth, listHeight);
-
+            //AutoScrollMinSize = new Size(availableWidth, listHeight);
+            //AutoScroll = true;
             // Ensure proper z-order
             logoImage.BringToFront();
             titleLabel.BringToFront();

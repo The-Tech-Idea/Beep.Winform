@@ -13,6 +13,48 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepChart : BeepControl
     {
         #region Fields and Properties
+        private bool _showtitle= true;
+        [Category("Appearance")]
+        public bool ShowTitle
+        {
+            get => _showtitle;
+            set
+            {
+                _showtitle = value;
+                Invalidate();
+            }
+        }
+
+        [Category("Appearance")]
+        public string ChartTitle { get; set; } = "Chart Title";
+
+        [Category("Appearance")]
+        public string ChartValue { get; set; } = "$12,000,000";
+
+        [Category("Appearance")]
+        public string ChartSubtitle { get; set; } = "Subtitle or Description";
+
+        [Browsable(true)]
+        public Font ChartTitleFont { get; set; }
+            = new Font("Arial", 12, FontStyle.Bold);
+
+        [Browsable(true)]
+        public Font ChartValueFont { get; set; }
+            = new Font("Arial", 20, FontStyle.Bold);
+
+        [Browsable(true)]
+        public Font ChartSubtitleFont { get; set; }
+            = new Font("Arial", 9, FontStyle.Regular);
+
+        [Browsable(true)]
+        public Color ChartTitleForeColor { get; set; } = Color.Black;
+
+        // If you want separate color for Value or Subtitle, simply add them similarly:
+        // public Color ChartValueForeColor { get; set; } = Color.DarkBlue;
+        // public Color ChartSubtitleForeColor { get; set; } = Color.Gray;
+
+        // ... and similarly for ChartValueForeColor, ChartSubtitleForeColor, etc.
+
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         private List<ChartDataSeries> _dataSeries = new List<ChartDataSeries>();
 
@@ -127,6 +169,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ChartLegendShapeColor = chartColors.ChartLegendShapeColor;
                     ChartGridLineColor = chartColors.ChartGridLineColor;
                     ChartDefaultSeriesColors = new List<Color>(chartColors.ChartDefaultSeriesColors);
+                    ChartTitleFont = BeepThemesManager.ToFont(_currentTheme.TitleStyle);
+                    ChartValueFont = _currentTheme.GetBlockHeaderFont();
+                    ChartSubtitleFont = _currentTheme.GetBlockTextFont();
                     Invalidate();
                 }
                 else
@@ -159,7 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 System.Diagnostics.Trace.WriteLine($"BeepChart Constructor Error: {ex.Message}");
             }
         }
-
+        protected override Size DefaultSize => new Size(400, 300);
         private void InitializeDefaultSettings()
         {
             if (LicenseManager.UsageMode != LicenseUsageMode.Designtime)
@@ -235,12 +280,70 @@ namespace TheTechIdea.Beep.Winform.Controls
             try
             {
                 base.OnPaint(e);
-                if (ClientRectangle.Width <= 0 || ClientRectangle.Height <= 0)
+                UpdateDrawingRect();
+                if (DrawingRect.Width <= 0 || DrawingRect.Height <= 0)
                     return;
-
+                var g = e.Graphics;
                 UpdateChartDrawingRect(e.Graphics);
                 e.Graphics.Clear(DesignMode ? Color.White : ChartBackColor);
                 e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                // Start drawing any Title/Value/Subtitle at top-left
+                int textAreaLeft = DrawingRect.Left + 10;
+                int currentY = DrawingRect.Top + 10;
+                // Only draw if user wants to see these (i.e., ShowTitle == true)
+                if (ShowTitle)
+                {
+                    // 1) Draw main title (e.g., "Revenue")
+                    if (!string.IsNullOrEmpty(ChartTitle))
+                    {
+                        using (Brush titleBrush = new SolidBrush(ChartTitleForeColor))
+                        {
+                            SizeF titleSize = g.MeasureString(ChartTitle, ChartTitleFont);
+                            g.DrawString(ChartTitle, ChartTitleFont, titleBrush, textAreaLeft, currentY);
+                            currentY += (int)titleSize.Height + 5;
+                        }
+                    }
+
+                    // 2) Draw big value (e.g., "$5,010.68")
+                    if (!string.IsNullOrEmpty(ChartValue))
+                    {
+                        // If you want a separate color for the Value:
+                        // using (Brush valueBrush = new SolidBrush(ChartValueForeColor))
+                        // else just reuse the same color:
+                        using (Brush valueBrush = new SolidBrush(ChartTitleForeColor))
+                        {
+                            SizeF valueSize = g.MeasureString(ChartValue, ChartValueFont);
+                            g.DrawString(ChartValue, ChartValueFont, valueBrush, textAreaLeft, currentY);
+                            currentY += (int)valueSize.Height + 5;
+                        }
+                    }
+
+                    // 3) Draw subtitle (e.g., "from $4,430.41")
+                    if (!string.IsNullOrEmpty(ChartSubtitle))
+                    {
+                        // If you want a separate color for the Subtitle:
+                        // using (Brush subBrush = new SolidBrush(ChartSubtitleForeColor))
+                        // else reuse the same color:
+                        using (Brush subBrush = new SolidBrush(ChartTitleForeColor))
+                        {
+                            SizeF subSize = g.MeasureString(ChartSubtitle, ChartSubtitleFont);
+                            g.DrawString(ChartSubtitle, ChartSubtitleFont, subBrush, textAreaLeft, currentY);
+                            currentY += (int)subSize.Height + 10;
+                        }
+                    }
+                }
+                // Now that we used some space at the top for text, recalc the chart area
+                int topPadding = currentY; // chart starts below the last text drawn
+                int leftPadding = 40;
+                int rightPadding = 30;
+                int bottomPadding = 40;
+
+                ChartDrawingRect = new Rectangle(
+                    DrawingRect.Left + leftPadding,
+                    topPadding,
+                    DrawingRect.Width - leftPadding - rightPadding,
+                    DrawingRect.Height - topPadding - bottomPadding
+                );
 
                 // Only draw axes if NOT pie
                 if (ChartType != ChartType.Pie)

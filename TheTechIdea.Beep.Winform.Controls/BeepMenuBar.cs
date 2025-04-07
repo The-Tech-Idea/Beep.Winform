@@ -204,6 +204,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsFrameless = true;
             IsRounded = false;
             IsChild = false;
+            IsRounded = false;
+            IsRoundedAffectedByTheme = false;
+            IsBorderAffectedByTheme = false;
+            IsShadowAffectedByTheme = false;
             ListForms = new LinkedList<MenuitemTracking>();
             InitMenu();
         }

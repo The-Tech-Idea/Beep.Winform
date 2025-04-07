@@ -521,6 +521,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             ClosePopup();
 
             menuDialog = new BeepPopupListForm(ListItems.ToList());
+            //menuDialog._beepListBox.IsRoundedAffectedByTheme = false;
+            //menuDialog._beepListBox.IsRounded = false;
+            //menuDialog._beepListBox.ShowTitle = false;
+            //menuDialog._beepListBox.ShowTitleLine = false;
+            //menuDialog._beepListBox.IsShadowAffectedByTheme=false;
+            //menuDialog._beepListBox.ShowShadow = false;
+            //menuDialog._beepListBox.IsBorderAffectedByTheme = false;
+            //menuDialog._beepListBox.ShowAllBorders = false;
+            //menuDialog._beepListBox.IsFrameless = true;
             menuDialog.Theme = Theme;
             menuDialog.SelectedItemChanged += MenuDialog_SelectedItemChanged;
 

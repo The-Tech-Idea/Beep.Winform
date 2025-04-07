@@ -577,6 +577,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _isRounded = value;
                 _isControlinvalidated = true;
+                if (_isRounded)
+                {
+                    BorderRadius = 20;
+                }
+                else
+                    BorderRadius = 3;
                 UpdateControlRegion();
                 Invalidate();
 

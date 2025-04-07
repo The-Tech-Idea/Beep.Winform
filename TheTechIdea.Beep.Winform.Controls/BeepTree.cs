@@ -360,7 +360,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.AutoScroll = true;
             this.VerticalScroll.Visible = true;
             SelectedNodes = new List<BeepTreeNode>();
-           
+            IsRounded = false;
+            IsRoundedAffectedByTheme = false;
+            IsBorderAffectedByTheme = false;
+            IsShadowAffectedByTheme = false;
+
         }
         protected override void InitLayout()
         {

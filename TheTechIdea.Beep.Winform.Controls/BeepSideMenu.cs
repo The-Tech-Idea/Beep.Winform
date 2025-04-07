@@ -254,6 +254,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isControlinvalidated = true;
             animationTimer = new Timer { Interval = 10 };
             animationTimer.Tick += AnimationTimer_Tick;
+            IsRounded = false;
+            IsRoundedAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
             IsFrameless = true;

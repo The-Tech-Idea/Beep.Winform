@@ -314,7 +314,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsRounded = false;
             ApplyThemeToChilds = false;
             InitializeAppNavBar();
-          
+            IsRounded = false;
+            IsRoundedAffectedByTheme = false;
+            IsBorderAffectedByTheme = false;
+            IsShadowAffectedByTheme = false;
             // ApplyTheme();
         }
         protected override void OnHandleCreated(EventArgs e)
@@ -349,6 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             AddLogoImage();
             AddThemeIcon();
             RearrangeLayout();
+
         }
         private void AddLogoImage()
         {

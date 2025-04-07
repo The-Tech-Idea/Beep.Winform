@@ -142,6 +142,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _beepListBox.ListItems = new BindingList<SimpleItem>(items);
             _beepListBox.Theme = Theme;
+            _beepListBox.IsRoundedAffectedByTheme = false;
+            _beepListBox.IsRounded = false;
+            _beepListBox.ShowTitle = false;
+            _beepListBox.ShowTitleLine = false;
+            _beepListBox.IsShadowAffectedByTheme = false;
+            _beepListBox.ShowShadow = false;
+            _beepListBox.IsBorderAffectedByTheme = false;
+            _beepListBox.ShowAllBorders = false;
+            _beepListBox.IsFrameless = true;
             _beepListBox.InitializeMenu();
             int _maxListHeight = Width;
             int _maxListWidth = 50;

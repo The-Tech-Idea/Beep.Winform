@@ -101,7 +101,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 ItemSize = TimeSlotHeight,
                 Orientation = ScrollOrientation.VerticalScroll,
-                Theme = Theme
+                Theme = Theme,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                IsFrameless = true,
+                IsRounded=false,
+                IsRoundedAffectedByTheme = false,
             };
             _timeList.ItemSelected += TimeList_ItemSelected;
 

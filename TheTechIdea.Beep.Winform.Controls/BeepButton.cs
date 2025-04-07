@@ -954,13 +954,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Mouse and Click"
         private void BeepImage_MouseHover(object? sender, EventArgs e)
         {
-            //  BackColor = _currentTheme.ButtonHoverBackColor;
+           IsHovered = true;
             base.OnMouseHover(e);
 
         }
         private void BeepImage_MouseEnter(object? sender, EventArgs e)
         {
          
+            IsHovered = true;
             base.OnMouseEnter(e);
         }
       

@@ -581,7 +581,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
+     
+        // HoverBackColor
         public Color GradientEndColor
         {
             get => _gradientEndColor;
@@ -1167,7 +1168,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                using (SolidBrush brush = new SolidBrush(BackColor))
+                using (SolidBrush brush = new SolidBrush(IsHovered ? _hoverBackColor :BackColor))
                 {
                     e.Graphics.FillRectangle(brush, outerRectangle);
                 }
@@ -1608,11 +1609,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Mouse events"
         protected override void OnMouseEnter(EventArgs e)
         {
+            IsHovered = true;
             base.OnMouseEnter(e);
 
         }
         protected override void OnMouseMove(MouseEventArgs e)
         {
+            IsHovered = true;
             base.OnMouseMove(e);
 
         }
@@ -1627,7 +1630,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
-          //  IsFocused = true;
+            IsFocused = true;
          
         
         }

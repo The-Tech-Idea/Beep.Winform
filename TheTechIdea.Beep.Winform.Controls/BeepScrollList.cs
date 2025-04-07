@@ -27,6 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isDragging = false;
         private Point _dragStartPoint;
         private float _dragStartOffset;
+        private int padding=3;
         private const float ScrollSpeed = 0.5f; // Adjust for scroll sensitivity
         #endregion
 
@@ -170,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var button = new BeepButton
                 {
                     Text = item.Text,
-                    IsChild = true,
+                    IsChild = false,
                     ShowAllBorders = false,
                     IsShadowAffectedByTheme = false,
                     Theme = Theme,
@@ -179,11 +180,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 };
                 if (_orientation == ScrollOrientation.VerticalScroll)
                 {
-                    button.Size = new Size(Width, _itemSize);
+                    button.Size = new Size(DrawingRect.Width-padding, _itemSize);
                 }
                 else
                 {
-                    button.Size = new Size(_itemSize, Height);
+                    button.Size = new Size(_itemSize, DrawingRect.Height-padding);
                 }
                 button.Click += Button_Click;
                 _buttonItems.Add(button);
@@ -232,12 +233,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_orientation == ScrollOrientation.VerticalScroll)
                 {
                     position = (i - _scrollOffset) * _itemSize;
-                    button.Location = new Point(0, (int)position);
+                    button.Location = new Point(padding, (int)position);
                 }
                 else
                 {
                     position = (i - _scrollOffset) * _itemSize;
-                    button.Location = new Point((int)position, 0);
+                    button.Location = new Point((int)position, padding);
                 }
             }
         }
@@ -382,6 +383,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
+            BackColor = _currentTheme.ButtonBackColor;
+            ParentBackColor = _currentTheme.ButtonBackColor;
             foreach (var button in _buttonItems)
             {
                 button.Theme = Theme;

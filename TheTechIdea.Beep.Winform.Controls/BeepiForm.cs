@@ -194,8 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnShown(e);
             beepuiManager1.Initialize(this); // Explicitly initialize the manager with the form
 
-            Application.AddMessageFilter(_mouseMessageFilter);  // ✅ Hook into message loop
-            //if (InvokeRequired)
+           //if (InvokeRequired)
             //{
             //    Invoke(new Action(() => Theme = BeepThemesManager.CurrentTheme));
             //}
@@ -211,6 +210,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 SetProcessDPIAware();
             }
+            Application.AddMessageFilter(_mouseMessageFilter);  // ✅ Hook into message loop
+
         }
         protected override void OnPaint(PaintEventArgs e)
         {

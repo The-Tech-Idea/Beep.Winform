@@ -20,22 +20,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         private TextBox _textBox;
         private BeepButton _dropdownButton;
         private string _customDateFormat;
-        private DateFormatStyle _dateFormatStyle = DateFormatStyle.ShortDate;
+        private DateFormatStyle _dateFormatStyle = DateFormatStyle.ShortDateTime; // Updated to include time
         private CultureInfo _culture = CultureInfo.CurrentCulture;
         private int _padding = 2;
-        private DateTime _selectedDate = DateTime.Today;
+        private DateTime _selectedDateTime = DateTime.Now; // Updated to include time
+        private BeepPopupForm _calendarPopup;
+        private BeepCalendarView _calendarView;
         #endregion
 
         #region Properties
         [Browsable(true)]
         [Category("Date Settings")]
-        [Description("Sets or gets the selected date as a DateTime object.")]
+        [Description("Sets or gets the selected date and time as a DateTime object.")]
         public DateTime SelectedDateTime
         {
-            get => _selectedDate;
+            get => _selectedDateTime;
             set
             {
-                _selectedDate = value;
+                _selectedDateTime = value;
                 UpdateTextBoxFromValue();
                 Invalidate();
             }
@@ -43,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Date Settings")]
-        [Description("Sets the selected date as a string.")]
+        [Description("Sets the selected date and time as a string.")]
         public string SelectedDate
         {
             get => _textBox?.Text ?? string.Empty;
@@ -53,17 +55,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (string.IsNullOrWhiteSpace(value))
                 {
                     _textBox.Text = string.Empty;
-                    _selectedDate = DateTime.MinValue;
+                    _selectedDateTime = DateTime.MinValue;
                 }
                 else if (DateTime.TryParse(value, _culture, DateTimeStyles.None, out DateTime result))
                 {
-                    _selectedDate = result;
+                    _selectedDateTime = result;
                     _textBox.Text = FormatDate(result);
                 }
                 else
                 {
                     _textBox.Text = string.Empty;
-                    _selectedDate = DateTime.MinValue;
+                    _selectedDateTime = DateTime.MinValue;
                 }
                 ApplyMask();
                 Invalidate();
@@ -73,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Date Settings")]
         [Description("Sets the predefined date format style.")]
-        [DefaultValue(DateFormatStyle.ShortDate)]
+        [DefaultValue(DateFormatStyle.ShortDateTime)]
         public DateFormatStyle DateFormatStyle
         {
             get => _dateFormatStyle;
@@ -132,13 +134,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             DoubleBuffered = true;
         }
 
-        protected override Size DefaultSize => new Size(150, 25);
+        protected override Size DefaultSize => new Size(200, 25); // Adjusted width to accommodate time
 
         protected override void InitLayout()
         {
             base.InitLayout();
 
-            _customDateFormat = _culture.DateTimeFormat.ShortDatePattern;
+            _customDateFormat = $"{_culture.DateTimeFormat.ShortDatePattern} HH:mm";
             BoundProperty = "SelectedDate";
 
             InitializeComponents();
@@ -152,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _textBox = new TextBox
             {
                 BorderStyle = BorderStyle.None,
-                Text = FormatDate(_selectedDate),
+                Text = FormatDate(_selectedDateTime),
                 PlaceholderText = GetPlaceholderText()
             };
             _textBox.TextChanged += TextBox_TextChanged;
@@ -186,7 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (DateTime.TryParse(_textBox.Text, _culture, DateTimeStyles.None, out DateTime result))
             {
-                _selectedDate = result;
+                _selectedDateTime = result;
             }
             Invalidate();
         }
@@ -211,7 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (string.IsNullOrWhiteSpace(_textBox.Text))
             {
-                _selectedDate = DateTime.MinValue;
+                _selectedDateTime = DateTime.MinValue;
                 return;
             }
 
@@ -219,11 +221,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 e.Cancel = true;
                 MessageBox.Show($"Invalid date format. Expected: {GetCurrentFormat()}", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                _textBox.Text = FormatDate(_selectedDate);
+                _textBox.Text = FormatDate(_selectedDateTime);
             }
             else
             {
-                _selectedDate = result;
+                _selectedDateTime = result;
             }
         }
 
@@ -292,7 +294,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch (Exception ex)
             {
-               MiscFunctions.SendLog($"Error in BeepDatePicker.Draw: {ex.Message}");
+                MiscFunctions.SendLog($"Error in BeepDatePicker.Draw: {ex.Message}");
             }
         }
         #endregion
@@ -300,42 +302,46 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Popup Calendar
         private void ShowCalendarPopup()
         {
-            var popup = new BeepPopupModalForm();
-
-            var calendar = new NoBorderMonthCalendar
+            if (_calendarPopup != null && _calendarPopup.Visible)
             {
-                ShowToday = true,
-                ShowTodayCircle = true,
-                MaxSelectionCount = 1,
-                ForeColor = _currentTheme.TextBoxForeColor,
-                BackColor = _currentTheme.TextBoxBackColor
-            };
-            calendar.ForeColor = _currentTheme.TextBoxForeColor;
-            calendar.BackColor = _currentTheme.TextBoxBackColor;
-            if (_selectedDate != DateTime.MinValue)
-            {
-                calendar.SetDate(_selectedDate);
+                _calendarPopup.CloseCascade();
+                return;
             }
-            calendar.DateSelected += (s, e) =>
+
+            // Create popup form
+            _calendarPopup = new BeepPopupForm
             {
-                _selectedDate = e.Start;
-                _textBox.Text = FormatDate(_selectedDate);
-                popup.Close();
+                Size = new Size(300, 300), // Adjust size to fit BeepCalendarView
+                Theme = Theme // Inherit theme from BeepControl
             };
 
-            //Panel panel = new Panel();
-            popup.Theme = Theme;
-            //panel.BorderStyle = BorderStyle.None;
-            //panel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
-            //panel.Size = new Size(calendar.Width + 9, calendar.Height + 9);
-            //panel.Controls.Add(calendar);
-            //calendar.Dock = DockStyle.Fill;
-            //popup.Size = new Size(panel.Width + 12, panel.Height + 12);
-            //popup.Controls.Add(panel);
-            popup.Size = new Size(calendar.Width + 12, calendar.Height + 12);
-            popup.AddControl(calendar,"Calendar");
-            popup.ShowPopup(this, BeepPopupFormPosition.Bottom);
+            // Create custom calendar control
+            _calendarView = new BeepCalendarView
+            {
+                Dock = DockStyle.Fill,
+                Theme = Theme
+            };
 
+            if (_selectedDateTime != DateTime.MinValue)
+            {
+                _calendarView.SelectedDateTime = _selectedDateTime;
+            }
+
+            _calendarView.DateTimeSelected += CalendarView_DateTimeSelected;
+            _calendarPopup.Controls.Add(_calendarView);
+
+            // Show popup below the control
+            _calendarPopup.ShowPopup(this, BeepPopupFormPosition.Bottom);
+        }
+
+        private void CalendarView_DateTimeSelected(object sender, DateTime? dateTime)
+        {
+            if (dateTime.HasValue)
+            {
+                _selectedDateTime = dateTime.Value;
+                _textBox.Text = FormatDate(_selectedDateTime);
+            }
+            _calendarPopup?.CloseCascade();
         }
         #endregion
 
@@ -359,7 +365,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DateFormatStyle.DayOfWeek => "dddd",
                 DateFormatStyle.RFC1123 => "ddd, dd MMM yyyy HH:mm:ss 'GMT'",
                 DateFormatStyle.UniversalSortable => "yyyy-MM-dd HH:mm:ss'Z'",
-                _ => _culture.DateTimeFormat.ShortDatePattern
+                _ => $"{_culture.DateTimeFormat.ShortDatePattern} HH:mm"
             };
         }
 
@@ -382,7 +388,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DateFormatStyle.DayOfWeek => "dddd",
                 DateFormatStyle.RFC1123 => "ddd, 00 MMM yyyy 00:00:00 GMT",
                 DateFormatStyle.UniversalSortable => "0000-00-00 00:00:00Z",
-                _ => ConvertFormatToMask(_culture.DateTimeFormat.ShortDatePattern)
+                _ => ConvertFormatToMask($"{_culture.DateTimeFormat.ShortDatePattern} HH:mm")
             };
         }
 
@@ -447,9 +453,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void UpdateTextBoxFromValue()
         {
             if (_textBox == null) return;
-            if (_selectedDate != DateTime.MinValue)
+            if (_selectedDateTime != DateTime.MinValue)
             {
-                _textBox.Text = FormatDate(_selectedDate);
+                _textBox.Text = FormatDate(_selectedDateTime);
             }
             else
             {
@@ -476,6 +482,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _dropdownButton.Theme = Theme;
             }
+            if (_calendarView != null)
+            {
+                _calendarView.Theme = Theme;
+            }
             Invalidate();
         }
 
@@ -493,12 +503,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override object GetValue()
         {
-            return _selectedDate == DateTime.MinValue ? null : _selectedDate;
+            return _selectedDateTime == DateTime.MinValue ? null : _selectedDateTime;
         }
 
         public void Reset()
         {
-            SelectedDateTime = DateTime.Today;
+            SelectedDateTime = DateTime.Now;
         }
         #endregion
 
@@ -509,6 +519,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _textBox?.Dispose();
                 _dropdownButton?.Dispose();
+                _calendarPopup?.Dispose();
+                _calendarView?.Dispose();
             }
             base.Dispose(disposing);
         }

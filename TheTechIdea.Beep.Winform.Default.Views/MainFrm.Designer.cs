@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views
+﻿using TheTechIdea.Beep.Vis.Modules;
+
+namespace TheTechIdea.Beep.Winform.Default.Views
 {
     partial class MainFrm
     {
@@ -49,13 +51,13 @@
             // 
             beepDisplayContainer1.ActiveBackColor = Color.FromArgb(0, 120, 215);
             beepDisplayContainer1.AnimationDuration = 500;
-            beepDisplayContainer1.AnimationType = Winform.Controls.DisplayAnimationType.None;
+            beepDisplayContainer1.AnimationType = DisplayAnimationType.None;
             beepDisplayContainer1.ApplyThemeToChilds = false;
             beepDisplayContainer1.BackColor = Color.FromArgb(245, 245, 245);
             beepDisplayContainer1.BadgeBackColor = Color.Red;
             beepDisplayContainer1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepDisplayContainer1.BadgeForeColor = Color.White;
-            beepDisplayContainer1.BadgeShape = Winform.Controls.BadgeShape.Circle;
+            beepDisplayContainer1.BadgeShape = BadgeShape.Circle;
             beepDisplayContainer1.BadgeText = "";
             beepDisplayContainer1.BlockID = null;
             beepDisplayContainer1.BorderColor = Color.FromArgb(200, 200, 200);
@@ -77,7 +79,7 @@
             beepDisplayContainer1.DisabledForeColor = Color.Empty;
             beepDisplayContainer1.Dock = DockStyle.Fill;
             beepDisplayContainer1.DrawingRect = new Rectangle(2, 2, 990, 715);
-            beepDisplayContainer1.Easing = Winform.Controls.EasingType.Linear;
+            beepDisplayContainer1.Easing = EasingType.Linear;
             beepDisplayContainer1.FieldID = null;
             beepDisplayContainer1.FocusBackColor = Color.White;
             beepDisplayContainer1.FocusBorderColor = Color.Gray;
@@ -123,7 +125,7 @@
             beepDisplayContainer1.LinkedProperty = null;
             beepDisplayContainer1.Location = new Point(203, 78);
             beepDisplayContainer1.Name = "beepDisplayContainer1";
-            beepDisplayContainer1.OverrideFontSize = Winform.Controls.TypeStyleFontSize.None;
+            beepDisplayContainer1.OverrideFontSize = TypeStyleFontSize.None;
             beepDisplayContainer1.Padding = new Padding(2);
             beepDisplayContainer1.ParentBackColor = Color.Empty;
             beepDisplayContainer1.ParentControl = null;
@@ -144,7 +146,7 @@
             beepDisplayContainer1.ShowShadow = false;
             beepDisplayContainer1.ShowTopBorder = false;
             beepDisplayContainer1.Size = new Size(994, 719);
-            beepDisplayContainer1.SlideFrom = Winform.Controls.SlideDirection.Left;
+            beepDisplayContainer1.SlideFrom = SlideDirection.Left;
             beepDisplayContainer1.StaticNotMoving = false;
             beepDisplayContainer1.TabIndex = 2;
             beepDisplayContainer1.TempBackColor = Color.Empty;
@@ -160,13 +162,13 @@
             beepMenuAppBar1.ActiveBackColor = Color.FromArgb(0, 120, 215);
             beepMenuAppBar1.ActiveMenuButton = null;
             beepMenuAppBar1.AnimationDuration = 500;
-            beepMenuAppBar1.AnimationType = Winform.Controls.DisplayAnimationType.None;
+            beepMenuAppBar1.AnimationType = DisplayAnimationType.None;
             beepMenuAppBar1.ApplyThemeToChilds = false;
             beepMenuAppBar1.BackColor = Color.FromArgb(240, 240, 240);
             beepMenuAppBar1.BadgeBackColor = Color.Red;
             beepMenuAppBar1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepMenuAppBar1.BadgeForeColor = Color.White;
-            beepMenuAppBar1.BadgeShape = Winform.Controls.BadgeShape.Circle;
+            beepMenuAppBar1.BadgeShape = BadgeShape.Circle;
             beepMenuAppBar1.BadgeText = "";
             beepMenuAppBar1.beepServices = null;
             beepMenuAppBar1.BlockID = null;
@@ -188,7 +190,7 @@
             beepMenuAppBar1.DisabledForeColor = Color.Empty;
             beepMenuAppBar1.Dock = DockStyle.Top;
             beepMenuAppBar1.DrawingRect = new Rectangle(0, 0, 994, 35);
-            beepMenuAppBar1.Easing = Winform.Controls.EasingType.Linear;
+            beepMenuAppBar1.Easing = EasingType.Linear;
             beepMenuAppBar1.FieldID = null;
             beepMenuAppBar1.FocusBackColor = Color.White;
             beepMenuAppBar1.FocusBorderColor = Color.Gray;
@@ -239,7 +241,7 @@
             beepMenuAppBar1.MenuItemHeight = 35;
             beepMenuAppBar1.MenuItemWidth = 60;
             beepMenuAppBar1.Name = "beepMenuAppBar1";
-            beepMenuAppBar1.OverrideFontSize = Winform.Controls.TypeStyleFontSize.None;
+            beepMenuAppBar1.OverrideFontSize = TypeStyleFontSize.None;
             beepMenuAppBar1.ParentBackColor = Color.Empty;
             beepMenuAppBar1.ParentControl = null;
             beepMenuAppBar1.PressedBackColor = Color.FromArgb(0, 120, 215);
@@ -260,7 +262,7 @@
             beepMenuAppBar1.ShowShadow = false;
             beepMenuAppBar1.ShowTopBorder = false;
             beepMenuAppBar1.Size = new Size(994, 35);
-            beepMenuAppBar1.SlideFrom = Winform.Controls.SlideDirection.Left;
+            beepMenuAppBar1.SlideFrom = SlideDirection.Left;
             beepMenuAppBar1.StaticNotMoving = false;
             beepMenuAppBar1.TabIndex = 3;
             beepMenuAppBar1.TempBackColor = Color.Empty;
@@ -277,7 +279,7 @@
             beepAppTree1.ActiveBackColor = Color.FromArgb(0, 120, 215);
             beepAppTree1.AllowMultiSelect = false;
             beepAppTree1.AnimationDuration = 500;
-            beepAppTree1.AnimationType = Winform.Controls.DisplayAnimationType.None;
+            beepAppTree1.AnimationType = DisplayAnimationType.None;
             beepAppTree1.ApplyThemeToChilds = false;
             beepAppTree1.args = null;
             beepAppTree1.AutoScroll = true;
@@ -285,7 +287,7 @@
             beepAppTree1.BadgeBackColor = Color.Red;
             beepAppTree1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepAppTree1.BadgeForeColor = Color.White;
-            beepAppTree1.BadgeShape = Winform.Controls.BadgeShape.Circle;
+            beepAppTree1.BadgeShape = BadgeShape.Circle;
             beepAppTree1.BadgeText = "";
             beepAppTree1.BeepService = null;
             beepAppTree1.BlockID = null;
@@ -314,7 +316,7 @@
             beepAppTree1.Dock = DockStyle.Left;
             beepAppTree1.DrawingRect = new Rectangle(1, 1, 198, 752);
             beepAppTree1.DropHandler = null;
-            beepAppTree1.Easing = Winform.Controls.EasingType.Linear;
+            beepAppTree1.Easing = EasingType.Linear;
             beepAppTree1.ExtensionsHelpers = null;
             beepAppTree1.FieldID = null;
             beepAppTree1.Filterstring = null;
@@ -369,7 +371,7 @@
             beepAppTree1.Nodeseq = 0;
             beepAppTree1.NodeWidth = 100;
             beepAppTree1.ObjectType = "Beep";
-            beepAppTree1.OverrideFontSize = Winform.Controls.TypeStyleFontSize.None;
+            beepAppTree1.OverrideFontSize = TypeStyleFontSize.None;
             beepAppTree1.Padding = new Padding(1);
             beepAppTree1.ParentBackColor = Color.Empty;
             beepAppTree1.ParentControl = null;
@@ -398,7 +400,7 @@
             beepAppTree1.ShowShadow = false;
             beepAppTree1.ShowTopBorder = false;
             beepAppTree1.Size = new Size(200, 754);
-            beepAppTree1.SlideFrom = Winform.Controls.SlideDirection.Left;
+            beepAppTree1.SlideFrom = SlideDirection.Left;
             beepAppTree1.StaticNotMoving = false;
             beepAppTree1.TabIndex = 2;
             beepAppTree1.TempBackColor = Color.Empty;
@@ -419,7 +421,7 @@
             // 
             beepAppBar1.ActiveBackColor = Color.Gray;
             beepAppBar1.AnimationDuration = 500;
-            beepAppBar1.AnimationType = Winform.Controls.DisplayAnimationType.None;
+            beepAppBar1.AnimationType = DisplayAnimationType.None;
             beepAppBar1.ApplyThemeButtons = false;
             beepAppBar1.ApplyThemeOnLogo = false;
             beepAppBar1.ApplyThemeToChilds = false;
@@ -429,7 +431,7 @@
             beepAppBar1.BadgeBackColor = Color.Red;
             beepAppBar1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepAppBar1.BadgeForeColor = Color.White;
-            beepAppBar1.BadgeShape = Winform.Controls.BadgeShape.Circle;
+            beepAppBar1.BadgeShape = BadgeShape.Circle;
             beepAppBar1.BadgeText = "";
             beepAppBar1.BlockID = null;
             beepAppBar1.BorderColor = Color.Black;
@@ -450,7 +452,7 @@
             beepAppBar1.DisabledForeColor = Color.Empty;
             beepAppBar1.Dock = DockStyle.Top;
             beepAppBar1.DrawingRect = new Rectangle(0, 0, 1194, 40);
-            beepAppBar1.Easing = Winform.Controls.EasingType.Linear;
+            beepAppBar1.Easing = EasingType.Linear;
             beepAppBar1.FieldID = null;
             beepAppBar1.FocusBackColor = Color.Gray;
             beepAppBar1.FocusBorderColor = Color.Gray;
@@ -497,7 +499,7 @@
             beepAppBar1.LinkedProperty = null;
             beepAppBar1.Location = new Point(3, 3);
             beepAppBar1.Name = "beepAppBar1";
-            beepAppBar1.OverrideFontSize = Winform.Controls.TypeStyleFontSize.None;
+            beepAppBar1.OverrideFontSize = TypeStyleFontSize.None;
             beepAppBar1.ParentBackColor = Color.Empty;
             beepAppBar1.ParentControl = null;
             beepAppBar1.PressedBackColor = Color.Gray;
@@ -527,7 +529,7 @@
             beepAppBar1.ShowTitle = true;
             beepAppBar1.ShowTopBorder = false;
             beepAppBar1.Size = new Size(1194, 40);
-            beepAppBar1.SlideFrom = Winform.Controls.SlideDirection.Left;
+            beepAppBar1.SlideFrom = SlideDirection.Left;
             beepAppBar1.StaticNotMoving = false;
             beepAppBar1.TabIndex = 4;
             beepAppBar1.TempBackColor = Color.Empty;

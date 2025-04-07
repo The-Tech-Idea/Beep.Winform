@@ -49,13 +49,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ActiveBackColor = Color.FromArgb(0, 120, 215);
             beepSimpleGrid1.aggregationRow = null;
             beepSimpleGrid1.AnimationDuration = 500;
-            beepSimpleGrid1.AnimationType = Winform.Controls.DisplayAnimationType.None;
+            beepSimpleGrid1.AnimationType = DisplayAnimationType.None;
             beepSimpleGrid1.ApplyThemeToChilds = false;
             beepSimpleGrid1.BackColor = Color.White;
             beepSimpleGrid1.BadgeBackColor = Color.Red;
             beepSimpleGrid1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepSimpleGrid1.BadgeForeColor = Color.White;
-            beepSimpleGrid1.BadgeShape = Winform.Controls.BadgeShape.Circle;
+            beepSimpleGrid1.BadgeShape = BadgeShape.Circle;
             beepSimpleGrid1.BadgeText = "";
             beepSimpleGrid1.BlockID = null;
             beepSimpleGrid1.BorderColor = Color.FromArgb(200, 200, 200);
@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.DisabledForeColor = Color.Empty;
             beepSimpleGrid1.Dock = DockStyle.Fill;
             beepSimpleGrid1.DrawingRect = new Rectangle(1, 1, 1152, 722);
-            beepSimpleGrid1.Easing = Winform.Controls.EasingType.Linear;
+            beepSimpleGrid1.Easing = EasingType.Linear;
             beepSimpleGrid1.EntityName = "ConnectionDriversConfig";
             beepSimpleGrid1.FieldID = null;
             beepSimpleGrid1.FocusBackColor = Color.White;
@@ -132,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.LinkedProperty = null;
             beepSimpleGrid1.Location = new Point(0, 0);
             beepSimpleGrid1.Name = "beepSimpleGrid1";
-            beepSimpleGrid1.OverrideFontSize = Winform.Controls.TypeStyleFontSize.None;
+            beepSimpleGrid1.OverrideFontSize = TypeStyleFontSize.None;
             beepSimpleGrid1.ParentBackColor = Color.Empty;
             beepSimpleGrid1.ParentControl = null;
             beepSimpleGrid1.PercentageText = "36%";
@@ -173,7 +173,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ShowVerticalGridLines = true;
             beepSimpleGrid1.ShowVerticalScrollBar = true;
             beepSimpleGrid1.Size = new Size(1154, 724);
-            beepSimpleGrid1.SlideFrom = Winform.Controls.SlideDirection.Left;
+            beepSimpleGrid1.SlideFrom = SlideDirection.Left;
             beepSimpleGrid1.StaticNotMoving = false;
             beepSimpleGrid1.TabIndex = 0;
             beepSimpleGrid1.TempBackColor = Color.Empty;

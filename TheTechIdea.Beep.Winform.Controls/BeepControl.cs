@@ -9,53 +9,14 @@ using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
 using System.IO;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using System.Configuration;
-using System.Diagnostics;
+
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using LinearGradientMode = System.Drawing.Drawing2D.LinearGradientMode;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public enum TypeStyleFontSize
-    {
-        None,
-        Small,
-        Medium,
-        Big,
-        Banner,
-        Large,
-        ExtraLarge,
-        ExtraExtraLarge,
-        ExtraExtraExtraLarge
-    }
-    public enum CustomBorderStyle
-    {
-        None,
-        Solid,
-        Dashed,
-        Dotted
-    }
-    public enum DisplayAnimationType
-    {
-        None,
-        Popup,
-        Slide,
-        Fade,
-        SlideAndFade
-    }
-    public enum EasingType
-    {
-        Linear,
-        EaseIn,
-        EaseOut,
-        EaseInOut
-    }
-    public enum SlideDirection
-    {
-        Left,
-        Right,
-        Top,
-        Bottom
-    }
+   
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [DisplayName("Beep Control")]
@@ -69,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected ImageScaleMode _scaleMode = ImageScaleMode.KeepAspectRatio;
         protected bool _staticnotmoving = false;
         protected ToolTip _toolTip;
-        protected bool _showAllBorders = true;
+        protected bool _showAllBorders = false;
         protected Color _focusIndicatorColor = Color.Blue;
         protected bool _showFocusIndicator = false;
         protected bool _showTopBorder;
@@ -2709,47 +2670,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Dispose"
     }
-    public class ControlHitTest
-    {
-        public string Name { get; set; }
-        public string GuidID { get; set; }= Guid.NewGuid().ToString();
-        public Rectangle TargetRect { get; set; }
-        public Action HitAction { get; set; }
-        public string ActionName { get; set; }
-        public bool IsHit
-        {
-            get; set;
-        }
-        public bool IsVisible { get; set; } = true;
-        public bool IsEnabled { get; set; } = true;
-        public bool IsSelected { get; set; }
-        public bool IsPressed { get; set; }
-        public bool IsHovered { get; set; }
-        public bool IsFocused { get; set; }
-
-        public ControlHitTest()
-        {
-        }
-        public ControlHitTest(Rectangle rect)
-        {
-            TargetRect = rect;
-        }
-        public ControlHitTest(Rectangle rect, Point location)
-        {
-            TargetRect = rect;
-            IsHit = TargetRect.Contains(location);
-        }
-
-
-    }
-    public class ControlHitTestArgs : EventArgs
-    {
-        public ControlHitTest HitTest { get; set; }
-        public ControlHitTestArgs(ControlHitTest hitTest)
-        {
-            HitTest = hitTest;
-        }
-
-    }
+  
 }
 

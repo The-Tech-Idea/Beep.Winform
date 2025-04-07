@@ -71,4 +71,8 @@
 	    <SubType>Component</SubType>
 	  </Compile>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Designer\" />
+	</ItemGroup>
 </Project>

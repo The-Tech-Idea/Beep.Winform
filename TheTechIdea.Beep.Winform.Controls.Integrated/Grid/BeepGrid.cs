@@ -1067,7 +1067,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         /// <param name="e">A <see cref="ScrollEventArgs"/> that contains the event data.</param>
         private void DataGridView_Scroll(object sender, ScrollEventArgs e)
         {
-            if (e.ScrollOrientation == ScrollOrientation.HorizontalScroll)
+            if (e.ScrollOrientation == ScrollOrientation.VerticalScroll)
             {
                 UpdateHeaderAndPanelPositions();
             }

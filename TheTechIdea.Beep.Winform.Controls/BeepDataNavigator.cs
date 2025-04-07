@@ -1,6 +1,7 @@
 ﻿
 using System.ComponentModel;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Vis.Modules;
 
 
 namespace TheTechIdea.Beep.Winform.Controls

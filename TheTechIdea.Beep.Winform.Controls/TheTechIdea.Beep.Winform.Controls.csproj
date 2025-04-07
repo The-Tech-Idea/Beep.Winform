@@ -74,6 +74,7 @@
     <None Remove="GFX\SVG\beep.svg" />
     <None Remove="GFX\SVG\beepsetup.svg" />
     <None Remove="GFX\SVG\bullet.svg" />
+    <None Remove="GFX\SVG\calendar.svg" />
     <None Remove="GFX\SVG\cancel.svg" />
     <None Remove="GFX\SVG\cassandra.svg" />
     <None Remove="GFX\SVG\cat.svg" />
@@ -227,6 +228,7 @@
   <ItemGroup>
     <EmbeddedResource Include="GFX\PNG\042-dot.png" />
     <EmbeddedResource Include="GFX\SVG\bullet.svg" />
+    <EmbeddedResource Include="GFX\SVG\calendar.svg" />
     <EmbeddedResource Include="GFX\SVG\fastbackword.svg" />
     <EmbeddedResource Include="GFX\SVG\fastforward.svg" />
     <EmbeddedResource Include="GFX\SVG\firstpage.svg" />
@@ -407,7 +409,6 @@
     <Compile Update="BeepFieldFilter.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Containers\uc_Container.cs" />
     <Compile Update="BeepBindingNavigator.cs" />
     <Compile Update="Managers\Wizards\Frm_Wizard.cs" />
     <Compile Update="BeepCheckBox.cs" />
@@ -442,10 +443,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Containers\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Resources\" />
-    <Folder Include="Template\" />
-    <Folder Include="Totals\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GFX\SVG\square-minus.svg" />

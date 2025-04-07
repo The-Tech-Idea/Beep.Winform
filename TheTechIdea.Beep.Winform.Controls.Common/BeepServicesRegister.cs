@@ -204,6 +204,8 @@ namespace TheTechIdea.Beep.Desktop.Common
             // Add additional service registrations here
         }
         /// <summary>
+       
+        /// <summary>
         /// Initialize and Configure Services
         /// </summary>
         /// <param name="host"></param>

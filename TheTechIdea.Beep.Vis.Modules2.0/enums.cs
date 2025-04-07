@@ -6,7 +6,26 @@ using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
-  
+    //public enum LinearGradientMode
+    //{
+    //    Horizontal,
+    //    Vertical,
+    //    ForwardDiagonal,
+    //    BackwardDiagonal
+    //}
+    public enum LabelPosition
+    {
+        Left,
+        Right
+    }
+    public enum TypeStyleFontSize { None, Small, Medium, Big, Banner, Large, ExtraLarge, ExtraExtraLarge, ExtraExtraExtraLarge }
+    public enum CustomBorderStyle { None, Solid, Dashed, Dotted }
+    public enum DisplayAnimationType { None, Popup, Slide, Fade, SlideAndFade }
+    public enum EasingType { Linear, EaseIn, EaseOut, EaseInOut }
+    public enum SlideDirection { Left, Right, Top, Bottom }
+    public enum BadgeShape { Circle, Rectangle, RoundedRectangle }
+
+
     public enum AggregationType
     {
         None,

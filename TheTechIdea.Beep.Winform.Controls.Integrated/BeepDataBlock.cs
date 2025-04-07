@@ -1,14 +1,12 @@
 ﻿using System.ComponentModel;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.DataBase;
-
 using TheTechIdea.Beep.Editor;
-
 using TheTechIdea.Beep.Utilities;
-
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -17,6 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep Data Block")]
     [Description("A data block control that displays and manages data.")]
+   
     public partial class BeepDataBlock : BeepControl, IDisposable, IBeepDataBlock
     {
         #region "Fields"
@@ -144,13 +143,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Properties"
         #region "Constructors"
         public BeepDataBlock()
-        {
-            UIComponents = EntityHelper.GetAllAvailableUIComponents();
+        {// if we are in the designer, skip runtime logic
             IsShadowAffectedByTheme = false;
             IsRoundedAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
             Components = new BindingList<BeepComponents>();
             Components.ListChanged += Components_ListChanged;
+            //if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+            //{
+            //    // Minimal setup for design mode
+            //    return;
+            //}
+           // UIComponents = EntityHelper.GetAllAvailableUIComponents();
+          
 
             // Load existing components or initialize new ones
          //   InitializeControls();

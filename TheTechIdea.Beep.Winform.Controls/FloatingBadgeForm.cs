@@ -2,15 +2,10 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public enum BadgeShape
-    {
-        Circle,
-        RoundedRectangle,
-        Rectangle
-    }
 
     public partial class FloatingBadgeForm : Form
     {

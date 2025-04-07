@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Container.Services;
 using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Winform.Controls;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Template
 {

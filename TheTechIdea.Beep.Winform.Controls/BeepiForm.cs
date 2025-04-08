@@ -64,13 +64,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("The radius of the form's border.")]
+        [Description("The Thickness of the form's border.")]
         [DefaultValue(3)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int BorderThickness
         {
             get { return _borderThickness; }
-            set { _borderThickness = value; }
+            set { _borderThickness = value;Invalidate(); }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The radius of the form's border.")]
+        [DefaultValue(5)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int BorderRadius
+        {
+            get { return _borderRadius; }
+            set { _borderRadius = value; Invalidate(); }
         }
         [Browsable(true)]
         [Category("Appearance")]

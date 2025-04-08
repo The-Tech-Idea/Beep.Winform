@@ -49,6 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepPopupForm()
         {
             InitializePopupForm();
+           
         }
 
         //public BeepPopupForm(IBeepService beepService) : base(beepService)

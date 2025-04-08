@@ -178,6 +178,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     AutoSize = false,
                     TextAlign = ContentAlignment.MiddleCenter
                 };
+                if(!string.IsNullOrEmpty(item.ImagePath))
+                {
+                    button.ImagePath = item.ImagePath;
+                    button.ImageAlign = ContentAlignment.MiddleLeft;
+                    button.TextImageRelation = TextImageRelation.ImageBeforeText;
+                }
                 if (_orientation == ScrollOrientation.VerticalScroll)
                 {
                     button.Size = new Size(DrawingRect.Width-padding, _itemSize);

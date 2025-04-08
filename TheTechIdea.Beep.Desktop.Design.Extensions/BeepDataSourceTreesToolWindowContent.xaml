@@ -3,36 +3,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:colors="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
     xmlns:styles="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
-    xmlns:vs="http://schemas.microsoft.com/visualstudio/extensibility/2022/xaml">
+    xmlns:vs="http://schemas.microsoft.com/visualstudio/extensibility/2022/xaml"
+    xmlns:wfi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
+    xmlns:beep="clr-namespace:TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView;assembly=TheTechIdea.Beep.Winform.Controls.Integrated">
+    
     <Grid>
-        <Grid.Resources>
-            <Style BasedOn="{StaticResource {x:Static styles:VsResourceKeys.ThemedDialogLabelStyleKey}}" TargetType="Label" />
-            <Style BasedOn="{StaticResource {x:Static styles:VsResourceKeys.TextBoxStyleKey}}" TargetType="TextBox" />
-            <Style BasedOn="{StaticResource {x:Static styles:VsResourceKeys.ButtonStyleKey}}" TargetType="Button" />
-            <Style TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{DynamicResource {x:Static styles:VsBrushes.WindowTextKey}}" />
-            </Style>
-        </Grid.Resources>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Label Content="Name:" />
-        <TextBox Grid.Column="1" Text="{Binding Name}" />
-        <Button
-            Grid.Column="2"
-            Command="{Binding HelloCommand}"
-            CommandParameter="{Binding Name}"
-            Content="Say Hello"
-            IsEnabled="{Binding HelloCommand.RunningCommandsCount.IsZero}" />
-        <TextBlock
-            Grid.Row="1"
-            Grid.ColumnSpan="2"
-            Text="{Binding Text}" />
+        <wfi:WindowsFormsHost>
+            <beep:BeepAppTree x:Name="BeepDataSourceTreeView" />
+        </wfi:WindowsFormsHost>
     </Grid>
 </DataTemplate>

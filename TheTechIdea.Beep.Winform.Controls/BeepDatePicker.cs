@@ -311,8 +311,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Create popup form
             _calendarPopup = new BeepPopupForm
             {
+                BorderThickness = 1,
+                BorderRadius = this.BorderRadius,
                 Size = new Size(300, 300), // Adjust size to fit BeepCalendarView
                 Theme = Theme // Inherit theme from BeepControl
+                 
             };
 
             // Create custom calendar control

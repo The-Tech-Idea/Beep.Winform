@@ -2,6 +2,8 @@
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+	  <UseWPF>true</UseWPF>
+	<UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
@@ -12,9 +14,14 @@
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>
-
+	<ItemGroup>
+		<!-- Add a reference to WindowsFormsIntegration explicitly if needed: -->
+		<!--<Reference Include="WindowsFormsIntegration" />
+        <Reference Include="System.Windows.Forms" />-->
+	</ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.Extensibility.Sdk" Version="17.13.40008" />
+	
+	  <PackageReference Include="Microsoft.VisualStudio.Extensibility.Sdk" Version="17.13.40008" />
     <PackageReference Include="Microsoft.VisualStudio.Extensibility.Build" Version="17.13.40008" />
     <PackageReference Include="TheTechIdea.Beep.AssemblyLoader" Version="2.0.4" />
     <PackageReference Include="TheTechIdea.Beep.Container" Version="1.0.0.84" />

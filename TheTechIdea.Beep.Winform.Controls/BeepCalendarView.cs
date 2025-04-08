@@ -134,11 +134,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void UpdateLayout()
         {
             int timeListWidth = 80;
-            _headerRect = new Rectangle(0, 0, Width, HeaderHeight);
-            _daysHeaderRect = new Rectangle(0, HeaderHeight, Width - timeListWidth, CellSize);
-            _datesGridRect = new Rectangle(0, HeaderHeight + CellSize, Width - timeListWidth, CellSize * 6);
-            _timeListRect = new Rectangle(Width - timeListWidth, HeaderHeight, timeListWidth, Height - HeaderHeight - FooterHeight);
-            _footerRect = new Rectangle(0, Height - FooterHeight, Width, FooterHeight);
+            _headerRect = new Rectangle(DrawingRect.Left, DrawingRect.Top, DrawingRect.Width, HeaderHeight);
+            _daysHeaderRect = new Rectangle(DrawingRect.Left, HeaderHeight, DrawingRect.Width - timeListWidth, CellSize);
+            _datesGridRect = new Rectangle(DrawingRect.Left, HeaderHeight + CellSize, DrawingRect.Width - timeListWidth, CellSize * 6);
+            _timeListRect = new Rectangle(DrawingRect.Width - timeListWidth, HeaderHeight+2, timeListWidth, DrawingRect.Height - HeaderHeight - FooterHeight-2);
+            _footerRect = new Rectangle(DrawingRect.Left, DrawingRect.Height - FooterHeight, DrawingRect.Width, FooterHeight);
 
             _timeList.Location = new Point(_timeListRect.X, _timeListRect.Y);
             _timeList.Size = new Size(_timeListRect.Width, _timeListRect.Height);

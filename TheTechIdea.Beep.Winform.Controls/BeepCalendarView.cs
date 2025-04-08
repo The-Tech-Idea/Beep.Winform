@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.ComponentModel;
+using System.Drawing.Drawing2D;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -25,13 +26,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Rectangle _datesGridRect;
         private Rectangle _timeListRect;
         private Rectangle _footerRect;
+        private Rectangle _buttonsRect;
         private BeepImage _leftArrow;
         private BeepImage _rightArrow;
         private BeepScrollList _timeList;
+        private BeepButton _okButton;
+        private BeepButton _cancelButton;
         private const int CellSize = 30;
         private const int TimeSlotHeight = 30;
         private const int HeaderHeight = 40;
         private const int FooterHeight = 30;
+        private const int ButtonHeight = 30;
         #endregion
 
         #region Properties
@@ -60,10 +65,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #region Events
         public event EventHandler<DateTime?> DateTimeSelected;
+        public event EventHandler Cancelled;
 
         protected virtual void OnDateTimeSelected()
         {
             DateTimeSelected?.Invoke(this, SelectedDateTime);
+        }
+
+        protected virtual void OnCancelled()
+        {
+            Cancelled?.Invoke(this, EventArgs.Empty);
         }
         #endregion
 
@@ -105,8 +116,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
                 IsFrameless = true,
-                IsRounded=false,
-                IsRoundedAffectedByTheme = false,
+                IsRounded = false,
+                IsRoundedAffectedByTheme = false
             };
             _timeList.ItemSelected += TimeList_ItemSelected;
 
@@ -122,10 +133,33 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _timeList.ListItems = new BindingList<SimpleItem>();
             }
 
+            // Initialize OK and Cancel buttons
+            _okButton = new BeepButton
+            {
+                Text = "OK",
+                Theme = Theme,
+             
+                IsChild = false,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+            _okButton.Click += OkButton_Click;
+
+            _cancelButton = new BeepButton
+            {
+                Text = "Cancel",
+                Theme = Theme,
+              
+                IsChild = false,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+            _cancelButton.Click += CancelButton_Click;
+
             Controls.Add(_timeList);
+            Controls.Add(_okButton);
+            Controls.Add(_cancelButton);
 
             // Set default size
-            Size = new Size(300, 300);
+            Size = new Size(300, 300 + ButtonHeight); // Increased height to accommodate buttons
             UpdateLayout();
         }
         #endregion
@@ -133,15 +167,67 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Layout and Drawing
         private void UpdateLayout()
         {
+            int padding = 2;
             int timeListWidth = 80;
-            _headerRect = new Rectangle(DrawingRect.Left, DrawingRect.Top, DrawingRect.Width, HeaderHeight);
-            _daysHeaderRect = new Rectangle(DrawingRect.Left, HeaderHeight, DrawingRect.Width - timeListWidth, CellSize);
-            _datesGridRect = new Rectangle(DrawingRect.Left, HeaderHeight + CellSize, DrawingRect.Width - timeListWidth, CellSize * 6);
-            _timeListRect = new Rectangle(DrawingRect.Width - timeListWidth, HeaderHeight+2, timeListWidth, DrawingRect.Height - HeaderHeight - FooterHeight-2);
-            _footerRect = new Rectangle(DrawingRect.Left, DrawingRect.Height - FooterHeight, DrawingRect.Width, FooterHeight);
+
+            // Account for rounded corners and border thickness
+            int cornerPadding = BorderRadius + BorderThickness;
+            int innerWidth = DrawingRect.Width - 2 * cornerPadding;
+            int innerHeight = DrawingRect.Height - 2 * cornerPadding;
+
+            // Adjust regions to fit within the rounded shape
+            _headerRect = new Rectangle(
+                DrawingRect.Left + cornerPadding,
+                DrawingRect.Top + padding,
+                innerWidth,
+                HeaderHeight
+            );
+
+            _daysHeaderRect = new Rectangle(
+                DrawingRect.Left + cornerPadding,
+                DrawingRect.Top + HeaderHeight + padding,
+                innerWidth - timeListWidth,
+                CellSize
+            );
+
+            _datesGridRect = new Rectangle(
+                DrawingRect.Left + cornerPadding,
+                DrawingRect.Top + HeaderHeight + CellSize + padding,
+                innerWidth - timeListWidth,
+                CellSize * 6
+            );
+
+            _timeListRect = new Rectangle(
+                DrawingRect.Left + innerWidth - timeListWidth + padding,
+                DrawingRect.Top + HeaderHeight + padding,
+                timeListWidth - padding,
+                innerHeight - HeaderHeight - FooterHeight - ButtonHeight - 2 * padding
+            );
+
+            _footerRect = new Rectangle(
+                DrawingRect.Left + cornerPadding,
+                DrawingRect.Top + innerHeight - FooterHeight - ButtonHeight,
+                innerWidth,
+                FooterHeight
+            );
+
+            _buttonsRect = new Rectangle(
+                DrawingRect.Left + cornerPadding,
+                DrawingRect.Top + innerHeight - ButtonHeight,
+                innerWidth,
+                ButtonHeight
+            );
 
             _timeList.Location = new Point(_timeListRect.X, _timeListRect.Y);
             _timeList.Size = new Size(_timeListRect.Width, _timeListRect.Height);
+
+            // Position OK and Cancel buttons side by side
+            int buttonWidth = (_buttonsRect.Width - 3 * padding) / 2;
+            _okButton.Location = new Point(_buttonsRect.X, _buttonsRect.Y);
+            _okButton.Size = new Size(buttonWidth, ButtonHeight);
+
+            _cancelButton.Location = new Point(_buttonsRect.X + buttonWidth + padding, _buttonsRect.Y);
+            _cancelButton.Size = new Size(buttonWidth, ButtonHeight);
         }
 
         protected override void OnResize(EventArgs e)
@@ -156,50 +242,59 @@ namespace TheTechIdea.Beep.Winform.Controls
             Graphics g = e.Graphics;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-            // Draw header (month and year)
-            DrawHeader(g);
+            // Clip drawing to the rounded shape of the control
+            using (GraphicsPath clipPath = GetRoundedRectPath(DrawingRect, BorderRadius))
+            {
+                Region originalClip = g.Clip;
+                g.SetClip(clipPath, CombineMode.Intersect);
 
-            // Draw days of the week
-            DrawDaysHeader(g);
+                // Draw header (month and year)
+                DrawHeader(g);
 
-            // Draw dates grid
-            DrawDatesGrid(g);
+                // Draw days of the week
+                DrawDaysHeader(g);
 
-            // Draw footer (selected date/time)
-            DrawFooter(g);
+                // Draw dates grid
+                DrawDatesGrid(g);
+
+                // Draw footer (selected date/time)
+                DrawFooter(g);
+
+                g.Clip = originalClip;
+            }
         }
 
         private void DrawHeader(Graphics g)
         {
-            using (SolidBrush brush = new SolidBrush(Color.FromArgb(50, 50, 50)))
-            {
-                g.FillRectangle(brush, _headerRect);
-            }
-
+            // Removed background drawing; only draw the text and arrows
             string monthYear = _currentMonth.ToString("MMMM yyyy");
             SizeF textSize = g.MeasureString(monthYear, Font);
-            PointF textPos = new PointF((_headerRect.Width - textSize.Width) / 2, (_headerRect.Height - textSize.Height) / 2);
-            g.DrawString(monthYear, Font, Brushes.White, textPos);
+            PointF textPos = new PointF(_headerRect.Left + (_headerRect.Width - textSize.Width) / 2, _headerRect.Top + (_headerRect.Height - textSize.Height) / 2);
+            // Draw String with Brush color _currenttheme.TitleForColor
+            Brush brush = new SolidBrush(_currentTheme.TitleForColor); // Use a solid color for the text
+                g.DrawString(monthYear, Font, brush, textPos); // Use a solid color for the text
 
             // Draw navigation arrows
-            _leftArrow.Location = new Point(10, (_headerRect.Height - _leftArrow.Height) / 2);
-            _rightArrow.Location = new Point(_headerRect.Width - _rightArrow.Width - 10, (_headerRect.Height - _rightArrow.Height) / 2);
+            _leftArrow.Location = new Point(_headerRect.Left + 10, _headerRect.Top + (_headerRect.Height - _leftArrow.Height) / 2);
+            _rightArrow.Location = new Point(_headerRect.Right - _rightArrow.Width - 10, _headerRect.Top + (_headerRect.Height - _rightArrow.Height) / 2);
             _leftArrow.DrawImage(g, new Rectangle(_leftArrow.Location, _leftArrow.Size));
             _rightArrow.DrawImage(g, new Rectangle(_rightArrow.Location, _rightArrow.Size));
         }
 
         private void DrawDaysHeader(Graphics g)
         {
+            Brush brush = new SolidBrush(_currentTheme.TitleForColor); // Use a
             string[] days = { "M", "T", "W", "T", "F", "S", "S" };
             for (int i = 0; i < 7; i++)
             {
                 Rectangle dayRect = new Rectangle(_daysHeaderRect.X + i * CellSize, _daysHeaderRect.Y, CellSize, CellSize);
-                g.DrawString(days[i], Font, Brushes.Gray, dayRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+                g.DrawString(days[i], Font, brush, dayRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
             }
         }
 
         private void DrawDatesGrid(Graphics g)
         {
+            //Brush brush = new SolidBrush(_currentTheme.TitleForColor); // Use a
             DateTime firstDayOfMonth = new DateTime(_currentMonth.Year, _currentMonth.Month, 1);
             int dayOfWeek = ((int)firstDayOfMonth.DayOfWeek + 6) % 7; // Adjust for Monday start
             int daysInMonth = DateTime.DaysInMonth(_currentMonth.Year, _currentMonth.Month);
@@ -215,20 +310,22 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 if (isSelected)
                 {
-                    using (SolidBrush brush = new SolidBrush(Color.FromArgb(255, 182, 193)))
+                    using (GraphicsPath path = GetRoundedRectPath(cellRect, BorderRadius / 4))
+                    using (SolidBrush brush = new SolidBrush(_currentTheme.ButtonActiveBackColor))
                     {
-                        g.FillRectangle(brush, cellRect);
+                        g.FillPath(brush, path);
                     }
                 }
                 else if (isToday)
                 {
-                    using (Pen pen = new Pen(Color.Gray, 1))
+                    using (GraphicsPath path = GetRoundedRectPath(cellRect, BorderRadius / 4))
+                    using (Pen pen = new Pen(_currentTheme.ButtonActiveForeColor, 1))
                     {
-                        g.DrawRectangle(pen, cellRect);
+                        g.DrawPath(pen, path);
                     }
                 }
-
-                g.DrawString(day.ToString(), Font, Brushes.Black, cellRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+                SolidBrush brusht = new SolidBrush(_currentTheme.ButtonForeColor);
+                g.DrawString(day.ToString(), Font, brusht, cellRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
 
                 col++;
                 if (col > 6)
@@ -241,16 +338,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawFooter(Graphics g)
         {
-            using (SolidBrush brush = new SolidBrush(Color.FromArgb(50, 50, 50)))
-            {
-                g.FillRectangle(brush, _footerRect);
-            }
-
+            SolidBrush forcolor = new SolidBrush(_currentTheme.ButtonForeColor);
+            SolidBrush selforcolor = new SolidBrush(_currentTheme.ButtonActiveForeColor);
+            // Removed background drawing; only draw the text
             string todayText = "TODAY";
-            g.DrawString(todayText, Font, Brushes.White, new Rectangle(_footerRect.X + 5, _footerRect.Y, 50, _footerRect.Height), new StringFormat { LineAlignment = StringAlignment.Center });
+            g.DrawString(todayText, Font, forcolor, new Rectangle(_footerRect.X + 5, _footerRect.Y, 50, _footerRect.Height), new StringFormat { LineAlignment = StringAlignment.Center });
 
             string selectedText = _selectedDateTime.HasValue ? _selectedDateTime.Value.ToString("MMMM d, yyyy h:mm tt") : "Select a date";
-            g.DrawString(selectedText, Font, Brushes.White, new Rectangle(_footerRect.X + 60, _footerRect.Y, _footerRect.Width - 65, _footerRect.Height), new StringFormat { LineAlignment = StringAlignment.Center });
+            g.DrawString(selectedText, Font, selforcolor, new Rectangle(_footerRect.X + 60, _footerRect.Y, _footerRect.Width - 65, _footerRect.Height), new StringFormat { LineAlignment = StringAlignment.Center });
         }
 
         private BindingList<SimpleItem> GenerateTimeSlots()
@@ -266,6 +361,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Mouse Interaction
+        private void OkButton_Click(object sender, EventArgs e)
+        {
+            OnDateTimeSelected();
+        }
+
+        private void CancelButton_Click(object sender, EventArgs e)
+        {
+            OnCancelled();
+        }
+
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
@@ -306,7 +411,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             selectedDate = selectedDate.Date.Add(parsedTime.TimeOfDay);
                         }
                         _selectedDateTime = selectedDate;
-                        OnDateTimeSelected();
+                        // Do not call OnDateTimeSelected here; wait for OK button
                         Invalidate();
                     }
                 }
@@ -325,7 +430,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     _selectedDateTime = today;
                     _currentMonth = today;
-                    OnDateTimeSelected();
+                    // Do not call OnDateTimeSelected here; wait for OK button
                     Invalidate();
                 }
             }
@@ -340,7 +445,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     DateTime parsedTime = DateTime.Parse(_selectedTime);
                     _selectedDateTime = _selectedDateTime.Value.Date.Add(parsedTime.TimeOfDay);
-                    OnDateTimeSelected();
+                    // Do not call OnDateTimeSelected here; wait for OK button
                 }
                 Invalidate();
             }
@@ -351,9 +456,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
+            BackColor = _currentTheme.CardBackColor;
             _leftArrow.Theme = Theme;
             _rightArrow.Theme = Theme;
             _timeList.Theme = Theme;
+            _okButton.Theme = Theme;
+            _cancelButton.Theme = Theme;
+            _okButton.IsRounded = IsRounded;
+            _cancelButton.IsRounded = IsRounded;
+             _okButton.BorderRadius = BorderRadius;
+            _cancelButton.BorderRadius = BorderRadius;
+            _okButton.BorderThickness = BorderThickness;
+            _cancelButton.BorderThickness = BorderThickness;
+            _okButton.IsRoundedAffectedByTheme = IsRoundedAffectedByTheme;
+            _cancelButton.IsRoundedAffectedByTheme = IsRoundedAffectedByTheme;
             Invalidate();
         }
 
@@ -364,6 +480,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _leftArrow?.Dispose();
                 _rightArrow?.Dispose();
                 _timeList?.Dispose();
+                _okButton?.Dispose();
+                _cancelButton?.Dispose();
             }
             base.Dispose(disposing);
         }

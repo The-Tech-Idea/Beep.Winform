@@ -333,7 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Adjust the layout based on the components
         private void RefreshLayout()
         {
-            int padding = Padding.All;
+            int padding = 1;
             UpdateDrawingRect();
 
             if (DrawingRect.Width <= padding * 2 || DrawingRect.Height <= padding * 2)

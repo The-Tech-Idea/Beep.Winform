@@ -272,6 +272,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             paragraphLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
             paragraphLabel.BackColor = _currentTheme.CardBackColor;
             actionButton.Theme = Theme;
+            actionButton.IsRounded = IsRounded;
+            actionButton.BorderRadius = BorderRadius;
+            actionButton.BorderThickness = BorderThickness;
             //actionButton.BackColor = _currentTheme.ButtonBackColor;
             //actionButton.ForeColor = _currentTheme.ButtonForeColor;
             //actionButton.HoverBackColor = _currentTheme.ButtonHoverBackColor;
@@ -296,7 +299,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Adjust the layout based on the view mode
         private void RefreshLayout()
         {
-            Padding = new Padding(10);
+            Padding = new Padding(3);
             int padding = Padding.All;
             UpdateDrawingRect();
 
@@ -450,30 +453,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.SetChildIndex(actionButton, 2);
         }
 
-        private GraphicsPath RoundedRect(Rectangle bounds, int radius)
-        {
-            int diameter = radius * 2;
-            Size size = new Size(diameter, diameter);
-            Rectangle arc = new Rectangle(bounds.Location, size);
-            GraphicsPath path = new GraphicsPath();
-
-            if (radius == 0)
-            {
-                path.AddRectangle(bounds);
-                return path;
-            }
-
-            path.AddArc(arc, 180, 90);
-            arc.X = bounds.Right - diameter;
-            path.AddArc(arc, 270, 90);
-            arc.Y = bounds.Bottom - diameter;
-            path.AddArc(arc, 0, 90);
-            arc.X = bounds.Left;
-            path.AddArc(arc, 90, 90);
-
-            path.CloseFigure();
-            return path;
-        }
 
         public override string ToString()
         {

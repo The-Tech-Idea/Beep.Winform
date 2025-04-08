@@ -285,7 +285,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return;
                 var g = e.Graphics;
                 UpdateChartDrawingRect(e.Graphics);
-                e.Graphics.Clear(DesignMode ? Color.White : ChartBackColor);
+            //    e.Graphics.Clear(DesignMode ? Color.White : ChartBackColor);
                 e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
                 // Start drawing any Title/Value/Subtitle at top-left
                 int textAreaLeft = DrawingRect.Left + 10;
@@ -608,10 +608,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 int bottomPadding = 40; // Increased base padding for X-axis labels
 
                 ChartDrawingRect = new Rectangle(
-                    ClientRectangle.Left + leftPadding,
-                    ClientRectangle.Top + topPadding,
-                    ClientRectangle.Width - leftPadding - rightPadding,
-                    ClientRectangle.Height - topPadding - bottomPadding
+                    DrawingRect.Left + leftPadding,
+                    DrawingRect.Top + topPadding,
+                    DrawingRect.Width - leftPadding - rightPadding,
+                    DrawingRect.Height - topPadding - bottomPadding
                 );
             }
             catch (Exception ex)
@@ -623,7 +623,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void UpdateChartDrawingRect(Graphics g)
         {
             try
+
             {
+                UpdateDrawingRect();
                 if (isDrawinRectCalculated) return;
                 isDrawinRectCalculated = true;
                 int leftPadding = 40;  // base padding for Y-axis title and labels
@@ -677,10 +679,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Finally, define the chart area
                 ChartDrawingRect = new Rectangle(
-                    ClientRectangle.Left + leftPadding,
-                    ClientRectangle.Top + topPadding,
-                    ClientRectangle.Width - leftPadding - rightPadding,
-                    ClientRectangle.Height - topPadding - bottomPadding
+                    DrawingRect.Left + leftPadding,
+                    DrawingRect.Top + topPadding,
+                    DrawingRect.Width - leftPadding - rightPadding,
+                    DrawingRect.Height - topPadding - bottomPadding
                 );
             }
             catch (Exception ex)

@@ -6275,6 +6275,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.ApplyTheme();
             this.BackColor = _currentTheme.GridBackColor;
             this.ForeColor = _currentTheme.GridForeColor;
+            if (MainPanel == null) return;
             MainPanel.BackColor = _currentTheme.ButtonBackColor;
             if (titleLabel != null)
             {

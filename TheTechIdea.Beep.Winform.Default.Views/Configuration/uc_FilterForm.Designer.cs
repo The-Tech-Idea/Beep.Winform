@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCard1.DataSourceProperty = null;
             beepCard1.DisabledBackColor = Color.Gray;
             beepCard1.DisabledForeColor = Color.Empty;
-            beepCard1.DrawingRect = new Rectangle(11, 11, 307, 177);
+            beepCard1.DrawingRect = new Rectangle(4, 4, 321, 191);
             beepCard1.Easing = EasingType.Linear;
             beepCard1.FieldID = null;
             beepCard1.FocusBackColor = Color.Gray;
@@ -127,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCard1.MaxImageSize = 64;
             beepCard1.Name = "beepCard1";
             beepCard1.OverrideFontSize = TypeStyleFontSize.None;
-            beepCard1.Padding = new Padding(10);
+            beepCard1.Padding = new Padding(3);
             beepCard1.ParagraphText = "Card Description";
             beepCard1.ParentBackColor = Color.Empty;
             beepCard1.ParentControl = null;
@@ -470,6 +470,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints32"));
             beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints33"));
             beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints34"));
+            beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints35"));
+            beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints36"));
+            beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints37"));
+            beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints38"));
+            beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints39"));
             beepFeatureCard1.CanBeFocused = true;
             beepFeatureCard1.CanBeHovered = false;
             beepFeatureCard1.CanBePressed = true;
@@ -701,7 +706,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCalendarView1.DataSourceProperty = null;
             beepCalendarView1.DisabledBackColor = Color.Gray;
             beepCalendarView1.DisabledForeColor = Color.Empty;
-            beepCalendarView1.DrawingRect = new Rectangle(1, 1, 298, 298);
+            beepCalendarView1.DrawingRect = new Rectangle(1, 1, 349, 318);
             beepCalendarView1.Easing = EasingType.Linear;
             beepCalendarView1.FieldID = null;
             beepCalendarView1.FocusBackColor = Color.White;
@@ -768,7 +773,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCalendarView1.ShowRightBorder = true;
             beepCalendarView1.ShowShadow = false;
             beepCalendarView1.ShowTopBorder = true;
-            beepCalendarView1.Size = new Size(300, 300);
+            beepCalendarView1.Size = new Size(351, 320);
             beepCalendarView1.SlideFrom = SlideDirection.Left;
             beepCalendarView1.StaticNotMoving = false;
             beepCalendarView1.TabIndex = 13;
@@ -919,7 +924,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepScrollList1.AnimationDuration = 500;
             beepScrollList1.AnimationType = DisplayAnimationType.None;
             beepScrollList1.ApplyThemeToChilds = false;
-            beepScrollList1.BackColor = Color.FromArgb(70, 130, 180);
+            beepScrollList1.BackColor = Color.FromArgb(135, 206, 250);
             beepScrollList1.BadgeBackColor = Color.Red;
             beepScrollList1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepScrollList1.BadgeForeColor = Color.White;
@@ -992,7 +997,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepScrollList1.Location = new Point(35, 157);
             beepScrollList1.Name = "beepScrollList1";
             beepScrollList1.OverrideFontSize = TypeStyleFontSize.None;
-            beepScrollList1.ParentBackColor = Color.Empty;
+            beepScrollList1.ParentBackColor = Color.FromArgb(135, 206, 250);
             beepScrollList1.ParentControl = null;
             beepScrollList1.PressedBackColor = Color.FromArgb(65, 105, 225);
             beepScrollList1.PressedBorderColor = Color.Gray;

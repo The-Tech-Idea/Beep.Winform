@@ -38,6 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _originalHeight = 0;
         private bool _showHilightBox= true;
         private int LastItemBottomY = 0;
+        private BeepButton lastbutton;
+        private SimpleItem lastitem = null;
 
         // ---------------- NEW PROPERTY: Collapsed -------------
         private bool _collapsed = false;
@@ -251,8 +253,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 200;
                 Height = 250;
             }
-           
+            BorderRadius = 3;
             items.ListChanged += Items_ListChanged;
+            ApplyThemeToChilds = false;
          //   this.Invalidated += BeepListBox_Invalidated;
             InitLayout();
             BoundProperty = "SelectedMenuItem";
@@ -274,6 +277,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = ButtonSize.Height,
                 //  Padding = new Padding(isChild ? 20 : 10, 0, 0, 0),
                 Visible = true,
+                BorderStyle= BorderStyle.None,
                 Tag = item, // Store the SimpleMenuItem for reference
             };
             Panel highlightPanel = new Panel();
@@ -314,12 +318,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 TextAlign = ContentAlignment.MiddleLeft,
                 ImageAlign = ContentAlignment.MiddleLeft,
-                Theme = Theme,
+              
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
                 ShowAllBorders = false,
                 ShowShadow = false,
-                IsSelectedAuto = false,
+                IsSelectedAuto = true,
+                IsFrameless = true,
+                IsRounded = false,
+                IsRoundedAffectedByTheme = false,
+             
                 BorderSize = 0,
                // OverrideFontSize = TypeStyleFontSize.Small,
                 Tag = item,
@@ -327,12 +335,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChild = true,
                 UseScaledFont =false,
                 ApplyThemeOnImage = false,
-                UseThemeFont=this.UseThemeFont,
+                //UseThemeFont=this.UseThemeFont,
             };
-            if (UseThemeFont == false)
-            {
+
                 button.TextFont =BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-            }
+ 
 
             // Load the icon if specified
             if (!string.IsNullOrEmpty(item.ImagePath) && File.Exists(item.ImagePath))
@@ -348,11 +355,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
             }
-            if (_currentTheme != null)
-            {
-                button.Theme = Theme;
-            }
-
+           
             menuItemPanel.Controls.Add(button);
             button.BringToFront();
             _buttons.Add(button);
@@ -483,8 +486,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (sender is BeepButton clickedButton)
             {
                 CurrenItemButton = (BeepButton)sender;
-                SimpleItem simpleItem = (SimpleItem)clickedButton.Tag;
+                SimpleItem simpleItem = (SimpleItem)clickedButton.Info;
+                if(simpleItem == null)
+                {
+                    return;
+                }
+                
                 SelectedItem = simpleItem;
+                if(simpleItem != lastitem)
+                {
+                    if (lastbutton != null)
+                    {
+                        lastbutton.BackColor = BackColor;
+                        lastbutton.ForeColor = ForeColor;
+                        lastbutton.IsSelected = false;
+                    }
+                    lastbutton = CurrenItemButton;
+                    lastitem = simpleItem;
+                }
                 ItemClicked?.Invoke(this, simpleItem);
                
             }
@@ -625,8 +644,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentTheme == null) { return; }
             //base.ApplyTheme();
             // Apply theme to the main menu panel (background gradient or solid color)
-            BackColor = _currentTheme.ButtonBackColor;
-            ForeColor = _currentTheme.ButtonForeColor;
+            BackColor = _currentTheme.ListBackColor;
+            ForeColor = _currentTheme.ListForeColor;
             //  _currentTheme.ButtonBackColor = _currentTheme.BackgroundColor;
             // Apply theme to each item (button and highlight panel)
             SetColors();
@@ -649,24 +668,35 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             case BeepButton button:
                               //  button.Theme = Theme;
-                                if (UseThemeFont)
-                                {
-                                    button.UseThemeFont = true;
-                                    _textFont = BeepThemesManager.ToFont(_currentTheme.OrderedList);
+                                //if (UseThemeFont)
+                                //{
+                                   // button.UseThemeFont = true;
+                                    TextFont = BeepThemesManager.ToFont(_currentTheme.BodySmall);
                                   
-                                }
-                                else
-                                {
-                                    button.UseThemeFont = false;
+                                //}
+                                //else
+                                //{
+                                //    button.UseThemeFont = false;
                                    
-                                }
+                                //}
                                 Font = _textFont;
                                 button.Font = _textFont;
-                                button.Theme = Theme;
-                                button.BackColor = BackColor;
-                                button.ForeColor = ForeColor;
-                                button.HoverBackColor = BackColor;
-                                button.HoverForeColor = ForeColor;
+                               // button.Theme = Theme;
+                                button.BackColor = _currentTheme.ListBackColor;
+                                button.ForeColor = _currentTheme.ListItemForeColor;
+                                button.HoverBackColor = _currentTheme.ListItemHoverBackColor;
+                                button.HoverForeColor = _currentTheme.ListItemHoverForeColor;
+                                button.SelectedBackColor = _currentTheme.ListItemSelectedBackColor;
+                                button.SelectedForeColor = _currentTheme.ListItemSelectedForeColor;
+                                button.DisabledBackColor = _currentTheme.DisabledBackColor;
+                                button.DisabledForeColor = _currentTheme.DisabledForeColor;
+                                button.FocusBackColor = _currentTheme.ListItemSelectedBackColor;
+                                button.FocusForeColor = _currentTheme.ListItemSelectedForeColor;
+
+
+                                PressedBackColor = _currentTheme.ButtonPressedBackColor;
+                                PressedForeColor = _currentTheme.ButtonPressedForeColor;
+
                                 button.UseScaledFont = true;
                               //  button.IsChild = false;
                               // 

@@ -90,11 +90,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.BackColor = Color.White;
             this.ForeColor = Color.Black;
             this.Font = new Font("Segoe UI", 9);
-
+            BorderRadius = 3;
             // Repaint whenever the collection changes.
             _items.ListChanged += (s, e) => { Invalidate(); };
         }
-
+        protected override Size DefaultSize => new Size(150, 36);
         #endregion
 
         #region Painting

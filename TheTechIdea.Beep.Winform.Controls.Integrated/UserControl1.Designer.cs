@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated
             // 
             // beepDataBlock1
             // 
-            beepDataBlock1.ActiveBackColor = Color.Gray;
+          
             beepDataBlock1.AnimationDuration = 500;
             beepDataBlock1.AnimationType = DisplayAnimationType.None;
             beepDataBlock1.ApplyThemeToChilds = false;
@@ -83,9 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated
             beepDataBlock1.HoveredBackcolor = Color.Wheat;
             beepDataBlock1.HoverForeColor = Color.Black;
             beepDataBlock1.Id = -1;
-            beepDataBlock1.InactiveBackColor = Color.Gray;
-            beepDataBlock1.InactiveBorderColor = Color.Gray;
-            beepDataBlock1.InactiveForeColor = Color.Black;
+        
             beepDataBlock1.Info = (Models.SimpleItem)resources.GetObject("beepDataBlock1.Info");
             beepDataBlock1.IsAcceptButton = false;
             beepDataBlock1.IsBorderAffectedByTheme = false;

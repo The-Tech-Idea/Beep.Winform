@@ -286,9 +286,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 100;
                 Height = buttonHeight;
             }
-          //  CreateMenuItemPanel();
+            //  CreateMenuItemPanel();
+            BorderRadius = 3;
             BoundProperty= "Text";
         }
+        protected override Size DefaultSize => new Size(150, 36);
         protected override void InitLayout()
         {
         //   // Console.WriteLine("Control InitLayout");

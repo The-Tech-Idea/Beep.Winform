@@ -156,28 +156,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             try
             {
                 base.ApplyTheme();
-                if (BeepThemesManager.ThemeChartColors.TryGetValue(Theme, out var chartColors))
-                {
-                    ChartBackColor = chartColors.ChartBackColor;
-                    ChartLineColor = chartColors.ChartLineColor;
-                    ChartFillColor = chartColors.ChartFillColor;
-                    ChartAxisColor = chartColors.ChartAxisColor;
-                    ChartTitleColor = chartColors.ChartTitleColor;
-                    ChartTextColor = chartColors.ChartTextColor;
-                    ChartLegendBackColor = chartColors.ChartLegendBackColor;
-                    ChartLegendTextColor = chartColors.ChartLegendTextColor;
-                    ChartLegendShapeColor = chartColors.ChartLegendShapeColor;
-                    ChartGridLineColor = chartColors.ChartGridLineColor;
-                    ChartDefaultSeriesColors = new List<Color>(chartColors.ChartDefaultSeriesColors);
+                   ChartBackColor = _currentTheme.ChartBackColor;
+                    ChartLineColor = _currentTheme.ChartLineColor;
+                    ChartFillColor = _currentTheme.ChartFillColor;
+                    ChartAxisColor = _currentTheme.ChartAxisColor;
+                    ChartTitleColor = _currentTheme.ChartTitleColor;
+                    ChartTextColor = _currentTheme.ChartTextColor;
+                    ChartLegendBackColor = _currentTheme.ChartLegendBackColor;
+                    ChartLegendTextColor = _currentTheme.ChartLegendTextColor;
+                    ChartLegendShapeColor = _currentTheme.ChartLegendShapeColor;
+                    ChartGridLineColor = _currentTheme.ChartGridLineColor;
+                    ChartDefaultSeriesColors = new List<Color>(_currentTheme.ChartDefaultSeriesColors);
                     ChartTitleFont = BeepThemesManager.ToFont(_currentTheme.TitleStyle);
                     ChartValueFont = _currentTheme.GetBlockHeaderFont();
                     ChartSubtitleFont = _currentTheme.GetBlockTextFont();
                     Invalidate();
-                }
-                else
-                {
-                    throw new ArgumentException($"Theme {Theme.ToString()} not found in ThemeChartColors.");
-                }
+             
             }
             catch (Exception ex)
             {

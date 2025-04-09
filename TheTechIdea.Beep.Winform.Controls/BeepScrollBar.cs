@@ -213,14 +213,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            if (BeepThemesManager.ThemeScrollBarColors.TryGetValue(Theme, out var colors))
-            {
-                BackColor = colors.ScrollbarBackColor;
-                TrackColor = colors.ScrollbarTrackColor;
-                ThumbColor = colors.ScrollbarThumbColor;
-                ThumbColorHover = colors.ScrollbarThumbColorHover;
-                ThumbColorActive = colors.ScrollbarThumbColorActive;
-            }
+
+                BackColor = _currentTheme.ScrollBarBackColor;
+                TrackColor = _currentTheme.ScrollBarTrackColor;
+                ThumbColor = _currentTheme.ScrollBarThumbColor;
+                ThumbColorHover = _currentTheme.ScrollBarThumbColor;
+                ThumbColorActive = _currentTheme.ScrollBarTrackColor;
+            
             Invalidate();
         }
 

@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             Height = 60; // Initial height to match the image
             Width = 300; // Initial width to match the image
-            BorderRadius = 10;
+          
             Padding = new Padding(10);
             BackColor = Color.White;
             BorderColor = Color.LightGray;

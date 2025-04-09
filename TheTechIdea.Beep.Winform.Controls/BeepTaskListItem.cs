@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             Height = 100;
             Width = 500;
-            BorderRadius = 10;
+            BorderRadius = 3;
             Padding = new Padding(10);
             BackColor = Color.White;
             BorderColor = Color.LightGray;
@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ImageAlign = ContentAlignment.MiddleLeft,
                 TextAlign = ContentAlignment.MiddleRight,
                 Size = new Size(130, 24),
-                BorderRadius = 6,
+                BorderRadius = 3,
                 BorderColor = Color.LightGray,
                 BackColor = Color.White,
                 Anchor = AnchorStyles.Left // Anchor to the left

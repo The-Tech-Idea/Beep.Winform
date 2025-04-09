@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             // beepDisplayContainer1
             // 
-            beepDisplayContainer1.ActiveBackColor = Color.FromArgb(0, 120, 215);
+           
             beepDisplayContainer1.AnimationDuration = 500;
             beepDisplayContainer1.AnimationType = DisplayAnimationType.None;
             beepDisplayContainer1.ApplyThemeToChilds = false;
@@ -95,9 +95,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.HoveredBackcolor = Color.Wheat;
             beepDisplayContainer1.HoverForeColor = Color.Black;
             beepDisplayContainer1.Id = -1;
-            beepDisplayContainer1.InactiveBackColor = Color.Gray;
-            beepDisplayContainer1.InactiveBorderColor = Color.Gray;
-            beepDisplayContainer1.InactiveForeColor = Color.Black;
+            
             beepDisplayContainer1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepDisplayContainer1.Info");
             beepDisplayContainer1.IsAcceptButton = false;
             beepDisplayContainer1.IsBorderAffectedByTheme = true;
@@ -159,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             // beepMenuAppBar1
             // 
-            beepMenuAppBar1.ActiveBackColor = Color.FromArgb(0, 120, 215);
+         
             beepMenuAppBar1.ActiveMenuButton = null;
             beepMenuAppBar1.AnimationDuration = 500;
             beepMenuAppBar1.AnimationType = DisplayAnimationType.None;
@@ -209,9 +207,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.HoverForeColor = Color.Black;
             beepMenuAppBar1.Id = -1;
             beepMenuAppBar1.ImageSize = 20;
-            beepMenuAppBar1.InactiveBackColor = Color.Gray;
-            beepMenuAppBar1.InactiveBorderColor = Color.Gray;
-            beepMenuAppBar1.InactiveForeColor = Color.Black;
+          
             beepMenuAppBar1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepMenuAppBar1.Info");
             beepMenuAppBar1.IsAcceptButton = false;
             beepMenuAppBar1.IsBorderAffectedByTheme = true;
@@ -276,7 +272,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             // beepAppTree1
             // 
-            beepAppTree1.ActiveBackColor = Color.FromArgb(0, 120, 215);
+          
             beepAppTree1.AllowMultiSelect = false;
             beepAppTree1.AnimationDuration = 500;
             beepAppTree1.AnimationType = DisplayAnimationType.None;
@@ -335,9 +331,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.HoveredBackcolor = Color.Wheat;
             beepAppTree1.HoverForeColor = Color.Black;
             beepAppTree1.Id = -1;
-            beepAppTree1.InactiveBackColor = Color.Gray;
-            beepAppTree1.InactiveBorderColor = Color.Gray;
-            beepAppTree1.InactiveForeColor = Color.Black;
+          
             beepAppTree1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepAppTree1.Info");
             beepAppTree1.IsAcceptButton = false;
             beepAppTree1.IsBorderAffectedByTheme = true;
@@ -419,7 +413,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             // beepAppBar1
             // 
-            beepAppBar1.ActiveBackColor = Color.Gray;
+          
             beepAppBar1.AnimationDuration = 500;
             beepAppBar1.AnimationType = DisplayAnimationType.None;
             beepAppBar1.ApplyThemeButtons = false;
@@ -469,9 +463,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.HoveredBackcolor = Color.Wheat;
             beepAppBar1.HoverForeColor = Color.Black;
             beepAppBar1.Id = -1;
-            beepAppBar1.InactiveBackColor = Color.Gray;
-            beepAppBar1.InactiveBorderColor = Color.Gray;
-            beepAppBar1.InactiveForeColor = Color.Black;
+          
             beepAppBar1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepAppBar1.Info");
             beepAppBar1.IsAcceptButton = false;
             beepAppBar1.IsBorderAffectedByTheme = false;

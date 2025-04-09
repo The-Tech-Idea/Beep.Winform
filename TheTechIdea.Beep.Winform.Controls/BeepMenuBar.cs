@@ -254,6 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     MaxImageSize = new Size(_imagesize, _imagesize),
                     ImageAlign = ContentAlignment.MiddleLeft,
                     TextAlign = ContentAlignment.MiddleCenter,
+                    IsFrameless=true,
                     ApplyThemeOnImage = false,
                     ApplyThemeToChilds = false,
                     IsShadowAffectedByTheme = false,

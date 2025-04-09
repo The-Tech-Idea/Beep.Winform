@@ -31,16 +31,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected ImageScaleMode _scaleMode = ImageScaleMode.KeepAspectRatio;
         protected bool _staticnotmoving = false;
         protected ToolTip _toolTip;
-        protected bool _showAllBorders = false;
-        protected Color _focusIndicatorColor = Color.Blue;
-        protected bool _showFocusIndicator = false;
-        protected bool _showTopBorder;
-        protected bool _showBottomBorder;
-        protected bool _showLeftBorder;
-        protected bool _showRightBorder;
-        protected int _borderThickness = 1;
+        // Border properties
+
+        protected bool _showAllBorders = false; // Keep as is
+        protected Color _focusIndicatorColor = Color.Blue; // Keep as is
+        protected bool _showFocusIndicator = false; // Keep as is
+        protected bool _showTopBorder; // Keep as is
+        protected bool _showBottomBorder; // Keep as is
+        protected bool _showLeftBorder; // Keep as is
+        protected bool _showRightBorder; // Keep as is
+        protected int _borderThickness = 1; // Keep as is
+        protected int _borderRadius = 8; // Increase from 3 to 8
         protected BorderStyle _borderStyle = BorderStyle.FixedSingle;
         protected Color _borderColor = Color.Black;
+        //-----------------------------------------------
+        
+        /// </summary>
         protected bool _isRounded = true;
         protected bool _useGradientBackground = false;
         protected LinearGradientMode _gradientDirection = LinearGradientMode.Horizontal;
@@ -232,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string SavedGuidID { get; set; }
 
 
-        protected bool _isChild;
+        protected bool _isChild=false;
         protected Color parentbackcolor;
         protected Color _tempbackcolor;
 
@@ -490,12 +496,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _useThemeFont = value;
-                ApplyTheme();
+               // ApplyTheme();
                 Invalidate();
             }
         }
         // Border properties
-        protected int _borderRadius = 3;
+      
 
         public int BorderRadius
         {
@@ -547,12 +553,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _isRounded = value;
                 _isControlinvalidated = true;
-                if (_isRounded)
-                {
-                    BorderRadius = 20;
-                }
-                else
-                    BorderRadius = 3;
                 UpdateControlRegion();
                 Invalidate();
 
@@ -1141,9 +1141,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
            // g.PixelOffsetMode = PixelOffsetMode.HighQuality;
           //  g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-          //  g.TextContrast = 12;
+             g.TextContrast = 12;
           //  g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-         //   g.SmoothingMode = SmoothingMode.AntiAlias;
+             g.SmoothingMode = SmoothingMode.AntiAlias;
             // g.CompositingQuality = CompositingQuality.HighQuality;
             if (IsChild)
             {
@@ -1200,13 +1200,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                    if (ShowAllBorders && IsRounded)
-                    {
+                    if (IsRounded)
+                    { 
                           UpdateControlRegion();
-                        //using (GraphicsPath path = GetRoundedRectanglePath(borderRectangle, BorderRadius))
-                        //{
-                        //    this.Region = new Region(path);
-                        //}
                         using (GraphicsPath path = GetRoundedRectPath(borderRectangle, BorderRadius))
                         {
                             // Now draw the border
@@ -1221,7 +1217,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         }
 
                     }
-                    else if (ShowAllBorders && BorderThickness > 0)
+                    if (ShowAllBorders && BorderThickness > 0)
                     {
                         DrawBorder(g, borderRectangle);
                     }

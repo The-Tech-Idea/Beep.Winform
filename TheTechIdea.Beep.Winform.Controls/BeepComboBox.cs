@@ -167,8 +167,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(_dropDownButton);
             SetDropDownButtonImage();
             // 4) Create beepListBox
-          
 
+            BorderRadius = 3;
             // Theming, etc.
             ApplyTheme();
         }

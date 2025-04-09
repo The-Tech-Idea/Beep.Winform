@@ -301,42 +301,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-            if (BeepThemesManager.ThemeCompanyProfileColors.TryGetValue(Theme, out var colors))
-            {
-                popoverPanel.BackColor = colors.CompanyPopoverBackgroundColor;
-                lblCompanyName.ForeColor = colors.CompanyTitleColor;
-                lblCompanyType.ForeColor = colors.CompanySubtitleColor;
-                lblCompanyDesc.ForeColor = colors.CompanyDescriptionColor;
-                lblLikes.ForeColor = colors.CompanyDescriptionColor;
-                linkWebsite.LinkColor = colors.CompanyLinkColor;
-                btnLikePage.BackColor = colors.CompanyButtonBackgroundColor;
-                btnLikePage.ForeColor = colors.CompanyButtonTextColor;
-                btnCompanyProfile.BackColor = colors.CompanyButtonBackgroundColor;
-                btnCompanyProfile.ForeColor = colors.CompanyButtonTextColor;
-                dropdownMenu.BackColor = colors.CompanyDropdownBackgroundColor;
-                dropdownMenu.ForeColor = colors.CompanyDropdownTextColor;
-                btnDropdown.BackColor = colors.CompanyButtonBackgroundColor;
-                btnDropdown.ForeColor = colors.CompanyButtonTextColor;
-                btnCompanyLogo.BackColor = colors.CompanyLogoBackgroundColor;
-            }
-            else
-            {
-                popoverPanel.BackColor = Color.White;
-                lblCompanyName.ForeColor = Color.Black;
-                lblCompanyType.ForeColor = Color.DarkBlue;
-                lblCompanyDesc.ForeColor = Color.Gray;
-                lblLikes.ForeColor = Color.Gray;
-                linkWebsite.LinkColor = Color.Blue;
-                btnLikePage.BackColor = Color.Blue;
-                btnLikePage.ForeColor = Color.White;
-                btnCompanyProfile.BackColor = Color.Blue;
-                btnCompanyProfile.ForeColor = Color.White;
-                dropdownMenu.BackColor = Color.White;
-                dropdownMenu.ForeColor = Color.Black;
-                btnDropdown.BackColor = Color.Blue;
-                btnDropdown.ForeColor = Color.White;
-                btnCompanyLogo.BackColor = Color.Gray;
-            }
+            
+                popoverPanel.BackColor = _currentTheme.CompanyPopoverBackgroundColor;
+                lblCompanyName.ForeColor = _currentTheme.CompanyTitleColor;
+                lblCompanyType.ForeColor = _currentTheme.CompanySubtitleColor;
+                lblCompanyDesc.ForeColor = _currentTheme.CompanyDescriptionColor;
+                lblLikes.ForeColor = _currentTheme.CompanyDescriptionColor;
+                linkWebsite.LinkColor = _currentTheme.CompanyLinkColor;
+                btnLikePage.BackColor = _currentTheme.CompanyButtonBackgroundColor;
+                btnLikePage.ForeColor = _currentTheme.CompanyButtonTextColor;
+                btnCompanyProfile.BackColor = _currentTheme.CompanyButtonBackgroundColor;
+                btnCompanyProfile.ForeColor = _currentTheme.CompanyButtonTextColor;
+                dropdownMenu.BackColor = _currentTheme.CompanyDropdownBackgroundColor;
+                dropdownMenu.ForeColor = _currentTheme.CompanyDropdownTextColor;
+                btnDropdown.BackColor = _currentTheme.CompanyButtonBackgroundColor;
+                btnDropdown.ForeColor = _currentTheme.CompanyButtonTextColor;
+                btnCompanyLogo.BackColor = _currentTheme.CompanyLogoBackgroundColor;
+          
         }
 
         [Browsable(true)]

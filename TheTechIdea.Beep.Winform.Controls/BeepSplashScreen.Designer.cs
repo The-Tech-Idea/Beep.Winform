@@ -148,7 +148,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.BlockID = null;
             _titleLabel.BorderColor = Color.Black;
             _titleLabel.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            _titleLabel.BorderRadius = 1;
             _titleLabel.BorderStyle = BorderStyle.FixedSingle;
             _titleLabel.BorderThickness = 1;
             _titleLabel.BottomoffsetForDrawingRect = 0;

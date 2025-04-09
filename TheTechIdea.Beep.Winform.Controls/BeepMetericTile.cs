@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.Size = new Size(150, 150);
 
             // Large corner radius to match the roundness in the image
-            this.BorderRadius = 30;
+            this.BorderRadius = 8;
 
             // Enable the built-in shadow and gradient background
             this.ShowShadow = true;

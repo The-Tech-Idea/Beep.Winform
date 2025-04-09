@@ -1258,46 +1258,26 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-            if (BeepThemesManager.LoginColors.TryGetValue(Theme, out var colors))
-            {
-                loginPanel.BackColor = colors.LoginPopoverBackgroundColor;
-                lblTitle.ForeColor = colors.LoginTitleColor;
-                lblSubtitle.ForeColor = colors.LoginSubtitleColor;
-                txtUsername.ForeColor = colors.LoginTitleColor;
-                txtPassword.ForeColor = colors.LoginTitleColor;
-                lnkForgotPassword.LinkColor = colors.LoginLinkColor;
-                lnkRegister.LinkColor = colors.LoginLinkColor;
-                btnLogin.BackColor = colors.LoginButtonBackgroundColor;
-                btnLogin.ForeColor = colors.LoginButtonTextColor;
-                btnGoogleLogin.BackColor = colors.LoginButtonBackgroundColor;
-                btnGoogleLogin.ForeColor = colors.LoginButtonTextColor;
-                btnFacebookLogin.BackColor = colors.LoginButtonBackgroundColor;
-                btnFacebookLogin.ForeColor = colors.LoginButtonTextColor;
-                btnTwitterLogin.BackColor = colors.LoginButtonBackgroundColor;
-                btnTwitterLogin.ForeColor = colors.LoginButtonTextColor;
-                btnLogo.BackColor = colors.LoginLogoBackgroundColor;
-                btnAvatar.BackColor = colors.LoginLogoBackgroundColor;
-            }
-            else
-            {
-                loginPanel.BackColor = Color.White;
-                lblTitle.ForeColor = Color.Black;
-                lblSubtitle.ForeColor = Color.DarkGray;
-                txtUsername.ForeColor = Color.Black;
-                txtPassword.ForeColor = Color.Black;
-                lnkForgotPassword.LinkColor = Color.RoyalBlue;
-                lnkRegister.LinkColor = Color.RoyalBlue;
-                btnLogin.BackColor = Color.MediumBlue;
-                btnLogin.ForeColor = Color.White;
-                btnGoogleLogin.BackColor = Color.MediumBlue;
-                btnGoogleLogin.ForeColor = Color.White;
-                btnFacebookLogin.BackColor = Color.MediumBlue;
-                btnFacebookLogin.ForeColor = Color.White;
-                btnTwitterLogin.BackColor = Color.MediumBlue;
-                btnTwitterLogin.ForeColor = Color.White;
-                btnLogo.BackColor = Color.LightGray;
-                btnAvatar.BackColor = Color.LightGray;
-            }
+            base.ApplyTheme();
+            if(loginPanel == null) return;
+            loginPanel.BackColor = _currentTheme.LoginPopoverBackgroundColor;
+                lblTitle.ForeColor = _currentTheme.LoginTitleColor;
+                lblSubtitle.ForeColor = _currentTheme.LoginSubtitleColor;
+                txtUsername.ForeColor = _currentTheme.LoginTitleColor;
+                txtPassword.ForeColor = _currentTheme.LoginTitleColor;
+                lnkForgotPassword.LinkColor = _currentTheme.LoginLinkColor;
+                lnkRegister.LinkColor = _currentTheme.LoginLinkColor;
+                btnLogin.BackColor = _currentTheme.LoginButtonBackgroundColor;
+                btnLogin.ForeColor = _currentTheme.LoginButtonTextColor;
+                btnGoogleLogin.BackColor = _currentTheme.LoginButtonBackgroundColor;
+                btnGoogleLogin.ForeColor = _currentTheme.LoginButtonTextColor;
+                btnFacebookLogin.BackColor = _currentTheme.LoginButtonBackgroundColor;
+                btnFacebookLogin.ForeColor = _currentTheme.LoginButtonTextColor;
+                btnTwitterLogin.BackColor = _currentTheme.LoginButtonBackgroundColor;
+                btnTwitterLogin.ForeColor = _currentTheme.LoginButtonTextColor;
+                btnLogo.BackColor = _currentTheme.LoginLogoBackgroundColor;
+                btnAvatar.BackColor = _currentTheme.LoginLogoBackgroundColor;
+           
         }
     }
 }

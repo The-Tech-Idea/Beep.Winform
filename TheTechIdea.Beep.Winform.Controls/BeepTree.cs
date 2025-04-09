@@ -1054,6 +1054,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Level = parent?.Level + 1 ?? 1,
                     UseThemeFont = this.UseThemeFont,
                     UseScaledFont = this.UseScaledFont,
+                    
                     TextAlignment = textAlign,
                   
                 };
@@ -2057,14 +2058,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            BackColor = _currentTheme.ButtonBackColor;
-            _nodePanels.Values.ToList().ForEach(p => p.BackColor = _currentTheme.ButtonBackColor);
+            BackColor = _currentTheme.TreeBackColor;
+            _nodePanels.Values.ToList().ForEach(p => p.BackColor = _currentTheme.TreeBackColor);
             foreach (BeepTreeNode node in _beeptreeRootnodes)
             {
                 node.UseThemeFont = UseThemeFont;
                 node.UseScaledFont = UseScaledFont;
                 node.Theme = Theme;
-                if(UseThemeFont)
+                node.BackColor = _currentTheme.TreeBackColor;
+                node.BorderColor = _currentTheme.TreeBorderColor;
+              
+                if (UseThemeFont)
                 {
                     node.UseThemeFont = true;
                     node.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);

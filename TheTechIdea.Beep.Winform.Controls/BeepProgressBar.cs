@@ -150,6 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = 30;
             }
             DoubleBuffered = true;
+            BorderRadius = 3;
         }
 
         protected override void OnPaint(PaintEventArgs e)

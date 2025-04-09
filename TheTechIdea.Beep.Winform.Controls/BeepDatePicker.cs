@@ -132,9 +132,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
             DoubleBuffered = true;
+            BorderRadius = 3;
         }
 
-        protected override Size DefaultSize => new Size(200, 25); // Adjusted width to accommodate time
+        protected override Size DefaultSize => new Size(200, 36); // Adjusted width to accommodate time
 
         protected override void InitLayout()
         {

@@ -223,6 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeComponents();
             beepImage.ImageEmbededin = ImageEmbededin.Label;
             BoundProperty = "Text";
+            BorderRadius = 3;
         }
 
         protected override void InitLayout()

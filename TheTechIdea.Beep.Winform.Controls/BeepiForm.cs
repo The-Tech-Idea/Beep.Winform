@@ -220,7 +220,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 SetProcessDPIAware();
             }
-            Application.AddMessageFilter(_mouseMessageFilter);  // ✅ Hook into message loop
+          //  Application.AddMessageFilter(_mouseMessageFilter);  // ✅ Hook into message loop
 
         }
         protected override void OnPaint(PaintEventArgs e)
@@ -273,8 +273,16 @@ namespace TheTechIdea.Beep.Winform.Controls
               //  AdjustControls();
             }
         }
+
         #endregion "Layout Events"
         #region Window Resizing
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            isResizing = false;
+            isDragging = false;
+            Cursor = Cursors.Default; // Default cursor
+        }
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);

@@ -68,6 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             BoundProperty = "State";
             ShowAllBorders = false;
+            BorderRadius = 3;
             ApplyTheme();
         }
         protected override void InitLayout()

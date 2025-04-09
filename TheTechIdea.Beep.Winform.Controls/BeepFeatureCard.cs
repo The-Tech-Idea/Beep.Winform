@@ -301,11 +301,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             subtitleLabel.ForeColor = _currentTheme.CardTitleForeColor;
             subtitleLabel.TextFont = new Font(BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle).FontFamily, 10);
             subtitleLabel.BackColor = _currentTheme.CardBackColor;
-            featuresListBox.Theme = Theme;
+         //   featuresListBox.Theme = Theme;
             featuresListBox.BackColor = _currentTheme.CardBackColor;
-           // featuresListBox.TextFont = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
-            featuresListBox.ForeColor = _currentTheme.CardTextForeColor;
-            featuresListBox.SetColors();
+            featuresListBox.TextFont = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
+           featuresListBox.ForeColor = _currentTheme.CardTextForeColor;
+           featuresListBox.SetColors();
             featuresListBox.Invalidate();
             actionIcon1.FillColor = Color.White;
             actionIcon1.StrokeColor = Color.White;

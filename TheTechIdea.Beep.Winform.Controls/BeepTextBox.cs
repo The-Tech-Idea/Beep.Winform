@@ -615,8 +615,8 @@ namespace TheTechIdea.Beep.Winform.Controls
            
             // AutoSize = true;
             BoundProperty = "Text";
-       
-         
+        BorderRadius=3;
+
             beepImage.IsChild = true;
             ShowAllBorders=true;
             IsShadowAffectedByTheme = false;

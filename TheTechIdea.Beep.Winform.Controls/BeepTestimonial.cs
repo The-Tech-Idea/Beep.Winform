@@ -138,45 +138,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.ApplyTheme();
 
-            // Ensure Theme is set; default to DefaultTheme if null
-            if (_currentTheme == null || !BeepThemesManager.ThemeTestimonialColors.ContainsKey(Theme))
-            {
-                Theme = EnumBeepThemes.DefaultTheme; // Fallback to DefaultTheme
-            }
+            if (cardPanel == null) return;
+                this.BackColor = _currentTheme.TestimonialBackColor;
+                cardPanel.BackColor = _currentTheme.TestimonialBackColor;
 
-            if (BeepThemesManager.ThemeTestimonialColors.TryGetValue(Theme, out var colors))
-            {
-                this.BackColor = colors.TestimonialBackColor;
-                cardPanel.BackColor = colors.TestimonialBackColor;
+                lblTestimonial.BackColor = _currentTheme.TestimonialBackColor;
+                lblTestimonial.ForeColor = _currentTheme.TestimonialTextColor;
 
-                lblTestimonial.BackColor = colors.TestimonialBackColor;
-                lblTestimonial.ForeColor = colors.TestimonialTextColor;
+                lblName.BackColor = _currentTheme.TestimonialBackColor;
+                lblName.ForeColor = _currentTheme.TestimonialNameColor;
 
-                lblName.BackColor = colors.TestimonialBackColor;
-                lblName.ForeColor = colors.TestimonialNameColor;
+                lblUsername.BackColor = _currentTheme.TestimonialBackColor;
+                lblUsername.ForeColor = _currentTheme.TestimonialDetailsColor;
 
-                lblUsername.BackColor = colors.TestimonialBackColor;
-                lblUsername.ForeColor = colors.TestimonialDetailsColor;
+                lblPosition.BackColor = _currentTheme.TestimonialBackColor;
+                lblPosition.ForeColor = _currentTheme.TestimonialDetailsColor;
 
-                lblPosition.BackColor = colors.TestimonialBackColor;
-                lblPosition.ForeColor = colors.TestimonialDetailsColor;
-
-                btnClose.BackColor = colors.TestimonialBackColor;
-                btnClose.ForeColor = colors.TestimonialDetailsColor;
+                btnClose.BackColor = _currentTheme.TestimonialBackColor;
+                btnClose.ForeColor = _currentTheme.TestimonialDetailsColor;
 
                 UpdateRatingStars(); // Ensure stars use theme colors
-            }
-            else
-            {
-                // Hardcoded fallback if theme lookup fails
-                this.BackColor = Color.White;
-                cardPanel.BackColor = Color.White;
-                lblTestimonial.ForeColor = Color.Black;
-                lblName.ForeColor = Color.DarkBlue;
-                lblUsername.ForeColor = Color.Gray;
-                lblPosition.ForeColor = Color.Gray;
-                btnClose.ForeColor = Color.Gray;
-           }
+          
         }
 
         private void SetDummyData()

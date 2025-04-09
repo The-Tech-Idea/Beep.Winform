@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Private field to store the button's text
 
         private Rectangle contentRect;
-
+      
         // create a public event for beepImage.onClick
         public EventHandler<BeepEventDataArgs> ImageClicked { get; set; }
         private Color tmpbackcolor;
@@ -473,7 +473,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 1) Create beepListBox
 
             #endregion "Popup List Initialization"
-           
+          
+
         }
         private void InitializeComponents()
         {
@@ -493,14 +494,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage.MouseDown += BeepImage_MouseDown;
             Padding = new Padding(0);
             Margin = new Padding(0);
-       
-          //  InitListbox();
-                                       //  Controls.Add(beepImage);
+            BorderRadius = 3;
+            ShowAllBorders = false;
+            //  InitListbox();
+            //  Controls.Add(beepImage);
         }
-       
+        protected override Size DefaultSize => new Size(100, 36);
         #endregion "Constructor"
         #region "Popup List Methods"
-      
+
 
         private void TogglePopup()
         {
@@ -629,7 +631,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                  Font = _textFont;
             }
            
-            Font = _textFont;
+           
             ApplyThemeToSvg();
             Invalidate();  // Trigger repaint
         }
@@ -653,6 +655,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Theme"
         #region "Paint"
+        protected override void InitLayout()
+        {
+            base.InitLayout();
+            // Initialize the layout of the control
+           
+        }
         protected override void OnLayout(LayoutEventArgs e)
         {
             base.OnLayout(e);
@@ -772,21 +780,19 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 //}
                 //else
+                Color color=ForeColor;
                 if (IsHovered)
                 {
-                    ForeColor = HoverForeColor;
+                    color = HoverForeColor;
 
                 }
                 else if (IsSelected)
                 {
-                    ForeColor = _currentTheme.ButtonSelectedForeColor;
+                    color = SelectedForeColor;
                 }
-                else
-                {
-                    ForeColor = _currentTheme.ButtonForeColor;
-                }
+                
                     TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-                TextRenderer.DrawText(g, Text, scaledFont, textRect, ForeColor, flags);
+                TextRenderer.DrawText(g, Text, scaledFont, textRect, color, flags);
             }
             if(BadgeText != null)
             {
@@ -995,7 +1001,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (!IsPressed)
             {
-                IsHovered = true;
+           //     IsHovered = true;
             }
             base.OnMouseHover(e);
 

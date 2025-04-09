@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // 
             // beepSimpleGrid1
             // 
-            beepSimpleGrid1.ActiveBackColor = Color.FromArgb(0, 120, 215);
+        
             beepSimpleGrid1.aggregationRow = null;
             beepSimpleGrid1.AnimationDuration = 500;
             beepSimpleGrid1.AnimationType = DisplayAnimationType.None;
@@ -101,9 +101,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.HoveredBackcolor = Color.Wheat;
             beepSimpleGrid1.HoverForeColor = Color.Black;
             beepSimpleGrid1.Id = -1;
-            beepSimpleGrid1.InactiveBackColor = Color.Gray;
-            beepSimpleGrid1.InactiveBorderColor = Color.Gray;
-            beepSimpleGrid1.InactiveForeColor = Color.Black;
+           
             beepSimpleGrid1.Info = (SimpleItem)resources.GetObject("beepSimpleGrid1.Info");
             beepSimpleGrid1.IsAcceptButton = false;
             beepSimpleGrid1.IsBorderAffectedByTheme = true;

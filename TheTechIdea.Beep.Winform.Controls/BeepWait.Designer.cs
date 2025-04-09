@@ -49,7 +49,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // Title
             // 
-           
             Title.AnimationDuration = 500;
             Title.AnimationType = DisplayAnimationType.None;
             Title.ApplyThemeOnImage = false;
@@ -101,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.Id = -1;
             Title.ImageAlign = ContentAlignment.MiddleLeft;
             Title.ImagePath = null;
-           
+            Title.InactiveBorderColor = Color.Gray;
             Title.Info = (SimpleItem)resources.GetObject("Title.Info");
             Title.IsAcceptButton = false;
             Title.IsBorderAffectedByTheme = true;
@@ -119,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.IsPressed = false;
             Title.IsReadOnly = false;
             Title.IsRequired = false;
-            Title.IsRounded = false;
+            Title.IsRounded = true;
             Title.IsRoundedAffectedByTheme = false;
             Title.IsSelected = false;
             Title.IsShadowAffectedByTheme = false;
@@ -138,11 +137,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.ParentBackColor = Color.White;
             Title.ParentControl = null;
             Title.PressedBackColor = Color.Gray;
-            Title.PressedBorderColor = Color.Gray;
+            Title.PressedBorderColor = Color.Black;
             Title.PressedForeColor = Color.Black;
             Title.RightoffsetForDrawingRect = 0;
             Title.SavedGuidID = null;
             Title.SavedID = null;
+            Title.SelectedBackColor = Color.White;
+            Title.SelectedForeColor = Color.Black;
             Title.ShadowColor = Color.Black;
             Title.ShadowOffset = 0;
             Title.ShadowOpacity = 0.5F;
@@ -172,7 +173,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // LogopictureBox
             // 
-           
             LogopictureBox.AllowManualRotation = true;
             LogopictureBox.AnimationDuration = 500;
             LogopictureBox.AnimationType = DisplayAnimationType.None;
@@ -206,9 +206,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.Easing = EasingType.Linear;
             LogopictureBox.FieldID = null;
             LogopictureBox.FillColor = Color.Black;
-            LogopictureBox.FocusBackColor = Color.FromArgb(0, 120, 215);
+            LogopictureBox.FocusBackColor = Color.Empty;
             LogopictureBox.FocusBorderColor = Color.Gray;
-            LogopictureBox.FocusForeColor = Color.White;
+            LogopictureBox.FocusForeColor = Color.Empty;
             LogopictureBox.FocusIndicatorColor = Color.Blue;
             LogopictureBox.Form = null;
             LogopictureBox.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
@@ -223,7 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.Image = null;
             LogopictureBox.ImageEmbededin = ImageEmbededin.Button;
             LogopictureBox.ImagePath = null;
-          
+            LogopictureBox.InactiveBorderColor = Color.Gray;
             LogopictureBox.Info = (SimpleItem)resources.GetObject("LogopictureBox.Info");
             LogopictureBox.IsAcceptButton = false;
             LogopictureBox.IsBorderAffectedByTheme = true;
@@ -257,14 +257,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.OverrideFontSize = TypeStyleFontSize.None;
             LogopictureBox.ParentBackColor = Color.White;
             LogopictureBox.ParentControl = null;
-            LogopictureBox.PressedBackColor = Color.FromArgb(0, 120, 215);
-            LogopictureBox.PressedBorderColor = Color.Gray;
-            LogopictureBox.PressedForeColor = Color.White;
+            LogopictureBox.PressedBackColor = Color.Empty;
+            LogopictureBox.PressedBorderColor = Color.Empty;
+            LogopictureBox.PressedForeColor = Color.Empty;
             LogopictureBox.RightoffsetForDrawingRect = 0;
             LogopictureBox.SavedGuidID = null;
             LogopictureBox.SavedID = null;
             LogopictureBox.ScaleFactor = 1F;
             LogopictureBox.ScaleMode = ImageScaleMode.KeepAspectRatio;
+            LogopictureBox.SelectedBackColor = Color.White;
+            LogopictureBox.SelectedForeColor = Color.Black;
             LogopictureBox.ShadowColor = Color.FromArgb(0, 0, 0);
             LogopictureBox.ShadowOffset = 0;
             LogopictureBox.ShadowOpacity = 0.5F;
@@ -293,7 +295,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // beepLabel1
             // 
-        
             beepLabel1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             beepLabel1.AnimationDuration = 500;
             beepLabel1.AnimationType = DisplayAnimationType.None;
@@ -308,7 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.BlockID = null;
             beepLabel1.BorderColor = Color.Black;
             beepLabel1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            beepLabel1.BorderRadius = 20;
+            beepLabel1.BorderRadius = 3;
             beepLabel1.BorderStyle = BorderStyle.FixedSingle;
             beepLabel1.BorderThickness = 1;
             beepLabel1.BottomoffsetForDrawingRect = 0;
@@ -344,7 +345,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.Id = -1;
             beepLabel1.ImageAlign = ContentAlignment.MiddleLeft;
             beepLabel1.ImagePath = null;
-           
+            beepLabel1.InactiveBorderColor = Color.Gray;
             beepLabel1.Info = (SimpleItem)resources.GetObject("beepLabel1.Info");
             beepLabel1.IsAcceptButton = false;
             beepLabel1.IsBorderAffectedByTheme = true;
@@ -381,11 +382,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.ParentBackColor = Color.White;
             beepLabel1.ParentControl = null;
             beepLabel1.PressedBackColor = Color.Gray;
-            beepLabel1.PressedBorderColor = Color.Gray;
+            beepLabel1.PressedBorderColor = Color.Black;
             beepLabel1.PressedForeColor = Color.Black;
             beepLabel1.RightoffsetForDrawingRect = 0;
             beepLabel1.SavedGuidID = null;
             beepLabel1.SavedID = null;
+            beepLabel1.SelectedBackColor = Color.White;
+            beepLabel1.SelectedForeColor = Color.Black;
             beepLabel1.ShadowColor = Color.Black;
             beepLabel1.ShadowOffset = 0;
             beepLabel1.ShadowOpacity = 0.5F;
@@ -415,7 +418,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // beepLabel2
             // 
-           
             beepLabel2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             beepLabel2.AnimationDuration = 500;
             beepLabel2.AnimationType = DisplayAnimationType.None;
@@ -430,7 +432,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.BlockID = null;
             beepLabel2.BorderColor = Color.Black;
             beepLabel2.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            beepLabel2.BorderRadius = 20;
+            beepLabel2.BorderRadius = 3;
             beepLabel2.BorderStyle = BorderStyle.FixedSingle;
             beepLabel2.BorderThickness = 1;
             beepLabel2.BottomoffsetForDrawingRect = 0;
@@ -466,7 +468,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.Id = -1;
             beepLabel2.ImageAlign = ContentAlignment.MiddleLeft;
             beepLabel2.ImagePath = null;
-           
+            beepLabel2.InactiveBorderColor = Color.Gray;
             beepLabel2.Info = (SimpleItem)resources.GetObject("beepLabel2.Info");
             beepLabel2.IsAcceptButton = false;
             beepLabel2.IsBorderAffectedByTheme = true;
@@ -503,11 +505,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.ParentBackColor = Color.White;
             beepLabel2.ParentControl = null;
             beepLabel2.PressedBackColor = Color.Gray;
-            beepLabel2.PressedBorderColor = Color.Gray;
+            beepLabel2.PressedBorderColor = Color.Black;
             beepLabel2.PressedForeColor = Color.Black;
             beepLabel2.RightoffsetForDrawingRect = 0;
             beepLabel2.SavedGuidID = null;
             beepLabel2.SavedID = null;
+            beepLabel2.SelectedBackColor = Color.White;
+            beepLabel2.SelectedForeColor = Color.Black;
             beepLabel2.ShadowColor = Color.Black;
             beepLabel2.ShadowOffset = 0;
             beepLabel2.ShadowOpacity = 0.5F;
@@ -539,7 +543,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             messege.AcceptsReturn = false;
             messege.AcceptsTab = false;
-          
             messege.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             messege.AnimationDuration = 500;
             messege.AnimationType = DisplayAnimationType.None;
@@ -556,7 +559,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.BlockID = null;
             messege.BorderColor = Color.FromArgb(200, 200, 200);
             messege.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            messege.BorderRadius = 20;
+            messege.BorderRadius = 3;
             messege.BorderStyle = BorderStyle.FixedSingle;
             messege.BorderThickness = 1;
             messege.BottomoffsetForDrawingRect = 0;
@@ -594,7 +597,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.Id = -1;
             messege.ImageAlign = ContentAlignment.MiddleLeft;
             messege.ImagePath = null;
-            
+            messege.InactiveBorderColor = Color.Gray;
             messege.Info = (SimpleItem)resources.GetObject("messege.Info");
             messege.IsAcceptButton = false;
             messege.IsBorderAffectedByTheme = false;
@@ -634,13 +637,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.PasswordChar = '\0';
             messege.PlaceholderText = "";
             messege.PressedBackColor = Color.Gray;
-            messege.PressedBorderColor = Color.Gray;
+            messege.PressedBorderColor = Color.Black;
             messege.PressedForeColor = Color.Black;
             messege.ReadOnly = false;
             messege.RightoffsetForDrawingRect = 0;
             messege.SavedGuidID = null;
             messege.SavedID = null;
             messege.ScrollBars = ScrollBars.None;
+            messege.SelectedBackColor = Color.White;
+            messege.SelectedForeColor = Color.Black;
             messege.SelectionStart = 0;
             messege.ShadowColor = Color.Black;
             messege.ShadowOffset = 0;
@@ -674,7 +679,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // _spinnerImage
             // 
-            
             _spinnerImage.AllowManualRotation = true;
             _spinnerImage.AnimationDuration = 500;
             _spinnerImage.AnimationType = DisplayAnimationType.None;
@@ -690,7 +694,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.BlockID = null;
             _spinnerImage.BorderColor = Color.Black;
             _spinnerImage.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            _spinnerImage.BorderRadius = 20;
+            _spinnerImage.BorderRadius = 8;
             _spinnerImage.BorderStyle = BorderStyle.FixedSingle;
             _spinnerImage.BorderThickness = 1;
             _spinnerImage.BottomoffsetForDrawingRect = 0;
@@ -709,9 +713,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.Easing = EasingType.Linear;
             _spinnerImage.FieldID = null;
             _spinnerImage.FillColor = Color.Black;
-            _spinnerImage.FocusBackColor = Color.FromArgb(0, 120, 215);
+            _spinnerImage.FocusBackColor = Color.Empty;
             _spinnerImage.FocusBorderColor = Color.Gray;
-            _spinnerImage.FocusForeColor = Color.White;
+            _spinnerImage.FocusForeColor = Color.Empty;
             _spinnerImage.FocusIndicatorColor = Color.Blue;
             _spinnerImage.Form = null;
             _spinnerImage.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
@@ -726,10 +730,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.Image = null;
             _spinnerImage.ImageEmbededin = ImageEmbededin.Button;
             _spinnerImage.ImagePath = null;
-            
+            _spinnerImage.InactiveBorderColor = Color.Gray;
             _spinnerImage.Info = (SimpleItem)resources.GetObject("_spinnerImage.Info");
             _spinnerImage.IsAcceptButton = false;
-            _spinnerImage.IsBorderAffectedByTheme = true;
+            _spinnerImage.IsBorderAffectedByTheme = false;
             _spinnerImage.IsCancelButton = false;
             _spinnerImage.IsChild = true;
             _spinnerImage.IsCustomeBorder = false;
@@ -744,10 +748,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.IsPressed = false;
             _spinnerImage.IsReadOnly = false;
             _spinnerImage.IsRequired = false;
-            _spinnerImage.IsRounded = true;
-            _spinnerImage.IsRoundedAffectedByTheme = true;
+            _spinnerImage.IsRounded = false;
+            _spinnerImage.IsRoundedAffectedByTheme = false;
             _spinnerImage.IsSelected = false;
-            _spinnerImage.IsShadowAffectedByTheme = true;
+            _spinnerImage.IsShadowAffectedByTheme = false;
             _spinnerImage.IsSpinning = false;
             _spinnerImage.IsStillImage = false;
             _spinnerImage.IsVisible = false;
@@ -760,14 +764,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.OverrideFontSize = TypeStyleFontSize.None;
             _spinnerImage.ParentBackColor = Color.White;
             _spinnerImage.ParentControl = null;
-            _spinnerImage.PressedBackColor = Color.FromArgb(0, 120, 215);
-            _spinnerImage.PressedBorderColor = Color.Gray;
-            _spinnerImage.PressedForeColor = Color.White;
+            _spinnerImage.PressedBackColor = Color.Empty;
+            _spinnerImage.PressedBorderColor = Color.Empty;
+            _spinnerImage.PressedForeColor = Color.Empty;
             _spinnerImage.RightoffsetForDrawingRect = 0;
             _spinnerImage.SavedGuidID = null;
             _spinnerImage.SavedID = null;
             _spinnerImage.ScaleFactor = 1F;
             _spinnerImage.ScaleMode = ImageScaleMode.KeepAspectRatio;
+            _spinnerImage.SelectedBackColor = Color.White;
+            _spinnerImage.SelectedForeColor = Color.Black;
             _spinnerImage.ShadowColor = Color.Black;
             _spinnerImage.ShadowOffset = 0;
             _spinnerImage.ShadowOpacity = 0.5F;

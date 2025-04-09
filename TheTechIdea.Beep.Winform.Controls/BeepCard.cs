@@ -220,7 +220,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 Height = 23,
                 IsFrameless = true,
-                IsChild = false,
+                IsChild = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false
             };
@@ -231,7 +231,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextAlign = ContentAlignment.TopLeft,
                 Theme = Theme,
                 IsFrameless = true,
-                IsChild = false,
+                IsChild = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 AutoSize = false,

@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Size ButtonSize = new Size(200, 20);
         private int _highlightPanelSize = 5;
         private int _menuItemHeight = 20;
-        protected int spacing = 2;
+        protected int spacing = 0;
         protected int drawRectX;
         protected int drawRectY;
         protected int drawRectWidth;
@@ -324,7 +324,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                // OverrideFontSize = TypeStyleFontSize.Small,
                 Tag = item,
                 Info = item,
-                IsChild = _isItemChilds,
+                IsChild = true,
                 UseScaledFont =false,
                 ApplyThemeOnImage = false,
                 UseThemeFont=this.UseThemeFont,

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
-using TheTechIdea.Beep.Vis.Modules;
+﻿
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
@@ -339,7 +334,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawFooter(Graphics g)
         {
             SolidBrush forcolor = new SolidBrush(_currentTheme.ButtonForeColor);
-            SolidBrush selforcolor = new SolidBrush(_currentTheme.ButtonActiveForeColor);
+            SolidBrush selforcolor = new SolidBrush(_currentTheme.LatestForColor);
             // Removed background drawing; only draw the text
             string todayText = "TODAY";
             g.DrawString(todayText, Font, forcolor, new Rectangle(_footerRect.X + 5, _footerRect.Y, 50, _footerRect.Height), new StringFormat { LineAlignment = StringAlignment.Center });

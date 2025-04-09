@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             beepuiManager1.BeepiForm = this;
             beepuiManager1.ShowBorder = false;
-            beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepuiManager1.Theme = EnumBeepThemes.DefaultTheme;
             // 
             // Title
             // 
@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.BlockID = null;
             Title.BorderColor = Color.Black;
             Title.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            Title.BorderRadius = 20;
+            Title.BorderRadius = 3;
             Title.BorderStyle = BorderStyle.FixedSingle;
             Title.BorderThickness = 1;
             Title.BottomoffsetForDrawingRect = 0;
@@ -108,23 +108,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.IsAcceptButton = false;
             Title.IsBorderAffectedByTheme = true;
             Title.IsCancelButton = false;
-            Title.IsChild = false;
+            Title.IsChild = true;
             Title.IsCustomeBorder = false;
             Title.IsDefault = false;
             Title.IsDeleted = false;
             Title.IsDirty = false;
             Title.IsEditable = false;
             Title.IsFocused = false;
-            Title.IsFrameless = false;
+            Title.IsFrameless = true;
             Title.IsHovered = false;
             Title.IsNew = false;
             Title.IsPressed = false;
             Title.IsReadOnly = false;
             Title.IsRequired = false;
-            Title.IsRounded = true;
-            Title.IsRoundedAffectedByTheme = true;
+            Title.IsRounded = false;
+            Title.IsRoundedAffectedByTheme = false;
             Title.IsSelected = false;
-            Title.IsShadowAffectedByTheme = true;
+            Title.IsShadowAffectedByTheme = false;
             Title.IsVisible = false;
             Title.Items = (List<object>)resources.GetObject("Title.Items");
             Title.LabelBackColor = Color.Empty;
@@ -137,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.Name = "Title";
             Title.OverrideFontSize = TypeStyleFontSize.None;
             Title.Padding = new Padding(1);
-            Title.ParentBackColor = Color.Empty;
+            Title.ParentBackColor = Color.White;
             Title.ParentControl = null;
             Title.PressedBackColor = Color.Gray;
             Title.PressedBorderColor = Color.Gray;
@@ -159,12 +159,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.SlideFrom = SlideDirection.Left;
             Title.StaticNotMoving = false;
             Title.TabIndex = 8;
-            Title.TempBackColor = Color.Empty;
+            Title.TempBackColor = Color.White;
             Title.Text = "Beep Data Management";
             Title.TextAlign = ContentAlignment.MiddleCenter;
             Title.TextFont = new Font("Segoe UI Black", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             Title.TextImageRelation = TextImageRelation.ImageBeforeText;
-            Title.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            Title.Theme = EnumBeepThemes.DefaultTheme;
             Title.ToolTipText = "";
             Title.TopoffsetForDrawingRect = 0;
             Title.UseGradientBackground = false;
@@ -268,7 +268,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.SavedGuidID = null;
             LogopictureBox.SavedID = null;
             LogopictureBox.ScaleFactor = 1F;
-            LogopictureBox.ScaleMode = Vis.Modules.ImageScaleMode.KeepAspectRatio;
+            LogopictureBox.ScaleMode = ImageScaleMode.KeepAspectRatio;
             LogopictureBox.ShadowColor = Color.FromArgb(0, 0, 0);
             LogopictureBox.ShadowOffset = 0;
             LogopictureBox.ShadowOpacity = 0.5F;
@@ -287,7 +287,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.TabIndex = 6;
             LogopictureBox.TempBackColor = Color.White;
             LogopictureBox.Text = "beepImage1";
-            LogopictureBox.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            LogopictureBox.Theme = EnumBeepThemes.DefaultTheme;
             LogopictureBox.ToolTipText = "";
             LogopictureBox.TopoffsetForDrawingRect = 0;
             LogopictureBox.UseGradientBackground = false;
@@ -411,7 +411,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.TextAlign = ContentAlignment.MiddleLeft;
             beepLabel1.TextFont = new Font("Segoe UI", 9F);
             beepLabel1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepLabel1.Theme = EnumBeepThemes.DefaultTheme;
             beepLabel1.ToolTipText = "";
             beepLabel1.TopoffsetForDrawingRect = 0;
             beepLabel1.UseGradientBackground = false;
@@ -501,7 +501,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.LabelBackColor = Color.Empty;
             beepLabel2.LeftoffsetForDrawingRect = 0;
             beepLabel2.LinkedProperty = null;
-            beepLabel2.Location = new Point(374, 326);
+            beepLabel2.Location = new Point(370, 326);
             beepLabel2.Margin = new Padding(0);
             beepLabel2.MaxImageSize = new Size(16, 16);
             beepLabel2.Multiline = false;
@@ -535,7 +535,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.TextAlign = ContentAlignment.MiddleLeft;
             beepLabel2.TextFont = new Font("Segoe UI", 9F);
             beepLabel2.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel2.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepLabel2.Theme = EnumBeepThemes.DefaultTheme;
             beepLabel2.ToolTipText = "";
             beepLabel2.TopoffsetForDrawingRect = 0;
             beepLabel2.UseGradientBackground = false;
@@ -564,7 +564,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.BlockID = null;
             messege.BorderColor = Color.FromArgb(200, 200, 200);
             messege.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            messege.BorderRadius = 3;
+            messege.BorderRadius = 20;
             messege.BorderStyle = BorderStyle.FixedSingle;
             messege.BorderThickness = 1;
             messege.BottomoffsetForDrawingRect = 0;
@@ -622,7 +622,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.IsPressed = false;
             messege.IsReadOnly = false;
             messege.IsRequired = false;
-            messege.IsRounded = false;
+            messege.IsRounded = true;
             messege.IsRoundedAffectedByTheme = false;
             messege.IsSelected = false;
             messege.IsShadowAffectedByTheme = false;
@@ -631,7 +631,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.LeftoffsetForDrawingRect = 0;
             messege.LinkedProperty = null;
             messege.Location = new Point(7, 157);
-            messege.MaskFormat = Vis.Modules.TextBoxMaskFormat.None;
+            messege.MaskFormat = TextBoxMaskFormat.None;
             messege.MaxImageSize = new Size(16, 16);
             messege.Modified = false;
             messege.Multiline = true;
@@ -672,7 +672,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.TextAlignment = HorizontalAlignment.Left;
             messege.TextFont = new Font("Segoe UI", 9F);
             messege.TextImageRelation = TextImageRelation.ImageBeforeText;
-            messege.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            messege.Theme = EnumBeepThemes.DefaultTheme;
             messege.TimeFormat = "HH:mm:ss";
             messege.ToolTipText = "";
             messege.TopoffsetForDrawingRect = 0;
@@ -779,7 +779,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.SavedGuidID = null;
             _spinnerImage.SavedID = null;
             _spinnerImage.ScaleFactor = 1F;
-            _spinnerImage.ScaleMode = Vis.Modules.ImageScaleMode.KeepAspectRatio;
+            _spinnerImage.ScaleMode = ImageScaleMode.KeepAspectRatio;
             _spinnerImage.ShadowColor = Color.Black;
             _spinnerImage.ShadowOffset = 0;
             _spinnerImage.ShadowOpacity = 0.5F;
@@ -798,7 +798,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.TabIndex = 12;
             _spinnerImage.TempBackColor = Color.FromArgb(144, 238, 144);
             _spinnerImage.Text = "beepImage1";
-            _spinnerImage.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            _spinnerImage.Theme = EnumBeepThemes.DefaultTheme;
             _spinnerImage.ToolTipText = "";
             _spinnerImage.TopoffsetForDrawingRect = 0;
             _spinnerImage.UseGradientBackground = false;

@@ -487,8 +487,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Size = _maxImageSize // Set the size based on the max image size
             };
             beepImage.ImageEmbededin= ImageEmbededin.Button;
-            beepImage.MouseHover += BeepImage_MouseHover;
-            beepImage.MouseEnter += BeepImage_MouseEnter;
+          //  beepImage.MouseHover += BeepImage_MouseHover;
+         //   beepImage.MouseEnter += BeepImage_MouseEnter;
             //   beepImage.MouseLeave += BeepImage_MouseLeave;
             beepImage.MouseDown += BeepImage_MouseDown;
             Padding = new Padding(0);
@@ -609,9 +609,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.ButtonForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
-          
+            DisabledBackColor = _currentTheme.ButtonActiveBackColor ;
+            FocusBackColor = _currentTheme.ButtonActiveBackColor;
+            FocusForeColor = _currentTheme.ButtonActiveForeColor;
+            PressedBackColor = _currentTheme.ButtonActiveBackColor;
+            PressedForeColor = _currentTheme.ButtonActiveForeColor;
 
-          //  if (_beepListBox != null)   _beepListBox.Theme = Theme;
+            //  if (_beepListBox != null)   _beepListBox.Theme = Theme;
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
@@ -758,7 +762,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
-                TextFormatFlags flags = GetTextFormatFlags(TextAlign);
+                if (IsPressed)
+                {
+                    ForeColor = PressedForeColor;
+
+                }
+                else if (IsHovered)
+                {
+                    ForeColor = HoverForeColor;
+
+                }
+                else if (IsFocused)
+                {
+                    ForeColor = FocusForeColor;
+                }
+                else if (IsSelected)
+                {
+                    ForeColor = _currentTheme.ButtonActiveForeColor;
+                }
+                else
+                {
+                    ForeColor = _currentTheme.ButtonForeColor;
+                }
+                    TextFormatFlags flags = GetTextFormatFlags(TextAlign);
                 TextRenderer.DrawText(g, Text, scaledFont, textRect, ForeColor, flags);
             }
             if(BadgeText != null)
@@ -952,19 +978,29 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Paint"
         #region "Mouse and Click"
-        private void BeepImage_MouseHover(object? sender, EventArgs e)
+        //private void BeepImage_MouseHover(object? sender, EventArgs e)
+        //{
+        //   IsHovered = true;
+        //    base.OnMouseHover(e);
+
+        //}
+        //private void BeepImage_MouseEnter(object? sender, EventArgs e)
+        //{
+
+        //    IsHovered = true;
+        //    base.OnMouseEnter(e);
+        //}
+        protected override void OnMouseHover(EventArgs e)
         {
-           IsHovered = true;
+            if (!IsPressed)
+            {
+                IsHovered = true;
+            }
             base.OnMouseHover(e);
 
+
+            // MiscFunctions.SendLog("MouseHover in BeepControl");
         }
-        private void BeepImage_MouseEnter(object? sender, EventArgs e)
-        {
-         
-            IsHovered = true;
-            base.OnMouseEnter(e);
-        }
-      
         private void BeepImage_MouseDown(object? sender, MouseEventArgs e)
         {
             base.OnMouseDown(e);
@@ -976,7 +1012,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-
+            IsPressed = true;
             if (_popupmode)
             {
                 TogglePopup();
@@ -990,6 +1026,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (isSelectedAuto)
                 {
                     IsSelected = !IsSelected;
+                }
+                if (IsSelected)
+                {
+
+                }
+                else
+                {
+
                 }
                 Invalidate();
             }

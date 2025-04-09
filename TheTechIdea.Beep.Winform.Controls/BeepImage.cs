@@ -335,10 +335,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 HoverBackColor = _currentTheme.ButtonHoverBackColor; // Hover background color
                 HoverForeColor = _currentTheme.ButtonHoverForeColor; // Hover foreground color
-                PressedBackColor = _currentTheme.ButtonActiveBackColor; // Pressed background color
-                PressedForeColor = _currentTheme.ButtonActiveForeColor; // Pressed foreground color
-                FocusBackColor = _currentTheme.ButtonActiveBackColor; // Focus background color
-                FocusForeColor = _currentTheme.ButtonActiveForeColor; // Focus foreground color
+                PressedBackColor = _currentTheme.ButtonSelectedForeColor; // Pressed background color
+                PressedForeColor = _currentTheme.ButtonSelectedForeColor; // Pressed foreground color
+                FocusBackColor = _currentTheme.ButtonSelectedForeColor; // Focus background color
+                FocusForeColor = _currentTheme.ButtonSelectedForeColor; // Focus foreground color
 
                 // ForeColor = _currentTheme.ButtonForeColor; // Default foreground color
 
@@ -432,12 +432,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Adjust for hover/pressed states
             if (IsPressed)
             {
-                strokeColor = _currentTheme.ButtonActiveBackColor;
-                fillColor = _currentTheme.ButtonActiveForeColor;
+                strokeColor = _currentTheme.ButtonSelectedForeColor;
+                fillColor = _currentTheme.ButtonSelectedForeColor;
             }
             else if (IsHovered)
             {
-                strokeColor = _currentTheme.ButtonActiveBackColor;
+                strokeColor = _currentTheme.ButtonSelectedForeColor;
                 fillColor = _currentTheme.ButtonHoverForeColor;
             }
 

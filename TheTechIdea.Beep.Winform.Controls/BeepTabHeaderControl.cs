@@ -687,7 +687,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.ButtonForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
-            ActiveBackColor = _currentTheme.ButtonActiveBackColor;
+          //  ActiveBackColor = _currentTheme.ButtonSelectedForeColor;
             for (int i = 0; i < HeaderPanel.Controls.Count; i++)
             {
                 if (HeaderPanel.Controls[i] is BeepExtendedButton btn)
@@ -696,7 +696,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     btn.ForeColor = _currentTheme.ButtonForeColor;
                     btn.HoverBackColor = _currentTheme.ButtonHoverBackColor;
                     btn.HoverForeColor = _currentTheme.ButtonHoverForeColor;
-                    btn.ActiveBackColor = _currentTheme.ButtonActiveBackColor;
+            //        btn.ActiveBackColor = _currentTheme.ButtonSelectedForeColor;
                     btn.Theme = Theme;
                 }
             }

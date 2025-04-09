@@ -338,8 +338,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_isSelected)
                 {
                     
-                    BackColor = _currentTheme.ButtonActiveBackColor;
-                    ForeColor = _currentTheme.ButtonActiveForeColor;
+                    BackColor = _currentTheme.ButtonSelectedBackColor;
+                    ForeColor = _currentTheme.ButtonPressedForeColor;
                 }
                 else
                 {
@@ -605,15 +605,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
+            if (IsChild && Parent != null)
+            {
+                BackColor = Parent.BackColor;
+            }
             BackColor = _currentTheme.ButtonBackColor;
             ForeColor = _currentTheme.ButtonForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
-            DisabledBackColor = _currentTheme.ButtonActiveBackColor ;
-            FocusBackColor = _currentTheme.ButtonActiveBackColor;
-            FocusForeColor = _currentTheme.ButtonActiveForeColor;
-            PressedBackColor = _currentTheme.ButtonActiveBackColor;
-            PressedForeColor = _currentTheme.ButtonActiveForeColor;
+            DisabledBackColor=_currentTheme.DisabledBackColor;
+            DisabledForeColor = _currentTheme.DisabledForeColor;
+            FocusBackColor = _currentTheme.ButtonSelectedBackColor;
+            FocusForeColor = _currentTheme.ButtonSelectedForeColor;
+            
+          
+            PressedBackColor = _currentTheme.ButtonPressedBackColor;
+            PressedForeColor = _currentTheme.ButtonPressedForeColor;
 
             //  if (_beepListBox != null)   _beepListBox.Theme = Theme;
             if (UseThemeFont)
@@ -621,10 +628,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
                  Font = _textFont;
             }
-            if (IsChild && Parent!=null)
-            {
-                BackColor= Parent.BackColor;
-            }
+           
             Font = _textFont;
             ApplyThemeToSvg();
             Invalidate();  // Trigger repaint
@@ -762,23 +766,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
-                if (IsPressed)
-                {
-                    ForeColor = PressedForeColor;
+                //if (IsPressed && !IsSelected)
+                //{
+                //    ForeColor = PressedForeColor;
 
-                }
-                else if (IsHovered)
+                //}
+                //else
+                if (IsHovered)
                 {
                     ForeColor = HoverForeColor;
 
                 }
-                else if (IsFocused)
-                {
-                    ForeColor = FocusForeColor;
-                }
                 else if (IsSelected)
                 {
-                    ForeColor = _currentTheme.ButtonActiveForeColor;
+                    ForeColor = _currentTheme.ButtonSelectedForeColor;
                 }
                 else
                 {
@@ -1001,6 +1002,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // MiscFunctions.SendLog("MouseHover in BeepControl");
         }
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            
+            IsHovered=false; 
+        }
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            IsPressed = false;
+        }
         private void BeepImage_MouseDown(object? sender, MouseEventArgs e)
         {
             base.OnMouseDown(e);
@@ -1012,7 +1022,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-            IsPressed = true;
+       //     IsPressed = true;
+            if (!IsSelectedAuto)
+            {
+                IsSelected = !IsSelected;
+
+            }
+
             if (_popupmode)
             {
                 TogglePopup();
@@ -1023,10 +1039,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                if (isSelectedAuto)
-                {
-                    IsSelected = !IsSelected;
-                }
+                
                 if (IsSelected)
                 {
 

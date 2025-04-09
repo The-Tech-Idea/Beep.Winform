@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // Title
             // 
-            Title.ActiveBackColor = Color.Gray;
+           
             Title.AnimationDuration = 500;
             Title.AnimationType = DisplayAnimationType.None;
             Title.ApplyThemeOnImage = false;
@@ -101,9 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.Id = -1;
             Title.ImageAlign = ContentAlignment.MiddleLeft;
             Title.ImagePath = null;
-            Title.InactiveBackColor = Color.Gray;
-            Title.InactiveBorderColor = Color.Gray;
-            Title.InactiveForeColor = Color.Black;
+           
             Title.Info = (SimpleItem)resources.GetObject("Title.Info");
             Title.IsAcceptButton = false;
             Title.IsBorderAffectedByTheme = true;
@@ -174,7 +172,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // LogopictureBox
             // 
-            LogopictureBox.ActiveBackColor = Color.FromArgb(255, 255, 255);
+           
             LogopictureBox.AllowManualRotation = true;
             LogopictureBox.AnimationDuration = 500;
             LogopictureBox.AnimationType = DisplayAnimationType.None;
@@ -225,9 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.Image = null;
             LogopictureBox.ImageEmbededin = ImageEmbededin.Button;
             LogopictureBox.ImagePath = null;
-            LogopictureBox.InactiveBackColor = Color.Gray;
-            LogopictureBox.InactiveBorderColor = Color.Gray;
-            LogopictureBox.InactiveForeColor = Color.Black;
+          
             LogopictureBox.Info = (SimpleItem)resources.GetObject("LogopictureBox.Info");
             LogopictureBox.IsAcceptButton = false;
             LogopictureBox.IsBorderAffectedByTheme = true;
@@ -297,7 +293,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // beepLabel1
             // 
-            beepLabel1.ActiveBackColor = Color.Gray;
+        
             beepLabel1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             beepLabel1.AnimationDuration = 500;
             beepLabel1.AnimationType = DisplayAnimationType.None;
@@ -348,9 +344,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.Id = -1;
             beepLabel1.ImageAlign = ContentAlignment.MiddleLeft;
             beepLabel1.ImagePath = null;
-            beepLabel1.InactiveBackColor = Color.Gray;
-            beepLabel1.InactiveBorderColor = Color.Gray;
-            beepLabel1.InactiveForeColor = Color.Black;
+           
             beepLabel1.Info = (SimpleItem)resources.GetObject("beepLabel1.Info");
             beepLabel1.IsAcceptButton = false;
             beepLabel1.IsBorderAffectedByTheme = true;
@@ -421,7 +415,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // beepLabel2
             // 
-            beepLabel2.ActiveBackColor = Color.Gray;
+           
             beepLabel2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             beepLabel2.AnimationDuration = 500;
             beepLabel2.AnimationType = DisplayAnimationType.None;
@@ -472,9 +466,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.Id = -1;
             beepLabel2.ImageAlign = ContentAlignment.MiddleLeft;
             beepLabel2.ImagePath = null;
-            beepLabel2.InactiveBackColor = Color.Gray;
-            beepLabel2.InactiveBorderColor = Color.Gray;
-            beepLabel2.InactiveForeColor = Color.Black;
+           
             beepLabel2.Info = (SimpleItem)resources.GetObject("beepLabel2.Info");
             beepLabel2.IsAcceptButton = false;
             beepLabel2.IsBorderAffectedByTheme = true;
@@ -547,7 +539,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             messege.AcceptsReturn = false;
             messege.AcceptsTab = false;
-            messege.ActiveBackColor = Color.Gray;
+          
             messege.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             messege.AnimationDuration = 500;
             messege.AnimationType = DisplayAnimationType.None;
@@ -602,9 +594,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.Id = -1;
             messege.ImageAlign = ContentAlignment.MiddleLeft;
             messege.ImagePath = null;
-            messege.InactiveBackColor = Color.Gray;
-            messege.InactiveBorderColor = Color.Gray;
-            messege.InactiveForeColor = Color.Black;
+            
             messege.Info = (SimpleItem)resources.GetObject("messege.Info");
             messege.IsAcceptButton = false;
             messege.IsBorderAffectedByTheme = false;
@@ -684,7 +674,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // _spinnerImage
             // 
-            _spinnerImage.ActiveBackColor = Color.Gray;
+            
             _spinnerImage.AllowManualRotation = true;
             _spinnerImage.AnimationDuration = 500;
             _spinnerImage.AnimationType = DisplayAnimationType.None;
@@ -736,9 +726,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.Image = null;
             _spinnerImage.ImageEmbededin = ImageEmbededin.Button;
             _spinnerImage.ImagePath = null;
-            _spinnerImage.InactiveBackColor = Color.Gray;
-            _spinnerImage.InactiveBorderColor = Color.Gray;
-            _spinnerImage.InactiveForeColor = Color.Black;
+            
             _spinnerImage.Info = (SimpleItem)resources.GetObject("_spinnerImage.Info");
             _spinnerImage.IsAcceptButton = false;
             _spinnerImage.IsBorderAffectedByTheme = true;

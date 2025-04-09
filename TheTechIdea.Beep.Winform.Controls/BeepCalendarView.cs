@@ -266,7 +266,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             SizeF textSize = g.MeasureString(monthYear, Font);
             PointF textPos = new PointF(_headerRect.Left + (_headerRect.Width - textSize.Width) / 2, _headerRect.Top + (_headerRect.Height - textSize.Height) / 2);
             // Draw String with Brush color _currenttheme.TitleForColor
-            Brush brush = new SolidBrush(_currentTheme.TitleForColor); // Use a solid color for the text
+            Brush brush = new SolidBrush(_currentTheme.CalendarForeColor); // Use a solid color for the text
                 g.DrawString(monthYear, Font, brush, textPos); // Use a solid color for the text
 
             // Draw navigation arrows
@@ -278,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawDaysHeader(Graphics g)
         {
-            Brush brush = new SolidBrush(_currentTheme.TitleForColor); // Use a
+            Brush brush = new SolidBrush(_currentTheme.CalendarForeColor); // Use a
             string[] days = { "M", "T", "W", "T", "F", "S", "S" };
             for (int i = 0; i < 7; i++)
             {
@@ -306,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (isSelected)
                 {
                     using (GraphicsPath path = GetRoundedRectPath(cellRect, BorderRadius / 4))
-                    using (SolidBrush brush = new SolidBrush(_currentTheme.ButtonActiveBackColor))
+                    using (SolidBrush brush = new SolidBrush(_currentTheme.ButtonSelectedBackColor))
                     {
                         g.FillPath(brush, path);
                     }
@@ -314,7 +314,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else if (isToday)
                 {
                     using (GraphicsPath path = GetRoundedRectPath(cellRect, BorderRadius / 4))
-                    using (Pen pen = new Pen(_currentTheme.ButtonActiveForeColor, 1))
+                    using (Pen pen = new Pen(_currentTheme.ButtonSelectedForeColor, 1))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -334,7 +334,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawFooter(Graphics g)
         {
             SolidBrush forcolor = new SolidBrush(_currentTheme.ButtonForeColor);
-            SolidBrush selforcolor = new SolidBrush(_currentTheme.LatestForColor);
+            SolidBrush selforcolor = new SolidBrush(_currentTheme.ButtonSelectedForeColor);
             // Removed background drawing; only draw the text
             string todayText = "TODAY";
             g.DrawString(todayText, Font, forcolor, new Rectangle(_footerRect.X + 5, _footerRect.Y, 50, _footerRect.Height), new StringFormat { LineAlignment = StringAlignment.Center });

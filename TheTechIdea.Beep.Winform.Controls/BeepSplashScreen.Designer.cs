@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // _logoImage
             // 
-            _logoImage.ActiveBackColor = Color.FromArgb(41, 128, 185);
+          
             _logoImage.AllowManualRotation = true;
             _logoImage.AnimationDuration = 500;
             _logoImage.AnimationType = DisplayAnimationType.None;
@@ -85,9 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _logoImage.Image = null;
             _logoImage.ImageEmbededin = ImageEmbededin.Button;
             _logoImage.ImagePath = null;
-            _logoImage.InactiveBackColor = Color.Gray;
-            _logoImage.InactiveBorderColor = Color.Gray;
-            _logoImage.InactiveForeColor = Color.Black;
+           
             _logoImage.IsAcceptButton = false;
             _logoImage.IsBorderAffectedByTheme = true;
             _logoImage.IsCancelButton = false;
@@ -141,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // _titleLabel
             // 
-            _titleLabel.ActiveBackColor = Color.Gray;
+          
             _titleLabel.AnimationDuration = 500;
             _titleLabel.AnimationType = DisplayAnimationType.None;
             _titleLabel.ApplyThemeOnImage = false;
@@ -186,9 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.Id = -1;
             _titleLabel.ImageAlign = ContentAlignment.MiddleLeft;
             _titleLabel.ImagePath = null;
-            _titleLabel.InactiveBackColor = Color.Gray;
-            _titleLabel.InactiveBorderColor = Color.Gray;
-            _titleLabel.InactiveForeColor = Color.Black;
+            
             _titleLabel.IsAcceptButton = false;
             _titleLabel.IsBorderAffectedByTheme = true;
             _titleLabel.IsCancelButton = false;

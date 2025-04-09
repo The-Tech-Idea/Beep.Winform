@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // _beepListBox
             // 
-            _beepListBox.ActiveBackColor = Color.Gray;
+        
             _beepListBox.AnimationDuration = 500;
             _beepListBox.AnimationType = DisplayAnimationType.None;
             _beepListBox.ApplyThemeToChilds = true;
@@ -90,9 +90,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.HoverForeColor = Color.Black;
             _beepListBox.Id = -1;
             _beepListBox.ImageSize = 18;
-            _beepListBox.InactiveBackColor = Color.Gray;
-            _beepListBox.InactiveBorderColor = Color.Gray;
-            _beepListBox.InactiveForeColor = Color.Black;
             _beepListBox.Info = (Models.SimpleItem)resources.GetObject("_beepListBox.Info");
             _beepListBox.IsAcceptButton = false;
             _beepListBox.IsBorderAffectedByTheme = true;

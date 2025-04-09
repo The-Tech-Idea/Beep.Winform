@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // DialogImage
             // 
-            DialogImage.ActiveBackColor = Color.Gray;
+           
             DialogImage.AllowManualRotation = true;
             DialogImage.AnimationDuration = 500;
             DialogImage.AnimationType = DisplayAnimationType.None;
@@ -119,9 +119,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             DialogImage.Image = null;
             DialogImage.ImageEmbededin = ImageEmbededin.Button;
             DialogImage.ImagePath = "";
-            DialogImage.InactiveBackColor = Color.Gray;
+        
             DialogImage.InactiveBorderColor = Color.Gray;
-            DialogImage.InactiveForeColor = Color.Black;
+           
             DialogImage.Info = (SimpleItem)resources.GetObject("DialogImage.Info");
             DialogImage.IsAcceptButton = false;
             DialogImage.IsBorderAffectedByTheme = true;
@@ -188,7 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // CloseButton
             // 
-            CloseButton.ActiveBackColor = Color.Gray;
+          
             CloseButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             CloseButton.AnimationDuration = 500;
             CloseButton.AnimationType = DisplayAnimationType.None;
@@ -243,9 +243,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             CloseButton.ImageClicked = null;
             CloseButton.ImageEmbededin = ImageEmbededin.Button;
             CloseButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.closesquare.svg";
-            CloseButton.InactiveBackColor = Color.Gray;
+       
             CloseButton.InactiveBorderColor = Color.Gray;
-            CloseButton.InactiveForeColor = Color.Black;
+
             CloseButton.Info = (SimpleItem)resources.GetObject("CloseButton.Info");
             CloseButton.IsAcceptButton = false;
             CloseButton.IsBorderAffectedByTheme = true;
@@ -321,7 +321,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // TitleLabel
             // 
-            TitleLabel.ActiveBackColor = Color.Gray;
+           
             TitleLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             TitleLabel.AnimationDuration = 500;
             TitleLabel.AnimationType = DisplayAnimationType.None;
@@ -372,9 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleLabel.Id = -1;
             TitleLabel.ImageAlign = ContentAlignment.MiddleLeft;
             TitleLabel.ImagePath = null;
-            TitleLabel.InactiveBackColor = Color.Gray;
-            TitleLabel.InactiveBorderColor = Color.Gray;
-            TitleLabel.InactiveForeColor = Color.Black;
+            
             TitleLabel.Info = (SimpleItem)resources.GetObject("TitleLabel.Info");
             TitleLabel.IsAcceptButton = false;
             TitleLabel.IsBorderAffectedByTheme = false;
@@ -455,7 +453,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // MiddleButton
             // 
-            MiddleButton.ActiveBackColor = Color.Gray;
+        
             MiddleButton.Anchor = AnchorStyles.Top;
             MiddleButton.AnimationDuration = 500;
             MiddleButton.AnimationType = DisplayAnimationType.None;
@@ -510,9 +508,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             MiddleButton.ImageClicked = null;
             MiddleButton.ImageEmbededin = ImageEmbededin.Button;
             MiddleButton.ImagePath = null;
-            MiddleButton.InactiveBackColor = Color.Gray;
-            MiddleButton.InactiveBorderColor = Color.Gray;
-            MiddleButton.InactiveForeColor = Color.Black;
+          
             MiddleButton.Info = (SimpleItem)resources.GetObject("MiddleButton.Info");
             MiddleButton.IsAcceptButton = false;
             MiddleButton.IsBorderAffectedByTheme = true;
@@ -587,7 +583,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // RightButton
             // 
-            RightButton.ActiveBackColor = Color.Gray;
+         
             RightButton.Anchor = AnchorStyles.Right;
             RightButton.AnimationDuration = 500;
             RightButton.AnimationType = DisplayAnimationType.None;
@@ -642,9 +638,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RightButton.ImageClicked = null;
             RightButton.ImageEmbededin = ImageEmbededin.Button;
             RightButton.ImagePath = null;
-            RightButton.InactiveBackColor = Color.Gray;
-            RightButton.InactiveBorderColor = Color.Gray;
-            RightButton.InactiveForeColor = Color.Black;
+         
             RightButton.Info = (SimpleItem)resources.GetObject("RightButton.Info");
             RightButton.IsAcceptButton = false;
             RightButton.IsBorderAffectedByTheme = true;
@@ -719,7 +713,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // LeftButton
             // 
-            LeftButton.ActiveBackColor = Color.Gray;
+           
             LeftButton.Anchor = AnchorStyles.Left;
             LeftButton.AnimationDuration = 500;
             LeftButton.AnimationType = DisplayAnimationType.None;
@@ -774,9 +768,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LeftButton.ImageClicked = null;
             LeftButton.ImageEmbededin = ImageEmbededin.Button;
             LeftButton.ImagePath = null;
-            LeftButton.InactiveBackColor = Color.Gray;
-            LeftButton.InactiveBorderColor = Color.Gray;
-            LeftButton.InactiveForeColor = Color.Black;
+            
             LeftButton.Info = (SimpleItem)resources.GetObject("LeftButton.Info");
             LeftButton.IsAcceptButton = false;
             LeftButton.IsBorderAffectedByTheme = true;
@@ -865,7 +857,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             InputTextBox.AcceptsReturn = false;
             InputTextBox.AcceptsTab = false;
-            InputTextBox.ActiveBackColor = Color.Gray;
+         
             InputTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             InputTextBox.AnimationDuration = 500;
             InputTextBox.AnimationType = DisplayAnimationType.None;
@@ -920,9 +912,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InputTextBox.Id = -1;
             InputTextBox.ImageAlign = ContentAlignment.MiddleLeft;
             InputTextBox.ImagePath = null;
-            InputTextBox.InactiveBackColor = Color.Gray;
-            InputTextBox.InactiveBorderColor = Color.Gray;
-            InputTextBox.InactiveForeColor = Color.Black;
+        
             InputTextBox.Info = (SimpleItem)resources.GetObject("InputTextBox.Info");
             InputTextBox.IsAcceptButton = false;
             InputTextBox.IsBorderAffectedByTheme = false;
@@ -1004,7 +994,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             CaptionTextBox.AcceptsReturn = false;
             CaptionTextBox.AcceptsTab = false;
-            CaptionTextBox.ActiveBackColor = Color.Gray;
+          
             CaptionTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             CaptionTextBox.AnimationDuration = 500;
             CaptionTextBox.AnimationType = DisplayAnimationType.None;
@@ -1059,9 +1049,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CaptionTextBox.Id = -1;
             CaptionTextBox.ImageAlign = ContentAlignment.MiddleLeft;
             CaptionTextBox.ImagePath = null;
-            CaptionTextBox.InactiveBackColor = Color.Gray;
-            CaptionTextBox.InactiveBorderColor = Color.Gray;
-            CaptionTextBox.InactiveForeColor = Color.Black;
+          
             CaptionTextBox.Info = (SimpleItem)resources.GetObject("CaptionTextBox.Info");
             CaptionTextBox.IsAcceptButton = false;
             CaptionTextBox.IsBorderAffectedByTheme = false;
@@ -1141,7 +1129,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // SelectFromListComboBox
             // 
-            SelectFromListComboBox.ActiveBackColor = Color.FromArgb(0, 120, 215);
+           
             SelectFromListComboBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             SelectFromListComboBox.AnimationDuration = 500;
             SelectFromListComboBox.AnimationType = DisplayAnimationType.None;
@@ -1186,9 +1174,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             SelectFromListComboBox.HoveredBackcolor = Color.Wheat;
             SelectFromListComboBox.HoverForeColor = Color.Black;
             SelectFromListComboBox.Id = -1;
-            SelectFromListComboBox.InactiveBackColor = Color.Gray;
-            SelectFromListComboBox.InactiveBorderColor = Color.Gray;
-            SelectFromListComboBox.InactiveForeColor = Color.Black;
+         
             SelectFromListComboBox.Info = (SimpleItem)resources.GetObject("SelectFromListComboBox.Info");
             SelectFromListComboBox.IsAcceptButton = false;
             SelectFromListComboBox.IsBorderAffectedByTheme = true;

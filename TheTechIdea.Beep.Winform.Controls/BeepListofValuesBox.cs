@@ -321,7 +321,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_keyTextBox == null) return;
 
             _keyTextBox.BackColor = _currentTheme.AltRowBackColor;
-            _keyTextBox.ForeColor = _currentTheme.LatestForColor;
+            _keyTextBox.ForeColor = _currentTheme.TextBoxForeColor;
             _valueTextBox.BackColor = _currentTheme.AltRowBackColor;
             _valueTextBox.ForeColor = _currentTheme.AccentTextColor;
             _dropdownButton.BackColor = _currentTheme.ButtonBackColor;

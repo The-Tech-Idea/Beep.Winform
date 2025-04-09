@@ -307,12 +307,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Determine the chip's appearance based on its state
                 Color chipBackColor = chip.IsSelected
-                    ? _currentTheme.ButtonActiveBackColor
+                    ? _currentTheme.ButtonSelectedForeColor
                     : (chip.IsHovered
                         ? _currentTheme.ButtonHoverBackColor
                         : chip.BackColor);
                 Color chipForeColor = chip.IsSelected
-                    ? _currentTheme.ButtonActiveForeColor
+                    ? _currentTheme.ButtonSelectedForeColor
                     : (chip.IsHovered
                         ? _currentTheme.ButtonHoverForeColor
                         : chip.ForeColor);

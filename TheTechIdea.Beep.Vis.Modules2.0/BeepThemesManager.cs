@@ -1512,96 +1512,13 @@ namespace TheTechIdea.Beep.Vis.Modules
                 TextColor = Color.FromArgb(200, 200, 200),  // Light Gray
             },
 
-            // UI Elements
-            CloseButtonColor = Color.FromArgb(255, 69, 58),               // Bright Red
-            MaxButtonColor = Color.FromArgb(97, 218, 251),                // Light Blue
-            MinButtonColor = Color.FromArgb(97, 218, 251),                // Light Blue
-            TitleBarColor = Color.FromArgb(28, 28, 28),                   // Dark Charcoal
-            TitleBarTextColor = Color.FromArgb(255, 255, 255),            // White
-            TitleBarIconColor = Color.FromArgb(97, 218, 251),             // Light Blue
-            TitleBarHoverColor = Color.FromArgb(42, 42, 42),              // Slightly Lighter Charcoal
-            TitleBarHoverTextColor = Color.FromArgb(255, 255, 255),       // White
-            TitleBarHoverIconColor = Color.FromArgb(97, 218, 251),        // Light Blue
-            TitleBarActiveColor = Color.FromArgb(28, 28, 28),             // Dark Charcoal
-            TitleBarActiveTextColor = Color.FromArgb(255, 255, 255),      // White
-            TitleBarActiveIconColor = Color.FromArgb(97, 218, 251),       // Light Blue
-            TitleBarInactiveColor = Color.FromArgb(42, 42, 42),           // Slightly Lighter Charcoal
-            TitleBarInactiveTextColor = Color.FromArgb(169, 169, 169),    // Light Gray
-            TitleBarInactiveIconColor = Color.FromArgb(169, 169, 169),    // Light Gray
-            TitleBarBorderColor = Color.FromArgb(97, 218, 251),           // Light Blue
-            TitleBarBorderHoverColor = Color.FromArgb(97, 218, 251),      // Light Blue
-            TitleBarBorderActiveColor = Color.FromArgb(97, 218, 251),     // Light Blue
-            TitleBarBorderInactiveColor = Color.FromArgb(42, 42, 42),     // Slightly Lighter Charcoal
-
-            // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(220, 0, 0),          // Red
-            TitleBarCloseHoverTextColor = Color.FromArgb(255, 255, 255),  // White
-            TitleBarCloseHoverIconColor = Color.FromArgb(255, 255, 255),  // White
-            TitleBarCloseActiveColor = Color.FromArgb(165, 42, 42),       // Dark Red
-            TitleBarCloseActiveTextColor = Color.FromArgb(255, 255, 255), // White
-            TitleBarCloseActiveIconColor = Color.FromArgb(255, 255, 255), // White
-            TitleBarCloseInactiveColor = Color.FromArgb(42, 42, 42),      // Slightly Lighter Charcoal
-            TitleBarCloseInactiveTextColor = Color.FromArgb(169, 169, 169), // Light Gray
-            TitleBarCloseInactiveIconColor = Color.FromArgb(169, 169, 169), // Light Gray
-            TitleBarCloseBorderColor = Color.FromArgb(255, 69, 58),       // Bright Red
-            TitleBarCloseBorderHoverColor = Color.FromArgb(220, 0, 0),    // Red
-            TitleBarCloseBorderActiveColor = Color.FromArgb(165, 42, 42), // Dark Red
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(42, 42, 42),// Slightly Lighter Charcoal
-
-            // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(42, 42, 42),           // Slightly Lighter Charcoal
-            TitleBarMaxHoverTextColor = Color.FromArgb(255, 255, 255),    // White
-            TitleBarMaxHoverIconColor = Color.FromArgb(97, 218, 251),     // Light Blue
-            TitleBarMaxActiveColor = Color.FromArgb(28, 28, 28),          // Dark Charcoal
-            TitleBarMaxActiveTextColor = Color.FromArgb(255, 255, 255),   // White
-            TitleBarMaxActiveIconColor = Color.FromArgb(97, 218, 251),    // Light Blue
-            TitleBarMaxInactiveColor = Color.FromArgb(42, 42, 42),        // Slightly Lighter Charcoal
-            TitleBarMaxInactiveTextColor = Color.FromArgb(169, 169, 169), // Light Gray
-            TitleBarMaxInactiveIconColor = Color.FromArgb(169, 169, 169), // Light Gray
-            TitleBarMaxBorderColor = Color.FromArgb(97, 218, 251),        // Light Blue
-            TitleBarMaxBorderHoverColor = Color.FromArgb(97, 218, 251),   // Light Blue
-            TitleBarMaxBorderActiveColor = Color.FromArgb(97, 218, 251),  // Light Blue
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(42, 42, 42),  // Slightly Lighter Charcoal
-
-            // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(42, 42, 42),           // Slightly Lighter Charcoal
-            TitleBarMinHoverTextColor = Color.FromArgb(255, 255, 255),    // White
-            TitleBarMinHoverIconColor = Color.FromArgb(97, 218, 251),     // Light Blue
-            TitleBarMinActiveColor = Color.FromArgb(28, 28, 28),          // Dark Charcoal
-            TitleBarMinActiveTextColor = Color.FromArgb(255, 255, 255),   // White
-            TitleBarMinActiveIconColor = Color.FromArgb(97, 218, 251),    // Light Blue
-            TitleBarMinInactiveColor = Color.FromArgb(42, 42, 42),        // Slightly Lighter Charcoal
-            TitleBarMinInactiveTextColor = Color.FromArgb(169, 169, 169), // Light Gray
-            TitleBarMinInactiveIconColor = Color.FromArgb(169, 169, 169), // Light Gray
-            TitleBarMinBorderColor = Color.FromArgb(97, 218, 251),        // Light Blue
-            TitleBarMinBorderHoverColor = Color.FromArgb(97, 218, 251),   // Light Blue
-            TitleBarMinBorderActiveColor = Color.FromArgb(97, 218, 251),  // Light Blue
-            TitleBarMinBorderInactiveColor = Color.FromArgb(42, 42, 42),  // Slightly Lighter Charcoal
-
-            // Missing TitleBarMinimize properties (set to match Minimize Button)
-            TitleBarMinimizeHoverColor = Color.FromArgb(42, 42, 42),
-            TitleBarMinimizeHoverTextColor = Color.FromArgb(255, 255, 255),
-            TitleBarMinimizeHoverIconColor = Color.FromArgb(97, 218, 251),
-            TitleBarMinimizeActiveColor = Color.FromArgb(28, 28, 28),
-            TitleBarMinimizeActiveTextColor = Color.FromArgb(255, 255, 255),
-            TitleBarMinimizeActiveIconColor = Color.FromArgb(97, 218, 251),
-            TitleBarMinimizeInactiveColor = Color.FromArgb(42, 42, 42),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(169, 169, 169),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(169, 169, 169),
-            TitleBarMinimizeBorderColor = Color.FromArgb(97, 218, 251),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(97, 218, 251),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(97, 218, 251),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(42, 42, 42),
 
             // Font and Typography properties
             FontName = "Segoe UI",
             FontSize = 14f,
             FontFamily = "Segoe UI",
 
-            // Additional color properties for titles
-            TitleForColor = Color.White,
-            TitleBarForColor = Color.White, // Added missing property
-
+       
             // Styles
             TitleStyle = new TypographyStyle
             {
@@ -1653,11 +1570,6 @@ namespace TheTechIdea.Beep.Vis.Modules
                 TextColor = Color.FromArgb(97, 218, 251), // Light Blue
             },
 
-            // Additional UI Element Colors
-            DescriptionForColor = Color.LightGray,
-            BeforeForColor = Color.Gray,
-            LatestForColor = Color.White,
-
             // General Colors
             BackColor = Color.FromArgb(30, 30, 30), // Dark background color
 
@@ -1666,8 +1578,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.White,
             ButtonHoverBackColor = Color.FromArgb(70, 70, 70),
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(80, 80, 80),
-            ButtonActiveForeColor = Color.White,
+    
 
             // TextBox Colors
             TextBoxBackColor = Color.FromArgb(55, 55, 55),
@@ -1682,8 +1593,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // Grid Colors
-            HeaderBackColor = Color.FromArgb(45, 45, 45),
-            HeaderForeColor = Color.White,
+            //HeaderBackColor = Color.FromArgb(45, 45, 45),
+            //HeaderForeColor = Color.White,
             GridLineColor = Color.Gray,
             RowBackColor = Color.FromArgb(30, 30, 30),
             RowForeColor = Color.White,
@@ -1736,8 +1647,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             // Dialog Box Colors
             DialogBackColor = Color.FromArgb(40, 40, 40),
             DialogForeColor = Color.White,
-            DialogButtonBackColor = Color.FromArgb(50, 50, 50),
-            DialogButtonForeColor = Color.White,
 
             // Gradient Properties
             GradientStartColor = Color.FromArgb(30, 30, 30),
@@ -1752,16 +1661,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.White,                    // Same as default for simplicity
             SideMenuSelectedForeColor = Color.LightBlue,             // Highlighted text for selected state
             SideMenuBorderColor = Color.Gray,                        // Subtle borders for separation
-            SideMenuIconColor = Color.LightGray,                     // Non-selected icons
-            SideMenuSelectedIconColor = Color.DeepSkyBlue,           // Selected icons stand out
-
-
-            // Title Bar Colors
-            TitleBarBackColor = Color.FromArgb(45, 45, 45),
-            TitleBarForeColor = Color.White,
-            TitleBarHoverBackColor = Color.FromArgb(60, 60, 60),
-            TitleBarHoverForeColor = Color.White,
-
+           
             // Dashboard Colors
             DashboardBackColor = Color.FromArgb(30, 30, 30),
             DashboardCardBackColor = Color.FromArgb(40, 40, 40),
@@ -1775,11 +1675,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartFillColor = Color.FromArgb(100, 0, 191, 255), // Semi-transparent DeepSkyBlue
             ChartAxisColor = Color.LightGray,
 
-            // Sidebar and Menu Colors
-            SidebarIconColor = Color.LightGray,
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.LightGray,
-            SidebarSelectedTextColor = Color.White,
+
 
             // Navigation Colors
             NavigationBackColor = Color.FromArgb(30, 30, 30),
@@ -2181,63 +2077,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // ===== Window Controls & Title Bar =====
-            // Window control buttons (Close, Maximize, Minimize)
-            CloseButtonColor = Color.FromArgb(244, 67, 54),      // Material Red 500
-            MaxButtonColor = Color.FromArgb(76, 175, 80),        // Material Green 500
-            MinButtonColor = Color.FromArgb(255, 193, 7),        // Material Amber 500
-
-            // Consolidated Title Bar styling for a light theme
-            TitleBarBackColor = Color.White,
-            TitleBarForeColor = Color.FromArgb(33, 33, 33),      // Dark text for contrast
-            TitleBarIconColor = Color.FromArgb(33, 33, 33),      // Matching icon color
-            TitleBarHoverBackColor = Color.FromArgb(245, 245, 245),
-            TitleBarHoverForeColor = Color.FromArgb(33, 33, 33),
-            TitleBarBorderColor = Color.FromArgb(224, 224, 224),  // Light divider
-
-            // Title Bar – Close Button Specifics
-            TitleBarCloseHoverColor = Color.FromArgb(211, 47, 47),   // Darker Red on hover
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(183, 28, 28),  // Even darker Red when active
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(117, 117, 117),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(117, 117, 117),
-            TitleBarCloseBorderColor = Color.FromArgb(244, 67, 54),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(211, 47, 47),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(183, 28, 28),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(224, 224, 224),
-
-            // Title Bar – Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(245, 245, 245),
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.FromArgb(76, 175, 80),
-            TitleBarMaxActiveColor = Color.White,
-            TitleBarMaxActiveTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarMaxActiveIconColor = Color.FromArgb(76, 175, 80),
-            TitleBarMaxInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(117, 117, 117),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(117, 117, 117),
-            TitleBarMaxBorderColor = Color.FromArgb(76, 175, 80),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(76, 175, 80),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(76, 175, 80),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(224, 224, 224),
-
-            // Title Bar – Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(245, 245, 245),
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.FromArgb(255, 193, 7),
-            TitleBarMinActiveColor = Color.White,
-            TitleBarMinActiveTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarMinActiveIconColor = Color.FromArgb(255, 193, 7),
-            TitleBarMinInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarMinInactiveTextColor = Color.FromArgb(117, 117, 117),
-            TitleBarMinInactiveIconColor = Color.FromArgb(117, 117, 117),
-            TitleBarMinBorderColor = Color.FromArgb(255, 193, 7),
-            TitleBarMinBorderHoverColor = Color.FromArgb(255, 193, 7),
-            TitleBarMinBorderActiveColor = Color.FromArgb(255, 193, 7),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(224, 224, 224),
+           
 
             // ===== Typography Styles =====
             TitleStyle = new TypographyStyle
@@ -2311,8 +2151,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.White,                        // OnPrimary color
             ButtonHoverBackColor = Color.FromArgb(30, 136, 229),   // Slightly darker Primary
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(25, 118, 210),  // Even darker Primary
-            ButtonActiveForeColor = Color.White,
+         
 
             // ===== TextBox & Label Colors =====
             TextBoxBackColor = Color.White,
@@ -2320,9 +2159,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LabelBackColor = Color.White,
             LabelForeColor = Color.Black,
 
-            // ===== Additional Grid Colors =====
-            HeaderBackColor = Color.FromArgb(245, 245, 245),
-            HeaderForeColor = Color.Black,
+       
             GridLineColor = Color.LightGray,
             RowBackColor = Color.White,
             RowForeColor = Color.Black,
@@ -2371,9 +2208,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             // ===== Dialog Box Colors =====
             DialogBackColor = Color.White,
             DialogForeColor = Color.Black,
-            DialogButtonBackColor = Color.FromArgb(33, 150, 243),
-            DialogButtonForeColor = Color.White,
-
+           
             // ===== Side Menu Colors =====
             SideMenuBackColor = Color.FromArgb(245, 245, 245),
             SideMenuHoverBackColor = Color.FromArgb(224, 224, 224),
@@ -2382,9 +2217,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.Black,
             SideMenuSelectedForeColor = Color.FromArgb(33, 150, 243),
             SideMenuBorderColor = Color.LightGray,
-            SideMenuIconColor = Color.Gray,
-            SideMenuSelectedIconColor = Color.FromArgb(33, 150, 243),
-
+          
             // ===== Navigation Colors =====
             NavigationBackColor = Color.White,
             NavigationForeColor = Color.Black,
@@ -2415,12 +2248,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SecondaryTextColor = Color.DarkGray,
             AccentTextColor = Color.FromArgb(33, 150, 243),
 
-            // ===== Additional UI Element Colors =====
-            TitleForColor = Color.Black,
-            TitleBarForColor = Color.White,
-            DescriptionForColor = Color.FromArgb(117, 117, 117),  // Light Gray
-            BeforeForColor = Color.FromArgb(117, 117, 117),
-            LatestForColor = Color.FromArgb(117, 117, 117),
+         
 
             // ===== Spacing & Layout =====
             PaddingSmall = 4,
@@ -2489,85 +2317,83 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(232, 234, 237),
-            MaxButtonColor = Color.FromArgb(178, 235, 242),
-            MinButtonColor = Color.FromArgb(255, 241, 118),
-            TitleBarColor = Color.FromArgb(245, 245, 245),
-            TitleBarTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarIconColor = Color.FromArgb(38, 198, 218),
-            TitleBarHoverColor = Color.FromArgb(250, 250, 250),
-            TitleBarHoverTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarHoverIconColor = Color.FromArgb(38, 198, 218),
-            TitleBarActiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarActiveTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarActiveIconColor = Color.FromArgb(38, 198, 218),
-            TitleBarInactiveColor = Color.FromArgb(250, 250, 250),
-            TitleBarInactiveTextColor = Color.FromArgb(189, 189, 189),
-            TitleBarInactiveIconColor = Color.FromArgb(189, 189, 189),
-            TitleBarBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarBorderHoverColor = Color.FromArgb(38, 198, 218),
-            TitleBarBorderActiveColor = Color.FromArgb(38, 198, 218),
-            TitleBarBorderInactiveColor = Color.FromArgb(224, 224, 224),
+           
+            //TitleBarColor = Color.FromArgb(245, 245, 245),
+            //TitleBarTextColor = Color.FromArgb(33, 33, 33),
+            //TitleBarIconColor = Color.FromArgb(38, 198, 218),
+            //TitleBarHoverColor = Color.FromArgb(250, 250, 250),
+            //TitleBarHoverTextColor = Color.FromArgb(33, 33, 33),
+            //TitleBarHoverIconColor = Color.FromArgb(38, 198, 218),
+            //TitleBarActiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarActiveTextColor = Color.FromArgb(33, 33, 33),
+            //TitleBarActiveIconColor = Color.FromArgb(38, 198, 218),
+            //TitleBarInactiveColor = Color.FromArgb(250, 250, 250),
+            //TitleBarInactiveTextColor = Color.FromArgb(189, 189, 189),
+            //TitleBarInactiveIconColor = Color.FromArgb(189, 189, 189),
+            //TitleBarBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarBorderHoverColor = Color.FromArgb(38, 198, 218),
+            //TitleBarBorderActiveColor = Color.FromArgb(38, 198, 218),
+            //TitleBarBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(255, 82, 82),
-            TitleBarCloseHoverTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarCloseHoverIconColor = Color.FromArgb(33, 33, 33),
-            TitleBarCloseActiveColor = Color.FromArgb(233, 30, 99),
-            TitleBarCloseActiveTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarCloseActiveIconColor = Color.FromArgb(33, 33, 33),
-            TitleBarCloseInactiveColor = Color.FromArgb(224, 224, 224),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(189, 189, 189),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(189, 189, 189),
-            TitleBarCloseBorderColor = Color.FromArgb(232, 234, 237),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(255, 82, 82),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(233, 30, 99),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(232, 234, 237),
+            //TitleBarCloseHoverColor = Color.FromArgb(255, 82, 82),
+            //TitleBarCloseHoverTextColor = Color.FromArgb(33, 33, 33),
+            //TitleBarCloseHoverIconColor = Color.FromArgb(33, 33, 33),
+            //TitleBarCloseActiveColor = Color.FromArgb(233, 30, 99),
+            //TitleBarCloseActiveTextColor = Color.FromArgb(33, 33, 33),
+            //TitleBarCloseActiveIconColor = Color.FromArgb(33, 33, 33),
+            //TitleBarCloseInactiveColor = Color.FromArgb(224, 224, 224),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(189, 189, 189),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(189, 189, 189),
+            //TitleBarCloseBorderColor = Color.FromArgb(232, 234, 237),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(255, 82, 82),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(233, 30, 99),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(232, 234, 237),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(250, 250, 250),
-            TitleBarMaxHoverTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarMaxHoverIconColor = Color.FromArgb(178, 235, 242),
-            TitleBarMaxActiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarMaxActiveTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarMaxActiveIconColor = Color.FromArgb(178, 235, 242),
-            TitleBarMaxInactiveColor = Color.FromArgb(250, 250, 250),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(189, 189, 189),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(189, 189, 189),
-            TitleBarMaxBorderColor = Color.FromArgb(178, 235, 242),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(178, 235, 242),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(178, 235, 242),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMaxHoverColor = Color.FromArgb(250, 250, 250),
+            //TitleBarMaxHoverTextColor = Color.FromArgb(33, 33, 33),
+            //TitleBarMaxHoverIconColor = Color.FromArgb(178, 235, 242),
+            //TitleBarMaxActiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarMaxActiveTextColor = Color.FromArgb(33, 33, 33),
+            //TitleBarMaxActiveIconColor = Color.FromArgb(178, 235, 242),
+            //TitleBarMaxInactiveColor = Color.FromArgb(250, 250, 250),
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(189, 189, 189),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(189, 189, 189),
+            //TitleBarMaxBorderColor = Color.FromArgb(178, 235, 242),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(178, 235, 242),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(178, 235, 242),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(250, 250, 250),
-            TitleBarMinHoverTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarMinHoverIconColor = Color.FromArgb(255, 241, 118),
-            TitleBarMinActiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarMinActiveTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarMinActiveIconColor = Color.FromArgb(255, 241, 118),
-            TitleBarMinInactiveColor = Color.FromArgb(250, 250, 250),
-            TitleBarMinInactiveTextColor = Color.FromArgb(189, 189, 189),
-            TitleBarMinInactiveIconColor = Color.FromArgb(189, 189, 189),
-            TitleBarMinBorderColor = Color.FromArgb(255, 241, 118),
-            TitleBarMinBorderHoverColor = Color.FromArgb(255, 241, 118),
-            TitleBarMinBorderActiveColor = Color.FromArgb(255, 241, 118),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMinHoverColor = Color.FromArgb(250, 250, 250),
+            //TitleBarMinHoverTextColor = Color.FromArgb(33, 33, 33),
+            //TitleBarMinHoverIconColor = Color.FromArgb(255, 241, 118),
+            //TitleBarMinActiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarMinActiveTextColor = Color.FromArgb(33, 33, 33),
+            //TitleBarMinActiveIconColor = Color.FromArgb(255, 241, 118),
+            //TitleBarMinInactiveColor = Color.FromArgb(250, 250, 250),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(189, 189, 189),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(189, 189, 189),
+            //TitleBarMinBorderColor = Color.FromArgb(255, 241, 118),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(255, 241, 118),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(255, 241, 118),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
-            // TitleBarMinimize properties
-            TitleBarMinimizeHoverColor = Color.FromArgb(250, 250, 250),
-            TitleBarMinimizeHoverTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 241, 118),
-            TitleBarMinimizeActiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarMinimizeActiveTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarMinimizeActiveIconColor = Color.FromArgb(255, 241, 118),
-            TitleBarMinimizeInactiveColor = Color.FromArgb(250, 250, 250),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(189, 189, 189),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(189, 189, 189),
-            TitleBarMinimizeBorderColor = Color.FromArgb(255, 241, 118),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(255, 241, 118),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(255, 241, 118),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            // //TitleBarMinimize properties
+            //TitleBarMinimizeHoverColor = Color.FromArgb(250, 250, 250),
+            //TitleBarMinimizeHoverTextColor = Color.FromArgb(33, 33, 33),
+            //TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 241, 118),
+            //TitleBarMinimizeActiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarMinimizeActiveTextColor = Color.FromArgb(33, 33, 33),
+            //TitleBarMinimizeActiveIconColor = Color.FromArgb(255, 241, 118),
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(250, 250, 250),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(189, 189, 189),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(189, 189, 189),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(255, 241, 118),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(255, 241, 118),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(255, 241, 118),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // **Typography Styles**
             TitleStyle = new TypographyStyle
@@ -2621,11 +2447,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(60, 60, 60),
-            TitleBarForColor = Color.FromArgb(33, 33, 33),
-            DescriptionForColor = Color.FromArgb(100, 100, 100),
-            BeforeForColor = Color.FromArgb(150, 150, 150),
-            LatestForColor = Color.FromArgb(200, 200, 200),
+            
             BackColor = Color.FromArgb(240, 240, 240),
 
             // **Button Colors**
@@ -2633,8 +2455,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(33, 33, 33),
             ButtonHoverBackColor = Color.FromArgb(230, 230, 230),
             ButtonHoverForeColor = Color.FromArgb(33, 33, 33),
-            ButtonActiveBackColor = Color.FromArgb(220, 220, 220),
-            ButtonActiveForeColor = Color.FromArgb(33, 33, 33),
+          
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(245, 245, 245),
@@ -2648,8 +2469,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             PanelBackColor = Color.FromArgb(245, 245, 245),
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(245, 245, 245),
-            HeaderForeColor = Color.FromArgb(60, 60, 60),
+            //HeaderBackColor = Color.FromArgb(245, 245, 245),
+            //HeaderForeColor = Color.FromArgb(60, 60, 60),
             GridLineColor = Color.FromArgb(220, 220, 220),
             RowBackColor = Color.FromArgb(240, 240, 240),
             RowForeColor = Color.FromArgb(60, 60, 60),
@@ -2702,8 +2523,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(245, 245, 245),
             DialogForeColor = Color.FromArgb(60, 60, 60),
-            DialogButtonBackColor = Color.FromArgb(240, 240, 240),
-            DialogButtonForeColor = Color.FromArgb(60, 60, 60),
+            //DialogButtonBackColor = Color.FromArgb(240, 240, 240),
+            //DialogButtonForeColor = Color.FromArgb(60, 60, 60),
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(245, 245, 245),
@@ -2718,14 +2539,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(33, 33, 33),
             SideMenuSelectedForeColor = Color.FromArgb(0, 172, 193),
             SideMenuBorderColor = Color.FromArgb(220, 220, 220),
-            SideMenuIconColor = Color.FromArgb(60, 60, 60),
-            SideMenuSelectedIconColor = Color.FromArgb(33, 33, 33),
+            //SideMenuIconColor = Color.FromArgb(60, 60, 60),
+            //SideMenuSelectedIconColor = Color.FromArgb(33, 33, 33),
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(245, 245, 245),
-            TitleBarForeColor = Color.FromArgb(33, 33, 33),
-            TitleBarHoverBackColor = Color.FromArgb(250, 250, 250),
-            TitleBarHoverForeColor = Color.FromArgb(33, 33, 33),
+            //TitleBarBackColor = Color.FromArgb(245, 245, 245),
+            //TitleBarForeColor = Color.FromArgb(33, 33, 33),
+            //TitleBarHoverBackColor = Color.FromArgb(250, 250, 250),
+            //TitleBarHoverForeColor = Color.FromArgb(33, 33, 33),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(240, 240, 240),
@@ -2742,10 +2563,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(100, 100, 100),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(60, 60, 60),
-            SidebarSelectedIconColor = Color.FromArgb(38, 198, 218),
-            SidebarTextColor = Color.FromArgb(60, 60, 60),
-            SidebarSelectedTextColor = Color.FromArgb(38, 198, 218),
+            //SidebarIconColor = Color.FromArgb(60, 60, 60),
+            //SidebarSelectedIconColor = Color.FromArgb(38, 198, 218),
+            //SidebarTextColor = Color.FromArgb(60, 60, 60),
+            //SidebarSelectedTextColor = Color.FromArgb(38, 198, 218),
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(240, 240, 240),
@@ -3067,40 +2888,40 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(0, 105, 148),             // Deep Ocean Blue
-            MaxButtonColor = Color.FromArgb(0, 128, 255),               // Ocean Blue
-            MinButtonColor = Color.FromArgb(64, 224, 208),              // Turquoise
-            TitleBarColor = Color.FromArgb(0, 105, 148),                // Deep Ocean Blue
-            TitleBarTextColor = Color.White,
-            TitleBarIconColor = Color.White,
-            TitleBarHoverColor = Color.FromArgb(0, 128, 255),           // Ocean Blue
-            TitleBarHoverTextColor = Color.White,
-            TitleBarHoverIconColor = Color.White,
-            TitleBarActiveColor = Color.FromArgb(0, 105, 148),          // Deep Ocean Blue
-            TitleBarActiveTextColor = Color.White,
-            TitleBarActiveIconColor = Color.White,
-            TitleBarInactiveColor = Color.FromArgb(64, 224, 208),       // Turquoise
-            TitleBarInactiveTextColor = Color.White,
-            TitleBarInactiveIconColor = Color.White,
-            TitleBarBorderColor = Color.FromArgb(0, 105, 148),          // Deep Ocean Blue
-            TitleBarBorderHoverColor = Color.FromArgb(0, 128, 255),     // Ocean Blue
-            TitleBarBorderActiveColor = Color.FromArgb(0, 105, 148),    // Deep Ocean Blue
-            TitleBarBorderInactiveColor = Color.FromArgb(64, 224, 208), // Turquoise
+            //CloseButtonColor = Color.FromArgb(0, 105, 148),             // Deep Ocean Blue
+            //MaxButtonColor = Color.FromArgb(0, 128, 255),               // Ocean Blue
+            //MinButtonColor = Color.FromArgb(64, 224, 208),              // Turquoise
+            //TitleBarColor = Color.FromArgb(0, 105, 148),                // Deep Ocean Blue
+            //TitleBarTextColor = Color.White,
+            //TitleBarIconColor = Color.White,
+            //TitleBarHoverColor = Color.FromArgb(0, 128, 255),           // Ocean Blue
+            //TitleBarHoverTextColor = Color.White,
+            //TitleBarHoverIconColor = Color.White,
+            //TitleBarActiveColor = Color.FromArgb(0, 105, 148),          // Deep Ocean Blue
+            //TitleBarActiveTextColor = Color.White,
+            //TitleBarActiveIconColor = Color.White,
+            //TitleBarInactiveColor = Color.FromArgb(64, 224, 208),       // Turquoise
+            //TitleBarInactiveTextColor = Color.White,
+            //TitleBarInactiveIconColor = Color.White,
+            //TitleBarBorderColor = Color.FromArgb(0, 105, 148),          // Deep Ocean Blue
+            //TitleBarBorderHoverColor = Color.FromArgb(0, 128, 255),     // Ocean Blue
+            //TitleBarBorderActiveColor = Color.FromArgb(0, 105, 148),    // Deep Ocean Blue
+            //TitleBarBorderInactiveColor = Color.FromArgb(64, 224, 208), // Turquoise
 
-            // Missing TitleBarMinimize properties (set to match Minimize Button)
-            TitleBarMinimizeHoverColor = Color.FromArgb(64, 224, 208),       // Turquoise
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(0, 105, 148),       // Deep Ocean Blue
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(64, 224, 208),    // Turquoise
-            TitleBarMinimizeInactiveTextColor = Color.White,
-            TitleBarMinimizeInactiveIconColor = Color.White,
-            TitleBarMinimizeBorderColor = Color.FromArgb(0, 105, 148),       // Deep Ocean Blue
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(0, 128, 255),  // Ocean Blue
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(0, 105, 148), // Deep Ocean Blue
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(64, 224, 208), // Turquoise
+            // Missing //TitleBarMinimize properties (set to match Minimize Button)
+            //TitleBarMinimizeHoverColor = Color.FromArgb(64, 224, 208),       // Turquoise
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(0, 105, 148),       // Deep Ocean Blue
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(64, 224, 208),    // Turquoise
+            //TitleBarMinimizeInactiveTextColor = Color.White,
+            //TitleBarMinimizeInactiveIconColor = Color.White,
+            //TitleBarMinimizeBorderColor = Color.FromArgb(0, 105, 148),       // Deep Ocean Blue
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(0, 128, 255),  // Ocean Blue
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(0, 105, 148), // Deep Ocean Blue
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(64, 224, 208), // Turquoise
 
             // **Typography Styles**
             TitleStyle = new TypographyStyle
@@ -3161,11 +2982,11 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(0, 128, 255),                // Ocean Blue
-            TitleBarForColor = Color.FromArgb(0, 105, 148),             // Deep Ocean Blue
-            DescriptionForColor = Color.FromArgb(72, 209, 204),         // Medium Turquoise
-            BeforeForColor = Color.FromArgb(175, 238, 238),             // Pale Turquoise
-            LatestForColor = Color.FromArgb(0, 128, 128),               // Teal
+            //TitleForColor = Color.FromArgb(0, 128, 255),                // Ocean Blue
+            //TitleBarForColor = Color.FromArgb(0, 105, 148),             // Deep Ocean Blue
+            //DescriptionForColor = Color.FromArgb(72, 209, 204),         // Medium Turquoise
+            //BeforeForColor = Color.FromArgb(175, 238, 238),             // Pale Turquoise
+            //LatestForColor = Color.FromArgb(0, 128, 128),               // Teal
             BackColor = Color.FromArgb(224, 255, 255),                  // Light Cyan Background
 
             // **Button Colors**
@@ -3173,8 +2994,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonBackColor = Color.White,
             ButtonHoverBackColor = Color.FromArgb(0, 139, 139),         // Dark Cyan
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(0, 123, 167),        // Deep Blue
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(0, 123, 167),        // Deep Blue
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
@@ -3188,8 +3009,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             PanelBackColor = Color.FromArgb(175, 238, 238),             // Azure
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(175, 238, 238),            // Pale Turquoise
-            HeaderForeColor = Color.FromArgb(0, 105, 148),              // Deep Ocean Blue
+            //HeaderBackColor = Color.FromArgb(175, 238, 238),            // Pale Turquoise
+            //HeaderForeColor = Color.FromArgb(0, 105, 148),              // Deep Ocean Blue
             GridLineColor = Color.FromArgb(0, 160, 176),                // Blue-Green
            
             RowForeColor = Color.FromArgb(0, 105, 148),                 // Deep Ocean Blue
@@ -3243,8 +3064,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(240, 255, 255),            // Azure
             DialogForeColor = Color.FromArgb(0, 105, 148),              // Deep Ocean Blue
-            DialogButtonBackColor = Color.FromArgb(0, 160, 176),        // Blue-Green
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(0, 160, 176),        // Blue-Green
+            //DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(224, 255, 255),         // Light Cyan
@@ -3258,16 +3079,16 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuForeColor = Color.FromArgb(0, 105, 148),            // Deep Ocean Blue
             SideMenuHoverForeColor = Color.FromArgb(0, 105, 148),       // Deep Ocean Blue
             SideMenuSelectedForeColor = Color.White,
-            SideMenuIconColor = Color.FromArgb(0, 105, 148),            // Deep Ocean Blue
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(0, 105, 148),            // Deep Ocean Blue
+            //SideMenuSelectedIconColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(175, 238, 238),        // Pale Turquoise
         
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(175, 238, 238),            // Blue-Green
-            TitleBarForeColor = Color.FromArgb(0, 105, 148),
-            TitleBarHoverBackColor = Color.FromArgb(0, 139, 139),       // Dark Cyan
-            TitleBarHoverForeColor = Color.White,
+            //TitleBarBackColor = Color.FromArgb(175, 238, 238),            // Blue-Green
+            //TitleBarForeColor = Color.FromArgb(0, 105, 148),
+            //TitleBarHoverBackColor = Color.FromArgb(0, 139, 139),       // Dark Cyan
+            //TitleBarHoverForeColor = Color.White,
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(224, 255, 255),         // Light Cyan
@@ -3283,10 +3104,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(0, 105, 148),               // Deep Ocean Blue
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(0, 105, 148),             // Deep Ocean Blue
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(0, 105, 148),             // Deep Ocean Blue
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(0, 105, 148),             // Deep Ocean Blue
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.FromArgb(0, 105, 148),             // Deep Ocean Blue
+            //SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(224, 255, 255),        // Light Cyan
@@ -3688,85 +3509,85 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(255, 69, 0),               // Red-Orange
-            MaxButtonColor = Color.FromArgb(255, 165, 0),                // Orange
-            MinButtonColor = Color.FromArgb(255, 140, 0),                // Dark Orange
-            TitleBarColor = Color.FromArgb(255, 99, 71),                 // Tomato
-            TitleBarTextColor = Color.White,
-            TitleBarIconColor = Color.White,
-            TitleBarHoverColor = Color.FromArgb(255, 127, 80),           // Coral
-            TitleBarHoverTextColor = Color.White,
-            TitleBarHoverIconColor = Color.White,
-            TitleBarActiveColor = Color.FromArgb(255, 69, 0),            // Red-Orange
-            TitleBarActiveTextColor = Color.White,
-            TitleBarActiveIconColor = Color.White,
-            TitleBarInactiveColor = Color.FromArgb(255, 140, 0),         // Dark Orange
-            TitleBarInactiveTextColor = Color.White,
-            TitleBarInactiveIconColor = Color.White,
-            TitleBarBorderColor = Color.FromArgb(255, 99, 71),           // Tomato
-            TitleBarBorderHoverColor = Color.FromArgb(255, 127, 80),     // Coral
-            TitleBarBorderActiveColor = Color.FromArgb(255, 69, 0),      // Red-Orange
-            TitleBarBorderInactiveColor = Color.FromArgb(255, 140, 0),   // Dark Orange
+            //CloseButtonColor = Color.FromArgb(255, 69, 0),               // Red-Orange
+            //MaxButtonColor = Color.FromArgb(255, 165, 0),                // Orange
+            //MinButtonColor = Color.FromArgb(255, 140, 0),                // Dark Orange
+            //TitleBarColor = Color.FromArgb(255, 99, 71),                 // Tomato
+            //TitleBarTextColor = Color.White,
+            //TitleBarIconColor = Color.White,
+            //TitleBarHoverColor = Color.FromArgb(255, 127, 80),           // Coral
+            //TitleBarHoverTextColor = Color.White,
+            //TitleBarHoverIconColor = Color.White,
+            //TitleBarActiveColor = Color.FromArgb(255, 69, 0),            // Red-Orange
+            //TitleBarActiveTextColor = Color.White,
+            //TitleBarActiveIconColor = Color.White,
+            //TitleBarInactiveColor = Color.FromArgb(255, 140, 0),         // Dark Orange
+            //TitleBarInactiveTextColor = Color.White,
+            //TitleBarInactiveIconColor = Color.White,
+            //TitleBarBorderColor = Color.FromArgb(255, 99, 71),           // Tomato
+            //TitleBarBorderHoverColor = Color.FromArgb(255, 127, 80),     // Coral
+            //TitleBarBorderActiveColor = Color.FromArgb(255, 69, 0),      // Red-Orange
+            //TitleBarBorderInactiveColor = Color.FromArgb(255, 140, 0),   // Dark Orange
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(255, 0, 0),         // Red
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(178, 34, 34),      // Firebrick
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(255, 99, 71),    // Tomato
-            TitleBarCloseInactiveTextColor = Color.White,
-            TitleBarCloseInactiveIconColor = Color.White,
-            TitleBarCloseBorderColor = Color.FromArgb(255, 99, 71),      // Tomato
-            TitleBarCloseBorderHoverColor = Color.FromArgb(255, 127, 80), // Coral
-            TitleBarCloseBorderActiveColor = Color.FromArgb(255, 69, 0), // Red-Orange
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(255, 140, 0), // Dark Orange
+            //TitleBarCloseHoverColor = Color.FromArgb(255, 0, 0),         // Red
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(178, 34, 34),      // Firebrick
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(255, 99, 71),    // Tomato
+            //TitleBarCloseInactiveTextColor = Color.White,
+            //TitleBarCloseInactiveIconColor = Color.White,
+            //TitleBarCloseBorderColor = Color.FromArgb(255, 99, 71),      // Tomato
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(255, 127, 80), // Coral
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(255, 69, 0), // Red-Orange
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(255, 140, 0), // Dark Orange
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(255, 165, 0),         // Orange
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(255, 99, 71),        // Tomato
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(255, 140, 0),      // Dark Orange
-            TitleBarMaxInactiveTextColor = Color.White,
-            TitleBarMaxInactiveIconColor = Color.White,
-            TitleBarMaxBorderColor = Color.FromArgb(255, 99, 71),        // Tomato
-            TitleBarMaxBorderHoverColor = Color.FromArgb(255, 127, 80),  // Coral
-            TitleBarMaxBorderActiveColor = Color.FromArgb(255, 69, 0),   // Red-Orange
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(255, 140, 0), // Dark Orange
+            //TitleBarMaxHoverColor = Color.FromArgb(255, 165, 0),         // Orange
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(255, 99, 71),        // Tomato
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(255, 140, 0),      // Dark Orange
+            //TitleBarMaxInactiveTextColor = Color.White,
+            //TitleBarMaxInactiveIconColor = Color.White,
+            //TitleBarMaxBorderColor = Color.FromArgb(255, 99, 71),        // Tomato
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(255, 127, 80),  // Coral
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(255, 69, 0),   // Red-Orange
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(255, 140, 0), // Dark Orange
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(255, 140, 0),         // Dark Orange
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(255, 99, 71),        // Tomato
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(255, 140, 0),      // Dark Orange
-            TitleBarMinInactiveTextColor = Color.White,
-            TitleBarMinInactiveIconColor = Color.White,
-            TitleBarMinBorderColor = Color.FromArgb(255, 99, 71),        // Tomato
-            TitleBarMinBorderHoverColor = Color.FromArgb(255, 127, 80),  // Coral
-            TitleBarMinBorderActiveColor = Color.FromArgb(255, 69, 0),   // Red-Orange
-            TitleBarMinBorderInactiveColor = Color.FromArgb(255, 140, 0), // Dark Orange
+            //TitleBarMinHoverColor = Color.FromArgb(255, 140, 0),         // Dark Orange
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(255, 99, 71),        // Tomato
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(255, 140, 0),      // Dark Orange
+            //TitleBarMinInactiveTextColor = Color.White,
+            //TitleBarMinInactiveIconColor = Color.White,
+            //TitleBarMinBorderColor = Color.FromArgb(255, 99, 71),        // Tomato
+            //TitleBarMinBorderHoverColor = Color.FromArgb(255, 127, 80),  // Coral
+            //TitleBarMinBorderActiveColor = Color.FromArgb(255, 69, 0),   // Red-Orange
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(255, 140, 0), // Dark Orange
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(255, 140, 0),    // Dark Orange
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(255, 99, 71),   // Tomato
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(255, 140, 0), // Dark Orange
-            TitleBarMinimizeInactiveTextColor = Color.White,
-            TitleBarMinimizeInactiveIconColor = Color.White,
-            TitleBarMinimizeBorderColor = Color.FromArgb(255, 99, 71),   // Tomato
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(255, 127, 80), // Coral
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(255, 69, 0), // Red-Orange
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(255, 140, 0), // Dark Orange
+            //TitleBarMinimizeHoverColor = Color.FromArgb(255, 140, 0),    // Dark Orange
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(255, 99, 71),   // Tomato
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(255, 140, 0), // Dark Orange
+            //TitleBarMinimizeInactiveTextColor = Color.White,
+            //TitleBarMinimizeInactiveIconColor = Color.White,
+            //TitleBarMinimizeBorderColor = Color.FromArgb(255, 99, 71),   // Tomato
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(255, 127, 80), // Coral
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(255, 69, 0), // Red-Orange
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(255, 140, 0), // Dark Orange
 
             // **Typography Styles**
             TitleStyle = new TypographyStyle
@@ -3827,11 +3648,11 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(255, 69, 0),                  // Red-Orange
-            TitleBarForColor = Color.FromArgb(255, 99, 71),              // Tomato
-            DescriptionForColor = Color.FromArgb(255, 142, 128),         // Light Salmon
-            BeforeForColor = Color.FromArgb(255, 179, 174),              // Light Pink
-            LatestForColor = Color.FromArgb(255, 212, 173),              // Peach Puff
+            //TitleForColor = Color.FromArgb(255, 69, 0),                  // Red-Orange
+            //TitleBarForColor = Color.FromArgb(255, 99, 71),              // Tomato
+            //DescriptionForColor = Color.FromArgb(255, 142, 128),         // Light Salmon
+            //BeforeForColor = Color.FromArgb(255, 179, 174),              // Light Pink
+            //LatestForColor = Color.FromArgb(255, 212, 173),              // Peach Puff
             BackColor = Color.FromArgb(255, 110, 102), // Light Salmon                   // Linen Background
 
             // **Button Colors**
@@ -3839,8 +3660,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.White,
             ButtonHoverBackColor = Color.FromArgb(227, 83, 68),          // Darker Sunset Orange
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(199, 73, 60),         // Even Darker Sunset Orange
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(199, 73, 60),         // Even Darker Sunset Orange
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
@@ -3855,8 +3676,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(255, 212, 173),             // Peach Puff
-            HeaderForeColor = Color.FromArgb(85, 85, 85),                // Dark Gray
+            //HeaderBackColor = Color.FromArgb(255, 212, 173),             // Peach Puff
+            //HeaderForeColor = Color.FromArgb(85, 85, 85),                // Dark Gray
             GridLineColor = Color.FromArgb(255, 179, 174),               // Light Pink
             RowBackColor = Color.White,
             RowForeColor = Color.FromArgb(85, 85, 85),
@@ -3911,8 +3732,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(255, 235, 211),             // Light Linen
             DialogForeColor = Color.FromArgb(85, 85, 85),
-            DialogButtonBackColor = Color.FromArgb(255, 94, 77),         // Sunset Orange
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(255, 94, 77),         // Sunset Orange
+            //DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(255, 212, 173),          // Peach Puff
@@ -3928,14 +3749,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(85, 85, 85),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(255, 212, 173),         // Peach Puff
-            SideMenuIconColor = Color.FromArgb(85, 85, 85),
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(85, 85, 85),
+            //SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(255, 94, 77),             // Sunset Orange
-            TitleBarForeColor = Color.White,
-            TitleBarHoverBackColor = Color.FromArgb(227, 83, 68),        // Darker Sunset Orange
-            TitleBarHoverForeColor = Color.White,
+            //TitleBarBackColor = Color.FromArgb(255, 94, 77),             // Sunset Orange
+            //TitleBarForeColor = Color.White,
+            //TitleBarHoverBackColor = Color.FromArgb(227, 83, 68),        // Darker Sunset Orange
+            //TitleBarHoverForeColor = Color.White,
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(255, 244, 229),          // Linen Background
@@ -3951,10 +3772,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(85, 85, 85),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(85, 85, 85),
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(85, 85, 85),
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(85, 85, 85),
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.FromArgb(85, 85, 85),
+            //SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(255, 244, 229),         // Linen Background
@@ -4356,92 +4177,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // Title Bar and Window Controls
-            CloseButtonColor = Color.FromArgb(139, 0, 0),         // Dark Red
-            MaxButtonColor = Color.FromArgb(46, 139, 87),         // Sea Green
-            MinButtonColor = Color.FromArgb(107, 142, 35),        // Olive Green
-            TitleBarColor = Color.FromArgb(34, 139, 34),          // Forest Green
-            TitleBarTextColor = Color.White,
-            TitleBarIconColor = Color.FromArgb(245, 245, 220),    // Beige
-            TitleBarHoverColor = Color.FromArgb(60, 179, 113),    // Medium Sea Green
-            TitleBarHoverTextColor = Color.White,
-            TitleBarHoverIconColor = Color.White,
-            TitleBarActiveColor = Color.FromArgb(0, 100, 0),      // Dark Green
-            TitleBarActiveTextColor = Color.White,
-            TitleBarActiveIconColor = Color.White,
-            TitleBarInactiveColor = Color.FromArgb(85, 107, 47),  // Olive Drab
-            TitleBarInactiveTextColor = Color.FromArgb(245, 245, 220), // Beige
-            TitleBarInactiveIconColor = Color.FromArgb(245, 245, 220), // Beige
-            TitleBarBorderColor = Color.FromArgb(46, 139, 87),         // Sea Green
-            TitleBarBorderHoverColor = Color.FromArgb(60, 179, 113),   // Medium Sea Green
-            TitleBarBorderActiveColor = Color.FromArgb(0, 100, 0),     // Dark Green
-            TitleBarBorderInactiveColor = Color.FromArgb(85, 107, 47), // Olive Drab
+            //CloseButtonColor = Color.FromArgb(139, 0, 0),         // Dark Red
+            //MaxButtonColor = Color.FromArgb(46, 139, 87),         // Sea Green
+            //MinButtonColor = Color.FromArgb(107, 142, 35),        // Olive Green
+            //TitleBarColor = Color.FromArgb(34, 139, 34),          // Forest Green
+            //TitleBarTextColor = Color.White,
+            //TitleBarIconColor = Color.FromArgb(245, 245, 220),    // Beige
+            //TitleBarHoverColor = Color.FromArgb(60, 179, 113),    // Medium Sea Green
+            //TitleBarHoverTextColor = Color.White,
+            //TitleBarHoverIconColor = Color.White,
+            //TitleBarActiveColor = Color.FromArgb(0, 100, 0),      // Dark Green
+            //TitleBarActiveTextColor = Color.White,
+            //TitleBarActiveIconColor = Color.White,
+            //TitleBarInactiveColor = Color.FromArgb(85, 107, 47),  // Olive Drab
+            //TitleBarInactiveTextColor = Color.FromArgb(245, 245, 220), // Beige
+            //TitleBarInactiveIconColor = Color.FromArgb(245, 245, 220), // Beige
+            //TitleBarBorderColor = Color.FromArgb(46, 139, 87),         // Sea Green
+            //TitleBarBorderHoverColor = Color.FromArgb(60, 179, 113),   // Medium Sea Green
+            //TitleBarBorderActiveColor = Color.FromArgb(0, 100, 0),     // Dark Green
+            //TitleBarBorderInactiveColor = Color.FromArgb(85, 107, 47), // Olive Drab
 
             // Close Button States
-            TitleBarCloseHoverColor = Color.FromArgb(165, 42, 42),     // Brown
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(139, 0, 0),      // Dark Red
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(85, 107, 47),  // Olive Drab
-            TitleBarCloseInactiveTextColor = Color.FromArgb(245, 245, 220), // Beige
-            TitleBarCloseInactiveIconColor = Color.FromArgb(245, 245, 220), // Beige
-            TitleBarCloseBorderColor = Color.FromArgb(46, 139, 87),    // Sea Green
-            TitleBarCloseBorderHoverColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
-            TitleBarCloseBorderActiveColor = Color.FromArgb(0, 100, 0),   // Dark Green
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(85, 107, 47), // Olive Drab
+            //TitleBarCloseHoverColor = Color.FromArgb(165, 42, 42),     // Brown
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(139, 0, 0),      // Dark Red
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(85, 107, 47),  // Olive Drab
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(245, 245, 220), // Beige
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(245, 245, 220), // Beige
+            //TitleBarCloseBorderColor = Color.FromArgb(46, 139, 87),    // Sea Green
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(0, 100, 0),   // Dark Green
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(85, 107, 47), // Olive Drab
 
             // Maximize Button States
-            TitleBarMaxHoverColor = Color.FromArgb(60, 179, 113),      // Medium Sea Green
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(0, 128, 0),        // Green
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(85, 107, 47),    // Olive Drab
-            TitleBarMaxInactiveTextColor = Color.FromArgb(245, 245, 220), // Beige
-            TitleBarMaxInactiveIconColor = Color.FromArgb(245, 245, 220), // Beige
-            TitleBarMaxBorderColor = Color.FromArgb(46, 139, 87),      // Sea Green
-            TitleBarMaxBorderHoverColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
-            TitleBarMaxBorderActiveColor = Color.FromArgb(0, 100, 0),  // Dark Green
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(85, 107, 47), // Olive Drab
+            //TitleBarMaxHoverColor = Color.FromArgb(60, 179, 113),      // Medium Sea Green
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(0, 128, 0),        // Green
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(85, 107, 47),    // Olive Drab
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(245, 245, 220), // Beige
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(245, 245, 220), // Beige
+            //TitleBarMaxBorderColor = Color.FromArgb(46, 139, 87),      // Sea Green
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(0, 100, 0),  // Dark Green
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(85, 107, 47), // Olive Drab
 
             // Minimize Button States
-            TitleBarMinHoverColor = Color.FromArgb(107, 142, 35),      // Olive Green
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(34, 139, 34),      // Forest Green
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(85, 107, 47),    // Olive Drab
-            TitleBarMinInactiveTextColor = Color.FromArgb(245, 245, 220), // Beige
-            TitleBarMinInactiveIconColor = Color.FromArgb(245, 245, 220), // Beige
-            TitleBarMinBorderColor = Color.FromArgb(46, 139, 87),      // Sea Green
-            TitleBarMinBorderHoverColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
-            TitleBarMinBorderActiveColor = Color.FromArgb(0, 100, 0),  // Dark Green
-            TitleBarMinBorderInactiveColor = Color.FromArgb(85, 107, 47), // Olive Drab
+            //TitleBarMinHoverColor = Color.FromArgb(107, 142, 35),      // Olive Green
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(34, 139, 34),      // Forest Green
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(85, 107, 47),    // Olive Drab
+            //TitleBarMinInactiveTextColor = Color.FromArgb(245, 245, 220), // Beige
+            //TitleBarMinInactiveIconColor = Color.FromArgb(245, 245, 220), // Beige
+            //TitleBarMinBorderColor = Color.FromArgb(46, 139, 87),      // Sea Green
+            //TitleBarMinBorderHoverColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
+            //TitleBarMinBorderActiveColor = Color.FromArgb(0, 100, 0),  // Dark Green
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(85, 107, 47), // Olive Drab
 
             // Alternative Minimize Button States
-            TitleBarMinimizeHoverColor = Color.FromArgb(107, 142, 35),  // Olive Green
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(34, 139, 34),  // Forest Green
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(85, 107, 47), // Olive Drab
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(245, 245, 220), // Beige
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(245, 245, 220), // Beige
-            TitleBarMinimizeBorderColor = Color.FromArgb(46, 139, 87),  // Sea Green
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(0, 100, 0), // Dark Green
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(85, 107, 47), // Olive Drab
+            //TitleBarMinimizeHoverColor = Color.FromArgb(107, 142, 35),  // Olive Green
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(34, 139, 34),  // Forest Green
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(85, 107, 47), // Olive Drab
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(245, 245, 220), // Beige
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(245, 245, 220), // Beige
+            //TitleBarMinimizeBorderColor = Color.FromArgb(46, 139, 87),  // Sea Green
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(0, 100, 0), // Dark Green
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(85, 107, 47), // Olive Drab
 
             // General Colors
-            TitleForColor = Color.White,
-            TitleBarForColor = Color.White,
-            DescriptionForColor = Color.FromArgb(245, 245, 220),       // Beige
-            BeforeForColor = Color.FromArgb(107, 142, 35),             // Olive Green
-            LatestForColor = Color.FromArgb(60, 179, 113),             // Medium Sea Green
+            //TitleForColor = Color.White,
+            //TitleBarForColor = Color.White,
+            //DescriptionForColor = Color.FromArgb(245, 245, 220),       // Beige
+            //BeforeForColor = Color.FromArgb(107, 142, 35),             // Olive Green
+            //LatestForColor = Color.FromArgb(60, 179, 113),             // Medium Sea Green
             BackColor = Color.FromArgb(245, 245, 220),                 // Beige
 
             // Button Colors
@@ -4449,8 +4270,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.White,
             ButtonHoverBackColor = Color.FromArgb(60, 179, 113),       // Medium Sea Green
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(0, 100, 0),         // Dark Green
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(0, 100, 0),         // Dark Green
+            //ButtonActiveForeColor = Color.White,
 
             // TextBox Colors
             TextBoxBackColor = Color.FromArgb(245, 245, 220),          // Beige
@@ -4464,8 +4285,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             PanelBackColor = Color.FromArgb(107, 142, 35),             // Olive Green
 
             // Grid Colors
-            HeaderBackColor = Color.FromArgb(0, 100, 0),               // Dark Green
-            HeaderForeColor = Color.White,
+            //HeaderBackColor = Color.FromArgb(0, 100, 0),               // Dark Green
+            //HeaderForeColor = Color.White,
             GridLineColor = Color.FromArgb(85, 107, 47),               // Olive Drab
             RowBackColor = Color.FromArgb(245, 245, 220),              // Beige
             RowForeColor = Color.FromArgb(34, 139, 34),                // Forest Green
@@ -4520,8 +4341,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // Dialog Box Colors
             DialogBackColor = Color.FromArgb(245, 245, 220),           // Beige
             DialogForeColor = Color.FromArgb(34, 139, 34),             // Forest Green
-            DialogButtonBackColor = Color.FromArgb(34, 139, 34),       // Forest Green
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(34, 139, 34),       // Forest Green
+            //DialogButtonForeColor = Color.White,
 
             // Gradient Properties
             GradientStartColor = Color.FromArgb(245, 245, 220),        // Beige
@@ -4536,14 +4357,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.White,
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(85, 107, 47),         // Olive Drab
-            SideMenuIconColor = Color.FromArgb(245, 245, 220),         // Beige
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(245, 245, 220),         // Beige
+            //SideMenuSelectedIconColor = Color.White,
 
             // Title Bar Colors (Repeated Properties)
-            TitleBarBackColor = Color.FromArgb(0, 100, 0),             // Dark Green
-            TitleBarForeColor = Color.White,
-            TitleBarHoverBackColor = Color.FromArgb(60, 179, 113),     // Medium Sea Green
-            TitleBarHoverForeColor = Color.White,
+            //TitleBarBackColor = Color.FromArgb(0, 100, 0),             // Dark Green
+            //TitleBarForeColor = Color.White,
+            //TitleBarHoverBackColor = Color.FromArgb(60, 179, 113),     // Medium Sea Green
+            //TitleBarHoverForeColor = Color.White,
 
             // Dashboard Colors
             DashboardBackColor = Color.FromArgb(245, 245, 220),        // Beige
@@ -4559,10 +4380,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(85, 107, 47),              // Olive Drab
 
             // Sidebar and Menu Colors
-            SidebarIconColor = Color.FromArgb(34, 139, 34),            // Forest Green
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(34, 139, 34),            // Forest Green
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(34, 139, 34),            // Forest Green
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.FromArgb(34, 139, 34),            // Forest Green
+            //SidebarSelectedTextColor = Color.White,
 
             // Navigation Colors
             NavigationBackColor = Color.FromArgb(245, 245, 220),       // Beige
@@ -4941,92 +4762,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(165, 42, 42),               // Brown
-            MaxButtonColor = Color.FromArgb(210, 105, 30),                // Chocolate
-            MinButtonColor = Color.FromArgb(255, 140, 0),                 // Dark Orange
-            TitleBarColor = Color.FromArgb(205, 92, 92),                  // Indian Red
-            TitleBarTextColor = Color.FromArgb(139, 69, 19),              // Saddle Brown
-            TitleBarIconColor = Color.FromArgb(255, 99, 71),              // Tomato
-            TitleBarHoverColor = Color.FromArgb(222, 184, 135),           // Burlywood
-            TitleBarHoverTextColor = Color.FromArgb(139, 69, 19),         // Saddle Brown
-            TitleBarHoverIconColor = Color.FromArgb(210, 105, 30),        // Chocolate
-            TitleBarActiveColor = Color.FromArgb(244, 164, 96),           // Sandy Brown
-            TitleBarActiveTextColor = Color.FromArgb(139, 69, 19),        // Saddle Brown
-            TitleBarActiveIconColor = Color.FromArgb(255, 127, 80),       // Coral
-            TitleBarInactiveColor = Color.FromArgb(205, 133, 63),         // Peru
-            TitleBarInactiveTextColor = Color.FromArgb(139, 69, 19),      // Saddle Brown
-            TitleBarInactiveIconColor = Color.FromArgb(210, 105, 30),     // Chocolate
-            TitleBarBorderColor = Color.FromArgb(160, 82, 45),            // Sienna
-            TitleBarBorderHoverColor = Color.FromArgb(205, 133, 63),      // Peru
-            TitleBarBorderActiveColor = Color.FromArgb(139, 69, 19),      // Saddle Brown
-            TitleBarBorderInactiveColor = Color.FromArgb(160, 82, 45),    // Sienna
+            //CloseButtonColor = Color.FromArgb(165, 42, 42),               // Brown
+            //MaxButtonColor = Color.FromArgb(210, 105, 30),                // Chocolate
+            //MinButtonColor = Color.FromArgb(255, 140, 0),                 // Dark Orange
+            //TitleBarColor = Color.FromArgb(205, 92, 92),                  // Indian Red
+            //TitleBarTextColor = Color.FromArgb(139, 69, 19),              // Saddle Brown
+            //TitleBarIconColor = Color.FromArgb(255, 99, 71),              // Tomato
+            //TitleBarHoverColor = Color.FromArgb(222, 184, 135),           // Burlywood
+            //TitleBarHoverTextColor = Color.FromArgb(139, 69, 19),         // Saddle Brown
+            //TitleBarHoverIconColor = Color.FromArgb(210, 105, 30),        // Chocolate
+            //TitleBarActiveColor = Color.FromArgb(244, 164, 96),           // Sandy Brown
+            //TitleBarActiveTextColor = Color.FromArgb(139, 69, 19),        // Saddle Brown
+            //TitleBarActiveIconColor = Color.FromArgb(255, 127, 80),       // Coral
+            //TitleBarInactiveColor = Color.FromArgb(205, 133, 63),         // Peru
+            //TitleBarInactiveTextColor = Color.FromArgb(139, 69, 19),      // Saddle Brown
+            //TitleBarInactiveIconColor = Color.FromArgb(210, 105, 30),     // Chocolate
+            //TitleBarBorderColor = Color.FromArgb(160, 82, 45),            // Sienna
+            //TitleBarBorderHoverColor = Color.FromArgb(205, 133, 63),      // Peru
+            //TitleBarBorderActiveColor = Color.FromArgb(139, 69, 19),      // Saddle Brown
+            //TitleBarBorderInactiveColor = Color.FromArgb(160, 82, 45),    // Sienna
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(165, 42, 42),        // Brown
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(139, 0, 0),         // Dark Red
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(165, 42, 42),     // Brown
-            TitleBarCloseInactiveTextColor = Color.White,
-            TitleBarCloseInactiveIconColor = Color.White,
-            TitleBarCloseBorderColor = Color.FromArgb(160, 82, 45),       // Sienna
-            TitleBarCloseBorderHoverColor = Color.FromArgb(205, 133, 63), // Peru
-            TitleBarCloseBorderActiveColor = Color.FromArgb(139, 69, 19), // Saddle Brown
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(160, 82, 45), // Sienna
+            //TitleBarCloseHoverColor = Color.FromArgb(165, 42, 42),        // Brown
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(139, 0, 0),         // Dark Red
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(165, 42, 42),     // Brown
+            //TitleBarCloseInactiveTextColor = Color.White,
+            //TitleBarCloseInactiveIconColor = Color.White,
+            //TitleBarCloseBorderColor = Color.FromArgb(160, 82, 45),       // Sienna
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(205, 133, 63), // Peru
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(139, 69, 19), // Saddle Brown
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(160, 82, 45), // Sienna
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(255, 140, 0),          // Dark Orange
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(210, 105, 30),        // Chocolate
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(205, 133, 63),      // Peru
-            TitleBarMaxInactiveTextColor = Color.White,
-            TitleBarMaxInactiveIconColor = Color.White,
-            TitleBarMaxBorderColor = Color.FromArgb(160, 82, 45),         // Sienna
-            TitleBarMaxBorderHoverColor = Color.FromArgb(205, 133, 63),   // Peru
-            TitleBarMaxBorderActiveColor = Color.FromArgb(139, 69, 19),   // Saddle Brown
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(160, 82, 45), // Sienna
+            //TitleBarMaxHoverColor = Color.FromArgb(255, 140, 0),          // Dark Orange
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(210, 105, 30),        // Chocolate
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(205, 133, 63),      // Peru
+            //TitleBarMaxInactiveTextColor = Color.White,
+            //TitleBarMaxInactiveIconColor = Color.White,
+            //TitleBarMaxBorderColor = Color.FromArgb(160, 82, 45),         // Sienna
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(205, 133, 63),   // Peru
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(139, 69, 19),   // Saddle Brown
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(160, 82, 45), // Sienna
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(255, 165, 0),          // Orange
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(210, 105, 30),        // Chocolate
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(205, 133, 63),      // Peru
-            TitleBarMinInactiveTextColor = Color.White,
-            TitleBarMinInactiveIconColor = Color.White,
-            TitleBarMinBorderColor = Color.FromArgb(160, 82, 45),         // Sienna
-            TitleBarMinBorderHoverColor = Color.FromArgb(205, 133, 63),   // Peru
-            TitleBarMinBorderActiveColor = Color.FromArgb(139, 69, 19),   // Saddle Brown
-            TitleBarMinBorderInactiveColor = Color.FromArgb(160, 82, 45), // Sienna
+            //TitleBarMinHoverColor = Color.FromArgb(255, 165, 0),          // Orange
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(210, 105, 30),        // Chocolate
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(205, 133, 63),      // Peru
+            //TitleBarMinInactiveTextColor = Color.White,
+            //TitleBarMinInactiveIconColor = Color.White,
+            //TitleBarMinBorderColor = Color.FromArgb(160, 82, 45),         // Sienna
+            //TitleBarMinBorderHoverColor = Color.FromArgb(205, 133, 63),   // Peru
+            //TitleBarMinBorderActiveColor = Color.FromArgb(139, 69, 19),   // Saddle Brown
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(160, 82, 45), // Sienna
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(255, 140, 0),     // Dark Orange
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(210, 105, 30),   // Chocolate
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(205, 133, 63), // Peru
-            TitleBarMinimizeInactiveTextColor = Color.White,
-            TitleBarMinimizeInactiveIconColor = Color.White,
-            TitleBarMinimizeBorderColor = Color.FromArgb(160, 82, 45),    // Sienna
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(205, 133, 63), // Peru
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(139, 69, 19), // Saddle Brown
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(160, 82, 45), // Sienna
+            //TitleBarMinimizeHoverColor = Color.FromArgb(255, 140, 0),     // Dark Orange
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(210, 105, 30),   // Chocolate
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(205, 133, 63), // Peru
+            //TitleBarMinimizeInactiveTextColor = Color.White,
+            //TitleBarMinimizeInactiveIconColor = Color.White,
+            //TitleBarMinimizeBorderColor = Color.FromArgb(160, 82, 45),    // Sienna
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(205, 133, 63), // Peru
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(139, 69, 19), // Saddle Brown
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(160, 82, 45), // Sienna
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(139, 69, 19),                  // Saddle Brown
-            TitleBarForColor = Color.FromArgb(205, 133, 63),              // Peru
-            DescriptionForColor = Color.FromArgb(210, 105, 30),           // Chocolate
-            BeforeForColor = Color.FromArgb(205, 92, 92),                 // Indian Red
-            LatestForColor = Color.FromArgb(218, 165, 32),                // Golden Rod
+            //TitleForColor = Color.FromArgb(139, 69, 19),                  // Saddle Brown
+            //TitleBarForColor = Color.FromArgb(205, 133, 63),              // Peru
+            //DescriptionForColor = Color.FromArgb(210, 105, 30),           // Chocolate
+            //BeforeForColor = Color.FromArgb(205, 92, 92),                 // Indian Red
+            //LatestForColor = Color.FromArgb(218, 165, 32),                // Golden Rod
             BackColor = Color.FromArgb(200, 180, 135),                   // Cornsilk background
 
             // **Button Colors**
@@ -5034,8 +4855,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.White,
             ButtonHoverBackColor = Color.FromArgb(160, 82, 45),           // Sienna
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(139, 69, 19),          // Saddle Brown
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(139, 69, 19),          // Saddle Brown
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(205, 133, 63),
@@ -5050,8 +4871,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(222, 184, 135),              // Burlywood
-            HeaderForeColor = Color.FromArgb(85, 85, 85),
+            //HeaderBackColor = Color.FromArgb(222, 184, 135),              // Burlywood
+            //HeaderForeColor = Color.FromArgb(85, 85, 85),
             GridLineColor = Color.FromArgb(210, 105, 30),                 // Chocolate
             RowBackColor = Color.White,
             RowForeColor = Color.FromArgb(85, 85, 85),
@@ -5106,8 +4927,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(250, 235, 215),              // Antique White
             DialogForeColor = Color.FromArgb(85, 85, 85),
-            DialogButtonBackColor = Color.FromArgb(205, 133, 63),         // Peru
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(205, 133, 63),         // Peru
+            //DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(255, 248, 220),           // Cornsilk
@@ -5123,14 +4944,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(85, 85, 85),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(222, 184, 135),          // Burlywood
-            SideMenuIconColor = Color.FromArgb(85, 85, 85),
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(85, 85, 85),
+            //SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(139, 69, 19),              // Saddle Brown
-            TitleBarForeColor = Color.White,
-            TitleBarHoverBackColor = Color.FromArgb(160, 82, 45),         // Sienna
-            TitleBarHoverForeColor = Color.White,
+            //TitleBarBackColor = Color.FromArgb(139, 69, 19),              // Saddle Brown
+            //TitleBarForeColor = Color.White,
+            //TitleBarHoverBackColor = Color.FromArgb(160, 82, 45),         // Sienna
+            //TitleBarHoverForeColor = Color.White,
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(255, 248, 220),           // Cornsilk
@@ -5146,10 +4967,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(85, 85, 85),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(85, 85, 85),
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(85, 85, 85),
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(85, 85, 85),
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.FromArgb(85, 85, 85),
+            //SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(255, 248, 220),          // Cornsilk
@@ -5548,92 +5369,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(139, 69, 19),              // Saddle Brown
-            MaxButtonColor = Color.FromArgb(85, 107, 47),                // Dark Olive Green
-            MinButtonColor = Color.FromArgb(160, 82, 45),                // Sienna
-            TitleBarColor = Color.FromArgb(210, 180, 140),               // Tan
-            TitleBarTextColor = Color.FromArgb(34, 139, 34),             // Forest Green
-            TitleBarIconColor = Color.FromArgb(139, 69, 19),             // Saddle Brown
-            TitleBarHoverColor = Color.FromArgb(222, 184, 135),          // Burlywood
-            TitleBarHoverTextColor = Color.FromArgb(85, 107, 47),        // Dark Olive Green
-            TitleBarHoverIconColor = Color.FromArgb(160, 82, 45),        // Sienna
-            TitleBarActiveColor = Color.FromArgb(210, 180, 140),         // Tan
-            TitleBarActiveTextColor = Color.FromArgb(34, 139, 34),       // Forest Green
-            TitleBarActiveIconColor = Color.FromArgb(139, 69, 19),       // Saddle Brown
-            TitleBarInactiveColor = Color.FromArgb(188, 143, 143),       // Rosy Brown
-            TitleBarInactiveTextColor = Color.FromArgb(85, 107, 47),     // Dark Olive Green
-            TitleBarInactiveIconColor = Color.FromArgb(160, 82, 45),     // Sienna
-            TitleBarBorderColor = Color.FromArgb(85, 107, 47),           // Dark Olive Green
-            TitleBarBorderHoverColor = Color.FromArgb(160, 82, 45),      // Sienna
-            TitleBarBorderActiveColor = Color.FromArgb(34, 139, 34),     // Forest Green
-            TitleBarBorderInactiveColor = Color.FromArgb(188, 143, 143), // Rosy Brown
+            //CloseButtonColor = Color.FromArgb(139, 69, 19),              // Saddle Brown
+            ////MaxButtonColor = Color.FromArgb(85, 107, 47),                // Dark Olive Green
+            //MinButtonColor = Color.FromArgb(160, 82, 45),                // Sienna
+            //TitleBarColor = Color.FromArgb(210, 180, 140),               // Tan
+            //TitleBarTextColor = Color.FromArgb(34, 139, 34),             // Forest Green
+            //TitleBarIconColor = Color.FromArgb(139, 69, 19),             // Saddle Brown
+            //TitleBarHoverColor = Color.FromArgb(222, 184, 135),          // Burlywood
+            //TitleBarHoverTextColor = Color.FromArgb(85, 107, 47),        // Dark Olive Green
+            //TitleBarHoverIconColor = Color.FromArgb(160, 82, 45),        // Sienna
+            //TitleBarActiveColor = Color.FromArgb(210, 180, 140),         // Tan
+            //TitleBarActiveTextColor = Color.FromArgb(34, 139, 34),       // Forest Green
+            //TitleBarActiveIconColor = Color.FromArgb(139, 69, 19),       // Saddle Brown
+            //TitleBarInactiveColor = Color.FromArgb(188, 143, 143),       // Rosy Brown
+            //TitleBarInactiveTextColor = Color.FromArgb(85, 107, 47),     // Dark Olive Green
+            //TitleBarInactiveIconColor = Color.FromArgb(160, 82, 45),     // Sienna
+            //TitleBarBorderColor = Color.FromArgb(85, 107, 47),           // Dark Olive Green
+            //TitleBarBorderHoverColor = Color.FromArgb(160, 82, 45),      // Sienna
+            //TitleBarBorderActiveColor = Color.FromArgb(34, 139, 34),     // Forest Green
+            //TitleBarBorderInactiveColor = Color.FromArgb(188, 143, 143), // Rosy Brown
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(218, 165, 32),      // Goldenrod
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(184, 134, 11),     // Dark Goldenrod
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(188, 143, 143),  // Rosy Brown
-            TitleBarCloseInactiveTextColor = Color.White,
-            TitleBarCloseInactiveIconColor = Color.White,
-            TitleBarCloseBorderColor = Color.FromArgb(85, 107, 47),      // Dark Olive Green
-            TitleBarCloseBorderHoverColor = Color.FromArgb(160, 82, 45), // Sienna
-            TitleBarCloseBorderActiveColor = Color.FromArgb(34, 139, 34), // Forest Green
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(188, 143, 143), // Rosy Brown
+            //TitleBarCloseHoverColor = Color.FromArgb(218, 165, 32),      // Goldenrod
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(184, 134, 11),     // Dark Goldenrod
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(188, 143, 143),  // Rosy Brown
+            //TitleBarCloseInactiveTextColor = Color.White,
+            //TitleBarCloseInactiveIconColor = Color.White,
+            //TitleBarCloseBorderColor = Color.FromArgb(85, 107, 47),      // Dark Olive Green
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(160, 82, 45), // Sienna
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(34, 139, 34), // Forest Green
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(188, 143, 143), // Rosy Brown
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(222, 184, 135),       // Burlywood
-            TitleBarMaxHoverTextColor = Color.FromArgb(85, 107, 47),     // Dark Olive Green
-            TitleBarMaxHoverIconColor = Color.FromArgb(85, 107, 47),
-            TitleBarMaxActiveColor = Color.FromArgb(210, 180, 140),      // Tan
-            TitleBarMaxActiveTextColor = Color.FromArgb(34, 139, 34),    // Forest Green
-            TitleBarMaxActiveIconColor = Color.FromArgb(34, 139, 34),
-            TitleBarMaxInactiveColor = Color.FromArgb(188, 143, 143),    // Rosy Brown
-            TitleBarMaxInactiveTextColor = Color.FromArgb(85, 107, 47),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(85, 107, 47),
-            TitleBarMaxBorderColor = Color.FromArgb(85, 107, 47),        // Dark Olive Green
-            TitleBarMaxBorderHoverColor = Color.FromArgb(160, 82, 45),   // Sienna
-            TitleBarMaxBorderActiveColor = Color.FromArgb(34, 139, 34),  // Forest Green
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(188, 143, 143), // Rosy Brown
+            //TitleBarMaxHoverColor = Color.FromArgb(222, 184, 135),       // Burlywood
+            //TitleBarMaxHoverTextColor = Color.FromArgb(85, 107, 47),     // Dark Olive Green
+            //TitleBarMaxHoverIconColor = Color.FromArgb(85, 107, 47),
+            //TitleBarMaxActiveColor = Color.FromArgb(210, 180, 140),      // Tan
+            //TitleBarMaxActiveTextColor = Color.FromArgb(34, 139, 34),    // Forest Green
+            //TitleBarMaxActiveIconColor = Color.FromArgb(34, 139, 34),
+            //TitleBarMaxInactiveColor = Color.FromArgb(188, 143, 143),    // Rosy Brown
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(85, 107, 47),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(85, 107, 47),
+            //TitleBarMaxBorderColor = Color.FromArgb(85, 107, 47),        // Dark Olive Green
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(160, 82, 45),   // Sienna
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(34, 139, 34),  // Forest Green
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(188, 143, 143), // Rosy Brown
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(222, 184, 135),       // Burlywood
-            TitleBarMinHoverTextColor = Color.FromArgb(85, 107, 47),     // Dark Olive Green
-            TitleBarMinHoverIconColor = Color.FromArgb(85, 107, 47),
-            TitleBarMinActiveColor = Color.FromArgb(210, 180, 140),      // Tan
-            TitleBarMinActiveTextColor = Color.FromArgb(34, 139, 34),    // Forest Green
-            TitleBarMinActiveIconColor = Color.FromArgb(34, 139, 34),
-            TitleBarMinInactiveColor = Color.FromArgb(188, 143, 143),    // Rosy Brown
-            TitleBarMinInactiveTextColor = Color.FromArgb(85, 107, 47),
-            TitleBarMinInactiveIconColor = Color.FromArgb(85, 107, 47),
-            TitleBarMinBorderColor = Color.FromArgb(85, 107, 47),        // Dark Olive Green
-            TitleBarMinBorderHoverColor = Color.FromArgb(160, 82, 45),   // Sienna
-            TitleBarMinBorderActiveColor = Color.FromArgb(34, 139, 34),  // Forest Green
-            TitleBarMinBorderInactiveColor = Color.FromArgb(188, 143, 143), // Rosy Brown
+            //TitleBarMinHoverColor = Color.FromArgb(222, 184, 135),       // Burlywood
+            //TitleBarMinHoverTextColor = Color.FromArgb(85, 107, 47),     // Dark Olive Green
+            //TitleBarMinHoverIconColor = Color.FromArgb(85, 107, 47),
+            //TitleBarMinActiveColor = Color.FromArgb(210, 180, 140),      // Tan
+            //TitleBarMinActiveTextColor = Color.FromArgb(34, 139, 34),    // Forest Green
+            //TitleBarMinActiveIconColor = Color.FromArgb(34, 139, 34),
+            //TitleBarMinInactiveColor = Color.FromArgb(188, 143, 143),    // Rosy Brown
+            //TitleBarMinInactiveTextColor = Color.FromArgb(85, 107, 47),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(85, 107, 47),
+            //TitleBarMinBorderColor = Color.FromArgb(85, 107, 47),        // Dark Olive Green
+            //TitleBarMinBorderHoverColor = Color.FromArgb(160, 82, 45),   // Sienna
+            //TitleBarMinBorderActiveColor = Color.FromArgb(34, 139, 34),  // Forest Green
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(188, 143, 143), // Rosy Brown
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(222, 184, 135),  // Burlywood
-            TitleBarMinimizeHoverTextColor = Color.FromArgb(85, 107, 47),
-            TitleBarMinimizeHoverIconColor = Color.FromArgb(85, 107, 47),
-            TitleBarMinimizeActiveColor = Color.FromArgb(210, 180, 140), // Tan
-            TitleBarMinimizeActiveTextColor = Color.FromArgb(34, 139, 34),
-            TitleBarMinimizeActiveIconColor = Color.FromArgb(34, 139, 34),
-            TitleBarMinimizeInactiveColor = Color.FromArgb(188, 143, 143), // Rosy Brown
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(85, 107, 47),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(85, 107, 47),
-            TitleBarMinimizeBorderColor = Color.FromArgb(85, 107, 47),   // Dark Olive Green
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(160, 82, 45), // Sienna
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(34, 139, 34), // Forest Green
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(188, 143, 143), // Rosy Brown
+            //TitleBarMinimizeHoverColor = Color.FromArgb(222, 184, 135),  // Burlywood
+            //TitleBarMinimizeHoverTextColor = Color.FromArgb(85, 107, 47),
+            //TitleBarMinimizeHoverIconColor = Color.FromArgb(85, 107, 47),
+            //TitleBarMinimizeActiveColor = Color.FromArgb(210, 180, 140), // Tan
+            //TitleBarMinimizeActiveTextColor = Color.FromArgb(34, 139, 34),
+            //TitleBarMinimizeActiveIconColor = Color.FromArgb(34, 139, 34),
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(188, 143, 143), // Rosy Brown
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(85, 107, 47),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(85, 107, 47),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(85, 107, 47),   // Dark Olive Green
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(160, 82, 45), // Sienna
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(34, 139, 34), // Forest Green
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(188, 143, 143), // Rosy Brown
 
             // **General Colors**
-            TitleForColor = Color.White,                 // Dark Olive Green
-            TitleBarForColor = Color.FromArgb(139, 69, 19),              // Saddle Brown
-            DescriptionForColor = Color.FromArgb(160, 82, 45),           // Sienna
-            BeforeForColor = Color.FromArgb(222, 184, 135),              // Burlywood
-            LatestForColor = Color.FromArgb(218, 165, 32),               // Goldenrod
+            //TitleForColor = Color.White,                 // Dark Olive Green
+            //TitleBarForColor = Color.FromArgb(139, 69, 19),              // Saddle Brown
+            //DescriptionForColor = Color.FromArgb(160, 82, 45),           // Sienna
+            //BeforeForColor = Color.FromArgb(222, 184, 135),              // Burlywood
+            ////LatestForColor = Color.FromArgb(218, 165, 32),               // Goldenrod
             BackColor = Color.FromArgb(245, 245, 220),                   // Beige
 
             // **Button Colors**
@@ -5641,8 +5462,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.White,
             ButtonHoverBackColor = Color.FromArgb(160, 82, 45),          // Sienna
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(85, 107, 47),         // Dark Olive Green
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(85, 107, 47),         // Dark Olive Green
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
@@ -5657,8 +5478,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(210, 180, 140),             // Tan
-            HeaderForeColor = Color.FromArgb(85, 85, 85),
+            //HeaderBackColor = Color.FromArgb(210, 180, 140),             // Tan
+            //HeaderForeColor = Color.FromArgb(85, 85, 85),
             GridLineColor = Color.FromArgb(160, 82, 45),                 // Sienna
             RowBackColor = Color.White,
             RowForeColor = Color.FromArgb(85, 85, 85),
@@ -5713,8 +5534,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(222, 184, 135),             // Burlywood
             DialogForeColor = Color.FromArgb(85, 85, 85),
-            DialogButtonBackColor = Color.FromArgb(139, 69, 19),         // Saddle Brown
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(139, 69, 19),         // Saddle Brown
+            //DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(245, 245, 220),          // Beige
@@ -5730,14 +5551,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(85, 85, 85),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(160, 82, 45),           // Sienna
-            SideMenuIconColor = Color.FromArgb(85, 85, 85),
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(85, 85, 85),
+            //SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(139, 69, 19),             // Saddle Brown
-            TitleBarForeColor = Color.White,
-            TitleBarHoverBackColor = Color.FromArgb(160, 82, 45),        // Sienna
-            TitleBarHoverForeColor = Color.White,
+            //TitleBarBackColor = Color.FromArgb(139, 69, 19),             // Saddle Brown
+            //TitleBarForeColor = Color.White,
+            //TitleBarHoverBackColor = Color.FromArgb(160, 82, 45),        // Sienna
+            //TitleBarHoverForeColor = Color.White,
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(245, 245, 220),          // Beige
@@ -5753,10 +5574,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(85, 85, 85),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(85, 85, 85),
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.White,
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(85, 85, 85),
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.White,
+            //SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(245, 245, 220),         // Beige
@@ -6155,92 +5976,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(240, 248, 255),        // AliceBlue
-            MaxButtonColor = Color.FromArgb(176, 196, 222),          // LightSteelBlue
-            MinButtonColor = Color.FromArgb(135, 206, 250),          // LightSkyBlue
-            TitleBarColor = Color.FromArgb(173, 216, 230),           // LightBlue
-            TitleBarTextColor = Color.FromArgb(0, 0, 139),           // DarkBlue
-            TitleBarIconColor = Color.FromArgb(0, 191, 255),         // DeepSkyBlue
-            TitleBarHoverColor = Color.FromArgb(70, 130, 180),       // SteelBlue
-            TitleBarHoverTextColor = Color.White,
-            TitleBarHoverIconColor = Color.White,
-            TitleBarActiveColor = Color.FromArgb(0, 191, 255),       // DeepSkyBlue
-            TitleBarActiveTextColor = Color.White,
-            TitleBarActiveIconColor = Color.White,
-            TitleBarInactiveColor = Color.FromArgb(173, 216, 230),   // LightBlue
-            TitleBarInactiveTextColor = Color.FromArgb(70, 130, 180),// SteelBlue
-            TitleBarInactiveIconColor = Color.FromArgb(70, 130, 180),// SteelBlue
-            TitleBarBorderColor = Color.FromArgb(176, 196, 222),     // LightSteelBlue
-            TitleBarBorderHoverColor = Color.FromArgb(0, 191, 255),  // DeepSkyBlue
-            TitleBarBorderActiveColor = Color.FromArgb(70, 130, 180),// SteelBlue
-            TitleBarBorderInactiveColor = Color.FromArgb(176, 196, 222), // LightSteelBlue
+            //CloseButtonColor = Color.FromArgb(240, 248, 255),        // AliceBlue
+            ////MaxButtonColor = Color.FromArgb(176, 196, 222),          // LightSteelBlue
+            //MinButtonColor = Color.FromArgb(135, 206, 250),          // LightSkyBlue
+            //TitleBarColor = Color.FromArgb(173, 216, 230),           // LightBlue
+            //TitleBarTextColor = Color.FromArgb(0, 0, 139),           // DarkBlue
+            //TitleBarIconColor = Color.FromArgb(0, 191, 255),         // DeepSkyBlue
+            //TitleBarHoverColor = Color.FromArgb(70, 130, 180),       // SteelBlue
+            //TitleBarHoverTextColor = Color.White,
+            //TitleBarHoverIconColor = Color.White,
+            //TitleBarActiveColor = Color.FromArgb(0, 191, 255),       // DeepSkyBlue
+            //TitleBarActiveTextColor = Color.White,
+            //TitleBarActiveIconColor = Color.White,
+            //TitleBarInactiveColor = Color.FromArgb(173, 216, 230),   // LightBlue
+            //TitleBarInactiveTextColor = Color.FromArgb(70, 130, 180),// SteelBlue
+            //TitleBarInactiveIconColor = Color.FromArgb(70, 130, 180),// SteelBlue
+            //TitleBarBorderColor = Color.FromArgb(176, 196, 222),     // LightSteelBlue
+            //TitleBarBorderHoverColor = Color.FromArgb(0, 191, 255),  // DeepSkyBlue
+            //TitleBarBorderActiveColor = Color.FromArgb(70, 130, 180),// SteelBlue
+            //TitleBarBorderInactiveColor = Color.FromArgb(176, 196, 222), // LightSteelBlue
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(255, 69, 0),    // Red
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(178, 34, 34),   // Firebrick
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(173, 216, 230),   // LightBlue
-            TitleBarCloseInactiveTextColor = Color.FromArgb(70, 130, 180),// SteelBlue
-            TitleBarCloseInactiveIconColor = Color.FromArgb(70, 130, 180),// SteelBlue
-            TitleBarCloseBorderColor = Color.FromArgb(176, 196, 222),     // LightSteelBlue
-            TitleBarCloseBorderHoverColor = Color.FromArgb(255, 69, 0),   // Red
-            TitleBarCloseBorderActiveColor = Color.FromArgb(178, 34, 34), // Firebrick
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(176, 196, 222), // LightSteelBlue
+            //TitleBarCloseHoverColor = Color.FromArgb(255, 69, 0),    // Red
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(178, 34, 34),   // Firebrick
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(173, 216, 230),   // LightBlue
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(70, 130, 180),// SteelBlue
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(70, 130, 180),// SteelBlue
+            //TitleBarCloseBorderColor = Color.FromArgb(176, 196, 222),     // LightSteelBlue
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(255, 69, 0),   // Red
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(178, 34, 34), // Firebrick
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(176, 196, 222), // LightSteelBlue
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(70, 130, 180),       // SteelBlue
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(0, 191, 255),       // DeepSkyBlue
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(173, 216, 230),   // LightBlue
-            TitleBarMaxInactiveTextColor = Color.FromArgb(70, 130, 180),// SteelBlue
-            TitleBarMaxInactiveIconColor = Color.FromArgb(70, 130, 180),// SteelBlue
-            TitleBarMaxBorderColor = Color.FromArgb(176, 196, 222),     // LightSteelBlue
-            TitleBarMaxBorderHoverColor = Color.FromArgb(0, 191, 255),  // DeepSkyBlue
-            TitleBarMaxBorderActiveColor = Color.FromArgb(70, 130, 180),// SteelBlue
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(176, 196, 222), // LightSteelBlue
+            //TitleBarMaxHoverColor = Color.FromArgb(70, 130, 180),       // SteelBlue
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(0, 191, 255),       // DeepSkyBlue
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(173, 216, 230),   // LightBlue
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(70, 130, 180),// SteelBlue
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(70, 130, 180),// SteelBlue
+            //TitleBarMaxBorderColor = Color.FromArgb(176, 196, 222),     // LightSteelBlue
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(0, 191, 255),  // DeepSkyBlue
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(70, 130, 180),// SteelBlue
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(176, 196, 222), // LightSteelBlue
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(70, 130, 180),       // SteelBlue
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(0, 191, 255),       // DeepSkyBlue
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(173, 216, 230),   // LightBlue
-            TitleBarMinInactiveTextColor = Color.FromArgb(70, 130, 180),// SteelBlue
-            TitleBarMinInactiveIconColor = Color.FromArgb(70, 130, 180),// SteelBlue
-            TitleBarMinBorderColor = Color.FromArgb(176, 196, 222),     // LightSteelBlue
-            TitleBarMinBorderHoverColor = Color.FromArgb(0, 191, 255),  // DeepSkyBlue
-            TitleBarMinBorderActiveColor = Color.FromArgb(70, 130, 180),// SteelBlue
-            TitleBarMinBorderInactiveColor = Color.FromArgb(176, 196, 222), // LightSteelBlue
+            //TitleBarMinHoverColor = Color.FromArgb(70, 130, 180),       // SteelBlue
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(0, 191, 255),       // DeepSkyBlue
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(173, 216, 230),   // LightBlue
+            //TitleBarMinInactiveTextColor = Color.FromArgb(70, 130, 180),// SteelBlue
+            //TitleBarMinInactiveIconColor = Color.FromArgb(70, 130, 180),// SteelBlue
+            //TitleBarMinBorderColor = Color.FromArgb(176, 196, 222),     // LightSteelBlue
+            //TitleBarMinBorderHoverColor = Color.FromArgb(0, 191, 255),  // DeepSkyBlue
+            //TitleBarMinBorderActiveColor = Color.FromArgb(70, 130, 180),// SteelBlue
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(176, 196, 222), // LightSteelBlue
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(70, 130, 180),  // SteelBlue
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(0, 191, 255),  // DeepSkyBlue
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(173, 216, 230), // LightBlue
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(70, 130, 180),// SteelBlue
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(70, 130, 180),// SteelBlue
-            TitleBarMinimizeBorderColor = Color.FromArgb(176, 196, 222),   // LightSteelBlue
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(0, 191, 255),// DeepSkyBlue
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(70, 130, 180),// SteelBlue
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(176, 196, 222), // LightSteelBlue
+            //TitleBarMinimizeHoverColor = Color.FromArgb(70, 130, 180),  // SteelBlue
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(0, 191, 255),  // DeepSkyBlue
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(173, 216, 230), // LightBlue
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(70, 130, 180),// SteelBlue
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(70, 130, 180),// SteelBlue
+            //TitleBarMinimizeBorderColor = Color.FromArgb(176, 196, 222),   // LightSteelBlue
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(0, 191, 255),// DeepSkyBlue
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(70, 130, 180),// SteelBlue
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(176, 196, 222), // LightSteelBlue
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(70, 130, 180),       // SteelBlue
-            TitleBarForColor = Color.FromArgb(176, 196, 222),   // LightSteelBlue
-            DescriptionForColor = Color.FromArgb(176, 196, 222), // LightSteelBlue
-            BeforeForColor = Color.FromArgb(211, 211, 211),     // Light Gray
-            LatestForColor = Color.FromArgb(192, 192, 192),     // Silver
+            //TitleForColor = Color.FromArgb(70, 130, 180),       // SteelBlue
+            //TitleBarForColor = Color.FromArgb(176, 196, 222),   // LightSteelBlue
+            //DescriptionForColor = Color.FromArgb(176, 196, 222), // LightSteelBlue
+            //BeforeForColor = Color.FromArgb(211, 211, 211),     // Light Gray
+            //LatestForColor = Color.FromArgb(192, 192, 192),     // Silver
             BackColor = Color.FromArgb(70, 130, 180), // SteelBlue     // White Smoke background
 
             // **Button Colors**
@@ -6248,8 +6069,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.White,
             ButtonHoverBackColor = Color.FromArgb(70, 130, 180), // SteelBlue
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(65, 105, 225), // RoyalBlue
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(65, 105, 225), // RoyalBlue
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
@@ -6264,8 +6085,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(176, 196, 222),    // LightSteelBlue
-            HeaderForeColor = Color.FromArgb(60, 60, 60),
+            //HeaderBackColor = Color.FromArgb(176, 196, 222),    // LightSteelBlue
+            //HeaderForeColor = Color.FromArgb(60, 60, 60),
             GridLineColor = Color.FromArgb(211, 211, 211),      // Light Gray
             RowBackColor = Color.White,
             RowForeColor = Color.FromArgb(60, 60, 60),
@@ -6320,8 +6141,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(230, 230, 250),    // Lavender
             DialogForeColor = Color.FromArgb(60, 60, 60),
-            DialogButtonBackColor = Color.FromArgb(135, 206, 250),
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(135, 206, 250),
+            //DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(245, 245, 245), // White Smoke
@@ -6337,14 +6158,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(60, 60, 60),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(211, 211, 211),
-            SideMenuIconColor = Color.FromArgb(60, 60, 60),
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(60, 60, 60),
+            //SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(176, 196, 222), // SteelBlue
-            TitleBarForeColor = Color.White,
-            TitleBarHoverBackColor = Color.FromArgb(65, 105, 225), // RoyalBlue
-            TitleBarHoverForeColor = Color.White,
+            //TitleBarBackColor = Color.FromArgb(176, 196, 222), // SteelBlue
+            //TitleBarForeColor = Color.White,
+            //TitleBarHoverBackColor = Color.FromArgb(65, 105, 225), // RoyalBlue
+            //TitleBarHoverForeColor = Color.White,
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(245, 245, 245),
@@ -6360,10 +6181,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(60, 60, 60),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(60, 60, 60),
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(60, 60, 60),
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(60, 60, 60),
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.FromArgb(60, 60, 60),
+            //SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(245, 245, 245),
@@ -6765,92 +6586,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // Title Bar and Window Controls
-            CloseButtonColor = Color.FromArgb(255, 182, 193),     // Light Pink
-            MaxButtonColor = Color.FromArgb(144, 238, 144),       // Light Green
-            MinButtonColor = Color.FromArgb(255, 192, 203),       // Pale Pink
-            TitleBarColor = Color.FromArgb(152, 251, 152),        // Pale Green
-            TitleBarTextColor = Color.FromArgb(34, 139, 34),      // Forest Green
-            TitleBarIconColor = Color.FromArgb(60, 179, 113),     // Medium Sea Green
-            TitleBarHoverColor = Color.FromArgb(144, 238, 144),   // Light Green
-            TitleBarHoverTextColor = Color.White,
-            TitleBarHoverIconColor = Color.White,
-            TitleBarActiveColor = Color.FromArgb(60, 179, 113),   // Medium Sea Green
-            TitleBarActiveTextColor = Color.White,
-            TitleBarActiveIconColor = Color.White,
-            TitleBarInactiveColor = Color.FromArgb(245, 255, 245), // Light Mint
-            TitleBarInactiveTextColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
-            TitleBarInactiveIconColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
-            TitleBarBorderColor = Color.FromArgb(144, 238, 144),     // Light Green
-            TitleBarBorderHoverColor = Color.FromArgb(102, 205, 170), // Medium Aquamarine
-            TitleBarBorderActiveColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
-            TitleBarBorderInactiveColor = Color.FromArgb(245, 255, 245), // Light Mint
+            //CloseButtonColor = Color.FromArgb(255, 182, 193),     // Light Pink
+            //MaxButtonColor = Color.FromArgb(144, 238, 144),       // Light Green
+            //MinButtonColor = Color.FromArgb(255, 192, 203),       // Pale Pink
+            //TitleBarColor = Color.FromArgb(152, 251, 152),        // Pale Green
+            //TitleBarTextColor = Color.FromArgb(34, 139, 34),      // Forest Green
+            //TitleBarIconColor = Color.FromArgb(60, 179, 113),     // Medium Sea Green
+            //TitleBarHoverColor = Color.FromArgb(144, 238, 144),   // Light Green
+            //TitleBarHoverTextColor = Color.White,
+            //TitleBarHoverIconColor = Color.White,
+            //TitleBarActiveColor = Color.FromArgb(60, 179, 113),   // Medium Sea Green
+            //TitleBarActiveTextColor = Color.White,
+            //TitleBarActiveIconColor = Color.White,
+            //TitleBarInactiveColor = Color.FromArgb(245, 255, 245), // Light Mint
+            //TitleBarInactiveTextColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
+            //TitleBarInactiveIconColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
+            //TitleBarBorderColor = Color.FromArgb(144, 238, 144),     // Light Green
+            //TitleBarBorderHoverColor = Color.FromArgb(102, 205, 170), // Medium Aquamarine
+            //TitleBarBorderActiveColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
+            //TitleBarBorderInactiveColor = Color.FromArgb(245, 255, 245), // Light Mint
 
             // Close Button States
-            TitleBarCloseHoverColor = Color.FromArgb(255, 105, 180),    // Hot Pink
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(219, 112, 147),   // Pale Violet Red
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(255, 192, 203), // Pale Pink
-            TitleBarCloseInactiveTextColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
-            TitleBarCloseInactiveIconColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
-            TitleBarCloseBorderColor = Color.FromArgb(255, 182, 193),   // Light Pink
-            TitleBarCloseBorderHoverColor = Color.FromArgb(255, 105, 180), // Hot Pink
-            TitleBarCloseBorderActiveColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(255, 192, 203), // Pale Pink
+            //TitleBarCloseHoverColor = Color.FromArgb(255, 105, 180),    // Hot Pink
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(219, 112, 147),   // Pale Violet Red
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(255, 192, 203), // Pale Pink
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
+            //TitleBarCloseBorderColor = Color.FromArgb(255, 182, 193),   // Light Pink
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(255, 105, 180), // Hot Pink
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(255, 192, 203), // Pale Pink
 
             // Maximize Button States
-            TitleBarMaxHoverColor = Color.FromArgb(144, 238, 144),      // Light Green
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(60, 179, 113),      // Medium Sea Green
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(245, 255, 245),   // Light Mint
-            TitleBarMaxInactiveTextColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
-            TitleBarMaxInactiveIconColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
-            TitleBarMaxBorderColor = Color.FromArgb(144, 238, 144),     // Light Green
-            TitleBarMaxBorderHoverColor = Color.FromArgb(102, 205, 170), // Medium Aquamarine
-            TitleBarMaxBorderActiveColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(245, 255, 245), // Light Mint
+            //TitleBarMaxHoverColor = Color.FromArgb(144, 238, 144),      // Light Green
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(60, 179, 113),      // Medium Sea Green
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(245, 255, 245),   // Light Mint
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
+            //TitleBarMaxBorderColor = Color.FromArgb(144, 238, 144),     // Light Green
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(102, 205, 170), // Medium Aquamarine
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(60, 179, 113), // Medium Sea Green
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(245, 255, 245), // Light Mint
 
             // Minimize Button States
-            TitleBarMinHoverColor = Color.FromArgb(255, 182, 193),      // Light Pink
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(255, 105, 180),     // Hot Pink
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(255, 192, 203),   // Pale Pink
-            TitleBarMinInactiveTextColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
-            TitleBarMinInactiveIconColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
-            TitleBarMinBorderColor = Color.FromArgb(255, 182, 193),     // Light Pink
-            TitleBarMinBorderHoverColor = Color.FromArgb(255, 105, 180), // Hot Pink
-            TitleBarMinBorderActiveColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
-            TitleBarMinBorderInactiveColor = Color.FromArgb(255, 192, 203), // Pale Pink
+            //TitleBarMinHoverColor = Color.FromArgb(255, 182, 193),      // Light Pink
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(255, 105, 180),     // Hot Pink
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(255, 192, 203),   // Pale Pink
+            //TitleBarMinInactiveTextColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
+            //TitleBarMinInactiveIconColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
+            //TitleBarMinBorderColor = Color.FromArgb(255, 182, 193),     // Light Pink
+            //TitleBarMinBorderHoverColor = Color.FromArgb(255, 105, 180), // Hot Pink
+            //TitleBarMinBorderActiveColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(255, 192, 203), // Pale Pink
 
             // Alternative Minimize Button States
-            TitleBarMinimizeHoverColor = Color.FromArgb(255, 182, 193),  // Light Pink
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(255, 105, 180), // Hot Pink
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(255, 192, 203), // Pale Pink
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
-            TitleBarMinimizeBorderColor = Color.FromArgb(255, 182, 193),   // Light Pink
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(255, 105, 180), // Hot Pink
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(255, 192, 203), // Pale Pink
+            //TitleBarMinimizeHoverColor = Color.FromArgb(255, 182, 193),  // Light Pink
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(255, 105, 180), // Hot Pink
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(255, 192, 203), // Pale Pink
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
+            //TitleBarMinimizeBorderColor = Color.FromArgb(255, 182, 193),   // Light Pink
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(255, 105, 180), // Hot Pink
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(255, 192, 203), // Pale Pink
 
             // General Colors
-            TitleForColor = Color.FromArgb(60, 179, 113),          // Medium Sea Green
-            TitleBarForColor = Color.FromArgb(102, 205, 170),      // Medium Aquamarine
-            DescriptionForColor = Color.FromArgb(144, 238, 144),   // Light Green
-            BeforeForColor = Color.FromArgb(255, 192, 203),        // Pale Pink
-            LatestForColor = Color.FromArgb(255, 182, 193),        // Light Pink
+            //TitleForColor = Color.FromArgb(60, 179, 113),          // Medium Sea Green
+            //TitleBarForColor = Color.FromArgb(102, 205, 170),      // Medium Aquamarine
+            //DescriptionForColor = Color.FromArgb(144, 238, 144),   // Light Green
+            //BeforeForColor = Color.FromArgb(255, 192, 203),        // Pale Pink
+            //LatestForColor = Color.FromArgb(255, 182, 193),        // Light Pink
             BackColor = Color.FromArgb(245, 255, 245),             // Light Mint
 
             // Button Colors
@@ -6858,8 +6679,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(34, 139, 34),         // Forest Green
             ButtonHoverBackColor = Color.FromArgb(60, 179, 113),   // Medium Sea Green
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(46, 139, 87),   // Sea Green
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(46, 139, 87),   // Sea Green
+            //ButtonActiveForeColor = Color.White,
 
             // TextBox Colors
             TextBoxBackColor = Color.FromArgb(245, 255, 245),      // Light Mint
@@ -6873,8 +6694,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             PanelBackColor = Color.FromArgb(144, 238, 144),        // Light Green
 
             // Grid Colors
-            HeaderBackColor = Color.FromArgb(152, 251, 152),       // Pale Green
-            HeaderForeColor = Color.FromArgb(34, 139, 34),         // Forest Green
+            //HeaderBackColor = Color.FromArgb(152, 251, 152),       // Pale Green
+            //HeaderForeColor = Color.FromArgb(34, 139, 34),         // Forest Green
             GridLineColor = Color.FromArgb(144, 238, 144),         // Light Green
             RowBackColor = Color.FromArgb(245, 255, 245),          // Light Mint
             RowForeColor = Color.FromArgb(34, 139, 34),            // Forest Green
@@ -6929,8 +6750,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // Dialog Box Colors
             DialogBackColor = Color.FromArgb(245, 255, 245),       // Light Mint
             DialogForeColor = Color.FromArgb(34, 139, 34),         // Forest Green
-            DialogButtonBackColor = Color.FromArgb(144, 238, 144), // Light Green
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(144, 238, 144), // Light Green
+            //DialogButtonForeColor = Color.White,
 
             // Gradient Properties
             GradientStartColor = Color.FromArgb(245, 255, 245),    // Light Mint
@@ -6945,14 +6766,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(34, 139, 34),   // Forest Green
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(152, 251, 152),    // Pale Green
-            SideMenuIconColor = Color.FromArgb(245, 255, 245),      // Light Mint
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(245, 255, 245),      // Light Mint
+            //SideMenuSelectedIconColor = Color.White,
 
             // Title Bar Colors (Repeated Properties)
-            TitleBarBackColor = Color.FromArgb(60, 179, 113),      // Medium Sea Green
-            TitleBarForeColor = Color.White,
-            TitleBarHoverBackColor = Color.FromArgb(46, 139, 87),  // Sea Green
-            TitleBarHoverForeColor = Color.White,
+            //TitleBarBackColor = Color.FromArgb(60, 179, 113),      // Medium Sea Green
+            //TitleBarForeColor = Color.White,
+            //TitleBarHoverBackColor = Color.FromArgb(46, 139, 87),  // Sea Green
+            //TitleBarHoverForeColor = Color.White,
 
             // Dashboard Colors
             DashboardBackColor = Color.FromArgb(245, 255, 245),    // Light Mint
@@ -6968,10 +6789,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(34, 139, 34),          // Forest Green
 
             // Sidebar and Menu Colors
-            SidebarIconColor = Color.FromArgb(34, 139, 34),        // Forest Green
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(34, 139, 34),        // Forest Green
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(34, 139, 34),        // Forest Green
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.FromArgb(34, 139, 34),        // Forest Green
+            //SidebarSelectedTextColor = Color.White,
 
             // Navigation Colors
             NavigationBackColor = Color.FromArgb(245, 255, 245),   // Light Mint
@@ -7350,92 +7171,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(255, 160, 122),        // Light Salmon
-            MaxButtonColor = Color.FromArgb(255, 182, 193),          // Light Pink
-            MinButtonColor = Color.FromArgb(255, 192, 203),          // Pink
-            TitleBarColor = Color.FromArgb(255, 182, 193),           // Light Pink
-            TitleBarTextColor = Color.FromArgb(219, 112, 147),       // Pale Violet Red
-            TitleBarIconColor = Color.FromArgb(238, 130, 238),       // Violet
-            TitleBarHoverColor = Color.FromArgb(255, 105, 180),      // Hot Pink
-            TitleBarHoverTextColor = Color.White,
-            TitleBarHoverIconColor = Color.White,
-            TitleBarActiveColor = Color.FromArgb(238, 130, 238),     // Violet
-            TitleBarActiveTextColor = Color.White,
-            TitleBarActiveIconColor = Color.White,
-            TitleBarInactiveColor = Color.FromArgb(255, 240, 245),   // LavenderBlush
-            TitleBarInactiveTextColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
-            TitleBarInactiveIconColor = Color.FromArgb(219, 112, 147),
-            TitleBarBorderColor = Color.FromArgb(255, 160, 122),     // Light Salmon
-            TitleBarBorderHoverColor = Color.FromArgb(238, 130, 238),// Violet
-            TitleBarBorderActiveColor = Color.FromArgb(255, 105, 180),// Hot Pink
-            TitleBarBorderInactiveColor = Color.FromArgb(255, 240, 245), // LavenderBlush
+            //CloseButtonColor = Color.FromArgb(255, 160, 122),        // Light Salmon
+            //MaxButtonColor = Color.FromArgb(255, 182, 193),          // Light Pink
+            //MinButtonColor = Color.FromArgb(255, 192, 203),          // Pink
+            //TitleBarColor = Color.FromArgb(255, 182, 193),           // Light Pink
+            //TitleBarTextColor = Color.FromArgb(219, 112, 147),       // Pale Violet Red
+            //TitleBarIconColor = Color.FromArgb(238, 130, 238),       // Violet
+            //TitleBarHoverColor = Color.FromArgb(255, 105, 180),      // Hot Pink
+            //TitleBarHoverTextColor = Color.White,
+            //TitleBarHoverIconColor = Color.White,
+            //TitleBarActiveColor = Color.FromArgb(238, 130, 238),     // Violet
+            //TitleBarActiveTextColor = Color.White,
+            //TitleBarActiveIconColor = Color.White,
+            //TitleBarInactiveColor = Color.FromArgb(255, 240, 245),   // LavenderBlush
+            //TitleBarInactiveTextColor = Color.FromArgb(219, 112, 147), // Pale Violet Red
+            //TitleBarInactiveIconColor = Color.FromArgb(219, 112, 147),
+            //TitleBarBorderColor = Color.FromArgb(255, 160, 122),     // Light Salmon
+            //TitleBarBorderHoverColor = Color.FromArgb(238, 130, 238),// Violet
+            //TitleBarBorderActiveColor = Color.FromArgb(255, 105, 180),// Hot Pink
+            //TitleBarBorderInactiveColor = Color.FromArgb(255, 240, 245), // LavenderBlush
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(255, 69, 0),    // Red Orange
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(220, 20, 60),  // Crimson
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(255, 160, 122),   // Light Salmon
-            TitleBarCloseInactiveTextColor = Color.FromArgb(219, 112, 147),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(219, 112, 147),
-            TitleBarCloseBorderColor = Color.FromArgb(255, 182, 193),     // Light Pink
-            TitleBarCloseBorderHoverColor = Color.FromArgb(255, 69, 0),   // Red Orange
-            TitleBarCloseBorderActiveColor = Color.FromArgb(220, 20, 60), // Crimson
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(255, 160, 122), // Light Salmon
+            //TitleBarCloseHoverColor = Color.FromArgb(255, 69, 0),    // Red Orange
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(220, 20, 60),  // Crimson
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(255, 160, 122),   // Light Salmon
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(219, 112, 147),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(219, 112, 147),
+            //TitleBarCloseBorderColor = Color.FromArgb(255, 182, 193),     // Light Pink
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(255, 69, 0),   // Red Orange
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(220, 20, 60), // Crimson
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(255, 160, 122), // Light Salmon
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(238, 130, 238),       // Violet
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(221, 160, 221),       // Plum
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(255, 240, 245),     // LavenderBlush
-            TitleBarMaxInactiveTextColor = Color.FromArgb(219, 112, 147),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(219, 112, 147),
-            TitleBarMaxBorderColor = Color.FromArgb(255, 182, 193),       // Light Pink
-            TitleBarMaxBorderHoverColor = Color.FromArgb(238, 130, 238),  // Violet
-            TitleBarMaxBorderActiveColor = Color.FromArgb(221, 160, 221), // Plum
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(255, 240, 245), // LavenderBlush
+            //TitleBarMaxHoverColor = Color.FromArgb(238, 130, 238),       // Violet
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(221, 160, 221),       // Plum
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(255, 240, 245),     // LavenderBlush
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(219, 112, 147),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(219, 112, 147),
+            //TitleBarMaxBorderColor = Color.FromArgb(255, 182, 193),       // Light Pink
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(238, 130, 238),  // Violet
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(221, 160, 221), // Plum
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(255, 240, 245), // LavenderBlush
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(255, 218, 185),       // Peach Puff
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(255, 165, 0),        // Orange
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(255, 240, 245),    // LavenderBlush
-            TitleBarMinInactiveTextColor = Color.FromArgb(219, 112, 147),
-            TitleBarMinInactiveIconColor = Color.FromArgb(219, 112, 147),
-            TitleBarMinBorderColor = Color.FromArgb(255, 182, 193),      // Light Pink
-            TitleBarMinBorderHoverColor = Color.FromArgb(255, 218, 185), // Peach Puff
-            TitleBarMinBorderActiveColor = Color.FromArgb(255, 165, 0),  // Orange
-            TitleBarMinBorderInactiveColor = Color.FromArgb(255, 240, 245), // LavenderBlush
+            //TitleBarMinHoverColor = Color.FromArgb(255, 218, 185),       // Peach Puff
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(255, 165, 0),        // Orange
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(255, 240, 245),    // LavenderBlush
+            //TitleBarMinInactiveTextColor = Color.FromArgb(219, 112, 147),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(219, 112, 147),
+            //TitleBarMinBorderColor = Color.FromArgb(255, 182, 193),      // Light Pink
+            //TitleBarMinBorderHoverColor = Color.FromArgb(255, 218, 185), // Peach Puff
+            //TitleBarMinBorderActiveColor = Color.FromArgb(255, 165, 0),  // Orange
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(255, 240, 245), // LavenderBlush
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(255, 218, 185),  // Peach Puff
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(255, 165, 0),   // Orange
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(255, 240, 245), // LavenderBlush
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(219, 112, 147),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(219, 112, 147),
-            TitleBarMinimizeBorderColor = Color.FromArgb(255, 182, 193),   // Light Pink
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(255, 218, 185),// Peach Puff
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(255, 165, 0),// Orange
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(255, 240, 245), // LavenderBlush
+            //TitleBarMinimizeHoverColor = Color.FromArgb(255, 218, 185),  // Peach Puff
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(255, 165, 0),   // Orange
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(255, 240, 245), // LavenderBlush
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(219, 112, 147),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(219, 112, 147),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(255, 182, 193),   // Light Pink
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(255, 218, 185),// Peach Puff
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(255, 165, 0),// Orange
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(255, 240, 245), // LavenderBlush
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(238, 130, 238),           // Violet
-            TitleBarForColor = Color.FromArgb(255, 160, 122),        // Light Salmon
-            DescriptionForColor = Color.FromArgb(255, 182, 193),     // Light Pink
-            BeforeForColor = Color.FromArgb(255, 105, 180),          // Hot Pink
-            LatestForColor = Color.FromArgb(221, 160, 221),          // Plum
+            //TitleForColor = Color.FromArgb(238, 130, 238),           // Violet
+            //TitleBarForColor = Color.FromArgb(255, 160, 122),        // Light Salmon
+            //DescriptionForColor = Color.FromArgb(255, 182, 193),     // Light Pink
+            //BeforeForColor = Color.FromArgb(255, 105, 180),          // Hot Pink
+            //LatestForColor = Color.FromArgb(221, 160, 221),          // Plum
             BackColor = Color.FromArgb(255, 250, 250),               // Snow background
 
             // **Button Colors**
@@ -7443,8 +7264,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.White,
             ButtonHoverBackColor = Color.FromArgb(255, 105, 180),    // Hot Pink
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(219, 112, 147),   // Pale Violet Red
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(219, 112, 147),   // Pale Violet Red
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
@@ -7458,8 +7279,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             PanelBackColor = Color.FromArgb(230, 230, 250), // Lavender
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(255, 182, 193),         // Light Pink
-            HeaderForeColor = Color.FromArgb(139, 0, 139),
+            //HeaderBackColor = Color.FromArgb(255, 182, 193),         // Light Pink
+            //HeaderForeColor = Color.FromArgb(139, 0, 139),
             GridLineColor = Color.FromArgb(255, 160, 122),           // Light Salmon
             RowBackColor = Color.White,
             RowForeColor = Color.FromArgb(139, 0, 139),
@@ -7514,8 +7335,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(255, 240, 245),         // LavenderBlush
             DialogForeColor = Color.FromArgb(139, 0, 139),
-            DialogButtonBackColor = Color.FromArgb(255, 182, 193),   // Light Pink
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(255, 182, 193),   // Light Pink
+            //DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(255, 250, 250),      // Snow
@@ -7530,14 +7351,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(139, 0, 139),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(255, 182, 193),     // Light Pink
-            SideMenuIconColor = Color.FromArgb(139, 0, 139),
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(139, 0, 139),
+            //SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(255, 105, 180),       // Hot Pink
-            TitleBarForeColor = Color.White,
-            TitleBarHoverBackColor = Color.FromArgb(219, 112, 147),  // Pale Violet Red
-            TitleBarHoverForeColor = Color.White,
+            //TitleBarBackColor = Color.FromArgb(255, 105, 180),       // Hot Pink
+            //TitleBarForeColor = Color.White,
+            //TitleBarHoverBackColor = Color.FromArgb(219, 112, 147),  // Pale Violet Red
+            //TitleBarHoverForeColor = Color.White,
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(255, 250, 250),
@@ -7553,10 +7374,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(139, 0, 139),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(139, 0, 139),
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(139, 0, 139),
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(139, 0, 139),
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.FromArgb(139, 0, 139),
+            //SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(255, 250, 250),
@@ -7955,92 +7776,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(220, 220, 220),        // Light Gray
-            MaxButtonColor = Color.FromArgb(200, 200, 200),          // Lighter Gray
-            MinButtonColor = Color.FromArgb(200, 200, 200),
-            TitleBarColor = Color.FromArgb(245, 245, 245),           // Very Light Gray
-            TitleBarTextColor = Color.FromArgb(60, 60, 60),          // Dark Gray
-            TitleBarIconColor = Color.FromArgb(120, 120, 120),       // Gray
-            TitleBarHoverColor = Color.FromArgb(230, 230, 230),      // Light Gray
-            TitleBarHoverTextColor = Color.FromArgb(60, 60, 60),
-            TitleBarHoverIconColor = Color.FromArgb(60, 60, 60),
-            TitleBarActiveColor = Color.FromArgb(240, 240, 240),     // Slightly Darker Light Gray
-            TitleBarActiveTextColor = Color.FromArgb(60, 60, 60),
-            TitleBarActiveIconColor = Color.FromArgb(60, 60, 60),
-            TitleBarInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarInactiveTextColor = Color.FromArgb(120, 120, 120),
-            TitleBarInactiveIconColor = Color.FromArgb(120, 120, 120),
-            TitleBarBorderColor = Color.FromArgb(200, 200, 200),
-            TitleBarBorderHoverColor = Color.FromArgb(180, 180, 180),
-            TitleBarBorderActiveColor = Color.FromArgb(160, 160, 160),
-            TitleBarBorderInactiveColor = Color.FromArgb(200, 200, 200),
+            //CloseButtonColor = Color.FromArgb(220, 220, 220),        // Light Gray
+            //MaxButtonColor = Color.FromArgb(200, 200, 200),          // Lighter Gray
+            //MinButtonColor = Color.FromArgb(200, 200, 200),
+            //TitleBarColor = Color.FromArgb(245, 245, 245),           // Very Light Gray
+            //TitleBarTextColor = Color.FromArgb(60, 60, 60),          // Dark Gray
+            //TitleBarIconColor = Color.FromArgb(120, 120, 120),       // Gray
+            //TitleBarHoverColor = Color.FromArgb(230, 230, 230),      // Light Gray
+            //TitleBarHoverTextColor = Color.FromArgb(60, 60, 60),
+            //TitleBarHoverIconColor = Color.FromArgb(60, 60, 60),
+            //TitleBarActiveColor = Color.FromArgb(240, 240, 240),     // Slightly Darker Light Gray
+            //TitleBarActiveTextColor = Color.FromArgb(60, 60, 60),
+            //TitleBarActiveIconColor = Color.FromArgb(60, 60, 60),
+            //TitleBarInactiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarInactiveTextColor = Color.FromArgb(120, 120, 120),
+            //TitleBarInactiveIconColor = Color.FromArgb(120, 120, 120),
+            //TitleBarBorderColor = Color.FromArgb(200, 200, 200),
+            //TitleBarBorderHoverColor = Color.FromArgb(180, 180, 180),
+            //TitleBarBorderActiveColor = Color.FromArgb(160, 160, 160),
+            //TitleBarBorderInactiveColor = Color.FromArgb(200, 200, 200),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(200, 50, 50),    // Soft Red
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(180, 40, 40),
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(220, 220, 220),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(120, 120, 120),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(120, 120, 120),
-            TitleBarCloseBorderColor = Color.FromArgb(200, 200, 200),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(200, 50, 50),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(180, 40, 40),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarCloseHoverColor = Color.FromArgb(200, 50, 50),    // Soft Red
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(180, 40, 40),
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(220, 220, 220),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(120, 120, 120),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(120, 120, 120),
+            //TitleBarCloseBorderColor = Color.FromArgb(200, 200, 200),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(200, 50, 50),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(180, 40, 40),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(200, 200, 200),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(230, 230, 230),
-            TitleBarMaxHoverTextColor = Color.FromArgb(60, 60, 60),
-            TitleBarMaxHoverIconColor = Color.FromArgb(60, 60, 60),
-            TitleBarMaxActiveColor = Color.FromArgb(240, 240, 240),
-            TitleBarMaxActiveTextColor = Color.FromArgb(60, 60, 60),
-            TitleBarMaxActiveIconColor = Color.FromArgb(60, 60, 60),
-            TitleBarMaxInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(120, 120, 120),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(120, 120, 120),
-            TitleBarMaxBorderColor = Color.FromArgb(200, 200, 200),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(180, 180, 180),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(160, 160, 160),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMaxHoverColor = Color.FromArgb(230, 230, 230),
+            //TitleBarMaxHoverTextColor = Color.FromArgb(60, 60, 60),
+            //TitleBarMaxHoverIconColor = Color.FromArgb(60, 60, 60),
+            //TitleBarMaxActiveColor = Color.FromArgb(240, 240, 240),
+            //TitleBarMaxActiveTextColor = Color.FromArgb(60, 60, 60),
+            //TitleBarMaxActiveIconColor = Color.FromArgb(60, 60, 60),
+            //TitleBarMaxInactiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(120, 120, 120),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(120, 120, 120),
+            //TitleBarMaxBorderColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(180, 180, 180),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(160, 160, 160),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(200, 200, 200),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(230, 230, 230),
-            TitleBarMinHoverTextColor = Color.FromArgb(60, 60, 60),
-            TitleBarMinHoverIconColor = Color.FromArgb(60, 60, 60),
-            TitleBarMinActiveColor = Color.FromArgb(240, 240, 240),
-            TitleBarMinActiveTextColor = Color.FromArgb(60, 60, 60),
-            TitleBarMinActiveIconColor = Color.FromArgb(60, 60, 60),
-            TitleBarMinInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarMinInactiveTextColor = Color.FromArgb(120, 120, 120),
-            TitleBarMinInactiveIconColor = Color.FromArgb(120, 120, 120),
-            TitleBarMinBorderColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinBorderHoverColor = Color.FromArgb(180, 180, 180),
-            TitleBarMinBorderActiveColor = Color.FromArgb(160, 160, 160),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinHoverColor = Color.FromArgb(230, 230, 230),
+            //TitleBarMinHoverTextColor = Color.FromArgb(60, 60, 60),
+            //TitleBarMinHoverIconColor = Color.FromArgb(60, 60, 60),
+            //TitleBarMinActiveColor = Color.FromArgb(240, 240, 240),
+            //TitleBarMinActiveTextColor = Color.FromArgb(60, 60, 60),
+            //TitleBarMinActiveIconColor = Color.FromArgb(60, 60, 60),
+            //TitleBarMinInactiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(120, 120, 120),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(120, 120, 120),
+            //TitleBarMinBorderColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(180, 180, 180),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(160, 160, 160),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(200, 200, 200),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(230, 230, 230),
-            TitleBarMinimizeHoverTextColor = Color.FromArgb(60, 60, 60),
-            TitleBarMinimizeHoverIconColor = Color.FromArgb(60, 60, 60),
-            TitleBarMinimizeActiveColor = Color.FromArgb(240, 240, 240),
-            TitleBarMinimizeActiveTextColor = Color.FromArgb(60, 60, 60),
-            TitleBarMinimizeActiveIconColor = Color.FromArgb(60, 60, 60),
-            TitleBarMinimizeInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(120, 120, 120),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(120, 120, 120),
-            TitleBarMinimizeBorderColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(180, 180, 180),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(160, 160, 160),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(230, 230, 230),
+            //TitleBarMinimizeHoverTextColor = Color.FromArgb(60, 60, 60),
+            //TitleBarMinimizeHoverIconColor = Color.FromArgb(60, 60, 60),
+            //TitleBarMinimizeActiveColor = Color.FromArgb(240, 240, 240),
+            //TitleBarMinimizeActiveTextColor = Color.FromArgb(60, 60, 60),
+            //TitleBarMinimizeActiveIconColor = Color.FromArgb(60, 60, 60),
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(120, 120, 120),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(120, 120, 120),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(180, 180, 180),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(160, 160, 160),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(200, 200, 200),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(60, 60, 60),       // Dark Gray
-            TitleBarForColor = Color.FromArgb(90, 90, 90),    // Medium Gray
-            DescriptionForColor = Color.FromArgb(120, 120, 120), // Gray
-            BeforeForColor = Color.FromArgb(200, 200, 200),     // Light Gray
-            LatestForColor = Color.FromArgb(180, 180, 180),     // Slightly Darker Gray
+            //TitleForColor = Color.FromArgb(60, 60, 60),       // Dark Gray
+            //TitleBarForColor = Color.FromArgb(90, 90, 90),    // Medium Gray
+            //DescriptionForColor = Color.FromArgb(120, 120, 120), // Gray
+            //BeforeForColor = Color.FromArgb(200, 200, 200),     // Light Gray
+            //LatestForColor = Color.FromArgb(180, 180, 180),     // Slightly Darker Gray
             BackColor = Color.FromArgb(250, 250, 250),          // Very Light Gray
 
             // **Button Colors**
@@ -8048,8 +7869,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(60, 60, 60),
             ButtonHoverBackColor = Color.FromArgb(200, 200, 200),
             ButtonHoverForeColor = Color.FromArgb(60, 60, 60),
-            ButtonActiveBackColor = Color.FromArgb(180, 180, 180),
-            ButtonActiveForeColor = Color.FromArgb(60, 60, 60),
+            //ButtonActiveBackColor = Color.FromArgb(180, 180, 180),
+            //ButtonActiveForeColor = Color.FromArgb(60, 60, 60),
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
@@ -8064,8 +7885,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(230, 230, 230),
-            HeaderForeColor = Color.FromArgb(60, 60, 60),
+            //HeaderBackColor = Color.FromArgb(230, 230, 230),
+            //HeaderForeColor = Color.FromArgb(60, 60, 60),
             GridLineColor = Color.FromArgb(200, 200, 200),
             RowBackColor = Color.White,
             RowForeColor = Color.FromArgb(60, 60, 60),
@@ -8120,8 +7941,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.White,
             DialogForeColor = Color.FromArgb(60, 60, 60),
-            DialogButtonBackColor = Color.FromArgb(220, 220, 220),
-            DialogButtonForeColor = Color.FromArgb(60, 60, 60),
+            //DialogButtonBackColor = Color.FromArgb(220, 220, 220),
+            //DialogButtonForeColor = Color.FromArgb(60, 60, 60),
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(250, 250, 250),
@@ -8136,14 +7957,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(60, 60, 60),
             SideMenuSelectedForeColor = Color.FromArgb(60, 60, 60),
             SideMenuBorderColor = Color.FromArgb(200, 200, 200),
-            SideMenuIconColor = Color.FromArgb(60, 60, 60),
-            SideMenuSelectedIconColor = Color.FromArgb(60, 60, 60),
+            //SideMenuIconColor = Color.FromArgb(60, 60, 60),
+            //SideMenuSelectedIconColor = Color.FromArgb(60, 60, 60),
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(245, 245, 245),
-            TitleBarForeColor = Color.FromArgb(60, 60, 60),
-            TitleBarHoverBackColor = Color.FromArgb(230, 230, 230),
-            TitleBarHoverForeColor = Color.FromArgb(60, 60, 60),
+            //TitleBarBackColor = Color.FromArgb(245, 245, 245),
+            //TitleBarForeColor = Color.FromArgb(60, 60, 60),
+            //TitleBarHoverBackColor = Color.FromArgb(230, 230, 230),
+            //TitleBarHoverForeColor = Color.FromArgb(60, 60, 60),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(250, 250, 250),
@@ -8159,10 +7980,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(90, 90, 90),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(60, 60, 60),
-            SidebarSelectedIconColor = Color.FromArgb(60, 60, 60),
-            SidebarTextColor = Color.FromArgb(60, 60, 60),
-            SidebarSelectedTextColor = Color.FromArgb(60, 60, 60),
+            //SidebarIconColor = Color.FromArgb(60, 60, 60),
+            //SidebarSelectedIconColor = Color.FromArgb(60, 60, 60),
+            //SidebarTextColor = Color.FromArgb(60, 60, 60),
+            //SidebarSelectedTextColor = Color.FromArgb(60, 60, 60),
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(245, 245, 245),
@@ -8561,92 +8382,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(255, 105, 180),        // Hot Pink
-            MaxButtonColor = Color.FromArgb(0, 255, 127),            // Spring Green
-            MinButtonColor = Color.FromArgb(30, 144, 255),           // Dodger Blue
-            TitleBarColor = Color.FromArgb(75, 0, 130),              // Indigo
-            TitleBarTextColor = Color.FromArgb(255, 255, 0),         // Yellow
-            TitleBarIconColor = Color.FromArgb(255, 20, 147),        // Deep Pink
-            TitleBarHoverColor = Color.FromArgb(148, 0, 211),        // Dark Violet
-            TitleBarHoverTextColor = Color.White,
-            TitleBarHoverIconColor = Color.White,
-            TitleBarActiveColor = Color.FromArgb(75, 0, 130),        // Indigo
-            TitleBarActiveTextColor = Color.White,
-            TitleBarActiveIconColor = Color.White,
-            TitleBarInactiveColor = Color.FromArgb(123, 104, 238),   // Medium Slate Blue
-            TitleBarInactiveTextColor = Color.FromArgb(255, 255, 0), // Yellow
-            TitleBarInactiveIconColor = Color.FromArgb(255, 255, 0),
-            TitleBarBorderColor = Color.FromArgb(255, 105, 180),     // Hot Pink
-            TitleBarBorderHoverColor = Color.FromArgb(0, 255, 127),  // Spring Green
-            TitleBarBorderActiveColor = Color.FromArgb(30, 144, 255),// Dodger Blue
-            TitleBarBorderInactiveColor = Color.FromArgb(123, 104, 238), // Medium Slate Blue
+            //CloseButtonColor = Color.FromArgb(255, 105, 180),        // Hot Pink
+            //MaxButtonColor = Color.FromArgb(0, 255, 127),            // Spring Green
+            //MinButtonColor = Color.FromArgb(30, 144, 255),           // Dodger Blue
+            //TitleBarColor = Color.FromArgb(75, 0, 130),              // Indigo
+            //TitleBarTextColor = Color.FromArgb(255, 255, 0),         // Yellow
+            //TitleBarIconColor = Color.FromArgb(255, 20, 147),        // Deep Pink
+            //TitleBarHoverColor = Color.FromArgb(148, 0, 211),        // Dark Violet
+            //TitleBarHoverTextColor = Color.White,
+            //TitleBarHoverIconColor = Color.White,
+            //TitleBarActiveColor = Color.FromArgb(75, 0, 130),        // Indigo
+            //TitleBarActiveTextColor = Color.White,
+            //TitleBarActiveIconColor = Color.White,
+            //TitleBarInactiveColor = Color.FromArgb(123, 104, 238),   // Medium Slate Blue
+            //TitleBarInactiveTextColor = Color.FromArgb(255, 255, 0), // Yellow
+            //TitleBarInactiveIconColor = Color.FromArgb(255, 255, 0),
+            //TitleBarBorderColor = Color.FromArgb(255, 105, 180),     // Hot Pink
+            //TitleBarBorderHoverColor = Color.FromArgb(0, 255, 127),  // Spring Green
+            //TitleBarBorderActiveColor = Color.FromArgb(30, 144, 255),// Dodger Blue
+            //TitleBarBorderInactiveColor = Color.FromArgb(123, 104, 238), // Medium Slate Blue
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(255, 69, 0),    // Orange Red
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(220, 20, 60),  // Crimson
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(255, 105, 180),   // Hot Pink
-            TitleBarCloseInactiveTextColor = Color.FromArgb(255, 255, 0),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(255, 255, 0),
-            TitleBarCloseBorderColor = Color.FromArgb(255, 105, 180),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(255, 69, 0),   // Orange Red
-            TitleBarCloseBorderActiveColor = Color.FromArgb(220, 20, 60), // Crimson
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(255, 105, 180), // Hot Pink
+            //TitleBarCloseHoverColor = Color.FromArgb(255, 69, 0),    // Orange Red
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(220, 20, 60),  // Crimson
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(255, 105, 180),   // Hot Pink
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(255, 255, 0),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(255, 255, 0),
+            //TitleBarCloseBorderColor = Color.FromArgb(255, 105, 180),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(255, 69, 0),   // Orange Red
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(220, 20, 60), // Crimson
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(255, 105, 180), // Hot Pink
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(0, 255, 127),       // Spring Green
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(60, 179, 113),     // Medium Sea Green
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(123, 104, 238),  // Medium Slate Blue
-            TitleBarMaxInactiveTextColor = Color.FromArgb(255, 255, 0),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(255, 255, 0),
-            TitleBarMaxBorderColor = Color.FromArgb(0, 255, 127),      // Spring Green
-            TitleBarMaxBorderHoverColor = Color.FromArgb(60, 179, 113),// Medium Sea Green
-            TitleBarMaxBorderActiveColor = Color.FromArgb(0, 255, 127),// Spring Green
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(123, 104, 238), // Medium Slate Blue
+            //TitleBarMaxHoverColor = Color.FromArgb(0, 255, 127),       // Spring Green
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(60, 179, 113),     // Medium Sea Green
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(123, 104, 238),  // Medium Slate Blue
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(255, 255, 0),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(255, 255, 0),
+            //TitleBarMaxBorderColor = Color.FromArgb(0, 255, 127),      // Spring Green
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(60, 179, 113),// Medium Sea Green
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(0, 255, 127),// Spring Green
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(123, 104, 238), // Medium Slate Blue
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(30, 144, 255),       // Dodger Blue
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(0, 191, 255),       // Deep Sky Blue
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(123, 104, 238),   // Medium Slate Blue
-            TitleBarMinInactiveTextColor = Color.FromArgb(255, 255, 0),
-            TitleBarMinInactiveIconColor = Color.FromArgb(255, 255, 0),
-            TitleBarMinBorderColor = Color.FromArgb(30, 144, 255),      // Dodger Blue
-            TitleBarMinBorderHoverColor = Color.FromArgb(0, 191, 255),  // Deep Sky Blue
-            TitleBarMinBorderActiveColor = Color.FromArgb(30, 144, 255),// Dodger Blue
-            TitleBarMinBorderInactiveColor = Color.FromArgb(123, 104, 238), // Medium Slate Blue
+            //TitleBarMinHoverColor = Color.FromArgb(30, 144, 255),       // Dodger Blue
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(0, 191, 255),       // Deep Sky Blue
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(123, 104, 238),   // Medium Slate Blue
+            //TitleBarMinInactiveTextColor = Color.FromArgb(255, 255, 0),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(255, 255, 0),
+            //TitleBarMinBorderColor = Color.FromArgb(30, 144, 255),      // Dodger Blue
+            //TitleBarMinBorderHoverColor = Color.FromArgb(0, 191, 255),  // Deep Sky Blue
+            //TitleBarMinBorderActiveColor = Color.FromArgb(30, 144, 255),// Dodger Blue
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(123, 104, 238), // Medium Slate Blue
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(30, 144, 255),  // Dodger Blue
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(0, 191, 255),  // Deep Sky Blue
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(123, 104, 238), // Medium Slate Blue
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(255, 255, 0),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(255, 255, 0),
-            TitleBarMinimizeBorderColor = Color.FromArgb(30, 144, 255),   // Dodger Blue
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(0, 191, 255),// Deep Sky Blue
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(30, 144, 255),// Dodger Blue
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(123, 104, 238), // Medium Slate Blue
+            //TitleBarMinimizeHoverColor = Color.FromArgb(30, 144, 255),  // Dodger Blue
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(0, 191, 255),  // Deep Sky Blue
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(123, 104, 238), // Medium Slate Blue
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(255, 255, 0),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(255, 255, 0),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(30, 144, 255),   // Dodger Blue
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(0, 191, 255),// Deep Sky Blue
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(30, 144, 255),// Dodger Blue
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(123, 104, 238), // Medium Slate Blue
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(255, 255, 0),           // Yellow
-            TitleBarForColor = Color.FromArgb(0, 255, 127),        // Spring Green
-            DescriptionForColor = Color.FromArgb(255, 20, 147),    // Deep Pink
-            BeforeForColor = Color.FromArgb(0, 191, 255),          // Deep Sky Blue
-            LatestForColor = Color.FromArgb(255, 105, 180),        // Hot Pink
+            //TitleForColor = Color.FromArgb(255, 255, 0),           // Yellow
+            //TitleBarForColor = Color.FromArgb(0, 255, 127),        // Spring Green
+            //DescriptionForColor = Color.FromArgb(255, 20, 147),    // Deep Pink
+            //BeforeForColor = Color.FromArgb(0, 191, 255),          // Deep Sky Blue
+            //LatestForColor = Color.FromArgb(255, 105, 180),        // Hot Pink
             BackColor =Color.FromArgb(255, 0, 0, 0),                   // Black background
             
             // **Button Colors**
@@ -8654,8 +8475,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.White,
             ButtonHoverBackColor = Color.FromArgb(0, 255, 255),    // Aqua
             ButtonHoverForeColor = Color.FromArgb(255, 0, 0, 0),
-            ButtonActiveBackColor = Color.FromArgb(255, 255, 0),   // Yellow
-            ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
+            //ButtonActiveBackColor = Color.FromArgb(255, 255, 0),   // Yellow
+            //ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(255, 0, 0, 0),
@@ -8671,8 +8492,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(75, 0, 130),          // Indigo
-            HeaderForeColor = Color.FromArgb(255, 255, 0),
+            //HeaderBackColor = Color.FromArgb(75, 0, 130),          // Indigo
+            //HeaderForeColor = Color.FromArgb(255, 255, 0),
             GridLineColor = Color.FromArgb(0, 255, 255),           // Aqua
             RowBackColor = Color.FromArgb(255, 0, 0, 0),
             RowForeColor = Color.FromArgb(255, 255, 0),
@@ -8727,8 +8548,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(75, 0, 130),
             DialogForeColor = Color.White,
-            DialogButtonBackColor = Color.FromArgb(0, 255, 127),
-            DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
+            //DialogButtonBackColor = Color.FromArgb(0, 255, 127),
+            //DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(255, 0, 0, 0),
@@ -8743,14 +8564,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(0, 255, 255),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(255, 105, 180),   // Hot Pink
-            SideMenuIconColor = Color.FromArgb(0, 255, 255),
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(0, 255, 255),
+            //SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(75, 0, 130),        // Indigo
-            TitleBarForeColor = Color.FromArgb(255, 255, 0),       // Yellow
-            TitleBarHoverBackColor = Color.FromArgb(148, 0, 211),  // Dark Violet
-            TitleBarHoverForeColor = Color.White,
+            //TitleBarBackColor = Color.FromArgb(75, 0, 130),        // Indigo
+            //TitleBarForeColor = Color.FromArgb(255, 255, 0),       // Yellow
+            //TitleBarHoverBackColor = Color.FromArgb(148, 0, 211),  // Dark Violet
+            //TitleBarHoverForeColor = Color.White,
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(255, 0, 0, 0),
@@ -8766,10 +8587,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(255, 255, 0),          // Yellow
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(0, 255, 255),
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(0, 255, 255),
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(0, 255, 255),
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.FromArgb(0, 255, 255),
+            //SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(255, 0, 0, 0),
@@ -9168,92 +8989,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(139, 0, 0),           // Dark Red
-            MaxButtonColor = Color.FromArgb(0, 0, 128),             // Navy
-            MinButtonColor = Color.FromArgb(0, 0, 128),
-            TitleBarColor = Color.FromArgb(75, 0, 130),             // Indigo
-            TitleBarTextColor = Color.FromArgb(255, 215, 0),        // Gold
-            TitleBarIconColor = Color.FromArgb(218, 165, 32),       // Goldenrod
-            TitleBarHoverColor = Color.FromArgb(85, 26, 139),       // Purple
-            TitleBarHoverTextColor = Color.FromArgb(255, 215, 0),
-            TitleBarHoverIconColor = Color.FromArgb(255, 215, 0),
-            TitleBarActiveColor = Color.FromArgb(75, 0, 130),
-            TitleBarActiveTextColor = Color.FromArgb(255, 215, 0),
-            TitleBarActiveIconColor = Color.FromArgb(255, 215, 0),
-            TitleBarInactiveColor = Color.FromArgb(72, 61, 139),    // Dark Slate Blue
-            TitleBarInactiveTextColor = Color.FromArgb(218, 165, 32),
-            TitleBarInactiveIconColor = Color.FromArgb(218, 165, 32),
-            TitleBarBorderColor = Color.FromArgb(218, 165, 32),
-            TitleBarBorderHoverColor = Color.FromArgb(184, 134, 11),
-            TitleBarBorderActiveColor = Color.FromArgb(184, 134, 11),
-            TitleBarBorderInactiveColor = Color.FromArgb(218, 165, 32),
+            //CloseButtonColor = Color.FromArgb(139, 0, 0),           // Dark Red
+            //MaxButtonColor = Color.FromArgb(0, 0, 128),             // Navy
+            //MinButtonColor = Color.FromArgb(0, 0, 128),
+            //TitleBarColor = Color.FromArgb(75, 0, 130),             // Indigo
+            //TitleBarTextColor = Color.FromArgb(255, 215, 0),        // Gold
+            //TitleBarIconColor = Color.FromArgb(218, 165, 32),       // Goldenrod
+            //TitleBarHoverColor = Color.FromArgb(85, 26, 139),       // Purple
+            //TitleBarHoverTextColor = Color.FromArgb(255, 215, 0),
+            //TitleBarHoverIconColor = Color.FromArgb(255, 215, 0),
+            //TitleBarActiveColor = Color.FromArgb(75, 0, 130),
+            //TitleBarActiveTextColor = Color.FromArgb(255, 215, 0),
+            //TitleBarActiveIconColor = Color.FromArgb(255, 215, 0),
+            //TitleBarInactiveColor = Color.FromArgb(72, 61, 139),    // Dark Slate Blue
+            //TitleBarInactiveTextColor = Color.FromArgb(218, 165, 32),
+            //TitleBarInactiveIconColor = Color.FromArgb(218, 165, 32),
+            //TitleBarBorderColor = Color.FromArgb(218, 165, 32),
+            //TitleBarBorderHoverColor = Color.FromArgb(184, 134, 11),
+            //TitleBarBorderActiveColor = Color.FromArgb(184, 134, 11),
+            //TitleBarBorderInactiveColor = Color.FromArgb(218, 165, 32),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(165, 42, 42),   // Brown
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(139, 0, 0),    // Dark Red
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(128, 0, 0),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(218, 165, 32),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(218, 165, 32),
-            TitleBarCloseBorderColor = Color.FromArgb(218, 165, 32),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(184, 134, 11),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(184, 134, 11),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(218, 165, 32),
+            //TitleBarCloseHoverColor = Color.FromArgb(165, 42, 42),   // Brown
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(139, 0, 0),    // Dark Red
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(128, 0, 0),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(218, 165, 32),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(218, 165, 32),
+            //TitleBarCloseBorderColor = Color.FromArgb(218, 165, 32),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(184, 134, 11),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(184, 134, 11),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(218, 165, 32),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(25, 25, 112),     // Midnight Blue
-            TitleBarMaxHoverTextColor = Color.FromArgb(255, 215, 0),
-            TitleBarMaxHoverIconColor = Color.FromArgb(255, 215, 0),
-            TitleBarMaxActiveColor = Color.FromArgb(0, 0, 128),      // Navy
-            TitleBarMaxActiveTextColor = Color.FromArgb(255, 215, 0),
-            TitleBarMaxActiveIconColor = Color.FromArgb(255, 215, 0),
-            TitleBarMaxInactiveColor = Color.FromArgb(72, 61, 139),  // Dark Slate Blue
-            TitleBarMaxInactiveTextColor = Color.FromArgb(218, 165, 32),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(218, 165, 32),
-            TitleBarMaxBorderColor = Color.FromArgb(218, 165, 32),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(184, 134, 11),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(184, 134, 11),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(218, 165, 32),
+            //TitleBarMaxHoverColor = Color.FromArgb(25, 25, 112),     // Midnight Blue
+            //TitleBarMaxHoverTextColor = Color.FromArgb(255, 215, 0),
+            //TitleBarMaxHoverIconColor = Color.FromArgb(255, 215, 0),
+            //TitleBarMaxActiveColor = Color.FromArgb(0, 0, 128),      // Navy
+            //TitleBarMaxActiveTextColor = Color.FromArgb(255, 215, 0),
+            //TitleBarMaxActiveIconColor = Color.FromArgb(255, 215, 0),
+            //TitleBarMaxInactiveColor = Color.FromArgb(72, 61, 139),  // Dark Slate Blue
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(218, 165, 32),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(218, 165, 32),
+            //TitleBarMaxBorderColor = Color.FromArgb(218, 165, 32),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(184, 134, 11),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(184, 134, 11),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(218, 165, 32),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(25, 25, 112),
-            TitleBarMinHoverTextColor = Color.FromArgb(255, 215, 0),
-            TitleBarMinHoverIconColor = Color.FromArgb(255, 215, 0),
-            TitleBarMinActiveColor = Color.FromArgb(0, 0, 128),
-            TitleBarMinActiveTextColor = Color.FromArgb(255, 215, 0),
-            TitleBarMinActiveIconColor = Color.FromArgb(255, 215, 0),
-            TitleBarMinInactiveColor = Color.FromArgb(72, 61, 139),
-            TitleBarMinInactiveTextColor = Color.FromArgb(218, 165, 32),
-            TitleBarMinInactiveIconColor = Color.FromArgb(218, 165, 32),
-            TitleBarMinBorderColor = Color.FromArgb(218, 165, 32),
-            TitleBarMinBorderHoverColor = Color.FromArgb(184, 134, 11),
-            TitleBarMinBorderActiveColor = Color.FromArgb(184, 134, 11),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(218, 165, 32),
+            //TitleBarMinHoverColor = Color.FromArgb(25, 25, 112),
+            //TitleBarMinHoverTextColor = Color.FromArgb(255, 215, 0),
+            //TitleBarMinHoverIconColor = Color.FromArgb(255, 215, 0),
+            //TitleBarMinActiveColor = Color.FromArgb(0, 0, 128),
+            //TitleBarMinActiveTextColor = Color.FromArgb(255, 215, 0),
+            //TitleBarMinActiveIconColor = Color.FromArgb(255, 215, 0),
+            //TitleBarMinInactiveColor = Color.FromArgb(72, 61, 139),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(218, 165, 32),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(218, 165, 32),
+            //TitleBarMinBorderColor = Color.FromArgb(218, 165, 32),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(184, 134, 11),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(184, 134, 11),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(218, 165, 32),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(25, 25, 112),
-            TitleBarMinimizeHoverTextColor = Color.FromArgb(255, 215, 0),
-            TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 215, 0),
-            TitleBarMinimizeActiveColor = Color.FromArgb(0, 0, 128),
-            TitleBarMinimizeActiveTextColor = Color.FromArgb(255, 215, 0),
-            TitleBarMinimizeActiveIconColor = Color.FromArgb(255, 215, 0),
-            TitleBarMinimizeInactiveColor = Color.FromArgb(72, 61, 139),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(218, 165, 32),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(218, 165, 32),
-            TitleBarMinimizeBorderColor = Color.FromArgb(218, 165, 32),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(184, 134, 11),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(184, 134, 11),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(218, 165, 32),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(25, 25, 112),
+            //TitleBarMinimizeHoverTextColor = Color.FromArgb(255, 215, 0),
+            //TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 215, 0),
+            //TitleBarMinimizeActiveColor = Color.FromArgb(0, 0, 128),
+            //TitleBarMinimizeActiveTextColor = Color.FromArgb(255, 215, 0),
+            //TitleBarMinimizeActiveIconColor = Color.FromArgb(255, 215, 0),
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(72, 61, 139),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(218, 165, 32),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(218, 165, 32),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(218, 165, 32),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(184, 134, 11),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(184, 134, 11),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(218, 165, 32),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(255, 215, 0),             // Gold
-            TitleBarForColor = Color.FromArgb(184, 134, 11),         // Dark Goldenrod
-            DescriptionForColor = Color.FromArgb(218, 165, 32),      // Goldenrod
-            BeforeForColor = Color.FromArgb(72, 61, 139),            // Dark Slate Blue
-            LatestForColor = Color.FromArgb(139, 0, 0),              // Dark Red
+            //TitleForColor = Color.FromArgb(255, 215, 0),             // Gold
+            //TitleBarForColor = Color.FromArgb(184, 134, 11),         // Dark Goldenrod
+            //DescriptionForColor = Color.FromArgb(218, 165, 32),      // Goldenrod
+            //BeforeForColor = Color.FromArgb(72, 61, 139),            // Dark Slate Blue
+            //LatestForColor = Color.FromArgb(139, 0, 0),              // Dark Red
             BackColor = Color.FromArgb(248, 248, 255),               // Ghost White
 
             // **Button Colors**
@@ -9261,8 +9082,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(255, 215, 0),
             ButtonHoverBackColor = Color.FromArgb(85, 26, 139),      // Purple
             ButtonHoverForeColor = Color.FromArgb(255, 215, 0),
-            ButtonActiveBackColor = Color.FromArgb(72, 61, 139),     // Dark Slate Blue
-            ButtonActiveForeColor = Color.FromArgb(255, 215, 0),
+            //ButtonActiveBackColor = Color.FromArgb(72, 61, 139),     // Dark Slate Blue
+            //ButtonActiveForeColor = Color.FromArgb(255, 215, 0),
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
@@ -9278,8 +9099,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(75, 0, 130),
-            HeaderForeColor = Color.FromArgb(255, 215, 0),
+            //HeaderBackColor = Color.FromArgb(75, 0, 130),
+            //HeaderForeColor = Color.FromArgb(255, 215, 0),
             GridLineColor = Color.FromArgb(218, 165, 32),
             RowBackColor = Color.White,
             RowForeColor =Color.FromArgb(255, 0, 0, 0),
@@ -9334,8 +9155,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(248, 248, 255),
             DialogForeColor =Color.FromArgb(255, 0, 0, 0),
-            DialogButtonBackColor = Color.FromArgb(75, 0, 130),
-            DialogButtonForeColor = Color.FromArgb(255, 215, 0),
+            //DialogButtonBackColor = Color.FromArgb(75, 0, 130),
+            //DialogButtonForeColor = Color.FromArgb(255, 215, 0),
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(248, 248, 255),      // Ghost White
@@ -9350,14 +9171,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(255, 215, 0),
             SideMenuSelectedForeColor = Color.FromArgb(255, 215, 0),
             SideMenuBorderColor = Color.FromArgb(218, 165, 32),
-            SideMenuIconColor =Color.FromArgb(255, 0, 0, 0),
-            SideMenuSelectedIconColor = Color.FromArgb(255, 215, 0),
+            //SideMenuIconColor =Color.FromArgb(255, 0, 0, 0),
+            //SideMenuSelectedIconColor = Color.FromArgb(255, 215, 0),
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(75, 0, 130),
-            TitleBarForeColor = Color.FromArgb(255, 215, 0),
-            TitleBarHoverBackColor = Color.FromArgb(85, 26, 139),
-            TitleBarHoverForeColor = Color.FromArgb(255, 215, 0),
+            //TitleBarBackColor = Color.FromArgb(75, 0, 130),
+            //TitleBarForeColor = Color.FromArgb(255, 215, 0),
+            //TitleBarHoverBackColor = Color.FromArgb(85, 26, 139),
+            //TitleBarHoverForeColor = Color.FromArgb(255, 215, 0),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(248, 248, 255),
@@ -9373,10 +9194,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor =Color.FromArgb(255, 0, 0, 0),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor =Color.FromArgb(255, 0, 0, 0),
-            SidebarSelectedIconColor = Color.FromArgb(255, 215, 0),
-            SidebarTextColor =Color.FromArgb(255, 0, 0, 0),
-            SidebarSelectedTextColor = Color.FromArgb(255, 215, 0),
+            //SidebarIconColor =Color.FromArgb(255, 0, 0, 0),
+            //SidebarSelectedIconColor = Color.FromArgb(255, 215, 0),
+            //SidebarTextColor =Color.FromArgb(255, 0, 0, 0),
+            //SidebarSelectedTextColor = Color.FromArgb(255, 215, 0),
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(248, 248, 255),
@@ -9778,92 +9599,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(229, 57, 53),      // Red
-            MaxButtonColor = Color.FromArgb(76, 175, 80),        // Green
-            MinButtonColor = Color.FromArgb(33, 150, 243),       // Blue
-            TitleBarColor = Color.FromArgb(250, 250, 250),       // Near White
-            TitleBarTextColor = Color.FromArgb(33, 33, 33),      // Dark Gray
-            TitleBarIconColor = Color.FromArgb(33, 33, 33),
-            TitleBarHoverColor = Color.FromArgb(240, 240, 240),  // Light Gray
-            TitleBarHoverTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarHoverIconColor = Color.FromArgb(33, 33, 33),
-            TitleBarActiveColor = Color.FromArgb(240, 240, 240),
-            TitleBarActiveTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarActiveIconColor = Color.FromArgb(33, 33, 33),
-            TitleBarInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarInactiveTextColor = Color.FromArgb(117, 117, 117),
-            TitleBarInactiveIconColor = Color.FromArgb(117, 117, 117),
-            TitleBarBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarBorderHoverColor = Color.FromArgb(200, 200, 200),
-            TitleBarBorderActiveColor = Color.FromArgb(200, 200, 200),
-            TitleBarBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //CloseButtonColor = Color.FromArgb(229, 57, 53),      // Red
+            //MaxButtonColor = Color.FromArgb(76, 175, 80),        // Green
+            //MinButtonColor = Color.FromArgb(33, 150, 243),       // Blue
+            //TitleBarColor = Color.FromArgb(250, 250, 250),       // Near White
+            //TitleBarTextColor = Color.FromArgb(33, 33, 33),      // Dark Gray
+            //TitleBarIconColor = Color.FromArgb(33, 33, 33),
+            //TitleBarHoverColor = Color.FromArgb(240, 240, 240),  // Light Gray
+            //TitleBarHoverTextColor = Color.FromArgb(33, 33, 33),
+            //TitleBarHoverIconColor = Color.FromArgb(33, 33, 33),
+            //TitleBarActiveColor = Color.FromArgb(240, 240, 240),
+            //TitleBarActiveTextColor = Color.FromArgb(33, 33, 33),
+            //TitleBarActiveIconColor = Color.FromArgb(33, 33, 33),
+            //TitleBarInactiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarInactiveTextColor = Color.FromArgb(117, 117, 117),
+            //TitleBarInactiveIconColor = Color.FromArgb(117, 117, 117),
+            //TitleBarBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarBorderHoverColor = Color.FromArgb(200, 200, 200),
+            //TitleBarBorderActiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // **Close Button**
-            TitleBarCloseHoverColor = Color.FromArgb(211, 47, 47),   // Darker Red
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(229, 57, 53),  // Red
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(117, 117, 117),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(117, 117, 117),
-            TitleBarCloseBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(200, 200, 200),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(200, 200, 200),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //TitleBarCloseHoverColor = Color.FromArgb(211, 47, 47),   // Darker Red
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(229, 57, 53),  // Red
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(117, 117, 117),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(117, 117, 117),
+            //TitleBarCloseBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(200, 200, 200),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // **Maximize Button**
-            TitleBarMaxHoverColor = Color.FromArgb(67, 160, 71),       // Darker Green
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(76, 175, 80),      // Green
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(117, 117, 117),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(117, 117, 117),
-            TitleBarMaxBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(200, 200, 200),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(200, 200, 200),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMaxHoverColor = Color.FromArgb(67, 160, 71),       // Darker Green
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(76, 175, 80),      // Green
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(117, 117, 117),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(117, 117, 117),
+            //TitleBarMaxBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // **Minimize Button**
-            TitleBarMinHoverColor = Color.FromArgb(30, 136, 229),       // Darker Blue
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(33, 150, 243),      // Blue
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarMinInactiveTextColor = Color.FromArgb(117, 117, 117),
-            TitleBarMinInactiveIconColor = Color.FromArgb(117, 117, 117),
-            TitleBarMinBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarMinBorderHoverColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinBorderActiveColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMinHoverColor = Color.FromArgb(30, 136, 229),       // Darker Blue
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(33, 150, 243),      // Blue
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(117, 117, 117),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(117, 117, 117),
+            //TitleBarMinBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // **Minimize Button (Alternative Properties)**
-            TitleBarMinimizeHoverColor = Color.FromArgb(30, 136, 229),
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(33, 150, 243),
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(117, 117, 117),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(117, 117, 117),
-            TitleBarMinimizeBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(30, 136, 229),
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(33, 150, 243),
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(117, 117, 117),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(117, 117, 117),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(33, 33, 33),         // Dark Gray
-            TitleBarForColor = Color.FromArgb(33, 33, 33),
-            DescriptionForColor = Color.FromArgb(66, 66, 66),   // Medium Gray
-            BeforeForColor = Color.FromArgb(33, 150, 243),      // Blue
-            LatestForColor = Color.FromArgb(76, 175, 80),       // Green
+            //TitleForColor = Color.FromArgb(33, 33, 33),         // Dark Gray
+            //TitleBarForColor = Color.FromArgb(33, 33, 33),
+            //DescriptionForColor = Color.FromArgb(66, 66, 66),   // Medium Gray
+            //BeforeForColor = Color.FromArgb(33, 150, 243),      // Blue
+            //LatestForColor = Color.FromArgb(76, 175, 80),       // Green
             BackColor = Color.FromArgb(255, 255, 255),          // White
 
             // **Button Colors**
@@ -9871,8 +9692,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.White,
             ButtonHoverBackColor = Color.FromArgb(30, 136, 229),  // Darker Blue on hover
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(0, 153, 188),  // Cyan
-            ButtonActiveForeColor = Color.FromArgb(232, 17, 35),  // Red
+            //ButtonActiveBackColor = Color.FromArgb(0, 153, 188),  // Cyan
+            //ButtonActiveForeColor = Color.FromArgb(232, 17, 35),  // Red
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
@@ -9887,8 +9708,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             PanelBackColor = Color.White,
 
             // **Grid Colors** (Secondary Grid Properties)
-            HeaderBackColor = Color.FromArgb(245, 245, 245),      // Light Gray
-            HeaderForeColor = Color.FromArgb(33, 33, 33),         // Dark Gray
+            //HeaderBackColor = Color.FromArgb(245, 245, 245),      // Light Gray
+            //HeaderForeColor = Color.FromArgb(33, 33, 33),         // Dark Gray
             GridLineColor = Color.FromArgb(204, 204, 204),        // Gray Lines
             RowBackColor = Color.White,
             RowForeColor =Color.FromArgb(255, 0, 0, 0),               // Black Text
@@ -9943,8 +9764,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.White,
             DialogForeColor =Color.FromArgb(255, 0, 0, 0),
-            DialogButtonBackColor = Color.FromArgb(0, 120, 215),
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(0, 120, 215),
+            //DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(255, 255, 255),
@@ -9959,14 +9780,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor =Color.FromArgb(255, 0, 0, 0),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(224, 224, 224),
-            SideMenuIconColor =Color.FromArgb(255, 0, 0, 0),
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor =Color.FromArgb(255, 0, 0, 0),
+            //SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(0, 120, 215),
-            TitleBarForeColor = Color.White,
-            TitleBarHoverBackColor = Color.FromArgb(0, 99, 177),
-            TitleBarHoverForeColor = Color.White,
+            //TitleBarBackColor = Color.FromArgb(0, 120, 215),
+            //TitleBarForeColor = Color.White,
+            //TitleBarHoverBackColor = Color.FromArgb(0, 99, 177),
+            //TitleBarHoverForeColor = Color.White,
 
             // **Dashboard Colors**
             DashboardBackColor = Color.White,
@@ -9982,10 +9803,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(117, 117, 117),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor =Color.FromArgb(255, 0, 0, 0),
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor =Color.FromArgb(255, 0, 0, 0),
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor =Color.FromArgb(255, 0, 0, 0),
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor =Color.FromArgb(255, 0, 0, 0),
+            //SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.White,
@@ -10385,92 +10206,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(232, 17, 35),       // Red
-            MaxButtonColor = Color.FromArgb(28, 151, 234),        // Blue
-            MinButtonColor = Color.FromArgb(28, 151, 234),
-            TitleBarColor = Color.FromArgb(37, 37, 38),           // Very Dark Gray
-            TitleBarTextColor = Color.FromArgb(255, 255, 255),    // White
-            TitleBarIconColor = Color.FromArgb(255, 255, 255),
-            TitleBarHoverColor = Color.FromArgb(51, 51, 51),      // Darker Gray
-            TitleBarHoverTextColor = Color.FromArgb(255, 255, 255),
-            TitleBarHoverIconColor = Color.FromArgb(255, 255, 255),
-            TitleBarActiveColor = Color.FromArgb(51, 51, 51),
-            TitleBarActiveTextColor = Color.FromArgb(255, 255, 255),
-            TitleBarActiveIconColor = Color.FromArgb(255, 255, 255),
-            TitleBarInactiveColor = Color.FromArgb(45, 45, 48),
-            TitleBarInactiveTextColor = Color.FromArgb(153, 153, 153),
-            TitleBarInactiveIconColor = Color.FromArgb(153, 153, 153),
-            TitleBarBorderColor = Color.FromArgb(28, 28, 28),
-            TitleBarBorderHoverColor = Color.FromArgb(51, 51, 51),
-            TitleBarBorderActiveColor = Color.FromArgb(51, 51, 51),
-            TitleBarBorderInactiveColor = Color.FromArgb(28, 28, 28),
+            //CloseButtonColor = Color.FromArgb(232, 17, 35),       // Red
+            //MaxButtonColor = Color.FromArgb(28, 151, 234),        // Blue
+            //MinButtonColor = Color.FromArgb(28, 151, 234),
+            //TitleBarColor = Color.FromArgb(37, 37, 38),           // Very Dark Gray
+            //TitleBarTextColor = Color.FromArgb(255, 255, 255),    // White
+            //TitleBarIconColor = Color.FromArgb(255, 255, 255),
+            //TitleBarHoverColor = Color.FromArgb(51, 51, 51),      // Darker Gray
+            //TitleBarHoverTextColor = Color.FromArgb(255, 255, 255),
+            //TitleBarHoverIconColor = Color.FromArgb(255, 255, 255),
+            //TitleBarActiveColor = Color.FromArgb(51, 51, 51),
+            //TitleBarActiveTextColor = Color.FromArgb(255, 255, 255),
+            //TitleBarActiveIconColor = Color.FromArgb(255, 255, 255),
+            //TitleBarInactiveColor = Color.FromArgb(45, 45, 48),
+            //TitleBarInactiveTextColor = Color.FromArgb(153, 153, 153),
+            //TitleBarInactiveIconColor = Color.FromArgb(153, 153, 153),
+            //TitleBarBorderColor = Color.FromArgb(28, 28, 28),
+            //TitleBarBorderHoverColor = Color.FromArgb(51, 51, 51),
+            //TitleBarBorderActiveColor = Color.FromArgb(51, 51, 51),
+            //TitleBarBorderInactiveColor = Color.FromArgb(28, 28, 28),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(170, 0, 0),     // Dark Red
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(232, 17, 35),  // Red
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(45, 45, 48),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(153, 153, 153),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(153, 153, 153),
-            TitleBarCloseBorderColor = Color.FromArgb(28, 28, 28),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(51, 51, 51),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(51, 51, 51),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(28, 28, 28),
+            //TitleBarCloseHoverColor = Color.FromArgb(170, 0, 0),     // Dark Red
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(232, 17, 35),  // Red
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(45, 45, 48),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(153, 153, 153),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(153, 153, 153),
+            //TitleBarCloseBorderColor = Color.FromArgb(28, 28, 28),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(51, 51, 51),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(51, 51, 51),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(28, 28, 28),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(51, 51, 51),
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(28, 151, 234),    // Blue
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(45, 45, 48),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(153, 153, 153),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(153, 153, 153),
-            TitleBarMaxBorderColor = Color.FromArgb(28, 28, 28),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(51, 51, 51),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(51, 51, 51),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(28, 28, 28),
+            //TitleBarMaxHoverColor = Color.FromArgb(51, 51, 51),
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(28, 151, 234),    // Blue
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(45, 45, 48),
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(153, 153, 153),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(153, 153, 153),
+            //TitleBarMaxBorderColor = Color.FromArgb(28, 28, 28),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(51, 51, 51),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(51, 51, 51),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(28, 28, 28),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(51, 51, 51),
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(28, 151, 234),
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(45, 45, 48),
-            TitleBarMinInactiveTextColor = Color.FromArgb(153, 153, 153),
-            TitleBarMinInactiveIconColor = Color.FromArgb(153, 153, 153),
-            TitleBarMinBorderColor = Color.FromArgb(28, 28, 28),
-            TitleBarMinBorderHoverColor = Color.FromArgb(51, 51, 51),
-            TitleBarMinBorderActiveColor = Color.FromArgb(51, 51, 51),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(28, 28, 28),
+            //TitleBarMinHoverColor = Color.FromArgb(51, 51, 51),
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(28, 151, 234),
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(45, 45, 48),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(153, 153, 153),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(153, 153, 153),
+            //TitleBarMinBorderColor = Color.FromArgb(28, 28, 28),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(51, 51, 51),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(51, 51, 51),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(28, 28, 28),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(51, 51, 51),
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(28, 151, 234),
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(45, 45, 48),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(153, 153, 153),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(153, 153, 153),
-            TitleBarMinimizeBorderColor = Color.FromArgb(28, 28, 28),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(51, 51, 51),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(51, 51, 51),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(28, 28, 28),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(51, 51, 51),
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(28, 151, 234),
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(45, 45, 48),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(153, 153, 153),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(153, 153, 153),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(28, 28, 28),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(51, 51, 51),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(51, 51, 51),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(28, 28, 28),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(255, 255, 255),        // White
-            TitleBarForColor = Color.FromArgb(255, 255, 255),
-            DescriptionForColor = Color.FromArgb(200, 200, 200),  // Light Gray
-            BeforeForColor = Color.FromArgb(28, 151, 234),        // Blue
-            LatestForColor = Color.FromArgb(232, 17, 35),         // Red
+            //TitleForColor = Color.FromArgb(255, 255, 255),        // White
+            //TitleBarForColor = Color.FromArgb(255, 255, 255),
+            //DescriptionForColor = Color.FromArgb(200, 200, 200),  // Light Gray
+            //BeforeForColor = Color.FromArgb(28, 151, 234),        // Blue
+            //LatestForColor = Color.FromArgb(232, 17, 35),         // Red
             BackColor = Color.FromArgb(30, 30, 30),               // Dark Background
 
             // **Button Colors**
@@ -10478,8 +10299,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(255, 255, 255),
             ButtonHoverBackColor = Color.FromArgb(28, 151, 234),  // Blue
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(45, 45, 48),
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(45, 45, 48),
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(37, 37, 38),
@@ -10496,8 +10317,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(45, 45, 48),
-            HeaderForeColor = Color.FromArgb(255, 255, 255),
+            //HeaderBackColor = Color.FromArgb(45, 45, 48),
+            //HeaderForeColor = Color.FromArgb(255, 255, 255),
             GridLineColor = Color.FromArgb(51, 51, 51),
             RowBackColor = Color.FromArgb(37, 37, 38),
             RowForeColor = Color.FromArgb(255, 255, 255),
@@ -10553,8 +10374,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(37, 37, 38),
             DialogForeColor = Color.FromArgb(255, 255, 255),
-            DialogButtonBackColor = Color.FromArgb(51, 51, 51),
-            DialogButtonForeColor = Color.FromArgb(255, 255, 255),
+            //DialogButtonBackColor = Color.FromArgb(51, 51, 51),
+            //DialogButtonForeColor = Color.FromArgb(255, 255, 255),
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(30, 30, 30),
@@ -10569,14 +10390,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(255, 255, 255),
             SideMenuSelectedForeColor = Color.FromArgb(255, 255, 255),
             SideMenuBorderColor = Color.FromArgb(51, 51, 51),
-            SideMenuIconColor = Color.FromArgb(255, 255, 255),
-            SideMenuSelectedIconColor = Color.FromArgb(255, 255, 255),
+            //SideMenuIconColor = Color.FromArgb(255, 255, 255),
+            //SideMenuSelectedIconColor = Color.FromArgb(255, 255, 255),
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(37, 37, 38),
-            TitleBarForeColor = Color.FromArgb(255, 255, 255),
-            TitleBarHoverBackColor = Color.FromArgb(51, 51, 51),
-            TitleBarHoverForeColor = Color.FromArgb(255, 255, 255),
+            //TitleBarBackColor = Color.FromArgb(37, 37, 38),
+            //TitleBarForeColor = Color.FromArgb(255, 255, 255),
+            //TitleBarHoverBackColor = Color.FromArgb(51, 51, 51),
+            //TitleBarHoverForeColor = Color.FromArgb(255, 255, 255),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(30, 30, 30),
@@ -10592,10 +10413,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(200, 200, 200),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(255, 255, 255),
-            SidebarSelectedIconColor = Color.FromArgb(255, 255, 255),
-            SidebarTextColor = Color.FromArgb(255, 255, 255),
-            SidebarSelectedTextColor = Color.FromArgb(255, 255, 255),
+            //SidebarIconColor = Color.FromArgb(255, 255, 255),
+            //SidebarSelectedIconColor = Color.FromArgb(255, 255, 255),
+            //SidebarTextColor = Color.FromArgb(255, 255, 255),
+            //SidebarSelectedTextColor = Color.FromArgb(255, 255, 255),
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(30, 30, 30),
@@ -10996,92 +10817,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(229, 57, 53),      // Red
-            MaxButtonColor = Color.FromArgb(76, 175, 80),        // Green
-            MinButtonColor = Color.FromArgb(33, 150, 243),       // Blue
-            TitleBarColor = Color.FromArgb(250, 250, 250),       // Near White
-            TitleBarTextColor = Color.FromArgb(33, 33, 33),      // Dark Gray
-            TitleBarIconColor = Color.FromArgb(33, 33, 33),
-            TitleBarHoverColor = Color.FromArgb(240, 240, 240),  // Light Gray
-            TitleBarHoverTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarHoverIconColor = Color.FromArgb(33, 33, 33),
-            TitleBarActiveColor = Color.FromArgb(240, 240, 240),
-            TitleBarActiveTextColor = Color.FromArgb(33, 33, 33),
-            TitleBarActiveIconColor = Color.FromArgb(33, 33, 33),
-            TitleBarInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarInactiveTextColor = Color.FromArgb(117, 117, 117),
-            TitleBarInactiveIconColor = Color.FromArgb(117, 117, 117),
-            TitleBarBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarBorderHoverColor = Color.FromArgb(200, 200, 200),
-            TitleBarBorderActiveColor = Color.FromArgb(200, 200, 200),
-            TitleBarBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //CloseButtonColor = Color.FromArgb(229, 57, 53),      // Red
+            //MaxButtonColor = Color.FromArgb(76, 175, 80),        // Green
+            //MinButtonColor = Color.FromArgb(33, 150, 243),       // Blue
+            //TitleBarColor = Color.FromArgb(250, 250, 250),       // Near White
+            //TitleBarTextColor = Color.FromArgb(33, 33, 33),      // Dark Gray
+            //TitleBarIconColor = Color.FromArgb(33, 33, 33),
+            //TitleBarHoverColor = Color.FromArgb(240, 240, 240),  // Light Gray
+            //TitleBarHoverTextColor = Color.FromArgb(33, 33, 33),
+            //TitleBarHoverIconColor = Color.FromArgb(33, 33, 33),
+            //TitleBarActiveColor = Color.FromArgb(240, 240, 240),
+            //TitleBarActiveTextColor = Color.FromArgb(33, 33, 33),
+            //TitleBarActiveIconColor = Color.FromArgb(33, 33, 33),
+            //TitleBarInactiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarInactiveTextColor = Color.FromArgb(117, 117, 117),
+            //TitleBarInactiveIconColor = Color.FromArgb(117, 117, 117),
+            //TitleBarBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarBorderHoverColor = Color.FromArgb(200, 200, 200),
+            //TitleBarBorderActiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // **Close Button**
-            TitleBarCloseHoverColor = Color.FromArgb(211, 47, 47),   // Darker Red
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(229, 57, 53),  // Red
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(117, 117, 117),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(117, 117, 117),
-            TitleBarCloseBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(200, 200, 200),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(200, 200, 200),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //TitleBarCloseHoverColor = Color.FromArgb(211, 47, 47),   // Darker Red
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(229, 57, 53),  // Red
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(117, 117, 117),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(117, 117, 117),
+            //TitleBarCloseBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(200, 200, 200),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // **Maximize Button**
-            TitleBarMaxHoverColor = Color.FromArgb(67, 160, 71),       // Darker Green
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(76, 175, 80),      // Green
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(117, 117, 117),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(117, 117, 117),
-            TitleBarMaxBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(200, 200, 200),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(200, 200, 200),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMaxHoverColor = Color.FromArgb(67, 160, 71),       // Darker Green
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(76, 175, 80),      // Green
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(117, 117, 117),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(117, 117, 117),
+            //TitleBarMaxBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // **Minimize Button**
-            TitleBarMinHoverColor = Color.FromArgb(30, 136, 229), // Darker Blue
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(33, 150, 243), // Blue
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarMinInactiveTextColor = Color.FromArgb(117, 117, 117),
-            TitleBarMinInactiveIconColor = Color.FromArgb(117, 117, 117),
-            TitleBarMinBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarMinBorderHoverColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinBorderActiveColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMinHoverColor = Color.FromArgb(30, 136, 229), // Darker Blue
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(33, 150, 243), // Blue
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(117, 117, 117),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(117, 117, 117),
+            //TitleBarMinBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // **Minimize Button (Alternative Properties)**
-            TitleBarMinimizeHoverColor = Color.FromArgb(30, 136, 229),
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(33, 150, 243),
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(245, 245, 245),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(117, 117, 117),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(117, 117, 117),
-            TitleBarMinimizeBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(30, 136, 229),
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(33, 150, 243),
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(245, 245, 245),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(117, 117, 117),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(117, 117, 117),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(33, 33, 33), // Fix: actual Dark Gray
-            TitleBarForColor = Color.FromArgb(33, 33, 33),
-            DescriptionForColor = Color.FromArgb(66, 66, 66), // Medium Gray
-            BeforeForColor = Color.FromArgb(33, 150, 243),    // Blue
-            LatestForColor = Color.FromArgb(76, 175, 80),     // Fix: actual Green
+            //TitleForColor = Color.FromArgb(33, 33, 33), // Fix: actual Dark Gray
+            //TitleBarForColor = Color.FromArgb(33, 33, 33),
+            //DescriptionForColor = Color.FromArgb(66, 66, 66), // Medium Gray
+            //BeforeForColor = Color.FromArgb(33, 150, 243),    // Blue
+            //LatestForColor = Color.FromArgb(76, 175, 80),     // Fix: actual Green
             BackColor = Color.White,                          // White
 
             // **Button Colors**
@@ -11089,8 +10910,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.White,
             ButtonHoverBackColor = Color.FromArgb(30, 136, 229), // Darker Blue on hover
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(25, 118, 210), // Even Darker Blue
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(25, 118, 210), // Even Darker Blue
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
@@ -11105,8 +10926,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             PanelBackColor = Color.White,
 
             // **Grid Colors** (Secondary Grid Properties)
-            HeaderBackColor = Color.FromArgb(245, 245, 245), // Light Gray
-            HeaderForeColor = Color.FromArgb(33, 33, 33),    // Dark Gray
+            //HeaderBackColor = Color.FromArgb(245, 245, 245), // Light Gray
+            //HeaderForeColor = Color.FromArgb(33, 33, 33),    // Dark Gray
             GridLineColor = Color.FromArgb(224, 224, 224),   // Light Gray
             RowBackColor = Color.White,
             RowForeColor = Color.FromArgb(33, 33, 33),       // Dark Gray
@@ -11161,8 +10982,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.White,
             DialogForeColor = Color.FromArgb(33, 33, 33),
-            DialogButtonBackColor = Color.FromArgb(33, 150, 243), // Blue
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(33, 150, 243), // Blue
+            //DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
             GradientStartColor = Color.White,
@@ -11177,14 +10998,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(33, 33, 33),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(224, 224, 224),
-            SideMenuIconColor = Color.FromArgb(33, 33, 33),
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(33, 33, 33),
+            //SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(33, 150, 243), // Blue
-            TitleBarForeColor = Color.White,
-            TitleBarHoverBackColor = Color.FromArgb(240, 240, 240),
-            TitleBarHoverForeColor = Color.FromArgb(33, 33, 33),
+            //TitleBarBackColor = Color.FromArgb(33, 150, 243), // Blue
+            //TitleBarForeColor = Color.White,
+            //TitleBarHoverBackColor = Color.FromArgb(240, 240, 240),
+            //TitleBarHoverForeColor = Color.FromArgb(33, 33, 33),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.White,
@@ -11200,10 +11021,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(117, 117, 117),      // Gray
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(33, 33, 33),
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(33, 33, 33),
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(33, 33, 33),
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.FromArgb(33, 33, 33),
+            //SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.White,
@@ -11290,92 +11111,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(255, 179, 186),    // Pastel Pink
-            MaxButtonColor = Color.FromArgb(186, 225, 255),      // Pastel Blue
-            MinButtonColor = Color.FromArgb(186, 225, 255),
-            TitleBarColor = Color.FromArgb(255, 250, 240),       // Floral White
-            TitleBarTextColor = Color.FromArgb(85, 85, 85),      // Dark Gray
-            TitleBarIconColor = Color.FromArgb(85, 85, 85),
-            TitleBarHoverColor = Color.FromArgb(255, 240, 245),  // Lavender Blush
-            TitleBarHoverTextColor = Color.FromArgb(85, 85, 85),
-            TitleBarHoverIconColor = Color.FromArgb(85, 85, 85),
-            TitleBarActiveColor = Color.FromArgb(255, 240, 245),
-            TitleBarActiveTextColor = Color.FromArgb(85, 85, 85),
-            TitleBarActiveIconColor = Color.FromArgb(85, 85, 85),
-            TitleBarInactiveColor = Color.FromArgb(255, 245, 238),
-            TitleBarInactiveTextColor = Color.FromArgb(136, 136, 136),
-            TitleBarInactiveIconColor = Color.FromArgb(136, 136, 136),
-            TitleBarBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarBorderHoverColor = Color.FromArgb(200, 200, 200),
-            TitleBarBorderActiveColor = Color.FromArgb(200, 200, 200),
-            TitleBarBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //CloseButtonColor = Color.FromArgb(255, 179, 186),    // Pastel Pink
+            //MaxButtonColor = Color.FromArgb(186, 225, 255),      // Pastel Blue
+            //MinButtonColor = Color.FromArgb(186, 225, 255),
+            //TitleBarColor = Color.FromArgb(255, 250, 240),       // Floral White
+            //TitleBarTextColor = Color.FromArgb(85, 85, 85),      // Dark Gray
+            //TitleBarIconColor = Color.FromArgb(85, 85, 85),
+            //TitleBarHoverColor = Color.FromArgb(255, 240, 245),  // Lavender Blush
+            //TitleBarHoverTextColor = Color.FromArgb(85, 85, 85),
+            //TitleBarHoverIconColor = Color.FromArgb(85, 85, 85),
+            //TitleBarActiveColor = Color.FromArgb(255, 240, 245),
+            //TitleBarActiveTextColor = Color.FromArgb(85, 85, 85),
+            //TitleBarActiveIconColor = Color.FromArgb(85, 85, 85),
+            //TitleBarInactiveColor = Color.FromArgb(255, 245, 238),
+            //TitleBarInactiveTextColor = Color.FromArgb(136, 136, 136),
+            //TitleBarInactiveIconColor = Color.FromArgb(136, 136, 136),
+            //TitleBarBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarBorderHoverColor = Color.FromArgb(200, 200, 200),
+            //TitleBarBorderActiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(255, 204, 204),  // Light Pastel Red
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(255, 179, 186), // Pastel Pink
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(255, 245, 238),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(136, 136, 136),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(136, 136, 136),
-            TitleBarCloseBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(200, 200, 200),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(200, 200, 200),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //TitleBarCloseHoverColor = Color.FromArgb(255, 204, 204),  // Light Pastel Red
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(255, 179, 186), // Pastel Pink
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(255, 245, 238),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(136, 136, 136),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(136, 136, 136),
+            //TitleBarCloseBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(200, 200, 200),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(204, 229, 255),    // Light Pastel Blue
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(186, 225, 255),   // Pastel Blue
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(255, 245, 238),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(136, 136, 136),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(136, 136, 136),
-            TitleBarMaxBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(200, 200, 200),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(200, 200, 200),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMaxHoverColor = Color.FromArgb(204, 229, 255),    // Light Pastel Blue
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(186, 225, 255),   // Pastel Blue
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(255, 245, 238),
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(136, 136, 136),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(136, 136, 136),
+            //TitleBarMaxBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(204, 229, 255),    // Light Pastel Blue
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(186, 225, 255),   // Pastel Blue
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(255, 245, 238),
-            TitleBarMinInactiveTextColor = Color.FromArgb(136, 136, 136),
-            TitleBarMinInactiveIconColor = Color.FromArgb(136, 136, 136),
-            TitleBarMinBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarMinBorderHoverColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinBorderActiveColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMinHoverColor = Color.FromArgb(204, 229, 255),    // Light Pastel Blue
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(186, 225, 255),   // Pastel Blue
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(255, 245, 238),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(136, 136, 136),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(136, 136, 136),
+            //TitleBarMinBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(204, 229, 255),
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(186, 225, 255),
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(255, 245, 238),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(136, 136, 136),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(136, 136, 136),
-            TitleBarMinimizeBorderColor = Color.FromArgb(224, 224, 224),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(204, 229, 255),
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(186, 225, 255),
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(255, 245, 238),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(136, 136, 136),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(136, 136, 136),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(224, 224, 224),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(224, 224, 224),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(85, 85, 85),            // Dark Gray
-            TitleBarForColor = Color.FromArgb(85, 85, 85),
-            DescriptionForColor = Color.FromArgb(102, 102, 102),   // Medium Gray
-            BeforeForColor = Color.FromArgb(255, 223, 186),        // Pastel Orange
-            LatestForColor = Color.FromArgb(186, 225, 255),        // Pastel Blue
+            //TitleForColor = Color.FromArgb(85, 85, 85),            // Dark Gray
+            //TitleBarForColor = Color.FromArgb(85, 85, 85),
+            //DescriptionForColor = Color.FromArgb(102, 102, 102),   // Medium Gray
+            //BeforeForColor = Color.FromArgb(255, 223, 186),        // Pastel Orange
+            //LatestForColor = Color.FromArgb(186, 225, 255),        // Pastel Blue
             BackColor = Color.FromArgb(255, 250, 240),             // Floral White
 
             // **Button Colors**
@@ -11383,8 +11204,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(85, 85, 85),
             ButtonHoverBackColor = Color.FromArgb(204, 229, 255),  // Light Pastel Blue
             ButtonHoverForeColor = Color.FromArgb(85, 85, 85),
-            ButtonActiveBackColor = Color.FromArgb(255, 179, 186), // Pastel Pink
-            ButtonActiveForeColor = Color.FromArgb(85, 85, 85),
+            //ButtonActiveBackColor = Color.FromArgb(255, 179, 186), // Pastel Pink
+            //ButtonActiveForeColor = Color.FromArgb(85, 85, 85),
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
@@ -11401,8 +11222,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(255, 240, 245),       // Lavender Blush
-            HeaderForeColor = Color.FromArgb(85, 85, 85),
+            //HeaderBackColor = Color.FromArgb(255, 240, 245),       // Lavender Blush
+            //HeaderForeColor = Color.FromArgb(85, 85, 85),
             GridLineColor = Color.FromArgb(224, 224, 224),
             RowBackColor = Color.White,
             RowForeColor = Color.FromArgb(85, 85, 85),
@@ -11458,8 +11279,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.White,
             DialogForeColor = Color.FromArgb(85, 85, 85),
-            DialogButtonBackColor = Color.FromArgb(186, 225, 255),
-            DialogButtonForeColor = Color.FromArgb(85, 85, 85),
+            //DialogButtonBackColor = Color.FromArgb(186, 225, 255),
+            //DialogButtonForeColor = Color.FromArgb(85, 85, 85),
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(255, 250, 240),
@@ -11474,14 +11295,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(85, 85, 85),
             SideMenuSelectedForeColor = Color.FromArgb(85, 85, 85),
             SideMenuBorderColor = Color.FromArgb(224, 224, 224),
-            SideMenuIconColor = Color.FromArgb(85, 85, 85),
-            SideMenuSelectedIconColor = Color.FromArgb(85, 85, 85),
+            //SideMenuIconColor = Color.FromArgb(85, 85, 85),
+            //SideMenuSelectedIconColor = Color.FromArgb(85, 85, 85),
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(255, 250, 240),
-            TitleBarForeColor = Color.FromArgb(85, 85, 85),
-            TitleBarHoverBackColor = Color.FromArgb(255, 240, 245),
-            TitleBarHoverForeColor = Color.FromArgb(85, 85, 85),
+            //TitleBarBackColor = Color.FromArgb(255, 250, 240),
+            //TitleBarForeColor = Color.FromArgb(85, 85, 85),
+            //TitleBarHoverBackColor = Color.FromArgb(255, 240, 245),
+            //TitleBarHoverForeColor = Color.FromArgb(85, 85, 85),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(255, 250, 240),
@@ -11497,10 +11318,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(136, 136, 136),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(85, 85, 85),
-            SidebarSelectedIconColor = Color.FromArgb(85, 85, 85),
-            SidebarTextColor = Color.FromArgb(85, 85, 85),
-            SidebarSelectedTextColor = Color.FromArgb(85, 85, 85),
+            //SidebarIconColor = Color.FromArgb(85, 85, 85),
+            //SidebarSelectedIconColor = Color.FromArgb(85, 85, 85),
+            //SidebarTextColor = Color.FromArgb(85, 85, 85),
+            //SidebarSelectedTextColor = Color.FromArgb(85, 85, 85),
 
             // **Navigation Colors**
             NavigationBackColor = Color.White,
@@ -11900,92 +11721,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(178, 34, 34),       // Firebrick
-            MaxButtonColor = Color.FromArgb(72, 61, 139),         // Dark Slate Blue
-            MinButtonColor = Color.FromArgb(65, 105, 225),        // Royal Blue
-            TitleBarColor = Color.FromArgb(15, 15, 30),           // Very Dark Blue
-            TitleBarTextColor = Color.FromArgb(230, 230, 250),    // Lavender
-            TitleBarIconColor = Color.FromArgb(230, 230, 250),
-            TitleBarHoverColor = Color.FromArgb(25, 25, 50),      // Darker Blue
-            TitleBarHoverTextColor = Color.FromArgb(230, 230, 250),
-            TitleBarHoverIconColor = Color.FromArgb(230, 230, 250),
-            TitleBarActiveColor = Color.FromArgb(25, 25, 50),
-            TitleBarActiveTextColor = Color.FromArgb(230, 230, 250),
-            TitleBarActiveIconColor = Color.FromArgb(230, 230, 250),
-            TitleBarInactiveColor = Color.FromArgb(20, 20, 40),
-            TitleBarInactiveTextColor = Color.FromArgb(169, 169, 169),
-            TitleBarInactiveIconColor = Color.FromArgb(169, 169, 169),
-            TitleBarBorderColor = Color.FromArgb(25, 25, 50),
-            TitleBarBorderHoverColor = Color.FromArgb(30, 30, 60),
-            TitleBarBorderActiveColor = Color.FromArgb(30, 30, 60),
-            TitleBarBorderInactiveColor = Color.FromArgb(25, 25, 50),
+            //CloseButtonColor = Color.FromArgb(178, 34, 34),       // Firebrick
+            //MaxButtonColor = Color.FromArgb(72, 61, 139),         // Dark Slate Blue
+            //MinButtonColor = Color.FromArgb(65, 105, 225),        // Royal Blue
+            //TitleBarColor = Color.FromArgb(15, 15, 30),           // Very Dark Blue
+            //TitleBarTextColor = Color.FromArgb(230, 230, 250),    // Lavender
+            //TitleBarIconColor = Color.FromArgb(230, 230, 250),
+            //TitleBarHoverColor = Color.FromArgb(25, 25, 50),      // Darker Blue
+            //TitleBarHoverTextColor = Color.FromArgb(230, 230, 250),
+            //TitleBarHoverIconColor = Color.FromArgb(230, 230, 250),
+            //TitleBarActiveColor = Color.FromArgb(25, 25, 50),
+            //TitleBarActiveTextColor = Color.FromArgb(230, 230, 250),
+            //TitleBarActiveIconColor = Color.FromArgb(230, 230, 250),
+            //TitleBarInactiveColor = Color.FromArgb(20, 20, 40),
+            //TitleBarInactiveTextColor = Color.FromArgb(169, 169, 169),
+            //TitleBarInactiveIconColor = Color.FromArgb(169, 169, 169),
+            //TitleBarBorderColor = Color.FromArgb(25, 25, 50),
+            //TitleBarBorderHoverColor = Color.FromArgb(30, 30, 60),
+            //TitleBarBorderActiveColor = Color.FromArgb(30, 30, 60),
+            //TitleBarBorderInactiveColor = Color.FromArgb(25, 25, 50),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(139, 0, 0),     // Dark Red
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(178, 34, 34),  // Firebrick
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(20, 20, 40),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(169, 169, 169),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(169, 169, 169),
-            TitleBarCloseBorderColor = Color.FromArgb(25, 25, 50),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(30, 30, 60),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(30, 30, 60),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(25, 25, 50),
+            //TitleBarCloseHoverColor = Color.FromArgb(139, 0, 0),     // Dark Red
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(178, 34, 34),  // Firebrick
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(20, 20, 40),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(169, 169, 169),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(169, 169, 169),
+            //TitleBarCloseBorderColor = Color.FromArgb(25, 25, 50),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(30, 30, 60),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(30, 30, 60),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(25, 25, 50),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(72, 61, 139),
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(72, 61, 139),
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(20, 20, 40),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(169, 169, 169),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(169, 169, 169),
-            TitleBarMaxBorderColor = Color.FromArgb(25, 25, 50),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(30, 30, 60),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(30, 30, 60),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(25, 25, 50),
+            //TitleBarMaxHoverColor = Color.FromArgb(72, 61, 139),
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(72, 61, 139),
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(20, 20, 40),
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(169, 169, 169),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(169, 169, 169),
+            //TitleBarMaxBorderColor = Color.FromArgb(25, 25, 50),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(30, 30, 60),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(30, 30, 60),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(25, 25, 50),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(65, 105, 225),
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(65, 105, 225),
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(20, 20, 40),
-            TitleBarMinInactiveTextColor = Color.FromArgb(169, 169, 169),
-            TitleBarMinInactiveIconColor = Color.FromArgb(169, 169, 169),
-            TitleBarMinBorderColor = Color.FromArgb(25, 25, 50),
-            TitleBarMinBorderHoverColor = Color.FromArgb(30, 30, 60),
-            TitleBarMinBorderActiveColor = Color.FromArgb(30, 30, 60),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(25, 25, 50),
+            //TitleBarMinHoverColor = Color.FromArgb(65, 105, 225),
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(65, 105, 225),
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(20, 20, 40),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(169, 169, 169),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(169, 169, 169),
+            //TitleBarMinBorderColor = Color.FromArgb(25, 25, 50),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(30, 30, 60),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(30, 30, 60),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(25, 25, 50),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(65, 105, 225),
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(65, 105, 225),
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(20, 20, 40),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(169, 169, 169),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(169, 169, 169),
-            TitleBarMinimizeBorderColor = Color.FromArgb(25, 25, 50),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(30, 30, 60),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(30, 30, 60),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(25, 25, 50),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(65, 105, 225),
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(65, 105, 225),
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(20, 20, 40),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(169, 169, 169),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(169, 169, 169),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(25, 25, 50),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(30, 30, 60),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(30, 30, 60),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(25, 25, 50),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(230, 230, 250),        // Lavender
-            TitleBarForColor = Color.FromArgb(230, 230, 250),
-            DescriptionForColor = Color.FromArgb(211, 211, 211),  // Light Gray
-            BeforeForColor = Color.FromArgb(65, 105, 225),        // Royal Blue
-            LatestForColor = Color.FromArgb(72, 61, 139),         // Dark Slate Blue
+            //TitleForColor = Color.FromArgb(230, 230, 250),        // Lavender
+            //TitleBarForColor = Color.FromArgb(230, 230, 250),
+            //DescriptionForColor = Color.FromArgb(211, 211, 211),  // Light Gray
+            //BeforeForColor = Color.FromArgb(65, 105, 225),        // Royal Blue
+            //LatestForColor = Color.FromArgb(72, 61, 139),         // Dark Slate Blue
             BackColor = Color.FromArgb(15, 15, 30),               // Very Dark Blue
 
             // **Button Colors**
@@ -11993,8 +11814,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(230, 230, 250),
             ButtonHoverBackColor = Color.FromArgb(72, 61, 139),
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(65, 105, 225),
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(65, 105, 225),
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(25, 25, 50),
@@ -12012,8 +11833,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(25, 25, 50),
-            HeaderForeColor = Color.FromArgb(230, 230, 250),
+            //HeaderBackColor = Color.FromArgb(25, 25, 50),
+            //HeaderForeColor = Color.FromArgb(230, 230, 250),
             GridLineColor = Color.FromArgb(45, 45, 80),
             RowBackColor = Color.FromArgb(20, 20, 40),
             AltRowBackColor = Color.FromArgb(15, 15, 35),       // Very Dark Navy
@@ -12069,8 +11890,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(20, 20, 40),
             DialogForeColor = Color.FromArgb(230, 230, 250),
-            DialogButtonBackColor = Color.FromArgb(25, 25, 50),
-            DialogButtonForeColor = Color.FromArgb(230, 230, 250),
+            //DialogButtonBackColor = Color.FromArgb(25, 25, 50),
+            //DialogButtonForeColor = Color.FromArgb(230, 230, 250),
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(15, 15, 30),
@@ -12086,14 +11907,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(230, 230, 250),
             SideMenuSelectedForeColor = Color.FromArgb(230, 230, 250),
             SideMenuBorderColor = Color.FromArgb(45, 45, 80),
-            SideMenuIconColor = Color.FromArgb(230, 230, 250),
-            SideMenuSelectedIconColor = Color.FromArgb(230, 230, 250),
+            //SideMenuIconColor = Color.FromArgb(230, 230, 250),
+            //SideMenuSelectedIconColor = Color.FromArgb(230, 230, 250),
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(15, 15, 30),
-            TitleBarForeColor = Color.FromArgb(230, 230, 250),
-            TitleBarHoverBackColor = Color.FromArgb(25, 25, 50),
-            TitleBarHoverForeColor = Color.FromArgb(230, 230, 250),
+            //TitleBarBackColor = Color.FromArgb(15, 15, 30),
+            //TitleBarForeColor = Color.FromArgb(230, 230, 250),
+            //TitleBarHoverBackColor = Color.FromArgb(25, 25, 50),
+            //TitleBarHoverForeColor = Color.FromArgb(230, 230, 250),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(15, 15, 30),
@@ -12109,10 +11930,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(211, 211, 211),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(230, 230, 250),
-            SidebarSelectedIconColor = Color.FromArgb(230, 230, 250),
-            SidebarTextColor = Color.FromArgb(230, 230, 250),
-            SidebarSelectedTextColor = Color.FromArgb(230, 230, 250),
+            //SidebarIconColor = Color.FromArgb(230, 230, 250),
+            //SidebarSelectedIconColor = Color.FromArgb(230, 230, 250),
+            //SidebarTextColor = Color.FromArgb(230, 230, 250),
+            //SidebarSelectedTextColor = Color.FromArgb(230, 230, 250),
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(15, 15, 30),
@@ -12512,92 +12333,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(255, 0, 0),       // Neon Red
-            MaxButtonColor = Color.FromArgb(255, 255, 0),       // Neon Yellow
-            MinButtonColor = Color.FromArgb(0, 255, 255),       // Neon Cyan
-            TitleBarColor =Color.FromArgb(255, 0, 0, 0),            // Black
-            TitleBarTextColor = Color.FromArgb(255, 0, 255),    // Neon Magenta
-            TitleBarIconColor = Color.FromArgb(255, 0, 255),
-            TitleBarHoverColor = Color.FromArgb(30, 30, 30),    // Dark Gray
-            TitleBarHoverTextColor = Color.FromArgb(255, 0, 255),
-            TitleBarHoverIconColor = Color.FromArgb(255, 0, 255),
-            TitleBarActiveColor = Color.FromArgb(30, 30, 30),
-            TitleBarActiveTextColor = Color.FromArgb(255, 0, 255),
-            TitleBarActiveIconColor = Color.FromArgb(255, 0, 255),
-            TitleBarInactiveColor = Color.FromArgb(15, 15, 15),
-            TitleBarInactiveTextColor = Color.FromArgb(128, 0, 128),
-            TitleBarInactiveIconColor = Color.FromArgb(128, 0, 128),
-            TitleBarBorderColor = Color.FromArgb(0, 255, 255),   // Neon Cyan
-            TitleBarBorderHoverColor = Color.FromArgb(0, 255, 255),
-            TitleBarBorderActiveColor = Color.FromArgb(0, 255, 255),
-            TitleBarBorderInactiveColor = Color.FromArgb(128, 128, 128),
+            //CloseButtonColor = Color.FromArgb(255, 0, 0),       // Neon Red
+            //MaxButtonColor = Color.FromArgb(255, 255, 0),       // Neon Yellow
+            //MinButtonColor = Color.FromArgb(0, 255, 255),       // Neon Cyan
+            //TitleBarColor =Color.FromArgb(255, 0, 0, 0),            // Black
+            //TitleBarTextColor = Color.FromArgb(255, 0, 255),    // Neon Magenta
+            //TitleBarIconColor = Color.FromArgb(255, 0, 255),
+            //TitleBarHoverColor = Color.FromArgb(30, 30, 30),    // Dark Gray
+            //TitleBarHoverTextColor = Color.FromArgb(255, 0, 255),
+            //TitleBarHoverIconColor = Color.FromArgb(255, 0, 255),
+            //TitleBarActiveColor = Color.FromArgb(30, 30, 30),
+            //TitleBarActiveTextColor = Color.FromArgb(255, 0, 255),
+            //TitleBarActiveIconColor = Color.FromArgb(255, 0, 255),
+            //TitleBarInactiveColor = Color.FromArgb(15, 15, 15),
+            //TitleBarInactiveTextColor = Color.FromArgb(128, 0, 128),
+            //TitleBarInactiveIconColor = Color.FromArgb(128, 0, 128),
+            //TitleBarBorderColor = Color.FromArgb(0, 255, 255),   // Neon Cyan
+            //TitleBarBorderHoverColor = Color.FromArgb(0, 255, 255),
+            //TitleBarBorderActiveColor = Color.FromArgb(0, 255, 255),
+            //TitleBarBorderInactiveColor = Color.FromArgb(128, 128, 128),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(255, 20, 147),     // Neon Pink
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(255, 0, 0),       // Neon Red
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(15, 15, 15),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(128, 0, 0),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(128, 0, 0),
-            TitleBarCloseBorderColor = Color.FromArgb(255, 0, 0),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(255, 20, 147),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(255, 0, 0),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(128, 0, 0),
+            //TitleBarCloseHoverColor = Color.FromArgb(255, 20, 147),     // Neon Pink
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(255, 0, 0),       // Neon Red
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(15, 15, 15),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(128, 0, 0),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(128, 0, 0),
+            //TitleBarCloseBorderColor = Color.FromArgb(255, 0, 0),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(255, 20, 147),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(255, 0, 0),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(128, 0, 0),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(173, 255, 47),       // Neon Greenish
-            TitleBarMaxHoverTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMaxHoverIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMaxActiveColor = Color.FromArgb(255, 255, 0),       // Neon Yellow
-            TitleBarMaxActiveTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMaxActiveIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMaxInactiveColor = Color.FromArgb(15, 15, 15),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(128, 128, 0),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(128, 128, 0),
-            TitleBarMaxBorderColor = Color.FromArgb(255, 255, 0),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(173, 255, 47),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(255, 255, 0),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(128, 128, 0),
+            //TitleBarMaxHoverColor = Color.FromArgb(173, 255, 47),       // Neon Greenish
+            //TitleBarMaxHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMaxHoverIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMaxActiveColor = Color.FromArgb(255, 255, 0),       // Neon Yellow
+            //TitleBarMaxActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMaxActiveIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMaxInactiveColor = Color.FromArgb(15, 15, 15),
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(128, 128, 0),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(128, 128, 0),
+            //TitleBarMaxBorderColor = Color.FromArgb(255, 255, 0),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(173, 255, 47),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(255, 255, 0),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(128, 128, 0),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(0, 255, 127),        // Neon Green
-            TitleBarMinHoverTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinHoverIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinActiveColor = Color.FromArgb(0, 255, 255),       // Neon Cyan
-            TitleBarMinActiveTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinActiveIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinInactiveColor = Color.FromArgb(15, 15, 15),
-            TitleBarMinInactiveTextColor = Color.FromArgb(0, 128, 128),
-            TitleBarMinInactiveIconColor = Color.FromArgb(0, 128, 128),
-            TitleBarMinBorderColor = Color.FromArgb(0, 255, 255),
-            TitleBarMinBorderHoverColor = Color.FromArgb(0, 255, 127),
-            TitleBarMinBorderActiveColor = Color.FromArgb(0, 255, 255),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(0, 128, 128),
+            //TitleBarMinHoverColor = Color.FromArgb(0, 255, 127),        // Neon Green
+            //TitleBarMinHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinHoverIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinActiveColor = Color.FromArgb(0, 255, 255),       // Neon Cyan
+            //TitleBarMinActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinActiveIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinInactiveColor = Color.FromArgb(15, 15, 15),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(0, 128, 128),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(0, 128, 128),
+            //TitleBarMinBorderColor = Color.FromArgb(0, 255, 255),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(0, 255, 127),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(0, 255, 255),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(0, 128, 128),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(0, 255, 127),
-            TitleBarMinimizeHoverTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinimizeActiveColor = Color.FromArgb(0, 255, 255),
-            TitleBarMinimizeActiveTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinimizeActiveIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinimizeInactiveColor = Color.FromArgb(15, 15, 15),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(0, 128, 128),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(0, 128, 128),
-            TitleBarMinimizeBorderColor = Color.FromArgb(0, 255, 255),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(0, 255, 127),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(0, 255, 255),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(0, 128, 128),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(0, 255, 127),
+            //TitleBarMinimizeHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinimizeActiveColor = Color.FromArgb(0, 255, 255),
+            //TitleBarMinimizeActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinimizeActiveIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(15, 15, 15),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(0, 128, 128),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(0, 128, 128),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(0, 255, 255),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(0, 255, 127),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(0, 255, 255),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(0, 128, 128),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(255, 0, 255),         // Neon Magenta
-            TitleBarForColor = Color.FromArgb(255, 0, 255),
-            DescriptionForColor = Color.FromArgb(128, 255, 0),   // Neon Green
-            BeforeForColor = Color.FromArgb(255, 255, 0),        // Neon Yellow
-            LatestForColor = Color.FromArgb(0, 255, 255),        // Neon Cyan
+            //TitleForColor = Color.FromArgb(255, 0, 255),         // Neon Magenta
+            //TitleBarForColor = Color.FromArgb(255, 0, 255),
+            //DescriptionForColor = Color.FromArgb(128, 255, 0),   // Neon Green
+            //BeforeForColor = Color.FromArgb(255, 255, 0),        // Neon Yellow
+            //LatestForColor = Color.FromArgb(0, 255, 255),        // Neon Cyan
             BackColor =Color.FromArgb(255, 0, 0, 0),                 // Black
 
             // **Button Colors**
@@ -12605,8 +12426,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(128, 255, 0),
             ButtonHoverBackColor = Color.FromArgb(0, 255, 127),  // Neon Green
             ButtonHoverForeColor = Color.FromArgb(255, 0, 0, 0),
-            ButtonActiveBackColor = Color.FromArgb(255, 20, 147), // Neon Pink
-            ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
+            //ButtonActiveBackColor = Color.FromArgb(255, 20, 147), // Neon Pink
+            //ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(15, 15, 15),
@@ -12622,8 +12443,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(30, 30, 30),
-            HeaderForeColor = Color.FromArgb(0, 255, 255),
+            //HeaderBackColor = Color.FromArgb(30, 30, 30),
+            //HeaderForeColor = Color.FromArgb(0, 255, 255),
             GridLineColor = Color.FromArgb(0, 255, 255),
             RowBackColor = Color.FromArgb(15, 15, 15),
             RowForeColor = Color.FromArgb(128, 255, 0),
@@ -12679,8 +12500,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(15, 15, 15),
             DialogForeColor = Color.FromArgb(128, 255, 0),
-            DialogButtonBackColor = Color.FromArgb(0, 255, 255),
-            DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
+            //DialogButtonBackColor = Color.FromArgb(0, 255, 255),
+            //DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Gradient Properties**
             GradientStartColor =Color.FromArgb(255, 0, 0, 0),
@@ -12696,14 +12517,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(0, 255, 255),
             SideMenuSelectedForeColor = Color.FromArgb(255, 0, 255),
             SideMenuBorderColor = Color.FromArgb(0, 255, 255),
-            SideMenuIconColor = Color.FromArgb(128, 255, 0),
-            SideMenuSelectedIconColor = Color.FromArgb(255, 0, 255),
+            //SideMenuIconColor = Color.FromArgb(128, 255, 0),
+            //SideMenuSelectedIconColor = Color.FromArgb(255, 0, 255),
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(25, 25, 15),
-            TitleBarForeColor = Color.FromArgb(255, 0, 255),
-            TitleBarHoverBackColor = Color.FromArgb(30, 30, 30),
-            TitleBarHoverForeColor = Color.FromArgb(255, 0, 255),
+            //TitleBarBackColor = Color.FromArgb(25, 25, 15),
+            //TitleBarForeColor = Color.FromArgb(255, 0, 255),
+            //TitleBarHoverBackColor = Color.FromArgb(30, 30, 30),
+            //TitleBarHoverForeColor = Color.FromArgb(255, 0, 255),
 
             // **Dashboard Colors**
             DashboardBackColor =Color.FromArgb(255, 0, 0, 0),
@@ -12719,10 +12540,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(128, 255, 0),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(128, 255, 0),
-            SidebarSelectedIconColor = Color.FromArgb(255, 0, 255),
-            SidebarTextColor = Color.FromArgb(128, 255, 0),
-            SidebarSelectedTextColor = Color.FromArgb(255, 0, 255),
+            //SidebarIconColor = Color.FromArgb(128, 255, 0),
+            //SidebarSelectedIconColor = Color.FromArgb(255, 0, 255),
+            //SidebarTextColor = Color.FromArgb(128, 255, 0),
+            //SidebarSelectedTextColor = Color.FromArgb(255, 0, 255),
 
             // **Navigation Colors**
             NavigationBackColor =Color.FromArgb(255, 0, 0, 0),
@@ -13122,92 +12943,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(128, 0, 0),        // Maroon
-            MaxButtonColor = Color.FromArgb(85, 107, 47),        // Dark Olive Green
-            MinButtonColor = Color.FromArgb(139, 69, 19),        // Saddle Brown
-            TitleBarColor = Color.FromArgb(205, 133, 63),        // Peru
-            TitleBarTextColor = Color.FromArgb(80, 40, 20),      // Dark Brown
-            TitleBarIconColor = Color.FromArgb(80, 40, 20),
-            TitleBarHoverColor = Color.FromArgb(222, 184, 135),  // Burlywood
-            TitleBarHoverTextColor = Color.FromArgb(80, 40, 20),
-            TitleBarHoverIconColor = Color.FromArgb(80, 40, 20),
-            TitleBarActiveColor = Color.FromArgb(222, 184, 135),
-            TitleBarActiveTextColor = Color.FromArgb(80, 40, 20),
-            TitleBarActiveIconColor = Color.FromArgb(80, 40, 20),
-            TitleBarInactiveColor = Color.FromArgb(210, 180, 140), // Tan
-            TitleBarInactiveTextColor = Color.FromArgb(139, 69, 19),
-            TitleBarInactiveIconColor = Color.FromArgb(139, 69, 19),
-            TitleBarBorderColor = Color.FromArgb(160, 82, 45),     // Sienna
-            TitleBarBorderHoverColor = Color.FromArgb(139, 69, 19),
-            TitleBarBorderActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarBorderInactiveColor = Color.FromArgb(160, 82, 45),
+            //CloseButtonColor = Color.FromArgb(128, 0, 0),        // Maroon
+            //MaxButtonColor = Color.FromArgb(85, 107, 47),        // Dark Olive Green
+            //MinButtonColor = Color.FromArgb(139, 69, 19),        // Saddle Brown
+            //TitleBarColor = Color.FromArgb(205, 133, 63),        // Peru
+            //TitleBarTextColor = Color.FromArgb(80, 40, 20),      // Dark Brown
+            //TitleBarIconColor = Color.FromArgb(80, 40, 20),
+            //TitleBarHoverColor = Color.FromArgb(222, 184, 135),  // Burlywood
+            //TitleBarHoverTextColor = Color.FromArgb(80, 40, 20),
+            //TitleBarHoverIconColor = Color.FromArgb(80, 40, 20),
+            //TitleBarActiveColor = Color.FromArgb(222, 184, 135),
+            //TitleBarActiveTextColor = Color.FromArgb(80, 40, 20),
+            //TitleBarActiveIconColor = Color.FromArgb(80, 40, 20),
+            //TitleBarInactiveColor = Color.FromArgb(210, 180, 140), // Tan
+            //TitleBarInactiveTextColor = Color.FromArgb(139, 69, 19),
+            //TitleBarInactiveIconColor = Color.FromArgb(139, 69, 19),
+            //TitleBarBorderColor = Color.FromArgb(160, 82, 45),     // Sienna
+            //TitleBarBorderHoverColor = Color.FromArgb(139, 69, 19),
+            //TitleBarBorderActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarBorderInactiveColor = Color.FromArgb(160, 82, 45),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(165, 42, 42),   // Brown
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(128, 0, 0),    // Maroon
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(210, 180, 140),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(139, 69, 19),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(139, 69, 19),
-            TitleBarCloseBorderColor = Color.FromArgb(160, 82, 45),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(139, 69, 19),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(160, 82, 45),
+            //TitleBarCloseHoverColor = Color.FromArgb(165, 42, 42),   // Brown
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(128, 0, 0),    // Maroon
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(210, 180, 140),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(139, 69, 19),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(139, 69, 19),
+            //TitleBarCloseBorderColor = Color.FromArgb(160, 82, 45),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(139, 69, 19),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(160, 82, 45),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(107, 142, 35),    // Olive Drab
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(85, 107, 47),    // Dark Olive Green
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(210, 180, 140),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(139, 69, 19),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(139, 69, 19),
-            TitleBarMaxBorderColor = Color.FromArgb(160, 82, 45),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(139, 69, 19),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMaxHoverColor = Color.FromArgb(107, 142, 35),    // Olive Drab
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(85, 107, 47),    // Dark Olive Green
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(210, 180, 140),
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMaxBorderColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(160, 82, 45),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(160, 82, 45),     // Sienna
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(139, 69, 19),    // Saddle Brown
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(210, 180, 140),
-            TitleBarMinInactiveTextColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinInactiveIconColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinBorderColor = Color.FromArgb(160, 82, 45),
-            TitleBarMinBorderHoverColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinBorderActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMinHoverColor = Color.FromArgb(160, 82, 45),     // Sienna
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(139, 69, 19),    // Saddle Brown
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(210, 180, 140),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinBorderColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(160, 82, 45),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(160, 82, 45),
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(210, 180, 140),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinimizeBorderColor = Color.FromArgb(160, 82, 45),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(210, 180, 140),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(160, 82, 45),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(80, 40, 20),          // Dark Brown
-            TitleBarForColor = Color.FromArgb(80, 40, 20),
-            DescriptionForColor = Color.FromArgb(100, 60, 40),   // Medium Brown
-            BeforeForColor = Color.FromArgb(205, 133, 63),       // Peru
-            LatestForColor = Color.FromArgb(139, 69, 19),        // Saddle Brown
+            //TitleForColor = Color.FromArgb(80, 40, 20),          // Dark Brown
+            //TitleBarForColor = Color.FromArgb(80, 40, 20),
+            //DescriptionForColor = Color.FromArgb(100, 60, 40),   // Medium Brown
+            //BeforeForColor = Color.FromArgb(205, 133, 63),       // Peru
+            //LatestForColor = Color.FromArgb(139, 69, 19),        // Saddle Brown
             BackColor = Color.FromArgb(245, 222, 179),           // Wheat
 
             // **Button Colors**
@@ -13215,8 +13036,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(80, 40, 20),
             ButtonHoverBackColor = Color.FromArgb(139, 69, 19),  // Saddle Brown
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(128, 0, 0),   // Maroon
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(128, 0, 0),   // Maroon
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(245, 222, 179),
@@ -13232,8 +13053,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(222, 184, 135),
-            HeaderForeColor = Color.FromArgb(80, 40, 20),
+            //HeaderBackColor = Color.FromArgb(222, 184, 135),
+            //HeaderForeColor = Color.FromArgb(80, 40, 20),
             GridLineColor = Color.FromArgb(160, 82, 45),
             RowBackColor = Color.FromArgb(245, 222, 179),
             RowForeColor = Color.FromArgb(80, 40, 20),
@@ -13289,8 +13110,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(245, 222, 179),
             DialogForeColor = Color.FromArgb(80, 40, 20),
-            DialogButtonBackColor = Color.FromArgb(160, 82, 45),
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(160, 82, 45),
+            //DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(245, 222, 179),
@@ -13306,14 +13127,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(80, 40, 20),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(160, 82, 45),
-            SideMenuIconColor = Color.FromArgb(80, 40, 20),
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(80, 40, 20),
+            //SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(205, 133, 63),
-            TitleBarForeColor = Color.FromArgb(80, 40, 20),
-            TitleBarHoverBackColor = Color.FromArgb(222, 184, 135),
-            TitleBarHoverForeColor = Color.FromArgb(80, 40, 20),
+            //TitleBarBackColor = Color.FromArgb(205, 133, 63),
+            //TitleBarForeColor = Color.FromArgb(80, 40, 20),
+            //TitleBarHoverBackColor = Color.FromArgb(222, 184, 135),
+            //TitleBarHoverForeColor = Color.FromArgb(80, 40, 20),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(245, 222, 179),
@@ -13329,10 +13150,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(80, 40, 20),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(80, 40, 20),
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(80, 40, 20),
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(80, 40, 20),
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.FromArgb(80, 40, 20),
+            //SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(245, 222, 179),
@@ -13733,92 +13554,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(139, 0, 0),         // Dark Red
-            MaxButtonColor = Color.FromArgb(70, 130, 180),        // Steel Blue
-            MinButtonColor = Color.FromArgb(138, 43, 226),        // Blue Violet
-            TitleBarColor = Color.FromArgb(18, 18, 50),           // Deep Space Blue
-            TitleBarTextColor = Color.FromArgb(230, 230, 250),    // Lavender
-            TitleBarIconColor = Color.FromArgb(230, 230, 250),
-            TitleBarHoverColor = Color.FromArgb(28, 28, 70),      // Slightly Lighter Blue
-            TitleBarHoverTextColor = Color.FromArgb(230, 230, 250),
-            TitleBarHoverIconColor = Color.FromArgb(230, 230, 250),
-            TitleBarActiveColor = Color.FromArgb(28, 28, 70),
-            TitleBarActiveTextColor = Color.FromArgb(230, 230, 250),
-            TitleBarActiveIconColor = Color.FromArgb(230, 230, 250),
-            TitleBarInactiveColor = Color.FromArgb(20, 20, 50),
-            TitleBarInactiveTextColor = Color.FromArgb(169, 169, 169),
-            TitleBarInactiveIconColor = Color.FromArgb(169, 169, 169),
-            TitleBarBorderColor = Color.FromArgb(72, 61, 139),    // Dark Slate Blue
-            TitleBarBorderHoverColor = Color.FromArgb(75, 0, 130), // Indigo
-            TitleBarBorderActiveColor = Color.FromArgb(75, 0, 130),
-            TitleBarBorderInactiveColor = Color.FromArgb(72, 61, 139),
+            //CloseButtonColor = Color.FromArgb(139, 0, 0),         // Dark Red
+            //MaxButtonColor = Color.FromArgb(70, 130, 180),        // Steel Blue
+            //MinButtonColor = Color.FromArgb(138, 43, 226),        // Blue Violet
+            //TitleBarColor = Color.FromArgb(18, 18, 50),           // Deep Space Blue
+            //TitleBarTextColor = Color.FromArgb(230, 230, 250),    // Lavender
+            //TitleBarIconColor = Color.FromArgb(230, 230, 250),
+            //TitleBarHoverColor = Color.FromArgb(28, 28, 70),      // Slightly Lighter Blue
+            //TitleBarHoverTextColor = Color.FromArgb(230, 230, 250),
+            //TitleBarHoverIconColor = Color.FromArgb(230, 230, 250),
+            //TitleBarActiveColor = Color.FromArgb(28, 28, 70),
+            //TitleBarActiveTextColor = Color.FromArgb(230, 230, 250),
+            //TitleBarActiveIconColor = Color.FromArgb(230, 230, 250),
+            //TitleBarInactiveColor = Color.FromArgb(20, 20, 50),
+            //TitleBarInactiveTextColor = Color.FromArgb(169, 169, 169),
+            //TitleBarInactiveIconColor = Color.FromArgb(169, 169, 169),
+            //TitleBarBorderColor = Color.FromArgb(72, 61, 139),    // Dark Slate Blue
+            //TitleBarBorderHoverColor = Color.FromArgb(75, 0, 130), // Indigo
+            //TitleBarBorderActiveColor = Color.FromArgb(75, 0, 130),
+            //TitleBarBorderInactiveColor = Color.FromArgb(72, 61, 139),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(178, 34, 34),   // Firebrick
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(139, 0, 0),    // Dark Red
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(20, 20, 50),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(169, 169, 169),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(169, 169, 169),
-            TitleBarCloseBorderColor = Color.FromArgb(72, 61, 139),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(75, 0, 130),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(75, 0, 130),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(72, 61, 139),
+            //TitleBarCloseHoverColor = Color.FromArgb(178, 34, 34),   // Firebrick
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(139, 0, 0),    // Dark Red
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(20, 20, 50),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(169, 169, 169),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(169, 169, 169),
+            //TitleBarCloseBorderColor = Color.FromArgb(72, 61, 139),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(75, 0, 130),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(75, 0, 130),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(72, 61, 139),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(95, 158, 160),    // Cadet Blue
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(70, 130, 180),   // Steel Blue
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(20, 20, 50),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(169, 169, 169),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(169, 169, 169),
-            TitleBarMaxBorderColor = Color.FromArgb(72, 61, 139),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(75, 0, 130),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(75, 0, 130),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(72, 61, 139),
+            //TitleBarMaxHoverColor = Color.FromArgb(95, 158, 160),    // Cadet Blue
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(70, 130, 180),   // Steel Blue
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(20, 20, 50),
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(169, 169, 169),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(169, 169, 169),
+            //TitleBarMaxBorderColor = Color.FromArgb(72, 61, 139),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(75, 0, 130),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(75, 0, 130),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(72, 61, 139),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(153, 50, 204),     // Dark Orchid
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(138, 43, 226),    // Blue Violet
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(20, 20, 50),
-            TitleBarMinInactiveTextColor = Color.FromArgb(169, 169, 169),
-            TitleBarMinInactiveIconColor = Color.FromArgb(169, 169, 169),
-            TitleBarMinBorderColor = Color.FromArgb(72, 61, 139),
-            TitleBarMinBorderHoverColor = Color.FromArgb(75, 0, 130),
-            TitleBarMinBorderActiveColor = Color.FromArgb(75, 0, 130),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(72, 61, 139),
+            //TitleBarMinHoverColor = Color.FromArgb(153, 50, 204),     // Dark Orchid
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(138, 43, 226),    // Blue Violet
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(20, 20, 50),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(169, 169, 169),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(169, 169, 169),
+            //TitleBarMinBorderColor = Color.FromArgb(72, 61, 139),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(75, 0, 130),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(75, 0, 130),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(72, 61, 139),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(153, 50, 204),
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(138, 43, 226),
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(20, 20, 50),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(169, 169, 169),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(169, 169, 169),
-            TitleBarMinimizeBorderColor = Color.FromArgb(72, 61, 139),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(75, 0, 130),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(75, 0, 130),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(72, 61, 139),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(153, 50, 204),
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(138, 43, 226),
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(20, 20, 50),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(169, 169, 169),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(169, 169, 169),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(72, 61, 139),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(75, 0, 130),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(75, 0, 130),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(72, 61, 139),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(230, 230, 250),        // Lavender
-            TitleBarForColor = Color.FromArgb(230, 230, 250),
-            DescriptionForColor = Color.FromArgb(221, 160, 221),  // Plum
-            BeforeForColor = Color.FromArgb(138, 43, 226),        // Blue Violet
-            LatestForColor = Color.FromArgb(65, 105, 225),        // Royal Blue
+            //TitleForColor = Color.FromArgb(230, 230, 250),        // Lavender
+            //TitleBarForColor = Color.FromArgb(230, 230, 250),
+            //DescriptionForColor = Color.FromArgb(221, 160, 221),  // Plum
+            //BeforeForColor = Color.FromArgb(138, 43, 226),        // Blue Violet
+            //LatestForColor = Color.FromArgb(65, 105, 225),        // Royal Blue
             BackColor = Color.FromArgb(18, 18, 50),               // Deep Space Blue
 
             // **Button Colors**
@@ -13826,8 +13647,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(173, 216, 230),      // Light Blue
             ButtonHoverBackColor = Color.FromArgb(72, 61, 139),   // Dark Slate Blue
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(138, 43, 226), // Blue Violet
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(138, 43, 226), // Blue Violet
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(25, 25, 112),
@@ -13843,8 +13664,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(25, 25, 112),
-            HeaderForeColor = Color.FromArgb(230, 230, 250),
+            //HeaderBackColor = Color.FromArgb(25, 25, 112),
+            //HeaderForeColor = Color.FromArgb(230, 230, 250),
             GridLineColor = Color.FromArgb(72, 61, 139),
             RowBackColor = Color.FromArgb(20, 20, 50),
             RowForeColor = Color.FromArgb(230, 230, 250),
@@ -13900,8 +13721,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(20, 20, 50),
             DialogForeColor = Color.FromArgb(230, 230, 250),
-            DialogButtonBackColor = Color.FromArgb(25, 25, 70),
-            DialogButtonForeColor = Color.FromArgb(230, 230, 250),
+            //DialogButtonBackColor = Color.FromArgb(25, 25, 70),
+            //DialogButtonForeColor = Color.FromArgb(230, 230, 250),
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(18, 18, 50),
@@ -13917,14 +13738,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(230, 230, 250),
             SideMenuSelectedForeColor = Color.FromArgb(230, 230, 250),
             SideMenuBorderColor = Color.FromArgb(72, 61, 139),
-            SideMenuIconColor = Color.FromArgb(230, 230, 250),
-            SideMenuSelectedIconColor = Color.FromArgb(230, 230, 250),
+            //SideMenuIconColor = Color.FromArgb(230, 230, 250),
+            //SideMenuSelectedIconColor = Color.FromArgb(230, 230, 250),
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(25, 25, 70),
-            TitleBarForeColor = Color.FromArgb(230, 230, 250),
-            TitleBarHoverBackColor = Color.FromArgb(28, 28, 70),
-            TitleBarHoverForeColor = Color.FromArgb(230, 230, 250),
+            //TitleBarBackColor = Color.FromArgb(25, 25, 70),
+            //TitleBarForeColor = Color.FromArgb(230, 230, 250),
+            //TitleBarHoverBackColor = Color.FromArgb(28, 28, 70),
+            //TitleBarHoverForeColor = Color.FromArgb(230, 230, 250),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(18, 18, 50),
@@ -13940,10 +13761,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(230, 230, 250),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(230, 230, 250),
-            SidebarSelectedIconColor = Color.FromArgb(230, 230, 250),
-            SidebarTextColor = Color.FromArgb(230, 230, 250),
-            SidebarSelectedTextColor = Color.FromArgb(230, 230, 250),
+            //SidebarIconColor = Color.FromArgb(230, 230, 250),
+            //SidebarSelectedIconColor = Color.FromArgb(230, 230, 250),
+            //SidebarTextColor = Color.FromArgb(230, 230, 250),
+            //SidebarSelectedTextColor = Color.FromArgb(230, 230, 250),
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(18, 18, 50),
@@ -14343,92 +14164,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(179, 89, 0),       // Burnt Orange
-            MaxButtonColor = Color.FromArgb(205, 133, 63),       // Peru
-            MinButtonColor = Color.FromArgb(189, 183, 107),      // Dark Khaki
-            TitleBarColor = Color.FromArgb(210, 180, 140),       // Tan
-            TitleBarTextColor = Color.FromArgb(102, 51, 0),      // Dark Brown
-            TitleBarIconColor = Color.FromArgb(102, 51, 0),
-            TitleBarHoverColor = Color.FromArgb(222, 184, 135),  // Burlywood
-            TitleBarHoverTextColor = Color.FromArgb(102, 51, 0),
-            TitleBarHoverIconColor = Color.FromArgb(102, 51, 0),
-            TitleBarActiveColor = Color.FromArgb(222, 184, 135),
-            TitleBarActiveTextColor = Color.FromArgb(102, 51, 0),
-            TitleBarActiveIconColor = Color.FromArgb(102, 51, 0),
-            TitleBarInactiveColor = Color.FromArgb(210, 180, 140),
-            TitleBarInactiveTextColor = Color.FromArgb(153, 102, 51),
-            TitleBarInactiveIconColor = Color.FromArgb(153, 102, 51),
-            TitleBarBorderColor = Color.FromArgb(160, 82, 45),   // Sienna
-            TitleBarBorderHoverColor = Color.FromArgb(139, 69, 19),
-            TitleBarBorderActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarBorderInactiveColor = Color.FromArgb(160, 82, 45),
+            //CloseButtonColor = Color.FromArgb(179, 89, 0),       // Burnt Orange
+            //MaxButtonColor = Color.FromArgb(205, 133, 63),       // Peru
+            //MinButtonColor = Color.FromArgb(189, 183, 107),      // Dark Khaki
+            //TitleBarColor = Color.FromArgb(210, 180, 140),       // Tan
+            //TitleBarTextColor = Color.FromArgb(102, 51, 0),      // Dark Brown
+            //TitleBarIconColor = Color.FromArgb(102, 51, 0),
+            //TitleBarHoverColor = Color.FromArgb(222, 184, 135),  // Burlywood
+            //TitleBarHoverTextColor = Color.FromArgb(102, 51, 0),
+            //TitleBarHoverIconColor = Color.FromArgb(102, 51, 0),
+            //TitleBarActiveColor = Color.FromArgb(222, 184, 135),
+            //TitleBarActiveTextColor = Color.FromArgb(102, 51, 0),
+            //TitleBarActiveIconColor = Color.FromArgb(102, 51, 0),
+            //TitleBarInactiveColor = Color.FromArgb(210, 180, 140),
+            //TitleBarInactiveTextColor = Color.FromArgb(153, 102, 51),
+            //TitleBarInactiveIconColor = Color.FromArgb(153, 102, 51),
+            //TitleBarBorderColor = Color.FromArgb(160, 82, 45),   // Sienna
+            //TitleBarBorderHoverColor = Color.FromArgb(139, 69, 19),
+            //TitleBarBorderActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarBorderInactiveColor = Color.FromArgb(160, 82, 45),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(205, 92, 92),   // Indian Red
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(179, 89, 0),    // Burnt Orange
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(210, 180, 140),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(153, 102, 51),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(153, 102, 51),
-            TitleBarCloseBorderColor = Color.FromArgb(160, 82, 45),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(139, 69, 19),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(160, 82, 45),
+            //TitleBarCloseHoverColor = Color.FromArgb(205, 92, 92),   // Indian Red
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(179, 89, 0),    // Burnt Orange
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(210, 180, 140),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(153, 102, 51),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(153, 102, 51),
+            //TitleBarCloseBorderColor = Color.FromArgb(160, 82, 45),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(139, 69, 19),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(160, 82, 45),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(222, 184, 135),    // Burlywood
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(205, 133, 63),    // Peru
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(210, 180, 140),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(153, 102, 51),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(153, 102, 51),
-            TitleBarMaxBorderColor = Color.FromArgb(160, 82, 45),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(139, 69, 19),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMaxHoverColor = Color.FromArgb(222, 184, 135),    // Burlywood
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(205, 133, 63),    // Peru
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(210, 180, 140),
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(153, 102, 51),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(153, 102, 51),
+            //TitleBarMaxBorderColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(160, 82, 45),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(218, 165, 32),     // Goldenrod
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(189, 183, 107),   // Dark Khaki
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(210, 180, 140),
-            TitleBarMinInactiveTextColor = Color.FromArgb(153, 102, 51),
-            TitleBarMinInactiveIconColor = Color.FromArgb(153, 102, 51),
-            TitleBarMinBorderColor = Color.FromArgb(160, 82, 45),
-            TitleBarMinBorderHoverColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinBorderActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMinHoverColor = Color.FromArgb(218, 165, 32),     // Goldenrod
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(189, 183, 107),   // Dark Khaki
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(210, 180, 140),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(153, 102, 51),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(153, 102, 51),
+            //TitleBarMinBorderColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(160, 82, 45),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(218, 165, 32),
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(189, 183, 107),
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(210, 180, 140),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(153, 102, 51),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(153, 102, 51),
-            TitleBarMinimizeBorderColor = Color.FromArgb(160, 82, 45),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(218, 165, 32),
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(189, 183, 107),
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(210, 180, 140),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(153, 102, 51),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(153, 102, 51),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(160, 82, 45),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(102, 51, 0),          // Dark Brown
-            TitleBarForColor = Color.FromArgb(102, 51, 0),
-            DescriptionForColor = Color.FromArgb(153, 102, 51),  // Medium Brown
-            BeforeForColor = Color.FromArgb(205, 133, 63),       // Peru
-            LatestForColor = Color.FromArgb(189, 183, 107),      // Dark Khaki
+            //TitleForColor = Color.FromArgb(102, 51, 0),          // Dark Brown
+            //TitleBarForColor = Color.FromArgb(102, 51, 0),
+            //DescriptionForColor = Color.FromArgb(153, 102, 51),  // Medium Brown
+            //BeforeForColor = Color.FromArgb(205, 133, 63),       // Peru
+            //LatestForColor = Color.FromArgb(189, 183, 107),      // Dark Khaki
             BackColor = Color.FromArgb(237, 201, 175),           // Light Sand
 
             // **Button Colors**
@@ -14436,8 +14257,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(102, 51, 0),
             ButtonHoverBackColor = Color.FromArgb(222, 184, 135),// Burlywood
             ButtonHoverForeColor = Color.FromArgb(102, 51, 0),
-            ButtonActiveBackColor = Color.FromArgb(205, 133, 63),// Peru
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(205, 133, 63),// Peru
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(245, 222, 179),    // Wheat
@@ -14453,8 +14274,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(222, 184, 135),
-            HeaderForeColor = Color.FromArgb(102, 51, 0),
+            //HeaderBackColor = Color.FromArgb(222, 184, 135),
+            //HeaderForeColor = Color.FromArgb(102, 51, 0),
             GridLineColor = Color.FromArgb(160, 82, 45),
             RowBackColor = Color.FromArgb(245, 222, 179),
             RowForeColor = Color.FromArgb(102, 51, 0),
@@ -14510,8 +14331,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(237, 201, 175),
             DialogForeColor = Color.FromArgb(102, 51, 0),
-            DialogButtonBackColor = Color.FromArgb(205, 133, 63),
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(205, 133, 63),
+            //DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(237, 201, 175),
@@ -14527,14 +14348,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(102, 51, 0),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(160, 82, 45),
-            SideMenuIconColor = Color.FromArgb(102, 51, 0),
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(102, 51, 0),
+            //SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(210, 180, 140),
-            TitleBarForeColor = Color.FromArgb(102, 51, 0),
-            TitleBarHoverBackColor = Color.FromArgb(222, 184, 135),
-            TitleBarHoverForeColor = Color.FromArgb(102, 51, 0),
+            //TitleBarBackColor = Color.FromArgb(210, 180, 140),
+            //TitleBarForeColor = Color.FromArgb(102, 51, 0),
+            //TitleBarHoverBackColor = Color.FromArgb(222, 184, 135),
+            //TitleBarHoverForeColor = Color.FromArgb(102, 51, 0),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(237, 201, 175),
@@ -14550,10 +14371,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(102, 51, 0),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(102, 51, 0),
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(102, 51, 0),
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(102, 51, 0),
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.FromArgb(102, 51, 0),
+            //SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(237, 201, 175),
@@ -14953,92 +14774,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(128, 0, 0),        // Maroon
-            MaxButtonColor = Color.FromArgb(85, 107, 47),        // Dark Olive Green
-            MinButtonColor = Color.FromArgb(139, 69, 19),        // Saddle Brown
-            TitleBarColor = Color.FromArgb(210, 180, 140),       // Tan
-            TitleBarTextColor = Color.FromArgb(80, 60, 40),      // Dark Brown
-            TitleBarIconColor = Color.FromArgb(80, 60, 40),
-            TitleBarHoverColor = Color.FromArgb(222, 184, 135),  // Burlywood
-            TitleBarHoverTextColor = Color.FromArgb(80, 60, 40),
-            TitleBarHoverIconColor = Color.FromArgb(80, 60, 40),
-            TitleBarActiveColor = Color.FromArgb(222, 184, 135),
-            TitleBarActiveTextColor = Color.FromArgb(80, 60, 40),
-            TitleBarActiveIconColor = Color.FromArgb(80, 60, 40),
-            TitleBarInactiveColor = Color.FromArgb(210, 180, 140),
-            TitleBarInactiveTextColor = Color.FromArgb(139, 69, 19),
-            TitleBarInactiveIconColor = Color.FromArgb(139, 69, 19),
-            TitleBarBorderColor = Color.FromArgb(160, 82, 45),     // Sienna
-            TitleBarBorderHoverColor = Color.FromArgb(139, 69, 19),
-            TitleBarBorderActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarBorderInactiveColor = Color.FromArgb(160, 82, 45),
+            //CloseButtonColor = Color.FromArgb(128, 0, 0),        // Maroon
+            //MaxButtonColor = Color.FromArgb(85, 107, 47),        // Dark Olive Green
+            //MinButtonColor = Color.FromArgb(139, 69, 19),        // Saddle Brown
+            //TitleBarColor = Color.FromArgb(210, 180, 140),       // Tan
+            //TitleBarTextColor = Color.FromArgb(80, 60, 40),      // Dark Brown
+            //TitleBarIconColor = Color.FromArgb(80, 60, 40),
+            //TitleBarHoverColor = Color.FromArgb(222, 184, 135),  // Burlywood
+            //TitleBarHoverTextColor = Color.FromArgb(80, 60, 40),
+            //TitleBarHoverIconColor = Color.FromArgb(80, 60, 40),
+            //TitleBarActiveColor = Color.FromArgb(222, 184, 135),
+            //TitleBarActiveTextColor = Color.FromArgb(80, 60, 40),
+            //TitleBarActiveIconColor = Color.FromArgb(80, 60, 40),
+            //TitleBarInactiveColor = Color.FromArgb(210, 180, 140),
+            //TitleBarInactiveTextColor = Color.FromArgb(139, 69, 19),
+            //TitleBarInactiveIconColor = Color.FromArgb(139, 69, 19),
+            //TitleBarBorderColor = Color.FromArgb(160, 82, 45),     // Sienna
+            //TitleBarBorderHoverColor = Color.FromArgb(139, 69, 19),
+            //TitleBarBorderActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarBorderInactiveColor = Color.FromArgb(160, 82, 45),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(165, 42, 42),   // Brown
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(128, 0, 0),    // Maroon
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(210, 180, 140),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(139, 69, 19),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(139, 69, 19),
-            TitleBarCloseBorderColor = Color.FromArgb(160, 82, 45),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(139, 69, 19),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(160, 82, 45),
+            //TitleBarCloseHoverColor = Color.FromArgb(165, 42, 42),   // Brown
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(128, 0, 0),    // Maroon
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(210, 180, 140),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(139, 69, 19),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(139, 69, 19),
+            //TitleBarCloseBorderColor = Color.FromArgb(160, 82, 45),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(139, 69, 19),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(160, 82, 45),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(107, 142, 35),    // Olive Drab
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(85, 107, 47),    // Dark Olive Green
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(210, 180, 140),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(139, 69, 19),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(139, 69, 19),
-            TitleBarMaxBorderColor = Color.FromArgb(160, 82, 45),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(139, 69, 19),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMaxHoverColor = Color.FromArgb(107, 142, 35),    // Olive Drab
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(85, 107, 47),    // Dark Olive Green
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(210, 180, 140),
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMaxBorderColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(160, 82, 45),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(160, 82, 45),     // Sienna
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(139, 69, 19),    // Saddle Brown
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(210, 180, 140),
-            TitleBarMinInactiveTextColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinInactiveIconColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinBorderColor = Color.FromArgb(160, 82, 45),
-            TitleBarMinBorderHoverColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinBorderActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMinHoverColor = Color.FromArgb(160, 82, 45),     // Sienna
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(139, 69, 19),    // Saddle Brown
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(210, 180, 140),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinBorderColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(160, 82, 45),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(160, 82, 45),
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(210, 180, 140),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinimizeBorderColor = Color.FromArgb(160, 82, 45),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(139, 69, 19),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(210, 180, 140),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(160, 82, 45),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(139, 69, 19),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(160, 82, 45),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(80, 60, 40),          // Dark Brown
-            TitleBarForColor = Color.FromArgb(80, 60, 40),
-            DescriptionForColor = Color.FromArgb(100, 80, 60),   // Medium Brown
-            BeforeForColor = Color.FromArgb(210, 180, 140),      // Tan
-            LatestForColor = Color.FromArgb(139, 69, 19),        // Saddle Brown
+            //TitleForColor = Color.FromArgb(80, 60, 40),          // Dark Brown
+            //TitleBarForColor = Color.FromArgb(80, 60, 40),
+            //DescriptionForColor = Color.FromArgb(100, 80, 60),   // Medium Brown
+            //BeforeForColor = Color.FromArgb(210, 180, 140),      // Tan
+            //LatestForColor = Color.FromArgb(139, 69, 19),        // Saddle Brown
             BackColor = Color.FromArgb(245, 222, 179),           // Wheat
 
             // **Button Colors**
@@ -15046,8 +14867,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(80, 60, 40),
             ButtonHoverBackColor = Color.FromArgb(222, 184, 135),// Burlywood
             ButtonHoverForeColor = Color.FromArgb(80, 60, 40),
-            ButtonActiveBackColor = Color.FromArgb(160, 82, 45), // Sienna
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(160, 82, 45), // Sienna
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(245, 222, 179),
@@ -15063,8 +14884,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(222, 184, 135),
-            HeaderForeColor = Color.FromArgb(80, 60, 40),
+            //HeaderBackColor = Color.FromArgb(222, 184, 135),
+            //HeaderForeColor = Color.FromArgb(80, 60, 40),
             GridLineColor = Color.FromArgb(160, 82, 45),
             RowBackColor = Color.FromArgb(245, 222, 179),
             RowForeColor = Color.FromArgb(80, 60, 40),
@@ -15120,8 +14941,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(245, 222, 179),
             DialogForeColor = Color.FromArgb(80, 60, 40),
-            DialogButtonBackColor = Color.FromArgb(160, 82, 45),
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(160, 82, 45),
+            //DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(245, 222, 179),
@@ -15137,14 +14958,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(80, 60, 40),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(160, 82, 45),
-            SideMenuIconColor = Color.FromArgb(80, 60, 40),
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(80, 60, 40),
+            //SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(210, 180, 140),
-            TitleBarForeColor = Color.FromArgb(80, 60, 40),
-            TitleBarHoverBackColor = Color.FromArgb(222, 184, 135),
-            TitleBarHoverForeColor = Color.FromArgb(80, 60, 40),
+            //TitleBarBackColor = Color.FromArgb(210, 180, 140),
+            //TitleBarForeColor = Color.FromArgb(80, 60, 40),
+            //TitleBarHoverBackColor = Color.FromArgb(222, 184, 135),
+            //TitleBarHoverForeColor = Color.FromArgb(80, 60, 40),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(245, 222, 179),
@@ -15160,10 +14981,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(80, 60, 40),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(80, 60, 40),
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(80, 60, 40),
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(80, 60, 40),
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.FromArgb(80, 60, 40),
+            //SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(245, 222, 179),
@@ -15564,92 +15385,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             CardTitleForeColor = Color.FromArgb(255, 0, 0, 0),
             CardTextForeColor = Color.White,
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(232, 17, 35),      // Close Button Red
-            MaxButtonColor = Color.FromArgb(0, 120, 215),        // Maximize Button Blue
-            MinButtonColor = Color.FromArgb(0, 120, 215),        // Minimize Button Blue
-            TitleBarColor = Color.FromArgb(230, 230, 230),       // Light Gray
-            TitleBarTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarHoverColor = Color.FromArgb(210, 210, 210),
-            TitleBarHoverTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarHoverIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarActiveColor = Color.FromArgb(210, 210, 210),
-            TitleBarActiveTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarActiveIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarInactiveColor = Color.FromArgb(230, 230, 230),
-            TitleBarInactiveTextColor = Color.Gray,
-            TitleBarInactiveIconColor = Color.Gray,
-            TitleBarBorderColor = Color.FromArgb(200, 200, 200),
-            TitleBarBorderHoverColor = Color.FromArgb(180, 180, 180),
-            TitleBarBorderActiveColor = Color.FromArgb(180, 180, 180),
-            TitleBarBorderInactiveColor = Color.FromArgb(200, 200, 200),
+            //CloseButtonColor = Color.FromArgb(232, 17, 35),      // Close Button Red
+            //MaxButtonColor = Color.FromArgb(0, 120, 215),        // Maximize Button Blue
+            //MinButtonColor = Color.FromArgb(0, 120, 215),        // Minimize Button Blue
+            //TitleBarColor = Color.FromArgb(230, 230, 230),       // Light Gray
+            //TitleBarTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarHoverColor = Color.FromArgb(210, 210, 210),
+            //TitleBarHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarHoverIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarActiveColor = Color.FromArgb(210, 210, 210),
+            //TitleBarActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarActiveIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarInactiveColor = Color.FromArgb(230, 230, 230),
+            //TitleBarInactiveTextColor = Color.Gray,
+            //TitleBarInactiveIconColor = Color.Gray,
+            //TitleBarBorderColor = Color.FromArgb(200, 200, 200),
+            //TitleBarBorderHoverColor = Color.FromArgb(180, 180, 180),
+            //TitleBarBorderActiveColor = Color.FromArgb(180, 180, 180),
+            //TitleBarBorderInactiveColor = Color.FromArgb(200, 200, 200),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(241, 112, 122),
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(232, 17, 35),
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(230, 230, 230),
-            TitleBarCloseInactiveTextColor = Color.Gray,
-            TitleBarCloseInactiveIconColor = Color.Gray,
-            TitleBarCloseBorderColor = Color.FromArgb(200, 200, 200),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(180, 180, 180),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(180, 180, 180),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarCloseHoverColor = Color.FromArgb(241, 112, 122),
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(232, 17, 35),
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(230, 230, 230),
+            //TitleBarCloseInactiveTextColor = Color.Gray,
+            //TitleBarCloseInactiveIconColor = Color.Gray,
+            //TitleBarCloseBorderColor = Color.FromArgb(200, 200, 200),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(180, 180, 180),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(180, 180, 180),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(200, 200, 200),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(204, 228, 247),
-            TitleBarMaxHoverTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMaxHoverIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMaxActiveColor = Color.FromArgb(0, 120, 215),
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(230, 230, 230),
-            TitleBarMaxInactiveTextColor = Color.Gray,
-            TitleBarMaxInactiveIconColor = Color.Gray,
-            TitleBarMaxBorderColor = Color.FromArgb(200, 200, 200),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(180, 180, 180),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(180, 180, 180),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMaxHoverColor = Color.FromArgb(204, 228, 247),
+            //TitleBarMaxHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMaxHoverIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMaxActiveColor = Color.FromArgb(0, 120, 215),
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(230, 230, 230),
+            //TitleBarMaxInactiveTextColor = Color.Gray,
+            //TitleBarMaxInactiveIconColor = Color.Gray,
+            //TitleBarMaxBorderColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(180, 180, 180),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(180, 180, 180),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(200, 200, 200),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(204, 228, 247),
-            TitleBarMinHoverTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinHoverIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinActiveColor = Color.FromArgb(0, 120, 215),
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(230, 230, 230),
-            TitleBarMinInactiveTextColor = Color.Gray,
-            TitleBarMinInactiveIconColor = Color.Gray,
-            TitleBarMinBorderColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinBorderHoverColor = Color.FromArgb(180, 180, 180),
-            TitleBarMinBorderActiveColor = Color.FromArgb(180, 180, 180),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinHoverColor = Color.FromArgb(204, 228, 247),
+            //TitleBarMinHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinHoverIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinActiveColor = Color.FromArgb(0, 120, 215),
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(230, 230, 230),
+            //TitleBarMinInactiveTextColor = Color.Gray,
+            //TitleBarMinInactiveIconColor = Color.Gray,
+            //TitleBarMinBorderColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(180, 180, 180),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(180, 180, 180),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(200, 200, 200),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(204, 228, 247),
-            TitleBarMinimizeHoverTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinimizeActiveColor = Color.FromArgb(0, 120, 215),
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(230, 230, 230),
-            TitleBarMinimizeInactiveTextColor = Color.Gray,
-            TitleBarMinimizeInactiveIconColor = Color.Gray,
-            TitleBarMinimizeBorderColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(180, 180, 180),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(180, 180, 180),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(204, 228, 247),
+            //TitleBarMinimizeHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinimizeActiveColor = Color.FromArgb(0, 120, 215),
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(230, 230, 230),
+            //TitleBarMinimizeInactiveTextColor = Color.Gray,
+            //TitleBarMinimizeInactiveIconColor = Color.Gray,
+            //TitleBarMinimizeBorderColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(180, 180, 180),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(180, 180, 180),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(200, 200, 200),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarForColor = Color.FromArgb(255, 0, 0, 0),
-            DescriptionForColor = Color.Gray,
-            BeforeForColor = Color.FromArgb(0, 120, 215),     // Blue Accent
-            LatestForColor = Color.FromArgb(0, 120, 215),
+            //TitleForColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarForColor = Color.FromArgb(255, 0, 0, 0),
+            //DescriptionForColor = Color.Gray,
+            //BeforeForColor = Color.FromArgb(0, 120, 215),     // Blue Accent
+            //LatestForColor = Color.FromArgb(0, 120, 215),
             BackColor = Color.White,
 
 
@@ -15658,8 +15479,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(255, 0, 0, 0),
             ButtonHoverBackColor = Color.FromArgb(230, 230, 230),
             ButtonHoverForeColor = Color.FromArgb(255, 0, 0, 0),
-            ButtonActiveBackColor = Color.FromArgb(0, 120, 215),
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(0, 120, 215),
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
@@ -15675,8 +15496,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(240, 240, 240),
-            HeaderForeColor = Color.FromArgb(255, 0, 0, 0),
+            //HeaderBackColor = Color.FromArgb(240, 240, 240),
+            //HeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridLineColor = Color.FromArgb(200, 200, 200),
             RowBackColor = Color.White,
             RowForeColor = Color.FromArgb(255, 0, 0, 0),
@@ -15732,8 +15553,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.White,
             DialogForeColor = Color.FromArgb(255, 0, 0, 0),
-            DialogButtonBackColor = Color.FromArgb(240, 240, 240),
-            DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
+            //DialogButtonBackColor = Color.FromArgb(240, 240, 240),
+            //DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Gradient Properties**
             GradientStartColor = Color.White,
@@ -15749,14 +15570,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(200, 200, 200),
-            SideMenuIconColor = Color.FromArgb(255, 0, 0, 0),
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(255, 0, 0, 0),
+            //SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(230, 230, 230),
-            TitleBarForeColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarHoverBackColor = Color.FromArgb(210, 210, 210),
-            TitleBarHoverForeColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarBackColor = Color.FromArgb(230, 230, 230),
+            //TitleBarForeColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarHoverBackColor = Color.FromArgb(210, 210, 210),
+            //TitleBarHoverForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.White,
@@ -15771,10 +15592,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(255, 0, 0, 0),
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(255, 0, 0, 0),
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(255, 0, 0, 0),
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.FromArgb(255, 0, 0, 0),
+            //SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.White,
@@ -16175,92 +15996,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // ===== UI Elements =====
-            CloseButtonColor = Color.FromArgb(255, 0, 0),      // Fully opaque Red
-            MaxButtonColor = Color.FromArgb(0, 255, 0),        // Fully opaque Green
-            MinButtonColor = Color.FromArgb(0, 0, 255),        // Fully opaque Blue
-            TitleBarColor = Color.FromArgb(255, 255, 255),
-            TitleBarTextColor = Color.FromArgb(230, 230, 230),
-            TitleBarIconColor = Color.FromArgb(230, 230, 230),
-            TitleBarHoverColor = Color.FromArgb(255, 255, 255),
-            TitleBarHoverTextColor = Color.FromArgb(230, 230, 230),
-            TitleBarHoverIconColor = Color.FromArgb(230, 230, 230),
-            TitleBarActiveColor = Color.FromArgb(255, 255, 255),
-            TitleBarActiveTextColor = Color.FromArgb(230, 230, 230),
-            TitleBarActiveIconColor = Color.FromArgb(230, 230, 230),
-            TitleBarInactiveColor = Color.FromArgb(255, 255, 255),
-            TitleBarInactiveTextColor = Color.FromArgb(200, 200, 200),
-            TitleBarInactiveIconColor = Color.FromArgb(200, 200, 200),
-            TitleBarBorderColor = Color.FromArgb(255, 255, 255),
-            TitleBarBorderHoverColor = Color.FromArgb(255, 255, 255),
-            TitleBarBorderActiveColor = Color.FromArgb(255, 255, 255),
-            TitleBarBorderInactiveColor = Color.FromArgb(255, 255, 255),
+            //CloseButtonColor = Color.FromArgb(255, 0, 0),      // Fully opaque Red
+            //MaxButtonColor = Color.FromArgb(0, 255, 0),        // Fully opaque Green
+            //MinButtonColor = Color.FromArgb(0, 0, 255),        // Fully opaque Blue
+            //TitleBarColor = Color.FromArgb(255, 255, 255),
+            //TitleBarTextColor = Color.FromArgb(230, 230, 230),
+            //TitleBarIconColor = Color.FromArgb(230, 230, 230),
+            //TitleBarHoverColor = Color.FromArgb(255, 255, 255),
+            //TitleBarHoverTextColor = Color.FromArgb(230, 230, 230),
+            //TitleBarHoverIconColor = Color.FromArgb(230, 230, 230),
+            //TitleBarActiveColor = Color.FromArgb(255, 255, 255),
+            //TitleBarActiveTextColor = Color.FromArgb(230, 230, 230),
+            //TitleBarActiveIconColor = Color.FromArgb(230, 230, 230),
+            //TitleBarInactiveColor = Color.FromArgb(255, 255, 255),
+            //TitleBarInactiveTextColor = Color.FromArgb(200, 200, 200),
+            //TitleBarInactiveIconColor = Color.FromArgb(200, 200, 200),
+            //TitleBarBorderColor = Color.FromArgb(255, 255, 255),
+            //TitleBarBorderHoverColor = Color.FromArgb(255, 255, 255),
+            //TitleBarBorderActiveColor = Color.FromArgb(255, 255, 255),
+            //TitleBarBorderInactiveColor = Color.FromArgb(255, 255, 255),
 
             // ===== Title Bar – Close Button =====
-            TitleBarCloseHoverColor = Color.FromArgb(255, 50, 50),
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(255, 0, 0),
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(255, 255, 255),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(200, 200, 200),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(200, 200, 200),
-            TitleBarCloseBorderColor = Color.FromArgb(255, 255, 255),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(255, 255, 255),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(255, 255, 255),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(255, 255, 255),
+            //TitleBarCloseHoverColor = Color.FromArgb(255, 50, 50),
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(255, 0, 0),
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(255, 255, 255),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(200, 200, 200),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(200, 200, 200),
+            //TitleBarCloseBorderColor = Color.FromArgb(255, 255, 255),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(255, 255, 255),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(255, 255, 255),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(255, 255, 255),
 
             // ===== Title Bar – Maximize Button =====
-            TitleBarMaxHoverColor = Color.FromArgb(50, 255, 50),
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(0, 255, 0),
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(255, 255, 255),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(200, 200, 200),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(200, 200, 200),
-            TitleBarMaxBorderColor = Color.FromArgb(255, 255, 255),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(255, 255, 255),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(255, 255, 255),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(255, 255, 255),
+            //TitleBarMaxHoverColor = Color.FromArgb(50, 255, 50),
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(0, 255, 0),
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(255, 255, 255),
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMaxBorderColor = Color.FromArgb(255, 255, 255),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(255, 255, 255),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(255, 255, 255),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(255, 255, 255),
 
             // ===== Title Bar – Minimize Button =====
-            TitleBarMinHoverColor = Color.FromArgb(50, 50, 255),
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(0, 0, 255),
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(255, 255, 255),
-            TitleBarMinInactiveTextColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinInactiveIconColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinBorderColor = Color.FromArgb(255, 255, 255),
-            TitleBarMinBorderHoverColor = Color.FromArgb(255, 255, 255),
-            TitleBarMinBorderActiveColor = Color.FromArgb(255, 255, 255),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(255, 255, 255),
+            //TitleBarMinHoverColor = Color.FromArgb(50, 50, 255),
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(0, 0, 255),
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(255, 255, 255),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinBorderColor = Color.FromArgb(255, 255, 255),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(255, 255, 255),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(255, 255, 255),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(255, 255, 255),
 
             // ===== Title Bar – Minimize Button (Alternative) =====
-            TitleBarMinimizeHoverColor = Color.FromArgb(50, 50, 255),
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(0, 0, 255),
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(255, 255, 255),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinimizeBorderColor = Color.FromArgb(255, 255, 255),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(255, 255, 255),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(255, 255, 255),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(255, 255, 255),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(50, 50, 255),
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(0, 0, 255),
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(255, 255, 255),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(255, 255, 255),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(255, 255, 255),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(255, 255, 255),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(255, 255, 255),
 
             // ===== General Colors =====
-            TitleForColor = Color.DarkSlateGray,
-            TitleBarForColor = Color.FromArgb(230, 230, 230),
-            DescriptionForColor = Color.FromArgb(220, 220, 220),
-            BeforeForColor = Color.FromArgb(255, 0, 0, 0), // Opaque Black
-            LatestForColor = Color.FromArgb(255, 255, 255), // Opaque White
+            //TitleForColor = Color.DarkSlateGray,
+            //TitleBarForColor = Color.FromArgb(230, 230, 230),
+            //DescriptionForColor = Color.FromArgb(220, 220, 220),
+            //BeforeForColor = Color.FromArgb(255, 0, 0, 0), // Opaque Black
+            //LatestForColor = Color.FromArgb(255, 255, 255), // Opaque White
             BackColor = Color.FromArgb(245, 245, 245),
 
             // ===== Button Colors =====
@@ -16268,8 +16089,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(30, 30, 30),
             ButtonHoverBackColor = Color.FromArgb(255, 255, 255),
             ButtonHoverForeColor = Color.FromArgb(30, 30, 30),
-            ButtonActiveBackColor = Color.FromArgb(255, 255, 255),
-            ButtonActiveForeColor = Color.FromArgb(30, 30, 30),
+            //ButtonActiveBackColor = Color.FromArgb(255, 255, 255),
+            //ButtonActiveForeColor = Color.FromArgb(30, 30, 30),
 
             // ===== TextBox Colors =====
             TextBoxBackColor = Color.FromArgb(255, 255, 255),
@@ -16283,8 +16104,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             PanelBackColor = Color.FromArgb(255, 255, 255),
 
             // ===== Grid Colors =====
-            HeaderBackColor = Color.FromArgb(255, 255, 255),
-            HeaderForeColor = Color.FromArgb(30, 30, 30),
+            //HeaderBackColor = Color.FromArgb(255, 255, 255),
+            //HeaderForeColor = Color.FromArgb(30, 30, 30),
             GridLineColor = Color.FromArgb(200, 200, 200),
             RowBackColor = Color.FromArgb(255, 255, 255),
             RowForeColor = Color.FromArgb(30, 30, 30),
@@ -16339,8 +16160,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // ===== Dialog Box Colors =====
             DialogBackColor = Color.FromArgb(255, 255, 255),
             DialogForeColor = Color.FromArgb(30, 30, 30),
-            DialogButtonBackColor = Color.FromArgb(30, 144, 255),
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(30, 144, 255),
+            //DialogButtonForeColor = Color.White,
 
             // ===== Gradient Properties =====
             GradientStartColor = Color.FromArgb(255, 255, 255),
@@ -16355,14 +16176,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(30, 30, 30),
             SideMenuSelectedForeColor = Color.FromArgb(30, 30, 30),
             SideMenuBorderColor = Color.FromArgb(255, 255, 255),
-            SideMenuIconColor = Color.FromArgb(30, 30, 30),
-            SideMenuSelectedIconColor = Color.FromArgb(30, 30, 30),
+            //SideMenuIconColor = Color.FromArgb(30, 30, 30),
+            //SideMenuSelectedIconColor = Color.FromArgb(30, 30, 30),
 
             // ===== Title Bar Colors =====
-            TitleBarBackColor = Color.FromArgb(255, 255, 255),
-            TitleBarForeColor = Color.FromArgb(30, 30, 30),
-            TitleBarHoverBackColor = Color.FromArgb(255, 255, 255),
-            TitleBarHoverForeColor = Color.FromArgb(30, 30, 30),
+            //TitleBarBackColor = Color.FromArgb(255, 255, 255),
+            //TitleBarForeColor = Color.FromArgb(30, 30, 30),
+            //TitleBarHoverBackColor = Color.FromArgb(255, 255, 255),
+            //TitleBarHoverForeColor = Color.FromArgb(30, 30, 30),
 
             // ===== Dashboard Colors =====
             DashboardBackColor = Color.White,
@@ -16378,10 +16199,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(200, 200, 200),
 
             // ===== Sidebar and Menu Colors =====
-            SidebarIconColor = Color.FromArgb(30, 30, 30),
-            SidebarSelectedIconColor = Color.FromArgb(30, 30, 30),
-            SidebarTextColor = Color.FromArgb(30, 30, 30),
-            SidebarSelectedTextColor = Color.FromArgb(30, 30, 30),
+            //SidebarIconColor = Color.FromArgb(30, 30, 30),
+            //SidebarSelectedIconColor = Color.FromArgb(30, 30, 30),
+            //SidebarTextColor = Color.FromArgb(30, 30, 30),
+            //SidebarSelectedTextColor = Color.FromArgb(30, 30, 30),
 
             // ===== Navigation Colors =====
             NavigationBackColor = Color.White,
@@ -16771,92 +16592,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(231, 76, 60),    // Alizarin Red
-            MaxButtonColor = Color.FromArgb(46, 204, 113),     // Emerald Green
-            MinButtonColor = Color.FromArgb(241, 196, 15),     // Sun Flower Yellow
-            TitleBarColor = Color.FromArgb(41, 128, 185),      // Belize Hole Blue
-            TitleBarTextColor = Color.White,
-            TitleBarIconColor = Color.White,
-            TitleBarHoverColor = Color.FromArgb(52, 152, 219), // Peter River Blue
-            TitleBarHoverTextColor = Color.White,
-            TitleBarHoverIconColor = Color.White,
-            TitleBarActiveColor = Color.FromArgb(41, 128, 185),
-            TitleBarActiveTextColor = Color.White,
-            TitleBarActiveIconColor = Color.White,
-            TitleBarInactiveColor = Color.FromArgb(127, 140, 141), // Asbestos Gray
-            TitleBarInactiveTextColor = Color.White,
-            TitleBarInactiveIconColor = Color.White,
-            TitleBarBorderColor = Color.FromArgb(127, 140, 141),
-            TitleBarBorderHoverColor = Color.FromArgb(149, 165, 166),
-            TitleBarBorderActiveColor = Color.FromArgb(149, 165, 166),
-            TitleBarBorderInactiveColor = Color.FromArgb(127, 140, 141),
+            //CloseButtonColor = Color.FromArgb(231, 76, 60),    // Alizarin Red
+            //MaxButtonColor = Color.FromArgb(46, 204, 113),     // Emerald Green
+            //MinButtonColor = Color.FromArgb(241, 196, 15),     // Sun Flower Yellow
+            //TitleBarColor = Color.FromArgb(41, 128, 185),      // Belize Hole Blue
+            //TitleBarTextColor = Color.White,
+            //TitleBarIconColor = Color.White,
+            //TitleBarHoverColor = Color.FromArgb(52, 152, 219), // Peter River Blue
+            //TitleBarHoverTextColor = Color.White,
+            //TitleBarHoverIconColor = Color.White,
+            //TitleBarActiveColor = Color.FromArgb(41, 128, 185),
+            //TitleBarActiveTextColor = Color.White,
+            //TitleBarActiveIconColor = Color.White,
+            //TitleBarInactiveColor = Color.FromArgb(127, 140, 141), // Asbestos Gray
+            //TitleBarInactiveTextColor = Color.White,
+            //TitleBarInactiveIconColor = Color.White,
+            //TitleBarBorderColor = Color.FromArgb(127, 140, 141),
+            //TitleBarBorderHoverColor = Color.FromArgb(149, 165, 166),
+            //TitleBarBorderActiveColor = Color.FromArgb(149, 165, 166),
+            //TitleBarBorderInactiveColor = Color.FromArgb(127, 140, 141),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(192, 57, 43), // Pomegranate Red
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(231, 76, 60),
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(127, 140, 141),
-            TitleBarCloseInactiveTextColor = Color.White,
-            TitleBarCloseInactiveIconColor = Color.White,
-            TitleBarCloseBorderColor = Color.FromArgb(127, 140, 141),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(149, 165, 166),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(149, 165, 166),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(127, 140, 141),
+            //TitleBarCloseHoverColor = Color.FromArgb(192, 57, 43), // Pomegranate Red
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(231, 76, 60),
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(127, 140, 141),
+            //TitleBarCloseInactiveTextColor = Color.White,
+            //TitleBarCloseInactiveIconColor = Color.White,
+            //TitleBarCloseBorderColor = Color.FromArgb(127, 140, 141),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(149, 165, 166),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(149, 165, 166),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(127, 140, 141),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(39, 174, 96), // Nephritis Green
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(46, 204, 113),
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(127, 140, 141),
-            TitleBarMaxInactiveTextColor = Color.White,
-            TitleBarMaxInactiveIconColor = Color.White,
-            TitleBarMaxBorderColor = Color.FromArgb(127, 140, 141),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(149, 165, 166),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(149, 165, 166),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(127, 140, 141),
+            //TitleBarMaxHoverColor = Color.FromArgb(39, 174, 96), // Nephritis Green
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(46, 204, 113),
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(127, 140, 141),
+            //TitleBarMaxInactiveTextColor = Color.White,
+            //TitleBarMaxInactiveIconColor = Color.White,
+            //TitleBarMaxBorderColor = Color.FromArgb(127, 140, 141),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(149, 165, 166),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(149, 165, 166),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(127, 140, 141),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(243, 156, 18), // Orange
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(241, 196, 15),
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(127, 140, 141),
-            TitleBarMinInactiveTextColor = Color.White,
-            TitleBarMinInactiveIconColor = Color.White,
-            TitleBarMinBorderColor = Color.FromArgb(127, 140, 141),
-            TitleBarMinBorderHoverColor = Color.FromArgb(149, 165, 166),
-            TitleBarMinBorderActiveColor = Color.FromArgb(149, 165, 166),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(127, 140, 141),
+            //TitleBarMinHoverColor = Color.FromArgb(243, 156, 18), // Orange
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(241, 196, 15),
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(127, 140, 141),
+            //TitleBarMinInactiveTextColor = Color.White,
+            //TitleBarMinInactiveIconColor = Color.White,
+            //TitleBarMinBorderColor = Color.FromArgb(127, 140, 141),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(149, 165, 166),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(149, 165, 166),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(127, 140, 141),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(243, 156, 18),
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(241, 196, 15),
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(127, 140, 141),
-            TitleBarMinimizeInactiveTextColor = Color.White,
-            TitleBarMinimizeInactiveIconColor = Color.White,
-            TitleBarMinimizeBorderColor = Color.FromArgb(127, 140, 141),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(149, 165, 166),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(149, 165, 166),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(127, 140, 141),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(243, 156, 18),
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(241, 196, 15),
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(127, 140, 141),
+            //TitleBarMinimizeInactiveTextColor = Color.White,
+            //TitleBarMinimizeInactiveIconColor = Color.White,
+            //TitleBarMinimizeBorderColor = Color.FromArgb(127, 140, 141),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(149, 165, 166),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(149, 165, 166),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(127, 140, 141),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(44, 62, 80), // Midnight Blue
-            TitleBarForColor = Color.White,
-            DescriptionForColor = Color.FromArgb(127, 140, 141), // Asbestos Gray
-            BeforeForColor = Color.FromArgb(52, 152, 219),       // Peter River Blue
-            LatestForColor = Color.FromArgb(41, 128, 185),       // Belize Hole Blue
+            //TitleForColor = Color.FromArgb(44, 62, 80), // Midnight Blue
+            //TitleBarForColor = Color.White,
+            //DescriptionForColor = Color.FromArgb(127, 140, 141), // Asbestos Gray
+            //BeforeForColor = Color.FromArgb(52, 152, 219),       // Peter River Blue
+            //LatestForColor = Color.FromArgb(41, 128, 185),       // Belize Hole Blue
             BackColor = Color.White,
 
             // **Button Colors**
@@ -16864,8 +16685,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.White,
             ButtonHoverBackColor = Color.FromArgb(41, 128, 185),
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(41, 128, 185),
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(41, 128, 185),
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(236, 240, 241), // Clouds
@@ -16879,8 +16700,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             PanelBackColor = Color.FromArgb(245, 245, 245), // Very Light Gray
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(236, 240, 241),
-            HeaderForeColor = Color.FromArgb(44, 62, 80),
+            //HeaderBackColor = Color.FromArgb(236, 240, 241),
+            //HeaderForeColor = Color.FromArgb(44, 62, 80),
             GridLineColor = Color.FromArgb(189, 195, 199),
             RowBackColor = Color.White,
             RowForeColor = Color.FromArgb(44, 62, 80),
@@ -16935,8 +16756,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.White,
             DialogForeColor = Color.FromArgb(44, 62, 80),
-            DialogButtonBackColor = Color.FromArgb(52, 152, 219),
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(52, 152, 219),
+            //DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
             GradientStartColor = Color.White,
@@ -16951,14 +16772,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(44, 62, 80),
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(189, 195, 199),
-            SideMenuIconColor = Color.FromArgb(44, 62, 80),
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(44, 62, 80),
+            //SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.LightGray,
-            TitleBarForeColor = Color.White,
-            TitleBarHoverBackColor = Color.FromArgb(52, 152, 219),
-            TitleBarHoverForeColor = Color.White,
+            //TitleBarBackColor = Color.LightGray,
+            //TitleBarForeColor = Color.White,
+            //TitleBarHoverBackColor = Color.FromArgb(52, 152, 219),
+            //TitleBarHoverForeColor = Color.White,
 
             // **Dashboard Colors**
             DashboardBackColor = Color.White,
@@ -16975,10 +16796,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(44, 62, 80),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(44, 62, 80),
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(44, 62, 80),
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(44, 62, 80),
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.FromArgb(44, 62, 80),
+            //SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.White,
@@ -17324,92 +17145,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(255, 0, 0),        // Bright Red
-            MaxButtonColor = Color.FromArgb(0, 255, 0),          // Bright Green
-            MinButtonColor = Color.FromArgb(0, 0, 255),          // Bright Blue
-            TitleBarColor = Color.FromArgb(15, 15, 15),          // Very Dark Gray
-            TitleBarTextColor = Color.FromArgb(0, 255, 255),     // Neon Cyan
-            TitleBarIconColor = Color.FromArgb(0, 255, 255),
-            TitleBarHoverColor = Color.FromArgb(25, 25, 25),
-            TitleBarHoverTextColor = Color.FromArgb(0, 255, 255),
-            TitleBarHoverIconColor = Color.FromArgb(0, 255, 255),
-            TitleBarActiveColor = Color.FromArgb(25, 25, 25),
-            TitleBarActiveTextColor = Color.FromArgb(0, 255, 255),
-            TitleBarActiveIconColor = Color.FromArgb(0, 255, 255),
-            TitleBarInactiveColor = Color.FromArgb(15, 15, 15),
-            TitleBarInactiveTextColor = Color.FromArgb(100, 100, 100),
-            TitleBarInactiveIconColor = Color.FromArgb(100, 100, 100),
-            TitleBarBorderColor = Color.FromArgb(0, 255, 255),
-            TitleBarBorderHoverColor = Color.FromArgb(0, 255, 255),
-            TitleBarBorderActiveColor = Color.FromArgb(0, 255, 255),
-            TitleBarBorderInactiveColor = Color.FromArgb(100, 100, 100),
+            //CloseButtonColor = Color.FromArgb(255, 0, 0),        // Bright Red
+            //MaxButtonColor = Color.FromArgb(0, 255, 0),          // Bright Green
+            //MinButtonColor = Color.FromArgb(0, 0, 255),          // Bright Blue
+            //TitleBarColor = Color.FromArgb(15, 15, 15),          // Very Dark Gray
+            //TitleBarTextColor = Color.FromArgb(0, 255, 255),     // Neon Cyan
+            //TitleBarIconColor = Color.FromArgb(0, 255, 255),
+            //TitleBarHoverColor = Color.FromArgb(25, 25, 25),
+            //TitleBarHoverTextColor = Color.FromArgb(0, 255, 255),
+            //TitleBarHoverIconColor = Color.FromArgb(0, 255, 255),
+            //TitleBarActiveColor = Color.FromArgb(25, 25, 25),
+            //TitleBarActiveTextColor = Color.FromArgb(0, 255, 255),
+            //TitleBarActiveIconColor = Color.FromArgb(0, 255, 255),
+            //TitleBarInactiveColor = Color.FromArgb(15, 15, 15),
+            //TitleBarInactiveTextColor = Color.FromArgb(100, 100, 100),
+            //TitleBarInactiveIconColor = Color.FromArgb(100, 100, 100),
+            //TitleBarBorderColor = Color.FromArgb(0, 255, 255),
+            //TitleBarBorderHoverColor = Color.FromArgb(0, 255, 255),
+            //TitleBarBorderActiveColor = Color.FromArgb(0, 255, 255),
+            //TitleBarBorderInactiveColor = Color.FromArgb(100, 100, 100),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(255, 50, 50),
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(255, 0, 0),
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(15, 15, 15),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(100, 100, 100),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(100, 100, 100),
-            TitleBarCloseBorderColor = Color.FromArgb(255, 0, 0),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(255, 0, 0),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(255, 0, 0),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(100, 100, 100),
+            //TitleBarCloseHoverColor = Color.FromArgb(255, 50, 50),
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(255, 0, 0),
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(15, 15, 15),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(100, 100, 100),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(100, 100, 100),
+            //TitleBarCloseBorderColor = Color.FromArgb(255, 0, 0),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(255, 0, 0),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(255, 0, 0),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(100, 100, 100),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(50, 255, 50),
-            TitleBarMaxHoverTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMaxHoverIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMaxActiveColor = Color.FromArgb(0, 255, 0),
-            TitleBarMaxActiveTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMaxActiveIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMaxInactiveColor = Color.FromArgb(15, 15, 15),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(100, 100, 100),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(100, 100, 100),
-            TitleBarMaxBorderColor = Color.FromArgb(0, 255, 0),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(0, 255, 0),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(0, 255, 0),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(100, 100, 100),
+            //TitleBarMaxHoverColor = Color.FromArgb(50, 255, 50),
+            //TitleBarMaxHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMaxHoverIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMaxActiveColor = Color.FromArgb(0, 255, 0),
+            //TitleBarMaxActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMaxActiveIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMaxInactiveColor = Color.FromArgb(15, 15, 15),
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(100, 100, 100),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(100, 100, 100),
+            //TitleBarMaxBorderColor = Color.FromArgb(0, 255, 0),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(0, 255, 0),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(0, 255, 0),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(100, 100, 100),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(50, 50, 255),
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(0, 0, 255),
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(15, 15, 15),
-            TitleBarMinInactiveTextColor = Color.FromArgb(100, 100, 100),
-            TitleBarMinInactiveIconColor = Color.FromArgb(100, 100, 100),
-            TitleBarMinBorderColor = Color.FromArgb(0, 0, 255),
-            TitleBarMinBorderHoverColor = Color.FromArgb(0, 0, 255),
-            TitleBarMinBorderActiveColor = Color.FromArgb(0, 0, 255),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(100, 100, 100),
+            //TitleBarMinHoverColor = Color.FromArgb(50, 50, 255),
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(0, 0, 255),
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(15, 15, 15),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(100, 100, 100),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(100, 100, 100),
+            //TitleBarMinBorderColor = Color.FromArgb(0, 0, 255),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(0, 0, 255),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(0, 0, 255),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(100, 100, 100),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(50, 50, 255),
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(0, 0, 255),
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(15, 15, 15),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(100, 100, 100),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(100, 100, 100),
-            TitleBarMinimizeBorderColor = Color.FromArgb(0, 0, 255),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(0, 0, 255),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(0, 0, 255),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(100, 100, 100),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(50, 50, 255),
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(0, 0, 255),
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(15, 15, 15),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(100, 100, 100),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(100, 100, 100),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(0, 0, 255),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(0, 0, 255),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(0, 0, 255),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(100, 100, 100),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(0, 255, 255),          // Neon Cyan
-            TitleBarForColor = Color.FromArgb(0, 255, 255),
-            DescriptionForColor = Color.FromArgb(255, 85, 255),   // Neon Magenta
-            BeforeForColor = Color.FromArgb(0, 255, 255),
-            LatestForColor = Color.FromArgb(255, 85, 255),
+            //TitleForColor = Color.FromArgb(0, 255, 255),          // Neon Cyan
+            //TitleBarForColor = Color.FromArgb(0, 255, 255),
+            //DescriptionForColor = Color.FromArgb(255, 85, 255),   // Neon Magenta
+            //BeforeForColor = Color.FromArgb(0, 255, 255),
+            //LatestForColor = Color.FromArgb(255, 85, 255),
             BackColor = Color.FromArgb(20, 20, 20),               // Dark Background
 
             // **Button Colors**
@@ -17417,8 +17238,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(0, 255, 255),
             ButtonHoverBackColor = Color.FromArgb(60, 60, 60),
             ButtonHoverForeColor = Color.FromArgb(0, 255, 255),
-            ButtonActiveBackColor = Color.FromArgb(0, 255, 255),
-            ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
+            //ButtonActiveBackColor = Color.FromArgb(0, 255, 255),
+            //ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **TextBox Colors**
             TextBoxBackColor = Color.Gray,
@@ -17434,8 +17255,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(30, 30, 30),
-            HeaderForeColor = Color.FromArgb(0, 255, 255),
+            //HeaderBackColor = Color.FromArgb(30, 30, 30),
+            //HeaderForeColor = Color.FromArgb(0, 255, 255),
             GridLineColor = Color.FromArgb(0, 255, 255),
             RowBackColor = Color.FromArgb(20, 20, 20),
             RowForeColor = Color.FromArgb(0, 255, 255),
@@ -17491,8 +17312,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(20, 20, 20),
             DialogForeColor = Color.FromArgb(0, 255, 255),
-            DialogButtonBackColor = Color.FromArgb(0, 255, 255),
-            DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
+            //DialogButtonBackColor = Color.FromArgb(0, 255, 255),
+            //DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(20, 20, 20),
@@ -17508,14 +17329,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(0, 255, 255),
             SideMenuSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             SideMenuBorderColor = Color.FromArgb(0, 255, 255),
-            SideMenuIconColor = Color.FromArgb(0, 255, 255),
-            SideMenuSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
+            //SideMenuIconColor = Color.FromArgb(0, 255, 255),
+            //SideMenuSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(15, 15, 15),
-            TitleBarForeColor = Color.FromArgb(0, 255, 255),
-            TitleBarHoverBackColor = Color.FromArgb(25, 25, 25),
-            TitleBarHoverForeColor = Color.FromArgb(0, 255, 255),
+            //TitleBarBackColor = Color.FromArgb(15, 15, 15),
+            //TitleBarForeColor = Color.FromArgb(0, 255, 255),
+            //TitleBarHoverBackColor = Color.FromArgb(25, 25, 25),
+            //TitleBarHoverForeColor = Color.FromArgb(0, 255, 255),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(20, 20, 20),
@@ -17531,10 +17352,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(0, 255, 255),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(0, 255, 255),
-            SidebarSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
-            SidebarTextColor = Color.FromArgb(0, 255, 255),
-            SidebarSelectedTextColor = Color.FromArgb(255, 0, 0, 0),
+            //SidebarIconColor = Color.FromArgb(0, 255, 255),
+            //SidebarSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
+            //SidebarTextColor = Color.FromArgb(0, 255, 255),
+            //SidebarSelectedTextColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(25, 25, 25),
@@ -17934,92 +17755,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(255, 255, 69, 0),       // Orange Red
-            MaxButtonColor = Color.FromArgb(255, 60, 179, 113),       // Medium Sea Green
-            MinButtonColor = Color.FromArgb(255, 30, 144, 255),       // Dodger Blue
-            TitleBarColor = Color.FromArgb(255, 75, 0, 130),          // Indigo
-            TitleBarTextColor = Color.White,
-            TitleBarIconColor = Color.White,
-            TitleBarHoverColor = Color.FromArgb(255, 138, 43, 226),   // Blue Violet
-            TitleBarHoverTextColor = Color.White,
-            TitleBarHoverIconColor = Color.White,
-            TitleBarActiveColor = Color.FromArgb(255, 75, 0, 130),
-            TitleBarActiveTextColor = Color.White,
-            TitleBarActiveIconColor = Color.White,
-            TitleBarInactiveColor = Color.FromArgb(255, 123, 104, 238), // Medium Slate Blue
-            TitleBarInactiveTextColor = Color.White,
-            TitleBarInactiveIconColor = Color.White,
-            TitleBarBorderColor = Color.FromArgb(255, 138, 43, 226),
-            TitleBarBorderHoverColor = Color.FromArgb(255, 147, 112, 219),
-            TitleBarBorderActiveColor = Color.FromArgb(255, 147, 112, 219),
-            TitleBarBorderInactiveColor = Color.FromArgb(255, 123, 104, 238),
+            //CloseButtonColor = Color.FromArgb(255, 255, 69, 0),       // Orange Red
+            //MaxButtonColor = Color.FromArgb(255, 60, 179, 113),       // Medium Sea Green
+            //MinButtonColor = Color.FromArgb(255, 30, 144, 255),       // Dodger Blue
+            //TitleBarColor = Color.FromArgb(255, 75, 0, 130),          // Indigo
+            //TitleBarTextColor = Color.White,
+            //TitleBarIconColor = Color.White,
+            //TitleBarHoverColor = Color.FromArgb(255, 138, 43, 226),   // Blue Violet
+            //TitleBarHoverTextColor = Color.White,
+            //TitleBarHoverIconColor = Color.White,
+            //TitleBarActiveColor = Color.FromArgb(255, 75, 0, 130),
+            //TitleBarActiveTextColor = Color.White,
+            //TitleBarActiveIconColor = Color.White,
+            //TitleBarInactiveColor = Color.FromArgb(255, 123, 104, 238), // Medium Slate Blue
+            //TitleBarInactiveTextColor = Color.White,
+            //TitleBarInactiveIconColor = Color.White,
+            //TitleBarBorderColor = Color.FromArgb(255, 138, 43, 226),
+            //TitleBarBorderHoverColor = Color.FromArgb(255, 147, 112, 219),
+            //TitleBarBorderActiveColor = Color.FromArgb(255, 147, 112, 219),
+            //TitleBarBorderInactiveColor = Color.FromArgb(255, 123, 104, 238),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(255, 220, 20, 60), // Crimson
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(255, 255, 69, 0), // Orange Red
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(255, 123, 104, 238),
-            TitleBarCloseInactiveTextColor = Color.White,
-            TitleBarCloseInactiveIconColor = Color.White,
-            TitleBarCloseBorderColor = Color.FromArgb(255, 138, 43, 226),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(255, 147, 112, 219),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(255, 147, 112, 219),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(255, 123, 104, 238),
+            //TitleBarCloseHoverColor = Color.FromArgb(255, 220, 20, 60), // Crimson
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(255, 255, 69, 0), // Orange Red
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(255, 123, 104, 238),
+            //TitleBarCloseInactiveTextColor = Color.White,
+            //TitleBarCloseInactiveIconColor = Color.White,
+            //TitleBarCloseBorderColor = Color.FromArgb(255, 138, 43, 226),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(255, 147, 112, 219),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(255, 147, 112, 219),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(255, 123, 104, 238),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(255, 46, 139, 87), // Sea Green
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(255, 60, 179, 113), // Medium Sea Green
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(255, 123, 104, 238),
-            TitleBarMaxInactiveTextColor = Color.White,
-            TitleBarMaxInactiveIconColor = Color.White,
-            TitleBarMaxBorderColor = Color.FromArgb(255, 138, 43, 226),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(255, 147, 112, 219),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(255, 147, 112, 219),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(255, 123, 104, 238),
+            //TitleBarMaxHoverColor = Color.FromArgb(255, 46, 139, 87), // Sea Green
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(255, 60, 179, 113), // Medium Sea Green
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(255, 123, 104, 238),
+            //TitleBarMaxInactiveTextColor = Color.White,
+            //TitleBarMaxInactiveIconColor = Color.White,
+            //TitleBarMaxBorderColor = Color.FromArgb(255, 138, 43, 226),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(255, 147, 112, 219),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(255, 147, 112, 219),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(255, 123, 104, 238),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(255, 65, 105, 225), // Royal Blue
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(255, 30, 144, 255), // Dodger Blue
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(255, 123, 104, 238),
-            TitleBarMinInactiveTextColor = Color.White,
-            TitleBarMinInactiveIconColor = Color.White,
-            TitleBarMinBorderColor = Color.FromArgb(255, 138, 43, 226),
-            TitleBarMinBorderHoverColor = Color.FromArgb(255, 147, 112, 219),
-            TitleBarMinBorderActiveColor = Color.FromArgb(255, 147, 112, 219),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(255, 123, 104, 238),
+            //TitleBarMinHoverColor = Color.FromArgb(255, 65, 105, 225), // Royal Blue
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(255, 30, 144, 255), // Dodger Blue
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(255, 123, 104, 238),
+            //TitleBarMinInactiveTextColor = Color.White,
+            //TitleBarMinInactiveIconColor = Color.White,
+            //TitleBarMinBorderColor = Color.FromArgb(255, 138, 43, 226),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(255, 147, 112, 219),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(255, 147, 112, 219),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(255, 123, 104, 238),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(255, 65, 105, 225),
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(255, 30, 144, 255),
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(255, 123, 104, 238),
-            TitleBarMinimizeInactiveTextColor = Color.White,
-            TitleBarMinimizeInactiveIconColor = Color.White,
-            TitleBarMinimizeBorderColor = Color.FromArgb(255, 138, 43, 226),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(255, 147, 112, 219),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(255, 147, 112, 219),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(255, 123, 104, 238),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(255, 65, 105, 225),
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(255, 30, 144, 255),
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(255, 123, 104, 238),
+            //TitleBarMinimizeInactiveTextColor = Color.White,
+            //TitleBarMinimizeInactiveIconColor = Color.White,
+            //TitleBarMinimizeBorderColor = Color.FromArgb(255, 138, 43, 226),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(255, 147, 112, 219),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(255, 147, 112, 219),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(255, 123, 104, 238),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(255, 75, 0, 130),
-            TitleBarForColor = Color.FromArgb(255, 75, 0, 130),
-            DescriptionForColor = Color.WhiteSmoke,
-            BeforeForColor = Color.FromArgb(255, 255, 140, 0),       // Dark Orange
-            LatestForColor = Color.FromArgb(255, 0, 255, 127),       // Spring Green
+            //TitleForColor = Color.FromArgb(255, 75, 0, 130),
+            //TitleBarForColor = Color.FromArgb(255, 75, 0, 130),
+            //DescriptionForColor = Color.WhiteSmoke,
+            //BeforeForColor = Color.FromArgb(255, 255, 140, 0),       // Dark Orange
+            //LatestForColor = Color.FromArgb(255, 0, 255, 127),       // Spring Green
             BackColor = Color.FromArgb(255, 200, 248, 255), // Alice Blue
             BackgroundColor = Color.FromArgb(255, 040, 248, 255), // Alice Blue
 
@@ -18028,8 +17849,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(255, 75, 0, 130),
             ButtonHoverBackColor = Color.FromArgb(255, 255, 20, 147), // Deep Pink
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.FromArgb(255, 255, 0, 255), // Magenta
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.FromArgb(255, 255, 0, 255), // Magenta
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(255, 240, 248, 255),   // Alice Blue
@@ -18045,8 +17866,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(255, 138, 43, 226),
-            HeaderForeColor = Color.White,
+            //HeaderBackColor = Color.FromArgb(255, 138, 43, 226),
+            //HeaderForeColor = Color.White,
             GridLineColor = Color.FromArgb(255, 147, 112, 219),
             RowBackColor = Color.White,
             RowForeColor = Color.FromArgb(255, 75, 0, 130),
@@ -18102,8 +17923,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.White,
             DialogForeColor = Color.FromArgb(255, 75, 0, 130),
-            DialogButtonBackColor = Color.FromArgb(255, 138, 43, 226),
-            DialogButtonForeColor = Color.White,
+            //DialogButtonBackColor = Color.FromArgb(255, 138, 43, 226),
+            //DialogButtonForeColor = Color.White,
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(255, 255, 0, 0),      // Red
@@ -18119,14 +17940,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.White,
             SideMenuSelectedForeColor = Color.White,
             SideMenuBorderColor = Color.FromArgb(255, 138, 43, 226),
-            SideMenuIconColor = Color.FromArgb(255, 75, 0, 130),
-            SideMenuSelectedIconColor = Color.White,
+            //SideMenuIconColor = Color.FromArgb(255, 75, 0, 130),
+            //SideMenuSelectedIconColor = Color.White,
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.CornflowerBlue,
-            TitleBarForeColor = Color.White,
-            TitleBarHoverBackColor = Color.FromArgb(255, 138, 43, 226),
-            TitleBarHoverForeColor = Color.White,
+            //TitleBarBackColor = Color.CornflowerBlue,
+            //TitleBarForeColor = Color.White,
+            //TitleBarHoverBackColor = Color.FromArgb(255, 138, 43, 226),
+            //TitleBarHoverForeColor = Color.White,
 
             // **Dashboard Colors**
             DashboardBackColor = Color.White,
@@ -18142,10 +17963,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(255, 75, 0, 130),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(255, 75, 0, 130),
-            SidebarSelectedIconColor = Color.White,
-            SidebarTextColor = Color.FromArgb(255, 75, 0, 130),
-            SidebarSelectedTextColor = Color.White,
+            //SidebarIconColor = Color.FromArgb(255, 75, 0, 130),
+            //SidebarSelectedIconColor = Color.White,
+            //SidebarTextColor = Color.FromArgb(255, 75, 0, 130),
+            //SidebarSelectedTextColor = Color.White,
 
             // **Navigation Colors**
             NavigationBackColor = Color.White,
@@ -18545,92 +18366,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.Red,
-            MaxButtonColor = Color.Green,
-            MinButtonColor = Color.Yellow,
-            TitleBarColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarTextColor = Color.White,
-            TitleBarIconColor = Color.White,
-            TitleBarHoverColor = Color.FromArgb(255, 30, 30, 30),
-            TitleBarHoverTextColor = Color.White,
-            TitleBarHoverIconColor = Color.White,
-            TitleBarActiveColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarActiveTextColor = Color.White,
-            TitleBarActiveIconColor = Color.White,
-            TitleBarInactiveColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarInactiveTextColor = Color.Gray,
-            TitleBarInactiveIconColor = Color.Gray,
-            TitleBarBorderColor = Color.White,
-            TitleBarBorderHoverColor = Color.White,
-            TitleBarBorderActiveColor = Color.White,
-            TitleBarBorderInactiveColor = Color.Gray,
+            //CloseButtonColor = Color.Red,
+            //MaxButtonColor = Color.Green,
+            //MinButtonColor = Color.Yellow,
+            //TitleBarColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarTextColor = Color.White,
+            //TitleBarIconColor = Color.White,
+            //TitleBarHoverColor = Color.FromArgb(255, 30, 30, 30),
+            //TitleBarHoverTextColor = Color.White,
+            //TitleBarHoverIconColor = Color.White,
+            //TitleBarActiveColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarActiveTextColor = Color.White,
+            //TitleBarActiveIconColor = Color.White,
+            //TitleBarInactiveColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarInactiveTextColor = Color.Gray,
+            //TitleBarInactiveIconColor = Color.Gray,
+            //TitleBarBorderColor = Color.White,
+            //TitleBarBorderHoverColor = Color.White,
+            //TitleBarBorderActiveColor = Color.White,
+            //TitleBarBorderInactiveColor = Color.Gray,
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(255, 200, 0, 0),
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.Red,
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarCloseInactiveTextColor = Color.Gray,
-            TitleBarCloseInactiveIconColor = Color.Gray,
-            TitleBarCloseBorderColor = Color.White,
-            TitleBarCloseBorderHoverColor = Color.White,
-            TitleBarCloseBorderActiveColor = Color.White,
-            TitleBarCloseBorderInactiveColor = Color.Gray,
+            //TitleBarCloseHoverColor = Color.FromArgb(255, 200, 0, 0),
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.Red,
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarCloseInactiveTextColor = Color.Gray,
+            //TitleBarCloseInactiveIconColor = Color.Gray,
+            //TitleBarCloseBorderColor = Color.White,
+            //TitleBarCloseBorderHoverColor = Color.White,
+            //TitleBarCloseBorderActiveColor = Color.White,
+            //TitleBarCloseBorderInactiveColor = Color.Gray,
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(255, 0, 200, 0),
-            TitleBarMaxHoverTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMaxHoverIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMaxActiveColor = Color.Green,
-            TitleBarMaxActiveTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMaxActiveIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMaxInactiveColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMaxInactiveTextColor = Color.Gray,
-            TitleBarMaxInactiveIconColor = Color.Gray,
-            TitleBarMaxBorderColor = Color.White,
-            TitleBarMaxBorderHoverColor = Color.White,
-            TitleBarMaxBorderActiveColor = Color.White,
-            TitleBarMaxBorderInactiveColor = Color.Gray,
+            //TitleBarMaxHoverColor = Color.FromArgb(255, 0, 200, 0),
+            //TitleBarMaxHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMaxHoverIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMaxActiveColor = Color.Green,
+            //TitleBarMaxActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMaxActiveIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMaxInactiveColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMaxInactiveTextColor = Color.Gray,
+            //TitleBarMaxInactiveIconColor = Color.Gray,
+            //TitleBarMaxBorderColor = Color.White,
+            //TitleBarMaxBorderHoverColor = Color.White,
+            //TitleBarMaxBorderActiveColor = Color.White,
+            //TitleBarMaxBorderInactiveColor = Color.Gray,
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(255, 200, 200, 0),
-            TitleBarMinHoverTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinHoverIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinActiveColor = Color.Yellow,
-            TitleBarMinActiveTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinActiveIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinInactiveColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinInactiveTextColor = Color.Gray,
-            TitleBarMinInactiveIconColor = Color.Gray,
-            TitleBarMinBorderColor = Color.White,
-            TitleBarMinBorderHoverColor = Color.White,
-            TitleBarMinBorderActiveColor = Color.White,
-            TitleBarMinBorderInactiveColor = Color.Gray,
+            //TitleBarMinHoverColor = Color.FromArgb(255, 200, 200, 0),
+            //TitleBarMinHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinHoverIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinActiveColor = Color.Yellow,
+            //TitleBarMinActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinActiveIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinInactiveColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinInactiveTextColor = Color.Gray,
+            //TitleBarMinInactiveIconColor = Color.Gray,
+            //TitleBarMinBorderColor = Color.White,
+            //TitleBarMinBorderHoverColor = Color.White,
+            //TitleBarMinBorderActiveColor = Color.White,
+            //TitleBarMinBorderInactiveColor = Color.Gray,
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(255, 200, 200, 0),
-            TitleBarMinimizeHoverTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinimizeActiveColor = Color.Yellow,
-            TitleBarMinimizeActiveTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinimizeActiveIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinimizeInactiveColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinimizeInactiveTextColor = Color.Gray,
-            TitleBarMinimizeInactiveIconColor = Color.Gray,
-            TitleBarMinimizeBorderColor = Color.White,
-            TitleBarMinimizeBorderHoverColor = Color.White,
-            TitleBarMinimizeBorderActiveColor = Color.White,
-            TitleBarMinimizeBorderInactiveColor = Color.Gray,
+            //TitleBarMinimizeHoverColor = Color.FromArgb(255, 200, 200, 0),
+            //TitleBarMinimizeHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinimizeActiveColor = Color.Yellow,
+            //TitleBarMinimizeActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinimizeActiveIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinimizeInactiveTextColor = Color.Gray,
+            //TitleBarMinimizeInactiveIconColor = Color.Gray,
+            //TitleBarMinimizeBorderColor = Color.White,
+            //TitleBarMinimizeBorderHoverColor = Color.White,
+            //TitleBarMinimizeBorderActiveColor = Color.White,
+            //TitleBarMinimizeBorderInactiveColor = Color.Gray,
 
             // **General Colors**
-            TitleForColor = Color.White,
-            TitleBarForColor = Color.White,
-            DescriptionForColor = Color.White,
-            BeforeForColor = Color.White,
-            LatestForColor = Color.White,
+            //TitleForColor = Color.White,
+            //TitleBarForColor = Color.White,
+            //DescriptionForColor = Color.White,
+            //BeforeForColor = Color.White,
+            //LatestForColor = Color.White,
             BackColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Button Colors**
@@ -18638,8 +18459,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.White,
             ButtonHoverBackColor = Color.DimGray,
             ButtonHoverForeColor = Color.White,
-            ButtonActiveBackColor = Color.DimGray,
-            ButtonActiveForeColor = Color.White,
+            //ButtonActiveBackColor = Color.DimGray,
+            //ButtonActiveForeColor = Color.White,
 
             // **TextBox Colors**
             TextBoxBackColor = Color.DarkGray,
@@ -18654,8 +18475,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             PanelBackColor = Color.DarkGray,
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(255, 0, 0, 0),
-            HeaderForeColor = Color.White,
+            //HeaderBackColor = Color.FromArgb(255, 0, 0, 0),
+            //HeaderForeColor = Color.White,
             GridLineColor = Color.White,
             RowBackColor = Color.FromArgb(255, 0, 0, 0),
             RowForeColor = Color.White,
@@ -18711,8 +18532,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.Gray,
             DialogForeColor = Color.White,
-            DialogButtonBackColor = Color.White,
-            DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
+            //DialogButtonBackColor = Color.White,
+            //DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(255, 0, 0, 0),
@@ -18728,14 +18549,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             SideMenuSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             SideMenuBorderColor = Color.White,
-            SideMenuIconColor = Color.White,
-            SideMenuSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
+            //SideMenuIconColor = Color.White,
+            //SideMenuSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(255, 35, 35, 30),
-            TitleBarForeColor = Color.White,
-            TitleBarHoverBackColor = Color.FromArgb(255, 30, 30, 30),
-            TitleBarHoverForeColor = Color.White,
+            //TitleBarBackColor = Color.FromArgb(255, 35, 35, 30),
+            //TitleBarForeColor = Color.White,
+            //TitleBarHoverBackColor = Color.FromArgb(255, 30, 30, 30),
+            //TitleBarHoverForeColor = Color.White,
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(255, 0, 0, 0),
@@ -18751,10 +18572,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.White,
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.White,
-            SidebarSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
-            SidebarTextColor = Color.White,
-            SidebarSelectedTextColor = Color.FromArgb(255, 0, 0, 0),
+            //SidebarIconColor = Color.White,
+            //SidebarSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
+            //SidebarTextColor = Color.White,
+            //SidebarSelectedTextColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(255, 0, 0, 0),
@@ -19185,92 +19006,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(64, 64, 64),   // Dark Gray
-            MaxButtonColor = Color.FromArgb(128, 128, 128),  // Medium Gray
-            MinButtonColor = Color.FromArgb(192, 192, 192),  // Light Gray
-            TitleBarColor = Color.FromArgb(230, 230, 230),   // Very Light Gray
-            TitleBarTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarHoverColor = Color.FromArgb(210, 210, 210),
-            TitleBarHoverTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarHoverIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarActiveColor = Color.FromArgb(220, 220, 220),
-            TitleBarActiveTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarActiveIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarInactiveColor = Color.FromArgb(240, 240, 240),
-            TitleBarInactiveTextColor = Color.DarkGray,
-            TitleBarInactiveIconColor = Color.DarkGray,
-            TitleBarBorderColor = Color.FromArgb(200, 200, 200),
-            TitleBarBorderHoverColor = Color.FromArgb(180, 180, 180),
-            TitleBarBorderActiveColor = Color.FromArgb(180, 180, 180),
-            TitleBarBorderInactiveColor = Color.FromArgb(220, 220, 220),
+            //CloseButtonColor = Color.FromArgb(64, 64, 64),   // Dark Gray
+            //MaxButtonColor = Color.FromArgb(128, 128, 128),  // Medium Gray
+            //MinButtonColor = Color.FromArgb(192, 192, 192),  // Light Gray
+            //TitleBarColor = Color.FromArgb(230, 230, 230),   // Very Light Gray
+            //TitleBarTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarHoverColor = Color.FromArgb(210, 210, 210),
+            //TitleBarHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarHoverIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarActiveColor = Color.FromArgb(220, 220, 220),
+            //TitleBarActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarActiveIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarInactiveColor = Color.FromArgb(240, 240, 240),
+            //TitleBarInactiveTextColor = Color.DarkGray,
+            //TitleBarInactiveIconColor = Color.DarkGray,
+            //TitleBarBorderColor = Color.FromArgb(200, 200, 200),
+            //TitleBarBorderHoverColor = Color.FromArgb(180, 180, 180),
+            //TitleBarBorderActiveColor = Color.FromArgb(180, 180, 180),
+            //TitleBarBorderInactiveColor = Color.FromArgb(220, 220, 220),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(100, 100, 100),
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(64, 64, 64),
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(240, 240, 240),
-            TitleBarCloseInactiveTextColor = Color.DarkGray,
-            TitleBarCloseInactiveIconColor = Color.DarkGray,
-            TitleBarCloseBorderColor = Color.FromArgb(200, 200, 200),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(180, 180, 180),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(180, 180, 180),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(220, 220, 220),
+            //TitleBarCloseHoverColor = Color.FromArgb(100, 100, 100),
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(64, 64, 64),
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(240, 240, 240),
+            //TitleBarCloseInactiveTextColor = Color.DarkGray,
+            //TitleBarCloseInactiveIconColor = Color.DarkGray,
+            //TitleBarCloseBorderColor = Color.FromArgb(200, 200, 200),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(180, 180, 180),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(180, 180, 180),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(220, 220, 220),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(160, 160, 160),
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(128, 128, 128),
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(240, 240, 240),
-            TitleBarMaxInactiveTextColor = Color.DarkGray,
-            TitleBarMaxInactiveIconColor = Color.DarkGray,
-            TitleBarMaxBorderColor = Color.FromArgb(200, 200, 200),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(180, 180, 180),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(180, 180, 180),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(220, 220, 220),
+            //TitleBarMaxHoverColor = Color.FromArgb(160, 160, 160),
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(128, 128, 128),
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(240, 240, 240),
+            //TitleBarMaxInactiveTextColor = Color.DarkGray,
+            //TitleBarMaxInactiveIconColor = Color.DarkGray,
+            //TitleBarMaxBorderColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(180, 180, 180),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(180, 180, 180),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(220, 220, 220),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(210, 210, 210),
-            TitleBarMinHoverTextColor = Color.White,
-            TitleBarMinHoverIconColor = Color.White,
-            TitleBarMinActiveColor = Color.FromArgb(192, 192, 192),
-            TitleBarMinActiveTextColor = Color.White,
-            TitleBarMinActiveIconColor = Color.White,
-            TitleBarMinInactiveColor = Color.FromArgb(240, 240, 240),
-            TitleBarMinInactiveTextColor = Color.DarkGray,
-            TitleBarMinInactiveIconColor = Color.DarkGray,
-            TitleBarMinBorderColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinBorderHoverColor = Color.FromArgb(180, 180, 180),
-            TitleBarMinBorderActiveColor = Color.FromArgb(180, 180, 180),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(220, 220, 220),
+            //TitleBarMinHoverColor = Color.FromArgb(210, 210, 210),
+            //TitleBarMinHoverTextColor = Color.White,
+            //TitleBarMinHoverIconColor = Color.White,
+            //TitleBarMinActiveColor = Color.FromArgb(192, 192, 192),
+            //TitleBarMinActiveTextColor = Color.White,
+            //TitleBarMinActiveIconColor = Color.White,
+            //TitleBarMinInactiveColor = Color.FromArgb(240, 240, 240),
+            //TitleBarMinInactiveTextColor = Color.DarkGray,
+            //TitleBarMinInactiveIconColor = Color.DarkGray,
+            //TitleBarMinBorderColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(180, 180, 180),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(180, 180, 180),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(220, 220, 220),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(210, 210, 210),
-            TitleBarMinimizeHoverTextColor = Color.White,
-            TitleBarMinimizeHoverIconColor = Color.White,
-            TitleBarMinimizeActiveColor = Color.FromArgb(192, 192, 192),
-            TitleBarMinimizeActiveTextColor = Color.White,
-            TitleBarMinimizeActiveIconColor = Color.White,
-            TitleBarMinimizeInactiveColor = Color.FromArgb(240, 240, 240),
-            TitleBarMinimizeInactiveTextColor = Color.DarkGray,
-            TitleBarMinimizeInactiveIconColor = Color.DarkGray,
-            TitleBarMinimizeBorderColor = Color.FromArgb(200, 200, 200),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(180, 180, 180),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(180, 180, 180),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(220, 220, 220),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(210, 210, 210),
+            //TitleBarMinimizeHoverTextColor = Color.White,
+            //TitleBarMinimizeHoverIconColor = Color.White,
+            //TitleBarMinimizeActiveColor = Color.FromArgb(192, 192, 192),
+            //TitleBarMinimizeActiveTextColor = Color.White,
+            //TitleBarMinimizeActiveIconColor = Color.White,
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(240, 240, 240),
+            //TitleBarMinimizeInactiveTextColor = Color.DarkGray,
+            //TitleBarMinimizeInactiveIconColor = Color.DarkGray,
+            //TitleBarMinimizeBorderColor = Color.FromArgb(200, 200, 200),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(180, 180, 180),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(180, 180, 180),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(220, 220, 220),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarForColor = Color.FromArgb(255, 0, 0, 0),
-            DescriptionForColor = Color.DarkGray,
-            BeforeForColor = Color.Gray,
-            LatestForColor = Color.Gray,
+            //TitleForColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarForColor = Color.FromArgb(255, 0, 0, 0),
+            //DescriptionForColor = Color.DarkGray,
+            //BeforeForColor = Color.Gray,
+            //LatestForColor = Color.Gray,
             BackColor = Color.White,
 
             // **Button Colors**
@@ -19278,8 +19099,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(255, 0, 0, 0),
             ButtonHoverBackColor = Color.FromArgb(210, 210, 210),
             ButtonHoverForeColor = Color.FromArgb(255, 0, 0, 0),
-            ButtonActiveBackColor = Color.FromArgb(200, 200, 200),
-            ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
+            //ButtonActiveBackColor = Color.FromArgb(200, 200, 200),
+            //ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **TextBox Colors**
             TextBoxBackColor = Color.White,
@@ -19295,8 +19116,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
             // **Grid Colors**
-            HeaderBackColor = Color.FromArgb(245, 245, 245),
-            HeaderForeColor = Color.FromArgb(255, 0, 0, 0),
+            //HeaderBackColor = Color.FromArgb(245, 245, 245),
+            //HeaderForeColor = Color.FromArgb(255, 0, 0, 0),
             GridLineColor = Color.FromArgb(200, 200, 200),
             RowBackColor = Color.White,
             RowForeColor = Color.FromArgb(255, 0, 0, 0),
@@ -19352,8 +19173,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.White,
             DialogForeColor = Color.FromArgb(255, 0, 0, 0),
-            DialogButtonBackColor = Color.FromArgb(230, 230, 230),
-            DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
+            //DialogButtonBackColor = Color.FromArgb(230, 230, 230),
+            //DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Gradient Properties**
             GradientStartColor = Color.White,
@@ -19369,14 +19190,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.FromArgb(255, 0, 0, 0),
             SideMenuSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             SideMenuBorderColor = Color.FromArgb(200, 200, 200),
-            SideMenuIconColor = Color.FromArgb(255, 0, 0, 0),
-            SideMenuSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
+            //SideMenuIconColor = Color.FromArgb(255, 0, 0, 0),
+            //SideMenuSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(230, 230, 230),
-            TitleBarForeColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarHoverBackColor = Color.FromArgb(210, 210, 210),
-            TitleBarHoverForeColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarBackColor = Color.FromArgb(230, 230, 230),
+            //TitleBarForeColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarHoverBackColor = Color.FromArgb(210, 210, 210),
+            //TitleBarHoverForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.White,
@@ -19392,10 +19213,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.FromArgb(255, 0, 0, 0),
-            SidebarSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
-            SidebarTextColor = Color.FromArgb(255, 0, 0, 0),
-            SidebarSelectedTextColor = Color.FromArgb(255, 0, 0, 0),
+            //SidebarIconColor = Color.FromArgb(255, 0, 0, 0),
+            //SidebarSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
+            //SidebarTextColor = Color.FromArgb(255, 0, 0, 0),
+            //SidebarSelectedTextColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Navigation Colors**
             NavigationBackColor = Color.White,
@@ -19796,92 +19617,92 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // **UI Elements**
-            CloseButtonColor = Color.FromArgb(255, 192, 0, 0), // Dark Red
-            MaxButtonColor = Color.FromArgb(255, 0, 128, 0),   // Dark Green
-            MinButtonColor = Color.FromArgb(255, 218, 165, 32), // Goldenrod
-            TitleBarColor = Color.FromArgb(255, 15, 15, 15),    // Very Dark Gray
-            TitleBarTextColor = Color.FromArgb(255, 212, 175),  // Metallic Gold
-            TitleBarIconColor = Color.FromArgb(255, 212, 175),
-            TitleBarHoverColor = Color.FromArgb(255, 25, 25, 25),
-            TitleBarHoverTextColor = Color.FromArgb(255, 212, 175),
-            TitleBarHoverIconColor = Color.FromArgb(255, 212, 175),
-            TitleBarActiveColor = Color.FromArgb(255, 25, 25, 25),
-            TitleBarActiveTextColor = Color.FromArgb(255, 212, 175),
-            TitleBarActiveIconColor = Color.FromArgb(255, 212, 175),
-            TitleBarInactiveColor = Color.FromArgb(255, 15, 15, 15),
-            TitleBarInactiveTextColor = Color.FromArgb(255, 128, 128, 128),
-            TitleBarInactiveIconColor = Color.FromArgb(255, 128, 128, 128),
-            TitleBarBorderColor = Color.FromArgb(255, 212, 175),
-            TitleBarBorderHoverColor = Color.FromArgb(255, 212, 175),
-            TitleBarBorderActiveColor = Color.FromArgb(255, 212, 175),
-            TitleBarBorderInactiveColor = Color.FromArgb(255, 128, 128, 128),
+            //CloseButtonColor = Color.FromArgb(255, 192, 0, 0), // Dark Red
+            //MaxButtonColor = Color.FromArgb(255, 0, 128, 0),   // Dark Green
+            //MinButtonColor = Color.FromArgb(255, 218, 165, 32), // Goldenrod
+            //TitleBarColor = Color.FromArgb(255, 15, 15, 15),    // Very Dark Gray
+            //TitleBarTextColor = Color.FromArgb(255, 212, 175),  // Metallic Gold
+            //TitleBarIconColor = Color.FromArgb(255, 212, 175),
+            //TitleBarHoverColor = Color.FromArgb(255, 25, 25, 25),
+            //TitleBarHoverTextColor = Color.FromArgb(255, 212, 175),
+            //TitleBarHoverIconColor = Color.FromArgb(255, 212, 175),
+            //TitleBarActiveColor = Color.FromArgb(255, 25, 25, 25),
+            //TitleBarActiveTextColor = Color.FromArgb(255, 212, 175),
+            //TitleBarActiveIconColor = Color.FromArgb(255, 212, 175),
+            //TitleBarInactiveColor = Color.FromArgb(255, 15, 15, 15),
+            //TitleBarInactiveTextColor = Color.FromArgb(255, 128, 128, 128),
+            //TitleBarInactiveIconColor = Color.FromArgb(255, 128, 128, 128),
+            //TitleBarBorderColor = Color.FromArgb(255, 212, 175),
+            //TitleBarBorderHoverColor = Color.FromArgb(255, 212, 175),
+            //TitleBarBorderActiveColor = Color.FromArgb(255, 212, 175),
+            //TitleBarBorderInactiveColor = Color.FromArgb(255, 128, 128, 128),
 
             // Close Button
-            TitleBarCloseHoverColor = Color.FromArgb(255, 139, 0, 0),  // Dark Red
-            TitleBarCloseHoverTextColor = Color.White,
-            TitleBarCloseHoverIconColor = Color.White,
-            TitleBarCloseActiveColor = Color.FromArgb(255, 165, 42, 42), // Brown
-            TitleBarCloseActiveTextColor = Color.White,
-            TitleBarCloseActiveIconColor = Color.White,
-            TitleBarCloseInactiveColor = Color.FromArgb(255, 15, 15, 15),
-            TitleBarCloseInactiveTextColor = Color.FromArgb(255, 128, 128, 128),
-            TitleBarCloseInactiveIconColor = Color.FromArgb(255, 128, 128, 128),
-            TitleBarCloseBorderColor = Color.FromArgb(255, 192, 0, 0),
-            TitleBarCloseBorderHoverColor = Color.FromArgb(255, 192, 0, 0),
-            TitleBarCloseBorderActiveColor = Color.FromArgb(255, 192, 0, 0),
-            TitleBarCloseBorderInactiveColor = Color.FromArgb(255, 128, 128, 128),
+            //TitleBarCloseHoverColor = Color.FromArgb(255, 139, 0, 0),  // Dark Red
+            //TitleBarCloseHoverTextColor = Color.White,
+            //TitleBarCloseHoverIconColor = Color.White,
+            //TitleBarCloseActiveColor = Color.FromArgb(255, 165, 42, 42), // Brown
+            //TitleBarCloseActiveTextColor = Color.White,
+            //TitleBarCloseActiveIconColor = Color.White,
+            //TitleBarCloseInactiveColor = Color.FromArgb(255, 15, 15, 15),
+            //TitleBarCloseInactiveTextColor = Color.FromArgb(255, 128, 128, 128),
+            //TitleBarCloseInactiveIconColor = Color.FromArgb(255, 128, 128, 128),
+            //TitleBarCloseBorderColor = Color.FromArgb(255, 192, 0, 0),
+            //TitleBarCloseBorderHoverColor = Color.FromArgb(255, 192, 0, 0),
+            //TitleBarCloseBorderActiveColor = Color.FromArgb(255, 192, 0, 0),
+            //TitleBarCloseBorderInactiveColor = Color.FromArgb(255, 128, 128, 128),
 
             // Maximize Button
-            TitleBarMaxHoverColor = Color.FromArgb(255, 0, 100, 0),  // Dark Green
-            TitleBarMaxHoverTextColor = Color.White,
-            TitleBarMaxHoverIconColor = Color.White,
-            TitleBarMaxActiveColor = Color.FromArgb(255, 0, 128, 0),
-            TitleBarMaxActiveTextColor = Color.White,
-            TitleBarMaxActiveIconColor = Color.White,
-            TitleBarMaxInactiveColor = Color.FromArgb(255, 15, 15, 15),
-            TitleBarMaxInactiveTextColor = Color.FromArgb(255, 128, 128, 128),
-            TitleBarMaxInactiveIconColor = Color.FromArgb(255, 128, 128, 128),
-            TitleBarMaxBorderColor = Color.FromArgb(255, 0, 128, 0),
-            TitleBarMaxBorderHoverColor = Color.FromArgb(255, 0, 128, 0),
-            TitleBarMaxBorderActiveColor = Color.FromArgb(255, 0, 128, 0),
-            TitleBarMaxBorderInactiveColor = Color.FromArgb(255, 128, 128, 128),
+            //TitleBarMaxHoverColor = Color.FromArgb(255, 0, 100, 0),  // Dark Green
+            //TitleBarMaxHoverTextColor = Color.White,
+            //TitleBarMaxHoverIconColor = Color.White,
+            //TitleBarMaxActiveColor = Color.FromArgb(255, 0, 128, 0),
+            //TitleBarMaxActiveTextColor = Color.White,
+            //TitleBarMaxActiveIconColor = Color.White,
+            //TitleBarMaxInactiveColor = Color.FromArgb(255, 15, 15, 15),
+            //TitleBarMaxInactiveTextColor = Color.FromArgb(255, 128, 128, 128),
+            //TitleBarMaxInactiveIconColor = Color.FromArgb(255, 128, 128, 128),
+            //TitleBarMaxBorderColor = Color.FromArgb(255, 0, 128, 0),
+            //TitleBarMaxBorderHoverColor = Color.FromArgb(255, 0, 128, 0),
+            //TitleBarMaxBorderActiveColor = Color.FromArgb(255, 0, 128, 0),
+            //TitleBarMaxBorderInactiveColor = Color.FromArgb(255, 128, 128, 128),
 
             // Minimize Button
-            TitleBarMinHoverColor = Color.FromArgb(255, 184, 134, 11), // Dark Goldenrod
-            TitleBarMinHoverTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinHoverIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinActiveColor = Color.FromArgb(255, 218, 165, 32), // Goldenrod
-            TitleBarMinActiveTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinActiveIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinInactiveColor = Color.FromArgb(255, 15, 15, 15),
-            TitleBarMinInactiveTextColor = Color.FromArgb(255, 128, 128, 128),
-            TitleBarMinInactiveIconColor = Color.FromArgb(255, 128, 128, 128),
-            TitleBarMinBorderColor = Color.FromArgb(255, 218, 165, 32),
-            TitleBarMinBorderHoverColor = Color.FromArgb(255, 218, 165, 32),
-            TitleBarMinBorderActiveColor = Color.FromArgb(255, 218, 165, 32),
-            TitleBarMinBorderInactiveColor = Color.FromArgb(255, 128, 128, 128),
+            //TitleBarMinHoverColor = Color.FromArgb(255, 184, 134, 11), // Dark Goldenrod
+            //TitleBarMinHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinHoverIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinActiveColor = Color.FromArgb(255, 218, 165, 32), // Goldenrod
+            //TitleBarMinActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinActiveIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinInactiveColor = Color.FromArgb(255, 15, 15, 15),
+            //TitleBarMinInactiveTextColor = Color.FromArgb(255, 128, 128, 128),
+            //TitleBarMinInactiveIconColor = Color.FromArgb(255, 128, 128, 128),
+            //TitleBarMinBorderColor = Color.FromArgb(255, 218, 165, 32),
+            //TitleBarMinBorderHoverColor = Color.FromArgb(255, 218, 165, 32),
+            //TitleBarMinBorderActiveColor = Color.FromArgb(255, 218, 165, 32),
+            //TitleBarMinBorderInactiveColor = Color.FromArgb(255, 128, 128, 128),
 
             // Minimize Button (Alternative Properties)
-            TitleBarMinimizeHoverColor = Color.FromArgb(255, 184, 134, 11),
-            TitleBarMinimizeHoverTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinimizeActiveColor = Color.FromArgb(255, 218, 165, 32),
-            TitleBarMinimizeActiveTextColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinimizeActiveIconColor = Color.FromArgb(255, 0, 0, 0),
-            TitleBarMinimizeInactiveColor = Color.FromArgb(255, 15, 15, 15),
-            TitleBarMinimizeInactiveTextColor = Color.FromArgb(255, 128, 128, 128),
-            TitleBarMinimizeInactiveIconColor = Color.FromArgb(255, 128, 128, 128),
-            TitleBarMinimizeBorderColor = Color.FromArgb(255, 218, 165, 32),
-            TitleBarMinimizeBorderHoverColor = Color.FromArgb(255, 218, 165, 32),
-            TitleBarMinimizeBorderActiveColor = Color.FromArgb(255, 218, 165, 32),
-            TitleBarMinimizeBorderInactiveColor = Color.FromArgb(255, 128, 128, 128),
+            //TitleBarMinimizeHoverColor = Color.FromArgb(255, 184, 134, 11),
+            //TitleBarMinimizeHoverTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinimizeHoverIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinimizeActiveColor = Color.FromArgb(255, 218, 165, 32),
+            //TitleBarMinimizeActiveTextColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinimizeActiveIconColor = Color.FromArgb(255, 0, 0, 0),
+            //TitleBarMinimizeInactiveColor = Color.FromArgb(255, 15, 15, 15),
+            //TitleBarMinimizeInactiveTextColor = Color.FromArgb(255, 128, 128, 128),
+            //TitleBarMinimizeInactiveIconColor = Color.FromArgb(255, 128, 128, 128),
+            //TitleBarMinimizeBorderColor = Color.FromArgb(255, 218, 165, 32),
+            //TitleBarMinimizeBorderHoverColor = Color.FromArgb(255, 218, 165, 32),
+            //TitleBarMinimizeBorderActiveColor = Color.FromArgb(255, 218, 165, 32),
+            //TitleBarMinimizeBorderInactiveColor = Color.FromArgb(255, 128, 128, 128),
 
             // **General Colors**
-            TitleForColor = Color.FromArgb(255, 212, 175), // Metallic Gold
-            TitleBarForColor = Color.FromArgb(255, 212, 175),
-            DescriptionForColor = Color.WhiteSmoke,
-            BeforeForColor = Color.FromArgb(255, 212, 175),
-            LatestForColor = Color.FromArgb(255, 212, 175),
+            //TitleForColor = Color.FromArgb(255, 212, 175), // Metallic Gold
+            //TitleBarForColor = Color.FromArgb(255, 212, 175),
+            //DescriptionForColor = Color.WhiteSmoke,
+            //BeforeForColor = Color.FromArgb(255, 212, 175),
+            //LatestForColor = Color.FromArgb(255, 212, 175),
             BackColor = Color.FromArgb(255, 20, 20, 20), // Dark Background
 
             // **Button Colors**
@@ -19889,8 +19710,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonForeColor = Color.FromArgb(255, 212, 175),
             ButtonHoverBackColor = Color.FromArgb(255, 50, 50, 50),
             ButtonHoverForeColor = Color.FromArgb(255, 212, 175),
-            ButtonActiveBackColor = Color.FromArgb(255, 212, 175),
-            ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
+            //ButtonActiveBackColor = Color.FromArgb(255, 212, 175),
+            //ButtonActiveForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **TextBox Colors**
             TextBoxBackColor = Color.FromArgb(255, 30, 30, 30),
@@ -19904,8 +19725,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             PanelBackColor = Color.FromArgb(255, 22, 22, 22), // Slightly lighter than the dark background
 
             // **Grid Colors (Secondary Grid Properties)**
-            HeaderBackColor = Color.FromArgb(255, 35, 35, 35),
-            HeaderForeColor = Color.FromArgb(255, 212, 175),
+            //HeaderBackColor = Color.FromArgb(255, 35, 35, 35),
+            //HeaderForeColor = Color.FromArgb(255, 212, 175),
             GridLineColor = Color.FromArgb(255, 212, 175),
             RowBackColor = Color.FromArgb(255, 25, 25, 25),
             RowForeColor = Color.WhiteSmoke,
@@ -19960,8 +19781,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             // **Dialog Box Colors**
             DialogBackColor = Color.FromArgb(255, 20, 20, 20),
             DialogForeColor = Color.WhiteSmoke,
-            DialogButtonBackColor = Color.FromArgb(255, 212, 175),
-            DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
+            //DialogButtonBackColor = Color.FromArgb(255, 212, 175),
+            //DialogButtonForeColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Gradient Properties**
             GradientStartColor = Color.FromArgb(255, 20, 20, 20),
@@ -19976,14 +19797,14 @@ namespace TheTechIdea.Beep.Vis.Modules
             SideMenuHoverForeColor = Color.WhiteSmoke,
             SideMenuSelectedForeColor = Color.FromArgb(255, 0, 0, 0),
             SideMenuBorderColor = Color.FromArgb(255, 212, 175),
-            SideMenuIconColor = Color.WhiteSmoke,
-            SideMenuSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
+            //SideMenuIconColor = Color.WhiteSmoke,
+            //SideMenuSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Title Bar Colors**
-            TitleBarBackColor = Color.FromArgb(255, 15, 15, 15),
-            TitleBarForeColor = Color.FromArgb(255, 212, 175),
-            TitleBarHoverBackColor = Color.FromArgb(255, 25, 25, 25),
-            TitleBarHoverForeColor = Color.FromArgb(255, 212, 175),
+            //TitleBarBackColor = Color.FromArgb(255, 15, 15, 15),
+            //TitleBarForeColor = Color.FromArgb(255, 212, 175),
+            //TitleBarHoverBackColor = Color.FromArgb(255, 25, 25, 25),
+            //TitleBarHoverForeColor = Color.FromArgb(255, 212, 175),
 
             // **Dashboard Colors**
             DashboardBackColor = Color.FromArgb(255, 20, 20, 20),
@@ -19999,10 +19820,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartAxisColor = Color.WhiteSmoke,
 
             // **Sidebar and Menu Colors**
-            SidebarIconColor = Color.WhiteSmoke,
-            SidebarSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
-            SidebarTextColor = Color.WhiteSmoke,
-            SidebarSelectedTextColor = Color.FromArgb(255, 0, 0, 0),
+            //SidebarIconColor = Color.WhiteSmoke,
+            //SidebarSelectedIconColor = Color.FromArgb(255, 0, 0, 0),
+            //SidebarTextColor = Color.WhiteSmoke,
+            //SidebarSelectedTextColor = Color.FromArgb(255, 0, 0, 0),
 
             // **Navigation Colors**
             NavigationBackColor = Color.FromArgb(255, 25, 25, 25),

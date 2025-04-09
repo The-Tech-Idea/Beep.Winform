@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using LinearGradientMode = System.Drawing.Drawing2D.LinearGradientMode;
+using System.Diagnostics.Eventing.Reader;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -48,21 +49,29 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected bool _showShadow = false;
         protected Color _shadowColor = Color.Black;
         protected float _shadowOpacity = 0.5f;
-        protected Color _hoverBackColor = Color.Gray;
-        protected Color _pressedBackColor = Color.Gray;
-        protected Color _focusBackColor = Color.Gray;
-        protected Color _inactiveBackColor = Color.Gray;
+
+        protected Color _hoverBackColor = Color.White;
+        protected Color _pressedBackColor = Color.White;
+        protected Color _focusBackColor = Color.White;
+        protected Color _disabledBackColor = Color.White;
+        protected Color _selectedBackColor = Color.White;
+
+
+
         protected Color _hoverBorderColor = Color.Gray;
         protected Color _pressedBorderColor = Color.Gray;
         protected Color _focusBorderColor = Color.Gray;
-        protected Color _inactiveBorderColor = Color.Gray;
+        protected Color _disabledBorderColor = Color.Gray;
+        protected Color _selectedBorderColor = Color.Gray;
+
+
         protected Color _hoverForeColor = Color.Black;
         protected Color _pressedForeColor = Color.Black;
         protected Color _focusForeColor = Color.Black;
-        protected Color _inactiveForeColor = Color.Black;
+        protected Color _disabledForeColor = Color.Black;
+        protected Color _selectedForeColor = Color.Black;
 
-        protected Color _activeBackColor = Color.Gray;
-        protected Color _disabledBackColor = Color.Gray;
+
         protected string _tooltipText = string.Empty;
         protected Color _originalBackColor;
         protected System.Windows.Forms.Timer _animationTimer;
@@ -644,13 +653,39 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
-        public Color ActiveBackColor
+        public Color HoverBorderColor
         {
-            get => _activeBackColor;
+            get => _hoverBorderColor;
             set
             {
-                _activeBackColor = value;
+                _hoverBorderColor = value;
+                Invalidate();
+            }
+        }
+        public Color HoverForeColor
+        {
+            get => _hoverForeColor;
+            set
+            {
+                _hoverForeColor = value;
+                Invalidate();
+            }
+        }
+        public Color SelectedForeColor
+        {
+            get => _selectedForeColor;
+            set
+            {
+                _selectedForeColor = value;
+                Invalidate();
+            }
+        }
+        public Color SelectedBackColor
+        {
+            get => _selectedBackColor;
+            set
+            {
+                _selectedBackColor = value;
                 Invalidate();
             }
         }
@@ -663,30 +698,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-        public Color FocusBackColor
+        public Color PressedForeColor
         {
-            get => _focusBackColor;
+            get => _pressedBorderColor;
             set
             {
-                _focusBackColor = value;
-                Invalidate();
-            }
-        }
-        public Color InactiveBackColor
-        {
-            get => _inactiveBackColor;
-            set
-            {
-                _inactiveBackColor = value;
-                Invalidate();
-            }
-        }
-        public Color HoverBorderColor
-        {
-            get => _hoverBorderColor;
-            set
-            {
-                _hoverBorderColor = value;
+                _pressedBorderColor = value;
                 Invalidate();
             }
         }
@@ -696,6 +713,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _pressedBorderColor = value;
+                Invalidate();
+            }
+        }
+        public Color FocusBackColor
+        {
+            get => _focusBackColor;
+            set
+            {
+                _focusBackColor = value;
+                Invalidate();
+            }
+        }
+        public Color FocusForeColor
+        {
+            get => _focusForeColor;
+            set
+            {
+                _focusForeColor = value;
                 Invalidate();
             }
         }
@@ -710,49 +745,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public Color InactiveBorderColor
         {
-            get => _inactiveBorderColor;
+            get => _selectedBorderColor;
             set
             {
-                _inactiveBorderColor = value;
+                _selectedBorderColor = value;
                 Invalidate();
             }
         }
-        public Color HoverForeColor
-        {
-            get => _hoverForeColor;
-            set
-            {
-                _hoverForeColor = value;
-                Invalidate();
-            }
-        }
-        public Color PressedForeColor
-        {
-            get => _pressedForeColor;
-            set
-            {
-                _pressedForeColor = value;
-                Invalidate();
-            }
-        }
-        public Color FocusForeColor
-        {
-            get => _focusForeColor;
-            set
-            {
-                _focusForeColor = value;
-                Invalidate();
-            }
-        }
-        public Color InactiveForeColor
-        {
-            get => _inactiveForeColor;
-            set
-            {
-                _inactiveForeColor = value;
-                Invalidate();
-            }
-        }
+        
+        //public Color InactiveForeColor
+        //{
+        //    get => _inactiveForeColor;
+        //    set
+        //    {
+        //        _inactiveForeColor = value;
+        //        Invalidate();
+        //    }
+        //}
         public Color DisabledForeColor
         {
             get => _disabledForeColor;
@@ -793,7 +802,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected Dictionary<Binding, EventHandler<ConvertEventArgs>> formatHandlers = new();
         protected Dictionary<Binding, EventHandler<ConvertEventArgs>> parseHandlers = new();
         protected List<Binding> _originalBindings = new List<Binding>();
-        protected Color _disabledForeColor;
+   
         private bool _isAnimating;
 
 
@@ -933,11 +942,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //ForeColor = _currentTheme.LatestForColor;
                 //BackColor = _currentTheme.BackgroundColor;;
                 BorderColor = _currentTheme.BorderColor;
-                HoverBackColor = _currentTheme.ButtonHoverBackColor;
-                PressedBackColor = _currentTheme.ButtonActiveBackColor;
-                FocusBackColor = _currentTheme.ButtonActiveForeColor;
-                HoverBorderColor = _currentTheme.HoverLinkColor;
-                ActiveBackColor = _currentTheme.ButtonActiveBackColor;
+     
                 ShadowColor = _currentTheme.ShadowColor;
                 GradientStartColor = _currentTheme.GradientStartColor;
                 GradientEndColor = _currentTheme.GradientEndColor;
@@ -1131,14 +1136,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SuspendLayout();
             base.OnPaint(e);
-
+            UpdateDrawingRect();
             var g = e.Graphics;
 
            // g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-            g.TextContrast = 12;
+          //  g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+          //  g.TextContrast = 12;
           //  g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+         //   g.SmoothingMode = SmoothingMode.AntiAlias;
             // g.CompositingQuality = CompositingQuality.HighQuality;
             if (IsChild)
             {
@@ -1158,7 +1163,7 @@ namespace TheTechIdea.Beep.Winform.Controls
       //    Width - (_borderThickness + shadowOffset * 2), // Adjusted for symmetry
       //    Height - (_borderThickness + shadowOffset * 2)  // Adjusted for symmetry
       //);
-            UpdateDrawingRect();
+          
             if (UseGradientBackground)
             {
                 using (var brush = new LinearGradientBrush(borderRectangle, GradientStartColor, GradientEndColor, GradientDirection))
@@ -1168,10 +1173,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                using (SolidBrush brush = new SolidBrush(IsHovered ? _hoverBackColor :BackColor))
+                Color color = IsHovered ? HoveredBackcolor : BackColor;
+                 if (!Enabled)
                 {
-                    e.Graphics.FillRectangle(brush, outerRectangle);
+                    color = DisabledBackColor;
                 }
+                else if (IsSelected)
+                {
+                    color =SelectedForeColor;
+                }
+              
+                    using (SolidBrush brush = new SolidBrush(color))
+                    {
+                        e.Graphics.FillRectangle(brush, outerRectangle);
+                    }
             }
             if (!_isframless)
             {

@@ -279,8 +279,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             //actionButton.ForeColor = _currentTheme.ButtonForeColor;
             //actionButton.HoverBackColor = _currentTheme.ButtonHoverBackColor;
             //actionButton.HoverForeColor = _currentTheme.ButtonHoverForeColor;
-            //actionButton.PressedBackColor = _currentTheme.ButtonActiveBackColor;
-            //actionButton.PressedForeColor = _currentTheme.ButtonActiveForeColor;
+            //actionButton.PressedBackColor = _currentTheme.ButtonSelectedForeColor;
+            //actionButton.PressedForeColor = _currentTheme.ButtonSelectedForeColor;
             //actionButton.TextFont = _currentTheme.GetButtonFont();
             imageBox.Theme = Theme;
             imageBox.BackColor = _currentTheme.CardBackColor;

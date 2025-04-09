@@ -5,165 +5,264 @@ using System.Drawing.Drawing2D;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
-  
-        [Serializable]
-        public class BeepTheme
+
+    [Serializable]
+    public class BeepTheme
     {
         public BeepTheme()
         {
             ThemeGuid = Guid.NewGuid().ToString();
-          
+
         }
         // UI Elements
         public string ThemeGuid { get; set; }
         public string ThemeName => this.GetType().Name;
-        public Color CloseButtonColor { get; set; }
-        public Color MaxButtonColor { get; set; }
-        public Color MinButtonColor { get; set; }
-        public Color TitleBarColor { get; set; }
-        public Color TitleBarTextColor { get; set; }
-        public Color TitleBarIconColor { get; set; }
-        public Color TitleBarHoverColor { get; set; }
-        public Color TitleBarHoverTextColor { get; set; }
-        public Color TitleBarHoverIconColor { get; set; }
-        public Color TitleBarActiveColor { get; set; }
-        public Color TitleBarActiveTextColor { get; set; }
-        public Color TitleBarActiveIconColor { get; set; }
-        public Color TitleBarInactiveColor { get; set; }
-        public Color TitleBarInactiveTextColor { get; set; }
-        public Color TitleBarInactiveIconColor { get; set; }
-        public Color TitleBarBorderColor { get; set; }
-        public Color TitleBarBorderHoverColor { get; set; }
-        public Color TitleBarBorderActiveColor { get; set; }
-        public Color TitleBarBorderInactiveColor { get; set; }
-        public Color TitleBarCloseHoverColor { get; set; }
-        public Color TitleBarCloseHoverTextColor { get; set; }
-        public Color TitleBarCloseHoverIconColor { get; set; }
-        public Color TitleBarCloseActiveColor { get; set; }
-        public Color TitleBarCloseActiveTextColor { get; set; }
-        public Color TitleBarCloseActiveIconColor { get; set; }
-        public Color TitleBarCloseInactiveColor { get; set; }
-        public Color TitleBarCloseInactiveTextColor { get; set; }
-        public Color TitleBarCloseInactiveIconColor { get; set; }
-        public Color TitleBarCloseBorderColor { get; set; }
-        public Color TitleBarCloseBorderHoverColor { get; set; }
-        public Color TitleBarCloseBorderActiveColor { get; set; }
-        public Color TitleBarCloseBorderInactiveColor { get; set; }
-        public Color TitleBarMaxHoverColor { get; set; }
-        public Color TitleBarMaxHoverTextColor { get; set; }
-        public Color TitleBarMaxHoverIconColor { get; set; }
-        public Color TitleBarMaxActiveColor { get; set; }
-        public Color TitleBarMaxActiveTextColor { get; set; }
-        public Color TitleBarMaxActiveIconColor { get; set; }
-        public Color TitleBarMaxInactiveColor { get; set; }
-        public Color TitleBarMaxInactiveTextColor { get; set; }
-        public Color TitleBarMaxInactiveIconColor { get; set; }
-        public Color TitleBarMaxBorderColor { get; set; }
-        public Color TitleBarMaxBorderHoverColor { get; set; }
-        public Color TitleBarMaxBorderActiveColor { get; set; }
-        public Color TitleBarMaxBorderInactiveColor { get; set; }
-        public Color TitleBarMinHoverColor { get; set; }
-        public Color TitleBarMinHoverTextColor { get; set; }
-        public Color TitleBarMinHoverIconColor { get; set; }
-        public Color TitleBarMinActiveColor { get; set; }
-        public Color TitleBarMinActiveTextColor { get; set; }
-        public Color TitleBarMinActiveIconColor { get; set; }
-        public Color TitleBarMinInactiveColor { get; set; }
-        public Color TitleBarMinInactiveTextColor { get; set; }
-        public Color TitleBarMinInactiveIconColor { get; set; }
-        public Color TitleBarMinBorderColor { get; set; }
-        public Color TitleBarMinBorderHoverColor { get; set; }
-        public Color TitleBarMinBorderActiveColor { get; set; }
-        public Color TitleBarMinBorderInactiveColor { get; set; }
+        public Color BackColor { get; set; }
+        public Color PanelBackColor { get; set; }
+        public Color DisabledBackColor { get; set; }
+        public Color DisabledForeColor { get; set; }
+        public Color DisabledBorderColor { get; set; }
 
-        // Missing TitleBarMinimize properties
-        public Color TitleBarMinimizeHoverColor { get; set; }
-        public Color TitleBarMinimizeHoverTextColor { get; set; }
-        public Color TitleBarMinimizeHoverIconColor { get; set; }
-        public Color TitleBarMinimizeActiveColor { get; set; }
-        public Color TitleBarMinimizeActiveTextColor { get; set; }
-        public Color TitleBarMinimizeActiveIconColor { get; set; }
-        public Color TitleBarMinimizeInactiveColor { get; set; }
-        public Color TitleBarMinimizeInactiveTextColor { get; set; }
-        public Color TitleBarMinimizeInactiveIconColor { get; set; }
-        public Color TitleBarMinimizeBorderColor { get; set; }
-        public Color TitleBarMinimizeBorderHoverColor { get; set; }
-        public Color TitleBarMinimizeBorderActiveColor { get; set; }
-        public Color TitleBarMinimizeBorderInactiveColor { get; set; }
+        public Color BorderColor { get; set; }
+        public Color ActiveBorderColor { get; set; }
+        public Color InactiveBorderColor { get; set; }
 
         // Font and Typography properties
         public string FontName { get; set; }
         public float FontSize { get; set; }
 
-        // Additional color properties for titles
-        public Color TitleForColor { get; set; }
-        public Color TitleBarForColor { get; set; }
+        // Gradient Properties
+        public Color GradientStartColor { get; set; }
+        public Color GradientEndColor { get; set; }
+        public LinearGradientMode GradientDirection { get; set; }
+
+        // AppBar Buttons colors and other controls colors
+        public Color AppBarBackColor { get; set; }
+        public Color AppBarForeColor { get; set; } = Color.White;
+        public Color AppBarButtonForeColor { get; set; }
+        public Color AppBarButtonBackColor { get; set; }
+        public Color AppBarTextBoxBackColor { get; set; }
+        public Color AppBarTextBoxForeColor { get; set; }
+        public Color AppBarLabelForeColor { get; set; }
+        public Color AppBarLabelBackColor { get; set; }
+        public Color AppBarTitleForeColor { get; set; }
+        public Color AppBarTitleBackColor { get; set; }
+        public Color AppBarSubTitleForeColor { get; set; }
+        public Color AppBarSubTitleBackColor { get; set; }
+        public Color AppBarCloseButtonColor { get; set; }
+        public Color AppBarMaxButtonColor { get; set; }
+        public Color AppBarMinButtonColor { get; set; }
+        public TypographyStyle AppBarTitleStyle { get; set; }
+        public TypographyStyle AppBarSubTitleStyle { get; set; }
+        public TypographyStyle AppBarTextStyle { get; set; }
+
+
+
+
+
 
         // Styles
         public TypographyStyle TitleStyle { get; set; }
-            public TypographyStyle SubtitleStyle { get; set; }
-            public TypographyStyle BodyStyle { get; set; }
-            public TypographyStyle CaptionStyle { get; set; }
-            public TypographyStyle ButtonStyle { get; set; }
-            public TypographyStyle LinkStyle { get; set; }
-            public TypographyStyle OverlineStyle { get; set; }
+        public TypographyStyle SubtitleStyle { get; set; }
+        public TypographyStyle BodyStyle { get; set; }
+        public TypographyStyle CaptionStyle { get; set; }
+        public TypographyStyle ButtonStyle { get; set; }
+        public TypographyStyle LinkStyle { get; set; }
+        public TypographyStyle OverlineStyle { get; set; }
+        // Button Colors
+        public Color ButtonHoverBackColor { get; set; }
+        public Color ButtonHoverForeColor { get; set; }
+        public Color ButtonHoverBorderColor { get; set; }
+        public Color ButtonSelectedBorderColor { get; set; }
+        public Color ButtonSelectedBackColor { get; set; }
+        public Color ButtonSelectedForeColor { get; set; }
+        public Color ButtonSelectedHoverBackColor { get; set; }
+        public Color ButtonSelectedHoverForeColor { get; set; }
+        public Color ButtonSelectedHoverBorderColor { get; set; }
+        public Color ButtonBackColor { get; set; }
+        public Color ButtonForeColor { get; set; }
+        public Color ButtonBorderColor { get; set; }
+        //public Color ButtonDisabledBackColor { get; set; }
+        //public Color ButtonDisabledForeColor { get; set; }
+        //public Color ButtonDisabledBorderColor { get; set; }
+        public Color ButtonErrorBackColor { get; set; }
+        public Color ButtonErrorForeColor { get; set; }
+        public Color ButtonErrorBorderColor { get; set; }
+        public Color ButtonPressedBackColor { get; set; }
+        public Color ButtonPressedForeColor { get; set; }
+        public Color ButtonPressedBorderColor { get; set; }
 
-            // Additional UI Element Colors
-            public Color DescriptionForColor { get; set; }
-            public Color BeforeForColor { get; set; }
-            public Color LatestForColor { get; set; }
-            public Color BackColor { get; set; }
-            public Color ButtonBackColor { get; set; }
-            public Color ButtonForeColor { get; set; }
-            public Color TextBoxBackColor { get; set; }
-            public Color TextBoxForeColor { get; set; }
-            public Color LabelBackColor { get; set; }
-            public Color LabelForeColor { get; set; }
-            public Color PanelBackColor { get; set; }
-            public Color HeaderBackColor { get; set; }
-            public Color HeaderForeColor { get; set; }
-            public Color GridLineColor { get; set; }
-            public Color RowBackColor { get; set; }
-            public Color RowForeColor { get; set; }
-            public Color AltRowBackColor { get; set; }
-            public Color SelectedRowBackColor { get; set; }
-            public Color SelectedRowForeColor { get; set; }
-            public Color ComboBoxBackColor { get; set; }
-            public Color ComboBoxForeColor { get; set; }
-            public Color CheckBoxBackColor { get; set; }
-            public Color CheckBoxForeColor { get; set; }
-            public Color RadioButtonBackColor { get; set; }
-            public Color RadioButtonForeColor { get; set; }
-            public Color BorderColor { get; set; }
-            public Color ActiveBorderColor { get; set; }
-            public Color InactiveBorderColor { get; set; }
-            public Color ButtonHoverBackColor { get; set; }
-            public Color ButtonHoverForeColor { get; set; }
-            public Color ButtonActiveBackColor { get; set; }
-            public Color ButtonActiveForeColor { get; set; }
-            public Color LinkColor { get; set; }
-            public Color VisitedLinkColor { get; set; }
-            public Color HoverLinkColor { get; set; }
-            public Color ToolTipBackColor { get; set; }
-            public Color ToolTipForeColor { get; set; }
-            public Color ScrollBarBackColor { get; set; }
-            public Color ScrollBarThumbColor { get; set; }
-            public Color ScrollBarTrackColor { get; set; }
-            public Color StatusBarBackColor { get; set; }
-            public Color StatusBarForeColor { get; set; }
-            public Color TabBackColor { get; set; }
-            public Color TabForeColor { get; set; }
-            public Color ActiveTabBackColor { get; set; }
-            public Color ActiveTabForeColor { get; set; }
-            public Color DialogBackColor { get; set; }
-            public Color DialogForeColor { get; set; }
-            public Color DialogButtonBackColor { get; set; }
-            public Color DialogButtonForeColor { get; set; }
 
-            // Gradient Properties
-            public Color GradientStartColor { get; set; }
-            public Color GradientEndColor { get; set; }
-            public LinearGradientMode GradientDirection { get; set; }
+        // Textbox colors
+        public Color TextBoxBackColor { get; set; }
+        public Color TextBoxForeColor { get; set; }
+        public Color TextBoxBorderColor { get; set; }
+        public Color TextBoxHoverBorderColor { get; set; }
+        public Color TextBoxHoverBackColor { get; set; }
+        public Color TextBoxHoverForeColor { get; set; }
+        public Color TextBoxSelectedBorderColor { get; set; }
+        public Color TextBoxSelectedBackColor { get; set; }
+        public Color TextBoxSelectedForeColor { get; set; }
+        public Color TextBoxPlaceholderColor { get; set; }
+        public Color TextBoxErrorBorderColor { get; set; }
+        public Color TextBoxErrorBackColor { get; set; }
+        public Color TextBoxErrorForeColor { get; set; }
+        public Color TextBoxErrorTextColor { get; set; }
+        //public Color TextBoxDisabledBackColor { get; set; }
+        //public Color TextBoxDisabledForeColor { get; set; }
+        //public Color TextBoxDisabledBorderColor { get; set; }
+        //public Color TextBoxDisabledPlaceholderColor { get; set; }
+        // Label Colors
+
+        public Color LabelBackColor { get; set; }
+        public Color LabelForeColor { get; set; }
+        public Color LabelBorderColor { get; set; }
+        public Color LabelHoverBorderColor { get; set; }
+        public Color LabelHoverBackColor { get; set; }
+        public Color LabelHoverForeColor { get; set; }
+        public Color LabelSelectedBorderColor { get; set; }
+        public Color LabelSelectedBackColor { get; set; }
+        public Color LabelSelectedForeColor { get; set; }
+        public Color LabelDisabledBackColor { get; set; }
+        public Color LabelDisabledForeColor { get; set; }
+        public Color LabelDisabledBorderColor { get; set; }
+
+        // ComboBox Colors
+        public Color ComboBoxBackColor { get; set; }
+        public Color ComboBoxForeColor { get; set; }
+        public Color ComboBoxBorderColor { get; set; }
+
+        // CheckBox colors
+        public Color CheckBoxBackColor { get; set; }
+        public Color CheckBoxForeColor { get; set; }
+        public Color CheckBoxBorderColor { get; set; }
+        public Color CheckBoxSelectedForeColor { get; set; }
+        public Color CheckBoxSelectedBackColor { get; set; }
+        public Color CheckBoxHoverBackColor { get; set; }
+        public Color CheckBoxHoverForeColor { get; set; }
+        public Color CheckBoxHoverBorderColor { get; set; }
+
+        // Radio Button Colors
+        public Color RadioButtonBackColor { get; set; }
+        public Color RadioButtonForeColor { get; set; }
+        public Color RadioButtonBorderColor { get; set; }
+        public Color RadioButtonSelectedForeColor { get; set; }
+        public Color RadioButtonSelectedBackColor { get; set; }
+        public Color RadioButtonHoverBackColor { get; set; }
+        public Color RadioButtonHoverForeColor { get; set; }
+        public Color RadioButtonHoverBorderColor { get; set; }
+        // Progress Bar Colors
+        public Color ProgressBarBackColor { get; set; }
+        public Color ProgressBarForeColor { get; set; }
+        public Color ProgressBarBorderColor { get; set; }
+        public Color ProgressBarInsideTextColor { get; set; }
+        public Color ProgressBarHoverBackColor { get; set; }
+        public Color ProgressBarHoverForeColor { get; set; }
+        public Color ProgressBarHoverBorderColor { get; set; }
+        public Color ProgressBarHoverInsideTextColor { get; set; }
+
+
+        // ScrollBar Colors
+        public Color ScrollBarBackColor { get; set; }
+        public Color ScrollBarThumbColor { get; set; }
+        public Color ScrollBarTrackColor { get; set; }
+        public Color ScrollBarHoverThumbColor { get; set; }
+        public Color ScrollBarHoverTrackColor { get; set; }
+        public Color ScrollBarActiveThumbColor { get; set; }
+
+        // Status Bar Colors
+        public Color StatusBarBackColor { get; set; }
+        public Color StatusBarForeColor { get; set; }
+        public Color StatusBarBorderColor { get; set; }
+        public Color StatusBarHoverBackColor { get; set; }
+        public Color StatusBarHoverForeColor { get; set; }
+        public Color StatusBarHoverBorderColor { get; set; }
+        // Textbox Link colors
+        public Color LinkColor { get; set; }
+        public Color VisitedLinkColor { get; set; }
+        public Color HoverLinkColor { get; set; }
+        // ToolTip colors
+
+        public Color ToolTipBackColor { get; set; }
+        public Color ToolTipForeColor { get; set; }
+        public Color ToolTipBorderColor { get; set; }
+        public Color ToolTipShadowColor { get; set; }
+        public Color ToolTipShadowOpacity { get; set; }
+        public Color ToolTipTextColor { get; set; }
+        public Color ToolTipLinkColor { get; set; }
+        public Color ToolTipLinkHoverColor { get; set; }
+        public Color ToolTipLinkVisitedColor { get; set; }
+        // Tab colors
+        public Color TabBackColor { get; set; }
+        public Color TabForeColor { get; set; }
+        public Color ActiveTabBackColor { get; set; }
+        public Color ActiveTabForeColor { get; set; }
+        public Color InactiveTabBackColor { get; set; }
+        public Color InactiveTabForeColor { get; set; }
+        public Color TabBorderColor { get; set; }
+        public Color TabHoverBackColor { get; set; }
+        public Color TabHoverForeColor { get; set; }
+        public Color TabSelectedBackColor { get; set; }
+        public Color TabSelectedForeColor { get; set; }
+        public Color TabSelectedBorderColor { get; set; }
+        public Color TabHoverBorderColor { get; set; }
+        // Dialog colors
+        public Color DialogBackColor { get; set; }
+        public Color DialogForeColor { get; set; }
+
+        // give me  Dialog Button colors like ok , no ,yes, cancel and others
+        public Color DialogYesButtonBackColor { get; set; }
+        public Color DialogYesButtonForeColor { get; set; }
+        public Color DialogYesButtonHoverBackColor { get; set; }
+        public Color DialogYesButtonHoverForeColor { get; set; }
+        public Color DialogYesButtonHoverBorderColor { get; set; }
+        public Color DialogCancelButtonBackColor { get; set; }
+        public Color DialogCancelButtonForeColor { get; set; }
+        public Color DialogCancelButtonHoverBackColor { get; set; }
+        public Color DialogCancelButtonHoverForeColor { get; set; }
+        public Color DialogCancelButtonHoverBorderColor { get; set; }
+        public Color DialogCloseButtonBackColor { get; set; }
+        public Color DialogCloseButtonForeColor { get; set; }
+        public Color DialogCloseButtonHoverBackColor { get; set; }
+        public Color DialogCloseButtonHoverForeColor { get; set; }
+        public Color DialogCloseButtonHoverBorderColor { get; set; }
+        public Color DialogHelpButtonBackColor { get; set; }
+        public Color DialogNoButtonBackColor { get; set; }
+        public Color DialogNoButtonForeColor { get; set; }
+        public Color DialogNoButtonHoverBackColor { get; set; }
+        public Color DialogNoButtonHoverForeColor { get; set; }
+        public Color DialogNoButtonHoverBorderColor { get; set; }
+        public Color DialogOkButtonBackColor { get; set; }
+        public Color DialogOkButtonForeColor { get; set; }
+        public Color DialogOkButtonHoverBackColor { get; set; }
+        public Color DialogOkButtonHoverForeColor { get; set; }
+        public Color DialogOkButtonHoverBorderColor { get; set; }
+        public Color DialogWarningButtonBackColor { get; set; }
+        public Color DialogWarningButtonForeColor { get; set; }
+        public Color DialogWarningButtonHoverBackColor { get; set; }
+        public Color DialogWarningButtonHoverForeColor { get; set; }
+        public Color DialogWarningButtonHoverBorderColor { get; set; }
+        public Color DialogErrorButtonBackColor { get; set; }
+        public Color DialogErrorButtonForeColor { get; set; }
+        public Color DialogErrorButtonHoverBackColor { get; set; }
+        public Color DialogErrorButtonHoverForeColor { get; set; }
+        public Color DialogErrorButtonHoverBorderColor { get; set; }
+        public Color DialogInformationButtonBackColor { get; set; }
+        public Color DialogInformationButtonForeColor { get; set; }
+        public Color DialogInformationButtonHoverBackColor { get; set; }
+        public Color DialogInformationButtonHoverForeColor { get; set; }
+        public Color DialogInformationButtonHoverBorderColor { get; set; }
+        public Color DialogQuestionButtonBackColor { get; set; }
+        public Color DialogQuestionButtonForeColor { get; set; }
+        public Color DialogQuestionButtonHoverBackColor { get; set; }
+        public Color DialogQuestionButtonHoverForeColor { get; set; }
+        public Color DialogQuestionButtonHoverBorderColor { get; set; }
+
+
+
+
+
+
         // Grid Colors
         public Color GridBackColor { get; set; }
         public Color GridForeColor { get; set; }
@@ -182,156 +281,195 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color GridRowSelectedForeColor { get; set; }
         public Color GridRowHoverBorderColor { get; set; }
         public Color GridRowSelectedBorderColor { get; set; }
+        public Color GridLineColor { get; set; }
+        public Color RowBackColor { get; set; }
+        public Color RowForeColor { get; set; }
+        public Color AltRowBackColor { get; set; }
+        public Color SelectedRowBackColor { get; set; }
+        public Color SelectedRowForeColor { get; set; }
 
-
+        // Card Colors
+        public Color CardTextForeColor { get; set; }
+        public Color CardBackColor { get; set; }
+        public Color CardTitleForeColor { get; set; }
+        public Color CardSubTitleForeColor { get; set; }
+        public TypographyStyle CardHeaderStyle { get; set; }
+        public TypographyStyle CardparagraphStyle { get; set; }
+        public TypographyStyle CardSubTitleStyle { get; set; }
 
         // Side Menu Colors
         public Color SideMenuBackColor { get; set; }
-            public Color SideMenuHoverBackColor { get; set; }
-            public Color SideMenuSelectedBackColor { get; set; }
-            public Color SideMenuForeColor { get; set; }
-            public Color SideMenuSelectedForeColor { get; set; }
-            public Color SideMenuHoverForeColor { get; set; }
-            public Color SideMenuBorderColor { get; set; }
-            public Color SideMenuIconColor { get; set; }
-            public Color SideMenuSelectedIconColor { get; set; }
+        public Color SideMenuHoverBackColor { get; set; }
+        public Color SideMenuSelectedBackColor { get; set; }
+        public Color SideMenuForeColor { get; set; }
+        public Color SideMenuSelectedForeColor { get; set; }
+        public Color SideMenuHoverForeColor { get; set; }
+        public Color SideMenuBorderColor { get; set; }
+        public Color SideMenuTitleTextColor { get; set; }
+        public Color SideMenuTitleBackColor{ get; set; }
+        public TypographyStyle SideMenuTitleStyle { get; set; }
+        public Color SideMenuSubTitleTextColor { get; set; }
+        public Color SideMenuSubTitleBackColor { get; set; }
+        public TypographyStyle SideMenuSubTitleStyle { get; set; }
 
-            // Title Bar and Navigation Colors
-            public Color TitleBarBackColor { get; set; }
-            public Color TitleBarForeColor { get; set; }
-            public Color TitleBarHoverBackColor { get; set; }
-            public Color TitleBarHoverForeColor { get; set; }
-            public Color DashboardBackColor { get; set; }
-            public Color DashboardCardBackColor { get; set; }
-            public Color DashboardCardHoverBackColor { get; set; }
-            public Color CardTitleForeColor { get; set; }
-            public Color CardTextForeColor { get; set; }
-            public Color CardBackColor { get;set; }
-        
+        //Dashboard Colors
+        public Color DashboardBackColor { get; set; }
+        public Color DashboardCardBackColor { get; set; }
+        public Color DashboardCardHoverBackColor { get; set; }
+        public Color DashboardTitleForeColor { get; set; }
+        public Color DashboardTitleBackColor { get; set; }
+        public TypographyStyle DashboardTitleStyle { get; set; }
+        public Color DashboardSubTitleForeColor { get; set; }
+        public Color DashboardSubTitleBackColor { get; set; }
+        public TypographyStyle DashboardSubTitleStyle { get; set; }
 
-            public TypographyStyle CardHeaderStyle { get; set; }
-            public TypographyStyle CardparagraphStyle { get; set; }
-            public Color ChartBackColor { get; set; }
-            public Color ChartLineColor { get; set; }
-            public Color ChartFillColor { get; set; }
-            public Color ChartAxisColor { get; set; }
-            public Color ChartTitleColor { get; set; }
+
+
+        // Chart colors
+        public Color ChartBackColor { get; set; }
+        public Color ChartLineColor { get; set; }
+        public Color ChartFillColor { get; set; }
+        public Color ChartAxisColor { get; set; }
+        public Color ChartTitleColor { get; set; }
         public Color ChartTextColor { get; set; }
         public Color ChartLegendBackColor { get; set; }
         public Color ChartLegendTextColor { get; set; }
         public Color ChartLegendShapeColor { get; set; }
         public Color ChartGridLineColor { get; set; }
         public List<Color> ChartDefaultSeriesColors { get; set; }
-        public Color SidebarIconColor { get; set; }
-            public Color SidebarSelectedIconColor { get; set; }
-            public Color SidebarTextColor { get; set; }
-            public Color SidebarSelectedTextColor { get; set; }
-            public Color NavigationBackColor { get; set; }
-            public Color NavigationForeColor { get; set; }
-            public Color NavigationHoverBackColor { get; set; }
-            public Color NavigationHoverForeColor { get; set; }
-            public Color BadgeBackColor { get; set; }
-            public Color BadgeForeColor { get; set; }
-            public Color HighlightBackColor { get; set; }
 
-            // Typography
-            public TypographyStyle Heading1 { get; set; }
-            public TypographyStyle Heading2 { get; set; }
-            public TypographyStyle Heading3 { get; set; }
-            public TypographyStyle Heading4 { get; set; }
-            public TypographyStyle Heading5 { get; set; }
-            public TypographyStyle Heading6 { get; set; }
-            public TypographyStyle Paragraph { get; set; }
-            public TypographyStyle Blockquote { get; set; }
-            public Color BlockquoteBorderColor { get; set; }
-            public float BlockquoteBorderWidth { get; set; }
-            public float BlockquotePadding { get; set; }
-            public TypographyStyle InlineCode { get; set; }
-            public Color InlineCodeBackgroundColor { get; set; }
-            public float InlineCodePadding { get; set; }
-            public TypographyStyle CodeBlock { get; set; }
-            public Color CodeBlockBackgroundColor { get; set; }
-            public Color CodeBlockBorderColor { get; set; }
-            public float CodeBlockBorderWidth { get; set; }
-            public float CodeBlockPadding { get; set; }
-            public TypographyStyle UnorderedList { get; set; }
-            public TypographyStyle OrderedList { get; set; }
-            public float ListItemSpacing { get; set; }
-            public float ListIndentation { get; set; }
-            public TypographyStyle Link { get; set; }
-            public Color LinkHoverColor { get; set; }
-            public bool LinkIsUnderline { get; set; }
-            public TypographyStyle SmallText { get; set; }
-            public TypographyStyle StrongText { get; set; }
-            public TypographyStyle EmphasisText { get; set; }
-            public TypographyStyle DisplayLarge { get; set; }
-            public TypographyStyle DisplayMedium { get; set; }
-            public TypographyStyle DisplaySmall { get; set; }
-            public TypographyStyle HeadlineLarge { get; set; }
-            public TypographyStyle HeadlineMedium { get; set; }
-            public TypographyStyle HeadlineSmall { get; set; }
-            public TypographyStyle TitleLarge { get; set; }
-            public TypographyStyle TitleMedium { get; set; }
-            public TypographyStyle TitleSmall { get; set; }
-            public TypographyStyle BodyLarge { get; set; }
-            public TypographyStyle BodyMedium { get; set; }
-            public TypographyStyle BodySmall { get; set; }
-            public TypographyStyle LabelLarge { get; set; }
-            public TypographyStyle LabelMedium { get; set; }
-            public TypographyStyle LabelSmall { get; set; }
 
-            // Font Families and Styles
-            public string FontFamily { get; set; } = "Segoe UI";
-            public float FontSizeBlockHeader { get; set; } = 24f;
-            public float FontSizeBlockText { get; set; } = 14f;
-            public float FontSizeQuestion { get; set; } = 16f;
-            public float FontSizeAnswer { get; set; } = 14f;
-            public float FontSizeCaption { get; set; } = 12f;
-            public float FontSizeButton { get; set; } = 14f;
-            public FontStyle FontStyleRegular { get; set; } = FontStyle.Regular;
-            public FontStyle FontStyleBold { get; set; } = FontStyle.Bold;
-            public FontStyle FontStyleItalic { get; set; } = FontStyle.Italic;
-            public Color PrimaryTextColor { get; set; } = Color.Black;
-            public Color SecondaryTextColor { get; set; } = Color.Gray;
-            public Color AccentTextColor { get; set; } = Color.Blue;
+        // Navigation and Breadcrumbs Colors
+        public Color NavigationBackColor { get; set; }
+        public Color NavigationForeColor { get; set; }
+        public Color NavigationHoverBackColor { get; set; }
+        public Color NavigationHoverForeColor { get; set; }
 
-            // Color Palette
-            public Color PrimaryColor { get; set; }
-            public Color SecondaryColor { get; set; }
-            public Color AccentColor { get; set; }
-            public Color BackgroundColor { get; set; }
-            public Color SurfaceColor { get; set; }
-            public Color ErrorColor { get; set; }
-            public Color WarningColor { get; set; }
-            public Color SuccessColor { get; set; }
-            public Color OnPrimaryColor { get; set; }
-            public Color OnBackgroundColor { get; set; }
+        // Badge Colors
+        public Color BadgeBackColor { get; set; }
+        public Color BadgeForeColor { get; set; }
+        public Color HighlightBackColor { get; set; }
 
-            // Additional Properties
-            public int PaddingSmall { get; set; }
-            public int PaddingMedium { get; set; }
-            public int PaddingLarge { get; set; }
-            public int BorderRadius { get; set; }
-            public int BorderSize { get; set; } = 1;
-            public string IconSet { get; set; }
-            public bool ApplyThemeToIcons { get; set; }
-            public Color ShadowColor { get; set; }
-            public float ShadowOpacity { get; set; }
-            public double AnimationDurationShort { get; set; }
-            public double AnimationDurationMedium { get; set; }
-            public double AnimationDurationLong { get; set; }
-            public string AnimationEasingFunction { get; set; }
-            public bool HighContrastMode { get; set; }
-            public Color FocusIndicatorColor { get; set; }
-            public bool IsDarkTheme { get; set; }
+        // Menu Colors with Menu Items
+        public Color MenuBackColor {  get; set; }
+        public Color MenuForeColor { get; set; }
+        public Color MenuBorderColor { get; set; }
+        public Color MenuMainItemForeColor { get; set; }
+        public Color MenuMainItemHoverForeColor { get; set; }
+        public Color MenuMainItemHoverBackColor { get; set; }
+        public Color MenuMainItemSelectedForeColor { get; set; }
+        public Color MenuMainItemSelectedBackColor { get;set; }
+        public Color MenuItemForeColor { get; set; }
+        public Color MenuItemHoverForeColor { get; set; }
+        public Color MenuItemHoverBackColor { get; set; }
+        public Color MenuItemSelectedForeColor { get; set; }
+        public Color MenuItemSelectedBackColor { get; set; }
 
-        // Scrollbar  colors
-        public Color ScrollbarBackColor { get; set; }
-        public Color ScrollbarThumbColor { get; set; }
-        public Color ScrollbarTrackColor { get; set; }
-        public Color ScrollbarHoverThumbColor { get; set; }
-        public Color ScrollbarHoverTrackColor { get; set; }
-        public Color ScrollbarActiveThumbColor { get; set; }
+        // Tree Color with TreeItems and nodes
+        public Color TreeBackColor { get; set; }
+        public Color TreeForeColor { get; set; }
+        public Color TreeBorderColor { get; set; }
+        public Color TreeNodeForeColor { get; set; }
+        public Color TreeNodeHoverForeColor { get; set; }
+        public Color TreeNodeHoverBackColor { get; set; }
+        public Color TreeNodeSelectedForeColor { get; set; }
+        public Color TreeNodeSelectedBackColor { get; set; }
+        public Color TreeNodeCheckedBoxForeColor { get; set; }
+        public Color TreeNodeCheckedBoxBackColor { get; set; }
+
+        // Calendar Colors
+        public Color CalendarBackColor { get; set; }
+        public Color CalendarForeColor { get; set; }
+        public Color CalendarTodayForeColor { get; set; }
+        
+        // List Colors
+        public Color ListBackColor { get; set; }
+        public Color ListForeColor { get; set; }
+        public Color ListBorderColor { get; set; }
+        public Color ListItemForeColor { get; set; }
+        public Color ListItemHoverForeColor { get; set; }
+        public Color ListItemHoverBackColor { get; set; }
+        public Color ListItemSelectedForeColor { get; set; }
+        public Color ListItemSelectedBackColor { get; set; }
+        public Color ListItemSelectedBorderColor { get; set; }
+        public Color ListItemBorderColor { get; set; }
+        public Color ListItemHoverBorderColor { get; set; }
+
+        // Star Rating Colors
+        public Color StarRatingForeColor { get; set; }
+        public Color StarRatingBackColor { get; set; }
+        public Color StarRatingBorderColor { get; set; }
+        public Color StarRatingFillColor { get; set; }
+        public Color StarRatingHoverForeColor { get; set; }
+        public Color StarRatingHoverBackColor { get; set; }
+        public Color StarRatingHoverBorderColor { get; set; }
+        public Color StarRatingSelectedForeColor { get; set; }
+        public Color StarRatingSelectedBackColor { get; set; }
+        public Color StarRatingSelectedBorderColor { get; set; }
+
+        // Stats Card Colors
+        public Color StatsCardBackColor { get; set; }
+        public Color StatsCardForeColor { get; set; }
+        public Color StatsCardBorderColor { get; set; }
+        public Color StatsCardTitleForeColor { get; set; }
+        public Color StatsCardTitleBackColor { get; set; }
+        public TypographyStyle StatsCardTitleStyle { get; set; }
+        public Color StatsCardSubTitleForeColor { get; set; }
+        public Color StatsCardSubTitleBackColor { get; set; }
+        public TypographyStyle StatsCardSubStyleStyle { get; set; }
+        public Color StatsCardValueForeColor { get; set; }
+        public Color StatsCardValueBackColor { get; set; }
+        public Color StatsCardValueBorderColor { get; set; }
+        public Color StatsCardValueHoverForeColor { get; set; }
+        public Color StatsCardValueHoverBackColor { get; set; }
+        public Color StatsCardValueHoverBorderColor { get; set; }
+        public TypographyStyle StatsCardValueStyle { get; set; }
+        public Color StatsCardInfoForeColor { get; set; }
+        public Color StatsCardInfoBackColor { get; set; }
+        public Color StatsCardInfoBorderColor { get; set; }
+        public TypographyStyle StatsCardInfoStyle { get; set; }
+        public Color StatsCardTrendForeColor { get; set; }
+        public Color StatsCardTrendBackColor { get; set; }
+        public Color StatsCardTrendBorderColor { get; set; }
+        public TypographyStyle StatsCardTrendStyle { get; set; }
+
+        // switch control colors
+        public Color SwitchBackColor { get; set; }
+        public Color SwitchBorderColor { get; set; }
+        public Color SwitchForeColor { get; set; }
+        public Color SwitchSelectedBackColor { get; set; }
+        public Color SwitchSelectedBorderColor { get; set; }
+        public Color SwitchSelectedForeColor { get; set; }
+        public Color SwitchHoverBackColor { get; set; }
+        public Color SwitchHoverBorderColor { get; set; }
+        public Color SwitchHoverForeColor { get; set; }
+
+        // Task Card control Colors
+
+        public Color TaskCardBackColor { get; set; }
+        public Color TaskCardForeColor { get; set; }
+        public Color TaskCardBorderColor { get; set; }
+        public Color TaskCardTitleForeColor { get; set; }
+        public Color TaskCardTitleBackColor { get; set; }
+        public TypographyStyle TaskCardTitleStyle { get; set; }
+        public Color TaskCardSubTitleForeColor { get; set; }
+        public Color TaskCardSubTitleBackColor { get; set; }
+        public TypographyStyle TaskCardSubStyleStyle { get; set; }
+        public Color TaskCardMetricTextForeColor { get; set; }
+        public Color TaskCardMetricTextBackColor { get; set; }
+        public Color TaskCardMetricTextBorderColor { get; set; }
+        public Color TaskCardMetricTextHoverForeColor { get; set; }
+        public Color TaskCardMetricTextHoverBackColor { get; set; }
+        public Color TaskCardMetricTextHoverBorderColor { get; set; }
+        public TypographyStyle TaskCardMetricTextStyle { get; set; }
+        public Color TaskCardProgressValueForeColor { get; set; }
+        public Color TaskCardProgressValueBackColor { get; set; }
+        public Color TaskCardProgressValueBorderColor { get; set; }
+        public TypographyStyle TaskCardProgressValueStyle { get; set; }
+
+
+
+        // Testimony Colors
         public Color TestimonialBackColor { get; set; } = Color.White;
         public Color TestimonialTextColor { get; set; } = Color.Black;
         public Color TestimonialNameColor { get; set; } = Color.DarkBlue;
@@ -339,6 +477,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color TestimonialDateColor { get; set; } = Color.DarkGray;
         public Color TestimonialRatingColor { get; set; } = Color.Gold;
         public Color TestimonialStatusColor { get; set; } = Color.Green;
+        //Company Colors
         public Color CompanyPopoverBackgroundColor { get; set; } = Color.White;
         public Color CompanyTitleColor { get; set; } = Color.Black;
         public Color CompanySubtitleColor { get; set; } = Color.DarkBlue;
@@ -346,7 +485,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color CompanyLinkColor { get; set; } = Color.Gray;
         public Color CompanyButtonBackgroundColor { get; set; } = Color.Blue;
         public Color CompanyButtonTextColor { get; set; } = Color.White;
-     
+
         public Color CompanyDropdownBackgroundColor { get; set; } = Color.White;
         public Color CompanyDropdownTextColor { get; set; } = Color.Black;
         public Color CompanyLogoBackgroundColor { get; set; } = Color.Gray;
@@ -362,6 +501,101 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color LoginDropdownBackgroundColor { get; set; } = Color.White;
         public Color LoginDropdownTextColor { get; set; } = Color.Black;
         public Color LoginLogoBackgroundColor { get; set; } = Color.LightGray;
+
+
+
+
+        // Typography
+        public TypographyStyle Heading1 { get; set; }
+        public TypographyStyle Heading2 { get; set; }
+        public TypographyStyle Heading3 { get; set; }
+        public TypographyStyle Heading4 { get; set; }
+        public TypographyStyle Heading5 { get; set; }
+        public TypographyStyle Heading6 { get; set; }
+        public TypographyStyle Paragraph { get; set; }
+        public TypographyStyle Blockquote { get; set; }
+        public Color BlockquoteBorderColor { get; set; }
+        public float BlockquoteBorderWidth { get; set; }
+        public float BlockquotePadding { get; set; }
+        public TypographyStyle InlineCode { get; set; }
+        public Color InlineCodeBackgroundColor { get; set; }
+        public float InlineCodePadding { get; set; }
+        public TypographyStyle CodeBlock { get; set; }
+        public Color CodeBlockBackgroundColor { get; set; }
+        public Color CodeBlockBorderColor { get; set; }
+        public float CodeBlockBorderWidth { get; set; }
+        public float CodeBlockPadding { get; set; }
+        public TypographyStyle UnorderedList { get; set; }
+        public TypographyStyle OrderedList { get; set; }
+        public float ListItemSpacing { get; set; }
+        public float ListIndentation { get; set; }
+        public TypographyStyle Link { get; set; }
+        public Color LinkHoverColor { get; set; }
+        public bool LinkIsUnderline { get; set; }
+        public TypographyStyle SmallText { get; set; }
+        public TypographyStyle StrongText { get; set; }
+        public TypographyStyle EmphasisText { get; set; }
+        public TypographyStyle DisplayLarge { get; set; }
+        public TypographyStyle DisplayMedium { get; set; }
+        public TypographyStyle DisplaySmall { get; set; }
+        public TypographyStyle HeadlineLarge { get; set; }
+        public TypographyStyle HeadlineMedium { get; set; }
+        public TypographyStyle HeadlineSmall { get; set; }
+        public TypographyStyle TitleLarge { get; set; }
+        public TypographyStyle TitleMedium { get; set; }
+        public TypographyStyle TitleSmall { get; set; }
+        public TypographyStyle BodyLarge { get; set; }
+        public TypographyStyle BodyMedium { get; set; }
+        public TypographyStyle BodySmall { get; set; }
+        public TypographyStyle LabelLarge { get; set; }
+        public TypographyStyle LabelMedium { get; set; }
+        public TypographyStyle LabelSmall { get; set; }
+
+        // Font Families and Styles
+        public string FontFamily { get; set; } = "Segoe UI";
+        public float FontSizeBlockHeader { get; set; } = 24f;
+        public float FontSizeBlockText { get; set; } = 14f;
+        public float FontSizeQuestion { get; set; } = 16f;
+        public float FontSizeAnswer { get; set; } = 14f;
+        public float FontSizeCaption { get; set; } = 12f;
+        public float FontSizeButton { get; set; } = 14f;
+        public FontStyle FontStyleRegular { get; set; } = FontStyle.Regular;
+        public FontStyle FontStyleBold { get; set; } = FontStyle.Bold;
+        public FontStyle FontStyleItalic { get; set; } = FontStyle.Italic;
+        public Color PrimaryTextColor { get; set; } = Color.Black;
+        public Color SecondaryTextColor { get; set; } = Color.Gray;
+        public Color AccentTextColor { get; set; } = Color.Blue;
+
+        // Color Palette
+        public Color PrimaryColor { get; set; }
+        public Color SecondaryColor { get; set; }
+        public Color AccentColor { get; set; }
+        public Color BackgroundColor { get; set; }
+        public Color SurfaceColor { get; set; }
+        public Color ErrorColor { get; set; }
+        public Color WarningColor { get; set; }
+        public Color SuccessColor { get; set; }
+        public Color OnPrimaryColor { get; set; }
+        public Color OnBackgroundColor { get; set; }
+
+        // Additional Properties
+        public int PaddingSmall { get; set; }
+        public int PaddingMedium { get; set; }
+        public int PaddingLarge { get; set; }
+        public int BorderRadius { get; set; }
+        public int BorderSize { get; set; } = 1;
+        public string IconSet { get; set; }
+        public bool ApplyThemeToIcons { get; set; }
+        public Color ShadowColor { get; set; }
+        public float ShadowOpacity { get; set; }
+        public double AnimationDurationShort { get; set; }
+        public double AnimationDurationMedium { get; set; }
+        public double AnimationDurationLong { get; set; }
+        public string AnimationEasingFunction { get; set; }
+        public bool HighContrastMode { get; set; }
+        public Color FocusIndicatorColor { get; set; }
+        public bool IsDarkTheme { get; set; }
+
 
 
         public Font GetBlockHeaderFont()
@@ -412,19 +646,19 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         // Replace Transparent Colors with Fallbacks
         public void ReplaceTransparentColors(Color fallbackColor)
+        {
+            foreach (var prop in GetType().GetProperties())
             {
-                foreach (var prop in GetType().GetProperties())
+                if (prop.PropertyType == typeof(Color))
                 {
-                    if (prop.PropertyType == typeof(Color))
+                    Color color = (Color)prop.GetValue(this);
+                    if (color.A == 0)
                     {
-                        Color color = (Color)prop.GetValue(this);
-                        if (color.A == 0)
-                        {
-                            prop.SetValue(this, fallbackColor);
-                        }
+                        prop.SetValue(this, fallbackColor);
                     }
                 }
             }
+        }
 
         public override bool Equals(object obj)
         {

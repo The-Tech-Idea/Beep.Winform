@@ -327,11 +327,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool isSelected = (SelectedIndex == index);
             // Use a slightly darker shade for the selected tab, otherwise transparent to show the panel color
             Color backgroundColor = isSelected
-                ? ControlPaint.Dark(_currentTheme?.ButtonBackColor ?? BackColor, 0.2f) // Slightly darker for selected
+                ? ControlPaint.Dark(_currentTheme?.TabSelectedBackColor ?? BackColor, 0.2f) // Slightly darker for selected
                 : Color.Transparent; // Let the panel color show through for unselected tabs
             Color textColor = isSelected
-                ? (_currentTheme?.ButtonActiveForeColor ?? Color.White) // White text for selected
-                : (_currentTheme?.ButtonForeColor ?? Color.LightGray); // Light gray for unselected
+                ? (_currentTheme?.TabSelectedForeColor ?? Color.White) // White text for selected
+                : (_currentTheme?.TabForeColor ?? Color.LightGray); // Light gray for unselected
 
             using (GraphicsPath path = GetRoundedRect(tabRect, 4)) // Reduced radius to minimize gaps
             using (SolidBrush brush = new SolidBrush(backgroundColor))

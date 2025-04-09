@@ -218,7 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // We'll keep your logic, no changes
             BackColor = _currentTheme.PanelBackColor;
-            ForeColor = _currentTheme.TitleForColor;
+            ForeColor = _currentTheme.TextBoxForeColor;
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.TitleSmall);
@@ -281,7 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Draw the title text
-            using (Brush brush = new SolidBrush(_currentTheme.TitleForColor))
+            using (Brush brush = new SolidBrush(_currentTheme.TextBoxForeColor))
             {
                 g.DrawString(_titleText, _textFont, brush, textLeft, textTop);
             }

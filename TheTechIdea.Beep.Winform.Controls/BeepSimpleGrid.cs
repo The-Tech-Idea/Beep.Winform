@@ -3834,8 +3834,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void PaintHeaderCell(Graphics g, BeepColumnConfig col, Rectangle cellRect, StringFormat format)
         {
-            using (Brush bgBrush = new SolidBrush(_currentTheme.HeaderBackColor))
-            using (Brush textBrush = new SolidBrush(_currentTheme.ButtonForeColor)) // Your preferred color
+            using (Brush bgBrush = new SolidBrush(_currentTheme.GridHeaderBackColor))
+            using (Brush textBrush = new SolidBrush(_currentTheme.GridHeaderForeColor)) // Your preferred color
             {
                 g.FillRectangle(bgBrush, cellRect);
                 if (!col.IsSelectionCheckBox) // Skip drawing text for selection column

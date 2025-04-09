@@ -212,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (IsPressed)
             {
-                using (Pen pen = new Pen(_currentTheme.ButtonActiveBackColor, _borderThickness))
+                using (Pen pen = new Pen(_currentTheme.ButtonSelectedForeColor, _borderThickness))
                 {
                     circleBounds.Inflate(-_borderThickness, -_borderThickness);
                     graphics.DrawEllipse(pen, circleBounds);

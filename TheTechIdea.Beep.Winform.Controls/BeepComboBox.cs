@@ -250,7 +250,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_beepListBox != null) _beepListBox.Theme = Theme;
             BackColor = _currentTheme.PanelBackColor;
             _comboTextBox.BackColor = _currentTheme.PanelBackColor;
-            _comboTextBox.ForeColor = _currentTheme.TitleForColor;
+            _comboTextBox.ForeColor = _currentTheme.ComboBoxForeColor;
         }
         #region "Binding and Control Type"
 
@@ -309,7 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         textToDraw,
                         Font,
                         textRect,
-                        _currentTheme.TitleForColor,
+                        _currentTheme.ComboBoxForeColor,
                         TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
                 }
 

@@ -230,7 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.ApplyThemeOnImage = true;
            // _spinnerImage.Theme = Theme;
             BackColor = _currentTheme.BackColor;
-            ForeColor = _currentTheme.LatestForColor;
+            ForeColor = _currentTheme.TextBoxForeColor;
             messege.Theme = Theme;
             Title.Theme = Theme;
             _spinnerImage.Theme = Theme;

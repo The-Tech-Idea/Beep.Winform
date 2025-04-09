@@ -64,8 +64,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Size = headerRect.Size,
                     TextAlign = ContentAlignment.MiddleCenter,
                     Theme = Theme,
-                    BackColor = _currentTheme.HeaderBackColor,
-                    ForeColor = _currentTheme.PrimaryTextColor
+                    BackColor = _currentTheme.GridBackColor,
+                    ForeColor = _currentTheme.GridForeColor
                 };
 
                 // Apply the theme to the header label
@@ -115,8 +115,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Size = columnHeaderRect.Size,
                     TextAlign = ContentAlignment.MiddleCenter,
                     Theme = Theme,
-                    BackColor = _currentTheme.HeaderBackColor,
-                    ForeColor = _currentTheme.PrimaryTextColor
+                    BackColor = _currentTheme.GridBackColor,
+                    ForeColor = _currentTheme.GridForeColor
                 };
                 columnHeaderLabel.ApplyTheme(_currentTheme);
                 columnHeaderLabel.Draw(e.Graphics, columnHeaderRect);
@@ -132,8 +132,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Size = rowHeaderRect.Size,
                     TextAlign = ContentAlignment.MiddleCenter,
                     Theme = Theme,
-                    BackColor = _currentTheme.HeaderBackColor,
-                    ForeColor = _currentTheme.PrimaryTextColor
+                    BackColor = _currentTheme.GridBackColor,
+                    ForeColor = _currentTheme.GridForeColor
                 };
                 rowHeaderLabel.ApplyTheme(_currentTheme);
                 rowHeaderLabel.Draw(e.Graphics, rowHeaderRect);

@@ -249,7 +249,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //   MessageBox.Config("Applying Theme to button 3");
                 _closeButton.Theme = Theme;
             //    _closeButton.BackColor = Color.Red;
-                _closeButton.ForeColor = _currentTheme.CloseButtonColor ;
+                _closeButton.ForeColor = _currentTheme.DialogCloseButtonForeColor ;
             }
             // MessageBox.Config("Applying Theme 3");
             // Additional background colors, title lines, etc.

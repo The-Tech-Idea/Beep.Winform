@@ -720,7 +720,7 @@ namespace TheTechIdea.Beep.Winform.Controls
            // base.ApplyTheme();
             if (_currentTheme == null) return;
             if (TitleLabel == null) return;
-            BackColor = _currentTheme.TitleBarBackColor;
+            BackColor = _currentTheme.AppBarBackColor;
 
             _logo.Theme = Theme;
             

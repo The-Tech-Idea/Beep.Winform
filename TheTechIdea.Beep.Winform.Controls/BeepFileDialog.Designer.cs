@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // _specialFoldersComboBox
             // 
-            _specialFoldersComboBox.ActiveBackColor = Color.FromArgb(0, 120, 215);
+          
             _specialFoldersComboBox.AnimationDuration = 500;
             _specialFoldersComboBox.AnimationType = DisplayAnimationType.None;
             _specialFoldersComboBox.ApplyThemeToChilds = true;
@@ -146,9 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _specialFoldersComboBox.HoveredBackcolor = Color.Wheat;
             _specialFoldersComboBox.HoverForeColor = Color.Black;
             _specialFoldersComboBox.Id = -1;
-            _specialFoldersComboBox.InactiveBackColor = Color.Gray;
-            _specialFoldersComboBox.InactiveBorderColor = Color.Gray;
-            _specialFoldersComboBox.InactiveForeColor = Color.Black;
+           
             _specialFoldersComboBox.Info = (Models.SimpleItem)resources.GetObject("_specialFoldersComboBox.Info");
             _specialFoldersComboBox.IsAcceptButton = false;
             _specialFoldersComboBox.IsBorderAffectedByTheme = true;
@@ -257,7 +255,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             _searchBox.AcceptsReturn = false;
             _searchBox.AcceptsTab = false;
-            _searchBox.ActiveBackColor = Color.Gray;
+          
             _searchBox.AnimationDuration = 500;
             _searchBox.AnimationType = DisplayAnimationType.None;
             _searchBox.ApplyThemeOnImage = false;
@@ -311,9 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _searchBox.Id = -1;
             _searchBox.ImageAlign = ContentAlignment.MiddleLeft;
             _searchBox.ImagePath = null;
-            _searchBox.InactiveBackColor = Color.Gray;
-            _searchBox.InactiveBorderColor = Color.Gray;
-            _searchBox.InactiveForeColor = Color.Black;
+         
             _searchBox.Info = (Models.SimpleItem)resources.GetObject("_searchBox.Info");
             _searchBox.IsAcceptButton = false;
             _searchBox.IsBorderAffectedByTheme = true;
@@ -416,7 +412,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // _okButton
             // 
-            _okButton.ActiveBackColor = Color.FromArgb(200, 200, 200);
+         
             _okButton.AnimationDuration = 500;
             _okButton.AnimationType = DisplayAnimationType.None;
             _okButton.ApplyThemeOnImage = false;
@@ -470,9 +466,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _okButton.ImageClicked = null;
             _okButton.ImageEmbededin = ImageEmbededin.Button;
             _okButton.ImagePath = null;
-            _okButton.InactiveBackColor = Color.Gray;
-            _okButton.InactiveBorderColor = Color.Gray;
-            _okButton.InactiveForeColor = Color.Black;
+           
             _okButton.Info = (Models.SimpleItem)resources.GetObject("_okButton.Info");
             _okButton.IsAcceptButton = false;
             _okButton.IsBorderAffectedByTheme = true;
@@ -548,7 +542,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // _cancelButton
             // 
-            _cancelButton.ActiveBackColor = Color.FromArgb(200, 200, 200);
+         
             _cancelButton.AnimationDuration = 500;
             _cancelButton.AnimationType = DisplayAnimationType.None;
             _cancelButton.ApplyThemeOnImage = false;
@@ -602,9 +596,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _cancelButton.ImageClicked = null;
             _cancelButton.ImageEmbededin = ImageEmbededin.Button;
             _cancelButton.ImagePath = null;
-            _cancelButton.InactiveBackColor = Color.Gray;
-            _cancelButton.InactiveBorderColor = Color.Gray;
-            _cancelButton.InactiveForeColor = Color.Black;
+          
             _cancelButton.Info = (Models.SimpleItem)resources.GetObject("_cancelButton.Info");
             _cancelButton.IsAcceptButton = false;
             _cancelButton.IsBorderAffectedByTheme = true;
@@ -682,7 +674,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             _fileNameTextBox.AcceptsReturn = false;
             _fileNameTextBox.AcceptsTab = false;
-            _fileNameTextBox.ActiveBackColor = Color.Gray;
+          
             _fileNameTextBox.AnimationDuration = 500;
             _fileNameTextBox.AnimationType = DisplayAnimationType.None;
             _fileNameTextBox.ApplyThemeOnImage = false;
@@ -736,9 +728,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _fileNameTextBox.Id = -1;
             _fileNameTextBox.ImageAlign = ContentAlignment.MiddleLeft;
             _fileNameTextBox.ImagePath = null;
-            _fileNameTextBox.InactiveBackColor = Color.Gray;
-            _fileNameTextBox.InactiveBorderColor = Color.Gray;
-            _fileNameTextBox.InactiveForeColor = Color.Black;
+           
             _fileNameTextBox.Info = (Models.SimpleItem)resources.GetObject("_fileNameTextBox.Info");
             _fileNameTextBox.IsAcceptButton = false;
             _fileNameTextBox.IsBorderAffectedByTheme = true;

@@ -210,8 +210,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_isSelected)
                 {
 
-                    BackColor = _currentTheme.ButtonActiveBackColor;
-                    ForeColor = _currentTheme.ButtonActiveForeColor;
+                    BackColor = _currentTheme.ButtonSelectedBackColor;
+                    ForeColor = _currentTheme.ButtonSelectedForeColor;
                 }
                 else
                 {
@@ -523,7 +523,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.ButtonForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
-            ActiveBackColor = _currentTheme.ButtonActiveBackColor;
+            SelectedForeColor = _currentTheme.ButtonSelectedForeColor;
             button.Theme = Theme;
             if (UseThemeFont)
             {

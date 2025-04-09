@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // beepDialogBox1
             // 
-            beepDialogBox1.ActiveBackColor = Color.Gray;
+          
             beepDialogBox1.AnimationDuration = 500;
             beepDialogBox1.AnimationType = DisplayAnimationType.None;
             beepDialogBox1.ApplyThemeToChilds = true;
@@ -88,9 +88,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepDialogBox1.HoveredBackcolor = Color.Wheat;
             beepDialogBox1.HoverForeColor = Color.Black;
             beepDialogBox1.Id = -1;
-            beepDialogBox1.InactiveBackColor = Color.Gray;
+     
             beepDialogBox1.InactiveBorderColor = Color.Gray;
-            beepDialogBox1.InactiveForeColor = Color.Black;
+
             beepDialogBox1.IsAcceptButton = false;
             beepDialogBox1.IsBorderAffectedByTheme = true;
             beepDialogBox1.IsCancelButton = false;

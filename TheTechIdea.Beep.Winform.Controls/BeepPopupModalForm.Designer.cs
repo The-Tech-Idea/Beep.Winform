@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // beepPanel1
             // 
-            beepPanel1.ActiveBackColor = Color.Gray;
+            
             beepPanel1.AnimationDuration = 500;
             beepPanel1.AnimationType = DisplayAnimationType.None;
             beepPanel1.ApplyThemeToChilds = false;
@@ -88,9 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepPanel1.HoveredBackcolor = Color.Wheat;
             beepPanel1.HoverForeColor = Color.Black;
             beepPanel1.Id = -1;
-            beepPanel1.InactiveBackColor = Color.Gray;
-            beepPanel1.InactiveBorderColor = Color.Gray;
-            beepPanel1.InactiveForeColor = Color.Black;
+          
             beepPanel1.Info = (Models.SimpleItem)resources.GetObject("beepPanel1.Info");
             beepPanel1.IsAcceptButton = false;
             beepPanel1.IsBorderAffectedByTheme = true;

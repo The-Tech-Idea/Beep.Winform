@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.ConfigUtil;
+using Timer = System.Windows.Forms.Timer;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -19,6 +20,16 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepButton : BeepControl
     {
         #region "Properties"
+        // Add these new fields to your BeepButton class (in your region "Properties" or near other private fields):
+
+        private Timer splashTimer;
+        private float splashProgress; // 0.0f to 1.0f value representing animation progress
+        private Point splashCenter;   // The point at which the click occurred (local coordinates)
+        private bool splashActive;    // Whether the splash animation is currently active
+
+        // Constants to control the animation speed and size:
+        private const float SplashSpeed = 0.05f;     // Increase in progress per tick (adjust as needed)
+        private const float MaxSplashRadius = 150f;  // Maximum radius for the splash effect
 
         private BeepImage beepImage;
         private int borderSize = 1;
@@ -327,28 +338,28 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();  // Trigger repaint
             }
         }
-        [Browsable(true)]
-        [Category("Behavior")]
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set
-            {
-                _isSelected = value;
-                if (_isSelected)
-                {
+        //[Browsable(true)]
+        //[Category("Behavior")]
+        //public bool IsSelected
+        //{
+        //    get => _isSelected;
+        //    set
+        //    {
+        //        _isSelected = value;
+        //        if (_isSelected)
+        //        {
                     
-                    BackColor = _currentTheme.ButtonSelectedBackColor;
-                    ForeColor = _currentTheme.ButtonPressedForeColor;
-                }
-                else
-                {
-                    BackColor = _currentTheme.ButtonBackColor;
-                    ForeColor = _currentTheme.ButtonForeColor;
-                }
-                Invalidate(); // Repaint to reflect selection state
-            }
-        }
+        //            BackColor = _currentTheme.ButtonSelectedBackColor;
+        //            ForeColor = _currentTheme.ButtonPressedForeColor;
+        //        }
+        //        else
+        //        {
+        //            BackColor = _currentTheme.ButtonBackColor;
+        //            ForeColor = _currentTheme.ButtonForeColor;
+        //        }
+        //        Invalidate(); // Repaint to reflect selection state
+        //    }
+        //}
         [Browsable(true)]
         [Category("Appearance")]
         public Size MaxImageSize
@@ -473,7 +484,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 1) Create beepListBox
 
             #endregion "Popup List Initialization"
-          
+            splashTimer = new Timer();
+            splashTimer.Interval = 30; // Update every 30 ms (about 33 frames per second)
+            splashTimer.Tick += SplashTimer_Tick;
 
         }
         private void InitializeComponents()
@@ -695,20 +708,71 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnPaint(PaintEventArgs e)
         {
+            SuspendLayout();
             base.OnPaint(e);
             // Do not call base.OnPaint(e);
            // e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             UpdateDrawingRect();
-
+            // Determine the fill color based on control state
+            Color fillColor;
             // Draw the image and text
             contentRect = DrawingRect;
+           
 
-           // if (!SetFont())
-           // {
-            //    TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-          //  };
-            //   DrawBackColor(e, BackColor, _currentTheme.ButtonHoverBackColor);
+          
+            // Now, if the splash effect is active, draw the ripple:
+            if (splashActive)
+            {
+                // Calculate the current radius based on the animation progress.
+                float currentRadius = splashProgress * MaxSplashRadius;
+                // Compute an alpha value so that the ripple fades out (adjust the 150 value for intensity):
+                int alpha = (int)((1f - splashProgress) * 150);
+                if (alpha > 255) alpha = 255;
+                if (alpha < 0) alpha = 0;
+
+                // Create a brush with the calculated alpha (using a color of your choice, here we use Gray).
+                using (SolidBrush rippleBrush = new SolidBrush(Color.FromArgb(alpha, Color.Gray)))
+                {
+                    // Calculate the rectangle for the splash circle centered on splashCenter.
+                    Rectangle rippleRect = new Rectangle(
+                        (int)(splashCenter.X - currentRadius),
+                        (int)(splashCenter.Y - currentRadius),
+                        (int)(2 * currentRadius),
+                        (int)(2 * currentRadius));
+
+                    // Optionally clip the drawing to the button bounds.
+                    e.Graphics.SetClip(DrawingRect);
+                    // Draw the ripple using an ellipse.
+                    e.Graphics.FillEllipse(rippleBrush, rippleRect);
+                    e.Graphics.ResetClip();
+                }
+            }
+            if (!Enabled)
+            {
+                fillColor = DisabledBackColor;
+            }
+            else if (IsSelected)
+            {
+                // Selected state: use BackColor (which is set in IsSelected setter)
+                fillColor = SelectedBackColor;
+            }
+            else if (IsHovered)
+            {
+                fillColor = HoveredBackcolor;
+            }
+            else
+            {
+                fillColor = BackColor;
+            }
+
+            //  Rectangle outerRectangle = new Rectangle(0, 0, Width, Height);
+
+            using (SolidBrush brush = new SolidBrush(fillColor))
+            {
+                e.Graphics.FillRectangle(brush, DrawingRect);
+            }
             DrawImageAndText(e.Graphics);
+            ResumeLayout();
         }
         private void DrawImageAndText(Graphics g)
         {
@@ -791,7 +855,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     color = SelectedForeColor;
                 }
                 
-                    TextFormatFlags flags = GetTextFormatFlags(TextAlign);
+                TextFormatFlags flags = GetTextFormatFlags(TextAlign);
                 TextRenderer.DrawText(g, Text, scaledFont, textRect, color, flags);
             }
             if(BadgeText != null)
@@ -1028,12 +1092,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-       //     IsPressed = true;
-            if (!IsSelectedAuto)
-            {
-                IsSelected = !IsSelected;
 
-            }
+            // Start the splash effect: record the click location and reset progress
+            splashCenter = e.Location; // Use the mouse click location for the ripple's center
+            splashProgress = 0f;
+            splashActive = true;
+            splashTimer.Start();
+            //if (!IsSelectedAuto)
+            //{
+            //    IsSelected = !IsSelected;
+
+            //}
 
             if (_popupmode)
             {
@@ -1067,7 +1136,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.DataBindings.Add(controlProperty, DataContext, dataSourceProperty, true, DataSourceUpdateMode.OnPropertyChanged);
         }
         #endregion "Binding and Control Type"
-       
+        #region Splash Animation
+        // Add the timer event handler method:
+        private void SplashTimer_Tick(object sender, EventArgs e)
+        {
+            splashProgress += SplashSpeed; // Increase the progress
+            if (splashProgress >= 1f)
+            {
+                splashTimer.Stop();
+                splashActive = false;
+                splashProgress = 0f;
+            }
+            Invalidate(); // Request the control be redrawn
+        }
+        #endregion Splash Animation
+
     }
 
 

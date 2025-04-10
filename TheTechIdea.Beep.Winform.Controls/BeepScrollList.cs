@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
-using TheTechIdea.Beep.Vis.Modules;
+
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -19,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Fields
         private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
         private List<BeepButton> _buttonItems = new List<BeepButton>();
-        private int _itemSize = 30; // Height for vertical, width for horizontal
+        private int _itemHeight = 30; // Height for vertical, width for horizontal
         private int _itemWidth = 100; // Width for vertical orientation
         private int _visibleItemsCount;
         private float _scrollOffset = 0; // Float for smoother scrolling
@@ -33,6 +32,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Properties
+        private Font _textFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TextFont
+        {
+            get => _textFont;
+            set
+            {
+
+                _textFont = value;
+                UseThemeFont = false;
+                Invalidate();
+
+
+            }
+        }
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The list of items to display.")]
@@ -53,12 +71,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         [Description("The size of each item (height for vertical, width for horizontal).")]
         [DefaultValue(30)]
-        public int ItemSize
+        public int ItemHeight
         {
-            get => _itemSize;
+            get => _itemHeight;
             set
             {
-                _itemSize = value;
+                _itemHeight = value;
                 UpdateButtonItems();
                 UpdateScrollBounds();
                 Invalidate();
@@ -169,7 +187,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Button Management
-        private void UpdateButtonItems()
+        public void UpdateButtonItems()
         {
             foreach (var button in _buttonItems)
             {
@@ -206,12 +224,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 if (_orientation == ScrollOrientation.VerticalScroll)
                 {
-                    button.Size = new Size(_itemWidth, _itemSize);
+                    int contentWidth = DrawingRect.Width - (this.Padding.Left + this.Padding.Right);
+                    int buttonWidth = _itemWidth;
+
+                    button.Size = new Size(buttonWidth, _itemHeight);
                 }
                 else
                 {
-                    button.Size = new Size(_itemSize, DrawingRect.Height - (this.Padding.Top + this.Padding.Bottom));
+                    int contentHeight = DrawingRect.Height - (this.Padding.Top + this.Padding.Bottom);
+                    int buttonHeight = DrawingRect.Height - (this.Padding.Top + this.Padding.Bottom);
+                    button.Size = new Size(_itemWidth, buttonHeight);
+                   
                 }
+                
                 button.Theme = Theme;
                 //button.IsRounded = IsRounded;
                 //button.Margin = new Padding(0);
@@ -249,7 +274,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int endIndex = Math.Min(startIndex + _visibleItemsCount + 1, _listItems.Count);
 
             // Calculate the total size of items to be displayed
-            float totalItemsSize = _listItems.Count * _itemSize;
+            float totalItemsSize = _listItems.Count * _itemHeight;
             float visibleAreaSize = _orientation == ScrollOrientation.VerticalScroll
                 ? DrawingRect.Height - (this.Padding.Top + this.Padding.Bottom)
                 : DrawingRect.Width - (this.Padding.Left + this.Padding.Right);
@@ -290,21 +315,21 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 if (!isVisible) continue;
 
-                float position = i * _itemSize - (_scrollOffset * _itemSize);
+                float position = i * _itemHeight - (_scrollOffset * _itemHeight);
 
                 if (_orientation == ScrollOrientation.VerticalScroll)
                 {
                     int xPos = (int)(this.Padding.Left + centeringOffsetPerpendicular);
                     int yPos = (int)(this.Padding.Top + centeringOffsetAlongScroll + position);
                     button.Location = new Point(xPos, yPos);
-                    button.Size = new Size(_itemWidth, _itemSize);
+                    button.Size = new Size(_itemWidth, _itemHeight);
                 }
                 else
                 {
                     int xPos = (int)(this.Padding.Left + centeringOffsetAlongScroll + position);
                     int yPos = (int)(this.Padding.Top + centeringOffsetPerpendicular);
                     button.Location = new Point(xPos, yPos);
-                    button.Size = new Size(_itemSize, DrawingRect.Height - (this.Padding.Top + this.Padding.Bottom));
+                    button.Size = new Size(_itemHeight, DrawingRect.Height - (this.Padding.Top + this.Padding.Bottom));
                 }
             }
         }
@@ -317,12 +342,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_orientation == ScrollOrientation.VerticalScroll)
             {
                 int contentHeight = DrawingRect.Height - (this.Padding.Top + this.Padding.Bottom);
-                _visibleItemsCount = (int)Math.Ceiling((float)contentHeight / _itemSize);
+                _visibleItemsCount = (int)Math.Ceiling((float)contentHeight / _itemHeight);
             }
             else
             {
                 int contentWidth = DrawingRect.Width - (this.Padding.Left + this.Padding.Right);
-                _visibleItemsCount = (int)Math.Ceiling((float)contentWidth / _itemSize);
+                _visibleItemsCount = (int)Math.Ceiling((float)contentWidth / _itemHeight);
             }
 
             _scrollOffset = Math.Max(0, Math.Min(_scrollOffset, Math.Max(0, _listItems.Count - _visibleItemsCount)));
@@ -366,8 +391,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_isDragging)
             {
                 float delta = _orientation == ScrollOrientation.VerticalScroll
-                    ? (e.Y - _dragStartPoint.Y) / (float)_itemSize
-                    : (e.X - _dragStartPoint.X) / (float)_itemSize;
+                    ? (e.Y - _dragStartPoint.Y) / (float)_itemHeight
+                    : (e.X - _dragStartPoint.X) / (float)_itemHeight;
                 _scrollOffset = _dragStartOffset - delta;
                 _scrollOffset = Math.Max(0, Math.Min(_scrollOffset, Math.Max(0, _listItems.Count - _visibleItemsCount)));
                 UpdateButtonPositions();
@@ -383,7 +408,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _isDragging = false;
             }
         }
-
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+            _textFont = Font;
+            //// Console.WriteLine("Font Changed");
+            if (AutoSize)
+            {
+                Size textSize = TextRenderer.MeasureText(Text, _textFont);
+                this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
+            }
+        }
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             base.OnMouseWheel(e);
@@ -422,12 +457,38 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            BackColor = _currentTheme.ButtonBackColor;
-            ParentBackColor = _currentTheme.ButtonBackColor;
+            if (Theme == null) return;
+            if (IsChild)
+            {
+                BackColor = Parent.BackColor;
+                ParentBackColor = BackColor;
+            }
+            else
+            {
+                BackColor =_currentTheme.ListBackColor ;
+
+            }
             foreach (var button in _buttonItems)
             {
-                button.Theme = Theme;
+                TextFont = BeepThemesManager.ToFont(_currentTheme.BodySmall);
+                Font = _textFont;
+                button.Font = _textFont;
+                // button.Theme = Theme;
+                button.IsChild = true;
+                button.UseScaledFont = true;
+                button.ParentBackColor = BackColor;
+                button.BackColor = _currentTheme.ListBackColor;
+                button.ForeColor = _currentTheme.ListItemForeColor;
+                button.HoverBackColor = _currentTheme.ListItemHoverBackColor;
+                button.HoverForeColor = _currentTheme.ListItemHoverForeColor;
+                button.SelectedBackColor = _currentTheme.ListItemSelectedBackColor;
+                button.SelectedForeColor = _currentTheme.ListItemSelectedForeColor;
+                button.DisabledBackColor = _currentTheme.DisabledBackColor;
+                button.DisabledForeColor = _currentTheme.DisabledForeColor;
+                button.FocusBackColor = _currentTheme.ListItemSelectedBackColor;
+                button.FocusForeColor = _currentTheme.ListItemSelectedForeColor;
             }
+           
             Invalidate();
         }
 

@@ -30,8 +30,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton maximizeIcon;
         private BeepButton minimizeIcon;
         private BeepButton themeIcon;
-       
 
+        private BeepButton _currentbutton;
         private BeepImage _logo;
     
 
@@ -660,6 +660,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             string tag = (sender as BeepButton).Tag.ToString();
             Clicked?.Invoke(this, new BeepMouseEventArgs(tag, sender));
             var arg = new BeepAppBarEventsArgs(tag, sender as BeepButton);
+            if (_currentbutton != null)
+            {
+                _currentbutton.IsSelected = false;
+            }
+            _currentbutton = sender as BeepButton;
             if (tag == "Profile")
             {
                 // Handle profile button click
@@ -732,15 +737,38 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
             }
             TitleLabel.Font = _textFont;
-            profileIcon.Theme = Theme;
-            closeIcon.Theme = Theme;
-            maximizeIcon.Theme = Theme;
-            minimizeIcon.Theme = Theme;
-            notificationIcon.Theme = Theme;
-            themeIcon.Theme = Theme;
-            searchBox.Theme = Theme;
-            
+            profileIcon.BackColor = _currentTheme.AppBarBackColor;
+            profileIcon.ParentBackColor = _currentTheme.AppBarBackColor;
+            profileIcon.HoverBackColor = _currentTheme.AppBarBackColor;
+            profileIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
+            closeIcon.BackColor = _currentTheme.AppBarBackColor;
+            closeIcon.HoverBackColor = _currentTheme.AppBarBackColor;
+            closeIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
+            closeIcon.ParentBackColor = _currentTheme.AppBarBackColor;
+
+            maximizeIcon.BackColor = _currentTheme.AppBarBackColor;
+            maximizeIcon.HoverBackColor = _currentTheme.AppBarBackColor;
+            maximizeIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
+            maximizeIcon.ParentBackColor = _currentTheme.AppBarBackColor;
+ 
+     
+
+            notificationIcon.BackColor = _currentTheme.AppBarBackColor;
+            notificationIcon.ParentBackColor = _currentTheme.AppBarBackColor;
+            notificationIcon.HoverBackColor = _currentTheme.AppBarBackColor;
+            notificationIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
           
+            themeIcon.BackColor = _currentTheme.AppBarBackColor;
+            themeIcon.ParentBackColor = _currentTheme.AppBarBackColor;
+            themeIcon.HoverBackColor = _currentTheme.AppBarBackColor;
+            themeIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
+
+            searchBox.BackColor = _currentTheme.AppBarBackColor;
+            searchBox.ParentBackColor = _currentTheme.AppBarBackColor;
+            searchBox.HoverBackColor = _currentTheme.AppBarBackColor;
+            searchBox.SelectedBackColor = _currentTheme.AppBarBackColor;
+
+
             searchBox.Invalidate();
             searchBox.Refresh();
             TitleLabel.Invalidate();

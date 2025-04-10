@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string? _imagepath;
         private bool _multiline = false;
         int padding = 2;
-        int xpadding = 1;
+        int xpadding = 2;
         int offset = 0;
         private Font _textFont = new Font("Arial", 10);
         [Browsable(true)]
@@ -480,7 +480,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     if (ApplyThemeOnImage)
                     {
-                        beepImage.ApplyThemeOnImage = true;
+                        beepImage.ApplyThemeOnImage = ApplyThemeOnImage;
                         //  beepImage.Theme = Theme;
                         ApplyTheme();
                     }
@@ -508,7 +508,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (ApplyThemeOnImage)
                     {
                        // beepImage.Theme = Theme;
-                        beepImage.ApplyThemeOnImage = true;
+                        beepImage.ApplyThemeOnImage = ApplyThemeOnImage;
                      //   beepImage.ApplyThemeToSvg();
                         ApplyTheme();
                     }
@@ -542,6 +542,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         BackColor = parentbackcolor;
                         _innerTextBox.BackColor = parentbackcolor;
                         beepImage.BackColor = parentbackcolor;
+                        beepImage.ParentBackColor = parentbackcolor;
                     }
                     else
                     {
@@ -615,7 +616,7 @@ namespace TheTechIdea.Beep.Winform.Controls
            
             // AutoSize = true;
             BoundProperty = "Text";
-        BorderRadius=3;
+            BorderRadius=3;
 
             beepImage.IsChild = true;
             ShowAllBorders=true;
@@ -1547,11 +1548,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            //base.ApplyTheme();
+            base.ApplyTheme();
+            if (IsChild)
+            {
+                parentbackcolor = Parent.BackColor;
+                BackColor = _currentTheme.TextBoxBackColor;
+            }
+           
             // var themeBackColor = Color.FromArgb(255, _currentTheme.TextBoxBackColor.R, _currentTheme.TextBoxBackColor.G, _currentTheme.TextBoxBackColor.B);
-             this.BackColor = _currentTheme.TextBoxBackColor;
+            this.BackColor = _currentTheme.TextBoxBackColor;
             _innerTextBox.BackColor = _currentTheme.TextBoxBackColor;
             _innerTextBox.ForeColor = _currentTheme.TextBoxForeColor;
+            ForeColor = _currentTheme.TextBoxForeColor;
+            BackColor = _currentTheme.TextBoxBackColor;
+            SelectedBackColor = _currentTheme.TextBoxBackColor;
+            SelectedForeColor = _currentTheme.TextBoxForeColor;
+            HoverBackColor = _currentTheme.TextBoxHoverBackColor;
+            HoverForeColor = _currentTheme.TextBoxHoverForeColor;
+            DisabledBackColor = _currentTheme.DisabledBackColor;
+            DisabledForeColor = _currentTheme.DisabledForeColor;
             // Remove borders to prevent interference
             _innerTextBox.BorderStyle = BorderStyle.None;
             BorderColor=_currentTheme.BorderColor;
@@ -1569,25 +1584,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //InnerTextBox.Font=_listbuttontextFont;
                 Font=_textFont;
             }
-            if (IsChild && Parent != null)
-            {
-                parentbackcolor = Parent.BackColor;
-            }
+            
 
             beepImage.IsChild = true;
+            beepImage.ParentBackColor = BackColor; ;
             beepImage.BackColor = _currentTheme.TextBoxBackColor;
             beepImage.ForeColor = _currentTheme.TextBoxForeColor;
             beepImage.BorderColor = _currentTheme.BorderColor;
-            beepImage.HoverBackColor = _currentTheme.ButtonHoverBackColor;
-            beepImage.HoverForeColor = _currentTheme.ButtonHoverForeColor;
-            beepImage.PressedBackColor = _currentTheme.SelectedRowBackColor;
-            beepImage.PressedForeColor = _currentTheme.SelectedRowForeColor;
+            beepImage.HoverBackColor = _currentTheme.TextBoxHoverBackColor;
+            beepImage.HoverForeColor = _currentTheme.TextBoxHoverForeColor;
+           
             beepImage.ShowAllBorders = false;
             beepImage.IsFrameless = true;
-            if (IsChild)
-            {
-                BackColor = _currentTheme.TextBoxBackColor;
-            }
+            beepImage.IsBorderAffectedByTheme = false;
+            beepImage.IsShadowAffectedByTheme = false;
+            beepImage.BorderColor = _currentTheme.TextBoxBorderColor;
             if (ApplyThemeOnImage)
             {
                // beepImage.ImageEmbededin = ImageEmbededin.TextBox;

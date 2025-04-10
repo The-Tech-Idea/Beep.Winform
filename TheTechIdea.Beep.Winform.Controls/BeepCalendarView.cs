@@ -105,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize time list
             _timeList = new BeepScrollList
             {
-                ItemSize = TimeSlotHeight,
+                ItemHeight = TimeSlotHeight,
                 Orientation = ScrollOrientation.VerticalScroll,
                 Theme = Theme,
                 IsBorderAffectedByTheme = false,
@@ -193,9 +193,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             );
 
             _timeListRect = new Rectangle(
-                DrawingRect.Left + innerWidth - timeListWidth + padding,
+               _datesGridRect.Right,
                 DrawingRect.Top + HeaderHeight + padding,
-                timeListWidth - padding,
+                timeListWidth,
                 innerHeight - HeaderHeight - FooterHeight - ButtonHeight - 2 * padding
             );
 
@@ -215,7 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _timeList.Location = new Point(_timeListRect.X, _timeListRect.Y);
             _timeList.Size = new Size(_timeListRect.Width, _timeListRect.Height);
-
+            _timeList.UpdateButtonItems();
             // Position OK and Cancel buttons side by side
             int buttonWidth = (_buttonsRect.Width - 3 * padding) / 2;
             _okButton.Location = new Point(_buttonsRect.X, _buttonsRect.Y);
@@ -306,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (isSelected)
                 {
                     using (GraphicsPath path = GetRoundedRectPath(cellRect, BorderRadius / 4))
-                    using (SolidBrush brush = new SolidBrush(_currentTheme.ButtonSelectedBackColor))
+                    using (SolidBrush brush = new SolidBrush(_currentTheme.CalendarBackColor))
                     {
                         g.FillPath(brush, path);
                     }
@@ -314,12 +314,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else if (isToday)
                 {
                     using (GraphicsPath path = GetRoundedRectPath(cellRect, BorderRadius / 4))
-                    using (Pen pen = new Pen(_currentTheme.ButtonSelectedForeColor, 1))
+                    using (Pen pen = new Pen(_currentTheme.CalendarForeColor, 1))
                     {
                         g.DrawPath(pen, path);
                     }
                 }
-                SolidBrush brusht = new SolidBrush(_currentTheme.ButtonForeColor);
+                SolidBrush brusht = new SolidBrush(_currentTheme.CalendarTodayForeColor);
                 g.DrawString(day.ToString(), Font, brusht, cellRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
 
                 col++;
@@ -333,8 +333,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawFooter(Graphics g)
         {
-            SolidBrush forcolor = new SolidBrush(_currentTheme.ButtonForeColor);
-            SolidBrush selforcolor = new SolidBrush(_currentTheme.ButtonSelectedForeColor);
+            SolidBrush forcolor = new SolidBrush(_currentTheme.CalendarForeColor);
+            SolidBrush selforcolor = new SolidBrush(_currentTheme.CalendarTodayForeColor);
             // Removed background drawing; only draw the text
             string todayText = "TODAY";
             g.DrawString(todayText, Font, forcolor, new Rectangle(_footerRect.X + 5, _footerRect.Y, 50, _footerRect.Height), new StringFormat { LineAlignment = StringAlignment.Center });
@@ -454,7 +454,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BackColor = _currentTheme.CardBackColor;
             _leftArrow.Theme = Theme;
             _rightArrow.Theme = Theme;
-            _timeList.Theme = Theme;
+             _timeList.Theme = Theme;
             _okButton.Theme = Theme;
             _cancelButton.Theme = Theme;
             _okButton.IsRounded = IsRounded;
@@ -465,6 +465,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _cancelButton.BorderThickness = BorderThickness;
             _okButton.IsRoundedAffectedByTheme = IsRoundedAffectedByTheme;
             _cancelButton.IsRoundedAffectedByTheme = IsRoundedAffectedByTheme;
+
             Invalidate();
         }
 

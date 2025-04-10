@@ -1664,7 +1664,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (e.Button == MouseButtons.Left )
             {
                 HitTest(e.Location);
-                IsPressed = true;
+             //   IsPressed = true;
             }
 
             // Do not consume the event; allow it to bubble to child controls
@@ -2215,7 +2215,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepComponentEventArgs> OnValidate;
         public event EventHandler<BeepComponentEventArgs> OnValueChanged;
         public event EventHandler<BeepComponentEventArgs> OnLinkedValueChanged;
-        public bool IsSelected { get; set; }
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                _isSelected = value;
+                if (value)
+                {
+                    OnSelected?.Invoke(this, new BeepComponentEventArgs(this, BoundProperty, _linkedproperty, GetValue()));
+                }
+                Invalidate();
+            }
+        }
         public bool IsDeleted { get; set; }
         public bool IsNew { get; set; }
         public bool IsDirty { get; set; }
@@ -2549,6 +2561,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             set { _badgeFont = value; Invalidate(); }
         }
         BadgeShape _badgeshape = BadgeShape.Circle;
+        private bool _isSelected=false;
+
         [Browsable(true)]
         [Category("Appearance")]
         [Description("shape of Badge.")]

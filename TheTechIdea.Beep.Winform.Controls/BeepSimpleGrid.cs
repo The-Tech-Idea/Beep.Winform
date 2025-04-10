@@ -6276,12 +6276,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.BackColor = _currentTheme.GridBackColor;
             this.ForeColor = _currentTheme.GridForeColor;
             if (MainPanel == null) return;
-            MainPanel.BackColor = _currentTheme.ButtonBackColor;
+            MainPanel.BackColor = _currentTheme.GridBackColor;
             if (titleLabel != null)
             {
+                titleLabel.ParentBackColor = BackColor;
                 titleLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
-                titleLabel.Theme = Theme;
-               // titleLabel.ForeColor = _currentTheme.GridForeColor;
+             //   titleLabel.Theme = Theme;
+                titleLabel.ForeColor = _currentTheme.GridForeColor;
+                
                
                 titleLabel.Invalidate();
 
@@ -6289,26 +6291,61 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (Recordnumberinglabel1 != null) {
                 //   Recordnumberinglabel1.ForeColor = _currentTheme.GridForeColor;
-                Recordnumberinglabel1.TextFont = BeepThemesManager.ToFont(_currentTheme.BodyStyle);
-                Recordnumberinglabel1.Theme = Theme;
-              
+                Recordnumberinglabel1.TextFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
+                Recordnumberinglabel1.ForeColor = _currentTheme.GridForeColor;
+                Recordnumberinglabel1.BackColor = BackColor;
+                Recordnumberinglabel1.ParentBackColor = BackColor;
+
+
             }
             if (PageLabel != null)
             {
                 //PageLabel.ForeColor = _currentTheme.GridForeColor;
-                PageLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.BodyStyle);
-                PageLabel.Theme = Theme;
-              
-                NextPageButton.Theme = Theme;
-                PrevPageButton.Theme = Theme;
-                FirstPageButton.Theme = Theme;
-                LastPageButton.Theme = Theme;
-                NextButton.Theme = Theme;
-                PreviousButton.Theme = Theme;
-                PrinterButton.Theme = Theme;
-                SaveButton.Theme = Theme;
-                RollbackButton.Theme = Theme;
-                RemoveButton.Theme = Theme;
+                PageLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
+                PageLabel.ForeColor = _currentTheme.GridForeColor;
+                PageLabel.BackColor = BackColor;
+                PageLabel.ParentBackColor = BackColor;
+
+               // NextPageButton.Theme = Theme;
+                NextPageButton.ForeColor = _currentTheme.GridForeColor;
+                NextPageButton.BackColor = BackColor;
+                NextPageButton.ParentBackColor = BackColor;
+             //   PrevPageButton.Theme = Theme;
+                PrevPageButton.ForeColor = _currentTheme.GridForeColor;
+                PrevPageButton.BackColor = BackColor;
+                PrevPageButton.ParentBackColor = BackColor;
+             //   FirstPageButton.Theme = Theme;
+                FirstPageButton.ForeColor = _currentTheme.GridForeColor;
+                FirstPageButton.BackColor = BackColor;
+                FirstPageButton.ParentBackColor = BackColor;
+            //    LastPageButton.Theme = Theme;
+                LastPageButton.ForeColor = _currentTheme.GridForeColor;
+                LastPageButton.BackColor = BackColor;
+                LastPageButton.ParentBackColor = BackColor;
+            //    NextButton.Theme = Theme;
+                NextButton.ForeColor = _currentTheme.GridForeColor;
+                NextButton.BackColor = BackColor;
+                NextButton.ParentBackColor = BackColor;
+           //     PreviousButton.Theme = Theme;
+                PreviousButton.ForeColor = _currentTheme.GridForeColor;
+                PreviousButton.BackColor = BackColor;
+                PreviousButton.ParentBackColor = BackColor;
+            //    PrinterButton.Theme = Theme;
+                PrinterButton.ForeColor = _currentTheme.GridForeColor;
+                PrinterButton.BackColor = BackColor;
+                PrinterButton.ParentBackColor = BackColor;
+           //     SaveButton.Theme = Theme;
+                SaveButton.ForeColor = _currentTheme.GridForeColor;
+                SaveButton.BackColor = BackColor;
+                SaveButton.ParentBackColor = BackColor;
+          //      RollbackButton.Theme = Theme;
+                RollbackButton.ForeColor = _currentTheme.GridForeColor;
+                RollbackButton.BackColor = BackColor;
+                RollbackButton.ParentBackColor = BackColor;
+           //     RemoveButton.Theme = Theme;
+                RemoveButton.ForeColor = _currentTheme.GridForeColor;
+                RemoveButton.BackColor = BackColor;
+                RemoveButton.ParentBackColor = BackColor;
 
                 //  PageLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             }
@@ -6734,7 +6771,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Page label (as a BeepButton)
             PageLabel = new BeepButton
             {
-                Text = "Page 1 of 1",
+                Text = "1 of 1",
                 Size = new Size(pageLabelWidth, buttonSize.Height),
                 HideText = false,
                 IsFrameless = true,
@@ -6749,12 +6786,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Record number label (as a BeepButton)
             Recordnumberinglabel1 = new BeepButton
             {
-                Text = "0 From 0",
+                Text = "0 - 0",
                 Size = new Size(labelWidth, buttonSize.Height),
                 HideText = false,
                 IsFrameless = true,
                 IsChild = true,
-                ShowAllBorders = true,
+                ShowAllBorders = false,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -6805,7 +6842,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 HideText = true,
                 IsFrameless = true,
                 Size = size,
-                IsChild = false,
+                IsChild = true,
                 Anchor = AnchorStyles.None,
                 Margin = new Padding(0),
                 ApplyThemeOnImage = false,
@@ -6872,11 +6909,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_fullData != null && _fullData.Any())
             {
                 int position = _currentRowIndex + _dataOffset + 1;
-                Recordnumberinglabel1.Text = $"{position} From {_fullData.Count}";
+                Recordnumberinglabel1.Text = $"{position} - {_fullData.Count}";
             }
             else
             {
-                Recordnumberinglabel1.Text = "0 From 0";
+                Recordnumberinglabel1.Text = "0 - 0";
             }
         }
 
@@ -6916,7 +6953,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 int visrowcount = GetVisibleRowCount();
                 _totalPages = _fullData != null ? (int)Math.Ceiling((double)_fullData.Count / (visrowcount == 1 ? _fullData.Count : visrowcount)) : 1;
                 _currentPage = Math.Max(1, Math.Min(_currentPage, _totalPages));
-                PageLabel.Text = $"Page {_currentPage} of {_totalPages}";
+                PageLabel.Text = $"{_currentPage} of {_totalPages}";
                 UpdateNavigationButtonState();
             }
 

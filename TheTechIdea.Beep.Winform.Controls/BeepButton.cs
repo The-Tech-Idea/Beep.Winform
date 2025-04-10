@@ -424,7 +424,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
 
                     _textFont = value;
-                    UseThemeFont = false;
+                   
+                  Font = _textFont;
+                UseThemeFont = false;
                     Invalidate();
                 
 

@@ -278,6 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //  Padding = new Padding(isChild ? 20 : 10, 0, 0, 0),
                 Visible = true,
                 BorderStyle= BorderStyle.None,
+                BackColor=this.BackColor,
                 Tag = item, // Store the SimpleMenuItem for reference
             };
             Panel highlightPanel = new Panel();
@@ -296,7 +297,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 Panel spacingpane = new Panel
                 {
-                    Width = 2,
+                    Width = 1,
                     Dock = DockStyle.Left,
                     BackColor = this.BackColor,
                     Visible = true,
@@ -380,7 +381,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                base.OnMouseEnter(e);
                //  menuItemPanel.BackColor = _currentTheme.ButtonHoverBackColor;
-                if (_showHilightBox) highlightPanel.BackColor = _currentTheme.AccentColor;
+                if (_showHilightBox) highlightPanel.BackColor = HoverBackColor;
             };
             button.MouseLeave += (s, e) =>
             {
@@ -682,7 +683,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 Font = _textFont;
                                 button.Font = _textFont;
                                // button.Theme = Theme;
-                                button.BackColor = _currentTheme.ListBackColor;
+                                button.BackColor = BackColor;
                                 button.ForeColor = _currentTheme.ListItemForeColor;
                                 button.HoverBackColor = _currentTheme.ListItemHoverBackColor;
                                 button.HoverForeColor = _currentTheme.ListItemHoverForeColor;

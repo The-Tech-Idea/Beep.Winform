@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string? _imagepath;
         private bool _multiline = false;
         int padding = 2;
-        int xpadding = 2;
+      
         int offset = 0;
         private Font _textFont = new Font("Arial", 10);
         [Browsable(true)]
@@ -823,7 +823,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void AdjustTextBoxHeight()
         {
             UpdateDrawingRect(); // Ensure DrawingRect is current
-            int fillWidth = DrawingRect.Width - (xpadding * 2);
+            int fillWidth = DrawingRect.Width - (padding * 2);
             int fillHeight = DrawingRect.Height - (padding * 2);
 
             if (_multiline)
@@ -841,7 +841,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _innerTextBox.Size = new Size(Math.Max(1, fillWidth), adjustedHeight);
             }
             _innerTextBox.Width = Math.Max(1, fillWidth);
-            _innerTextBox.Location = new Point(DrawingRect.X + xpadding, DrawingRect.Y + padding);
+            _innerTextBox.Location = new Point(DrawingRect.X + padding, DrawingRect.Y + padding);
         
         }
         private void PositionInnerTextBoxAndImage()
@@ -858,7 +858,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Rectangle rect = DrawingRect;
 
             // 2) Subtract any internal padding from the usable width
-            int availableWidth = rect.Width - (xpadding * 2);
+            int availableWidth = rect.Width - (padding * 2);
 
             // 3) The text box height is presumably set already (e.g., single-line vs multiline).
             //    If you’re using a single-line approach, ensure _innerTextBox.Height 
@@ -893,8 +893,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 if (_textImageRelation == TextImageRelation.ImageBeforeText)
                 {
-                    // 6) Position the image at left + xpadding
-                    int imageX = rect.X + xpadding;
+                    // 6) Position the image at left + padding
+                    int imageX = rect.X + padding;
                     beepImage.Location = new Point(imageX, imageY);
 
                     // 7) Now the text box starts after the image plus some spacing
@@ -910,7 +910,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else
                 {
                     // 9) Text is on the left, image on the right
-                    int textBoxX = rect.X + xpadding;
+                    int textBoxX = rect.X + padding;
                     // subtract space for image + spacing
                     int textWidth = availableWidth - beepImage.Width - spacing;
                     if (textWidth < 0) textWidth = 0;
@@ -926,7 +926,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
             {
                 // 10) No image, so the text box spans the entire width
-                int textBoxX = rect.X + xpadding;
+                int textBoxX = rect.X + padding;
                 _innerTextBox.Location = new Point(textBoxX, textBoxY);
 
                 // Use the full available width

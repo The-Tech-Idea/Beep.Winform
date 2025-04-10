@@ -161,7 +161,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DoubleBuffered = true;
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             IsChild = false;
-            Padding = new Padding(15);
+            Padding = new Padding(10);
             BoundProperty = "TitleText";
             InitializeComponents();
             this.Size = new Size(300, 200);
@@ -301,11 +301,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             subtitleLabel.ForeColor = _currentTheme.CardTitleForeColor;
             subtitleLabel.TextFont = new Font(BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle).FontFamily, 10);
             subtitleLabel.BackColor = _currentTheme.CardBackColor;
-         //   featuresListBox.Theme = Theme;
+            featuresListBox.Theme = Theme;
             featuresListBox.BackColor = _currentTheme.CardBackColor;
             featuresListBox.TextFont = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
-           featuresListBox.ForeColor = _currentTheme.CardTextForeColor;
-           featuresListBox.SetColors();
+            featuresListBox.ForeColor = _currentTheme.CardTextForeColor;
+            featuresListBox.SetColors();
             featuresListBox.Invalidate();
             actionIcon1.FillColor = Color.White;
             actionIcon1.StrokeColor = Color.White;

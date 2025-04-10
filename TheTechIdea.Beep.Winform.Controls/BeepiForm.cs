@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<FormClosingEventArgs> PreClose;
 
         // Message filter for global mouse movements
-        private MouseMessageFilter _mouseMessageFilter;
+       // private MouseMessageFilter _mouseMessageFilter;
         #endregion "Fields"
         #region "Properties"
         [Browsable(true)]
@@ -376,13 +376,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             base.OnFormClosed(e);
-            // Remove the message filter when the form closes
-            if (_mouseMessageFilter != null)
-            {
-                Application.RemoveMessageFilter(_mouseMessageFilter);
-                _mouseMessageFilter = null;
-            }
+            //// Remove the message filter when the form closes
+            //if (_mouseMessageFilter != null)
+            //{
+            //    Application.RemoveMessageFilter(_mouseMessageFilter);
+            //    _mouseMessageFilter = null;
+            //}
         }
+     
+
         #endregion
         #region Theme Application
         public virtual void ApplyTheme()
@@ -454,15 +456,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.CloseFigure();
             return path;
         }
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams cp = base.CreateParams;
-                cp.Style &= ~0xC00000; // Remove WS_CAPTION and WS_BORDER
-                return cp;
-            }
-        }
+     
         public virtual void AdjustControls()
         {
             Rectangle adjustedClientArea = GetAdjustedClientRectangle();
@@ -617,61 +611,71 @@ namespace TheTechIdea.Beep.Winform.Controls
         private static extern IntPtr CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
         [DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();
-
+       
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+               // cp.ExStyle |= 0x02000000; // WS_EX_COMPOSITED
+                cp.Style &= ~0xC00000; // Remove WS_CAPTION and WS_BORDER
+                return cp;
+            }
+        }
         #endregion
         #region Message Filter for Mouse Movements
-        private class MouseMessageFilter : IMessageFilter
-        {
-            private const int WM_MOUSEMOVE = 0x0200;
-            private readonly BeepiForm _form;
+        //private class MouseMessageFilter : IMessageFilter
+        //{
+        //    private const int WM_MOUSEMOVE = 0x0200;
+        //    private readonly BeepiForm _form;
 
-            public MouseMessageFilter(BeepiForm form)
-            {
-                _form = form;
-            }
+        //    public MouseMessageFilter(BeepiForm form)
+        //    {
+        //        _form = form;
+        //    }
 
-            public bool PreFilterMessage(ref Message m)
-            {
-                if (m.Msg == WM_MOUSEMOVE)
-                {
-                    // Get the mouse position in screen coordinates
-                    Point screenPos = Cursor.Position;
-                    // Check if the mouse is over the form
-                    if (_form.ClientRectangle.Contains(_form.PointToClient(screenPos)))
-                    {
-                        _form.UpdateCursor(screenPos);
-                    }
-                    else
-                    {
-                        // If the mouse is outside the form, reset the cursor
-                        _form.Cursor = Cursors.Default;
-                       MiscFunctions.SendLog($"MouseMessageFilter: Mouse outside form, set cursor to Default, ScreenPos = {screenPos}");
-                    }
-                }
-                return false; // Allow the message to continue to the next filter or control
-            }
-        }
-        // Update cursor based on mouse position (called by the message filter)
-        private void UpdateCursor(Point mousePos)
-        {
-            if (_inpopupmode) return;
+        //    public bool PreFilterMessage(ref Message m)
+        //    {
+        //        if (m.Msg == WM_MOUSEMOVE)
+        //        {
+        //            // Get the mouse position in screen coordinates
+        //            Point screenPos = Cursor.Position;
+        //            // Check if the mouse is over the form
+        //            if (_form.ClientRectangle.Contains(_form.PointToClient(screenPos)))
+        //            {
+        //                _form.UpdateCursor(screenPos);
+        //            }
+        //            else
+        //            {
+        //                // If the mouse is outside the form, reset the cursor
+        //                _form.Cursor = Cursors.Default;
+        //               MiscFunctions.SendLog($"MouseMessageFilter: Mouse outside form, set cursor to Default, ScreenPos = {screenPos}");
+        //            }
+        //        }
+        //        return false; // Allow the message to continue to the next filter or control
+        //    }
+        //}
+        //// Update cursor based on mouse position (called by the message filter)
+        //private void UpdateCursor(Point mousePos)
+        //{
+        //    if (_inpopupmode) return;
 
-            if (!isResizing && !isDragging)
-            {
-                // Convert screen coordinates to client coordinates
-                Point clientPos = PointToClient(mousePos);
-                if (IsNearEdge(clientPos))
-                {
-                    Cursor = Cursors.SizeNWSE;
-                   MiscFunctions.SendLog($"UpdateCursor: Set cursor to SizeNWSE, ClientPos = {clientPos}");
-                }
-                else
-                {
-                    Cursor = Cursors.Default;
-                   MiscFunctions.SendLog($"UpdateCursor: Set cursor to Default, ClientPos = {clientPos}");
-                }
-            }
-        }
+        //    if (!isResizing && !isDragging)
+        //    {
+        //        // Convert screen coordinates to client coordinates
+        //        Point clientPos = PointToClient(mousePos);
+        //        if (IsNearEdge(clientPos))
+        //        {
+        //            Cursor = Cursors.SizeNWSE;
+        //           MiscFunctions.SendLog($"UpdateCursor: Set cursor to SizeNWSE, ClientPos = {clientPos}");
+        //        }
+        //        else
+        //        {
+        //            Cursor = Cursors.Default;
+        //           MiscFunctions.SendLog($"UpdateCursor: Set cursor to Default, ClientPos = {clientPos}");
+        //        }
+        //    }
+        //}
         #endregion
     }
 }

@@ -102,6 +102,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
             }
         }
+        private BeepDisplayContainer _displayContainer;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public BeepDisplayContainer DisplayContainer
+        {
+            get => _displayContainer;
+            set
+            {
+                _displayContainer = value;
+                
+            }
+        }
         private BeepAppBar _beepappbar;
         [Browsable(true)]
         [Category("Appearance")]
@@ -171,8 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 {
                     _beepSideMenu.Title = Title;
                     _beepSideMenu.LogoImage = LogoImage;
-                    _beepSideMenu.OnMenuCollapseExpand -= _beepSideMenu_OnMenuCollapseExpand;
-                    _beepSideMenu.OnMenuCollapseExpand += _beepSideMenu_OnMenuCollapseExpand;
+                    sidemenusetup();
                 }
 
 
@@ -340,8 +351,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                         _beepSideMenu.LogoImage = LogoImage;
                         _beepSideMenu = control as BeepSideMenu;
                         _beepSideMenu.BeepForm = BeepiForm;
-                        _beepSideMenu.OnMenuCollapseExpand -= _beepSideMenu_OnMenuCollapseExpand;
-                        _beepSideMenu.OnMenuCollapseExpand += _beepSideMenu_OnMenuCollapseExpand;
+                        sidemenusetup();
                     }
                     if (control is BeepFunctionsPanel)
                     {
@@ -529,8 +539,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 BeepSideMenu.BeepForm = BeepiForm;
                 BeepAppBar.Title = Title;
                 BeepSideMenu.Title = Title;
-                _beepSideMenu.OnMenuCollapseExpand -= _beepSideMenu_OnMenuCollapseExpand;
-                _beepSideMenu.OnMenuCollapseExpand += _beepSideMenu_OnMenuCollapseExpand;
+                sidemenusetup();
             }
             if (e.Control is BeepAppBar beepappbar)
             {
@@ -559,7 +568,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 BeepAppBar.ShowTitle = obj;
                 BeepAppBar.ShowLogoIcon = false;
             }
+            //BeepAppBar.ResumeDrawing();
+            //BeepAppBar.ResumeLayout();
+            BeepAppBar.ResumeFormLayout();
+        //    _displayContainer.ResumeDrawing();
+       //     _displayContainer.ResumeLayout();
+            _displayContainer.ResumeFormLayout();
+        }
+        private void _beepSideMenu_StartMenuCollapseExpand(bool obj)
+        {
+            BeepAppBar.SuspendFormLayout();
+            //BeepAppBar.SuspendLayout();
+            //BeepAppBar.SuspendDrawing();
 
+            _displayContainer.SuspendFormLayout();
+        //    _displayContainer.SuspendLayout();
+          //  _displayContainer.SuspendDrawing();
+            
+        }
+        private void sidemenusetup()
+        {
+            _beepSideMenu.EndMenuCollapseExpand -= _beepSideMenu_OnMenuCollapseExpand;
+            _beepSideMenu.EndMenuCollapseExpand += _beepSideMenu_OnMenuCollapseExpand;
+            _beepSideMenu.StartOnMenuCollapseExpand -= _beepSideMenu_StartMenuCollapseExpand;
+            _beepSideMenu.StartOnMenuCollapseExpand += _beepSideMenu_StartMenuCollapseExpand;
         }
         #endregion "Design-time support"
         #region "Theme Management"

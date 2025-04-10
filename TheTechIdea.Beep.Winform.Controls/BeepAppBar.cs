@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 
@@ -37,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private int imageoffset = 2;
         #endregion "Fields"
-        //public BeepSideMenu SideMenu { get { return _sidemenu; } set { _sidemenu = value; if (_sidemenu != null) { _sidemenu.OnMenuCollapseExpand += HandleSideMenuState; } } }
+        //public BeepSideMenu SideMenu { get { return _sidemenu; } set { _sidemenu = value; if (_sidemenu != null) { _sidemenu.EndMenuCollapseExpand += HandleSideMenuState; } } }
         #region "Title and Text Properties"
         public int TitleLabelWidth { get; private set; } = 200;
         public int SearchBoxWidth { get; private set; } = 150;
@@ -300,11 +301,26 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
+        private bool _rearrange = false;
+        public bool DoRearrnage
+        {
+            get => _rearrange;
+            set
+            {
+                _rearrange = value;
+                Invalidate();
+            }
+        }
         #endregion "SearchBox AutoComplete Properties"
         #endregion "Properties"
         #region "Constructor"
         public BeepAppBar()
-        {
+        {// Enable optimized painting and double buffering
+            SetStyle(ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.UserPaint |
+                     ControlStyles.ResizeRedraw, true); // Enable ResizeRedraw
+            this.UpdateStyles();
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
             IsRoundedAffectedByTheme = false;
@@ -320,14 +336,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsShadowAffectedByTheme = false;
             // ApplyTheme();
         }
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
+        //protected override void OnHandleCreated(EventArgs e)
+        //{
+        //    base.OnHandleCreated(e);
  
-                ApplyTheme();
-                RearrangeLayout();
+        //        ApplyTheme();
+        //        RearrangeLayout();
 
-        }
+        //}
         protected override void InitLayout()
         {
             base.InitLayout();
@@ -437,23 +453,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height =30,
                 Theme = this.Theme,
                 Text = string.Empty,
-                ApplyThemeOnImage =_applyThemeOnImage, 
+                ApplyThemeOnImage =false, 
                 IsChild = false,
                 PlaceholderText = " Search...",
-               // ApplyThemeOnLogo = _applyThemeOnImage,
-                IsFrameless = this.IsFrameless,
+                Anchor = AnchorStyles.Right,
+                // ApplyThemeOnLogo = _applyThemeOnImage,
+                IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ImageAlign= ContentAlignment.MiddleRight,
                 TextImageRelation = TextImageRelation.TextBeforeImage,
                 TextAlignment = HorizontalAlignment.Left,
-                ShowAllBorders = this.ShowAllBorders,
+                ShowAllBorders = false,
                 Tag = "Search"
             };
             searchBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             searchBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
             searchBox.Click += ButtonClicked;
-            searchBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.searchappbar.svg";
+            searchBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg";
             Controls.Add(searchBox);
         }
         public void SetSearchBoxAutoCompleteSource(AutoCompleteStringCollection source)
@@ -474,9 +491,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Cursor = Cursors.Hand,
                 Theme = Theme,
                 IsFrameless = true,
+                Anchor = AnchorStyles.Right,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ShowAllBorders = false,
+
                 ShowShadow = false,
                 IsChild = true,
                 TextImageRelation = TextImageRelation.Overlay,
@@ -505,6 +524,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ShowAllBorders = false,
+                Anchor = AnchorStyles.Right,
                 ShowShadow = false,
                 IsChild = true,
                 TextImageRelation = TextImageRelation.Overlay,
@@ -554,6 +574,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ShowAllBorders = false,
+                Anchor = AnchorStyles.Right,
                 ShowShadow = false,
                 IsChild = true,
                 HideText = true,
@@ -581,7 +602,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = windowsicons_height,
                 Height = windowsicons_height,
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
-      
+                Anchor = AnchorStyles.Right,
                 Theme = Theme,
                 ApplyThemeOnImage = _applyThemeOnImage,
                 IsFrameless = true,
@@ -604,7 +625,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = windowsicons_height,
                 Height = windowsicons_height,
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
-             
+                Anchor = AnchorStyles.Right,
                 Theme = Theme,
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
@@ -628,6 +649,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Close button
             closeIcon = new BeepButton
             {
+                Anchor = AnchorStyles.Right,
                 Width = windowsicons_height,
                 Height = windowsicons_height,
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
@@ -715,9 +737,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            RearrangeLayout(); // Ensure layout is correct during resizing
+            if (_rearrange)
+            {
+                // PerformLayout ensures size is updated before rearranging
+                PerformLayout();
+              //  RearrangeLayout();
+            }
         }
-   
+
+
 
         #endregion "Event Handlers"
         #region "Layout and Theme"
@@ -763,17 +791,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             themeIcon.HoverBackColor = _currentTheme.AppBarBackColor;
             themeIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
 
-            searchBox.BackColor = _currentTheme.AppBarBackColor;
-            searchBox.ParentBackColor = _currentTheme.AppBarBackColor;
-            searchBox.HoverBackColor = _currentTheme.AppBarBackColor;
-            searchBox.SelectedBackColor = _currentTheme.AppBarBackColor;
+            //  searchBox.BackColor = _currentTheme.AppBarBackColor;
+            //searchBox.ParentBackColor = _currentTheme.AppBarBackColor;
+            //searchBox.HoverBackColor = _currentTheme.AppBarBackColor;
+            //searchBox.SelectedBackColor = _currentTheme.AppBarBackColor;
 
-
-            searchBox.Invalidate();
-            searchBox.Refresh();
-            TitleLabel.Invalidate();
-            TitleLabel.Refresh();
-            RearrangeLayout();
+            searchBox.Theme = Theme; ;
+            ///  searchBox.Invalidate();
+            //  searchBox.Refresh();
+            //  TitleLabel.Invalidate();
+            //  TitleLabel.Refresh();
+          //  RearrangeLayout();
             Invalidate();
         }
         private void applythemetoButtons()
@@ -928,6 +956,34 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
            // Console.WriteLine("LeftEdge" + leftEdge);
+        }
+       
+        public void SuspendFormLayout()
+        {
+            //return;
+            _rearrange = false;
+          //  base.SuspendFormLayout();
+           SuspendLayout();
+            foreach (Control ctrl in Controls)
+            {
+                ctrl.SuspendLayout();
+            }
+        }
+
+        public void ResumeFormLayout()
+        {
+           // return;
+           // base.ResumeFormLayout();
+           ResumeLayout(true); // Force layout recalculation
+            PerformLayout(); // Ensure size is updated
+            foreach (Control ctrl in Controls)
+            {
+                ctrl.ResumeLayout(true);
+            }
+         
+          
+            _rearrange = true;
+            // RearrangeLayout();
         }
         #endregion "Layout and Theme"
     }

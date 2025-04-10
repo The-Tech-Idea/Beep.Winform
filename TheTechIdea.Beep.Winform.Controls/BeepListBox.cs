@@ -383,6 +383,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                //  menuItemPanel.BackColor = _currentTheme.ButtonHoverBackColor;
                 if (_showHilightBox) highlightPanel.BackColor = HoverBackColor;
             };
+            button.MouseLeave-= (s, e) =>
+            {
+                base.OnMouseLeave(e);
+                // menuItemPanel.BackColor = BackColor;
+                if (_showHilightBox) highlightPanel.BackColor = BackColor;
+            };
             button.MouseLeave += (s, e) =>
             {
                 base.OnMouseLeave(e);

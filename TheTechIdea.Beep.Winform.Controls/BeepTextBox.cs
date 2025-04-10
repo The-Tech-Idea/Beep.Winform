@@ -1549,11 +1549,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            if (IsChild)
-            {
-                parentbackcolor = Parent.BackColor;
-                BackColor = _currentTheme.TextBoxBackColor;
-            }
+            //if (IsChild && Parent!=null)
+            //{
+            //    parentbackcolor = Parent.BackColor;
+            //    BackColor = _currentTheme.TextBoxBackColor;
+            //}
            
             // var themeBackColor = Color.FromArgb(255, _currentTheme.TextBoxBackColor.R, _currentTheme.TextBoxBackColor.G, _currentTheme.TextBoxBackColor.B);
             this.BackColor = _currentTheme.TextBoxBackColor;
@@ -1571,7 +1571,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _innerTextBox.BorderStyle = BorderStyle.None;
             BorderColor=_currentTheme.BorderColor;
             // Force the text box to refresh
-            _innerTextBox.Refresh();
+          
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
@@ -1599,17 +1599,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage.IsBorderAffectedByTheme = false;
             beepImage.IsShadowAffectedByTheme = false;
             beepImage.BorderColor = _currentTheme.TextBoxBorderColor;
-            if (ApplyThemeOnImage)
-            {
-               // beepImage.ImageEmbededin = ImageEmbededin.TextBox;
-                beepImage.ApplyThemeToSvg();
-            }
+            //if (ApplyThemeOnImage)
+            //{
+            //   // beepImage.ImageEmbededin = ImageEmbededin.TextBox;
+            //    beepImage.ApplyThemeToSvg();
+            //}
             //  Refresh();           // Forcing the current control to refresh
             //   Parent?.Refresh();   // Ensuring the parent is also updated
             _innerTextBox.Invalidate();
-            beepImage.Invalidate();
-            Invalidate();
-            Refresh();
+       //     beepImage.Invalidate();
+        //    Invalidate();
+         //   Refresh();
         }
         #endregion "Theme and Style"
         // Override to prevent text loss on parent change

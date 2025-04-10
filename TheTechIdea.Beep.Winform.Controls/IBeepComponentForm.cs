@@ -326,5 +326,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             return Component != null ? Component.ValidateData(out message) : throw new NotImplementedException();
         }
+
+        public void SuspendFormLayout()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ResumeFormLayout()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

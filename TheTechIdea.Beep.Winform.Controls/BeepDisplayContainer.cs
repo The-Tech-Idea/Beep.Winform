@@ -42,6 +42,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        public TabPage? currenttab { get; private set; }
+
         public BeepDisplayContainer()
         {
             InitializeComponent();
@@ -433,9 +435,9 @@ namespace TheTechIdea.Beep.Winform.Controls
        //    MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 3");
        //     Console.WriteLine("Applying theme to BeepDisplayContainer 3");
             // Set background color for the container
-            ContainerPanel.BackColor = _currentTheme.PanelBackColor;
+            ContainerPanel.BackColor = _currentTheme.AccentColor;
             
-            BackColor = _currentTheme.PanelBackColor;
+            BackColor = _currentTheme.AppBarForeColor;
             if (TabContainerPanel != null)
             {
              //   TabContainerPanel.BackColor = _currentTheme.PanelBackColor;
@@ -464,8 +466,63 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TabContainerPanel.Focus();
             }
         }
+        public void SuspendFormLayout()
+        {
+           // this.SuspendLayout();
+            // suspend the layout of the controls in the container
+            //foreach (Control control in this.Controls)
+            //{
+            //    control.SuspendLayout();
+            //}
+            currenttab = TabContainerPanel.SelectedTab;
+            TabContainerPanel.SuspendFormLayout();
+           
 
-       
+        }
+        public void ResumeFormLayout()
+        {
+         //   this.ResumeLayout();
+            // resume the layout of the controls in the container
+            //foreach (Control control in this.Controls)
+            //{
+            //    control.ResumeLayout();
+            //}
+           
+            TabContainerPanel.ResumeFormLayout();
+            TabContainerPanel.PerformLayout();
+            Invalidate();
+          //  TabContainerPanel.SelectedTab = currenttab;
+        }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            PerformLayout();
+        }
+
+        //protected override void OnPaint(PaintEventArgs e)
+        //{
+        //    // Create a buffer for drawing:
+        //    BufferedGraphicsContext context = BufferedGraphicsManager.Current;
+        //    using (BufferedGraphics buffer = context.Allocate(e.Graphics, this.ClientRectangle))
+        //    {
+        //        Graphics g = buffer.Graphics;
+        //        g.Clear(this.BackColor);
+
+        //        // Option 1: Call base.OnPaint if it draws your composite scene
+        //        // Option 2: Manually draw child controls if you have custom painting routines
+        //        // For example:
+        //        foreach (Control child in this.Controls)
+        //        {
+        //            // You might call child.DrawToBitmap if available, or
+        //            // let the child control paint itself on the buffer
+        //            child.DrawToBitmap(new Bitmap(child.Width, child.Height), new Rectangle(0, 0, child.Width, child.Height));
+        //        }
+
+        //        // Finally, render the off-screen buffer to the screen:
+        //        buffer.Render(e.Graphics);
+        //    }
+        //}
+
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);

@@ -475,6 +475,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Constructor
         public BeepButton()
         {
+            
+
             InitializeComponents();
          
             CanBeHovered = true;
@@ -708,20 +710,40 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             UpdateDrawingRect();
         }
+        protected override void OnPaintBackground(PaintEventArgs pevent)
+        {
+            // Prevent default background painting.
+            // Optionally, if you need a background color use:
+            // pevent.Graphics.Clear(BackColor);
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
-            SuspendLayout();
+          //  SuspendLayout();
             base.OnPaint(e);
+          
+        //    ResumeLayout();
+        }
+        protected override void DrawContent(Graphics g)
+        {
+            // First, call the base drawing code from BeepControl.
+            base.DrawContent(g);
+
+            // Add BeepAppBar-specific drawing here.
+            // For instance, if you need to draw additional borders or background
+            // elements that are unique to the app bar, add them below.
+
+            // Example: Draw a line under the app bar.
             // Do not call base.OnPaint(e);
-           // e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            // e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             UpdateDrawingRect();
             // Determine the fill color based on control state
             Color fillColor;
             // Draw the image and text
             contentRect = DrawingRect;
-           
 
-          
+
+
             // Now, if the splash effect is active, draw the ripple:
             if (splashActive)
             {
@@ -743,10 +765,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                         (int)(2 * currentRadius));
 
                     // Optionally clip the drawing to the button bounds.
-                    e.Graphics.SetClip(DrawingRect);
+                    g.SetClip(DrawingRect);
                     // Draw the ripple using an ellipse.
-                    e.Graphics.FillEllipse(rippleBrush, rippleRect);
-                    e.Graphics.ResetClip();
+                    g.FillEllipse(rippleBrush, rippleRect);
+                    g.ResetClip();
                 }
             }
             if (!Enabled)
@@ -771,11 +793,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             using (SolidBrush brush = new SolidBrush(fillColor))
             {
-                e.Graphics.FillRectangle(brush, DrawingRect);
+                g.FillRectangle(brush, DrawingRect);
             }
-            DrawImageAndText(e.Graphics);
-            ResumeLayout();
+            DrawImageAndText(g);
+
+            // If additional app bar elements (icons, text) require custom drawing,
+            // they can be added here or left to be drawn by the child controls.
         }
+
         private void DrawImageAndText(Graphics g)
         {
            //// Console.WriteLine($"User ThemeFont is {UseThemeFont}");
@@ -1074,15 +1099,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // MiscFunctions.SendLog("MouseHover in BeepControl");
         }
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            
-            IsHovered=false; 
-        }
-        protected override void OnMouseUp(MouseEventArgs e)
-        {
-            IsPressed = false;
-        }
+        
+      
         private void BeepImage_MouseDown(object? sender, MouseEventArgs e)
         {
             base.OnMouseDown(e);

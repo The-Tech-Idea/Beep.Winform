@@ -430,9 +430,9 @@ namespace TheTechIdea.Beep.Winform.Controls
           
 
            //// Console.WriteLine("ApplyTheme in menubar");
-            BackColor = _currentTheme.ButtonBackColor;
-            ForeColor = _currentTheme.ButtonBackColor;
-            container.BackColor = _currentTheme.ButtonBackColor;
+            BackColor = _currentTheme.MenuBackColor;
+            ForeColor = _currentTheme.MenuForeColor;
+            container.BackColor = _currentTheme.MenuBackColor;
          //  // Console.WriteLine($"Container {container.Width} BackColor {container.BackColor} and BackColro {BackColor} and Theme SideMenuBackColor {_currentTheme.SideMenuBackColor}");  //BackColor {container.BackColor} and BackColro {BackColor} and Theme SideMenuBackColor {_currentTheme.SideMenuBackColor}dddddddddddddddddd
             if (UseThemeFont)
             {
@@ -447,22 +447,50 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (item is BeepButton)
                 {
                //    // Console.WriteLine("ApplyTheme in menubar 4");
-                    BeepButton btn = (BeepButton)item;
+                    BeepButton button = (BeepButton)item;
                     //    btn.Theme = Theme;
                     //btn.ApplyThemeOnImage = false;
                     //btn.BackColor = _currentTheme.SideMenuBackColor;
                     //btn.ForeColor = _currentTheme.SideMenuForeColor;
-                    btn.Theme = Theme;
-                //    btn.IsChild = true;
+                    //TextFont = BeepThemesManager.ToFont(_currentTheme.BodySmall);
+
+                    //}
+                    //else
+                    //{
+                    //    button.UseThemeFont = false;
+
+                    //}
+                    Font = _textFont;
+                    button.ParentBackColor = BackColor;
+                    button.IsChild = true;
+                    button.Font = _textFont;
+                    // button.Theme = Theme;
+                    button.BackColor = BackColor;
+                    button.ForeColor = ForeColor;
+                    button.HoverBackColor = _currentTheme.MenuItemHoverBackColor;
+                    button.HoverForeColor = _currentTheme.MenuItemHoverForeColor;
+                    button.SelectedBackColor = _currentTheme.MenuItemSelectedBackColor;
+                    button.SelectedForeColor = _currentTheme.MenuItemSelectedForeColor;
+                    button.DisabledBackColor = _currentTheme.DisabledBackColor;
+                    button.DisabledForeColor = _currentTheme.DisabledForeColor;
+                    button.FocusBackColor = _currentTheme.MenuItemSelectedBackColor;
+                    button.FocusForeColor = _currentTheme.MenuItemSelectedForeColor;
+
+
+                    PressedBackColor = _currentTheme.ButtonPressedBackColor;
+                    PressedForeColor = _currentTheme.ButtonPressedForeColor;
+
+                    button.UseScaledFont = true;
+                    //    btn.IsChild = true;
                     if (UseThemeFont)
                     {
-                        btn.UseThemeFont = true;
-                        btn.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                        button.UseThemeFont = true;
+                        button.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
 
                     }
                     else
                     {
-                        btn.TextFont = _textFont;
+                        button.TextFont = _textFont;
                     }
 
                 }

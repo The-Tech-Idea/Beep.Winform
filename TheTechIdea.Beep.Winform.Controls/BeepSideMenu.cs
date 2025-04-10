@@ -4,6 +4,7 @@ using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -16,9 +17,10 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepSideMenu : BeepControl
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        public event Action<bool> OnMenuCollapseExpand;
+        public event Action<bool> EndMenuCollapseExpand;
+        public event Action<bool> StartOnMenuCollapseExpand;
 
-       
+
         private Size _buttonSize = new Size(100, 20);
         public BeepiForm BeepForm { get; set; }
         private bool isCollapsed = false;
@@ -37,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool ApplyThemeOnImage = false;
         private  int expandedWidth = 200;
         private  int collapsedWidth = 64;
-        private  int animationStep = 20;
+        private  int animationStep = 50;
         bool isAnimating = false;
         bool _isExpanedWidthSet = false;
         int  _tWidth;
@@ -240,7 +242,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Properties"
         public BeepSideMenu()
         {
-         //  SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
+          this.SetStyle(ControlStyles.AllPaintingInWmPaint |
+              ControlStyles.UserPaint |
+              ControlStyles.OptimizedDoubleBuffer, true);
+            this.UpdateStyles();
 
             ApplyThemeToChilds = false;
             DoubleBuffered = true;
@@ -356,7 +361,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Font = new Font("Segoe UI", 9);
             Init();
             ApplyTheme();
-            if(!isCollapsed) OnMenuCollapseExpand?.Invoke(false);
+            if(!isCollapsed) EndMenuCollapseExpand?.Invoke(false);
             menuItems.ListChanged += MenuItems_ListChanged;
         }
         private void Init()
@@ -370,10 +375,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 expandedWidth = Width;
             }
-
+            StartOnMenuCollapseExpand?.Invoke(isCollapsed);
             isCollapsed = !isCollapsed;
             StartMenuAnimation();
-            OnMenuCollapseExpand?.Invoke(isCollapsed);
+           
         }
         private void StartMenuAnimation()
         {
@@ -389,7 +394,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isExpanedWidthSet = false;
         }
         private void AnimationTimer_Tick(object sender, EventArgs e)
-        {
+        {  // Optionally, suspend layout updates if many changes are coming.
+           // Optionally, suspend drawing on the form to stop it from repainting during every tick.
+         //   this.FindForm()?.SuspendDrawing();
             int targetWidth = isCollapsed ? collapsedWidth : expandedWidth;
             int currentWidth = Width;
 
@@ -411,17 +418,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     currentWidth = targetWidth;
                     animationTimer.Stop();
+                    EndMenuCollapseExpand?.Invoke(isCollapsed);
                     isAnimating = false;
                 }
             }
 
             // Update the control width dynamically
             Width = currentWidth;
-
+          //  this.ResumeLayout();
             // Dynamically adjust control widths and positions during animation
             AdjustControlWidths(currentWidth);
 
-            Invalidate(); // Repaint the control to ensure smooth animation
+            // Resume drawing once the changes are made
+           // this.FindForm()?.ResumeDrawing();
         }
         private void AdjustControlWidths(int width)
         {
@@ -627,10 +636,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void ToggleMenu()
         {
+            StartOnMenuCollapseExpand?.Invoke(isCollapsed);
             isCollapsed = !isCollapsed;
           
             StartMenuAnimation();
-            OnMenuCollapseExpand?.Invoke(isCollapsed);
+          //  EndMenuCollapseExpand?.Invoke(isCollapsed);
             if (BeepAppBar != null)
             {
                 BeepAppBar.ShowTitle = isCollapsed;

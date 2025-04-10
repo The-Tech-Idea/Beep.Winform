@@ -819,10 +819,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.SetStyle(ControlStyles.UserPaint, true);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            this.UpdateStyles();
             //  base.ProcessTabKey(true);
-   
+
             InitializeTooltip();
-            ShowAllBorders = true;
+           // ShowAllBorders = true;
             //  BackColor = Color.Transparent;
             Padding = new Padding(0);
             UpdateDrawingRect();
@@ -1044,11 +1045,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-
+        //protected override CreateParams CreateParams
+        //{
+        //    get
+        //    {
+        //        CreateParams cp = base.CreateParams;
+        //        cp.ExStyle |= 0x02000000; // WS_EX_COMPOSITED
+        //        return cp;
+        //    }
+        //}
         // Override background painting for optimized repaint
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            base.OnPaintBackground(e);
+          //  base.OnPaintBackground(e);
         }
         public override Size GetPreferredSize(Size proposedSize)
         {
@@ -1134,60 +1143,85 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnPaint(PaintEventArgs e)
         {
-            SuspendLayout();
-            base.OnPaint(e);
-            UpdateDrawingRect();
-            var g = e.Graphics;
-
-           // g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-          //  g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-             g.TextContrast = 12;
-          //  g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-             g.SmoothingMode = SmoothingMode.AntiAlias;
-            // g.CompositingQuality = CompositingQuality.HighQuality;
-            if (IsChild)
+            // Use the current BufferedGraphicsContext to allocate a buffer
+            BufferedGraphicsContext context = BufferedGraphicsManager.Current;
+            using (BufferedGraphics buffer = context.Allocate(e.Graphics, this.ClientRectangle))
             {
-                BackColor = parentbackcolor;
-            }
-            e.Graphics.Clear(BackColor);
+                // Use the buffered Graphics object for all drawing
+                Graphics g = buffer.Graphics;
 
+                // Set graphic quality options as before
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.TextContrast = 12;
+                if (IsChild)
+                {
+                    BackColor = parentbackcolor;
+                }
+
+                // Clear the entire buffer with the control's BackColor
+                g.Clear(BackColor);
+                DrawContent(g);
+
+                // Finally, render the entire off-screen buffer to the screen
+                buffer.Render(e.Graphics);
+            }
+        }
+        protected virtual void DrawContent(Graphics g)
+        {
+            // Update drawing bounds as necessary
+            UpdateDrawingRect();
+            // Adjust BackColor if this control is a child (inherit parent's backcolor)
+           
+
+            // Update any drawing bounds that rely on the control's size
+            UpdateDrawingRect();
+            // Determine shadow offset based on whether shadows should be drawn
             shadowOffset = ShowShadow ? 3 : 0;
 
-            // Update the drawing rectangle to reflect shadow and border changes
-          
-
+            // Use an outer rectangle that covers the whole control
             Rectangle outerRectangle = new Rectangle(0, 0, Width, Height);
-      //       borderRectangle = new Rectangle(
-      //    shadowOffset + _borderThickness,
-      //    shadowOffset + _borderThickness,
-      //    Width - (_borderThickness + shadowOffset * 2), // Adjusted for symmetry
-      //    Height - (_borderThickness + shadowOffset * 2)  // Adjusted for symmetry
-      //);
-          
+
+            // Draw background: either with a gradient or a solid fill based on state.
             if (UseGradientBackground)
             {
                 using (var brush = new LinearGradientBrush(borderRectangle, GradientStartColor, GradientEndColor, GradientDirection))
                 {
-                    e.Graphics.FillRectangle(brush, outerRectangle);
+                    g.FillRectangle(brush, outerRectangle);
                 }
             }
             else
             {
+                // Determine fill color based on state
                 Color color = IsHovered ? HoveredBackcolor : BackColor;
-                 if (!Enabled)
+                if (!Enabled)
                 {
                     color = DisabledBackColor;
                 }
                 else if (IsSelected)
                 {
-                    color =SelectedForeColor;
+                    color = SelectedForeColor;
                 }
-              
-                    using (SolidBrush brush = new SolidBrush(color))
-                    {
-                        e.Graphics.FillRectangle(brush, outerRectangle);
-                    }
+                using (SolidBrush brush = new SolidBrush(color))
+                {
+                    g.FillRectangle(brush, outerRectangle);
+                }
             }
+
+            // Draw rounded border if needed
+            if (IsRounded)
+            {
+                UpdateControlRegion();
+                using (GraphicsPath path = GetRoundedRectPath(borderRectangle, BorderRadius))
+                {
+                    using (Pen borderPen = new Pen(BackColor, 1))
+                    {
+                        borderPen.Alignment = PenAlignment.Inset;
+                        g.DrawPath(borderPen, path);
+                    }
+                }
+            }
+
+            // Draw shadow or custom borders if applicable
             if (!_isframless)
             {
                 if (ShowShadow)
@@ -1196,41 +1230,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 if (IsCustomeBorder)
                 {
-                    DrawCustomBorder(e);
+                    DrawCustomBorder(g);
                 }
-                else
+                else if (ShowAllBorders && BorderThickness > 0)
                 {
-                    if (IsRounded)
-                    { 
-                          UpdateControlRegion();
-                        using (GraphicsPath path = GetRoundedRectPath(borderRectangle, BorderRadius))
-                        {
-                            // Now draw the border
-                            if (BorderThickness > 0)
-                            {
-                                using (Pen borderPen = new Pen(BorderColor, BorderThickness))
-                                {
-                                    borderPen.Alignment = PenAlignment.Inset;
-                                    e.Graphics.DrawPath(borderPen, path);
-                                }
-                            }
-                        }
-
-                    }
-                    if (ShowAllBorders && BorderThickness > 0)
-                    {
-                        DrawBorder(g, borderRectangle);
-                    }
+                    DrawBorder(g, borderRectangle);
                 }
-                
             }
+
+            // Draw focus indicator if needed
             if (ShowFocusIndicator && Focused)
             {
                 DrawFocusIndicator(g);
             }
-
-            ResumeLayout();
         }
+
         protected Font GetScaledFont(Graphics g, string text, Size maxSize, Font originalFont)
         {
             if(originalFont==null)
@@ -1276,10 +1290,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         #region "Drawing Methods"
-        public virtual void DrawCustomBorder(PaintEventArgs e)
+        public virtual void DrawCustomBorder(Graphics g)
         {
             // Draw custom border based on the control's properties
-            DrawBorder(e.Graphics, DrawingRect);
+            DrawBorder(g, DrawingRect);
         }
         protected void DrawBackColor(PaintEventArgs e, Color color, Color hovercolor)
         {
@@ -2344,6 +2358,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         } // The property of the data source
         #region "IBeepUIComoponent Distinct Control Implementation"
+        public virtual void SuspendFormLayout()
+        {
+            if (Parent != null)
+            {
+              //  Parent.SuspendLayout();
+                this.SuspendLayout();
+            }
+        }
+        public virtual void ResumeFormLayout()
+        {
+            if (Parent != null)
+            {
+              //  Parent.ResumeLayout();
+                this.ResumeLayout();
+                this.PerformLayout();
+            }
+        }
         public virtual void SetValue(object value)
         {
             if (string.IsNullOrEmpty(BoundProperty)) return;

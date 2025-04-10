@@ -58,6 +58,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public bool IsFrameless { get; set; }
         DbFieldCategory Category { get; set; }
         void Draw(Graphics graphics,Rectangle rectangle);
+        void SuspendFormLayout();
+        void ResumeFormLayout();
         void SetBinding(string controlProperty, string dataSourceProperty); // Method to bind a control property
         event EventHandler<BeepComponentEventArgs> PropertyChanged; // Event to notify that a property has changed
         event EventHandler<BeepComponentEventArgs> PropertyValidate; // Event to notify that a property is being validated

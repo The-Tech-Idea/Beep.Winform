@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 using TheTechIdea.Beep.Container.Services;
+using TheTechIdea.Beep.Winform.Controls;
 
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
@@ -50,6 +51,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             base.OnNavigatedTo(parameters);
             //beepFilter1.DataSource = beepservice.Editor.ConfigEditor.DataSourcesClasses;
            
+        }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            
         }
     }
 }

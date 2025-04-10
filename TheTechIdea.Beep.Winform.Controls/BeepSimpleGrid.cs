@@ -47,6 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Rectangle headerPanelRect;
         private Rectangle columnsheaderPanelRect;
         private Rectangle bottomagregationPanelRect;
+        
         private Rectangle navigatorPanelRect;
         private Rectangle filterButtonRect;
         private BeepLabel titleLabel;
@@ -731,13 +732,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Constructor
         public BeepSimpleGrid():base()
         {
-            // This ensures child controls are painted properly
+            //// This ensures child controls are painted properly
             this.SetStyle(ControlStyles.ContainerControl, true);
             this.SetStyle(ControlStyles.UserPaint, true);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             // Ensure _columns is only initialized once
-            SetStyle(ControlStyles.Selectable | ControlStyles.UserMouse , true);
+            SetStyle(ControlStyles.Selectable | ControlStyles.UserMouse, true);
             TabStop = true;
             this.Focus();
             _isInitializing = true;
@@ -2857,7 +2858,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateRecordNumber();
             UpdateSelectionState();
             UpdateNavigationButtonState();
-            Invalidate();
+         
             MiscFunctions.SendLog($"FillVisibleRows: Updated {Rows.Count} visible rows, _fullData.Count={_fullData.Count}");
         }
         private void MoveNextRow()
@@ -3521,16 +3522,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
         #region Painting
-        protected override void OnPaint(PaintEventArgs e)
+        protected override void DrawContent(Graphics g)
         {
-            // base.OnPaint(e);
+            // First, call the base drawing code from BeepControl.
+            base.DrawContent(g);
+
+            // Add BeepAppBar-specific drawing here.
+            // For instance, if you need to draw additional borders or background
+            // elements that are unique to the app bar, add them below.
+
+            // Example: Draw a line under the app bar.
             UpdateDrawingRect();
-            var g = e.Graphics;
+            
             var drawingBounds = DrawingRect;
 
             // Update scrollbar visibility first
             UpdateScrollBars();
-          
+
             // Draw Bottom Items before Drawing the Grid
             bottomPanelY = drawingBounds.Bottom;
             botomspacetaken = 0;
@@ -3549,15 +3557,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 botomspacetaken += navigatorPanelHeight;
             }
             if (!_navigatorDrawn)
-            { 
+            {
                 _navigatorDrawn = true;
-                if (_showNavigator)
+                if (_showNavigator )
                 {
-                    navigatorPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Bottom- navigatorPanelHeight, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), navigatorPanelHeight);
+                    navigatorPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Bottom - navigatorPanelHeight, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), navigatorPanelHeight);
                     DrawNavigationRow(g, navigatorPanelRect);
                 }
                 else
                 {
+                  
                     navigatorPanelRect = new Rectangle(-100, -100, drawingBounds.Width, navigatorPanelHeight);
                     DrawNavigationRow(g, navigatorPanelRect);
                 }
@@ -3602,15 +3611,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_showHeaderPanel)
             {
                 int ttitleLabelHeight = headerPanelHeight;
-               
-                    ttitleLabelHeight = titleLabel.GetPreferredSize(Size.Empty).Height;
 
-                if(ttitleLabelHeight> headerPanelHeight)
+                ttitleLabelHeight = titleLabel.GetPreferredSize(Size.Empty).Height;
+
+                if (ttitleLabelHeight > headerPanelHeight)
                 {
                     headerPanelHeight = ttitleLabelHeight;
 
                 }
-               
+
                 headerPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), headerPanelHeight);
                 DrawHeaderPanel(g, headerPanelRect);
                 topPanelY += headerPanelHeight;
@@ -3644,36 +3653,45 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawRowsBorders(g, gridRect);
             UpdateHeaderLayout();
             // Position scrollbars after rendering
-            PositionScrollBars();
-            if (_showCheckboxes)
-            {
-                _selectAllCheckBox.Invalidate();
-            }
+           PositionScrollBars();
+            //if (_showCheckboxes)
+            //{
+            //    _selectAllCheckBox.Invalidate();
+            //}
             // Ensure editor control is visible if present
-            if (IsEditorShown && _editingControl != null && _editingControl.Parent == this)
-            {
-                _editingControl.Invalidate(); // Force editor redraw if needed
-            }
-            if (_horizontalScrollBar.Visible)
-            {
-                _horizontalScrollBar.Invalidate(); // Force horizontal scrollbar redraw
-            }
-            if (_verticalScrollBar.Visible)
-            {
-                _verticalScrollBar.Invalidate(); // Force vertical scrollbar redraw
-            }
-            if(buttons.Count > 0)
-            {
-                foreach (var button in buttons)
-                {
-                    button.Invalidate();
-                }
-            }
-            if(ShowHeaderPanel)
-            {
-                titleLabel.Invalidate();
-                filterTextBox.Invalidate();
-            }
+            //if (IsEditorShown && _editingControl != null && _editingControl.Parent == this)
+            //{
+            //    _editingControl.Invalidate(); // Force editor redraw if needed
+            //}
+            //if (_horizontalScrollBar.Visible)
+            //{
+            //    _horizontalScrollBar.Invalidate(); // Force horizontal scrollbar redraw
+            //}
+            //if (_verticalScrollBar.Visible)
+            //{
+            //    _verticalScrollBar.Invalidate(); // Force vertical scrollbar redraw
+            //}
+            //if (buttons.Count > 0)
+            //{
+            //    foreach (var button in buttons)
+            //    {
+            //        button.Invalidate();
+            //    }
+            //}
+            //if (ShowHeaderPanel)
+            //{
+            //    titleLabel.Invalidate();
+            //    filterTextBox.Invalidate();
+            //}
+
+            // If additional app bar elements (icons, text) require custom drawing,
+            // they can be added here or left to be drawn by the child controls.
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+         
         }
         private void DrawFilterPanel(Graphics g, Rectangle filterPanelRect)
         {
@@ -4729,6 +4747,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             string selectedColumn = filterColumnComboBox.SelectedItem is SimpleItem item && item.Value != null
                 ? item.Value.ToString()
                 : null;
+            if (selectedColumn == null) return;
             ApplyFilter(filterTextBox.Text, selectedColumn);
         }
         #endregion Filter Panel
@@ -5441,15 +5460,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnResize(EventArgs e)
         {
+            SuspendLayout();
+         //   Form parentForm = this.FindForm();
+          //  parentForm?.SuspendDrawing();
             base.OnResize(e);
-            _navigatorDrawn=false;
-            _filterpaneldrawn = false;
+     //       _navigatorDrawn=false;
+           // _filterpaneldrawn = false;
             UpdateDrawingRect();
             UpdateRowCount();
             FillVisibleRows();
             UpdateScrollBars();
-           
-            Invalidate();
+            ResumeLayout();
+            PerformLayout();
+        //    parentForm?.ResumeDrawing();
+       //     Invalidate();
         }
         #endregion
         #region Editor
@@ -6818,20 +6842,15 @@ namespace TheTechIdea.Beep.Winform.Controls
     };
 
             Controls.Add(MainPanel);
+        
 
-            // Subscribe to the Resize event to handle control resizing
-            this.Resize += BeepSimpleGrid_Resize;
 
             // Initial update to ensure labels are populated
             UpdateRecordNumber();
             UpdatePagingControls();
         }
 
-        private void BeepSimpleGrid_Resize(object sender, EventArgs e)
-        {
-            // When the control resizes, trigger a redraw to update the layout
-            Invalidate();
-        }
+      
 
         private BeepButton CreateButton(string imagePath, Size size, EventHandler clickHandler)
         {
@@ -7043,7 +7062,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateScrollBars();
             UpdateRecordNumber();
             UpdatePagingControls();
-            Invalidate();
+    
         }
 
 
@@ -7300,6 +7319,39 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
         #region Helper Methods
+        public override void SuspendFormLayout()
+        {
+            base.SuspendFormLayout();
+            this.SuspendLayout();
+        //    this.SuspendDrawing();
+
+            // suspend all child controls
+            foreach (Control ctrl in this.Controls)
+            {
+          //      ctrl.SuspendDrawing();
+                ctrl.SuspendLayout();
+            }
+            _navigatorDrawn = true;
+            _filterpaneldrawn = true;
+            // suspend all tabs and their controls
+
+
+        }
+        public override void ResumeFormLayout()
+        {
+            base.ResumeFormLayout();
+         //   this.ResumeDrawing();
+     
+            // resume all child controls
+            foreach (Control ctrl in this.Controls)
+            {
+          //      ctrl.ResumeDrawing();
+                ctrl.ResumeLayout();
+            }
+            this.ResumeLayout();
+            _navigatorDrawn = false;
+            _filterpaneldrawn = false;
+        }
 
         public BeepColumnConfig GetColumnByName(string columnName)
         {

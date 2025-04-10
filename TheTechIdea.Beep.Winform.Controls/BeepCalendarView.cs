@@ -306,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (isSelected)
                 {
                     using (GraphicsPath path = GetRoundedRectPath(cellRect, BorderRadius / 4))
-                    using (SolidBrush brush = new SolidBrush(_currentTheme.CalendarBackColor))
+                    using (SolidBrush brush = new SolidBrush(_currentTheme.SelectedRowBackColor))
                     {
                         g.FillPath(brush, path);
                     }
@@ -314,7 +314,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else if (isToday)
                 {
                     using (GraphicsPath path = GetRoundedRectPath(cellRect, BorderRadius / 4))
-                    using (Pen pen = new Pen(_currentTheme.CalendarForeColor, 1))
+                    using (Pen pen = new Pen(_currentTheme.AltRowBackColor, 1))
                     {
                         g.DrawPath(pen, path);
                     }

@@ -75,10 +75,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepImage()
         {
             //// Enable double buffering and optimized painting
-            //SetStyle(ControlStyles.OptimizedDoubleBuffer |
-            //         ControlStyles.AllPaintingInWmPaint |
-            //         ControlStyles.UserPaint, true);
-            //UpdateStyles();
+            SetStyle(ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.UserPaint, true);
+            UpdateStyles();
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
                 Width = 100;
@@ -649,7 +649,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            DrawingRect.Inflate(-1, -1); // Adjust for border thickness
+         //   DrawingRect.Inflate(-1, -1); // Adjust for border thickness
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Fill the background with BackColor

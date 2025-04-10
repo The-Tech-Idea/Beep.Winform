@@ -178,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.AnimationType = DisplayAnimationType.None;
             LogopictureBox.ApplyThemeOnImage = false;
             LogopictureBox.ApplyThemeToChilds = false;
-            LogopictureBox.BackColor = Color.FromArgb(255, 255, 255);
+            LogopictureBox.BackColor = Color.FromArgb(245, 245, 245);
             LogopictureBox.BadgeBackColor = Color.Red;
             LogopictureBox.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             LogopictureBox.BadgeForeColor = Color.White;
@@ -255,7 +255,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.ManualRotationAngle = 0F;
             LogopictureBox.Name = "LogopictureBox";
             LogopictureBox.OverrideFontSize = TypeStyleFontSize.None;
-            LogopictureBox.ParentBackColor = Color.FromArgb(255, 255, 255);
+            LogopictureBox.ParentBackColor = Color.FromArgb(245, 245, 245);
             LogopictureBox.ParentControl = null;
             LogopictureBox.PressedBackColor = Color.FromArgb(255, 255, 255);
             LogopictureBox.PressedBorderColor = Color.FromArgb(255, 255, 255);
@@ -406,7 +406,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.TempBackColor = Color.White;
             beepLabel1.Text = "The Tech Idea";
             beepLabel1.TextAlign = ContentAlignment.MiddleLeft;
-            beepLabel1.TextFont = new Font("Arial", 14F);
+            beepLabel1.TextFont = new Font("Arial", 12F);
             beepLabel1.TextImageRelation = TextImageRelation.ImageBeforeText;
             beepLabel1.Theme = EnumBeepThemes.DefaultTheme;
             beepLabel1.ToolTipText = "";
@@ -446,7 +446,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.DataSourceProperty = null;
             beepLabel2.DisabledBackColor = Color.Gray;
             beepLabel2.DisabledForeColor = Color.Empty;
-            beepLabel2.DrawingRect = new Rectangle(1, 1, 89, 20);
+            beepLabel2.DrawingRect = new Rectangle(1, 1, 125, 20);
             beepLabel2.Easing = EasingType.Linear;
             beepLabel2.FieldID = null;
             beepLabel2.FocusBackColor = Color.Gray;
@@ -495,7 +495,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.LabelBackColor = Color.Empty;
             beepLabel2.LeftoffsetForDrawingRect = 0;
             beepLabel2.LinkedProperty = null;
-            beepLabel2.Location = new Point(369, 326);
+            beepLabel2.Location = new Point(333, 326);
             beepLabel2.Margin = new Padding(0);
             beepLabel2.MaxImageSize = new Size(16, 16);
             beepLabel2.Multiline = false;
@@ -522,14 +522,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.ShowRightBorder = false;
             beepLabel2.ShowShadow = false;
             beepLabel2.ShowTopBorder = false;
-            beepLabel2.Size = new Size(91, 22);
+            beepLabel2.Size = new Size(127, 22);
             beepLabel2.SlideFrom = SlideDirection.Left;
             beepLabel2.StaticNotMoving = false;
             beepLabel2.TabIndex = 10;
             beepLabel2.TempBackColor = Color.White;
             beepLabel2.Text = "Copy Right 2025";
             beepLabel2.TextAlign = ContentAlignment.MiddleLeft;
-            beepLabel2.TextFont = new Font("Arial", 14F);
+            beepLabel2.TextFont = new Font("Arial", 12F);
             beepLabel2.TextImageRelation = TextImageRelation.ImageBeforeText;
             beepLabel2.Theme = EnumBeepThemes.DefaultTheme;
             beepLabel2.ToolTipText = "";
@@ -550,7 +550,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.ApplyThemeToChilds = true;
             messege.AutoCompleteMode = AutoCompleteMode.None;
             messege.AutoCompleteSource = AutoCompleteSource.None;
-            messege.BackColor = Color.FromArgb(255, 255, 255);
+            messege.BackColor = Color.FromArgb(245, 245, 245);
             messege.BadgeBackColor = Color.Red;
             messege.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             messege.BadgeForeColor = Color.White;
@@ -603,7 +603,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.IsAcceptButton = false;
             messege.IsBorderAffectedByTheme = false;
             messege.IsCancelButton = false;
-            messege.IsChild = false;
+            messege.IsChild = true;
             messege.IsCustomeBorder = false;
             messege.IsDefault = false;
             messege.IsDeleted = false;
@@ -616,7 +616,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.IsPressed = false;
             messege.IsReadOnly = false;
             messege.IsRequired = false;
-            messege.IsRounded = false;
+            messege.IsRounded = true;
             messege.IsRoundedAffectedByTheme = false;
             messege.IsSelected = false;
             messege.IsShadowAffectedByTheme = false;
@@ -633,7 +633,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.OnlyCharacters = false;
             messege.OnlyDigits = false;
             messege.OverrideFontSize = TypeStyleFontSize.None;
-            messege.ParentBackColor = Color.Empty;
+            messege.ParentBackColor = Color.FromArgb(245, 245, 245);
             messege.ParentControl = null;
             messege.PasswordChar = '\0';
             messege.PlaceholderText = "";
@@ -664,7 +664,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.SlideFrom = SlideDirection.Left;
             messege.StaticNotMoving = false;
             messege.TabIndex = 11;
-            messege.TempBackColor = Color.Empty;
+            messege.TempBackColor = Color.FromArgb(245, 245, 245);
             messege.TextAlignment = HorizontalAlignment.Left;
             messege.TextFont = new Font("Arial", 11F);
             messege.TextImageRelation = TextImageRelation.ImageBeforeText;
@@ -743,13 +743,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.IsDirty = false;
             _spinnerImage.IsEditable = false;
             _spinnerImage.IsFocused = false;
-            _spinnerImage.IsFrameless = false;
+            _spinnerImage.IsFrameless = true;
             _spinnerImage.IsHovered = false;
             _spinnerImage.IsNew = false;
             _spinnerImage.IsPressed = false;
             _spinnerImage.IsReadOnly = false;
             _spinnerImage.IsRequired = false;
-            _spinnerImage.IsRounded = false;
+            _spinnerImage.IsRounded = true;
             _spinnerImage.IsRoundedAffectedByTheme = false;
             _spinnerImage.IsSelected = false;
             _spinnerImage.IsShadowAffectedByTheme = false;
@@ -791,7 +791,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.StaticNotMoving = false;
             _spinnerImage.StrokeColor = Color.Black;
             _spinnerImage.TabIndex = 12;
-            _spinnerImage.TempBackColor = Color.FromArgb(144, 238, 144);
+            _spinnerImage.TempBackColor = Color.FromArgb(108, 117, 125);
             _spinnerImage.Text = "beepImage1";
             _spinnerImage.Theme = EnumBeepThemes.DefaultTheme;
             _spinnerImage.ToolTipText = "";

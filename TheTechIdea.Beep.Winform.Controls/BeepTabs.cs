@@ -4,10 +4,12 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -75,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (index >= 0)
                     {
                         SelectedIndex = index;
-                        UpdateLayout();
+                     //   UpdateLayout();
                         Invalidate(); // Redraw to reflect the selection
                     }
                 }
@@ -92,7 +94,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (value >= 0 && value < TabCount)
                 {
                     SelectedIndex = value;
-                    UpdateLayout();
+                 
+                 //   UpdateLayout();
                     Invalidate(); // Redraw to reflect the selection
                 }
             }
@@ -147,6 +150,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+
+        public int LastTabSelected { get; private set; }
 
         protected override void OnLayout(LayoutEventArgs levent)
         {
@@ -433,6 +438,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             if (tabRect.Contains(clientPoint))
                             {
                                 SelectedIndex = i;
+                                LastTabSelected = i;
                                MiscFunctions.SendLog($"Tab {i} selected");
                                 return;
                             }
@@ -464,7 +470,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                             if (tabRect.Contains(clientPoint))
                             {
                                 SelectedIndex = i;
-                               MiscFunctions.SendLog($"Tab {i} selected");
+                                LastTabSelected = i;
+                                MiscFunctions.SendLog($"Tab {i} selected");
                                 return;
                             }
                             currentY += adjustedHeight;
@@ -473,7 +480,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
             }
         }
-
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            PerformLayout();
+        }
         private void BeepTabs_SelectedIndexChanged(object sender, EventArgs e)
         {
             Invalidate(); // Redraw headers to reflect the new selection
@@ -564,6 +575,47 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
            MiscFunctions.SendLog($"ReceiveMouseClick in BeepTabs at {clientLocation}");
             OnMouseClick(new MouseEventArgs(MouseButtons.Left, 1, clientLocation.X, clientLocation.Y, 0));
+        }
+        public void SuspendFormLayout()
+        {
+           
+         //   this.SuspendLayout();
+         //   this.SuspendDrawing();
+        
+         
+            if (SelectedTab == null) return;
+            SelectedTab.SuspendLayout();
+            foreach (Control ctrl in SelectedTab.Controls)
+            {
+                if (ctrl is IBeepUIComponent)
+                {
+                    IBeepUIComponent bp = (IBeepUIComponent)ctrl;
+                    bp.SuspendFormLayout();
+                }
+
+            }
+
+        }
+        public void ResumeFormLayout()
+        {
+
+            
+            if(SelectedTab==null)return;
+            SelectedTab.ResumeLayout();
+            foreach (Control ctrl in SelectedTab.Controls)
+            {
+                if (ctrl is IBeepUIComponent)
+                {
+                    IBeepUIComponent bp = (IBeepUIComponent)ctrl;
+                    bp.ResumeFormLayout();
+                    SelectedTab.PerformLayout();
+                    // resize control to fit
+                    ctrl.Size = new Size(SelectedTab.Width, SelectedTab.Height);
+                }
+
+            }
+          // this.ResumeLayout();
+        //   this.ResumeDrawing();
         }
     }
     public class TabRemovedEventArgs : EventArgs

@@ -12,12 +12,50 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Helpers;
 public static class ControlExtensions
 {
+    public static void SetDoubleBuffered(Control control, bool enabled)
+    {
+        var doubleBufferPropertyInfo = control.GetType().GetProperty("DoubleBuffered",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        if (doubleBufferPropertyInfo != null)
+        {
+            doubleBufferPropertyInfo.SetValue(control, enabled, null);
+        }
+    }
+
+    private const int WM_SETREDRAW = 0x000B;
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+
+    /// <summary>
+    /// Disables the repainting of the control (and its children).
+    /// </summary>
+    public static void SuspendDrawing(this Control control)
+    {
+        if (control == null)
+            throw new ArgumentNullException(nameof(control));
+
+        SendMessage(control.Handle, WM_SETREDRAW, (IntPtr)0, IntPtr.Zero);
+    }
+
+    /// <summary>
+    /// Re-enables repainting of the control and forces a refresh.
+    /// </summary>
+    public static void ResumeDrawing(this Control control)
+    {
+        if (control == null)
+            throw new ArgumentNullException(nameof(control));
+
+        SendMessage(control.Handle, WM_SETREDRAW, (IntPtr)1, IntPtr.Zero);
+        control.Refresh(); // Force a redraw.
+    }
     public delegate T ObjectActivator<T>(params object[] args);
     public static ObjectActivator<T> GetActivator<T>(ConstructorInfo ctor)
     {

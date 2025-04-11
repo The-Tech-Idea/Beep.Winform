@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.VisualBasic.ApplicationServices;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
@@ -677,5 +678,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    }
         //}
         #endregion
+        public void BeginUpdate()
+        {
+            User32.SendMessage(Handle, User32.WM_SETREDRAW, IntPtr.Zero, IntPtr.Zero);
+        }
+        public void EndUpdate()
+        {
+            User32.SendMessage(this.Handle, User32.WM_SETREDRAW, new IntPtr(1), IntPtr.Zero);
+            this.Refresh();
+        }
+
     }
+   
 }

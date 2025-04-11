@@ -222,12 +222,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             Invalidate();
         }
-
-        // RENDERING
-        protected override void OnPaint(PaintEventArgs e)
+        protected override void DrawContent(Graphics g)
         {
-            base.OnPaint(e);
-            Graphics g = e.Graphics;
+            // First, call the base drawing code from BeepControl.
             UpdateDrawingRect();
             Rectangle drawingRect = DrawingRect;
 
@@ -282,12 +279,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                     g.FillRectangle(thumbBrush, new Rectangle(thumbX, drawingRect.Y, thumbWidth, drawingRect.Height));
                 }
             }
+
+            // If additional app bar elements (icons, text) require custom drawing,
+            // they can be added here or left to be drawn by the child controls.
+        }
+        // RENDERING
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+           
+       
         }
 
         // MOUSE INTERACTION
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            base.OnMouseDown(e);
+         //   base.OnMouseDown(e);
             Rectangle drawingRect = DrawingRect;
             if (drawingRect.Width <= 0 || drawingRect.Height <= 0) return;
             if (_maximum <= _minimum + _largeChange) return;

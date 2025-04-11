@@ -89,14 +89,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize navigation arrows
             _leftArrow = new BeepImage
             {
-                ImagePath = "left-arrow.svg",
+                ImagePath = "angle-small-left.svg",
                 ApplyThemeOnImage = true,
                 Size = new Size(16, 16),
                 Theme = Theme
             };
             _rightArrow = new BeepImage
             {
-                ImagePath = "right-arrow.svg",
+                ImagePath = "angle-small-right.svg",
                 ApplyThemeOnImage = true,
                 Size = new Size(16, 16),
                 Theme = Theme

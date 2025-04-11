@@ -114,7 +114,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The index of the currently selected item.")]
@@ -135,6 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (_selectedIndex >= 0 && _selectedIndex < _buttonItems.Count)
                     {
                         _buttonItems[_selectedIndex].IsSelected = true;
+                        ScrollToItem(_selectedIndex); // Auto-scroll to selected item
                     }
 
                     OnItemSelected();
@@ -142,6 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -214,33 +215,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                     AutoSize = false,
                     TextAlign = ContentAlignment.MiddleCenter,
                     ShowFocusIndicator = false,
-                    BorderThickness = 0
+                    BorderThickness = 0,
+                    Visible = false // Start invisible until positioned
                 };
+
                 if (!string.IsNullOrEmpty(item.ImagePath))
                 {
                     button.ImagePath = item.ImagePath;
                     button.ImageAlign = ContentAlignment.MiddleLeft;
                     button.TextImageRelation = TextImageRelation.ImageBeforeText;
                 }
-                if (_orientation == ScrollOrientation.VerticalScroll)
-                {
-                    int contentWidth = DrawingRect.Width - (this.Padding.Left + this.Padding.Right);
-                    int buttonWidth = _itemWidth;
 
-                    button.Size = new Size(buttonWidth, _itemHeight);
-                }
-                else
-                {
-                    int contentHeight = DrawingRect.Height - (this.Padding.Top + this.Padding.Bottom);
-                    int buttonHeight = DrawingRect.Height - (this.Padding.Top + this.Padding.Bottom);
-                    button.Size = new Size(_itemWidth, buttonHeight);
-                   
-                }
-                
+                // Don't set Size here - will be set in UpdateButtonPositions
+
                 button.Theme = Theme;
-                //button.IsRounded = IsRounded;
-                //button.Margin = new Padding(0);
-                //button.Padding = new Padding(0);
                 button.Click += Button_Click;
                 _buttonItems.Add(button);
                 Controls.Add(button);
@@ -253,6 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             UpdateButtonPositions();
         }
+
 
         private void Button_Click(object sender, EventArgs e)
         {
@@ -269,73 +258,107 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void UpdateButtonPositions()
         {
+            if (_buttonItems.Count == 0 || _listItems.Count == 0)
+                return;
+
+            // Calculate visible area dimensions accounting for padding
+            int visibleWidth = DrawingRect.Width - (Padding.Left + Padding.Right);
+            int visibleHeight = DrawingRect.Height - (Padding.Top + Padding.Bottom);
+
+            // Calculate the range of items to display based on scroll position
             int startIndex = (int)Math.Floor(_scrollOffset);
-            float offsetFraction = _scrollOffset - startIndex;
             int endIndex = Math.Min(startIndex + _visibleItemsCount + 1, _listItems.Count);
 
-            // Calculate the total size of items to be displayed
-            float totalItemsSize = _listItems.Count * _itemHeight;
-            float visibleAreaSize = _orientation == ScrollOrientation.VerticalScroll
-                ? DrawingRect.Height - (this.Padding.Top + this.Padding.Bottom)
-                : DrawingRect.Width - (this.Padding.Left + this.Padding.Right);
+            // Calculate the total content size
+            float totalSize = _listItems.Count * _itemHeight;
+            float visibleSize = _orientation == ScrollOrientation.VerticalScroll ? visibleHeight : visibleWidth;
 
-            // Centering offset for the scrolling direction
-            float centeringOffsetAlongScroll = 0;
-            if (totalItemsSize < visibleAreaSize)
+            // Calculate centering offset when content is smaller than visible area
+            float centeringOffset = 0;
+            if (totalSize < visibleSize)
             {
-                centeringOffsetAlongScroll = (visibleAreaSize - totalItemsSize) / 2;
+                centeringOffset = (visibleSize - totalSize) / 2;
             }
 
-            // Centering offset for the perpendicular direction
-            float centeringOffsetPerpendicular = 0;
-            if (_orientation == ScrollOrientation.VerticalScroll)
-            {
-                int contentWidth = DrawingRect.Width - (this.Padding.Left + this.Padding.Right);
-                int buttonWidth = _itemWidth;
-                if (contentWidth > buttonWidth)
-                {
-                    centeringOffsetPerpendicular = (contentWidth - buttonWidth) / 2;
-                }
-            }
-            else
-            {
-                int contentHeight = DrawingRect.Height - (this.Padding.Top + this.Padding.Bottom);
-                int buttonHeight = DrawingRect.Height - (this.Padding.Top + this.Padding.Bottom);
-                if (contentHeight > buttonHeight)
-                {
-                    centeringOffsetPerpendicular = (contentHeight - buttonHeight) / 2;
-                }
-            }
-
+            // Position all buttons
             for (int i = 0; i < _buttonItems.Count; i++)
             {
                 var button = _buttonItems[i];
+
+                // Only show buttons in the visible range
                 bool isVisible = i >= startIndex && i < endIndex;
                 button.Visible = isVisible;
 
                 if (!isVisible) continue;
 
-                float position = i * _itemHeight - (_scrollOffset * _itemHeight);
+                // Calculate position based on scroll offset
+                float itemPosition = (i - _scrollOffset) * _itemHeight;
 
                 if (_orientation == ScrollOrientation.VerticalScroll)
                 {
-                    int xPos = (int)(this.Padding.Left + centeringOffsetPerpendicular);
-                    int yPos = (int)(this.Padding.Top + centeringOffsetAlongScroll + position);
+                    // For vertical orientation
+                    int yPos = (int)(Padding.Top + centeringOffset + itemPosition);
+
+                    // Center button horizontally, or use full width if itemWidth >= visibleWidth
+                    int buttonWidth = Math.Min(_itemWidth, visibleWidth);
+                    int xPos = Padding.Left + (visibleWidth - buttonWidth) / 2;
+
+                    // Set position and size
                     button.Location = new Point(xPos, yPos);
-                    button.Size = new Size(_itemWidth, _itemHeight);
+                    button.Size = new Size(buttonWidth, _itemHeight);
                 }
                 else
                 {
-                    int xPos = (int)(this.Padding.Left + centeringOffsetAlongScroll + position);
-                    int yPos = (int)(this.Padding.Top + centeringOffsetPerpendicular);
+                    // For horizontal orientation
+                    int xPos = (int)(Padding.Left + centeringOffset + itemPosition);
+
+                    // Use the height of visible area for buttons
+                    int buttonHeight = Math.Min(_itemHeight, visibleHeight);
+                    int yPos = Padding.Top + (visibleHeight - buttonHeight) / 2;
+
+                    // Set position and size - in horizontal mode, itemHeight is actually width
                     button.Location = new Point(xPos, yPos);
-                    button.Size = new Size(_itemHeight, DrawingRect.Height - (this.Padding.Top + this.Padding.Bottom));
+                    button.Size = new Size(_itemHeight, buttonHeight);
                 }
             }
         }
+
         #endregion
 
         #region Layout and Drawing
+        public void ScrollToItem(int index)
+        {
+            if (index < 0 || index >= _listItems.Count)
+                return;
+
+            // Calculate the scroll position needed to show this item
+            if (_orientation == ScrollOrientation.VerticalScroll)
+            {
+                int visibleHeight = DrawingRect.Height - (Padding.Top + Padding.Bottom);
+                int visibleItems = Math.Max(1, visibleHeight / _itemHeight);
+
+                // Center the item if possible
+                _scrollOffset = Math.Max(0, index - visibleItems / 2);
+
+                // Ensure we don't scroll past the end
+                _scrollOffset = Math.Min(_scrollOffset, Math.Max(0, _listItems.Count - visibleItems));
+            }
+            else
+            {
+                int visibleWidth = DrawingRect.Width - (Padding.Left + Padding.Right);
+                int visibleItems = Math.Max(1, visibleWidth / _itemHeight);
+
+                // Center the item if possible
+                _scrollOffset = Math.Max(0, index - visibleItems / 2);
+
+                // Ensure we don't scroll past the end
+                _scrollOffset = Math.Min(_scrollOffset, Math.Max(0, _listItems.Count - visibleItems));
+            }
+
+            UpdateButtonPositions();
+            Invalidate();
+        }
+
         private void UpdateScrollBounds()
         {
             UpdateDrawingRect();

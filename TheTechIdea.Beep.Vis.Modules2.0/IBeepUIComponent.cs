@@ -60,6 +60,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         void Draw(Graphics graphics,Rectangle rectangle);
         void SuspendFormLayout();
         void ResumeFormLayout();
+        void ReceiveMouseEvent(HitTestEventArgs eventArgs);
+        void SendMouseEvent(IBeepUIComponent targetControl, MouseEventType eventType, Point screenLocation);
         void SetBinding(string controlProperty, string dataSourceProperty); // Method to bind a control property
         event EventHandler<BeepComponentEventArgs> PropertyChanged; // Event to notify that a property has changed
         event EventHandler<BeepComponentEventArgs> PropertyValidate; // Event to notify that a property is being validated

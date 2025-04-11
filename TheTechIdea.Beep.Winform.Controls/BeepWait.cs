@@ -26,8 +26,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             Theme=BeepThemesManager.CurrentTheme;
             ApplyTheme();
             messege.Multiline = true;
-            _spinnerImage.ApplyThemeOnImage = true;
-            _spinnerImage.Theme = Theme;
+           // _spinnerImage.ApplyThemeOnImage = true;
+          //  _spinnerImage.Theme = Theme;
             _spinnerImage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.loading.svg";
             LogopictureBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
 
@@ -227,7 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
              base.ApplyTheme();
             if (_spinnerImage == null) return;
-            _spinnerImage.ApplyThemeOnImage = true;
+         
            // _spinnerImage.Theme = Theme;
             BackColor = _currentTheme.BackColor;
             ForeColor = _currentTheme.TextBoxForeColor;

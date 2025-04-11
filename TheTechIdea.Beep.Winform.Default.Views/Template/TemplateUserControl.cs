@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Container.Services;
 using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
-using TheTechIdea.Beep.Winform.Controls;
+
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Template
 {
@@ -26,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         public TemplateUserControl(IBeepService service) : base()
         {
             InitializeComponent();
+            this.DoubleBuffered = true;
             Details = new AddinDetails();
             Dependencies = new Dependencies();
             Details.ObjectType = "UserControl";
@@ -176,6 +177,38 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
 
         }
         #endregion "IDM_Addin Implementation"
-
+        public virtual void ResumeFormLayout()
+        {
+            return;
+          this.ResumeLayout(false);
+            this.PerformLayout(); // Ensure layout is recalculated
+            foreach (Control ctrl in this.Controls)
+            {
+                ctrl.ResumeLayout(false);
+                ctrl.PerformLayout();
+                if (ctrl is IBeepUIComponent bp)
+                {
+                    bp.ResumeFormLayout();
+                }
+                if (ctrl.Dock == DockStyle.Fill)
+                {
+                    ctrl.Size = this.Size;
+                }
+            }
+            this.Invalidate();
+        }
+        public virtual void SuspendFormLayout()
+        {
+            return;
+       this.SuspendLayout();
+            foreach (Control ctrl in this.Controls)
+            {
+                ctrl.SuspendLayout();
+                if (ctrl is IBeepUIComponent bp)
+                {
+                    bp.SuspendFormLayout();
+                }
+            }
+        }
     }
 }

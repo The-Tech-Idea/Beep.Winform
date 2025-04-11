@@ -47,22 +47,22 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepuiManager1.DisplayContainer = beepDisplayContainer1;
             beepuiManager1.IsRounded = false;
             beepuiManager1.ShowBorder = false;
-            beepuiManager1.Theme = EnumBeepThemes.ZenTheme;
-            beepuiManager1.Title = "Beep Development and Data Platform";
+            beepuiManager1.Theme = EnumBeepThemes.DefaultTheme;
+            beepuiManager1.Title = "Beep";
             // 
             // beepDisplayContainer1
             // 
             beepDisplayContainer1.AnimationDuration = 500;
             beepDisplayContainer1.AnimationType = DisplayAnimationType.None;
             beepDisplayContainer1.ApplyThemeToChilds = false;
-            beepDisplayContainer1.BackColor = Color.FromArgb(250, 250, 250);
+            beepDisplayContainer1.BackColor = Color.FromArgb(255, 255, 255);
             beepDisplayContainer1.BadgeBackColor = Color.Red;
             beepDisplayContainer1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepDisplayContainer1.BadgeForeColor = Color.White;
             beepDisplayContainer1.BadgeShape = BadgeShape.Circle;
             beepDisplayContainer1.BadgeText = "";
             beepDisplayContainer1.BlockID = null;
-            beepDisplayContainer1.BorderColor = Color.FromArgb(211, 211, 211);
+            beepDisplayContainer1.BorderColor = Color.FromArgb(173, 181, 189);
             beepDisplayContainer1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             beepDisplayContainer1.BorderRadius = 3;
             beepDisplayContainer1.BorderStyle = BorderStyle.FixedSingle;
@@ -89,9 +89,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.FocusIndicatorColor = Color.Blue;
             beepDisplayContainer1.Form = null;
             beepDisplayContainer1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepDisplayContainer1.GradientEndColor = Color.FromArgb(245, 245, 220);
-            beepDisplayContainer1.GradientStartColor = Color.FromArgb(240, 240, 240);
+            beepDisplayContainer1.GradientEndColor = Color.FromArgb(255, 255, 255);
+            beepDisplayContainer1.GradientStartColor = Color.FromArgb(245, 245, 245);
             beepDisplayContainer1.GuidID = "b3ee9f08-fabd-4339-b553-35f73d487bb5";
+            beepDisplayContainer1.HitAreaEventOn = false;
+            beepDisplayContainer1.HitTestControl = null;
             beepDisplayContainer1.HoverBackColor = Color.FromArgb(230, 230, 230);
             beepDisplayContainer1.HoverBorderColor = Color.FromArgb(0, 120, 215);
             beepDisplayContainer1.HoveredBackcolor = Color.Wheat;
@@ -137,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.SavedID = null;
             beepDisplayContainer1.SelectedBackColor = Color.White;
             beepDisplayContainer1.SelectedForeColor = Color.Black;
-            beepDisplayContainer1.ShadowColor = Color.FromArgb(211, 211, 211);
+            beepDisplayContainer1.ShadowColor = Color.FromArgb(173, 181, 189);
             beepDisplayContainer1.ShadowOffset = 0;
             beepDisplayContainer1.ShadowOpacity = 0.5F;
             beepDisplayContainer1.ShowAllBorders = false;
@@ -153,7 +155,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.TabIndex = 2;
             beepDisplayContainer1.TempBackColor = Color.Empty;
             beepDisplayContainer1.Text = "beepDisplayContainer1";
-            beepDisplayContainer1.Theme = EnumBeepThemes.ZenTheme;
+            beepDisplayContainer1.Theme = EnumBeepThemes.DefaultTheme;
             beepDisplayContainer1.ToolTipText = "";
             beepDisplayContainer1.TopoffsetForDrawingRect = 0;
             beepDisplayContainer1.UseGradientBackground = false;
@@ -165,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.AnimationDuration = 500;
             beepMenuAppBar1.AnimationType = DisplayAnimationType.None;
             beepMenuAppBar1.ApplyThemeToChilds = false;
-            beepMenuAppBar1.BackColor = Color.FromArgb(119, 136, 153);
+            beepMenuAppBar1.BackColor = Color.FromArgb(0, 120, 215);
             beepMenuAppBar1.BadgeBackColor = Color.Red;
             beepMenuAppBar1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepMenuAppBar1.BadgeForeColor = Color.White;
@@ -173,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.BadgeText = "";
             beepMenuAppBar1.beepServices = null;
             beepMenuAppBar1.BlockID = null;
-            beepMenuAppBar1.BorderColor = Color.FromArgb(211, 211, 211);
+            beepMenuAppBar1.BorderColor = Color.FromArgb(173, 181, 189);
             beepMenuAppBar1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             beepMenuAppBar1.BorderRadius = 3;
             beepMenuAppBar1.BorderStyle = BorderStyle.FixedSingle;
@@ -197,13 +199,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.FocusBorderColor = Color.Gray;
             beepMenuAppBar1.FocusForeColor = Color.Black;
             beepMenuAppBar1.FocusIndicatorColor = Color.Blue;
-            beepMenuAppBar1.Font = new Font("Segoe UI", 11F);
+            beepMenuAppBar1.Font = new Font("Arial", 11F);
             beepMenuAppBar1.ForeColor = Color.FromArgb(255, 255, 255);
             beepMenuAppBar1.Form = null;
             beepMenuAppBar1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepMenuAppBar1.GradientEndColor = Color.FromArgb(245, 245, 220);
-            beepMenuAppBar1.GradientStartColor = Color.FromArgb(240, 240, 240);
+            beepMenuAppBar1.GradientEndColor = Color.FromArgb(255, 255, 255);
+            beepMenuAppBar1.GradientStartColor = Color.FromArgb(245, 245, 245);
             beepMenuAppBar1.GuidID = "6f369a04-3d65-47eb-9d84-d364141bc239";
+            beepMenuAppBar1.HitAreaEventOn = false;
+            beepMenuAppBar1.HitTestControl = null;
             beepMenuAppBar1.HoverBackColor = Color.FromArgb(230, 230, 230);
             beepMenuAppBar1.HoverBorderColor = Color.FromArgb(0, 120, 215);
             beepMenuAppBar1.HoveredBackcolor = Color.Wheat;
@@ -252,7 +256,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.SelectedBackColor = Color.White;
             beepMenuAppBar1.SelectedForeColor = Color.Black;
             beepMenuAppBar1.SelectedIndex = -1;
-            beepMenuAppBar1.ShadowColor = Color.FromArgb(211, 211, 211);
+            beepMenuAppBar1.ShadowColor = Color.FromArgb(173, 181, 189);
             beepMenuAppBar1.ShadowOffset = 0;
             beepMenuAppBar1.ShadowOpacity = 0.5F;
             beepMenuAppBar1.ShowAllBorders = false;
@@ -268,8 +272,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.TabIndex = 3;
             beepMenuAppBar1.TempBackColor = Color.Empty;
             beepMenuAppBar1.Text = "beepMenuAppBar1";
-            beepMenuAppBar1.TextFont = new Font("Segoe UI", 11F);
-            beepMenuAppBar1.Theme = EnumBeepThemes.ZenTheme;
+            beepMenuAppBar1.TextFont = new Font("Arial", 11F);
+            beepMenuAppBar1.Theme = EnumBeepThemes.DefaultTheme;
             beepMenuAppBar1.ToolTipText = "";
             beepMenuAppBar1.TopoffsetForDrawingRect = 0;
             beepMenuAppBar1.UseGradientBackground = false;
@@ -284,7 +288,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.ApplyThemeToChilds = false;
             beepAppBar1.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             beepAppBar1.AutoCompleteSource = AutoCompleteSource.CustomSource;
-            beepAppBar1.BackColor = Color.FromArgb(119, 136, 153);
+            beepAppBar1.BackColor = Color.FromArgb(0, 120, 215);
             beepAppBar1.BadgeBackColor = Color.Red;
             beepAppBar1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepAppBar1.BadgeForeColor = Color.White;
@@ -308,6 +312,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.DisabledBackColor = Color.Gray;
             beepAppBar1.DisabledForeColor = Color.Empty;
             beepAppBar1.Dock = DockStyle.Top;
+            beepAppBar1.DoRearrnage = false;
             beepAppBar1.DrawingRect = new Rectangle(0, 0, 1027, 40);
             beepAppBar1.Easing = EasingType.Linear;
             beepAppBar1.FieldID = null;
@@ -315,12 +320,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.FocusBorderColor = Color.Gray;
             beepAppBar1.FocusForeColor = Color.Black;
             beepAppBar1.FocusIndicatorColor = Color.Blue;
-            beepAppBar1.Font = new Font("Arial", 14F);
+            beepAppBar1.Font = new Font("Segoe UI", 18F);
             beepAppBar1.Form = null;
             beepAppBar1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepAppBar1.GradientEndColor = Color.Gray;
             beepAppBar1.GradientStartColor = Color.Gray;
             beepAppBar1.GuidID = "2feb3ec3-b1d8-4dd6-b1ec-70c10f5932b9";
+            beepAppBar1.HitAreaEventOn = false;
+            beepAppBar1.HitTestControl = null;
             beepAppBar1.HoverBackColor = Color.Gray;
             beepAppBar1.HoverBorderColor = Color.Gray;
             beepAppBar1.HoveredBackcolor = Color.Wheat;
@@ -391,8 +398,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.TabIndex = 4;
             beepAppBar1.TempBackColor = Color.Empty;
             beepAppBar1.Text = "beepAppBar1";
-            beepAppBar1.TextFont = new Font("Segoe UI", 18F);
-            beepAppBar1.Theme = EnumBeepThemes.ZenTheme;
+            beepAppBar1.TextFont = new Font("Arial", 14F);
+            beepAppBar1.Theme = EnumBeepThemes.DefaultTheme;
             beepAppBar1.ToolTipText = "";
             beepAppBar1.TopoffsetForDrawingRect = 0;
             beepAppBar1.UseGradientBackground = false;
@@ -406,7 +413,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.ApplyThemeToChilds = false;
             beepAppTree1.args = null;
             beepAppTree1.AutoScroll = true;
-            beepAppTree1.BackColor = Color.FromArgb(250, 250, 250);
+            beepAppTree1.BackColor = Color.FromArgb(255, 255, 255);
             beepAppTree1.BadgeBackColor = Color.Red;
             beepAppTree1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepAppTree1.BadgeForeColor = Color.White;
@@ -414,7 +421,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.BadgeText = "";
             beepAppTree1.BeepService = null;
             beepAppTree1.BlockID = null;
-            beepAppTree1.BorderColor = Color.FromArgb(211, 211, 211);
+            beepAppTree1.BorderColor = Color.FromArgb(173, 181, 189);
             beepAppTree1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             beepAppTree1.BorderRadius = 3;
             beepAppTree1.BorderStyle = BorderStyle.FixedSingle;
@@ -450,9 +457,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.Font = new Font("Arial", 10F);
             beepAppTree1.Form = null;
             beepAppTree1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepAppTree1.GradientEndColor = Color.FromArgb(245, 245, 220);
-            beepAppTree1.GradientStartColor = Color.FromArgb(240, 240, 240);
+            beepAppTree1.GradientEndColor = Color.FromArgb(255, 255, 255);
+            beepAppTree1.GradientStartColor = Color.FromArgb(245, 245, 245);
             beepAppTree1.GuidID = "fb89b68d-3016-42c0-8e62-2f34a9f894ef";
+            beepAppTree1.HitAreaEventOn = false;
+            beepAppTree1.HitTestControl = null;
             beepAppTree1.HoverBackColor = Color.FromArgb(230, 230, 230);
             beepAppTree1.HoverBorderColor = Color.FromArgb(0, 120, 215);
             beepAppTree1.HoveredBackcolor = Color.Wheat;
@@ -509,8 +518,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.SelectedForeColor = Color.Black;
             beepAppTree1.SelectedItem = null;
             beepAppTree1.SelectIcon = "Select.svg";
-            beepAppTree1.SeqID = 2;
-            beepAppTree1.ShadowColor = Color.FromArgb(211, 211, 211);
+            beepAppTree1.SeqID = 1;
+            beepAppTree1.ShadowColor = Color.FromArgb(173, 181, 189);
             beepAppTree1.ShadowOffset = 0;
             beepAppTree1.ShadowOpacity = 0.5F;
             beepAppTree1.ShowAllBorders = false;
@@ -530,7 +539,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.Text = "beepAppTree1";
             beepAppTree1.TextAlignment = ContentAlignment.MiddleLeft;
             beepAppTree1.TextFont = new Font("Arial", 10F);
-            beepAppTree1.Theme = EnumBeepThemes.ZenTheme;
+            beepAppTree1.Theme = EnumBeepThemes.DefaultTheme;
             beepAppTree1.ToolTipText = "";
             beepAppTree1.TopoffsetForDrawingRect = 0;
             beepAppTree1.Treebranchhandler = null;
@@ -547,7 +556,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.AnimationType = DisplayAnimationType.None;
             beepSideMenu1.ApplyThemeOnImages = false;
             beepSideMenu1.ApplyThemeToChilds = false;
-            beepSideMenu1.BackColor = Color.FromArgb(119, 136, 153);
+            beepSideMenu1.BackColor = Color.FromArgb(0, 120, 215);
             beepSideMenu1.BadgeBackColor = Color.Red;
             beepSideMenu1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepSideMenu1.BadgeForeColor = Color.White;
@@ -556,7 +565,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.BeepAppBar = null;
             beepSideMenu1.BeepForm = this;
             beepSideMenu1.BlockID = null;
-            beepSideMenu1.BorderColor = Color.FromArgb(211, 211, 211);
+            beepSideMenu1.BorderColor = Color.FromArgb(173, 181, 189);
             beepSideMenu1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             beepSideMenu1.BorderRadius = 8;
             beepSideMenu1.BorderStyle = BorderStyle.FixedSingle;
@@ -588,10 +597,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.ForeColor = Color.White;
             beepSideMenu1.Form = null;
             beepSideMenu1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepSideMenu1.GradientEndColor = Color.FromArgb(245, 245, 220);
-            beepSideMenu1.GradientStartColor = Color.FromArgb(240, 240, 240);
+            beepSideMenu1.GradientEndColor = Color.FromArgb(255, 255, 255);
+            beepSideMenu1.GradientStartColor = Color.FromArgb(245, 245, 245);
             beepSideMenu1.GuidID = "a6dbb3e8-4e68-4867-a963-318908ea580e";
             beepSideMenu1.HilightPanelSize = 5;
+            beepSideMenu1.HitAreaEventOn = false;
+            beepSideMenu1.HitTestControl = null;
             beepSideMenu1.HoverBackColor = Color.White;
             beepSideMenu1.HoverBorderColor = Color.Gray;
             beepSideMenu1.HoveredBackcolor = Color.Wheat;
@@ -640,7 +651,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.SavedID = null;
             beepSideMenu1.SelectedBackColor = Color.White;
             beepSideMenu1.SelectedForeColor = Color.Black;
-            beepSideMenu1.ShadowColor = Color.FromArgb(211, 211, 211);
+            beepSideMenu1.ShadowColor = Color.FromArgb(173, 181, 189);
             beepSideMenu1.ShadowOffset = 0;
             beepSideMenu1.ShadowOpacity = 0.5F;
             beepSideMenu1.ShowAllBorders = false;
@@ -656,8 +667,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.TabIndex = 5;
             beepSideMenu1.TempBackColor = Color.Empty;
             beepSideMenu1.Text = "beepSideMenu1";
-            beepSideMenu1.Theme = EnumBeepThemes.ZenTheme;
-            beepSideMenu1.Title = "Beep Development and Data Platform";
+            beepSideMenu1.Theme = EnumBeepThemes.DefaultTheme;
+            beepSideMenu1.Title = "Beep";
             beepSideMenu1.TitleSize = new Size(100, 20);
             beepSideMenu1.ToolTipText = "";
             beepSideMenu1.TopoffsetForDrawingRect = 0;
@@ -668,7 +679,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            BorderColor = Color.FromArgb(211, 211, 211);
+            BorderColor = Color.FromArgb(173, 181, 189);
             ClientSize = new Size(1200, 800);
             Controls.Add(beepDisplayContainer1);
             Controls.Add(beepAppTree1);
@@ -676,8 +687,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             Controls.Add(beepAppBar1);
             Controls.Add(beepSideMenu1);
             Name = "MainFrm";
-            Text = "Beep Development and Data Platform";
-            Theme = EnumBeepThemes.ZenTheme;
+            Text = "Beep";
             ResumeLayout(false);
         }
 

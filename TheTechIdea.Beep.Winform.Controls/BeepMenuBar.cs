@@ -177,6 +177,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Properties"
         public BeepMenuBar():base   ()
         {
+            SetStyle(ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.UserPaint |
+                     ControlStyles.ResizeRedraw, true); // Enable ResizeRedraw
+            this.UpdateStyles();
             if (items == null)
             {
                 items = new BindingList<SimpleItem>();
@@ -198,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom,
             };
             //    items.ListChanged += Items_ListChanged;
-            Controls.Add(container);
+            
             _lastbuttonclicked = null;
             BoundProperty = "SelectedMenuItem";
             IsFrameless = true;
@@ -212,22 +217,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitMenu();
         }
         protected override Size DefaultSize => new Size(200, _menuItemHeight);
-        protected override void InitLayout()
-        {
-            base.InitLayout();
-            Dock = DockStyle.Top;
-            UpdateDrawingRect();
-            container.Left = DrawingRect.Left;
-            container.Top = DrawingRect.Top;
-            container.Width = DrawingRect.Width;
-            container.Height = DrawingRect.Height;
-            InitMenu();
-            ApplyTheme();
-        }
+        //protected override void InitLayout()
+        //{
+        //    base.InitLayout();
+        //    Dock = DockStyle.Top;
+        //    UpdateDrawingRect();
+        //    container.Left = DrawingRect.Left;
+        //    container.Top = DrawingRect.Top;
+        //    container.Width = DrawingRect.Width;
+        //    container.Height = DrawingRect.Height;
+        //    InitMenu();
+        //    ApplyTheme();
+        //}
         public void InitMenu()
         {
             //// Console.WriteLine("InitMenu");
-            container.Controls.Clear();
+            Controls.Clear();
             if (items == null || items.Count == 0) return;
 
             // Step 1: Create all buttons with an initial "guess" size
@@ -276,7 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 btn.Click += Btn_Click;
                 btn.SelectedItemChanged += Menu_SelectedItemChanged;
                 // Add to Controls
-                container.Controls.Add(btn);
+                Controls.Add(btn);
                 //  menumainbar.Add(item.Text, btn);
                 createdButtons.Add(btn);
             }
@@ -499,19 +504,7 @@ namespace TheTechIdea.Beep.Winform.Controls
            //// Console.WriteLine("ApplyTheme in menubar 5");
             Invalidate();
         }
-        protected override void OnMouseEnter(EventArgs e)
-        {
-            IsHovered = false;
-
-        }
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            IsHovered = false;
-        }
-        protected override void OnMouseHover(EventArgs e)
-        {
-            IsHovered = false;
-        }
+     
     }
     public class MenuitemTracking
     {

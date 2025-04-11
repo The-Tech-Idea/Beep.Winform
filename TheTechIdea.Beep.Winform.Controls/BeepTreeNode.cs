@@ -1079,17 +1079,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         if (IsExpanded)
                         {
-                            _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg";
+                            _toggleButton.Text = "-";
+                            //_toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg";
                         }
                         else
                         {
-                            _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg";
+                            _toggleButton.Text = "+";
+                            
+                            //  _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg";
                         }
                     }
                  else
                  {
-                        _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg";
-                 }
+                        _toggleButton.Text = "-";
+                        // _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg";
+                    }
                 }
             }
     
@@ -1205,31 +1209,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _toggleButton = new BeepButton
             {
-                Text = string.Empty,
+                Text = "-",
                 Size = new Size(SmallNodeHeight, SmallNodeHeight),
                 ImageAlign = System.Drawing.ContentAlignment.MiddleCenter,
                 TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
                 TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText,
                 IsChild = true,
                 ShowAllBorders = false,
-                HideText = true,
+                HideText = false,
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ApplyThemeOnImage = true,
                 IsRounded = false,
                 MaxImageSize = new System.Drawing.Size(SmallNodeHeight - 2, SmallNodeHeight - 2),
-                Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall),
+               
                 UseScaledFont = false,
-                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg"
+              //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg"
             };
-            _toggleButton.HideText = true;
-            _toggleButton.Text= string.Empty;
+          //  _toggleButton.HideText = true;
+            //_toggleButton.Text= string.Empty;
             _toggleButton.Click += (s, e) =>
             {
                 IsExpanded = !IsExpanded;
             };
-
+            _toggleButton.TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             _nodePanel.Controls.Add(_toggleButton);
         }
         public void UpdatePanelSize()
@@ -1284,7 +1288,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             if (_toggleButton != null)
             {
-                _toggleButton.ImagePath = _isExpanded ? "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg" : "TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg";
+                // _toggleButton.ImagePath = _isExpanded ? "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg" : "TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg";
+                _toggleButton.Text = _isExpanded ? "-" : "+";
+              //
             }
             else return;
             if (Nodes.Count > 0)
@@ -1373,13 +1379,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _checkBox.HoverBackColor = _currentTheme.TreeNodeHoverBackColor;
                 _checkBox.SelectedForeColor = _currentTheme.ButtonSelectedForeColor;
                 _checkBox.SelectedBackColor = _currentTheme.ButtonSelectedBackColor;
-                _checkBox.ApplyTheme();
+              //  _checkBox.ApplyTheme();
             }
             if (_toggleButton != null)
             {
-                _toggleButton.ImageEmbededin = ImageEmbededin.Button;
-                _toggleButton.ApplyThemeOnImage = true;
-                _toggleButton.Theme = Theme;
+                //_toggleButton.ImageEmbededin = ImageEmbededin.Button;
+                //_toggleButton.ApplyThemeOnImage = true;
+                //_toggleButton.Theme = Theme;
+             //   _toggleButton.Theme = Theme;
+                _toggleButton.ForeColor = _currentTheme.TreeNodeForeColor;
+                _toggleButton.BackColor = _currentTheme.TreeBackColor;
+                _toggleButton.BorderColor = _currentTheme.TreeBorderColor;
+                _toggleButton.HoverForeColor = _currentTheme.TreeNodeHoverForeColor;
+                _toggleButton.HoverBackColor = _currentTheme.TreeNodeHoverBackColor;
+                _toggleButton.SelectedForeColor = _currentTheme.ButtonSelectedForeColor;
+                _toggleButton.SelectedBackColor = _currentTheme.ButtonSelectedBackColor;
             }
 
             _nodePanel.BackColor = _currentTheme.TreeBackColor;

@@ -9,10 +9,8 @@ using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
 using System.IO;
 using TheTechIdea.Beep.Winform.Controls.Models;
-
-using TheTechIdea.Beep.Winform.Controls.Helpers;
 using LinearGradientMode = System.Drawing.Drawing2D.LinearGradientMode;
-using System.Diagnostics.Eventing.Reader;
+
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -123,9 +121,29 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _canbefocused = true;
         private bool _canbedefault = false;
         private Rectangle borderRectangle;
+
         #endregion "protected Properties"
         #region "Public Properties"
-        //    public IContainer Components => this.Components;
+        private bool _hitareaeventon = false;
+        public bool HitAreaEventOn
+        {
+            get => _hitareaeventon;
+            set
+            {
+                _hitareaeventon = value;
+               
+            }
+        }
+        private ControlHitTest _hitTestControl;
+        public ControlHitTest HitTestControl
+        {
+            get => _hitTestControl;
+            set
+            {
+                _hitTestControl = value;
+                Invalidate();
+            }
+        }
         [Browsable(true)]
         [Category("Data")]
         [Description("The Text  represent for the control.")]
@@ -985,6 +1003,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Theme"
         #region "Painting"
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000;  // WS_EX_COMPOSITED flag
+                return cp;
+            }
+        }
+
         protected override void OnPaddingChanged(EventArgs e)
         {
             base.OnPaddingChanged(e);
@@ -993,15 +1021,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnResize(EventArgs e)
         {
+            // Suspend layout to prevent flickering
+            this.SuspendLayout();
+
             base.OnResize(e);
             UpdateDrawingRect();
-            // Defer the region update to ensure layout is complete.
-            //this.BeginInvoke((MethodInvoker)delegate {
-            //    UpdateControlRegion();
-            //});
-            UpdateControlRegion();
-            Invalidate(); // Redraw on resize to adjust title positioning
+
+            // Check if the handle is created before using BeginInvoke
+            if (IsHandleCreated)
+            {
+                // Defer the region update to prevent multiple repaints
+                this.BeginInvoke((MethodInvoker)delegate {
+                    UpdateControlRegion();
+                });
+            }
+            else
+            {
+                // If handle is not created yet, call UpdateControlRegion directly
+                UpdateControlRegion();
+            }
+
+            // Resume layout
+            this.ResumeLayout();
         }
+
         private void UpdateControlRegion()
         {
             if (Width <= 0 || Height <= 0)
@@ -1044,17 +1087,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 this.Region = new Region(regionRect);
             }
         }
-
-        //protected override CreateParams CreateParams
-        //{
-        //    get
-        //    {
-        //        CreateParams cp = base.CreateParams;
-        //        cp.ExStyle |= 0x02000000; // WS_EX_COMPOSITED
-        //        return cp;
-        //    }
-        //}
-        // Override background painting for optimized repaint
         protected override void OnPaintBackground(PaintEventArgs e)
         {
           //  base.OnPaintBackground(e);
@@ -1171,10 +1203,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Update drawing bounds as necessary
             UpdateDrawingRect();
             // Adjust BackColor if this control is a child (inherit parent's backcolor)
-           
-
-            // Update any drawing bounds that rely on the control's size
-            UpdateDrawingRect();
+  
             // Determine shadow offset based on whether shadows should be drawn
             shadowOffset = ShowShadow ? 3 : 0;
 
@@ -1243,8 +1272,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 DrawFocusIndicator(g);
             }
-        }
+            if (HitList == null)
+                return;
 
+            foreach (var hitTest in HitList)
+            {
+                if (hitTest.IsVisible)
+                {
+                    if (hitTest.uIComponent == null) return;
+                    hitTest.uIComponent.Draw(g, hitTest.TargetRect);
+                }
+            }
+        }
         protected Font GetScaledFont(Graphics g, string text, Size maxSize, Font originalFont)
         {
             if(originalFont==null)
@@ -1281,120 +1320,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Return a final font at the best size found
             return new Font(originalFont.FontFamily, finalSize, originalFont.Style);
         }
-
         private bool Fits(Graphics g, string text, Font font, Size maxSize)
         {
             var measured = TextRenderer.MeasureText(g, text, font);
             return (measured.Width <= maxSize.Width && measured.Height <= maxSize.Height);
         }
-
-
         #region "Drawing Methods"
         public virtual void DrawCustomBorder(Graphics g)
         {
             // Draw custom border based on the control's properties
             DrawBorder(g, DrawingRect);
-        }
-        protected void DrawBackColor(PaintEventArgs e, Color color, Color hovercolor)
-        {
-            shadowOffset = ShowShadow ? 3 : 0;
-
-            // Update the drawing rectangle to reflect shadow and border changes
-            UpdateDrawingRect();
-
-            if (IsChild)
-            {
-                if (IsHovered)
-                {
-                    // Draw background based on `IsRounded` and `UseGradientBackground`
-                    if (IsRounded)
-                    {
-                        using (GraphicsPath path = GetRoundedRectPath(DrawingRect, BorderRadius))
-                        {
-                            if (UseGradientBackground)
-                            {
-                                using (var brush = new LinearGradientBrush(DrawingRect, GradientStartColor, GradientEndColor, GradientDirection))
-                                {
-                                    e.Graphics.FillPath(brush, path);
-                                }
-                            }
-                            else
-                            {
-                                using (var brush = new SolidBrush(IsHovered ? hovercolor : color))
-                                {
-                                    e.Graphics.FillPath(brush, path);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (UseGradientBackground)
-                        {
-                            using (var brush = new LinearGradientBrush(DrawingRect, GradientStartColor, GradientEndColor, GradientDirection))
-                            {
-                                e.Graphics.FillRectangle(brush, DrawingRect);
-                            }
-                        }
-                        else
-                        {
-                            using (var brush = new SolidBrush(IsHovered ? hovercolor : color))
-                            {
-                                e.Graphics.FillRectangle(brush, DrawingRect);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    using (SolidBrush brush = new SolidBrush(parentbackcolor))
-                    {
-                        e.Graphics.FillRectangle(brush, DrawingRect);
-                    }
-                }
-            }
-            else
-            {
-                // Draw background based on `IsRounded` and `UseGradientBackground`
-                if (IsRounded)
-                {
-                    using (GraphicsPath path = GetRoundedRectPath(DrawingRect, BorderRadius))
-                    {
-                        if (UseGradientBackground)
-                        {
-                            using (var brush = new LinearGradientBrush(DrawingRect, GradientStartColor, GradientEndColor, GradientDirection))
-                            {
-                                e.Graphics.FillPath(brush, path);
-                            }
-                        }
-                        else
-                        {
-                            using (var brush = new SolidBrush(IsHovered ? hovercolor : color))
-                            {
-                                e.Graphics.FillPath(brush, path);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    if (UseGradientBackground)
-                    {
-                        using (var brush = new LinearGradientBrush(DrawingRect, GradientStartColor, GradientEndColor, GradientDirection))
-                        {
-                            e.Graphics.FillRectangle(brush, DrawingRect);
-                        }
-                    }
-                    else
-                    {
-                        using (var brush = new SolidBrush(IsHovered ? hovercolor : color))
-                        {
-                            e.Graphics.FillRectangle(brush, DrawingRect);
-                        }
-                    }
-                }
-
-            }
         }
         protected void DrawBorder(Graphics graphics, Rectangle drawingRect)
         {
@@ -1495,7 +1430,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.AddEllipse(rect);
             return path;
         }
-      
         protected void DrawShadowUsingRectangle(Graphics graphics)
         {
             // Ensure shadow is drawn only if it's enabled
@@ -1627,75 +1561,196 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.CloseFigure();
             return path;
         }
-       
-        #endregion "Painting"
-
         #endregion "Drawing Methods"
+        #endregion "Painting"
         #region "Mouse events"
         protected override void OnMouseEnter(EventArgs e)
         {
-            IsHovered = true;
             base.OnMouseEnter(e);
+            IsHovered = true;
 
+            Point location = PointToClient(Cursor.Position);
+            if (HitTest(location) && HitTestControl != null && HitTestControl.uIComponent != null)
+            {
+                HitTestControl.IsHovered = true;
+                SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseEnter, PointToScreen(location));
+                if (HitTestControl.HitAction != null)
+                    HitTestControl.HitAction.Invoke();
+            }
         }
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            IsHovered = true;
             base.OnMouseMove(e);
+            IsHovered = true;
 
+            if (HitTest(e.Location))
+            {
+                if (HitTestControl != null && HitTestControl.uIComponent != null)
+                {
+                    HitTestControl.IsHovered = true;
+                    SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseMove, PointToScreen(e.Location));
+                    if (HitTestControl.HitAction != null)
+                        HitTestControl.HitAction.Invoke();
+                }
+            }
+            else
+            {
+                foreach (var hitTest in HitList)
+                {
+                    hitTest.IsHovered = false;
+                }
+            }
         }
+
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-         
             IsHovered = false;
-            
+            HitAreaEventOn = false;
+
+            if (HitTestControl != null && HitTestControl.uIComponent != null)
+            {
+                SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseLeave, PointToScreen(Point.Empty));
+            }
+            HitTestControl = null;
+
+            if (HitList != null)
+            {
+                foreach (var hitTest in HitList)
+                {
+                    hitTest.IsHit = false;
+                    hitTest.IsHovered = false;
+                    hitTest.IsPressed = false;
+                }
+            }
         }
 
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
             IsFocused = true;
-         
-        
+
+            if (HitTestWithMouse() && HitTestControl != null && HitTestControl.uIComponent != null)
+            {
+                HitTestControl.IsFocused = true;
+                // No SendMouseEvent here; focus isn't a mouse event
+            }
         }
+
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
-          //  IsFocused = false;
+            IsFocused = false;
+
             IsHovered = false;
+            if (HitList != null)
+            {
+                foreach (var hitTest in HitList)
+                {
+                    hitTest.IsFocused = false;
+                    hitTest.IsHovered = hitTest.IsHit;
+                }
+            }
         }
+
         protected override void OnClick(EventArgs e)
         {
             base.OnClick(e);
+
+            // Early exit if component is being disposed or is already disposed
+            if (IsDisposed)
+                return;
+
+            try
+            {
+                Point location = PointToClient(Cursor.Position);
+
+                // Make sure HitTest doesn't throw and the results are still valid
+                if (!HitTest(location))
+                    return;
+
+                // Verify all required objects are still valid
+                if (HitTestControl == null || HitTestControl.uIComponent == null)
+                    return;
+
+                // Check if the component is a Control that's been disposed
+                if (HitTestControl.uIComponent is Control control && control.IsDisposed)
+                    return;
+
+                // Now we can safely send the mouse event
+                SendMouseEvent(HitTestControl.uIComponent, MouseEventType.Click, PointToScreen(location));
+
+                // Safely invoke the action if it exists
+                HitTestControl.HitAction?.Invoke();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Object was disposed between our check and usage - just silently handle it
+                HitTestControl = null;
+            }
+            catch (Exception ex)
+            {
+                // Optional: Log the exception if needed
+                // You might want to add your logging code here
+                System.Diagnostics.Debug.WriteLine($"Error in BeepControl.OnClick: {ex.Message}");
+            }
         }
         protected override void OnMouseDown(MouseEventArgs e)
         {
-         //  MiscFunctions.SendLog($"MouseDown in BeepControl at {e.Location}");
             base.OnMouseDown(e);
 
-            // Only process hit test if there are items in HitList
-            if (e.Button == MouseButtons.Left )
+            if (e.Button == MouseButtons.Left)
             {
-                HitTest(e.Location);
-             //   IsPressed = true;
+                if (HitTest(e.Location) && HitTestControl != null && HitTestControl.uIComponent != null)
+                {
+                    HitTestControl.IsPressed = true;
+                    SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseDown, PointToScreen(e.Location));
+                    if (HitTestControl.HitAction != null)
+                        HitTestControl.HitAction.Invoke();
+                }
+                IsPressed = true;
             }
-
-            // Do not consume the event; allow it to bubble to child controls
         }
-
         protected override void OnMouseUp(MouseEventArgs e)
         {
-         //  MiscFunctions.SendLog($"MouseUp in BeepControl at {e.Location}");
             base.OnMouseUp(e);
             IsPressed = false;
+
+            if (HitTest(e.Location) && HitTestControl != null && HitTestControl.uIComponent != null)
+            {
+                SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseUp, PointToScreen(e.Location));
+                if (HitTestControl.HitAction != null)
+                    HitTestControl.HitAction.Invoke();
+            }
+
+            if (HitList != null)
+            {
+                foreach (var hitTest in HitList)
+                {
+                    hitTest.IsPressed = false;
+                }
+            }
+
+            if (HitTestControl != null)
+            {
+                HitTestControl.IsHovered = true;
+            }
         }
 
         protected override void OnMouseHover(EventArgs e)
         {
             base.OnMouseHover(e);
             IsHovered = true;
-          // MiscFunctions.SendLog("MouseHover in BeepControl");
+
+            Point location = PointToClient(Cursor.Position);
+            if (HitTest(location) && HitTestControl != null && HitTestControl.uIComponent != null)
+            {
+                HitTestControl.IsHovered = true;
+                SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseHover, PointToScreen(location));
+                if (HitTestControl.HitAction != null)
+                    HitTestControl.HitAction.Invoke();
+            }
         }
         #endregion "Mouse events"
         #region "Key events"
@@ -2462,26 +2517,104 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "HitTest and HitList"
         // Add this method to the BeepControl class
         // Add to the BeepControl class
-        public virtual void ReceiveMouseClick(Point clientLocation)
+        // New: ReceiveMouseEvent to emulate mouse events
+        // ReceiveMouseEvent pipes the event to native handlers
+        public virtual void ReceiveMouseEvent(HitTestEventArgs eventArgs)
         {
-            // Default implementation does nothing; derived classes can override
-       //   MiscFunctions.SendLog($"ReceiveMouseClick in BeepControl at {clientLocation} (no action taken)");
+            Point location = eventArgs.Location;
+            switch (eventArgs.MouseEvent)
+            {
+                case MouseEventType.Click:
+                    OnClick(new EventArgs());
+                    break;
+                case MouseEventType.DoubleClick:
+                    OnDoubleClick(new EventArgs());
+                    break;
+                case MouseEventType.MouseDown:
+                    OnMouseDown(new MouseEventArgs(MouseButtons.Left, 1, location.X, location.Y, 0));
+                    break;
+                case MouseEventType.MouseUp:
+                    OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, location.X, location.Y, 0));
+                    break;
+                case MouseEventType.MouseMove:
+                    OnMouseMove(new MouseEventArgs(MouseButtons.None, 0, location.X, location.Y, 0));
+                    break;
+                case MouseEventType.MouseEnter:
+                    OnMouseEnter(new EventArgs());
+                    break;
+                case MouseEventType.MouseLeave:
+                    OnMouseLeave(new EventArgs());
+                    break;
+                case MouseEventType.MouseHover:
+                    OnMouseHover(new EventArgs());
+                    break;
+                case MouseEventType.MouseWheel:
+                    OnMouseWheel(new MouseEventArgs(MouseButtons.None, 0, location.X, location.Y, 120)); // Basic delta
+                    break;
+                case MouseEventType.None:
+                default:
+                    break;
+            }
         }
 
-        public static void SendMouseClick(BeepControl targetControl, Point screenLocation)
+        // Helper method to emulate mouse events
+        private void EmulateMouseEvent(BeepControl targetControl, MouseEventType eventType, Point location)
         {
-            if (targetControl != null && targetControl.IsAccessible)
+            switch (eventType)
             {
-                Point clientPoint = targetControl.PointToClient(screenLocation);
-            //   MiscFunctions.SendLog($"Sending MouseClick to {targetControl.Name} at client coordinates: {clientPoint}");
-                targetControl.ReceiveMouseClick(clientPoint);
+                case MouseEventType.Click:
+                    targetControl.OnClick(new EventArgs());
+                    break;
+                case MouseEventType.DoubleClick:
+                    targetControl.OnDoubleClick(new EventArgs());
+                    break;
+                case MouseEventType.MouseDown:
+                    targetControl.OnMouseDown(new MouseEventArgs(MouseButtons.Left, 1, location.X, location.Y, 0));
+                    break;
+                case MouseEventType.MouseUp:
+                    targetControl.OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, location.X, location.Y, 0));
+                    break;
+                case MouseEventType.MouseMove:
+                    targetControl.OnMouseMove(new MouseEventArgs(MouseButtons.None, 0, location.X, location.Y, 0));
+                    break;
+                case MouseEventType.MouseEnter:
+                    targetControl.OnMouseEnter(new EventArgs());
+                    break;
+                case MouseEventType.MouseLeave:
+                    targetControl.OnMouseLeave(new EventArgs());
+                    break;
+                case MouseEventType.MouseHover:
+                    targetControl.OnMouseHover(new EventArgs());
+                    break;
+                case MouseEventType.MouseWheel:
+                    // Note: MouseWheel requires a delta value; this is a basic emulation
+                    targetControl.OnMouseWheel(new MouseEventArgs(MouseButtons.None, 0, location.X, location.Y, 120));
+                    break;
+                case MouseEventType.None:
+                default:
+                    break;
             }
-            else
+        }
+
+        // New: SendMouseEvent (static)
+        // SendMouseEvent for IBeepUIComponent compatibility
+        public virtual void SendMouseEvent(IBeepUIComponent targetControl, MouseEventType eventType, Point screenLocation)
+        {
+            if (targetControl != null)
             {
-               MiscFunctions.SendLog($"Cannot send MouseClick: Target control is null or inaccessible");
+                // Assume screenLocation is relative to the control's parent; adjust if needed
+                Point clientPoint = screenLocation; // If screenLocation is already client coords, use directly
+                if (targetControl is Control control)
+                {
+                    clientPoint = control.PointToClient(screenLocation);
+                }
+                HitTestEventArgs hitTestEventArgs = new HitTestEventArgs(eventType, clientPoint);
+                //MiscFunctions.SendLog($"Sending {eventType} to {targetControl.GetType().Name} at client coordinates: {clientPoint}");
+                targetControl.ReceiveMouseEvent(hitTestEventArgs);
             }
         }
         public event EventHandler<ControlHitTestArgs> OnControlHitTest;
+        public event EventHandler<ControlHitTestArgs> HitDetected;
         public List<ControlHitTest> HitList { get; set; } = new List<ControlHitTest>();
         public void AddHitTest(ControlHitTest hitTest)
         {
@@ -2498,7 +2631,112 @@ namespace TheTechIdea.Beep.Winform.Controls
                 HitList.Add(hitTest);
             }
         }
+        // New AddHitArea calculating TargetRect from component
+        // New AddHitArea calculating TargetRect and handling coordinate conversion
+        // New AddHitArea calculating TargetRect
+        public virtual void AddHitArea(string name, IBeepUIComponent component = null, Action hitAction = null)
+        {
+            Rectangle targetRect = Rectangle.Empty;
+            bool isVisible = true;
+            bool isEnabled = true;
 
+            if (component is Control control && control.Visible)
+            {
+                // Default: Use control's Location and Size relative to this BeepControl
+                targetRect = new Rectangle(control.Location, control.Size);
+                isVisible = control.Visible;
+                isEnabled = control.Enabled;
+
+                // Wrap hitAction with coordinate conversion using TargetRect
+                Action wrappedHitAction = hitAction != null ? () =>
+                {
+                    if (component != null)
+                    {
+                        // Use TargetRect.Location, which is already in client coordinates
+                        component.SendMouseEvent(component, MouseEventType.Click, PointToScreen(targetRect.Location));
+                    }
+                    hitAction.Invoke();
+                }
+                : null;
+
+                var hitTest = new ControlHitTest
+                {
+                    Name = name,
+                    GuidID = Guid.NewGuid().ToString(),
+                    TargetRect = targetRect,
+                    uIComponent = component,
+                    HitAction = wrappedHitAction,
+                    IsVisible = isVisible,
+                    IsEnabled = isEnabled
+                };
+
+                var index = HitList.FindIndex(x => x.Name == name);
+                if (index >= 0)
+                {
+                    HitList[index] = hitTest;
+                }
+                else
+                {
+                    HitList.Add(hitTest);
+                }
+            }
+        }
+        public void AddHitArea(string name, Rectangle rect, IBeepUIComponent component = null, Action hitAction = null)
+        {
+            var hitTest = new ControlHitTest
+            {
+                Name = name,
+                GuidID = Guid.NewGuid().ToString(),
+                TargetRect = rect,
+                uIComponent = component,
+                HitAction = hitAction,
+                IsVisible = true,
+                IsEnabled = true
+            };
+
+            var index = HitList.FindIndex(x => x.Name == name);
+            if (index >= 0)
+            {
+                HitList[index] = hitTest;
+            }
+            else
+            {
+                HitList.Add(hitTest);
+            }
+        }
+        public void AddHitTest(Control childControl)
+        {
+            if (childControl == null)
+                throw new ArgumentNullException(nameof(childControl));
+
+            // Ensure the control is a child of this parent
+            if (!Controls.Contains(childControl))
+                throw new ArgumentException("The specified control is not a child of this control.", nameof(childControl));
+
+            // Create a new ControlHitTest based on the child control
+            var hitTest = new ControlHitTest
+            {
+                Name = childControl.Name, // Use the control's Name property
+                GuidID = Guid.NewGuid().ToString(), // Generate a unique ID
+                TargetRect = childControl.Bounds, // Set to control's bounds relative to parent
+                IsVisible = childControl.Visible, // Sync with control's visibility
+                IsEnabled = childControl.Enabled, // Sync with control's enabled state
+                                                  // Other properties like HitAction, uIComponent, or ActionName can be set if needed
+            };
+
+            // Find if there's an existing entry for this control (based on Name or GuidID)
+            var index = HitList.FindIndex(x => x.Name == childControl.Name);
+            if (index >= 0)
+            {
+                // Update the existingfernacht: Update existing entry
+                HitList[index] = hitTest;
+            }
+            else
+            {
+                // Add as a new entry
+                HitList.Add(hitTest);
+            }
+        }
         public void RemoveHitTest(ControlHitTest hitTest)
         {
             HitList.Remove(hitTest);
@@ -2516,23 +2754,75 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
         }
-        public void HitTest(Point location)
+        public bool HitTest(Point location)
         {
-        //   MiscFunctions.SendLog($"HitTest called at {location}, HitList Count: {HitList.Count}");
+            if (HitList == null || !HitList.Any())
+            {
+                HitAreaEventOn = false;
+                HitTestControl = null;
+                return false;
+            }
+
+            bool hitDetected = false;
             foreach (var hitTest in HitList)
             {
-                hitTest.IsHit = hitTest.TargetRect.Contains(location);
-                if (hitTest.IsHit)
+                hitTest.IsHit = false; // Reset IsHit
+                if (hitTest?.TargetRect != null && hitTest.IsVisible && hitTest.IsEnabled && hitTest.TargetRect.Contains(location))
                 {
-              //     MiscFunctions.SendLog($"Hit detected at {location} for {hitTest.Name}");
+                    hitTest.IsHit = true;
+                    hitDetected = true;
+                    HitAreaEventOn = true; // Flag hit event
+                    HitTestControl = hitTest; // Set current hit
                     OnControlHitTest?.Invoke(this, new ControlHitTestArgs(hitTest));
-                    if (hitTest.HitAction != null)
-                    {
-                        hitTest.HitAction.Invoke();
-                    }
-                    break;
+                    break; // First hit only, per your original
                 }
             }
+
+            if (!hitDetected)
+            {
+                HitAreaEventOn = false;
+                HitTestControl = null;
+            }
+
+            return hitDetected;
+        }
+        public bool HitTest(Point location, out ControlHitTest hitTest)
+        {
+            hitTest = null;
+            foreach (var test in HitList)
+            {
+                if (test.TargetRect.Contains(location))
+                {
+                    hitTest = test;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public bool HitTest(Rectangle rectangle, out ControlHitTest hitTest)
+        {
+            hitTest = null;
+            foreach (var test in HitList)
+            {
+                if (test.TargetRect.IntersectsWith(rectangle))
+                {
+                    hitTest = test;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public bool HitTestWithMouse()
+        {
+            if (!Visible || HitList == null || !HitList.Any())
+            {
+                HitAreaEventOn = false;
+                HitTestControl = null;
+                return false;
+            }
+
+            Point location = PointToClient(Cursor.Position);
+            return HitTest(location);
         }
 
         #endregion "HitTest and HitList"

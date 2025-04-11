@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 
 
+
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
@@ -34,7 +35,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private BeepButton _currentbutton;
         private BeepImage _logo;
-    
+
+   
 
         private int imageoffset = 2;
         #endregion "Fields"
@@ -329,11 +331,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsFrameless = false;
             IsRounded = false;
             ApplyThemeToChilds = false;
-            InitializeAppNavBar();
+           
             IsRounded = false;
             IsRoundedAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
+            InitializeAppNavBar();
             // ApplyTheme();
         }
         //protected override void OnHandleCreated(EventArgs e)
@@ -442,7 +445,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //if (!string.IsNullOrEmpty(_logoImage))
             //{
             //    TitleLabel.ImagePath = _logoImage;
-            //}
+          
             Controls.Add(TitleLabel);
         }
         private void AddSearchBox()
@@ -960,10 +963,10 @@ namespace TheTechIdea.Beep.Winform.Controls
        
         public void SuspendFormLayout()
         {
-            //return;
+            return;
             _rearrange = false;
-          //  base.SuspendFormLayout();
-           SuspendLayout();
+            //  base.SuspendFormLayout();
+            //  SuspendLayout();
             foreach (Control ctrl in Controls)
             {
                 ctrl.SuspendLayout();
@@ -972,16 +975,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void ResumeFormLayout()
         {
-           // return;
+            return;
            // base.ResumeFormLayout();
-           ResumeLayout(true); // Force layout recalculation
-            PerformLayout(); // Ensure size is updated
+             ResumeLayout(true); // Force layout recalculation
+                                 //    PerformLayout(); // Ensure size is updated
             foreach (Control ctrl in Controls)
             {
                 ctrl.ResumeLayout(true);
             }
-         
-          
+
+
             _rearrange = true;
             // RearrangeLayout();
         }

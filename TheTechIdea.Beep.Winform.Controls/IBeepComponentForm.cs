@@ -329,12 +329,22 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void SuspendFormLayout()
         {
-            throw new NotImplementedException();
+           
         }
 
         public void ResumeFormLayout()
         {
-            throw new NotImplementedException();
+           
+        }
+
+        public void ReceiveMouseEvent(HitTestEventArgs eventArgs)
+        {
+            
+        }
+
+        public void SendMouseEvent(IBeepUIComponent targetControl, MouseEventType eventType, Point screenLocation)
+        {
+           
         }
     }
 }

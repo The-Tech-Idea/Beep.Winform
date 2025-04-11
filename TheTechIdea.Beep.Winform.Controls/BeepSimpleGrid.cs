@@ -14,6 +14,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using System.Data.Common;
+using System.Windows.Forms;
 
 
 
@@ -3659,18 +3660,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    _selectAllCheckBox.Invalidate();
             //}
             // Ensure editor control is visible if present
-            //if (IsEditorShown && _editingControl != null && _editingControl.Parent == this)
-            //{
-            //    _editingControl.Invalidate(); // Force editor redraw if needed
-            //}
-            //if (_horizontalScrollBar.Visible)
-            //{
-            //    _horizontalScrollBar.Invalidate(); // Force horizontal scrollbar redraw
-            //}
-            //if (_verticalScrollBar.Visible)
-            //{
-            //    _verticalScrollBar.Invalidate(); // Force vertical scrollbar redraw
-            //}
+            if (IsEditorShown && _editingControl != null && _editingControl.Parent == this)
+            {
+                _editingControl.Invalidate(); // Force editor redraw if needed
+            }
+            if (_horizontalScrollBar.Visible)
+            {
+                _horizontalScrollBar.Invalidate(); // Force horizontal scrollbar redraw
+            }
+            if (_verticalScrollBar.Visible)
+            {
+                _verticalScrollBar.Invalidate(); // Force vertical scrollbar redraw
+            }
             //if (buttons.Count > 0)
             //{
             //    foreach (var button in buttons)
@@ -5193,24 +5194,50 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void VerticalScrollBar_Scroll(object sender, EventArgs e)
         {
-            StartSmoothScroll(_verticalScrollBar.Value);
+            // Immediately apply the new value without animation for direct clicks
+            _dataOffset = _verticalScrollBar.Value;
+
+            // Stop any ongoing animations first
+            if (_scrollTimer != null && _scrollTimer.Enabled)
+            {
+                _scrollTimer.Stop();
+            }
+
+            // Update UI
+            FillVisibleRows();
+            UpdateCellPositions();
             MoveEditorIn(); // Move editor if active
+            Invalidate();
         }
-        private void VerticalScrollBar_ValueChanged(object sender, EventArgs e)
-        {
-            StartSmoothScroll(_verticalScrollBar.Value);
-        }
+
         private void HorizontalScrollBar_Scroll(object sender, EventArgs e)
         {
-            StartSmoothScroll(_dataOffset, _horizontalScrollBar.Value);
+            // Immediately apply the new value without animation for direct clicks
+            _xOffset = _horizontalScrollBar.Value;
+
+            // Stop any ongoing animations first
+            if (_scrollTimer != null && _scrollTimer.Enabled)
+            {
+                _scrollTimer.Stop();
+            }
+
+            // Update UI
+            UpdateCellPositions();
             MoveEditorIn(); // Move editor if active
+            Invalidate();
         }
-        private void HorizontalScrollBar_ValueChanged(object sender, EventArgs e)
-        {
-            StartSmoothScroll(_dataOffset, _horizontalScrollBar.Value);
+
+        //private void VerticalScrollBar_ValueChanged(object sender, EventArgs e)
+        //{
+        //    StartSmoothScroll(_verticalScrollBar.Value);
+        //}
+       
+        //private void HorizontalScrollBar_ValueChanged(object sender, EventArgs e)
+        //{
+        //    StartSmoothScroll(_dataOffset, _horizontalScrollBar.Value);
 
 
-        }
+        //}
         private void UpdateCellPositions()
         {
             if (Rows == null || Rows.Count == 0)
@@ -5460,19 +5487,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnResize(EventArgs e)
         {
-            SuspendLayout();
-         //   Form parentForm = this.FindForm();
-          //  parentForm?.SuspendDrawing();
+
             base.OnResize(e);
-     //       _navigatorDrawn=false;
-           // _filterpaneldrawn = false;
-            UpdateDrawingRect();
-            UpdateRowCount();
-            FillVisibleRows();
-            UpdateScrollBars();
+              _navigatorDrawn=false;
+            // _filterpaneldrawn = false;
             ResumeLayout();
             PerformLayout();
-        //    parentForm?.ResumeDrawing();
+            UpdateDrawingRect();
+            //UpdateRowCount();
+            //FillVisibleRows();
+            //UpdateScrollBars();
+         
        //     Invalidate();
         }
         #endregion
@@ -6299,8 +6324,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.ApplyTheme();
             this.BackColor = _currentTheme.GridBackColor;
             this.ForeColor = _currentTheme.GridForeColor;
-            if (MainPanel == null) return;
-            MainPanel.BackColor = _currentTheme.GridBackColor;
+            //if (MainPanel == null) return;
+            //MainPanel.BackColor = _currentTheme.GridBackColor;
             if (titleLabel != null)
             {
                 titleLabel.ParentBackColor = BackColor;
@@ -6761,16 +6786,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Size buttonSize = new Size(20, 20);
         private List<Control> buttons = new List<Control>();
         private List<Control> pagingButtons = new List<Control>();
-        private Panel MainPanel;
+      //  private Panel MainPanel;
         private int _currentPage = 1;
         // Use visibleRowCount for paging instead of a hardcoded _recordsPerPage
         private int _totalPages;// _fullData != null ? (int)Math.Ceiling((double)_fullData.Count / (GetVisibleRowCount() == 1 ? _fullData.Count : GetVisibleRowCount())) : 1;
 
         private void DrawNavigationRow(Graphics g, Rectangle rect)
         {
-            MainPanel.Location = new Point(rect.Left + 1, rect.Top + 1);
-            MainPanel.Size = new Size(rect.Width - 2, rect.Height - 2);
-            PositionControls(spacing);
+            //  MainPanel.Location = new Point(rect.Left + 1, rect.Top + 1);
+            //   MainPanel.Size = new Size(rect.Width - 2, rect.Height - 2);
+            PositionControls(rect,spacing);
 
             using (var pen = new Pen(_currentTheme.GridLineColor))
             {
@@ -6780,18 +6805,18 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void CreateNavigationButtons()
         {
-            MainPanel = new Panel();
+           // MainPanel = new Panel();
 
             // Main navigation buttons
-            FindButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.search_1.svg", buttonSize, FindpictureBox_Click);
-            EditButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.pencil.svg", buttonSize, EditpictureBox_Click);
-            PrinterButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg", buttonSize, PrinterpictureBox_Click);
-            MessageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg", buttonSize, MessagepictureBox_Click);
-            SaveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.check.svg", buttonSize, SavepictureBox_Click);
-            NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.add.svg", buttonSize, NewButton_Click);
-            RemoveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.remove.svg", buttonSize, RemovepictureBox_Click);
-            RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.undo.svg", buttonSize, RollbackpictureBox_Click);
-
+            FindButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.search_1.svg", buttonSize, FindpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            EditButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.pencil.svg", buttonSize, EditpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            PrinterButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg", buttonSize, PrinterpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            MessageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg", buttonSize, MessagepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            SaveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.check.svg", buttonSize, SavepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.add.svg", buttonSize, NewButton_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            RemoveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.remove.svg", buttonSize, RemovepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.undo.svg", buttonSize, RollbackpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.forward.svg", buttonSize, NextpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
             // Page label (as a BeepButton)
             PageLabel = new BeepButton
             {
@@ -6803,6 +6828,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowAllBorders = false,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
+                Anchor = AnchorStyles.Right | AnchorStyles.Bottom,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Visible = true
             };
@@ -6818,17 +6844,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowAllBorders = false,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
+                Anchor = AnchorStyles.Left | AnchorStyles.Bottom,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Visible = true
             };
 
             // Paging buttons with event handlers
-            FirstPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.firstpage.svg", buttonSize, FirstPageButton_Click);
-            PrevPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.backwards.svg", buttonSize, PrevPageButton_Click);
-            NextPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.forward.svg", buttonSize, NextPageButton_Click);
-            LastPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.lastpage.svg", buttonSize, LastPageButton_Click);
-            PreviousButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.backwards.svg", buttonSize, PreviouspictureBox_Click);
-            NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.forward.svg", buttonSize, NextpictureBox_Click);
+            FirstPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.firstpage.svg", buttonSize, FirstPageButton_Click, AnchorStyles.Right | AnchorStyles.Bottom);
+            PrevPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.backwards.svg", buttonSize, PrevPageButton_Click, AnchorStyles.Right | AnchorStyles.Bottom);
+            NextPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.forward.svg", buttonSize, NextPageButton_Click, AnchorStyles.Right | AnchorStyles.Bottom);
+            LastPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.lastpage.svg", buttonSize, LastPageButton_Click, AnchorStyles.Right | AnchorStyles.Bottom);
+            PreviousButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.backwards.svg", buttonSize, PreviouspictureBox_Click, AnchorStyles.Right | AnchorStyles.Bottom);
+          
 
             buttons = new List<Control>
     {
@@ -6841,18 +6868,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         FirstPageButton, PrevPageButton, PageLabel, NextPageButton, LastPageButton,
     };
 
-            Controls.Add(MainPanel);
-        
+           // Controls.Add(MainPanel);
 
 
+            //
             // Initial update to ensure labels are populated
             UpdateRecordNumber();
             UpdatePagingControls();
         }
-
-      
-
-        private BeepButton CreateButton(string imagePath, Size size, EventHandler clickHandler)
+        private BeepButton CreateButton(string imagePath, Size size, EventHandler clickHandler,AnchorStyles anchorStyles)
         {
             var button = new BeepButton
             {
@@ -6862,7 +6886,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsFrameless = true,
                 Size = size,
                 IsChild = true,
-                Anchor = AnchorStyles.None,
+                Anchor = anchorStyles,
                 Margin = new Padding(0),
                 ApplyThemeOnImage = false,
                 Padding = new Padding(0),
@@ -6872,16 +6896,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
             };
             button.Click += clickHandler;
+            Controls.Add(button);
             return button;
         }
-
-        private void PositionControls(int spacing)
+        private void PositionControls(Rectangle rect,int spacing)
         {
-            if (MainPanel == null || buttons == null || buttons.Count == 0) return;
+            //if (MainPanel == null || buttons == null || buttons.Count == 0) return;
 
             // Calculate the vertical center for the single row
             int rowHeight = buttonSize.Height;
-            int centerY = (MainPanel.Height - rowHeight) / 2; // Center the single row vertically
+            int centerY = rect.Top + (( rect.Height - rowHeight) / 2); // Center the single row vertically
             if (centerY < 0) centerY = spacing; // Ensure buttons don't go above the top edge
 
             // Position the main buttons on the left
@@ -6890,9 +6914,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             foreach (var control in buttons)
             {
-                if (!MainPanel.Controls.Contains(control))
+                if (!Controls.Contains(control))
                 {
-                    MainPanel.Controls.Add(control);
+                    Controls.Add(control);
                 }
                 control.Left = currentX;
                 control.Top = centerY;
@@ -6901,15 +6925,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Position the paging buttons and labels on the right
             int pagingTotalWidth = pagingButtons.Sum(c => c.Width) + spacing * (pagingButtons.Count - 1);
-            int pagingStartX = MainPanel.Width - pagingTotalWidth - spacing; // Align to the right with padding
+            int pagingStartX = rect.Width - pagingTotalWidth - spacing; // Align to the right with padding
             if (pagingStartX < currentX) pagingStartX = currentX; // Ensure no overlap with main buttons
             currentX = pagingStartX;
 
             foreach (var control in pagingButtons)
             {
-                if (!MainPanel.Controls.Contains(control))
+                if (!Controls.Contains(control))
                 {
-                    MainPanel.Controls.Add(control);
+                    Controls.Add(control);
                 }
                 control.Visible = true; // Ensure all paging controls are visible
                 control.Left = currentX;
@@ -7533,11 +7557,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     filterButton.Dispose();
                     filterButton = null;
                 }
-                if (MainPanel != null)
-                {
-                    MainPanel.Dispose();
-                    MainPanel = null;
-                }
+                //if (MainPanel != null)
+                //{
+                //    MainPanel.Dispose();
+                //    MainPanel = null;
+                //}
                 if (_fullData != null)
                 {
                     _fullData.Clear();

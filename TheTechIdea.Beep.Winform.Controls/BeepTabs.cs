@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-     
+
 
         private int _headerHeight = 30;
 
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (index >= 0)
                     {
                         SelectedIndex = index;
-                     //   UpdateLayout();
+                        //   UpdateLayout();
                         Invalidate(); // Redraw to reflect the selection
                     }
                 }
@@ -94,8 +94,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (value >= 0 && value < TabCount)
                 {
                     SelectedIndex = value;
-                 
-                 //   UpdateLayout();
+
+                    //   UpdateLayout();
                     Invalidate(); // Redraw to reflect the selection
                 }
             }
@@ -104,6 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private const int CloseButtonSize = 16;
         private const int CloseButtonPadding = 6;
         private BeepImage closeIcon;
+        private bool _dontresize;
 
         public BeepTabs()
         {
@@ -129,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.SelectedIndexChanged += BeepTabs_SelectedIndexChanged;
         }
 
-     
+
 
         public override Rectangle DisplayRectangle
         {
@@ -153,11 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public int LastTabSelected { get; private set; }
 
-        protected override void OnLayout(LayoutEventArgs levent)
-        {
-            base.OnLayout(levent);
-            UpdateLayout();
-        }
+
 
         protected override void OnControlAdded(ControlEventArgs e)
         {
@@ -172,7 +169,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (e.Control is TabPage)
                 UpdateLayout();
         }
-
+        protected override void OnLayout(LayoutEventArgs levent)
+        {
+            base.OnLayout(levent);
+            UpdateLayout();
+        }
         private void UpdateLayout()
         {
             Rectangle rect = DisplayRectangle;
@@ -180,6 +181,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 page.SetBounds(rect.X, rect.Y, rect.Width, rect.Height);
             }
+            // Ensure the selected tab is refreshed
+            SelectedTab?.Refresh();
             Invalidate();
         }
 
@@ -202,6 +205,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             // Use the parent’s BackColor (panel) if available, otherwise fall back to control’s BackColor
+
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             Color backgroundColor = Parent?.BackColor ?? BackColor;
             e.Graphics.Clear(backgroundColor);
             // Extend the clip region to include the header to avoid gaps
@@ -222,12 +232,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
             e.Graphics.SetClip(fullRegion, CombineMode.Intersect);
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             DrawTabHeaders(e.Graphics);
             base.OnPaint(e);
         }
@@ -332,9 +336,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool isSelected = (SelectedIndex == index);
             // Use a slightly darker shade for the selected tab, otherwise transparent to show the panel color
             Color backgroundColor = isSelected
-                ? _currentTheme.TabSelectedBackColor  : _currentTheme.TabBackColor; // Let the panel color show through for unselected tabs
+                ? _currentTheme.TabSelectedBackColor : _currentTheme.TabBackColor; // Let the panel color show through for unselected tabs
             Color textColor = isSelected
-                ? _currentTheme.TabSelectedForeColor  : _currentTheme.TabForeColor ;
+                ? _currentTheme.TabSelectedForeColor : _currentTheme.TabForeColor;
 
             using (GraphicsPath path = GetRoundedRect(tabRect, 4)) // Reduced radius to minimize gaps
             using (SolidBrush brush = new SolidBrush(backgroundColor))
@@ -401,15 +405,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void BeepTabs_MouseClick(object sender, MouseEventArgs e)
         {
-           MiscFunctions.SendLog($"MouseClick in BeepTabs at screen: {e.Location}, client: {PointToClient(Cursor.Position)}");
-            Console.WriteLine($"MouseClick in BeepTabs at screen: {e.Location}, client: {PointToClient(Cursor.Position)}");
+            MiscFunctions.SendLog($"MouseClick in BeepTabs at screen: {e.Location}, client: {PointToClient(Cursor.Position)}");
+
 
             int tabCount = TabCount;
             Point clientPoint = e.Location; // Use event coordinates directly
                                             // Guard against zero tabs to prevent division by zero
             if (tabCount == 0)
             {
-               MiscFunctions.SendLog("No tabs present, ignoring click.");
+                MiscFunctions.SendLog("No tabs present, ignoring click.");
                 return;
             }
             switch (_headerPosition)
@@ -427,10 +431,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                             Rectangle tabRect = new Rectangle(currentX, yPos, adjustedWidth, HeaderHeight);
                             Rectangle closeRect = GetCloseButtonRect(tabRect, false);
                             string tabText = TabPages[i].Text;
-                           MiscFunctions.SendLog($"Tab {i} rect: {tabRect}, Close rect: {closeRect}");
+                            MiscFunctions.SendLog($"Tab {i} rect: {tabRect}, Close rect: {closeRect}");
                             if (closeRect.Contains(clientPoint))
                             {
-                               MiscFunctions.SendLog($"Close button clicked for tab {i}");
+                                MiscFunctions.SendLog($"Close button clicked for tab {i}");
                                 try { TabPages.RemoveAt(i); } catch (Exception ex) { Console.WriteLine("Error removing tab: " + ex.Message); }
                                 TabRemoved?.Invoke(this, new TabRemovedEventArgs { TabText = tabText });
                                 return;
@@ -439,7 +443,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             {
                                 SelectedIndex = i;
                                 LastTabSelected = i;
-                               MiscFunctions.SendLog($"Tab {i} selected");
+                                MiscFunctions.SendLog($"Tab {i} selected");
                                 return;
                             }
                             currentX += adjustedWidth;
@@ -459,10 +463,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                             Rectangle tabRect = new Rectangle(xPos, currentY, HeaderHeight, adjustedHeight);
                             Rectangle closeRect = GetCloseButtonRect(tabRect, true);
                             string tabText = TabPages[i].Text;
-                           MiscFunctions.SendLog($"Tab {i} rect: {tabRect}, Close rect: {closeRect}");
+                            MiscFunctions.SendLog($"Tab {i} rect: {tabRect}, Close rect: {closeRect}");
                             if (closeRect.Contains(clientPoint))
                             {
-                               MiscFunctions.SendLog($"Close button clicked for tab {i}");
+                                MiscFunctions.SendLog($"Close button clicked for tab {i}");
                                 try { TabPages.RemoveAt(i); } catch (Exception ex) { Console.WriteLine("Error removing tab: " + ex.Message); }
                                 TabRemoved?.Invoke(this, new TabRemovedEventArgs { TabText = tabText });
                                 return;
@@ -483,7 +487,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            PerformLayout();
+            // resize tabs 
+            //     PerformLayout();
+           // UpdateLayout();
         }
         private void BeepTabs_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -532,7 +538,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentTheme == null)
                 return;
             BackColor = _currentTheme.TabBackColor;
-            ForeColor = _currentTheme.TabForeColor  ;
+            ForeColor = _currentTheme.TabForeColor;
             // change tab pages color
             foreach (TabPage page in TabPages)
             {
@@ -543,26 +549,26 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     foreach (Control ctrl in page.Controls)
                     {
-                        if (ctrl is IBeepUIComponent )
+                        if (ctrl is IBeepUIComponent)
                         {
-                            IBeepUIComponent bp=(IBeepUIComponent)ctrl;
+                            IBeepUIComponent bp = (IBeepUIComponent)ctrl;
                             bp.Theme = Theme;
-                            
-                           // bp.ApplyTheme();
+
+                            // bp.ApplyTheme();
                         }
-                        if(ctrl is IDM_Addin)
+                        if (ctrl is IDM_Addin)
                         {
-                           
+
                             foreach (var item in ctrl.Controls)
                             {
                                 if (item is IBeepUIComponent)
                                 {
                                     IBeepUIComponent bp = (IBeepUIComponent)item;
                                     bp.Theme = Theme;
-                                    
+
                                 }
                             }
-                            
+
                         }
                     }
                 }
@@ -571,53 +577,67 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
         // Add to the BeepTabs class
-        public  void ReceiveMouseClick(Point clientLocation)
+        public void ReceiveMouseClick(Point clientLocation)
         {
-           MiscFunctions.SendLog($"ReceiveMouseClick in BeepTabs at {clientLocation}");
+            MiscFunctions.SendLog($"ReceiveMouseClick in BeepTabs at {clientLocation}");
             OnMouseClick(new MouseEventArgs(MouseButtons.Left, 1, clientLocation.X, clientLocation.Y, 0));
         }
         public void SuspendFormLayout()
         {
-           
-         //   this.SuspendLayout();
-         //   this.SuspendDrawing();
-        
-         
+            //  this.SuspendLayout();
+            _dontresize = true;
+
             if (SelectedTab == null) return;
-            SelectedTab.SuspendLayout();
-            foreach (Control ctrl in SelectedTab.Controls)
-            {
-                if (ctrl is IBeepUIComponent)
-                {
-                    IBeepUIComponent bp = (IBeepUIComponent)ctrl;
-                    bp.SuspendFormLayout();
-                }
+            // SelectedTab.SuspendLayout();
 
-            }
-
+            //foreach (Control ctrl in SelectedTab.Controls)
+            //{
+            //    ctrl.SuspendLayout(); // Suspend layout for each control
+            //    if (ctrl is IBeepUIComponent bp)
+            //    {
+            //        bp.SuspendFormLayout();
+            //    }
         }
+       
         public void ResumeFormLayout()
         {
+            if (SelectedTab == null) return;
 
-            
-            if(SelectedTab==null)return;
-            SelectedTab.ResumeLayout();
-            foreach (Control ctrl in SelectedTab.Controls)
-            {
-                if (ctrl is IBeepUIComponent)
-                {
-                    IBeepUIComponent bp = (IBeepUIComponent)ctrl;
-                    bp.ResumeFormLayout();
-                    SelectedTab.PerformLayout();
-                    // resize control to fit
-                    ctrl.Size = new Size(SelectedTab.Width, SelectedTab.Height);
-                }
+            //   this.ResumeLayout(true); // Perform layout immediately
+            //  SelectedTab.ResumeLayout(true); // Perform layout immediately
+            _dontresize = false; // Allow resizing
 
-            }
-          // this.ResumeLayout();
-        //   this.ResumeDrawing();
+            // Explicitly update the selected tab's bounds to match DisplayRectangle
+            UpdateLayout();
+
+            // Resize child controls within the selected tab
+            //foreach (Control ctrl in SelectedTab.Controls)
+            //{
+            //    if (ctrl is IBeepUIComponent bp)
+            //    {
+            //        bp.ResumeFormLayout(); // Recursively resume layout for Beep components
+            //                               // Ensure the control resizes to fit the tab
+            //      }
+            //     ctrl.ResumeLayout(true); // Resume layout for each control
+            //    if (ctrl.Dock == DockStyle.Fill)
+            //        {
+            //            ctrl.Size = SelectedTab.ClientSize;
+            //        }
+            //        else if (ctrl.Anchor != AnchorStyles.None)
+            //        {
+            //            // Trigger anchor-based resizing
+            //            ctrl.Refresh();
+            //        }
+
+            //}
+
+            // Force a redraw to ensure visual updates
+            SelectedTab.Invalidate();
+            Invalidate();
+
         }
     }
+
     public class TabRemovedEventArgs : EventArgs
     {
         public string TabText { get; set; }

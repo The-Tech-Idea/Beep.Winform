@@ -13,6 +13,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public string GuidID { get; set; } = Guid.NewGuid().ToString();
         public Rectangle TargetRect { get; set; }
         public Action HitAction { get; set; }
+        public IBeepUIComponent uIComponent { get; set; }
+       
         public string ActionName { get; set; }
         public bool IsHit
         {
@@ -46,6 +48,30 @@ namespace TheTechIdea.Beep.Vis.Modules
         public ControlHitTestArgs(ControlHitTest hitTest)
         {
             HitTest = hitTest;
+        }
+
+    }
+    public enum MouseEventType
+    {
+        None,
+        Click,
+        DoubleClick,
+        MouseDown,
+        MouseUp,
+        MouseMove,
+        MouseEnter,
+        MouseLeave,
+        MouseHover,
+        MouseWheel
+    }
+    public class HitTestEventArgs : EventArgs
+    {
+        public MouseEventType MouseEvent { get; set; }
+        public Point Location { get; set; }
+        public HitTestEventArgs(MouseEventType mouseEvent, Point location)
+        {
+            MouseEvent = mouseEvent;
+            Location = location;
         }
 
     }

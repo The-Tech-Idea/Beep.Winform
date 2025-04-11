@@ -93,6 +93,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.GradientStartColor = Color.Gray;
             Title.GuidID = "b3a5330f-524d-4013-a2e6-ef719c7f17fc";
             Title.HideText = false;
+            Title.HitAreaEventOn = false;
+            Title.HitTestControl = null;
             Title.HoverBackColor = Color.FromArgb(30, 140, 235);
             Title.HoverBorderColor = Color.Gray;
             Title.HoveredBackcolor = Color.Wheat;
@@ -178,7 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.AnimationType = DisplayAnimationType.None;
             LogopictureBox.ApplyThemeOnImage = false;
             LogopictureBox.ApplyThemeToChilds = false;
-            LogopictureBox.BackColor = Color.FromArgb(245, 245, 245);
+            LogopictureBox.BackColor = Color.FromArgb(255, 255, 255);
             LogopictureBox.BadgeBackColor = Color.Red;
             LogopictureBox.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             LogopictureBox.BadgeForeColor = Color.White;
@@ -215,6 +217,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.GradientEndColor = Color.FromArgb(255, 255, 255);
             LogopictureBox.GradientStartColor = Color.FromArgb(255, 255, 255);
             LogopictureBox.GuidID = "406bd223-e60d-4992-ab0e-02ec79e3ced7";
+            LogopictureBox.HitAreaEventOn = false;
+            LogopictureBox.HitTestControl = null;
             LogopictureBox.HoverBackColor = Color.FromArgb(30, 140, 235);
             LogopictureBox.HoverBorderColor = Color.FromArgb(65, 105, 225);
             LogopictureBox.HoveredBackcolor = Color.Wheat;
@@ -255,7 +259,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.ManualRotationAngle = 0F;
             LogopictureBox.Name = "LogopictureBox";
             LogopictureBox.OverrideFontSize = TypeStyleFontSize.None;
-            LogopictureBox.ParentBackColor = Color.FromArgb(245, 245, 245);
+            LogopictureBox.ParentBackColor = Color.FromArgb(255, 255, 255);
             LogopictureBox.ParentControl = null;
             LogopictureBox.PressedBackColor = Color.FromArgb(255, 255, 255);
             LogopictureBox.PressedBorderColor = Color.FromArgb(255, 255, 255);
@@ -338,6 +342,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.GradientStartColor = Color.Gray;
             beepLabel1.GuidID = "a0fb836e-0ff3-4297-9042-f6eb7b0dead7";
             beepLabel1.HideText = false;
+            beepLabel1.HitAreaEventOn = false;
+            beepLabel1.HitTestControl = null;
             beepLabel1.HoverBackColor = Color.FromArgb(30, 140, 235);
             beepLabel1.HoverBorderColor = Color.Gray;
             beepLabel1.HoveredBackcolor = Color.Wheat;
@@ -461,6 +467,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.GradientStartColor = Color.Gray;
             beepLabel2.GuidID = "d2e48b7a-49ae-468a-8619-3d546c5b08f9";
             beepLabel2.HideText = false;
+            beepLabel2.HitAreaEventOn = false;
+            beepLabel2.HitTestControl = null;
             beepLabel2.HoverBackColor = Color.FromArgb(30, 140, 235);
             beepLabel2.HoverBorderColor = Color.Gray;
             beepLabel2.HoveredBackcolor = Color.Wheat;
@@ -591,6 +599,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.GradientStartColor = Color.FromArgb(245, 245, 245);
             messege.GuidID = "10e66915-cc7f-4c5a-9745-c631ead0e525";
             messege.HideSelection = true;
+            messege.HitAreaEventOn = false;
+            messege.HitTestControl = null;
             messege.HoverBackColor = Color.FromArgb(245, 245, 245);
             messege.HoverBorderColor = Color.Gray;
             messege.HoveredBackcolor = Color.Wheat;
@@ -684,7 +694,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.AnimationDuration = 500;
             _spinnerImage.AnimationType = DisplayAnimationType.None;
             _spinnerImage.ApplyThemeOnImage = false;
-            _spinnerImage.ApplyThemeToChilds = true;
+            _spinnerImage.ApplyThemeToChilds = false;
             _spinnerImage.BackColor = Color.FromArgb(245, 245, 245);
             _spinnerImage.BadgeBackColor = Color.Red;
             _spinnerImage.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
@@ -723,6 +733,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.GradientEndColor = Color.Gray;
             _spinnerImage.GradientStartColor = Color.Gray;
             _spinnerImage.GuidID = "d3d0dffe-8ba4-4aeb-a550-7b46a4ebb5de";
+            _spinnerImage.HitAreaEventOn = false;
+            _spinnerImage.HitTestControl = null;
             _spinnerImage.HoverBackColor = Color.FromArgb(30, 140, 235);
             _spinnerImage.HoverBorderColor = Color.Gray;
             _spinnerImage.HoveredBackcolor = Color.Wheat;

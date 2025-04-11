@@ -136,15 +136,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
 
         }
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            if (beepSimpleGrid1 != null)
-            {
-                beepSimpleGrid1.Width = this.Width - 20;
-                beepSimpleGrid1.Height = this.Height - 20;
-                beepSimpleGrid1.Location = new Point(10, 10);
-            }
-        }
+     
     }
 }

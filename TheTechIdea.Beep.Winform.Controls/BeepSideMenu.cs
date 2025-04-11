@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool ApplyThemeOnImage = false;
         private  int expandedWidth = 200;
         private  int collapsedWidth = 64;
-        private  int animationStep = 50;
+        private  int animationStep = 2;
         bool isAnimating = false;
         bool _isExpanedWidthSet = false;
         int  _tWidth;
@@ -298,6 +298,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 UseScaledFont = true,
                 TextAlign = ContentAlignment.MiddleCenter,
                 OverrideFontSize = TypeStyleFontSize.Small,
+                TextFont=BeepThemesManager.ToFont(_currentTheme.TitleMedium),
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 Location = new Point(DrawingRect.X, logo.Bottom)
             };
@@ -330,6 +331,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ImageAlign = ContentAlignment.MiddleCenter,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
+                ApplyThemeOnImage = false,
                 ShowAllBorders = false,
                 ShowShadow = false,
                 IsChild = true,
@@ -382,28 +384,64 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void StartMenuAnimation()
         {
-
             UpdateDrawingRect();
 
             drawRectX = DrawingRect.X + 2;
             drawRectY = DrawingRect.Y + 2;
             drawRectWidth = DrawingRect.Width - 4;
             drawRectHeight = DrawingRect.Height - 2;
+
             isAnimating = true;
-            animationTimer.Start();
             _isExpanedWidthSet = false;
+
+            // Use smaller animation step for smoother animation
+            animationStep = Math.Max(4, (expandedWidth - collapsedWidth) / 20);
+
+            // Use faster timer interval
+            animationTimer.Interval = 5; // ~200 FPS target (will likely run slower)
+
+            // Optimize before starting animation
+            OptimizeForAnimation(true);
+            animationTimer.Start();
+        }
+        private void OptimizeForAnimation(bool startingAnimation)
+        {
+            if (startingAnimation)
+            {
+                // Optimize rendering during animation
+                this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+                if (this.Parent is BeepiForm parentForm)
+                {
+                    // Temporarily disable window updates to reduce flickering
+                    parentForm.BeginUpdate();
+                }
+            }
+            else
+            {
+                // Restore normal rendering after animation
+                if (this.Parent is BeepiForm parentForm)
+                {
+                    // Re-enable window updates
+                    parentForm.EndUpdate();
+                }
+            }
         }
         private void AnimationTimer_Tick(object sender, EventArgs e)
-        {  // Optionally, suspend layout updates if many changes are coming.
-           // Optionally, suspend drawing on the form to stop it from repainting during every tick.
-         //   this.FindForm()?.SuspendDrawing();
+        {
+            // Suspend layout during animation to prevent unnecessary redraws
+            this.SuspendLayout();
+
             int targetWidth = isCollapsed ? collapsedWidth : expandedWidth;
             int currentWidth = Width;
 
-            // Adjust the width incrementally during animation
+            // Calculate smoother step size - adaptive based on distance to target
+            int distance = Math.Abs(targetWidth - currentWidth);
+            int adaptiveStep = Math.Max(1, Math.Min(animationStep, distance / 4));
+
+            // Use easing for smoother animation
             if (isCollapsed)
             {
-                currentWidth -= animationStep;
+                currentWidth -= adaptiveStep;
                 if (currentWidth <= targetWidth) // Stop collapsing when target is reached
                 {
                     currentWidth = targetWidth;
@@ -413,7 +451,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                currentWidth += animationStep;
+                currentWidth += adaptiveStep;
                 if (currentWidth >= targetWidth) // Stop expanding when target is reached
                 {
                     currentWidth = targetWidth;
@@ -425,83 +463,74 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Update the control width dynamically
             Width = currentWidth;
-          //  this.ResumeLayout();
-            // Dynamically adjust control widths and positions during animation
-            AdjustControlWidths(currentWidth);
 
-            // Resume drawing once the changes are made
-           // this.FindForm()?.ResumeDrawing();
+            // Only adjust child control layout when really necessary
+            // This is the specific line you selected - reduced frequency improves performance
+            if (isAnimating && currentWidth % 5 == 0)
+            {
+                AdjustControlWidths(currentWidth);
+            }
+
+            // Resume layout
+            this.ResumeLayout(false); // false means don't force immediate layout
+
+            // Process window messages to prevent UI freeze
+            Application.DoEvents();
+
+            // Cleanup after animation (if animation has completed)
+            if (!isAnimating)
+            {
+                OptimizeForAnimation(false); // Restore normal rendering
+                AdjustControlWidths(currentWidth); // Final adjustment
+                Invalidate();
+            }
         }
+
+        // 6. Optimize AdjustControlWidths method
         private void AdjustControlWidths(int width)
         {
-            int padding = 5; // Add consistent padding
-            int buttonWidth = width - (2 * padding); // Calculate the new width for child controls
-            int nexty = 0;
-            // Update logo dimensions and position
+            int padding = 5;
+            int buttonWidth = width - (2 * padding);
+
+            // Use this flag to minimize layout recalculation
+            bool isNearTargetWidth = Math.Abs(width - (isCollapsed ? collapsedWidth : expandedWidth)) < 20;
+
+            // Basic adjustments for main controls
             logo.Width = buttonWidth;
-            logo.Location = new Point(padding, padding);
-            nexty = logo.Bottom + padding;
-            if (_titleLabel.Text.Length > 0)
-            {
-
-                _titleLabel.Width = buttonWidth;
-                _titleLabel.Location = new Point(padding, nexty);
-                nexty = _titleLabel.Bottom + padding;
-            }
-          
-            if(_descriptionLabel.Text.Length > 0)
-            {
-                _descriptionLabel.Width = buttonWidth;
-                _descriptionLabel.Location = new Point(padding, nexty);
-                nexty = _descriptionLabel.Bottom + padding;
-            }
-            // Update toggleButton dimensions and position
             toggleButton.Width = buttonWidth;
-            toggleButton.Location = new Point(padding, nexty);
-            nexty = toggleButton.Bottom + padding;
-            // Update menu items dynamically
-            int yOffset = nexty;
 
-            foreach (Control control in Controls)
+            // Only update visibility at end of animation
+            if (isNearTargetWidth)
             {
-                if (control is Panel menuItemPanel && menuItemPanel.Tag is SimpleItem)
-                {
-                    menuItemPanel.Width = buttonWidth; // Update width dynamically
-                    menuItemPanel.Location = new Point(padding, yOffset); // Position below the previous control
-                    yOffset += menuItemPanel.Height + padding; // Add consistent spacing
-                }
+                _titleLabel.Visible = !isCollapsed;
+                _descriptionLabel.Visible = !isCollapsed;
             }
 
-            // Update text and image visibility based on collapsed/expanded state
-            //logo.Text = isCollapsed ? "" : _title;
-            _titleLabel.Visible = !isCollapsed;
-            _descriptionLabel.Visible = !isCollapsed;
+            // Adjust menu item panels
             foreach (Control control in Controls)
             {
                 if (control is Panel menuItemPanel && menuItemPanel.Tag is SimpleItem)
                 {
-                    foreach (Control subControl in menuItemPanel.Controls)
+                    menuItemPanel.Width = buttonWidth;
+
+                    // Only update button properties near the target width
+                    if (isNearTargetWidth)
                     {
-                        if (subControl is BeepButton button)
+                        foreach (Control subControl in menuItemPanel.Controls)
                         {
-                            button.HideText = isCollapsed; // Hide text when collapsed
-                            button.ImageAlign = isCollapsed ? ContentAlignment.MiddleCenter : ContentAlignment.MiddleLeft;
-                            button.TextImageRelation = isCollapsed
-                                ? TextImageRelation.Overlay
-                                : TextImageRelation.ImageBeforeText;
-                        }
-                        if (subControl is Panel panel)
-                        {
-                           // panel.Width = isCollapsed ? 0:5;
-                          string tag = panel.Tag.ToString();
-                            if (tag == "HiLight")
+                            if (subControl is BeepButton button)
                             {
-                                panel.Width = isCollapsed ? 0 : 5;
-                            }else
-                            {
-                                panel.Width = isCollapsed ? 0 : 2;
+                                button.HideText = isCollapsed;
+                                button.ImageAlign = isCollapsed ? ContentAlignment.MiddleCenter : ContentAlignment.MiddleLeft;
+                                button.TextImageRelation = isCollapsed
+                                    ? TextImageRelation.Overlay
+                                    : TextImageRelation.ImageBeforeText;
                             }
-                          
+                            if (subControl is Panel panel && panel.Tag != null)
+                            {
+                                string tag = panel.Tag.ToString();
+                                panel.Width = isCollapsed ? 0 : (tag == "HiLight" ? 5 : 2);
+                            }
                         }
                     }
                 }
@@ -653,15 +682,19 @@ namespace TheTechIdea.Beep.Winform.Controls
           //  if (!_isControlinvalidated) return;
             base.ApplyTheme();
             BackColor = _currentTheme.SideMenuBackColor;
-            logo.Theme = Theme;
-            toggleButton.Theme = Theme;
-            toggleButton.ApplyThemeOnImage = true;
+          //  logo.Theme = Theme;
+         //   toggleButton.Theme = Theme;
+            //toggleButton.ApplyThemeOnImage = true;
+            toggleButton.ImageEmbededin = ImageEmbededin.SideBar;
+            toggleButton.BackColor = _currentTheme.SideMenuBackColor;
             toggleButton.ForeColor = _currentTheme.SideMenuForeColor;
-            toggleButton.ApplyThemeToSvg();
+           // toggleButton.ApplyThemeToSvg();
             logo.BackColor = _currentTheme.SideMenuBackColor;
             logo.ForeColor = _currentTheme.SideMenuForeColor;
-            _titleLabel.Theme = Theme;
-
+            _titleLabel.ForeColor = _currentTheme.AppBarTitleForeColor;
+            _titleLabel.BackColor = _currentTheme.SideMenuBackColor;
+            _titleLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
+            _titleLabel.UseScaledFont = false;
             _descriptionLabel.Theme = Theme;
             foreach (Control control in Controls)
             {

@@ -1228,7 +1228,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                
                     using (SolidBrush brush = new SolidBrush(backcolor))
                     {
-                        g.FillRectangle(brush, borderRectangle);
+                        g.FillRectangle(brush, DrawingRect);
                     }
             }
 
@@ -1257,7 +1257,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         using (GraphicsPath path = GetRoundedRectPath(borderRectangle, BorderRadius))
                         {
-                            using (Pen borderPen = new Pen(BackColor, 1))
+                            using (Pen borderPen = new Pen(BorderColor, 1))
                             {
                                 borderPen.Alignment = PenAlignment.Inset;
                                 g.DrawPath(borderPen, path);

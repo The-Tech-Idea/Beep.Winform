@@ -1812,14 +1812,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // NodeMainMiddlebutton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
                 if (Noderightbutton != null)
                 {
-                    Noderightbutton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
-                    Noderightbutton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
+                    Noderightbutton.IsSelected = isSelected;
+                    //Noderightbutton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                    //Noderightbutton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
 
                 }
                 if (Nodeleftbutton != null)
                 {
-                    Nodeleftbutton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
-                    Nodeleftbutton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
+                    Nodeleftbutton.IsSelected = isSelected;
+                    //Nodeleftbutton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                    //Nodeleftbutton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
 
                 }
                 //_toggleButton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;

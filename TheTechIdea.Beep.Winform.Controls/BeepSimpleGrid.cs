@@ -4365,7 +4365,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     g.FillRectangle(cellBrush, TargetRect);
                 }
-                using (var borderPen = new Pen(_currentTheme.PrimaryTextColor, 2)) // ✅ Add a border to show selection
+                using (var borderPen = new Pen(_currentTheme.PrimaryTextColor,10)) // ✅ Add a border to show selection
                 {
                     g.DrawRectangle(borderPen, TargetRect);
                 }

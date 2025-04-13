@@ -1496,11 +1496,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected virtual void DrawFocusIndicator(Graphics graphics)
         {
-            using (var pen = new Pen(FocusIndicatorColor, 2))
+            Rectangle glowRect = new Rectangle(-3, -3, Width + 6, Height + 6);
+            using (GraphicsPath path = GetRoundedRectPath(glowRect, BorderRadius + 2))
+            using (var glowBrush = new SolidBrush(Color.FromArgb(128, FocusIndicatorColor)))
             {
-                graphics.DrawRectangle(pen, new Rectangle(0, 0, Width - 1, Height - 1));
+                graphics.FillPath(glowBrush, path);
             }
+            // or Color Overlay
+            //using (var overlayBrush = new SolidBrush(Color.FromArgb(50, FocusIndicatorColor)))
+            //{
+            //    graphics.FillRectangle(overlayBrush, ClientRectangle);
+            //}
         }
+
         protected GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
         {
             GraphicsPath path = new GraphicsPath();

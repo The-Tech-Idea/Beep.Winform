@@ -342,7 +342,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+         //   base.ApplyTheme();
             BackColor = _currentTheme?.SideMenuBackColor ?? Color.FromArgb(51, 51, 51);
 
             if (logo != null)

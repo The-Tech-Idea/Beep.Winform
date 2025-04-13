@@ -212,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // THEMING
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+        //    base.ApplyTheme();
 
                 BackColor = _currentTheme.ScrollBarBackColor;
                 TrackColor = _currentTheme.ScrollBarTrackColor;

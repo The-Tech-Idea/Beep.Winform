@@ -194,16 +194,17 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+        //    base.ApplyTheme();
             BackColor = _currentTheme.BackColor;
             BorderColor = _currentTheme.BorderColor;
-
-            // Apply theme to child controls
-            lblLeftIcon.ForeColor = Color.White;
-            lblLeftLabel.ForeColor = Color.White;
-            lblLeftPercentage.ForeColor = Color.White;
+            lblLeftIcon.Theme = Theme;
+            lblLeftLabel.Theme = Theme;
+            lblLeftPercentage.Theme = Theme;
+            lblRightLabel.Theme = Theme;
             lblRightLabel.ForeColor = _currentTheme.PrimaryTextColor;
+            lblRightPercentage.Theme = Theme;
             lblRightPercentage.ForeColor = _currentTheme.PrimaryTextColor;
+            lblDivider.Theme = Theme;
             lblDivider.ForeColor = Color.LightGray;
 
             Invalidate();

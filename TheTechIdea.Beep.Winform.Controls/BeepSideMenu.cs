@@ -680,7 +680,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
           //  if (!_isControlinvalidated) return;
-            base.ApplyTheme();
+         //   base.ApplyTheme();
             BackColor = _currentTheme.SideMenuBackColor;
           //  logo.Theme = Theme;
          //   toggleButton.Theme = Theme;

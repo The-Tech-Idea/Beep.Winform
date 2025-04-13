@@ -397,7 +397,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
          //  MiscFunctions.SendLog("Applying theme to BeepDisplayContainer")
         //    Console.WriteLine("Applying theme to BeepDisplayContainer");
-            base.ApplyTheme();
+         //   base.ApplyTheme();
          //  MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 1");
           //  Console.WriteLine("Applying theme to BeepDisplayContainer 1");
 
@@ -406,6 +406,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 try
                 {
+                    //_singlePanelAddin.
                     _singlePanelAddin.ApplyTheme();
                 }
                 catch (Exception ex)
@@ -435,9 +436,9 @@ namespace TheTechIdea.Beep.Winform.Controls
        //    MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 3");
        //     Console.WriteLine("Applying theme to BeepDisplayContainer 3");
             // Set background color for the container
-            ContainerPanel.BackColor = _currentTheme.AccentColor;
+            ContainerPanel.BackColor = _currentTheme.BackgroundColor;
             
-            BackColor = _currentTheme.AppBarForeColor;
+            BackColor = _currentTheme.BackgroundColor;
             if (TabContainerPanel != null)
             {
              //   TabContainerPanel.BackColor = _currentTheme.PanelBackColor;

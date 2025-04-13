@@ -479,7 +479,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Theme and Disposal
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+       //     base.ApplyTheme();
             if (Theme == null) return;
             if (IsChild)
             {

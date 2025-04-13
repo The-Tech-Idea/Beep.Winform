@@ -1258,7 +1258,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+         //   base.ApplyTheme();
             if(loginPanel == null) return;
             loginPanel.BackColor = _currentTheme.LoginPopoverBackgroundColor;
                 lblTitle.ForeColor = _currentTheme.LoginTitleColor;

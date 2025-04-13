@@ -286,7 +286,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e); // Handle background, borders, shadows, etc., which draws outside DrawingRect
-            var g = e.Graphics;
+        
+        }
+        protected override void DrawContent(Graphics g)
+        {
+            base.DrawContent(g);
+           
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Clip drawing to DrawingRect to ensure all chip drawing stays within it
@@ -363,7 +368,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Reset the clip region
             g.ResetClip();
         }
-
         private TextFormatFlags GetTextFormatFlags(ContentAlignment alignment)
         {
             TextFormatFlags flags = TextFormatFlags.SingleLine | TextFormatFlags.PreserveGraphicsClipping;
@@ -504,12 +508,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Theming
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+          //  base.ApplyTheme();
             // Apply runtime transparency if supported
            
             // Update title color based on theme
-            _titleColor = _currentTheme.LabelForeColor ;
-            BackColor = _currentTheme.LabelBackColor;
+            _titleColor = _currentTheme.CardTitleForeColor ;
+            BackColor = _currentTheme.ButtonBackColor;
             ApplyThemeToChips();
             Invalidate();
         }

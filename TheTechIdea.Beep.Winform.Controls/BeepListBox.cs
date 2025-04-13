@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Size ButtonSize = new Size(200, 20);
         private int _highlightPanelSize = 5;
         private int _menuItemHeight = 20;
-        protected int spacing = 0;
+        protected int spacing = 1;
         protected int drawRectX;
         protected int drawRectY;
         protected int drawRectWidth;
@@ -336,11 +336,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChild = true,
                 UseScaledFont =false,
                 ApplyThemeOnImage = false,
-                //UseThemeFont=this.UseThemeFont,
+                UseThemeFont=this.UseThemeFont,
             };
+            if (UseThemeFont)
+            {
+                button.TextFont = BeepThemesManager.ToFont(_currentTheme.LabelMedium);
+            }
+            else
+                button.TextFont = _textFont;
 
-                button.TextFont =BeepThemesManager.ToFont(_currentTheme.LabelSmall);
- 
+            // resize button height based on new button.TextFont
+            // Get the height of the text
+            Size textSize = TextRenderer.MeasureText(item.Text, button.TextFont);
+            // Set the button height to accommodate the text size
+            button.Height = textSize.Height + 2; // Add some padding
+            button.Width = ButtonSize.Width;
+            // set the panel height to the button height
+            menuItemPanel.Height = button.Height;
+
 
             // Load the icon if specified
             if (!string.IsNullOrEmpty(item.ImagePath) && File.Exists(item.ImagePath))
@@ -439,6 +452,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main))
             {
                 var menuItemPanel = CreateMenuItemPanel(item, false);
+                ButtonSize = new Size(ButtonSize.Width, menuItemPanel.Height);
                 if (menuItemPanel != null)
                 {
 
@@ -446,6 +460,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     menuItemPanel.Left = drawRectX;
                     menuItemPanel.Width = ButtonSize.Width;
                     menuItemPanel.Height = ButtonSize.Height;
+                   
                     menuItemPanel.Tag = item;
                     item.X = menuItemPanel.Left;
                     item.Y = menuItemPanel.Top;
@@ -587,17 +602,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return 0;
 
             // Calculate total height: sum of all item heights plus spacing between them
-            int totalHeight = items.Count * _menuItemHeight;
+            int totalHeight = LastItemBottomY + ButtonSize.Height - spacing;//items.Count * _menuItemHeight;
 
             // Add spacing between items
-            if (items.Count > 1)
-            {
-                totalHeight += (items.Count) * spacing;
-            }
+            //if (items.Count >= 1)
+            //{
+            //    totalHeight += (items.Count) * spacing;
+            //}
 
             // Optionally, add padding (if required)
-            int padding = 3; // Example padding
-            totalHeight += padding * 2;
+            int padding = 0; // Example padding
+            totalHeight += padding * 1;
             totalHeight = totalHeight;// LastItemBottomY + (padding * 2);//Math.Max(totalHeight,);
            // Console.WriteLine($"GetMaxHeight: Total height calculated as {totalHeight} pixels.");
 
@@ -647,7 +662,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+          //  base.ApplyTheme();
             if (_currentTheme == null) { return; }
             //base.ApplyTheme();
             // Apply theme to the main menu panel (background gradient or solid color)
@@ -674,21 +689,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                         switch (subControl)
                         {
                             case BeepButton button:
-                              //  button.Theme = Theme;
-                                //if (UseThemeFont)
-                                //{
-                                   // button.UseThemeFont = true;
-                                    TextFont = BeepThemesManager.ToFont(_currentTheme.BodySmall);
-                                  
-                                //}
-                                //else
-                                //{
-                                //    button.UseThemeFont = false;
-                                   
-                                //}
-                                Font = _textFont;
-                                button.Font = _textFont;
-                               // button.Theme = Theme;
+                                //  button.Theme = Theme;
+                                if (UseThemeFont)
+                                {
+                                    button.TextFont = BeepThemesManager.ToFont(_currentTheme.LabelMedium);
+                                }
+                                else
+                                    button.TextFont = _textFont;
+
+
+
+                                //InnerTextBox.Font=_listbuttontextFont;
+                                //Font = _textFont;
+
+
+                                // button.Theme = Theme;
                                 button.BackColor = BackColor;
                                 button.ForeColor = _currentTheme.ListItemForeColor;
                                 button.HoverBackColor = _currentTheme.ListItemHoverBackColor;

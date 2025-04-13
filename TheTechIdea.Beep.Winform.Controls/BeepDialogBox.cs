@@ -222,7 +222,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+        //    base.ApplyTheme();
             if (_currentTheme == null) return;
 
             // MessageBox.Config("Applying Theme");

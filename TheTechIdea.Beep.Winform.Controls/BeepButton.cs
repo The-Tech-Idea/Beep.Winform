@@ -623,10 +623,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+         //   base.ApplyTheme();
             if (IsChild && Parent != null)
             {
                 BackColor = Parent.BackColor;
+                ParentBackColor = Parent.BackColor;
             }
             BackColor = _currentTheme.ButtonBackColor;
             ForeColor = _currentTheme.ButtonForeColor;
@@ -721,8 +722,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
           //  SuspendLayout();
             base.OnPaint(e);
-          
-        //    ResumeLayout();
+
+         //   e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+         //   //    ResumeLayout();
         }
         protected override void DrawContent(Graphics g)
         {
@@ -735,7 +737,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Example: Draw a line under the app bar.
             // Do not call base.OnPaint(e);
-            // e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            
             UpdateDrawingRect();
             // Determine the fill color based on control state
             Color fillColor;
@@ -771,30 +773,34 @@ namespace TheTechIdea.Beep.Winform.Controls
                     g.ResetClip();
                 }
             }
-            if (!Enabled)
-            {
-                fillColor = DisabledBackColor;
-            }
-            else if (IsSelected)
-            {
-                // Selected state: use BackColor (which is set in IsSelected setter)
-                fillColor = SelectedBackColor;
-            }
-            else if (IsHovered)
-            {
-                fillColor = HoveredBackcolor;
-            }
-            else
-            {
-                fillColor = BackColor;
-            }
+            //else
+            //{
+            //    if (!Enabled)
+            //    {
+            //        fillColor = DisabledBackColor;
+            //    }
+            //    else if (IsSelected)
+            //    {
+            //        // Selected state: use BackColor (which is set in IsSelected setter)
+            //        fillColor = SelectedBackColor;
+            //    }
+            //    else if (IsHovered)
+            //    {
+            //        fillColor = HoveredBackcolor;
+            //    }
+            //    else
+            //    {
+            //        fillColor = BackColor;
+            //    }
 
-            //  Rectangle outerRectangle = new Rectangle(0, 0, Width, Height);
+            //    //  Rectangle outerRectangle = new Rectangle(0, 0, Width, Height);
 
-            using (SolidBrush brush = new SolidBrush(fillColor))
-            {
-                g.FillRectangle(brush, DrawingRect);
-            }
+            //    using (SolidBrush brush = new SolidBrush(fillColor))
+            //    {
+            //        g.FillRectangle(brush, DrawingRect);
+            //    }
+            //}
+
             DrawImageAndText(g);
 
             // If additional app bar elements (icons, text) require custom drawing,
@@ -871,7 +877,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 //}
                 //else
-                Color color=ForeColor;
+                Color color = ForeColor;
                 if (IsHovered)
                 {
                     color = HoverForeColor;
@@ -881,7 +887,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     color = SelectedForeColor;
                 }
-                
+                else if (!Enabled)
+                {
+                    color = DisabledForeColor;
+                }
+                else
+                {
+                    color = ForeColor;
+                }
+
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
                 TextRenderer.DrawText(g, Text, scaledFont, textRect, color, flags);
             }
@@ -1088,18 +1102,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    IsHovered = true;
         //    base.OnMouseEnter(e);
         //}
-        protected override void OnMouseHover(EventArgs e)
-        {
-            if (!IsPressed)
-            {
-           //     IsHovered = true;
-            }
-            base.OnMouseHover(e);
-
-
-            // MiscFunctions.SendLog("MouseHover in BeepControl");
-        }
-        
+       
       
         private void BeepImage_MouseDown(object? sender, MouseEventArgs e)
         {
@@ -1112,17 +1115,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-
+          //  IsSelected = false;
             // Start the splash effect: record the click location and reset progress
             splashCenter = e.Location; // Use the mouse click location for the ripple's center
             splashProgress = 0f;
             splashActive = true;
             splashTimer.Start();
-            //if (!IsSelectedAuto)
-            //{
-            //    IsSelected = !IsSelected;
+            if (IsSelectedAuto)
+            {
+                IsSelected = !IsSelected;
 
-            //}
+            }
 
             if (_popupmode)
             {
@@ -1132,19 +1135,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Image clicked, handled by BeepImage_MouseDown
             }
-            else
-            {
-                
-                if (IsSelected)
-                {
-
-                }
-                else
-                {
-
-                }
-                Invalidate();
-            }
+           
         }
         #endregion "Mouse and Click"
         #region "Binding and Control Type"

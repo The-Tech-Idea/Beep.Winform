@@ -225,10 +225,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Font = _textFont;
             }
             //if (UseThemeFont) TitleFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
-            foreach (Control ctrl in Controls)
+            if(ApplyThemeToChilds)
             {
-                // if you want to apply theme to child controls, do so here
+                foreach (Control ctrl in Controls)
+                {
+                    if (ctrl is BeepControl beepControl)
+                        beepControl.Theme = Theme;
+                    // if you want to apply theme to child controls, do so here
+                }
             }
+          
             Invalidate();
         }
         protected override void OnPaint(PaintEventArgs e)

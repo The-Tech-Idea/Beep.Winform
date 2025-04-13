@@ -461,13 +461,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 PlaceholderText = " Search...",
                 Anchor = AnchorStyles.Right,
                 // ApplyThemeOnLogo = _applyThemeOnImage,
-                IsFrameless = true,
+                IsFrameless = false,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ImageAlign= ContentAlignment.MiddleRight,
                 TextImageRelation = TextImageRelation.TextBeforeImage,
                 TextAlignment = HorizontalAlignment.Left,
-                ShowAllBorders = false,
+                ShowAllBorders = true,
                 Tag = "Search"
             };
             searchBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;

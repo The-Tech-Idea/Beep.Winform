@@ -118,10 +118,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 ShowAllBorders = false,
                 ShowShadow = false,
+                IsFrameless=true,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
                 Anchor = AnchorStyles.None,
-                ApplyThemeOnImage=true
+               // ApplyThemeOnImage=true
                 
                
             };
@@ -133,7 +134,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 btn.Text = "";
                 btn.ToolTipText = text;
             }
-            btn.Theme = Theme;
+            //  btn.Theme = Theme;
+            ApplyTheme();
             btn.Click += onClick;
             return btn;
         }
@@ -236,24 +238,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             //base.ApplyTheme();
-            BackColor = _currentTheme.ButtonBackColor;;
+            BackColor = _currentTheme.ListBackColor;;
             foreach (Control ctrl in Controls)
-            { 
-                ApplyThemeToControl(ctrl);
-                //if (ctrl is Beepbutton)
-                //{
-                //    ((Beepbutton)ctrl).Theme = Theme;
-                //    if (ApplyThemeOnLogo)
-                //    {
-                //        ((Beepbutton)ctrl).ApplyThemeOnLogo=true;
-                //    }
+            {
+                // ApplyThemeToControl(ctrl);
+                if (ctrl is BeepButton)
+                {
+                    BeepButton button = (BeepButton)ctrl;
+                    button.ParentBackColor = BackColor;
+                    button.BackColor = BackColor;
+                    button.Theme = Theme;
+                    button.ForeColor = _currentTheme.ListForeColor;
+                    //((BeepButton)ctrl).Theme = Theme;
 
-                //}
-                //else if (ctrl is BeepLabel)
-                //{
-                //    ((BeepLabel)ctrl).Theme = Theme;
-                //}
-            }
+                }
+                    //}
+                    //else if (ctrl is BeepLabel)
+                    //{
+                    //    ((BeepLabel)ctrl).Theme = Theme;
+                    //}
+                }
             Invalidate();
         }
         private void Button_Click(object sender, EventArgs e)

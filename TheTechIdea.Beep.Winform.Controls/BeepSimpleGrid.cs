@@ -696,24 +696,32 @@ namespace TheTechIdea.Beep.Winform.Controls
             OnSelectedRowsChanged();
         }
         #endregion "Checkboxes and Selections"
-        private string _badgeText = "18";
-        [Browsable(true)]
-        [Category("Appearance")]
-        public string BadgeText
-        {
-            get => _badgeText;
-            set
-            {
-                _badgeText = value;
-                if (titleLabel != null)
-                {
-                    titleLabel.BadgeText = value;
-                }
-                Invalidate();
-            }
-        }
+        //private string _badgeText =string.Empty;
+        //[Browsable(true)]
+        //[Category("Appearance")]
+        //public string BadgeText
+        //{
+        //    get => _badgeText;
+        //    set
+        //    {
+        //        _badgeText = value;
+        //        if (titleLabel != null)
+        //        {
+        //            if(string.IsNullOrEmpty(value))
+        //            {
+        //                titleLabel.BadgeText = string.Empty;
+        //            }
+        //            else
+        //            {
+        //                titleLabel.BadgeText = value;
+        //            }
+                    
+        //        }
+        //        Invalidate();
+        //    }
+        //}
 
-        private string _percentageText = "36%";
+        private string _percentageText = string.Empty;
         [Browsable(true)]
         [Category("Appearance")]
         public string PercentageText
@@ -740,6 +748,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             // Ensure _columns is only initialized once
             SetStyle(ControlStyles.Selectable | ControlStyles.UserMouse, true);
+            // Check for design mode to prevent unnecessary operations
+            if (DesignMode)
+            {
+                // Skip expensive operations in design mode
+                _isInitializing = true;
+                _filterpaneldrawn = true;
+                _navigatorDrawn = true;
+                return;
+            }
             TabStop = true;
             this.Focus();
             _isInitializing = true;
@@ -812,25 +829,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             titleLabel.ImagePath = _titleimagestring;
             // titleLabel.BackColor = _currentTheme?.BackColor ?? Color.White;
             Controls.Add(titleLabel);
-            _verticalScrollBar = new BeepScrollBar
-            {
-                ScrollOrientation = Orientation.Vertical,
-                Theme = Theme,
-                Visible = false,
-                IsChild = true
-            };
-            _verticalScrollBar.Scroll += VerticalScrollBar_Scroll;
-            Controls.Add(_verticalScrollBar);
-
-            _horizontalScrollBar = new BeepScrollBar
-            {
-                ScrollOrientation = Orientation.Horizontal,
-                Theme = Theme,
-                Visible = false,
-                IsChild = true
-            };
-            _horizontalScrollBar.Scroll += HorizontalScrollBar_Scroll;
-            Controls.Add(_horizontalScrollBar);
+           
             // Initialize filter controls
             filterTextBox = new BeepTextBox
             {
@@ -896,7 +895,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             Controls.Add(percentageLabel);
             // Subscribe to the Resize event to handle control resizing
-
+            tooltipShown = false;
             InitializeRows();
         }
 
@@ -1814,24 +1813,151 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion DataSource Update
         #region Initialization
+        // Add this method to ensure the grid initializes safely when dragged from toolbox
+        // Add this method to ensure the grid initializes safely when dragged from toolbox
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
             if (_isInitializing)
             {
                 MiscFunctions.SendLog("OnHandleCreated: Completing deferred initialization");
-                if (_pendingDataSource != null)
+                try
                 {
-                    _dataSource = _pendingDataSource;
-                    DataSetup();
-                    InitializeData();
-                    FillVisibleRows();
-                    UpdateScrollBars();
+                    // Initialize core collections to prevent null reference exceptions
+                    if (_columns == null) _columns = new List<BeepColumnConfig>();
+                    if (_fullData == null) _fullData = new List<object>();
+                    if (Rows == null) Rows = new BindingList<BeepRowConfig>();
+                    if (originalList == null) originalList = new List<object>();
+                    if (deletedList == null) deletedList = new List<object>();
+                    if (Trackings == null) Trackings = new List<Tracking>();
+                    if (ChangedValues == null) ChangedValues = new Dictionary<object, Dictionary<string, object>>();
+
+                    // Add default row ID and selection columns
+                    EnsureDefaultColumns();
+
+                    if (_pendingDataSource != null)
+                    {
+                        _dataSource = _pendingDataSource;
+                        DataSetup();
+                        InitializeData();
+                        FillVisibleRows();
+                        UpdateScrollBars();
+                        Invalidate();
+                    }
+                    else
+                    {
+                        // Initialize with empty data when dragged from toolbox
+                        InitializeRows();
+                        UpdateScrollBars();
+                        Invalidate();
+                    }
+                    _isInitializing = false; // Initialization complete
+                }
+                catch (Exception ex)
+                {
+                    MiscFunctions.SendLog($"Error during initialization: {ex.Message}");
+                    // Initialize with minimal UI to avoid crashing
+                    _isInitializing = false;
                     Invalidate();
                 }
-                _isInitializing = false; // Initialization complete
             }
         }
+
+
+        // Add this method to ensure required columns are always present
+        private void EnsureDefaultColumns()
+        {
+            if (_columns == null || !_columns.Any())
+            {
+                _columns = new List<BeepColumnConfig>();
+
+                // Add selection checkbox column
+                var selColumn = new BeepColumnConfig
+                {
+                    ColumnCaption = "☑",
+                    ColumnName = "Sel",
+                    Width = _selectionColumnWidth > 0 ? _selectionColumnWidth : 30,
+                    Index = 0,
+                    Visible = true,
+                    Sticked = true,
+                    IsUnbound = true,
+                    IsSelectionCheckBox = true,
+                    PropertyTypeName = typeof(bool).AssemblyQualifiedName,
+                    CellEditor = BeepColumnType.CheckBoxBool,
+                    GuidID = Guid.NewGuid().ToString(),
+                    SortMode = DataGridViewColumnSortMode.NotSortable,
+                    Resizable = DataGridViewTriState.False,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                };
+                selColumn.ColumnType = MapPropertyTypeToDbFieldCategory(selColumn.PropertyTypeName);
+                _columns.Add(selColumn);
+
+                // Add row number column
+                var rowNumColumn = new BeepColumnConfig
+                {
+                    ColumnCaption = "#",
+                    ColumnName = "RowNum",
+                    Width = 30,
+                    Index = 1,
+                    Visible = true,
+                    Sticked = true,
+                    ReadOnly = true,
+                    IsRowNumColumn = true,
+                    IsUnbound = true,
+                    PropertyTypeName = typeof(int).AssemblyQualifiedName,
+                    CellEditor = BeepColumnType.Text,
+                    GuidID = Guid.NewGuid().ToString(),
+                    SortMode = DataGridViewColumnSortMode.NotSortable,
+                    Resizable = DataGridViewTriState.False,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                    AggregationType = AggregationType.Count
+                };
+                rowNumColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
+                _columns.Add(rowNumColumn);
+
+                // Add row ID column
+                var rowIdColumn = new BeepColumnConfig
+                {
+                    ColumnCaption = "RowID",
+                    ColumnName = "RowID",
+                    Width = 30,
+                    Index = 2,
+                    Visible = false,
+                    Sticked = true,
+                    ReadOnly = true,
+                    IsRowID = true,
+                    IsUnbound = true,
+                    PropertyTypeName = typeof(int).AssemblyQualifiedName,
+                    CellEditor = BeepColumnType.Text,
+                    GuidID = Guid.NewGuid().ToString(),
+                    SortMode = DataGridViewColumnSortMode.NotSortable,
+                    Resizable = DataGridViewTriState.False,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                };
+                rowIdColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowIdColumn.PropertyTypeName);
+                _columns.Add(rowIdColumn);
+
+                // Add a default text column so the grid isn't completely empty
+                var defaultColumn = new BeepColumnConfig
+                {
+                    ColumnCaption = "Column1",
+                    ColumnName = "Column1",
+                    Width = 100,
+                    Index = 3,
+                    Visible = true,
+                    PropertyTypeName = typeof(string).AssemblyQualifiedName,
+                    CellEditor = BeepColumnType.Text,
+                    GuidID = Guid.NewGuid().ToString()
+                };
+                defaultColumn.ColumnType = MapPropertyTypeToDbFieldCategory(defaultColumn.PropertyTypeName);
+                _columns.Add(defaultColumn);
+            }
+        }
+        private bool IsInDesignMode
+        {
+            get { return DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime; }
+        }
+
         private Tuple<object,EntityStructure> SetupBindingSource()
         {
             object resolvedData = null; // Unified variable for final data or type resolution
@@ -1901,120 +2027,197 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             return Tuple.Create(resolvedData, entity);
         }
+        // Make DataSetup more resilient
         private void DataSetup()
         {
-            EntityStructure entity = null;
-            object resolvedData = null; // Unified variable for final data or type resolution
-            MiscFunctions.SendLog($"DataSetup Started: _dataSource Type = {_dataSource?.GetType()}, DesignMode = {DesignMode}");
-
-            // Step 1: Handle different _dataSource types and wrap in BindingSource
-            if (_dataSource == null)
+            try
             {
-                MiscFunctions.SendLog("DataSource is null, initializing empty BindingSource");
-                _bindingSource = new BindingSource();
-                finalData = _bindingSource;
-            }
-            else if (_dataSource is BindingSource bindingSrc)
-            {
-                MiscFunctions.SendLog($"BindingSource Detected: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
-                AssignBindingSource(bindingSrc);
-                var ret = SetupBindingSource();
-                resolvedData = ret.Item1;
-                entity = ret.Item2;
-                finalData = _bindingSource; // Use the BindingSource directly
-            }
-            else if (_dataSource is DataTable dataTable)
-            {
-                MiscFunctions.SendLog("DataSource is DataTable, wrapping in BindingSource");
-                _bindingSource = new BindingSource { DataSource = dataTable };
-                AssignBindingSource(_bindingSource);
-                resolvedData = dataTable;
-                finalData = _bindingSource;
-            }
-            else if (_dataSource is IList iList)
-            {
-                MiscFunctions.SendLog("DataSource is IList, wrapping in BindingSource");
-                _bindingSource = new BindingSource { DataSource = iList };
-                AssignBindingSource(_bindingSource);
-                resolvedData = iList;
-                finalData = _bindingSource;
-            }
-            else
-            {
-                MiscFunctions.SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting auto-detection and wrapping in BindingSource");
-                resolvedData = GetCollectionPropertyFromInstance(_dataSource) ?? _dataSource;
-                _bindingSource = new BindingSource { DataSource = resolvedData };
-                AssignBindingSource(_bindingSource);
-                finalData = _bindingSource;
-            }
-
-            // Step 2: Resolve entity structure from resolvedData
-            if (resolvedData == null)
-            {
-                MiscFunctions.SendLog("Resolved data is null, no entity generated");
-            }
-            else if (resolvedData is DataTable dt)
-            {
-                entity = EntityHelper.GetEntityStructureFromListorTable(dt);
-            }
-            else if (resolvedData is IList list && list.Count > 0)
-            {
-                Type itemType = list[0]?.GetType();
-               _entityType = itemType;
-                if (itemType != null)
+                if (DesignMode)
                 {
-                    MiscFunctions.SendLog($"Extracted item type from IList: {itemType.FullName}");
-                    entity = EntityHelper.GetEntityStructureFromType(itemType);
+                    // Create minimal columns for design-time display
+                    if (_columns == null || _columns.Count == 0)
+                        EnsureDefaultColumns();
+                    return;
+                }
+                EntityStructure entity = null;
+                object resolvedData = null;
+
+                MiscFunctions.SendLog($"DataSetup Started: _dataSource Type = {_dataSource?.GetType()}, DesignMode = {DesignMode}");
+
+                // Create default binding source if null
+                if (_bindingSource == null)
+                {
+                    _bindingSource = new BindingSource();
+                }
+
+                // Process datasource
+                if (_dataSource == null)
+                {
+                    // Create empty binding source and minimal structure
+                    finalData = _bindingSource;
+                }
+                else if (_dataSource is BindingSource bindingSrc)
+                {
+                    AssignBindingSource(bindingSrc);
+                    var ret = SetupBindingSource();
+                    resolvedData = ret.Item1;
+                    entity = ret.Item2;
+                    finalData = _bindingSource;
                 }
                 else
                 {
-                    entity = EntityHelper.GetEntityStructureFromListorTable(list);
+                    // Handle basic data types and wrap with binding source
+                    _bindingSource.DataSource = _dataSource;
+                    finalData = _bindingSource;
                 }
-            }
-            else
-            {
-                MiscFunctions.SendLog($"Resolved data is not a recognized collection type: {resolvedData.GetType()}, using as-is");
-                entity = EntityHelper.GetEntityStructureFromListorTable(resolvedData);
-            }
 
-            // Ensure _columns is initialized
-            if (_columns == null) _columns = new List<BeepColumnConfig>();
+                // Ensure _columns is initialized
+                if (_columns == null) _columns = new List<BeepColumnConfig>();
 
-            // Step 3: Process entity and columns
-            if (entity != null)
-            {
-                MiscFunctions.SendLog($"New Entity: {entity.EntityName}, Existing Entity: {EntityName}");
-                if (_columns.Any())
+                // Attempt to create entity structure if possible
+                if (entity == null && resolvedData != null)
                 {
-                    if (!string.IsNullOrEmpty(EntityName) && entity.EntityName.Equals(EntityName))
+                    entity = EntityHelper.GetEntityStructureFromListorTable(resolvedData);
+                }
+
+                // Process entity and columns
+                if (entity != null)
+                {
+                    Entity = entity;
+                    if (!_columns.Any() || !columnssetupusingeditordontchange)
                     {
-                        MiscFunctions.SendLog("Preserving designer Columns, syncing fields");
-                        SyncColumnsWithEntity(entity);
-                    }
-                    else
-                    {
-                        MiscFunctions.SendLog("New Entity with designer Columns, updating Entity only");
-                       Entity = entity;
                         CreateColumnsForEntity();
                     }
                 }
                 else
                 {
-                    MiscFunctions.SendLog("No designer Columns or not protected, regenerating");
-                    Entity = entity;
-                    CreateColumnsForEntity();
+                    // Ensure we have at least default columns
+                    EnsureDefaultColumns();
                 }
-                Entity = entity;
+
+                MiscFunctions.SendLog($"DataSetup Completed: finalData = {finalData?.GetType()}, Entity = {Entity?.EntityName}, Columns Count = {_columns.Count}");
             }
-            else
+            catch (Exception ex)
             {
-                _columns = new List<BeepColumnConfig>();
-                Entity = null;
-                MiscFunctions.SendLog("No new Entity, keeping designer Columns");
+                MiscFunctions.SendLog($"Error in DataSetup: {ex.Message}");
+                EnsureDefaultColumns();
             }
-         
-            MiscFunctions.SendLog($"DataSetup Completed: finalData = {finalData?.GetType()}, Entity = {Entity?.EntityName}, Columns Count = {_columns.Count}");
         }
+
+        //private void DataSetup()
+        //{
+        //    EntityStructure entity = null;
+        //    object resolvedData = null; // Unified variable for final data or type resolution
+        //    MiscFunctions.SendLog($"DataSetup Started: _dataSource Type = {_dataSource?.GetType()}, DesignMode = {DesignMode}");
+
+        //    // Step 1: Handle different _dataSource types and wrap in BindingSource
+        //    if (_dataSource == null)
+        //    {
+        //        MiscFunctions.SendLog("DataSource is null, initializing empty BindingSource");
+        //        _bindingSource = new BindingSource();
+        //        finalData = _bindingSource;
+        //    }
+        //    else if (_dataSource is BindingSource bindingSrc)
+        //    {
+        //        MiscFunctions.SendLog($"BindingSource Detected: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
+        //        AssignBindingSource(bindingSrc);
+        //        var ret = SetupBindingSource();
+        //        resolvedData = ret.Item1;
+        //        entity = ret.Item2;
+        //        finalData = _bindingSource; // Use the BindingSource directly
+        //    }
+        //    else if (_dataSource is DataTable dataTable)
+        //    {
+        //        MiscFunctions.SendLog("DataSource is DataTable, wrapping in BindingSource");
+        //        _bindingSource = new BindingSource { DataSource = dataTable };
+        //        AssignBindingSource(_bindingSource);
+        //        resolvedData = dataTable;
+        //        finalData = _bindingSource;
+        //    }
+        //    else if (_dataSource is IList iList)
+        //    {
+        //        MiscFunctions.SendLog("DataSource is IList, wrapping in BindingSource");
+        //        _bindingSource = new BindingSource { DataSource = iList };
+        //        AssignBindingSource(_bindingSource);
+        //        resolvedData = iList;
+        //        finalData = _bindingSource;
+        //    }
+        //    else
+        //    {
+        //        MiscFunctions.SendLog($"DataSource is unrecognized type: {_dataSource.GetType()}, attempting auto-detection and wrapping in BindingSource");
+        //        resolvedData = GetCollectionPropertyFromInstance(_dataSource) ?? _dataSource;
+        //        _bindingSource = new BindingSource { DataSource = resolvedData };
+        //        AssignBindingSource(_bindingSource);
+        //        finalData = _bindingSource;
+        //    }
+
+        //    // Step 2: Resolve entity structure from resolvedData
+        //    if (resolvedData == null)
+        //    {
+        //        MiscFunctions.SendLog("Resolved data is null, no entity generated");
+        //    }
+        //    else if (resolvedData is DataTable dt)
+        //    {
+        //        entity = EntityHelper.GetEntityStructureFromListorTable(dt);
+        //    }
+        //    else if (resolvedData is IList list && list.Count > 0)
+        //    {
+        //        Type itemType = list[0]?.GetType();
+        //       _entityType = itemType;
+        //        if (itemType != null)
+        //        {
+        //            MiscFunctions.SendLog($"Extracted item type from IList: {itemType.FullName}");
+        //            entity = EntityHelper.GetEntityStructureFromType(itemType);
+        //        }
+        //        else
+        //        {
+        //            entity = EntityHelper.GetEntityStructureFromListorTable(list);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        MiscFunctions.SendLog($"Resolved data is not a recognized collection type: {resolvedData.GetType()}, using as-is");
+        //        entity = EntityHelper.GetEntityStructureFromListorTable(resolvedData);
+        //    }
+
+        //    // Ensure _columns is initialized
+        //    if (_columns == null) _columns = new List<BeepColumnConfig>();
+
+        //    // Step 3: Process entity and columns
+        //    if (entity != null)
+        //    {
+        //        MiscFunctions.SendLog($"New Entity: {entity.EntityName}, Existing Entity: {EntityName}");
+        //        if (_columns.Any())
+        //        {
+        //            if (!string.IsNullOrEmpty(EntityName) && entity.EntityName.Equals(EntityName))
+        //            {
+        //                MiscFunctions.SendLog("Preserving designer Columns, syncing fields");
+        //                SyncColumnsWithEntity(entity);
+        //            }
+        //            else
+        //            {
+        //                MiscFunctions.SendLog("New Entity with designer Columns, updating Entity only");
+        //               Entity = entity;
+        //                CreateColumnsForEntity();
+        //            }
+        //        }
+        //        else
+        //        {
+        //            MiscFunctions.SendLog("No designer Columns or not protected, regenerating");
+        //            Entity = entity;
+        //            CreateColumnsForEntity();
+        //        }
+        //        Entity = entity;
+        //    }
+        //    else
+        //    {
+        //        _columns = new List<BeepColumnConfig>();
+        //        Entity = null;
+        //        MiscFunctions.SendLog("No new Entity, keeping designer Columns");
+        //    }
+         
+        //    MiscFunctions.SendLog($"DataSetup Completed: finalData = {finalData?.GetType()}, Entity = {Entity?.EntityName}, Columns Count = {_columns.Count}");
+        //}
         private object GetCollectionPropertyFromInstance(object instance)
         {
             if (instance == null) return null;
@@ -2327,67 +2530,134 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MiscFunctions.SendLog($"Error adding columns for Entity {Entity?.EntityName}: {ex.Message}");
             }
         }
+        // Make InitializeRows more resilient
         private void InitializeRows()
         {
             if (Rows == null) Rows = new BindingList<BeepRowConfig>();
             Rows.Clear();
-            if (_fullData == null || !_fullData.Any()) return; // No rows if no data
-            int visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeaderHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
-            int visibleRowCount = visibleHeight / _rowHeight;
-            int dataRowCount = _fullData.Count;
 
-            // Limit rows to the lesser of visible rows or data rows
-            int rowCount = Math.Min(visibleRowCount, dataRowCount);
-            for (int i = 0; i < rowCount; i++)
+            // Ensure we have valid columns
+            if (_columns == null || !_columns.Any())
+            {
+                EnsureDefaultColumns();
+            }
+
+            // Create at least one empty row to show something when dragged from toolbox
+            int displayRows = Math.Max(1, Math.Min((_fullData?.Count ?? 0),
+                DrawingRect.Height / (_rowHeight > 0 ? _rowHeight : 25)));
+
+            for (int i = 0; i < displayRows; i++)
             {
                 var row = new BeepRowConfig();
                 foreach (var col in Columns)
                 {
-                    // Create a new cell that will later be filled with data.
-                    // Note: We no longer assign UIComponent here.
+                    // Create a new cell
                     var cell = new BeepCellConfig
                     {
-                        // Do not default CellValue to string.Empty if FillVisibleRows will update it.
-                        // You can leave it null or use a default if desired.
                         CellValue = null,
                         CellData = null,
-                        IsEditable =true,
+                        IsEditable = !col.ReadOnly,
                         ColumnIndex = col.Index,
                         IsVisible = col.Visible,
                         RowIndex = i
-
                     };
                     row.Cells.Add(cell);
                 }
+
                 row.Index = i;
                 row.DisplayIndex = i;
-                row.Height = _rowHeight;
+                row.Height = _rowHeight > 0 ? _rowHeight : 25;
                 Rows.Add(row);
             }
-            // Initialize aggregationRow if ShowAggregationRow is true
-             aggregationRow = new BeepRowConfig
+
+            // Initialize aggregation row if needed
+            aggregationRow = new BeepRowConfig
             {
-                Index = Rows.Count, // Last index
-                DisplayIndex = -1,  // Indicate it's a sticky row
-                IsAggregation = true
+                Index = Rows.Count,
+                DisplayIndex = -1,
+                IsAggregation = true,
+                Height = _rowHeight > 0 ? _rowHeight : 25
             };
+
             foreach (var col in Columns)
             {
                 var cell = new BeepCellConfig
                 {
                     CellValue = null,
                     CellData = null,
-                    IsEditable = false, // Aggregation cells are read-only
+                    IsEditable = false,
                     ColumnIndex = col.Index,
                     IsVisible = col.Visible,
                     RowIndex = Rows.Count,
-                    IsAggregation = true // Mark as aggregation cell
+                    IsAggregation = true
                 };
                 aggregationRow.Cells.Add(cell);
             }
-          //  Rows.Add(aggregationRow);
+
             UpdateScrollBars();
         }
+
+        //private void InitializeRows()
+        //{
+        //    if (Rows == null) Rows = new BindingList<BeepRowConfig>();
+        //    Rows.Clear();
+        //    if (_fullData == null || !_fullData.Any()) return; // No rows if no data
+        //    int visibleHeight = DrawingRect.Height - (ShowColumnHeaders ? ColumnHeaderHeight : 0) - (ShowHeaderPanel ? headerPanelHeight : 0);
+        //    int visibleRowCount = visibleHeight / _rowHeight;
+        //    int dataRowCount = _fullData.Count;
+
+        //    // Limit rows to the lesser of visible rows or data rows
+        //    int rowCount = Math.Min(visibleRowCount, dataRowCount);
+        //    for (int i = 0; i < rowCount; i++)
+        //    {
+        //        var row = new BeepRowConfig();
+        //        foreach (var col in Columns)
+        //        {
+        //            // Create a new cell that will later be filled with data.
+        //            // Note: We no longer assign UIComponent here.
+        //            var cell = new BeepCellConfig
+        //            {
+        //                // Do not default CellValue to string.Empty if FillVisibleRows will update it.
+        //                // You can leave it null or use a default if desired.
+        //                CellValue = null,
+        //                CellData = null,
+        //                IsEditable =true,
+        //                ColumnIndex = col.Index,
+        //                IsVisible = col.Visible,
+        //                RowIndex = i
+
+        //            };
+        //            row.Cells.Add(cell);
+        //        }
+        //        row.Index = i;
+        //        row.DisplayIndex = i;
+        //        row.Height = _rowHeight;
+        //        Rows.Add(row);
+        //    }
+        //    // Initialize aggregationRow if ShowAggregationRow is true
+        //     aggregationRow = new BeepRowConfig
+        //    {
+        //        Index = Rows.Count, // Last index
+        //        DisplayIndex = -1,  // Indicate it's a sticky row
+        //        IsAggregation = true
+        //    };
+        //    foreach (var col in Columns)
+        //    {
+        //        var cell = new BeepCellConfig
+        //        {
+        //            CellValue = null,
+        //            CellData = null,
+        //            IsEditable = false, // Aggregation cells are read-only
+        //            ColumnIndex = col.Index,
+        //            IsVisible = col.Visible,
+        //            RowIndex = Rows.Count,
+        //            IsAggregation = true // Mark as aggregation cell
+        //        };
+        //        aggregationRow.Cells.Add(cell);
+        //    }
+        //  //  Rows.Add(aggregationRow);
+        //    UpdateScrollBars();
+        //}
         private void InitializeData()
         {
             if (_bindingSource != null)
@@ -3527,13 +3797,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // First, call the base drawing code from BeepControl.
             base.DrawContent(g);
+            // Skip complex drawing in design mode
+           
+                // Add BeepAppBar-specific drawing here.
+                // For instance, if you need to draw additional borders or background
+                // elements that are unique to the app bar, add them below.
 
-            // Add BeepAppBar-specific drawing here.
-            // For instance, if you need to draw additional borders or background
-            // elements that are unique to the app bar, add them below.
-
-            // Example: Draw a line under the app bar.
-            UpdateDrawingRect();
+                // Example: Draw a line under the app bar.
+                UpdateDrawingRect();
             
             var drawingBounds = DrawingRect;
 
@@ -4340,6 +4611,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int percentageX = filterTextBoxX - percentageLabel.Width - padding;
             int percentageY = rect.Top + (rect.Height - percentageLabel.Height) / 2;
             percentageLabel.Location = new Point(percentageX, percentageY);
+            percentageLabel.Visible = false;
             titleLabel.Location = new Point(titleX, titleY);
             //int filterButtonX = percentageX - filterButton.Width - padding;
             //int filterButtonY = rect.Top + (rect.Height - filterButton.Height) / 2;
@@ -5063,6 +5335,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void UpdateScrollBars()
         {
+            if (DesignMode)
+                return;
             if (_verticalScrollBar == null || _horizontalScrollBar == null)
                 return;
 
@@ -5490,13 +5764,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             base.OnResize(e);
               _navigatorDrawn=false;
-            // _filterpaneldrawn = false;
+            _filterpaneldrawn = false;
             ResumeLayout();
             PerformLayout();
             UpdateDrawingRect();
-            //UpdateRowCount();
-            //FillVisibleRows();
-            //UpdateScrollBars();
+            UpdateRowCount();
+            FillVisibleRows();
+            UpdateScrollBars();
          
        //     Invalidate();
         }
@@ -6321,7 +6595,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Theme
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+      //      base.ApplyTheme();
             this.BackColor = _currentTheme.GridBackColor;
             this.ForeColor = _currentTheme.GridForeColor;
             //if (MainPanel == null) return;

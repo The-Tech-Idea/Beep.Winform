@@ -645,7 +645,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Setting Visible Input"
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+           // base.ApplyTheme();
             panel1.BackColor = _currentTheme.BackColor;
             panel2.BackColor = _currentTheme.BackColor;
             panel3.BackColor = _currentTheme.BackColor;

@@ -146,6 +146,7 @@
     <None Remove="GFX\SVG\like.svg" />
     <None Remove="GFX\SVG\litedb.svg" />
     <None Remove="GFX\SVG\loading.svg" />
+    <None Remove="GFX\SVG\localconnections.svg" />
     <None Remove="GFX\SVG\mail.svg" />
     <None Remove="GFX\SVG\maximize.svg" />
     <None Remove="GFX\SVG\menu.svg" />
@@ -233,6 +234,7 @@
     <EmbeddedResource Include="GFX\SVG\fastforward.svg" />
     <EmbeddedResource Include="GFX\SVG\firstpage.svg" />
     <EmbeddedResource Include="GFX\SVG\lastpage.svg" />
+    <EmbeddedResource Include="GFX\SVG\localconnections.svg" />
     <EmbeddedResource Include="GFX\SVG\paperclip.svg" />
     <EmbeddedResource Include="GFX\SVG\signout.svg" />
     <EmbeddedResource Include="GFX\SVG\simpleInfoapps.ico" />

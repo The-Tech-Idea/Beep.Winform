@@ -79,8 +79,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         public int PreferredHeight
         {
-            get => _innerTextBox.PreferredHeight;
-
+            get
+            {
+                if (_multiline)
+                {
+                    return _innerTextBox.PreferredHeight;
+                }
+                else
+                {
+                    // Calculate single-line height without extra padding
+                    using (TextBox tempTextBox = new TextBox())
+                    {
+                        tempTextBox.Multiline = false;
+                        tempTextBox.BorderStyle = BorderStyle.None;
+                        tempTextBox.Font = TextFont;
+                        return tempTextBox.PreferredHeight;
+                    }
+                }
+            }
         }
         // Provide a public property that returns single-line height based on the current font
         [Browsable(false)]
@@ -635,16 +651,32 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextChanged?.Invoke(this, EventArgs.Empty);
                 MiscFunctions.SendLog($"📝 BeepTextBox.TextChanged: {_innerTextBox.Text}");
             };
-
+            _innerTextBox.Font = TextFont; // Ensure font is set early
+            _innerTextBox.BorderStyle = BorderStyle.None;
+            _innerTextBox.Multiline = false; // Default to single-line
+            _innerTextBox.AutoSize = false; // Prevent auto-resize
             //_innerTextBox.GotFocus += (s, e) =>
             //{
             //   MiscFunctions.SendLog($"🎯 BeepTextBox Got Focus: {_innerTextBox.Text}");
             //};
         }
 
-       
+
         #endregion "Constructors"
         #region "Initialization"
+        private void InitializeScaling()
+        {
+            float scaleFactor = DeviceDpi / 96f;
+            padding = (int)(2 * scaleFactor);
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            InitializeScaling();
+            AdjustTextBoxHeight();
+            PositionInnerTextBoxAndImage();
+        }
         protected override void OnLayout(LayoutEventArgs levent)
         {
             base.OnLayout(levent);
@@ -1575,16 +1607,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-                if (_innerTextBox != null)
-                {
-                    //_innerTextBox.BeginInvoke(new Action(() => _innerTextBox.Font = _textFont));
-                    _innerTextBox.Font = _textFont;
-                }
-             
-                //InnerTextBox.Font=_listbuttontextFont;
-                Font=_textFont;
+               
             }
-            
+            if (_innerTextBox != null)
+            {
+                //_innerTextBox.BeginInvoke(new Action(() => _innerTextBox.Font = _textFont));
+                _innerTextBox.Font = _textFont;
+            }
+
+            //InnerTextBox.Font=_listbuttontextFont;
+            Font = _textFont;
 
             beepImage.IsChild = true;
             beepImage.ParentBackColor = BackColor; ;

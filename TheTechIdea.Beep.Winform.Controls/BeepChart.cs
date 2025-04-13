@@ -155,13 +155,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-                base.ApplyTheme();
+            //    base.ApplyTheme();
+                  BackColor= _currentTheme.ChartBackColor;
+                  ForeColor= _currentTheme.ChartTitleColor;
                    ChartBackColor = _currentTheme.ChartBackColor;
                     ChartLineColor = _currentTheme.ChartLineColor;
                     ChartFillColor = _currentTheme.ChartFillColor;
                     ChartAxisColor = _currentTheme.ChartAxisColor;
                     ChartTitleColor = _currentTheme.ChartTitleColor;
-                    ChartTextColor = _currentTheme.ChartTextColor;
+                   ChartTitleForeColor = _currentTheme.ChartTitleColor;
+                   ChartTextColor = _currentTheme.ChartTextColor;
                     ChartLegendBackColor = _currentTheme.ChartLegendBackColor;
                     ChartLegendTextColor = _currentTheme.ChartLegendTextColor;
                     ChartLegendShapeColor = _currentTheme.ChartLegendShapeColor;
@@ -268,110 +271,114 @@ namespace TheTechIdea.Beep.Winform.Controls
                 System.Diagnostics.Trace.WriteLine($"OnHandleCreated Error: {ex.Message}");
             }
         }
+        protected override void DrawContent(Graphics g)
+        {
+            base.DrawContent(g);
+            UpdateDrawingRect();
+            if (DrawingRect.Width <= 0 || DrawingRect.Height <= 0)
+                return;
+            
+            UpdateChartDrawingRect(g);
+            //    g.Clear(DesignMode ? Color.White : ChartBackColor);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            // Start drawing any Title/Value/Subtitle at top-left
+            int textAreaLeft = DrawingRect.Left + 10;
+            int currentY = DrawingRect.Top + 10;
+            // Only draw if user wants to see these (i.e., ShowTitle == true)
+            if (ShowTitle)
+            {
+                // 1) Draw main title (e.g., "Revenue")
+                if (!string.IsNullOrEmpty(ChartTitle))
+                {
+                    using (Brush titleBrush = new SolidBrush(ChartTitleForeColor))
+                    {
+                        SizeF titleSize = g.MeasureString(ChartTitle, ChartTitleFont);
+                        g.DrawString(ChartTitle, ChartTitleFont, titleBrush, textAreaLeft, currentY);
+                        currentY += (int)titleSize.Height + 5;
+                    }
+                }
 
+                // 2) Draw big value (e.g., "$5,010.68")
+                if (!string.IsNullOrEmpty(ChartValue))
+                {
+                    // If you want a separate color for the Value:
+                    // using (Brush valueBrush = new SolidBrush(ChartValueForeColor))
+                    // else just reuse the same color:
+                    using (Brush valueBrush = new SolidBrush(ChartTextColor))
+                    {
+                        SizeF valueSize = g.MeasureString(ChartValue, ChartValueFont);
+                        g.DrawString(ChartValue, ChartValueFont, valueBrush, textAreaLeft, currentY);
+                        currentY += (int)valueSize.Height + 5;
+                    }
+                }
+
+                // 3) Draw subtitle (e.g., "from $4,430.41")
+                if (!string.IsNullOrEmpty(ChartSubtitle))
+                {
+                    // If you want a separate color for the Subtitle:
+                    // using (Brush subBrush = new SolidBrush(ChartSubtitleForeColor))
+                    // else reuse the same color:
+                    using (Brush subBrush = new SolidBrush(ChartLineColor))
+                    {
+                        SizeF subSize = g.MeasureString(ChartSubtitle, ChartSubtitleFont);
+                        g.DrawString(ChartSubtitle, ChartSubtitleFont, subBrush, textAreaLeft, currentY);
+                        currentY += (int)subSize.Height + 10;
+                    }
+                }
+            }
+            // Now that we used some space at the top for text, recalc the chart area
+            int topPadding = currentY; // chart starts below the last text drawn
+            int leftPadding = 40;
+            int rightPadding = 30;
+            int bottomPadding = 40;
+
+            ChartDrawingRect = new Rectangle(
+                DrawingRect.Left + leftPadding,
+                topPadding,
+                DrawingRect.Width - leftPadding - rightPadding,
+                DrawingRect.Height - topPadding - bottomPadding
+            );
+
+            // Only draw axes if NOT pie
+            if (ChartType != ChartType.Pie)
+            {
+                DrawAxes(g);         // the axis lines
+
+                DrawAxisTitles(g);   // axis titles
+                DrawAxisTicks(g);    // numeric/text ticks (if you have them)
+            }
+
+            // Then draw data
+            if (ChartType == ChartType.Pie)
+            {
+                DrawPieSeries(g);
+                DrawPieLegend(g);
+            }
+            else
+            {
+                if (ChartType == ChartType.Line) DrawLineSeries(g); //Line series
+                if (ChartType == ChartType.Bar) DrawBarSeries(g);    // bar series
+                if (ChartType == ChartType.Bubble) DrawBubbleSeries(g); // bubble series
+                if (ChartType == ChartType.Area) DrawAreaSeries(g);
+            }
+
+            // Draw legend if needed
+            if (!DesignMode && ShowLegend && ChartType != ChartType.Pie)
+            {
+                DrawLegend(g);
+            }
+
+            if (hoveredPoint != null && dataPointToolTip != null)
+            {
+                ShowTooltip(hoveredPoint);
+            }
+        }
         protected override void OnPaint(PaintEventArgs e)
         {
             try
             {
                 base.OnPaint(e);
-                UpdateDrawingRect();
-                if (DrawingRect.Width <= 0 || DrawingRect.Height <= 0)
-                    return;
-                var g = e.Graphics;
-                UpdateChartDrawingRect(e.Graphics);
-            //    e.Graphics.Clear(DesignMode ? Color.White : ChartBackColor);
-                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                // Start drawing any Title/Value/Subtitle at top-left
-                int textAreaLeft = DrawingRect.Left + 10;
-                int currentY = DrawingRect.Top + 10;
-                // Only draw if user wants to see these (i.e., ShowTitle == true)
-                if (ShowTitle)
-                {
-                    // 1) Draw main title (e.g., "Revenue")
-                    if (!string.IsNullOrEmpty(ChartTitle))
-                    {
-                        using (Brush titleBrush = new SolidBrush(ChartTitleForeColor))
-                        {
-                            SizeF titleSize = g.MeasureString(ChartTitle, ChartTitleFont);
-                            g.DrawString(ChartTitle, ChartTitleFont, titleBrush, textAreaLeft, currentY);
-                            currentY += (int)titleSize.Height + 5;
-                        }
-                    }
-
-                    // 2) Draw big value (e.g., "$5,010.68")
-                    if (!string.IsNullOrEmpty(ChartValue))
-                    {
-                        // If you want a separate color for the Value:
-                        // using (Brush valueBrush = new SolidBrush(ChartValueForeColor))
-                        // else just reuse the same color:
-                        using (Brush valueBrush = new SolidBrush(ChartTitleForeColor))
-                        {
-                            SizeF valueSize = g.MeasureString(ChartValue, ChartValueFont);
-                            g.DrawString(ChartValue, ChartValueFont, valueBrush, textAreaLeft, currentY);
-                            currentY += (int)valueSize.Height + 5;
-                        }
-                    }
-
-                    // 3) Draw subtitle (e.g., "from $4,430.41")
-                    if (!string.IsNullOrEmpty(ChartSubtitle))
-                    {
-                        // If you want a separate color for the Subtitle:
-                        // using (Brush subBrush = new SolidBrush(ChartSubtitleForeColor))
-                        // else reuse the same color:
-                        using (Brush subBrush = new SolidBrush(ChartTitleForeColor))
-                        {
-                            SizeF subSize = g.MeasureString(ChartSubtitle, ChartSubtitleFont);
-                            g.DrawString(ChartSubtitle, ChartSubtitleFont, subBrush, textAreaLeft, currentY);
-                            currentY += (int)subSize.Height + 10;
-                        }
-                    }
-                }
-                // Now that we used some space at the top for text, recalc the chart area
-                int topPadding = currentY; // chart starts below the last text drawn
-                int leftPadding = 40;
-                int rightPadding = 30;
-                int bottomPadding = 40;
-
-                ChartDrawingRect = new Rectangle(
-                    DrawingRect.Left + leftPadding,
-                    topPadding,
-                    DrawingRect.Width - leftPadding - rightPadding,
-                    DrawingRect.Height - topPadding - bottomPadding
-                );
-
-                // Only draw axes if NOT pie
-                if (ChartType != ChartType.Pie)
-                {
-                    DrawAxes(e.Graphics);         // the axis lines
-                   
-                    DrawAxisTitles(e.Graphics);   // axis titles
-                    DrawAxisTicks(e.Graphics);    // numeric/text ticks (if you have them)
-                }
-
-                // Then draw data
-                if (ChartType == ChartType.Pie)
-                {
-                    DrawPieSeries(e.Graphics);
-                    DrawPieLegend(e.Graphics);
-                }
-                else
-                {
-                    if(ChartType== ChartType.Line)    DrawLineSeries(e.Graphics); //Line series
-                    if (ChartType == ChartType.Bar)   DrawBarSeries(e.Graphics);    // bar series
-                    if (ChartType == ChartType.Bubble) DrawBubbleSeries(e.Graphics); // bubble series
-                    if (ChartType == ChartType.Area) DrawAreaSeries(e.Graphics);
-                }
-
-                // Draw legend if needed
-                if (!DesignMode && ShowLegend  && ChartType!= ChartType.Pie)
-                {
-                    DrawLegend(e.Graphics);
-                }
-
-                if (hoveredPoint != null && dataPointToolTip != null)
-                {
-                    ShowTooltip(hoveredPoint);
-                }
+           
             }
             catch (Exception ex)
             {

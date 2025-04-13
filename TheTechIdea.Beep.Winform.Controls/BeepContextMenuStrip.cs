@@ -112,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+        //    base.ApplyTheme();
             if (popupForm != null && _currentTheme != null)
             {
                 popupForm.BackColor = _currentTheme.PanelBackColor;

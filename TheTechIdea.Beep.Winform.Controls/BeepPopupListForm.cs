@@ -140,6 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void InitializeMenu(List<SimpleItem> items)
         {
+            _beepListBox.TextFont = _textFont;
             _beepListBox.ListItems = new BindingList<SimpleItem>(items);
             _beepListBox.Theme = Theme;
             _beepListBox.IsRoundedAffectedByTheme = false;
@@ -173,6 +174,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //}
             _beepListBox.MenuItemHeight = Menuitemheight;
 
+        
 
             int neededHeight = _beepListBox.GetMaxHeight();
             int finalHeight = Math.Min(neededHeight, _maxListHeight);

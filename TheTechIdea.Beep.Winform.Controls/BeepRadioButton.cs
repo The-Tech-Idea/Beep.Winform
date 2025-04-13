@@ -132,10 +132,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            UpdateDrawingRect();
-            Draw(e.Graphics, DrawingRect);
+           
         }
+        protected override void DrawContent(Graphics g)
+        {
+            base.DrawContent(g);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            UpdateDrawingRect();
+            Draw(g, DrawingRect);
 
+        }
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
             var g = graphics;
@@ -323,7 +329,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Theme and Value Management
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+      //      base.ApplyTheme();
             this.BackColor = _currentTheme.PanelBackColor;
             this.ForeColor = _currentTheme.LabelForeColor;
             if (UseThemeFont)

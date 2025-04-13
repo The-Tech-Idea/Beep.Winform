@@ -427,15 +427,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
-            if (IsChild && Parent != null)
-            {
-                ParentBackColor = Parent.BackColor;
-            }
-          
+       //     base.ApplyTheme();
+            //if (IsChild && Parent != null)
+            //{
+            //    ParentBackColor = Parent.BackColor;
+            //    BackColor = Parent.BackColor;
+            //}
+            //else
+            //{
 
-           //// Console.WriteLine("ApplyTheme in menubar");
-            BackColor = _currentTheme.MenuBackColor;
+            //}
+
+
+                //// Console.WriteLine("ApplyTheme in menubar");
+                BackColor = _currentTheme.MenuBackColor;
             ForeColor = _currentTheme.MenuForeColor;
             container.BackColor = _currentTheme.MenuBackColor;
          //  // Console.WriteLine($"Container {container.Width} BackColor {container.BackColor} and BackColro {BackColor} and Theme SideMenuBackColor {_currentTheme.SideMenuBackColor}");  //BackColor {container.BackColor} and BackColro {BackColor} and Theme SideMenuBackColor {_currentTheme.SideMenuBackColor}dddddddddddddddddd
@@ -482,8 +487,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     button.FocusForeColor = _currentTheme.MenuItemSelectedForeColor;
 
 
-                    PressedBackColor = _currentTheme.ButtonPressedBackColor;
-                    PressedForeColor = _currentTheme.ButtonPressedForeColor;
+                    PressedBackColor = _currentTheme.MenuBackColor;
+                    PressedForeColor = _currentTheme.MenuForeColor;
 
                     button.UseScaledFont = true;
                     //    btn.IsChild = true;

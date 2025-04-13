@@ -293,7 +293,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+         //   base.ApplyTheme();
             BackColor = _currentTheme?.ButtonBackColor ?? Color.FromArgb(51, 51, 51);
             buttonRowPanel.BackColor = _currentTheme?.ButtonBackColor ?? Color.FromArgb(51, 51, 51);
           

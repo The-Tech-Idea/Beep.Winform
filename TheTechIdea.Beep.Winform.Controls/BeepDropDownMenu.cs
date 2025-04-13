@@ -314,7 +314,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+        //    base.ApplyTheme();
             if (_dropDownButton != null) _dropDownButton.Theme = Theme;
         }
     }

@@ -365,9 +365,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 checkBoxSize
             );
 
-            // Draw background
-            Color backColor = _state == CheckBoxState.Checked ? Color.LightGreen :
-                             (_state == CheckBoxState.Indeterminate ? Color.Yellow : Color.White);
+            //// Draw background
+            Color backColor = _state == CheckBoxState.Checked ? _currentTheme.CheckBoxSelectedBackColor :
+                             (_state == CheckBoxState.Indeterminate ? _currentTheme.CheckBoxBackColor : _currentTheme.CheckBoxBackColor);
             using (Brush backBrush = new SolidBrush(backColor))
             {
                 using (GraphicsPath path = GetRoundedRectPath(checkBoxRect, 4)) // Rounded corners with radius 4
@@ -377,7 +377,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Draw border with rounded corners
-            using (Pen borderPen = new Pen(_currentTheme.BorderColor, 2))
+            using (Pen borderPen = new Pen(_currentTheme.CheckBoxBorderColor, 2))
             {
                 borderPen.Alignment = PenAlignment.Center;
                 using (GraphicsPath path = GetRoundedRectPath(checkBoxRect, 4))
@@ -405,8 +405,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs pe)
         {
             base.OnPaint(pe);
+            pe.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+        }
+        protected override void DrawContent(Graphics g)
+        {
+            base.DrawContent(g);
+
             UpdateDrawingRect();
-            Draw(pe.Graphics,DrawingRect);
+            Draw(g, DrawingRect);
         }
         private Rectangle GetCheckBoxRectangle(Rectangle rectangle)
         {
@@ -437,7 +443,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DrawCheckMark(Graphics g, Rectangle bounds)
         {
-            using (Pen pen = new Pen(Color.Black, 2))
+            using (Pen pen = new Pen( _currentTheme.CheckBoxSelectedForeColor, 2))
             {
                 PointF[] checkMarkPoints = new PointF[]
                 {
@@ -451,7 +457,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DrawIndeterminateMark(Graphics g, Rectangle bounds)
         {
-            using (Brush brush = new SolidBrush(Color.Black))
+            using (Brush brush = new SolidBrush(_currentTheme.CheckBoxForeColor))
             {
                 g.FillRectangle(brush, bounds.X + bounds.Width / 4, bounds.Y + bounds.Height / 4,
                     bounds.Width / 2, bounds.Height / 2);
@@ -460,7 +466,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DrawUnChecked(Graphics g, Rectangle bounds)
         {
-            using (Pen pen = new Pen(Color.Black, 2))
+            using (Pen pen = new Pen(_currentTheme.CheckBoxForeColor, 2))
             {
                 g.DrawRectangle(pen, bounds);
               // MiscFunctions.SendLog("DrawUnChecked: Drew outline");
@@ -620,8 +626,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_beepImage != null)
                     _beepImage.Theme = Theme;
-                ForeColor = _currentTheme.ButtonForeColor;
-                BackColor = _currentTheme.ButtonBackColor;
+                if (IsChild && Parent != null)
+                {
+                    BackColor = Parent.BackColor;
+                    ParentBackColor = Parent.BackColor;
+                }
+                ForeColor = _currentTheme.CheckBoxForeColor;
+                BackColor = _currentTheme.CheckBoxBackColor;
                 Invalidate();
             }
         }

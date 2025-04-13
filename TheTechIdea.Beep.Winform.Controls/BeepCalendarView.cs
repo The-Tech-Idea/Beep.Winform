@@ -450,7 +450,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Overrides
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+         //   base.ApplyTheme();
             BackColor = _currentTheme.CardBackColor;
             _leftArrow.Theme = Theme;
             _rightArrow.Theme = Theme;

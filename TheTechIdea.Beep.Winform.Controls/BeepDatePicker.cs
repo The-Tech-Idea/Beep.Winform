@@ -476,7 +476,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Theme and Value Management
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+         //   base.ApplyTheme();
             if (_textBox != null)
             {
                 _textBox.BackColor = _currentTheme.TextBoxBackColor;

@@ -28,10 +28,16 @@
 		<Copy SourceFiles="$(TargetDir)$(Assemblyname).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(Assemblyname)\$(TargetFramework)" SkipUnchangedFiles="false" />
 	</Target>
 	<ItemGroup>
+	  <None Remove="GFX\SVG\cancel.svg" />
+	  <None Remove="GFX\SVG\createlocaldb.svg" />
+	  <None Remove="GFX\SVG\createlocaldbbutton.svg" />
 	  <None Remove="GFX\SVG\drivers.svg" />
 	  <None Remove="GFX\SVG\rdbmsConnections.svg" />
 	</ItemGroup>
 	<ItemGroup>
+	  <EmbeddedResource Include="GFX\SVG\cancel.svg" />
+	  <EmbeddedResource Include="GFX\SVG\createlocaldb.svg" />
+	  <EmbeddedResource Include="GFX\SVG\createlocaldbbutton.svg" />
 	  <EmbeddedResource Include="GFX\SVG\drivers.svg" />
 	  <EmbeddedResource Include="GFX\SVG\rdbmsConnections.svg" />
 	</ItemGroup>

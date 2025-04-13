@@ -317,7 +317,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Theme and Value Management
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+         //   base.ApplyTheme();
             if (_keyTextBox == null) return;
 
             _keyTextBox.BackColor = _currentTheme.AltRowBackColor;
@@ -326,7 +326,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _valueTextBox.ForeColor = _currentTheme.AccentTextColor;
             _dropdownButton.BackColor = _currentTheme.ButtonBackColor;
             _dropdownButton.ForeColor = _currentTheme.ButtonForeColor;
-            _dropdownButton.ApplyThemeOnImage = true;
+         //   _dropdownButton.ApplyThemeOnImage = true;
             _popupGridForm.Theme = Theme;
 
             Invalidate();

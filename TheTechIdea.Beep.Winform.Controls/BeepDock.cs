@@ -298,7 +298,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+          //  base.ApplyTheme();
+          BackColor = _currentTheme.PanelBackColor;
+            ForeColor = _currentTheme.LabelForeColor;
             IsChild = true;
             if(Parent!=null)         BackColor = Parent.BackColor;
             IsChild = true;

@@ -216,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Theme
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+         //   base.ApplyTheme();
             if (_grid != null)
             {
                 _grid.Theme = Theme;

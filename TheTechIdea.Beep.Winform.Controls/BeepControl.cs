@@ -1003,15 +1003,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Theme"
         #region "Painting"
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams cp = base.CreateParams;
-                cp.ExStyle |= 0x02000000;  // WS_EX_COMPOSITED flag
-                return cp;
-            }
-        }
+       
 
         protected override void OnPaddingChanged(EventArgs e)
         {
@@ -1183,8 +1175,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Graphics g = buffer.Graphics;
 
                 // Set graphic quality options as before
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.TextContrast = 12;
+              //  g.SmoothingMode = SmoothingMode.AntiAlias;
+             //   g.TextContrast = 12;
                 if (IsChild)
                 {
                     BackColor = parentbackcolor;
@@ -1220,34 +1212,32 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                // Determine fill color based on state
-                Color color = IsHovered ? HoveredBackcolor : BackColor;
+                Color backcolor = IsHovered ? HoveredBackcolor : BackColor;
+                Color forcolor = IsHovered ? HoverForeColor : ForeColor;
+               
+                // Determine fill backcolor based on state
+               
                 if (!Enabled)
                 {
-                    color = DisabledBackColor;
+                    backcolor = DisabledBackColor;
                 }
                 else if (IsSelected)
                 {
-                    color = SelectedForeColor;
+                    backcolor = SelectedBackColor;
                 }
-                using (SolidBrush brush = new SolidBrush(color))
-                {
-                    g.FillRectangle(brush, outerRectangle);
-                }
+               
+                    using (SolidBrush brush = new SolidBrush(backcolor))
+                    {
+                        g.FillRectangle(brush, borderRectangle);
+                    }
             }
 
             // Draw rounded border if needed
             if (IsRounded)
             {
                 UpdateControlRegion();
-                using (GraphicsPath path = GetRoundedRectPath(borderRectangle, BorderRadius))
-                {
-                    using (Pen borderPen = new Pen(BackColor, 1))
-                    {
-                        borderPen.Alignment = PenAlignment.Inset;
-                        g.DrawPath(borderPen, path);
-                    }
-                }
+
+             
             }
 
             // Draw shadow or custom borders if applicable
@@ -1263,7 +1253,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else if (ShowAllBorders && BorderThickness > 0)
                 {
-                    DrawBorder(g, borderRectangle);
+                    if (IsRounded)
+                    {
+                        using (GraphicsPath path = GetRoundedRectPath(borderRectangle, BorderRadius))
+                        {
+                            using (Pen borderPen = new Pen(BackColor, 1))
+                            {
+                                borderPen.Alignment = PenAlignment.Inset;
+                                g.DrawPath(borderPen, path);
+                            }
+                        }
+                    }else
+                    {
+                        DrawBorder(g, borderRectangle);
+                    }
+                        
                 }
             }
 
@@ -1567,6 +1571,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);
+            if (DesignMode)
+                return;
             IsHovered = true;
 
             Point location = PointToClient(Cursor.Position);
@@ -1582,6 +1588,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
+            if (DesignMode)
+                return;
             IsHovered = true;
 
             if (HitTest(e.Location))
@@ -1606,6 +1614,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
+            if (DesignMode)
+                return;
             IsHovered = false;
             HitAreaEventOn = false;
 
@@ -1629,6 +1639,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
+            if (DesignMode)
+                return;
             IsFocused = true;
 
             if (HitTestWithMouse() && HitTestControl != null && HitTestControl.uIComponent != null)
@@ -1641,6 +1653,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
+            if (DesignMode)
+                return;
             IsFocused = false;
 
             IsHovered = false;
@@ -1661,7 +1675,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Early exit if component is being disposed or is already disposed
             if (IsDisposed)
                 return;
-
+            if(DesignMode)
+                return;
             try
             {
                 Point location = PointToClient(Cursor.Position);
@@ -1699,7 +1714,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-
+            if (DesignMode)
+                return;
             if (e.Button == MouseButtons.Left)
             {
                 if (HitTest(e.Location) && HitTestControl != null && HitTestControl.uIComponent != null)
@@ -1715,6 +1731,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
+            if (DesignMode)
+                return;
             IsPressed = false;
 
             if (HitTest(e.Location) && HitTestControl != null && HitTestControl.uIComponent != null)
@@ -1741,6 +1759,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseHover(EventArgs e)
         {
             base.OnMouseHover(e);
+            if (DesignMode)
+                return;
             IsHovered = true;
 
             Point location = PointToClient(Cursor.Position);
@@ -2845,7 +2865,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private Color _badgeBackColor = Color.Red;
         /// <summary>
-        /// Gets or sets the background color of the badge.
+        /// Gets or sets the background backcolor of the badge.
         /// </summary>
         [Browsable(true)]
         [Category("Appearance")]
@@ -2858,7 +2878,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private Color _badgeForeColor = Color.White;
         /// <summary>
-        /// Gets or sets the text color of the badge.
+        /// Gets or sets the text backcolor of the badge.
         /// </summary>
         [Browsable(true)]
         [Category("Appearance")]

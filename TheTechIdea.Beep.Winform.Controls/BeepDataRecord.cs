@@ -525,7 +525,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+         //   base.ApplyTheme();
             _mainPanel.BackColor = _currentTheme.PanelBackColor;
             _tableLayout.BackColor = _currentTheme.PanelBackColor;
             foreach (var field in _fields)

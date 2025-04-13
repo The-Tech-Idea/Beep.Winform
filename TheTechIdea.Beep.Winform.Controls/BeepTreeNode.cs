@@ -1120,7 +1120,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Nodeleftbutton.MaxImageSize = new System.Drawing.Size(MaxImageSize , MaxImageSize);
                 Nodeleftbutton.Size = new System.Drawing.Size(NodeHeight, NodeHeight);
                 Nodeleftbutton.Height = NodeHeight;
-          
+                Nodeleftbutton.IsSelectedAuto = true;
                 Nodeleftbutton.Click += Nodeleftbutton_Click;
                 Nodeleftbutton.MouseEnter += Nodeleftbutton_MouseEnter;
                 Nodeleftbutton.MouseLeave += Nodeleftbutton_MouseLeave;
@@ -1154,8 +1154,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Noderightbutton.IsBorderAffectedByTheme = true;
                 Noderightbutton.MaxImageSize = new System.Drawing.Size(MaxImageSize , MaxImageSize);
                 Noderightbutton.Size = new System.Drawing.Size(NodeHeight, NodeHeight);
-                
-              
+                Noderightbutton.IsSelectedAuto = true;
+
                 Noderightbutton.Click += Noderightbutton_Click;
                 Noderightbutton.MouseEnter += Noderightbutton_MouseEnter;
                 Noderightbutton.MouseLeave += Noderightbutton_MouseLeave;
@@ -1173,6 +1173,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_ismiddlebuttonVisible)
             {
                 NodeMainMiddlebutton = new BeepButton();
+                NodeMainMiddlebutton.IsSelectedAuto = true;
                 NodeMainMiddlebutton.Text = _text;
             
                 if (_imageKey != null)
@@ -1222,6 +1223,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsBorderAffectedByTheme = false,
                 ApplyThemeOnImage = true,
                 IsRounded = false,
+                IsSelectedAuto = true,
                 MaxImageSize = new System.Drawing.Size(SmallNodeHeight - 2, SmallNodeHeight - 2),
                
                 UseScaledFont = false,
@@ -1326,8 +1328,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NodeMainMiddlebutton.BorderColor = _currentTheme.TreeBorderColor;
                 NodeMainMiddlebutton.HoverForeColor = _currentTheme.TreeNodeHoverForeColor;
                 NodeMainMiddlebutton.HoverBackColor = _currentTheme.TreeNodeHoverBackColor;
-                NodeMainMiddlebutton.SelectedForeColor = _currentTheme.ButtonSelectedForeColor;
-                NodeMainMiddlebutton.SelectedBackColor = _currentTheme.ButtonSelectedBackColor;
+                NodeMainMiddlebutton.SelectedForeColor = _currentTheme.TreeNodeSelectedForeColor;
+                NodeMainMiddlebutton.SelectedBackColor = _currentTheme.TreeNodeSelectedBackColor;
                 if (UseThemeFont)
                 {
                     _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
@@ -1343,8 +1345,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Noderightbutton.BorderColor = _currentTheme.TreeBorderColor;
                 Noderightbutton.HoverForeColor = _currentTheme.TreeNodeHoverForeColor;
                 Noderightbutton.HoverBackColor = _currentTheme.TreeNodeHoverBackColor;
-                Noderightbutton.SelectedForeColor = _currentTheme.ButtonSelectedForeColor;
-                Noderightbutton.SelectedBackColor = _currentTheme.ButtonSelectedBackColor;
+                Noderightbutton.SelectedForeColor = _currentTheme.TreeNodeSelectedForeColor;
+                Noderightbutton.SelectedBackColor = _currentTheme.TreeNodeSelectedBackColor;
             }
             if (Nodeleftbutton != null)
             {
@@ -1354,31 +1356,31 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Nodeleftbutton.BorderColor = _currentTheme.TreeBorderColor;
                 Nodeleftbutton.HoverForeColor = _currentTheme.TreeNodeHoverForeColor;
                 Nodeleftbutton.HoverBackColor = _currentTheme.TreeNodeHoverBackColor;
-                Nodeleftbutton.SelectedForeColor = _currentTheme.ButtonSelectedForeColor;
-                Nodeleftbutton.SelectedBackColor = _currentTheme.ButtonSelectedBackColor;
+                Nodeleftbutton.SelectedForeColor = _currentTheme.TreeNodeSelectedForeColor;
+                Nodeleftbutton.SelectedBackColor = _currentTheme.TreeNodeSelectedBackColor;
             }
             foreach (var item in NodesControls)
             {
                 item.Theme = Theme;
-                item.ForeColor = _currentTheme.TreeNodeForeColor;
-                item.BackColor = _currentTheme.TreeBackColor;
-                item.BorderColor = _currentTheme.TreeBorderColor;
-                item.HoverForeColor = _currentTheme.TreeNodeHoverForeColor;
-                item.HoverBackColor = _currentTheme.TreeNodeHoverBackColor;
-                item.SelectedForeColor = _currentTheme.ButtonSelectedForeColor;
-                item.SelectedBackColor = _currentTheme.ButtonSelectedBackColor;
-                // item.ApplyTheme();
+                //item.ForeColor = _currentTheme.TreeNodeForeColor;
+                //item.BackColor = _currentTheme.TreeBackColor;
+                //item.BorderColor = _currentTheme.TreeBorderColor;
+                //item.HoverForeColor = _currentTheme.TreeNodeHoverForeColor;
+                //item.HoverBackColor = _currentTheme.TreeNodeHoverBackColor;
+                //item.SelectedForeColor = _currentTheme.TreeNodeSelectedForeColor;
+                //item.SelectedBackColor = _currentTheme.TreeNodeSelectedBackColor;
+                 item.ApplyTheme();
             }
             if (_checkBox != null)
             {
-                _checkBox.Theme = Theme;
+              //  _checkBox.Theme = Theme;
                 _checkBox.ForeColor = _currentTheme.TreeNodeForeColor;
                 _checkBox.BackColor = _currentTheme.TreeBackColor;
                 _checkBox.BorderColor = _currentTheme.TreeBorderColor;
-                _checkBox.HoverForeColor = _currentTheme.TreeNodeHoverForeColor;
-                _checkBox.HoverBackColor = _currentTheme.TreeNodeHoverBackColor;
-                _checkBox.SelectedForeColor = _currentTheme.ButtonSelectedForeColor;
-                _checkBox.SelectedBackColor = _currentTheme.ButtonSelectedBackColor;
+                _checkBox.HoverForeColor = _currentTheme.TreeNodeForeColor;
+                _checkBox.HoverBackColor = _currentTheme.TreeBackColor;
+                _checkBox.SelectedForeColor = _currentTheme.TreeNodeForeColor;
+                _checkBox.SelectedBackColor = _currentTheme.TreeBackColor;
               //  _checkBox.ApplyTheme();
             }
             if (_toggleButton != null)
@@ -1390,10 +1392,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _toggleButton.ForeColor = _currentTheme.TreeNodeForeColor;
                 _toggleButton.BackColor = _currentTheme.TreeBackColor;
                 _toggleButton.BorderColor = _currentTheme.TreeBorderColor;
-                _toggleButton.HoverForeColor = _currentTheme.TreeNodeHoverForeColor;
-                _toggleButton.HoverBackColor = _currentTheme.TreeNodeHoverBackColor;
-                _toggleButton.SelectedForeColor = _currentTheme.ButtonSelectedForeColor;
-                _toggleButton.SelectedBackColor = _currentTheme.ButtonSelectedBackColor;
+                _toggleButton.HoverForeColor = _currentTheme.TreeNodeForeColor;
+                _toggleButton.HoverBackColor = _currentTheme.TreeBackColor;
+                _toggleButton.SelectedForeColor = _currentTheme.TreeNodeForeColor;
+                _toggleButton.SelectedBackColor = _currentTheme.TreeBackColor;
             }
 
             _nodePanel.BackColor = _currentTheme.TreeBackColor;
@@ -1805,9 +1807,26 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (NodeMainMiddlebutton != null)
             {
                      NodeMainMiddlebutton.IsSelected = isSelected;
-                //NodeMainMiddlebutton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
-                //NodeMainMiddlebutton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
-                BackColor= isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                _toggleButton.IsSelected = isSelected;
+                // NodeMainMiddlebutton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                // NodeMainMiddlebutton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
+                if (Noderightbutton != null)
+                {
+                    Noderightbutton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                    Noderightbutton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
+
+                }
+                if (Nodeleftbutton != null)
+                {
+                    Nodeleftbutton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                    Nodeleftbutton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
+
+                }
+                //_toggleButton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                //_toggleButton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
+                _childrenPanel.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                Invalidate();
             }
         }
         public void SyncCheckedState()

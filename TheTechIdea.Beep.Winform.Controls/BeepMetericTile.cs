@@ -89,7 +89,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Base handles gradient, border, shadow
             base.OnPaint(e);
 
-            var g = e.Graphics;
+          
+        }
+        protected override void DrawContent(Graphics g)
+        {
+            base.DrawContent(g);
+          
             UpdateDrawingRect();
             g.SmoothingMode = SmoothingMode.AntiAlias;
             var clientRect = this.ClientRectangle;
@@ -130,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _titleText,
                     titleFont,
                     new Point(10, 10),
-                    _currentTheme.CardTextForeColor);
+                    _currentTheme.TaskCardMetricTextForeColor);
             }
 
             // 3) Draw the optional icon in the top-right corner
@@ -138,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 int iconSize = 24;
                 int iconX = DrawingRect.Width - iconSize - 10;
-                int iconY = 10; 
+                int iconY = 10;
                 g.DrawImage(_iconImage, new Rectangle(iconX, iconY, iconSize, iconSize));
             }
 
@@ -156,7 +161,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _metricValue,
                     metricFont,
                     new Point(metricX, metricY),
-                    _currentTheme.CardTitleForeColor);
+                    _currentTheme.TaskCardMetricTextForeColor);
 
                 // 5) Draw the delta text to the right of the metric, baseline aligned
                 using (var deltaFont = new Font(Font.FontFamily, 10, FontStyle.Regular))
@@ -169,13 +174,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                         _deltaValue,
                         deltaFont,
                         new Point(deltaX, deltaY),
-                        ForeColor);
+                        _currentTheme.TaskCardMetricTextForeColor);
                 }
             }
         }
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+        //    base.ApplyTheme();
             // Apply theme colors if needed
             // For example, you might want to set the background color based on the theme
             this.BackColor = _currentTheme.DashboardBackColor;

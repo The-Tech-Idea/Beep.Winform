@@ -343,6 +343,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _columns = value;
                 if (_columns != null)
                 {
+                    // reindex columns based on sequence in list
+                   for (int i = 0; i < _columns.Count-1; i++)
+                    {
+                        _columns[i].Index = i;
+                    }
                     if (_columns.Any())
                     {
                         columnssetupusingeditordontchange = true;
@@ -1937,20 +1942,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 rowIdColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowIdColumn.PropertyTypeName);
                 _columns.Add(rowIdColumn);
 
-                // Add a default text column so the grid isn't completely empty
-                var defaultColumn = new BeepColumnConfig
-                {
-                    ColumnCaption = "Column1",
-                    ColumnName = "Column1",
-                    Width = 100,
-                    Index = 3,
-                    Visible = true,
-                    PropertyTypeName = typeof(string).AssemblyQualifiedName,
-                    CellEditor = BeepColumnType.Text,
-                    GuidID = Guid.NewGuid().ToString()
-                };
-                defaultColumn.ColumnType = MapPropertyTypeToDbFieldCategory(defaultColumn.PropertyTypeName);
-                _columns.Add(defaultColumn);
+                //// Add a default text column so the grid isn't completely empty
+                //var defaultColumn = new BeepColumnConfig
+                //{
+                //    ColumnCaption = "Column1",
+                //    ColumnName = "Column1",
+                //    Width = 100,
+                //    Index = 3,
+                //    Visible = true,
+                //    PropertyTypeName = typeof(string).AssemblyQualifiedName,
+                //    CellEditor = BeepColumnType.Text,
+                //    GuidID = Guid.NewGuid().ToString()
+                //};
+                //defaultColumn.ColumnType = MapPropertyTypeToDbFieldCategory(defaultColumn.PropertyTypeName);
+                //_columns.Add(defaultColumn);
             }
         }
         private bool IsInDesignMode
@@ -2417,16 +2422,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Clear any existing columns
                 Columns.Clear();
+                int startIndex = 0; // Start indexing after special columns
+                                    // Add checkbox/selection column if enabled
 
-                // Add checkbox/selection column if enabled
-
-                    var selColumn = new BeepColumnConfig
+                var selColumn = new BeepColumnConfig
                     {
                         ColumnCaption =  "☑",
                         ColumnName = "Sel",
                         Width = _selectionColumnWidth,
-                        Index = 0,
-                        Visible = true,
+                        Index = startIndex,
+                        Visible = ShowSelection,
                         Sticked = true,
                         IsUnbound = true,
                         IsSelectionCheckBox = true,
@@ -2448,8 +2453,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         ColumnCaption = "#",
                         ColumnName = "RowNum",
                         Width = 30,
-                        Index = _showCheckboxes || _showSelection ? 1 : 0,
-                        Visible = true,
+                        Index = startIndex++,
+                        Visible = ShowRowNumbers,
                         Sticked = true,
                         ReadOnly = true,
                         IsRowNumColumn = true,
@@ -2471,7 +2476,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ColumnCaption = "RowID",
                     ColumnName = "RowID",
                     Width = 30,
-                    Index = _showCheckboxes || _showSelection ? 1 : 0,
+                    Index = startIndex++,
                     Visible = false,
                     Sticked = true,
                     ReadOnly = true,
@@ -2487,7 +2492,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RowIDColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
                 Columns.Add(RowIDColumn);
                 // Add entity-derived columns
-                int startIndex = Columns.Count; // Start indexing after special columns
+               
                 foreach (var field in Entity.Fields)
                 {
                     var colConfig = new BeepColumnConfig
@@ -2772,7 +2777,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             ColumnName = "Sel",
                             Width = _selectionColumnWidth,
                             Index = index++,
-                            Visible = true,
+                            Visible = ShowSelection,
                             Sticked = true,
                             ReadOnly = false,
                             IsSelectionCheckBox = true,
@@ -2792,7 +2797,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             ColumnName = "RowNum",
                             Width = 30,
                             Index = index++,
-                            Visible = true,
+                            Visible = ShowRowNumbers,
                             Sticked = true,
                             ReadOnly = true,
                             IsRowNumColumn = true,

@@ -3952,7 +3952,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 bottomPanelY -= navigatorPanelHeight;
                 botomspacetaken += navigatorPanelHeight;
                 navigatorPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Bottom - navigatorPanelHeight, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), navigatorPanelHeight);
-                using (var brush = new SolidBrush(_currentTheme.GridBackColor))
+                using (var brush = new SolidBrush(_currentTheme.GridHeaderBackColor))
                 {
                     g.FillRectangle(brush, navigatorPanelRect);
                 }
@@ -6732,7 +6732,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             HoverForeColor= _currentTheme.GridForeColor;
             FocusBackColor=_currentTheme.GridBackColor;
             FocusForeColor= _currentTheme.GridForeColor;
-
+            Color footerback= _currentTheme.GridHeaderBackColor;
             //if (MainPanel == null) return;
             //MainPanel.BackColor = _currentTheme.GridBackColor;
             if (titleLabel != null)
@@ -6747,8 +6747,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //   Recordnumberinglabel1.ForeColor = _currentTheme.GridForeColor;
                 Recordnumberinglabel1.TextFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
                 Recordnumberinglabel1.ForeColor = _currentTheme.GridForeColor;
-                Recordnumberinglabel1.BackColor = BackColor;
-                Recordnumberinglabel1.ParentBackColor = BackColor;
+                Recordnumberinglabel1.BackColor = footerback;
+                Recordnumberinglabel1.ParentBackColor = footerback;
                 Recordnumberinglabel1.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
                 Recordnumberinglabel1.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
                 Recordnumberinglabel1.BorderColor = _currentTheme.GridForeColor;
@@ -6763,8 +6763,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //PageLabel.ForeColor = _currentTheme.GridForeColor;
                 PageLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
                 PageLabel.ForeColor = _currentTheme.GridForeColor;
-                PageLabel.BackColor = BackColor;
-                PageLabel.ParentBackColor = BackColor;
+                PageLabel.BackColor = footerback;
+                PageLabel.ParentBackColor = footerback;
                 PageLabel.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
                 PageLabel.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
                 PageLabel.BorderColor = _currentTheme.GridForeColor;
@@ -6775,8 +6775,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // NextPageButton.Theme = Theme;
                 NextPageButton.ForeColor = _currentTheme.GridForeColor;
-                NextPageButton.BackColor = BackColor;
-                NextPageButton.ParentBackColor = BackColor;
+                NextPageButton.BackColor = footerback;
+                NextPageButton.ParentBackColor = footerback;
                 NextPageButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
                 NextPageButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
                 NextPageButton.BorderColor = _currentTheme.GridForeColor;
@@ -6787,8 +6787,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NextPageButton.ApplyThemeToSvg();
                 //   PrevPageButton.Theme = Theme;
                 PrevPageButton.ForeColor = _currentTheme.GridForeColor;
-                PrevPageButton.BackColor = BackColor;
-                PrevPageButton.ParentBackColor = BackColor;
+                PrevPageButton.BackColor = footerback;
+                PrevPageButton.ParentBackColor = footerback;
                 PrevPageButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
                 PrevPageButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
                 PrevPageButton.BorderColor = _currentTheme.GridForeColor;
@@ -6799,8 +6799,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 PrevPageButton.ApplyThemeToSvg();
                 //   FirstPageButton.Theme = Theme;
                 FirstPageButton.ForeColor = _currentTheme.GridForeColor;
-                FirstPageButton.BackColor = BackColor;
-                FirstPageButton.ParentBackColor = BackColor;
+                FirstPageButton.BackColor = footerback;
+                FirstPageButton.ParentBackColor = footerback;
                 FirstPageButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
                 FirstPageButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
                 FirstPageButton.BorderColor = _currentTheme.GridForeColor;
@@ -6810,8 +6810,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 FirstPageButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
                 FirstPageButton.ApplyThemeToSvg();
                 LastPageButton.ForeColor = _currentTheme.GridForeColor;
-                LastPageButton.BackColor = BackColor;
-                LastPageButton.ParentBackColor = BackColor;
+                LastPageButton.BackColor = footerback;
+                LastPageButton.ParentBackColor = footerback;
                 LastPageButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
                 LastPageButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
                 LastPageButton.BorderColor = _currentTheme.GridForeColor;
@@ -6821,8 +6821,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 LastPageButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
                 LastPageButton.ApplyThemeToSvg();
                 NextButton.ForeColor = _currentTheme.GridForeColor;
-                NextButton.BackColor = BackColor;
-                NextButton.ParentBackColor = BackColor;
+                NextButton.BackColor = footerback;
+                NextButton.ParentBackColor = footerback;
                 NextButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
                 NextButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
                 NextButton.BorderColor = _currentTheme.GridForeColor;
@@ -6832,8 +6832,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NextButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
                 NextButton.ApplyThemeToSvg();
                 PreviousButton.ForeColor = _currentTheme.GridForeColor;
-                PreviousButton.BackColor = BackColor;
-                PreviousButton.ParentBackColor = BackColor;
+                PreviousButton.BackColor = footerback;
+                PreviousButton.ParentBackColor = footerback;
                 PreviousButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
                 PreviousButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
                 PreviousButton.BorderColor = _currentTheme.GridForeColor;
@@ -6843,8 +6843,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 PreviousButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
                 PreviousButton.ApplyThemeToSvg();
                 PrinterButton.ForeColor = _currentTheme.GridForeColor;
-                PrinterButton.BackColor = BackColor;
-                PrinterButton.ParentBackColor = BackColor;
+                PrinterButton.BackColor = footerback;
+                PrinterButton.ParentBackColor = footerback;
                 PrinterButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
                 PrinterButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
                 PrinterButton.BorderColor = _currentTheme.GridForeColor;
@@ -6854,8 +6854,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 PrinterButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
                 PrinterButton.ApplyThemeToSvg();
                 SaveButton.ForeColor = _currentTheme.GridForeColor;
-                SaveButton.BackColor = BackColor;
-                SaveButton.ParentBackColor = BackColor;
+                SaveButton.BackColor = footerback;
+                SaveButton.ParentBackColor = footerback;
                 SaveButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
                 SaveButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
                 SaveButton.BorderColor = _currentTheme.GridForeColor;
@@ -6865,8 +6865,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SaveButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
                 SaveButton.ApplyThemeToSvg();
                 RollbackButton.ForeColor = _currentTheme.GridForeColor;
-                RollbackButton.BackColor = BackColor;
-                RollbackButton.ParentBackColor = BackColor;
+                RollbackButton.BackColor = footerback;
+                RollbackButton.ParentBackColor = footerback;
                 RollbackButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
                 RollbackButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
                 RollbackButton.BorderColor = _currentTheme.GridForeColor;
@@ -6876,8 +6876,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RollbackButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
                 RollbackButton.ApplyThemeToSvg();
                 RemoveButton.ForeColor = _currentTheme.GridForeColor;
-                RemoveButton.BackColor = BackColor;
-                RemoveButton.ParentBackColor = BackColor;
+                RemoveButton.BackColor = footerback;
+                RemoveButton.ParentBackColor = footerback;
                 RemoveButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
                 RemoveButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
                 RemoveButton.BorderColor = _currentTheme.GridForeColor;
@@ -6888,12 +6888,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RemoveButton.ApplyThemeToSvg();
                 //  PageLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             }
-            if (DataNavigator != null)
-            {
-                _currentTheme.ButtonBackColor = _currentTheme.GridBackColor;
-                _currentTheme.ButtonForeColor = _currentTheme.GridForeColor;
-                DataNavigator.Theme = Theme;
-            }
+            //if (DataNavigator != null)
+            //{
+            //    _currentTheme.ButtonBackColor = _currentTheme.GridBackColor;
+            //    _currentTheme.ButtonForeColor = _currentTheme.GridForeColor;
+            //    DataNavigator.Theme = Theme;
+            //}
             if (_verticalScrollBar != null)
             {
                 _verticalScrollBar.Theme = Theme;

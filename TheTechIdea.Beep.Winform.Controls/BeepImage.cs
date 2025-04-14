@@ -341,7 +341,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Decide what colors to apply based on your theme settings.
             Color actualFillColor, actualStrokeColor;
-            if (_applyThemeOnImage && _currentTheme != null)
+       //   _imageEmbededin = ImageEmbededin.Button;
+            if ( _currentTheme != null)
             {
                 switch (_imageEmbededin)
                 {
@@ -385,8 +386,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         actualStrokeColor = _currentTheme.ComboBoxForeColor;
                         break;
                     case ImageEmbededin.DataGridView:
-                        actualFillColor = _currentTheme.GridForeColor;
-                        actualStrokeColor = _currentTheme.GridForeColor;
+                        actualFillColor = _currentTheme.GridHeaderForeColor;
+                        actualStrokeColor = _currentTheme.GridHeaderForeColor;
                         break;
                     case ImageEmbededin.Button:
                     default:
@@ -397,30 +398,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                // Fallback to direct properties.
-                actualFillColor = fillColor.IsEmpty ? Color.Black : fillColor;
-                actualStrokeColor = strokeColor.IsEmpty ? Color.Black : strokeColor;
+                actualFillColor = _currentTheme.ButtonForeColor;
+                actualStrokeColor = _currentTheme.ButtonForeColor;
             }
 
-            // Validate colors—if either is empty, fallback to black.
-            if (actualFillColor.IsEmpty || actualStrokeColor.IsEmpty)
-            {
-                MiscFunctions.SendLog("ApplyThemeToSvg: Invalid colors detected, using fallback");
-                actualFillColor = Color.Black;
-                actualStrokeColor = Color.Black;
-            }
+          
 
             MiscFunctions.SendLog($"ApplyThemeToSvg: Applying fillColor={actualFillColor}, strokeColor={actualStrokeColor}");
 
             // Create SvgColourServer instances for fill and stroke
             var fillServer = new SvgColourServer(actualFillColor);
             var strokeServer = new SvgColourServer(actualStrokeColor);
-            svgDocument.Fill = fillServer;
-            svgDocument.Stroke = strokeServer;
+            //svgDocument.Fill = fillServer;
+            //svgDocument.Stroke = strokeServer;
             // Set the default stroke width
             svgDocument.StrokeWidth = new SvgUnit(2); // Optional: set stroke width
-            // Recursively process all SVG nodes to update their color properties
-            // ProcessNodes(svgDocument.Descendants(), fillServer, strokeServer);
+                                                      // Recursively process all SVG nodes to update their color properties
+                                                      // ProcessNodes(svgDocument.Descendants(), fillServer, strokeServer);
+                                                      //   LoadImage(_imagepath); // Reload the image to apply the theme
             foreach (var node in svgDocument.Children)
             {
 
@@ -436,6 +431,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Recurse into child nodes.
                 ProcessNodes(node.Descendants(), fillServer, strokeServer);
             }
+            svgDocument.FlushStyles();
             // Optional: Log out the updated SVG XML for debugging.
             string modifiedXml = svgDocument.GetXML();
             MiscFunctions.SendLog($"ApplyThemeToSvg: Modified SVG XML: {modifiedXml}");
@@ -443,7 +439,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Trigger a redraw.
             try
             {
-                svgDocument.FlushStyles();
+           //     svgDocument.FlushStyles();
                 Invalidate();
                 Refresh();
                 MiscFunctions.SendLog("ApplyThemeToSvg: Redraw triggered");
@@ -465,10 +461,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Update color properties.
                 // You can check the properties if you want to preserve "None" values, or update unconditionally.
-                if (node.Fill != SvgPaintServer.None) node.Fill = fillServer;
-                if (node.Color != SvgPaintServer.None) node.Color = fillServer;
+                node.Fill = fillServer;
+                node.Color = fillServer;
                 
-                if (node.Stroke != SvgPaintServer.None) node.Stroke = strokeServer;
+                node.Stroke = strokeServer;
 
          
                     node.StrokeWidth = new SvgUnit(2); // Optional: set stroke width
@@ -768,7 +764,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                             using (var sanitizedStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(svgContent)))
                             {
                                 svgDocument = SvgDocument.Open<SvgDocument>(sanitizedStream);
-                               
+                                svgDocument.CustomAttributes.Remove("style");
+                                svgDocument.FlushStyles();
                                 isSvg = true;
                             }
                         }
@@ -821,6 +818,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 DisposeImages();
                 svgDocument = LoadSanitizedSvg(svgPath);
+                svgDocument.CustomAttributes.Remove("style");
+                svgDocument.FlushStyles();
                 //  svgDocument = SvgDocument.Open(svgPath);
                 isSvg = true;
                 Invalidate(); // Trigger repaint

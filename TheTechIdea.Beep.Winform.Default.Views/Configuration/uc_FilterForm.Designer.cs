@@ -582,6 +582,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints137"));
             beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints138"));
             beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints139"));
+            beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints140"));
+            beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints141"));
+            beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints142"));
+            beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints143"));
+            beepFeatureCard1.BulletPoints.Add((Controls.Models.SimpleItem)resources.GetObject("beepFeatureCard1.BulletPoints144"));
             beepFeatureCard1.CanBeFocused = true;
             beepFeatureCard1.CanBeHovered = false;
             beepFeatureCard1.CanBePressed = true;
@@ -1610,7 +1615,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepImage1.Id = -1;
             beepImage1.Image = null;
             beepImage1.ImageEmbededin = ImageEmbededin.Button;
-            beepImage1.ImagePath = "H:\\dev\\iconPacks\\3161823-basic-ui-Black-Ouline\\svg\\001-add document.svg";
+            beepImage1.ImagePath = "TheTechIdea.Beep.Winform.Default.Views.GFX.SVG.cancel.svg";
             beepImage1.InactiveBorderColor = Color.Gray;
             beepImage1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepImage1.Info");
             beepImage1.IsAcceptButton = false;

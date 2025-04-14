@@ -399,29 +399,30 @@ namespace TheTechIdea.Beep.Vis.Modules
             //------------------------------------------------------------------------------
             // Grid
             //------------------------------------------------------------------------------
-            GridBackColor = Color.FromArgb(43, 43, 43),
-            GridForeColor = Color.FromArgb(245, 245, 245),
-            GridHeaderBackColor = Color.FromArgb(50, 50, 50),
-            GridHeaderForeColor = Color.White,
-            GridHeaderBorderColor = Color.FromArgb(66, 66, 66),
-            GridHeaderHoverBackColor = Color.FromArgb(60, 60, 60),
-            GridHeaderHoverForeColor = Color.White,
-            GridHeaderSelectedBackColor = Color.FromArgb(33, 150, 243),
-            GridHeaderSelectedForeColor = Color.White,
-            GridHeaderHoverBorderColor = Color.FromArgb(80, 80, 80),
-            GridHeaderSelectedBorderColor = Color.FromArgb(33, 150, 243),
-            GridRowHoverBackColor = Color.FromArgb(50, 50, 50),
-            GridRowHoverForeColor = Color.White,
-            GridRowSelectedBackColor = Color.FromArgb(33, 150, 243),
-            GridRowSelectedForeColor = Color.White,
-            GridRowHoverBorderColor = Color.FromArgb(80, 80, 80),
-            GridRowSelectedBorderColor = Color.FromArgb(33, 150, 243),
-            GridLineColor = Color.FromArgb(66, 66, 66),
-            RowBackColor = Color.FromArgb(43, 43, 43),
-            RowForeColor = Color.FromArgb(245, 245, 245),
-            AltRowBackColor = Color.FromArgb(38, 38, 38),
-            SelectedRowBackColor = Color.FromArgb(33, 150, 243),
-            SelectedRowForeColor = Color.White,
+            // Grid colors
+            GridBackColor = Color.FromArgb(33, 33, 33),
+            GridForeColor = Color.FromArgb(232, 234, 237),
+            GridHeaderBackColor = Color.FromArgb(48, 48, 48),
+            GridHeaderForeColor = Color.FromArgb(232, 234, 237),
+            GridHeaderBorderColor = Color.FromArgb(48, 48, 48),
+            GridHeaderHoverBackColor = Color.FromArgb(66, 66, 66),
+            GridHeaderHoverForeColor = Color.FromArgb(232, 234, 237),
+            GridHeaderSelectedBackColor = Color.FromArgb(103, 80, 164),
+            GridHeaderSelectedForeColor = Color.FromArgb(232, 234, 237),
+            GridHeaderHoverBorderColor = Color.FromArgb(66, 66, 66),
+            GridHeaderSelectedBorderColor = Color.FromArgb(103, 80, 164),
+            GridRowHoverBackColor = Color.FromArgb(48, 48, 48),
+            GridRowHoverForeColor = Color.FromArgb(232, 234, 237),
+            GridRowSelectedBackColor = Color.FromArgb(103, 80, 164),
+            GridRowSelectedForeColor = Color.FromArgb(232, 234, 237),
+            GridRowHoverBorderColor = Color.FromArgb(66, 66, 66),
+            GridRowSelectedBorderColor = Color.FromArgb(103, 80, 164),
+            GridLineColor = Color.FromArgb(48, 48, 48),
+            RowBackColor = Color.FromArgb(33, 33, 33),
+            RowForeColor = Color.FromArgb(232, 234, 237),
+            AltRowBackColor = Color.FromArgb(30, 30, 30),
+            SelectedRowBackColor = Color.FromArgb(103, 80, 164),
+            SelectedRowForeColor = Color.FromArgb(232, 234, 237),
 
             //------------------------------------------------------------------------------
             // Card
@@ -1404,7 +1405,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogQuestionButtonHoverForeColor = Color.FromArgb(232, 234, 237),
             DialogQuestionButtonHoverBorderColor = Color.FromArgb(103, 80, 164),
 
-            // Grid Colors
+            // Grid colors
             GridBackColor = Color.FromArgb(33, 33, 33),
             GridForeColor = Color.FromArgb(232, 234, 237),
             GridHeaderBackColor = Color.FromArgb(48, 48, 48),
@@ -1428,6 +1429,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             AltRowBackColor = Color.FromArgb(30, 30, 30),
             SelectedRowBackColor = Color.FromArgb(103, 80, 164),
             SelectedRowForeColor = Color.FromArgb(232, 234, 237),
+
 
             // Card Colors
             CardTextForeColor = Color.FromArgb(232, 234, 237),
@@ -2369,6 +2371,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogQuestionButtonHoverForeColor = Color.FromArgb(50, 50, 50),
             DialogQuestionButtonHoverBorderColor = Color.FromArgb(163, 163, 163),
 
+            // Grid Colors
             // Grid Colors
             GridBackColor = Color.FromArgb(230, 233, 236),
             GridForeColor = Color.FromArgb(50, 50, 50),
@@ -4302,29 +4305,31 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogQuestionButtonHoverBorderColor = Color.FromArgb(255, 105, 180),
 
             // Grid Colors
-            GridBackColor = Color.FromArgb(255, 250, 240),
-            GridForeColor = Color.FromArgb(75, 0, 130),
-            GridHeaderBackColor = Color.FromArgb(255, 87, 34),
+            // Grid Colors
+            GridBackColor = Color.FromArgb(245, 245, 220),
+            GridForeColor = Color.FromArgb(33, 66, 99),
+            GridHeaderBackColor = Color.FromArgb(0, 105, 148),
             GridHeaderForeColor = Color.FromArgb(255, 255, 255),
-            GridHeaderBorderColor = Color.FromArgb(205, 57, 24),
-            GridHeaderHoverBackColor = Color.FromArgb(255, 107, 54),
+            GridHeaderBorderColor = Color.FromArgb(0, 75, 128),
+            GridHeaderHoverBackColor = Color.FromArgb(0, 130, 173),
             GridHeaderHoverForeColor = Color.FromArgb(255, 255, 255),
-            GridHeaderSelectedBackColor = Color.FromArgb(255, 105, 180),
+            GridHeaderSelectedBackColor = Color.FromArgb(0, 150, 199),
             GridHeaderSelectedForeColor = Color.FromArgb(255, 255, 255),
-            GridHeaderHoverBorderColor = Color.FromArgb(255, 87, 34),
-            GridHeaderSelectedBorderColor = Color.FromArgb(255, 105, 180),
-            GridRowHoverBackColor = Color.FromArgb(255, 235, 225),
-            GridRowHoverForeColor = Color.FromArgb(75, 0, 130),
-            GridRowSelectedBackColor = Color.FromArgb(255, 105, 180),
+            GridHeaderHoverBorderColor = Color.FromArgb(0, 105, 148),
+            GridHeaderSelectedBorderColor = Color.FromArgb(0, 150, 199),
+            GridRowHoverBackColor = Color.FromArgb(230, 240, 255),
+            GridRowHoverForeColor = Color.FromArgb(33, 66, 99),
+            GridRowSelectedBackColor = Color.FromArgb(0, 150, 199),
             GridRowSelectedForeColor = Color.FromArgb(255, 255, 255),
-            GridRowHoverBorderColor = Color.FromArgb(255, 105, 180),
-            GridRowSelectedBorderColor = Color.FromArgb(255, 87, 34),
-            GridLineColor = Color.FromArgb(255, 218, 185),
-            RowBackColor = Color.FromArgb(255, 250, 240),
-            RowForeColor = Color.FromArgb(75, 0, 130),
-            AltRowBackColor = Color.FromArgb(255, 245, 230),
-            SelectedRowBackColor = Color.FromArgb(255, 105, 180),
+            GridRowHoverBorderColor = Color.FromArgb(0, 150, 199),
+            GridRowSelectedBorderColor = Color.FromArgb(0, 105, 148),
+            GridLineColor = Color.FromArgb(173, 216, 230),
+            RowBackColor = Color.FromArgb(245, 245, 220),
+            RowForeColor = Color.FromArgb(33, 66, 99),
+            AltRowBackColor = Color.FromArgb(240, 248, 255),
+            SelectedRowBackColor = Color.FromArgb(0, 150, 199),
             SelectedRowForeColor = Color.FromArgb(255, 255, 255),
+
 
             // Card Colors
             CardTextForeColor = Color.FromArgb(75, 0, 130),
@@ -5267,6 +5272,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogQuestionButtonHoverForeColor = Color.FromArgb(255, 255, 255),
             DialogQuestionButtonHoverBorderColor = Color.FromArgb(50, 205, 50),
 
+            // Grid Colors
             // Grid Colors
             GridBackColor = Color.FromArgb(240, 230, 140),
             GridForeColor = Color.FromArgb(47, 79, 79),
@@ -6234,29 +6240,33 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogQuestionButtonHoverBorderColor = Color.FromArgb(218, 165, 32),
 
             // Grid Colors
-            GridBackColor = Color.FromArgb(245, 222, 179),
-            GridForeColor = Color.FromArgb(101, 67, 33),
-            GridHeaderBackColor = Color.FromArgb(204, 85, 0),
+            // Grid Colors
+            // Grid Colors
+            GridBackColor = Color.FromArgb(240, 230, 140),
+            GridForeColor = Color.FromArgb(47, 79, 79),
+            GridHeaderBackColor = Color.FromArgb(34, 139, 34),
             GridHeaderForeColor = Color.FromArgb(255, 255, 255),
-            GridHeaderBorderColor = Color.FromArgb(184, 65, 0),
-            GridHeaderHoverBackColor = Color.FromArgb(224, 105, 20),
+            GridHeaderBorderColor = Color.FromArgb(24, 109, 24),
+            GridHeaderHoverBackColor = Color.FromArgb(54, 159, 54),
             GridHeaderHoverForeColor = Color.FromArgb(255, 255, 255),
-            GridHeaderSelectedBackColor = Color.FromArgb(218, 165, 32),
+            GridHeaderSelectedBackColor = Color.FromArgb(50, 205, 50),
             GridHeaderSelectedForeColor = Color.FromArgb(255, 255, 255),
-            GridHeaderHoverBorderColor = Color.FromArgb(204, 85, 0),
-            GridHeaderSelectedBorderColor = Color.FromArgb(218, 165, 32),
-            GridRowHoverBackColor = Color.FromArgb(255, 235, 200),
-            GridRowHoverForeColor = Color.FromArgb(101, 67, 33),
-            GridRowSelectedBackColor = Color.FromArgb(218, 165, 32),
+            GridHeaderHoverBorderColor = Color.FromArgb(34, 139, 34),
+            GridHeaderSelectedBorderColor = Color.FromArgb(50, 205, 50),
+            GridRowHoverBackColor = Color.FromArgb(230, 240, 160),
+            GridRowHoverForeColor = Color.FromArgb(47, 79, 79),
+            GridRowSelectedBackColor = Color.FromArgb(50, 205, 50),
             GridRowSelectedForeColor = Color.FromArgb(255, 255, 255),
-            GridRowHoverBorderColor = Color.FromArgb(218, 165, 32),
-            GridRowSelectedBorderColor = Color.FromArgb(204, 85, 0),
-            GridLineColor = Color.FromArgb(210, 180, 140),
-            RowBackColor = Color.FromArgb(245, 222, 179),
-            RowForeColor = Color.FromArgb(101, 67, 33),
-            AltRowBackColor = Color.FromArgb(255, 245, 220),
-            SelectedRowBackColor = Color.FromArgb(218, 165, 32),
+            GridRowHoverBorderColor = Color.FromArgb(50, 205, 50),
+            GridRowSelectedBorderColor = Color.FromArgb(34, 139, 34),
+            GridLineColor = Color.FromArgb(189, 183, 107),
+            RowBackColor = Color.FromArgb(240, 230, 140),
+            RowForeColor = Color.FromArgb(47, 79, 79),
+            AltRowBackColor = Color.FromArgb(245, 245, 220),
+            SelectedRowBackColor = Color.FromArgb(50, 205, 50),
             SelectedRowForeColor = Color.FromArgb(255, 255, 255),
+
+
 
             // Card Colors
             CardTextForeColor = Color.FromArgb(101, 67, 33),
@@ -7186,6 +7196,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogQuestionButtonHoverBorderColor = Color.FromArgb(107, 142, 35),
 
             // Grid Colors
+            // Grid Colors
             GridBackColor = Color.FromArgb(238, 232, 170),
             GridForeColor = Color.FromArgb(47, 79, 79),
             GridHeaderBackColor = Color.FromArgb(204, 85, 0),
@@ -7209,6 +7220,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             AltRowBackColor = Color.FromArgb(255, 245, 220),
             SelectedRowBackColor = Color.FromArgb(218, 165, 32),
             SelectedRowForeColor = Color.FromArgb(255, 255, 255),
+
 
             // Card Colors
             CardTextForeColor = Color.FromArgb(47, 79, 79),
@@ -8138,6 +8150,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogQuestionButtonHoverBorderColor = Color.FromArgb(25, 25, 112),
 
             // Grid Colors
+            // Grid Colors
             GridBackColor = Color.FromArgb(245, 245, 245),
             GridForeColor = Color.FromArgb(47, 79, 79),
             GridHeaderBackColor = Color.FromArgb(70, 130, 180),
@@ -8161,6 +8174,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             AltRowBackColor = Color.FromArgb(240, 248, 255),
             SelectedRowBackColor = Color.FromArgb(25, 25, 112),
             SelectedRowForeColor = Color.FromArgb(255, 255, 255),
+
 
             // Card Colors
             CardTextForeColor = Color.FromArgb(47, 79, 79),
@@ -9114,6 +9128,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             SelectedRowBackColor = Color.FromArgb(255, 182, 193),
             SelectedRowForeColor = Color.FromArgb(0, 0, 0),
 
+
             // Card Colors
             CardTextForeColor = Color.FromArgb(47, 79, 79),
             CardBackColor = Color.FromArgb(245, 245, 220),
@@ -10065,6 +10080,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             AltRowBackColor = Color.FromArgb(240, 248, 255),
             SelectedRowBackColor = Color.FromArgb(135, 206, 235),
             SelectedRowForeColor = Color.FromArgb(255, 255, 255),
+
 
             // Card Colors
             CardTextForeColor = Color.FromArgb(75, 0, 130),

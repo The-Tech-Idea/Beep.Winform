@@ -340,7 +340,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Decide what colors to apply based on your theme settings.
-            Color actualFillColor, actualStrokeColor;
+            Color actualFillColor, actualStrokeColor, actualbackcolor;
        //   _imageEmbededin = ImageEmbededin.Button;
             if ( _currentTheme != null)
             {
@@ -349,50 +349,61 @@ namespace TheTechIdea.Beep.Winform.Controls
                     case ImageEmbededin.TabPage:
                         actualFillColor = _currentTheme.TabForeColor;
                         actualStrokeColor = _currentTheme.TabForeColor;
+                        actualbackcolor = _currentTheme.TabBackColor;
                         break;
                     case ImageEmbededin.AppBar:
                         actualFillColor = _currentTheme.AppBarForeColor;
                         actualStrokeColor = _currentTheme.AppBarForeColor;
+                        actualbackcolor = _currentTheme.AppBarBackColor;
                         break;
                     case ImageEmbededin.Menu:
                     case ImageEmbededin.MenuBar:
                         actualFillColor = _currentTheme.MenuForeColor;
                         actualStrokeColor = _currentTheme.MenuForeColor;
+                        actualbackcolor = _currentTheme.MenuBackColor;
                         break;
                     case ImageEmbededin.TreeView:
                         actualFillColor = _currentTheme.TreeForeColor;
                         actualStrokeColor = _currentTheme.TreeForeColor;
+                        actualbackcolor = _currentTheme.TreeBackColor;
                         break;
                     case ImageEmbededin.SideBar:
                         actualFillColor = _currentTheme.SideMenuForeColor;
                         actualStrokeColor = _currentTheme.SideMenuForeColor;
+                        actualbackcolor = _currentTheme.SideMenuBackColor;
                         break;
                     case ImageEmbededin.ListBox:
                     case ImageEmbededin.Form:
                     case ImageEmbededin.ListView:
                         actualFillColor = _currentTheme.ListForeColor;
                         actualStrokeColor = _currentTheme.ListForeColor;
+                        actualbackcolor = _currentTheme.ListBackColor;
                         break;
                     case ImageEmbededin.Label:
                         actualFillColor = _currentTheme.LabelForeColor;
                         actualStrokeColor = _currentTheme.LabelForeColor;
+                        actualbackcolor = _currentTheme.LabelBackColor;
                         break;
                     case ImageEmbededin.TextBox:
                         actualFillColor = _currentTheme.TextBoxForeColor;
                         actualStrokeColor = _currentTheme.TextBoxForeColor;
+                        actualbackcolor = _currentTheme.TextBoxBackColor;
                         break;
                     case ImageEmbededin.ComboBox:
                         actualFillColor = _currentTheme.ComboBoxForeColor;
                         actualStrokeColor = _currentTheme.ComboBoxForeColor;
+                        actualbackcolor = _currentTheme.ComboBoxBackColor;
                         break;
                     case ImageEmbededin.DataGridView:
                         actualFillColor = _currentTheme.GridHeaderForeColor;
                         actualStrokeColor = _currentTheme.GridHeaderForeColor;
+                        actualbackcolor = _currentTheme.GridHeaderBackColor;
                         break;
                     case ImageEmbededin.Button:
                     default:
                         actualFillColor = _currentTheme.ButtonForeColor;
                         actualStrokeColor = _currentTheme.ButtonForeColor;
+                        actualbackcolor = _currentTheme.ButtonBackColor;
                         break;
                 }
             }
@@ -400,6 +411,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 actualFillColor = _currentTheme.ButtonForeColor;
                 actualStrokeColor = _currentTheme.ButtonForeColor;
+                actualbackcolor = _currentTheme.ButtonBackColor;
             }
 
           
@@ -409,9 +421,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Create SvgColourServer instances for fill and stroke
             var fillServer = new SvgColourServer(actualFillColor);
             var strokeServer = new SvgColourServer(actualStrokeColor);
+            var backgroundServer = new SvgColourServer(actualbackcolor);
             //svgDocument.Fill = fillServer;
             //svgDocument.Stroke = strokeServer;
             // Set the default stroke width
+            // check if background color is not transparent in svgdocument by checking property in file
+
+
+
+            if (svgDocument.Fill != null )
+            {
+                svgDocument.Fill = backgroundServer;
+
+            }
             svgDocument.StrokeWidth = new SvgUnit(2); // Optional: set stroke width
                                                       // Recursively process all SVG nodes to update their color properties
                                                       // ProcessNodes(svgDocument.Descendants(), fillServer, strokeServer);

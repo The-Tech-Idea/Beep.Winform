@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             foreach (var item in beepservice.Config_editor.DataConnections)
             {
                 SimpleItem conn = new SimpleItem();
-                conn.Display = item.ConnectionName;
+                conn.DisplayField = item.ConnectionName;
                 conn.Text = item.ConnectionName;
                 conn.Name = item.ConnectionName;
                 conn.Value = item.ConnectionName;
@@ -74,14 +74,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             foreach (var item in beepservice.Config_editor.DataDriversClasses.Select(o=>o.PackageName))
             {
                 SimpleItem driveritem = new SimpleItem();
-                driveritem.Display = item;
+                driveritem.DisplayField = item;
                 driveritem.Text = item;
                 driveritem.Name = item;
                 driveritem.Value = item;
                 foreach (var DriversClasse in beepservice.Config_editor.DataDriversClasses.Where(x => x.PackageName == item))
                 {
                     SimpleItem itemversion = new SimpleItem();
-                    itemversion.Display = DriversClasse.version;
+                    itemversion.DisplayField = DriversClasse.version;
                     itemversion.Value = DriversClasse.version;
                     itemversion.Text = DriversClasse.version;
                     itemversion.Name = DriversClasse.version;
@@ -97,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //foreach (var item in viewModel.PackageVersions)
             //{
             //    SimpleItem driveritem = new SimpleItem();
-            //    driveritem.Display = item;
+            //    driveritem.DisplayField = item;
             //    driveritem.Value = idx++;
             //    driveritem.Text = item;
             //    driveritem.Name = item;
@@ -137,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 foreach (var item in viewModel.SourceConnection.GetEntitesList())
                 {
                     SimpleItem entityitem = new SimpleItem();
-                    entityitem.Display = item;
+                    entityitem.DisplayField = item;
                     entityitem.Text = item;
                     entityitem.Name = item;
                     entityitem.Value = item;

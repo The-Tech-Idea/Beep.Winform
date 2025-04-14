@@ -429,11 +429,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
 
-            if (svgDocument.Fill != null )
-            {
-                svgDocument.Fill = backgroundServer;
+            //if (svgDocument.Fill != null  )
+            //{
+            //    svgDocument.Fill = backgroundServer;
 
-            }
+            //}
             svgDocument.StrokeWidth = new SvgUnit(2); // Optional: set stroke width
                                                       // Recursively process all SVG nodes to update their color properties
                                                       // ProcessNodes(svgDocument.Descendants(), fillServer, strokeServer);

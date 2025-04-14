@@ -2703,7 +2703,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             foreach (var col in Columns)
             {
                 if (col.Visible && !col.IsSelectionCheckBox & !col.IsRowNumColumn)
-                    filterColumnComboBox.ListItems.Add(new SimpleItem { Display=  col.ColumnCaption ?? col.ColumnName, Text = col.ColumnName ?? col.ColumnCaption , Value = col.ColumnName });
+                    filterColumnComboBox.ListItems.Add(new SimpleItem { DisplayField=  col.ColumnCaption ?? col.ColumnName, Text = col.ColumnName ?? col.ColumnCaption , Value = col.ColumnName });
             }
             if (DataNavigator != null) DataNavigator.DataSource = _fullData;
         }

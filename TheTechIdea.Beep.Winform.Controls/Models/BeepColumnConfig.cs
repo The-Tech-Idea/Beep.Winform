@@ -384,7 +384,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
                 {
                     foreach (var item in Enum.GetValues(enumType))
                     {
-                        Items.Add(new SimpleItem { Display = item.ToString(), Value = item });
+                        Items.Add(new SimpleItem { DisplayField = item.ToString(), Value = item });
                     }
                    MiscFunctions.SendLog($"Filled items from enum: {EnumSourceType}, Count: {Items.Count}");
                 }

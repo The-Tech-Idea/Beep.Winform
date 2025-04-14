@@ -193,6 +193,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             set { if (Component != null) Component.Category = value; }
         }
 
+        public object SelectedValue { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public event EventHandler<BeepComponentEventArgs> PropertyChanged
         {
             add { if (Component != null) Component.PropertyChanged += value; }
@@ -282,11 +284,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Component?.HideToolTip();
         }
 
-        public void RefreshBinding()
-        {
-            Component?.RefreshBinding();
-        }
-
+        
         public void SetBinding(string controlProperty, string dataSourceProperty)
         {
             Component?.SetBinding(controlProperty, dataSourceProperty);

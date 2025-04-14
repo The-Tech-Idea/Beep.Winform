@@ -18,6 +18,8 @@ using TheTechIdea.Beep.Container.Services;
 
 using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
@@ -26,10 +28,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
     public partial class uc_CreateLocalDB : TemplateUserControl, IAddinVisSchema
     {
-        public uc_CreateLocalDB(IBeepService service)
+        public uc_CreateLocalDB(IBeepService service):base(service)
         {
             InitializeComponent();
             beepservice = service;
+            if(beepservice.vis.Tree!=null)
+            {
+               TreeObject=(ITree)beepservice.vis.Tree;
+            }
             Details.AddinName = "Create Local DB";
 
         }
@@ -48,6 +54,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public string BranchDescription { get; set; } = "Create Local DB";
         public string BranchClass { get; set; } = "ADDIN";
         public string AddinName { get; set; }
+        public ITree TreeObject { get; }
         #endregion "IAddinVisSchema"
 
         private IBeepService beepservice;
@@ -64,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             foreach (var item in beepservice.Config_editor.DataConnections)
             {
                 SimpleItem conn = new SimpleItem();
-                conn.Display = item.ConnectionName;
+                conn.DisplayField = item.ConnectionName;
                 conn.Text = item.ConnectionName;
                 conn.Name = item.ConnectionName;
                 conn.Value = item.ConnectionName;
@@ -74,17 +81,18 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                // DatasourcebeepComboBox.ListItems.Add(conn);
             }
             List<SimpleItem> versions = new List<SimpleItem>();
-            foreach (var item in beepservice.Config_editor.DataDriversClasses.Where(i=>i.CreateLocal && !string.IsNullOrEmpty(i.classHandler)))
+            foreach (var item in viewModel.EmbeddedDatabaseTypes)
             {
                 SimpleItem driveritem = new SimpleItem();
-                driveritem.Display =item.classHandler +" - " +item.DriverClass +" - " + item.version;
+               // driveritem.DisplayField =item.classHandler +" - " +item.DriverClass +" - " + item.version;
                 driveritem.Text = item.classHandler + " - " + item.DriverClass + " - " + item.version;
                 driveritem.Name = item.PackageName;
-                driveritem.Value = item.GuidID;
-                foreach (var DriversClasse in beepservice.Config_editor.DataDriversClasses.Where(x => x.PackageName.Equals( item.PackageName)))
+                driveritem.Value = item;
+                driveritem.Item = item;
+                foreach (var DriversClasse in viewModel.EmbeddedDatabaseTypes)
                 {
                     SimpleItem itemversion = new SimpleItem();
-                    itemversion.Display = DriversClasse.version;
+                    itemversion.DisplayField = DriversClasse.version;
                     itemversion.Value = DriversClasse.version;
                     itemversion.Text = DriversClasse.version;
                     itemversion.Name = DriversClasse.version;
@@ -99,10 +107,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             {
                 string foldername=Path.GetFileName(item.FolderPath);
                 SimpleItem folderitem = new SimpleItem();
-                folderitem.Display = foldername;
+                folderitem.DisplayField = foldername;
                 folderitem.Text = foldername;
                 folderitem.Name = item.FolderPath;
-                folderitem.Value = item.GuidID;
+                folderitem.Value = item.FolderPath;
+                folderitem.Item = item;
                 InstallationFolders.Add(folderitem);
             }
             // Get System folders and documents folders (from .net environment)and others  add them to the list installation folders
@@ -119,66 +128,87 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
             // now add them to the list
             SimpleItem programfiles = new SimpleItem();
-            programfiles.Display = "Program Files";
+            programfiles.DisplayField = "Program Files";
             programfiles.Text = "Program Files";
             programfiles.Name = programfilesfolder;
             programfiles.Value = programfilesfolder;
             InstallationFolders.Add(programfiles);
             SimpleItem commonapplicationdata = new SimpleItem();
-            commonapplicationdata.Display = "Common Application Data";
+            commonapplicationdata.DisplayField = "Common Application Data";
             commonapplicationdata.Text = "Common Application Data";
             commonapplicationdata.Name = commonapplicationdatafolder;
             commonapplicationdata.Value = commonapplicationdatafolder;
             InstallationFolders.Add(commonapplicationdata);
             SimpleItem commonprogramfiles = new SimpleItem();
-            commonprogramfiles.Display = "Common Program Files";
+            commonprogramfiles.DisplayField = "Common Program Files";
             commonprogramfiles.Text = "Common Program Files";
             commonprogramfiles.Name = commonprogramfilesfolder;
             commonprogramfiles.Value = commonprogramfilesfolder;
             InstallationFolders.Add(commonprogramfiles);
             SimpleItem localapplicationdata = new SimpleItem();
-            localapplicationdata.Display = "Local Application Data";
+            localapplicationdata.DisplayField = "Local Application Data";
             localapplicationdata.Text = "Local Application Data";
             localapplicationdata.Name = localapplicationdatafolder;
             localapplicationdata.Value = localapplicationdatafolder;
             InstallationFolders.Add(localapplicationdata);
             SimpleItem appdata = new SimpleItem();
-            appdata.Display = "Application Data";
+            appdata.DisplayField = "Application Data";
             appdata.Text = "Application Data";
             appdata.Name = appdatafolder;
             appdata.Value = appdatafolder;
             InstallationFolders.Add(appdata);
             SimpleItem desktop = new SimpleItem();
-            desktop.Display = "Desktop";
+            desktop.DisplayField = "Desktop";
             desktop.Text = "Desktop";
             desktop.Name = desktopfolder;
             desktop.Value = desktopfolder;
             InstallationFolders.Add(desktop);
             SimpleItem personal = new SimpleItem();
-            personal.Display = "Personal";
+            personal.DisplayField = "Personal";
             personal.Text = "Personal";
             personal.Name = personalfolder;
             personal.Value = personalfolder;
             InstallationFolders.Add(personal);
             SimpleItem documents = new SimpleItem();
-            documents.Display = "Documents";
+            documents.DisplayField = "Documents";
             documents.Text = "Documents";
             documents.Name = documentsfolder;
             documents.Value = documentsfolder;
             InstallationFolders.Add(documents);
             SimpleItem downloads = new SimpleItem();
-            downloads.Display = "Downloads";
+            downloads.DisplayField = "Downloads";
             downloads.Text = "Downloads";
             downloads.Name = downloadsfolder;
             downloads.Value = downloadsfolder;
             InstallationFolders.Add(downloads);
             // Add the drivers to the combo box
 
+            this.databaseTextBox.DataBindings.Add("Text", viewModel, "DatabaseName", true, DataSourceUpdateMode.OnPropertyChanged);
+            this.PasswordbeepTextBox.DataBindings.Add("Text", viewModel, "Password", true, DataSourceUpdateMode.OnPropertyChanged);
+         //   this.InstallFoldercomboBox.DataBindings.Add("SelectedMenuItem", ViewModel, "selectedFolder", true, DataSourceUpdateMode.OnPropertyChanged);
 
-
+            this.SavebeepButton.Click += CreateDBbutton;
             LocalDbTypebeepComboBox.ListItems.AddRange( Drivers);
             SystemFolderbeepComboBox.ListItems.AddRange(InstallationFolders);
             LocalDbTypebeepComboBox.SelectedItemChanged += LocalDbTypebeepComboBox_SelectedItemChanged;
+            SystemFolderbeepComboBox.SelectedItemChanged += SystemFolderbeepComboBox_SelectedItemChanged;
+        }
+
+        private void SystemFolderbeepComboBox_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
+        {
+           if(e.SelectedItem != null)
+            {
+                SimpleItem selectedItem = (SimpleItem)e.SelectedItem;
+                if (selectedItem.Item != null)
+                {
+                    viewModel.InstallFolderPath = (string)selectedItem.Value;
+                    OtherFolderbeepTextBox.Text = viewModel.InstallFolderPath;
+                }
+                else
+                {
+                    viewModel.InstallFolderPath = null;
+                }
+            }
         }
 
         private void LocalDbTypebeepComboBox_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
@@ -186,16 +216,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             if (e.SelectedItem != null)
             {
                 SimpleItem selectedItem = (SimpleItem)e.SelectedItem;
-                // Get the selected driver
-                //string selectedDriver = selectedItem.Value.ToString();
-                //// Get the selected version
-                //string selectedVersion = selectedItem.ParentValue.ToString();
-                //// Get the selected driver class
-                //string selectedDriverClass = selectedItem.Name.ToString();
-                //// Get the selected driver name
-                //string selectedClassDriverName = selectedItem.Display.ToString();
-                // Set the driver name and version in the view model in the UI comboboxs
-                
+              if (selectedItem.Item != null)
+                {
+                    viewModel.SelectedEmbeddedDatabaseType = (DriversConfigurations.ConnectionDriversConfig)selectedItem.Item;
+                   
+                }
+                else
+                {
+                    viewModel.SelectedEmbeddedDatabaseType = null;
+                }
 
             }
         }
@@ -203,7 +232,85 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public override void OnNavigatedTo(Dictionary<string, object> parameters)
         {
             base.OnNavigatedTo(parameters);
+            //  ViewModel.CreateLocalConnection();  
+        }
+        private void CreateDBbutton(object sender, EventArgs e)
+        {
+            try
 
+            {
+                // check if the database name is not empty
+                if (string.IsNullOrEmpty(databaseTextBox.Text))
+                {
+                    this.ValidateChildren();
+                    MessageBox.Show("Please enter a database name", "Beep");
+                    return;
+                }
+                // check if folder path is not empty or Special folder selected if none then error
+                if (string.IsNullOrEmpty(SystemFolderbeepComboBox.Text) && string.IsNullOrEmpty(OtherFolderbeepTextBox.Text))
+                {
+                    this.ValidateChildren();
+                    MessageBox.Show("Please select a folder path", "Beep");
+                    return;
+                }
+               
+               
+                if(string.IsNullOrEmpty(LocalDbTypebeepComboBox.Text))
+                {
+                    this.ValidateChildren();
+                    MessageBox.Show("Please select a Database driver", "Beep");
+                    return;
+                }
+                if(SystemFolderbeepComboBox.Text == "Other")
+                {
+                    if (string.IsNullOrEmpty(OtherFolderbeepTextBox.Text))
+                    {
+                        this.ValidateChildren();
+                        MessageBox.Show("Please select a folder path", "Beep");
+                        return;
+                    }
+                }
+               
+             //   viewModel.InstallFolderPath = OtherFolderbeepTextBox.Text;
+                if (!Editor.ConfigEditor.DataConnectionExist(databaseTextBox.Text))
+                {
+                  //  viewModel.SelectedEmbeddedDatabaseType=
+                    this.ValidateChildren();
+                    viewModel.CreateLocalConnection();
+                    if (viewModel.IsCreated)
+                    {
+                        TreeObject.ExtensionsHelpers.GetValues();
+                        TreeObject.ExtensionsHelpers.RDBMSRootBranch.CreateChildNodes();
+                        Editor.AddLogMessage("Beep", $"Database Created Successfully", DateTime.Now, -1, null, Errors.Ok);
+                        MessageBox.Show("Database Created Successfully", "Beep");
+                    }
+                    else
+                    {
+                        Editor.AddLogMessage("Beep", $"Error creating Database", DateTime.Now, -1, null, Errors.Failed);
+                        MessageBox.Show("Error creating Database", "Beep");
+                    }
+
+                }
+                else
+                {
+                    Editor.AddLogMessage("Beep", $"Database Already Exist by this name please try another name ", DateTime.Now, -1, null, Errors.Failed);
+                    MessageBox.Show("Database Already Exist by this name please try another name ", "Beep");
+                }
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+
+                Editor.ErrorObject.Flag = Errors.Failed;
+                string errmsg = "Error creating Database";
+                MessageBox.Show(errmsg, "Beep");
+                Editor.ErrorObject.Message = $"{errmsg}:{ex.Message}";
+                //Logger.WriteLog($" {errmsg} :{ex.Message}");
+                Editor.AddLogMessage("Beep", $"Error creating Local DB - {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
         }
     }
 

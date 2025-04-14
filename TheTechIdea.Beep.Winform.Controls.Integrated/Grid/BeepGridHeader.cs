@@ -1658,7 +1658,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                         case Type type when type == typeof(object):
                             column = new DataGridViewTextBoxColumn
                             {
-                                ValueType = typeof(string) // Display ObjectId as a string
+                                ValueType = typeof(string) // DisplayField ObjectId as a string
                             };
                             break;
                         case Type type when type == typeof(float) || type == typeof(double) || type == typeof(decimal):

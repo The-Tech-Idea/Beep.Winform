@@ -566,6 +566,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 {
 
                 }
+               
                 br.DMEEditor = DMEEditor;
                 br.Visutil = VisManager;
                 br.TreeEditor = this;

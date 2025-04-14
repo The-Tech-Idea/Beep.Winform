@@ -91,6 +91,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _selectedItem = value;
                 _selectedItemIndex = _listItems.IndexOf(_selectedItem);
                 _comboTextBox.Text = value.Text;
+                Text = value.Text;
+                if(_selectedItem.Item != null)
+                {
+                    SelectedValue = _selectedItem.Item;
+                }
                 OnSelectedItemChanged(_selectedItem);
                 Invalidate();
             }

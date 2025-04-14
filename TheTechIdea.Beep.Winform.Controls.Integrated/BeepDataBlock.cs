@@ -354,7 +354,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             _preservedBindings.Remove(component);
                         }
 
-                        component.RefreshBinding();
+                      
                         component.HideToolTip();
                     }
                 }
@@ -515,7 +515,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (componentInstance != null)
                 {
                     // Initialize component properties if necessary
-                    componentInstance.DataContext = this.DataContext;
+                 
                     componentInstance.BlockID = this.BlockID;
 
                     // Cast to Control to add to Controls collection

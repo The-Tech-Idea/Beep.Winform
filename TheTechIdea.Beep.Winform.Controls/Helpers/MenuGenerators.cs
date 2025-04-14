@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
                         item.Name = method.Name;
                         item.Text = method.Caption;
                         item.ImagePath = method.iconimage;
-                        item.Display = method.Caption;
+                        item.DisplayField = method.Caption;
                         item.ObjectType = method.ObjectType;
                         item.MethodName = method.Name;
                         item.AssemblyClassDefinitionID = cls.GuidID;

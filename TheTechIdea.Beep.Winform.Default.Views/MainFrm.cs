@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             //foreach (var item in Dependencies.DMEEditor.ConfigEditor.DataSourcesClasses)
             //{
             //    SimpleItem item1 = new SimpleItem();
-            //    item1.Display = item.className;
+            //    item1.DisplayField = item.className;
             //    item1.Value = item.className;
             //    item1.Text = item.className;
             //    item1.Name = item.className;

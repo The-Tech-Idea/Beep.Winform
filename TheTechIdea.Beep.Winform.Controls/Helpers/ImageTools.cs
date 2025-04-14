@@ -257,7 +257,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
                     try
                     {
-                        // Display the image in PreviewpictureBox
+                        // DisplayField the image in PreviewpictureBox
                         string extension = Path.GetExtension(resourceName).ToLower();
 
                         if (extension == ".svg")

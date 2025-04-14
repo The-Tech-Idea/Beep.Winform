@@ -64,14 +64,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             foreach (var item in viewModel.PackageNames)
             {
                 SimpleItem driveritem = new SimpleItem();
-                driveritem.Display = item;
+                driveritem.DisplayField = item;
                 driveritem.Text = item;
                 driveritem.Name = item;
                 driveritem.Value = item;
                 foreach (var DriversClasse in beepservice.Config_editor.DataDriversClasses.Where(x => x.PackageName == item))
                 {
                     SimpleItem itemversion = new SimpleItem();
-                    itemversion.Display = DriversClasse.version;
+                    itemversion.DisplayField = DriversClasse.version;
                     itemversion.Value = DriversClasse.version;
                     itemversion.Text = DriversClasse.version;
                     itemversion.Name = DriversClasse.version;
@@ -91,7 +91,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //foreach (var item in viewModel.PackageVersions)
             //{
             //    SimpleItem driveritem = new SimpleItem();
-            //    driveritem.Display = item;
+            //    driveritem.DisplayField = item;
             //    driveritem.Value = idx++;
             //    driveritem.Text = item;
             //    driveritem.Name = item;
@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //    foreach (var DriversClasse in beepservice.Config_editor.DataDriversClasses.Where(x => x.PackageName == e.Cell.CellValue.ToString()))
             //    {
             //        SimpleItem itemversion = new SimpleItem();
-            //        itemversion.Display = DriversClasse.version;
+            //        itemversion.DisplayField = DriversClasse.version;
             //        itemversion.Value = DriversClasse.version;
             //        itemversion.Text = DriversClasse.version;
             //        itemversion.Name = DriversClasse.version;

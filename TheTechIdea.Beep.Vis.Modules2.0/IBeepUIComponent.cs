@@ -27,15 +27,15 @@ namespace TheTechIdea.Beep.Vis.Modules
         string FieldID { get; set; }
         int Id { get; set; }
         List<object> Items { get; set; }
+        object SelectedValue { get; set; }
         bool ValidateData(out string  messege);
         // New properties and methods for binding
-        object DataContext { get; set; } // The source of data for binding
+      
         string BoundProperty { get; set; } // The property of the Control to bind to  DataSourceProperty
         string DataSourceProperty { get; set; } // The property of the data source
         string LinkedProperty { get; set; }
         string ToolTipText { get; set; }
-        
-        void RefreshBinding();
+     
         void SetValue(object value);
         object GetValue();
         object Oldvalue { get; }

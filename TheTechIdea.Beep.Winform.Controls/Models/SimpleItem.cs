@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         [Category("Appearance")]
         public string ImagePath { get; set; }
         private string _displayField; // used for to store the name of field that has value to display
-        public string Display
+        public string DisplayField
         {
             get { return string.IsNullOrEmpty(_displayField) ? Text : _displayField; }
             set { _displayField = value; }
@@ -73,11 +73,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             set { _parentItem = value; }
         }
         [NonSerialized]
-        private object _value; // used for to store the parent item
+        private object _value; // used for to store the Value item
         public object Value
         {
             get { return _value; }
             set { _value = value; }
+        }
+        [NonSerialized]
+        private object _selecteditem; // used for to store the Selected Value item
+        public object Item
+        {
+            get { return _selecteditem; }
+            set { _selecteditem = value; }
         }
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public BindingList<SimpleItem> Children { get; set; } = new BindingList<SimpleItem>();
@@ -118,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
 
         public override string ToString()
         {
-            return Name; // Display this value in the PropertyGrid
+            return Name; // DisplayField this value in the PropertyGrid
         }
     }
     [Serializable]

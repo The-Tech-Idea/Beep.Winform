@@ -1764,7 +1764,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers //AllocationRequest
         //---------------------------------------------------------------------
 
         /// <summary>
-        /// Display a printdialog and return the result. Either this method or 
+        /// DisplayField a printdialog and return the result. Either this method or 
         /// the equivalent must be done prior to calling either of the PrintNoDisplay
         /// or PrintPreviewNoDisplay methods.
         /// </summary>

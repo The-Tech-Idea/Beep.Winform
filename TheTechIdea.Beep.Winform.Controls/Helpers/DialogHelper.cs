@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 Message = message,
                 DialogButtons = BeepDialogButtons.OkCancel,
                 DialogType = DialogType.GetInputFromList,
-                Items = items.Select(item => new SimpleItem { Value = item, Display = item }).ToList(),
+                Items = items.Select(item => new SimpleItem { Value = item, DisplayField = item }).ToList(),
                 ReturnValue = selectedValue
             })
             {
@@ -123,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 Items = comboSource.Select(item => new SimpleItem
                 {
                     Value = item.GetType().GetProperty(valueMember)?.GetValue(item)?.ToString(),
-                    Display = item.GetType().GetProperty(displayMember)?.GetValue(item)?.ToString()
+                    DisplayField = item.GetType().GetProperty(displayMember)?.GetValue(item)?.ToString()
                 }).ToList()
             })
             {

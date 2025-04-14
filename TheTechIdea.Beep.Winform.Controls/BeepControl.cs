@@ -846,7 +846,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Padding = new Padding(0);
             UpdateDrawingRect();
 
-            DataBindings.CollectionChanged += DataBindings_CollectionChanged;
+      
 
         }
     
@@ -869,88 +869,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Feature Management"
         #region "Data Binding"
 
-        // Override property binding management when DataContext changes
-        protected override void OnBindingContextChanged(EventArgs e)
-        {
-            base.OnBindingContextChanged(e);
-            UpdateBindings();
-        }
-
-        // Clear and recreate bindings when DataContext changes
-        protected virtual void UpdateBindings()
-        {
-            if (DataContext != null)
-            {
-                ReapplyBindings();
-            }
-            else
-            {
-                // Clear all bindings if DataContext is null
-                DataBindings.Clear();
-            }
-        }
-        // RefreshBindings method: Force an update to each binding in the control
-        public void RefreshBinding()
-        {
-            if (DataContext != null && !string.IsNullOrEmpty(DataSourceProperty))
-            {
-                var dataSourceProperty = DataContext.GetType().GetProperty(DataSourceProperty);
-                var controlProperty = GetType().GetProperty(BoundProperty);
-
-                if (dataSourceProperty != null && controlProperty != null)
-                {
-                    var value = dataSourceProperty.GetValue(DataContext);
-                    controlProperty.SetValue(this, value);
-                }
-            }
-        }
-        // Method to be called whenever DataContext changes
-        protected virtual void OnDataContextChanged()
-        {
-            ReapplyBindings();
-        }
-
-        // Reapply bindings with updated DataContext
-        private void ReapplyBindings()
-        {
-            // Cache original bindings to reapply with the updated DataContext
-            var originalBindings = DataBindings.Cast<Binding>().ToList();
-
-            // Clear existing bindings
-            DataBindings.Clear();
-
-            // Reapply each original binding with the updated DataContext
-            foreach (var originalBinding in originalBindings)
-            {
-                var newBinding = new Binding(
-                    originalBinding.PropertyName,
-                    DataContext,
-                    originalBinding.BindingMemberInfo.BindingField,
-                    originalBinding.FormattingEnabled,
-                    originalBinding.DataSourceUpdateMode,
-                    originalBinding.NullValue
-                )
-                {
-                    FormatString = originalBinding.FormatString,
-                    NullValue = originalBinding.NullValue
-                };
-
-                // Add the new binding to the control's DataBindings collection
-                DataBindings.Add(newBinding);
-            }
-
-            // Refresh the control to display updated values
-            Invalidate();
-        }
-
-        // Event handler to manage data binding changes dynamically
-        protected void DataBindings_CollectionChanged(object sender, CollectionChangeEventArgs e)
-        {
-            if (DataContext != null)
-            {
-                UpdateBindings();
-            }
-        }
+     
 
         #endregion
         #region "Theme"
@@ -2312,6 +2231,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepComponentEventArgs> OnValidate;
         public event EventHandler<BeepComponentEventArgs> OnValueChanged;
         public event EventHandler<BeepComponentEventArgs> OnLinkedValueChanged;
+        private object _selectedValue;
+        public object SelectedValue
+        {
+            get => _selectedValue;
+            set
+            {
+                _selectedValue = value;
+                if (value != null)
+                {
+                    OnSelected?.Invoke(this, new BeepComponentEventArgs(this, BoundProperty, _linkedproperty, value));
+                }
+            }
+        }
         public bool IsSelected
         {
             get => _isSelected;
@@ -2351,20 +2283,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         { get { return _guidID; } set { _guidID = value; } }
         public int Id { get { return _id; } set { _id = value; } }
 
-        protected object _dataContext;
-        [Browsable(true)]
-        [Category("Data")]
-        [Description("Gets or sets the data context for data binding.")]
-        public new object DataContext
-        {
-            get => _dataContext;
-            set
-            {
-                _dataContext = value;
-                OnDataContextChanged();
-            }
-        }
-
+       
         public virtual IBeepUIComponent Form { get; set; }
         [Browsable(true)]
         [Category("Data")]

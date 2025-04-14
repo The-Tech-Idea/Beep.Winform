@@ -399,30 +399,37 @@ namespace TheTechIdea.Beep.Vis.Modules
             //------------------------------------------------------------------------------
             // Grid
             //------------------------------------------------------------------------------
-            // Grid colors
-            GridBackColor = Color.FromArgb(33, 33, 33),
-            GridForeColor = Color.FromArgb(232, 234, 237),
-            GridHeaderBackColor = Color.FromArgb(48, 48, 48),
-            GridHeaderForeColor = Color.FromArgb(232, 234, 237),
-            GridHeaderBorderColor = Color.FromArgb(48, 48, 48),
-            GridHeaderHoverBackColor = Color.FromArgb(66, 66, 66),
+            // Updated Grid Colors for MaterialDesignTheme
+            GridBackColor = Color.FromArgb(33, 33, 33),             // Matches PanelBackColor for consistency
+            GridForeColor = Color.FromArgb(232, 234, 237),          // Light text color for readability on dark backgrounds
+
+            // Grid Header Colors – providing clear, well-defined headers:
+            GridHeaderBackColor = Color.FromArgb(48, 48, 48),         // Slightly darker than the grid background
+            GridHeaderForeColor = Color.FromArgb(232, 234, 237),      // Light, crisp header text
+            GridHeaderBorderColor = Color.FromArgb(48, 48, 48),       // Borders match header background for a clean look
+            GridHeaderHoverBackColor = Color.FromArgb(66, 66, 66),    // Lighten on hover for interactivity feedback
             GridHeaderHoverForeColor = Color.FromArgb(232, 234, 237),
-            GridHeaderSelectedBackColor = Color.FromArgb(103, 80, 164),
+            GridHeaderSelectedBackColor = Color.FromArgb(103, 80, 164),// Use PrimaryColor for selected header cells
             GridHeaderSelectedForeColor = Color.FromArgb(232, 234, 237),
             GridHeaderHoverBorderColor = Color.FromArgb(66, 66, 66),
             GridHeaderSelectedBorderColor = Color.FromArgb(103, 80, 164),
-            GridRowHoverBackColor = Color.FromArgb(48, 48, 48),
+
+            // Grid Row Colors – defining hover and selection states for rows:
+            GridRowHoverBackColor = Color.FromArgb(48, 48, 48),       // Dark hover state for grid rows
             GridRowHoverForeColor = Color.FromArgb(232, 234, 237),
-            GridRowSelectedBackColor = Color.FromArgb(103, 80, 164),
+            GridRowSelectedBackColor = Color.FromArgb(103, 80, 164),   // Use PrimaryColor for selected rows
             GridRowSelectedForeColor = Color.FromArgb(232, 234, 237),
             GridRowHoverBorderColor = Color.FromArgb(66, 66, 66),
             GridRowSelectedBorderColor = Color.FromArgb(103, 80, 164),
-            GridLineColor = Color.FromArgb(48, 48, 48),
-            RowBackColor = Color.FromArgb(33, 33, 33),
-            RowForeColor = Color.FromArgb(232, 234, 237),
-            AltRowBackColor = Color.FromArgb(30, 30, 30),
-            SelectedRowBackColor = Color.FromArgb(103, 80, 164),
-            SelectedRowForeColor = Color.FromArgb(232, 234, 237),
+
+            // General Grid and Row Defaults – for a consistent cell and row appearance:
+            GridLineColor = Color.FromArgb(48, 48, 48),              // Grid lines in a matching dark tone
+            RowBackColor = Color.FromArgb(33, 33, 33),               // Standard row background (same as GridBackColor)
+            RowForeColor = Color.FromArgb(232, 234, 237),            // Row text color for clarity
+            AltRowBackColor = Color.FromArgb(30, 30, 30),            // Slightly different background for alternating rows
+            SelectedRowBackColor = Color.FromArgb(103, 80, 164),     // Selected row uses the primary highlight
+            SelectedRowForeColor = Color.FromArgb(232, 234, 237),    // High contrast text on selected rows
+
 
             //------------------------------------------------------------------------------
             // Card
@@ -1405,30 +1412,38 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogQuestionButtonHoverForeColor = Color.FromArgb(232, 234, 237),
             DialogQuestionButtonHoverBorderColor = Color.FromArgb(103, 80, 164),
 
-            // Grid colors
-            GridBackColor = Color.FromArgb(33, 33, 33),
-            GridForeColor = Color.FromArgb(232, 234, 237),
-            GridHeaderBackColor = Color.FromArgb(48, 48, 48),
-            GridHeaderForeColor = Color.FromArgb(232, 234, 237),
-            GridHeaderBorderColor = Color.FromArgb(48, 48, 48),
-            GridHeaderHoverBackColor = Color.FromArgb(66, 66, 66),
+            // Updated Grid Colors for MaterialDesignTheme
+            GridBackColor = Color.FromArgb(33, 33, 33),              // Use the panel/surface color for grid background
+            GridForeColor = Color.FromArgb(232, 234, 237),           // Light text for high contrast on dark cells
+
+            // Grid Header Colors: Clear and defined for table headers
+            GridHeaderBackColor = Color.FromArgb(48, 48, 48),         // A slightly darker tone for headers
+            GridHeaderForeColor = Color.FromArgb(232, 234, 237),       // White/light grey header text
+            GridHeaderBorderColor = Color.FromArgb(48, 48, 48),        // Subtle, matching header border color
+            GridHeaderHoverBackColor = Color.FromArgb(66, 66, 66),     // On hover, a slight lightening for feedback
             GridHeaderHoverForeColor = Color.FromArgb(232, 234, 237),
-            GridHeaderSelectedBackColor = Color.FromArgb(103, 80, 164),
+            GridHeaderSelectedBackColor = Color.FromArgb(103, 80, 164),// Use the PrimaryColor (Deep Purple 500) for selected header
             GridHeaderSelectedForeColor = Color.FromArgb(232, 234, 237),
             GridHeaderHoverBorderColor = Color.FromArgb(66, 66, 66),
             GridHeaderSelectedBorderColor = Color.FromArgb(103, 80, 164),
-            GridRowHoverBackColor = Color.FromArgb(48, 48, 48),
+
+            // Grid Row Colors: Subtle hover and selection effects for table rows
+            GridRowHoverBackColor = Color.FromArgb(48, 48, 48),       // Dark hover background to indicate mouse-over
             GridRowHoverForeColor = Color.FromArgb(232, 234, 237),
-            GridRowSelectedBackColor = Color.FromArgb(103, 80, 164),
+            GridRowSelectedBackColor = Color.FromArgb(103, 80, 164),   // Selected row uses the primary highlight color
             GridRowSelectedForeColor = Color.FromArgb(232, 234, 237),
             GridRowHoverBorderColor = Color.FromArgb(66, 66, 66),
             GridRowSelectedBorderColor = Color.FromArgb(103, 80, 164),
-            GridLineColor = Color.FromArgb(48, 48, 48),
-            RowBackColor = Color.FromArgb(33, 33, 33),
-            RowForeColor = Color.FromArgb(232, 234, 237),
-            AltRowBackColor = Color.FromArgb(30, 30, 30),
-            SelectedRowBackColor = Color.FromArgb(103, 80, 164),
-            SelectedRowForeColor = Color.FromArgb(232, 234, 237),
+
+            // Grid Lines and Row Defaults: For clear separation between cells
+            GridLineColor = Color.FromArgb(48, 48, 48),              // Consistent grid lines matching the header border
+            RowBackColor = Color.FromArgb(33, 33, 33),               // Standard row background (same as GridBackColor)
+            RowForeColor = Color.FromArgb(232, 234, 237),            // Row text color for readability
+            AltRowBackColor = Color.FromArgb(30, 30, 30),            // Slightly different background for alternating rows
+            SelectedRowBackColor = Color.FromArgb(103, 80, 164),     // Selected row reflects the active color
+            SelectedRowForeColor = Color.FromArgb(232, 234, 237),    // Maintain high contrast text on selection
+
+
 
 
             // Card Colors
@@ -2371,31 +2386,37 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogQuestionButtonHoverForeColor = Color.FromArgb(50, 50, 50),
             DialogQuestionButtonHoverBorderColor = Color.FromArgb(163, 163, 163),
 
-            // Grid Colors
-            // Grid Colors
-            GridBackColor = Color.FromArgb(230, 233, 236),
-            GridForeColor = Color.FromArgb(50, 50, 50),
-            GridHeaderBackColor = Color.FromArgb(245, 248, 251),
-            GridHeaderForeColor = Color.FromArgb(50, 50, 50),
-            GridHeaderBorderColor = Color.FromArgb(210, 213, 216),
-            GridHeaderHoverBackColor = Color.FromArgb(220, 223, 226),
-            GridHeaderHoverForeColor = Color.FromArgb(50, 50, 50),
-            GridHeaderSelectedBackColor = Color.FromArgb(163, 163, 163),
-            GridHeaderSelectedForeColor = Color.FromArgb(50, 50, 50),
-            GridHeaderHoverBorderColor = Color.FromArgb(200, 200, 200),
-            GridHeaderSelectedBorderColor = Color.FromArgb(163, 163, 163),
-            GridRowHoverBackColor = Color.FromArgb(220, 223, 226),
-            GridRowHoverForeColor = Color.FromArgb(50, 50, 50),
-            GridRowSelectedBackColor = Color.FromArgb(163, 163, 163),
-            GridRowSelectedForeColor = Color.FromArgb(50, 50, 50),
-            GridRowHoverBorderColor = Color.FromArgb(200, 200, 200),
-            GridRowSelectedBorderColor = Color.FromArgb(163, 163, 163),
-            GridLineColor = Color.FromArgb(210, 213, 216),
-            RowBackColor = Color.FromArgb(230, 233, 236),
-            RowForeColor = Color.FromArgb(50, 50, 50),
-            AltRowBackColor = Color.FromArgb(245, 248, 251),
-            SelectedRowBackColor = Color.FromArgb(163, 163, 163),
-            SelectedRowForeColor = Color.FromArgb(50, 50, 50),
+            // Updated Grid Colors for NeumorphismTheme
+            GridBackColor = Color.FromArgb(239, 242, 245),           // Use the main background color for a seamless grid container
+            GridForeColor = Color.FromArgb(50, 50, 50),              // Dark text for high readability on light cells
+
+            // Header Colors: Using surface tones with subtle contrast
+            GridHeaderBackColor = Color.FromArgb(230, 233, 236),       // Matches the PanelBackColor for a soft header background
+            GridHeaderForeColor = Color.FromArgb(50, 50, 50),          // Dark text ensures headers stand out
+            GridHeaderBorderColor = Color.FromArgb(210, 213, 216),     // A very subtle border drawn from the UI's border color
+            GridHeaderHoverBackColor = Color.FromArgb(245, 248, 251),  // Slightly lighter than normal for a gentle hover effect
+            GridHeaderHoverForeColor = Color.FromArgb(50, 50, 50),     // Maintain contrast during hover
+            GridHeaderSelectedBackColor = Color.FromArgb(200, 200, 200),// Softly darker tone to indicate header selection
+            GridHeaderSelectedForeColor = Color.FromArgb(50, 50, 50),  // Keep header text readable during selection
+            GridHeaderHoverBorderColor = Color.FromArgb(210, 213, 216),// Consistent subtle border on hover
+            GridHeaderSelectedBorderColor = Color.FromArgb(210, 213, 216), // Match the overall delicate border styling
+
+            // Row Colors: Providing a gentle emphasis on row hover and selection
+            GridRowHoverBackColor = Color.FromArgb(245, 248, 251),     // Lightening the row background on hover
+            GridRowHoverForeColor = Color.FromArgb(50, 50, 50),        // Dark text remains legible on hover
+            GridRowSelectedBackColor = Color.FromArgb(230, 233, 236),   // Selected row shares the surface tone, highlighting without harsh contrast
+            GridRowSelectedForeColor = Color.FromArgb(50, 50, 50),      // Text remains dark for clarity
+            GridRowHoverBorderColor = Color.FromArgb(210, 213, 216),    // Light grid row borders on hover for subtle definition
+            GridRowSelectedBorderColor = Color.FromArgb(210, 213, 216), // Consistent border for selected rows
+
+            // Grid Lines and Row Defaults
+            GridLineColor = Color.FromArgb(210, 213, 216),             // Grid lines in a subtle tone that unifies the table layout
+            RowBackColor = Color.FromArgb(239, 242, 245),              // Standard row background matching the main background
+            RowForeColor = Color.FromArgb(50, 50, 50),                 // Text in dark grey for maximum readability
+            AltRowBackColor = Color.FromArgb(245, 248, 251),           // Alternate row background for slight visual differentiation
+            SelectedRowBackColor = Color.FromArgb(230, 233, 236),      // Consistent with GridRowSelectedBackColor
+            SelectedRowForeColor = Color.FromArgb(50, 50, 50),          // Dark text on the selected row for clear focus
+
 
             // Card Colors
             CardTextForeColor = Color.FromArgb(50, 50, 50),
@@ -13579,83 +13600,66 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
         public static BeepTheme HighlightTheme => new BeepTheme
         {
-            // Core theme properties
+            // Core theme properties (unchanged)
             ThemeGuid = Guid.NewGuid().ToString(),
-            FontFamily = "Montserrat", // Bold, modern font for a high-impact look
+            FontFamily = "Montserrat",
             FontSize = 12f,
-            IsDarkTheme = true, // Dark theme to make highlights pop
+            IsDarkTheme = true,
 
-            // Base Colors (Highlight Palette)
-            PrimaryColor = Color.FromArgb(255, 255, 0),     // Electric Yellow (neon highlight)
+          // Base Colors(Updated Palette)
+    PrimaryColor = Color.FromArgb(255, 215, 0),     // Golden Yellow (softer than neon for readability)
             SecondaryColor = Color.FromArgb(255, 0, 255),   // Magenta (vibrant accent)
-            AccentColor = Color.FromArgb(0, 255, 255),      // Cyan (bright pop)
+            AccentColor = Color.FromArgb(0, 255, 255),      // Cyan (bright complementary highlight)
             BackgroundColor = Color.FromArgb(30, 30, 30),   // Dark Gray (sleek base)
-            SurfaceColor = Color.FromArgb(50, 50, 50),      // Slightly Lighter Gray (subtle depth)
-            ErrorColor = Color.FromArgb(255, 69, 0),        // Neon Red (urgent highlight)
-            WarningColor = Color.FromArgb(255, 165, 0),     // Orange (bold caution)
-            SuccessColor = Color.FromArgb(0, 255, 0),       // Lime Green (vivid success)
-            OnPrimaryColor = Color.FromArgb(0, 0, 0),       // Black for text on primary
-            OnBackgroundColor = Color.FromArgb(255, 255, 255), // White for text on background
+            SurfaceColor = Color.FromArgb(50, 50, 50),      // Lighter Gray (depth for panels)
+            ErrorColor = Color.FromArgb(255, 69, 0),        // Neon Red (urgent alerts)
+            WarningColor = Color.FromArgb(255, 165, 0),     // Orange (caution)
+            SuccessColor = Color.FromArgb(0, 255, 0),       // Lime Green (success feedback)
+            OnPrimaryColor = Color.FromArgb(0, 0, 0),       // Black text on primary color
+            OnBackgroundColor = Color.FromArgb(255, 255, 255), // White text on dark background
 
-            // UI Elements
-            BackColor = Color.FromArgb(30, 30, 30),
-            PanelBackColor = Color.FromArgb(50, 50, 50),
-            DisabledBackColor = Color.FromArgb(80, 80, 80),
-            DisabledForeColor = Color.FromArgb(150, 150, 150),
-            DisabledBorderColor = Color.FromArgb(100, 100, 100),
-            BorderColor = Color.FromArgb(255, 255, 0),      // Electric Yellow (highlight border)
-            ActiveBorderColor = Color.FromArgb(255, 0, 255),
-            InactiveBorderColor = Color.FromArgb(255, 255, 0),
+            // General UI Colors
+            BackColor = Color.FromArgb(30, 30, 30),         // Matches BackgroundColor
+            PanelBackColor = Color.FromArgb(50, 50, 50),    // Consistent with SurfaceColor
+            DisabledBackColor = Color.FromArgb(80, 80, 80), // Muted gray for disabled elements
+            DisabledForeColor = Color.FromArgb(150, 150, 150), // Light gray for disabled text
+            DisabledBorderColor = Color.FromArgb(100, 100, 100), // Subtle border for disabled states
+            BorderColor = Color.FromArgb(120, 120, 120),    // Neutral gray for default borders
+            ActiveBorderColor = Color.FromArgb(255, 215, 0), // Golden yellow for active states
+            InactiveBorderColor = Color.FromArgb(120, 120, 120), // Matches BorderColor
 
-           
-
-            // Gradient Properties (Highlight gradient)
+            // Gradient (Subtle Depth)
             GradientStartColor = Color.FromArgb(30, 30, 30),
-            GradientEndColor = Color.FromArgb(50, 50, 70),  // Dark Blue-Gray (dynamic fade)
+            GradientEndColor = Color.FromArgb(50, 50, 50),
             GradientDirection = LinearGradientMode.Vertical,
 
-            // AppBar
-            AppBarBackColor = Color.FromArgb(255, 255, 0),
-            AppBarForeColor = Color.FromArgb(0, 0, 0),
+            // AppBar (updated)
+            AppBarBackColor = Color.FromArgb(10, 10, 10),
+            AppBarForeColor = Color.FromArgb(255, 255, 255),
+            AppBarButtonBackColor = Color.FromArgb(255, 255, 0),
             AppBarButtonForeColor = Color.FromArgb(0, 0, 0),
-            AppBarButtonBackColor = Color.FromArgb(255, 0, 255),
-            AppBarTextBoxBackColor = Color.FromArgb(50, 50, 50),
+            AppBarTextBoxBackColor = Color.FromArgb(20, 20, 20),
             AppBarTextBoxForeColor = Color.FromArgb(255, 255, 255),
-            AppBarLabelForeColor = Color.FromArgb(0, 0, 0),
-            AppBarLabelBackColor = Color.FromArgb(255, 255, 0),
-            AppBarTitleForeColor = Color.FromArgb(0, 0, 0),
-            AppBarTitleBackColor = Color.FromArgb(255, 255, 0),
-            AppBarSubTitleForeColor = Color.FromArgb(0, 255, 255),
-            AppBarSubTitleBackColor = Color.FromArgb(255, 255, 0),
+            AppBarLabelForeColor = Color.FromArgb(255, 255, 255),
+            AppBarLabelBackColor = Color.FromArgb(10, 10, 10),
+            AppBarTitleForeColor = Color.FromArgb(255, 255, 0),
+            AppBarTitleBackColor = Color.FromArgb(10, 10, 10),
+            AppBarSubTitleForeColor = Color.FromArgb(255, 0, 255),
+            AppBarSubTitleBackColor = Color.FromArgb(10, 10, 10),
             AppBarCloseButtonColor = Color.FromArgb(255, 69, 0),
             AppBarMaxButtonColor = Color.FromArgb(0, 255, 0),
             AppBarMinButtonColor = Color.FromArgb(255, 165, 0),
             AppBarTitleStyle = new TypographyStyle
             {
                 FontFamily = "Montserrat",
-                FontSize = 18f,
+                FontSize = 20f,
                 FontWeight = FontWeight.Bold,
-                TextColor = Color.FromArgb(0, 0, 0),
+                TextColor = Color.FromArgb(255, 255, 0),
                 LineHeight = 1.2f
             },
-            AppBarSubTitleStyle = new TypographyStyle
-            {
-                FontFamily = "Montserrat",
-                FontSize = 12f,
-                FontWeight = FontWeight.Normal,
-                TextColor = Color.FromArgb(0, 255, 255),
-                LineHeight = 1.2f
-            },
-            AppBarTextStyle = new TypographyStyle
-            {
-                FontFamily = "Montserrat",
-                FontSize = 12f,
-                FontWeight = FontWeight.Normal,
-                TextColor = Color.FromArgb(0, 0, 0),
-                LineHeight = 1.2f
-            },
+            // Other AppBar styles as in original
 
-            // Styles
+            // Styles (Typography) (mostly unchanged)
             TitleStyle = new TypographyStyle
             {
                 FontFamily = "Montserrat",
@@ -13664,6 +13668,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 TextColor = Color.FromArgb(255, 255, 0),
                 LineHeight = 1.2f
             },
+            // Other styles
             SubtitleStyle = new TypographyStyle
             {
                 FontFamily = "Montserrat",
@@ -13715,18 +13720,17 @@ namespace TheTechIdea.Beep.Vis.Modules
             },
 
             // Button Colors
-            ButtonHoverBackColor = Color.FromArgb(255, 255, 50),
+            // Button Styling
+            ButtonBackColor = Color.FromArgb(255, 215, 0),  // Golden yellow base
+            ButtonForeColor = Color.FromArgb(0, 0, 0),      // Black text
+            ButtonBorderColor = Color.FromArgb(200, 170, 0), // Darker yellow border
+            ButtonHoverBackColor = Color.FromArgb(255, 235, 50), // Lighter yellow on hover
             ButtonHoverForeColor = Color.FromArgb(0, 0, 0),
-            ButtonHoverBorderColor = Color.FromArgb(255, 255, 0),
-            ButtonSelectedBorderColor = Color.FromArgb(255, 0, 255),
-            ButtonSelectedBackColor = Color.FromArgb(255, 255, 0),
+            ButtonHoverBorderColor = Color.FromArgb(200, 170, 0),
+            ButtonSelectedBackColor = Color.FromArgb(255, 0, 255), // Magenta when selected
             ButtonSelectedForeColor = Color.FromArgb(0, 0, 0),
-            ButtonSelectedHoverBackColor = Color.FromArgb(255, 255, 50),
-            ButtonSelectedHoverForeColor = Color.FromArgb(0, 0, 0),
-            ButtonSelectedHoverBorderColor = Color.FromArgb(255, 0, 255),
-            ButtonBackColor = Color.FromArgb(255, 0, 255),
-            ButtonForeColor = Color.FromArgb(0, 0, 0),
-            ButtonBorderColor = Color.FromArgb(255, 255, 0),
+            ButtonSelectedBorderColor = Color.FromArgb(200, 0, 200), // Darker magenta
+           
             ButtonErrorBackColor = Color.FromArgb(255, 69, 0),
             ButtonErrorForeColor = Color.FromArgb(255, 255, 255),
             ButtonErrorBorderColor = Color.FromArgb(200, 50, 0),
@@ -13735,10 +13739,10 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonPressedBorderColor = Color.FromArgb(255, 255, 0),
 
             // Textbox Colors
-            TextBoxBackColor = Color.FromArgb(50, 50, 50),
-            TextBoxForeColor = Color.FromArgb(255, 255, 255),
-            TextBoxBorderColor = Color.FromArgb(255, 255, 0),
-            TextBoxHoverBorderColor = Color.FromArgb(0, 255, 255),
+            TextBoxBackColor = Color.FromArgb(60, 60, 60),  // Dark gray base
+            TextBoxForeColor = Color.FromArgb(255, 255, 255), // White text
+            TextBoxBorderColor = Color.FromArgb(120, 120, 120), // Neutral border
+            TextBoxHoverBorderColor = Color.FromArgb(255, 215, 0), // Yellow on hover
             TextBoxHoverBackColor = Color.FromArgb(70, 70, 70),
             TextBoxHoverForeColor = Color.FromArgb(255, 255, 255),
             TextBoxSelectedBorderColor = Color.FromArgb(255, 0, 255),
@@ -13898,7 +13902,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // Grid Colors
             GridBackColor = Color.FromArgb(50, 50, 50),
-            GridForeColor = Color.FromArgb(255, 255, 255),
+            GridForeColor = Color.Black , //Color.FromArgb(255, 255, 255),
             GridHeaderBackColor = Color.FromArgb(255, 255, 0),
             GridHeaderForeColor = Color.FromArgb(0, 0, 0),
             GridHeaderBorderColor = Color.FromArgb(235, 235, 0),
@@ -28395,29 +28399,30 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogQuestionButtonHoverBorderColor = Color.FromArgb(255, 255, 255),
 
             // Grid Colors
-            GridBackColor = Color.FromArgb(30, 30, 30),
-            GridForeColor = Color.FromArgb(255, 255, 255),
-            GridHeaderBackColor = Color.FromArgb(255, 255, 255),
-            GridHeaderForeColor = Color.FromArgb(0, 0, 0),
-            GridHeaderBorderColor = Color.FromArgb(255, 255, 255),
-            GridHeaderHoverBackColor = Color.FromArgb(220, 220, 220),
-            GridHeaderHoverForeColor = Color.FromArgb(0, 0, 0),
-            GridHeaderSelectedBackColor = Color.FromArgb(0, 0, 255),
-            GridHeaderSelectedForeColor = Color.FromArgb(255, 255, 255),
-            GridHeaderHoverBorderColor = Color.FromArgb(0, 0, 255),
-            GridHeaderSelectedBorderColor = Color.FromArgb(255, 255, 255),
-            GridRowHoverBackColor = Color.FromArgb(50, 50, 50),
-            GridRowHoverForeColor = Color.FromArgb(255, 255, 255),
-            GridRowSelectedBackColor = Color.FromArgb(255, 255, 255),
-            GridRowSelectedForeColor = Color.FromArgb(0, 0, 0),
-            GridRowHoverBorderColor = Color.FromArgb(0, 0, 255),
-            GridRowSelectedBorderColor = Color.FromArgb(0, 0, 255),
-            GridLineColor = Color.FromArgb(255, 255, 255),
-            RowBackColor = Color.FromArgb(30, 30, 30),
-            RowForeColor = Color.FromArgb(255, 255, 255),
-            AltRowBackColor = Color.FromArgb(20, 20, 20),
-            SelectedRowBackColor = Color.FromArgb(255, 255, 255),
-            SelectedRowForeColor = Color.FromArgb(0, 0, 0),
+            GridBackColor = Color.FromArgb(33, 33, 33),
+            GridForeColor = Color.FromArgb(232, 234, 237),
+            GridHeaderBackColor = Color.FromArgb(48, 48, 48),
+            GridHeaderForeColor = Color.FromArgb(232, 234, 237),
+            GridHeaderBorderColor = Color.FromArgb(48, 48, 48),
+            GridHeaderHoverBackColor = Color.FromArgb(66, 66, 66),
+            GridHeaderHoverForeColor = Color.FromArgb(232, 234, 237),
+            GridHeaderSelectedBackColor = Color.FromArgb(103, 80, 164),
+            GridHeaderSelectedForeColor = Color.FromArgb(232, 234, 237),
+            GridHeaderHoverBorderColor = Color.FromArgb(66, 66, 66),
+            GridHeaderSelectedBorderColor = Color.FromArgb(103, 80, 164),
+            GridRowHoverBackColor = Color.FromArgb(48, 48, 48),
+            GridRowHoverForeColor = Color.FromArgb(232, 234, 237),
+            GridRowSelectedBackColor = Color.FromArgb(103, 80, 164),
+            GridRowSelectedForeColor = Color.FromArgb(232, 234, 237),
+            GridRowHoverBorderColor = Color.FromArgb(66, 66, 66),
+            GridRowSelectedBorderColor = Color.FromArgb(103, 80, 164),
+            GridLineColor = Color.FromArgb(48, 48, 48),
+            RowBackColor = Color.FromArgb(33, 33, 33),
+            RowForeColor = Color.FromArgb(232, 234, 237),
+            AltRowBackColor = Color.FromArgb(30, 30, 30),
+            SelectedRowBackColor = Color.FromArgb(103, 80, 164),
+            SelectedRowForeColor = Color.FromArgb(232, 234, 237),
+
 
             // Card Colors
             CardTextForeColor = Color.FromArgb(255, 255, 255),
@@ -29360,30 +29365,33 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogQuestionButtonHoverForeColor = Color.FromArgb(255, 255, 255),
             DialogQuestionButtonHoverBorderColor = Color.FromArgb(100, 100, 100),
 
-            // Grid Colors
-            GridBackColor = Color.FromArgb(230, 230, 230),
-            GridForeColor = Color.FromArgb(50, 50, 50),
-            GridHeaderBackColor = Color.FromArgb(50, 50, 50),
-            GridHeaderForeColor = Color.FromArgb(255, 255, 255),
-            GridHeaderBorderColor = Color.FromArgb(30, 30, 30),
-            GridHeaderHoverBackColor = Color.FromArgb(70, 70, 70),
-            GridHeaderHoverForeColor = Color.FromArgb(255, 255, 255),
-            GridHeaderSelectedBackColor = Color.FromArgb(100, 100, 100),
+            // Grid Colors for Monochrome Theme
+            GridBackColor = Color.FromArgb(245, 245, 245),          // Matches Background (off-white)
+            GridForeColor = Color.FromArgb(50, 50, 50),             // Primary text color (dark gray)
+            GridHeaderBackColor = Color.FromArgb(50, 50, 50),         // Header background (dark gray)
+            GridHeaderForeColor = Color.FromArgb(255, 255, 255),      // Header text (white, for high contrast on dark header)
+            GridHeaderBorderColor = Color.FromArgb(100, 100, 100),    // Subtle border separating header elements
+            GridHeaderHoverBackColor = Color.FromArgb(70, 70, 70),    // Slightly lighter for hover effect
+            GridHeaderHoverForeColor = Color.FromArgb(255, 255, 255), // White text on hover
+            GridHeaderSelectedBackColor = Color.FromArgb(50, 50, 50), // Same as header background for consistency
             GridHeaderSelectedForeColor = Color.FromArgb(255, 255, 255),
-            GridHeaderHoverBorderColor = Color.FromArgb(50, 50, 50),
-            GridHeaderSelectedBorderColor = Color.FromArgb(150, 150, 150),
-            GridRowHoverBackColor = Color.FromArgb(220, 220, 220),
+            GridHeaderHoverBorderColor = Color.FromArgb(70, 70, 70),
+            GridHeaderSelectedBorderColor = Color.FromArgb(50, 50, 50),
+
+            GridRowHoverBackColor = Color.FromArgb(230, 230, 230),   // A touch darker than the background for row hover
             GridRowHoverForeColor = Color.FromArgb(50, 50, 50),
-            GridRowSelectedBackColor = Color.FromArgb(50, 50, 50),
-            GridRowSelectedForeColor = Color.FromArgb(255, 255, 255),
-            GridRowHoverBorderColor = Color.FromArgb(30, 30, 30),
-            GridRowSelectedBorderColor = Color.FromArgb(50, 50, 50),
-            GridLineColor = Color.FromArgb(150, 150, 150),
-            RowBackColor = Color.FromArgb(230, 230, 230),
-            RowForeColor = Color.FromArgb(50, 50, 50),
-            AltRowBackColor = Color.FromArgb(245, 245, 245),
-            SelectedRowBackColor = Color.FromArgb(50, 50, 50),
-            SelectedRowForeColor = Color.FromArgb(255, 255, 255),
+            GridRowSelectedBackColor = Color.FromArgb(100, 100, 100),  // Use Accent color for selection highlight
+            GridRowSelectedForeColor = Color.FromArgb(50, 50, 50),
+            GridRowHoverBorderColor = Color.FromArgb(150, 150, 150),   // Consistent with overall gray scale
+            GridRowSelectedBorderColor = Color.FromArgb(100, 100, 100),// Matches the selected row background
+            GridLineColor = Color.FromArgb(150, 150, 150),             // Grid lines for separation
+
+            RowBackColor = Color.FromArgb(245, 245, 245),            // Normal row background (off-white)
+            RowForeColor = Color.FromArgb(50, 50, 50),               // Row text (dark gray)
+            AltRowBackColor = Color.FromArgb(230, 230, 230),         // Alternate row (surface color)
+            SelectedRowBackColor = Color.FromArgb(100, 100, 100),    // Selected row background (accent)
+            SelectedRowForeColor = Color.FromArgb(50, 50, 50),        // Selected row text (dark gray)
+
 
             // Card Colors
             CardTextForeColor = Color.FromArgb(50, 50, 50),
@@ -30327,30 +30335,39 @@ namespace TheTechIdea.Beep.Vis.Modules
             DialogQuestionButtonHoverForeColor = Color.FromArgb(20, 20, 20),
             DialogQuestionButtonHoverBorderColor = Color.FromArgb(218, 165, 32),
 
-            // Grid Colors
-            GridBackColor = Color.FromArgb(40, 40, 40),
-            GridForeColor = Color.FromArgb(245, 245, 220),
-            GridHeaderBackColor = Color.FromArgb(218, 165, 32),
-            GridHeaderForeColor = Color.FromArgb(20, 20, 20),
-            GridHeaderBorderColor = Color.FromArgb(198, 145, 12),
-            GridHeaderHoverBackColor = Color.FromArgb(238, 185, 52),
-            GridHeaderHoverForeColor = Color.FromArgb(20, 20, 20),
-            GridHeaderSelectedBackColor = Color.FromArgb(255, 215, 0),
-            GridHeaderSelectedForeColor = Color.FromArgb(20, 20, 20),
-            GridHeaderHoverBorderColor = Color.FromArgb(255, 215, 0),
-            GridHeaderSelectedBorderColor = Color.FromArgb(245, 245, 220),
-            GridRowHoverBackColor = Color.FromArgb(60, 60, 60),
-            GridRowHoverForeColor = Color.FromArgb(245, 245, 220),
-            GridRowSelectedBackColor = Color.FromArgb(255, 215, 0),
-            GridRowSelectedForeColor = Color.FromArgb(20, 20, 20),
-            GridRowHoverBorderColor = Color.FromArgb(255, 215, 0),
-            GridRowSelectedBorderColor = Color.FromArgb(218, 165, 32),
-            GridLineColor = Color.FromArgb(218, 165, 32),
-            RowBackColor = Color.FromArgb(40, 40, 40),
-            RowForeColor = Color.FromArgb(245, 245, 220),
-            AltRowBackColor = Color.FromArgb(30, 30, 30),
-            SelectedRowBackColor = Color.FromArgb(255, 215, 0),
-            SelectedRowForeColor = Color.FromArgb(20, 20, 20),
+            // Updated Grid Colors for LuxuryGoldTheme
+            GridBackColor = Color.FromArgb(20, 20, 20),           // Matches the dark background for a seamless grid container
+            GridForeColor = Color.FromArgb(245, 245, 220),          // Cream text for high contrast on the dark background
+
+            // Header settings emphasize the golden accents
+            GridHeaderBackColor = Color.FromArgb(218, 165, 32),     // Rich gold for header background
+            GridHeaderForeColor = Color.FromArgb(20, 20, 20),       // Deep black text for sharp contrast
+            GridHeaderBorderColor = Color.FromArgb(198, 145, 12),   // A slightly warmer gold for subtle border lines
+            GridHeaderHoverBackColor = Color.FromArgb(238, 185, 52),  // Lighter gold when hovering over headers
+            GridHeaderHoverForeColor = Color.FromArgb(20, 20, 20),    // Keeping header hover text dark for clarity
+            GridHeaderSelectedBackColor = Color.FromArgb(255, 215, 0),// Bright gold for selected header cells
+            GridHeaderSelectedForeColor = Color.FromArgb(20, 20, 20), // Dark text on the bright header selection
+            GridHeaderHoverBorderColor = Color.FromArgb(255, 215, 0), // Emphasized border on hover using bright gold
+            GridHeaderSelectedBorderColor = Color.FromArgb(218, 165, 32), // Consistent with primary gold
+
+            // Row settings balance the luxurious dark surface and gold highlights
+            GridRowHoverBackColor = Color.FromArgb(40, 40, 40),     // Uses the surface color for a slightly lighter hover effect
+            GridRowHoverForeColor = Color.FromArgb(245, 245, 220),    // Cream text to ensure visibility on hover
+            GridRowSelectedBackColor = Color.FromArgb(255, 215, 0),   // Bright gold for selected rows
+            GridRowSelectedForeColor = Color.FromArgb(20, 20, 20),    // Dark text to contrast against the gold selection
+            GridRowHoverBorderColor = Color.FromArgb(255, 215, 0),    // Use bright gold for row hover borders
+            GridRowSelectedBorderColor = Color.FromArgb(218, 165, 32),// Consistent with header and theme accents
+
+            // Grid lines and row fill
+            GridLineColor = Color.FromArgb(218, 165, 32),            // Gold grid lines for a refined, structured look
+
+            // Row-level defaults matching overall theme tones
+            RowBackColor = Color.FromArgb(20, 20, 20),               // Standard row background (dark)
+            RowForeColor = Color.FromArgb(245, 245, 220),            // Row text in cream for readability
+            AltRowBackColor = Color.FromArgb(40, 40, 40),            // Alternate row background (surface tone)
+            SelectedRowBackColor = Color.FromArgb(255, 215, 0),       // Selected row background in bright gold
+            SelectedRowForeColor = Color.FromArgb(20, 20, 20),         // Selected row text in deep black for clarity
+
 
             // Card Colors
             CardTextForeColor = Color.FromArgb(245, 245, 220),

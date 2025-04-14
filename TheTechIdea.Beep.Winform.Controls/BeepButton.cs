@@ -648,8 +648,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
                  Font = _textFont;
             }
-           
-           
+
+            beepImage.Theme = Theme;
             ApplyThemeToSvg();
             Invalidate();  // Trigger repaint
         }
@@ -663,7 +663,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                    
          //           beepImage.ImageEmbededin = ImageEmbededin.Button;
-           //         beepImage.Theme = Theme;
+                   beepImage.Theme = Theme;
                     beepImage.ApplyThemeToSvg();
                 }
 

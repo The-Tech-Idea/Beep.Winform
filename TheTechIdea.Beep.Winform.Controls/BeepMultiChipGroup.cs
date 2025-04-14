@@ -249,7 +249,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             foreach (var chip in _chips)
             {
-                string displayText = chip.Item.Text ?? chip.Item.Name ?? chip.Item.Display ?? string.Empty;
+                string displayText = chip.Item.Text ?? chip.Item.Name ?? chip.Item.DisplayField ?? string.Empty;
                 Size textSize = TextRenderer.MeasureText(displayText, Font);
                 int chipWidth = textSize.Width + 20; // Add padding to text width (no minimum width)
 
@@ -308,7 +308,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw the chips
             foreach (var chip in _chips)
             {
-                string displayText = chip.Item.Text ?? chip.Item.Name ?? chip.Item.Display ?? string.Empty;
+                string displayText = chip.Item.Text ?? chip.Item.Name ?? chip.Item.DisplayField ?? string.Empty;
 
                 // Determine the chip's appearance based on its state
                 Color chipBackColor = chip.IsSelected

@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
                 // Clear the current rootnodeitems and add the new list for this row
                 this.Items.Clear();
 
-                // Populate ComboBox with Display (shown) and Value (ID) for each item
+                // Populate ComboBox with DisplayField (shown) and Value (ID) for each item
                 this.Items.AddRange(items.Select(x => new KeyValuePair<int, string>(x.ID, x.Display)).ToArray());
 
                 // Update the currently displayed ComboBox if we're in editing mode
@@ -132,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
                         editingControl.Items.Add(new KeyValuePair<int, string>(item.ID, item.Display));
                     }
 
-                    editingControl.DisplayMember = "Value";  // Config the Display value in the ComboBox
+                    editingControl.DisplayMember = "Value";  // Config the DisplayField value in the ComboBox
                     editingControl.ValueMember = "Key";  // Use the ID as the underlying value
                 }
             }
@@ -153,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid.DataColumns
                 if (this.DataSource != null)
                 {
                     control.DataSource = this.DataSource;
-                    control.DisplayMember = "Value";  // Config the Display value in the ComboBox
+                    control.DisplayMember = "Value";  // Config the DisplayField value in the ComboBox
                     control.ValueMember = "Key";  // Use the ID as the underlying value
                 }
             }

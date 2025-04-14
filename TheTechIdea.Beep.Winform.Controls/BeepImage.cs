@@ -7,6 +7,8 @@ using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Vis.Modules;
 using System.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using System.Xml.Linq;
+using System.Xml;
 
 
 
@@ -328,325 +330,153 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Propoerties"
         #region "Theme Properties"
-        public override void ApplyTheme()
-        {
-            //  base.ApplyTheme();
-            if (_currentTheme != null)
-            {
-                HoverBackColor = _currentTheme.ButtonHoverBackColor; // Hover background color
-                HoverForeColor = _currentTheme.ButtonHoverForeColor; // Hover foreground color
-                PressedBackColor = _currentTheme.ButtonSelectedForeColor; // Pressed background color
-                PressedForeColor = _currentTheme.ButtonSelectedForeColor; // Pressed foreground color
-                FocusBackColor = _currentTheme.ButtonSelectedForeColor; // Focus background color
-                FocusForeColor = _currentTheme.ButtonSelectedForeColor; // Focus foreground color
-
-                // ForeColor = _currentTheme.ButtonForeColor; // Default foreground color
-
-                BackColor = _currentTheme.ButtonBackColor;
-                switch (_imageEmbededin)
-                {
-                    case ImageEmbededin.ListBox:
-                        BackColor = _currentTheme.ListBackColor;
-                        ForeColor = _currentTheme.ListForeColor;
-                        break;
-                    case ImageEmbededin.Form:
-                        BackColor = _currentTheme.BackColor;
-                        ForeColor = _currentTheme.ButtonForeColor;
-                        break;
-                    case ImageEmbededin.Button:
-                        BackColor = _currentTheme.ButtonBackColor;
-                        ForeColor = _currentTheme.ButtonForeColor;
-                        break;
-                    case ImageEmbededin.ListView:
-
-                        BackColor = _currentTheme.ListBackColor;
-                        ForeColor = _currentTheme.ListForeColor;
-                        break;
-                    case ImageEmbededin.Label:
-
-                        BackColor = _currentTheme.LabelBackColor;
-                        ForeColor = _currentTheme.LabelForeColor;
-                        break;
-                    case ImageEmbededin.TextBox:
-
-                        BackColor = _currentTheme.TextBoxBackColor;
-                        ForeColor = _currentTheme.TextBoxForeColor;
-                        break;
-                    case ImageEmbededin.ComboBox:
-
-                        BackColor = _currentTheme.ComboBoxBackColor;
-                        ForeColor = _currentTheme.ComboBoxForeColor;
-                        break;
-                    case ImageEmbededin.DataGridView:
-
-                        BackColor = _currentTheme.GridBackColor;
-                        ForeColor = _currentTheme.GridForeColor;
-                        break;
-                    case ImageEmbededin.SideBar:
-                        BackColor = _currentTheme.SideMenuBackColor;
-                        ForeColor = _currentTheme.SideMenuForeColor;
-                        break;
-                    default:
-
-                        BackColor = _currentTheme.BackColor;
-                        break;
-
-
-                }
-                if (_applyThemeOnImage)
-                {
-                    ApplyThemeToSvg();
-                }
-                if (IsChild && Parent != null)
-                {
-                    parentbackcolor = Parent.BackColor;
-                }
-                Invalidate();
-            }
-        }
 
         public void ApplyThemeToSvg()
         {
-            if (svgDocument == null || _currentTheme == null)
+            if (svgDocument == null)
             {
-                // Log if SVG document or theme is null
-                MiscFunctions.SendLog("ApplyThemeToSvg: svgDocument or _currentTheme is null");
+                MiscFunctions.SendLog("ApplyThemeToSvg: svgDocument is null");
                 return;
             }
 
-            // Determine fill & stroke colors based on the theme
-            Color strokeColor, fillColor, backgroundColor;
-            switch (_imageEmbededin)
+            // Decide what colors to apply based on your theme settings.
+            Color actualFillColor, actualStrokeColor;
+            if (_applyThemeOnImage && _currentTheme != null)
             {
-                case ImageEmbededin.TabPage:
-                    strokeColor = _currentTheme.TabForeColor;
-                    fillColor = _currentTheme.TabForeColor;
-                    backgroundColor = _currentTheme.TabBackColor;
-                    break;
-                case ImageEmbededin.AppBar:
-                    strokeColor = _currentTheme.AppBarForeColor;
-                    fillColor = _currentTheme.AppBarForeColor;
-                    backgroundColor = _currentTheme.AppBarBackColor;
-                    break;
-                case ImageEmbededin.Menu:
-                    strokeColor = _currentTheme.MenuForeColor;
-                    fillColor = _currentTheme.MenuForeColor;
-                    backgroundColor = _currentTheme.MenuBackColor;
-                    break;
-                case ImageEmbededin.MenuBar:
-                    strokeColor = _currentTheme.MenuForeColor;
-                    fillColor = _currentTheme.MenuForeColor;
-                    backgroundColor = _currentTheme.MenuBackColor;
-                    break;
-                case ImageEmbededin.TreeView:
-                    strokeColor = _currentTheme.TreeForeColor;
-                    fillColor = _currentTheme.TreeForeColor;
-                    backgroundColor = _currentTheme.TreeBackColor;
-                    break;
-                case ImageEmbededin.SideBar:
-                    strokeColor = _currentTheme.SideMenuForeColor;
-                    fillColor = _currentTheme.SideMenuForeColor;
-                    backgroundColor = _currentTheme.SideMenuBackColor;
-                    break;
-                case ImageEmbededin.ListBox:
-                    strokeColor = _currentTheme.ListForeColor;
-                    fillColor = _currentTheme.ListForeColor;
-                    backgroundColor = _currentTheme.ListBackColor;
-                    break;
-                case ImageEmbededin.Form:
-              
-                case ImageEmbededin.ListView:
-                    strokeColor = _currentTheme.ListForeColor;
-                    fillColor = _currentTheme.ListForeColor;
-                    backgroundColor = _currentTheme.ListBackColor;
-                    break;
-                case ImageEmbededin.Label:
-                    strokeColor = _currentTheme.LabelForeColor;
-                    fillColor = _currentTheme.LabelForeColor;
-                    backgroundColor = _currentTheme.LabelBackColor;
-                    break;
-                case ImageEmbededin.TextBox:
-                    strokeColor = _currentTheme.TextBoxForeColor;
-                    fillColor = _currentTheme.TextBoxForeColor;
-                    backgroundColor = _currentTheme.TextBoxBackColor;
-                    break;
-                case ImageEmbededin.ComboBox:
-                    strokeColor = _currentTheme.ComboBoxForeColor;
-                    fillColor = _currentTheme.ComboBoxForeColor;
-                    backgroundColor = _currentTheme.ComboBoxBackColor;
-                    break;
-                case ImageEmbededin.DataGridView:
-                    strokeColor = _currentTheme.GridForeColor;
-                    fillColor = _currentTheme.GridForeColor;
-                    backgroundColor = _currentTheme.GridBackColor;
-                    break;
-                case ImageEmbededin.Button:
-                default:
-                    strokeColor = _currentTheme.ButtonForeColor;
-                    fillColor = _currentTheme.ButtonForeColor;
-                    backgroundColor = _currentTheme.ButtonBackColor;
-                    break;
-            }
-
-            // Adjust for hover/pressed states
-            //if (IsPressed)
-            //{
-            //    strokeColor = _currentTheme.ButtonSelectedForeColor;
-            //    fillColor = _currentTheme.ButtonSelectedForeColor;
-            //    backgroundColor = _currentTheme.ButtonSelectedBackColor;
-            //}
-            //else if (IsHovered)
-            //{
-            //    strokeColor = _currentTheme.ButtonHoverForeColor;
-            //    fillColor = _currentTheme.ButtonHoverForeColor;
-            //    backgroundColor = _currentTheme.ButtonHoverBackColor;
-            //}
-
-            //// Override colors if custom colors are specified
-            //if (this.FillColor != Color.Black)
-            //{
-            //    fillColor = this.FillColor;
-            //}
-            //if (this.StrokeColor != Color.Black)
-            //{
-            //    strokeColor = this.StrokeColor;
-            //}
-            if (IsChild && Parent != null)
-            {
-                parentbackcolor = Parent.BackColor;
-                BackColor = parentbackcolor;
-            }
-            MiscFunctions.SendLog($"ApplyThemeToSvg: Applying fillColor={fillColor}, strokeColor={strokeColor}, backgroundColor={backgroundColor}");
-
-            // Improved background identification
-            List<SvgVisualElement> backgroundElements = new List<SvgVisualElement>();
-            SvgVisualElement mainBackground = null;
-
-            // Check if the SVG already has a root rectangle that covers most of the canvas
-            var dimensions = svgDocument.GetDimensions();
-
-            // First look for elements with "background" in their ID
-            foreach (var element in svgDocument.Descendants())
-            {
-                if (element is SvgVisualElement visualElement &&
-                    element.ID?.ToLowerInvariant().Contains("background") == true)
+                switch (_imageEmbededin)
                 {
-                    backgroundElements.Add(visualElement);
-                    if (mainBackground == null)
-                        mainBackground = visualElement;
+                    case ImageEmbededin.TabPage:
+                        actualFillColor = _currentTheme.TabForeColor;
+                        actualStrokeColor = _currentTheme.TabForeColor;
+                        break;
+                    case ImageEmbededin.AppBar:
+                        actualFillColor = _currentTheme.AppBarForeColor;
+                        actualStrokeColor = _currentTheme.AppBarForeColor;
+                        break;
+                    case ImageEmbededin.Menu:
+                    case ImageEmbededin.MenuBar:
+                        actualFillColor = _currentTheme.MenuForeColor;
+                        actualStrokeColor = _currentTheme.MenuForeColor;
+                        break;
+                    case ImageEmbededin.TreeView:
+                        actualFillColor = _currentTheme.TreeForeColor;
+                        actualStrokeColor = _currentTheme.TreeForeColor;
+                        break;
+                    case ImageEmbededin.SideBar:
+                        actualFillColor = _currentTheme.SideMenuForeColor;
+                        actualStrokeColor = _currentTheme.SideMenuForeColor;
+                        break;
+                    case ImageEmbededin.ListBox:
+                    case ImageEmbededin.Form:
+                    case ImageEmbededin.ListView:
+                        actualFillColor = _currentTheme.ListForeColor;
+                        actualStrokeColor = _currentTheme.ListForeColor;
+                        break;
+                    case ImageEmbededin.Label:
+                        actualFillColor = _currentTheme.LabelForeColor;
+                        actualStrokeColor = _currentTheme.LabelForeColor;
+                        break;
+                    case ImageEmbededin.TextBox:
+                        actualFillColor = _currentTheme.TextBoxForeColor;
+                        actualStrokeColor = _currentTheme.TextBoxForeColor;
+                        break;
+                    case ImageEmbededin.ComboBox:
+                        actualFillColor = _currentTheme.ComboBoxForeColor;
+                        actualStrokeColor = _currentTheme.ComboBoxForeColor;
+                        break;
+                    case ImageEmbededin.DataGridView:
+                        actualFillColor = _currentTheme.GridForeColor;
+                        actualStrokeColor = _currentTheme.GridForeColor;
+                        break;
+                    case ImageEmbededin.Button:
+                    default:
+                        actualFillColor = _currentTheme.ButtonForeColor;
+                        actualStrokeColor = _currentTheme.ButtonForeColor;
+                        break;
                 }
             }
-
-            // Then look for large rectangles at index 0 or covering most of the SVG
-            if (mainBackground == null)
+            else
             {
-                foreach (var element in svgDocument.Children)
-                {
-                    if (element is SvgRectangle rect)
-                    {
-                        float coverage = (rect.Width * rect.Height) / (dimensions.Width * dimensions.Height);
-                        bool isFirstChild = svgDocument.Children.IndexOf(element) == 0;
-                        bool isAtOrigin = rect.X == 0 && rect.Y == 0;
-
-                        if ((coverage > 0.7f && isAtOrigin) || isFirstChild)
-                        {
-                            mainBackground = rect;
-                            backgroundElements.Add(rect);
-                            break;
-                        }
-                    }
-                }
+                // Fallback to direct properties.
+                actualFillColor = fillColor.IsEmpty ? Color.Black : fillColor;
+                actualStrokeColor = strokeColor.IsEmpty ? Color.Black : strokeColor;
             }
 
-            // If no background found but we have a document, create one if needed
-            if (mainBackground == null && svgDocument.Width > 0 && svgDocument.Height > 0)
+            // Validate colors—if either is empty, fallback to black.
+            if (actualFillColor.IsEmpty || actualStrokeColor.IsEmpty)
             {
-                // Create a background rectangle
-                var newBackground = new SvgRectangle
-                {
-                    X = 0,
-                    Y = 0,
-                    Width = svgDocument.Width,
-                    Height = svgDocument.Height,
-                    Fill = new SvgColourServer(backgroundColor),
-                    ID = "svg_background"
-                };
-
-                // Insert at the beginning so it's behind everything
-                svgDocument.Children.Insert(0, newBackground);
-                mainBackground = newBackground;
-                backgroundElements.Add(newBackground);
+                MiscFunctions.SendLog("ApplyThemeToSvg: Invalid colors detected, using fallback");
+                actualFillColor = Color.Black;
+                actualStrokeColor = Color.Black;
             }
 
-            // Apply background color to the main background element first
-            if (mainBackground != null)
+            MiscFunctions.SendLog($"ApplyThemeToSvg: Applying fillColor={actualFillColor}, strokeColor={actualStrokeColor}");
+
+            // Create SvgColourServer instances for fill and stroke
+            var fillServer = new SvgColourServer(actualFillColor);
+            var strokeServer = new SvgColourServer(actualStrokeColor);
+            svgDocument.Fill = fillServer;
+            svgDocument.Stroke = strokeServer;
+            // Set the default stroke width
+            svgDocument.StrokeWidth = new SvgUnit(2); // Optional: set stroke width
+            // Recursively process all SVG nodes to update their color properties
+            // ProcessNodes(svgDocument.Descendants(), fillServer, strokeServer);
+            foreach (var node in svgDocument.Children)
             {
-                // Store original fill
-                if (mainBackground.Fill != null && mainBackground.Fill != SvgPaintServer.None)
-                {
-                    tmpfillcolor = mainBackground.Fill;
-                }
 
-                // Apply background color
-                mainBackground.Fill = new SvgColourServer(backgroundColor);
-                MiscFunctions.SendLog($"Applied background color to main background element: {mainBackground.GetType().Name}");
+
+                // Update color properties.
+                // You can check the properties if you want to preserve "None" values, or update unconditionally.
+                node.Fill = fillServer;
+                node.Color = fillServer;
+
+                node.Stroke = strokeServer;
+                node.StrokeWidth = new SvgUnit(2); // Optional: set stroke width
+
+                // Recurse into child nodes.
+                ProcessNodes(node.Descendants(), fillServer, strokeServer);
             }
+            // Optional: Log out the updated SVG XML for debugging.
+            string modifiedXml = svgDocument.GetXML();
+            MiscFunctions.SendLog($"ApplyThemeToSvg: Modified SVG XML: {modifiedXml}");
 
-            // Apply colors to all non-background elements
-            foreach (var element in svgDocument.Descendants())
+            // Trigger a redraw.
+            try
             {
-                // Skip elements we already identified as backgrounds
-                if (backgroundElements.Contains(element))
-                    continue;
-
-                // Apply to SvgVisualElement (e.g., paths, shapes)
-                if (element is SvgVisualElement visualElement)
-                {
-                    // Apply theme colors, preserving transparency if the original color was transparent
-                    if (fillColor != Color.Empty)
-                    {
-                        visualElement.Fill = new SvgColourServer(fillColor);
-                    }
-
-                    if (strokeColor != Color.Empty)
-                    {
-                        visualElement.Stroke = new SvgColourServer(strokeColor);
-                    }
-                }
-
-                // Fix SvgText-specific attributes
-                if (element is SvgText svgText)
-                {
-                    try
-                    {
-                        if (svgText.TextAnchor != SvgTextAnchor.Start &&
-                            svgText.TextAnchor != SvgTextAnchor.Middle &&
-                            svgText.TextAnchor != SvgTextAnchor.End)
-                        {
-                            svgText.TextAnchor = SvgTextAnchor.Start;
-                        }
-
-                        if (svgText.StrokeOpacity < 0 || float.IsNaN(svgText.StrokeOpacity) || svgText.StrokeOpacity > 1)
-                        {
-                            svgText.StrokeOpacity = 1.0f;
-                        }
-
-                        if (svgText.Stroke == null || svgText.Stroke == SvgPaintServer.None)
-                        {
-                            svgText.Stroke = new SvgColourServer(Color.Black);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        MiscFunctions.SendLog($"Error fixing SVG text attributes: {ex.Message}");
-                    }
-                }
+                svgDocument.FlushStyles();
+                Invalidate();
+                Refresh();
+                MiscFunctions.SendLog("ApplyThemeToSvg: Redraw triggered");
             }
-
-            Invalidate();
+            catch (Exception ex)
+            {
+                MiscFunctions.SendLog($"ApplyThemeToSvg: Redraw failed - {ex.Message}");
+            }
         }
 
+        /// <summary>
+        /// Recursively updates the given SVG nodes with the provided fill and stroke color servers.
+        /// </summary>
+        private void ProcessNodes(IEnumerable<SvgElement> nodes, SvgPaintServer fillServer, SvgPaintServer strokeServer)
+        {
+            foreach (var node in nodes)
+            {
+               
 
+                // Update color properties.
+                // You can check the properties if you want to preserve "None" values, or update unconditionally.
+                if (node.Fill != SvgPaintServer.None) node.Fill = fillServer;
+                if (node.Color != SvgPaintServer.None) node.Color = fillServer;
+                
+                if (node.Stroke != SvgPaintServer.None) node.Stroke = strokeServer;
+
+         
+                    node.StrokeWidth = new SvgUnit(2); // Optional: set stroke width
+
+                // Recurse into child nodes.
+                ProcessNodes(node.Descendants(), fillServer, strokeServer);
+            }
+        }
 
 
         #endregion "Theme Properties"
@@ -701,7 +531,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 g.Transform = originalTransform; // Restore graphics state
             }
         }
-
         public void DrawImage(Graphics g, Rectangle imageRect)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -728,6 +557,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
                         g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
+                       
                         svgDocument.Draw(g);
                     }
                 }
@@ -769,6 +599,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawingRect
             );
             DrawBadge(e.Graphics);
+        }
+        protected override void DrawContent(Graphics g)
+        {
+            base.DrawContent(g);
+            DrawImage(
+               g,
+               DrawingRect
+           );
         }
         #endregion "Image Drawing Methods"
         #region "Loading Images"
@@ -930,6 +768,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             using (var sanitizedStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(svgContent)))
                             {
                                 svgDocument = SvgDocument.Open<SvgDocument>(sanitizedStream);
+                               
                                 isSvg = true;
                             }
                         }

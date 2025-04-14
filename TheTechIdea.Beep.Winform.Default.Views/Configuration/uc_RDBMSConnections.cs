@@ -22,7 +22,7 @@ using TheTechIdea.Beep.Winform.Default.Views.Template;
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
     [AddinAttribute(Caption = "RDBMS Connections", Name = "uc_RDBMSConnections", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.InControl, ObjectType = "Beep")]
-    [AddinVisSchema(BranchID = 1, RootNodeName = "Configuration", Order = 1, ID = 1, BranchText = "RDBMS Connections", BranchType = EnumPointType.Function, IconImageName = "rdbmsConnections.svg", BranchClass = "ADDIN", BranchDescription = "RDBMS Connections Setup Screen")]
+    [AddinVisSchema(BranchID = 1, RootNodeName = "Configuration", Order = 1, ID = 1, BranchText = "RDBMS Connections", BranchType = EnumPointType.Function, IconImageName = "rdbmsconnections.svg", BranchClass = "ADDIN", BranchDescription = "RDBMS Connections Setup Screen")]
 
     public partial class uc_RDBMSConnections : TemplateUserControl, IAddinVisSchema
     {
@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public int Level { get; set; }
         public EnumPointType BranchType { get; set; } = EnumPointType.Entity;
         public int BranchID { get; set; } = 1;
-        public string IconImageName { get; set; } = "rdbmsConnections.svg";
+        public string IconImageName { get; set; } = "rdbmsconnections.svg";
         public string BranchStatus { get; set; }
         public int ParentBranchID { get; set; }
         public string BranchDescription { get; set; } = "RDBMS Connections Setup Screen";

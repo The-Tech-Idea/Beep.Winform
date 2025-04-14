@@ -6784,6 +6784,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NextPageButton.DisabledForeColor = _currentTheme.DisabledForeColor;
                 NextPageButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
                 NextPageButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
+                NextPageButton.ApplyThemeToSvg();
                 //   PrevPageButton.Theme = Theme;
                 PrevPageButton.ForeColor = _currentTheme.GridForeColor;
                 PrevPageButton.BackColor = BackColor;
@@ -6795,6 +6796,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 PrevPageButton.DisabledForeColor = _currentTheme.DisabledForeColor;
                 PrevPageButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
                 PrevPageButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
+                PrevPageButton.ApplyThemeToSvg();
                 //   FirstPageButton.Theme = Theme;
                 FirstPageButton.ForeColor = _currentTheme.GridForeColor;
                 FirstPageButton.BackColor = BackColor;
@@ -6806,7 +6808,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 FirstPageButton.DisabledForeColor = _currentTheme.DisabledForeColor;
                 FirstPageButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
                 FirstPageButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                //    LastPageButton.Theme = Theme;
+                FirstPageButton.ApplyThemeToSvg();
                 LastPageButton.ForeColor = _currentTheme.GridForeColor;
                 LastPageButton.BackColor = BackColor;
                 LastPageButton.ParentBackColor = BackColor;
@@ -6817,7 +6819,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 LastPageButton.DisabledForeColor = _currentTheme.DisabledForeColor;
                 LastPageButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
                 LastPageButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                //    NextButton.Theme = Theme;
+                LastPageButton.ApplyThemeToSvg();
                 NextButton.ForeColor = _currentTheme.GridForeColor;
                 NextButton.BackColor = BackColor;
                 NextButton.ParentBackColor = BackColor;
@@ -6828,7 +6830,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NextButton.DisabledForeColor = _currentTheme.DisabledForeColor;
                 NextButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
                 NextButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                //     PreviousButton.Theme = Theme;
+                NextButton.ApplyThemeToSvg();
                 PreviousButton.ForeColor = _currentTheme.GridForeColor;
                 PreviousButton.BackColor = BackColor;
                 PreviousButton.ParentBackColor = BackColor;
@@ -6839,7 +6841,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 PreviousButton.DisabledForeColor = _currentTheme.DisabledForeColor;
                 PreviousButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
                 PreviousButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                //    PrinterButton.Theme = Theme;
+                PreviousButton.ApplyThemeToSvg();
                 PrinterButton.ForeColor = _currentTheme.GridForeColor;
                 PrinterButton.BackColor = BackColor;
                 PrinterButton.ParentBackColor = BackColor;
@@ -6850,7 +6852,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 PrinterButton.DisabledForeColor = _currentTheme.DisabledForeColor;
                 PrinterButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
                 PrinterButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                //     SaveButton.Theme = Theme;
+                PrinterButton.ApplyThemeToSvg();
                 SaveButton.ForeColor = _currentTheme.GridForeColor;
                 SaveButton.BackColor = BackColor;
                 SaveButton.ParentBackColor = BackColor;
@@ -6861,7 +6863,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SaveButton.DisabledForeColor = _currentTheme.DisabledForeColor;
                 SaveButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
                 SaveButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                //      RollbackButton.Theme = Theme;
+                SaveButton.ApplyThemeToSvg();
                 RollbackButton.ForeColor = _currentTheme.GridForeColor;
                 RollbackButton.BackColor = BackColor;
                 RollbackButton.ParentBackColor = BackColor;
@@ -6872,7 +6874,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RollbackButton.DisabledForeColor = _currentTheme.DisabledForeColor;
                 RollbackButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
                 RollbackButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                //     RemoveButton.Theme = Theme;
+                RollbackButton.ApplyThemeToSvg();
                 RemoveButton.ForeColor = _currentTheme.GridForeColor;
                 RemoveButton.BackColor = BackColor;
                 RemoveButton.ParentBackColor = BackColor;
@@ -6883,7 +6885,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RemoveButton.DisabledForeColor = _currentTheme.DisabledForeColor;
                 RemoveButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
                 RemoveButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-
+                RemoveButton.ApplyThemeToSvg();
                 //  PageLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             }
             if (DataNavigator != null)
@@ -7297,20 +7299,30 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void CreateNavigationButtons()
         {
-            
-           // MainPanel = new Panel();
+
+            // MainPanel = new Panel();
 
             // Main navigation buttons
-            FindButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.search_1.svg", buttonSize, FindpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            EditButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.pencil.svg", buttonSize, EditpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            PrinterButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg", buttonSize, PrinterpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            MessageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg", buttonSize, MessagepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            SaveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.check.svg", buttonSize, SavepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.add.svg", buttonSize, NewButton_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            RemoveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.remove.svg", buttonSize, RemovepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.undo.svg", buttonSize, RollbackpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.forward.svg", buttonSize, NextpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            PreviousButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.backwards.svg", buttonSize, PreviouspictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            //FindButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.search_1.svg", buttonSize, FindpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            //EditButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.pencil.svg", buttonSize, EditpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            //PrinterButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg", buttonSize, PrinterpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            //MessageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg", buttonSize, MessagepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            //SaveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.check.svg", buttonSize, SavepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            //NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.add.svg", buttonSize, NewButton_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            //RemoveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.remove.svg", buttonSize, RemovepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            //RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.undo.svg", buttonSize, RollbackpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            //NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.forward.svg", buttonSize, NextpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            //PreviousButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.backwards.svg", buttonSize, PreviouspictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            FindButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.032-zoom.svg", buttonSize, FindpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            EditButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.031-edit.svg", buttonSize, EditpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            PrinterButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.096-printer.svg", buttonSize, PrinterpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            MessageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.034-email.svg", buttonSize, MessagepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            SaveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.037-save.svg", buttonSize, SavepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.031-plus.svg", buttonSize, NewButton_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            RemoveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.035-eraser.svg", buttonSize, RemovepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.031-rotate.svg", buttonSize, RollbackpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.033-right.svg", buttonSize, NextpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            PreviousButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.030-left.svg", buttonSize, PreviouspictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
             // Page label (as a BeepButton)
             PageLabel = new BeepButton
             {
@@ -7382,7 +7394,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChild = true,
                 Anchor = anchorStyles,
                 Margin = new Padding(0),
-                ApplyThemeOnImage = false,
+                ApplyThemeOnImage = true,
                 Padding = new Padding(0),
                 ImageEmbededin= ImageEmbededin.DataGridView,
                 MaxImageSize = new Size(size.Width - 4, size.Height - 4),
@@ -7841,16 +7853,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void SuspendFormLayout()
         {
             
-        //    base.SuspendFormLayout();
+          base.SuspendFormLayout();
             this.SuspendLayout();
-        //    this.SuspendDrawing();
+            //    this.SuspendDrawing();
 
-            // suspend all child controls
-          //  foreach (Control ctrl in this.Controls)
-          //  {
-          ////      ctrl.SuspendDrawing();
-          //      ctrl.SuspendLayout();
-          //  }
+           // suspend all child controls
+            foreach (Control ctrl in this.Controls)
+            {
+                //      ctrl.SuspendDrawing();
+                ctrl.SuspendLayout();
+            }
             _navigatorDrawn = true;
             _filterpaneldrawn = true;
             // suspend all tabs and their controls
@@ -7860,15 +7872,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ResumeFormLayout()
         {
             
-           // base.ResumeFormLayout();
-         //   this.ResumeDrawing();
-     
+            base.ResumeFormLayout();
+            this.ResumeDrawing();
+
             // resume all child controls
-          //  foreach (Control ctrl in this.Controls)
-          //  {
-          ////      ctrl.ResumeDrawing();
-          //      ctrl.ResumeLayout();
-          //  }
+            foreach (Control ctrl in this.Controls)
+            {
+                //      ctrl.ResumeDrawing();
+                ctrl.ResumeLayout();
+            }
             this.ResumeLayout();
             _navigatorDrawn = false;
             _filterpaneldrawn = false;

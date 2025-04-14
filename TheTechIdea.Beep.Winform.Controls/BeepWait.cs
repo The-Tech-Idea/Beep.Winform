@@ -225,7 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-             base.ApplyTheme();
+           //  base.ApplyTheme();
             if (_spinnerImage == null) return;
          
            // _spinnerImage.Theme = Theme;

@@ -22,7 +22,7 @@ using TheTechIdea.Beep.Winform.Controls.Helpers;
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
     [AddinAttribute(Caption = "Create Local DB", Name = "uc_CreateLocalDB", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.InControl, ObjectType = "Beep")]
-    [AddinVisSchema(BranchID = 1, RootNodeName = "Configuration", Order = 1, ID = 1, BranchText = "Create Local DB", BranchType = EnumPointType.Function, IconImageName = "entityeditor.svg", BranchClass = "ADDIN", BranchDescription = "Create Local DB Screen")]
+    [AddinVisSchema(BranchID = 1, RootNodeName = "Configuration", Order = 1, ID = 1, BranchText = "Create Local DB", BranchType = EnumPointType.Function, IconImageName = "localconnections.svg", BranchClass = "ADDIN", BranchDescription = "Create Local DB Screen")]
 
     public partial class uc_CreateLocalDB : TemplateUserControl, IAddinVisSchema
     {
@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public int Level { get; set; }
         public EnumPointType BranchType { get; set; } = EnumPointType.Entity;
         public int BranchID { get; set; } = 1;
-        public string IconImageName { get; set; } = "entityeditor.svg";
+        public string IconImageName { get; set; } = "localconnections.svg";
         public string BranchStatus { get; set; }
         public int ParentBranchID { get; set; }
         public string BranchDescription { get; set; } = "Create Local DB";

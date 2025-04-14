@@ -32,6 +32,9 @@
 	  <None Remove="GFX\SVG\createlocaldb.svg" />
 	  <None Remove="GFX\SVG\createlocaldbbutton.svg" />
 	  <None Remove="GFX\SVG\drivers.svg" />
+	  <None Remove="GFX\SVG\entityeditor.svg" />
+	  <None Remove="GFX\SVG\fileconnections.svg" />
+	  <None Remove="GFX\SVG\localconnections.svg" />
 	  <None Remove="GFX\SVG\rdbmsConnections.svg" />
 	</ItemGroup>
 	<ItemGroup>
@@ -39,6 +42,9 @@
 	  <EmbeddedResource Include="GFX\SVG\createlocaldb.svg" />
 	  <EmbeddedResource Include="GFX\SVG\createlocaldbbutton.svg" />
 	  <EmbeddedResource Include="GFX\SVG\drivers.svg" />
+	  <EmbeddedResource Include="GFX\SVG\entityeditor.svg" />
+	  <EmbeddedResource Include="GFX\SVG\fileconnections.svg" />
+	  <EmbeddedResource Include="GFX\SVG\localconnections.svg" />
 	  <EmbeddedResource Include="GFX\SVG\rdbmsConnections.svg" />
 	</ItemGroup>
 	<ItemGroup>

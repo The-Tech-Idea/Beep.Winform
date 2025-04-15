@@ -82,6 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 StopSpinner();
                 this.Close();
+                Application.ExitThread(); // ✅ Ensures Application.Run exits
             });
         }
 
@@ -213,6 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     StopSpinner();
                     this.Close(); // Close the form
+                    Application.ExitThread(); // ✅ Ensures Application.Run exits
                 });
 
                 return new ErrorsInfo { Flag = Errors.Ok, Message = "Wait form closed successfully." };

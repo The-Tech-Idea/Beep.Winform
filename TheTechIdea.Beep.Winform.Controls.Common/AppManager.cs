@@ -267,7 +267,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             {
               //  WaitForm.Config(Passedarguments);
                 startwait(Passedarguments);
-              
+                Thread.Sleep(200); // 🕐 Give time for the WaitForm to be created
                 IsShowingWaitForm = true;
 
                 result.Flag = Errors.Ok;
@@ -356,51 +356,112 @@ namespace TheTechIdea.Beep.Desktop.Common
 
             IsShowingWaitForm = true;
 
-            // Create a dedicated STA thread for the wait form.
             waitFormThread = new Thread(() =>
             {
-                // Ensure WaitFormType is set properly.
-                if (WaitFormType == null && WaitForm != null)
+                try
                 {
-                    WaitFormType = WaitForm.GetType();
+                    // Ensure WaitFormType is set
+                    if (WaitFormType == null && WaitForm != null)
+                    {
+                        WaitFormType = WaitForm.GetType();
+                    }
+
+                    // Create form instance
+                    beepWaitForm = (Form)Activator.CreateInstance(WaitFormType);
+                    beepWaitForm.Name = "BeepWait";
+                    MiscFunctions.SetThemePropertyinControlifexist(beepWaitForm, Theme);
+                    WaitForm = (IWaitForm)beepWaitForm;
+
+                    if (!string.IsNullOrEmpty(Title))
+                    {
+                        WaitForm.SetTitle(Title);
+                    }
+
+                    // Center the form on screen
+                    beepWaitForm.Load += (s, e) =>
+                    {
+                        var screenBounds = Screen.PrimaryScreen.WorkingArea;
+                        int x = (screenBounds.Width - beepWaitForm.Width) / 2;
+                        int y = (screenBounds.Height - beepWaitForm.Height) / 2;
+                        beepWaitForm.Location = new Point(x, y);
+                    };
+
+                    // This ensures Application.Run exits when form closes
+                    beepWaitForm.FormClosed += (s, e) =>
+                    {
+                        IsShowingWaitForm = false;
+                        Debug.WriteLine("Wait form closed. Exiting thread.");
+                        Application.ExitThread(); // ✅ This is critical to exit the message loop
+                    };
+
+                    beepWaitForm.TopMost = true;
+                    beepWaitForm.StartPosition = FormStartPosition.CenterScreen;
+                    WaitForm.SetImage("simpleinfoapps.svg");
+
+                    Application.Run(beepWaitForm);
                 }
-                
-                // Create the wait form instance.
-                beepWaitForm = (Form)Activator.CreateInstance(WaitFormType);
-                beepWaitForm.Name = "BeepWait"; // so you can find it later if needed
-                MiscFunctions.SetThemePropertyinControlifexist(beepWaitForm, Theme);
-                WaitForm = (IWaitForm)beepWaitForm;
-
-                if (!string.IsNullOrEmpty(Title))
+                catch (Exception ex)
                 {
-                    WaitForm.SetTitle(Title);
+                    Debug.WriteLine($"Error in waitFormThread: {ex.Message}");
                 }
-                // Optional: subscribe to Load event to force centering.
-                beepWaitForm.Load += (s, e) =>
-                {
-                    Form form = (Form)s;
-                    // Get the working area of the primary screen
-                    var screenBounds = Screen.PrimaryScreen.WorkingArea;
-                    int x = (screenBounds.Width - form.Width) / 2;
-                    int y = (screenBounds.Height - form.Height) / 2;
-                    form.Location = new Point(x, y);
-                };
-                beepWaitForm.TopMost = true;
-                beepWaitForm.StartPosition = FormStartPosition.CenterScreen;
-                WaitForm.SetImage("simpleinfoapps.svg");
-
-                // When the form closes, update the flag.
-                beepWaitForm.FormClosed += (s, e) =>
-                {
-                    IsShowingWaitForm = false;
-                };
-
-                // Run the form’s own message loop.
-                Application.Run(beepWaitForm);
             });
+
             waitFormThread.SetApartmentState(ApartmentState.STA);
             waitFormThread.Start();
         }
+
+        //private void startwait(PassedArgs passedArguments)
+        //{
+        //    if (IsShowingWaitForm)
+        //        return;
+
+        //    IsShowingWaitForm = true;
+
+        //    // Create a dedicated STA thread for the wait form.
+        //    waitFormThread = new Thread(() =>
+        //    {
+        //        // Ensure WaitFormType is set properly.
+        //        if (WaitFormType == null && WaitForm != null)
+        //        {
+        //            WaitFormType = WaitForm.GetType();
+        //        }
+
+        //        // Create the wait form instance.
+        //        beepWaitForm = (Form)Activator.CreateInstance(WaitFormType);
+        //        beepWaitForm.Name = "BeepWait"; // so you can find it later if needed
+        //        MiscFunctions.SetThemePropertyinControlifexist(beepWaitForm, Theme);
+        //        WaitForm = (IWaitForm)beepWaitForm;
+
+        //        if (!string.IsNullOrEmpty(Title))
+        //        {
+        //            WaitForm.SetTitle(Title);
+        //        }
+        //        // Optional: subscribe to Load event to force centering.
+        //        beepWaitForm.Load += (s, e) =>
+        //        {
+        //            Form form = (Form)s;
+        //            // Get the working area of the primary screen
+        //            var screenBounds = Screen.PrimaryScreen.WorkingArea;
+        //            int x = (screenBounds.Width - form.Width) / 2;
+        //            int y = (screenBounds.Height - form.Height) / 2;
+        //            form.Location = new Point(x, y);
+        //        };
+        //        beepWaitForm.TopMost = true;
+        //        beepWaitForm.StartPosition = FormStartPosition.CenterScreen;
+        //        WaitForm.SetImage("simpleinfoapps.svg");
+
+        //        // When the form closes, update the flag.
+        //        beepWaitForm.FormClosed += (s, e) =>
+        //        {
+        //            IsShowingWaitForm = false;
+        //        };
+
+        //        // Run the form’s own message loop.
+        //        Application.Run(beepWaitForm);
+        //    });
+        //    waitFormThread.SetApartmentState(ApartmentState.STA);
+        //    waitFormThread.Start();
+        //}
 
         /// <summary>
         /// Closes the wait form by marshaling the close call to the wait form’s thread.
@@ -410,7 +471,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             var result = new ErrorsInfo();
             try
             {
-                if (beepWaitForm != null && !beepWaitForm.IsDisposed)
+                if (beepWaitForm !=null && !beepWaitForm.IsDisposed)
                 {
                     // Ensure we call Close on the thread that owns the wait form.
                     beepWaitForm.Invoke(new Action(() =>

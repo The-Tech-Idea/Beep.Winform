@@ -1079,20 +1079,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         if (IsExpanded)
                         {
-                            _toggleButton.Text = "-";
-                            //_toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg";
+                           // _toggleButton.Text = "-";
+                            _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg";
                         }
                         else
                         {
-                            _toggleButton.Text = "+";
+                           // _toggleButton.Text = "+";
                             
-                            //  _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg";
+                             _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg";
                         }
                     }
                  else
                  {
-                        _toggleButton.Text = "-";
-                        // _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg";
+                       // _toggleButton.Text = "-";
+                         _toggleButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg";
                     }
                 }
             }
@@ -1217,7 +1217,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText,
                 IsChild = true,
                 ShowAllBorders = false,
-                HideText = false,
+                HideText = true,
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
@@ -1290,8 +1290,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             if (_toggleButton != null)
             {
-                // _toggleButton.ImagePath = _isExpanded ? "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg" : "TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg";
-                _toggleButton.Text = _isExpanded ? "-" : "+";
+                 _toggleButton.ImagePath = _isExpanded ? "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg" : "TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg";
+                //_toggleButton.Text = _isExpanded ? "-" : "+";
               //
             }
             else return;
@@ -1385,9 +1385,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (_toggleButton != null)
             {
-                //_toggleButton.ImageEmbededin = ImageEmbededin.Button;
-                //_toggleButton.ApplyThemeOnImage = true;
-                //_toggleButton.Theme = Theme;
+                _toggleButton.ImageEmbededin = ImageEmbededin.TreeView;
+                _toggleButton.ApplyThemeOnImage = true;
+                _toggleButton.Theme = Theme;
+                
              //   _toggleButton.Theme = Theme;
                 _toggleButton.ForeColor = _currentTheme.TreeNodeForeColor;
                 _toggleButton.BackColor = _currentTheme.TreeBackColor;

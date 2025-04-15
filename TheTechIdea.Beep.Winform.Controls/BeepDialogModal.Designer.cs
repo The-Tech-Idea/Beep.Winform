@@ -122,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
             DialogImage.InactiveBorderColor = Color.Gray;
            
-            DialogImage.Info = (SimpleItem)resources.GetObject("DialogImage.Info");
+      //      DialogImage.Info = (SimpleItem)resources.GetObject("DialogImage.Info");
             DialogImage.IsAcceptButton = false;
             DialogImage.IsBorderAffectedByTheme = true;
             DialogImage.IsCancelButton = false;

@@ -191,21 +191,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         private BeepTextBox searchBox;
-        bool _applyThemeOnImage = false;
+        //bool _applyThemeOnImage = false;
 
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool ApplyThemeOnLogo
-        {
-            get => _applyThemeOnImage;
-            set
-            {
-                _applyThemeOnImage = value;
-                _logo.ApplyThemeOnImage = value;
-                _logo.Invalidate();
-                Invalidate();
-            }
-        }
+        //[Browsable(true)]
+        //[Category("Appearance")]
+        //public bool ApplyThemeOnLogo
+        //{
+        //    get => _applyThemeOnImage;
+        //    set
+        //    {
+        //        _applyThemeOnImage = value;
+        //        _logo.ApplyThemeOnImage = value;
+        //        _logo.Invalidate();
+        //        Invalidate();
+        //    }
+        //}
         private bool _applythemeonbuttons = false;
         [Browsable(true)]
         [Category("Appearance")]
@@ -215,7 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _applythemeonbuttons = value;
-                applythemetoButtons();
+           //     applythemetoButtons();
                 Invalidate();
             }
         }
@@ -330,7 +330,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowShadow = false;
             IsFrameless = false;
             IsRounded = false;
-            ApplyThemeToChilds = false;
+            ApplyThemeToChilds = true;
            
             IsRounded = false;
             IsRoundedAffectedByTheme = false;
@@ -407,7 +407,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.hamburger.svg",
                 Theme = Theme,
                 HideText = true,
-                ApplyThemeOnImage = _applyThemeOnImage,
+             //   ApplyThemeOnImage = _applyThemeOnImage,
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
@@ -456,11 +456,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height =30,
                 Theme = this.Theme,
                 Text = string.Empty,
-                ApplyThemeOnImage =false, 
+                ApplyThemeOnImage =true, 
                 IsChild = false,
                 PlaceholderText = " Search...",
                 Anchor = AnchorStyles.Right,
-                // ApplyThemeOnLogo = _applyThemeOnImage,
+                ApplyThemeToChilds = true,
                 IsFrameless = false,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
@@ -473,7 +473,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             searchBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             searchBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
             searchBox.Click += ButtonClicked;
-            searchBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg";
+            searchBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.079-search.svg";
             Controls.Add(searchBox);
         }
         public void SetSearchBoxAutoCompleteSource(AutoCompleteStringCollection source)
@@ -498,7 +498,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ShowAllBorders = false,
-
+                ApplyThemeOnImage = true,
                 ShowShadow = false,
                 IsChild = true,
                 TextImageRelation = TextImageRelation.Overlay,
@@ -507,6 +507,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Tag = "Notifications"
             };
             notificationIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg";
+            notificationIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.093-waving.svg";
             notificationIcon.Click += ButtonClicked;
             Controls.Add(notificationIcon);
         }
@@ -528,6 +529,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsBorderAffectedByTheme = false,
                 ShowAllBorders = false,
                 Anchor = AnchorStyles.Right,
+                ApplyThemeOnImage=true,
                 ShowShadow = false,
                 IsChild = true,
                 TextImageRelation = TextImageRelation.Overlay,
@@ -543,8 +545,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
 
-            themeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.theme.svg";
-          //  themeIcon.Click += ButtonClicked;
+         //   themeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.theme.svg";
+            themeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.024-dashboard.svg";
+            //024-dashboard.svg
+            //  themeIcon.Click += ButtonClicked;
             themeIcon.SelectedItemChanged += ThemeIcon_SelectedItemChanged;
             Controls.Add(themeIcon);
         }
@@ -571,7 +575,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,
 
-                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg",
+                ApplyThemeOnImage = true,
                 Theme = Theme,
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
@@ -584,7 +588,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Tag = "Profile",
                 PopupMode = true
             };
-            // Add menu rootnodeitems (SimpleMenuItem instances) with text and optional SVG icons
+            // ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg",
+            profileIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.025-user.svg";
+            // Add menu rootnodeitems (SimpleMenuItem instances) with text and optional SVG icons 025-user
             profileIcon.ListItems.Add(new SimpleItem { Text = "Profile", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg" });
             profileIcon.ListItems.Add(new SimpleItem { Text = "Settings", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.settings.svg" });
             profileIcon.ListItems.Add(new SimpleItem { Text = "Logout", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.power.svg" });
@@ -607,7 +613,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
                 Anchor = AnchorStyles.Right,
                 Theme = Theme,
-                ApplyThemeOnImage = _applyThemeOnImage,
+                ApplyThemeOnImage = true,
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
@@ -618,7 +624,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ImageAlign = ContentAlignment.MiddleCenter,
                 HideText = true,
             };
-            minimizeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minimize.svg";
+           // minimizeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minimize.svg";
+            minimizeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.055-minimize.svg";
             minimizeIcon.Click += (s, e) => FindForm().WindowState = FormWindowState.Minimized;
             //rightPanel.Controls.Add(minimizeIcon);
             Controls.Add(minimizeIcon);
@@ -631,6 +638,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Anchor = AnchorStyles.Right,
                 Theme = Theme,
                 IsFrameless = true,
+                ApplyThemeOnImage = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ShowAllBorders = false,
@@ -640,7 +648,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ImageAlign = ContentAlignment.MiddleCenter,
                 HideText = true,
             };
-            maximizeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.maximize.svg";
+           // maximizeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.maximize.svg";
+            maximizeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.054-maximize.svg";
             maximizeIcon.Click += (s, e) =>
             {
                 var form = FindForm();
@@ -657,7 +666,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = windowsicons_height,
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
                 Cursor = Cursors.Hand,
-                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg",
+                ApplyThemeOnImage = true,
                 Theme = Theme,
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
@@ -669,6 +678,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ImageAlign = ContentAlignment.MiddleCenter,
                 HideText = true,
             };
+           // closeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg";
+            closeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.078-remove.svg";
             closeIcon.Click += (s, e) => Application.Exit();
             Controls.Add(closeIcon);
 
@@ -768,26 +779,47 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
             }
             TitleLabel.Font = _textFont;
+            profileIcon.ImageEmbededin = ImageEmbededin.AppBar;
+            profileIcon.Theme = Theme;
+           
             profileIcon.BackColor = _currentTheme.AppBarBackColor;
+           
             profileIcon.ParentBackColor = _currentTheme.AppBarBackColor;
             profileIcon.HoverBackColor = _currentTheme.AppBarBackColor;
             profileIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
+            closeIcon.ImageEmbededin = ImageEmbededin.AppBar;
+            closeIcon.Theme = Theme;
+          
             closeIcon.BackColor = _currentTheme.AppBarBackColor;
             closeIcon.HoverBackColor = _currentTheme.AppBarBackColor;
             closeIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
             closeIcon.ParentBackColor = _currentTheme.AppBarBackColor;
-
+            maximizeIcon.ImageEmbededin = ImageEmbededin.AppBar;
+            maximizeIcon.Theme = Theme;
+          
             maximizeIcon.BackColor = _currentTheme.AppBarBackColor;
             maximizeIcon.HoverBackColor = _currentTheme.AppBarBackColor;
             maximizeIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
             maximizeIcon.ParentBackColor = _currentTheme.AppBarBackColor;
- 
-     
 
+            minimizeIcon.ImageEmbededin = ImageEmbededin.AppBar;
+            minimizeIcon.Theme = Theme;
+
+            minimizeIcon.BackColor = _currentTheme.AppBarBackColor;
+            minimizeIcon.HoverBackColor = _currentTheme.AppBarBackColor;
+            minimizeIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
+            minimizeIcon.ParentBackColor = _currentTheme.AppBarBackColor;
+
+
+            notificationIcon.ImageEmbededin = ImageEmbededin.AppBar;
+            notificationIcon.Theme = Theme;
+          
             notificationIcon.BackColor = _currentTheme.AppBarBackColor;
             notificationIcon.ParentBackColor = _currentTheme.AppBarBackColor;
             notificationIcon.HoverBackColor = _currentTheme.AppBarBackColor;
             notificationIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
+            themeIcon.ImageEmbededin = ImageEmbededin.AppBar;
+            notificationIcon.Theme = Theme;
           
             themeIcon.BackColor = _currentTheme.AppBarBackColor;
             themeIcon.ParentBackColor = _currentTheme.AppBarBackColor;

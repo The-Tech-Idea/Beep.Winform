@@ -139,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 switch (_headerPosition)
                 {
                     case TabHeaderPosition.Top:
-                        return new Rectangle(0, HeaderHeight, ClientSize.Width, ClientSize.Height - HeaderHeight);
+                        return new Rectangle(0, HeaderHeight, Width, ClientSize.Height - HeaderHeight);
                     case TabHeaderPosition.Bottom:
                         return new Rectangle(0, 0, ClientSize.Width, ClientSize.Height - HeaderHeight);
                     case TabHeaderPosition.Left:
@@ -235,7 +235,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DrawTabHeaders(e.Graphics);
             base.OnPaint(e);
         }
-
+      
         private void DrawTabHeaders(Graphics g)
         {
             if (TabCount == 0)
@@ -584,26 +584,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void SuspendFormLayout()
         {
-            //  this.SuspendLayout();
+            this.SuspendLayout();
             _dontresize = true;
 
             if (SelectedTab == null) return;
             // SelectedTab.SuspendLayout();
 
-            //foreach (Control ctrl in SelectedTab.Controls)
-            //{
-            //    ctrl.SuspendLayout(); // Suspend layout for each control
-            //    if (ctrl is IBeepUIComponent bp)
-            //    {
-            //        bp.SuspendFormLayout();
-            //    }
+            foreach (Control ctrl in SelectedTab.Controls)
+            {
+                ctrl.SuspendLayout(); // Suspend layout for each control
+                if (ctrl is IBeepUIComponent bp)
+                {
+                    bp.SuspendFormLayout();
+                }
+            }
         }
        
         public void ResumeFormLayout()
         {
             if (SelectedTab == null) return;
 
-            //   this.ResumeLayout(true); // Perform layout immediately
+              this.ResumeLayout(true); // Perform layout immediately
             //  SelectedTab.ResumeLayout(true); // Perform layout immediately
             _dontresize = false; // Allow resizing
 
@@ -611,25 +612,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateLayout();
 
             // Resize child controls within the selected tab
-            //foreach (Control ctrl in SelectedTab.Controls)
-            //{
-            //    if (ctrl is IBeepUIComponent bp)
-            //    {
-            //        bp.ResumeFormLayout(); // Recursively resume layout for Beep components
-            //                               // Ensure the control resizes to fit the tab
-            //      }
-            //     ctrl.ResumeLayout(true); // Resume layout for each control
-            //    if (ctrl.Dock == DockStyle.Fill)
-            //        {
-            //            ctrl.Size = SelectedTab.ClientSize;
-            //        }
-            //        else if (ctrl.Anchor != AnchorStyles.None)
-            //        {
-            //            // Trigger anchor-based resizing
-            //            ctrl.Refresh();
-            //        }
+            foreach (Control ctrl in SelectedTab.Controls)
+            {
+                if (ctrl is IBeepUIComponent bp)
+                {
+                    bp.ResumeFormLayout(); // Recursively resume layout for Beep components
+                                           // Ensure the control resizes to fit the tab
+                }
+                ctrl.ResumeLayout(true); // Resume layout for each control
+                if (ctrl.Dock == DockStyle.Fill)
+                {
+                    ctrl.Size = SelectedTab.ClientSize;
+                }
+                else if (ctrl.Anchor != AnchorStyles.None)
+                {
+                    // Trigger anchor-based resizing
+                    ctrl.Refresh();
+                }
 
-            //}
+            }
 
             // Force a redraw to ensure visual updates
             SelectedTab.Invalidate();

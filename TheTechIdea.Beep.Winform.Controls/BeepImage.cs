@@ -7,8 +7,8 @@ using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Vis.Modules;
 using System.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
-using System.Xml.Linq;
-using System.Xml;
+using System.Drawing.Imaging;
+
 
 
 
@@ -27,10 +27,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Image regularImage;
         private bool isSvg = false;
         private string _advancedImagePath;
+        private bool _flipX = false;
+        private bool _flipY = false;
+
         // Property for the image path (SVG, PNG, JPG, BMP)
         protected string _imagepath;
 
         private int _baseSize = 50; // Default size
+        private bool _grayscale = false;
+        [Category("Effects")]
+        public bool Grayscale
+        {
+            get => _grayscale;
+            set { _grayscale = value; Invalidate(); }
+        }
+        private float _opacity = 1.0f;
+[Category("Effects")]
+[Description("Opacity from 0.0 (transparent) to 1.0 (opaque).")]
+public float Opacity
+{
+    get => _opacity;
+    set { _opacity = Math.Max(0, Math.Min(1, value)); Invalidate(); }
+}
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -401,17 +419,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                         break;
                     case ImageEmbededin.Button:
                     default:
-                        actualFillColor = _currentTheme.ButtonForeColor;
-                        actualStrokeColor = _currentTheme.ButtonForeColor;
-                        actualbackcolor = _currentTheme.ButtonBackColor;
+                        actualFillColor = ForeColor;
+                        actualStrokeColor = ForeColor;
+                        actualbackcolor = BackColor;
                         break;
                 }
             }
             else
             {
-                actualFillColor = _currentTheme.ButtonForeColor;
-                actualStrokeColor = _currentTheme.ButtonForeColor;
-                actualbackcolor = _currentTheme.ButtonBackColor;
+                actualFillColor = ForeColor;
+                actualStrokeColor = ForeColor;
+                actualbackcolor = BackColor;
             }
 
           
@@ -513,7 +531,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Translate to the new center for proper rotation
                 g.TranslateTransform(center.X, center.Y);
+                if (_flipX || _flipY)
+                {
+                    g.ScaleTransform(_flipX ? -1 : 1, _flipY ? -1 : 1);
+                    g.TranslateTransform(_flipX ? -2 * center.X : 0, _flipY ? -2 * center.Y : 0);
+                }
+
                 g.RotateTransform(effectiveRotation);
+
                 g.TranslateTransform(-center.X, -center.Y);
 
                 if (isSvg && svgDocument != null)
@@ -535,12 +560,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
                     {
-                        g.DrawImage(regularImage, new RectangleF(
-                            scaledBounds.X,
-                            scaledBounds.Y,
-                            scaledBounds.Width,
-                            scaledBounds.Height
-                        ));
+                            g.DrawImage(regularImage, new RectangleF(
+                                scaledBounds.X,
+                                scaledBounds.Y,
+                                scaledBounds.Width,
+                                scaledBounds.Height
+                            ));
+                       
                     }
                 }
             }
@@ -551,58 +577,117 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void DrawImage(Graphics g, Rectangle imageRect)
         {
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+            //g.SmoothingMode = SmoothingMode.AntiAlias;
+            //g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            //g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            //g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-            // Save the current transformation state
             var originalTransform = g.Transform;
+            var originalCompositingMode = g.CompositingMode;
 
             try
             {
-                float effectiveRotation = _manualRotationAngle + (IsSpinning ? _rotationAngle : 0);
-                PointF center = new PointF(imageRect.X + imageRect.Width / 2f, imageRect.Y + imageRect.Height / 2f);
+                // --- Animation Setup ---
+                float rotation = _manualRotationAngle + (IsSpinning ? _rotationAngle : 0);
+                float scale = (_isPulsing || _isBouncing) ? _pulseScale : 1.0f;
+                float alpha = _isFading ? _fadeAlpha : 1.0f;
+                int shakeOffset = _isShaking ? _shakeOffset : 0;
 
-                // Apply rotation transformations
+                PointF center = new PointF(
+                    imageRect.X + imageRect.Width / 2f,
+                    imageRect.Y + imageRect.Height / 2f
+                );
+
+                // --- Apply Transforms ---
                 g.TranslateTransform(center.X, center.Y);
-                g.RotateTransform(effectiveRotation);
+
+                if (_flipX || _flipY)
+                {
+                    g.ScaleTransform(_flipX ? -1 : 1, _flipY ? -1 : 1);
+                    g.TranslateTransform(_flipX ? -2 * center.X : 0, _flipY ? -2 * center.Y : 0);
+                }
+
+                g.ScaleTransform(scale, scale);
+                g.RotateTransform(rotation);
                 g.TranslateTransform(-center.X, -center.Y);
+
+                if (shakeOffset != 0)
+                {
+                    g.TranslateTransform(shakeOffset, 0);
+                }
+
+                // --- Prepare drawing bounds ---
+                RectangleF scaledBounds;
+                SizeF imageSize;
 
                 if (isSvg && svgDocument != null)
                 {
-                    var imageSize = svgDocument.GetDimensions();
-                    var scaledBounds = GetScaledBounds(new SizeF(imageSize.Width, imageSize.Height), imageRect);
+                    imageSize = svgDocument.GetDimensions();
+                    scaledBounds = GetScaledBounds(imageSize, imageRect);
 
                     if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
                     {
                         g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
                         g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
-                       
+
+                        if (alpha < 1.0f)
+                            g.CompositingMode = CompositingMode.SourceOver;
+
                         svgDocument.Draw(g);
                     }
                 }
                 else if (regularImage != null)
                 {
-                    var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), imageRect);
+                    imageSize = regularImage.Size;
+                    scaledBounds = GetScaledBounds(imageSize, imageRect);
 
                     if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
                     {
-                        g.DrawImage(
-                            regularImage,
-                            new Rectangle((int)scaledBounds.X, (int)scaledBounds.Y, (int)scaledBounds.Width, (int)scaledBounds.Height),
-                            0,
-                            0,
-                            regularImage.Width,
-                            regularImage.Height,
-                            GraphicsUnit.Pixel
-                        );
+                        if (alpha < 1.0f)
+                        {
+                            ColorMatrix matrix = new ColorMatrix { Matrix33 = alpha };
+                            ImageAttributes attr = new ImageAttributes();
+                            attr.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+
+                            g.DrawImage(
+                                regularImage,
+                                new Rectangle(
+                                    (int)scaledBounds.X,
+                                    (int)scaledBounds.Y,
+                                    (int)scaledBounds.Width,
+                                    (int)scaledBounds.Height
+                                ),
+                                0,
+                                0,
+                                regularImage.Width,
+                                regularImage.Height,
+                                GraphicsUnit.Pixel,
+                                attr
+                            );
+                        }
+                        else
+                        {
+                            g.DrawImage(
+                                regularImage,
+                                new RectangleF(
+                                    scaledBounds.X,
+                                    scaledBounds.Y,
+                                    scaledBounds.Width,
+                                    scaledBounds.Height
+                                )
+                            );
+                        }
+
                     }
                 }
             }
             finally
             {
-                // Restore the original transformation state
                 g.Transform = originalTransform;
+                g.CompositingMode = originalCompositingMode;
             }
         }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -1048,7 +1133,36 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _spinTimer.Tick += (s, e) =>
                 {
                     // Increment the rotation angle and keep it within 0-360 degrees
-                    _rotationAngle = (_rotationAngle + SpinSpeed) % 360;
+                    if (IsSpinning)
+                        _rotationAngle = (_rotationAngle + SpinSpeed) % 360;
+
+                    if (_isPulsing)
+                    {
+                        _pulseScale += 0.01f * _pulseDirection;
+                        if (_pulseScale > 1.1f || _pulseScale < 0.9f)
+                            _pulseDirection *= -1;
+                    }
+
+                    if (_isBouncing)
+                    {
+                        _pulseScale += 0.04f * _pulseDirection;
+                        if (_pulseScale > 1.2f || _pulseScale < 0.8f)
+                            _pulseDirection *= -1;
+                    }
+
+                    if (_isFading)
+                    {
+                        _fadeAlpha += 0.05f * _fadeDirection;
+                        if (_fadeAlpha <= 0.4f || _fadeAlpha >= 1.0f)
+                            _fadeDirection *= -1;
+                    }
+
+                    if (_isShaking)
+                    {
+                        _shakeOffset += 1 * _shakeDirection;
+                        if (Math.Abs(_shakeOffset) > 3)
+                            _shakeDirection *= -1;
+                    }
                     Invalidate(); // Redraw the control to reflect the new angle
                 };
             }
@@ -1068,6 +1182,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Reset the rotation angle
             _rotationAngle = 0;
             _manualRotationAngle = 0; // Optionally reset manual rotation too
+            _pulseScale = 1.0f;
+            _fadeAlpha = 1.0f;
+            _shakeOffset = 0;
 
             Invalidate(new Rectangle(0, 0, Width, Height)); // Redraw the entire control
 
@@ -1115,6 +1232,159 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion "IBeep UI Component Implementation"
+        #region "Rotate"
+        public void Rotate90Clockwise()
+        {
+            if (isSvg && svgDocument != null)
+                ManualRotationAngle = (ManualRotationAngle + 90f) % 360f;
+            else if (regularImage != null)
+                RotateImage(RotateFlipType.Rotate90FlipNone);
+        }
+
+        public void Rotate90CounterClockwise()
+        {
+            if (isSvg && svgDocument != null)
+                ManualRotationAngle = (ManualRotationAngle - 90f + 360f) % 360f;
+            else if (regularImage != null)
+                RotateImage(RotateFlipType.Rotate270FlipNone);
+        }
+
+        public void Rotate180()
+        {
+            if (isSvg && svgDocument != null)
+                ManualRotationAngle = (ManualRotationAngle + 180f) % 360f;
+            else if (regularImage != null)
+                RotateImage(RotateFlipType.Rotate180FlipNone);
+        }
+
+        public void FlipHorizontal()
+        {
+            if (isSvg && svgDocument != null)
+            {
+                _flipX = !_flipX;
+                Invalidate();
+            }
+            else if (regularImage != null)
+            {
+                RotateImage(RotateFlipType.RotateNoneFlipX);
+            }
+        }
+
+        public void FlipVertical()
+        {
+            if (isSvg && svgDocument != null)
+            {
+                _flipY = !_flipY;
+                Invalidate();
+            }
+            else if (regularImage != null)
+            {
+                RotateImage(RotateFlipType.RotateNoneFlipY);
+            }
+        }
+
+        /// <summary>
+        /// Rotate or flip only regular images using built-in support
+        /// </summary>
+        public void RotateImage(RotateFlipType rotateFlipType)
+        {
+            if (regularImage != null)
+            {
+                regularImage.RotateFlip(rotateFlipType);
+                Invalidate();
+            }
+            else
+            {
+                MessageBox.Show("Rotation is only supported for regular images (PNG, JPG, BMP).", "Rotate Image", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        /// <summary>
+        /// Resets all rotation and flip states
+        /// </summary>
+        public void ResetTransformations()
+        {
+            ManualRotationAngle = 0;
+            _flipX = false;
+            _flipY = false;
+            if (regularImage != null)
+            {
+                // Reload the original image if needed
+                if (!string.IsNullOrEmpty(ImagePath))
+                {
+                    LoadImage(ImagePath);
+                }
+            }
+            Invalidate();
+        }
+
+
+        #endregion "Rotate"
+        #region "Animation"
+        [Category("Animation")]
+        public bool IsPulsing
+        {
+            get => _isPulsing;
+            set
+            {
+                _isPulsing = value;
+                StartSpin(); // reuse same timer
+            }
+        }
+
+        [Category("Animation")]
+        public bool IsBouncing
+        {
+            get => _isBouncing;
+            set
+            {
+                _isBouncing = value;
+                StartSpin();
+            }
+        }
+
+        [Category("Animation")]
+        public bool IsFading
+        {
+            get => _isFading;
+            set
+            {
+                _isFading = value;
+                _fadeAlpha = 1.0f;
+                _fadeDirection = -1;
+                StartSpin();
+            }
+        }
+
+        [Category("Animation")]
+        public bool IsShaking
+        {
+            get => _isShaking;
+            set
+            {
+                _isShaking = value;
+                _shakeOffset = 0;
+                _shakeDirection = 1;
+                StartSpin();
+            }
+        }
+
+        private bool _isPulsing = false;
+        private bool _isBouncing = false;
+        private bool _isShaking = false;
+        private bool _isFading = false;
+
+        private float _pulseScale = 1.0f;
+        private int _pulseDirection = 1;
+
+        private float _fadeAlpha = 1.0f;
+        private int _fadeDirection = -1;
+
+        private int _shakeOffset = 0;
+        private int _shakeDirection = 1;
+
+        #endregion "Animation"
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

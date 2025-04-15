@@ -648,7 +648,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
 
 
-            ThemeFunctions.ApplyThemeOnImageControl(control, _applyThemeOnImage);
+          //  ThemeFunctions.ApplyThemeOnImageControl(control, _applyThemeOnImage);
         }
 
         // Recursively apply the theme to all controls on the form and child containers

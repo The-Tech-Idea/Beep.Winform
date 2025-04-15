@@ -284,8 +284,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.AnimationDuration = 500;
             beepAppBar1.AnimationType = DisplayAnimationType.None;
             beepAppBar1.ApplyThemeButtons = false;
-            beepAppBar1.ApplyThemeOnLogo = false;
-            beepAppBar1.ApplyThemeToChilds = false;
+        
             beepAppBar1.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             beepAppBar1.AutoCompleteSource = AutoCompleteSource.CustomSource;
             beepAppBar1.BackColor = Color.FromArgb(0, 120, 215);

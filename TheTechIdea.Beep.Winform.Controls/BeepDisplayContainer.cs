@@ -73,9 +73,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Dock = DockStyle.Fill,
                 Visible = true,
                 TabStop = true
+               
             };
 
-
+          
             // Add controls to the user control
             this.Controls.Add(ContainerPanel);
             this.Controls.Add(TabContainerPanel);
@@ -103,11 +104,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TabContainerPanel.Visible = false;
                 ContainerPanel.Visible = true;
 
-                // Ensure the test button is added to the ContainerPanel
-                if (!ContainerPanel.Controls.Contains(_testButton))
-                {
-                    ContainerPanel.Controls.Add(_testButton);
-                }
+                //// Ensure the test button is added to the ContainerPanel
+                //if (!ContainerPanel.Controls.Contains(_testButton))
+                //{
+                //    ContainerPanel.Controls.Add(_testButton);
+                //}
 
                 // Move all tabbed controls to single panel (show only the selected one)
                 if (TabContainerPanel.SelectedTab != null)
@@ -193,6 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     ContainerPanel.Controls.Clear();
                     ContainerPanel.Controls.Add(winControl);
+                    winControl.Margin = new Padding(5);
                     winControl.Left = 0;
                     winControl.Top = 0;
                     winControl.Width = ContainerPanel.Width;
@@ -211,6 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (control is Control winControl)
                 {
                     winControl.Dock = DockStyle.Fill;
+                    winControl.Padding = new Padding(5);
                     winControl.Visible = true;
                     tabPage.Controls.Add(winControl);
                  //  MiscFunctions.SendLog($"Added control to tab {TitleText}, Bounds: {winControl.Bounds}, Visible: {winControl.Visible}");
@@ -469,12 +472,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void SuspendFormLayout()
         {
-           // this.SuspendLayout();
+            return;
+            this.SuspendLayout();
             // suspend the layout of the controls in the container
-            //foreach (Control control in this.Controls)
-            //{
-            //    control.SuspendLayout();
-            //}
+            foreach (Control control in this.Controls)
+            {
+                control.SuspendLayout();
+            }
             currenttab = TabContainerPanel.SelectedTab;
             TabContainerPanel.SuspendFormLayout();
            
@@ -482,13 +486,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void ResumeFormLayout()
         {
-         //   this.ResumeLayout();
+            return;
+            this.ResumeLayout();
             // resume the layout of the controls in the container
-            //foreach (Control control in this.Controls)
-            //{
-            //    control.ResumeLayout();
-            //}
-           
+            foreach (Control control in this.Controls)
+            {
+                control.ResumeLayout();
+            }
+
             TabContainerPanel.ResumeFormLayout();
             TabContainerPanel.PerformLayout();
             Invalidate();

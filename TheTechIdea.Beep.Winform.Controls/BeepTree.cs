@@ -355,7 +355,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                           ControlStyles.UserPaint |
                           ControlStyles.AllPaintingInWmPaint, true);
             this.UpdateStyles();
-            Padding = new Padding(1);
+            Margin = new Padding(10);
             // Initialize scroll event handling for virtualization
             this.AutoScroll = true;
             this.VerticalScroll.Visible = true;

@@ -158,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public int SmallNodeHeight { get; set; } = 14;
         private int nodeimagesize = 14;
         public int MinimumTextWidth { get; set; } = 100;
-        int padding = 5; // Padding around elements
+        int padding = 10; // Padding around elements
         int spacing =1; // Padding around elements
         public string NodeDataType { get; set; } = "SimpleItem";
         public string LocalizedText => Resources.ResourceManager.GetString(Key) ?? Text;

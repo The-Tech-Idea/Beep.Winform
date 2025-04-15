@@ -56,9 +56,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Color tmpbackcolor;
         private Color tmpforcolor;
 
+      
         #region "Popup List Properties"
         //  private BeepPopupForm _popupForm;
-       // BeepPopupListForm menuDialog;
+        // BeepPopupListForm menuDialog;
         private Color tmpfillcolor;
         private Color tmpstrokecolor;
         private bool _isPopupOpen;
@@ -163,6 +164,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         }
         #endregion "Popup List Properties"
+        private List<SimpleItem> _standardimages = new List<SimpleItem>();
+        public List<SimpleItem> StandardImages
+        {
+            get => _standardimages;
+            set
+            {
+                _standardimages = value;
+                Invalidate();  // Trigger repaint
+            }
+        }
         private ImageEmbededin _imageEmbededin = ImageEmbededin.Button;
         [Category("Appearance")]
         [Description("Indicates where the image is embedded.")]

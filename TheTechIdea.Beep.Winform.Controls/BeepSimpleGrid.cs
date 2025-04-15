@@ -60,6 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int botomspacetaken = 0;
         private int topPanelY;
         private Rectangle gridRect;
+        private object rowsrect;
         private int _rowHeight = 25;
         private int _xOffset = 0;
         private bool _showFilterButton = true;
@@ -870,6 +871,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 UncheckedValue = false,
                 CurrentValue = false,
                 Visible = false,
+                IsFrameless=true,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
                 HideText = true // No text needed in header
             };
             _selectAllCheckBox.StateChanged += SelectAllCheckBox_StateChanged;
@@ -3829,7 +3833,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _navigatorDrawn = true;
                 if (_showNavigator)
                 {
-                    navigatorPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Bottom - navigatorPanelHeight, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), navigatorPanelHeight);
+                    navigatorPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Bottom - navigatorPanelHeight, drawingBounds.Width, navigatorPanelHeight);
                  //   DrawNavigationRow(g, navigatorPanelRect);
                 }
                 else
@@ -3844,7 +3848,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 bottomPanelY -= footerPanelHeight;
                 botomspacetaken += footerPanelHeight;
-                footerPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), footerPanelHeight);
+                footerPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width, footerPanelHeight);
                 //DrawFooterRow(g, footerPanelRect);
             }
 
@@ -3852,7 +3856,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 bottomPanelY -= bottomagregationPanelHeight;
                 botomspacetaken += bottomagregationPanelHeight;
-                bottomagregationPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), bottomagregationPanelHeight);
+                bottomagregationPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width, bottomagregationPanelHeight);
                 //DrawBottomAggregationRow(g, bottomagregationPanelRect);
             }
 
@@ -3863,7 +3867,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _filterpaneldrawn = true;
                 if (_showFilterpanel)
                 {
-                    filterPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), filterPanelHeight);
+                    filterPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width, filterPanelHeight);
                   //  DrawFilterPanel(g, filterPanelRect);
                 }
                 else
@@ -3888,7 +3892,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 }
 
-                headerPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), headerPanelHeight);
+                headerPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width, headerPanelHeight);
                 //DrawHeaderPanel(g, headerPanelRect);
                 topPanelY += headerPanelHeight;
             }
@@ -3901,7 +3905,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_showColumnHeaders)
             {
-                columnsheaderPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), ColumnHeaderHeight);
+                columnsheaderPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width, ColumnHeaderHeight);
                 //PaintColumnHeaders(g, columnsheaderPanelRect);
                 topPanelY += ColumnHeaderHeight;
             }
@@ -3931,7 +3935,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    g.FillRectangle(backcolor, gridRect);
             //}
             var drawingBounds = DrawingRect;
-
+            PositionScrollBars();
             // Update scrollbar visibility first
             UpdateScrollBars();
 
@@ -3946,12 +3950,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 bottomPanelY -= _horizontalScrollBar.Height;
                 botomspacetaken += _horizontalScrollBar.Height;
             }
-
+           
             if (_showNavigator)
             {
                 bottomPanelY -= navigatorPanelHeight;
                 botomspacetaken += navigatorPanelHeight;
-                navigatorPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Bottom - navigatorPanelHeight, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), navigatorPanelHeight);
+                navigatorPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Bottom - navigatorPanelHeight, drawingBounds.Width, navigatorPanelHeight);
                 using (var brush = new SolidBrush(_currentTheme.GridHeaderBackColor))
                 {
                     g.FillRectangle(brush, navigatorPanelRect);
@@ -3962,7 +3966,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _navigatorDrawn = true;
                 if (_showNavigator )
                 {
-                    navigatorPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Bottom - navigatorPanelHeight, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), navigatorPanelHeight);
+                    navigatorPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Bottom - navigatorPanelHeight, drawingBounds.Width, navigatorPanelHeight);
                     DrawNavigationRow(g, navigatorPanelRect);
                 }
                 else
@@ -3977,7 +3981,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 bottomPanelY -= footerPanelHeight;
                 botomspacetaken += footerPanelHeight;
-                footerPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), footerPanelHeight);
+                footerPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width, footerPanelHeight);
                 DrawFooterRow(g, footerPanelRect);
             }
 
@@ -3985,7 +3989,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 bottomPanelY -= bottomagregationPanelHeight;
                 botomspacetaken += bottomagregationPanelHeight;
-                bottomagregationPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), bottomagregationPanelHeight);
+                bottomagregationPanelRect = new Rectangle(drawingBounds.Left, bottomPanelY, drawingBounds.Width, bottomagregationPanelHeight);
                 DrawBottomAggregationRow(g, bottomagregationPanelRect);
             }
 
@@ -3996,7 +4000,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _filterpaneldrawn = true;
                 if (_showFilterpanel)
                 {
-                    filterPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), filterPanelHeight);
+                    filterPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width, filterPanelHeight);
                     DrawFilterPanel(g, filterPanelRect);
                 }
                 else
@@ -4021,7 +4025,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 }
 
-                headerPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), headerPanelHeight);
+                headerPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width , headerPanelHeight);
                 DrawHeaderPanel(g, headerPanelRect);
                 topPanelY += headerPanelHeight;
             }
@@ -4034,16 +4038,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_showColumnHeaders)
             {
-                columnsheaderPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0), ColumnHeaderHeight);
+                columnsheaderPanelRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width, ColumnHeaderHeight);
                 PaintColumnHeaders(g, columnsheaderPanelRect);
                 topPanelY += ColumnHeaderHeight;
             }
-
+           
             // Grid would Draw on the remaining space
             int availableHeight = drawingBounds.Height - topPanelY - botomspacetaken;
             int availableWidth = drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
-            gridRect = new Rectangle(drawingBounds.Left, topPanelY, availableWidth, availableHeight);
-
+            gridRect = new Rectangle(drawingBounds.Left, topPanelY, drawingBounds.Width, availableHeight);
+            rowsrect=new  Rectangle(drawingBounds.Left, topPanelY, availableWidth, availableHeight);
             // Draw grid content
             UpdateStickyWidth();
             PaintRows(g, gridRect);
@@ -4054,7 +4058,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawRowsBorders(g, gridRect);
             UpdateHeaderLayout();
             // Position scrollbars after rendering
-           PositionScrollBars();
+         
             //if (_showCheckboxes)
             //{
             //    _selectAllCheckBox.Invalidate();
@@ -5592,7 +5596,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_horizontalScrollBar.Visible)
             {
                 _horizontalScrollBar.Location = new Point(gridRect.Left, aggregationRowBottom);
-                _horizontalScrollBar.Width = visibleWidth - (_verticalScrollBar.Visible ? verticalScrollWidth : 0);
+                _horizontalScrollBar.Width = visibleWidth ;
             }
         }
         private void VerticalScrollBar_Scroll(object sender, EventArgs e)
@@ -6727,7 +6731,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.BackColor = _currentTheme.GridBackColor;
             this.ForeColor = _currentTheme.GridForeColor;
             SelectedForeColor = _currentTheme.GridForeColor;
-           SelectedBackColor=_currentTheme.GridBackColor;
+            SelectedBackColor=_currentTheme.GridBackColor;
             HoverBackColor= _currentTheme.GridBackColor;
             HoverForeColor= _currentTheme.GridForeColor;
             FocusBackColor=_currentTheme.GridBackColor;
@@ -6737,16 +6741,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             //MainPanel.BackColor = _currentTheme.GridBackColor;
             if (titleLabel != null)
             {
-                titleLabel.ParentBackColor = BackColor;
+                titleLabel.ParentBackColor = footerback;
+                titleLabel.BackColor = footerback;
+                titleLabel.IsChild = true;
                 titleLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
              //   titleLabel.Theme = Theme;
-                titleLabel.ForeColor = _currentTheme.GridForeColor;
+                titleLabel.ForeColor = _currentTheme.GridHeaderForeColor;
                 titleLabel.Invalidate();
             }
             if (Recordnumberinglabel1 != null) {
                 //   Recordnumberinglabel1.ForeColor = _currentTheme.GridForeColor;
                 Recordnumberinglabel1.TextFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
-                Recordnumberinglabel1.ForeColor = _currentTheme.GridForeColor;
+                Recordnumberinglabel1.ForeColor = _currentTheme.GridHeaderForeColor;
                 Recordnumberinglabel1.BackColor = footerback;
                 Recordnumberinglabel1.ParentBackColor = footerback;
                 Recordnumberinglabel1.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
@@ -6762,7 +6768,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 //PageLabel.ForeColor = _currentTheme.GridForeColor;
                 PageLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
-                PageLabel.ForeColor = _currentTheme.GridForeColor;
+                PageLabel.ForeColor = _currentTheme.GridHeaderForeColor;
                 PageLabel.BackColor = footerback;
                 PageLabel.ParentBackColor = footerback;
                 PageLabel.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
@@ -6773,119 +6779,50 @@ namespace TheTechIdea.Beep.Winform.Controls
                 PageLabel.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
                 PageLabel.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
 
-                // NextPageButton.Theme = Theme;
-                NextPageButton.ForeColor = _currentTheme.GridForeColor;
-                NextPageButton.BackColor = footerback;
-                NextPageButton.ParentBackColor = footerback;
-                NextPageButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
-                NextPageButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
-                NextPageButton.BorderColor = _currentTheme.GridForeColor;
-                NextPageButton.DisabledBackColor = _currentTheme.DisabledBackColor;
-                NextPageButton.DisabledForeColor = _currentTheme.DisabledForeColor;
-                NextPageButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
-                NextPageButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                NextPageButton.ApplyThemeToSvg();
-                //   PrevPageButton.Theme = Theme;
-                PrevPageButton.ForeColor = _currentTheme.GridForeColor;
-                PrevPageButton.BackColor = footerback;
-                PrevPageButton.ParentBackColor = footerback;
-                PrevPageButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
-                PrevPageButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
-                PrevPageButton.BorderColor = _currentTheme.GridForeColor;
-                PrevPageButton.DisabledBackColor = _currentTheme.DisabledBackColor;
-                PrevPageButton.DisabledForeColor = _currentTheme.DisabledForeColor;
-                PrevPageButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
-                PrevPageButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                PrevPageButton.ApplyThemeToSvg();
-                //   FirstPageButton.Theme = Theme;
-                FirstPageButton.ForeColor = _currentTheme.GridForeColor;
-                FirstPageButton.BackColor = footerback;
-                FirstPageButton.ParentBackColor = footerback;
-                FirstPageButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
-                FirstPageButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
-                FirstPageButton.BorderColor = _currentTheme.GridForeColor;
-                FirstPageButton.DisabledBackColor = _currentTheme.DisabledBackColor;
-                FirstPageButton.DisabledForeColor = _currentTheme.DisabledForeColor;
-                FirstPageButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
-                FirstPageButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                FirstPageButton.ApplyThemeToSvg();
-                LastPageButton.ForeColor = _currentTheme.GridForeColor;
-                LastPageButton.BackColor = footerback;
-                LastPageButton.ParentBackColor = footerback;
-                LastPageButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
-                LastPageButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
-                LastPageButton.BorderColor = _currentTheme.GridForeColor;
-                LastPageButton.DisabledBackColor = _currentTheme.DisabledBackColor;
-                LastPageButton.DisabledForeColor = _currentTheme.DisabledForeColor;
-                LastPageButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
-                LastPageButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                LastPageButton.ApplyThemeToSvg();
-                NextButton.ForeColor = _currentTheme.GridForeColor;
-                NextButton.BackColor = footerback;
-                NextButton.ParentBackColor = footerback;
-                NextButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
-                NextButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
-                NextButton.BorderColor = _currentTheme.GridForeColor;
-                NextButton.DisabledBackColor = _currentTheme.DisabledBackColor;
-                NextButton.DisabledForeColor = _currentTheme.DisabledForeColor;
-                NextButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
-                NextButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                NextButton.ApplyThemeToSvg();
-                PreviousButton.ForeColor = _currentTheme.GridForeColor;
-                PreviousButton.BackColor = footerback;
-                PreviousButton.ParentBackColor = footerback;
-                PreviousButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
-                PreviousButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
-                PreviousButton.BorderColor = _currentTheme.GridForeColor;
-                PreviousButton.DisabledBackColor = _currentTheme.DisabledBackColor;
-                PreviousButton.DisabledForeColor = _currentTheme.DisabledForeColor;
-                PreviousButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
-                PreviousButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                PreviousButton.ApplyThemeToSvg();
-                PrinterButton.ForeColor = _currentTheme.GridForeColor;
-                PrinterButton.BackColor = footerback;
-                PrinterButton.ParentBackColor = footerback;
-                PrinterButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
-                PrinterButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
-                PrinterButton.BorderColor = _currentTheme.GridForeColor;
-                PrinterButton.DisabledBackColor = _currentTheme.DisabledBackColor;
-                PrinterButton.DisabledForeColor = _currentTheme.DisabledForeColor;
-                PrinterButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
-                PrinterButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                PrinterButton.ApplyThemeToSvg();
-                SaveButton.ForeColor = _currentTheme.GridForeColor;
-                SaveButton.BackColor = footerback;
-                SaveButton.ParentBackColor = footerback;
-                SaveButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
-                SaveButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
-                SaveButton.BorderColor = _currentTheme.GridForeColor;
-                SaveButton.DisabledBackColor = _currentTheme.DisabledBackColor;
-                SaveButton.DisabledForeColor = _currentTheme.DisabledForeColor;
-                SaveButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
-                SaveButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                SaveButton.ApplyThemeToSvg();
-                RollbackButton.ForeColor = _currentTheme.GridForeColor;
-                RollbackButton.BackColor = footerback;
-                RollbackButton.ParentBackColor = footerback;
-                RollbackButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
-                RollbackButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
-                RollbackButton.BorderColor = _currentTheme.GridForeColor;
-                RollbackButton.DisabledBackColor = _currentTheme.DisabledBackColor;
-                RollbackButton.DisabledForeColor = _currentTheme.DisabledForeColor;
-                RollbackButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
-                RollbackButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                RollbackButton.ApplyThemeToSvg();
-                RemoveButton.ForeColor = _currentTheme.GridForeColor;
-                RemoveButton.BackColor = footerback;
-                RemoveButton.ParentBackColor = footerback;
-                RemoveButton.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
-                RemoveButton.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
-                RemoveButton.BorderColor = _currentTheme.GridForeColor;
-                RemoveButton.DisabledBackColor = _currentTheme.DisabledBackColor;
-                RemoveButton.DisabledForeColor = _currentTheme.DisabledForeColor;
-                RemoveButton.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
-                RemoveButton.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
-                RemoveButton.ApplyThemeToSvg();
+          
+                foreach (BeepButton x in buttons)
+                {
+                    x.Theme = Theme;
+                    x.ForeColor = _currentTheme.GridHeaderForeColor;
+                    x.BackColor = footerback;
+                    x.ParentBackColor = footerback;
+                    x.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
+                    x.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
+                    x.BorderColor = _currentTheme.GridForeColor;
+                    x.DisabledBackColor = _currentTheme.DisabledBackColor;
+                    x.DisabledForeColor = _currentTheme.DisabledForeColor;
+                    x.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
+                    x.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
+                    x.ApplyThemeToSvg();
+                }
+                foreach (BeepButton x in pagingButtons)
+                {
+                    x.Theme = Theme;
+                    x.ForeColor = _currentTheme.GridHeaderForeColor;
+                    x.BackColor = footerback;
+                    x.ParentBackColor = footerback;
+                    x.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
+                    x.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
+                    x.BorderColor = _currentTheme.GridForeColor;
+                    x.DisabledBackColor = _currentTheme.DisabledBackColor;
+                    x.DisabledForeColor = _currentTheme.DisabledForeColor;
+                    x.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
+                    x.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
+                    x.ApplyThemeToSvg();
+                }
+                //_selectAllCheckBox
+                _selectAllCheckBox.Theme = Theme;
+                _selectAllCheckBox.ForeColor = _currentTheme.GridHeaderForeColor;
+                _selectAllCheckBox.BackColor = footerback;
+                _selectAllCheckBox.ParentBackColor = footerback;
+                _selectAllCheckBox.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
+                _selectAllCheckBox.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
+                _selectAllCheckBox.BorderColor = _currentTheme.GridForeColor;
+                _selectAllCheckBox.DisabledBackColor = _currentTheme.DisabledBackColor;
+                _selectAllCheckBox.DisabledForeColor = _currentTheme.DisabledForeColor;
+                _selectAllCheckBox.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
+                _selectAllCheckBox.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
+               // _selectAllCheckBox.ApplyThemeToSvg();
                 //  PageLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             }
             //if (DataNavigator != null)
@@ -7313,16 +7250,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             //RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.undo.svg", buttonSize, RollbackpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
             //NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.forward.svg", buttonSize, NextpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
             //PreviousButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.backwards.svg", buttonSize, PreviouspictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            FindButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.032-zoom.svg", buttonSize, FindpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            EditButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.031-edit.svg", buttonSize, EditpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            PrinterButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.096-printer.svg", buttonSize, PrinterpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            MessageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.034-email.svg", buttonSize, MessagepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            SaveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.037-save.svg", buttonSize, SavepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.031-plus.svg", buttonSize, NewButton_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            FindButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.079-search.svg", buttonSize, FindpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            EditButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.062-pencil.svg", buttonSize, EditpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            PrinterButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.072-printer.svg", buttonSize, PrinterpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            MessageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.083-share.svg", buttonSize, MessagepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            SaveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.036-floppy disk.svg", buttonSize, SavepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            NewButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.068-plus.svg", buttonSize, NewButton_Click, AnchorStyles.Left | AnchorStyles.Bottom);
             RemoveButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.035-eraser.svg", buttonSize, RemovepictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.031-rotate.svg", buttonSize, RollbackpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.033-right.svg", buttonSize, NextpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
-            PreviousButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.030-left.svg", buttonSize, PreviouspictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            RollbackButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.005-back arrow.svg", buttonSize, RollbackpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            NextButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.angle-small-right.svg", buttonSize, NextpictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
+            PreviousButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.angle-small-left.svg", buttonSize, PreviouspictureBox_Click, AnchorStyles.Left | AnchorStyles.Bottom);
             // Page label (as a BeepButton)
             PageLabel = new BeepButton
             {
@@ -7356,17 +7293,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
 
             // Paging buttons with event handlers
-            FirstPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.firstpage.svg", buttonSize, FirstPageButton_Click, AnchorStyles.Right | AnchorStyles.Bottom);
-            PrevPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.backwards.svg", buttonSize, PrevPageButton_Click, AnchorStyles.Right | AnchorStyles.Bottom);
-            NextPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.forward.svg", buttonSize, NextPageButton_Click, AnchorStyles.Right | AnchorStyles.Bottom);
-            LastPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.lastpage.svg", buttonSize, LastPageButton_Click, AnchorStyles.Right | AnchorStyles.Bottom);
+            FirstPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.angle-double-small-left.svg", buttonSize, FirstPageButton_Click, AnchorStyles.Right | AnchorStyles.Bottom);
+            PrevPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.angle-small-left.svg", buttonSize, PrevPageButton_Click, AnchorStyles.Right | AnchorStyles.Bottom);
+            NextPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.angle-small-right.svg", buttonSize, NextPageButton_Click, AnchorStyles.Right | AnchorStyles.Bottom);
+            LastPageButton = CreateButton("TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.angle-double-small-right.svg", buttonSize, LastPageButton_Click, AnchorStyles.Right | AnchorStyles.Bottom);
          
           
 
             buttons = new List<Control>
     {
-        FindButton, EditButton, PrinterButton, MessageButton, SaveButton
-        , NextButton, NewButton, RemoveButton, RollbackButton,PreviousButton, Recordnumberinglabel1,NextButton
+        FindButton,  PrinterButton, MessageButton
+        , NextButton, NewButton,EditButton, SaveButton, RollbackButton,PreviousButton, Recordnumberinglabel1,NextButton, RemoveButton
     };
 
             pagingButtons = new List<Control>
@@ -7396,7 +7333,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Margin = new Padding(0),
                 ApplyThemeOnImage = true,
                 Padding = new Padding(0),
-                ImageEmbededin= ImageEmbededin.DataGridView,
+                IsRounded=false,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme=false,
+                ImageEmbededin = ImageEmbededin.DataGridView,
                 MaxImageSize = new Size(size.Width - 4, size.Height - 4),
                 Visible = true // Ensure buttons are visible
                 
@@ -7464,6 +7404,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Recordnumberinglabel1.Text = "0 - 0";
             }
+            UpdatePagingControls();
         }
 
         private void UpdateNavigationButtonState()

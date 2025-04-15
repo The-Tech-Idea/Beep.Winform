@@ -1619,6 +1619,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             Font = _textFont;
 
             beepImage.IsChild = true;
+            beepImage.Theme= Theme;
+            beepImage.ImageEmbededin = ImageEmbededin.TextBox;
             beepImage.ParentBackColor = BackColor; ;
             beepImage.BackColor = _currentTheme.TextBoxBackColor;
             beepImage.ForeColor = _currentTheme.TextBoxForeColor;
@@ -1631,11 +1633,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage.IsBorderAffectedByTheme = false;
             beepImage.IsShadowAffectedByTheme = false;
             beepImage.BorderColor = _currentTheme.TextBoxBorderColor;
-            //if (ApplyThemeOnImage)
-            //{
-            //   // beepImage.ImageEmbededin = ImageEmbededin.TextBox;
-            //    beepImage.ApplyThemeToSvg();
-            //}
+            if (ApplyThemeOnImage)
+            {
+                // beepImage.ImageEmbededin = ImageEmbededin.TextBox;
+                beepImage.ApplyThemeToSvg();
+            }
             //  Refresh();           // Forcing the current control to refresh
             //   Parent?.Refresh();   // Ensuring the parent is also updated
             _innerTextBox.Invalidate();

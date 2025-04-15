@@ -158,18 +158,25 @@
     <None Remove="GFX\SVG\mysql-database.svg" />
     <None Remove="GFX\SVG\mysql-logo-pure.svg" />
     <None Remove="GFX\SVG\mysql.svg" />
-    <None Remove="GFX\SVG\NAV\029-erase.svg" />
-    <None Remove="GFX\SVG\NAV\029-right.svg" />
-    <None Remove="GFX\SVG\NAV\030-left.svg" />
-    <None Remove="GFX\SVG\NAV\031-edit.svg" />
-    <None Remove="GFX\SVG\NAV\031-plus.svg" />
-    <None Remove="GFX\SVG\NAV\031-rotate.svg" />
-    <None Remove="GFX\SVG\NAV\032-zoom.svg" />
-    <None Remove="GFX\SVG\NAV\033-right.svg" />
-    <None Remove="GFX\SVG\NAV\034-email.svg" />
+    <None Remove="GFX\SVG\NAV\005-back arrow.svg" />
+    <None Remove="GFX\SVG\NAV\015-chevron.svg" />
+    <None Remove="GFX\SVG\NAV\016-double chevron.svg" />
+    <None Remove="GFX\SVG\NAV\024-dashboard.svg" />
+    <None Remove="GFX\SVG\NAV\025-user.svg" />
     <None Remove="GFX\SVG\NAV\035-eraser.svg" />
-    <None Remove="GFX\SVG\NAV\037-save.svg" />
-    <None Remove="GFX\SVG\NAV\096-printer.svg" />
+    <None Remove="GFX\SVG\NAV\035-flag.svg" />
+    <None Remove="GFX\SVG\NAV\036-floppy disk.svg" />
+    <None Remove="GFX\SVG\NAV\054-maximize.svg" />
+    <None Remove="GFX\SVG\NAV\055-minimize.svg" />
+    <None Remove="GFX\SVG\NAV\058-minus.svg" />
+    <None Remove="GFX\SVG\NAV\062-pencil.svg" />
+    <None Remove="GFX\SVG\NAV\068-plus.svg" />
+    <None Remove="GFX\SVG\NAV\072-printer.svg" />
+    <None Remove="GFX\SVG\NAV\078-remove.svg" />
+    <None Remove="GFX\SVG\NAV\079-search.svg" />
+    <None Remove="GFX\SVG\NAV\083-share.svg" />
+    <None Remove="GFX\SVG\NAV\089-trash.svg" />
+    <None Remove="GFX\SVG\NAV\093-waving.svg" />
     <None Remove="GFX\SVG\next.svg" />
     <None Remove="GFX\SVG\No.svg" />
     <None Remove="GFX\SVG\notice.svg" />
@@ -247,18 +254,28 @@
     <EmbeddedResource Include="GFX\SVG\firstpage.svg" />
     <EmbeddedResource Include="GFX\SVG\lastpage.svg" />
     <EmbeddedResource Include="GFX\SVG\localconnections.svg" />
-    <EmbeddedResource Include="GFX\SVG\NAV\029-erase.svg" />
-    <EmbeddedResource Include="GFX\SVG\NAV\029-right.svg" />
-    <EmbeddedResource Include="GFX\SVG\NAV\030-left.svg" />
-    <EmbeddedResource Include="GFX\SVG\NAV\031-edit.svg" />
-    <EmbeddedResource Include="GFX\SVG\NAV\031-plus.svg" />
-    <EmbeddedResource Include="GFX\SVG\NAV\031-rotate.svg" />
-    <EmbeddedResource Include="GFX\SVG\NAV\032-zoom.svg" />
-    <EmbeddedResource Include="GFX\SVG\NAV\033-right.svg" />
-    <EmbeddedResource Include="GFX\SVG\NAV\034-email.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\015-chevron.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\016-double chevron.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\024-dashboard.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\025-user.svg" />
     <EmbeddedResource Include="GFX\SVG\NAV\035-eraser.svg" />
-    <EmbeddedResource Include="GFX\SVG\NAV\037-save.svg" />
-    <EmbeddedResource Include="GFX\SVG\NAV\096-printer.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\035-flag.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\036-floppy disk.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\054-maximize.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\055-minimize.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\058-minus.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\062-pencil.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\068-plus.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\072-printer.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\078-remove.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\079-search.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\083-share.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\089-trash.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\093-waving.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\angle-double-small-left.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\angle-double-small-right.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\angle-small-left.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\angle-small-right.svg" />
     <EmbeddedResource Include="GFX\SVG\paperclip.svg" />
     <EmbeddedResource Include="GFX\SVG\signout.svg" />
     <EmbeddedResource Include="GFX\SVG\simpleInfoapps.ico" />
@@ -476,6 +493,9 @@
   <ItemGroup>
     <EmbeddedResource Include="GFX\SVG\square-minus.svg" />
     <EmbeddedResource Include="GFX\SVG\square-plus.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="GFX\SVG\NAV\005-back arrow.svg" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />

@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static ITree TreeEditor { get; set; }
         public static void RunFunctionFromExtensions( SimpleItem item, string MethodName)
         {
-            AssemblyClassDefinitionManager.Editor = DMEEditor;
+            
             IBranch br = null;
             AssemblyClassDefinition assemblydef = new AssemblyClassDefinition();
             MethodInfo method = null;
@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
         public static void RunFunctionFromExtensions(this ITree tree, SimpleItem item, string MethodName)
         {
-            AssemblyClassDefinitionManager.Editor = tree.DMEEditor;
+            
             IBranch br = null;
             AssemblyClassDefinition assemblydef = new AssemblyClassDefinition();
             MethodInfo method = null;
@@ -126,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             try
             {
                 Type t = branch.GetType();
-                AssemblyClassDefinition cls = tree.DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.className == t.Name).FirstOrDefault();
+                AssemblyClassDefinition cls = AssemblyClassDefinitionManager.BranchesClasses.Where(x => x.className == t.Name).FirstOrDefault();
                 MethodInfo method = null;
                 MethodsClass methodsClass;
                 try
@@ -185,7 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 IFunctionExtension fc = (IFunctionExtension)DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { DMEEditor, br });
                 Type t = fc.GetType();
                 //dynamic fc = Activator.CreateInstance(assemblydef.type, new object[] { Editor, Vismanager, this });
-                AssemblyClassDefinition cls = DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
+                AssemblyClassDefinition cls =AssemblyClassDefinitionManager.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
                 MethodInfo method = null;
                 MethodsClass methodsClass;
                 if (!IsMethodApplicabletoNode(cls, br)) return;
@@ -222,7 +222,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
         public static void RunMethodFromExtension(this ITree tree, IBranch br, string MethodName)
         {
-            AssemblyClassDefinitionManager.Editor = tree.DMEEditor;
+           
             AssemblyClassDefinition assemblydef = new AssemblyClassDefinition();
             MethodInfo method = null;
             MethodsClass methodsClass;

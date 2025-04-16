@@ -550,7 +550,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 DynamicMenuManager.CreateMenuMethods(DMEEditor, br);
                 if (br.ObjectType != null && br.BranchClass != null)
                 {
-                    DynamicMenuManager.CreateGlobalMenu(DMEEditor, br);
+                    DynamicMenuManager.CreateGlobalMenu( br);
                 }
 
                 br.DMEEditor = DMEEditor;
@@ -631,7 +631,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             DynamicMenuManager.CreateMenuMethods(DMEEditor, br);
             if (br.ObjectType != null && br.BranchClass != null)
             {
-                DynamicMenuManager.CreateGlobalMenu(DMEEditor, br);
+                DynamicMenuManager.CreateGlobalMenu( br);
             }
 
             br.DMEEditor = DMEEditor;
@@ -664,7 +664,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             DynamicMenuManager.CreateMenuMethods(DMEEditor, br);
             if (br.ObjectType != null && br.BranchClass != null)
             {
-                DynamicMenuManager.CreateGlobalMenu(DMEEditor,br);
+                DynamicMenuManager.CreateGlobalMenu(br);
             }
 
             br.DMEEditor = DMEEditor;

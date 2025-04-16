@@ -99,15 +99,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.GradientEndColor = Color.FromArgb(255, 255, 153, 187);
             this.ForeColor = Color.White;
         }
-
-        protected override void OnPaint(PaintEventArgs e)
+        protected override void DrawContent(Graphics g)
         {
-            // Let the base handle the gradient, borders, and shadow.
-            base.OnPaint(e);
-            var g = e.Graphics;
+            base.DrawContent(g);
+            
             UpdateDrawingRect();
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            var clientRect = this.ClientRectangle;
+            var clientRect = this.DrawingRect;
 
             // 1) Draw overlapping avatars at the top-left.
             int avatarX = 10;
@@ -225,6 +223,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            // Let the base handle the gradient, borders, and shadow.
+            base.OnPaint(e);
+       
+        }
 
         public override void ApplyTheme()
         {
@@ -233,6 +237,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.BackColor = _currentTheme.DashboardBackColor;
             this.GradientStartColor = _currentTheme.GradientStartColor;
             this.GradientEndColor = _currentTheme.GradientEndColor;
+            this.BorderColor = _currentTheme.TaskCardBackColor;
+            this.ForeColor = _currentTheme.CardTextForeColor;
         }
     }
 }

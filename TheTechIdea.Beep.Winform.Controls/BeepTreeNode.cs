@@ -939,7 +939,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 UpdateDrawingRect();
                 int startx = 0; // Horizontal start point
                 int centerY = (NodeHeight - MaxImageSize) / 2; // Center alignment for small buttons
-
+                int availablewidth = Width - 2 * padding; // Available width for the node
                 _nodePanel.Height = NodeHeight;
 
                 // Position the toggle button
@@ -950,6 +950,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _toggleButton.Location = new Point(startx, centerYfortoggle);
                     _toggleButton.MaxImageSize = new Size(toggelbuttonsize - 1, toggelbuttonsize - 1);
                     startx += _toggleButton.Width + spacing;
+                    availablewidth -= _toggleButton.Width + spacing;
                 }
 
                 // Position the CheckBox
@@ -960,20 +961,30 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _checkBox.Location = new Point(startx, centerYforcheckbox);
                     _checkBox.CheckBoxSize = toggelbuttonsize - 1;
                     startx += _checkBox.Width + spacing;
+                    availablewidth -= _checkBox.Width + spacing;
                 }
-
+          
+                if(Noderightbutton != null )
+                {
+                    if(!Noderightbutton.Visible)
+                    {
+                        availablewidth -= SmallNodeHeight + spacing;
+                    }
+                 
+                }
+                
                 // Position the main middle button
-                if (NodeMainMiddlebutton != null)
+                if (NodeMainMiddlebutton != null )
                 {
                     NodeMainMiddlebutton.MinimumSize = new Size(MinimumTextWidth, NodeHeight);
-                    NodeMainMiddlebutton.Size = new Size(Math.Max(MinimumTextWidth, _nodePanel.Width - startx - SmallNodeHeight - 2 * padding), NodeHeight);
+                    NodeMainMiddlebutton.Size = new Size( availablewidth, NodeHeight);
                     int centerYformainbutton = (NodeHeight - NodeMainMiddlebutton.Size.Height) / 2;
                     NodeMainMiddlebutton.Location = new Point(startx, centerYformainbutton);
                     startx += NodeMainMiddlebutton.Width + spacing;
                 }
 
                 // Position the right button
-                if (Noderightbutton != null)
+                if (Noderightbutton != null )
                 {
                     Noderightbutton.Location = new Point(startx, centerY);
                     Noderightbutton.Size = new Size(SmallNodeHeight, SmallNodeHeight);

@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         }
         public override void Configure(Dictionary<string, object> settings)
         {
-           
+           base.Configure(settings);
             viewModel = new DriversConfigViewModel(beepservice.DMEEditor, beepservice.vis);
             BeepColumnConfig classhandlers = beepSimpleGrid1.GetColumnByName("ClassHandler");
             classhandlers.CellEditor = BeepColumnType.ListOfValue;

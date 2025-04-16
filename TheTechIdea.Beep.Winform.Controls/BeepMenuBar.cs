@@ -267,6 +267,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     IsRoundedAffectedByTheme = false,
                     IsChild = true,
                     ShowAllBorders = false,
+                    IsRounded=false,
                     Anchor = AnchorStyles.None,
                     TextFont = _textFont,
                     UseThemeFont = true,

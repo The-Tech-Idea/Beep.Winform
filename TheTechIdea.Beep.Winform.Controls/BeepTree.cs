@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using Timer = System.Windows.Forms.Timer;
 using System.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using ExCSS;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -355,7 +356,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                           ControlStyles.UserPaint |
                           ControlStyles.AllPaintingInWmPaint, true);
             this.UpdateStyles();
-            Margin = new Padding(10);
+            Padding = new Padding(0);
             // Initialize scroll event handling for virtualization
             this.AutoScroll = true;
             this.VerticalScroll.Visible = true;
@@ -752,120 +753,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        //private void Items_ListChanged(object? sender, ListChangedEventArgs e)
-        //{
-        //    if (_isUpdatingTree)
-        //    {
-        //        //Console.WriteLine("Skipping ListChanged event due to ongoing update.");
-        //        return;
-        //    }
-
-        //  // // Console.WriteLine($"ListChanged: Type={e.ListChangedType}, ColumnIndex={e.NewIndex}");
-        //    try
-        //    {
-        //        _isUpdatingTree = true;
-
-        //        switch (e.ListChangedType)
-        //        {
-        //            case ListChangedType.ItemAdded:
-        //                HandleItemAdded(e.NewIndex);
-        //                break;
-
-        //            case ListChangedType.ItemDeleted:
-        //                HandleItemDeleted(e.NewIndex);
-        //                break;
-
-        //            case ListChangedType.ItemChanged:
-        //                HandleItemChanged(e.NewIndex);
-        //                break;
-
-        //            case ListChangedType.Reset:
-        //                if (rootnodeitems.Count == 0)
-        //                {
-        //                    ClearNodes();
-        //                }
-        //                else
-        //                {
-        //                    InitializeTreeFromMenuItems();
-        //                }
-        //                break;
-
-        //            default:
-        //               // Console.WriteLine($"Unhandled ListChangedType: {e.ListChangedType}");
-        //                break;
-        //        }
-        //    }
-        //    finally
-        //    {
-        //        _isUpdatingTree = false;
-        //    }
-        //}
-        //private void HandleItemAdded(int index)
-        //{
-
-        //    if (index < 0 || index >= rootnodeitems.Count)
-        //    {
-        //        LogMessage($"Invalid index for addition: {index}");
-        //        return;
-        //    }
-
-        //    var menuItem = rootnodeitems[index];
-        //    LogMessage($"Handling item addition for index {index}: {menuItem.Text}");
-
-        //    // Commented out for debugging:
-        //    var node = CreateTreeNodeFromMenuItem(menuItem, null);
-        //    if (node != null)
-        //    {
-        //        _dontRearrange = true;
-        //        Panel panel = AddRootNode(node);
-        //        panel.Tag = node.GuidID;
-        //        menuItem.ContainerGuidID = node.GuidID;
-        //        menuItem.RootContainerGuidID = node.GuidID;
-        //        node.Nodes = menuItem.Children;
-        //        node.NodeInfo = menuItem;
-               
-        //    //    node.RearrangeNode();
-        //        LogMessage($"Node added for item at index {index}: {menuItem.Text}");
-        //     //   RearrangeTree();
-        //        _dontRearrange = false;
-        //    }
-        //}
-        //private void HandleItemDeleted(int index)
-        //{
-        //    if (index < 0 || index >= _beeptreeRootnodes.Count)
-        //    {
-        //        LogMessage($"Invalid index for deletion: {index}");
-        //        return;
-        //    }
-
-        //    var node = GetNode(index);
-        //    if (node != null)
-        //    {
-        //        RemoveNode(node);
-        //        LogMessage($"Node removed for item at index {index}");
-        //        RearrangeTree();
-        //    }
-        //}
-        //private void HandleItemChanged(int index)
-        //{
-        //    if (index < 0 || index >= rootnodeitems.Count || index >= _beeptreeRootnodes.Count)
-        //    {
-        //       // Console.WriteLine($"Invalid index for update: {index}");
-        //        return;
-        //    }
-
-        //    var menuItem = rootnodeitems[index];
-        //    var node = GetNode(index);
-        //    if (node != null && menuItem != null)
-        //    {
-        //        node.Text = menuItem.Text;
-        //        node.ImagePath = menuItem.ImagePath;
-        //        node.Children = menuItem.Children; // Sync children
-        //        //node.RearrangeNode();
-        //       // Console.WriteLine($"Node updated for item at index {index}: {menuItem.Text}");
-        //        RearrangeTree();
-        //    }
-        //}
+      
         /// <summary>
         /// Initializes the tree by traversing SimpleItems and their children, creating BeepTreeNodes recursively.
         /// </summary>

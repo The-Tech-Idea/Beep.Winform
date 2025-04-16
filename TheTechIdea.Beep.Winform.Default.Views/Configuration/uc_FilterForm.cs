@@ -43,6 +43,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private IBeepService beepservice;
         public override void Configure(Dictionary<string, object> settings)
         {
+            base.Configure(settings);
       
         }
         public override void OnNavigatedTo(Dictionary<string, object> parameters)

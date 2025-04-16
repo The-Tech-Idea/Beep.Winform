@@ -156,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 btnClose.BackColor = _currentTheme.TestimonialBackColor;
                 btnClose.ForeColor = _currentTheme.TestimonialDetailsColor;
-
+            
                 UpdateRatingStars(); // Ensure stars use theme colors
           
         }
@@ -181,7 +181,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Label star = new Label
                 {
                     Text = i < starCount ? "★" : "☆",
-                    ForeColor = Color.Gold,
+                    ForeColor = _currentTheme.TestimonialRatingColor,
                     Font = new Font("Segoe UI", 12, FontStyle.Bold),
                     AutoSize = true
                 };

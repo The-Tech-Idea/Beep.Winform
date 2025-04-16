@@ -154,8 +154,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
             return menuCollection.Items.ToList();
         }
-        public static IErrorsInfo CreateGlobalMenu(IDMEEditor DMEEditor, IBranch br)
+        public static IErrorsInfo CreateGlobalMenu( IBranch br)
         {
+            ErrorsInfo errors = new ErrorsInfo();
+            errors.Flag = Errors.Ok;
             try
             {
                 var menuCollection = GetMenuList(br);
@@ -172,7 +174,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     Menus.Add(menuCollection);
                 }
 
-                var extensions = DMEEditor.ConfigEditor.GlobalFunctions
+                var extensions =AssemblyClassDefinitionManager.GlobalFunctions
                     .Where(o => o.classProperties?.ObjectType?.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase) == true && o.classProperties.BranchType== br.BranchType)
                     .OrderBy(p => p.Order)
                     .ToList();
@@ -229,12 +231,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     }
                 }
 
-                return DMEEditor.ErrorObject;
+                return errors;
             }
             catch (Exception ex)
             {
+                errors.Ex = ex;
+                errors.Flag = Errors.Failed;
+                errors.Message = ex.Message;
                 MiscFunctions.AddLogMessage(ex.Message, "Error creating global menu", DateTime.Now, -1, "CreateGlobalMenu", Errors.Failed);
-                return DMEEditor.ErrorObject;
+                return errors;
             }
         }
         public static SimpleItem GetMenuByBranchGuidId(string branchGuidId)
@@ -321,10 +326,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             return tree.DMEEditor.ErrorObject;
 
         }
-        public static List<SimpleItem> CreateToolBarMenuItems(IDMEEditor DMEEditor, string ObjectType = "Beep", bool IsHorizantal = true)
+        public static List<SimpleItem> CreateToolBarMenuItems(string ObjectType = "Beep", bool IsHorizantal = true)
         {
             List<SimpleItem> ret = new List<SimpleItem>();
-            AssemblyClassDefinitionManager.Editor = DMEEditor;
+           
             try
             {
                 var extensions = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionToolbar(ObjectType);
@@ -360,7 +365,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             return ret;
         }
-        public static List<SimpleItem> CreateConfigAdminMenuItem(IDMEEditor DMEEditor, string ObjectType = "Beep")
+        public static List<SimpleItem> CreateConfigAdminMenuItem( string ObjectType = "Beep")
         {
             List < SimpleItem > ret = new List<SimpleItem>();
             try
@@ -388,7 +393,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static List<SimpleItem> CreateMenuItems(IDMEEditor DMEEditor, string ObjectType = "Beep")
         {
             List<SimpleItem> ret = new List<SimpleItem>();
-            AssemblyClassDefinitionManager.Editor = DMEEditor;
+            
             try
             {
                 var extensions = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionForMenu(ObjectType);
@@ -430,10 +435,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             return ret;
         }
-        public static List<SimpleItem> CreateCombinedMenuItems(IDMEEditor DMEEditor, string ObjectType = "Beep")
+        public static List<SimpleItem> CreateCombinedMenuItems( string ObjectType = "Beep")
         {
             List<SimpleItem> ret = new List<SimpleItem>();
-            AssemblyClassDefinitionManager.Editor = DMEEditor;
+           
             try
             {
                 var extensions = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionForMenu(ObjectType);

@@ -192,8 +192,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.ApplyTheme();
             if(lblTime== null || lblTaskTitle == null || lblProject == null || btnAttachment == null || lblStatus == null)
                 return;
-            BackColor = _currentTheme.BackColor;
-            BorderColor = _currentTheme.BorderColor;
+            BackColor = _currentTheme.TaskCardBackColor;
+            BorderColor = _currentTheme.TaskCardBorderColor;
             lblTaskTitle.TextFont = _currentTheme.GetBlockHeaderFont();
             lblTime.TextFont = _currentTheme.GetBlockTextFont();
             btnAttachment.TextFont = _currentTheme.GetButtonFont();

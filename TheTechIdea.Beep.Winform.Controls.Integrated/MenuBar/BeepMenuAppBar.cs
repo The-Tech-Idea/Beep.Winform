@@ -20,13 +20,9 @@ namespace TheTechIdea.Beep.Winform.Controls.MenuBar
         IBeepService _beepServices;
         IDMEEditor DMEEditor;
         public IBeepService beepServices { 
-            get { return _beepServices; } 
-            set { _beepServices = value;
-                if (value != null) 
-                    { DMEEditor = _beepServices.DMEEditor; 
-                      AssemblyClassDefinitionManager.Editor = DMEEditor; 
-                    }
-                }
+            get { return _beepServices; }
+            set { _beepServices = value; }
+              
         }
 
         public string? ObjectType { get; private set; }
@@ -43,20 +39,25 @@ namespace TheTechIdea.Beep.Winform.Controls.MenuBar
         }
         public IErrorsInfo CreateMenuItems()
         {
+            ErrorsInfo errors = new ErrorsInfo();
+            errors.Flag = Errors.Ok;
             try
             {
-                foreach (var item in DynamicMenuManager.CreateCombinedMenuItems(DMEEditor, "Beep"))
+                foreach (var item in DynamicMenuManager.CreateCombinedMenuItems( "Beep"))
                 {
                     MenuItems.Add(item);
                 }
                 InitMenu();
 
-                return DMEEditor.ErrorObject;
+                return errors;
             }
             catch (Exception ex)
             {
+                errors.Ex = ex;
+                errors.Flag = Errors.Failed;
+                errors.Message = ex.Message;
 
-                return DMEEditor.ErrorObject;
+                return errors;
             }
         }
       

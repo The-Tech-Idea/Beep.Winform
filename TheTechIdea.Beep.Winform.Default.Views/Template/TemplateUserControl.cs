@@ -37,6 +37,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepService = service;
             Dependencies.DMEEditor = beepService.DMEEditor;
             BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
+            Theme = BeepThemesManager.CurrentTheme;
         }
         #region "IDM_Addin Implementation"
         protected  IBeepService? beepService;
@@ -72,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
 
         public virtual void Configure(Dictionary<string, object> settings)
         {
-
+            if (Theme != BeepThemesManager.CurrentTheme) { Theme = BeepThemesManager.CurrentTheme; }
         }
 
         public virtual void Dispose()
@@ -106,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
 
         public virtual void OnNavigatedTo(Dictionary<string, object> parameters)
         {
-            if (Theme != BeepThemesManager.CurrentTheme) { Theme = BeepThemesManager.CurrentTheme; }
+            
         }
 
         public virtual void Resume()

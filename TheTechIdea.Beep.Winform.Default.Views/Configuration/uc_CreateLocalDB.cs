@@ -64,8 +64,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
         public override void Configure(Dictionary<string, object> settings)
         {
+            base.Configure(settings);
 
-           viewModel = new DataConnectionViewModel(beepservice.DMEEditor, beepservice.vis);
+            viewModel = new DataConnectionViewModel(beepservice.DMEEditor, beepservice.vis);
 
 
             foreach (var item in beepservice.Config_editor.DataConnections)

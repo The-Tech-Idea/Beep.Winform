@@ -28,6 +28,9 @@
 	  <Copy SourceFiles="$(TargetDir)$(Assemblyname).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(Assemblyname)\$(TargetFramework)" SkipUnchangedFiles="false" />
   </Target>
   <ItemGroup>
+    <Compile Remove="Helpers\AssemblyClassDefinitionManager.cs" />
+  </ItemGroup>
+  <ItemGroup>
 	  <None Include="..\..\InstallationScripts\LogoGFx\128\SimpleODM.png">
 		  <Pack>True</Pack>
 		  <PackagePath>\</PackagePath>

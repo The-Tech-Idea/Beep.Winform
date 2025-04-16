@@ -48,64 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             else
                 method.Invoke(fc, null);
         }
-        public static void RunFunctionFromExtensions(this ITree tree, SimpleItem item, string MethodName)
-        {
-            
-            IBranch br = null;
-            AssemblyClassDefinition assemblydef = new AssemblyClassDefinition();
-            MethodInfo method = null;
-            MethodsClass methodsClass;
-            assemblydef = AssemblyClassDefinitionManager.GetAssemblyClassDefinitionByGuid(item.AssemblyClassDefinitionID);
-            dynamic fc = tree.DMEEditor.assemblyHandler.CreateInstanceFromString(assemblydef.dllname, assemblydef.type.ToString(), new object[] { Vismanager });
-            //  dynamic fc = Editor.assemblyHandler.CreateInstanceFromString(assemblydef.type.ToString(), new object[] { Editor, Vismanager, this });
-            if (fc == null)
-            {
-                return;
-            }
-
-           // Type t = ((IFunctionExtension)fc).GetType();
-            //   AssemblyClassDefinition cls = tree.Editor.ConfigEditor.GlobalFunctions.Where(x => x.className == t.Name).FirstOrDefault();
-
-            methodsClass = assemblydef.Methods.Where(x => x.Caption == MethodName).FirstOrDefault();
-
-            if (tree.DMEEditor.Passedarguments == null)
-            {
-                tree.DMEEditor.Passedarguments = new PassedArgs();
-            }
-            if (br != null)
-            {
-                tree.DMEEditor.Passedarguments.ObjectName = br.BranchText;
-                tree.DMEEditor.Passedarguments.DatasourceName = br.DataSourceName;
-                tree.DMEEditor.Passedarguments.Id = br.BranchID;
-                tree.DMEEditor.Passedarguments.ParameterInt1 = br.BranchID;
-                if (!IsMethodApplicabletoNode(assemblydef, br)) return;
-
-            }
-
-            //if (methodsClass != null)
-            //{
-            //    PassedArgs args = new PassedArgs();
-            //    ErrorsInfo ErrorsandMesseges = new ErrorsInfo();
-            //    args.Cancel = false;
-            //    tree.PreCallModule?.Invoke(tree, args);
-
-            //    if (args.Cancel)
-            //    {
-            //        MiscFunctions.AddLogMessage("Beep", $"You dont have Access Privilige on {MethodName}", DateTime.Now, 0, MethodName, Errors.Failed);
-            //        ErrorsandMesseges.Flag = Errors.Failed;
-            //        ErrorsandMesseges.Message = $"Function Access Denied";
-            //        return;
-            //    }
-
-            //}
-            method = methodsClass.Info;
-            if (method.GetParameters().Length > 0)
-            {
-                method.Invoke(fc, new object[] { tree.DMEEditor.Passedarguments });
-            }
-            else
-                method.Invoke(fc, null);
-        }
+      
         public static bool IsMethodApplicabletoNode(AssemblyClassDefinition cls, IBranch br)
         {
             if (cls.classProperties == null)
@@ -121,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             return true;
         }
-        public static IErrorsInfo RunMethodFromObject(this ITree tree, object branch, string MethodName)
+        public static IErrorsInfo RunMethodFromObject( object branch, string MethodName)
         {
             try
             {
@@ -139,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
                 if (methodsClass != null)
                 {
-                    if (!IsMethodApplicabletoNode(cls, (IBranch)branch)) return tree.DMEEditor.ErrorObject;
+                    if (!IsMethodApplicabletoNode(cls, (IBranch)branch)) return DMEEditor.ErrorObject;
                     //PassedArgs args = new PassedArgs();
                     //args.ObjectName = MethodName;
                     //args.ObjectType = methodsClass.ObjectType;
@@ -156,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     method = methodsClass.Info;
                     if (method.GetParameters().Length > 0)
                     {
-                        method.Invoke(branch, new object[] { tree.DMEEditor.Passedarguments.Objects[0].obj });
+                        method.Invoke(branch, new object[] { DMEEditor.Passedarguments.Objects[0].obj });
                     }
                     else
                         method.Invoke(branch, null);
@@ -171,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 string mes = "Could not Run Method " + MethodName;
                 MiscFunctions.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
             };
-            return tree.DMEEditor.ErrorObject;
+            return DMEEditor.ErrorObject;
         }
         public static void RunMethodFromExtension(IBranch br, AssemblyClassDefinition assemblydef, string MethodName)
         {
@@ -220,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
 
         }
-        public static void RunMethodFromExtension(this ITree tree, IBranch br, string MethodName)
+        public static void RunMethodFromExtension( IBranch br, string MethodName)
         {
            
             AssemblyClassDefinition assemblydef = new AssemblyClassDefinition();

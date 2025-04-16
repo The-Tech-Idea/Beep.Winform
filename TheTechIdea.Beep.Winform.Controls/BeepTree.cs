@@ -15,6 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A control that displays hierarchical data in a tree format.")]
     public class BeepTree : BeepControl
     {
+        
         #region "Events"
 
         public EventHandler<BeepMouseEventArgs> LeftButtonClicked;
@@ -385,11 +386,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             ClickedNode = sender as BeepTreeNode;
             if (ClickedNode == null) return;
-            NodeRightClicked?.Invoke(sender, e);
-         
-          
+
             SelectedItem = GetNodeByGuidID(ClickedNode.GuidID);
-            var a = DynamicMenuManager.GetMenuItemsList(ClickedNode.NodeInfo);
+            NodeRightClicked?.Invoke(sender, e);
+
+
+            var a = HandlersFactory.GlobalMenuItemsProvider(ClickedNode.NodeInfo);
+            
             if (a == null) return;
             CurrentMenutems = new BindingList<SimpleItem>(a);
             if (CurrentMenutems.Count > 0)
@@ -2009,7 +2012,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             var clickedNode = sender as BeepTreeNode;
             if (clickedNode == null) return;
-            List<SimpleItem> menuList = DynamicMenuManager.GetMenuItemsList(clickedNode.NodeInfo as SimpleItem);
+            List<SimpleItem> menuList = HandlersFactory.GlobalMenuItemsProvider(clickedNode.NodeInfo as SimpleItem);
 
             CurrentMenutems = new BindingList<SimpleItem>(menuList);
             if (BeepFlyoutMenu == null)

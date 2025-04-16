@@ -43,8 +43,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             DropHandler = new BeepTreeNodeDragandDropHandler(service, this);
             this.NodeRightClicked += BeepTreeControl_NodeRightClicked;
             this.MenuItemSelected += BeepTreeControl_MenuItemSelected;
-            DynamicFunctionCallingManager.TreeEditor = this;
+         
             ExtensionsHelpers = new FunctionandExtensionsHelpers( DMEEditor, VisManager, this);
+          
         }
         #region "Properties"
         private IFunctionandExtensionsHelpers _extensionsHelpers;
@@ -129,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         {
             try
             {
-                DynamicFunctionCallingManager.RunFunctionFromExtensions(this, branch, MethodName);
+                DynamicFunctionCallingManager.RunFunctionFromExtensions( branch, MethodName);
 
             }
             catch (Exception ex)

@@ -4,11 +4,16 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.ConfigUtil;
+using static TheTechIdea.Beep.Winform.Controls.BeepTree;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     public partial class BeepPopupListForm : BeepPopupForm
     {
+        #region "Delegates"
+        public delegate void RunFunctionFromExtensions(SimpleItem item, string MethodName);
+        public RunFunctionFromExtensions RunFunctionFromExtensionsHandler { get; set; }
+        #endregion "Delegates"
         #region "Popup List Properties"
         private bool _popupmode = false;
         private int _maxListHeight = 100;
@@ -216,7 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ErrorsInfo errorsInfo = new ErrorsInfo();
             try
             {
-                DynamicFunctionCallingManager.RunFunctionFromExtensions(item, MethodName);
+                RunFunctionFromExtensionsHandler(item, MethodName);
 
             }
             catch (Exception ex)

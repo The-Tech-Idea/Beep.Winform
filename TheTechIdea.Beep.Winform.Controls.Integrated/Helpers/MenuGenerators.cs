@@ -11,7 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using static TheTechIdea.Beep.Winform.Controls.Helpers.ControlExtensions;
 
-namespace TheTechIdea.Beep.Winform.Controls.Common
+namespace TheTechIdea.Beep.Winform.Controls.Helpers
 {
     public static class MenusandToolbarGenerators
     {

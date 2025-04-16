@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Utilities;
 using System.IO;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using LinearGradientMode = System.Drawing.Drawing2D.LinearGradientMode;
+using static TheTechIdea.Beep.Winform.Controls.BeepTree;
 
 
 
@@ -22,6 +23,9 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A control that provides a base for all Beep UI components.")]
     public class BeepControl : ContainerControl, IBeepUIComponent,IDisposable
     {
+        #region "Delegates"
+       
+        #endregion "Delegates"
         #region "protected Properties"
         Point originalLocation;
         protected bool _isControlinvalidated = false;

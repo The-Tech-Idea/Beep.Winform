@@ -403,7 +403,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ErrorsInfo errorsInfo = new ErrorsInfo();
             try
             {
-                DynamicFunctionCallingManager.RunFunctionFromExtensions( item, MethodName);
+                HandlersFactory.RunFunctionWithTreeHandler( item, MethodName);
 
             }
             catch (Exception ex)

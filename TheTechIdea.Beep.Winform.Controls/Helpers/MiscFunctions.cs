@@ -11,7 +11,28 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Helpers
 {
     public static class MiscFunctions
-    { /// <summary>
+
+    { 
+        public static object CreateObject(string typename)
+        {
+            object obj = null;
+            try
+            {
+                Type type = Type.GetType(typename);
+                if (type != null)
+                {
+                    obj = Activator.CreateInstance(type);
+                }
+            }
+            catch (Exception ex)
+            {
+                obj = null;
+                MiscFunctions.SendLog($"Error creating object of type {typename}: {ex.Message}");
+            }
+            return obj;
+        }
+            
+       /// <summary>
       /// Helper that tries to load an assembly by path (LoadFrom) or 
       /// by full name (Load) depending on whether the string is a valid file path.
       /// </summary>

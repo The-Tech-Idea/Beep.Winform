@@ -901,13 +901,13 @@ public static partial class ControlExtensions
             if (!IsMethodApplicabletoNode(cls, br)) return;
             if (cls.componentType == "IFunctionExtension")
             {
-                tree.RunFunctionFromExtensions(item,MethodName);
+                HandlersFactory.RunMethodFromObjectHandler(item,MethodName);
 
             }
             else
             {
 
-                tree.RunMethodFromObject(br, item.Text);
+                HandlersFactory.RunMethodFromExtensionWithTreeHandler(br, item.Text);
             };
 
         }

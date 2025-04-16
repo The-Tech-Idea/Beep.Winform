@@ -12,7 +12,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Addin;
-using TheTechIdea.Beep.Winform.Controls.Basic;
+
 
 namespace Beep.Config.Winform.Configurations
 {

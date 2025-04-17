@@ -26,6 +26,11 @@ namespace TheTechIdea.Beep.Vis.Modules.Wizards
         event EventHandler<IWizardNode> WizardNodeEnterEvent;
         event EventHandler<IWizardNode> WizardNodeLeaveEvent;
 
+        bool CanMoveNext { get; }
+        bool CanMovePrevious { get; }
+        bool CanFinish { get; }
+        bool CanCancel { get; }
+
 
         void LeaveButton();
         void OverButton();

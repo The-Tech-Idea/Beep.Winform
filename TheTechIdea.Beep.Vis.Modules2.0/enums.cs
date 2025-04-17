@@ -6,13 +6,22 @@ using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
-    //public enum LinearGradientMode
-    //{
-    //    Horizontal,
-    //    Vertical,
-    //    ForwardDiagonal,
-    //    BackwardDiagonal
-    //}
+    public enum WizardState
+    {
+        None,
+        Start,
+        Finish,
+        Cancel,
+        Next,
+        Previous,
+        Edit,
+        Save,
+        Delete,
+        Load,
+        Close,
+        Open,
+        Show,
+    }
     public enum LabelPosition
     {
         Left,

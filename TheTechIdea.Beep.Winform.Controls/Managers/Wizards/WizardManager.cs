@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers.Wizards
         public event EventHandler<NodeChangeEventHandler> WizardNodeChangeEvent;
         public WizardManager(IDMEEditor pDMEEditor, Vis.Modules.IAppManager pvisManager)
         {
-            State = new WizardState(this);
+           // State = new WizardState(this);
             Nodes = new LinkedList<IWizardNode>();
             DMEEditor = pDMEEditor;
             visManager = pvisManager;
@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers.Wizards
      
         public bool Cancel { get; set; }=false;
         public LinkedList<IWizardNode> Nodes { get; set; } 
-        public WizardState State { get; set; }
+       
         public ColorTemplate ColorsTemplate { get; set; }=new ColorTemplate();
         public IWizardNode entryform {
             get {
@@ -75,6 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers.Wizards
         public bool IsEditing { get  ; set  ; }
         public bool IsHidden { get  ; set  ; }
         public bool IsVisible { get  ; set  ; }
+        public WizardState State { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         private void ShowWizardNode(int idx)
         {
@@ -551,6 +552,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers.Wizards
                 WizardParentForm.Close();
             }
          
+        }
+
+        public void Show(IWizardNode node)
+        {
+            throw new NotImplementedException();
         }
 
         public class NodeChangeEventHandler

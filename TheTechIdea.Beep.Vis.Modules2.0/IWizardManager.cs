@@ -16,8 +16,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         LinkedList<IWizardNode> Nodes { get; set; }
         int SelectedIndex { get; }
         IWizardNode lastform { get; }
-        WizardState State { get; set; }
-         int StartLeft { get; set; }
+             int StartLeft { get; set; }
          int StartTop { get; set; } 
         bool Isloaded { get; set; }
         bool IsSaved { get; set; }  
@@ -27,13 +26,15 @@ namespace TheTechIdea.Beep.Vis.Modules
         bool IsVisible { get; set; }
 
          int CurrentIdx { get;  }
-        IDMEEditor DMEEditor { get; set; }
         void MoveNext();
         void MovePrevious();
         void InitWizardForm();
         void Show();
-         void Hide();
-       
-       
+        void Hide();
+        void Show(IWizardNode node);
+        WizardState State { get; set; }
+
+
+
     }
 }

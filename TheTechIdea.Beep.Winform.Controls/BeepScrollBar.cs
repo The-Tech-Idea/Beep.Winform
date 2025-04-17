@@ -28,11 +28,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Orientation _scrollOrientation = Orientation.Vertical;
         private bool _isHovering = false;
 
-        // COLORS (Now managed via theme, but kept as properties for customization)
+        // COLORS (managed via theme but customizable)
         private Color _trackColor = SystemColors.ControlDark;
         private Color _thumbColor = SystemColors.ControlDarkDark;
-        private Color _thumbColorHover = SystemColors.ControlDark; // New field
-        private Color _thumbColorActive = SystemColors.ControlDarkDark; // New field
+        private Color _thumbColorHover = SystemColors.ControlDark;
+        private Color _thumbColorActive = SystemColors.ControlDarkDark;
 
         // PROPERTIES
         [Category("Behavior")]
@@ -46,16 +46,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_scrollOrientation == Orientation.Vertical)
                 {
                     Width = 10;
-                    if (Height < DefaultSize.Height)
-                        Height = DefaultSize.Height;
+                    if (Height < DefaultSize.Height) Height = DefaultSize.Height;
                 }
                 else
                 {
                     Height = 10;
-                    if (Width < DefaultSize.Width)
-                        Width = DefaultSize.Width;
+                    if (Width < DefaultSize.Width) Width = DefaultSize.Width;
                 }
-                Invalidate();
+                Refresh();
             }
         }
 
@@ -70,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _minimum = value;
                 if (_minimum > _maximum) _maximum = _minimum + 1;
                 if (_value < _minimum) _value = _minimum;
-                Invalidate();
+                Refresh();
             }
         }
 
@@ -86,7 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_largeChange >= _maximum - _minimum)
                     _largeChange = (_maximum - _minimum) - 1;
                 if (_value > _maximum) _value = _maximum;
-                Invalidate();
+                Refresh();
             }
         }
 
@@ -98,12 +96,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 if (DesignMode) return;
-                // Revert to allow full range, but map correctly in grid
                 int newValue = Math.Max(_minimum, Math.Min(value, _maximum));
                 if (_value != newValue)
                 {
+                    int old = _value;
                     _value = newValue;
-                    Invalidate();
+                    Refresh();  // immediate repaint
+
                     ValueChanged?.Invoke(this, EventArgs.Empty);
                     Scroll?.Invoke(this, EventArgs.Empty);
                 }
@@ -119,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (DesignMode) return;
                 _largeChange = Math.Max(1, Math.Min(value, (_maximum - _minimum)));
-                Invalidate();
+                Refresh();
             }
         }
 
@@ -132,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (DesignMode) return;
                 _smallChange = Math.Max(1, value);
-                Invalidate();
+                Refresh();
             }
         }
 
@@ -141,11 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public Color TrackColor
         {
             get => _trackColor;
-            set
-            {
-                _trackColor = value;
-                Invalidate();
-            }
+            set { _trackColor = value; Refresh(); }
         }
 
         [Category("Appearance")]
@@ -153,11 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public Color ThumbColor
         {
             get => _thumbColor;
-            set
-            {
-                _thumbColor = value;
-                Invalidate();
-            }
+            set { _thumbColor = value; Refresh(); }
         }
 
         [Category("Appearance")]
@@ -165,11 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public Color ThumbColorHover
         {
             get => _thumbColorHover;
-            set
-            {
-                _thumbColorHover = value;
-                Invalidate();
-            }
+            set { _thumbColorHover = value; Refresh(); }
         }
 
         [Category("Appearance")]
@@ -177,11 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public Color ThumbColorActive
         {
             get => _thumbColorActive;
-            set
-            {
-                _thumbColorActive = value;
-                Invalidate();
-            }
+            set { _thumbColorActive = value; Refresh(); }
         }
 
         protected override Size DefaultSize => new Size(10, 100);
@@ -196,152 +179,91 @@ namespace TheTechIdea.Beep.Winform.Controls
                          ControlStyles.ResizeRedraw |
                          ControlStyles.UserPaint, true);
             }
-
             if (_scrollOrientation == Orientation.Vertical)
-            {
-                Width = 10;
-                Height = 100;
-            }
+                Size = new Size(10, 100);
             else
-            {
-                Width = 100;
-                Height = 10;
-            }
+                Size = new Size(100, 10);
         }
 
         // THEMING
         public override void ApplyTheme()
         {
-        //    base.ApplyTheme();
-
-                BackColor = _currentTheme.ScrollBarBackColor;
-                TrackColor = _currentTheme.ScrollBarTrackColor;
-                ThumbColor = _currentTheme.ScrollBarThumbColor;
-                ThumbColorHover = _currentTheme.ScrollBarThumbColor;
-                ThumbColorActive = _currentTheme.ScrollBarTrackColor;
-            
-            Invalidate();
+            base.ApplyTheme();
+            BackColor = _currentTheme.ScrollBarBackColor;
+            TrackColor = _currentTheme.ScrollBarTrackColor;
+            ThumbColor = _currentTheme.ScrollBarThumbColor;
+            ThumbColorHover = _currentTheme.ScrollBarHoverThumbColor;
+            ThumbColorActive = _currentTheme.ScrollBarActiveThumbColor;
         }
+
+        // DRAWING
         protected override void DrawContent(Graphics g)
         {
-            // First, call the base drawing code from BeepControl.
             UpdateDrawingRect();
-            Rectangle drawingRect = DrawingRect;
+            var r = DrawingRect;
+            if (r.Width <= 0 || r.Height <= 0) return;
 
-            if (drawingRect.Width <= 0 || drawingRect.Height <= 0)
-                return;
+            // Background
+            using (var backBrush = new SolidBrush(BackColor))
+                g.FillRectangle(backBrush, r);
 
-            // Draw background
-            using (Brush backBrush = new SolidBrush(BackColor))
-            {
-                g.FillRectangle(backBrush, drawingRect);
-            }
+            // Track
+            using (var trackBrush = new SolidBrush(TrackColor))
+                g.FillRectangle(trackBrush, r);
 
-            // Use theme colors with hover/active states
-            Color thumbColor = _dragging ? ThumbColorActive :
-                              _isHovering ? ThumbColorHover :
-                              ThumbColor;
-
-            using (Brush trackBrush = new SolidBrush(TrackColor))
-            using (Brush thumbBrush = new SolidBrush(thumbColor))
-            {
-                if (_maximum <= _minimum + _largeChange)
-                {
-                    g.FillRectangle(trackBrush, drawingRect);
-                    g.FillRectangle(thumbBrush, drawingRect);
-                    return;
-                }
-
-                if (_scrollOrientation == Orientation.Vertical)
-                {
-                    int range = _maximum - _minimum;
-                    int thumbHeight = Math.Max(10, (drawingRect.Height * _largeChange) / range);
-                    int trackLength = drawingRect.Height - thumbHeight;
-                    if (trackLength < 1) trackLength = 1;
-
-                    int valPosition = _value - _minimum;
-                    int thumbY = drawingRect.Y + (trackLength * valPosition) / (range - _largeChange);
-
-                    g.FillRectangle(trackBrush, drawingRect);
-                    g.FillRectangle(thumbBrush, new Rectangle(drawingRect.X, thumbY, drawingRect.Width, thumbHeight));
-                }
-                else
-                {
-                    int range = _maximum - _minimum;
-                    int thumbWidth = Math.Max(10, (drawingRect.Width * _largeChange) / range);
-                    int trackLength = drawingRect.Width - thumbWidth;
-                    if (trackLength < 1) trackLength = 1;
-
-                    int valPosition = _value - _minimum;
-                    int thumbX = drawingRect.X + (trackLength * valPosition) / (range - _largeChange);
-
-                    g.FillRectangle(trackBrush, drawingRect);
-                    g.FillRectangle(thumbBrush, new Rectangle(thumbX, drawingRect.Y, thumbWidth, drawingRect.Height));
-                }
-            }
-
-            // If additional app bar elements (icons, text) require custom drawing,
-            // they can be added here or left to be drawn by the child controls.
-        }
-        // RENDERING
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-           
-       
+            // Thumb
+            var thumbRect = GetThumbRectangle();
+            Color thumbCol = _dragging ? ThumbColorActive :
+                             _isHovering ? ThumbColorHover :
+                                           ThumbColor;
+            using (var thumbBrush = new SolidBrush(thumbCol))
+                g.FillRectangle(thumbBrush, thumbRect);
         }
 
-        // MOUSE INTERACTION
-        protected override void OnMouseDown(MouseEventArgs e)
+        private Rectangle GetThumbRectangle()
         {
-         //   base.OnMouseDown(e);
-            Rectangle drawingRect = DrawingRect;
-            if (drawingRect.Width <= 0 || drawingRect.Height <= 0) return;
-            if (_maximum <= _minimum + _largeChange) return;
+            var r = DrawingRect;
+            int range = _maximum - _minimum;
+            if (range <= _largeChange)
+                return r;
 
             if (_scrollOrientation == Orientation.Vertical)
             {
-                int range = _maximum - _minimum;
-                int thumbHeight = Math.Max(10, (drawingRect.Height * _largeChange) / range);
-                int trackLength = drawingRect.Height - thumbHeight;
-                if (trackLength < 1) trackLength = 1;
-                int valPosition = _value - _minimum;
-                int thumbY = drawingRect.Y + (trackLength * valPosition) / (range - _largeChange);
-
-                if (e.Y >= thumbY && e.Y <= thumbY + thumbHeight)
-                {
-                    _dragging = true;
-                    _dragOffset = e.Y - thumbY;
-                }
-                else
-                {
-                    if (e.Y < thumbY)
-                        Value = Value - LargeChange;
-                    else
-                        Value = Value + LargeChange;
-                }
+                int thumbH = Math.Max(10, r.Height * _largeChange / range);
+                int trackLen = r.Height - thumbH;
+                int pos = r.Y + trackLen * (_value - _minimum) / (range - _largeChange);
+                return new Rectangle(r.X, pos, r.Width, thumbH);
             }
             else
             {
-                int range = _maximum - _minimum;
-                int thumbWidth = Math.Max(10, (drawingRect.Width * _largeChange) / range);
-                int trackLength = drawingRect.Width - thumbWidth;
-                if (trackLength < 1) trackLength = 1;
-                int valPosition = _value - _minimum;
-                int thumbX = drawingRect.X + (trackLength * valPosition) / (range - _largeChange);
+                int thumbW = Math.Max(10, r.Width * _largeChange / range);
+                int trackLen = r.Width - thumbW;
+                int pos = r.X + trackLen * (_value - _minimum) / (range - _largeChange);
+                return new Rectangle(pos, r.Y, thumbW, r.Height);
+            }
+        }
 
-                if (e.X >= thumbX && e.X <= thumbX + thumbWidth)
-                {
-                    _dragging = true;
-                    _dragOffset = e.X - thumbX;
-                }
+        // MOUSE & DRAG
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            var thumb = GetThumbRectangle();
+            if (_maximum <= _minimum + _largeChange) return;
+
+            if (thumb.Contains(e.Location))
+            {
+                _dragging = true;
+                _dragOffset = _scrollOrientation == Orientation.Vertical
+                              ? e.Y - thumb.Y
+                              : e.X - thumb.X;
+                Capture = true;
+            }
+            else
+            {
+                if (_scrollOrientation == Orientation.Vertical)
+                    Value += (e.Y < thumb.Y ? -_largeChange : _largeChange);
                 else
-                {
-                    if (e.X < thumbX)
-                        Value = Value - LargeChange;
-                    else
-                        Value = Value + LargeChange;
-                }
+                    Value += (e.X < thumb.X ? -_largeChange : _largeChange);
             }
         }
 
@@ -349,40 +271,34 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseMove(e);
             if (!_dragging) return;
+            var r = DrawingRect;
+            var thumb = GetThumbRectangle();
+            int trackLen = (_scrollOrientation == Orientation.Vertical
+                            ? r.Height - thumb.Height
+                            : r.Width - thumb.Width);
+            if (trackLen < 1) return;
 
-            Rectangle drawingRect = DrawingRect;
-            if (drawingRect.Width <= 0 || drawingRect.Height <= 0) return;
-            if (_maximum <= _minimum + _largeChange) return;
+            int pos = (_scrollOrientation == Orientation.Vertical
+                       ? e.Y - _dragOffset - r.Y
+                       : e.X - _dragOffset - r.X);
+            int range = _maximum - _minimum - _largeChange;
+            int newVal = _minimum + pos * range / trackLen;
+            Value = newVal;
+            Update(); // force immediate repaint
+        }
 
-            if (_scrollOrientation == Orientation.Vertical)
-            {
-                int range = _maximum - _minimum;
-                int thumbHeight = Math.Max(10, (drawingRect.Height * _largeChange) / range);
-                int trackLength = drawingRect.Height - thumbHeight;
-                if (trackLength < 1) trackLength = 1;
-
-                int newVal = (((e.Y - _dragOffset) - drawingRect.Y) * (range - _largeChange)) / trackLength + _minimum;
-                newVal = Math.Max(_minimum, Math.Min(newVal, _maximum - _largeChange));
-                Value = newVal;
-            }
-            else
-            {
-                int range = _maximum - _minimum;
-                int thumbWidth = Math.Max(10, (drawingRect.Width * _largeChange) / range);
-                int trackLength = drawingRect.Width - thumbWidth;
-                if (trackLength < 1) trackLength = 1;
-
-                int newVal = (((e.X - _dragOffset) - drawingRect.X) * (range - _largeChange)) / trackLength + _minimum;
-                newVal = Math.Max(_minimum, Math.Min(newVal, _maximum - _largeChange));
-                Value = newVal;
-            }
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+            _dragging = false;
+            Capture = false;
         }
 
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);
             _isHovering = true;
-            Invalidate();
+            Refresh();
         }
 
         protected override void OnMouseLeave(EventArgs e)
@@ -390,13 +306,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnMouseLeave(e);
             _isHovering = false;
             _dragging = false;
-            Invalidate();
+            Refresh();
         }
 
-        protected override void OnMouseUp(MouseEventArgs e)
+        // OPTIONAL: Keyboard and Mouse Wheel support
+        protected override void OnKeyDown(KeyEventArgs e)
         {
-            base.OnMouseUp(e);
-            _dragging = false;
+            base.OnKeyDown(e);
+            if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Left) Value -= _smallChange;
+            if (e.KeyCode == Keys.Down || e.KeyCode == Keys.Right) Value += _smallChange;
+            if (e.KeyCode == Keys.PageUp) Value -= _largeChange;
+            if (e.KeyCode == Keys.PageDown) Value += _largeChange;
+        }
+
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            base.OnMouseWheel(e);
+            int delta = e.Delta / SystemInformation.MouseWheelScrollDelta * _smallChange;
+            Value -= delta;
         }
     }
 }

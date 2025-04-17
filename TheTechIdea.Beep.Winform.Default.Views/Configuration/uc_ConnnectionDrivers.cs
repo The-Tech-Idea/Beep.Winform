@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
     public partial class uc_ConnnectionDrivers : TemplateUserControl, IAddinVisSchema
     {
-        public uc_ConnnectionDrivers(IBeepService service)
+        public uc_ConnnectionDrivers(IBeepService service) : base(service)
         {
             InitializeComponent();
             beepservice = service;

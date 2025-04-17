@@ -20,6 +20,8 @@ using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Logger;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
@@ -32,10 +34,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         {
             InitializeComponent();
             beepservice = service;
-            if(beepservice.vis.Tree!=null)
-            {
-               TreeObject=(ITree)beepservice.vis.Tree;
-            }
+           
             Details.AddinName = "Create Local DB";
 
         }
@@ -54,18 +53,24 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public string BranchDescription { get; set; } = "Create Local DB";
         public string BranchClass { get; set; } = "ADDIN";
         public string AddinName { get; set; }
-        public ITree TreeObject { get; }
+        public ITree TreeObject { get; set; }
         #endregion "IAddinVisSchema"
 
         private IBeepService beepservice;
         List<SimpleItem> Drivers = new List<SimpleItem>();
         List<SimpleItem> InstallationFolders = new List<SimpleItem>();
         private DataConnectionViewModel viewModel;
+        public void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
+        {
 
+        }
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
-
+            if (beepservice.vis.Tree != null)
+            {
+                TreeObject = (ITree)beepservice.vis.Tree;
+            }
             viewModel = new DataConnectionViewModel(beepservice.DMEEditor, beepservice.vis);
 
 

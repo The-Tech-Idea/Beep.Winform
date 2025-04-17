@@ -242,13 +242,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             // base draws the beepcontrol background/border if any
             base.OnPaint(e);
 
+          
+        }
+        protected override void DrawContent(Graphics g)
+        {
+            base.DrawContent(g);
             // Reset TitleBottomY each time we paint. We'll recalc it if we draw a title.
             _titleBottomY = startyoffset;
             UpdateDrawingRect();
             // If ShowTitle is true and TitleText is not empty, draw the title
             if (_showTitle && !string.IsNullOrEmpty(_titleText))
             {
-                DrawTitle(e.Graphics,DrawingRect);
+                DrawTitle(g, DrawingRect);
             }
         }
         protected override void OnControlAdded(ControlEventArgs e)

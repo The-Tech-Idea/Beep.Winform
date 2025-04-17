@@ -94,6 +94,7 @@
     <None Remove="GFX\SVG\datasources.svg" />
     <None Remove="GFX\SVG\dataview.svg" />
     <None Remove="GFX\SVG\db2.svg" />
+    <None Remove="GFX\SVG\diagramming.svg" />
     <None Remove="GFX\SVG\dislike.svg" />
     <None Remove="GFX\SVG\dontsave.svg" />
     <None Remove="GFX\SVG\doorclosed.svg" />
@@ -249,6 +250,7 @@
     <EmbeddedResource Include="GFX\PNG\042-dot.png" />
     <EmbeddedResource Include="GFX\SVG\bullet.svg" />
     <EmbeddedResource Include="GFX\SVG\calendar.svg" />
+    <EmbeddedResource Include="GFX\SVG\diagramming.svg" />
     <EmbeddedResource Include="GFX\SVG\fastbackword.svg" />
     <EmbeddedResource Include="GFX\SVG\fastforward.svg" />
     <EmbeddedResource Include="GFX\SVG\firstpage.svg" />

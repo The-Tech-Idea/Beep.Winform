@@ -127,6 +127,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Rectangle borderRectangle;
 
         #endregion "protected Properties"
+        #region "Diagramming Properties"
+
+        #endregion "Diagramming Properties"
         #region "Public Properties"
         private bool _hitareaeventon = false;
         public bool HitAreaEventOn
@@ -2632,7 +2635,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        public void AddHitArea(string name, Rectangle rect, IBeepUIComponent component = null, Action hitAction = null)
+        public virtual void AddHitArea(string name, Rectangle rect, IBeepUIComponent component = null, Action hitAction = null)
         {
             var hitTest = new ControlHitTest
             {
@@ -2655,7 +2658,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 HitList.Add(hitTest);
             }
         }
-        public void AddHitTest(Control childControl)
+        public virtual void AddHitTest(Control childControl)
         {
             if (childControl == null)
                 throw new ArgumentNullException(nameof(childControl));
@@ -2688,15 +2691,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 HitList.Add(hitTest);
             }
         }
-        public void RemoveHitTest(ControlHitTest hitTest)
+        public virtual void RemoveHitTest(ControlHitTest hitTest)
         {
             HitList.Remove(hitTest);
         }
-        public void ClearHitList()
+        public virtual void ClearHitList()
         {
             HitList.Clear();
         }
-        public void UpdateHitTest(ControlHitTest hitTest)
+        public virtual void UpdateHitTest(ControlHitTest hitTest)
         {
             var index = HitList.FindIndex(x => x.TargetRect == hitTest.TargetRect);
             if (index >= 0)
@@ -2705,7 +2708,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
         }
-        public bool HitTest(Point location)
+        public virtual bool HitTest(Point location)
         {
             if (HitList == null || !HitList.Any())
             {
@@ -2737,7 +2740,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return hitDetected;
         }
-        public bool HitTest(Point location, out ControlHitTest hitTest)
+        public virtual bool HitTest(Point location, out ControlHitTest hitTest)
         {
             hitTest = null;
             foreach (var test in HitList)
@@ -2750,7 +2753,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             return false;
         }
-        public bool HitTest(Rectangle rectangle, out ControlHitTest hitTest)
+        public virtual bool HitTest(Rectangle rectangle, out ControlHitTest hitTest)
         {
             hitTest = null;
             foreach (var test in HitList)
@@ -2763,7 +2766,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             return false;
         }
-        public bool HitTestWithMouse()
+        public virtual bool HitTestWithMouse()
         {
             if (!Visible || HitList == null || !HitList.Any())
             {

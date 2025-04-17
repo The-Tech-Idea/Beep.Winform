@@ -6,6 +6,15 @@ using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
+
+    public enum BeepShapeType
+    {
+        Line,
+        Rectangle,
+        Ellipse,
+        Triangle,
+        Star
+    }
     public enum WizardState
     {
         None,

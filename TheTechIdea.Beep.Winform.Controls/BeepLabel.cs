@@ -411,6 +411,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Theme"
 
         #region "Text and Alignment"
+        /// <summary>
+        /// Measures the preferred size of the label based on its current text, font, and constraints.
+        /// </summary>
+        /// <param name="proposedSize">The proposed size for measuring, typically the available width.</param>
+        /// <returns>The measured size of the label.</returns>
+        public Size Measure(Size proposedSize)
+        {
+            // Use GetPreferredSize to calculate the size, passing the proposed constraints
+            return GetPreferredSize(proposedSize);
+        }
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);

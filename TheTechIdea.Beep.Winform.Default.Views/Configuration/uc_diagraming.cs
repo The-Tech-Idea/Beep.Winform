@@ -30,7 +30,18 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AddinName = "Diagramming";
 
             Details.AddinName = "Diagramming";
+            this.beepCircularButton1.Click += BeepCircularButton1_Click;
         }
+
+        private void BeepCircularButton1_Click(object? sender, EventArgs e)
+        {
+            currentidx+=1;
+            if (currentidx >= beepSteppperBar1.ListItems.Count)
+                currentidx = 0;
+            beepSteppperBar1.UpdateCurrentStep(currentidx);
+        }
+
+        int currentidx = -1;
         #region "IAddinVisSchema"
         public string RootNodeName { get; set; } = "Configuration";
         public string CatgoryName { get; set; }

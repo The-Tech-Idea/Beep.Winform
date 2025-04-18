@@ -108,6 +108,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public string ClassDefinitionID { get; set; }
         public string PackageName { get; set; }
         public string BranchID { get; set; }
+        public bool IsSelected { get; set; } = false; // used for to store the selected item
+        public bool IsChecked { get; set; } = false; // used for to store the selected item
+        public bool IsExpanded { get; set; } = false; // used for to store the selected item
+        public bool IsVisible { get; set; } = true; // used for to store the selected item
+        public bool IsEnabled { get; set; } = true; // used for to store the selected item
+        public bool IsEditable { get; set; } = true; // used for to store the selected item
+        public bool IsVisibleInTree { get; set; } = true; // used for to store the selected item
         public int X { get; set; }
         public int Y { get; set; }
         public int Width { get; set; }

@@ -22,10 +22,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
     public partial class uc_EntityEditor : TemplateUserControl, IAddinVisSchema
     {
-        public uc_EntityEditor(IBeepService service)
+        public uc_EntityEditor(IBeepService service):base(service)
         {
             InitializeComponent();
-            beepservice = service;
+          
             Details.AddinName = "Entity Editor";
 
         }
@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public string AddinName { get; set; }
         #endregion "IAddinVisSchema"
         EntityManagerViewModel viewModel;
-        private IBeepService beepservice;
+
         List<SimpleItem> Drivers = new List<SimpleItem>();
         public void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
         {
@@ -55,10 +55,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
-            viewModel = new EntityManagerViewModel(beepservice.DMEEditor, beepservice.vis);
+            viewModel = new EntityManagerViewModel(beepService.DMEEditor, beepService.vis);
 
             DatasourcebeepComboBox.SelectedItemChanged += DatasourcebeepComboBox_SelectedItemChanged;
-            foreach (var item in beepservice.Config_editor.DataConnections)
+            foreach (var item in beepService.Config_editor.DataConnections)
             {
                 SimpleItem conn = new SimpleItem();
                 conn.DisplayField = item.ConnectionName;
@@ -71,14 +71,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 DatasourcebeepComboBox.ListItems.Add(conn);
             }
             List<SimpleItem> versions = new List<SimpleItem>();
-            foreach (var item in beepservice.Config_editor.DataDriversClasses.Select(o=>o.PackageName))
+            foreach (var item in beepService.Config_editor.DataDriversClasses.Select(o=>o.PackageName))
             {
                 SimpleItem driveritem = new SimpleItem();
                 driveritem.DisplayField = item;
                 driveritem.Text = item;
                 driveritem.Name = item;
                 driveritem.Value = item;
-                foreach (var DriversClasse in beepservice.Config_editor.DataDriversClasses.Where(x => x.PackageName == item))
+                foreach (var DriversClasse in beepService.Config_editor.DataDriversClasses.Where(x => x.PackageName == item))
                 {
                     SimpleItem itemversion = new SimpleItem();
                     itemversion.DisplayField = DriversClasse.version;
@@ -112,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             {
                 string datasource = e.SelectedItem.Text;
                 viewModel.Datasourcename = datasource;
-                viewModel.SourceConnection = beepservice.DMEEditor.GetDataSource(datasource);
+                viewModel.SourceConnection = beepService.DMEEditor.GetDataSource(datasource);
                 if (viewModel.SourceConnection != null)
                 {
                     viewModel.UpdateFieldTypes();
@@ -124,13 +124,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                         viewModel.sourceConnection.Openconnection();
                         if(viewModel.sourceConnection.ConnectionStatus != ConnectionState.Open)
                         {
-                            beepservice.DMEEditor.AddLogMessage("Beep", "Datasource not Found", DateTime.Now, 0, null, Errors.Failed);
+                            beepService.DMEEditor.AddLogMessage("Beep", "Datasource not Found", DateTime.Now, 0, null, Errors.Failed);
                             return;
                         }
                     }
                 }else
                 {
-                    beepservice.DMEEditor.AddLogMessage("Beep", "Datasource not Found", DateTime.Now, 0, null, Errors.Failed);
+                    beepService.DMEEditor.AddLogMessage("Beep", "Datasource not Found", DateTime.Now, 0, null, Errors.Failed);
                     return;
                 }
                 EntitiesbeepComboBox.ListItems = new BindingList<SimpleItem>();
@@ -156,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             {
                 string datasource = parameters["Datasource"].ToString();
                 viewModel.Datasourcename = datasource;
-                viewModel.SourceConnection = beepservice.DMEEditor.GetDataSource(datasource);
+                viewModel.SourceConnection = beepService.DMEEditor.GetDataSource(datasource);
                 if (viewModel.SourceConnection != null)
                 {
                     viewModel.UpdateFieldTypes();
@@ -168,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 viewModel.EntityName = entityname;
                 if(viewModel.SourceConnection == null)
                 {
-                    viewModel.SourceConnection = beepservice.DMEEditor.GetDataSource(viewModel.Datasourcename);
+                    viewModel.SourceConnection = beepService.DMEEditor.GetDataSource(viewModel.Datasourcename);
                 }
                 viewModel.GetEntityStructure();
                 viewModel.Datasourcename = parameters["Datasource"].ToString();

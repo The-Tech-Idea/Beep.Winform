@@ -26,13 +26,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
     public partial class uc_RDBMSConnections : TemplateUserControl, IAddinVisSchema
     {
-        public uc_RDBMSConnections(IBeepService service)
+        public uc_RDBMSConnections(IBeepService service):base(service)
         {
             InitializeComponent();
-            beepservice = service;
+           
             Details.AddinName = "RDBMS Connections";
-
         }
+       
         #region "IAddinVisSchema"
         public string RootNodeName { get; set; } = "Configuration";
         public string CatgoryName { get; set; }
@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public string AddinName { get; set; }
         #endregion "IAddinVisSchema"
         DataConnectionViewModel viewModel;
-        private IBeepService beepservice;
+     
         public void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
         {
             
@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
-            viewModel = new DataConnectionViewModel(beepservice.DMEEditor, beepservice.vis);
+            viewModel = new DataConnectionViewModel(beepService.DMEEditor, beepService.vis);
             viewModel.DBWork.Units.Filter = "Category = " + DatasourceCategory.RDBMS;
             BeepColumnConfig drivername = beepSimpleGrid1.GetColumnByName("DriverName");
             beepSimpleGrid1.CellValueChanged += BeepSimpleGrid1_CellValueChanged;
@@ -70,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 driveritem.Text = item;
                 driveritem.Name = item;
                 driveritem.Value= item;
-                foreach (var DriversClasse in beepservice.Config_editor.DataDriversClasses.Where(x => x.PackageName == item))
+                foreach (var DriversClasse in beepService.Config_editor.DataDriversClasses.Where(x => x.PackageName == item))
                 {
                     SimpleItem itemversion = new SimpleItem();
                     itemversion.DisplayField = DriversClasse.version;

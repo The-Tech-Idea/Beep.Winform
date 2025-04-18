@@ -131,6 +131,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Diagramming Properties"
         #region "Public Properties"
+        private bool _isselectedoptionon = true;
+        public bool IsSelectedOptionOn
+        {
+            get => _isselectedoptionon;
+            set
+            {
+                _isselectedoptionon = value;
+                Invalidate();
+            }
+        }
         private bool _hitareaeventon = false;
         public bool HitAreaEventOn
         {
@@ -1147,12 +1157,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     backcolor = DisabledBackColor;
                 }
-                else if (IsSelected)
+                else if (IsSelected & IsSelectedOptionOn)
                 {
                     backcolor = SelectedBackColor;
                 }
-               
-                    using (SolidBrush brush = new SolidBrush(backcolor))
+                using (SolidBrush brush = new SolidBrush(backcolor))
                     {
                         g.FillRectangle(brush, DrawingRect);
                     }

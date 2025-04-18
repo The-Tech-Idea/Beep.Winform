@@ -22,9 +22,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public uc_ConnnectionDrivers(IBeepService service) : base(service)
         {
             InitializeComponent();
-            beepservice = service;
-            AddinName = "Connection Drivers";
-
+  
             Details.AddinName = "Connection Drivers";
         }
         #region "IAddinVisSchema"
@@ -45,16 +43,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         #endregion "IAddinVisSchema"
 
         DriversConfigViewModel viewModel;
-        private IBeepService beepservice;
-
-        public  void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
-        {
-           
-        }
+     
+      
         public override void Configure(Dictionary<string, object> settings)
         {
-           base.Configure(settings);
-            viewModel = new DriversConfigViewModel(beepservice.DMEEditor, beepservice.vis);
+            base.Configure(settings);
+            viewModel = new DriversConfigViewModel(beepService.DMEEditor, beepService.vis);
             BeepColumnConfig classhandlers = beepSimpleGrid1.GetColumnByName("ClassHandler");
             classhandlers.CellEditor = BeepColumnType.ListOfValue;
             int idx = 0;

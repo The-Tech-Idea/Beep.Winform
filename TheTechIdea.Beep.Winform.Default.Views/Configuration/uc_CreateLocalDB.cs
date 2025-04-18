@@ -33,8 +33,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public uc_CreateLocalDB(IBeepService service):base(service)
         {
             InitializeComponent();
-            beepservice = service;
-           
+
             Details.AddinName = "Create Local DB";
 
         }
@@ -56,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public ITree TreeObject { get; set; }
         #endregion "IAddinVisSchema"
 
-        private IBeepService beepservice;
+     
         List<SimpleItem> Drivers = new List<SimpleItem>();
         List<SimpleItem> InstallationFolders = new List<SimpleItem>();
         private DataConnectionViewModel viewModel;
@@ -67,14 +66,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
-            if (beepservice.vis.Tree != null)
+            if (beepService.vis.Tree != null)
             {
-                TreeObject = (ITree)beepservice.vis.Tree;
+                TreeObject = (ITree)beepService.vis.Tree;
             }
-            viewModel = new DataConnectionViewModel(beepservice.DMEEditor, beepservice.vis);
+            viewModel = new DataConnectionViewModel(beepService.DMEEditor, beepService.vis);
 
 
-            foreach (var item in beepservice.Config_editor.DataConnections)
+            foreach (var item in beepService.Config_editor.DataConnections)
             {
                 SimpleItem conn = new SimpleItem();
                 conn.DisplayField = item.ConnectionName;
@@ -109,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 Drivers.Add(driveritem);
             }
             // Get installation folders from config foders
-            foreach (var item in beepservice.Config_editor.Config.Folders.Where(x => x.FolderFilesType == FolderFileTypes.DataFiles || x.FolderFilesType == FolderFileTypes.ProjectData).ToList())
+            foreach (var item in beepService.Config_editor.Config.Folders.Where(x => x.FolderFilesType == FolderFileTypes.DataFiles || x.FolderFilesType == FolderFileTypes.ProjectData).ToList())
             {
                 string foldername=Path.GetFileName(item.FolderPath);
                 SimpleItem folderitem = new SimpleItem();

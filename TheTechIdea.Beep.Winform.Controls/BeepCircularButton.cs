@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Configuration;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -28,6 +30,90 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isForColorSet = false;
         private bool _hidetext = false;
         private const int TextPadding = 5; // Padding to prevent overlap
+        private Size circlesize = Size.Empty;
+
+
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Size of the Circle  Default is empty")]
+        public Size CircleSize
+        {
+            get => circlesize;
+            set
+            {
+                circlesize = value;
+               
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Gets the X-offset of the circle's center relative to the control's left border.")]
+        public int CircleMidXOffset
+        {
+            get
+            {
+                Rectangle textRect = GetTextRectangle();
+                Rectangle circleBounds = GetCircleBounds(textRect);
+                int circleCenterX = circleBounds.X + circleBounds.Width / 2;
+                return circleCenterX - DrawingRect.Left;
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Gets the Y-offset of the circle's center relative to its default centered position.")]
+        public int CircleMidYOffset
+        {
+            get
+            {
+                Rectangle textRect = GetTextRectangle();
+                Rectangle circleBounds = GetCircleBounds(textRect);
+                int circleCenterY = circleBounds.Y + (circleBounds.Height / 2);
+                int borderSpace = _showBorder ? _borderThickness : 0;
+                int margin = 2;
+                int defaultCenterY = DrawingRect.Y + Padding.Top + borderSpace + margin +
+                                    (DrawingRect.Height - Padding.Vertical - (2 * borderSpace) - (2 * margin)) / 2;
+                return circleCenterY - defaultCenterY;
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Gets the offset of the circle's center from the control's top-left corner.")]
+        public Point CircleCenterOffset
+        {
+            get
+            {
+                Rectangle textRect = GetTextRectangle();
+                Rectangle circleBounds = GetCircleBounds(textRect);
+                int circleCenterX = circleBounds.X + circleBounds.Width / 2;
+                int circleCenterY = circleBounds.Y + circleBounds.Height / 2;
+                return new Point(circleCenterX - DrawingRect.X, circleCenterY - DrawingRect.Y);
+            }
+        }
+
+        private Font _textFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TextFont
+        {
+            get => _textFont;
+            set
+            {
+
+                _textFont = value;
+
+                Font = _textFont;
+                UseThemeFont = false;
+                Invalidate();
+
+
+            }
+        }
         bool _applyThemeOnImage = false;
         public bool ApplyThemeOnImage
         {
@@ -163,6 +249,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowAllBorders = false,
                 ShowShadow = false,
             };
+            IsSelectedOptionOn = false;
             IsChild= true;
             IsShadowAffectedByTheme = false;
            // IsBorderAffectedByTheme = false;
@@ -176,65 +263,102 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel.MouseHover += BeepImage_MouseHover;
             beepLabel.MouseLeave += BeepImage_MouseLeave;
         }
-        protected override void OnPaint(PaintEventArgs pevent)
+        protected override void OnPaint(PaintEventArgs e)
         {
-            _isframless = true;
-
-            base.OnPaint(pevent);
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            base.OnPaint(e);
+        }
+        protected override void DrawContent(Graphics g)
+        {
+          
+            base.DrawContent(g);
             UpdateDrawingRect();
-            Draw(pevent.Graphics, DrawingRect);
-
-
+            Draw(g, DrawingRect);
         }
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-            UpdateDrawingRect();
-            // Calculate text rectangle first to adjust the circle bounds accordingly
-            Rectangle textRect = GetTextRectangle();
-            Rectangle circleBounds = GetCircleBounds(textRect);
+
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Calculate the circle bounds based on control size
+            // Adjust control height if needed
+            AdjustControlHeight();
+
+            Rectangle textRect = GetTextRectangle();
+            Rectangle circleBounds = GetCircleBounds(textRect);
             int diameter = Math.Min(circleBounds.Width, circleBounds.Height);
 
             using (Brush brush = new SolidBrush(IsHovered ? _currentTheme.ButtonHoverBackColor : _currentTheme.ButtonBackColor))
             {
                 graphics.FillEllipse(brush, circleBounds);
             }
+
             if (_showBorder)
             {
                 using (Pen pen = new Pen(_currentTheme.ShadowColor, _borderThickness))
                 {
-                    circleBounds.Inflate(_borderThickness / 2, _borderThickness / 2);
-                    graphics.DrawEllipse(pen, circleBounds);
+                    Rectangle borderBounds = circleBounds;
+                    graphics.DrawEllipse(pen, borderBounds);
                 }
             }
 
-            if (IsPressed)
-            {
-                using (Pen pen = new Pen(_currentTheme.ButtonSelectedForeColor, _borderThickness))
-                {
-                    circleBounds.Inflate(-_borderThickness, -_borderThickness);
-                    graphics.DrawEllipse(pen, circleBounds);
-                }
-            }
-            // Position and set the maximum size for beepImage to fit inside the circle
+            //if (IsSelected)
+            //{
+            //    using (Pen pen = new Pen(_currentTheme.ButtonSelectedForeColor, _borderThickness))
+            //    {
+            //        Rectangle pressedBounds = circleBounds;
+            //        pressedBounds.Inflate(-_borderThickness, -_borderThickness);
+            //        graphics.DrawEllipse(pen, pressedBounds);
+            //    }
+            //}
+
             if (!string.IsNullOrEmpty(beepImage.ImagePath))
             {
-                beepImage.MaximumSize = GetInscribedSquareSize(diameter);  // Constrain to circle diameter
-                beepImage.Size = beepImage.MaximumSize;  // Apply the size directly to beepImage
+                beepImage.MaximumSize = GetInscribedSquareSize(diameter);
+                beepImage.Size = beepImage.MaximumSize;
                 beepImage.Location = new Point(
                     circleBounds.X + (circleBounds.Width - beepImage.Width) / 2,
                     circleBounds.Y + (circleBounds.Height - beepImage.Height) / 2
                 );
-
-                // Render the image within the circular area
                 beepImage.DrawImage(graphics, new Rectangle(beepImage.Location, beepImage.Size));
             }
-            // Draw the text inside the button if enabled
+
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
-                TextRenderer.DrawText(graphics, Text, Font, textRect, _currentTheme.PrimaryTextColor);
+                TextFormatFlags flags = TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl;
+                switch (_textAlign)
+                {
+                    case ContentAlignment.TopLeft:
+                    case ContentAlignment.MiddleLeft:
+                    case ContentAlignment.BottomLeft:
+                        flags |= TextFormatFlags.Left;
+                        break;
+                    case ContentAlignment.TopRight:
+                    case ContentAlignment.MiddleRight:
+                    case ContentAlignment.BottomRight:
+                        flags |= TextFormatFlags.Right;
+                        break;
+                    default:
+                        flags |= TextFormatFlags.HorizontalCenter;
+                        break;
+                }
+                // Add vertical alignment for better control
+                switch (_textAlign)
+                {
+                    case ContentAlignment.TopLeft:
+                    case ContentAlignment.TopCenter:
+                    case ContentAlignment.TopRight:
+                        flags |= TextFormatFlags.Top;
+                        break;
+                    case ContentAlignment.BottomLeft:
+                    case ContentAlignment.BottomCenter:
+                    case ContentAlignment.BottomRight:
+                        flags |= TextFormatFlags.Bottom;
+                        break;
+                    default:
+                        flags |= TextFormatFlags.VerticalCenter;
+                        break;
+                }
+                TextRenderer.DrawText(graphics, Text, Font, textRect, _currentTheme.PrimaryTextColor, flags);
             }
             DrawBadge(graphics);
         }
@@ -247,29 +371,91 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private Rectangle GetCircleBounds(Rectangle textRect)
         {
-            int maxDiameter = Math.Min(
-                DrawingRect.Width - Padding.Horizontal,
-                DrawingRect.Height - Padding.Vertical
-            );
+            int borderSpace = _showBorder ? _borderThickness : 0;
+            int margin = 2;
 
-            int diameter = (!HideText && (_textLocation == TextLocation.Above || _textLocation == TextLocation.Below))
-                ? Math.Max(0, maxDiameter - textRect.Height - TextPadding) // Include padding here
-                : maxDiameter;
+            int diameter;
+            if (!circlesize.IsEmpty)
+            {
+                // Use fixed CircleSize if set
+                diameter = Math.Min(circlesize.Width, circlesize.Height); // Ensure circular shape
+            }
+            else
+            {
+                // Dynamic sizing based on control dimensions
+                int maxDiameter = Math.Min(
+                    DrawingRect.Width - Padding.Horizontal - (2 * borderSpace) - (2 * margin),
+                    DrawingRect.Height - Padding.Vertical - (2 * borderSpace) - (2 * margin)
+                );
 
-            int x = DrawingRect.X + Padding.Left + (DrawingRect.Width - diameter) / 2;
-            int y = DrawingRect.Y + Padding.Top + (DrawingRect.Height - diameter) / 2;
+                if (HideText || string.IsNullOrEmpty(Text))
+                {
+                    diameter = maxDiameter;
+                }
+                else
+                {
+                    diameter = (_textLocation == TextLocation.Above || _textLocation == TextLocation.Below)
+                        ? Math.Max(0, maxDiameter - textRect.Height - TextPadding)
+                        : maxDiameter;
+                }
+            }
 
-            if (!HideText)
+            // Ensure diameter is non-negative
+            diameter = Math.Max(0, diameter);
+
+            // Center the circle within the available space
+            int x = DrawingRect.X + Padding.Left + borderSpace + margin + (DrawingRect.Width - Padding.Horizontal - (2 * borderSpace) - (2 * margin) - diameter) / 2;
+            int y = DrawingRect.Y + Padding.Top + borderSpace + margin + (DrawingRect.Height - Padding.Vertical - (2 * borderSpace) - (2 * margin) - diameter) / 2;
+
+            if (!HideText && !string.IsNullOrEmpty(Text))
             {
                 y += _textLocation switch
                 {
-                    TextLocation.Below => -textRect.Height / 2 - TextPadding / 2, // Adjust up for below
-                    TextLocation.Above => textRect.Height / 2 + TextPadding / 2,  // Adjust down for above
-                    _ => 0 // No adjustment for other locations
+                    TextLocation.Above => textRect.Height / 2 + TextPadding / 2,
+                    TextLocation.Below => -textRect.Height / 2 - TextPadding / 2,
+                    _ => 0
                 };
             }
 
-            return new Rectangle(x, y, Math.Max(0, diameter), Math.Max(0, diameter));
+            return new Rectangle(x, y, diameter, diameter);
+        }
+        public Rectangle GetCircleBounds()
+        {
+            Rectangle textRect = GetTextRectangle();
+            return GetCircleBounds(textRect);
+        }
+        private void AdjustControlHeight()
+        {
+            if (HideText || string.IsNullOrEmpty(Text)) return;
+
+            // Calculate the required height based on text and circle
+            int borderSpace = _showBorder ? _borderThickness : 0;
+            int margin = 2;
+
+            // Measure wrapped text size
+            int maxTextWidth = Width - Padding.Horizontal - (2 * TextPadding);
+            maxTextWidth = Math.Max(10, maxTextWidth);
+            TextFormatFlags flags = TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl;
+            Size textSize = TextRenderer.MeasureText(Text, Font, new Size(maxTextWidth, int.MaxValue), flags);
+
+            // Calculate the minimum height needed
+            int circleHeight = Math.Min(
+                Width - Padding.Horizontal - (2 * borderSpace) - (2 * margin),
+                Height - Padding.Vertical - (2 * borderSpace) - (2 * margin)
+            );
+
+            int requiredHeight = circleHeight + Padding.Vertical + (2 * borderSpace) + (2 * margin);
+            if (_textLocation == TextLocation.Above || _textLocation == TextLocation.Below)
+            {
+                requiredHeight += textSize.Height + TextPadding;
+            }
+
+            // Adjust control height if needed
+            if (Height < requiredHeight)
+            {
+                Height = requiredHeight;
+                Invalidate();
+            }
         }
 
         private Rectangle GetImageRectangle(Rectangle circleBounds)
@@ -298,73 +484,127 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private Rectangle GetTextRectangle()
         {
-            if (HideText) return Rectangle.Empty; // Return an empty rectangle if text is hidden
+            if (HideText || string.IsNullOrEmpty(Text)) return Rectangle.Empty;
 
-            Size textSize = TextRenderer.MeasureText(Text, Font);
-            Rectangle textRect = new Rectangle();
+            // Define the maximum width for text wrapping and rendering
+            int maxTextWidth = DrawingRect.Width - Padding.Horizontal - (2 * TextPadding);
+            maxTextWidth = Math.Max(10, maxTextWidth);
 
+            // Use TextRenderer to measure text with word wrap
+            TextFormatFlags flags = TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl;
+            switch (_textAlign)
+            {
+                case ContentAlignment.TopLeft:
+                case ContentAlignment.MiddleLeft:
+                case ContentAlignment.BottomLeft:
+                    flags |= TextFormatFlags.Left;
+                    break;
+                case ContentAlignment.TopRight:
+                case ContentAlignment.MiddleRight:
+                case ContentAlignment.BottomRight:
+                    flags |= TextFormatFlags.Right;
+                    break;
+                default:
+                    flags |= TextFormatFlags.HorizontalCenter;
+                    break;
+            }
+
+            // Measure the text size with wrapping
+            Size proposedSize = new Size(maxTextWidth, int.MaxValue);
+            Size textSize = TextRenderer.MeasureText(Text, Font, proposedSize, flags);
+
+            // Calculate the text rectangle based on TextLocation
+            Rectangle textRect;
             switch (_textLocation)
             {
                 case TextLocation.Above:
                     textRect = new Rectangle(
-                        (DrawingRect.Width - textSize.Width) / 2,
-                        DrawingRect.Top + TextPadding, // Add padding from the top
-                        textSize.Width,
+                        DrawingRect.Left + Padding.Left + TextPadding,
+                        DrawingRect.Top + Padding.Top + TextPadding,
+                        maxTextWidth, // Use full width for rendering
                         textSize.Height
                     );
                     break;
                 case TextLocation.Below:
                     textRect = new Rectangle(
-                        (DrawingRect.Width - textSize.Width) / 2,
-                        DrawingRect.Bottom - textSize.Height - TextPadding, // Add padding from the bottom
-                        textSize.Width,
+                        DrawingRect.Left + Padding.Left + TextPadding,
+                        DrawingRect.Bottom - Padding.Bottom - textSize.Height - TextPadding,
+                        maxTextWidth, // Use full width for rendering
                         textSize.Height
                     );
                     break;
                 case TextLocation.Left:
                     textRect = new Rectangle(
-                        TextPadding, // Add padding from the left
-                        (DrawingRect.Height - textSize.Height) / 2,
+                        DrawingRect.Left + Padding.Left + TextPadding,
+                        DrawingRect.Top + Padding.Top + (DrawingRect.Height - Padding.Vertical - textSize.Height) / 2,
                         textSize.Width,
                         textSize.Height
                     );
                     break;
                 case TextLocation.Right:
                     textRect = new Rectangle(
-                        DrawingRect.Width - textSize.Width - TextPadding, // Add padding from the right
-                        (DrawingRect.Height - textSize.Height) / 2,
+                        DrawingRect.Right - Padding.Right - textSize.Width - TextPadding,
+                        DrawingRect.Top + Padding.Top + (DrawingRect.Height - Padding.Vertical - textSize.Height) / 2,
                         textSize.Width,
                         textSize.Height
                     );
                     break;
                 case TextLocation.Inside:
                     textRect = new Rectangle(
-                        (DrawingRect.Width - textSize.Width) / 2,
-                        (DrawingRect.Height - textSize.Height) / 2,
-                        textSize.Width,
+                        DrawingRect.Left + Padding.Left + TextPadding,
+                        DrawingRect.Top + Padding.Top + (DrawingRect.Height - Padding.Vertical - textSize.Height) / 2,
+                        maxTextWidth, // Use full width for rendering
                         textSize.Height
                     );
                     break;
+                default:
+                    textRect = Rectangle.Empty;
+                    break;
             }
+
             return textRect;
         }
         public override void ApplyTheme()
         {
             //base.ApplyTheme();
             //TextFont=BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-            if(UseThemeFont)    Font = _currentTheme.GetCaptionFont();
-            
-            ForeColor = _currentTheme.ButtonForeColor;
+            if (IsChild && Parent != null)
+            {
+                BackColor = Parent.BackColor;
+                ParentBackColor = Parent.BackColor;
+            }
             BackColor = _currentTheme.ButtonBackColor;
+            ForeColor = _currentTheme.ButtonForeColor;
+            HoverBackColor = _currentTheme.ButtonHoverBackColor;
+            HoverForeColor = _currentTheme.ButtonHoverForeColor;
+            DisabledBackColor = _currentTheme.DisabledBackColor;
+            DisabledForeColor = _currentTheme.DisabledForeColor;
+            FocusBackColor = _currentTheme.ButtonSelectedBackColor;
+            FocusForeColor = _currentTheme.ButtonSelectedForeColor;
+
+
+            PressedBackColor = _currentTheme.ButtonPressedBackColor;
+            PressedForeColor = _currentTheme.ButtonPressedForeColor;
             beepLabel.Theme = Theme;
+            //  if (_beepListBox != null)   _beepListBox.Theme = Theme;
+            if (UseThemeFont)
+            {
+                _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+               
+            }
+            Font = _textFont;
+            beepLabel.TextFont = _textFont;
+            beepImage.ImageEmbededin = ImageEmbededin.Button;
+            beepImage.Theme = Theme;
+            
             if (ApplyThemeOnImage)
             {
                 beepImage.ApplyThemeOnImage = true;
                
                 
             }
-            beepImage.Theme = Theme;
-            beepImage.ForeColor = _currentTheme.ButtonForeColor;
+            
+           
             Invalidate();
         }
         private void BeepImage_MouseLeave(object? sender, EventArgs e)
@@ -381,6 +621,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnMouseHover(e);
 
         }
+      
         private void BeepImage_Click(object? sender, EventArgs e)
         {
            // var ev = new BeepEventDataArgs("ImageClicked", this);

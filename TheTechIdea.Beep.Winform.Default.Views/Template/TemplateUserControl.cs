@@ -60,6 +60,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         private void BeepThemesManager_ThemeChanged(object? sender, ThemeChangeEventsArgs e)
         {
             Theme = e.NewTheme;
+
+            if (Theme != BeepThemesManager.CurrentTheme) { Theme = BeepThemesManager.CurrentTheme;  }
+            ApplyTheme();
         }
 
         public AddinDetails Details { get; set; }
@@ -73,7 +76,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
 
         public virtual void Configure(Dictionary<string, object> settings)
         {
-            if (Theme != BeepThemesManager.CurrentTheme) { Theme = BeepThemesManager.CurrentTheme; }
+            if (Theme != BeepThemesManager.CurrentTheme) { Theme = BeepThemesManager.CurrentTheme;  }
+            ApplyTheme();
         }
 
         public virtual void Dispose()

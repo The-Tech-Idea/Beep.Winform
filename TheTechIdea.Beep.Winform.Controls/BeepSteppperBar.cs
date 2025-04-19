@@ -1,416 +1,291 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using System.Collections.Generic;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [Category("Beep Controls")]
-    [DisplayName("Beep Stepper Bar")]
-    [Description("A circular stepper control with clickable BeepCircularButtons, optional orientation, animated transitions, and minimum connector length.")]
-    public class BeepSteppperBar : BeepControl
+    [DisplayName("Beep Stepper Bar (Drawn)")]
+    [Description("A drawn circular stepper bar with click interaction and optional images.")]
+    public class BeepStepperBar : BeepControl
     {
         private Orientation orientation = Orientation.Horizontal;
-        private readonly List<BeepLabel> stepLabels = new List<BeepLabel>();
-        private readonly List<BeepCircularButton> stepButtons = new List<BeepCircularButton>();
-        private readonly List<Panel> connectors = new List<Panel>();
         private int selectedIndex = -1;
+        private Size buttonSize = new Size(30, 30);
+        private List<Rectangle> buttonBounds = new();
+        private readonly Dictionary<int, Image> stepImages = new();
 
-        // Animation
-        private System.Windows.Forms.Timer animationTimer;
-        private int animFrame;
-        private const int animFramesTotal = 10;
-        private BeepCircularButton animButton;
-        private Color animStart, animEnd;
+        private Timer animationTimer;
+        private float animationProgress = 1f;
+        private const int animationDuration = 200; // milliseconds
+        private DateTime animationStartTime;
+        private int animatingToIndex = -1;
 
-        private Size buttonsize = Size.Empty;
-
-        private int currentstep = 0;
-
-        private string _defaultimagepathforstepbuttons = "check.svg"; // Default image path
-        [Browsable(true)]
-        [Category("Layout")]
-        [Description("Default image path for step buttons. If not set, no image will be displayed.")]
-        public string CheckImage
-        {
-            get => _defaultimagepathforstepbuttons;
-            set
-            {
-                _defaultimagepathforstepbuttons = value;
-
-            }
-        }
+      
 
         [Browsable(true)]
-        [Category("Layout")]
-        [Description("Size of the step buttons. Default is 20X20 pixels.")]
-        public Size ButtonSize
-        {
-            get => buttonsize;
-            set
-            {
-                buttonsize = value;
-                foreach (var btn in stepButtons)
-                {
-                    btn.Size = buttonsize;
-                }
-                InitLayoutSteps();
-            }
-        }
-
-        [Browsable(true)]
-        [Category("Layout")]
-        [Description("Controls whether the stepper is laid out horizontally or vertically.")]
+        [Category("Appearance")]
         public Orientation Orientation
         {
             get => orientation;
-            set
-            {
-                orientation = value;
-                InitLayoutSteps();
-            }
+            set { orientation = value; Invalidate(); }
         }
 
         [Browsable(true)]
         [Category("Layout")]
-        [Description("Minimum length in pixels for connectors between steps.")]
-        public int MinConnectorLength { get; set; } = 20;
+        public Size ButtonSize
+        {
+            get => buttonSize;
+            set { buttonSize = value; Invalidate(); }
+        }
 
         [Browsable(true)]
         [Category("Data")]
-        [Description("The steps to display.")]
-        public BindingList<SimpleItem> ListItems { get; set; } = new BindingList<SimpleItem>();
+        public BindingList<SimpleItem> ListItems { get; set; } = new();
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        public string CheckImage { get; set; } = "check.svg";
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        public StepDisplayMode DisplayMode { get; set; } = StepDisplayMode.StepNumber;
 
         [Browsable(false)]
         public int SelectedIndex => selectedIndex;
 
-        [Browsable(false)]
-        public SimpleItem SelectedItem => selectedIndex >= 0 && selectedIndex < ListItems.Count ? ListItems[selectedIndex] : null;
-
         public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
 
-        public BeepSteppperBar()
+        public BeepStepperBar()
         {
-            ListItems.ListChanged += (s, e) => InitLayoutSteps();
-            this.SizeChanged += (s, e) => InitLayoutSteps();
+            DoubleBuffered = true;
+            ListItems.ListChanged += (s, e) => Invalidate();
 
-            animationTimer = new System.Windows.Forms.Timer { Interval = 25 };
-            animationTimer.Tick += AnimationTimer_Tick;
+            animationTimer = new Timer { Interval = 16 };
+            animationTimer.Tick += (s, e) =>
+            {
+                var elapsed = (DateTime.Now - animationStartTime).TotalMilliseconds;
+                animationProgress = (float)Math.Min(1, elapsed / animationDuration);
+                if (animationProgress >= 1f)
+                {
+                    animationTimer.Stop();
+                    selectedIndex = animatingToIndex;
+                }
+                Invalidate();
+            };
         }
 
-        private void AnimationTimer_Tick(object sender, EventArgs e)
+        protected override void OnPaint(PaintEventArgs e)
         {
-            if (animButton == null)
-            {
-                animationTimer.Stop();
-                return;
-            }
+            base.OnPaint(e);
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            animFrame++;
-            float t = animFrame / (float)animFramesTotal;
-            if (t > 1f) t = 1f;
-            int r = (int)(animStart.R + (animEnd.R - animStart.R) * t);
-            int g = (int)(animStart.G + (animEnd.G - animStart.G) * t);
-            int b = (int)(animStart.B + (animEnd.B - animStart.B) * t);
-            animButton.BackColor = Color.FromArgb(r, g, b);
+            buttonBounds.Clear();
 
-            if (animFrame >= animFramesTotal)
-            {
-                animationTimer.Stop();
-                animButton = null;
-            }
-        }
-        private void InitLayoutSteps()
-        {
-            this.SuspendLayout();
-            Controls.Clear();
-            stepButtons.Clear();
-            connectors.Clear();
-
-            if (ListItems == null || ListItems.Count == 0)
-            {
-                ResumeLayout();
-                return;
-            }
+            if (ListItems.Count == 0) return;
 
             int count = ListItems.Count;
-            UpdateDrawingRect();
+            int spacing = 20;
+            int stepTotalSize = orientation == Orientation.Horizontal ? buttonSize.Width : buttonSize.Height;
+            int totalLength = (stepTotalSize + spacing) * count - spacing;
 
-            int totalLength = orientation == Orientation.Horizontal ? DrawingRect.Width : DrawingRect.Height;
-            int slots = Math.Max(0, count - 1);
-
-            Size actualButtonSize;
-            if (buttonsize.IsEmpty)
-            {
-                int crossLength = orientation == Orientation.Horizontal ? DrawingRect.Height : DrawingRect.Width;
-                int availableForButtons = totalLength - slots * MinConnectorLength;
-                if (availableForButtons < 0) availableForButtons = totalLength;
-                int dynSize = Math.Min(crossLength, availableForButtons / Math.Max(1, count));
-                actualButtonSize = new Size(dynSize, dynSize);
-            }
-            else
-            {
-                actualButtonSize = buttonsize;
-            }
-
-            int lineLength;
-            if (slots > 0)
-            {
-                int lengthAvailable = totalLength - (orientation == Orientation.Horizontal ? actualButtonSize.Width : actualButtonSize.Height) * count;
-                lineLength = lengthAvailable / slots;
-                if (lineLength < MinConnectorLength) lineLength = MinConnectorLength;
-            }
-            else
-            {
-                lineLength = 0;
-            }
+            Point startPoint = orientation == Orientation.Horizontal
+                ? new Point((Width - totalLength) / 2, (Height - buttonSize.Height) / 2)
+                : new Point((Width - buttonSize.Width) / 2, (Height - totalLength) / 2);
 
             for (int i = 0; i < count; i++)
             {
-                var btn = new BeepCircularButton
-                {
-                    Text = ListItems[i].Text,
-                    Theme = this.Theme,
-                    IsChild = true,
-                    ImagePath = ListItems[i].IsChecked ? CheckImage : string.Empty,
-                    Size = actualButtonSize
-                };
-                int idx = i;
-                btn.Click += (s, e) => OnStepClicked(idx);
-                stepButtons.Add(btn);
-                Controls.Add(btn);
+                int x = orientation == Orientation.Horizontal
+                    ? startPoint.X + i * (buttonSize.Width + spacing)
+                    : startPoint.X;
 
-                if (orientation == Orientation.Horizontal)
+                int y = orientation == Orientation.Horizontal
+                    ? startPoint.Y
+                    : startPoint.Y + i * (buttonSize.Height + spacing);
+
+                Rectangle rect = new Rectangle(x, y, buttonSize.Width, buttonSize.Height);
+                buttonBounds.Add(rect);
+
+                // Draw connector line
+                if (i > 0)
                 {
-                    int yBtn = DrawingRect.Top + (DrawingRect.Height - btn.Height) / 2;
-                    int xBtn = DrawingRect.Left + i * (actualButtonSize.Width + lineLength);
-                    btn.Location = new Point(xBtn, yBtn);
-                    btn.TextLocation = TextLocation.Below;
-                }
-                else
-                {
-                    int xBtn = DrawingRect.Left + (DrawingRect.Width - actualButtonSize.Width) / 2;
-                    int yBtn = DrawingRect.Top + i * (actualButtonSize.Height + lineLength);
-                    btn.Location = new Point(xBtn, yBtn);
-                    btn.TextLocation = TextLocation.Right;
+                    Point p1 = orientation == Orientation.Horizontal
+                        ? new Point(buttonBounds[i - 1].Right, buttonBounds[i - 1].Top + buttonSize.Height / 2)
+                        : new Point(buttonBounds[i - 1].Left + buttonSize.Width / 2, buttonBounds[i - 1].Bottom);
+
+                    Point p2 = orientation == Orientation.Horizontal
+                        ? new Point(rect.Left, rect.Top + buttonSize.Height / 2)
+                        : new Point(rect.Left + buttonSize.Width / 2, rect.Top);
+
+                    e.Graphics.DrawLine(new Pen(_currentTheme.BorderColor, 2), p1, p2);
                 }
 
-                if (i < count - 1)
+                // Animate highlight
+                float scale = 1f;
+                if (i == animatingToIndex && animationProgress < 1f)
                 {
-                    var connector = new Panel { BackColor = _currentTheme.BorderColor };
-                    connectors.Add(connector);
-                    Controls.Add(connector);
+                    scale = 1f + 0.2f * (1 - animationProgress);
+                }
+
+                Rectangle inflated = Rectangle.Inflate(rect, (int)(rect.Width * (scale - 1) / 2), (int)(rect.Height * (scale - 1) / 2));
+                Color fillColor = ListItems[i].IsChecked ? _currentTheme.ButtonPressedBackColor
+               : i == selectedIndex ? _currentTheme.ButtonBackColor
+               : _currentTheme.DisabledBackColor;
+
+                using (Brush fillBrush = new SolidBrush(fillColor))
+                {
+                    e.Graphics.FillEllipse(fillBrush, inflated);
+                }
+
+                // Draw inside content
+                switch (DisplayMode)
+                {
+                    case StepDisplayMode.CheckImage:
+                        if (ListItems[i].IsChecked && !string.IsNullOrWhiteSpace(CheckImage))
+                        {
+                            if (!stepImages.ContainsKey(i))
+                            {
+                                try { stepImages[i] = ImageLoader.LoadImageFromResource(CheckImage); } catch { }
+                            }
+                            if (stepImages[i] != null)
+                            {
+                                e.Graphics.DrawImage(stepImages[i], rect);
+                            }
+                        }
+                        break;
+                    case StepDisplayMode.StepNumber:
+                        string numText = (i + 1).ToString();
+                        var numSize = e.Graphics.MeasureString(numText, Font);
+                        var numX = rect.Left + (rect.Width - numSize.Width) / 2;
+                        var numY = rect.Top + (rect.Height - numSize.Height) / 2;
+                        using (var numBrush = new SolidBrush(_currentTheme.ButtonForeColor))
+                        {
+                            e.Graphics.DrawString(numText, Font, numBrush, numX, numY);
+                        }
+                        break;
+                    case StepDisplayMode.SvgIcon:
+                        // Extend here if needed
+                        break;
+                }
+
+                // Draw optional text (header + subtext)
+                string header = ListItems[i].Name ?? "";
+                string subtext = ListItems[i].Text ?? "";
+                var headerFont = new Font(Font.FontFamily, Font.Size, FontStyle.Bold);
+                var headerSize = e.Graphics.MeasureString(header, headerFont);
+                var subSize = e.Graphics.MeasureString(subtext, Font);
+                float totalTextHeight = headerSize.Height + subSize.Height;
+                float textX = rect.Left + (rect.Width - Math.Max(headerSize.Width, subSize.Width)) / 2;
+                float baseY = rect.Bottom + 4;
+
+                using (var headerBrush = new SolidBrush(_currentTheme.CardTitleForeColor))
+                using (var subBrush = new SolidBrush(_currentTheme.CardSubTitleForeColor))
+                {
+                    if (orientation == Orientation.Horizontal)
+                    {
+                        e.Graphics.DrawString(header, headerFont, headerBrush, textX, baseY);
+                        e.Graphics.DrawString(subtext, Font, subBrush, rect.Left + (rect.Width - subSize.Width) / 2, baseY + headerSize.Height);
+                    }
+                    else
+                    {
+                        e.Graphics.DrawString(header, headerFont, headerBrush, rect.Right + 6, rect.Top);
+                        e.Graphics.DrawString(subtext, Font, subBrush, rect.Right + 6, rect.Top + headerSize.Height);
+                    }
                 }
             }
-
-            UpdateConnectors(actualButtonSize,lineLength);
-            ResumeLayout();
         }
 
-        private void OnStepClicked(int index)
+        protected override void OnMouseClick(MouseEventArgs e)
         {
-            if (index >= 0 && index < stepButtons.Count)
+            base.OnMouseClick(e);
+            for (int i = 0; i < buttonBounds.Count; i++)
             {
-                var btn = stepButtons[index];
-                animButton = btn;
-                animFrame = 0;
-                animStart = btn.BackColor;
-                animEnd = _currentTheme.ButtonBackColor;
-                animationTimer.Start();
+                if (buttonBounds[i].Contains(e.Location))
+                {
+                    UpdateCurrentStep(i);
+                    break;
+                }
             }
-            selectedIndex = index;
-            //   UpdateSelectionVisuals();
-            SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(SelectedItem));
         }
 
-        private void UpdateSelectionVisuals()
+        public void UpdateCurrentStep(int index)
         {
-            for (int i = 0; i < stepButtons.Count; i++)
+            if (index < 0 || index >= ListItems.Count || index == selectedIndex)
+                return;
+
+            animatingToIndex = index;
+            animationStartTime = DateTime.Now;
+            animationProgress = 0f;
+            animationTimer.Start();
+
+            // Update checked state visually
+            for (int i = 0; i < ListItems.Count; i++)
             {
-                var btn = stepButtons[i];
-                if (i < selectedIndex)
-                    btn.BackColor = _currentTheme.ButtonPressedBackColor;
-                else if (i == selectedIndex)
-                    btn.BackColor = _currentTheme.ButtonBackColor;
-                else
-                    btn.BackColor = _currentTheme.DisabledBackColor;
+                ListItems[i].IsChecked = i <= index;
+            }
+
+            Invalidate();
+            SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(ListItems[index]));
+        }
+
+        public void UpdateCheckedState(SimpleItem item)
+        {
+            int index = ListItems.IndexOf(item);
+            if (index >= 0 && index < ListItems.Count)
+            {
+                UpdateCurrentStep(index);
             }
         }
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
-            foreach (var btn in stepButtons)
+            //   base.ApplyTheme();
+            if (IsChild && Parent != null)
             {
-                btn.Theme = this.Theme;
-                // btn.ApplyTheme();
+                BackColor = Parent.BackColor;
+                ParentBackColor = Parent.BackColor;
             }
-            foreach (var lbl in stepLabels)
+            else
             {
-                lbl.Theme = this.Theme;
+                BackColor = _currentTheme.CardBackColor;
+            }
+        
+            ForeColor = _currentTheme.ButtonForeColor;
+            HoverBackColor = _currentTheme.ButtonHoverBackColor;
+            HoverForeColor = _currentTheme.ButtonHoverForeColor;
+            DisabledBackColor = _currentTheme.DisabledBackColor;
+            DisabledForeColor = _currentTheme.DisabledForeColor;
+            FocusBackColor = _currentTheme.ButtonSelectedBackColor;
+            FocusForeColor = _currentTheme.ButtonSelectedForeColor;
 
-                //lbl.ApplyTheme();
-            }
-        }
-      
-        public void UpdateCheckedState(SimpleItem item)
-        {
-            int index = ListItems.IndexOf(item);
-            if (index >= 0 && index < stepButtons.Count)
-            {
-               
-                UpdateCurrentStep(index);
-            }
-        }
-        public void UpdateCurrentStep(int index)
-        {
-            if (index >= 0 && index < stepButtons.Count)
-            {
-              //  ListItems[index].IsChecked = true;
-                currentstep = index;
-                var btn = stepButtons[index];
-                
-                //animButton = btn;
-                //animFrame = 0;
-                //animStart = btn.BackColor;
-                //animEnd = _currentTheme.ButtonBackColor;
-               // animationTimer.Start();
-                SetAllStepsBefore(index);
-                updatestatus();  
-            }
-        }
-        private void SetAllStepsBefore(int index)
-        {
-            for (int i = 0; i < stepButtons.Count; i++)
-            {
-                if (i <= index)
-                {
-                    ListItems[i].IsChecked = true;
-                    stepButtons[i].IsSelected = true;
-                   
-                }
-                else
-                {
-                    ListItems[i].IsChecked = false;
-                    stepButtons[i].IsSelected = false;
-                }
-            }
-        }
 
-        private void updatestatus()
-        {
-            this.SuspendLayout();
-            //foreach (var item in stepButtons)
+            PressedBackColor = _currentTheme.ButtonPressedBackColor;
+            PressedForeColor = _currentTheme.ButtonPressedForeColor;
+
+            //  if (_beepListBox != null)   _beepListBox.Theme = Theme;
+            //if (UseThemeFont)
             //{
-            //    item.SuspendLayout();
+            //    _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            //    Font = _textFont;
             //}
 
-            if (ListItems == null || ListItems.Count == 0)
-            {
-                ResumeLayout();
-                return;
-            }
-
-            int count = ListItems.Count;
-            UpdateDrawingRect();
-
-            int totalLength = orientation == Orientation.Horizontal ? DrawingRect.Width : DrawingRect.Height;
-            int slots = Math.Max(0, count - 1);
-
-            Size actualButtonSize;
-            if (buttonsize.IsEmpty)
-            {
-                int crossLength = orientation == Orientation.Horizontal ? DrawingRect.Height : DrawingRect.Width;
-                int availableForButtons = totalLength - slots * MinConnectorLength;
-                if (availableForButtons < 0) availableForButtons = totalLength;
-                int dynSize = Math.Min(crossLength, availableForButtons / Math.Max(1, count));
-                actualButtonSize = new Size(dynSize, dynSize);
-            }
-            else
-            {
-                actualButtonSize = buttonsize;
-            }
-            Rectangle circlebounds = new Rectangle(0, 0, actualButtonSize.Width, actualButtonSize.Height);
-            if (stepButtons.Count>0)
-            {
-                circlebounds= stepButtons[0].GetCircleBounds() ;
-            }
-            else
-            {
-                return;
-            }
-            int lineLength;
-            if (slots > 0)
-            {
-                int lengthAvailable = totalLength - (orientation == Orientation.Horizontal ? actualButtonSize.Width : actualButtonSize.Height) * count;
-                lineLength = (lengthAvailable / slots)+(circlebounds.Width/2);
-                if (lineLength < MinConnectorLength) lineLength = MinConnectorLength;
-            }
-            else
-            {
-                lineLength = 0;
-            }
-
-            for (int i = 0; i < count; i++)
-            {
-                var btn = stepButtons[i];
-                btn.Text = ListItems[i].Text;
-                btn.ImagePath = ListItems[i].IsChecked ? CheckImage : string.Empty;
-
-                if (orientation == Orientation.Horizontal)
-                {
-                    int yBtn = DrawingRect.Top + (DrawingRect.Height - btn.Height) / 2;
-                    int xBtn = DrawingRect.Left + i * (actualButtonSize.Width + lineLength);
-                    btn.Location = new Point(xBtn, yBtn);
-                }
-                else
-                {
-                    int xBtn = DrawingRect.Left + (DrawingRect.Width - actualButtonSize.Width) / 2;
-                    int yBtn = DrawingRect.Top + i * (actualButtonSize.Height + lineLength);
-                    btn.Location = new Point(xBtn, yBtn);
-                }
-            }
-
-            UpdateConnectors(actualButtonSize, lineLength);
-
-            //foreach (var item in stepButtons)
-            //{
-            //    item.ResumeLayout();
-            //}
-            ResumeLayout();
+            //beepImage.Theme = Theme;
+            //ApplyThemeToSvg();
+            Invalidate();  // Trigger repaint
         }
-        private void UpdateConnectors(Size actualButtonSize,int linelength)
-        {
-            int thickness = 2;
-            for (int i = 0; i < connectors.Count; i++)
-            {
-                if(i >= stepButtons.Count - 1) break; // No connector after the last button
-                var btn = stepButtons[i];
-                var nextBtn = stepButtons[i + 1];
-                var connector = connectors[i];
-                connector.BringToFront();
-                connector.BackColor = _currentTheme.BorderColor;
-               int y= btn.CircleMidYOffset;
-                int x = btn.CircleMidXOffset;
-                Point point = btn.CircleCenterOffset;
-                Size sz = btn.Size;
-                if (orientation == Orientation.Horizontal)
-                {
-                    int startX = btn.Right-(x/2)+4; // Start at the right edge of the current button
-                    int endX = nextBtn.Left; // End at the left edge of the next button
-                    int centerY = btn.Top+btn.CircleMidYOffset + btn.Height / 2 - thickness / 2; // Center vertically
-                    connector.SetBounds(startX, centerY, linelength+x-8, thickness);
-                }
-                else
-                {
-                    int centerX = btn.Left + btn.Width / 2 - thickness / 2; // Center horizontally
-                    int startY = btn.Bottom - (y / 2) + 4; // Start at the bottom edge of the current button
-                    int endY = nextBtn.Top; // End at the top edge of the next button
-                    connector.SetBounds(centerX, startY, thickness, linelength + y - 8);
-                }
-            }
-        }
+
     }
+    public enum StepDisplayMode
+    {
+        StepNumber,
+        CheckImage,
+        SvgIcon
     }
+}

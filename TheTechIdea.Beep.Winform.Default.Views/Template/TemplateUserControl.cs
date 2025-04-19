@@ -168,6 +168,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         }
         public void ApplyTheme()
         {
+            BackColor = _currentTheme.BackColor;
             foreach (Control item in this.Controls)
             {
                 // check if item is a usercontrol

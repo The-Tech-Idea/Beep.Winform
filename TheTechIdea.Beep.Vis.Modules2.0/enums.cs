@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
-
+    public enum ChevronDirection
+    {
+        Forward,   // arrows point to the right (→)
+        Backward,   // arrows point to the left (←)
+            Up,Down
+    }
     public enum BeepShapeType
     {
         Line,

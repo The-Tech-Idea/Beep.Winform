@@ -31,6 +31,8 @@
 	  <None Remove="GFX\SVG\cancel.svg" />
 	  <None Remove="GFX\SVG\createlocaldb.svg" />
 	  <None Remove="GFX\SVG\createlocaldbbutton.svg" />
+	  <None Remove="GFX\SVG\databaseadd.svg" />
+	  <None Remove="GFX\SVG\databasesave.svg" />
 	  <None Remove="GFX\SVG\drivers.svg" />
 	  <None Remove="GFX\SVG\entityeditor.svg" />
 	  <None Remove="GFX\SVG\fileconnections.svg" />
@@ -41,6 +43,8 @@
 	  <EmbeddedResource Include="GFX\SVG\cancel.svg" />
 	  <EmbeddedResource Include="GFX\SVG\createlocaldb.svg" />
 	  <EmbeddedResource Include="GFX\SVG\createlocaldbbutton.svg" />
+	  <EmbeddedResource Include="GFX\SVG\databaseadd.svg" />
+	  <EmbeddedResource Include="GFX\SVG\databasesave.svg" />
 	  <EmbeddedResource Include="GFX\SVG\drivers.svg" />
 	  <EmbeddedResource Include="GFX\SVG\entityeditor.svg" />
 	  <EmbeddedResource Include="GFX\SVG\fileconnections.svg" />
@@ -67,10 +71,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ImportExport\" />
     <Folder Include="CRUD\" />
     <Folder Include="ETL\" />
     <Folder Include="DDL\" />
+    <Folder Include="NewFolder\" />
   </ItemGroup>
 
   <ItemGroup>

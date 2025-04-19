@@ -3466,7 +3466,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case BeepColumnType.CheckBoxBool:
                     return new BeepCheckBoxBool { Theme = Theme,HideText=true,Text=string.Empty, IsChild = true };
                 case BeepColumnType.CheckBoxString:
-                    return new BeepCheckBoxString { Theme = Theme, HideText = true, Text = string.Empty, IsChild = true };
+                    return new BeepCheckBoxString { Theme = Theme , HideText = true, Text = string.Empty, IsChild = true };
                 case BeepColumnType.CheckBoxChar:
                     return new BeepCheckBoxChar { Theme = Theme, HideText = true, Text = string.Empty, IsChild = true };
                 case BeepColumnType.ComboBox:
@@ -3961,21 +3961,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     g.FillRectangle(brush, navigatorPanelRect);
                 }
             }
-            if (!_navigatorDrawn)
-            {
-                _navigatorDrawn = true;
-                if (_showNavigator )
-                {
-                    navigatorPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Bottom - navigatorPanelHeight, drawingBounds.Width, navigatorPanelHeight);
-                    DrawNavigationRow(g, navigatorPanelRect);
-                }
-                else
-                {
-                  
-                    navigatorPanelRect = new Rectangle(-100, -100, drawingBounds.Width, navigatorPanelHeight);
-                    DrawNavigationRow(g, navigatorPanelRect);
-                }
-            }
+            
 
             if (_showFooter)
             {
@@ -4042,7 +4028,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 PaintColumnHeaders(g, columnsheaderPanelRect);
                 topPanelY += ColumnHeaderHeight;
             }
-           
+            if (!_navigatorDrawn)
+            {
+                _navigatorDrawn = true;
+                if (_showNavigator)
+                {
+                    navigatorPanelRect = new Rectangle(drawingBounds.Left, drawingBounds.Bottom - navigatorPanelHeight, drawingBounds.Width, navigatorPanelHeight);
+                    DrawNavigationRow(g, navigatorPanelRect);
+                }
+                else
+                {
+
+                    navigatorPanelRect = new Rectangle(-100, -100, drawingBounds.Width, navigatorPanelHeight);
+                    DrawNavigationRow(g, navigatorPanelRect);
+                }
+            }
             // Grid would Draw on the remaining space
             int availableHeight = drawingBounds.Height - topPanelY - botomspacetaken;
             int availableWidth = drawingBounds.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
@@ -4092,7 +4092,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             // If additional app bar elements (icons, text) require custom drawing,
             // they can be added here or left to be drawn by the child controls.
         }
-
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -7355,7 +7354,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (centerY < 0) centerY = spacing; // Ensure buttons don't go above the top edge
 
             // Position the main buttons on the left
-            int startX = spacing; // Start with a small padding from the left edge
+            int startX = rect.X+spacing; // Start with a small padding from the left edge
             int currentX = startX;
 
             foreach (var control in buttons)

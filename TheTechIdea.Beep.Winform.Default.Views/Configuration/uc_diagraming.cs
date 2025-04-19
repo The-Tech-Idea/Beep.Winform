@@ -31,14 +31,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
             Details.AddinName = "Diagramming";
             this.beepCircularButton1.Click += BeepCircularButton1_Click;
+            beepStepperBar1.ListItems=beepStepperBreadCrumb1.ListItems;
         }
 
         private void BeepCircularButton1_Click(object? sender, EventArgs e)
         {
             currentidx+=1;
-            if (currentidx >= beepSteppperBar1.ListItems.Count)
+            if (currentidx >= beepStepperBar1.ListItems.Count)
                 currentidx = 0;
-            beepSteppperBar1.UpdateCurrentStep(currentidx);
+            beepStepperBar1.UpdateCurrentStep(currentidx);
         }
 
         int currentidx = -1;

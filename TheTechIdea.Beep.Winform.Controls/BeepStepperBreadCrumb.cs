@@ -5,14 +5,11 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public enum ChevronDirection
-    {
-        Forward,   // arrows point to the right (→)
-        Backward   // arrows point to the left (←)
-    }
+   
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [DisplayName("Beep Stepper Breadcrumb")]
@@ -283,7 +280,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     float subX = x + (stepLen - subSize.Width) / 2;
 
                     // Colors
-                    Color foreColor = i == selectedIndex ? _currentTheme.ButtonSelectedForeColor : _currentTheme.ButtonForeColor;
+                    Color foreColor = i == selectedIndex ? _currentTheme.AccentTextColor : _currentTheme.ButtonForeColor;
 
                     // Draw header
                     using (var brush = new SolidBrush(foreColor))
@@ -328,11 +325,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        public override void ApplyTheme()
-        {
-            base.ApplyTheme();
-            Invalidate();
-        }
+   
 
         public void UpdateCheckedState(SimpleItem item)
         {
@@ -359,6 +352,38 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 ListItems[i].IsChecked = i <= index;
             }
+        }
+        public override void ApplyTheme()
+        {
+            //   base.ApplyTheme();
+            if (IsChild && Parent != null)
+            {
+                BackColor = Parent.BackColor;
+                ParentBackColor = Parent.BackColor;
+            }
+            BackColor = _currentTheme.CardBackColor;
+            ForeColor = _currentTheme.CardTextForeColor;
+            HoverBackColor = _currentTheme.ButtonHoverBackColor;
+            HoverForeColor = _currentTheme.ButtonHoverForeColor;
+            DisabledBackColor = _currentTheme.DisabledBackColor;
+            DisabledForeColor = _currentTheme.DisabledForeColor;
+            FocusBackColor = _currentTheme.ButtonSelectedBackColor;
+            FocusForeColor = _currentTheme.ButtonSelectedForeColor;
+
+
+            PressedBackColor = _currentTheme.ButtonPressedBackColor;
+            PressedForeColor = _currentTheme.ButtonPressedForeColor;
+
+            //  if (_beepListBox != null)   _beepListBox.Theme = Theme;
+            //if (UseThemeFont)
+            //{
+            //    _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            //    Font = _textFont;
+            //}
+
+            //beepImage.Theme = Theme;
+            //ApplyThemeToSvg();
+            Invalidate();  // Trigger repaint
         }
     }
 }

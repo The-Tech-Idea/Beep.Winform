@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
+using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -31,6 +32,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _hidetext = false;
         private const int TextPadding = 5; // Padding to prevent overlap
         private Size circlesize = Size.Empty;
+        private Timer clickAnimationTimer;
+        private float clickAnimationProgress = 1f;
+        private const int clickAnimationDuration = 200;
+        private DateTime clickAnimationStartTime;
+        private bool isAnimatingClick = false;
 
 
         [Browsable(true)]
@@ -277,54 +283,56 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
-
-            // Adjust control height if needed
             AdjustControlHeight();
 
             Rectangle textRect = GetTextRectangle();
             Rectangle circleBounds = GetCircleBounds(textRect);
             int diameter = Math.Min(circleBounds.Width, circleBounds.Height);
 
+            // 🔁 Animation: scale the circle while animating
+            float scale = isAnimatingClick ? 1f + 0.2f * (1 - clickAnimationProgress) : 1f;
+            Rectangle animatedCircleBounds = Rectangle.Inflate(
+                circleBounds,
+                (int)(circleBounds.Width * (scale - 1f) / 2),
+                (int)(circleBounds.Height * (scale - 1f) / 2)
+            );
+
+            // 🎨 Fill circle background
             using (Brush brush = new SolidBrush(IsHovered ? _currentTheme.ButtonHoverBackColor : _currentTheme.ButtonBackColor))
             {
-                graphics.FillEllipse(brush, circleBounds);
+                graphics.FillEllipse(brush, animatedCircleBounds);
             }
 
+            // 🟠 Border
             if (_showBorder)
             {
                 using (Pen pen = new Pen(_currentTheme.ShadowColor, _borderThickness))
                 {
-                    Rectangle borderBounds = circleBounds;
-                    graphics.DrawEllipse(pen, borderBounds);
+                    graphics.DrawEllipse(pen, animatedCircleBounds);
                 }
             }
 
-            //if (IsSelected)
-            //{
-            //    using (Pen pen = new Pen(_currentTheme.ButtonSelectedForeColor, _borderThickness))
-            //    {
-            //        Rectangle pressedBounds = circleBounds;
-            //        pressedBounds.Inflate(-_borderThickness, -_borderThickness);
-            //        graphics.DrawEllipse(pen, pressedBounds);
-            //    }
-            //}
-
+            // 🖼 Draw image inside circle
             if (!string.IsNullOrEmpty(beepImage.ImagePath))
             {
                 beepImage.MaximumSize = GetInscribedSquareSize(diameter);
                 beepImage.Size = beepImage.MaximumSize;
+
                 beepImage.Location = new Point(
-                    circleBounds.X + (circleBounds.Width - beepImage.Width) / 2,
-                    circleBounds.Y + (circleBounds.Height - beepImage.Height) / 2
+                    animatedCircleBounds.X + (animatedCircleBounds.Width - beepImage.Width) / 2,
+                    animatedCircleBounds.Y + (animatedCircleBounds.Height - beepImage.Height) / 2
                 );
+
                 beepImage.DrawImage(graphics, new Rectangle(beepImage.Location, beepImage.Size));
             }
 
+            // 📝 Draw text
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
                 TextFormatFlags flags = TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl;
+
+                // Horizontal alignment
                 switch (_textAlign)
                 {
                     case ContentAlignment.TopLeft:
@@ -341,7 +349,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         flags |= TextFormatFlags.HorizontalCenter;
                         break;
                 }
-                // Add vertical alignment for better control
+
+                // Vertical alignment
                 switch (_textAlign)
                 {
                     case ContentAlignment.TopLeft:
@@ -358,10 +367,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                         flags |= TextFormatFlags.VerticalCenter;
                         break;
                 }
+
                 TextRenderer.DrawText(graphics, Text, Font, textRect, _currentTheme.PrimaryTextColor, flags);
             }
+
             DrawBadge(graphics);
         }
+
         public Size GetInscribedSquareSize(int circleDiameter)
         {
             // The side length of the largest square that fits within a circle is the circle's diameter divided by √2.
@@ -621,7 +633,36 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnMouseHover(e);
 
         }
-      
+        protected override void OnClick(EventArgs e)
+        {
+            base.OnClick(e);
+            StartClickAnimation();
+        }
+        private void StartClickAnimation()
+        {
+            clickAnimationProgress = 0f;
+            clickAnimationStartTime = DateTime.Now;
+            isAnimatingClick = true;
+
+            if (clickAnimationTimer == null)
+            {
+                clickAnimationTimer = new Timer { Interval = 16 };
+                clickAnimationTimer.Tick += (s, e) =>
+                {
+                    double elapsed = (DateTime.Now - clickAnimationStartTime).TotalMilliseconds;
+                    clickAnimationProgress = (float)Math.Min(1, elapsed / clickAnimationDuration);
+                    if (clickAnimationProgress >= 1f)
+                    {
+                        clickAnimationTimer.Stop();
+                        isAnimatingClick = false;
+                    }
+                    Invalidate();
+                };
+            }
+
+            clickAnimationTimer.Start();
+        }
+
         private void BeepImage_Click(object? sender, EventArgs e)
         {
            // var ev = new BeepEventDataArgs("ImageClicked", this);

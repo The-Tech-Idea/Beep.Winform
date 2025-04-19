@@ -1,23 +1,60 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [DisplayName("Beep Chevron Button")]
-    [Description("A chevron-shaped button control with text inside, used in breadcrumb steppers.")]
+    [Description("A chevron-shaped button control with text, image, animation, and direction support.")]
     public class BeepChevronButton : BeepControl
     {
         private string _imagePath;
         private BeepImage beepImage;
         private Font _textFont = new Font("Arial", 10);
+        private Point rippleCenter;
+        private float rippleRadius = 0;
+        private Timer clickAnimationTimer;
+        private float clickAnimationProgress = 1f;
+        private const int clickAnimationDuration = 300;
+        private DateTime clickAnimationStartTime;
+        private bool isAnimatingClick = false;
+
+        public BeepChevronButton()
+        {
+            Width = 100;
+            Height = 50;
+
+            beepImage = new BeepImage
+            {
+                Dock = DockStyle.None,
+                Margin = new Padding(0)
+            };
+
+            IsChild = true;
+            IsShadowAffectedByTheme = false;
+            IsRoundedAffectedByTheme = false;
+            IsCustomeBorder = true;
+
+            ApplyTheme();
+
+            beepImage.MouseHover += (s, e) => { IsHovered = true; Invalidate(); };
+            beepImage.MouseLeave += (s, e) => { IsHovered = false; Invalidate(); };
+            beepImage.Click += (s, e) => OnClick(e);
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool IsChecked { get; set; }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        public ChevronDirection Direction { get; set; } = ChevronDirection.Forward;
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -52,26 +89,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        public BeepChevronButton() : base()
+        protected override void OnClick(EventArgs e)
         {
-            if (Width <= 0 || Height <= 0)
-            {
-                Width = 100;
-                Height = 50;
-            }
-            beepImage = new BeepImage
-            {
-                Dock = DockStyle.None,
-                Margin = new Padding(0)
-            };
-            IsChild = true;
-            IsShadowAffectedByTheme = false;
-            IsRoundedAffectedByTheme = false;
-            IsCustomeBorder = true;
-            ApplyTheme();
-            beepImage.MouseHover += (s, e) => { IsHovered = true; Invalidate(); };
-            beepImage.MouseLeave += (s, e) => { IsHovered = false; Invalidate(); };
-            beepImage.Click += (s, e) => OnClick(e);
+            base.OnClick(e);
+            IsChecked = !IsChecked;
+            StartClickAnimation(PointToClient(MousePosition));
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -91,52 +113,147 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Define chevron shape
-            int arrowWidth = Height / 2; // Width of the arrow part
-            Point[] points = new Point[]
-            {
-new Point(rectangle.Left, rectangle.Top),
-new Point(rectangle.Right - arrowWidth, rectangle.Top),
-new Point(rectangle.Right, rectangle.Top + rectangle.Height / 2),
-new Point(rectangle.Right - arrowWidth, rectangle.Bottom),
-new Point(rectangle.Left, rectangle.Bottom)
-            };
+            Rectangle scaledRect = rectangle;
+            int arrowSize = Direction is ChevronDirection.Up or ChevronDirection.Down
+                            ? scaledRect.Width / 2
+                            : scaledRect.Height / 2;
 
-            using (Brush brush = new SolidBrush(IsHovered ? _currentTheme.ButtonHoverBackColor : _currentTheme.ButtonBackColor))
+            Point[] points;
+
+            switch (Direction)
             {
-                graphics.FillPolygon(brush, points);
+                case ChevronDirection.Backward: // ←
+                    points = new Point[]
+                    {
+                        new Point(scaledRect.Right, scaledRect.Top),
+                        new Point(scaledRect.Left + arrowSize, scaledRect.Top),
+                        new Point(scaledRect.Left, scaledRect.Top + scaledRect.Height / 2),
+                        new Point(scaledRect.Left + arrowSize, scaledRect.Bottom),
+                        new Point(scaledRect.Right, scaledRect.Bottom)
+                    };
+                    break;
+
+                case ChevronDirection.Down: // ↓
+                    points = new Point[]
+                    {
+                        new Point(scaledRect.Left, scaledRect.Top),
+                        new Point(scaledRect.Left, scaledRect.Bottom - arrowSize),
+                        new Point(scaledRect.Left + scaledRect.Width / 2, scaledRect.Bottom),
+                        new Point(scaledRect.Right, scaledRect.Bottom - arrowSize),
+                        new Point(scaledRect.Right, scaledRect.Top)
+                    };
+                    break;
+
+                case ChevronDirection.Up: // ↑
+                    points = new Point[]
+                    {
+                        new Point(scaledRect.Left, scaledRect.Bottom),
+                        new Point(scaledRect.Left, scaledRect.Top + arrowSize),
+                        new Point(scaledRect.Left + scaledRect.Width / 2, scaledRect.Top),
+                        new Point(scaledRect.Right, scaledRect.Top + arrowSize),
+                        new Point(scaledRect.Right, scaledRect.Bottom)
+                    };
+                    break;
+
+                default: // Forward (→)
+                    points = new Point[]
+                    {
+                        new Point(scaledRect.Left, scaledRect.Top),
+                        new Point(scaledRect.Right - arrowSize, scaledRect.Top),
+                        new Point(scaledRect.Right, scaledRect.Top + scaledRect.Height / 2),
+                        new Point(scaledRect.Right - arrowSize, scaledRect.Bottom),
+                        new Point(scaledRect.Left, scaledRect.Bottom)
+                    };
+                    break;
             }
 
-            using (Pen pen = new Pen(_currentTheme.ShadowColor, _borderThickness))
+            using (GraphicsPath path = new GraphicsPath())
             {
-                graphics.DrawPolygon(pen, points);
+                path.AddPolygon(points);
+
+                Color fillColor = IsChecked
+                    ? _currentTheme.ButtonPressedBackColor
+                    : IsHovered
+                        ? _currentTheme.ButtonHoverBackColor
+                        : _currentTheme.ButtonBackColor;
+
+                using (SolidBrush brush = new SolidBrush(fillColor))
+                    graphics.FillPath(brush, path);
+
+                using (Pen pen = new Pen(_currentTheme.ShadowColor, _borderThickness))
+                    graphics.DrawPath(pen, path);
+
+                // Ripple
+                if (isAnimatingClick)
+                {
+                    float radius = rippleRadius * clickAnimationProgress;
+                    using (GraphicsPath ripplePath = new GraphicsPath())
+                    {
+                        ripplePath.AddEllipse(rippleCenter.X - radius, rippleCenter.Y - radius, radius * 2, radius * 2);
+                        using (Brush rippleBrush = new SolidBrush(Color.FromArgb((int)(60 * (1 - clickAnimationProgress)), Color.White)))
+                        {
+                            Region clip = new Region(path);
+                            graphics.Clip = clip;
+                            graphics.FillPath(rippleBrush, ripplePath);
+                            graphics.ResetClip();
+                        }
+                    }
+                }
             }
 
-            // Draw text centered in the chevron
+            // Draw text
             if (!string.IsNullOrEmpty(Text))
             {
                 TextFormatFlags flags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.WordBreak;
-                Rectangle textRect = new Rectangle(rectangle.Left + 5, rectangle.Top, rectangle.Width - arrowWidth - 10, rectangle.Height);
+                Rectangle textRect = scaledRect;
                 TextRenderer.DrawText(graphics, Text, Font, textRect, _currentTheme.PrimaryTextColor, flags);
             }
 
-            // Draw image if present
+            // Draw image if needed
             if (!string.IsNullOrEmpty(ImagePath))
             {
-                int imageSize = Math.Min(rectangle.Height - 10, 16);
+                int imageSize = Math.Min(scaledRect.Height - 10, 16);
                 beepImage.MaximumSize = new Size(imageSize, imageSize);
                 beepImage.Size = beepImage.MaximumSize;
                 beepImage.Location = new Point(
-                rectangle.Left + 5,
-                rectangle.Top + (rectangle.Height - imageSize) / 2
+                    scaledRect.Left + 5,
+                    scaledRect.Top + (scaledRect.Height - imageSize) / 2
                 );
                 beepImage.DrawImage(graphics, new Rectangle(beepImage.Location, beepImage.Size));
             }
         }
 
+        private void StartClickAnimation(Point clickPoint)
+        {
+            rippleCenter = clickPoint;
+            rippleRadius = Math.Max(Width, Height);
+            clickAnimationProgress = 0f;
+            clickAnimationStartTime = DateTime.Now;
+            isAnimatingClick = true;
+
+            if (clickAnimationTimer == null)
+            {
+                clickAnimationTimer = new Timer { Interval = 16 };
+                clickAnimationTimer.Tick += (s, e) =>
+                {
+                    double elapsed = (DateTime.Now - clickAnimationStartTime).TotalMilliseconds;
+                    clickAnimationProgress = (float)Math.Min(1, elapsed / clickAnimationDuration);
+                    if (clickAnimationProgress >= 1f)
+                    {
+                        clickAnimationTimer.Stop();
+                        isAnimatingClick = false;
+                    }
+                    Invalidate();
+                };
+            }
+
+            clickAnimationTimer.Start();
+        }
+
         public override void ApplyTheme()
         {
             base.ApplyTheme();
+
             BackColor = _currentTheme.ButtonBackColor;
             ForeColor = _currentTheme.ButtonForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
@@ -153,11 +270,9 @@ new Point(rectangle.Left, rectangle.Bottom)
                 _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                 Font = _textFont;
             }
+
             beepImage.Theme = Theme;
             Invalidate();
         }
     }
 }
-
-
-

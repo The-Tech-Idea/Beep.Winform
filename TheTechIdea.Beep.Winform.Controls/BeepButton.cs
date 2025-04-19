@@ -55,8 +55,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         public EventHandler<BeepEventDataArgs> ImageClicked { get; set; }
         private Color tmpbackcolor;
         private Color tmpforcolor;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public Color SplashColor { get; set; } = Color.Gray;
+        #region "Long press properties"
+        private Timer longPressTimer;
+        private bool isLongPressTriggered = false;
+        private const int LongPressThreshold = 500; // milliseconds
 
-      
+        public event EventHandler LongPress;
+        public event EventHandler DoubleClickAction;
+
+        #endregion "Long press properties"
+
         #region "Popup List Properties"
         //  private BeepPopupForm _popupForm;
         // BeepPopupListForm menuDialog;
@@ -324,6 +335,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (beepImage != null)
                 {
                     beepImage.ImagePath = value;
+                    beepImage.ScaleMode = ImageScaleMode.KeepAspectRatio;
                     if (ApplyThemeOnImage)
                     {
                         beepImage.Theme = Theme;
@@ -489,7 +501,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             
 
             InitializeComponents();
-         
+            SetStyle(ControlStyles.StandardDoubleClick, true);
+
+            longPressTimer = new Timer { Interval = LongPressThreshold };
+            longPressTimer.Tick += (s, e) =>
+            {
+                longPressTimer.Stop();
+                isLongPressTriggered = true;
+                LongPress?.Invoke(this, EventArgs.Empty);
+            };
+            BorderRadius = 8;
             CanBeHovered = true;
             CanBePressed = true;
             CanBeFocused = true;
@@ -522,7 +543,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage.MouseDown += BeepImage_MouseDown;
             Padding = new Padding(0);
             Margin = new Padding(0);
-            BorderRadius = 3;
+         
             ShowAllBorders = false;
             //  InitListbox();
             //  Controls.Add(beepImage);
@@ -639,8 +660,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 BackColor = Parent.BackColor;
                 ParentBackColor = Parent.BackColor;
+            }else
+            {
+                BackColor = _currentTheme.ButtonBackColor;
             }
-            BackColor = _currentTheme.ButtonBackColor;
+          
             ForeColor = _currentTheme.ButtonForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
@@ -720,6 +744,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     this.Size = preferred;
                 }
             }
+          
             UpdateDrawingRect();
         }
         protected override void OnPaintBackground(PaintEventArgs pevent)
@@ -741,6 +766,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // First, call the base drawing code from BeepControl.
             base.DrawContent(g);
+          //  g.CompositingQuality = CompositingQuality.HighQuality;
+            //g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
             // Add BeepAppBar-specific drawing here.
             // For instance, if you need to draw additional borders or background
@@ -748,15 +775,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Example: Draw a line under the app bar.
             // Do not call base.OnPaint(e);
-            
+
             UpdateDrawingRect();
             // Determine the fill color based on control state
             Color fillColor;
             // Draw the image and text
             contentRect = DrawingRect;
-
-
-
             // Now, if the splash effect is active, draw the ripple:
             if (splashActive)
             {
@@ -768,7 +792,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (alpha < 0) alpha = 0;
 
                 // Create a brush with the calculated alpha (using a color of your choice, here we use Gray).
-                using (SolidBrush rippleBrush = new SolidBrush(Color.FromArgb(alpha, Color.Gray)))
+                using (SolidBrush rippleBrush = new SolidBrush(SplashColor))
                 {
                     // Calculate the rectangle for the splash circle centered on splashCenter.
                     Rectangle rippleRect = new Rectangle(
@@ -832,7 +856,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                 scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
             }
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
+            // update image size to fit new size of control
+            if (beepImage != null)
+            {
+                if (_maxImageSize.Height > this.Height)
+                {
+                    beepImage.Height = this.Height - 4;
+                    _maxImageSize.Height = this.Height - 4;
+                }
+                if (_maxImageSize.Width > this.Width)
+                {
+                    beepImage.Width = this.Width - 4;
+                    _maxImageSize.Width = this.Width - 4;
+                }
 
+                //  beepImage.Location = new Point(borderSize, borderSize);
+            }
             // Limit image size to MaxImageSize
             if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
             {
@@ -1113,8 +1152,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    IsHovered = true;
         //    base.OnMouseEnter(e);
         //}
-       
-      
         private void BeepImage_MouseDown(object? sender, MouseEventArgs e)
         {
             base.OnMouseDown(e);
@@ -1126,7 +1163,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-          //  IsSelected = false;
+            isLongPressTriggered = false;
+            longPressTimer.Start();
+            //  IsSelected = false;
             // Start the splash effect: record the click location and reset progress
             splashCenter = e.Location; // Use the mouse click location for the ripple's center
             splashProgress = 0f;
@@ -1147,6 +1186,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Image clicked, handled by BeepImage_MouseDown
             }
            
+        }
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+            longPressTimer.Stop();
+        }
+        protected override void OnDoubleClick(EventArgs e)
+        {
+            base.OnDoubleClick(e);
+            DoubleClickAction?.Invoke(this, EventArgs.Empty);
         }
         #endregion "Mouse and Click"
         #region "Binding and Control Type"

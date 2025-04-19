@@ -48,10 +48,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         EntityManagerViewModel viewModel;
 
         List<SimpleItem> Drivers = new List<SimpleItem>();
-        public void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
-        {
-
-        }
+    
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);

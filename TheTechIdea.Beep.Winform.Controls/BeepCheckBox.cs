@@ -353,40 +353,81 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_currentTheme == null)
             {
-                _currentTheme = BeepThemesManager.DefaultTheme; // Use the default theme from BeepThemesManager
+                _currentTheme = BeepThemesManager.DefaultTheme;
             }
 
-            // Use CheckBoxSize, constrained by the rectangle
             int checkBoxSize = Math.Min(CheckBoxSize, Math.Min(rectangle.Width - Padding.Horizontal, rectangle.Height - Padding.Vertical));
-            Rectangle checkBoxRect = new Rectangle(
-                rectangle.X + (rectangle.Width - checkBoxSize) / 2, // Center horizontally
-                rectangle.Y + (rectangle.Height - checkBoxSize) / 2, // Center vertically
-                checkBoxSize,
-                checkBoxSize
-            );
+            Rectangle checkBoxRect;
+            Rectangle textRect = Rectangle.Empty;
+            Size textSize = HideText || string.IsNullOrEmpty(Text) ? Size.Empty : TextRenderer.MeasureText(Text, Font);
 
-            //// Draw background
+            if (HideText)
+            {
+                checkBoxRect = new Rectangle(
+                    rectangle.X + (rectangle.Width - checkBoxSize) / 2,
+                    rectangle.Y + (rectangle.Height - checkBoxSize) / 2,
+                    checkBoxSize, checkBoxSize);
+            }
+            else
+            {
+                switch (TextAlignRelativeToCheckBox)
+                {
+                    case TextAlignment.Right:
+                        checkBoxRect = new Rectangle(rectangle.X + Padding.Left,
+                            rectangle.Y + (rectangle.Height - checkBoxSize) / 2,
+                            checkBoxSize, checkBoxSize);
+                        textRect = new Rectangle(checkBoxRect.Right + Spacing,
+                            rectangle.Y + (rectangle.Height - textSize.Height) / 2,
+                            textSize.Width, textSize.Height);
+                        break;
+
+                    case TextAlignment.Left:
+                        textRect = new Rectangle(rectangle.X + Padding.Left,
+                            rectangle.Y + (rectangle.Height - textSize.Height) / 2,
+                            textSize.Width, textSize.Height);
+                        checkBoxRect = new Rectangle(textRect.Right + Spacing,
+                            rectangle.Y + (rectangle.Height - checkBoxSize) / 2,
+                            checkBoxSize, checkBoxSize);
+                        break;
+
+                    case TextAlignment.Above:
+                        textRect = new Rectangle(rectangle.X + (rectangle.Width - textSize.Width) / 2,
+                            rectangle.Y + Padding.Top,
+                            textSize.Width, textSize.Height);
+                        checkBoxRect = new Rectangle(rectangle.X + (rectangle.Width - checkBoxSize) / 2,
+                            textRect.Bottom + Spacing,
+                            checkBoxSize, checkBoxSize);
+                        break;
+
+                    case TextAlignment.Below:
+                        checkBoxRect = new Rectangle(rectangle.X + (rectangle.Width - checkBoxSize) / 2,
+                            rectangle.Y + Padding.Top,
+                            checkBoxSize, checkBoxSize);
+                        textRect = new Rectangle(rectangle.X + (rectangle.Width - textSize.Width) / 2,
+                            checkBoxRect.Bottom + Spacing,
+                            textSize.Width, textSize.Height);
+                        break;
+
+                    default:
+                        checkBoxRect = new Rectangle(rectangle.X, rectangle.Y, checkBoxSize, checkBoxSize);
+                        break;
+                }
+            }
+
             Color backColor = _state == CheckBoxState.Checked ? _currentTheme.CheckBoxSelectedBackColor :
                              (_state == CheckBoxState.Indeterminate ? _currentTheme.CheckBoxBackColor : _currentTheme.CheckBoxBackColor);
             using (Brush backBrush = new SolidBrush(backColor))
+            using (GraphicsPath path = GetRoundedRectPath(checkBoxRect, 4))
             {
-                using (GraphicsPath path = GetRoundedRectPath(checkBoxRect, 4)) // Rounded corners with radius 4
-                {
-                    graphics.FillPath(backBrush, path);
-                }
+                graphics.FillPath(backBrush, path);
             }
 
-            // Draw border with rounded corners
             using (Pen borderPen = new Pen(_currentTheme.CheckBoxBorderColor, 2))
+            using (GraphicsPath path = GetRoundedRectPath(checkBoxRect, 4))
             {
-                borderPen.Alignment = PenAlignment.Center;
-                using (GraphicsPath path = GetRoundedRectPath(checkBoxRect, 4))
-                {
-                    graphics.DrawPath(borderPen, path);
-                }
+                graphics.DrawPath(borderPen, path);
             }
 
-            // Draw state-specific mark
             switch (_state)
             {
                 case CheckBoxState.Checked:
@@ -400,8 +441,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
 
-            // No text rendering since HideText is true by default
+            if (!HideText && !string.IsNullOrEmpty(Text))
+            {
+                DrawAlignedText(graphics, Text, Font, ForeColor, textRect);
+            }
         }
+
+
         protected override void OnPaint(PaintEventArgs pe)
         {
             base.OnPaint(pe);

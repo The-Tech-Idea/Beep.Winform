@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     //[Designer(typeof(TheTechIdea.Beep.Winform.Controls.Design.BeepImageDesigner))]
     public class BeepImage : BeepControl
     {
-        public SvgDocument svgDocument { get; private set; }
+        #region "Fields"
         private Image regularImage;
         private bool isSvg = false;
         private string _advancedImagePath;
@@ -32,7 +32,50 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         // Property for the image path (SVG, PNG, JPG, BMP)
         protected string _imagepath;
+        private ImageClipShape _clipShape = ImageClipShape.None;
+        private GraphicsPath _customClipPath = null;
+        private float _cornerRadius = 10f; // For rounded rectangle
 
+        #endregion "Fields"
+        #region "Properties"
+        public SvgDocument svgDocument { get; private set; }
+
+        [Category("Appearance")]
+        [Description("Determines the shape used to clip the image")]
+        public ImageClipShape ClipShape
+        {
+            get => _clipShape;
+            set
+            {
+                _clipShape = value;
+                Invalidate();
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("Corner radius for RoundedRect shape")]
+        public float CornerRadius
+        {
+            get => _cornerRadius;
+            set
+            {
+                _cornerRadius = Math.Max(0, value);
+                Invalidate();
+            }
+        }
+
+        [Browsable(false)]
+        public GraphicsPath CustomClipPath
+        {
+            get => _customClipPath;
+            set
+            {
+                _customClipPath = value;
+                if (value != null)
+                    ClipShape = ImageClipShape.Custom;
+                Invalidate();
+            }
+        }
         private int _baseSize = 50; // Default size
         private bool _grayscale = false;
         [Category("Effects")]
@@ -42,13 +85,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             set { _grayscale = value; Invalidate(); }
         }
         private float _opacity = 1.0f;
-[Category("Effects")]
-[Description("Opacity from 0.0 (transparent) to 1.0 (opaque).")]
-public float Opacity
-{
-    get => _opacity;
-    set { _opacity = Math.Max(0, Math.Min(1, value)); Invalidate(); }
-}
+        [Category("Effects")]
+        [Description("Opacity from 0.0 (transparent) to 1.0 (opaque).")]
+        public float Opacity
+        {
+            get => _opacity;
+            set { _opacity = Math.Max(0, Math.Min(1, value)); Invalidate(); }
+        }
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -92,6 +135,8 @@ public float Opacity
                 Invalidate();
             }
         }
+        #endregion "Properties"
+
         public BeepImage()
         {
             //// Enable double buffering and optimized painting
@@ -517,64 +562,182 @@ public float Opacity
 
         #endregion "Theme Properties"
         #region "Image Drawing Methods"
+        private GraphicsPath CreateClipPath(Rectangle bounds)
+        {
+            GraphicsPath path = new GraphicsPath();
+
+            switch (_clipShape)
+            {
+                case ImageClipShape.Circle:
+                    // Create a circle path (perfect circle inscribed in bounds)
+                    int diameter = Math.Min(bounds.Width, bounds.Height);
+                    int offsetX = (bounds.Width - diameter) / 2;
+                    int offsetY = (bounds.Height - diameter) / 2;
+                    path.AddEllipse(bounds.X + offsetX, bounds.Y + offsetY, diameter, diameter);
+                    break;
+
+                case ImageClipShape.RoundedRect:
+                    // Create a rounded rectangle path
+                    path = GetRoundedRectPath(bounds, (int)_cornerRadius);
+                    break;
+
+                case ImageClipShape.Ellipse:
+                    // Create an ellipse that fills the bounds
+                    path.AddEllipse(bounds);
+                    break;
+
+                case ImageClipShape.Diamond:
+                    // Create a diamond shape
+                    Point[] diamondPoints = new Point[4];
+                    diamondPoints[0] = new Point(bounds.X + bounds.Width / 2, bounds.Y);                    // Top
+                    diamondPoints[1] = new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height / 2);    // Right
+                    diamondPoints[2] = new Point(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height);    // Bottom
+                    diamondPoints[3] = new Point(bounds.X, bounds.Y + bounds.Height / 2);                   // Left
+                    path.AddPolygon(diamondPoints);
+                    break;
+
+                case ImageClipShape.Triangle:
+                    // Create an equilateral triangle
+                    Point[] trianglePoints = new Point[3];
+                    trianglePoints[0] = new Point(bounds.X + bounds.Width / 2, bounds.Y);                    // Top
+                    trianglePoints[1] = new Point(bounds.X, bounds.Y + bounds.Height);                       // Bottom left
+                    trianglePoints[2] = new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height);        // Bottom right
+                    path.AddPolygon(trianglePoints);
+                    break;
+
+                case ImageClipShape.Hexagon:
+                    // Create a hexagon shape
+                    Point[] hexagonPoints = new Point[6];
+                    int quarterHeight = bounds.Height / 4;
+                    hexagonPoints[0] = new Point(bounds.X + bounds.Width / 2, bounds.Y);                    // Top
+                    hexagonPoints[1] = new Point(bounds.X + bounds.Width, bounds.Y + quarterHeight);         // Top right
+                    hexagonPoints[2] = new Point(bounds.X + bounds.Width, bounds.Y + 3 * quarterHeight);     // Bottom right
+                    hexagonPoints[3] = new Point(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height);     // Bottom
+                    hexagonPoints[4] = new Point(bounds.X, bounds.Y + 3 * quarterHeight);                    // Bottom left
+                    hexagonPoints[5] = new Point(bounds.X, bounds.Y + quarterHeight);                        // Top left
+                    path.AddPolygon(hexagonPoints);
+                    break;
+
+              
+                // Fallthrough to default if no custom path
+
+                case ImageClipShape.None:
+                default:
+                    // No clipping - just use the full rectangle
+                    path.AddRectangle(bounds);
+                    break;
+            }
+
+            return path;
+        }
+
+        /// <summary>
+        /// Draws the image with clipping to the specified rectangle.
+        /// </summary>
+        /// <param name="g">The Graphics object to draw on</param>
+        /// <param name="destRect">The destination rectangle in the target surface</param>
+        /// <param name="drawRect">The source rectangle from the image to draw</param>
         public void Draw(Graphics g, Rectangle destRect, Rectangle drawRect)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
-  
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
             var originalTransform = g.Transform;
+            var originalClip = g.Clip;
+
             try
             {
+                // Calculate rotation parameters
                 float effectiveRotation = _manualRotationAngle + (IsSpinning ? _rotationAngle : 0);
 
-                // Find the actual center of drawRect for proper positioning
-                PointF center = new PointF(drawRect.X + drawRect.Width / 2f, drawRect.Y + drawRect.Height / 2f);
+                // Get center point of destination rectangle
+                PointF center = new PointF(destRect.X + destRect.Width / 2f, destRect.Y + destRect.Height / 2f);
 
-                // Translate to the new center for proper rotation
+                // Apply clipping if needed
+                if (ClipShape != ImageClipShape.None)
+                {
+                    using (GraphicsPath clipPath = CreateClipPath(destRect))
+                    {
+                        g.SetClip(clipPath);
+                    }
+                }
+
+                // Set up transformation for rotation and flipping
                 g.TranslateTransform(center.X, center.Y);
+
                 if (_flipX || _flipY)
                 {
                     g.ScaleTransform(_flipX ? -1 : 1, _flipY ? -1 : 1);
-                    g.TranslateTransform(_flipX ? -2 * center.X : 0, _flipY ? -2 * center.Y : 0);
                 }
 
-                g.RotateTransform(effectiveRotation);
+                if (effectiveRotation != 0)
+                {
+                    g.RotateTransform(effectiveRotation);
+                }
 
                 g.TranslateTransform(-center.X, -center.Y);
 
+                // Now draw the image
                 if (isSvg && svgDocument != null)
                 {
                     var imageSize = svgDocument.GetDimensions();
-                    var scaledBounds = GetScaledBounds(new SizeF(imageSize.Width, imageSize.Height), drawRect);
 
-                    if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
-                    {
-                        // Move image to its correct position inside drawRect
-                        g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
-                        g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
-                        svgDocument.Draw(g);
-                    }
+                    // Calculate the scaling factors
+                    float scaleX = (float)destRect.Width / drawRect.Width;
+                    float scaleY = (float)destRect.Height / drawRect.Height;
+
+                    // Create a transformation matrix for the SVG
+                    g.TranslateTransform(destRect.X - drawRect.X * scaleX, destRect.Y - drawRect.Y * scaleY);
+                    g.ScaleTransform(scaleX, scaleY);
+
+                    svgDocument.Draw(g);
                 }
                 else if (regularImage != null)
                 {
-                    var scaledBounds = GetScaledBounds(new SizeF(regularImage.Width, regularImage.Height), drawRect);
-
-                    if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
+                    // For bitmap images, we can use DrawImage with source and destination rectangles
+                    if (_grayscale || _opacity < 1.0f)
                     {
-                            g.DrawImage(regularImage, new RectangleF(
-                                scaledBounds.X,
-                                scaledBounds.Y,
-                                scaledBounds.Width,
-                                scaledBounds.Height
-                            ));
-                       
+                        using (ImageAttributes imageAttr = new ImageAttributes())
+                        {
+                            ColorMatrix colorMatrix = new ColorMatrix();
+
+                            if (_grayscale)
+                            {
+                                // Grayscale conversion matrix
+                                colorMatrix.Matrix00 = colorMatrix.Matrix11 = colorMatrix.Matrix22 = 0.299f;
+                                colorMatrix.Matrix01 = colorMatrix.Matrix12 = 0.587f;
+                                colorMatrix.Matrix02 = colorMatrix.Matrix21 = 0.114f;
+                                colorMatrix.Matrix10 = colorMatrix.Matrix20 = 0;
+                            }
+
+                            // Apply opacity
+                            colorMatrix.Matrix33 = _opacity;
+
+                            imageAttr.SetColorMatrix(colorMatrix);
+
+                            g.DrawImage(regularImage, destRect,
+                                drawRect.X, drawRect.Y, drawRect.Width, drawRect.Height,
+                                GraphicsUnit.Pixel, imageAttr);
+                        }
+                    }
+                    else
+                    {
+                        g.DrawImage(regularImage, destRect,
+                            drawRect.X, drawRect.Y, drawRect.Width, drawRect.Height,
+                            GraphicsUnit.Pixel);
                     }
                 }
             }
             finally
             {
-                g.Transform = originalTransform; // Restore graphics state
+                // Restore original graphics state
+                g.Clip = originalClip;
+                g.Transform = originalTransform;
             }
         }
+
         public void DrawImage(Graphics g, Rectangle imageRect)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -584,6 +747,7 @@ public float Opacity
 
             var originalTransform = g.Transform;
             var originalCompositingMode = g.CompositingMode;
+            var originalClip = g.Clip;
 
             try
             {
@@ -597,6 +761,29 @@ public float Opacity
                     imageRect.X + imageRect.Width / 2f,
                     imageRect.Y + imageRect.Height / 2f
                 );
+
+                // --- Create clipping path if shape clipping is enabled ---
+                if (ClipShape != ImageClipShape.None)
+                {
+                    using (GraphicsPath clipPath = CreateClipPath(imageRect))
+                    {
+                        // Create a matrix for transforming the clip path
+                        using (Matrix clipMatrix = new Matrix())
+                        {
+                            // Apply the same transformations to the clip path as we'll apply to the image
+                            clipMatrix.Translate(center.X, center.Y);
+                            clipMatrix.Scale(scale, scale);
+                            // We don't rotate the clip path - it stays in place
+                            clipMatrix.Translate(-center.X, -center.Y);
+
+                            // Apply the transformation to the clip path
+                            clipPath.Transform(clipMatrix);
+
+                            // Set the clip region
+                            g.SetClip(clipPath);
+                        }
+                    }
+                }
 
                 // --- Apply Transforms ---
                 g.TranslateTransform(center.X, center.Y);
@@ -643,9 +830,21 @@ public float Opacity
 
                     if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
                     {
-                        if (alpha < 1.0f)
+                        if (alpha < 1.0f || _grayscale)
                         {
-                            ColorMatrix matrix = new ColorMatrix { Matrix33 = alpha };
+                            ColorMatrix matrix = new ColorMatrix();
+
+                            if (_grayscale)
+                            {
+                                // Grayscale matrix values
+                                matrix.Matrix00 = matrix.Matrix11 = matrix.Matrix22 = 0.299f;
+                                matrix.Matrix01 = matrix.Matrix12 = 0.587f;
+                                matrix.Matrix02 = matrix.Matrix21 = 0.114f;
+                                matrix.Matrix10 = matrix.Matrix20 = 0;
+                            }
+
+                            matrix.Matrix33 = alpha * _opacity; // Apply opacity
+
                             ImageAttributes attr = new ImageAttributes();
                             attr.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
@@ -664,6 +863,7 @@ public float Opacity
                                 GraphicsUnit.Pixel,
                                 attr
                             );
+                            attr.Dispose();
                         }
                         else
                         {
@@ -677,12 +877,13 @@ public float Opacity
                                 )
                             );
                         }
-
                     }
                 }
             }
             finally
             {
+                // Restore original graphics state
+                g.Clip = originalClip;
                 g.Transform = originalTransform;
                 g.CompositingMode = originalCompositingMode;
             }
@@ -712,6 +913,151 @@ public float Opacity
            );
         }
         #endregion "Image Drawing Methods"
+        #region "Preview Generation Methods"
+        /// <summary>
+        /// Applies the current clipping shape to an image and returns the result
+        /// </summary>
+        /// <param name="sourceImage">The source image to clip</param>
+        /// <returns>A new image with the clipping shape applied</returns>
+        public Image GenerateShapedImage(Image sourceImage)
+        {
+            if (sourceImage == null)
+                return null;
+
+            Bitmap result = new Bitmap(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb);
+
+            using (Graphics g = Graphics.FromImage(result))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+                // Create clip path based on the image dimensions
+                Rectangle imageBounds = new Rectangle(0, 0, sourceImage.Width, sourceImage.Height);
+                using (GraphicsPath clipPath = CreateClipPath(imageBounds))
+                {
+                    // Set clip region
+                    g.SetClip(clipPath);
+
+                    // Draw the image
+                    g.DrawImage(sourceImage, 0, 0, sourceImage.Width, sourceImage.Height);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Creates an image with the specified shape, color, and size
+        /// </summary>
+        public static Image CreateShapedImage(ImageClipShape shape, Color fillColor, Size size, float cornerRadius = 10f)
+        {
+            Bitmap result = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
+
+            using (Graphics g = Graphics.FromImage(result))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+
+                Rectangle bounds = new Rectangle(0, 0, size.Width, size.Height);
+
+                using (GraphicsPath path = new GraphicsPath())
+                {
+                    switch (shape)
+                    {
+                        case ImageClipShape.Circle:
+                            int diameter = Math.Min(size.Width, size.Height);
+                            int offsetX = (size.Width - diameter) / 2;
+                            int offsetY = (size.Height - diameter) / 2;
+                            path.AddEllipse(offsetX, offsetY, diameter, diameter);
+                            break;
+
+                        case ImageClipShape.RoundedRect:
+                            // Helper method from BeepControl
+                            AddRoundedRectangle(path, bounds, cornerRadius);
+                            break;
+
+                        case ImageClipShape.Ellipse:
+                            path.AddEllipse(bounds);
+                            break;
+
+                        case ImageClipShape.Diamond:
+                            Point[] diamondPoints = new Point[4];
+                            diamondPoints[0] = new Point(bounds.Width / 2, 0);                    // Top
+                            diamondPoints[1] = new Point(bounds.Width, bounds.Height / 2);        // Right
+                            diamondPoints[2] = new Point(bounds.Width / 2, bounds.Height);        // Bottom
+                            diamondPoints[3] = new Point(0, bounds.Height / 2);                   // Left
+                            path.AddPolygon(diamondPoints);
+                            break;
+
+                        case ImageClipShape.Triangle:
+                            Point[] trianglePoints = new Point[3];
+                            trianglePoints[0] = new Point(bounds.Width / 2, 0);                   // Top
+                            trianglePoints[1] = new Point(0, bounds.Height);                      // Bottom left
+                            trianglePoints[2] = new Point(bounds.Width, bounds.Height);           // Bottom right
+                            path.AddPolygon(trianglePoints);
+                            break;
+
+                        case ImageClipShape.Hexagon:
+                            Point[] hexagonPoints = new Point[6];
+                            int quarterHeight = bounds.Height / 4;
+                            hexagonPoints[0] = new Point(bounds.Width / 2, 0);                     // Top
+                            hexagonPoints[1] = new Point(bounds.Width, quarterHeight);              // Top right
+                            hexagonPoints[2] = new Point(bounds.Width, 3 * quarterHeight);          // Bottom right
+                            hexagonPoints[3] = new Point(bounds.Width / 2, bounds.Height);          // Bottom
+                            hexagonPoints[4] = new Point(0, 3 * quarterHeight);                     // Bottom left
+                            hexagonPoints[5] = new Point(0, quarterHeight);                         // Top left
+                            path.AddPolygon(hexagonPoints);
+                            break;
+
+                        default:
+                            path.AddRectangle(bounds);
+                            break;
+                    }
+
+                    using (Brush brush = new SolidBrush(fillColor))
+                    {
+                        g.FillPath(brush, path);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        // Helper method to add a rounded rectangle to a path
+        private static void AddRoundedRectangle(GraphicsPath path, Rectangle bounds, float radius)
+        {
+            if (radius <= 0)
+            {
+                path.AddRectangle(bounds);
+                return;
+            }
+
+            // Ensure radius isn't too large for the rectangle
+            float diameter = radius * 2;
+            float sizeX = bounds.Width;
+            float sizeY = bounds.Height;
+
+            if (diameter > sizeX) diameter = sizeX;
+            if (diameter > sizeY) diameter = sizeY;
+
+            radius = diameter / 2;
+
+            // Define corner rectangles
+            RectangleF topLeftCorner = new RectangleF(bounds.X, bounds.Y, diameter, diameter);
+            RectangleF topRightCorner = new RectangleF(bounds.X + sizeX - diameter, bounds.Y, diameter, diameter);
+            RectangleF bottomLeftCorner = new RectangleF(bounds.X, bounds.Y + sizeY - diameter, diameter, diameter);
+            RectangleF bottomRightCorner = new RectangleF(bounds.X + sizeX - diameter, bounds.Y + sizeY - diameter, diameter, diameter);
+
+            // Add arcs for corners
+            path.StartFigure();
+            path.AddArc(topLeftCorner, 180, 90);
+            path.AddArc(topRightCorner, 270, 90);
+            path.AddArc(bottomRightCorner, 0, 90);
+            path.AddArc(bottomLeftCorner, 90, 90);
+            path.CloseFigure();
+        }
+
+        #endregion "Preview Generation Methods"
         #region "Loading Images"
         public bool IsSvgPath(string path)
         {
@@ -1402,6 +1748,17 @@ public float Opacity
         }
 
 
+    }
+    public enum ImageClipShape
+    {
+        None,       // No clipping (default rectangle)
+        Circle,     // Perfect circle
+        RoundedRect, // Rounded rectangle (uses BorderRadius)
+        Ellipse,    // Oval/ellipse
+        Diamond,    // Diamond shape
+        Triangle,   // Triangle shape
+        Hexagon,    // Hexagon shape
+        Custom
     }
     public enum ImageEmbededin
     {

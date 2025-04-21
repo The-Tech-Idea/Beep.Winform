@@ -193,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set { if (Component != null) Component.Category = value; }
         }
 
-        public object SelectedValue { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public object SelectedValue { get  ; set  ; }
 
         public event EventHandler<BeepComponentEventArgs> PropertyChanged
         {

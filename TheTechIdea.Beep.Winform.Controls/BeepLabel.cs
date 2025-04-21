@@ -11,8 +11,9 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A label control with support for images and multi-line text.")]
     public class BeepLabel : BeepControl
     {
-        #region "Fields"
-        private BeepImage beepImage;
+
+            #region "Fields"
+            private BeepImage beepImage;
         private TextImageRelation textImageRelation = TextImageRelation.ImageBeforeText;
         private ContentAlignment imageAlign = ContentAlignment.MiddleLeft;
         private Size _maxImageSize = new Size(16, 16);
@@ -24,9 +25,91 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _multiline = false;
         private Rectangle contentRect;
         private Font _textFont;
+        // Add subheader field
+        private string _subHeaderText = string.Empty;
+        // Add spacing between header and subheader
+        private int _headerSubheaderSpacing = 2;
         #endregion "Fields"
 
         #region "Properties"
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The subheader text displayed below the main text.")]
+        public string SubHeaderText
+        {
+            get => _subHeaderText;
+            set
+            {
+                _subHeaderText = value;
+                Invalidate();
+                if (AutoSize)
+                {
+                    this.Size = GetPreferredSize(new Size(this.Width, 0));
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Spacing between header and subheader text.")]
+        public int HeaderSubheaderSpacing
+        {
+            get => _headerSubheaderSpacing;
+            set
+            {
+                _headerSubheaderSpacing = value;
+                Invalidate();
+                if (AutoSize)
+                {
+                    this.Size = GetPreferredSize(new Size(this.Width, 0));
+                }
+            }
+        }
+
+        // Add a property for subheader font - defaults to a smaller version of the main font
+        private Font _subHeaderFont;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Font used for the subheader text.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font SubHeaderFont
+        {
+            get
+            {
+                if (_subHeaderFont == null && _textFont != null)
+                {
+                    // Default to a slightly smaller font than header
+                    _subHeaderFont = new Font(_textFont.FontFamily,
+                                            _textFont.Size - 2,
+                                            FontStyle.Regular);
+                }
+                return _subHeaderFont;
+            }
+            set
+            {
+                _subHeaderFont = value;
+                Invalidate();
+                if (AutoSize)
+                {
+                    this.Size = GetPreferredSize(new Size(this.Width, 0));
+                }
+            }
+        }
+
+        // Add a property for subheader text color
+        private Color _subHeaderForeColor;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Text color for the subheader.")]
+        public Color SubHeaderForeColor
+        {
+            get => _subHeaderForeColor == Color.Empty ? (_currentTheme?.LabelForeColor ?? ForeColor) : _subHeaderForeColor;
+            set
+            {
+                _subHeaderForeColor = value;
+                Invalidate();
+            }
+        }
         [Browsable(true)]
         [Category("Appearance")]
         public Color LabelBackColor
@@ -303,7 +386,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             }
 
+            bool hasSubHeader = !string.IsNullOrEmpty(SubHeaderText);
+
             Font scaledFont = _useScaledfont ? GetScaledFont(g, Text, contentRect.Size, _textFont) : _textFont;
+            Font scaledSubHeaderFont = hasSubHeader ?
+                (_useScaledfont ? GetScaledFont(g, SubHeaderText, contentRect.Size, SubHeaderFont) : SubHeaderFont) : null;
+
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
 
             if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
@@ -316,18 +404,51 @@ namespace TheTechIdea.Beep.Winform.Controls
                     (int)(imageSize.Height * scaleFactor));
             }
 
-            Size textSize;
+            // Measure header text
+            Size headerTextSize;
             if (_multiline)
             {
-                textSize = TextRenderer.MeasureText(g, Text, scaledFont, new Size(contentRect.Width, int.MaxValue), GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
+                headerTextSize = TextRenderer.MeasureText(g, Text, scaledFont, new Size(contentRect.Width, int.MaxValue),
+                    GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
             }
             else
             {
-                textSize = TextRenderer.MeasureText(g, Text, scaledFont, new Size(int.MaxValue, int.MaxValue), GetTextFormatFlags(TextAlign) | TextFormatFlags.SingleLine);
+                headerTextSize = TextRenderer.MeasureText(g, Text, scaledFont, new Size(int.MaxValue, int.MaxValue),
+                    GetTextFormatFlags(TextAlign) | TextFormatFlags.SingleLine);
             }
 
-            Rectangle imageRect, textRect;
-            CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
+            // Measure subheader text if present
+            Size subHeaderTextSize = Size.Empty;
+            if (hasSubHeader)
+            {
+                if (_multiline)
+                {
+                    subHeaderTextSize = TextRenderer.MeasureText(g, SubHeaderText, scaledSubHeaderFont,
+                        new Size(contentRect.Width, int.MaxValue),
+                        GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
+                }
+                else
+                {
+                    subHeaderTextSize = TextRenderer.MeasureText(g, SubHeaderText, scaledSubHeaderFont,
+                        new Size(int.MaxValue, int.MaxValue),
+                        GetTextFormatFlags(TextAlign) | TextFormatFlags.SingleLine);
+                }
+            }
+
+            // Calculate combined text height
+            int combinedTextHeight = headerTextSize.Height;
+            if (hasSubHeader)
+            {
+                combinedTextHeight += HeaderSubheaderSpacing + subHeaderTextSize.Height;
+            }
+
+            // Define text area rect (total area needed for all text)
+            Size combinedTextSize = new Size(
+                Math.Max(headerTextSize.Width, hasSubHeader ? subHeaderTextSize.Width : 0),
+                combinedTextHeight);
+
+            Rectangle imageRect, textAreaRect;
+            CalculateLayout(contentRect, imageSize, combinedTextSize, out imageRect, out textAreaRect);
 
             if (beepImage != null && beepImage.HasImage)
             {
@@ -340,8 +461,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 beepImage.DrawImage(g, imageRect);
             }
 
+            // Calculate individual text rectangles within the text area
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
+                Rectangle headerTextRect = new Rectangle(
+                    textAreaRect.X,
+                    textAreaRect.Y,
+                    textAreaRect.Width,
+                    headerTextSize.Height);
+
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
                 if (_multiline)
                 {
@@ -351,7 +479,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     flags |= TextFormatFlags.SingleLine;
                 }
-                TextRenderer.DrawText(g, Text, scaledFont, textRect, ForeColor, flags);
+
+                // Draw header text
+                TextRenderer.DrawText(g, Text, scaledFont, headerTextRect, ForeColor, flags);
+
+                // Draw subheader text if present
+                if (hasSubHeader)
+                {
+                    Rectangle subHeaderTextRect = new Rectangle(
+                        textAreaRect.X,
+                        headerTextRect.Bottom + HeaderSubheaderSpacing,
+                        textAreaRect.Width,
+                        subHeaderTextSize.Height);
+
+                    TextRenderer.DrawText(g, SubHeaderText, scaledSubHeaderFont,
+                        subHeaderTextRect, SubHeaderForeColor, flags);
+                }
             }
 
             if (BadgeText != null)
@@ -359,6 +502,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawBadge(g);
             }
         }
+
         #endregion "Painting"
 
         #region "Theme"
@@ -368,18 +512,34 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 BackColor = _currentTheme.LabelBackColor;
                 ForeColor = _currentTheme.LabelForeColor;
+
+                // Set subheader color from theme if not explicitly set
+                if (_subHeaderForeColor == Color.Empty)
+                {
+                    _subHeaderForeColor = _currentTheme.SecondaryTextColor;
+                }
+
                 HoverBackColor = _currentTheme.ButtonHoverBackColor;
                 HoverForeColor = _currentTheme.ButtonHoverForeColor;
 
                 if (UseThemeFont)
                 {
                     _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+
+                    // Create a smaller font for subheader if not explicitly set
+                    if (_subHeaderFont == null)
+                    {
+                        _subHeaderFont = new Font(_textFont.FontFamily,
+                                               _textFont.Size - 2,
+                                               FontStyle.Regular);
+                    }
                 }
                 Font = _textFont;
 
                 if (IsChild && Parent != null)
                 {
                     parentbackcolor = Parent.BackColor;
+                    BackColor = parentbackcolor;
                 }
 
                 ApplyThemeToSvg();
@@ -387,6 +547,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Refresh();
             }
         }
+
 
         public void ApplyThemeToSvg()
         {
@@ -435,14 +596,47 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Use the control's current width as the constraint for multi-line text
             int maxWidth = proposedSize.Width > 0 ? proposedSize.Width : (DrawingRect.Width > 0 ? DrawingRect.Width : 200);
-            Size textSize;
+
+            // Measure header text size
+            Size headerTextSize;
             if (_multiline)
             {
-                textSize = TextRenderer.MeasureText(Text, _textFont, new Size(maxWidth, int.MaxValue), GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
+                headerTextSize = TextRenderer.MeasureText(Text, _textFont, new Size(maxWidth, int.MaxValue),
+                    GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
             }
             else
             {
-                textSize = TextRenderer.MeasureText(Text, _textFont, new Size(int.MaxValue, int.MaxValue), GetTextFormatFlags(TextAlign) | TextFormatFlags.SingleLine);
+                headerTextSize = TextRenderer.MeasureText(Text, _textFont, new Size(int.MaxValue, int.MaxValue),
+                    GetTextFormatFlags(TextAlign) | TextFormatFlags.SingleLine);
+            }
+
+            // Measure subheader text size
+            Size subHeaderTextSize = Size.Empty;
+            bool hasSubHeader = !string.IsNullOrEmpty(SubHeaderText);
+
+            if (hasSubHeader)
+            {
+                if (_multiline)
+                {
+                    subHeaderTextSize = TextRenderer.MeasureText(SubHeaderText, SubHeaderFont,
+                        new Size(maxWidth, int.MaxValue),
+                        GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
+                }
+                else
+                {
+                    subHeaderTextSize = TextRenderer.MeasureText(SubHeaderText, SubHeaderFont,
+                        new Size(int.MaxValue, int.MaxValue),
+                        GetTextFormatFlags(TextAlign) | TextFormatFlags.SingleLine);
+                }
+            }
+
+            // Calculate combined text size
+            int textWidth = Math.Max(headerTextSize.Width, hasSubHeader ? subHeaderTextSize.Width : 0);
+            int textHeight = headerTextSize.Height;
+
+            if (hasSubHeader)
+            {
+                textHeight += HeaderSubheaderSpacing + subHeaderTextSize.Height;
             }
 
             Size imageSize = beepImage?.HasImage == true ? beepImage.GetImageSize() : Size.Empty;
@@ -458,9 +652,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Calculate layout without depending on DrawingRect
-            Rectangle contentRect = new Rectangle(0, 0, maxWidth, textSize.Height);
+            Rectangle contentRect = new Rectangle(0, 0, maxWidth, textHeight);
             Rectangle textRect, imageRect;
-            CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
+            CalculateLayout(contentRect, imageSize, new Size(textWidth, textHeight), out imageRect, out textRect);
 
             Rectangle bounds = Rectangle.Union(imageRect, textRect);
             int width = bounds.Width + Padding.Left + Padding.Right;
@@ -468,6 +662,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return new Size(width, height);
         }
+
 
         private void CalculateLayout(Rectangle contentRect, Size imageSize, Size textSize, out Rectangle imageRect, out Rectangle textRect)
         {

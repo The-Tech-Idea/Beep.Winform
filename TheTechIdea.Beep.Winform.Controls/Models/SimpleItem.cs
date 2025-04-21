@@ -108,6 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public string ClassDefinitionID { get; set; }
         public string PackageName { get; set; }
         public string BranchID { get; set; }
+       
         public bool IsSelected { get; set; } = false; // used for to store the selected item
         public bool IsChecked { get; set; } = false; // used for to store the selected item
         public bool IsExpanded { get; set; } = false; // used for to store the selected item
@@ -123,7 +124,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public float MaxScale { get; set; } = 1.4f; // Individual max scale
         public string ContainerGuidID { get; set; }
         public int ContainerID { get; set; }
+        public string ClassName { get; set; }
 
+        public bool IsClassDistinct { get; set; } = false;
         public string RootContainerGuidID { get; set; }
 
         public int RootContainerID { get; set; }
@@ -135,40 +138,59 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             return Name; // DisplayField this value in the PropertyGrid
         }
     }
-    [Serializable]
-    public class SimpleItemCollection : BindingList<SimpleItem>
-    {
-        public SimpleItemCollection() : base() { }
-        public SimpleItemCollection(BindingList<SimpleItem> list) : base(list) { }
-        public BindingList<SimpleItem> Items { get; set; } = new BindingList<SimpleItem>();
-        public EnumPointType PointType { get; set; }
-        public string ObjectType { get; set; }
-        public string BranchClass { get; set; }
-        public string BranchName { get; set; }
-        public string MenuName { get; set; }
 
-    }
-    public class SimpleMenuList
+    //public class SimpleItemCollection : BindingList<SimpleItem>
+    //{
+    //    public SimpleItemCollection() : base() { }
+    //    public SimpleItemCollection(BindingList<SimpleItem> list) : base(list) { }
+    //    public BindingList<SimpleItem> Items { get; set; } = new BindingList<SimpleItem>();
+    //    public EnumPointType PointType { get; set; }
+    //    public string ObjectType { get; set; }
+    //    public string BranchClass { get; set; }
+    //    public string BranchName { get; set; }
+    //    public string MenuName { get; set; }
+    //    public string MenuID { get; set; }
+    //    public string ActionID { get; set; }
+    //    public string ReferenceID { get; set; }
+    //    public string ClassGuidID { get; set; }
+
+    //}
+    [Serializable]
+    public class SimpleMenuList : BindingList<SimpleItem>
     {
         public SimpleMenuList(string objectType, string branchClass, EnumPointType branchType)
         {
             ObjectType = objectType;
             BranchClass = branchClass;
-            BranchType = branchType;
+            PointType = branchType;
+        }
+        public SimpleMenuList(string objectType, string branchClass, EnumPointType branchType,string classid)
+        {
+            ObjectType = objectType;
+            BranchClass = branchClass;
+            PointType = branchType;
+            ClassGuidID = classid;
         }
         public SimpleMenuList()
         {
             
         }
+        public BindingList<SimpleItem> Items { get; set; } = new BindingList<SimpleItem>();
         public string GuidID { get; set; }
         public string Name { get; set; }
-        public string MenuName { get; set; }
-        public BindingList<SimpleItem> Items { get; set; } = new BindingList<SimpleItem>();
         public EnumPointType PointType { get; set; }
         public string ObjectType { get; set; }
         public string BranchClass { get; set; }
         public string BranchName { get; set; }
-        public EnumPointType BranchType { get; }
+        public string MenuName { get; set; }
+        public string MenuID { get; set; }
+        public string ActionID { get; set; }
+        public string ReferenceID { get; set; }
+        public string ClassGuidID { get; set; }
+        public string ClassDefinitionID { get; set; }
+        public string ClassName { get; set; }
+        public string BranchID { get; set; }
+         public bool IsClassDistinct { get; set; } = false;
     }
     public class SelectedItemChangedEventArgs : EventArgs
     {

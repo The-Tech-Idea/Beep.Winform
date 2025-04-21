@@ -42,6 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             Treebranchhandler = new BeepTreeBranchHandler(service, this);
             DropHandler = new BeepTreeNodeDragandDropHandler(service, this);
             this.NodeRightClicked += BeepTreeControl_NodeRightClicked;
+            this.NodeSelected += BeepTreeControl_NodeClicked;
             this.MenuItemSelected += BeepTreeControl_MenuItemSelected;
          
             ExtensionsHelpers = new FunctionandExtensionsHelpers( DMEEditor, VisManager, this);
@@ -142,22 +143,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         }
         private void BeepTreeControl_NodeClicked(object? sender, BeepMouseEventArgs e)
         {
-            //ClickedNode = sender as BeepTreeNode;
-            //if (ClickedNode == null) return;
-            //SelectedBranch = GetBranchByGuidID(ClickedNode.GuidID);
-            //CurrentBranch = SelectedBranch;
+            base.NodeSelected(sender, e);   
+            ClickedNode = sender as BeepTreeNode;
+            if (ClickedNode == null) return;
+            SelectedBranch = GetBranchByGuidID(ClickedNode.GuidID);
+            CurrentBranch = SelectedBranch;
             //IBranch br =Branches.FirstOrDefault(c => c.GuidID == ClickedNode.GuidID);
             //AssemblyClassDefinition cls = Editor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == br.Name && x.Methods.Where(y => y.DoubleClick == true || y.Click == true).Any()).FirstOrDefault();
             //if (cls != null)
             //{
             //    if (!DynamicFunctionCallingManager.IsMethodApplicabletoNode(cls, br)) return;
-                
+
             //    RunMethod(br, br.BranchText);
 
             //}
         }
         private void BeepTreeControl_NodeRightClicked(object? sender, BeepMouseEventArgs e)
         {
+            ClickedNode = sender as BeepTreeNode;
             if (ClickedNode != null)
             {
                 SelectedBranch = GetBranchByGuidID(ClickedNode.GuidID);
@@ -524,6 +527,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
           
             try
             {
+                if (br.GuidID == null)
+                {
+                    br.GuidID = Guid.NewGuid().ToString();
+                }
                 int id = SeqID;
                 if (ParentBranch.ChildBranchs.Where(x => x.BranchText == br.BranchText).Any())
                 {
@@ -554,7 +561,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                     DynamicMenuManager.CreateGlobalMenu( br);
                 }
 
+
                 br.DMEEditor = DMEEditor;
+                br.Visutil = VisManager;
+                br.TreeEditor = this;
                 if (!DMEEditor.ConfigEditor.objectTypes.Any(i => i.ObjectType == br.BranchClass && i.ObjectName == br.BranchType.ToString() + "_" + br.BranchClass))
                 {
                     DMEEditor.ConfigEditor.objectTypes.Add(new Workflow.ObjectTypes { ObjectType = br.BranchClass, ObjectName = br.BranchType.ToString() + "_" + br.BranchClass });
@@ -568,9 +578,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
 
                 }
                
-                br.DMEEditor = DMEEditor;
-                br.Visutil = VisManager;
-                br.TreeEditor = this;
                 // add to Simpleitem child nodes
                 AddNodeToBranch(item, parentnode);
                 // add to Child Branchs
@@ -623,6 +630,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         }
         public void AddBranch( IBranch br)
         {
+            if (br.GuidID == null)
+            {
+                br.GuidID = Guid.NewGuid().ToString();
+            }
             int id = SeqID;
             SimpleItem item = ControlExtensions.CreateNode(this, id, br);
             item.GuidId = br.GuidID;
@@ -636,6 +647,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             }
 
             br.DMEEditor = DMEEditor;
+            br.Visutil = VisManager;
+            br.TreeEditor = this;
             if (!DMEEditor.ConfigEditor.objectTypes.Any(i => i.ObjectType == br.BranchClass && i.ObjectName == br.BranchType.ToString() + "_" + br.BranchClass))
             {
                 DMEEditor.ConfigEditor.objectTypes.Add(new Workflow.ObjectTypes { ObjectType = br.BranchClass, ObjectName = br.BranchType.ToString() + "_" + br.BranchClass });
@@ -648,9 +661,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             {
 
             }
-            br.DMEEditor = DMEEditor;
-            br.Visutil = VisManager;
-            br.TreeEditor = this;
+            
            // Nodes.Add(item);
             AddNodeWithBranch(item);
             Branches.Add(br);
@@ -658,6 +669,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         }
         public void CreateNode(int id, IBranch br)
         {
+            if(br.GuidID == null)
+            {
+                br.GuidID = Guid.NewGuid().ToString();
+            }
             SimpleItem item=ControlExtensions.CreateNode(this,id, br);
             br.GuidID = item.GuidId;
             //n.ContextMenuStrip = 
@@ -669,6 +684,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             }
 
             br.DMEEditor = DMEEditor;
+            br.Visutil = VisManager;
+            br.TreeEditor = this;
             if (!DMEEditor.ConfigEditor.objectTypes.Any(i => i.ObjectType == br.BranchClass && i.ObjectName == br.BranchType.ToString() + "_" + br.BranchClass))
             {
                 DMEEditor.ConfigEditor.objectTypes.Add(new Workflow.ObjectTypes { ObjectType = br.BranchClass, ObjectName = br.BranchType.ToString() + "_" + br.BranchClass });
@@ -681,9 +698,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             {
 
             }
-            br.DMEEditor = DMEEditor;
-            br.Visutil = VisManager;
-            br.TreeEditor = this;
+           
            //ee Nodes.Add(item);
             AddNodeWithBranch(item);
             Branches.Add(br);

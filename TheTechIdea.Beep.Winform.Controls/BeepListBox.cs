@@ -246,7 +246,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (items == null)
             {
-                items = new SimpleItemCollection();
+                items = new SimpleMenuList();
             }
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {

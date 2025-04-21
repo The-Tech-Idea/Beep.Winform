@@ -385,6 +385,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void OnNodeRightClicked(object sender, BeepMouseEventArgs e)
         {
             ClickedNode = sender as BeepTreeNode;
+            
             if (ClickedNode == null) return;
 
             SelectedItem = GetNodeByGuidID(ClickedNode.GuidID);

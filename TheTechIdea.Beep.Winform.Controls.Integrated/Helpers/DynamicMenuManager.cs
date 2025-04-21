@@ -50,11 +50,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 menuCollection.Items[menuIdx] = updatedMenu;
             }
         }
+     
+        public static SimpleMenuList GetDistinctMenu(IBranch br)
+        {
+            SimpleMenuList simpleItems = new SimpleMenuList();
+            simpleItems = Menus.Where(p => p.ObjectType != null && p.BranchClass.Equals(br.BranchClass, StringComparison.InvariantCultureIgnoreCase)
+              && p.ObjectType.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase)
+              && p.PointType == br.BranchType && br.Name == p.ClassName && p.IsClassDistinct).FirstOrDefault();
+            return simpleItems;
+        }
         public static SimpleMenuList GetMenuList(IBranch br)
         {
             return Menus.Where(p => p.ObjectType != null && p.BranchClass.Equals(br.BranchClass, StringComparison.InvariantCultureIgnoreCase)
               && p.ObjectType.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase)
-              && p.PointType == br.BranchType).FirstOrDefault();
+              && p.PointType == br.BranchType && !p.IsClassDistinct).FirstOrDefault();
         }
         public static SimpleMenuList GetMenuList(SimpleItem simpleItem)
         {
@@ -169,13 +178,117 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                         ObjectType = br.ObjectType,
                         BranchClass = br.BranchClass,
                         PointType = br.BranchType,
-                        BranchName = br.BranchText
+                        BranchName = br.BranchText,
+                        ClassGuidID = br.GuidID,
+                        MenuName = br.MenuID,
+                        MenuID = br.MenuID,
+                        BranchID = br.GuidID,
+                        ClassName = br.Name,
+                        IsClassDistinct = false
+
+
                     };
                     Menus.Add(menuCollection);
                 }
 
                 var extensions =AssemblyClassDefinitionManager.GlobalFunctions
-                    .Where(o => o.classProperties?.ObjectType?.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase) == true && o.classProperties.BranchType== br.BranchType)
+                    .Where(o => o.classProperties?.ObjectType?.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase) == true && o.classProperties.BranchType== br.BranchType && !o.classProperties.IsClassDistinct)
+                    .OrderBy(p => p.Order)
+                    .ToList();
+
+                foreach (var cls in extensions)
+                {
+                    if (!menuCollection.Items.Any(p => p.PackageName.Equals(cls.PackageName, StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        foreach (var item in cls.Methods)
+                        {
+                            if (string.IsNullOrEmpty(item.ClassType))
+                            {
+                                if (item.PointType == br.BranchType)
+                                {
+                                    menuCollection.Items.Add(new SimpleItem
+                                    {
+                                        Name = item.Caption,
+                                        MethodName = item.Name,
+                                        Text = item.Caption,
+                                        ObjectType = item.ObjectType,
+                                        BranchClass = item.ClassType,
+                                        PointType = item.PointType,
+                                        Value = item.CommandAttr,
+                                        BranchName = item.Name,
+                                        PackageName = cls.PackageName,
+                                        AssemblyClassDefinitionID = cls.GuidID,
+                                        ImagePath = ImageListHelper.GetImagePathFromName(item.iconimage)
+
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                if (item.PointType == br.BranchType && br.BranchClass.Equals(item.ClassType, StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    menuCollection.Items.Add(new SimpleItem
+                                    {
+                                        Name = item.Caption,
+                                        MethodName = item.Name,
+                                        Text = item.Caption,
+                                        ObjectType = item.ObjectType,
+                                        BranchClass = item.ClassType,
+                                        PointType = item.PointType,
+                                        Value = item.CommandAttr,
+                                        BranchName = item.Name,
+                                        PackageName = cls.PackageName,
+                                        AssemblyClassDefinitionID = cls.GuidID,
+                                        ImagePath = ImageListHelper.GetImagePathFromName(item.iconimage)
+
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+                CreateDistinctMenu(br);
+                return errors;
+            }
+            catch (Exception ex)
+            {
+                errors.Ex = ex;
+                errors.Flag = Errors.Failed;
+                errors.Message = ex.Message;
+                MiscFunctions.AddLogMessage(ex.Message, "Error creating global menu", DateTime.Now, -1, "CreateGlobalMenu", Errors.Failed);
+                return errors;
+            }
+        }
+        public static IErrorsInfo CreateDistinctMenu(IBranch br)
+        {
+            ErrorsInfo errors = new ErrorsInfo();
+            errors.Flag = Errors.Ok;
+            try
+            {
+                var menuCollection = GetDistinctMenu(br);
+
+                if (menuCollection == null)
+                {
+                    menuCollection = new SimpleMenuList
+                    {
+                        ObjectType = br.ObjectType,
+                        BranchClass = br.BranchClass,
+                        PointType = br.BranchType,
+                        BranchName = br.BranchText,
+                        ClassGuidID = br.GuidID,
+                        MenuName = br.MenuID,
+                        MenuID = br.MenuID,
+                        BranchID = br.GuidID,
+                        ClassName = br.Name,
+                        IsClassDistinct = true
+
+
+                    };
+                    Menus.Add(menuCollection);
+                }
+
+                var extensions = AssemblyClassDefinitionManager.GlobalFunctions
+                    .Where(o => o.classProperties?.ObjectType?.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase) == true && o.classProperties.BranchType == br.BranchType && o.classProperties.IsClassDistinct)
                     .OrderBy(p => p.Order)
                     .ToList();
 
@@ -453,6 +566,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     main.AssemblyClassDefinitionID = item.GuidID;
                     main.MenuName = item.classProperties.menu;
                     main.MenuID = item.classProperties.menu;
+                    main.IsClassDistinct = item.classProperties.IsClassDistinct;
+                    main.GuidId = item.GuidID;
+                    main.ClassName = item.className;
                     main.ImagePath = ImageListHelper.GetImagePathFromName(item.classProperties.iconimage);
                     for (int i = 0; i < item.Methods.Count; i++)
                     {
@@ -469,6 +585,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                         mi.MenuName = item.classProperties.menu;
                         mi.MenuID = item.classProperties.menu;
                         mi.AssemblyClassDefinitionID = item.GuidID;
+                        
                         mi.ImagePath = ImageListHelper.GetImagePathFromName(item.Methods[i].iconimage);
                         main.Children.Add(mi);
                     }
@@ -487,7 +604,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                     groupItem.MenuName = group.Key;
                     groupItem.MenuID = group.Key;
                     groupItem.ImagePath = ImageListHelper.GetImagePathFromName($"{group.Key}.svg");
-                    groupItem.Children = new BindingList<SimpleItem>(group.ToList());
+
+                    var det = group.ToList();
+                    if (det.Count == 1)
+                    {
+                        det = det[0].Children.ToList();
+                    }
+                    
+
+                        groupItem.Children = new BindingList<SimpleItem>(det);
                     preparedItems.Add(groupItem);
                 }
                 ret = preparedItems.ToList();

@@ -2,9 +2,6 @@
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Globalization;
-//
-using System.Diagnostics;
-using Newtonsoft.Json.Linq;
 using System.Runtime.InteropServices;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
@@ -30,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Size _maxImageSize = new Size(16, 16); // Default image size
         private string? _imagepath;
         private bool _multiline = false;
-        int padding = 2;
+        int padding = 4;
       
         int offset = 0;
         private Font _textFont = new Font("Arial", 10);
@@ -534,48 +531,48 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public new bool IsChild
-        {
-            get => _isChild;
-            set
-            {
-                _isChild = value;
-                base.IsChild = value;
-                Control parent = null;
-                if (this.Parent != null)
-                {
-                    parent = this.Parent;
-                }
-                if (parent != null)
-                {
-                    if (value)
-                    {
-                        parentbackcolor = parent.BackColor;
-                        TempBackColor = _innerTextBox.BackColor;
-                        BackColor = parentbackcolor;
-                        _innerTextBox.BackColor = parentbackcolor;
-                        beepImage.BackColor = parentbackcolor;
-                        beepImage.ParentBackColor = parentbackcolor;
-                    }
-                    else
-                    {
-                        beepImage.BackColor = _tempbackcolor;
-                        BackColor = _tempbackcolor;
-                        _innerTextBox.BackColor = _tempbackcolor;
-                    }
-                }
-                else
-                {
-                 //   //Debug.WriteLine($"No Parent ");
-                    return;
-                }
-                Invalidate();
-               _innerTextBox.Invalidate()  ;  // Trigger repaint
-            }
-        }
+        //[Browsable(true)]
+        //[Category("Appearance")]
+        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        //public new bool IsChild
+        //{
+        //    get => _isChild;
+        //    set
+        //    {
+        //        _isChild = value;
+        //        base.IsChild = value;
+        //        Control parent = null;
+        //        if (this.Parent != null)
+        //        {
+        //            parent = this.Parent;
+        //        }
+        //        if (parent != null)
+        //        {
+        //            if (value)
+        //            {
+        //                parentbackcolor = parent.BackColor;
+        //                TempBackColor = _innerTextBox.BackColor;
+        //                BackColor = parentbackcolor;
+        //                _innerTextBox.BackColor = parentbackcolor;
+        //                beepImage.BackColor = parentbackcolor;
+        //                beepImage.ParentBackColor = parentbackcolor;
+        //            }
+        //            else
+        //            {
+        //                beepImage.BackColor = _tempbackcolor;
+        //                BackColor = _tempbackcolor;
+        //                _innerTextBox.BackColor = _tempbackcolor;
+        //            }
+        //        }
+        //        else
+        //        {
+        //         //   //Debug.WriteLine($"No Parent ");
+        //            return;
+        //        }
+        //        Invalidate();
+        //       _innerTextBox.Invalidate()  ;  // Trigger repaint
+        //    }
+        //}
         #endregion "Image Properties"
         #region "AutoCompelete Properties"
 
@@ -633,7 +630,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // AutoSize = true;
             BoundProperty = "Text";
             BorderRadius=3;
-
+            Padding = new Padding(3);
             beepImage.IsChild = true;
             ShowAllBorders=true;
             IsShadowAffectedByTheme = false;
@@ -769,9 +766,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         //protected override void OnPaint(PaintEventArgs e)
         //{
         //    base.OnPaint(e);
+           
+        //}
+        //protected override void DrawContent(Graphics g)
+        //{
+        //    base.DrawContent(g);
+        //    UpdateDrawingRect();
         //    _innerTextBox.Invalidate();
         //}
-      
+
         #endregion "Paint and Invalidate"
         #region "Size and Position"
         // protected override Value DefaultSize => GetDefaultSize();
@@ -1581,18 +1584,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            //if (IsChild && Parent!=null)
-            //{
-            //    parentbackcolor = Parent.BackColor;
-            //    BackColor = _currentTheme.TextBoxBackColor;
-            //}
-           
-            // var themeBackColor = Color.FromArgb(255, _currentTheme.TextBoxBackColor.R, _currentTheme.TextBoxBackColor.G, _currentTheme.TextBoxBackColor.B);
-            this.BackColor = _currentTheme.TextBoxBackColor;
-            _innerTextBox.BackColor = _currentTheme.TextBoxBackColor;
+            if (IsChild && Parent != null)
+            {
+                parentbackcolor = Parent.BackColor;
+                BackColor = parentbackcolor;
+                _innerTextBox.BackColor = parentbackcolor;
+            }
+            else
+            {
+                this.BackColor = _currentTheme.TextBoxBackColor;
+                _innerTextBox.BackColor = _currentTheme.TextBoxBackColor;
+            }
+
+                // var themeBackColor = Color.FromArgb(255, _currentTheme.TextBoxBackColor.R, _currentTheme.TextBoxBackColor.G, _currentTheme.TextBoxBackColor.B);
+              
+            
             _innerTextBox.ForeColor = _currentTheme.TextBoxForeColor;
             ForeColor = _currentTheme.TextBoxForeColor;
-            BackColor = _currentTheme.TextBoxBackColor;
+          
             SelectedBackColor = _currentTheme.TextBoxBackColor;
             SelectedForeColor = _currentTheme.TextBoxForeColor;
             HoverBackColor = _currentTheme.TextBoxHoverBackColor;
@@ -1641,9 +1650,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  Refresh();           // Forcing the current control to refresh
             //   Parent?.Refresh();   // Ensuring the parent is also updated
             _innerTextBox.Invalidate();
-       //     beepImage.Invalidate();
-        //    Invalidate();
-         //   Refresh();
+            beepImage.Invalidate();
+            Invalidate();
+            Refresh();
         }
         #endregion "Theme and Style"
         // Override to prevent text loss on parent change

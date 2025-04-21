@@ -577,10 +577,10 @@ public float Opacity
         }
         public void DrawImage(Graphics g, Rectangle imageRect)
         {
-            //g.SmoothingMode = SmoothingMode.AntiAlias;
-            //g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            //g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-            //g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
             var originalTransform = g.Transform;
             var originalCompositingMode = g.CompositingMode;

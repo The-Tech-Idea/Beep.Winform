@@ -3,7 +3,7 @@ using System.Drawing.Design;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Editors;
-using TheTechIdea.Beep.Winform.Controls.Models;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private FlowLayoutPanel _stripPanel;
         private List<BeepButton> _buttons = new List<BeepButton>();
         private ToolStripOrientation _orientation = ToolStripOrientation.Horizontal;
-        private SimpleItemCollection items;
+        private SimpleMenuList items;
 
         public event EventHandler<BeepEventDataArgs> ButtonClicked;
 
@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [MergableProperty(false)]
         [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public SimpleItemCollection Buttons
+        public SimpleMenuList Buttons
         {
             get => items;
             set
@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(_stripPanel);
 
             // Initialize an empty rootnodeitems collection by default
-            items = new SimpleItemCollection();
+            items = new SimpleMenuList();
             items.ListChanged += Items_ListChanged;
 
             ApplyTheme();

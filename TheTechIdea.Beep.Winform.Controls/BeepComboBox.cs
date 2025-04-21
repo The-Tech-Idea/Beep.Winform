@@ -32,13 +32,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _padding = 2;
         private int _minWidth = 80;
         private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
-        public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
+    
         private Color tmpfillcolor;
         private Color tmpstrokecolor;
         private bool _isPopupOpen = false;
         private bool _isExpanded;
         private BeepPopupListForm menuDialog;
-
+        public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
         protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
         {
             SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));

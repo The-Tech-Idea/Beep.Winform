@@ -671,6 +671,7 @@ public static partial class ControlExtensions
             node.ClassDefinitionID = br.MiscStringID;
             node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
             node.GuidId = br.GuidID;
+            node.ContainerGuidID = br.GuidID;
             node.ParentID = 0;
             node.Children = new BindingList<SimpleItem>();
             node.Children = GetChildBranch(tree, br);

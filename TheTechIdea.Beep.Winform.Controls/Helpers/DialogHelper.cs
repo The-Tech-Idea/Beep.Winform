@@ -77,20 +77,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
         public static (BeepDialogResult Result, string Value) InputComboBox(string title, string message, IEnumerable<string> items, string selectedValue = "")
         {
-            using (var dialog = new BeepDialogModal
+            // Validate inputs
+            if (items == null || !items.Any())
             {
-                Title = title,
-                Message = message,
-                DialogButtons = BeepDialogButtons.OkCancel,
-                DialogType = DialogType.GetInputFromList,
-                Items = items.Select(item => new SimpleItem { Value = item, DisplayField = item }).ToList(),
-                ReturnValue = selectedValue
-            })
+                DMEEditor?.Logger?.LogError("InputComboBox called with empty or null items collection");
+                return (BeepDialogResult.Cancel, null);
+            }
+
+            using (var dialog = new BeepDialogModal())
             {
+                // Create the items list first
+                dialog.Items = items.Select(item => new SimpleItem
+                {
+                    Value = item,
+                    DisplayField = item,
+                    Text = item  // Important for ToString() representation
+                }).ToList();
+
+                // Basic dialog setup - DialogType should be set AFTER Items so SetInputListVisible works with items
+                dialog.Title = title ?? "Select an Item";
+                dialog.Message = message ?? "Please select an item from the list:";
+                dialog.DialogButtons = BeepDialogButtons.OkCancel;
+
+                // Set initial selection if provided
+                if (!string.IsNullOrEmpty(selectedValue) && dialog.Items.Any(i => i.Value == selectedValue))
+                {
+                    dialog.ReturnValue = selectedValue;
+                }
+                else if (dialog.Items.Any())
+                {
+                    // Default to first item
+                    dialog.ReturnValue = dialog.Items[0].Value?.ToString();
+                }
+
+                // Set dialog type LAST to trigger setup with populated items
+                dialog.DialogType = DialogType.GetInputFromList;
+
+                // Show dialog and return result
                 var result = ShowDialogSafely(dialog);
+                
                 return (result, dialog.ReturnValue);
             }
         }
+
 
         public static void ShowMessageBox(string title, string message)
         {
@@ -195,25 +224,83 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         {
             BeepDialogResult result = BeepDialogResult.Cancel;
 
-            if (Application.OpenForms.Count > 0)
+            try
             {
-                var owner = Application.OpenForms[0]; // Get the first open form as owner
-                owner.Invoke((MethodInvoker)(() =>
-                {
-                   var ret= dialog.ShowDialog(owner);
-                   
-                    result = _resultMapReverse[ret];
-                }));
-            }
-            else
-            {
-                var ret = dialog.ShowDialog();
+                // Find an appropriate owner form
+                Form owner = FindAppropriateOwner();
 
-                result = _resultMapReverse[ret];
+                // Prepare the dialog with good defaults
+                dialog.TopMost = true;
+                dialog.StartPosition = owner != null ?
+                    FormStartPosition.CenterParent : FormStartPosition.CenterScreen;
+
+                if (owner != null)
+                {
+                    if (owner.InvokeRequired)
+                    {
+                        // Proper cross-thread call with return value handling
+                        owner.Invoke(() =>
+                        {
+                            var ret = dialog.ShowDialog(owner);
+                            result = MapDialogResult(ret);
+                        });
+                    }
+                    else
+                    {
+                        // Already on UI thread
+                        var ret = dialog.ShowDialog(owner);
+                        result = MapDialogResult(ret);
+                    }
+                }
+                else
+                {
+                    // No suitable owner found, show without an owner
+                    var ret = dialog.ShowDialog();
+                    result = MapDialogResult(ret);
+                }
+            }
+            catch (Exception ex)
+            {
+                DMEEditor?.Logger?.LogError($"Error showing dialog: {ex.Message}");
             }
 
             return result;
         }
+        private static Form FindAppropriateOwner()
+        {
+            // Check if we have any open forms
+            if (Application.OpenForms.Count == 0)
+                return null;
+
+            // Try to find the active form first
+            Form activeForm = Form.ActiveForm;
+            if (activeForm != null && !activeForm.IsDisposed && activeForm.Visible)
+                return activeForm;
+
+            // If no active form, find the first visible top-level form
+            foreach (Form form in Application.OpenForms)
+            {
+                if (!form.IsDisposed && form.Visible && form.TopLevel)
+                    return form;
+            }
+
+            // If all else fails, use the first form (with validation)
+            Form firstForm = Application.OpenForms[0];
+            if (!firstForm.IsDisposed)
+                return firstForm;
+
+            // No suitable form found
+            return null;
+        }
+
+        // Safe mapping helper
+        private static BeepDialogResult MapDialogResult(DialogResult ret)
+        {
+            return _resultMapReverse.TryGetValue(ret, out var mappedResult)
+                ? mappedResult
+                : BeepDialogResult.None;
+        }
+
 
         #endregion
         private static readonly Dictionary<BeepDialogResult, DialogResult> _resultMap = new Dictionary<BeepDialogResult, DialogResult>

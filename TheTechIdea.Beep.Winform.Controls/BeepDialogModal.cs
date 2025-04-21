@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
+
+
 namespace TheTechIdea.Beep.Winform.Controls
 {
     public enum BeepDialogButtons
@@ -119,10 +121,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string HelpCaption { get => helpCaption; set => helpCaption = value; }
         public string TryAgainCaption { get => tryAgainCaption; set => tryAgainCaption = value; }
         public string ContinueCaption { get => continueCaption; set => continueCaption = value; }
+        public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
+        protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
+        {
+            SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
+        }
 
- 
+
         public string ReturnValue { get; set; }
-
+        public SimpleItem ReturnItem { get; private set; }
         public  List<SimpleItem> Items { get; set; }
 
      
@@ -263,25 +270,132 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void LeftButton_Click(object sender, EventArgs e)
         {
-            if(dialogType== DialogType.GetInputString)
+            // Handle special dialog types that need input capture
+            switch (dialogType)
             {
-                ReturnValue = InputTextBox.Text;
+                case DialogType.GetInputString:
+                    ReturnValue = InputTextBox.Text;
+                    DialogResult = DialogResult.OK;
+                    break;
+                case DialogType.GetInputFromList:
+                    if (SelectFromListComboBox.SelectedItem != null)
+                    {
+                        ReturnValue = SelectFromListComboBox.SelectedItem.Text;
+                        ReturnItem = SelectFromListComboBox.SelectedItem;
+                    }
+                    DialogResult = DialogResult.OK;
+                    break;
+                case DialogType.Information:
+                case DialogType.Warning:
+                case DialogType.Error:
+                    ReturnValue = LeftButtonCaption;
+                    DialogResult = DialogResult.OK;
+                    break;
+                case DialogType.Question:
+                    // Handle based on button types
+                    switch (dialogButtons)
+                    {
+                        case BeepDialogButtons.OkCancel:
+                            ReturnValue = OkCaption;
+                            DialogResult = DialogResult.OK;
+                            break;
+                        case BeepDialogButtons.YesNo:
+                            ReturnValue = YesCaption;
+                            DialogResult = DialogResult.Yes;
+                            break;
+                        case BeepDialogButtons.AbortRetryIgnore:
+                            ReturnValue = AbortCaption;
+                            DialogResult = DialogResult.Abort;
+                            break;
+                        case BeepDialogButtons.SaveDontSaveCancel:
+                            ReturnValue = SaveCaption;
+                            DialogResult = DialogResult.Yes; // Save = Yes
+                            break;
+                        case BeepDialogButtons.SaveAllDontSaveCancel:
+                            ReturnValue = SaveAllCaption;
+                            DialogResult = DialogResult.Yes; // SaveAll = Yes
+                            break;
+                        case BeepDialogButtons.TryAgainContinue:
+                            ReturnValue = TryAgainCaption;
+                            DialogResult = DialogResult.Retry; // TryAgain = Retry
+                            break;
+                        default:
+                            ReturnValue = LeftButtonCaption;
+                            DialogResult = DialogResult.OK;
+                            break;
+                    }
+                    break;
+                case DialogType.None:
+                    ReturnValue = LeftButtonCaption;
+                    DialogResult = DialogResult.OK;
+                    break;
+                default:
+                    ReturnValue = LeftButtonCaption;
+                    DialogResult = DialogResult.OK;
+                    break;
             }
-            if(dialogType == DialogType.GetInputFromList)
-            {
-                ReturnValue = SelectFromListComboBox.SelectedItem.ToString();
-            }
-           
-            DialogResult = DialogResult.Yes;
+
             this.Close();
         }
+
         private void RightButton_Click(object sender, EventArgs e)
         {
             ReturnValue = null;
+            // Return dialog result based on dialog type just like SetCaptionsBasedonDialogType
+            switch (DialogType)
+            {
+                case DialogType.Information:
+                    DialogResult = DialogResult.Cancel;
+                    break;
+                case DialogType.Warning:
+                    DialogResult = DialogResult.Cancel;
+                    break;
+                case DialogType.Error:
+                    DialogResult = DialogResult.Cancel;
+                    break;
+                case DialogType.Question:
+                    switch (dialogButtons)
+                    {
+                        case BeepDialogButtons.OkCancel:
+                            DialogResult = DialogResult.Cancel;
+                            break;
+                        case BeepDialogButtons.YesNo:
+                            DialogResult = DialogResult.No;
+                            break;
+                        case BeepDialogButtons.AbortRetryIgnore:
+                            DialogResult = DialogResult.Retry;
+                            break;
+                        case BeepDialogButtons.SaveDontSaveCancel:
+                            DialogResult = DialogResult.No; // Don't Save
+                            break;
+                        case BeepDialogButtons.SaveAllDontSaveCancel:
+                            DialogResult = DialogResult.No; // Don't Save
+                            break;
+                        case BeepDialogButtons.TryAgainContinue:
+                            DialogResult = DialogResult.Continue;
+                            break;
+                        default:
+                            DialogResult = DialogResult.Cancel;
+                            break;
+                    }
+                    break;
+                case DialogType.GetInputString:
+                    DialogResult = DialogResult.Cancel;
+                    break;
+                case DialogType.GetInputFromList:
+                    DialogResult = DialogResult.Cancel;
+                    break;
+                case DialogType.None:
+                    DialogResult = DialogResult.Cancel;
+                    break;
+                default:
+                    DialogResult = DialogResult.Cancel;
+                    break;
+            }
 
-            DialogResult = DialogResult.No;
             this.Close();
         }
+
         private void CenterButton_Click(object sender, EventArgs e)
         {
             ReturnValue = MiddleButtonCaption;
@@ -330,8 +444,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void SetOkCancel()
         {
-            LeftButtonCaption = OkCaption;
-            LeftButton.Text = OkCaption;
+            LeftButtonCaption = okCaption;
+            LeftButton.Text = okCaption;
             RightButtonCaption = CancelCaption;
             RightButton.Text = CancelCaption;
             SetLeftRightButton();
@@ -628,24 +742,41 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InputTextBox.Visible = false;
             SelectFromListComboBox.Visible = true;
-            foreach (var item in Items)
+            SelectFromListComboBox.ListItems.Clear(); // Clear existing items first
+
+            if (Items != null && Items.Count > 0)
             {
-                SelectFromListComboBox.ListItems.Add(item);
+                foreach (var item in Items)
+                {
+                    SelectFromListComboBox.ListItems.Add(item);
+                }
+
+                // Set initial selection and return value
+                SelectFromListComboBox.SelectedIndex = 0;
+                ReturnValue = SelectFromListComboBox.SelectedItem?.Text;
+                ReturnItem = SelectFromListComboBox.SelectedItem;
             }
+
+            // Attach event handler after initialization
             SelectFromListComboBox.SelectedItemChanged += SelectFromListComboBox_SelectedItemChanged;
-            SelectFromListComboBox.SelectedIndex = 0;
         }
+
 
         private void SelectFromListComboBox_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
-           DialogResult = DialogResult.OK;
-            ReturnValue = SelectFromListComboBox.SelectedItem.ToString();
-           
+        
+            if (e.SelectedItem != null)
+            {
+                ReturnValue = e.SelectedItem.Text;
+                ReturnItem = e.SelectedItem;
+            }
+
         }
         #endregion "Setting Visible Input"
         public override void ApplyTheme()
         {
-           // base.ApplyTheme();
+            // base.ApplyTheme();
+            if (panel1 == null) return;
             panel1.BackColor = _currentTheme.BackColor;
             panel2.BackColor = _currentTheme.BackColor;
             panel3.BackColor = _currentTheme.BackColor;

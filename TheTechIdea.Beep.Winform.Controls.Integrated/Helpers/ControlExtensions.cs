@@ -161,6 +161,7 @@ public static partial class ControlExtensions
     public static BindingList<SimpleItem> GetChildBranch(this ITree tree,IBranch br)
     {
         BindingList<SimpleItem> Childitems = new BindingList<SimpleItem>();
+        if (br.ChildBranchs == null) return Childitems;
         foreach (var item1 in br.ChildBranchs)
         {
             SimpleItem node1 = new SimpleItem();

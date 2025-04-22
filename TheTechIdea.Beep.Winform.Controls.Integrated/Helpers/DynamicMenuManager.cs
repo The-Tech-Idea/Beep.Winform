@@ -85,7 +85,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             var menu = Menus.FirstOrDefault(p => p.ObjectType != null &&
                                                        p.BranchClass.Equals(simpleItem.BranchClass, StringComparison.InvariantCultureIgnoreCase) &&
                                                        p.ObjectType.Equals(simpleItem.ObjectType, StringComparison.InvariantCultureIgnoreCase) &&
-                                                       p.PointType == simpleItem.PointType);
+                                                       p.PointType == simpleItem.PointType && !p.IsClassDistinct && p.PointType!= Vis.EnumPointType.Entity);
+           
             if (menu == null) return null;
             return menu.Items.ToList();
         }
@@ -192,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
 
                 var extensions =AssemblyClassDefinitionManager.GlobalFunctions
-                    .Where(o => o.classProperties?.ObjectType?.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase) == true && o.classProperties.BranchType== br.BranchType && !o.classProperties.IsClassDistinct)
+                    .Where(o => o.classProperties?.ObjectType?.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase) == true && o.classProperties.BranchType== br.BranchType )
                     .OrderBy(p => p.Order)
                     .ToList();
 

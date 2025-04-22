@@ -583,19 +583,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 // add to Child Branchs
                 ParentBranch.ChildBranchs.Add(br);
              //   AddBranchToParentInBranchsOnly(ParentBranch, br);
-                if (br.ChildBranchs.Count == 0)
+             if(br.ChildBranchs!=null)
                 {
-                    br.CreateChildNodes();
-                    if (br.ChildBranchs.Count > 0)
+                    if (br.ChildBranchs.Count == 0)
                     {
-                        foreach (var childbr in br.ChildBranchs)
+                        br.CreateChildNodes();
+                        if (br.ChildBranchs.Count > 0)
                         {
-                            AddBranch(br, childbr);
-                           // br.ChildBranchs.Add(childbr);
-                        }
+                            foreach (var childbr in br.ChildBranchs)
+                            {
+                                AddBranch(br, childbr);
+                                // br.ChildBranchs.Add(childbr);
+                            }
 
+                        }
                     }
                 }
+          
                 
 
             }
@@ -795,6 +799,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
 
         private IBranch FindBranchRecursive(IEnumerable<IBranch> branches, Func<IBranch, bool> predicate)
         {
+            if (branches == null) return null;
             foreach (var branch in branches)
             {
                 if (predicate(branch))

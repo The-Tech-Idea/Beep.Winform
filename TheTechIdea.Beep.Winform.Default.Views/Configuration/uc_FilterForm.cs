@@ -50,8 +50,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         {
            
             base.OnNavigatedTo(parameters);
+            beepSimpleGrid1.DataSource = beepservice.Config_editor.DataSourcesClasses;
             //beepFilter1.DataSource = beepservice.Editor.ConfigEditor.DataSourcesClasses;
-           
+
         }
         protected override void OnResize(EventArgs e)
         {

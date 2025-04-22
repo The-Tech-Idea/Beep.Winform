@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Drawing;
+
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-using System.Windows.Forms;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -155,7 +155,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Determine the height for child controls:
             // Use the smaller of the available height and the preferred height.
             // This will effectively "limit" the height to the preferred height.
-            int elementHeight = Math.Min(availableHeight, preferredHeight);
+            int elementHeight = rect.Height - (2 * padding);
+
             // Center the children vertically if there's extra space.
             int elementY = rect.Top + padding + ((availableHeight - elementHeight) / 2);
 
@@ -198,8 +199,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnResize(e);
             UpdateDrawingRect();
-            // Update layout initially
             UpdateLayout(DrawingRect);
+            Invalidate(); // force visual redraw too
         }
       
         public override void Draw(Graphics graphics, Rectangle rectangle)
@@ -210,19 +211,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
             // Fill the background with the theme's panel background color
-            using (SolidBrush backgroundBrush = new SolidBrush(_currentTheme.PanelBackColor))
-            {
-                graphics.FillRectangle(backgroundBrush, rectangle);
-            }
+            //using (SolidBrush backgroundBrush = new SolidBrush(_currentTheme.PanelBackColor))
+            //{
+            //    graphics.FillRectangle(backgroundBrush, rectangle);
+            //}
 
             // Draw the border if needed
-            if (BorderThickness > 0)
-            {
-                using (Pen borderPen = new Pen(_currentTheme.BorderColor, BorderThickness))
-                {
-                    graphics.DrawRectangle(borderPen, rectangle);
-                }
-            }
+            //if (BorderThickness > 0)
+            //{
+            //    using (Pen borderPen = new Pen(_currentTheme.BorderColor, BorderThickness))
+            //    {
+            //        graphics.DrawRectangle(borderPen, rectangle);
+            //    }
+            //}
 
             // Define rectangles for each child control
             Rectangle decrementButtonRect = new Rectangle(_decrementButton.Left, _decrementButton.Top, _decrementButton.Width, _decrementButton.Height);
@@ -236,10 +237,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             //}
 
             // Draw the text box
-            if (_valueTextBox != null)
+            if (_valueTextBox?.Visible == true && _valueTextBox.Width > 0 && _valueTextBox.Height > 0)
             {
                 _valueTextBox.Draw(graphics, valueTextBoxRect);
             }
+
 
             //// Draw the increment button
             //if (_incrementButton != null)

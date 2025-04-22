@@ -91,14 +91,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 ImagePath = "angle-small-left.svg",
                 ApplyThemeOnImage = true,
-                Size = new Size(16, 16),
+                Size = new Size(20, 20),
                 Theme = Theme
             };
             _rightArrow = new BeepImage
             {
                 ImagePath = "angle-small-right.svg",
                 ApplyThemeOnImage = true,
-                Size = new Size(16, 16),
+                Size = new Size(20, 20),
                 Theme = Theme
             };
 
@@ -223,6 +223,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _cancelButton.Location = new Point(_buttonsRect.X + buttonWidth + padding, _buttonsRect.Y);
             _cancelButton.Size = new Size(buttonWidth, ButtonHeight);
+            int y = DrawingRect.Top + cornerPadding + padding;
+
+            _headerRect = new Rectangle(DrawingRect.Left + cornerPadding, y, innerWidth, HeaderHeight);
+            y += HeaderHeight + padding;
+
+            _daysHeaderRect = new Rectangle(DrawingRect.Left + cornerPadding, y, innerWidth - timeListWidth, CellSize);
+            y += CellSize;
+
+            _datesGridRect = new Rectangle(DrawingRect.Left + cornerPadding, y, innerWidth - timeListWidth, CellSize * 6);
+
         }
 
         protected override void OnResize(EventArgs e)
@@ -235,30 +245,35 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnPaint(e);
             Graphics g = e.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+         
 
             // Clip drawing to the rounded shape of the control
-            using (GraphicsPath clipPath = GetRoundedRectPath(DrawingRect, BorderRadius))
-            {
-                Region originalClip = g.Clip;
-                g.SetClip(clipPath, CombineMode.Intersect);
+            //using (GraphicsPath clipPath = GetRoundedRectPath(DrawingRect, BorderRadius))
+            //{
+            //    Region originalClip = g.Clip;
+            //    g.SetClip(clipPath, CombineMode.Intersect);
 
-                // Draw header (month and year)
-                DrawHeader(g);
+               
 
-                // Draw days of the week
-                DrawDaysHeader(g);
-
-                // Draw dates grid
-                DrawDatesGrid(g);
-
-                // Draw footer (selected date/time)
-                DrawFooter(g);
-
-                g.Clip = originalClip;
-            }
+           //     g.Clip = originalClip;
+          //  }
         }
+        protected override void DrawContent(Graphics g)
+        {
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            base.DrawContent(g);
+            // Draw header (month and year)
+            DrawHeader(g);
 
+            // Draw days of the week
+            DrawDaysHeader(g);
+
+            // Draw dates grid
+            DrawDatesGrid(g);
+
+            // Draw footer (selected date/time)
+            DrawFooter(g);
+        }
         private void DrawHeader(Graphics g)
         {
             // Removed background drawing; only draw the text and arrows
@@ -271,9 +286,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Draw navigation arrows
             _leftArrow.Location = new Point(_headerRect.Left + 10, _headerRect.Top + (_headerRect.Height - _leftArrow.Height) / 2);
-            _rightArrow.Location = new Point(_headerRect.Right - _rightArrow.Width - 10, _headerRect.Top + (_headerRect.Height - _rightArrow.Height) / 2);
+            
             _leftArrow.DrawImage(g, new Rectangle(_leftArrow.Location, _leftArrow.Size));
+            
+            _rightArrow.Location = new Point(
+    _headerRect.Right - _rightArrow.Width - 10,
+    _headerRect.Top + (_headerRect.Height - _rightArrow.Height) / 2
+);
             _rightArrow.DrawImage(g, new Rectangle(_rightArrow.Location, _rightArrow.Size));
+
         }
 
         private void DrawDaysHeader(Graphics g)
@@ -306,7 +327,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (isSelected)
                 {
                     using (GraphicsPath path = GetRoundedRectPath(cellRect, BorderRadius / 4))
-                    using (SolidBrush brush = new SolidBrush(_currentTheme.SelectedRowBackColor))
+                    using (SolidBrush brush = new SolidBrush(_currentTheme.CalendarTodayForeColor))
                     {
                         g.FillPath(brush, path);
                     }
@@ -314,12 +335,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else if (isToday)
                 {
                     using (GraphicsPath path = GetRoundedRectPath(cellRect, BorderRadius / 4))
-                    using (Pen pen = new Pen(_currentTheme.AltRowBackColor, 1))
+                    using (Pen pen = new Pen(_currentTheme.ButtonBackColor, 1))
                     {
                         g.DrawPath(pen, path);
                     }
                 }
-                SolidBrush brusht = new SolidBrush(_currentTheme.CalendarTodayForeColor);
+                SolidBrush brusht = new SolidBrush(_currentTheme.CalendarForeColor);
                 g.DrawString(day.ToString(), Font, brusht, cellRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
 
                 col++;

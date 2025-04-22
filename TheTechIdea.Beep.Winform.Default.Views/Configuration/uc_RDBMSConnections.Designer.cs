@@ -157,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ShowRightBorder = true;
             beepSimpleGrid1.ShowRowHeaders = true;
             beepSimpleGrid1.ShowRowNumbers = true;
-            beepSimpleGrid1.ShowSelection = true;
+         
             beepSimpleGrid1.ShowShadow = false;
             beepSimpleGrid1.ShowSortIcons = true;
             beepSimpleGrid1.ShowTopBorder = true;

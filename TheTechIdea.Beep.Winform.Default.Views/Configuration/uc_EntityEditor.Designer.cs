@@ -183,7 +183,7 @@
             beepSimpleGrid1.ShowRightBorder = false;
             beepSimpleGrid1.ShowRowHeaders = true;
             beepSimpleGrid1.ShowRowNumbers = true;
-            beepSimpleGrid1.ShowSelection = true;
+   
             beepSimpleGrid1.ShowShadow = false;
             beepSimpleGrid1.ShowSortIcons = true;
             beepSimpleGrid1.ShowTopBorder = false;

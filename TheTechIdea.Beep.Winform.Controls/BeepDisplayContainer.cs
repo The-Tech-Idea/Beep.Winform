@@ -458,10 +458,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
-         //  MiscFunctions.SendLog($"MouseUp in BeepDisplayContainer at {e.Location}");
+            //  MiscFunctions.SendLog($"MouseUp in BeepDisplayContainer at {e.Location}");
             if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
             {
                 TabContainerPanel.Focus();
+                TabContainerPanel.ReceiveMouseMove(e.Location); // Use instance method
+
+
             }
         }
         public void SuspendFormLayout()
@@ -551,6 +554,50 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                    MiscFunctions.SendLog($"Click ignored: No valid tab selected or tab count is 0");
                 }
+            }
+        }
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            //   MiscFunctions.SendLog($"MouseMove in BeepDisplayContainer at {e.Location}");
+            if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
+            {
+                TabContainerPanel.Focus();
+                TabContainerPanel.ReceiveMouseMove(e.Location); // Use instance method
+
+                
+            }
+        }
+     
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            //   MiscFunctions.SendLog($"MouseLeave in BeepDisplayContainer");
+            if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
+            {
+                TabContainerPanel.Focus();
+               // TabContainerPanel.ReceiveMouseLeave(); // Use instance method
+            }
+        }
+        
+        protected override void OnMouseDoubleClick(MouseEventArgs e)
+        {
+            base.OnMouseDoubleClick(e);
+            //   MiscFunctions.SendLog($"MouseDoubleClick in BeepDisplayContainer at {e.Location}");
+            if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
+            {
+                TabContainerPanel.Focus();
+               // TabContainerPanel.ReceiveMouseDoubleClick(e.Location); // Use instance method
+            }
+        }
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            //   MiscFunctions.SendLog($"MouseEnter in BeepDisplayContainer");
+            if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
+            {
+                TabContainerPanel.Focus();
+               // TabContainerPanel.ReceiveMouseEnter(); // Use instance method
             }
         }
     }

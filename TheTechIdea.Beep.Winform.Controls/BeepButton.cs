@@ -921,12 +921,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
-                //if (IsPressed && !IsSelected)
-                //{
-                //    ForeColor = PressedForeColor;
-
-                //}
-                //else
+                
                 Color color = ForeColor;
                 if (IsHovered)
                 {
@@ -940,6 +935,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else if (!Enabled)
                 {
                     color = DisabledForeColor;
+                }else if (IsFocused)
+                {
+                    color = FocusForeColor;
+                }
+                else if (IsPressed)
+                {
+                    color = PressedForeColor;
+                }
+                else if (IsStillButton)
+                {
+                    color = FocusForeColor;
                 }
                 else
                 {

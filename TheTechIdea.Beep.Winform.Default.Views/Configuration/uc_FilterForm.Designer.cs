@@ -172,7 +172,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // 
             beepRowConfig1.DisplayIndex = -1;
             beepRowConfig1.Height = 25;
-            beepRowConfig1.Id = "2c21f39e-f7af-4c51-b617-cff4f047ca46";
+            beepRowConfig1.Id = "2d6aeb23-0eff-4020-abef-812b944c4843";
             beepRowConfig1.Index = 1;
             beepRowConfig1.IsAggregation = true;
             beepRowConfig1.IsDataLoaded = false;
@@ -192,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.AnimationDuration = 500;
             beepSimpleGrid1.AnimationType = DisplayAnimationType.None;
             beepSimpleGrid1.ApplyThemeToChilds = false;
-            beepSimpleGrid1.BackColor = Color.FromArgb(55, 55, 55);
+            beepSimpleGrid1.BackColor = Color.FromArgb(35, 35, 50);
             beepSimpleGrid1.BadgeBackColor = Color.Red;
             beepSimpleGrid1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepSimpleGrid1.BadgeForeColor = Color.White;
@@ -225,11 +225,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.Easing = EasingType.Linear;
             beepSimpleGrid1.EntityName = null;
             beepSimpleGrid1.FieldID = null;
-            beepSimpleGrid1.FocusBackColor = Color.FromArgb(55, 55, 55);
+            beepSimpleGrid1.FocusBackColor = Color.FromArgb(35, 35, 50);
             beepSimpleGrid1.FocusBorderColor = Color.Gray;
-            beepSimpleGrid1.FocusForeColor = Color.FromArgb(224, 224, 224);
+            beepSimpleGrid1.FocusForeColor = Color.FromArgb(200, 200, 255);
             beepSimpleGrid1.FocusIndicatorColor = Color.Blue;
-            beepSimpleGrid1.ForeColor = Color.FromArgb(224, 224, 224);
+            beepSimpleGrid1.ForeColor = Color.FromArgb(200, 200, 255);
             beepSimpleGrid1.Form = null;
             beepSimpleGrid1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepSimpleGrid1.GradientEndColor = Color.Gray;
@@ -237,10 +237,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.GuidID = "499a602c-ad56-41e6-8eb7-0eaf31bb4d5d";
             beepSimpleGrid1.HitAreaEventOn = false;
             beepSimpleGrid1.HitTestControl = null;
-            beepSimpleGrid1.HoverBackColor = Color.FromArgb(55, 55, 55);
+            beepSimpleGrid1.HoverBackColor = Color.FromArgb(35, 35, 50);
             beepSimpleGrid1.HoverBorderColor = Color.Gray;
             beepSimpleGrid1.HoveredBackcolor = Color.Wheat;
-            beepSimpleGrid1.HoverForeColor = Color.FromArgb(224, 224, 224);
+            beepSimpleGrid1.HoverForeColor = Color.FromArgb(200, 200, 255);
             beepSimpleGrid1.Id = -1;
             beepSimpleGrid1.InactiveBorderColor = Color.Gray;
             beepSimpleGrid1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepSimpleGrid1.Info");
@@ -285,8 +285,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.RowHeight = 25;
             beepSimpleGrid1.SavedGuidID = null;
             beepSimpleGrid1.SavedID = null;
-            beepSimpleGrid1.SelectedBackColor = Color.FromArgb(55, 55, 55);
-            beepSimpleGrid1.SelectedForeColor = Color.FromArgb(224, 224, 224);
+            beepSimpleGrid1.SelectedBackColor = Color.FromArgb(35, 35, 50);
+            beepSimpleGrid1.SelectedForeColor = Color.FromArgb(200, 200, 255);
             beepSimpleGrid1.SelectedValue = null;
             beepSimpleGrid1.SelectionColumnWidth = 30;
             beepSimpleGrid1.ShadowColor = Color.Black;
@@ -321,7 +321,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.TempBackColor = Color.Empty;
             beepSimpleGrid1.Text = "beepSimpleGrid1";
             beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageAboveText;
-            beepSimpleGrid1.Theme = EnumBeepThemes.DarkTheme;
+            beepSimpleGrid1.Theme = EnumBeepThemes.GalaxyTheme;
             beepSimpleGrid1.TitleHeaderImage = "H:\\dev\\iconPacks\\10007852-team-management (2) (1)\\10007856-team-management\\10007856-team-management\\svg\\003-innovation.svg";
             beepSimpleGrid1.TitleText = "Simple BeepGrid";
             beepSimpleGrid1.TitleTextFont = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);

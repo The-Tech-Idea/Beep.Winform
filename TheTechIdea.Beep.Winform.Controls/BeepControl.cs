@@ -1150,17 +1150,34 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Color backcolor = IsHovered ? HoveredBackcolor : BackColor;
                 Color forcolor = IsHovered ? HoverForeColor : ForeColor;
-               
+
                 // Determine fill backcolor based on state
-               
-                if (!Enabled)
-                {
-                    backcolor = DisabledBackColor;
-                }
-                else if (IsSelected & IsSelectedOptionOn)
-                {
-                    backcolor = SelectedBackColor;
-                }
+
+
+
+                    if (Enabled)
+                    {
+
+                        if (IsHovered)
+                        {
+                      //  forcolor = HoverForeColor;
+                             backcolor = HoverBackColor;
+                        }
+                        else if (IsSelected)
+                        {
+                       // forcolor = SelectedForeColor;
+                              backcolor = SelectedBackColor;
+                        }
+
+
+                    }
+                    else
+                    {
+                     backcolor = DisabledBackColor;
+                   // forcolor = DisabledForeColor;
+                    }
+                    //  g.FillRectangle(new SolidBrush(backcolor), contentRect);
+           
                 using (SolidBrush brush = new SolidBrush(backcolor))
                     {
                         g.FillRectangle(brush, DrawingRect);
@@ -1669,6 +1686,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         HitTestControl.HitAction.Invoke();
                 }
                 IsPressed = true;
+                IsSelected = !_isSelected;
             }
         }
         protected override void OnMouseUp(MouseEventArgs e)

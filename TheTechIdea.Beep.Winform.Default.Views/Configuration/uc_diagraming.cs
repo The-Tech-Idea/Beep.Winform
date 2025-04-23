@@ -13,7 +13,7 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
+
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
@@ -30,8 +30,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AddinName = "Diagramming";
 
             Details.AddinName = "Diagramming";
-            this.beepCircularButton1.Click += BeepCircularButton1_Click;
-            beepStepperBar1.ListItems=beepStepperBreadCrumb1.ListItems;
+         //   this.beepCircularButton1.Click += BeepCircularButton1_Click;
+          //  beepStepperBar1.ListItems=beepStepperBreadCrumb1.ListItems;
         }
 
         private void BeepCircularButton1_Click(object? sender, EventArgs e)

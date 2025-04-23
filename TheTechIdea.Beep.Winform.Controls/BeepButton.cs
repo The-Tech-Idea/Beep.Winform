@@ -465,33 +465,34 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _isChild = value;
                 base.IsChild = value;
-                Control parent = null;
-                if (this.Parent != null)
-                {
-                    parent = this.Parent;
-                }
-                if (parent != null)
-                {
-                    if (value)
-                    {
-                        parentbackcolor = parent.BackColor;
-                        _tempbackcolor = BackColor;
-                        BackColor = parentbackcolor;
-                        beepImage.BackColor = parentbackcolor;
-                    }
-                    else
-                    {
+                //Control parent = null;
+                //if (this.Parent != null)
+                //{
+                //    parent = this.Parent;
+                //}
+                //if (parent != null)
+                //{
+                //    if (value)
+                //    {
+                //        parentbackcolor = parent.BackColor;
+                //        _tempbackcolor = BackColor;
+                //        BackColor = parentbackcolor;
+                //        beepImage.BackColor = parentbackcolor;
+                //    }
+                //    else
+                //    {
                        
-                        beepImage.BackColor = _tempbackcolor;
-                        BackColor = _tempbackcolor;
-                        ApplyTheme();
-                    }
-                }
+                //        beepImage.BackColor = _tempbackcolor;
+                //        BackColor = _tempbackcolor;
+                //        ApplyTheme();
+                //    }
+                //}
                
                 Invalidate();  // Trigger repaint
             }
         }
         private ControlHitTest beepImageHitTest;
+        private Color _originalForColor;
 
         #endregion "Properties"
         #region "Constructor"
@@ -663,8 +664,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             }else
             {
                 BackColor = _currentTheme.ButtonBackColor;
+                
             }
-          
+            beepImage.BackColor = BackColor;
+            _originalBackColor = BackColor;
+            _originalForColor = ForeColor;
             ForeColor = _currentTheme.ButtonForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
@@ -844,7 +848,38 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawImageAndText(Graphics g)
         {
-           //// Console.WriteLine($"User ThemeFont is {UseThemeFont}");
+
+            Color color = _originalForColor;
+            Color backcolor = _originalBackColor;
+            // Draw back color
+            if (!splashActive)
+            {
+             
+                if (Enabled)
+                {
+
+                    if (IsHovered)
+                    {
+                        color = HoverForeColor;
+                       // backcolor = HoverBackColor;
+                    }
+                    else if (IsSelected)
+                    {
+                        color =SelectedForeColor ;
+                      //  backcolor = SelectedBackColor;
+                    }
+
+
+                }
+                else
+                {
+                   // backcolor = DisabledBackColor;
+                    color = DisabledForeColor;
+                }
+              //  g.FillRectangle(new SolidBrush(backcolor), contentRect);
+            }
+           
+            //// Console.WriteLine($"User ThemeFont is {UseThemeFont}");
             //if (!SetFont() && UseThemeFont)
             //{
             //    _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
@@ -922,36 +957,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
                 
-                Color color = ForeColor;
-                if (IsHovered)
-                {
-                    color = HoverForeColor;
-
-                }
-                else if (IsSelected)
-                {
-                    color = SelectedForeColor;
-                }
-                else if (!Enabled)
-                {
-                    color = DisabledForeColor;
-                }else if (IsFocused)
-                {
-                    color = FocusForeColor;
-                }
-                else if (IsPressed)
-                {
-                    color = PressedForeColor;
-                }
-                else if (IsStillButton)
-                {
-                    color = FocusForeColor;
-                }
-                else
-                {
-                    color = ForeColor;
-                }
-
+           
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
                 TextRenderer.DrawText(g, Text, scaledFont, textRect, color, flags);
             }
@@ -960,7 +966,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawBadge(g);
             }
            
-            //}
         }
         public override void Draw(Graphics g, Rectangle rectangle)
         {
@@ -1161,7 +1166,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void BeepImage_MouseDown(object? sender, MouseEventArgs e)
         {
             base.OnMouseDown(e);
-
+            if (isSelectedAuto)
+            {
+                IsSelected = !IsSelected;
+            }
             var ev = new BeepEventDataArgs("ImageClicked", this);
 
             ImageClicked?.Invoke(this, ev);
@@ -1169,6 +1177,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
+           
             isLongPressTriggered = false;
             longPressTimer.Start();
             //  IsSelected = false;
@@ -1177,10 +1186,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             splashProgress = 0f;
             splashActive = true;
             splashTimer.Start();
+           
             if (IsSelectedAuto)
             {
+                IsHovered = false;
+                IsPressed = false;
                 IsSelected = !IsSelected;
 
+            }
+            else
+            {
+                IsSelected = false;
             }
 
             if (_popupmode)
@@ -1196,6 +1212,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
+          
             longPressTimer.Stop();
         }
         protected override void OnDoubleClick(EventArgs e)

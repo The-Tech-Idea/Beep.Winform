@@ -686,6 +686,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Tree.LastNodeSelected = this;
             NodeMainMiddlebutton.IsSelected = true;
+            //SelectUnSelectNode(true);
 
         }
         private void BeepTreeNode_MouseDown(object? sender, MouseEventArgs e)
@@ -734,7 +735,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void BeepTreeNode_LostFocus(object? sender, EventArgs e)
         {
             //Debug.WriteLine("LostFocus");
-            NodeMainMiddlebutton.IsSelected = false;
+            SelectUnSelectNode(false);
         }
 
         private void BeepTreeNode_Click(object? sender, EventArgs e)
@@ -1199,7 +1200,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NodeMainMiddlebutton.IsRounded = false;
                 NodeMainMiddlebutton.IsShadowAffectedByTheme = false;
                 NodeMainMiddlebutton.IsBorderAffectedByTheme = false;
-               // NodeMainMiddlebutton.IsSelectedAuto = true;
+                NodeMainMiddlebutton.IsSelectedAuto = true;
                 NodeMainMiddlebutton.MaxImageSize = new System.Drawing.Size(MaxImageSize, MaxImageSize);
                // NodeMainMiddlebutton.Value = new System.Drawing.Value(NodeWidth - 2 * NodeHeight, NodeHeight);
                 //   NodeMainMiddlebutton.TextFont=BeepThemesManager.ToFont(_currentTheme.LabelSmall);
@@ -1799,17 +1800,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RearrangeNode();
         }
       
-        public void HighlightSelectedNode()
-        {
-            if (IsSelected)
-            {
-                BackColor = _currentTheme.TreeNodeSelectedBackColor;
-            }
-            else
-            {
-                BackColor = _currentTheme.TreeBackColor;
-            }
-        }
+      
         private void SelectUnSelectNode(bool isSelected)
         {
             if (_checkBox != null)
@@ -1818,28 +1809,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (NodeMainMiddlebutton != null)
             {
-                     NodeMainMiddlebutton.IsSelected = isSelected;
-                _toggleButton.IsSelected = isSelected;
-                // NodeMainMiddlebutton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                    NodeMainMiddlebutton.IsSelected = isSelected;
+                //_toggleButton.IsSelected = isSelected;
+               //  NodeMainMiddlebutton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
                 // NodeMainMiddlebutton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
                 if (Noderightbutton != null)
                 {
-                    Noderightbutton.IsSelected = isSelected;
-                    //Noderightbutton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
-                    //Noderightbutton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
+                  //  Noderightbutton.IsSelected = isSelected;
+                    Noderightbutton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                    Noderightbutton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
 
                 }
                 if (Nodeleftbutton != null)
                 {
-                    Nodeleftbutton.IsSelected = isSelected;
-                    //Nodeleftbutton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
-                    //Nodeleftbutton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
+                  //  Nodeleftbutton.IsSelected = isSelected;
+                    Nodeleftbutton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                    Nodeleftbutton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
 
                 }
-                //_toggleButton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
-                //_toggleButton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
-                _childrenPanel.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
-                BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                _toggleButton.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                _toggleButton.ForeColor = isSelected ? _currentTheme.TreeNodeSelectedForeColor : _currentTheme.TreeNodeForeColor;
+                //   _childrenPanel.BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                //BackColor = isSelected ? _currentTheme.TreeNodeSelectedBackColor : _currentTheme.TreeBackColor;
+                NodeMainMiddlebutton.Invalidate();
                 Invalidate();
             }
         }
@@ -2103,12 +2095,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             NodeMainMiddlebutton.ClosePopup();
         }   
         #endregion "Menu"
-        private void RaiseEvent(EventHandler<BeepMouseEventArgs> handler, string eventName)
-        {
-            handler?.Invoke(this, new BeepMouseEventArgs(eventName, this));
-        }
-        // Example usage:
-       
+      
         private void LogMessage(string message)
         {
             try

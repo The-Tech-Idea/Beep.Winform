@@ -532,7 +532,7 @@ namespace TheTechIdea.Beep.Winform.Controls
          //  MiscFunctions.SendLog($"MouseClick in BeepDisplayContainer at {e.Location}");
             if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
             {
-                TabContainerPanel.Focus();
+              //  TabContainerPanel.Focus();
                 TabContainerPanel.ReceiveMouseClick(e.Location); // Use instance method
 
                 // Check if the clicked tab still exists before further processing
@@ -562,44 +562,44 @@ namespace TheTechIdea.Beep.Winform.Controls
             //   MiscFunctions.SendLog($"MouseMove in BeepDisplayContainer at {e.Location}");
             if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
             {
-                TabContainerPanel.Focus();
+              //  TabContainerPanel.Focus();
                 TabContainerPanel.ReceiveMouseMove(e.Location); // Use instance method
 
                 
             }
         }
      
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
-            //   MiscFunctions.SendLog($"MouseLeave in BeepDisplayContainer");
-            if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
-            {
-                TabContainerPanel.Focus();
-               // TabContainerPanel.ReceiveMouseLeave(); // Use instance method
-            }
-        }
+        //protected override void OnMouseLeave(EventArgs e)
+        //{
+        //    base.OnMouseLeave(e);
+        //    //   MiscFunctions.SendLog($"MouseLeave in BeepDisplayContainer");
+        //    if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
+        //    {
+        //        TabContainerPanel.Focus();
+        //       // TabContainerPanel.ReceiveMouseLeave(); // Use instance method
+        //    }
+        //}
         
-        protected override void OnMouseDoubleClick(MouseEventArgs e)
-        {
-            base.OnMouseDoubleClick(e);
-            //   MiscFunctions.SendLog($"MouseDoubleClick in BeepDisplayContainer at {e.Location}");
-            if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
-            {
-                TabContainerPanel.Focus();
-               // TabContainerPanel.ReceiveMouseDoubleClick(e.Location); // Use instance method
-            }
-        }
-        protected override void OnMouseEnter(EventArgs e)
-        {
-            base.OnMouseEnter(e);
-            //   MiscFunctions.SendLog($"MouseEnter in BeepDisplayContainer");
-            if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
-            {
-                TabContainerPanel.Focus();
-               // TabContainerPanel.ReceiveMouseEnter(); // Use instance method
-            }
-        }
+        //protected override void OnMouseDoubleClick(MouseEventArgs e)
+        //{
+        //    base.OnMouseDoubleClick(e);
+        //    //   MiscFunctions.SendLog($"MouseDoubleClick in BeepDisplayContainer at {e.Location}");
+        //    if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
+        //    {
+        //        TabContainerPanel.Focus();
+        //       // TabContainerPanel.ReceiveMouseDoubleClick(e.Location); // Use instance method
+        //    }
+        //}
+        //protected override void OnMouseEnter(EventArgs e)
+        //{
+        //    base.OnMouseEnter(e);
+        //    //   MiscFunctions.SendLog($"MouseEnter in BeepDisplayContainer");
+        //    if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
+        //    {
+        //        TabContainerPanel.Focus();
+        //       /TabContainerPanel.ReceiveMouseEnter(); // Use instance method
+        //    }
+        //}
     }
 
     // Helper class for IErrorsInfo (placeholder if not defined elsewhere)

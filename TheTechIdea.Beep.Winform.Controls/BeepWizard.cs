@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
+using System.Text;
 using TheTechIdea.Beep.Vis.Modules.Wizards;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using Timer = System.Windows.Forms.Timer;
 
@@ -63,10 +60,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        private Panel _topPanel;
-        private Panel _sidePanel;
-        private Panel _contentPanel;
-        private Panel _footerPanel;
+        private BeepPanel _topPanel;
+        private BeepPanel _sidePanel;
+        private BeepPanel _contentPanel;
+        private BeepPanel _footerPanel;
 
         private BeepStepperBar stepperBar;
         private BeepStepperBreadCrumb breadCrumb;
@@ -89,6 +86,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepWizard()
         {
             DoubleBuffered = true;
+            IsRoundedAffectedByTheme = true;
+            IsShadowAffectedByTheme = true;
+            IsRounded = true;
+            ApplyThemeToChilds = true;
             InitWizardForm();
             InitSlideAnimation();
         }
@@ -123,15 +124,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             Controls.Clear();
 
-            _topPanel = new Panel { Dock = DockStyle.Top, Height = 80, Padding = new Padding(5) };
-            _sidePanel = new Panel { Dock = DockStyle.Left, Width = 180, Padding = new Padding(5) };
-            _contentPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(5), AutoScroll = false };
-            _footerPanel = new Panel { Dock = DockStyle.Bottom, Height = 60, Padding = new Padding(5) };
+            _topPanel = new BeepPanel {IsRounded=false,IsRoundedAffectedByTheme=false, ShowTitle=false,  Dock = DockStyle.Top, Height = 80, Padding = new Padding(0) };
+            _sidePanel = new BeepPanel { IsRounded = false, IsRoundedAffectedByTheme = false, ShowTitle = false, Dock = DockStyle.Left, Width = 180, Padding = new Padding(0) };
+            _contentPanel = new BeepPanel { IsRounded = false, IsRoundedAffectedByTheme = false, ShowTitle = false, Dock = DockStyle.Fill, Padding = new Padding(0), AutoScroll = false };
+            _footerPanel = new BeepPanel { IsRounded = false, IsRoundedAffectedByTheme = false, ShowTitle = false, Dock = DockStyle.Bottom, Height = 60, Padding = new Padding(0) };
 
-            btnPrevious = new BeepButton { Text = "Previous", Width = 100 };
-            btnNext = new BeepButton { Text = "Next", Width = 100 };
-            btnFinish = new BeepButton { Text = "Finish", Width = 100, Visible = false };
-            btnCancel = new BeepButton { Text = "Cancel", Width = 100 };
+            btnPrevious = new BeepButton { IsRounded = false, IsRoundedAffectedByTheme = false, Text = "Previous", Width = 100 };
+            btnNext = new BeepButton { IsRounded = false, IsRoundedAffectedByTheme = false, Text = "Next", Width = 100 };
+            btnFinish = new BeepButton { IsRounded = false, IsRoundedAffectedByTheme = false, Text = "Finish", Width = 100, Visible = false };
+            btnCancel = new BeepButton { IsRounded = false, IsRoundedAffectedByTheme = false, Text = "Cancel", Width = 100 };
 
             btnPrevious.Click += (s, e) => { slideDirection = -1; MovePrevious(); };
             btnNext.Click += (s, e) => { slideDirection = 1; MoveNext(); };
@@ -164,6 +165,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case WizardViewType.TopConnectedCircles:
                     stepperBar = new BeepStepperBar
                     {
+                        IsRounded = false,
+                        IsRoundedAffectedByTheme = false,
+                        IsFrameless = true,
+                        IsChild = true,
                         Dock = DockStyle.Fill,
                         Orientation = Orientation.Horizontal,
                         ListItems = GetStepItems()
@@ -176,10 +181,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case WizardViewType.TopBreadcrumb:
                     breadCrumb = new BeepStepperBreadCrumb
                     {
+                        IsRounded = false,
+                        IsRoundedAffectedByTheme = false,
+                        IsFrameless = true,
+                        IsChild = true,
                         Dock = DockStyle.Fill,
                         ListItems = GetStepItems()
                     };
-                    wizardImage = new BeepImage { Dock = DockStyle.Left, IsChild = true, Width = 80, ImagePath = logopath };
+                    wizardImage = new BeepImage {
+                        IsRounded = false,
+                        IsRoundedAffectedByTheme = false,
+                        IsFrameless = true,
+                        IsChild = true,
+                        Dock = DockStyle.Left,  Width = 80, ImagePath = logopath };
                     _topPanel.Controls.Add(breadCrumb);
                     _sidePanel.Controls.Add(wizardImage);
                     break;
@@ -187,6 +201,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case WizardViewType.SideList:
                     stepperBar = new BeepStepperBar
                     {
+                        IsRounded = false,
+                        IsRoundedAffectedByTheme = false,
+                        IsFrameless = true,
+                        IsChild = true,
                         Dock = DockStyle.Fill,
                         Orientation = Orientation.Vertical,
                         ListItems = GetStepItems()
@@ -332,10 +350,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (btnFinish != null) btnFinish.Theme = Theme;
             if (btnCancel != null) btnCancel.Theme = Theme;
 
-            _topPanel.BackColor = _currentTheme.PanelBackColor;
+            _topPanel.BackColor = _currentTheme.AppBarTitleBackColor;
             _sidePanel.BackColor = _currentTheme.SideMenuBackColor;
-            _contentPanel.BackColor = _currentTheme.BackColor;
-            _footerPanel.BackColor = _currentTheme.PanelBackColor;
+            _contentPanel.BackColor = _currentTheme.CardBackColor;
+            _footerPanel.BackColor = _currentTheme.SideMenuBackColor;
         }
 
         public class NodeChangeEventArgs : EventArgs

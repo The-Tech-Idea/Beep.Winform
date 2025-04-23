@@ -206,6 +206,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
+            IsPressed = false;
+            IsSelected=false;
             for (int i = 0; i < buttonBounds.Count; i++)
             {
                 if (buttonBounds[i].Contains(e.Location))

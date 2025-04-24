@@ -15,7 +15,7 @@ using BeepDialogResult = TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
 
 namespace TheTechIdea.Beep.Winform.Extensions
 {
-    [AddinAttribute(Caption = "Data Menu", Name = "DataSourceMenuFunctions", misc = "IFunctionExtension",menu ="Beep", ObjectType = "Beep",  addinType = AddinType.Class, iconimage = "datasources.svg",order =3,Showin = ShowinType.Menu)]
+    [AddinAttribute(Caption = "Data Menu", Name = "DataSourceMenuFunctions", misc = "IFunctionExtension",menu ="Beep", ObjectType = "Beep",  addinType = AddinType.Class, iconimage = "datasources.svg",order =3,Showin = ShowinType.Menu |  ShowinType.ContextMenu)]
     public class DataSourceMenuFunctions : IFunctionExtension
     {
         public IDMEEditor DMEEditor { get; set; }
@@ -359,81 +359,81 @@ namespace TheTechIdea.Beep.Winform.Extensions
 
             return DMEEditor.ErrorObject;
         }
-        [CommandAttribute(Caption = "Drop Connections", Name = "dropfiles", Click = true, iconimage = "dropconnections.png", PointType = EnumPointType.Root, ObjectType = "Beep", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
-        public IErrorsInfo DropConnections(IPassedArgs Passedarguments)
-        {
-            DMEEditor.ErrorObject.Flag = Errors.Ok;
-            EntityStructure ent = new EntityStructure();
-            ExtensionsHelpers.GetValues(Passedarguments);
-            if (ExtensionsHelpers.CurrentBranch == null)
-            {
-                return DMEEditor.ErrorObject;
-            }
+        //[CommandAttribute(Caption = "Drop Connections", Name = "dropfiles", Click = true, iconimage = "dropconnections.png", PointType = EnumPointType.Root, ObjectType = "Beep", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
+        //public IErrorsInfo DropConnections(IPassedArgs Passedarguments)
+        //{
+        //    DMEEditor.ErrorObject.Flag = Errors.Ok;
+        //    EntityStructure ent = new EntityStructure();
+        //    ExtensionsHelpers.GetValues(Passedarguments);
+        //    if (ExtensionsHelpers.CurrentBranch == null)
+        //    {
+        //        return DMEEditor.ErrorObject;
+        //    }
           
-            try
-            {
+        //    try
+        //    {
 
-            if (ExtensionsHelpers.Vismanager.DialogManager.InputBoxYesNo("Beep DM", "Are you sure, you want to delete all selected  connections ?") == BeepDialogResult.Yes)
-                {
-                    if (ExtensionsHelpers.TreeEditor.SelectedBranchs.Count > 0)
-                    {
-                        Passedarguments.ParameterString1 = $"Droping {ExtensionsHelpers.TreeEditor.SelectedBranchs.Count} Connections ...";
-                        ExtensionsHelpers.Vismanager.ShowWaitForm((PassedArgs)Passedarguments);
-                        foreach (int item in ExtensionsHelpers.TreeEditor.SelectedBranchs)
-                        {
+        //    if (ExtensionsHelpers.Vismanager.DialogManager.InputBoxYesNo("Beep DM", "Are you sure, you want to delete all selected  connections ?") == BeepDialogResult.Yes)
+        //        {
+        //            if (ExtensionsHelpers.TreeEditor.SelectedBranchs.Count > 0)
+        //            {
+        //                Passedarguments.ParameterString1 = $"Droping {ExtensionsHelpers.TreeEditor.SelectedBranchs.Count} Connections ...";
+        //                ExtensionsHelpers.Vismanager.ShowWaitForm((PassedArgs)Passedarguments);
+        //                foreach (int item in ExtensionsHelpers.TreeEditor.SelectedBranchs)
+        //                {
                            
-                            IBranch br = ExtensionsHelpers.TreeEditor.Treebranchhandler.GetBranch(item);
-                            if (br != null)
-                            {
-                                ExtensionsHelpers.TreeEditor.Treebranchhandler.RemoveBranch(br);
-                                bool retval = DMEEditor.ConfigEditor.DataConnectionExist(br.DataSourceName);
-                                if (retval)
-                                {
-                                    Passedarguments.ParameterString1 = $"Droping {br.DataSourceName} Connection ...";
-                                    ExtensionsHelpers.Vismanager.PasstoWaitForm((PassedArgs)Passedarguments);
-                                    DMEEditor.RemoveDataDource(br.DataSourceName);
-                                    DMEEditor.ErrorObject.Flag = Errors.Ok;
-                                    DMEEditor.ConfigEditor.RemoveDataConnection(br.DataSourceName);
-                                    if (DMEEditor.ErrorObject.Flag == Errors.Ok)
-                                    {
-                                        DMEEditor.ConfigEditor.SaveDataconnectionsValues();
-                                        Passedarguments.ParameterString1 = $"Droping {br.DataSourceName} Connection Branch...";
-                                        ExtensionsHelpers.Vismanager.PasstoWaitForm((PassedArgs)Passedarguments);
+        //                    IBranch br = ExtensionsHelpers.TreeEditor.Treebranchhandler.GetBranch(item);
+        //                    if (br != null)
+        //                    {
+        //                        ExtensionsHelpers.TreeEditor.Treebranchhandler.RemoveBranch(br);
+        //                        bool retval = DMEEditor.ConfigEditor.DataConnectionExist(br.DataSourceName);
+        //                        if (retval)
+        //                        {
+        //                            Passedarguments.ParameterString1 = $"Droping {br.DataSourceName} Connection ...";
+        //                            ExtensionsHelpers.Vismanager.PasstoWaitForm((PassedArgs)Passedarguments);
+        //                            DMEEditor.RemoveDataDource(br.DataSourceName);
+        //                            DMEEditor.ErrorObject.Flag = Errors.Ok;
+        //                            DMEEditor.ConfigEditor.RemoveDataConnection(br.DataSourceName);
+        //                            if (DMEEditor.ErrorObject.Flag == Errors.Ok)
+        //                            {
+        //                                DMEEditor.ConfigEditor.SaveDataconnectionsValues();
+        //                                Passedarguments.ParameterString1 = $"Droping {br.DataSourceName} Connection Branch...";
+        //                                ExtensionsHelpers.Vismanager.PasstoWaitForm((PassedArgs)Passedarguments);
                                        
-                                        DMEEditor.AddLogMessage("Success", $"Droped Data Connection {br.DataSourceName}", DateTime.Now, -1, null, Errors.Ok);
-                                    }
-                                    else
-                                    {
-                                        Passedarguments.ParameterString1 = $"Failed Droping {br.DataSourceName} Connection ...";
-                                        ExtensionsHelpers.Vismanager.PasstoWaitForm((PassedArgs)Passedarguments);
-                                        DMEEditor.AddLogMessage("Fail", $"Error Drpping Connection {br.DataSourceName} - {DMEEditor.ErrorObject.Message}", DateTime.Now, -1, null, Errors.Failed);
-                                    }
+        //                                DMEEditor.AddLogMessage("Success", $"Droped Data Connection {br.DataSourceName}", DateTime.Now, -1, null, Errors.Ok);
+        //                            }
+        //                            else
+        //                            {
+        //                                Passedarguments.ParameterString1 = $"Failed Droping {br.DataSourceName} Connection ...";
+        //                                ExtensionsHelpers.Vismanager.PasstoWaitForm((PassedArgs)Passedarguments);
+        //                                DMEEditor.AddLogMessage("Fail", $"Error Drpping Connection {br.DataSourceName} - {DMEEditor.ErrorObject.Message}", DateTime.Now, -1, null, Errors.Failed);
+        //                            }
 
-                                }
+        //                        }
 
-                            }
-                        }
+        //                    }
+        //                }
 
-                    }
-                    Passedarguments.ParameterString1 = $"Finished Dropping Connections ";
-                    ExtensionsHelpers.Vismanager.PasstoWaitForm((PassedArgs)Passedarguments);
+        //            }
+        //            Passedarguments.ParameterString1 = $"Finished Dropping Connections ";
+        //            ExtensionsHelpers.Vismanager.PasstoWaitForm((PassedArgs)Passedarguments);
 
-                    ExtensionsHelpers.Vismanager.CloseWaitForm();
-                    DMEEditor.AddLogMessage("Success", $"Deleted Connection", DateTime.Now, 0, null, Errors.Ok);
-                    ExtensionsHelpers.Vismanager.DialogManager.MsgBox("Beep", "Deleted Connection Successfully");
-                }
-            }
-            catch (Exception ex)
-            {
-                ExtensionsHelpers.Vismanager.CloseWaitForm();
-                DMEEditor.ErrorObject.Flag = Errors.Failed;
-                    DMEEditor.ErrorObject.Ex = ex;
-                    DMEEditor.AddLogMessage("Fail", $"Error Drpping Connection {ent.EntityName} - {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
-            }
+        //            ExtensionsHelpers.Vismanager.CloseWaitForm();
+        //            DMEEditor.AddLogMessage("Success", $"Deleted Connection", DateTime.Now, 0, null, Errors.Ok);
+        //            ExtensionsHelpers.Vismanager.DialogManager.MsgBox("Beep", "Deleted Connection Successfully");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ExtensionsHelpers.Vismanager.CloseWaitForm();
+        //        DMEEditor.ErrorObject.Flag = Errors.Failed;
+        //            DMEEditor.ErrorObject.Ex = ex;
+        //            DMEEditor.AddLogMessage("Fail", $"Error Drpping Connection {ent.EntityName} - {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+        //    }
           
 
-            return DMEEditor.ErrorObject;
-        }
+        //    return DMEEditor.ErrorObject;
+        //}
         [CommandAttribute(Caption = "Delete Connection", Name = "DeleteConnection", Click = true, iconimage = "removeconnection.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
         public IErrorsInfo deleteConnection(IPassedArgs Passedarguments)
         {
@@ -702,58 +702,58 @@ namespace TheTechIdea.Beep.Winform.Extensions
         //    };
         //    return DMEEditor.ErrorObject;
         //}
-        [CommandAttribute(Caption = "Delete Selected files connections", Hidden = false, iconimage = "removefile.png", Click = true, PointType = EnumPointType.Root, ObjectType = "Beep", ClassType = "FILE", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
-        public IErrorsInfo RemoveFiles(IPassedArgs Passedarguments)
-        {
-            try
-            {
-                ExtensionsHelpers.GetValues(Passedarguments);
-                if (ExtensionsHelpers.CurrentBranch == null)
-                {
-                    return DMEEditor.ErrorObject;
-                }
-                if (ExtensionsHelpers.CurrentBranch.BranchType == EnumPointType.Root)
-                {
-                    List<EntityStructure> ls = new List<EntityStructure>();
-                    if (DMEEditor.Passedarguments != null)
-                    {
-                        if (ExtensionsHelpers.TreeEditor.SelectedBranchs.Count > 0)
-                        {
-                            foreach (int item in ExtensionsHelpers.TreeEditor.SelectedBranchs)
-                            {
-                                IBranch br = ExtensionsHelpers.TreeEditor.Treebranchhandler.GetBranch(item);
+        //[CommandAttribute(Caption = "Delete Selected files connections", Hidden = false, iconimage = "removefile.png", Click = true, PointType = EnumPointType.Root, ObjectType = "Beep", ClassType = "FILE", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
+        //public IErrorsInfo RemoveFiles(IPassedArgs Passedarguments)
+        //{
+        //    try
+        //    {
+        //        ExtensionsHelpers.GetValues(Passedarguments);
+        //        if (ExtensionsHelpers.CurrentBranch == null)
+        //        {
+        //            return DMEEditor.ErrorObject;
+        //        }
+        //        if (ExtensionsHelpers.CurrentBranch.BranchType == EnumPointType.Root)
+        //        {
+        //            List<EntityStructure> ls = new List<EntityStructure>();
+        //            if (DMEEditor.Passedarguments != null)
+        //            {
+        //                if (ExtensionsHelpers.TreeEditor.SelectedBranchs.Count > 0)
+        //                {
+        //                    foreach (int item in ExtensionsHelpers.TreeEditor.SelectedBranchs)
+        //                    {
+        //                        IBranch br = ExtensionsHelpers.TreeEditor.Treebranchhandler.GetBranch(item);
                               
-                                 if(br.BranchType!= EnumPointType.Category)
-                                 {
-                                    if(br.BranchClass== "FILE")
-                                    {
-                                        IDataSource fds = DMEEditor.GetDataSource(br.DataSourceName);
-                                        if (fds != null)
-                                        {
-                                            if (fds.Category == DatasourceCategory.FILE)
-                                            {
-                                                DMEEditor.ConfigEditor.RemoveConnByName(fds.DatasourceName);
-                                                ExtensionsHelpers.TreeEditor.Treebranchhandler.RemoveBranch(br);
-                                            }
-                                        }
-                                    }
-                                }
+        //                         if(br.BranchType!= EnumPointType.Category)
+        //                         {
+        //                            if(br.BranchClass== "FILE")
+        //                            {
+        //                                IDataSource fds = DMEEditor.GetDataSource(br.DataSourceName);
+        //                                if (fds != null)
+        //                                {
+        //                                    if (fds.Category == DatasourceCategory.FILE)
+        //                                    {
+        //                                        DMEEditor.ConfigEditor.RemoveConnByName(fds.DatasourceName);
+        //                                        ExtensionsHelpers.TreeEditor.Treebranchhandler.RemoveBranch(br);
+        //                                    }
+        //                                }
+        //                            }
+        //                        }
                                 
-                            }
-                        }
-                    }
-                }
-                DMEEditor.ConfigEditor.SaveDataconnectionsValues();
-                ExtensionsHelpers.Vismanager.CloseWaitForm();
-                DMEEditor.AddLogMessage("Success", $"Removed Files connections", DateTime.Now, 0, null, Errors.Ok);
-            }
-            catch (Exception ex)
-            {
-                string mes = "Could not Remove Files Connection";
-                DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
-            };
-            return DMEEditor.ErrorObject;
-        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        DMEEditor.ConfigEditor.SaveDataconnectionsValues();
+        //        ExtensionsHelpers.Vismanager.CloseWaitForm();
+        //        DMEEditor.AddLogMessage("Success", $"Removed Files connections", DateTime.Now, 0, null, Errors.Ok);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string mes = "Could not Remove Files Connection";
+        //        DMEEditor.AddLogMessage(ex.Message, mes, DateTime.Now, -1, mes, Errors.Failed);
+        //    };
+        //    return DMEEditor.ErrorObject;
+        //}
         [CommandAttribute(Caption = "Data Edit", PointType = EnumPointType.Entity,  iconimage = "editentity.png", ObjectType = "Beep", Showin = ShowinType.Menu)]
         public IErrorsInfo DataEdit(IPassedArgs Passedarguments)
         {

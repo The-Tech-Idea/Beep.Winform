@@ -488,7 +488,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _okButton.IsRounded = true;
             _okButton.IsRoundedAffectedByTheme = true;
             _okButton.IsSelected = false;
-            _okButton.IsSelectedAuto = true;
+           
             _okButton.IsShadowAffectedByTheme = true;
             _okButton.IsSideMenuChild = false;
             _okButton.IsStillButton = false;
@@ -618,7 +618,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _cancelButton.IsRounded = true;
             _cancelButton.IsRoundedAffectedByTheme = true;
             _cancelButton.IsSelected = false;
-            _cancelButton.IsSelectedAuto = true;
+           
             _cancelButton.IsShadowAffectedByTheme = true;
             _cancelButton.IsSideMenuChild = false;
             _cancelButton.IsStillButton = false;

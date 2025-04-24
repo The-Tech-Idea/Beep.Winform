@@ -596,7 +596,7 @@
             AddSourcebeepButton.IsRounded = false;
             AddSourcebeepButton.IsRoundedAffectedByTheme = true;
             AddSourcebeepButton.IsSelected = false;
-            AddSourcebeepButton.IsSelectedAuto = false;
+
             AddSourcebeepButton.IsSelectedOptionOn = true;
             AddSourcebeepButton.IsShadowAffectedByTheme = true;
             AddSourcebeepButton.IsSideMenuChild = false;

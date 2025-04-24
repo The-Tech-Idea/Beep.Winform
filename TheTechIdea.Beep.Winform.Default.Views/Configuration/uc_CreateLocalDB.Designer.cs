@@ -522,7 +522,7 @@
             SavebeepButton.IsRounded = false;
             SavebeepButton.IsRoundedAffectedByTheme = true;
             SavebeepButton.IsSelected = false;
-            SavebeepButton.IsSelectedAuto = false;
+          
             SavebeepButton.IsShadowAffectedByTheme = true;
             SavebeepButton.IsSideMenuChild = false;
             SavebeepButton.IsStillButton = false;
@@ -655,7 +655,7 @@
             CancelbeepButton.IsRounded = false;
             CancelbeepButton.IsRoundedAffectedByTheme = true;
             CancelbeepButton.IsSelected = false;
-            CancelbeepButton.IsSelectedAuto = false;
+
             CancelbeepButton.IsShadowAffectedByTheme = true;
             CancelbeepButton.IsSideMenuChild = false;
             CancelbeepButton.IsStillButton = false;
@@ -1192,7 +1192,7 @@
             beepButton1.IsRounded = false;
             beepButton1.IsRoundedAffectedByTheme = true;
             beepButton1.IsSelected = false;
-            beepButton1.IsSelectedAuto = false;
+
             beepButton1.IsShadowAffectedByTheme = true;
             beepButton1.IsSideMenuChild = false;
             beepButton1.IsStillButton = false;

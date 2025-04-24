@@ -324,7 +324,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 ShowAllBorders = false,
                 ShowShadow = false,
-                IsSelectedAuto = true,
+                IsSelectedOptionOn = true,
                 IsFrameless = true,
                 IsRounded = false,
                 IsRoundedAffectedByTheme = false,

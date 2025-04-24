@@ -145,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CloseButton.IsRounded = true;
             CloseButton.IsRoundedAffectedByTheme = true;
             CloseButton.IsSelected = false;
-            CloseButton.IsSelectedAuto = false;
+          
             CloseButton.IsSelectedOptionOn = true;
             CloseButton.IsShadowAffectedByTheme = true;
             CloseButton.IsSideMenuChild = false;
@@ -419,7 +419,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             MiddleButton.IsRounded = true;
             MiddleButton.IsRoundedAffectedByTheme = true;
             MiddleButton.IsSelected = false;
-            MiddleButton.IsSelectedAuto = false;
+         
             MiddleButton.IsSelectedOptionOn = true;
             MiddleButton.IsShadowAffectedByTheme = true;
             MiddleButton.IsSideMenuChild = false;
@@ -555,7 +555,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RightButton.IsRounded = true;
             RightButton.IsRoundedAffectedByTheme = true;
             RightButton.IsSelected = false;
-            RightButton.IsSelectedAuto = false;
+         
             RightButton.IsSelectedOptionOn = true;
             RightButton.IsShadowAffectedByTheme = true;
             RightButton.IsSideMenuChild = false;
@@ -691,7 +691,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LeftButton.IsRounded = true;
             LeftButton.IsRoundedAffectedByTheme = true;
             LeftButton.IsSelected = false;
-            LeftButton.IsSelectedAuto = false;
+           
             LeftButton.IsSelectedOptionOn = true;
             LeftButton.IsShadowAffectedByTheme = true;
             LeftButton.IsSideMenuChild = false;

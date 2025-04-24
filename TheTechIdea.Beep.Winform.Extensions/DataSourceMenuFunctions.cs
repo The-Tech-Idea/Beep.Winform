@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
         }
         private ITree tree;
       
-        [CommandAttribute(Name = "Copy Entities", Caption = "Copy Entities", Click = true, iconimage = "copy.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu,Key = BeepKeys.A,Ctrl =true)]
+        [CommandAttribute(Name = "Copy Entities", Caption = "Copy Entities", Click = true, iconimage = "copy.png",  PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu | ShowinType.ContextMenu ,Key = BeepKeys.A,Ctrl =true)]
         public IErrorsInfo CopyEntities(IPassedArgs Passedarguments)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;
@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
             }
             return DMEEditor.ErrorObject;
         }
-        [CommandAttribute(Name = "Paste Entities", Caption = "Paste Entities", Click = true, iconimage = "paste.png"  ,PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu, Key = BeepKeys.V, Ctrl = true)]
+        [CommandAttribute(Name = "Paste Entities", Caption = "Paste Entities", Click = true, iconimage = "paste.png"  ,PointType = EnumPointType.DataPoint, ObjectType = "Beep",  Showin = ShowinType.Menu | ShowinType.ContextMenu , Key = BeepKeys.V, Ctrl = true)]
         public void PasteEntities(IPassedArgs Passedarguments)
         {
             try
@@ -195,7 +195,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
             };
 
         }
-        [CommandAttribute(Name = "Refresh", Caption = "Refresh", Click = true, iconimage = "refresh.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu, Key = BeepKeys.R, Ctrl = true)]
+        [CommandAttribute(Name = "Refresh", Caption = "Refresh", Click = true, iconimage = "refresh.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep",  Showin = ShowinType.Menu | ShowinType.ContextMenu , Key = BeepKeys.R, Ctrl = true)]
         public void Refresh(IPassedArgs Passedarguments)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;
@@ -240,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
             }
 
         }
-        [CommandAttribute(Name = "CreateViewFromDataSource", Caption = "Create View From DataBindingSource", Click = true, iconimage = "createnewentities.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu)]
+        [CommandAttribute(Name = "CreateViewFromDataSource", Caption = "Create View From DataBindingSource", Click = true, iconimage = "createnewentities.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
         public void CreateViewFromDataSource(IPassedArgs Passedarguments)
         {
             try
@@ -296,7 +296,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
             };
 
         }
-        [CommandAttribute(Caption = "Drop Entities", Name = "dropentities", Click = true, iconimage = "dropentities.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu)]
+        [CommandAttribute(Caption = "Drop Entities", Name = "dropentities", Click = true, iconimage = "dropentities.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
         public IErrorsInfo DropEntities(IPassedArgs Passedarguments)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;
@@ -359,7 +359,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
 
             return DMEEditor.ErrorObject;
         }
-        [CommandAttribute(Caption = "Drop Connections", Name = "dropfiles", Click = true, iconimage = "dropconnections.png", PointType = EnumPointType.Root, ObjectType = "Beep", Showin = ShowinType.Menu)]
+        [CommandAttribute(Caption = "Drop Connections", Name = "dropfiles", Click = true, iconimage = "dropconnections.png", PointType = EnumPointType.Root, ObjectType = "Beep", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
         public IErrorsInfo DropConnections(IPassedArgs Passedarguments)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;
@@ -434,7 +434,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
 
             return DMEEditor.ErrorObject;
         }
-        [CommandAttribute(Caption = "Delete Connection", Name = "DeleteConnection", Click = true, iconimage = "removeconnection.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu)]
+        [CommandAttribute(Caption = "Delete Connection", Name = "DeleteConnection", Click = true, iconimage = "removeconnection.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
         public IErrorsInfo deleteConnection(IPassedArgs Passedarguments)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;
@@ -495,7 +495,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
 
             return DMEEditor.ErrorObject;
         }
-        [CommandAttribute(Caption = "Import Data", Name = "ImportData", Click = true, iconimage = "importdata.png", PointType = EnumPointType.Entity, ObjectType = "Beep", Showin = ShowinType.Menu)]
+        [CommandAttribute(Caption = "Import Data", Name = "ImportData", Click = true, iconimage = "importdata.png", PointType = EnumPointType.Entity, ObjectType = "Beep", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
         public IErrorsInfo ImportData(IPassedArgs Passedarguments)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;
@@ -524,7 +524,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
 
             return DMEEditor.ErrorObject;
         }
-        [CommandAttribute(Caption = "Export Data", Name = "exportdata", Click = true, iconimage = "csv.png", PointType = EnumPointType.Entity, ObjectType = "Beep", Showin = ShowinType.Menu)]
+        [CommandAttribute(Caption = "Export Data", Name = "exportdata", Click = true, iconimage = "csv.png", PointType = EnumPointType.Entity, ObjectType = "Beep", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
         public IErrorsInfo ExportData(IPassedArgs Passedarguments)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;
@@ -594,7 +594,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
             return DMEEditor.ErrorObject;
         }
 
-        [CommandAttribute(Caption = "Create Entity", Name = "CreateEntity", Click = true, iconimage = "createentity.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu)]
+        [CommandAttribute(Caption = "Create Entity", Name = "CreateEntity", Click = true, iconimage = "createentity.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
         public IErrorsInfo CreateEntity(IPassedArgs Passedarguments)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;
@@ -629,7 +629,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
 
             return DMEEditor.ErrorObject;
         }
-        [CommandAttribute(Caption = "Create Report", Name = "CreateReportDefinition", Click = true, iconimage = "reportdesigner.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep",Showin =ShowinType.Menu)]
+        [CommandAttribute(Caption = "Create Report", Name = "CreateReportDefinition", Click = true, iconimage = "reportdesigner.png", PointType = EnumPointType.DataPoint, ObjectType = "Beep",Showin =ShowinType.Menu | ShowinType.ContextMenu)]
         public IErrorsInfo CreateReportDefinition(IPassedArgs Passedarguments)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;
@@ -702,7 +702,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
         //    };
         //    return DMEEditor.ErrorObject;
         //}
-        [CommandAttribute(Caption = "Delete Selected files connections", Hidden = false, iconimage = "removefile.png", Click = true, PointType = EnumPointType.Root, ObjectType = "Beep", ClassType = "FILE", Showin = ShowinType.Menu)]
+        [CommandAttribute(Caption = "Delete Selected files connections", Hidden = false, iconimage = "removefile.png", Click = true, PointType = EnumPointType.Root, ObjectType = "Beep", ClassType = "FILE", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
         public IErrorsInfo RemoveFiles(IPassedArgs Passedarguments)
         {
             try
@@ -787,7 +787,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
             return DMEEditor.ErrorObject;
           
         }
-        [CommandAttribute(Caption = "Create View", PointType = EnumPointType.Entity, iconimage = "createentity.png", ObjectType = "Beep", Showin = ShowinType.Menu)]
+        [CommandAttribute(Caption = "Create View", PointType = EnumPointType.Entity, iconimage = "createentity.png", ObjectType = "Beep", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
         public IErrorsInfo CreateView(IPassedArgs Passedarguments)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;
@@ -821,7 +821,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
             return DMEEditor.ErrorObject;
 
         }
-        [CommandAttribute(Caption = "View Structure", PointType = EnumPointType.Entity, Hidden = false, iconimage = "structure.png", ObjectType = "Beep", Showin = ShowinType.Menu)]
+        [CommandAttribute(Caption = "View Structure", PointType = EnumPointType.Entity, Hidden = false, iconimage = "structure.png", ObjectType = "Beep", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
         public IErrorsInfo ViewStructure(IPassedArgs Passedarguments)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;
@@ -855,7 +855,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
             return DMEEditor.ErrorObject;
            
         }
-        [CommandAttribute(Caption = "Field Properties", PointType = EnumPointType.Entity, iconimage = "properties.png", ObjectType = "Beep", Showin = ShowinType.Menu)]
+        [CommandAttribute(Caption = "Field Properties", PointType = EnumPointType.Entity, iconimage = "properties.png", ObjectType = "Beep", Showin = ShowinType.Menu | ShowinType.ContextMenu)]
         public IErrorsInfo FieldProperties(IPassedArgs Passedarguments)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;

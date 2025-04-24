@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
         }
         private ITree tree;
 
-        [CommandAttribute(Caption = "Refresh", Name = "Refresh", Click = true, iconimage = "refresh.png", ObjectType = "Beep", PointType = EnumPointType.Global, Showin = ShowinType.HorZToolbar, IsLeftAligned = false)]
+        [CommandAttribute(Caption = "Refresh", Name = "Refresh", Click = true, iconimage = "refresh.png", ObjectType = "Beep", PointType = EnumPointType.Global, Showin = ShowinType.Menu | ShowinType.ContextMenu, IsLeftAligned = false)]
         public IErrorsInfo Refresh(IPassedArgs Passedarguments)
         {
             DMEEditor.ErrorObject.Flag = Errors.Ok;

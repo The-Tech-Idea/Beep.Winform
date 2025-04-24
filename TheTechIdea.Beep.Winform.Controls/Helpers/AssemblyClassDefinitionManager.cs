@@ -78,10 +78,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             return ret;
         }
-        public static List<AssemblyClassDefinition> GetAssemblyClassDefinitionForMenu(string ObjectType="Beep")
+        public static List<AssemblyClassDefinition> GetAssemblyClassDefinitionForMenu(string ObjectType = "Beep")
         {
-            return GlobalFunctions.Where(o => o.classProperties != null && o.classProperties.ObjectType != null && (o.classProperties.Showin == ShowinType.Menu || o.classProperties.Showin == ShowinType.Both) && o.classProperties.ObjectType.Equals(ObjectType, StringComparison.CurrentCultureIgnoreCase)).OrderBy(p => p.Order).ToList();
+            return GlobalFunctions
+                .Where(o => o.classProperties != null
+                            && o.classProperties.ObjectType != null
+                            && (o.classProperties.Showin & ShowinType.Menu) == ShowinType.Menu
+                            && o.classProperties.ObjectType.Equals(ObjectType, StringComparison.CurrentCultureIgnoreCase))
+                .OrderBy(p => p.Order)
+                .ToList();
         }
+
         public static List<AssemblyClassDefinition> GetAssemblyClassDefinitionVerticalToolbar(string ObjectType = "Beep")
         {
             return GlobalFunctions.Where(x => x.componentType == "IFunctionExtension" && x.classProperties != null && x.classProperties.ObjectType != null && (x.classProperties.Showin == ShowinType.HorZToolbar) && x.classProperties.ObjectType.Equals(ObjectType, StringComparison.InvariantCultureIgnoreCase)).OrderBy(p => p.Order).ToList();

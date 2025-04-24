@@ -193,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
 
                 var extensions =AssemblyClassDefinitionManager.GlobalFunctions
-                    .Where(o => o.classProperties?.ObjectType?.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase) == true && o.classProperties.BranchType== br.BranchType )
+                    .Where(o => o.classProperties?.ObjectType?.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase) == true  && !o.classProperties.IsClassDistinct && o.classProperties.Showin== Vis.ShowinType.ContextMenu)
                     .OrderBy(p => p.Order)
                     .ToList();
 
@@ -201,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 {
                     if (!menuCollection.Items.Any(p => p.PackageName.Equals(cls.PackageName, StringComparison.InvariantCultureIgnoreCase)))
                     {
-                        foreach (var item in cls.Methods)
+                        foreach (var item in cls.Methods.Where(o=>o.PointType == br.BranchType  ))
                         {
                             if (string.IsNullOrEmpty(item.ClassType))
                             {
@@ -224,27 +224,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                                     });
                                 }
                             }
-                            else
-                            {
-                                if (item.PointType == br.BranchType && br.BranchClass.Equals(item.ClassType, StringComparison.InvariantCultureIgnoreCase))
-                                {
-                                    menuCollection.Items.Add(new SimpleItem
-                                    {
-                                        Name = item.Caption,
-                                        MethodName = item.Name,
-                                        Text = item.Caption,
-                                        ObjectType = item.ObjectType,
-                                        BranchClass = item.ClassType,
-                                        PointType = item.PointType,
-                                        Value = item.CommandAttr,
-                                        BranchName = item.Name,
-                                        PackageName = cls.PackageName,
-                                        AssemblyClassDefinitionID = cls.GuidID,
-                                        ImagePath = ImageListHelper.GetImagePathFromName(item.iconimage)
+                            //else
+                            //{
+                            //    if (item.PointType == br.BranchType && br.BranchClass.Equals(item.ClassType, StringComparison.InvariantCultureIgnoreCase))
+                            //    {
+                            //        menuCollection.Items.Add(new SimpleItem
+                            //        {
+                            //            Name = item.Caption,
+                            //            MethodName = item.Name,
+                            //            Text = item.Caption,
+                            //            ObjectType = item.ObjectType,
+                            //            BranchClass = item.ClassType,
+                            //            PointType = item.PointType,
+                            //            Value = item.CommandAttr,
+                            //            BranchName = item.Name,
+                            //            PackageName = cls.PackageName,
+                            //            AssemblyClassDefinitionID = cls.GuidID,
+                            //            ImagePath = ImageListHelper.GetImagePathFromName(item.iconimage)
 
-                                    });
-                                }
-                            }
+                            //        });
+                            //    }
+                            //}
                         }
                     }
                 }
@@ -289,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
 
                 var extensions = AssemblyClassDefinitionManager.GlobalFunctions
-                    .Where(o => o.classProperties?.ObjectType?.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase) == true && o.classProperties.BranchType == br.BranchType && o.classProperties.IsClassDistinct)
+                    .Where(o => o.classProperties?.ObjectType?.Equals(br.ObjectType, StringComparison.InvariantCultureIgnoreCase) == true && o.classProperties.IsClassDistinct)
                     .OrderBy(p => p.Order)
                     .ToList();
 
@@ -297,7 +297,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 {
                     if (!menuCollection.Items.Any(p => p.PackageName.Equals(cls.PackageName, StringComparison.InvariantCultureIgnoreCase)))
                     {
-                        foreach (var item in cls.Methods)
+                        foreach (var item in cls.Methods.Where(o => o.PointType == br.BranchType &&   o.ClassType!=null && o.ClassType.Equals(br.BranchClass)))
                         {
                             if (string.IsNullOrEmpty(item.ClassType))
                             {
@@ -320,27 +320,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                                     });
                                 }
                             }
-                            else
-                            {
-                                if (item.PointType == br.BranchType && br.BranchClass.Equals(item.ClassType, StringComparison.InvariantCultureIgnoreCase))
-                                {
-                                    menuCollection.Items.Add(new SimpleItem
-                                    {
-                                        Name = item.Caption,
-                                        MethodName = item.Name,
-                                        Text = item.Caption,
-                                        ObjectType = item.ObjectType,
-                                        BranchClass = item.ClassType,
-                                        PointType = item.PointType,
-                                        Value = item.CommandAttr,
-                                        BranchName = item.Name,
-                                        PackageName = cls.PackageName,
-                                        AssemblyClassDefinitionID = cls.GuidID,
-                                        ImagePath = ImageListHelper.GetImagePathFromName(item.iconimage)
+                            //else
+                            //{
+                            //    if (item.PointType == br.BranchType && br.BranchClass.Equals(item.ClassType, StringComparison.InvariantCultureIgnoreCase))
+                            //    {
+                            //        menuCollection.Items.Add(new SimpleItem
+                            //        {
+                            //            Name = item.Caption,
+                            //            MethodName = item.Name,
+                            //            Text = item.Caption,
+                            //            ObjectType = item.ObjectType,
+                            //            BranchClass = item.ClassType,
+                            //            PointType = item.PointType,
+                            //            Value = item.CommandAttr,
+                            //            BranchName = item.Name,
+                            //            PackageName = cls.PackageName,
+                            //            AssemblyClassDefinitionID = cls.GuidID,
+                            //            ImagePath = ImageListHelper.GetImagePathFromName(item.iconimage)
 
-                                    });
-                                }
-                            }
+                            //        });
+                            //    }
+                            //}
                         }
                     }
                 }

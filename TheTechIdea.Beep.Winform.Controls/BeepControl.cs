@@ -131,7 +131,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Diagramming Properties"
         #region "Public Properties"
-        private bool _isselectedoptionon = true;
+
+        private bool _isselectedoptionon = false;
         public bool IsSelectedOptionOn
         {
             get => _isselectedoptionon;
@@ -1152,31 +1153,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Color forcolor = IsHovered ? HoverForeColor : ForeColor;
 
                 // Determine fill backcolor based on state
-
-
-
                     if (Enabled)
                     {
-
                         if (IsHovered)
                         {
                       //  forcolor = HoverForeColor;
                              backcolor = HoverBackColor;
                         }
-                        else if (IsSelected)
+                        else if (IsSelected && IsSelectedOptionOn)
                         {
-                       // forcolor = SelectedForeColor;
                               backcolor = SelectedBackColor;
                         }
-
-
                     }
                     else
                     {
                      backcolor = DisabledBackColor;
-                   // forcolor = DisabledForeColor;
+                  
                     }
-                    //  g.FillRectangle(new SolidBrush(backcolor), contentRect);
+             
            
                 using (SolidBrush brush = new SolidBrush(backcolor))
                     {

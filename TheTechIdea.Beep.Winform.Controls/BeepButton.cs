@@ -210,19 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();  // Trigger repaint
             }
         }
-        private bool isSelectedAuto = false;
-        // Public properties
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool IsSelectedAuto
-        {
-            get => isSelectedAuto;
-            set
-            {
-                isSelectedAuto = value;
-                Invalidate();  // Trigger repaint
-            }
-        }
+     
         [Browsable(true)]
         [Category("Appearance")]
         public int BorderSize
@@ -1166,7 +1154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void BeepImage_MouseDown(object? sender, MouseEventArgs e)
         {
             base.OnMouseDown(e);
-            if (isSelectedAuto)
+            if (IsSelectedOptionOn)
             {
                 IsSelected = !IsSelected;
             }
@@ -1187,7 +1175,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             splashActive = true;
             splashTimer.Start();
            
-            if (IsSelectedAuto)
+            if (IsSelectedOptionOn)
             {
                 IsHovered = false;
                 IsPressed = false;

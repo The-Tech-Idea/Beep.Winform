@@ -1132,7 +1132,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Nodeleftbutton.MaxImageSize = new System.Drawing.Size(MaxImageSize , MaxImageSize);
                 Nodeleftbutton.Size = new System.Drawing.Size(NodeHeight, NodeHeight);
                 Nodeleftbutton.Height = NodeHeight;
-                Nodeleftbutton.IsSelectedAuto = true;
+                Nodeleftbutton.IsSelectedOptionOn = true;
                 Nodeleftbutton.Click += Nodeleftbutton_Click;
                 Nodeleftbutton.MouseEnter += Nodeleftbutton_MouseEnter;
                 Nodeleftbutton.MouseLeave += Nodeleftbutton_MouseLeave;
@@ -1166,7 +1166,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Noderightbutton.IsBorderAffectedByTheme = true;
                 Noderightbutton.MaxImageSize = new System.Drawing.Size(MaxImageSize , MaxImageSize);
                 Noderightbutton.Size = new System.Drawing.Size(NodeHeight, NodeHeight);
-                Noderightbutton.IsSelectedAuto = true;
+                Noderightbutton.IsSelectedOptionOn = true;
 
                 Noderightbutton.Click += Noderightbutton_Click;
                 Noderightbutton.MouseEnter += Noderightbutton_MouseEnter;
@@ -1185,7 +1185,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_ismiddlebuttonVisible)
             {
                 NodeMainMiddlebutton = new BeepButton();
-                NodeMainMiddlebutton.IsSelectedAuto = true;
+                NodeMainMiddlebutton.IsSelectedOptionOn = true;
                 NodeMainMiddlebutton.Text = _text;
             
                 if (_imageKey != null)
@@ -1200,7 +1200,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NodeMainMiddlebutton.IsRounded = false;
                 NodeMainMiddlebutton.IsShadowAffectedByTheme = false;
                 NodeMainMiddlebutton.IsBorderAffectedByTheme = false;
-                NodeMainMiddlebutton.IsSelectedAuto = true;
+                NodeMainMiddlebutton.IsSelectedOptionOn = true;
                 NodeMainMiddlebutton.MaxImageSize = new System.Drawing.Size(MaxImageSize, MaxImageSize);
                // NodeMainMiddlebutton.Value = new System.Drawing.Value(NodeWidth - 2 * NodeHeight, NodeHeight);
                 //   NodeMainMiddlebutton.TextFont=BeepThemesManager.ToFont(_currentTheme.LabelSmall);
@@ -1235,7 +1235,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsBorderAffectedByTheme = false,
                 ApplyThemeOnImage = true,
                 IsRounded = false,
-                IsSelectedAuto = true,
+                IsSelectedOptionOn = true,
                 MaxImageSize = new System.Drawing.Size(SmallNodeHeight - 2, SmallNodeHeight - 2),
                
                 UseScaledFont = false,

@@ -413,7 +413,7 @@
             beepButton1.IsRounded = false;
             beepButton1.IsRoundedAffectedByTheme = true;
             beepButton1.IsSelected = false;
-            beepButton1.IsSelectedAuto = false;
+
             beepButton1.IsSelectedOptionOn = true;
             beepButton1.IsShadowAffectedByTheme = true;
             beepButton1.IsSideMenuChild = false;

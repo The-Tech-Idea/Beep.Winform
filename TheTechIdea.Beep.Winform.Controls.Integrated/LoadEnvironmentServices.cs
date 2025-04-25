@@ -28,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated
             DynamicFunctionCallingManager.Vismanager = service.vis;
             DynamicFunctionCallingManager.TreeEditor = (Vis.Modules.ITree)service.vis.Tree;
 
+           
             // Assign delegates
             HandlersFactory.GlobalMenuItemsProvider = DynamicMenuManager.GetMenuItemsList; // Set this in the main form if needed
 

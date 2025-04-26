@@ -40,7 +40,7 @@
             // 
             beepRowConfig1.DisplayIndex = -1;
             beepRowConfig1.Height = 25;
-            beepRowConfig1.Id = "59cd1648-c4e5-4e8a-90f6-92f7fc7df2a3";
+            beepRowConfig1.Id = "b3dba79d-a86e-45ee-8ec7-ba3edfaa4e62";
             beepRowConfig1.Index = 1;
             beepRowConfig1.IsAggregation = true;
             beepRowConfig1.IsDataLoaded = false;
@@ -90,7 +90,7 @@
             beepSimpleGrid1.DisabledBackColor = Color.White;
             beepSimpleGrid1.DisabledForeColor = Color.Black;
             beepSimpleGrid1.Dock = DockStyle.Fill;
-            beepSimpleGrid1.DrawingRect = new Rectangle(0, 0, 904, 728);
+            beepSimpleGrid1.DrawingRect = new Rectangle(0, 0, 1248, 753);
             beepSimpleGrid1.Easing = Vis.Modules.EasingType.Linear;
             beepSimpleGrid1.EntityName = "Function2FunctionAction";
             beepSimpleGrid1.FieldID = null;
@@ -183,7 +183,7 @@
             beepSimpleGrid1.ShowTopBorder = false;
             beepSimpleGrid1.ShowVerticalGridLines = true;
             beepSimpleGrid1.ShowVerticalScrollBar = true;
-            beepSimpleGrid1.Size = new Size(904, 728);
+            beepSimpleGrid1.Size = new Size(1248, 753);
             beepSimpleGrid1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepSimpleGrid1.StaticNotMoving = false;
             beepSimpleGrid1.TabIndex = 1;
@@ -212,7 +212,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(beepSimpleGrid1);
             Name = "uc_FunctiontoFunctionMapping";
-            Size = new Size(904, 728);
+            Size = new Size(1248, 753);
             ((System.ComponentModel.ISupportInitialize)functionToFunctionMappingViewModelBindingSource).EndInit();
             ResumeLayout(false);
         }

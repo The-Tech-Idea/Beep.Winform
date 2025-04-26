@@ -393,7 +393,34 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Propoerties"
         #region "Theme Properties"
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            if (IsChild && Parent != null)
+            {
+                BackColor = Parent.BackColor;
+                ParentBackColor = Parent.BackColor;
+            }
+            else
+            {
+                BackColor = _currentTheme.ButtonBackColor;
 
+            }
+            if (_applyThemeOnImage)
+            {
+                ApplyThemeToSvg();
+            }
+            else
+            {
+                // Apply theme to the regular image if needed
+                if (regularImage != null)
+                {
+                    // Apply theme colors to the regular image here if needed
+                    // For example, you can use a ColorMatrix to adjust colors
+                    // or apply a color overlay.
+                }
+            }
+        }
         public void ApplyThemeToSvg()
         {
             if (svgDocument == null)

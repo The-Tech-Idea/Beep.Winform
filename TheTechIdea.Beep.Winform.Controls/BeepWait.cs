@@ -20,6 +20,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                     UpdateProgress(args.Progress, args.Messege);
             };
+            _spinnerImage.IsChild = true;
+            LogopictureBox.IsChild = true;
             _spinnerImage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.loading.svg";
             LogopictureBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
             StartSpinner();

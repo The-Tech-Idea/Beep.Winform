@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Size _maxImageSize = new Size(16, 16); // Default image size
         private string? _imagepath;
         private bool _multiline = false;
-        int padding = 4;
+        int padding = 1;
       
         int offset = 0;
         private Font _textFont = new Font("Arial", 10);
@@ -766,7 +766,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //protected override void OnPaint(PaintEventArgs e)
         //{
         //    base.OnPaint(e);
-           
+
         //}
         //protected override void DrawContent(Graphics g)
         //{
@@ -780,7 +780,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // protected override Value DefaultSize => GetDefaultSize();
         private int GetSingleLineHeight()
         {
-            UpdateDrawingRect(); // Ensure DrawingRect is current
+            // Don't add additional padding here as it's already accounted for elsewhere
             using (TextBox tempTextBox = new TextBox())
             {
                 tempTextBox.Text = "A";
@@ -788,11 +788,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 tempTextBox.BorderStyle = BorderStyle.None;
                 tempTextBox.Font = TextFont;
                 tempTextBox.Refresh();
-                int t = tempTextBox.PreferredHeight+(2*padding);
-                // Return raw height without additional padding, as DrawingRect handles borders
-                return t;
+                // Return raw height without adding extra padding
+                return tempTextBox.PreferredHeight;
             }
         }
+
         //protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
         //{
         //    // Ensure DrawingRect is updated from BeepControl
@@ -858,129 +858,106 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void AdjustTextBoxHeight()
         {
             UpdateDrawingRect(); // Ensure DrawingRect is current
-            int fillWidth = DrawingRect.Width - (padding * 2);
-            int fillHeight = DrawingRect.Height - (padding * 2);
+
+            // Calculate available space accounting for padding only once
+            int availableWidth = DrawingRect.Width - (padding * 2);
+            int availableHeight = DrawingRect.Height - (padding * 2);
 
             if (_multiline)
             {
                 _innerTextBox.Multiline = true;
-                // In multiline mode, use the full available height within DrawingRect
-                _innerTextBox.Size = new Size(Math.Max(1, fillWidth), Math.Max(1, fillHeight));
+                _innerTextBox.Size = new Size(Math.Max(1, availableWidth), Math.Max(1, availableHeight));
             }
             else
             {
                 _innerTextBox.Multiline = false;
-                int singleLineHeight = GetSingleLineHeight();
-                // In single-line mode, constrain height to fit within DrawingRect
-                int adjustedHeight = Math.Min(singleLineHeight, fillHeight);
-                _innerTextBox.Size = new Size(Math.Max(1, fillWidth), adjustedHeight);
+                // For single line, use the full width but only the needed height
+                _innerTextBox.Size = new Size(Math.Max(1, availableWidth), GetSingleLineHeight());
             }
-            _innerTextBox.Width = Math.Max(1, fillWidth);
+
+            // Position the textbox with proper padding
             _innerTextBox.Location = new Point(DrawingRect.X + padding, DrawingRect.Y + padding);
-        
         }
         private void PositionInnerTextBoxAndImage()
         {
-            bool hasImage = !string.IsNullOrEmpty(ImagePath);
-            beepImage.Visible = hasImage;
-
-            // 1) Figure out the final drawing rectangle *inside* any border or theming
-            //    Typically, "DrawingRect" is something like:
-            //       new Rectangle(BorderThickness, BorderThickness,
-            //                     Width - 2*BorderThickness,
-            //                     Height - 2*BorderThickness);
-            //    We'll trust it’s already sized properly.
-            Rectangle rect = DrawingRect;
-
-            // 2) Subtract any internal padding from the usable width
-            int availableWidth = rect.Width - (padding * 2);
-
-            // 3) The text box height is presumably set already (e.g., single-line vs multiline).
-            //    If you’re using a single-line approach, ensure _innerTextBox.Height 
-            //    is large enough (PreferredHeight + a margin, etc.).
-            int textBoxHeight = _innerTextBox.Height;
-            int totalHeight = rect.Height;
-
-            // 4) If you want to center the text box vertically in single-line mode:
-            //    For multi-line, you might want top-left alignment, but let's assume vertical center for now.
-            int textBoxY = rect.Y + (totalHeight - textBoxHeight) / 2;
-
-            // 5) Positioning the image if it exists
-            if (hasImage)
+            bool hasImage = !string.IsNullOrEmpty(ImagePath) && beepImage != null;
+            if (beepImage != null)
             {
-                // Adjust beepImage size if bigger than the max
-                Size finalImageSize = beepImage.Size;
-                if (finalImageSize.Width > _maxImageSize.Width || finalImageSize.Height > _maxImageSize.Height)
-                {
-                    float scaleFactor = Math.Min(
-                        (float)_maxImageSize.Width / finalImageSize.Width,
-                        (float)_maxImageSize.Height / finalImageSize.Height
-                    );
-                    finalImageSize = new Size(
-                        (int)(finalImageSize.Width * scaleFactor),
-                        (int)(finalImageSize.Height * scaleFactor)
-                    );
-                }
-                beepImage.Size = finalImageSize;
+                beepImage.Visible = hasImage;
+            }
 
-                // Align image with the text box’s vertical center
-                int imageY = textBoxY + (textBoxHeight - beepImage.Height) / 2;
+            // Early exit if control is too small or not initialized
+            if (Width == 0 || Height == 0 || DrawingRect.Width <= 0 || DrawingRect.Height <= 0)
+            {
+                return;
+            }
 
+            Rectangle rect = DrawingRect;
+            int availableWidth = rect.Width - (padding * 2);
+            int availableHeight = rect.Height - (padding * 2);
+
+            // Get single line height if not multiline
+            int textBoxHeight = _multiline ? availableHeight : GetSingleLineHeight();
+
+            // Calculate vertical center position for both text box and image
+            int textBoxY = rect.Y + ((rect.Height - textBoxHeight) / 2);
+
+            if (hasImage && beepImage != null)
+            {
+                // Ensure image size is within bounds
+                int imageSize = Math.Min(_maxImageSize.Height, rect.Height - (padding * 2));
+                beepImage.Size = new Size(imageSize, imageSize);
+
+                // Calculate vertical center for image
+                int imageY = rect.Y + ((rect.Height - imageSize) / 2);
+
+                // Position based on TextImageRelation
                 if (_textImageRelation == TextImageRelation.ImageBeforeText)
                 {
-                    // 6) Position the image at left + padding
+                    // Image on the left
                     int imageX = rect.X + padding;
                     beepImage.Location = new Point(imageX, imageY);
 
-                    // 7) Now the text box starts after the image plus some spacing
-                    int textBoxX = beepImage.Right + spacing;
-
-                    // 8) The available text width is the remainder of rect minus image width & spacing
-                    int textWidth = availableWidth - beepImage.Width - spacing;
-                    if (textWidth < 0) textWidth = 0;  // clamp to 0 if not enough room
+                    // Text box starts after image with spacing
+                    int textBoxX = imageX + imageSize + spacing;
+                    int textBoxWidth = Math.Max(1, availableWidth - imageSize - spacing);
 
                     _innerTextBox.Location = new Point(textBoxX, textBoxY);
-                    _innerTextBox.Width = textWidth;
+                    _innerTextBox.Size = new Size(textBoxWidth, textBoxHeight);
                 }
-                else
+                else // TextImageRelation.TextBeforeImage
                 {
-                    // 9) Text is on the left, image on the right
+                    // Text box on the left
                     int textBoxX = rect.X + padding;
-                    // subtract space for image + spacing
-                    int textWidth = availableWidth - beepImage.Width - spacing;
-                    if (textWidth < 0) textWidth = 0;
+                    int textBoxWidth = Math.Max(1, availableWidth - imageSize - spacing);
 
                     _innerTextBox.Location = new Point(textBoxX, textBoxY);
-                    _innerTextBox.Width = textWidth;
+                    _innerTextBox.Size = new Size(textBoxWidth, textBoxHeight);
 
-                    // place the image after the text
-                    int imageX = _innerTextBox.Right + spacing;
+                    // Image after text
+                    int imageX = textBoxX + textBoxWidth + spacing;
                     beepImage.Location = new Point(imageX, imageY);
                 }
             }
             else
             {
-                // 10) No image, so the text box spans the entire width
-                int textBoxX = rect.X + padding;
-                _innerTextBox.Location = new Point(textBoxX, textBoxY);
-
-                // Use the full available width
-                _innerTextBox.Width = availableWidth;
+                // No image, position text box to take full width
+                _innerTextBox.Location = new Point(rect.X + padding, textBoxY);
+                _innerTextBox.Size = new Size(Math.Max(1, availableWidth), textBoxHeight);
             }
         }
-
 
         #endregion "Size and Position"
         #region "Mouse Events"
         //protected override void OnMouseEnter(EventArgs e)
         //{
-           
+
         //}
         //protected override void OnMouseLeave(EventArgs e)
         //{
-          
+
         //}
-        
+
         //protected override void OnGotFocus(EventArgs e)
         //{
 
@@ -1581,6 +1558,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
             }
         }
+        public void AfterThemeApplied()
+        {
+            beepImage.BackColor = BackColor;
+            beepImage.ParentBackColor = BackColor;
+            if (ApplyThemeOnImage)
+            {
+                // beepImage.ImageEmbededin = ImageEmbededin.TextBox;
+                beepImage.ApplyThemeToSvg();
+            }
+            //  Refresh();           // Forcing the current control to refresh
+            //   Parent?.Refresh();   // Ensuring the parent is also updated
+            _innerTextBox.Invalidate();
+            beepImage.Invalidate();
+            Invalidate();
+            Refresh();
+
+            //  MiscFunctions.SendLog($"AfterThemeApplied: {this.Text}");
+        }
         public override void ApplyTheme()
         {
             base.ApplyTheme();
@@ -1642,17 +1637,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage.IsBorderAffectedByTheme = false;
             beepImage.IsShadowAffectedByTheme = false;
             beepImage.BorderColor = _currentTheme.TextBoxBorderColor;
-            if (ApplyThemeOnImage)
-            {
-                // beepImage.ImageEmbededin = ImageEmbededin.TextBox;
-                beepImage.ApplyThemeToSvg();
-            }
-            //  Refresh();           // Forcing the current control to refresh
-            //   Parent?.Refresh();   // Ensuring the parent is also updated
-            _innerTextBox.Invalidate();
-            beepImage.Invalidate();
-            Invalidate();
-            Refresh();
+            AfterThemeApplied();
         }
         #endregion "Theme and Style"
         // Override to prevent text loss on parent change

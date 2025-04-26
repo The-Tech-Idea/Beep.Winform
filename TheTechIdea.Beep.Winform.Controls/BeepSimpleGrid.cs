@@ -13,8 +13,6 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
-using System.Data.Common;
-using System.Windows.Forms;
 
 
 
@@ -28,6 +26,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region Properties
         #region Fields
+        int filtercontrolsheight = 5;
+        int filterPanelHeight = 60;
         private string _titleimagestring = "simpleinfoapps.svg";
         private BeepCheckBoxBool _selectAllCheckBox;
         private bool _deferRedraw = false;
@@ -297,20 +297,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 MiscFunctions.SendLog($"DataSource Setter: Type = {value?.GetType()?.Name}, DesignMode = {DesignMode}, IsInitializing = {_isInitializing}");
-                //if (_isInitializing)
-                //{
-                //    _pendingDataSource = value; // Defer setting until initialization is complete
-                //    MiscFunctions.SendLog("Deferring DataSource setup until initialization completes");
-                //}
-                //else
-                //{
+                if (_isInitializing)
+                {
+                    _pendingDataSource = value; // Defer setting until initialization is complete
+                    MiscFunctions.SendLog("Deferring DataSource setup until initialization completes");
+                }
+                else
+                {
                     _dataSource = value;
                     DataSetup();
                     InitializeData();
                     FillVisibleRows();
                     UpdateScrollBars();
                     Invalidate();
-             //   }
+                }
             }
         }
      
@@ -1840,56 +1840,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion DataSource Update
         #region Initialization
-        // Add this method to ensure the grid initializes safely when dragged from toolbox
-        // Add this method to ensure the grid initializes safely when dragged from toolbox
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
-            //if (_isInitializing)
-            //{
-            //    MiscFunctions.SendLog("OnHandleCreated: Completing deferred initialization");
-            //    try
-            //    {
-            //        // Initialize core collections to prevent null reference exceptions
-            //        if (_columns == null) _columns = new List<BeepColumnConfig>();
-            //        if (_fullData == null) _fullData = new List<object>();
-            //        if (Rows == null) Rows = new BindingList<BeepRowConfig>();
-            //        if (originalList == null) originalList = new List<object>();
-            //        if (deletedList == null) deletedList = new List<object>();
-            //        if (Trackings == null) Trackings = new List<Tracking>();
-            //        if (ChangedValues == null) ChangedValues = new Dictionary<object, Dictionary<string, object>>();
-
-            //        // Add default row ID and selection columns
-            //        EnsureDefaultColumns();
-
-            //        if (_pendingDataSource != null)
-            //        {
-            //            _dataSource = _pendingDataSource;
-            //            DataSetup();
-            //            InitializeData();
-            //            FillVisibleRows();
-            //            UpdateScrollBars();
-            //            Invalidate();
-            //        }
-            //        else
-            //        {
-            //            // Initialize with empty data when dragged from toolbox
-            //            InitializeRows();
-            //            UpdateScrollBars();
-            //            Invalidate();
-            //        }
-            //        _isInitializing = false; // Initialization complete
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        MiscFunctions.SendLog($"Error during initialization: {ex.Message}");
-            //        // Initialize with minimal UI to avoid crashing
-            //        _isInitializing = false;
-            //        Invalidate();
-            //    }
-            //}
-        }
-        // Add this method to ensure required columns are always present
+        #region Column Setup
         private void EnsureDefaultColumns()
         {
             if (_columns == null)
@@ -2075,7 +2026,460 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return Tuple.Create(resolvedData, entity);
         }
+        public void CreateColumnsForEntity()
+        {
+            try
+            {
+                if (Entity == null || Entity.Fields == null)
+                {
+                    MiscFunctions.SendLog("CreateColumnsForEntity: Entity or Entity.Fields is null");
+                    return;
+                }
 
+                // Initialize columns collection if null
+                if (_columns == null)
+                    _columns = new List<BeepColumnConfig>();
+
+                // Ensure we have the system columns
+                EnsureSystemColumns();
+
+                // Get the starting index for data columns (after system columns)
+                int startIndex = _columns.Count(c => c.IsSelectionCheckBox || c.IsRowNumColumn || c.IsRowID);
+
+                // Create a dictionary of existing columns for quick lookup
+                Dictionary<string, BeepColumnConfig> existingColumns = _columns
+                    .Where(c => c.ColumnName != null && !c.IsSelectionCheckBox && !c.IsRowNumColumn && !c.IsRowID)
+                    .ToDictionary(c => c.ColumnName, StringComparer.OrdinalIgnoreCase);
+
+                // Track which entity fields we've processed
+                HashSet<string> processedFields = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                // Update existing columns or add new ones for entity fields
+                foreach (var field in Entity.Fields)
+                {
+                    if (string.IsNullOrEmpty(field.fieldname))
+                        continue;
+
+                    processedFields.Add(field.fieldname);
+
+                    if (existingColumns.TryGetValue(field.fieldname, out BeepColumnConfig existingColumn))
+                    {
+                        // Update properties of existing column
+                        existingColumn.PropertyTypeName = field.fieldtype;
+                        existingColumn.ColumnType = MapPropertyTypeToDbFieldCategory(field.fieldtype);
+                        existingColumn.CellEditor = MapPropertyTypeToCellEditor(field.fieldtype);
+
+                        // Only update display properties if they aren't customized
+                        if (string.IsNullOrEmpty(existingColumn.ColumnCaption) ||
+                            existingColumn.ColumnCaption == existingColumn.ColumnName)
+                        {
+                            existingColumn.ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(field.fieldname);
+                        }
+
+                        // Update format for date/time fields if not already set
+                        if (string.IsNullOrEmpty(existingColumn.Format))
+                        {
+                            Type fieldType = Type.GetType(field.fieldtype, throwOnError: false) ?? typeof(object);
+                            if (fieldType == typeof(DateTime))
+                            {
+                                existingColumn.Format = "g";
+                            }
+                        }
+
+                        // Update enum items if applicable
+                        Type fieldType2 = Type.GetType(field.fieldtype, throwOnError: false);
+                        if (fieldType2?.IsEnum == true && (existingColumn.Items == null || !existingColumn.Items.Any()))
+                        {
+                            existingColumn.Items = CreateEnumItems(fieldType2);
+                        }
+
+                        MiscFunctions.SendLog($"CreateColumnsForEntity: Updated existing column {field.fieldname}");
+                    }
+                    else
+                    {
+                        // Create a new column for this field
+                        var colConfig = new BeepColumnConfig
+                        {
+                            ColumnName = field.fieldname,
+                            ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(field.fieldname),
+                            PropertyTypeName = field.fieldtype,
+                            GuidID = Guid.NewGuid().ToString(),
+                            Visible = true,
+                            Width = 100,
+                            SortMode = DataGridViewColumnSortMode.Automatic,
+                            Resizable = DataGridViewTriState.True,
+                            AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                            Index = startIndex++
+                        };
+
+                        colConfig.ColumnType = MapPropertyTypeToDbFieldCategory(colConfig.PropertyTypeName);
+                        colConfig.CellEditor = MapPropertyTypeToCellEditor(colConfig.PropertyTypeName);
+
+                        Type fieldType = Type.GetType(colConfig.PropertyTypeName, throwOnError: false);
+                        if (fieldType == typeof(DateTime))
+                        {
+                            colConfig.Format = "g";
+                        }
+                        else if (fieldType?.IsEnum == true)
+                        {
+                            colConfig.Items = CreateEnumItems(fieldType);
+                        }
+
+                        _columns.Add(colConfig);
+                        MiscFunctions.SendLog($"CreateColumnsForEntity: Added new column {field.fieldname}");
+                    }
+                }
+
+                // Reindex columns to ensure proper ordering
+                for (int i = 0; i < _columns.Count; i++)
+                {
+                    _columns[i].Index = i;
+                }
+
+                MiscFunctions.SendLog($"CreateColumnsForEntity: Processed {processedFields.Count} fields, total columns: {_columns.Count}");
+            }
+            catch (Exception ex)
+            {
+                MiscFunctions.SendLog($"Error in CreateColumnsForEntity: {ex.Message}");
+            }
+        }
+
+        private void CreateColumnsFromType(Type entityType)
+        {
+            try
+            {
+                if (entityType == null)
+                {
+                    MiscFunctions.SendLog("CreateColumnsFromType: Entity type is null");
+                    return;
+                }
+
+                MiscFunctions.SendLog($"Creating columns from Type: {entityType.FullName}");
+
+                // Initialize columns collection if null
+                if (_columns == null)
+                    _columns = new List<BeepColumnConfig>();
+
+                // Ensure we have the system columns
+                EnsureSystemColumns();
+
+                // Get the starting index for data columns (after system columns)
+                int startIndex = _columns.Count(c => c.IsSelectionCheckBox || c.IsRowNumColumn || c.IsRowID);
+
+                // Create a dictionary of existing columns for quick lookup
+                Dictionary<string, BeepColumnConfig> existingColumns = _columns
+                    .Where(c => c.ColumnName != null && !c.IsSelectionCheckBox && !c.IsRowNumColumn && !c.IsRowID)
+                    .ToDictionary(c => c.ColumnName, StringComparer.OrdinalIgnoreCase);
+
+                // Track which properties we've processed
+                HashSet<string> processedProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                // Update existing columns or add new ones for entity properties
+                foreach (var prop in entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                {
+                    // Skip indexers and other non-data properties
+                    if (prop.GetIndexParameters().Length > 0) continue;
+
+                    string propertyName = prop.Name;
+                    processedProperties.Add(propertyName);
+                    string propertyTypeName = prop.PropertyType.AssemblyQualifiedName;
+
+                    if (existingColumns.TryGetValue(propertyName, out BeepColumnConfig existingColumn))
+                    {
+                        // Update properties of existing column
+                        existingColumn.PropertyTypeName = propertyTypeName;
+                        existingColumn.ColumnType = MapPropertyTypeToDbFieldCategory(propertyTypeName);
+                        existingColumn.CellEditor = MapPropertyTypeToCellEditor(propertyTypeName);
+
+                        // Only update display properties if they aren't customized
+                        if (string.IsNullOrEmpty(existingColumn.ColumnCaption) ||
+                            existingColumn.ColumnCaption == existingColumn.ColumnName)
+                        {
+                            existingColumn.ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(propertyName);
+                        }
+
+                        // Update format for date/time fields if not already set
+                        if (string.IsNullOrEmpty(existingColumn.Format) && prop.PropertyType == typeof(DateTime))
+                        {
+                            existingColumn.Format = "g";
+                        }
+
+                        // Update enum items if applicable
+                        if (prop.PropertyType.IsEnum && (existingColumn.Items == null || !existingColumn.Items.Any()))
+                        {
+                            existingColumn.Items = CreateEnumItems(prop.PropertyType);
+                        }
+
+                        MiscFunctions.SendLog($"CreateColumnsFromType: Updated existing column {propertyName}");
+                    }
+                    else
+                    {
+                        // Create a new column for this property
+                        var colConfig = new BeepColumnConfig
+                        {
+                            ColumnName = propertyName,
+                            ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(propertyName),
+                            PropertyTypeName = propertyTypeName,
+                            GuidID = Guid.NewGuid().ToString(),
+                            Visible = true,
+                            Width = 100,
+                            SortMode = DataGridViewColumnSortMode.Automatic,
+                            Resizable = DataGridViewTriState.True,
+                            AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                            Index = startIndex++
+                        };
+
+                        colConfig.ColumnType = MapPropertyTypeToDbFieldCategory(colConfig.PropertyTypeName);
+                        colConfig.CellEditor = MapPropertyTypeToCellEditor(colConfig.PropertyTypeName);
+
+                        // Set format for date/time columns
+                        if (prop.PropertyType == typeof(DateTime))
+                        {
+                            colConfig.Format = "g";
+                        }
+
+                        // Handle enum properties
+                        if (prop.PropertyType.IsEnum)
+                        {
+                            colConfig.Items = CreateEnumItems(prop.PropertyType);
+                        }
+
+                        _columns.Add(colConfig);
+                        MiscFunctions.SendLog($"CreateColumnsFromType: Added new column {propertyName}");
+                    }
+                }
+
+                // Reindex columns to ensure proper ordering
+                for (int i = 0; i < _columns.Count; i++)
+                {
+                    _columns[i].Index = i;
+                }
+
+                MiscFunctions.SendLog($"CreateColumnsFromType: Processed {processedProperties.Count} properties, total columns: {_columns.Count}");
+            }
+            catch (Exception ex)
+            {
+                MiscFunctions.SendLog($"Error creating columns from Type {entityType?.FullName}: {ex.Message}");
+                // Don't call EnsureDefaultColumns() here to preserve existing columns on error
+            }
+        }
+
+        // Helper method to ensure system columns exist
+        private void EnsureSystemColumns()
+        {
+            // Add selection checkbox column if missing
+            if (!_columns.Any(c => c.IsSelectionCheckBox))
+            {
+                var selColumn = new BeepColumnConfig
+                {
+                    ColumnCaption = "☑",
+                    ColumnName = "Sel",
+                    Width = _selectionColumnWidth,
+                    Index = 0,
+                    Visible = ShowCheckboxes,
+                    Sticked = true,
+                    IsUnbound = true,
+                    IsSelectionCheckBox = true,
+                    PropertyTypeName = typeof(bool).AssemblyQualifiedName,
+                    CellEditor = BeepColumnType.CheckBoxBool,
+                    GuidID = Guid.NewGuid().ToString(),
+                    SortMode = DataGridViewColumnSortMode.NotSortable,
+                    Resizable = DataGridViewTriState.False,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                };
+                selColumn.ColumnType = MapPropertyTypeToDbFieldCategory(selColumn.PropertyTypeName);
+                _columns.Add(selColumn);
+            }
+
+            // Add row number column if missing
+            if (!_columns.Any(c => c.IsRowNumColumn))
+            {
+                var rowNumColumn = new BeepColumnConfig
+                {
+                    ColumnCaption = "#",
+                    ColumnName = "RowNum",
+                    Width = 30,
+                    Index = _columns.Count(c => c.IsSelectionCheckBox),
+                    Visible = ShowRowNumbers,
+                    Sticked = true,
+                    ReadOnly = true,
+                    IsRowNumColumn = true,
+                    IsUnbound = true,
+                    PropertyTypeName = typeof(int).AssemblyQualifiedName,
+                    CellEditor = BeepColumnType.Text,
+                    GuidID = Guid.NewGuid().ToString(),
+                    SortMode = DataGridViewColumnSortMode.NotSortable,
+                    Resizable = DataGridViewTriState.False,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                    AggregationType = AggregationType.Count
+                };
+                rowNumColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
+                _columns.Add(rowNumColumn);
+            }
+
+            // Add RowID column if missing
+            if (!_columns.Any(c => c.IsRowID))
+            {
+                var rowIdColumn = new BeepColumnConfig
+                {
+                    ColumnCaption = "RowID",
+                    ColumnName = "RowID",
+                    Width = 30,
+                    Index = _columns.Count(c => c.IsSelectionCheckBox || c.IsRowNumColumn),
+                    Visible = false,
+                    Sticked = true,
+                    ReadOnly = true,
+                    IsRowID = true,
+                    IsUnbound = true,
+                    PropertyTypeName = typeof(int).AssemblyQualifiedName,
+                    CellEditor = BeepColumnType.Text,
+                    GuidID = Guid.NewGuid().ToString(),
+                    SortMode = DataGridViewColumnSortMode.NotSortable,
+                    Resizable = DataGridViewTriState.False,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                };
+                rowIdColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowIdColumn.PropertyTypeName);
+                _columns.Add(rowIdColumn);
+            }
+        }
+
+        // Helper method to create enum items list
+        private List<SimpleItem> CreateEnumItems(Type enumType)
+        {
+            var items = new List<SimpleItem>();
+            if (enumType != null && enumType.IsEnum)
+            {
+                foreach (var val in Enum.GetValues(enumType))
+                {
+                    items.Add(new SimpleItem
+                    {
+                        Value = val,
+                        Text = val.ToString(),
+                        DisplayField = val.ToString()
+                    });
+                }
+            }
+            return items;
+        }
+
+        private object GetCollectionPropertyFromInstance(object instance)
+        {
+            if (instance == null) return null;
+
+            var properties = instance.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo collectionProp = null;
+            int collectionCount = 0;
+
+            foreach (var prop in properties)
+            {
+                if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
+                {
+                    var value = prop.GetValue(instance);
+                    if (value != null)
+                    {
+                        collectionProp = prop;
+                        collectionCount++;
+                        //   MiscFunctions.SendLog($"Found collection property: {prop.Name}, Type = {prop.PropertyType}");
+                    }
+                }
+            }
+
+            if (collectionCount == 1 && collectionProp != null)
+            {
+                return collectionProp.GetValue(instance);
+            }
+            else if (collectionCount > 1)
+            {
+                //   MiscFunctions.SendLog("Multiple collection properties found, please specify DataMember");
+            }
+            return null; // No single collection found or all are null
+        }
+        private Type GetItemTypeFromDataMember(Type propertyType)
+        {
+            // MiscFunctions.SendLog($"GetItemTypeFromDataMember: PropertyType = {propertyType.FullName}");
+
+            // Handle generic IEnumerable<T> (e.g., List<T>)
+            if (propertyType.IsGenericType && typeof(IEnumerable).IsAssignableFrom(propertyType))
+            {
+                Type[] genericArgs = propertyType.GetGenericArguments();
+                if (genericArgs.Length > 0)
+                {
+                    //   MiscFunctions.SendLog($"Extracted item type: {genericArgs[0].FullName}");
+                    return genericArgs[0];
+                }
+            }
+
+            // Handle DataTable
+            if (propertyType == typeof(DataTable))
+            {
+                //  MiscFunctions.SendLog("DataTable detected, returning DataRow");
+                return typeof(DataRow);
+            }
+
+            // Handle arrays
+            if (propertyType.IsArray)
+            {
+                //   MiscFunctions.SendLog($"Array detected, element type: {propertyType.GetElementType().FullName}");
+                return propertyType.GetElementType();
+            }
+
+            //  MiscFunctions.SendLog("No item type extracted");
+            return null;
+        }
+
+
+        #endregion Column Setup
+        // Add this method to ensure the grid initializes safely when dragged from toolbox
+        // Add this method to ensure the grid initializes safely when dragged from toolbox
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            if (_isInitializing)
+            {
+                MiscFunctions.SendLog("OnHandleCreated: Completing deferred initialization");
+                try
+                {
+                    // Initialize core collections to prevent null reference exceptions
+                    if (_columns == null) _columns = new List<BeepColumnConfig>();
+                    if (_fullData == null) _fullData = new List<object>();
+                    if (Rows == null) Rows = new BindingList<BeepRowConfig>();
+                    if (originalList == null) originalList = new List<object>();
+                    if (deletedList == null) deletedList = new List<object>();
+                    if (Trackings == null) Trackings = new List<Tracking>();
+                    if (ChangedValues == null) ChangedValues = new Dictionary<object, Dictionary<string, object>>();
+
+                    // Add default row ID and selection columns
+                    EnsureDefaultColumns();
+
+                    if (_pendingDataSource != null)
+                    {
+                        _dataSource = _pendingDataSource;
+                        DataSetup();
+                        InitializeData();
+                        FillVisibleRows();
+                        UpdateScrollBars();
+                        Invalidate();
+                    }
+                    else
+                    {
+                        // Initialize with empty data when dragged from toolbox
+                        InitializeRows();
+                        UpdateScrollBars();
+                        Invalidate();
+                    }
+                    _isInitializing = false; // Initialization complete
+                }
+                catch (Exception ex)
+                {
+                    MiscFunctions.SendLog($"Error during initialization: {ex.Message}");
+                    // Initialize with minimal UI to avoid crashing
+                    _isInitializing = false;
+                    Invalidate();
+                }
+            }
+        }
+        // Add this method to ensure required columns are always present
+  
 
         // Make DataSetup more resilient
         private void DataSetup()
@@ -2155,7 +2559,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 // Ensure _columns is initialized
-                _columns = new List<BeepColumnConfig>();
+                //_columns = new List<BeepColumnConfig>();
 
                 // Attempt to create entity structure if possible
                 if (entity == null && _entityType != null)
@@ -2197,320 +2601,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 EnsureDefaultColumns();
             }
         }
-        private void CreateColumnsFromType(Type entityType)
-        {
-            try
-            {
-                if (entityType == null) return;
-
-                MiscFunctions.SendLog($"Creating columns from Type: {entityType.FullName}");
-
-                // Clear any existing columns
-                Columns.Clear();
-                int startIndex = 0;
-
-                // Add selection checkbox column
-                var selColumn = new BeepColumnConfig
-                {
-                    ColumnCaption = "☑",
-                    ColumnName = "Sel",
-                    Width = _selectionColumnWidth,
-                    Index = startIndex++,
-                    Visible = ShowCheckboxes,
-                    Sticked = true,
-                    IsUnbound = true,
-                    IsSelectionCheckBox = true,
-                    PropertyTypeName = typeof(bool).AssemblyQualifiedName,
-                    CellEditor = BeepColumnType.CheckBoxBool,
-                    GuidID = Guid.NewGuid().ToString(),
-                    SortMode = DataGridViewColumnSortMode.NotSortable,
-                    Resizable = DataGridViewTriState.False,
-                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None
-                };
-                selColumn.ColumnType = MapPropertyTypeToDbFieldCategory(selColumn.PropertyTypeName);
-                Columns.Add(selColumn);
-
-                // Add row number column
-                var rowNumColumn = new BeepColumnConfig
-                {
-                    ColumnCaption = "#",
-                    ColumnName = "RowNum",
-                    Width = 30,
-                    Index = startIndex++,
-                    Visible = ShowRowNumbers,
-                    Sticked = true,
-                    ReadOnly = true,
-                    IsRowNumColumn = true,
-                    IsUnbound = true,
-                    PropertyTypeName = typeof(int).AssemblyQualifiedName,
-                    CellEditor = BeepColumnType.Text,
-                    GuidID = Guid.NewGuid().ToString(),
-                    SortMode = DataGridViewColumnSortMode.NotSortable,
-                    Resizable = DataGridViewTriState.False,
-                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                    AggregationType = AggregationType.Count
-                };
-                rowNumColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
-                Columns.Add(rowNumColumn);
-
-                // Add RowID column
-                var rowIdColumn = new BeepColumnConfig
-                {
-                    ColumnCaption = "RowID",
-                    ColumnName = "RowID",
-                    Width = 30,
-                    Index = startIndex++,
-                    Visible = false,
-                    Sticked = true,
-                    ReadOnly = true,
-                    IsRowID = true,
-                    IsUnbound = true,
-                    PropertyTypeName = typeof(int).AssemblyQualifiedName,
-                    CellEditor = BeepColumnType.Text,
-                    GuidID = Guid.NewGuid().ToString(),
-                    SortMode = DataGridViewColumnSortMode.NotSortable,
-                    Resizable = DataGridViewTriState.False,
-                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None
-                };
-                rowIdColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowIdColumn.PropertyTypeName);
-                Columns.Add(rowIdColumn);
-
-                // Add columns from properties
-                foreach (var prop in entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-                {
-                    // Skip indexers and other non-data properties
-                    if (prop.GetIndexParameters().Length > 0) continue;
-
-                    var colConfig = new BeepColumnConfig
-                    {
-                        ColumnName = prop.Name,
-                        ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(prop.Name),
-                        PropertyTypeName = prop.PropertyType.AssemblyQualifiedName,
-                        GuidID = Guid.NewGuid().ToString(),
-                        Visible = true,
-                        Width = 100,
-                        SortMode = DataGridViewColumnSortMode.Automatic,
-                        Resizable = DataGridViewTriState.True,
-                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                        Index = startIndex++
-                    };
-
-                    colConfig.ColumnType = MapPropertyTypeToDbFieldCategory(colConfig.PropertyTypeName);
-                    colConfig.CellEditor = MapPropertyTypeToCellEditor(colConfig.PropertyTypeName);
-
-                    // Set format for date/time columns
-                    if (prop.PropertyType == typeof(DateTime))
-                    {
-                        colConfig.Format = "g";
-                    }
-
-                    // Handle enum properties
-                    else if (prop.PropertyType.IsEnum)
-                    {
-                        colConfig.Items = new List<SimpleItem>();
-                        foreach (var val in Enum.GetValues(prop.PropertyType))
-                        {
-                            colConfig.Items.Add(new SimpleItem { Value = val, Text = val.ToString() });
-                        }
-                    }
-
-                    Columns.Add(colConfig);
-                }
-
-                MiscFunctions.SendLog($"Created {Columns.Count} columns from Type {entityType.FullName}");
-            }
-            catch (Exception ex)
-            {
-                MiscFunctions.SendLog($"Error creating columns from Type {entityType?.FullName}: {ex.Message}");
-                EnsureDefaultColumns();
-            }
-        }
-
-        private object GetCollectionPropertyFromInstance(object instance)
-        {
-            if (instance == null) return null;
-
-            var properties = instance.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            PropertyInfo collectionProp = null;
-            int collectionCount = 0;
-
-            foreach (var prop in properties)
-            {
-                if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
-                {
-                    var value = prop.GetValue(instance);
-                    if (value != null)
-                    {
-                        collectionProp = prop;
-                        collectionCount++;
-                     //   MiscFunctions.SendLog($"Found collection property: {prop.Name}, Type = {prop.PropertyType}");
-                    }
-                }
-            }
-
-            if (collectionCount == 1 && collectionProp != null)
-            {
-                return collectionProp.GetValue(instance);
-            }
-            else if (collectionCount > 1)
-            {
-             //   MiscFunctions.SendLog("Multiple collection properties found, please specify DataMember");
-            }
-            return null; // No single collection found or all are null
-        }
-        private Type GetItemTypeFromDataMember(Type propertyType)
-        {
-           // MiscFunctions.SendLog($"GetItemTypeFromDataMember: PropertyType = {propertyType.FullName}");
-
-            // Handle generic IEnumerable<T> (e.g., List<T>)
-            if (propertyType.IsGenericType && typeof(IEnumerable).IsAssignableFrom(propertyType))
-            {
-                Type[] genericArgs = propertyType.GetGenericArguments();
-                if (genericArgs.Length > 0)
-                {
-                 //   MiscFunctions.SendLog($"Extracted item type: {genericArgs[0].FullName}");
-                    return genericArgs[0];
-                }
-            }
-
-            // Handle DataTable
-            if (propertyType == typeof(DataTable))
-            {
-              //  MiscFunctions.SendLog("DataTable detected, returning DataRow");
-                return typeof(DataRow);
-            }
-
-            // Handle arrays
-            if (propertyType.IsArray)
-            {
-             //   MiscFunctions.SendLog($"Array detected, element type: {propertyType.GetElementType().FullName}");
-                return propertyType.GetElementType();
-            }
-
-          //  MiscFunctions.SendLog("No item type extracted");
-            return null;
-        }
-        public void CreateColumnsForEntity()
-        {
-            try
-            {
-                Columns.Clear();
-               
-                // Clear any existing columns
-              
-                int startIndex = 0; // Start indexing after special columns
-                                    // Add checkbox/selection column if enabled
-
-                var selColumn = new BeepColumnConfig
-                    {
-                        ColumnCaption =  "☑",
-                        ColumnName = "Sel",
-                        Width = _selectionColumnWidth,
-                        Index = startIndex,
-                        Visible = ShowCheckboxes,
-                        Sticked = true,
-                        IsUnbound = true,
-                        IsSelectionCheckBox = true,
-                        PropertyTypeName = typeof(bool).AssemblyQualifiedName,
-                        CellEditor = BeepColumnType.CheckBoxBool,
-                        GuidID = Guid.NewGuid().ToString(),
-                        SortMode = DataGridViewColumnSortMode.NotSortable,
-                        Resizable = DataGridViewTriState.False,
-                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None
-                    };
-                    selColumn.ColumnType = MapPropertyTypeToDbFieldCategory(selColumn.PropertyTypeName);
-                    Columns.Add(selColumn);
   
-
-                // Add row number column if enabled
-
-                    var rowNumColumn = new BeepColumnConfig
-                    {
-                        ColumnCaption = "#",
-                        ColumnName = "RowNum",
-                        Width = 30,
-                        Index = startIndex++,
-                        Visible = ShowRowNumbers,
-                        Sticked = true,
-                        ReadOnly = true,
-                        IsRowNumColumn = true,
-                        IsUnbound = true,
-                        PropertyTypeName = typeof(int).AssemblyQualifiedName,
-                        CellEditor = BeepColumnType.Text,
-                        GuidID = Guid.NewGuid().ToString(),
-                        SortMode = DataGridViewColumnSortMode.NotSortable,
-                        Resizable = DataGridViewTriState.False,
-                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                        AggregationType= AggregationType.Count
-                    };
-                    rowNumColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
-                    Columns.Add(rowNumColumn);
-
-
-                var RowIDColumn = new BeepColumnConfig
-                {
-                    ColumnCaption = "RowID",
-                    ColumnName = "RowID",
-                    Width = 30,
-                    Index = startIndex++,
-                    Visible = false,
-                    Sticked = true,
-                    ReadOnly = true,
-                    IsRowID = true,
-                    IsUnbound = true,
-                    PropertyTypeName = typeof(int).AssemblyQualifiedName,
-                    CellEditor = BeepColumnType.Text,
-                    GuidID = Guid.NewGuid().ToString(),
-                    SortMode = DataGridViewColumnSortMode.NotSortable,
-                    Resizable = DataGridViewTriState.False,
-                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None
-                };
-                RowIDColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
-                Columns.Add(RowIDColumn);
-                // Add entity-derived columns
-               
-                foreach (var field in Entity.Fields)
-                {
-                    var colConfig = new BeepColumnConfig
-                    {
-                        ColumnName = field.fieldname,
-                        ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(field.fieldname),
-                        PropertyTypeName = field.fieldtype,
-                        GuidID = Guid.NewGuid().ToString(),
-                        Visible = true,
-                        Width = 100,
-                        SortMode = DataGridViewColumnSortMode.Automatic,
-                        Resizable = DataGridViewTriState.True,
-                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                        Index = startIndex++
-                    };
-
-                    colConfig.ColumnType = MapPropertyTypeToDbFieldCategory(colConfig.PropertyTypeName);
-                    colConfig.CellEditor = MapPropertyTypeToCellEditor(colConfig.PropertyTypeName);
-
-                    Type fieldType = Type.GetType(colConfig.PropertyTypeName, throwOnError: false) ?? typeof(object);
-                    if (fieldType == typeof(DateTime))
-                    {
-                        colConfig.Format = "g";
-                    }
-                    else if (fieldType.IsEnum)
-                    {
-                        var values = Enum.GetValues(fieldType);
-                        colConfig.Items = new List<SimpleItem>();
-                        foreach (var val in values)
-                        {
-                            colConfig.Items.Add(new SimpleItem { Value = val, Text = val.ToString() });
-                        }
-                    }
-
-                    Columns.Add(colConfig);
-                }
-            }
-            catch (Exception ex)
-            {
-                MiscFunctions.SendLog($"Error adding columns for Entity {Entity?.EntityName}: {ex.Message}");
-            }
-        }
         // Make InitializeRows more resilient
         private void InitializeRows()
         {
@@ -3805,7 +3896,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Draw Top Items before Drawing the Grid
-            int filterPanelHeight = 40;
+           
             if (!_filterpaneldrawn)
             {
                 _filterpaneldrawn = true;
@@ -3816,7 +3907,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                    filterPanelRect = new Rectangle(-100, -100, drawingBounds.Width, 30);
+                    filterPanelRect = new Rectangle(-100, -100, drawingBounds.Width, filterPanelHeight);
                     //DrawFilterPanel(g, filterPanelRect);
                 }
             }
@@ -4047,11 +4138,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Position Filter controls on filterpanelrect
             if (filterColumnComboBox != null)
             {
-                filterColumnComboBox.Location = new Point(filterPanelRect.X + filterX, filterPanelRect.Y+5);
-                filterColumnComboBox.Size = new Size(200, 25);
+                filterColumnComboBox.Location = new Point(filterPanelRect.X + filterX, filterPanelRect.Y+ filtercontrolsheight);
+                filterColumnComboBox.Size = new Size(200, filterPanelRect.Height - (2 * filtercontrolsheight));
                 filterX += filterColumnComboBox.Width + 10; // Add padding
-                filterTextBox.Location = new Point(filterPanelRect.X + filterX, filterPanelRect.Y + 5);
-                filterTextBox.Size = new Size(200, 30);
+                filterTextBox.Location = new Point(filterPanelRect.X + filterX, filterPanelRect.Y + filtercontrolsheight);
+                filterTextBox.Size = new Size(200, filterPanelRect.Height-(2*filtercontrolsheight));
             }
         }
         private void DrawBottomAggregationRow(Graphics g, Rectangle rect)
@@ -4656,55 +4747,60 @@ namespace TheTechIdea.Beep.Winform.Controls
                     g.DrawLine(borderPen, rect.Left, rect.Bottom, rect.Right, rect.Bottom);
                 }
             }
+
+            // Position the title label with proper padding
             int padding = 10;
             int titleX = rect.Left + padding;
             int titleY = rect.Top + (rect.Height - titleLabel.Height) / 2;
             titleLabel.Location = new Point(titleX, titleY);
-            //titleLabel.Size = new Size(50, titleLabel.Height);
-            // Position the filter text box (search bar)
-            int rightMargin = padding;
-            //   filterColumnComboBox
-            int ComboBoxfilterTextBoxX = rect.Right - filterColumnComboBox.Width - rightMargin;
-            int ComboBoxfilterTextBoxY = rect.Top + (rect.Height - filterTextBox.Height) / 2;
-            filterColumnComboBox.Location = new Point(ComboBoxfilterTextBoxX, ComboBoxfilterTextBoxY);
-           
-            int filterTextBoxX = filterColumnComboBox.Left - filterTextBox.Width - rightMargin;
-            int filterTextBoxY = rect.Top + (rect.Height - filterTextBox.Height) / 2;
-            filterTextBox.Location = new Point(filterTextBoxX, filterTextBoxY);
-          
-            //titleLabel.ImageAlign = ContentAlignment.MiddleLeft;
-    //        titleLabel.TextAlign = ContentAlignment.MiddleLeft;
+
+            // Draw title label
             titleLabel.TextImageRelation = TextImageRelation.ImageBeforeText;
-   
-            //titleLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
-           // titleLabel.BackColor = _currentTheme.GridBackColor;
+
             if (Entity != null || TitleText.Equals("Simple BeepGrid"))
             {
-                if(Entity?.EntityName != null)
+                if (Entity?.EntityName != null)
                 {
                     titleLabel.Text = Entity.EntityName;
                 }
-                
-               
             }
             else
             {
                 titleLabel.Text = TitleText;
             }
-         //   titleLabel.MaxImageSize = new Size(30, titleLabel.Height-10);
-            // titleLabel.Theme = Theme;
-             titleLabel.Draw(g, rect);
-            // Position the filter button
-            // Position the percentage label
+
+            titleLabel.Draw(g, rect);
+
+            // Calculate right margin and control dimensions
+            int rightMargin = padding;
+
+            // Configure and position the combo box at the right side of the panel
+            int comboBoxWidth = 120;
+            int filterTextBoxWidth = 150;
+            int controlHeight = Math.Min(24, rect.Height);
+
+            // Position ComboBox on the right side with proper margin
+            int comboBoxX = rect.Right - comboBoxWidth - rightMargin;
+            int comboBoxY = rect.Top + (rect.Height - controlHeight) / 2; // Center vertically
+            filterColumnComboBox.Location = new Point(comboBoxX, comboBoxY);
+            filterColumnComboBox.Size = new Size(comboBoxWidth, controlHeight);
+
+            // Position TextBox to the left of ComboBox with proper spacing
+            int filterTextBoxX = comboBoxX - filterTextBoxWidth - rightMargin;
+            int filterTextBoxY = comboBoxY; // Same Y as the combo box
+            filterTextBox.Location = new Point(filterTextBoxX, filterTextBoxY);
+            filterTextBox.Size = new Size(filterTextBoxWidth, controlHeight);
+
+            // Position the percentage label (if needed)
             int percentageX = filterTextBoxX - percentageLabel.Width - padding;
             int percentageY = rect.Top + (rect.Height - percentageLabel.Height) / 2;
             percentageLabel.Location = new Point(percentageX, percentageY);
             percentageLabel.Visible = false;
+
+            // Make sure title label is correctly positioned
             titleLabel.Location = new Point(titleX, titleY);
-            //int filterButtonX = percentageX - filterButton.Width - padding;
-            //int filterButtonY = rect.Top + (rect.Height - filterButton.Height) / 2;
-            //filterButton.Location = new Point(filterButtonX, filterButtonY);
         }
+
         #endregion
         #region Selection Methods
         private void UpdateRowsSelection()
@@ -6730,12 +6826,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             //MainPanel.BackColor = _currentTheme.GridBackColor;
             if (titleLabel != null)
             {
-                titleLabel.ParentBackColor = footerback;
-                titleLabel.BackColor = footerback;
+                titleLabel.ParentBackColor = _currentTheme.GridHeaderBackColor; ;
+                titleLabel.BackColor = _currentTheme.GridHeaderBackColor; ;
                 titleLabel.IsChild = true;
                 titleLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
              //   titleLabel.Theme = Theme;
-                titleLabel.ForeColor = _currentTheme.GridHeaderForeColor;
+                titleLabel.ForeColor = _currentTheme.GridForeColor;
                 titleLabel.Invalidate();
             }
             if (Recordnumberinglabel1 != null) {
@@ -6838,6 +6934,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
             }
+            filterTextBox.TextFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
+            filterTextBox.ForeColor = _currentTheme.GridHeaderForeColor;
+            filterTextBox.BackColor = _currentTheme.GridHeaderBackColor; ;
+            filterTextBox.ParentBackColor = _currentTheme.GridHeaderBackColor; ;
+            filterTextBox.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
+            filterTextBox.HoverForeColor = _currentTheme.GridHeaderHoverForeColor;
+            filterTextBox.BorderColor = _currentTheme.GridForeColor;
+            filterTextBox.DisabledBackColor = _currentTheme.DisabledBackColor;
+            filterTextBox.DisabledForeColor = _currentTheme.DisabledForeColor;
+            filterTextBox.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
+            filterTextBox.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
+           
+            filterColumnComboBox.TextFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
+            filterColumnComboBox.ForeColor = _currentTheme.GridHeaderForeColor;
+            filterColumnComboBox.BackColor = _currentTheme.GridHeaderBackColor; ;
+            filterColumnComboBox.ParentBackColor = _currentTheme.GridHeaderBackColor; ;
+            filterColumnComboBox.HoverBackColor = _currentTheme.GridHeaderHoverBackColor;
             Invalidate();
         }
         #endregion
@@ -7206,6 +7319,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _currentPage = 1;
         // Use visibleRowCount for paging instead of a hardcoded _recordsPerPage
         private int _totalPages;// _fullData != null ? (int)Math.Ceiling((double)_fullData.Count / (GetVisibleRowCount() == 1 ? _fullData.Count : GetVisibleRowCount())) : 1;
+    
 
         private void DrawNavigationRow(Graphics g, Rectangle rect)
         {

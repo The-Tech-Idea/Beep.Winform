@@ -693,7 +693,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Event Handlers"
         private void ButtonClicked(object sender, EventArgs e)
         {
-            string tag = (sender as BeepButton).Tag.ToString();
+            string tag = (sender as Control).Tag.ToString();
             Clicked?.Invoke(this, new BeepMouseEventArgs(tag, sender));
             var arg = new BeepAppBarEventsArgs(tag, sender as BeepButton);
             if (_currentbutton != null)
@@ -825,17 +825,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             themeIcon.HoverBackColor = _currentTheme.AppBarBackColor;
             themeIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
 
-            //  searchBox.BackColor = _currentTheme.AppBarBackColor;
-            //searchBox.ParentBackColor = _currentTheme.AppBarBackColor;
-            //searchBox.HoverBackColor = _currentTheme.AppBarBackColor;
-            //searchBox.SelectedBackColor = _currentTheme.AppBarBackColor;
+            searchBox.BackColor = _currentTheme.AppBarBackColor;
+            searchBox.ParentBackColor = _currentTheme.AppBarBackColor;
+            searchBox.HoverBackColor = _currentTheme.AppBarBackColor;
+            searchBox.SelectedBackColor = _currentTheme.AppBarBackColor;
+            searchBox.ForeColor = _currentTheme.AppBarForeColor;
+            searchBox.AfterThemeApplied();
 
-            searchBox.Theme = Theme; ;
+            //searchBox.Theme = Theme; ;
             ///  searchBox.Invalidate();
             //  searchBox.Refresh();
             //  TitleLabel.Invalidate();
             //  TitleLabel.Refresh();
-          //  RearrangeLayout();
+            //  RearrangeLayout();
             Invalidate();
         }
         private void applythemetoButtons()

@@ -328,7 +328,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsFrameless = true,
                 IsRounded = false,
                 IsRoundedAffectedByTheme = false,
-             
+                IsColorFromTheme=false,
                 BorderSize = 0,
                // OverrideFontSize = TypeStyleFontSize.Small,
                 Tag = item,
@@ -756,7 +756,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
             // Fill the background
-            using (SolidBrush backgroundBrush = new SolidBrush(_currentTheme.ButtonBackColor))
+            using (SolidBrush backgroundBrush = new SolidBrush(BackColor))
             {
                 graphics.FillRectangle(backgroundBrush, rectangle);
             }

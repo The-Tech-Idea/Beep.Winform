@@ -428,20 +428,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-       //     base.ApplyTheme();
-            //if (IsChild && Parent != null)
-            //{
-            //    ParentBackColor = Parent.BackColor;
-            //    BackColor = Parent.BackColor;
-            //}
-            //else
-            //{
+            //     base.ApplyTheme();
+            if (IsChild && Parent != null)
+            {
+                BackColor = Parent.BackColor;
+                ParentBackColor = Parent.BackColor;
+            }
+            else
+            {
+                BackColor = _currentTheme.ButtonBackColor;
 
-            //}
-
-
-                //// Console.WriteLine("ApplyTheme in menubar");
-                BackColor = _currentTheme.MenuBackColor;
+            }
+            //// Console.WriteLine("ApplyTheme in menubar");
+            BackColor = _currentTheme.MenuBackColor;
             ForeColor = _currentTheme.MenuForeColor;
             container.BackColor = _currentTheme.MenuBackColor;
          //  // Console.WriteLine($"Container {container.Width} BackColor {container.BackColor} and BackColro {BackColor} and Theme SideMenuBackColor {_currentTheme.SideMenuBackColor}");  //BackColor {container.BackColor} and BackColro {BackColor} and Theme SideMenuBackColor {_currentTheme.SideMenuBackColor}dddddddddddddddddd
@@ -452,7 +451,7 @@ namespace TheTechIdea.Beep.Winform.Controls
           // // Console.WriteLine("ApplyTheme in menubar 1");
             Font = _textFont;
           // // Console.WriteLine("ApplyTheme in menubar 2");
-            foreach (var item in container.Controls)
+            foreach (var item in Controls)
             {
              //  // Console.WriteLine("ApplyTheme in menubar 3");
                 if (item is BeepButton)
@@ -472,12 +471,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     //}
                     Font = _textFont;
+                    button.IsColorFromTheme = false;
                     button.ParentBackColor = BackColor;
                     button.IsChild = true;
                     button.Font = _textFont;
                     // button.Theme = Theme;
-                    button.BackColor = BackColor;
-                    button.ForeColor = ForeColor;
+                    button.BackColor = _currentTheme.MenuBackColor;
+                    button.ForeColor = _currentTheme.MenuItemForeColor;
                     button.HoverBackColor = _currentTheme.MenuItemHoverBackColor;
                     button.HoverForeColor = _currentTheme.MenuItemHoverForeColor;
                     button.SelectedBackColor = _currentTheme.MenuItemSelectedBackColor;

@@ -1335,6 +1335,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (NodeMainMiddlebutton != null)
             {
                 //NodeMainMiddlebutton.Theme = Theme;
+                NodeMainMiddlebutton.IsColorFromTheme = false;
                 NodeMainMiddlebutton.ForeColor = _currentTheme.TreeNodeForeColor    ;
                 NodeMainMiddlebutton.BackColor = _currentTheme.TreeBackColor;
                 NodeMainMiddlebutton.BorderColor = _currentTheme.TreeBorderColor;
@@ -1351,7 +1352,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (Noderightbutton != null)
             {
-                Noderightbutton.Theme = Theme;
+                // Noderightbutton.Theme = Theme;
+                Noderightbutton.IsColorFromTheme = false;
                 Noderightbutton.ForeColor = _currentTheme.TreeNodeForeColor;
                 Noderightbutton.BackColor = _currentTheme.TreeBackColor;
                 Noderightbutton.BorderColor = _currentTheme.TreeBorderColor;
@@ -1362,7 +1364,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (Nodeleftbutton != null)
             {
-                Nodeleftbutton.Theme = Theme;
+                Nodeleftbutton.IsColorFromTheme = false;
                 Nodeleftbutton.ForeColor = _currentTheme.TreeNodeForeColor;
                 Nodeleftbutton.BackColor = _currentTheme.TreeBackColor;
                 Nodeleftbutton.BorderColor = _currentTheme.TreeBorderColor;
@@ -1381,11 +1383,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //item.HoverBackColor = _currentTheme.TreeNodeHoverBackColor;
                 //item.SelectedForeColor = _currentTheme.TreeNodeSelectedForeColor;
                 //item.SelectedBackColor = _currentTheme.TreeNodeSelectedBackColor;
-                 item.ApplyTheme();
+                item.ApplyTheme();
             }
             if (_checkBox != null)
             {
-              //  _checkBox.Theme = Theme;
+                
                 _checkBox.ForeColor = _currentTheme.TreeNodeForeColor;
                 _checkBox.BackColor = _currentTheme.TreeBackColor;
                 _checkBox.BorderColor = _currentTheme.TreeBorderColor;
@@ -1397,6 +1399,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (_toggleButton != null)
             {
+                _toggleButton.IsColorFromTheme = false;
                 _toggleButton.ImageEmbededin = ImageEmbededin.TreeView;
                 _toggleButton.ApplyThemeOnImage = true;
                 _toggleButton.Theme = Theme;

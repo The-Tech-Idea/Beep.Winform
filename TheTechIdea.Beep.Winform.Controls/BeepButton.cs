@@ -55,6 +55,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         public EventHandler<BeepEventDataArgs> ImageClicked { get; set; }
         private Color tmpbackcolor;
         private Color tmpforcolor;
+
+        private bool _isColorFromTheme = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public bool IsColorFromTheme
+        {
+            get => _isColorFromTheme;
+            set
+            {
+                _isColorFromTheme = value;
+               
+                Invalidate();  // Trigger repaint
+            }
+        }
         [Browsable(true)]
         [Category("Appearance")]
         public Color SplashColor { get; set; } = Color.Gray;
@@ -644,6 +658,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
+            _isColorFromTheme = true;
          //   base.ApplyTheme();
             if (IsChild && Parent != null)
             {
@@ -656,8 +671,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             beepImage.BackColor = BackColor;
             _originalBackColor = BackColor;
-            _originalForColor = ForeColor;
+         
             ForeColor = _currentTheme.ButtonForeColor;
+            _originalForColor = ForeColor;
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
             DisabledBackColor=_currentTheme.DisabledBackColor;
@@ -836,35 +852,44 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawImageAndText(Graphics g)
         {
+            Color color; Color backcolor;
 
-            Color color = _originalForColor;
-            Color backcolor = _originalBackColor;
+            if (_isColorFromTheme)
+            {
+                color = _originalForColor;
+                backcolor = _originalBackColor;
+            }else
+            {
+                color = ForeColor;
+                backcolor = BackColor;
+            }
+
             // Draw back color
             if (!splashActive)
             {
-             
+
                 if (Enabled)
                 {
 
                     if (IsHovered)
                     {
                         color = HoverForeColor;
-                       // backcolor = HoverBackColor;
+                        // backcolor = HoverBackColor;
                     }
                     else if (IsSelected)
                     {
-                        color =SelectedForeColor ;
-                      //  backcolor = SelectedBackColor;
+                        color = SelectedForeColor;
+                        //  backcolor = SelectedBackColor;
                     }
 
 
                 }
                 else
                 {
-                   // backcolor = DisabledBackColor;
+                    // backcolor = DisabledBackColor;
                     color = DisabledForeColor;
                 }
-              //  g.FillRectangle(new SolidBrush(backcolor), contentRect);
+                //  g.FillRectangle(new SolidBrush(backcolor), contentRect);
             }
            
             //// Console.WriteLine($"User ThemeFont is {UseThemeFont}");

@@ -272,7 +272,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             entityname = _entity.EntityName;
                             MiscFunctions.SendLog("3 Entity Setter: " + _entity.EntityName);
-                            _entityType = Type.GetType(_entity.EntityName);
+                            if(_entityType==null)   _entityType = Type.GetType(_entity.EntityName);
                         }
                         catch (Exception)
                         {
@@ -297,20 +297,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 MiscFunctions.SendLog($"DataSource Setter: Type = {value?.GetType()?.Name}, DesignMode = {DesignMode}, IsInitializing = {_isInitializing}");
-                if (_isInitializing)
-                {
-                    _pendingDataSource = value; // Defer setting until initialization is complete
-                    MiscFunctions.SendLog("Deferring DataSource setup until initialization completes");
-                }
-                else
-                {
+                //if (_isInitializing)
+                //{
+                //    _pendingDataSource = value; // Defer setting until initialization is complete
+                //    MiscFunctions.SendLog("Deferring DataSource setup until initialization completes");
+                //}
+                //else
+                //{
                     _dataSource = value;
                     DataSetup();
                     InitializeData();
                     FillVisibleRows();
                     UpdateScrollBars();
                     Invalidate();
-                }
+             //   }
             }
         }
      
@@ -1845,49 +1845,49 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
-            if (_isInitializing)
-            {
-                MiscFunctions.SendLog("OnHandleCreated: Completing deferred initialization");
-                try
-                {
-                    // Initialize core collections to prevent null reference exceptions
-                    if (_columns == null) _columns = new List<BeepColumnConfig>();
-                    if (_fullData == null) _fullData = new List<object>();
-                    if (Rows == null) Rows = new BindingList<BeepRowConfig>();
-                    if (originalList == null) originalList = new List<object>();
-                    if (deletedList == null) deletedList = new List<object>();
-                    if (Trackings == null) Trackings = new List<Tracking>();
-                    if (ChangedValues == null) ChangedValues = new Dictionary<object, Dictionary<string, object>>();
+            //if (_isInitializing)
+            //{
+            //    MiscFunctions.SendLog("OnHandleCreated: Completing deferred initialization");
+            //    try
+            //    {
+            //        // Initialize core collections to prevent null reference exceptions
+            //        if (_columns == null) _columns = new List<BeepColumnConfig>();
+            //        if (_fullData == null) _fullData = new List<object>();
+            //        if (Rows == null) Rows = new BindingList<BeepRowConfig>();
+            //        if (originalList == null) originalList = new List<object>();
+            //        if (deletedList == null) deletedList = new List<object>();
+            //        if (Trackings == null) Trackings = new List<Tracking>();
+            //        if (ChangedValues == null) ChangedValues = new Dictionary<object, Dictionary<string, object>>();
 
-                    // Add default row ID and selection columns
-                    EnsureDefaultColumns();
+            //        // Add default row ID and selection columns
+            //        EnsureDefaultColumns();
 
-                    if (_pendingDataSource != null)
-                    {
-                        _dataSource = _pendingDataSource;
-                        DataSetup();
-                        InitializeData();
-                        FillVisibleRows();
-                        UpdateScrollBars();
-                        Invalidate();
-                    }
-                    else
-                    {
-                        // Initialize with empty data when dragged from toolbox
-                        InitializeRows();
-                        UpdateScrollBars();
-                        Invalidate();
-                    }
-                    _isInitializing = false; // Initialization complete
-                }
-                catch (Exception ex)
-                {
-                    MiscFunctions.SendLog($"Error during initialization: {ex.Message}");
-                    // Initialize with minimal UI to avoid crashing
-                    _isInitializing = false;
-                    Invalidate();
-                }
-            }
+            //        if (_pendingDataSource != null)
+            //        {
+            //            _dataSource = _pendingDataSource;
+            //            DataSetup();
+            //            InitializeData();
+            //            FillVisibleRows();
+            //            UpdateScrollBars();
+            //            Invalidate();
+            //        }
+            //        else
+            //        {
+            //            // Initialize with empty data when dragged from toolbox
+            //            InitializeRows();
+            //            UpdateScrollBars();
+            //            Invalidate();
+            //        }
+            //        _isInitializing = false; // Initialization complete
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        MiscFunctions.SendLog($"Error during initialization: {ex.Message}");
+            //        // Initialize with minimal UI to avoid crashing
+            //        _isInitializing = false;
+            //        Invalidate();
+            //    }
+            //}
         }
         // Add this method to ensure required columns are always present
         private void EnsureDefaultColumns()
@@ -1970,87 +1970,126 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _columns.Add(rowIdColumn);
             }
         }
-        private Tuple<object,EntityStructure> SetupBindingSource()
+        private Tuple<object, EntityStructure> SetupBindingSource()
         {
-            object resolvedData = null; // Unified variable for final data or type resolution
-                                        //  MiscFunctions.SendLog($"BindingSource Detected: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
+            object resolvedData = null;
             EntityStructure entity = null;
-            if (DataSource == null)
+
+            try
             {
-                //   MiscFunctions.SendLog("BindingSource.DataSource is null, checking BindingSource.List");
-                resolvedData = _bindingSource.List; // Could be IList, DataView, etc.
-            }
-            else if (_bindingSource.DataSource is Type type)
-            {
-                // Handle Type (design-time or runtime)
-                 MiscFunctions.SendLog($"{(DesignMode ? "Design-time" : "Runtime")}: DataSource is Type = {type.FullName}");
+                if (_bindingSource == null)
+                {
+                    MiscFunctions.SendLog("SetupBindingSource: _bindingSource is null");
+                    return Tuple.Create(resolvedData, entity);
+                }
+
+                object dataSourceInstance = _bindingSource.DataSource;
+                Type dataSourceType = dataSourceInstance as Type ?? dataSourceInstance?.GetType();
+                Type itemType = null;
+
+                if (dataSourceType == null)
+                {
+                    MiscFunctions.SendLog("SetupBindingSource: No DataSource Type found");
+                    return Tuple.Create(resolvedData, entity);
+                }
+
                 if (!string.IsNullOrEmpty(_bindingSource.DataMember))
                 {
-                    PropertyInfo dataMemberProp = type.GetProperty(_bindingSource.DataMember, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                    if (dataMemberProp != null)
+                    // DataMember is provided
+                    MiscFunctions.SendLog($"SetupBindingSource: DataMember = {_bindingSource.DataMember}");
+
+                    // If DataSource is a TYPE (e.g., typeof(Company)), resolve the property type
+                    PropertyInfo memberProp = dataSourceType.GetProperty(
+                        _bindingSource.DataMember,
+                        BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+                    if (memberProp != null)
                     {
-                        Type itemType = GetItemTypeFromDataMember(dataMemberProp.PropertyType);
-                        if (itemType != null)
+                        Type memberType = memberProp.PropertyType;
+
+                        if (typeof(IEnumerable).IsAssignableFrom(memberType) && memberType != typeof(string))
                         {
-                                  MiscFunctions.SendLog($"Resolved ItemType from DataMember '{_bindingSource.DataMember}' = {itemType.FullName}");
-                            entity = EntityHelper.GetEntityStructureFromType(itemType);
-                            _entityType = type;
+                            // It's a collection (List<T> or Array)
+                            itemType = GetItemTypeFromDataMember(memberType);
                         }
                         else
                         {
-                              MiscFunctions.SendLog($"Could not extract item type from DataMember '{_bindingSource.DataMember}' property type: {dataMemberProp.PropertyType}");
+                            // Single object
+                            itemType = memberType;
+                        }
+
+                        // If instance, try to get actual value
+                        if (!(dataSourceInstance is Type))
+                        {
+                            resolvedData = memberProp.GetValue(dataSourceInstance);
                         }
                     }
                     else
                     {
-                          MiscFunctions.SendLog($"DataMember '{_bindingSource.DataMember}' not found on Type {type.FullName}");
+                        MiscFunctions.SendLog($"SetupBindingSource: DataMember '{_bindingSource.DataMember}' not found in type {dataSourceType.FullName}");
                     }
                 }
                 else
                 {
-                     MiscFunctions.SendLog("No DataMember specified with Type DataSource, using Type directly");
-                    entity = EntityHelper.GetEntityStructureFromType(type);
-                    _entityType = type;
-                }
-            }
-            else
-            {
-                // Handle instance (could be DataTable, IList, or class with DataMember)
-                if (!string.IsNullOrEmpty(_bindingSource.DataMember))
-                {
-                    PropertyInfo prop = _bindingSource.DataSource.GetType().GetProperty(_bindingSource.DataMember, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                    if (prop != null)
+                    // No DataMember provided
+                    MiscFunctions.SendLog($"SetupBindingSource: No DataMember, resolving directly from {dataSourceType.FullName}");
+
+                    if (typeof(IEnumerable).IsAssignableFrom(dataSourceType) && dataSourceType != typeof(string))
                     {
-                        resolvedData = prop.GetValue(_bindingSource.DataSource);
-                          MiscFunctions.SendLog($"Resolved data from DataMember = {resolvedData?.GetType()}");
+                        itemType = GetItemTypeFromDataMember(dataSourceType);
+
+                        if (!(dataSourceInstance is Type))
+                        {
+                            resolvedData = _bindingSource.List ?? dataSourceInstance;
+                        }
                     }
                     else
                     {
-                          MiscFunctions.SendLog($"DataMember '{_bindingSource.DataMember}' not found on instance, using BindingSource.List or DataSource");
-                        resolvedData = _bindingSource.List != null && _bindingSource.List.Count > 0 ? _bindingSource.List : _bindingSource.DataSource;
+                        // It's a single object
+                        itemType = dataSourceType;
+                        resolvedData = dataSourceInstance;
                     }
                 }
-                else
+
+                // Now create EntityStructure based on type
+                if (itemType != null)
                 {
-                      MiscFunctions.SendLog("No DataMember, attempting auto-detection or using BindingSource.List");
-                    resolvedData = GetCollectionPropertyFromInstance(_bindingSource.DataSource) ?? (_bindingSource.List != null && _bindingSource.List.Count > 0 ? _bindingSource.List : _bindingSource.DataSource);
-                    MiscFunctions.SendLog($"Resolved data = {resolvedData?.GetType()}");
+                    _entityType = itemType;
+                    entity = EntityHelper.GetEntityStructureFromType(itemType);
+                    MiscFunctions.SendLog($"SetupBindingSource: Entity built from itemType {itemType.FullName}");
+                }
+                else if (resolvedData != null)
+                {
+                    // fallback: create from actual data list
+                    entity = EntityHelper.GetEntityStructureFromListorTable(resolvedData);
+                    if (entity != null && !string.IsNullOrEmpty(entity.EntityName))
+                    {
+                        _entityType = Type.GetType(entity.EntityName);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                MiscFunctions.SendLog($"SetupBindingSource: Error {ex.Message}");
+            }
+
             return Tuple.Create(resolvedData, entity);
         }
+
+
         // Make DataSetup more resilient
         private void DataSetup()
         {
             try
             {
-                if (DesignMode)
-                {
-                    // Create minimal columns for design-time display
-                    if (_columns == null || _columns.Count == 0)
-                        EnsureDefaultColumns();
-                    return;
-                }
+                //if (DesignMode)
+                //{
+                //    // Create minimal columns for design-time display
+                //    if (_columns == null || _columns.Count == 0)
+                //        EnsureDefaultColumns();
+                //    return;
+                //}
+
                 EntityStructure entity = null;
                 object resolvedData = null;
 
@@ -2076,19 +2115,55 @@ namespace TheTechIdea.Beep.Winform.Controls
                     entity = ret.Item2;
                     finalData = _bindingSource;
                 }
+                else if (_dataSource is Type typeDataSource)
+                {
+                    // Direct Type as data source - important for empty collections
+                    _entityType = typeDataSource;
+                    _bindingSource.DataSource = _dataSource;
+                    entity = EntityHelper.GetEntityStructureFromType(typeDataSource);
+                    finalData = _bindingSource;
+                    MiscFunctions.SendLog($"DataSetup: DataSource is Type = {typeDataSource.FullName}, created entity structure");
+                }
                 else
                 {
                     // Handle basic data types and wrap with binding source
                     _bindingSource.DataSource = _dataSource;
                     resolvedData = _dataSource;
                     finalData = _bindingSource;
+
+                    // Try to determine _entityType from _dataSource even if empty
+                    if (_entityType == null && _dataSource != null)
+                    {
+                        Type dataSourceType = _dataSource.GetType();
+
+                        // Handle IList<T>, IEnumerable<T>, T[], etc.
+                        if (dataSourceType.IsGenericType && typeof(IEnumerable).IsAssignableFrom(dataSourceType))
+                        {
+                            Type[] genericArgs = dataSourceType.GetGenericArguments();
+                            if (genericArgs.Length > 0)
+                            {
+                                _entityType = genericArgs[0];
+                                MiscFunctions.SendLog($"Determined _entityType from datasource generic arguments: {_entityType.FullName}");
+                            }
+                        }
+                        else if (dataSourceType.IsArray)
+                        {
+                            _entityType = dataSourceType.GetElementType();
+                            MiscFunctions.SendLog($"Determined _entityType from datasource array element type: {_entityType.FullName}");
+                        }
+                    }
                 }
 
                 // Ensure _columns is initialized
-                if (_columns == null) _columns = new List<BeepColumnConfig>();
+                _columns = new List<BeepColumnConfig>();
 
                 // Attempt to create entity structure if possible
-                if (entity == null && resolvedData != null)
+                if (entity == null && _entityType != null)
+                {
+                    entity = EntityHelper.GetEntityStructureFromType(_entityType);
+                    MiscFunctions.SendLog($"Created entity structure from _entityType: {_entityType.FullName}");
+                }
+                else if (entity == null && resolvedData != null)
                 {
                     entity = EntityHelper.GetEntityStructureFromListorTable(resolvedData);
                 }
@@ -2102,13 +2177,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                         CreateColumnsForEntity();
                     }
                 }
+                else if (_entityType != null)
+                {
+                    // Create columns directly from _entityType when entity is null
+                    MiscFunctions.SendLog($"Creating columns from _entityType: {_entityType.FullName}");
+                    CreateColumnsFromType(_entityType);
+                }
                 else
                 {
                     // Ensure we have at least default columns
                     EnsureDefaultColumns();
                 }
 
-                MiscFunctions.SendLog($"DataSetup Completed: finalData = {finalData?.GetType()}, Entity = {Entity?.EntityName}, Columns Count = {_columns.Count}");
+                MiscFunctions.SendLog($"DataSetup Completed: finalData = {finalData?.GetType()}, Entity = {Entity?.EntityName}, _entityType = {_entityType?.FullName}, Columns Count = {_columns.Count}");
             }
             catch (Exception ex)
             {
@@ -2116,6 +2197,135 @@ namespace TheTechIdea.Beep.Winform.Controls
                 EnsureDefaultColumns();
             }
         }
+        private void CreateColumnsFromType(Type entityType)
+        {
+            try
+            {
+                if (entityType == null) return;
+
+                MiscFunctions.SendLog($"Creating columns from Type: {entityType.FullName}");
+
+                // Clear any existing columns
+                Columns.Clear();
+                int startIndex = 0;
+
+                // Add selection checkbox column
+                var selColumn = new BeepColumnConfig
+                {
+                    ColumnCaption = "☑",
+                    ColumnName = "Sel",
+                    Width = _selectionColumnWidth,
+                    Index = startIndex++,
+                    Visible = ShowCheckboxes,
+                    Sticked = true,
+                    IsUnbound = true,
+                    IsSelectionCheckBox = true,
+                    PropertyTypeName = typeof(bool).AssemblyQualifiedName,
+                    CellEditor = BeepColumnType.CheckBoxBool,
+                    GuidID = Guid.NewGuid().ToString(),
+                    SortMode = DataGridViewColumnSortMode.NotSortable,
+                    Resizable = DataGridViewTriState.False,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                };
+                selColumn.ColumnType = MapPropertyTypeToDbFieldCategory(selColumn.PropertyTypeName);
+                Columns.Add(selColumn);
+
+                // Add row number column
+                var rowNumColumn = new BeepColumnConfig
+                {
+                    ColumnCaption = "#",
+                    ColumnName = "RowNum",
+                    Width = 30,
+                    Index = startIndex++,
+                    Visible = ShowRowNumbers,
+                    Sticked = true,
+                    ReadOnly = true,
+                    IsRowNumColumn = true,
+                    IsUnbound = true,
+                    PropertyTypeName = typeof(int).AssemblyQualifiedName,
+                    CellEditor = BeepColumnType.Text,
+                    GuidID = Guid.NewGuid().ToString(),
+                    SortMode = DataGridViewColumnSortMode.NotSortable,
+                    Resizable = DataGridViewTriState.False,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                    AggregationType = AggregationType.Count
+                };
+                rowNumColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
+                Columns.Add(rowNumColumn);
+
+                // Add RowID column
+                var rowIdColumn = new BeepColumnConfig
+                {
+                    ColumnCaption = "RowID",
+                    ColumnName = "RowID",
+                    Width = 30,
+                    Index = startIndex++,
+                    Visible = false,
+                    Sticked = true,
+                    ReadOnly = true,
+                    IsRowID = true,
+                    IsUnbound = true,
+                    PropertyTypeName = typeof(int).AssemblyQualifiedName,
+                    CellEditor = BeepColumnType.Text,
+                    GuidID = Guid.NewGuid().ToString(),
+                    SortMode = DataGridViewColumnSortMode.NotSortable,
+                    Resizable = DataGridViewTriState.False,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                };
+                rowIdColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowIdColumn.PropertyTypeName);
+                Columns.Add(rowIdColumn);
+
+                // Add columns from properties
+                foreach (var prop in entityType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                {
+                    // Skip indexers and other non-data properties
+                    if (prop.GetIndexParameters().Length > 0) continue;
+
+                    var colConfig = new BeepColumnConfig
+                    {
+                        ColumnName = prop.Name,
+                        ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(prop.Name),
+                        PropertyTypeName = prop.PropertyType.AssemblyQualifiedName,
+                        GuidID = Guid.NewGuid().ToString(),
+                        Visible = true,
+                        Width = 100,
+                        SortMode = DataGridViewColumnSortMode.Automatic,
+                        Resizable = DataGridViewTriState.True,
+                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                        Index = startIndex++
+                    };
+
+                    colConfig.ColumnType = MapPropertyTypeToDbFieldCategory(colConfig.PropertyTypeName);
+                    colConfig.CellEditor = MapPropertyTypeToCellEditor(colConfig.PropertyTypeName);
+
+                    // Set format for date/time columns
+                    if (prop.PropertyType == typeof(DateTime))
+                    {
+                        colConfig.Format = "g";
+                    }
+
+                    // Handle enum properties
+                    else if (prop.PropertyType.IsEnum)
+                    {
+                        colConfig.Items = new List<SimpleItem>();
+                        foreach (var val in Enum.GetValues(prop.PropertyType))
+                        {
+                            colConfig.Items.Add(new SimpleItem { Value = val, Text = val.ToString() });
+                        }
+                    }
+
+                    Columns.Add(colConfig);
+                }
+
+                MiscFunctions.SendLog($"Created {Columns.Count} columns from Type {entityType.FullName}");
+            }
+            catch (Exception ex)
+            {
+                MiscFunctions.SendLog($"Error creating columns from Type {entityType?.FullName}: {ex.Message}");
+                EnsureDefaultColumns();
+            }
+        }
+
         private object GetCollectionPropertyFromInstance(object instance)
         {
             if (instance == null) return null;
@@ -2307,11 +2517,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (Rows == null) Rows = new BindingList<BeepRowConfig>();
             Rows.Clear();
 
-            // Ensure we have valid columns
-            if (_columns == null || !_columns.Any())
-            {
-                EnsureDefaultColumns();
-            }
+            //// Ensure we have valid columns
+            //if (_columns == null || !_columns.Any())
+            //{
+            //    EnsureDefaultColumns();
+            //}
 
             // Create at least one empty row to show something when dragged from toolbox
             int displayRows = Math.Max(1, Math.Min((_fullData?.Count ?? 0),
@@ -2397,8 +2607,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     MiscFunctions.SendLog($"InitializeData: Determined _entityType from first item in _fullData: {_entityType.FullName}");
                 }
             }
-
-            InitializeColumnsAndTracking();
+             InitializeColumnsAndTracking();
             InitializeRows();
             UpdateScrollBars();
             // fill column in filterColumnComboBox
@@ -2439,7 +2648,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (item == null) continue;
 
                 // Set _entityType based on the first valid item
-                if (isFirstItem)
+                if (isFirstItem && _entityType==null)
                 {
                     _entityType = item.GetType();
                     MiscFunctions.SendLog($"SyncFullDataFromBindingSource: Set _entityType to {_entityType.FullName}");
@@ -2462,6 +2671,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void InitializeColumnsAndTracking()
         {
+            if (_fullData == null || !_fullData.Any())
+                return;
             // Ensure column list is initialized
             if (_columns == null)
                 _columns = new List<BeepColumnConfig>();

@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public int ID { get; set; } = 1;
         public string BranchText { get; set; } = "Create Local DB";
         public int Level { get; set; }
-        public EnumPointType BranchType { get; set; } = EnumPointType.Entity;
+        public EnumPointType BranchType { get; set; } = EnumPointType.Function;
         public int BranchID { get; set; } = 1;
         public string IconImageName { get; set; } = "localconnections.svg";
         public string BranchStatus { get; set; }

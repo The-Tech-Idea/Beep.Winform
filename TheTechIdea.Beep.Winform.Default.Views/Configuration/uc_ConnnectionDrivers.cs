@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public int ID { get; set; } = 3;
         public string BranchText { get; set; } = "Connection Drivers";
         public int Level { get; set; }
-        public EnumPointType BranchType { get; set; } = EnumPointType.Entity;
+        public EnumPointType BranchType { get; set; } = EnumPointType.Function;
         public int BranchID { get; set; } = 3;
         public string IconImageName { get; set; } = "drivers.svg";
         public string BranchStatus { get; set; }

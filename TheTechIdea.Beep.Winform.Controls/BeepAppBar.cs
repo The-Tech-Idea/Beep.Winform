@@ -781,22 +781,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleLabel.Font = _textFont;
             profileIcon.ImageEmbededin = ImageEmbededin.AppBar;
             profileIcon.Theme = Theme;
-           
             profileIcon.BackColor = _currentTheme.AppBarBackColor;
-           
+            profileIcon.IsColorFromTheme = false;
             profileIcon.ParentBackColor = _currentTheme.AppBarBackColor;
             profileIcon.HoverBackColor = _currentTheme.AppBarBackColor;
             profileIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
             closeIcon.ImageEmbededin = ImageEmbededin.AppBar;
             closeIcon.Theme = Theme;
-          
+            closeIcon.IsColorFromTheme = false;
             closeIcon.BackColor = _currentTheme.AppBarBackColor;
             closeIcon.HoverBackColor = _currentTheme.AppBarBackColor;
             closeIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
             closeIcon.ParentBackColor = _currentTheme.AppBarBackColor;
             maximizeIcon.ImageEmbededin = ImageEmbededin.AppBar;
             maximizeIcon.Theme = Theme;
-          
+            maximizeIcon.IsColorFromTheme = false;
             maximizeIcon.BackColor = _currentTheme.AppBarBackColor;
             maximizeIcon.HoverBackColor = _currentTheme.AppBarBackColor;
             maximizeIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
@@ -804,7 +803,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             minimizeIcon.ImageEmbededin = ImageEmbededin.AppBar;
             minimizeIcon.Theme = Theme;
-
+            minimizeIcon.IsColorFromTheme = false;
             minimizeIcon.BackColor = _currentTheme.AppBarBackColor;
             minimizeIcon.HoverBackColor = _currentTheme.AppBarBackColor;
             minimizeIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
@@ -813,14 +812,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             notificationIcon.ImageEmbededin = ImageEmbededin.AppBar;
             notificationIcon.Theme = Theme;
-          
+            notificationIcon.IsColorFromTheme = false;
             notificationIcon.BackColor = _currentTheme.AppBarBackColor;
             notificationIcon.ParentBackColor = _currentTheme.AppBarBackColor;
             notificationIcon.HoverBackColor = _currentTheme.AppBarBackColor;
             notificationIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
             themeIcon.ImageEmbededin = ImageEmbededin.AppBar;
             notificationIcon.Theme = Theme;
-          
+            themeIcon.IsColorFromTheme = false;
             themeIcon.BackColor = _currentTheme.AppBarBackColor;
             themeIcon.ParentBackColor = _currentTheme.AppBarBackColor;
             themeIcon.HoverBackColor = _currentTheme.AppBarBackColor;

@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Views
             Visutil = (IAppManager)e.Objects.Where(c => c.Name == "VISUTIL").FirstOrDefault().obj;
 
             ViewModel = new FunctionToFunctionMappingViewModel(DMEEditor, Visutil);
-            this.function2FunctionsBindingSource.DataSource=ViewModel.Function2FunctionActions;
+           // this.function2FunctionsBindingSource.DataSource=ViewModel.Function2FunctionActions;
             BeepbindingNavigator1.BindingSource = function2FunctionsBindingSource;
             BeepbindingNavigator1.SaveCalled += BeepbindingNavigator1_SaveCalled;
             //this.function2FunctionsBindingNavigatorSaveItem.Click += Function2FunctionsBindingNavigatorSaveItem_Click;

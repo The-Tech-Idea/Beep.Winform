@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
     public partial class uc_FileConnections : TemplateUserControl, IAddinVisSchema
     {
-        public uc_FileConnections(IBeepService service)
+        public uc_FileConnections(IBeepService service) : base(service)
         {
             InitializeComponent();
             beepservice = service;
@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public int ID { get; set; } = 1;
         public string BranchText { get; set; } = "File Connections";
         public int Level { get; set; }
-        public EnumPointType BranchType { get; set; } = EnumPointType.Entity;
+        public EnumPointType BranchType { get; set; } = EnumPointType.Function;
         public int BranchID { get; set; } = 1;
         public string IconImageName { get; set; } = "fileconnections.svg";
         public string BranchStatus { get; set; }
@@ -52,6 +52,36 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         DataConnectionViewModel viewModel;
         private IBeepService beepservice;
        
+      
+
+        private void BeepSimpleGrid1_SaveCalled(object? sender, EventArgs e)
+        {
+            viewModel.Save();
+        }
+
+        private void BeepSimpleGrid1_CellValueChanged(object? sender, BeepCellEventArgs e)
+        {
+            //BeepColumnConfig beepColumnConfig = beepSimpleGrid1.GetColumnByName("DriverName");
+            //BeepColumnConfig currentcolumn = beepSimpleGrid1.GetColumnByIndex(e.Cell.ColumnIndex);
+            //if (currentcolumn.ColumnName == "DriverName")
+            //{
+            //    BeepColumnConfig driverversion = beepSimpleGrid1.GetColumnByName("DriverVersion");
+            //    driverversion.Items.Clear();
+            //    e.Cell.FilterdList = new List<SimpleItem>();
+            //    foreach (var DriversClasse in beepservice.Config_editor.DataDriversClasses.Where(x => x.PackageName == e.Cell.CellValue.ToString()))
+            //    {
+            //        SimpleItem itemversion = new SimpleItem();
+            //        itemversion.DisplayField = DriversClasse.version;
+            //        itemversion.Value = DriversClasse.version;
+            //        itemversion.Text = DriversClasse.version;
+            //        itemversion.Name = DriversClasse.version;
+
+            //        driverversion.FilterdList.Add(itemversion);
+
+
+            //    }
+            //}
+        }
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
@@ -98,36 +128,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //    driverversion.Items.Add(driveritem);
             //}
         }
-
-        private void BeepSimpleGrid1_SaveCalled(object? sender, EventArgs e)
-        {
-            viewModel.Save();
-        }
-
-        private void BeepSimpleGrid1_CellValueChanged(object? sender, BeepCellEventArgs e)
-        {
-            //BeepColumnConfig beepColumnConfig = beepSimpleGrid1.GetColumnByName("DriverName");
-            //BeepColumnConfig currentcolumn = beepSimpleGrid1.GetColumnByIndex(e.Cell.ColumnIndex);
-            //if (currentcolumn.ColumnName == "DriverName")
-            //{
-            //    BeepColumnConfig driverversion = beepSimpleGrid1.GetColumnByName("DriverVersion");
-            //    driverversion.Items.Clear();
-            //    e.Cell.FilterdList = new List<SimpleItem>();
-            //    foreach (var DriversClasse in beepservice.Config_editor.DataDriversClasses.Where(x => x.PackageName == e.Cell.CellValue.ToString()))
-            //    {
-            //        SimpleItem itemversion = new SimpleItem();
-            //        itemversion.DisplayField = DriversClasse.version;
-            //        itemversion.Value = DriversClasse.version;
-            //        itemversion.Text = DriversClasse.version;
-            //        itemversion.Name = DriversClasse.version;
-
-            //        driverversion.FilterdList.Add(itemversion);
-
-
-            //    }
-            //}
-        }
-
         public override void OnNavigatedTo(Dictionary<string, object> parameters)
         {
             base.OnNavigatedTo(parameters);

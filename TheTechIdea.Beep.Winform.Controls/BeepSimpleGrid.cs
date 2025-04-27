@@ -13,7 +13,6 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
-using System.Drawing.Drawing2D;
 using System.Drawing.Printing;
 
 
@@ -96,7 +95,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _defaultcolumnheaderheight = 40;
         private int _defaultcolumnheaderwidth = 50;
         private TextImageRelation textImageRelation = TextImageRelation.ImageAboveText;
-
+        // Create a pool of controls based on column type
+        private Dictionary<BeepColumnType, List<IBeepUIComponent>> _controlPool =
+            new Dictionary<BeepColumnType, List<IBeepUIComponent>>();
+        // Cache layout information to reduce recalculation
+        private Dictionary<string, Size> _columnTextSizes = new Dictionary<string, Size>();
+        private Dictionary<int, Rectangle> _cellBounds = new Dictionary<int, Rectangle>();
         private int _startviewrow = 0;
         private int _endviewrow = 0;
         #endregion Fields
@@ -776,6 +780,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.SetStyle(ControlStyles.UserPaint, true);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+
+            // Consider adding for large datasets:
+            SetStyle(ControlStyles.ResizeRedraw, false);  // Don't redraw on resize
+
             // Ensure _columns is only initialized once
             SetStyle(ControlStyles.Selectable | ControlStyles.UserMouse, true);
             // Check for design mode to prevent unnecessary operations
@@ -5710,7 +5718,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MiscFunctions.SendLog("UpdateCellPositions: No rows to update");
                 return;
             }
-
+            // Clear cache when positions need to be recalculated
+            _cellBounds.Clear();
             // yOffset is now 0 since Rows only contains visible rows
             int currentY = gridRect.Top;
 
@@ -5842,6 +5851,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
         #region Resizing Logic
+        private System.Windows.Forms.Timer _resizeTimer;
+        private bool _isResizing = false;
+        private Size _pendingSize;
+        private Size _lastCalculatedSize;
         public void SetColumnWidth(string columnName, int width)
         {
          
@@ -5997,17 +6010,61 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnResize(EventArgs e)
         {
-            SuspendLayout();
+            // Always call the base implementation
             base.OnResize(e);
-              _navigatorDrawn=false;
-            _filterpaneldrawn = false;
-         
+
+            // Store the current size for when the timer triggers
+            _pendingSize = this.Size;
+
+            // Initialize timer if needed
+            if (_resizeTimer == null)
+            {
+                _resizeTimer = new System.Windows.Forms.Timer();
+                _resizeTimer.Interval = 150; // Adjust interval as needed (milliseconds)
+                _resizeTimer.Tick += ResizeTimer_Tick;
+            }
+
+            // Mark essential flags that will be handled when timer fires
+            _isResizing = true;
+
+            // During active resize, only update essentials for visual feedback
+            SuspendLayout();
             UpdateDrawingRect();
-            UpdateRowCount();
-            FillVisibleRows();
             UpdateScrollBars();
-            ResumeLayout();
-            //Invalidate();
+            ResumeLayout(false); // Don't perform the layout yet
+
+            // Reset and start the timer
+            _resizeTimer.Stop();
+            _resizeTimer.Start();
+        }
+
+        private void ResizeTimer_Tick(object sender, EventArgs e)
+        {
+            // The resize has ended, stop the timer
+            _resizeTimer.Stop();
+
+            // Now perform the expensive operations
+            if (_isResizing && _lastCalculatedSize != _pendingSize)
+            {
+                SuspendLayout();
+                // Perform expensive operations
+                _lastCalculatedSize = _pendingSize;
+
+                // Reset flags to force redraw of these elements
+                _navigatorDrawn = false;
+                _filterpaneldrawn = false;
+
+                // Full refresh now that resizing has stopped
+                UpdateDrawingRect();
+                UpdateRowCount();
+                FillVisibleRows();
+                UpdateScrollBars();
+
+                ResumeLayout();
+                Invalidate();
+
+                _isResizing = false;
+            }
         }
         #endregion
         #region Editor
@@ -6085,7 +6142,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _editingCell = cell;
             _tempcell = cell;
-            Size cellSize = new Size(cell.Width, cell.Height);
+            Size cellSize = new Size(Columns[colIndex].Width, cell.Height);
 
             // Create or reuse editor control
             _editingControl = CreateCellControlForEditing(cell);
@@ -6106,6 +6163,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     e.Handled = true;
                 }
             };
+            _editingControl.LostFocus += LostFocusHandler;
             UpdateCellControl(_editingControl, Columns[colIndex],cell, cell.CellValue);
 
             // Attach event handlers
@@ -8455,11 +8513,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                     filterButton.Dispose();
                     filterButton = null;
                 }
-                //if (MainPanel != null)
-                //{
-                //    MainPanel.Dispose();
-                //    MainPanel = null;
-                //}
+
+                if (_resizeTimer != null)
+                {
+                    _resizeTimer.Stop();
+                    _resizeTimer.Dispose();
+                    _resizeTimer = null;
+                }
                 if (_fullData != null)
                 {
                     _fullData.Clear();

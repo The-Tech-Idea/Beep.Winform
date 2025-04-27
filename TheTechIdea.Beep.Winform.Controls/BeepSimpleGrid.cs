@@ -5808,47 +5808,164 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// Retrieves all rows from the data source. and not just displayed rows.
         /// and Fill data in all rows
         /// </summary>
+        /// <summary>
+        /// Retrieves all rows from the data source and ensures all rows are populated with data.
+        /// Unlike FillVisibleRows(), this method processes the entire data set, not just visible rows.
+        /// </summary>
         private void GetAllRows()
         {
-            if (_fullData == null) return;
-            if (_fullData.Count == 0) return;
-            RecalculateGridRect();
-           
+            if (_fullData == null || _fullData.Count == 0)
+                return;
+
+            // Calculate how many rows we need to add/ensure exist
             int dataRowCount = _fullData.Count;
             int currentRowCount = Rows.Count;
-                // Add new regular rows
-                int rowCountToAdd = dataRowCount - currentRowCount;
-                int index = currentRowCount;
+            int rowsToAdd = dataRowCount - currentRowCount;
 
-                for (int i = 0; i < rowCountToAdd; i++)
+            // If we already have all rows, just update their data
+            if (rowsToAdd <= 0)
+            {
+                // Update all existing rows with fresh data
+                for (int i = 0; i < currentRowCount; i++)
                 {
-                    var row = new BeepRowConfig
+                    if (i < dataRowCount)
                     {
-                        Index = index + i,
-                        DisplayIndex = _dataOffset + (index + i), // Map to visible data index
-                        IsAggregation = false
-                    };
-                    foreach (var col in Columns)
-                    {
-                        var cell = new BeepCellConfig
-                        {
-                            CellValue = null,
-                            CellData = null,
-                            IsEditable = true,
-                            ColumnIndex = col.Index,
-                            IsVisible = col.Visible,
-                            RowIndex = index + i,
-                            IsAggregation = false
-                        };
-                        row.Cells.Add(cell);
+                        UpdateRowData(i, _fullData[i]);
                     }
-                    Rows.Add(row); // Add at the end
+                }
+                return;
+            }
+
+            // Add new rows to match the full data set size
+            for (int i = 0; i < rowsToAdd; i++)
+            {
+                int dataIndex = currentRowCount + i;
+                var row = new BeepRowConfig
+                {
+                    Index = dataIndex,
+                    DisplayIndex = dataIndex,
+                    IsAggregation = false,
+                    Height = _rowHeights.ContainsKey(dataIndex) ? _rowHeights[dataIndex] : _rowHeight,
+                    RowData = _fullData[dataIndex]
+                };
+
+                // Create cells for each column in the row
+                foreach (var col in Columns)
+                {
+                    var cell = new BeepCellConfig
+                    {
+                        RowIndex = dataIndex,
+                        ColumnIndex = col.Index,
+                        IsVisible = col.Visible,
+                        IsEditable = !col.ReadOnly,
+                        IsAggregation = false,
+                        Height = row.Height
+                    };
+
+                    // Get cell data based on column type
+                    if (col.IsSelectionCheckBox)
+                    {
+                        var wrapper = _fullData[dataIndex] as DataRowWrapper;
+                        if (wrapper != null)
+                        {
+                            int rowID = wrapper.RowID;
+                            bool isSelected = _persistentSelectedRows.ContainsKey(rowID) && _persistentSelectedRows[rowID];
+                            cell.CellValue = isSelected;
+                            cell.CellData = isSelected;
+                        }
+                    }
+                    else if (col.IsRowNumColumn)
+                    {
+                        cell.CellValue = dataIndex + 1;
+                        cell.CellData = dataIndex + 1;
+                    }
+                    else if (col.IsRowID)
+                    {
+                        var wrapper = _fullData[dataIndex] as DataRowWrapper;
+                        if (wrapper != null)
+                        {
+                            cell.CellValue = wrapper.RowID;
+                            cell.CellData = wrapper.RowID;
+                        }
+                    }
+                    else
+                    {
+                        // Process regular data column
+                        var wrapper = _fullData[dataIndex] as DataRowWrapper;
+                        if (wrapper != null && wrapper.OriginalData != null)
+                        {
+                            var prop = wrapper.OriginalData.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
+                            if (prop != null)
+                            {
+                                var value = prop.GetValue(wrapper.OriginalData);
+                                cell.CellValue = value;
+                                cell.CellData = value;
+                            }
+                        }
+                    }
+
+                    row.Cells.Add(cell);
                 }
 
-            FillVisibleRows();
-            UpdateScrollBars();
+                row.IsDataLoaded = true;
+                Rows.Add(row);
+            }
 
+            // Make sure tracking and scroll state are properly updated
+            UpdateTrackingIndices();
+            UpdateScrollBars();
+            Invalidate();
         }
+
+        // Helper method to update an existing row with fresh data
+        private void UpdateRowData(int rowIndex, object dataItem)
+        {
+            if (rowIndex < 0 || rowIndex >= Rows.Count || dataItem == null)
+                return;
+
+            var row = Rows[rowIndex];
+            row.RowData = dataItem;
+
+            var wrapper = dataItem as DataRowWrapper;
+            if (wrapper == null || wrapper.OriginalData == null)
+                return;
+
+            EnsureTrackingForItem(wrapper);
+
+            foreach (var cell in row.Cells)
+            {
+                var col = Columns[cell.ColumnIndex];
+                if (col.IsSelectionCheckBox)
+                {
+                    bool isSelected = _persistentSelectedRows.ContainsKey(wrapper.RowID) && _persistentSelectedRows[wrapper.RowID];
+                    cell.CellValue = isSelected;
+                    cell.CellData = isSelected;
+                }
+                else if (col.IsRowNumColumn)
+                {
+                    cell.CellValue = rowIndex + 1;
+                    cell.CellData = rowIndex + 1;
+                }
+                else if (col.IsRowID)
+                {
+                    cell.CellValue = wrapper.RowID;
+                    cell.CellData = wrapper.RowID;
+                }
+                else
+                {
+                    var prop = wrapper.OriginalData.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
+                    if (prop != null)
+                    {
+                        var value = prop.GetValue(wrapper.OriginalData);
+                        cell.CellValue = value;
+                        cell.CellData = value;
+                    }
+                }
+            }
+
+            row.IsDataLoaded = true;
+        }
+
         #endregion
         #region Resizing Logic
         private System.Windows.Forms.Timer _resizeTimer;

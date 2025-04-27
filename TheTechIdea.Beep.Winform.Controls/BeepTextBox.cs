@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using System.Drawing.Drawing2D;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -1471,6 +1472,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.CompositingQuality = CompositingQuality.HighQuality;
+            graphics.ResetTransform();
             // Clip all drawing to the rectangle bounds
             using (Region clipRegion = new Region(rectangle))
             {

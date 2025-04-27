@@ -28,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Delegates"
         #region "protected Properties"
         Point originalLocation;
+
         protected bool _isControlinvalidated = false;
         protected bool tooltipShown = false; // Flag to track if tooltip is shown
         protected ImageScaleMode _scaleMode = ImageScaleMode.KeepAspectRatio;

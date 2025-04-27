@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using System.Drawing;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -381,6 +382,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawImageAndText(Graphics g)
         {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.CompositingQuality = CompositingQuality.HighQuality;
+            g.ResetTransform();
             if (!SetFont() && UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);

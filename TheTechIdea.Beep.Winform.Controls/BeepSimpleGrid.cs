@@ -13,6 +13,8 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using System.Drawing.Drawing2D;
+using System.Drawing.Printing;
 
 
 
@@ -739,11 +741,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         //            {
         //                titleLabel.BadgeText = value;
         //            }
-                    
+
         //        }
         //        Invalidate();
         //    }
         //}
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("If true, grid will be drawn in black and white (monochrome) instead of color.")]
+        public bool DrawInBlackAndWhite { get; set; } = false;
 
         private string _percentageText = string.Empty;
         [Browsable(true)]
@@ -5789,6 +5795,51 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        /// <summary>
+        /// Retrieves all rows from the data source. and not just displayed rows.
+        /// and Fill data in all rows
+        /// </summary>
+        private void GetAllRows()
+        {
+            if (_fullData == null) return;
+            if (_fullData.Count == 0) return;
+            RecalculateGridRect();
+           
+            int dataRowCount = _fullData.Count;
+            int currentRowCount = Rows.Count;
+                // Add new regular rows
+                int rowCountToAdd = dataRowCount - currentRowCount;
+                int index = currentRowCount;
+
+                for (int i = 0; i < rowCountToAdd; i++)
+                {
+                    var row = new BeepRowConfig
+                    {
+                        Index = index + i,
+                        DisplayIndex = _dataOffset + (index + i), // Map to visible data index
+                        IsAggregation = false
+                    };
+                    foreach (var col in Columns)
+                    {
+                        var cell = new BeepCellConfig
+                        {
+                            CellValue = null,
+                            CellData = null,
+                            IsEditable = true,
+                            ColumnIndex = col.Index,
+                            IsVisible = col.Visible,
+                            RowIndex = index + i,
+                            IsAggregation = false
+                        };
+                        row.Cells.Add(cell);
+                    }
+                    Rows.Add(row); // Add at the end
+                }
+
+            FillVisibleRows();
+            UpdateScrollBars();
+
+        }
         #endregion
         #region Resizing Logic
         public void SetColumnWidth(string columnName, int width)
@@ -7912,6 +7963,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void PrinterpictureBox_Click(object sender, EventArgs e)
         {
             CallPrinter?.Invoke(this, EventArgs.Empty);
+            if (Rows.Count > 0)
+            {
+                PrintGridAsReportDocument(false, $"{Entity.EntityName} Report", true);
+            }
+            else
+            {
+                MessageBox.Show("No data to print.", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void MessagepictureBox_Click(object sender, EventArgs e)
@@ -7919,6 +7978,256 @@ namespace TheTechIdea.Beep.Winform.Controls
             SendMessage?.Invoke(this, EventArgs.Empty);
         }
         #endregion
+        #region Print
+        public void PrintGridAsReportDocument(
+       bool blackAndWhite = false,
+       string reportTitle = null,
+       bool showDateTime = true,
+       bool showPreview = true,
+       bool showPrintDialogBeforePrint = false,
+       string saveAsPdfPath = null
+   )
+        {
+            // 1) Gather all rows we actually want to print
+            GetAllRows(); // your existing method to ensure Rows contains everything
+
+            if (Rows.Count == 0)
+            {
+                MessageBox.Show("No data to print.", "BeepSimpleGrid", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+          
+            // make a snapshot so we don’t accidentally re-evaluate Rows inside the loop
+            var printRows = Rows.ToList();
+
+            // pagination state
+            int _printRowIndex = 0;
+            int _printPageNumber = 1;
+
+            var pd = new PrintDocument
+            {
+                DefaultPageSettings = { Landscape = true }
+            };
+            // Calculate the total number of pages by simulating pagination
+            int totalPages = CalculateTotalPages(pd.DefaultPageSettings);
+
+            pd.BeginPrint += (s, e) =>
+            {
+                _printRowIndex = 0;
+                _printPageNumber = 1;
+            };
+
+            pd.PrintPage += (s, e) =>
+            {
+                bool origBW = DrawInBlackAndWhite;
+                DrawInBlackAndWhite = blackAndWhite;
+
+                var g = e.Graphics;
+                int left = e.MarginBounds.Left;
+                int right = e.MarginBounds.Right;
+                int top = e.MarginBounds.Top;
+                int bottom = e.MarginBounds.Bottom;
+
+                // fonts
+                using var titleFont = new Font(this.Font.FontFamily, 16f, FontStyle.Bold);
+                using var smallFont = new Font(this.Font.FontFamily, 10f, FontStyle.Regular);
+
+                int y = top;
+
+                // --- 1) Title & Date at the very top ---
+                float titleH = 0, dateH = 0;
+                if (!string.IsNullOrEmpty(reportTitle))
+                {
+                    var sz = g.MeasureString(reportTitle, titleFont);
+                    float tx = left + (e.MarginBounds.Width - sz.Width) / 2;
+                    g.DrawString(reportTitle, titleFont, Brushes.Black, tx, y);
+                    titleH = sz.Height;
+                }
+
+                if (showDateTime)
+                {
+                    string dtText = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+                    var dtSz = g.MeasureString(dtText, smallFont);
+                    float dx = right - dtSz.Width;
+                    g.DrawString(dtText, smallFont, Brushes.Black, dx, y);
+                    dateH = dtSz.Height;
+                }
+
+                // move past title/date
+                y += (int)(Math.Max(titleH, dateH) + 10);
+
+                // --- 2) Column headers ---
+                int cx = left;
+                int headerH = ColumnHeaderHeight;
+                using var hdrBack = new SolidBrush(_currentTheme.GridHeaderBackColor);
+                using var hdrFore = new SolidBrush(_currentTheme.PrimaryTextColor);
+                using var sf = new StringFormat
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center,
+                    Trimming = StringTrimming.EllipsisCharacter
+                };
+
+                foreach (var col in Columns.Where(c => c.Visible))
+                {
+                    var r = new Rectangle(cx, y, col.Width, headerH);
+                    g.FillRectangle(hdrBack, r);
+                    g.DrawString(
+                        col.ColumnCaption ?? "",
+                        ColumnHeaderFont ?? this.Font,
+                        hdrFore,
+                        r,
+                        sf
+                    );
+                    g.DrawRectangle(Pens.Gray, r);
+                    cx += col.Width;
+                }
+
+                // advance past headers
+                y += headerH;
+
+                // --- 3) Data rows pagination loop ---
+                int rowH = RowHeight;
+                while (_printRowIndex < printRows.Count)
+                {
+                    // if next row would overflow bottomMargin, break for next page
+                    if (y + rowH > bottom - 50)
+                        break;
+
+                    var row = printRows[_printRowIndex];
+                    int cellX = left;
+
+                    foreach (var cell in row.Cells)
+                    {
+                        var col = Columns[cell.ColumnIndex];
+                        if (!col.Visible) continue;
+
+                        var cellRect = new Rectangle(cellX, y, col.Width, rowH);
+                        var bgColor = (row.Index == _currentRowIndex)
+                                      ? _currentTheme.SelectedRowBackColor
+                                      : _currentTheme.GridBackColor;
+
+                        // if it’s a simple text cell, draw it directly
+                        if (_columnEditors.TryGetValue(col.ColumnName, out var editor)
+                            && (editor is BeepLabel || editor is BeepTextBox))
+                        {
+                            using var txtFmt = new StringFormat
+                            {
+                                Alignment = StringAlignment.Center,
+                                LineAlignment = StringAlignment.Center,
+                                Trimming = StringTrimming.EllipsisCharacter
+                            };
+                            using var txtBrush = new SolidBrush(_currentTheme.GridForeColor);
+                            g.DrawString(
+                                cell.CellValue?.ToString() ?? "",
+                                ColumnHeaderFont ?? this.Font,
+                                txtBrush,
+                                cellRect,
+                                txtFmt
+                            );
+                        }
+                        else
+                        {
+                            // otherwise fall back to your PaintCell for rich controls
+                            PaintCell(g, cell, cellRect, bgColor);
+                        }
+
+                        cellX += col.Width;
+                    }
+
+                    y += rowH;
+                    _printRowIndex++;
+                }
+
+                // --- 4) Footer: page number ---
+                using var footerFont = smallFont;
+                string pg = $"Page {_printPageNumber}- {totalPages}";
+                var pgSz = g.MeasureString(pg, footerFont);
+                float px = left + (e.MarginBounds.Width - pgSz.Width) / 2;
+                float py = bottom + 10;
+                g.DrawString(pg, footerFont, Brushes.Black, px, py);
+
+                // restore B/W mode
+                DrawInBlackAndWhite = origBW;
+
+                // tell the framework if we’ve got more pages
+                e.HasMorePages = (_printRowIndex < printRows.Count);
+                if (e.HasMorePages)
+                    _printPageNumber++;
+            };
+
+            // PDF output?
+            if (!string.IsNullOrEmpty(saveAsPdfPath))
+            {
+                pd.PrinterSettings.PrinterName = "Microsoft Print to PDF";
+                pd.PrinterSettings.PrintToFile = true;
+                pd.PrinterSettings.PrintFileName = saveAsPdfPath;
+            }
+
+            // preview or direct print
+            if (showPreview && string.IsNullOrEmpty(saveAsPdfPath))
+            {
+                using var preview = new BeepPrintPreviewForm(pd);
+                preview.ShowDialog();
+            }
+            else if (showPrintDialogBeforePrint)
+            {
+                using var dlg = new PrintDialog { Document = pd };
+                if (dlg.ShowDialog() == DialogResult.OK)
+                    pd.Print();
+            }
+            else
+            {
+                pd.Print();
+            }
+        }
+
+        private int CalculateTotalPages(PageSettings pageSettings)
+        {
+            // If no rows, there's just one empty page
+            if (Rows.Count == 0)
+                return 1;
+
+            // Create a bitmap to measure text with the same DPI as printer
+            using Bitmap bmp = new Bitmap(1, 1);
+            using Graphics g = Graphics.FromImage(bmp);
+            g.PageUnit = GraphicsUnit.Display;
+
+            // Get page dimensions
+            int pageWidth = pageSettings.Bounds.Width;
+            int pageHeight = pageSettings.Bounds.Height;
+            int marginLeft = pageSettings.Margins.Left;
+            int marginTop = pageSettings.Margins.Top;
+            int marginRight = pageSettings.Margins.Right;
+            int marginBottom = pageSettings.Margins.Bottom;
+
+            // Calculate printable area
+            int printableWidth = pageWidth - marginLeft - marginRight;
+            int printableHeight = pageHeight - marginTop - marginBottom;
+
+            // Estimate header height (title + date + column headers)
+            int headerHeight = 0;
+            using (var titleFont = new Font(this.Font.FontFamily, 16f, FontStyle.Bold))
+            {
+                headerHeight += (int)g.MeasureString("Sample", titleFont).Height + 10;
+            }
+            headerHeight += ColumnHeaderHeight;
+
+            // Reserve space for page footer
+            int footerHeight = 50;
+
+            // Calculate available space for rows
+            int availableHeight = printableHeight - headerHeight - footerHeight;
+
+            // Calculate how many rows fit on a page
+            int rowsPerPage = Math.Max(1, availableHeight / RowHeight);
+
+            // Calculate total pages
+            return (int)Math.Ceiling((double)Rows.Count / rowsPerPage);
+        }
+
+        #endregion Print
         #region Helper Methods
         public override void SuspendFormLayout()
         {
@@ -8073,6 +8382,16 @@ namespace TheTechIdea.Beep.Winform.Controls
           //  MiscFunctions.SendLog($"MapPropertyTypeToCellEditor: Unknown type '{type.FullName}', defaulting to Text");
             return BeepColumnType.Text;
         }
+        private Color GetEffectiveColor(Color originalColor)
+        {
+            if (!DrawInBlackAndWhite)
+                return originalColor;
+
+            // Convert to grayscale
+            int gray = (int)(0.3 * originalColor.R + 0.59 * originalColor.G + 0.11 * originalColor.B);
+            return Color.FromArgb(originalColor.A, gray, gray, gray);
+        }
+
         #endregion
         protected override void Dispose(bool disposing)
         {

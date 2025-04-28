@@ -774,7 +774,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
                     Passedarguments.ObjectType =  ExtensionsHelpers.CurrentBranch.BranchClass;
                     Passedarguments.DatasourceName = ExtensionsHelpers.ParentBranch.BranchText;
                     Passedarguments.EventType = "DATAEDIT";
-                    ExtensionsHelpers.Vismanager.ShowPage("uc_CrudView", (PassedArgs)Passedarguments, DisplayType.InControl);
+                    ExtensionsHelpers.Vismanager.ShowPage("uc_DataEdit", (PassedArgs)Passedarguments, DisplayType.InControl);
                 }
                 catch (Exception ex)
                 {

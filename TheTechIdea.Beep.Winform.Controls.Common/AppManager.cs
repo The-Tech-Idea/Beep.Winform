@@ -185,7 +185,20 @@ namespace TheTechIdea.Beep.Desktop.Common
         #endregion "Events"
         #region "Methods"
         #region "Helpers"
+        private Dictionary<string,object> ConvertIPassedArgstoDictionary(IPassedArgs args)
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            foreach (var prop in args.GetType().GetProperties())
+            {
+                if (prop.GetValue(args) != null)
+                {
+                    dict.Add(prop.Name, prop.GetValue(args));
 
+                }
+               
+            }
+            return dict;
+        }
         #endregion "Helpers"
         #region "Loading and Initialization"
         public async Task<IErrorsInfo> LoadGraphics(string[] namespacestoinclude)
@@ -872,7 +885,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             IDM_Addin addin = null;
             try
             {
-                RoutingManager.NavigateTo(pagename);
+                RoutingManager.NavigateTo(pagename,ConvertIPassedArgstoDictionary(passedarguments));
             }
             catch (Exception ex)
             {
@@ -887,7 +900,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             IDM_Addin addin = null;
             try
             {
-                RoutingManager.NavigateTo(usercontrolname, null, true);
+                RoutingManager.NavigateTo(usercontrolname,  ConvertIPassedArgstoDictionary(e), true);
             }
             catch (Exception ex)
             {

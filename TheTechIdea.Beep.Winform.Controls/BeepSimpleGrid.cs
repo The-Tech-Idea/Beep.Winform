@@ -126,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         [Browsable(true)]
 
-        private string _titletext = "Simple BeepGrid";
+        private string _titletext = "";
         [Browsable(true)]
         [Category("Layout")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
@@ -4771,7 +4771,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw title label
             titleLabel.TextImageRelation = TextImageRelation.ImageBeforeText;
 
-            if (Entity != null || TitleText.Equals("Simple BeepGrid"))
+            if (Entity != null )
             {
                 if (Entity?.EntityName != null)
                 {

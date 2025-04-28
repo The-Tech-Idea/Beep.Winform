@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using System;
 using TheTechIdea.Beep.Container;
 using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Vis;
 
 
 
@@ -183,7 +184,20 @@ namespace TheTechIdea.Beep.Desktop.Common
 
             foreach (var viewType in viewTypes)
             {
-                Services.AddTransient(typeof(IDM_Addin), viewType);
+                // get Addinattribute ScopeCreateType to decide how to add the IDM_Addin 
+                var addinAttribute = viewType.GetCustomAttribute<AddinAttribute>();
+                if (addinAttribute != null)
+                {
+                    if (addinAttribute.ScopeCreateType == AddinScopeCreateType.Single)
+                    {
+                        Services.AddSingleton(typeof(IDM_Addin), viewType);
+                    }
+                    else
+                    {
+                        Services.AddTransient(typeof(IDM_Addin), viewType);
+                    }
+                }
+              
             }
 
             return Services;

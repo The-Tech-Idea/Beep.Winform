@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
-    [AddinAttribute(Caption = "Data Edit", Name = "uc_DataEdit", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.InControl, ObjectType = "Beep")]
+    [AddinAttribute(Caption = "Data Edit", Name = "uc_DataEdit",ScopeCreateType = AddinScopeCreateType.Multiple, misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.InControl, ObjectType = "Beep")]
 
     public partial class uc_DataEdit : TemplateUserControl
     {

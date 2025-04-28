@@ -159,20 +159,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (control == null || string.IsNullOrWhiteSpace(TitleText))
                 return false;
-
-            if (_controls.ContainsKey(TitleText))
-                return false; // Avoid duplicates
-
-            // Initialize the addin
-            try
+            AddinAttribute addinAttribute = control.GetType().GetCustomAttributes(typeof(AddinAttribute), true).FirstOrDefault() as AddinAttribute;
+            if(addinAttribute != null)
             {
-                control.Initialize();
+                if(addinAttribute.ScopeCreateType== AddinScopeCreateType.Single)
+                {
+                    return false; // Avoid duplicates
+                }
             }
-            catch (Exception)
+            else
             {
-                // Addin should handle OnError internally
-                return false;
+                if (_controls.ContainsKey(TitleText))
+                    return false; // Avoid duplicates
             }
+
+
+                // Initialize the addin
+                try
+                {
+                    control.Initialize();
+                }
+                catch (Exception)
+                {
+                    // Addin should handle OnError internally
+                    return false;
+                }
 
             if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.SinglePanel)
             {

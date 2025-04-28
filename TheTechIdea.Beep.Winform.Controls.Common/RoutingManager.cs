@@ -724,7 +724,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             if (!_routes.ContainsKey(routeName))
             {
                 _routes[routeName] = viewType;
-                _viewCache[routeName] = new Lazy<IDM_Addin>(() => CreateUsingActivator(viewType));
+                _viewCache[routeName] = new Lazy<IDM_Addin>(() => GetAddin(routeName));
             }
 
             if (guard != null)

@@ -436,16 +436,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (node == null) return;
 
             // Add to SelectedNodes if not already present
-            if (!SelectedNodes.Contains(node))
-                SelectedNodes.Add(node);
+
+                if (!SelectedNodes.Contains(node))
+                    SelectedNodes.Add(node);
+ 
+        
             NodeChecked?.Invoke(sender, e);
-            if (!AllowMultiSelect)
-            {
-                // Single selection mode
-                DeselectSelectdNodes();          // This will set IsSelected=false on previously selected nodes
-                node.IsSelected = true; // This will raise NodeSelected
-                _lastSelectedNode = node;
-            }
+         
          
         }
         private void OnNodeUnChecked(object? sender, BeepMouseEventArgs e)
@@ -458,6 +455,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Remove from SelectedNodes if present
             if (SelectedNodes.Contains(node))
                 SelectedNodes.Remove(node);
+            NodeUnchecked?.Invoke(sender, e);
         }
         private void OnNodeSelected(object? sender, BeepMouseEventArgs e)
         {
@@ -563,7 +561,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SelectedNode = visibleNodes[currentIndex - 1];
             }
         }
-
         /// <summary>
         /// Selects the next visible node (if any) in the tree.
         /// </summary>
@@ -580,7 +577,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SelectedNode = visibleNodes[currentIndex + 1];
             }
         }
-
         protected override void OnKeyDown(KeyEventArgs e)
         {
             if (SelectedNode == null) return;
@@ -597,7 +593,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 NodeSelected?.Invoke(this, new BeepMouseEventArgs { EventName="KeyEnter" });
             }
         }
-
         private void ChangeTextAlignment()
         {
             // change the text alignment of all nodes

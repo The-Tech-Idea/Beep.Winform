@@ -1068,15 +1068,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_checkBox != null)
             {
                 IsChecked = _checkBox.CurrentValue;
-
+                
                 // Raise appropriate events without modifying SelectedNodes directly.
                 if (IsChecked)
                 {
-                    NodeChecked?.Invoke(this, new BeepMouseEventArgs("NodeSelected", this));
+                    NodeChecked?.Invoke(this, new BeepMouseEventArgs("NodeChecked", this));
                 }
                 else
                 {
-                    NodeChecked?.Invoke(this, new BeepMouseEventArgs("NodeDeselected", this));
+                    NodeUnchecked?.Invoke(this, new BeepMouseEventArgs("NodeUnChecked", this));
                 }
             }
         }

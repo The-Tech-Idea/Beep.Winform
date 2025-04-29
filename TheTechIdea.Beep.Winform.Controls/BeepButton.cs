@@ -499,7 +499,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Properties"
         #region "Constructor"
         // Constructor
-        public BeepButton()
+        public BeepButton():base()
         {
             
 

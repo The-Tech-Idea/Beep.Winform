@@ -776,16 +776,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepSimpleGrid():base()
         {
             //// This ensures child controls are painted properly
-            this.SetStyle(ControlStyles.ContainerControl, true);
-            this.SetStyle(ControlStyles.UserPaint, true);
-            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-
-            // Consider adding for large datasets:
-            SetStyle(ControlStyles.ResizeRedraw, false);  // Don't redraw on resize
-
-            // Ensure _columns is only initialized once
-            SetStyle(ControlStyles.Selectable | ControlStyles.UserMouse, true);
+            
             // Check for design mode to prevent unnecessary operations
             if (DesignMode)
             {

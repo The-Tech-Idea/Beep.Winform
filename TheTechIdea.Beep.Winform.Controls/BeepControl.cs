@@ -853,9 +853,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             DoubleBuffered = true;
             this.SetStyle(ControlStyles.ContainerControl, true);
+           
             this.SetStyle(ControlStyles.UserPaint, true);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+
+            // Consider adding for large datasets:
+            SetStyle(ControlStyles.ResizeRedraw, false);  // Don't redraw on resize
+
+            // Ensure _columns is only initialized once
+            SetStyle(ControlStyles.Selectable | ControlStyles.UserMouse, true);
             this.UpdateStyles();
             //  base.ProcessTabKey(true);
 

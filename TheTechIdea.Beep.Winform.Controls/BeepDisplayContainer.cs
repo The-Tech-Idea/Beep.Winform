@@ -196,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 _singlePanelAddin = control;
                 if (control is Control winControl)
-                {
+                 {
                     ContainerPanel.Controls.Clear();
                     ContainerPanel.Controls.Add(winControl);
                     winControl.Margin = new Padding(5);

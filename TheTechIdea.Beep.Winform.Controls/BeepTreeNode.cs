@@ -474,9 +474,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Properties"
         #region "Constructors"
-        public BeepTreeNode()
+        public BeepTreeNode() : base()
         {
-          //  LogMessage($"Construct 1");
+    
             UpdateDrawingRect();
             BoundProperty= "Text";
             Height = NodeHeight;

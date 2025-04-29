@@ -316,13 +316,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "SearchBox AutoComplete Properties"
         #endregion "Properties"
         #region "Constructor"
-        public BeepAppBar()
+        public BeepAppBar() : base()
+
         {// Enable optimized painting and double buffering
-            SetStyle(ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.UserPaint |
-                     ControlStyles.ResizeRedraw, true); // Enable ResizeRedraw
-            this.UpdateStyles();
+            //SetStyle(ControlStyles.AllPaintingInWmPaint |
+            //         ControlStyles.OptimizedDoubleBuffer |
+            //         ControlStyles.UserPaint |
+            //         ControlStyles.ResizeRedraw, true); // Enable ResizeRedraw
+            //this.UpdateStyles();
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
             IsRoundedAffectedByTheme = false;

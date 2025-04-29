@@ -1012,6 +1012,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 child.Location = new Point(xlevel * padding, childStartY); // Indent child nodes
                                 child.Width = Width - (xlevel * padding);
                                 child.Theme = Theme;
+                                child.ShowCheckBox = _showCheckBox;
                                 child.RearrangeNode(); // Recursively arrange children
                                 childStartY += child.Height + padding;
                             }
@@ -1066,10 +1067,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_checkBox != null)
             {
-                IsSelected = _checkBox.CurrentValue;
+                IsChecked = _checkBox.CurrentValue;
 
                 // Raise appropriate events without modifying SelectedNodes directly.
-                if (IsSelected)
+                if (IsChecked)
                 {
                     NodeChecked?.Invoke(this, new BeepMouseEventArgs("NodeSelected", this));
                 }
@@ -1806,10 +1807,10 @@ namespace TheTechIdea.Beep.Winform.Controls
       
         private void SelectUnSelectNode(bool isSelected)
         {
-            if (_checkBox != null)
-            {
-                _checkBox.CurrentValue = isSelected;
-            }
+            //if (_checkBox != null)
+            //{
+            //    _checkBox.CurrentValue = isSelected;
+            //}
             if (NodeMainMiddlebutton != null)
             {
                     NodeMainMiddlebutton.IsSelected = isSelected;

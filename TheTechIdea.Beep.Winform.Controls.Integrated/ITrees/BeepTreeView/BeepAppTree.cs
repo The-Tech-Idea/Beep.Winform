@@ -58,16 +58,68 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         public bool IsCheckBoxon { get; set; } = false;
         public ITreeBranchHandler Treebranchhandler { get; set; }
         public BeepTreeNodeDragandDropHandler DropHandler { get; set; }
-        public IBranch SelectedBranch { get; set; }
+  
+        private IBranch _selectedbranch;
+        public IBranch SelectedBranch {
+            get { 
+                if(base.SelectedNodes != null && base.SelectedNodes.Count > 0)
+                {
+                    var br = GetBranchByGuidID(base.SelectedNodes[0].GuidID);
+                    if (br != null)
+                    {
+                        _selectedbranch = br;
+                    }
+                }
+                else
+                {
+                    _selectedbranch = null;
+                }
+
+                return _selectedbranch; }
+            set
+            {
+                _selectedbranch = value;
+                if (SelectedBranch != null)
+                {
+                    SelectedBranch.DMEEditor = DMEEditor;
+                    SelectedBranch.Visutil = VisManager;
+                    SelectedBranch.TreeEditor = this;
+                }
+            }
+
+        }
        
         public string ObjectType { get; set; }= "Beep";
         public string CategoryIcon { get; set; }= "Category.svg";
         public string SelectIcon { get; set; } = "Select.svg";
         public string TreeType { get; set; } = "Beep";
+        private IBranch _currentbranch;
         public IBranch CurrentBranch { get; set; }
         public IBeepService BeepService { get; set; }
         public IDMEEditor DMEEditor { get; set; }
-        public List<int> SelectedBranchs { get; set; } = new List<int>();
+        private List<int> _selectedBranchs = new List<int>();
+        public List<int> SelectedBranchs
+        {
+            get {
+
+                if (base.SelectedNodes != null)
+                {
+                    foreach (var item in base.SelectedNodes)
+                    {
+                        var br = GetBranchByGuidID(item.GuidID);
+                        if (br != null)
+                        {
+                            _selectedBranchs.Add(br.ID);
+                        }
+                    }
+                }
+                return _selectedBranchs; }
+            set
+            {
+                _selectedBranchs = value;
+              
+            }
+        }
         public PassedArgs args { get; set; }
         int _seq = 0;
         public int SeqID { get { return _seq++; } set { } }
@@ -77,7 +129,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         public List<Tuple<IBranch, string>> GenerBranchs { get; set; } = new List<Tuple<IBranch, string>>();
         public List<MenuList> Menus { get; set; } = new List<MenuList>();
         public IAppManager VisManager { get; set; }
-        public int SelectedBranchID { get; set; }
+        private int _selectedBranchID;  
+        public int SelectedBranchID {
+            get { return _selectedBranchID; }
+            set
+            {
+                _selectedBranchID = value;
+              
+            }
+        }
         public string Filterstring { get; set; }
         #endregion "Properties"
         #region "Events"
@@ -92,24 +152,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         #region "Node Clicks Handlers"
         private void BeepTreeControl_MenuItemSelected(object? sender, SelectedItemChangedEventArgs e)
         {
-            if (SelectedBranch == null)
+            if (CurrentBranch == null)
             {
                // Console.WriteLine("Selected Branch is null");
                 return;
             }
             AssemblyClassDefinition methodclass = DMEEditor.ConfigEditor.GlobalFunctions.Where(x => x.GuidID== e.SelectedItem.AssemblyClassDefinitionID).FirstOrDefault();
-            AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == SelectedBranch.ToString()).FirstOrDefault();
+            AssemblyClassDefinition cls = DMEEditor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == CurrentBranch.ToString()).FirstOrDefault();
             if (methodclass != null || cls != null)
             {
                 if (methodclass != null)
                 {
-                    if (!DynamicFunctionCallingManager.IsMethodApplicabletoNode(methodclass, SelectedBranch)) return;
+                    if (!DynamicFunctionCallingManager.IsMethodApplicabletoNode(methodclass, CurrentBranch)) return;
                     RunMethodFromGlobalFunctions(e.SelectedItem, e.SelectedItem.Text);
                 }
                 else if (cls != null)
                 {
-                    if (!DynamicFunctionCallingManager.IsMethodApplicabletoNode(cls, SelectedBranch)) return;
-                    RunMethod(SelectedBranch, e.SelectedItem.Text);
+                    if (!DynamicFunctionCallingManager.IsMethodApplicabletoNode(cls, CurrentBranch)) return;
+                    RunMethod(CurrentBranch, e.SelectedItem.Text);
                 }
             }
         }
@@ -146,8 +206,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             base.NodeSelected(sender, e);   
             ClickedNode = sender as BeepTreeNode;
             if (ClickedNode == null) return;
-            SelectedBranch = GetBranchByGuidID(ClickedNode.GuidID);
-            CurrentBranch = SelectedBranch;
+                 CurrentBranch = GetBranchByGuidID(ClickedNode.GuidID);
+          //  CurrentBranch = ClickedNode;
             //IBranch br =Branches.FirstOrDefault(c => c.GuidID == ClickedNode.GuidID);
             //AssemblyClassDefinition cls = Editor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == br.Name && x.Methods.Where(y => y.DoubleClick == true || y.Click == true).Any()).FirstOrDefault();
             //if (cls != null)
@@ -163,8 +223,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             ClickedNode = sender as BeepTreeNode;
             if (ClickedNode != null)
             {
-                SelectedBranch = GetBranchByGuidID(ClickedNode.GuidID);
-                CurrentBranch = SelectedBranch;
+                      CurrentBranch = GetBranchByGuidID(ClickedNode.GuidID);
+               // CurrentBranch = ClickedNode;
 
             }
 

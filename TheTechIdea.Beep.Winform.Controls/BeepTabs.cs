@@ -290,7 +290,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         float width = textSize.Width + (TextPadding * 2) + CloseButtonSize + (CloseButtonPadding * 2);
                         sizes[i] = Math.Max(MinTabWidth, Math.Min(MaxTabWidth, width));
                     }
-                    Debug.WriteLine($"Tab {i} size: {sizes[i]} (Text: {text})");
+                   MiscFunctions.SendLog($"Tab {i} size: {sizes[i]} (Text: {text})");
                 }
             }
             return sizes;
@@ -319,7 +319,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             RectangleF tabRect = new RectangleF(currentX, 0, tabSizes[i], HeaderHeight);
                             DrawHeaderForTab(g, tabRect, i, false);
-                            Debug.WriteLine($"Drawing Tab {i} at {tabRect}");
+                           MiscFunctions.SendLog($"Drawing Tab {i} at {tabRect}");
                             g.DrawRectangle(Pens.Cyan, Rectangle.Truncate(tabRect)); // Debug border
                             currentX += tabSizes[i];
                         }
@@ -338,7 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             RectangleF tabRect = new RectangleF(currentX, ClientSize.Height - HeaderHeight, tabSizes[i], HeaderHeight);
                             DrawHeaderForTab(g, tabRect, i, false);
-                            Debug.WriteLine($"Drawing Tab {i} at {tabRect}");
+                           MiscFunctions.SendLog($"Drawing Tab {i} at {tabRect}");
                             g.DrawRectangle(Pens.Cyan, Rectangle.Truncate(tabRect));
                             currentX += tabSizes[i];
                         }
@@ -357,7 +357,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             RectangleF tabRect = new RectangleF(0, currentY, HeaderHeight, tabSizes[i]);
                             DrawHeaderForTab(g, tabRect, i, true);
-                            Debug.WriteLine($"Drawing Tab {i} at {tabRect}");
+                           MiscFunctions.SendLog($"Drawing Tab {i} at {tabRect}");
                             g.DrawRectangle(Pens.Cyan, Rectangle.Truncate(tabRect));
                             currentY += tabSizes[i];
                         }
@@ -376,7 +376,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             RectangleF tabRect = new RectangleF(ClientSize.Width - HeaderHeight, currentY, HeaderHeight, tabSizes[i]);
                             DrawHeaderForTab(g, tabRect, i, true);
-                            Debug.WriteLine($"Drawing Tab {i} at {tabRect}");
+                           MiscFunctions.SendLog($"Drawing Tab {i} at {tabRect}");
                             g.DrawRectangle(Pens.Cyan, Rectangle.Truncate(tabRect));
                             currentY += tabSizes[i];
                         }
@@ -480,15 +480,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void BeepTabs_DragEnter(object sender, DragEventArgs e)
         {
-            Debug.WriteLine($"DragEnter: DataPresent={e.Data.GetDataPresent(typeof(int))}");
+           MiscFunctions.SendLog($"DragEnter: DataPresent={e.Data.GetDataPresent(typeof(int))}");
             if (e.Data.GetDataPresent(typeof(int)))
             {
-                Debug.WriteLine("DragEnter: Drag data is valid (int)");
+               MiscFunctions.SendLog("DragEnter: Drag data is valid (int)");
                 e.Effect = DragDropEffects.Move;
             }
             else
             {
-                Debug.WriteLine("DragEnter: Drag data is invalid");
+               MiscFunctions.SendLog("DragEnter: Drag data is invalid");
                 e.Effect = DragDropEffects.None;
             }
         }
@@ -497,7 +497,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (!e.Data.GetDataPresent(typeof(int)))
             {
-                Debug.WriteLine("DragOver: Invalid drag data");
+               MiscFunctions.SendLog("DragOver: Invalid drag data");
                 e.Effect = DragDropEffects.None;
                 ResetDragState();
                 return;
@@ -506,7 +506,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int draggedIndex = (int)e.Data.GetData(typeof(int));
             if (draggedIndex < 0 || draggedIndex >= TabCount)
             {
-                Debug.WriteLine($"DragOver: Invalid dragged index {draggedIndex}");
+               MiscFunctions.SendLog($"DragOver: Invalid dragged index {draggedIndex}");
                 e.Effect = DragDropEffects.None;
                 ResetDragState();
                 return;
@@ -579,7 +579,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
             }
 
-            Debug.WriteLine($"DragOver: DropTargetIndex={_dropTargetIndex}, DropMarkerX={_dropMarkerX}, DropMarkerY={_dropMarkerY}, ClientPoint={clientPoint}");
+           MiscFunctions.SendLog($"DragOver: DropTargetIndex={_dropTargetIndex}, DropMarkerX={_dropMarkerX}, DropMarkerY={_dropMarkerY}, ClientPoint={clientPoint}");
             Invalidate();
         }
 
@@ -587,7 +587,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (!e.Data.GetDataPresent(typeof(int)))
             {
-                Debug.WriteLine("DragDrop: Invalid drag data");
+               MiscFunctions.SendLog("DragDrop: Invalid drag data");
                 ResetDragState();
                 return;
             }
@@ -595,7 +595,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int draggedIndex = (int)e.Data.GetData(typeof(int));
             if (_dropTargetIndex < 0 || draggedIndex == _dropTargetIndex || draggedIndex < 0 || draggedIndex >= TabCount)
             {
-                Debug.WriteLine($"DragDrop: Invalid drop - DropTargetIndex={_dropTargetIndex}, DraggedIndex={draggedIndex}");
+               MiscFunctions.SendLog($"DragDrop: Invalid drop - DropTargetIndex={_dropTargetIndex}, DraggedIndex={draggedIndex}");
                 ResetDragState();
                 return;
             }
@@ -606,7 +606,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 newIndex--;
             }
 
-            Debug.WriteLine($"DragDrop: Reordering - Moving tab {draggedIndex} to position {newIndex}");
+           MiscFunctions.SendLog($"DragDrop: Reordering - Moving tab {draggedIndex} to position {newIndex}");
 
             TabPage tab = TabPages[draggedIndex];
             TabPages.RemoveAt(draggedIndex);
@@ -620,7 +620,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void BeepTabs_DragLeave(object sender, EventArgs e)
         {
-            Debug.WriteLine("DragLeave: Drag operation canceled or left control");
+           MiscFunctions.SendLog("DragLeave: Drag operation canceled or left control");
             ResetDragState();
         }
 
@@ -651,7 +651,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_currentTheme == null)
             {
-                Debug.WriteLine("Warning: _currentTheme is null, falling back to default colors.");
+               MiscFunctions.SendLog("Warning: _currentTheme is null, falling back to default colors.");
                 BackColor = Color.LightGray;
                 ForeColor = Color.Black;
                 return;
@@ -688,12 +688,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Mouse Events
         private void BeepTabs_MouseClick(object sender, MouseEventArgs e)
         {
-            Debug.WriteLine($"MouseClick: Click at {e.Location}, IsDragging={_isDragging}, TimeSinceMouseDown={(DateTime.Now - _mouseDownTime).TotalMilliseconds}ms");
+           MiscFunctions.SendLog($"MouseClick: Click at {e.Location}, IsDragging={_isDragging}, TimeSinceMouseDown={(DateTime.Now - _mouseDownTime).TotalMilliseconds}ms");
 
             // Skip click processing if a drag operation is in progress or if the click was too quick (likely part of a drag attempt)
             if (_isDragging || (DateTime.Now - _mouseDownTime).TotalMilliseconds < 200)
             {
-                Debug.WriteLine("MouseClick: Skipped due to drag or quick release");
+               MiscFunctions.SendLog("MouseClick: Skipped due to drag or quick release");
                 return;
             }
 
@@ -701,7 +701,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Point clientPoint = e.Location;
             if (tabCount == 0)
             {
-                Debug.WriteLine("MouseClick: No tabs present, ignoring click.");
+               MiscFunctions.SendLog("MouseClick: No tabs present, ignoring click.");
                 return;
             }
 
@@ -718,10 +718,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                             RectangleF tabRect = new RectangleF(currentX, yPos, tabSizes[i], HeaderHeight);
                             RectangleF closeRect = GetCloseButtonRect(tabRect, false);
                             string tabText = TabPages[i].Text;
-                            Debug.WriteLine($"MouseClick: Tab {i} rect: {tabRect}, Close rect: {closeRect}");
+                           MiscFunctions.SendLog($"MouseClick: Tab {i} rect: {tabRect}, Close rect: {closeRect}");
                             if (closeRect.Contains(clientPoint))
                             {
-                                Debug.WriteLine($"MouseClick: Close button clicked for tab {i}");
+                               MiscFunctions.SendLog($"MouseClick: Close button clicked for tab {i}");
                                 try
                                 {
                                     TabPages.RemoveAt(i);
@@ -729,7 +729,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 }
                                 catch (Exception ex)
                                 {
-                                    Debug.WriteLine($"MouseClick: Error removing tab: {ex.Message}");
+                                   MiscFunctions.SendLog($"MouseClick: Error removing tab: {ex.Message}");
                                 }
                                 return;
                             }
@@ -737,7 +737,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             {
                                 SelectedIndex = i;
                                 LastTabSelected = i;
-                                Debug.WriteLine($"MouseClick: Tab {i} selected");
+                               MiscFunctions.SendLog($"MouseClick: Tab {i} selected");
                                 return;
                             }
                             currentX += tabSizes[i];
@@ -754,10 +754,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                             RectangleF tabRect = new RectangleF(xPos, currentY, HeaderHeight, tabSizes[i]);
                             RectangleF closeRect = GetCloseButtonRect(tabRect, true);
                             string tabText = TabPages[i].Text;
-                            Debug.WriteLine($"MouseClick: Tab {i} rect: {tabRect}, Close rect: {closeRect}");
+                           MiscFunctions.SendLog($"MouseClick: Tab {i} rect: {tabRect}, Close rect: {closeRect}");
                             if (closeRect.Contains(clientPoint))
                             {
-                                Debug.WriteLine($"MouseClick: Close button clicked for tab {i}");
+                               MiscFunctions.SendLog($"MouseClick: Close button clicked for tab {i}");
                                 try
                                 {
                                     TabPages.RemoveAt(i);
@@ -765,7 +765,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 }
                                 catch (Exception ex)
                                 {
-                                    Debug.WriteLine($"MouseClick: Error removing tab: {ex.Message}");
+                                   MiscFunctions.SendLog($"MouseClick: Error removing tab: {ex.Message}");
                                 }
                                 return;
                             }
@@ -773,7 +773,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             {
                                 SelectedIndex = i;
                                 LastTabSelected = i;
-                                Debug.WriteLine($"MouseClick: Tab {i} selected");
+                               MiscFunctions.SendLog($"MouseClick: Tab {i} selected");
                                 return;
                             }
                             currentY += tabSizes[i];
@@ -785,17 +785,17 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void BeepTabs_MouseDown(object sender, MouseEventArgs e)
         {
-            Debug.WriteLine($"MouseDown: Button={e.Button}, Location={e.Location}, Clicks={e.Clicks}, Delta={e.Delta}");
+           MiscFunctions.SendLog($"MouseDown: Button={e.Button}, Location={e.Location}, Clicks={e.Clicks}, Delta={e.Delta}");
 
             if (e.Button != MouseButtons.Left)
             {
-                Debug.WriteLine($"MouseDown: Ignored, not left button (Button={e.Button}) at {e.Location}");
+               MiscFunctions.SendLog($"MouseDown: Ignored, not left button (Button={e.Button}) at {e.Location}");
                 return;
             }
 
             if (TabCount == 0)
             {
-                Debug.WriteLine("MouseDown: No tabs present, ignoring.");
+               MiscFunctions.SendLog("MouseDown: No tabs present, ignoring.");
                 return;
             }
 
@@ -806,7 +806,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _dragStartPosition = e.Location;
             _mouseDownTime = DateTime.Now;
 
-            Debug.WriteLine($"MouseDown: Button down at {e.Location}, IsMouseDown={_isMouseDown}, DragStartPosition={_dragStartPosition}");
+           MiscFunctions.SendLog($"MouseDown: Button down at {e.Location}, IsMouseDown={_isMouseDown}, DragStartPosition={_dragStartPosition}");
 
             // Capture the mouse to ensure MouseMove and MouseUp events are received
             Capture = true;
@@ -827,7 +827,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             if (tabRect.Contains(e.Location) && !closeRect.Contains(e.Location))
                             {
                                 _draggedTabIndex = i;
-                                Debug.WriteLine($"MouseDown: Potential drag on tab {_draggedTabIndex}, TabRect={tabRect}, CloseRect={closeRect}");
+                               MiscFunctions.SendLog($"MouseDown: Potential drag on tab {_draggedTabIndex}, TabRect={tabRect}, CloseRect={closeRect}");
                                 break;
                             }
                             currentX += tabSizes[i];
@@ -846,7 +846,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             if (tabRect.Contains(e.Location) && !closeRect.Contains(e.Location))
                             {
                                 _draggedTabIndex = i;
-                                Debug.WriteLine($"MouseDown: Potential drag on tab {_draggedTabIndex}, TabRect={tabRect}, CloseRect={closeRect}");
+                               MiscFunctions.SendLog($"MouseDown: Potential drag on tab {_draggedTabIndex}, TabRect={tabRect}, CloseRect={closeRect}");
                                 break;
                             }
                             currentY += tabSizes[i];
@@ -858,7 +858,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void BeepTabs_MouseMove(object sender, MouseEventArgs e)
         {
-            Debug.WriteLine($"MouseMove: At {e.Location}, IsMouseDown={_isMouseDown}, DraggedTabIndex={_draggedTabIndex}, IsDragging={_isDragging}, Capture={Capture}");
+           MiscFunctions.SendLog($"MouseMove: At {e.Location}, IsMouseDown={_isMouseDown}, DraggedTabIndex={_draggedTabIndex}, IsDragging={_isDragging}, Capture={Capture}");
 
             if (!_isMouseDown || _draggedTabIndex < 0 || _isDragging)
                 return;
@@ -868,14 +868,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             int deltaY = Math.Abs(e.Location.Y - _dragStartPosition.Y);
             if (deltaX > 1 || deltaY > 1)
             {
-                Debug.WriteLine($"MouseMove: Starting drag for tab {_draggedTabIndex} at {e.Location}, DeltaX={deltaX}, DeltaY={deltaY}");
+               MiscFunctions.SendLog($"MouseMove: Starting drag for tab {_draggedTabIndex} at {e.Location}, DeltaX={deltaX}, DeltaY={deltaY}");
                 _isDragging = true;
 
                 // Initiate drag operation
                 DragDropEffects result = DoDragDrop(_draggedTabIndex, DragDropEffects.Move);
 
                 // Reset state after drag operation completes
-                Debug.WriteLine($"MouseMove: Drag operation completed with result={result}");
+               MiscFunctions.SendLog($"MouseMove: Drag operation completed with result={result}");
                 _isDragging = false;
                 _isMouseDown = false;
                 _draggedTabIndex = -1;
@@ -886,7 +886,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void BeepTabs_MouseUp(object sender, MouseEventArgs e)
         {
-            Debug.WriteLine($"MouseUp: At {e.Location}, IsMouseDown={_isMouseDown}, IsDragging={_isDragging}");
+           MiscFunctions.SendLog($"MouseUp: At {e.Location}, IsMouseDown={_isMouseDown}, IsDragging={_isDragging}");
 
             _isMouseDown = false;
             _isDragging = false;
@@ -895,22 +895,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void ReceiveMouseClick(Point clientLocation)
         {
-            Debug.WriteLine($"ReceiveMouseClick in BeepTabs at {clientLocation}");
+           MiscFunctions.SendLog($"ReceiveMouseClick in BeepTabs at {clientLocation}");
             OnMouseClick(new MouseEventArgs(MouseButtons.Left, 1, clientLocation.X, clientLocation.Y, 0));
         }
         public void ReceiveMouseMove(Point clientLocation)
         {
-            Debug.WriteLine($"ReceiveMouseMove in BeepTabs at {clientLocation}");
+           MiscFunctions.SendLog($"ReceiveMouseMove in BeepTabs at {clientLocation}");
             OnMouseMove(new MouseEventArgs(MouseButtons.Left, 1, clientLocation.X, clientLocation.Y, 0));
         }
         public void ReceiveMouseUp(Point clientLocation)
         {
-            Debug.WriteLine($"ReceiveMouseUp in BeepTabs at {clientLocation}");
+           MiscFunctions.SendLog($"ReceiveMouseUp in BeepTabs at {clientLocation}");
             OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, clientLocation.X, clientLocation.Y, 0));
         }
         public void ReceiveMouseDown(Point clientLocation)
         {
-            Debug.WriteLine($"ReceiveMouseDown in BeepTabs at {clientLocation}");
+           MiscFunctions.SendLog($"ReceiveMouseDown in BeepTabs at {clientLocation}");
             OnMouseDown(new MouseEventArgs(MouseButtons.Left, 1, clientLocation.X, clientLocation.Y, 0));
         }
         #endregion

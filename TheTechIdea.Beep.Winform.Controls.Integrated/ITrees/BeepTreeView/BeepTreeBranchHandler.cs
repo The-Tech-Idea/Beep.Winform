@@ -106,9 +106,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                     // Check if the current branch matches
                     if (branch.BranchID == id)
                         return branch;
-
+                    IBranch found = null;
+                    if (branch.ChildBranchs != null)
+                    {
+                        found = FindBranchByID(branch.ChildBranchs, id);
+                    }
                     // Recursively check child branches
-                    var found = FindBranchByID(branch.ChildBranchs, id);
+                 
                     if (found != null)
                         return found;
                 }

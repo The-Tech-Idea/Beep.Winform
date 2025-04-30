@@ -433,6 +433,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ClickedNode = sender as BeepTreeNode;
             if (ClickedNode == null) return;
             var node = ClickedNode;
+            
             if (node == null) return;
 
             // Add to SelectedNodes if not already present

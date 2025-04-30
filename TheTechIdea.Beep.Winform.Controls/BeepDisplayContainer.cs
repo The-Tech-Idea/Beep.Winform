@@ -164,14 +164,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if(addinAttribute.ScopeCreateType== AddinScopeCreateType.Single)
                 {
-                    return false; // Avoid duplicates
+                    if (_controls.ContainsKey(TitleText))
+                        return false; // Avoid duplicates
                 }
             }
-            else
-            {
-                if (_controls.ContainsKey(TitleText))
-                    return false; // Avoid duplicates
-            }
+
 
 
                 // Initialize the addin

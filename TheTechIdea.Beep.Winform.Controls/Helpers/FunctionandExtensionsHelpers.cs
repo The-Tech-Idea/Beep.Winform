@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
         {
             CurrentBranch = TreeEditor.CurrentBranch;
-
+           
             if (CurrentBranch != null)
             {
                 ParentBranch = CurrentBranch.ParentBranch;
@@ -79,7 +79,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 {
                     RootBranch = CurrentBranch;
                 }
-
+                IDataSource ds = DMEEditor.GetDataSource(CurrentBranch.BranchText);
+                if (ds != null)
+                {
+                    DataSource = ds;
+                    
+                }
             }
 
             if (!string.IsNullOrEmpty(Passedarguments.DatasourceName))

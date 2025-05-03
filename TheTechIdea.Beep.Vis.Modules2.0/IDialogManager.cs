@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Report;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
     public interface IDialogManager
     {
+     
         string SelectFile(string filter);
         string DialogCombo(string text, List<object> comboSource, string DisplyMember, string ValueMember);
         BeepDialogResult InputBox(string title, string promptText, ref string value);

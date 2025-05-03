@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.AnimationDuration = 500;
             beepDisplayContainer1.AnimationType = DisplayAnimationType.None;
             beepDisplayContainer1.ApplyThemeToChilds = false;
-            beepDisplayContainer1.BackColor = Color.FromArgb(255, 255, 255);
+            beepDisplayContainer1.BackColor = Color.FromArgb(245, 245, 245);
             beepDisplayContainer1.BadgeBackColor = Color.Red;
             beepDisplayContainer1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepDisplayContainer1.BadgeForeColor = Color.White;
@@ -75,7 +75,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.Category = Utilities.DbFieldCategory.String;
             beepDisplayContainer1.ComponentName = "BeepDisplayContainer";
             beepDisplayContainer1.ContainerType = ContainerTypeEnum.TabbedPanel;
-            beepDisplayContainer1.DataContext = null;
             beepDisplayContainer1.DataSourceProperty = null;
             beepDisplayContainer1.DisabledBackColor = Color.Gray;
             beepDisplayContainer1.DisabledForeColor = Color.Empty;
@@ -120,6 +119,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.IsRounded = false;
             beepDisplayContainer1.IsRoundedAffectedByTheme = false;
             beepDisplayContainer1.IsSelected = false;
+            beepDisplayContainer1.IsSelectedOptionOn = false;
             beepDisplayContainer1.IsShadowAffectedByTheme = false;
             beepDisplayContainer1.IsVisible = false;
             beepDisplayContainer1.Items = (List<object>)resources.GetObject("beepDisplayContainer1.Items");
@@ -139,6 +139,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.SavedID = null;
             beepDisplayContainer1.SelectedBackColor = Color.White;
             beepDisplayContainer1.SelectedForeColor = Color.Black;
+            beepDisplayContainer1.SelectedValue = null;
             beepDisplayContainer1.ShadowColor = Color.FromArgb(173, 181, 189);
             beepDisplayContainer1.ShadowOffset = 0;
             beepDisplayContainer1.ShadowOpacity = 0.5F;
@@ -187,7 +188,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.CanBePressed = true;
             beepMenuAppBar1.Category = Utilities.DbFieldCategory.String;
             beepMenuAppBar1.ComponentName = "beepMenuAppBar1";
-            beepMenuAppBar1.DataContext = null;
             beepMenuAppBar1.DataSourceProperty = null;
             beepMenuAppBar1.DisabledBackColor = Color.Gray;
             beepMenuAppBar1.DisabledForeColor = Color.Empty;
@@ -235,6 +235,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.IsRounded = false;
             beepMenuAppBar1.IsRoundedAffectedByTheme = false;
             beepMenuAppBar1.IsSelected = false;
+            beepMenuAppBar1.IsSelectedOptionOn = false;
             beepMenuAppBar1.IsShadowAffectedByTheme = false;
             beepMenuAppBar1.IsVisible = false;
             beepMenuAppBar1.Items = (List<object>)resources.GetObject("beepMenuAppBar1.Items");
@@ -256,6 +257,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.SelectedBackColor = Color.White;
             beepMenuAppBar1.SelectedForeColor = Color.Black;
             beepMenuAppBar1.SelectedIndex = -1;
+            beepMenuAppBar1.SelectedValue = null;
             beepMenuAppBar1.ShadowColor = Color.FromArgb(173, 181, 189);
             beepMenuAppBar1.ShadowOffset = 0;
             beepMenuAppBar1.ShadowOpacity = 0.5F;
@@ -284,7 +286,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.AnimationDuration = 500;
             beepAppBar1.AnimationType = DisplayAnimationType.None;
             beepAppBar1.ApplyThemeButtons = false;
-        
+            beepAppBar1.ApplyThemeToChilds = true;
             beepAppBar1.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             beepAppBar1.AutoCompleteSource = AutoCompleteSource.CustomSource;
             beepAppBar1.BackColor = Color.FromArgb(0, 120, 215);
@@ -306,7 +308,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.CanBePressed = true;
             beepAppBar1.Category = Utilities.DbFieldCategory.String;
             beepAppBar1.ComponentName = "beepAppBar1";
-            beepAppBar1.DataContext = null;
             beepAppBar1.DataSourceProperty = null;
             beepAppBar1.DisabledBackColor = Color.Gray;
             beepAppBar1.DisabledForeColor = Color.Empty;
@@ -319,7 +320,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.FocusBorderColor = Color.Gray;
             beepAppBar1.FocusForeColor = Color.Black;
             beepAppBar1.FocusIndicatorColor = Color.Blue;
-            beepAppBar1.Font = new Font("Segoe UI", 18F);
+            beepAppBar1.Font = new Font("Arial", 14F);
             beepAppBar1.Form = null;
             beepAppBar1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepAppBar1.GradientEndColor = Color.Gray;
@@ -353,6 +354,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.IsRounded = false;
             beepAppBar1.IsRoundedAffectedByTheme = false;
             beepAppBar1.IsSelected = false;
+            beepAppBar1.IsSelectedOptionOn = false;
             beepAppBar1.IsShadowAffectedByTheme = false;
             beepAppBar1.IsVisible = false;
             beepAppBar1.Items = (List<object>)resources.GetObject("beepAppBar1.Items");
@@ -373,6 +375,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.SearchBoxText = "";
             beepAppBar1.SelectedBackColor = Color.White;
             beepAppBar1.SelectedForeColor = Color.Black;
+            beepAppBar1.SelectedValue = null;
             beepAppBar1.ShadowColor = Color.Black;
             beepAppBar1.ShadowOffset = 0;
             beepAppBar1.ShadowOpacity = 0.5F;
@@ -433,11 +436,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.CanBePressed = true;
             beepAppTree1.Category = Utilities.DbFieldCategory.String;
             beepAppTree1.CategoryIcon = "Category.svg";
-            beepAppTree1.ClickedNode = null;
+       
             beepAppTree1.ComponentName = "beepAppTree1";
             beepAppTree1.CurrentBranch = null;
             beepAppTree1.CurrentMenutems = null;
-            beepAppTree1.DataContext = null;
             beepAppTree1.DataSourceProperty = null;
             beepAppTree1.DisabledBackColor = Color.Gray;
             beepAppTree1.DisabledForeColor = Color.Empty;
@@ -488,6 +490,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.IsRounded = false;
             beepAppTree1.IsRoundedAffectedByTheme = false;
             beepAppTree1.IsSelected = false;
+            beepAppTree1.IsSelectedOptionOn = false;
             beepAppTree1.IsShadowAffectedByTheme = false;
             beepAppTree1.IsVisible = false;
             beepAppTree1.Items = (List<object>)resources.GetObject("beepAppTree1.Items");
@@ -495,10 +498,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.LinkedProperty = null;
             beepAppTree1.Location = new Point(170, 78);
             beepAppTree1.Name = "beepAppTree1";
-            beepAppTree1.NodeHeight = 20;
-            beepAppTree1.NodeImageSize = 20;
-            beepAppTree1.Nodeseq = 0;
-            beepAppTree1.NodeWidth = 100;
+           
             beepAppTree1.ObjectType = "Beep";
             beepAppTree1.OverrideFontSize = TypeStyleFontSize.None;
             beepAppTree1.Padding = new Padding(1);
@@ -515,9 +515,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.SelectedBranchID = 0;
             beepAppTree1.SelectedBranchs = (List<int>)resources.GetObject("beepAppTree1.SelectedBranchs");
             beepAppTree1.SelectedForeColor = Color.Black;
-            beepAppTree1.SelectedItem = null;
+          
+            beepAppTree1.SelectedValue = null;
             beepAppTree1.SelectIcon = "Select.svg";
-            beepAppTree1.SeqID = 1;
+            beepAppTree1.SeqID = 3;
             beepAppTree1.ShadowColor = Color.FromArgb(173, 181, 189);
             beepAppTree1.ShadowOffset = 0;
             beepAppTree1.ShadowOpacity = 0.5F;
@@ -526,7 +527,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.ShowCheckBox = false;
             beepAppTree1.ShowFocusIndicator = false;
             beepAppTree1.ShowLeftBorder = false;
-            beepAppTree1.ShowNodeImage = true;
+           
             beepAppTree1.ShowRightBorder = false;
             beepAppTree1.ShowShadow = false;
             beepAppTree1.ShowTopBorder = false;
@@ -536,7 +537,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.TabIndex = 6;
             beepAppTree1.TempBackColor = Color.Empty;
             beepAppTree1.Text = "beepAppTree1";
-            beepAppTree1.TextAlignment = ContentAlignment.MiddleLeft;
+
             beepAppTree1.TextFont = new Font("Arial", 10F);
             beepAppTree1.Theme = EnumBeepThemes.DefaultTheme;
             beepAppTree1.ToolTipText = "";
@@ -578,7 +579,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.Category = Utilities.DbFieldCategory.String;
             beepSideMenu1.CollapsedWidth = 64;
             beepSideMenu1.ComponentName = "beepSideMenu1";
-            beepSideMenu1.DataContext = null;
             beepSideMenu1.DataSourceProperty = null;
             beepSideMenu1.DescriptionSize = new Size(100, 20);
             beepSideMenu1.DisabledBackColor = Color.White;
@@ -628,6 +628,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.IsRounded = false;
             beepSideMenu1.IsRoundedAffectedByTheme = false;
             beepSideMenu1.IsSelected = false;
+            beepSideMenu1.IsSelectedOptionOn = false;
             beepSideMenu1.IsShadowAffectedByTheme = false;
             beepSideMenu1.IsVisible = false;
             beepSideMenu1.LeftoffsetForDrawingRect = 0;
@@ -650,6 +651,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.SavedID = null;
             beepSideMenu1.SelectedBackColor = Color.White;
             beepSideMenu1.SelectedForeColor = Color.Black;
+            beepSideMenu1.SelectedValue = null;
             beepSideMenu1.ShadowColor = Color.FromArgb(173, 181, 189);
             beepSideMenu1.ShadowOffset = 0;
             beepSideMenu1.ShadowOpacity = 0.5F;

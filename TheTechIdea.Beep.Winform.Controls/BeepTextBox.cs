@@ -1136,7 +1136,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SendMessage(_innerTextBox.Handle, WM_VSCROLL, SB_BOTTOM, 0);
         }
 
-        internal void ScrollToCaret()
+        public void ScrollToCaret()
         {
            
             
@@ -1145,7 +1145,7 @@ namespace TheTechIdea.Beep.Winform.Controls
           
             Invalidate();
         }
-        internal void AppendText(string v)
+        public void AppendText(string v)
         {
             if (_innerTextBox == null) return;
 

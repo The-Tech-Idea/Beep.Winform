@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Timer splashTimer;
         private float splashProgress; // 0.0f to 1.0f value representing animation progress
         private Point splashCenter;   // The point at which the click occurred (local coordinates)
-        private bool splashActive;    // Whether the splash animation is currently active
+        private bool splashActive=false;    // Whether the splash animation is currently active
 
         // Constants to control the animation speed and size:
         private const float SplashSpeed = 0.05f;     // Increase in progress per tick (adjust as needed)
@@ -575,15 +575,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ClosePopup();
 
             menuDialog = new BeepPopupListForm(ListItems.ToList());
-            //menuDialog._beepListBox.IsRoundedAffectedByTheme = false;
-            //menuDialog._beepListBox.IsRounded = false;
-            //menuDialog._beepListBox.ShowTitle = false;
-            //menuDialog._beepListBox.ShowTitleLine = false;
-            //menuDialog._beepListBox.IsShadowAffectedByTheme=false;
-            //menuDialog._beepListBox.ShowShadow = false;
-            //menuDialog._beepListBox.IsBorderAffectedByTheme = false;
-            //menuDialog._beepListBox.ShowAllBorders = false;
-            //menuDialog._beepListBox.IsFrameless = true;
+           
             menuDialog.Theme = Theme;
             menuDialog.SelectedItemChanged += MenuDialog_SelectedItemChanged;
 
@@ -874,22 +866,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (IsHovered)
                     {
                         color = HoverForeColor;
-                        // backcolor = HoverBackColor;
+                        backcolor = HoverBackColor;
+                        g.FillRectangle(new SolidBrush(backcolor), contentRect);
                     }
                     else if (IsSelected)
                     {
                         color = SelectedForeColor;
-                        //  backcolor = SelectedBackColor;
+                         backcolor = SelectedBackColor;
+                        g.FillRectangle(new SolidBrush(backcolor), contentRect);
                     }
 
 
                 }
                 else
                 {
-                    // backcolor = DisabledBackColor;
+                     backcolor = DisabledBackColor;
                     color = DisabledForeColor;
+                    g.FillRectangle(new SolidBrush(backcolor), contentRect);
                 }
-                //  g.FillRectangle(new SolidBrush(backcolor), contentRect);
+                //
             }
            
             //// Console.WriteLine($"User ThemeFont is {UseThemeFont}");
@@ -1194,11 +1189,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             isLongPressTriggered = false;
             longPressTimer.Start();
             //  IsSelected = false;
-            // Start the splash effect: record the click location and reset progress
-            splashCenter = e.Location; // Use the mouse click location for the ripple's center
-            splashProgress = 0f;
-            splashActive = true;
-            splashTimer.Start();
+          
+          if(splashActive)
+            {
+                // Start the splash effect: record the click location and reset progress
+                splashCenter = e.Location; // Use the mouse click location for the ripple's center
+                splashProgress = 0f;
+                splashTimer.Start();
+            }
+          
            
             if (IsSelectedOptionOn)
             {

@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public EventHandler<BeepMouseEventArgs> ShowMenu;
         #endregion "Events"
         #region "Properties"
-        private BeepTree _tree;
+        private BeepTreeBK _tree;
         private BeepTreeNode _parent;
         //Controls for the Node Drawing
         private BeepButton NodeMainMiddlebutton;
@@ -346,7 +346,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get { return _ismiddlebuttonVisible; }
             set { _ismiddlebuttonVisible = value; }
         }
-        public BeepTree Tree
+        public BeepTreeBK Tree
         {
             get { return _tree; }
             set { _tree = value; }
@@ -476,7 +476,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Constructors"
         public BeepTreeNode() : base()
         {
-    
+            // This line is actually enough in modern .NET,
+            // but the SetStyle gives you full control:
+            this.DoubleBuffered = true;
+
+            // these styles ensure all drawing happens offscreen
+            this.SetStyle(
+                ControlStyles.UserPaint |
+                ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.OptimizedDoubleBuffer |
+                ControlStyles.ResizeRedraw,
+                true);
+            this.UpdateStyles();
             UpdateDrawingRect();
             BoundProperty= "Text";
             Height = NodeHeight;
@@ -843,6 +854,76 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "RightButton"
         #endregion "Events Methods"
         #region "Painting Methods"
+        //protected override void OnPaint(PaintEventArgs e)
+        //{
+        //    base.OnPaint(e);
+        //}
+        //protected override void DrawContent(Graphics g)
+        //{
+        //    base.DrawContent(g);
+
+        //    // Draw the node content here
+        //    if (NodeMainMiddlebutton != null)
+        //    {
+        //        // Create a rectangle based on the control's position and size
+        //        Rectangle rect = new Rectangle(
+        //            NodeMainMiddlebutton.Location,
+        //            NodeMainMiddlebutton.Size
+        //        );
+        //        NodeMainMiddlebutton.Draw(g, rect);
+        //    }
+
+        //    if (Nodeleftbutton != null)
+        //    {
+        //        Rectangle rect = new Rectangle(
+        //            Nodeleftbutton.Location,
+        //            Nodeleftbutton.Size
+        //        );
+        //        Nodeleftbutton.Draw(g, rect);
+        //    }
+
+        //    if (Noderightbutton != null)
+        //    {
+        //        Rectangle rect = new Rectangle(
+        //            Noderightbutton.Location,
+        //            Noderightbutton.Size
+        //        );
+        //        Noderightbutton.Draw(g, rect);
+        //    }
+
+        //    if (_checkBox != null)
+        //    {
+        //        Rectangle rect = new Rectangle(
+        //            _checkBox.Location,
+        //            _checkBox.Size
+        //        );
+        //        _checkBox.Draw(g, rect);
+        //    }
+
+        //    if (_toggleButton != null)
+        //    {
+        //        Rectangle rect = new Rectangle(
+        //            _toggleButton.Location,
+        //            _toggleButton.Size
+        //        );
+        //        _toggleButton.Draw(g, rect);
+        //    }
+
+        //    if (_childrenPanel != null)
+        //    {
+        //        // For child nodes, we need to adjust their position relative to this control
+        //        foreach (var child in NodesControls)
+        //        {
+        //            Rectangle rect = new Rectangle(
+        //                new Point(child.Location.X + _childrenPanel.Location.X,
+        //                          child.Location.Y + _childrenPanel.Location.Y),
+        //                child.Size
+        //            );
+        //            child.Draw(g, rect);
+        //        }
+        //    }
+        //}
+
         int startx = 0;
         int starty = 0;
         private int toggelbuttonsize=14;
@@ -929,6 +1010,130 @@ namespace TheTechIdea.Beep.Winform.Controls
             ApplyTheme();
             RearrangeNode();
         }
+        //public void RearrangeNode()
+        //{
+        //    SuspendLayout(); // Temporarily stop layout updates
+        //    try
+        //    {
+        //        if (NodeInfo == null) return;
+
+        //        CalculateSize();
+        //        UpdateDrawingRect();
+        //        int startx = 0; // Horizontal start point
+        //        int centerY = (NodeHeight - MaxImageSize) / 2; // Center alignment for small buttons
+        //        int availablewidth = Width - 2 * padding; // Available width for the node
+        //        _nodePanel.Height = NodeHeight;
+
+        //        // Position the toggle button
+        //        if (_toggleButton != null)
+        //        {
+        //            _toggleButton.Size = new Size(toggelbuttonsize, toggelbuttonsize);
+        //            int centerYfortoggle = (NodeHeight - _toggleButton.Size.Height) / 2;
+        //            _toggleButton.Location = new Point(startx, centerYfortoggle);
+        //            _toggleButton.MaxImageSize = new Size(toggelbuttonsize - 1, toggelbuttonsize - 1);
+        //            startx += _toggleButton.Width + spacing;
+        //            availablewidth -= _toggleButton.Width + spacing;
+        //        }
+
+        //        // Position the CheckBox
+        //        if (_checkBox != null && _showCheckBox)
+        //        {
+        //            _checkBox.Size = new Size(toggelbuttonsize, toggelbuttonsize);
+        //            int centerYforcheckbox = (NodeHeight - _checkBox.Size.Height) / 2;
+        //            _checkBox.Location = new Point(startx, centerYforcheckbox);
+        //            _checkBox.CheckBoxSize = toggelbuttonsize - 1;
+        //            startx += _checkBox.Width + spacing;
+        //            availablewidth -= _checkBox.Width + spacing;
+        //        }
+
+        //        if(Noderightbutton != null )
+        //        {
+        //            if(!Noderightbutton.Visible)
+        //            {
+        //                availablewidth -= SmallNodeHeight + spacing;
+        //            }
+
+        //        }
+
+        //        // Position the main middle button
+        //        if (NodeMainMiddlebutton != null )
+        //        {
+        //            NodeMainMiddlebutton.MinimumSize = new Size(MinimumTextWidth, NodeHeight);
+        //            NodeMainMiddlebutton.Size = new Size( availablewidth, NodeHeight);
+        //            int centerYformainbutton = (NodeHeight - NodeMainMiddlebutton.Size.Height) / 2;
+        //            NodeMainMiddlebutton.Location = new Point(startx, centerYformainbutton);
+        //            startx += NodeMainMiddlebutton.Width + spacing;
+        //        }
+
+        //        // Position the right button
+        //        if (Noderightbutton != null )
+        //        {
+        //            Noderightbutton.Location = new Point(startx, centerY);
+        //            Noderightbutton.Size = new Size(SmallNodeHeight, SmallNodeHeight);
+        //            startx += Noderightbutton.Width + spacing;
+        //        }
+
+        //        _nodePanel.Height = NodeHeight + spacing;
+
+        //        int xlevel = 1;
+        //        if (NodeInfo.Children != null)
+        //        {
+        //            if (NodeInfo.Children.Count > 0)
+        //            {
+        //                if (IsExpanded)
+        //                {
+        //                    int childStartY = padding;
+        //                    foreach (var child in NodesControls)
+        //                    {
+        //                        if (!_childrenPanel.Controls.Contains(child))
+        //                        {
+        //                            _childrenPanel.Controls.Add(child); // Ensure child is in UI
+        //                        }
+        //                        child.NodeInfo.IsDrawn = true; // Mark as drawn
+        //                        child.Location = new Point(xlevel * padding, childStartY); // Indent child nodes
+        //                        child.Width = Width - (xlevel * padding);
+        //                        child.Theme = Theme;
+        //                        child.ShowCheckBox = _showCheckBox;
+        //                        child.RearrangeNode(); // Recursively arrange children
+        //                        childStartY += child.Height + padding;
+        //                    }
+        //                    _childrenPanel.Height = childStartY;
+        //                    _childrenPanel.Visible = true;
+        //                }
+        //                else
+        //                {
+        //                    _childrenPanel.Height = 0;
+        //                    _childrenPanel.Visible = false;
+        //                }
+        //            }
+        //            else
+        //            {
+        //                _childrenPanel.Height = 0;
+        //                _childrenPanel.Visible = false;
+        //            }
+
+        //        }
+        //        else
+        //        {
+        //            _childrenPanel.Height = 0;
+        //            _childrenPanel.Visible = false;
+        //        }
+
+        //        checktoggle();
+        //        Height = _nodePanel.Height + _childrenPanel.Height;
+
+        //        if (Parent is Panel parentPanel)
+        //        {
+        //            parentPanel.Height = Height;
+        //        }
+        //    }
+        //    finally
+        //    {
+        //        checktoggle();
+        //        IsInvalidated = true;
+        //        ResumeLayout(); // Resume layout updates
+        //    }
+        //}
         public void RearrangeNode()
         {
             SuspendLayout(); // Temporarily stop layout updates
@@ -936,7 +1141,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (NodeInfo == null) return;
 
-                CalculateSize();
+                // Calculate the width needed for this node's content
+                CalculateNodeWidth();
+
                 UpdateDrawingRect();
                 int startx = 0; // Horizontal start point
                 int centerY = (NodeHeight - MaxImageSize) / 2; // Center alignment for small buttons
@@ -964,28 +1171,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                     startx += _checkBox.Width + spacing;
                     availablewidth -= _checkBox.Width + spacing;
                 }
-          
-                if(Noderightbutton != null )
+
+                if (Noderightbutton != null)
                 {
-                    if(!Noderightbutton.Visible)
+                    if (!Noderightbutton.Visible)
                     {
                         availablewidth -= SmallNodeHeight + spacing;
                     }
-                 
                 }
-                
+
                 // Position the main middle button
-                if (NodeMainMiddlebutton != null )
+                if (NodeMainMiddlebutton != null)
                 {
                     NodeMainMiddlebutton.MinimumSize = new Size(MinimumTextWidth, NodeHeight);
-                    NodeMainMiddlebutton.Size = new Size( availablewidth, NodeHeight);
+                    NodeMainMiddlebutton.Size = new Size(availablewidth, NodeHeight);
                     int centerYformainbutton = (NodeHeight - NodeMainMiddlebutton.Size.Height) / 2;
                     NodeMainMiddlebutton.Location = new Point(startx, centerYformainbutton);
                     startx += NodeMainMiddlebutton.Width + spacing;
                 }
 
                 // Position the right button
-                if (Noderightbutton != null )
+                if (Noderightbutton != null)
                 {
                     Noderightbutton.Location = new Point(startx, centerY);
                     Noderightbutton.Size = new Size(SmallNodeHeight, SmallNodeHeight);
@@ -994,35 +1200,54 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 _nodePanel.Height = NodeHeight + spacing;
 
+                // Handle child nodes
                 int xlevel = 1;
-                if (NodeInfo.Children != null)
+                int maxChildWidth = 0;
+
+                if (NodeInfo.Children != null && NodeInfo.Children.Count > 0)
                 {
-                    if (NodeInfo.Children.Count > 0)
+                    if (IsExpanded)
                     {
-                        if (IsExpanded)
+                        int childStartY = padding;
+                        foreach (var child in NodesControls)
                         {
-                            int childStartY = padding;
-                            foreach (var child in NodesControls)
+                            if (!_childrenPanel.Controls.Contains(child))
                             {
-                                if (!_childrenPanel.Controls.Contains(child))
-                                {
-                                    _childrenPanel.Controls.Add(child); // Ensure child is in UI
-                                }
-                                child.NodeInfo.IsDrawn = true; // Mark as drawn
-                                child.Location = new Point(xlevel * padding, childStartY); // Indent child nodes
-                                child.Width = Width - (xlevel * padding);
-                                child.Theme = Theme;
-                                child.ShowCheckBox = _showCheckBox;
-                                child.RearrangeNode(); // Recursively arrange children
-                                childStartY += child.Height + padding;
+                                _childrenPanel.Controls.Add(child); // Ensure child is in UI
                             }
-                            _childrenPanel.Height = childStartY;
-                            _childrenPanel.Visible = true;
+                            child.NodeInfo.IsDrawn = true; // Mark as drawn
+                            child.Location = new Point(xlevel * padding, childStartY); // Indent child nodes
+
+                            // Calculate width for child node including its own content
+                            child.Width = Width - (xlevel * padding);
+                            child.Theme = Theme;
+                            child.ShowCheckBox = _showCheckBox;
+                            child.RearrangeNode(); // Recursively arrange children
+
+                            // Track maximum child width
+                            int childTotalWidth = child.Width + (xlevel * padding);
+                            maxChildWidth = Math.Max(maxChildWidth, childTotalWidth);
+
+                            childStartY += child.Height + padding;
                         }
-                        else
+                        _childrenPanel.Height = childStartY;
+                        _childrenPanel.Visible = true;
+
+                        // If any child is wider than current node, adjust width
+                        if (maxChildWidth > Width)
                         {
-                            _childrenPanel.Height = 0;
-                            _childrenPanel.Visible = false;
+                            Width = maxChildWidth;
+                            NodeWidth = maxChildWidth;
+
+                            // If parent tree exists and our width exceeds tree's client width,
+                            // this signals we need horizontal scrolling
+                            if (Tree != null && Width > Tree.ClientSize.Width)
+                            {
+                                // Force BeepTree to use our width as preferred width
+                                Tree.AutoScrollMinSize = new Size(
+                                    Math.Max(Tree.AutoScrollMinSize.Width, Width + (padding * 2)),
+                                    Tree.AutoScrollMinSize.Height);
+                            }
                         }
                     }
                     else
@@ -1030,7 +1255,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                         _childrenPanel.Height = 0;
                         _childrenPanel.Visible = false;
                     }
-
                 }
                 else
                 {
@@ -1044,6 +1268,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (Parent is Panel parentPanel)
                 {
                     parentPanel.Height = Height;
+
+                    // Ensure parent panel is wide enough to accommodate us
+                    if (Width > parentPanel.Width)
+                    {
+                        parentPanel.Width = Width;
+                    }
                 }
             }
             finally
@@ -1053,6 +1283,58 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ResumeLayout(); // Resume layout updates
             }
         }
+
+        private void CalculateNodeWidth()
+        {
+            using (Graphics g = CreateGraphics())
+            {
+                // Calculate width needed for text
+                int textWidth = 0;
+                if (NodeMainMiddlebutton != null && !string.IsNullOrEmpty(NodeMainMiddlebutton.Text))
+                {
+                    // Use TextRenderer for accurate measurement
+                    Size textSize = NodeMainMiddlebutton.GetPreferredSize(Size.Empty);
+                    textWidth = textSize.Width;
+
+                    // Add width for image if present
+                    if (ShowNodeImage && !string.IsNullOrEmpty(ImagePath))
+                    {
+                        textWidth += MaxImageSize + 4; // 4 for spacing between image and text
+                    }
+                }
+
+                // Calculate width for controls
+                int controlsWidth = 0;
+
+                // Toggle button
+                if (_toggleButton != null)
+                    controlsWidth += toggelbuttonsize + spacing;
+
+                // Checkbox
+                if (_checkBox != null && _showCheckBox)
+                    controlsWidth += toggelbuttonsize + spacing;
+
+                // Left button
+                if (Nodeleftbutton != null && _isleftbuttonVisible)
+                    controlsWidth += NodeHeight + spacing;
+
+                // Right button
+                if (Noderightbutton != null && _isrightbuttonVisible)
+                    controlsWidth += SmallNodeHeight + spacing;
+
+                // Add padding
+                int requiredWidth = controlsWidth + textWidth + (padding * 2);
+
+                // Ensure minimum width
+                requiredWidth = Math.Max(requiredWidth, MinimumTextWidth + controlsWidth);
+
+                // Update node width - always use the greater of calculated or current
+                NodeWidth = Math.Max(NodeWidth, requiredWidth);
+                Width = NodeWidth;
+            }
+        }
+
+
         public void ToggleCheckBoxVisibility(bool show)
         {
             _showCheckBox = show;
@@ -1313,7 +1595,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsInvalidated = true;
                // 
             }
-         //  RearrangeNode();
+          // RearrangeNode();
           Tree?.RearrangeTree();
 
         }
@@ -1852,7 +2134,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void CalculateSize()
         {
-            if (isSizeCached && Tree != null && cachedWidth == Tree.Width - 20)
+            if (isSizeCached && Tree != null && cachedWidth == Tree.Width )
             {
                 // Value is already cached and fits the current StandardTree width
                 return;

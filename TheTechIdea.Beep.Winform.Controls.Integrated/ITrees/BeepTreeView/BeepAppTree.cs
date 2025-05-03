@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             get { 
                 if(base.SelectedNodes != null && base.SelectedNodes.Count > 0)
                 {
-                    var br = GetBranchByGuidID(base.SelectedNodes[0].GuidID);
+                    var br = GetBranchByGuidID(base.SelectedNodes[0].GuidId);
                     if (br != null)
                     {
                         _selectedbranch = br;
@@ -88,7 +88,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             }
 
         }
-       
         public string ObjectType { get; set; }= "Beep";
         public string CategoryIcon { get; set; }= "Category.svg";
         public string SelectIcon { get; set; } = "Select.svg";
@@ -104,9 +103,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
 
                 if (base.SelectedNodes != null)
                 {
+                    _selectedBranchs = new List<int>();
                     foreach (var item in base.SelectedNodes)
                     {
-                        var br = GetBranchByGuidID(item.GuidID);
+                        var br = GetBranchByGuidID(item.GuidId);
                         if (br != null)
                         {
                             _selectedBranchs.Add(br.ID);
@@ -203,10 +203,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         }
         private void BeepTreeControl_NodeClicked(object? sender, BeepMouseEventArgs e)
         {
-            base.NodeSelected(sender, e);   
-            ClickedNode = sender as BeepTreeNode;
-            if (ClickedNode == null) return;
-                 CurrentBranch = GetBranchByGuidID(ClickedNode.GuidID);
+            //base.NodeSelected(sender, e);   
+            //ClickedNode = sender as BeepTreeNode;
+            //if (ClickedNode == null) return;
+                 CurrentBranch = GetBranchByGuidID(SelectedNode.GuidId);
           //  CurrentBranch = ClickedNode;
             //IBranch br =Branches.FirstOrDefault(c => c.GuidID == ClickedNode.GuidID);
             //AssemblyClassDefinition cls = Editor.ConfigEditor.BranchesClasses.Where(x => x.PackageName == br.Name && x.Methods.Where(y => y.DoubleClick == true || y.Click == true).Any()).FirstOrDefault();
@@ -220,14 +220,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         }
         private void BeepTreeControl_NodeRightClicked(object? sender, BeepMouseEventArgs e)
         {
-            ClickedNode = sender as BeepTreeNode;
-            if (ClickedNode != null)
-            {
-                      CurrentBranch = GetBranchByGuidID(ClickedNode.GuidID);
-               // CurrentBranch = ClickedNode;
+            //ClickedNode = sender as BeepTreeNode;
+            //if (ClickedNode != null)
+            //{
+            //          CurrentBranch = GetBranchByGuidID(ClickedNode.GuidID);
+            //   // CurrentBranch = ClickedNode;
 
-            }
-
+            //}
+            CurrentBranch = GetBranchByGuidID(ClickedNode.GuidId);
 
         }
         #endregion "Node Clicks Handlers"
@@ -247,11 +247,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                     simpleItem.ImagePath = ImageListHelper.GetImagePathFromName(iconName);
 
                     // Check if the corresponding node is drawn in NodesControls
-                    var node = GetBeepTreeNodeByGuid(branch.GuidID);
+                    var node = GetNodeByGuidID(branch.GuidID);
                     if (node != null)
                     {
                         node.ImagePath = simpleItem.ImagePath;
-                        node.Invalidate(); // Redraw if necessary
+                        //node.Invalidate(); // Redraw if necessary
                     }
                 }
             }
@@ -271,11 +271,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                     simpleItem.ImagePath = ImageListHelper.GetImagePathFromName(iconName);
 
                     // Check if the corresponding node is drawn in NodesControls
-                    var node = GetBeepTreeNodeByGuid(branch.GuidID);
+                    var node = GetNodeByGuidID(branch.GuidID);
                     if (node != null)
                     {
                         node.ImagePath = simpleItem.ImagePath;
-                        node.Invalidate(); // Redraw if necessary
+                       // node.Invalidate(); // Redraw if necessary
                     }
                 }
             }
@@ -294,11 +294,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                     simpleItem.ImagePath = ImageListHelper.GetImagePathFromName(iconName);
 
                     // Check if the corresponding node is drawn in NodesControls
-                    var node = GetBeepTreeNodeByGuid(branch.GuidID);
+                    var node = GetNodeByGuidID(branch.GuidID);
                     if (node != null)
                     {
                         node.ImagePath = simpleItem.ImagePath;
-                        node.Invalidate(); // Redraw if necessary
+                      //  node.Invalidate(); // Redraw if necessary
                     }
                 }
             }
@@ -318,11 +318,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                     simpleItem.Text = text;
 
                     // Check if the corresponding node is drawn in NodesControls
-                    var node = GetBeepTreeNodeByGuid(branch.GuidID);
+                    var node = GetNodeByGuidID(branch.GuidID);
                     if (node != null)
                     {
                         node.Text = simpleItem.Text;
-                        node.Invalidate(); // Redraw if necessary
+                       // node.Invalidate(); // Redraw if necessary
                     }
                 }
             }
@@ -342,11 +342,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                     simpleItem.Text = text;
 
                     // Check if the corresponding node is drawn in NodesControls
-                    var node = GetBeepTreeNodeByGuid(branch.GuidID);
+                    var node = GetNodeByGuidID(branch.GuidID);
                     if (node != null)
                     {
                         node.Text = simpleItem.Text;
-                        node.Invalidate(); // Redraw if necessary
+                       // node.Invalidate(); // Redraw if necessary
                     }
                 }
             }
@@ -365,11 +365,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                     simpleItem.Text = text;
 
                     // Check if the corresponding node is drawn in NodesControls
-                    var node = GetBeepTreeNodeByGuid(branch.GuidID);
+                    var node = GetNodeByGuidID(branch.GuidID);
                     if (node != null)
                     {
                         node.Text = simpleItem.Text;
-                        node.Invalidate(); // Redraw if necessary
+                       // node.Invalidate(); // Redraw if necessary
                     }
                 }
             }
@@ -380,7 +380,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             // Update the checkbox visibility for all NodesControls
             ShowCheckBox = val;
             IsCheckBoxon = val;
-            RearrangeTree();
+            Invalidate();
         }
 
         #endregion "Change Branch Properties"
@@ -407,7 +407,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 Branches = new List<IBranch>();
                 GenerBranchs = new List<Tuple<IBranch, string>>();
                 Nodes.Clear();
-                ClearNodes();
+               
                 IBranch Genrebr = null;
                 foreach (AssemblyClassDefinition GenreBrAssembly in DMEEditor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).OrderBy(x => x.Order))
                 {
@@ -570,7 +570,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                         }
                     }
                 }
-                RearrangeTree();
+                Invalidate();
             }
             catch (Exception ex)
             {
@@ -639,7 +639,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 }
                
                 // add to Simpleitem child nodes
-                AddNodeToBranch(item, parentnode);
+                AddNodeWithBranch(item, parentnode.GuidId);
                 // add to Child Branchs
                 ParentBranch.ChildBranchs.Add(br);
              //   AddBranchToParentInBranchsOnly(ParentBranch, br);
@@ -880,9 +880,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         #region "Refresh Tree"
         public void RefreshTree()
         {
-            ClearNodes();
+           
             CreateRootTree();
-            RearrangeTree();
+            Invalidate();
         }
         public void RefreshTree(IBranch branch)
         {
@@ -894,14 +894,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 simpleItem.Text = branch.Name;
                 simpleItem.ImagePath = ImageListHelper.GetImagePathFromName( branch.IconImageName);
 
-                var node = GetBeepTreeNodeByGuid(branch.GuidID);
+                var node = GetNodeByGuidID(branch.GuidID);
                 if (node != null)
                 {
                     node.Text = branch.Name;
                     node.ImagePath = ImageListHelper.GetImagePathFromName(branch.IconImageName);
-                    node.Invalidate();
+                   
                 }
             }
+            Invalidate();
         }
         public void RefreshTree(int branchid)
         {

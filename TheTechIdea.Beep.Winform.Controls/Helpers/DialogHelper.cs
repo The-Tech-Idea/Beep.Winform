@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 {
     public static class DialogHelper
     {
-        public static IDMEEditor DMEEditor { get; set; }
+      
 
         #region Configuration and Styling
         public static class DialogConfig
@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             // Validate inputs
             if (items == null || !items.Any())
             {
-                DMEEditor?.Logger?.LogError("InputComboBox called with empty or null items collection");
+                MiscFunctions.SendLog("InputComboBox called with empty or null items collection");
                 return (BeepDialogResult.Cancel, null);
             }
 
@@ -238,12 +238,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 {
                     if (owner.InvokeRequired)
                     {
-                        // Proper cross-thread call with return value handling
-                        owner.Invoke(() =>
+                        // Use Invoke with a proper delegate that returns a value
+                        result = (BeepDialogResult)owner.Invoke(new Func<BeepDialogResult>(() =>
                         {
                             var ret = dialog.ShowDialog(owner);
-                            result = MapDialogResult(ret);
-                        });
+                            return MapDialogResult(ret);
+                        }));
                     }
                     else
                     {
@@ -261,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             catch (Exception ex)
             {
-                DMEEditor?.Logger?.LogError($"Error showing dialog: {ex.Message}");
+                MiscFunctions.SendLog($"Error showing dialog: {ex.Message}");
             }
 
             return result;

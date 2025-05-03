@@ -354,7 +354,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         {
             try
             {
-                BeepTreeNode BranchNode = (BeepTreeNode)beepTreeControl.GetBeepTreeNodeByGuid(Branch.GuidID);
+             //   BeepTreeNode BranchNode = (BeepTreeNode)beepTreeControl.GetBranchByGuidID(Branch.GuidID);
                 SimpleItem branchitem = beepTreeControl.GetNodeByGuidID(Branch.GuidID);
                 SimpleItem parentitem = beepTreeControl.GetNodeByGuidID(Branch.ParentBranch.GuidID);
                 string foldername = CheckifBranchExistinCategory(Branch.BranchText, Branch.BranchClass);
@@ -362,10 +362,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 {
                     RemoveEntityFromCategory(Branch.BranchClass, foldername, Branch.BranchText);
                 }
-                if(Branch.ChildBranchs.Count > 0)
-                {
-                    RemoveChildBranchs(Branch);
+                if (Branch.ChildBranchs != null){
+                    if (Branch.ChildBranchs.Count > 0)
+                    {
+                        RemoveChildBranchs(Branch);
+                    }
                 }
+            
                 Tree.Branches.Remove(Branch);
                 if (Tree.SelectedBranchs.Contains(Branch.BranchID))
                 {
@@ -449,10 +452,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                    
                     foreach (IBranch item in branch.ChildBranchs)
                     {
-                        if (item.ChildBranchs.Count > 0)
+                        if (item.ChildBranchs != null)
                         {
-                            RemoveChildBranchs(item);
+                            if (item.ChildBranchs.Count > 0)
+                            {
+                                RemoveChildBranchs(item);
+                            }
                         }
+                
                         RemoveBranch(item);
                     }
                 }

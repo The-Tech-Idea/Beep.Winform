@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -514,18 +515,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_currentTheme != null)
             {
-                BackColor = _currentTheme.LabelBackColor;
-                ForeColor = _currentTheme.LabelForeColor;
-
-                // Set subheader color from theme if not explicitly set
-                if (_subHeaderForeColor == Color.Empty)
+                if (IsChild && Parent != null)
                 {
-                    _subHeaderForeColor = _currentTheme.SecondaryTextColor;
+                    parentbackcolor = Parent.BackColor;
+                    BackColor = parentbackcolor;
                 }
+                else
+                {
+                    BackColor = _currentTheme.LabelBackColor;
 
-                HoverBackColor = _currentTheme.ButtonHoverBackColor;
-                HoverForeColor = _currentTheme.ButtonHoverForeColor;
-
+                }
+            
+                ForeColor = _currentTheme.LabelForeColor;
+                _subHeaderForeColor = ColorUtils.GetLighterColor(ForeColor,50);
+                HoverBackColor = _currentTheme.LabelHoverBackColor;
+                HoverForeColor = _currentTheme.LabelHoverForeColor;
+                SelectedBackColor = _currentTheme.LabelSelectedBackColor;
+                SelectedForeColor = _currentTheme.LabelSelectedForeColor;
+                BorderColor = _currentTheme.LabelBorderColor;
+                DisabledBackColor = _currentTheme.LabelDisabledBackColor;
+                DisabledForeColor = _currentTheme.LabelDisabledForeColor;
                 if (UseThemeFont)
                 {
                     _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
@@ -539,16 +548,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
                 Font = _textFont;
-
-                if (IsChild && Parent != null)
-                {
-                    parentbackcolor = Parent.BackColor;
-                    BackColor = parentbackcolor;
-                }
-
                 ApplyThemeToSvg();
-                Invalidate();
-                Refresh();
+                //Invalidate();
+                //Refresh();
             }
         }
 

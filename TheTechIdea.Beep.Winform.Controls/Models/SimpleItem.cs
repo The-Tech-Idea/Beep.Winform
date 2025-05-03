@@ -39,6 +39,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         }
         public int Id { get; set; }
         public string GuidId { get; set; }
+        public string Description { get; set; } // used for to store the selected item
+        public string SubText { get; set; } // used for to store the selected item
+        public string SubText2 { get; set; } // used for to store the selected item
+        public string SubText3 { get; set; } // used for to store the selected item
         public string Name { get; set; }
         public string MenuName { get; set; }
         public string Text { get; set; }

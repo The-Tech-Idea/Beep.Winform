@@ -7,6 +7,8 @@ using TheTechIdea.Beep.Container.Services;
 using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.DataBase;
 
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Template
@@ -73,7 +75,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         public event EventHandler OnStop;
         public event EventHandler<ErrorEventArgs> OnError;
 
-
+        protected IDataSource ds;
+        string DataSourceName;
+        protected string EntityName;
+        protected UnitOfWorkWrapper uow;
         public virtual void Configure(Dictionary<string, object> settings)
         {
             if (Theme != BeepThemesManager.CurrentTheme) { Theme = BeepThemesManager.CurrentTheme;  }
@@ -111,7 +116,49 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
 
         public virtual void OnNavigatedTo(Dictionary<string, object> parameters)
         {
-            
+           
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("DatasourceName"))
+                {
+                    DataSourceName = (string)parameters["DatasourceName"];
+                    if (DataSourceName != null)
+                    {
+                        if (parameters.ContainsKey("CurrentEntity"))
+                        {
+                            EntityName = (string)parameters["CurrentEntity"];
+                            if (EntityName != null)
+                            {
+                                Details.ObjectName = EntityName;
+                            }
+                        }
+                    }
+                }
+            }
+            if (DataSourceName != null)
+            {
+                ds = beepService.DMEEditor.GetDataSource(DataSourceName);
+                if (ds != null)
+                {
+                    if (EntityName != null)
+                    {
+                        EntityStructure entityStructure = ds.GetEntityStructure(EntityName, true);
+                        if (entityStructure != null)
+                        {
+                            Type type = ds.GetEntityType(EntityName);
+                            if (type != null)
+                            {
+                                var u = UnitOfWorkFactory.CreateUnitOfWork(type, beepService.DMEEditor, DataSourceName, EntityName);
+                                uow = new UnitOfWorkWrapper(u);
+                               
+                            }
+
+                        }
+
+                    }
+                }
+            }
+
         }
 
         public virtual void Resume()

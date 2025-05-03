@@ -4,7 +4,6 @@ using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -331,7 +330,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ImageAlign = ContentAlignment.MiddleCenter,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
-                ApplyThemeOnImage = false,
+                ApplyThemeOnImage = true,
                 ShowAllBorders = false,
                 ShowShadow = false,
                 IsChild = true,
@@ -683,12 +682,12 @@ namespace TheTechIdea.Beep.Winform.Controls
          //   base.ApplyTheme();
             BackColor = _currentTheme.SideMenuBackColor;
           //  logo.Theme = Theme;
-         //   toggleButton.Theme = Theme;
-            //toggleButton.ApplyThemeOnImage = true;
+            toggleButton.Theme = Theme;
+            toggleButton.ApplyThemeOnImage = true;
             toggleButton.ImageEmbededin = ImageEmbededin.SideBar;
             toggleButton.BackColor = _currentTheme.SideMenuBackColor;
             toggleButton.ForeColor = _currentTheme.SideMenuForeColor;
-           // toggleButton.ApplyThemeToSvg();
+            toggleButton.ApplyThemeToSvg();
             logo.BackColor = _currentTheme.SideMenuBackColor;
             logo.ForeColor = _currentTheme.SideMenuForeColor;
             _titleLabel.ForeColor = _currentTheme.AppBarTitleForeColor;

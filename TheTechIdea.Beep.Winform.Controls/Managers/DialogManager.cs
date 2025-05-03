@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
     public class DialogManager : IDialogManager
     {
      //   private readonly IBeepService _beepServices;
-        public IDMEEditor DMEEditor { get; set; }
+     
         public Control DisplayPanel { get; set; }
         public Control CrudFilterPanel { get; set; }
         public BindingSource EntityBindingSource { get; set; }
@@ -22,8 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
         public DialogManager()
         {
-            //_beepServices = services ?? throw new ArgumentNullException(nameof(services));
-          //  Editor = _beepServices.Editor;
+ 
             ErrorsandMesseges = new ErrorsInfo { Flag = Errors.Ok };
         }
 

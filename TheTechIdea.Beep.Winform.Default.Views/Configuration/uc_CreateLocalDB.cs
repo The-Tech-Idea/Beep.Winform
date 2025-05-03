@@ -224,7 +224,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
               if (selectedItem.Item != null)
                 {
                     viewModel.SelectedEmbeddedDatabaseType = (DriversConfigurations.ConnectionDriversConfig)selectedItem.Item;
-                   
+                    viewModel.Extension = viewModel.SelectedEmbeddedDatabaseType.extensionstoHandle;
+
                 }
                 else
                 {

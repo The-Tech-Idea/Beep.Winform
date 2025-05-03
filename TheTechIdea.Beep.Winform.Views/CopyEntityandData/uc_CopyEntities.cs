@@ -23,7 +23,7 @@ namespace Beep.Winform.Vis.ETL.CopyEntityandData
             InitializeComponent();
         }
 
-      
+        bool IsOk = true;
         CancellationTokenSource tokenSource;
         CancellationToken token;
         int errorcount = 0;
@@ -34,7 +34,7 @@ namespace Beep.Winform.Vis.ETL.CopyEntityandData
         List<EntityStructure> Entities = new List<EntityStructure>(); 
         public List<ETLScriptDet> SyncEntities { get; set; }
         IAppManager visManager;
-        bool IsOk = true;
+     
        // public CopyEntityManager copyEntityManager { get; set; }
         public void Run(IPassedArgs pPassedarg)
         {

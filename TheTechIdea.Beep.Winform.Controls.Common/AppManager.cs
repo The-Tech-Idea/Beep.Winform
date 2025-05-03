@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Managers;
 using BeepDialogResult = TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
 
 namespace TheTechIdea.Beep.Desktop.Common
@@ -46,6 +47,8 @@ namespace TheTechIdea.Beep.Desktop.Common
             beepservices = _autofacContext.Resolve<IBeepService>();
             RoutingManager = _autofacContext.Resolve<IRoutingManager>();
             DialogManager = _autofacContext.Resolve<IDialogManager>();
+         
+           
             DMEEditor = beepservices.DMEEditor;
             init();
         }
@@ -188,6 +191,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         private Dictionary<string,object> ConvertIPassedArgstoDictionary(IPassedArgs args)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
+            if (args == null) return dict;
             foreach (var prop in args.GetType().GetProperties())
             {
                 if (prop.GetValue(args) != null)
@@ -484,26 +488,69 @@ namespace TheTechIdea.Beep.Desktop.Common
             var result = new ErrorsInfo();
             try
             {
-                if (beepWaitForm !=null && !beepWaitForm.IsDisposed)
+                if (beepWaitForm != null && !beepWaitForm.IsDisposed)
                 {
-                    // Ensure we call Close on the thread that owns the wait form.
-                    beepWaitForm.Invoke(new Action(() =>
+                    // Create a ManualResetEvent to signal when the form is fully closed
+                    using (var closedEvent = new ManualResetEvent(false))
                     {
-                        // Use your close method (or simply Close) here.
-                        WaitForm.CloseForm();
-                    }));
+                        // Ensure we call Close on the thread that owns the wait form
+                        beepWaitForm.Invoke(new Action(() =>
+                        {
+                            try
+                            {
+                                // First hide for immediate visual feedback
+                                if (beepWaitForm.Visible)
+                                    beepWaitForm.Hide();
+
+                                // Use your close method
+                                WaitForm.CloseForm();
+
+                                // Ensure form is fully closed and disposed
+                                if (!beepWaitForm.IsDisposed)
+                                {
+                                    beepWaitForm.Close();
+                                    beepWaitForm.Dispose();
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                // Log but continue cleanup
+                                DMEEditor?.AddLogMessage("Beep", $"Error in form close: {ex.Message}",
+                                    DateTime.Now, -1, null, Errors.Failed);
+                            }
+                            finally
+                            {
+                                // Signal that we're done with closing the form
+                                closedEvent.Set();
+                            }
+                        }));
+
+                        // Wait for the form to be fully closed (with timeout to prevent deadlocks)
+                        closedEvent.WaitOne(3000); // 3 second timeout
+                    }
+
+                    // Reset state
+                    beepWaitForm = null;
+                    IsShowingWaitForm = false;
                 }
+
                 result.Flag = Errors.Ok;
                 result.Message = "Wait form closed successfully.";
             }
             catch (Exception ex)
             {
                 string methodName = nameof(CloseWaitForm);
-                DMEEditor.AddLogMessage("Beep", $"In {methodName} Error: {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+                DMEEditor.AddLogMessage("Beep", $"In {methodName} Error: {ex.Message}",
+                    DateTime.Now, -1, null, Errors.Failed);
                 result.Flag = Errors.Failed;
                 result.Message = ex.Message;
                 result.Ex = ex;
+
+                // Even on error, reset state
+                beepWaitForm = null;
+                IsShowingWaitForm = false;
             }
+
             return result;
         }
 

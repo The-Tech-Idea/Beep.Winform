@@ -92,12 +92,13 @@ namespace TheTechIdea.Beep.Winform.Extensions
                    
                     string iconimage = "";
                     int cnt = 0;
-                    List<EntityStructure> ls = new List<EntityStructure>();
+
                     if (DMEEditor.Passedarguments != null)
                     {
 
                         if (ExtensionsHelpers.TreeEditor.SelectedBranchs.Count > 0 )
                         {
+                            List<EntityStructure> ls = new List<EntityStructure>();
 
                             ExtensionsHelpers.Vismanager.ShowWaitForm((PassedArgs)Passedarguments);
                             Passedarguments.Messege = $"Starting Copy Process {ExtensionsHelpers.TreeEditor.SelectedBranchs.Count()} entities ...";
@@ -132,13 +133,14 @@ namespace TheTechIdea.Beep.Winform.Extensions
                                     if (!IsView)
                                     {
                                         entity.Caption = entity.EntityName.ToUpper();
-                                        entity.DatasourceEntityName = entity.DatasourceEntityName;
-                                        entity.Created = false;
+                                        entity.IsCreated = false;
                                         entity.DataSourceID = srcds.DatasourceName;
+                                        entity.SourceDataSourceID = srcds.DatasourceName;
                                         entity.Id = cnt + 1;
                                         cnt += 1;
                                         entity.ParentId = 0;
                                         entity.ViewID = 0;
+                                        entity.EntityType = EntityType.View;
                                         entity.DatabaseType = srcds.DatasourceType;
                                         entity.Viewtype = ViewType.Table;
                                         
@@ -177,6 +179,7 @@ namespace TheTechIdea.Beep.Winform.Extensions
                                 Passedarguments.ParameterString1 = $"Done ...";
                                 ExtensionsHelpers.Vismanager.CloseWaitForm();
                                 DMEEditor.ETL.Script = script;
+                                Task.Delay(4000).Wait();
                                 ExtensionsHelpers.Vismanager.ShowPage("uc_CopyEntities", (PassedArgs)Passedargs, DisplayType.InControl);
                           
                             ExtensionsHelpers.CurrentBranch.CreateChildNodes();

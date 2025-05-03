@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
     public partial class uc_FilterForm: TemplateUserControl, IAddinVisSchema
     {
-        public uc_FilterForm(IBeepService service)
+        public uc_FilterForm(IBeepService service):base(service)
         {
             InitializeComponent();
             beepservice = service;

@@ -105,7 +105,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             Random random = new Random();
             return Color.FromArgb(random.Next(alpha, alpha2), random.Next(red, red2), random.Next(green, green2), random.Next(blue, blue2));
         }
+        // create  a darker color  for _currentTheme.LabelForeColor
+        public static Color GetDarkerColor(Color color, float factor)
+        {
+            int r = (int)(color.R * factor);
+            int g = (int)(color.G * factor);
+            int b = (int)(color.B * factor);
+            return Color.FromArgb(color.A, Math.Max(0, r), Math.Max(0, g), Math.Max(0, b));
+        }
 
+        // create a lighter color for _currentTheme.LabelForeColor
+        public static Color GetLighterColor(Color color, float factor)
+        {
+            int r = (int)(color.R + (255 - color.R) * factor);
+            int g = (int)(color.G + (255 - color.G) * factor);
+            int b = (int)(color.B + (255 - color.B) * factor);
+            return Color.FromArgb(color.A, Math.Min(255, r), Math.Min(255, g), Math.Min(255, b));
+        }
+        public static Color GetDarkerColor(Color color, int adjusment)
+        {
+            int r = Math.Max(0, color.R - adjusment);
+            int g = Math.Max(0, color.G - adjusment);
+            int b = Math.Max(0, color.B - adjusment);
+            return Color.FromArgb(color.A, r, g, b);
+        }
+        public static Color GetLighterColor(Color color, int adjusment)
+        {
+            int r = Math.Min(255, color.R + adjusment);
+            int g = Math.Min(255, color.G + adjusment);
+            int b = Math.Min(255, color.B + adjusment);
+            return Color.FromArgb(color.A, r, g, b);
+        }
+       
         // Example usage
     }
 

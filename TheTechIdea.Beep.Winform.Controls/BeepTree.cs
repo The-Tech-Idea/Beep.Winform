@@ -70,7 +70,43 @@ namespace TheTechIdea.Beep.Winform.Controls
             SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
 
         }
+        #region "Scrollbars Properties"
+     
+        // Add these fields to your BeepTree class
+        private BeepScrollBar _verticalScrollBar;
+        private BeepScrollBar _horizontalScrollBar;
+        private bool _showVerticalScrollBar = true;
+        private bool _showHorizontalScrollBar = true;
+        private int _yOffset = 0;
+        private int _xOffset = 0;
 
+        [Browsable(true)]
+        [Category("Layout")]
+        public bool ShowVerticalScrollBar
+        {
+            get => _showVerticalScrollBar;
+            set
+            {
+                _showVerticalScrollBar = value;
+                UpdateScrollBars();
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Layout")]
+        public bool ShowHorizontalScrollBar
+        {
+            get => _showHorizontalScrollBar;
+            set
+            {
+                _showHorizontalScrollBar = value;
+                UpdateScrollBars();
+                Invalidate();
+            }
+        }
+       
+        #endregion "Scrollbars Properties"
         private BindingList<SimpleItem> _currentMenuItems = new BindingList<SimpleItem>();
         public BindingList<SimpleItem> CurrentMenutems
         {
@@ -248,16 +284,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepTree() : base()
         { // but the SetStyle gives you full control:
-            this.DoubleBuffered = true;
+            //this.DoubleBuffered = true;
 
-            // these styles ensure all drawing happens offscreen
-            this.SetStyle(
-                ControlStyles.UserPaint |
-                ControlStyles.AllPaintingInWmPaint |
-                ControlStyles.OptimizedDoubleBuffer |
-                ControlStyles.ResizeRedraw,
-                true);
-            this.UpdateStyles();
+            //// these styles ensure all drawing happens offscreen
+            //this.SetStyle(
+            //    ControlStyles.UserPaint |
+            //    ControlStyles.AllPaintingInWmPaint |
+            //    ControlStyles.OptimizedDoubleBuffer |
+            //    ControlStyles.ResizeRedraw,
+            //    true);
+            //this.UpdateStyles();
             BeepButton _toggleRenderer = new BeepButton { IsChild=true, MaxImageSize=new Size(boxsize-2,boxsize-2), Size = new Size(boxsize, boxsize) ,ImageAlign= ContentAlignment.MiddleCenter,HideText=true};
             BeepCheckBoxBool _checkRenderer = new BeepCheckBoxBool { IsChild = true, CheckBoxSize = boxsize };
             BeepImage _iconRenderer = new BeepImage { IsChild = true, ScaleMode = ImageScaleMode.KeepAspectRatio };
@@ -267,14 +303,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             MouseMove += OnMouseMoveHandler;
             MouseDoubleClick += OnMouseDoubleClickHandler;
             MouseHover += OnMouseHoverHandler;
-            this.AutoScroll = true;
-            this.VerticalScroll.Visible = true;
-            this.HorizontalScroll.Visible = true;
-            _currentTheme = BeepThemesManager.AutumnTheme;
+            //this.AutoScroll = true;
+            //this.VerticalScroll.Visible = true;
+            //this.HorizontalScroll.Visible = true;
+            //_currentTheme = BeepThemesManager.AutumnTheme;
             MouseEnter += (s, e) => NodeMouseEnter?.Invoke(this, new BeepMouseEventArgs("MouseEnter", null));
             MouseLeave += (s, e) => NodeMouseLeave?.Invoke(this, new BeepMouseEventArgs("MouseLeave", null));
             MouseWheel += (s, e) => NodeMouseWheel?.Invoke(this, new BeepMouseEventArgs("MouseWheel", null));
             _button.SelectedItemChanged += button_SelectedItemChanged;
+            InitializeScrollbars();
         }
 
      
@@ -310,114 +347,130 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             HitList.Clear();
             RebuildVisible();
+
+            // Update scrollbars based on current content
+            UpdateScrollBars();
+
             int y = 0;
             foreach (var root in _nodes)
             {
                 DrawNodeRecursive(g, root, 0, ref y);
             }
+
+            // Ensure scrollbars are drawn on top
+            if (_verticalScrollBar.Visible)
+                _verticalScrollBar.Invalidate();
+            if (_horizontalScrollBar.Visible)
+                _horizontalScrollBar.Invalidate();
         }
+
         private void DrawNodeRecursive(Graphics g, SimpleItem item, int level, ref int y)
         {
+            // Adjust for scrolling
+            int adjustedY = y - _yOffset;
+            int adjustedX = level * _indentWidth - _xOffset;
+
+            // Skip drawing if the node is offscreen
+            int rowHeight = Math.Max(_minRowHeight, _button.GetPreferredSize(Size.Empty).Height + 2 * _verticalPadding);
+            if (adjustedY + rowHeight < 0 || adjustedY > ClientRectangle.Height)
+            {
+                // Still increment y for future nodes
+                y += rowHeight;
+
+                // Process children even if parent is not visible
+                if (item.IsExpanded && item.Children?.Count > 0)
+                {
+                    foreach (var child in item.Children)
+                    {
+                        DrawNodeRecursive(g, child, level + 1, ref y);
+                    }
+                }
+                return;
+            }
+
             // Measure text
             Font drawFont = UseThemeFont ? BeepThemesManager.ToFont(_currentTheme.LabelSmall) : (_useScaledfont ? Font : _textFont);
             string text = item.Text;
             _button.Text = text;
             _button.Size = _button.GetPreferredSize(Size.Empty);
             Size textSize = _button.Size;
-            int rowHeight = Math.Max(_minRowHeight, Math.Max(textSize.Height, Math.Max(boxsize, imagesize)) + 2 * _verticalPadding);
+            rowHeight = Math.Max(_minRowHeight, Math.Max(textSize.Height, Math.Max(boxsize, imagesize)) + 2 * _verticalPadding);
 
-            int x = level * _indentWidth;
-            Rectangle rowRect = new Rectangle(0, DrawingRect.Top+y, DrawingRect.Width, rowHeight);
+            // Use adjusted coordinates for drawing
+            Rectangle rowRect = new Rectangle(0, DrawingRect.Top + adjustedY, DrawingRect.Width, rowHeight);
             int checkboxWidth = 0;
+
             // Toggle
             if (item.Children?.Count > 0)
             {
-
                 _toggleRenderer.ImagePath = item.IsExpanded ? MinusIcon : PlusIcon;
             }
             else
             {
                 _toggleRenderer.ImagePath = MinusIcon;
-              
             }
-            Rectangle toggleRect = new Rectangle(x, y + (rowHeight - boxsize) / 2, boxsize, boxsize);
-           
 
+            Rectangle toggleRect = new Rectangle(adjustedX, adjustedY + (rowHeight - boxsize) / 2, boxsize, boxsize);
             _toggleRenderer.Size = new Size(imagesize, imagesize);
             _toggleRenderer.MaxImageSize = new Size(imagesize - 2, imagesize - 2);
             _toggleRenderer.Draw(g, toggleRect);
             AddHitArea($"toggle_{item.GuidId}", toggleRect);
+
             // Checkbox
             if (_showCheckBox)
             {
-                Rectangle checkRect = new Rectangle(x + boxsize + 4, y + (rowHeight - boxsize) / 2, boxsize, boxsize);
+                Rectangle checkRect = new Rectangle(adjustedX + boxsize + 4, adjustedY + (rowHeight - boxsize) / 2, boxsize, boxsize);
                 _checkRenderer.CurrentValue = item.IsChecked;
                 _checkRenderer.Draw(g, checkRect);
                 AddHitArea($"check_{item.GuidId}", checkRect);
                 checkboxWidth = boxsize + 4; // Width plus spacing
             }
 
-            // Calculate position for icon based on whether checkbox is shown
-            int iconX = x + boxsize + checkboxWidth + 4;
             // Icon
+            int iconX = adjustedX + boxsize + checkboxWidth + 4;
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                // Create a fresh instance for each icon to avoid state bleeding
                 BeepImage iconRenderer = new BeepImage
                 {
                     ImagePath = item.ImagePath,
-                 
                     Size = new Size(imagesize, imagesize),
                     ScaleMode = ImageScaleMode.KeepAspectRatio
                 };
 
-                // Calculate icon position
-             
-                int iconY = y + (rowHeight - imagesize) / 2;
+                int iconY = adjustedY + (rowHeight - imagesize) / 2;
                 Rectangle iconRect = new Rectangle(iconX, iconY, imagesize, imagesize);
 
-                // Save the graphics state
                 GraphicsState state = g.Save();
-
                 try
                 {
-                    // Draw the image directly without modifying the graphics context
                     iconRenderer.DrawImage(g, iconRect);
-
-                    // Add hit area for interaction
                     AddHitArea($"icon_{item.GuidId}", iconRect);
                 }
                 finally
                 {
-                    // Ensure graphics state is restored even if an exception occurs
                     g.Restore(state);
                 }
             }
-           
+
             // Text
             int textX = iconX + imagesize + 8;
-            Rectangle textRect = new Rectangle(textX, y + _verticalPadding, ClientSize.Width - textX, textSize.Height);
+            Rectangle textRect = new Rectangle(textX, adjustedY + _verticalPadding, ClientSize.Width - textX, textSize.Height);
             _button.Text = text;
-
-           
             _button.Size = textRect.Size;
             _button.Location = textRect.Location;
             _button.TextAlign = ContentAlignment.MiddleLeft;
             _button.Size = _button.GetPreferredSize(Size.Empty);
-            textRect=new Rectangle(textX, y + _verticalPadding, _button.Size.Width, _button.Size.Height);
-            if (item == _lastHoveredItem && !item.IsSelected )
+            textRect = new Rectangle(textX, adjustedY + _verticalPadding, _button.Size.Width, _button.Size.Height);
+
+            if (item == _lastHoveredItem && !item.IsSelected)
             {
                 _button.IsHovered = true;
             }
             else
             {
                 _button.IsHovered = false;
-               
-                //if (item == _lastclicked)
-                //{
-                //    this.SendMouseEvent(_button, MouseEventType.MouseDown,MousePosition);
-                //}
             }
+
             if (item.IsSelected)
             {
                 _button.IsSelected = true;
@@ -426,12 +479,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _button.IsSelected = false;
             }
+
             _button.Draw(g, textRect);
             AddHitArea($"row_{item.GuidId}", rowRect);
-            item.Y = y;
-            // Advance y
+
+            // Store actual Y position (with scrolling adjustment)
+            item.X = adjustedX;
+            item.Y = adjustedY;
+
+
+            // Advance y position for next node
             y += rowHeight;
-           
+
             // Draw children
             if (item.IsExpanded && item.Children?.Count > 0)
             {
@@ -441,6 +500,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+
 
         private void OnMouseDownHandler(object sender, MouseEventArgs e)
         {
@@ -456,9 +516,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     ClickedNode = item;
                     var args = new BeepMouseEventArgs("RightClick", null);
-                    RightButtonClicked?.Invoke(this, args);
+                 //   RightButtonClicked?.Invoke(this, args);
                     NodeRightClicked?.Invoke(this, args);
-                    ShowMenu?.Invoke(this, args);
+                  //  ShowMenu?.Invoke(this, args);
                    // SelectedNode = item;
            
                     var a = HandlersFactory.GlobalMenuItemsProvider(item);
@@ -489,6 +549,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         case "toggle":
                             item.IsExpanded = !item.IsExpanded;
                             (item.IsExpanded ? NodeExpanded : NodeCollapsed)?.Invoke(this, args);
+                            // Update scrollbars based on current content
+                            UpdateScrollBars();
                             break;
                         case "check":
                             item.IsChecked = !item.IsChecked;
@@ -543,7 +605,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             return TraverseAll(_nodes).FirstOrDefault(i => i.GuidId == guid);
         }
-
         private IEnumerable<SimpleItem> TraverseAll(IEnumerable<SimpleItem> list)
         {
             foreach (var i in list)
@@ -556,7 +617,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-    
+        #region "Mouse Handling"
         private void OnMouseHoverHandler(object? sender, EventArgs e)
         {
             GetHover();
@@ -650,15 +711,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             NodeMouseUp?.Invoke(this, new BeepMouseEventArgs("MouseUp", null));
         }
-
         private void OnMouseMoveHandler(object s, MouseEventArgs e)
         {
             GetHover();
-            NodeMouseMove?.Invoke(this,new BeepMouseEventArgs("MouseMove",null));
+            NodeMouseMove?.Invoke(this, new BeepMouseEventArgs("MouseMove", null));
         }
-        private void OnMouseDoubleClickHandler(object s, MouseEventArgs e) {
+        private void OnMouseDoubleClickHandler(object s, MouseEventArgs e)
+        {
             NodeDoubleClicked?.Invoke(this, new BeepMouseEventArgs("NodeDoubleClick", null));
         }
+        #endregion "Mouse Handling"
+
         protected override void OnFontChanged(EventArgs e)
         {
             base.OnFontChanged(e);
@@ -1261,7 +1324,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion  "Add Nodes"
-       
         #region "Remove Nodes"
         /// <summary>
         /// Removes a SimpleItem from the tree and updates Nodes and the UI.
@@ -1355,8 +1417,208 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-       
+
         #endregion "Remove Nodes"
-      
+        #region "Scroll Management"
+        // Call this from your constructor
+        private void InitializeScrollbars()
+        {
+            // Disable built-in scrollbars
+            this.AutoScroll = false;
+            this.VerticalScroll.Visible = false;
+            this.HorizontalScroll.Visible = false;
+
+            // Create vertical scrollbar
+            _verticalScrollBar = new BeepScrollBar
+            {
+                ScrollOrientation = Orientation.Vertical,
+                Visible = false,
+                Width = 10
+            };
+            _verticalScrollBar.Scroll += VerticalScrollBar_Scroll;
+            Controls.Add(_verticalScrollBar);
+
+            // Create horizontal scrollbar
+            _horizontalScrollBar = new BeepScrollBar
+            {
+                ScrollOrientation = Orientation.Horizontal,
+                Visible = false,
+                Height = 10
+            };
+            _horizontalScrollBar.Scroll += HorizontalScrollBar_Scroll;
+            Controls.Add(_horizontalScrollBar);
+        }
+
+        private void VerticalScrollBar_Scroll(object sender, EventArgs e)
+        {
+            _yOffset = _verticalScrollBar.Value;
+            Invalidate();
+        }
+
+        private void HorizontalScrollBar_Scroll(object sender, EventArgs e)
+        {
+            _xOffset = _horizontalScrollBar.Value;
+            Invalidate();
+        }
+
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            base.OnMouseWheel(e);
+
+            if (_verticalScrollBar.Visible)
+            {
+                // Calculate new scroll position
+                int newValue = _verticalScrollBar.Value;
+                if (e.Delta > 0)
+                {
+                    // Scroll up
+                    newValue = Math.Max(0, newValue - _verticalScrollBar.SmallChange);
+                }
+                else
+                {
+                    // Scroll down
+                    newValue = Math.Min(_verticalScrollBar.Maximum - _verticalScrollBar.LargeChange,
+                                newValue + _verticalScrollBar.SmallChange);
+                }
+
+                _verticalScrollBar.Value = newValue;
+                _yOffset = newValue;
+                Invalidate();
+            }
+        }
+
+        private void UpdateScrollBars()
+        {
+            if (DesignMode)
+                return;
+
+            // Calculate total content height based on visible nodes
+            int contentHeight = CalculateTotalContentHeight();
+            int contentWidth = CalculateTotalContentWidth();
+
+            // Get visible area dimensions
+            int visibleHeight = ClientRectangle.Height;
+            int visibleWidth = ClientRectangle.Width;
+
+            // Debug info
+            System.Diagnostics.Debug.WriteLine($"Content: {contentWidth}x{contentHeight}, Visible: {visibleWidth}x{visibleHeight}");
+
+            // Determine if scrollbars are needed
+            bool needsVertical = _showVerticalScrollBar && contentHeight > visibleHeight;
+            bool needsHorizontal = _showHorizontalScrollBar && contentWidth > visibleWidth;
+
+            // Update scrollbar for vertical scrolling
+            if (needsVertical)
+            {
+                // Configure scrollbar
+                _verticalScrollBar.Minimum = 0;
+                _verticalScrollBar.Maximum = contentHeight;
+                _verticalScrollBar.SmallChange = 20;
+                _verticalScrollBar.LargeChange = visibleHeight;
+                _verticalScrollBar.Value = Math.Min(_yOffset, Math.Max(0, contentHeight - visibleHeight));
+
+                // Position scrollbar
+                _verticalScrollBar.Location = new Point(
+                    ClientRectangle.Right - _verticalScrollBar.Width,
+                    ClientRectangle.Top);
+                _verticalScrollBar.Height = needsHorizontal ?
+                    visibleHeight - _horizontalScrollBar.Height :
+                    visibleHeight;
+
+                // Make visible
+                _verticalScrollBar.Visible = true;
+                _verticalScrollBar.BringToFront();
+
+                System.Diagnostics.Debug.WriteLine($"Vertical scrollbar visible: H={_verticalScrollBar.Height}, Max={_verticalScrollBar.Maximum}");
+            }
+            else
+            {
+                _verticalScrollBar.Visible = false;
+                _yOffset = 0;
+            }
+
+            // Update scrollbar for horizontal scrolling
+            if (needsHorizontal)
+            {
+                // Configure scrollbar
+                _horizontalScrollBar.Minimum = 0;
+                _horizontalScrollBar.Maximum = contentWidth;
+                _horizontalScrollBar.SmallChange = 20;
+                _horizontalScrollBar.LargeChange = visibleWidth;
+                _horizontalScrollBar.Value = Math.Min(_xOffset, Math.Max(0, contentWidth - visibleWidth));
+
+                // Position scrollbar
+                _horizontalScrollBar.Location = new Point(
+                    ClientRectangle.Left,
+                    ClientRectangle.Bottom - _horizontalScrollBar.Height);
+                _horizontalScrollBar.Width = needsVertical ?
+                    visibleWidth - _verticalScrollBar.Width :
+                    visibleWidth;
+
+                // Make visible
+                _horizontalScrollBar.Visible = true;
+                _horizontalScrollBar.BringToFront();
+            }
+            else
+            {
+                _horizontalScrollBar.Visible = false;
+                _xOffset = 0;
+            }
+        }
+
+        private int CalculateTotalContentHeight()
+        {
+            int totalHeight = 0;
+
+            // Sum the heights of all visible rows
+            foreach (var node in _visibleNodes)
+            {
+                // Calculate row height (same logic as in DrawNodeRecursive)
+                Font drawFont = UseThemeFont ? BeepThemesManager.ToFont(_currentTheme.LabelSmall) : (_useScaledfont ? Font : _textFont);
+                _button.Text = node.Item.Text ?? string.Empty;
+                _button.Size = _button.GetPreferredSize(Size.Empty);
+                Size textSize = _button.Size;
+
+                int rowHeight = Math.Max(_minRowHeight, Math.Max(textSize.Height, Math.Max(boxsize, imagesize)) + 2 * _verticalPadding);
+                totalHeight += rowHeight;
+            }
+
+            // Add some padding
+            totalHeight += 20;
+
+            return Math.Max(totalHeight, 50); // Ensure minimum height
+        }
+
+        private int CalculateTotalContentWidth()
+        {
+            int maxWidth = 0;
+
+            // Find the widest row
+            foreach (var node in _visibleNodes)
+            {
+                // Calculate content width for this row (similar to DrawNodeRecursive)
+                int level = node.Level;
+                int baseIndent = level * _indentWidth;
+
+                _button.Text = node.Item.Text ?? string.Empty;
+                _button.Size = _button.GetPreferredSize(Size.Empty);
+                Size textSize = _button.Size;
+
+                int rowWidth = baseIndent + boxsize + (_showCheckBox ? boxsize + 4 : 0) + imagesize + 8 + textSize.Width + 40;
+
+                maxWidth = Math.Max(maxWidth, rowWidth);
+            }
+
+            return Math.Max(maxWidth, 100); // Ensure minimum width
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            UpdateScrollBars();
+        }
+
+        #endregion 
+
     }
 }

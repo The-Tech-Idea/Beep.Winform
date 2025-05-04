@@ -325,5 +325,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             int delta = e.Delta / SystemInformation.MouseWheelScrollDelta * _smallChange;
             Value -= delta;
         }
+      
     }
 }

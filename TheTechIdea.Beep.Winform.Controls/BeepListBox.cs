@@ -620,22 +620,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Getting and Setting Items"
         #region "Layout and Theme"
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            // DrawingRect.Inflate(-2, -2);
-            // Get the dimensions of DrawingRect
-
-
-            base.OnPaint(e);
-
-            if (_isControlinvalidated)
-            {
-
-                InitializeMenu();
-                _isControlinvalidated = false;
-            }
-
-        }
+   
         public void CollapseToTitleLine(int extraMargin = 0)
         {
             // Force OnPaint to ensure TitleBottomY is updated
@@ -749,6 +734,51 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    //  base.OnMouseLeave(e);
         //}
         #endregion "Layout and Theme"
+        #region "Mouse Events"
+        #endregion "Mouse Events"
+        #region "Key Events"
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            if (e.KeyCode == Keys.Up)
+            {
+                if (SelectedIndex > 0)
+                {
+                    SelectedIndex--;
+                }
+            }
+            else if (e.KeyCode == Keys.Down)
+            {
+                if (SelectedIndex < _buttons.Count - 1)
+                {
+                    SelectedIndex++;
+                }
+            }
+        }
+        #endregion "Key Events"
+        #region "Painting"
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
+            // Prevent flickering by not painting the background
+            //base.OnPaintBackground(e);
+        }
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            // DrawingRect.Inflate(-2, -2);
+            // Get the dimensions of DrawingRect
+
+
+            base.OnPaint(e);
+
+        
+
+        }
+        protected override void DrawContent(Graphics g)
+        {
+            base.DrawContent(g);
+            // i want to draw the content of the control here same layout as i set
+            // and detect click and hover using hitlist just like we did in beeptree
+        }
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
             // Enable anti-aliasing for smoother rendering
@@ -800,6 +830,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 yOffset += _menuItemHeight + spacing;
             }
         }
+        #endregion "Painting"
         public override void SetValue(object value)
         {
             if (value is SimpleItem item)

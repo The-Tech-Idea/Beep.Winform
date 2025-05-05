@@ -799,10 +799,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             Width = 200;
             Height = 200;
             // Attach event handlers for mouse actions
-            this.MouseClick += BeepGrid_MouseClick;
+           
             
             this.MouseDown += BeepGrid_MouseDown;
-            this.MouseMove += BeepGrid_MouseMove;
+           
             this.MouseUp += BeepGrid_MouseUp;
             TabKeyPressed += Tabhandler;
             
@@ -5978,101 +5978,42 @@ namespace TheTechIdea.Beep.Winform.Controls
               //   MiscFunctions.SendLog($"SetColumnWidth: Column '{columnName}' not found.");
             }
         }
-        private void BeepGrid_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (IsNearColumnBorder(e.Location, out _resizingIndex))
-            {
-                _resizingColumn = true;
-                _lastMousePos = e.Location;
-                this.Cursor = Cursors.SizeWE;
-            }
-            else if (IsNearRowBorder(e.Location, out _resizingIndex))
-            {
-                _resizingRow = true;
-                _lastMousePos = e.Location;
-                this.Cursor = Cursors.SizeNS;
-            }
-        }
-        private void BeepGrid_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (_resizingColumn && _resizingIndex >= 0)
-            {
-                int deltaX = e.X - _lastMousePos.X;
-                if (_resizingIndex < Columns.Count)
-                {
-                    Columns[_resizingIndex].Width = Math.Max(20, Columns[_resizingIndex].Width + deltaX);
-                }
-                _lastMousePos = e.Location;
-                UpdateScrollBars();
-                Invalidate();
-            }
-            else if (_resizingRow && _resizingIndex >= 0)
-            {
-                int deltaY = e.Y - _lastMousePos.Y;
-                int currentRowHeight = Rows[_resizingIndex].Height;
-                int newHeight = Math.Max(10, currentRowHeight + deltaY);
-                if (newHeight != currentRowHeight)
-                {
-                    int displayIndex = Rows[_resizingIndex].DisplayIndex;
-                    Rows[_resizingIndex].Height = newHeight;
-                    foreach (var cell in Rows[_resizingIndex].Cells)
-                    {
-                        cell.Height = newHeight;
-                    }
-                    _rowHeights[displayIndex] = newHeight; // Track resized height
-
-                    _lastMousePos = e.Location;
-                    FillVisibleRows(); // Refresh visible rows with new height
-                    UpdateCellPositions();
-                    UpdateScrollBars();
-                    Invalidate();
-                }
-            }
-            else
-            {
-                if (IsNearColumnBorder(e.Location, out _resizingIndex))
-                {
-                    this.Cursor = Cursors.SizeWE;
-                }
-                else if (IsNearRowBorder(e.Location, out _resizingIndex))
-                {
-                    this.Cursor = Cursors.SizeNS;
-                }
-                else
-                {
-                    this.Cursor = Cursors.Default;
-                }
-            }
-        }
-        private void BeepGrid_MouseUp(object sender, MouseEventArgs e)
-        {
-            _resizingColumn = false;
-            _resizingRow = false;
-            this.Cursor = Cursors.Default;
-           // FillVisibleRows(); // Ensure data is redrawn after resizing
-           Invalidate();
-        }
+    
         private bool IsNearColumnBorder(Point location, out int columnIndex)
         {
-            // Calculate the X coordinate relative to the grid's content.
-            // gridRect.Left is where the cells start; add XOffset to account for horizontal scrolling.
+            // First, check if the location is within the grid area
+            if (!gridRect.Contains(location))
+            {
+                columnIndex = -1;
+                return false;
+            }
+
+            // Calculate the X coordinate relative to the grid's content area
             int xRelative = location.X - gridRect.Left + XOffset;
+
+            // Track current X position as we iterate through columns
             int currentX = 0;
+
+            // Check each column
             for (int i = 0; i < Columns.Count; i++)
             {
                 if (!Columns[i].Visible)
                     continue;
+
                 currentX += Columns[i].Width;
-                // Check if the point is within _resizeMargin pixels of this column’s right edge.
+
+                // Check if the point is within _resizeMargin pixels of this column's right edge
                 if (Math.Abs(xRelative - currentX) <= _resizeMargin)
                 {
                     columnIndex = i;
                     return true;
                 }
             }
+
             columnIndex = -1;
             return false;
         }
+
         private bool IsNearRowBorder(Point location, out int rowIndex)
         {
             // Calculate the Y coordinate relative to the grid's drawing area (rows start at gridRect.Top)
@@ -6385,67 +6326,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Optionally, revert the editor's value if needed.
             CloseCurrentEditor();
         }
-        private void BeepGrid_MouseClick(object sender, MouseEventArgs e)
-        {
-            var clickedCell = GetCellAtLocation(e.Location);
-            if (clickedCell == null) return;
-            if (clickedCell != null)
-            {
-                int colIndex = clickedCell.ColumnIndex;
-                if (Columns[colIndex].IsSelectionCheckBox && (_showCheckboxes ))
-                {
-                    int rowIndex = clickedCell.RowIndex;
-                    if (rowIndex >= 0 && rowIndex < Rows.Count)
-                    {
-                        int dataIndex = _dataOffset + rowIndex;
-                        var dataItem = _fullData[dataIndex] as DataRowWrapper;
-                        int rowID = dataItem.RowID;
-
-                        bool isSelected = (bool)(clickedCell.CellValue ?? false);
-                        _persistentSelectedRows[rowID] = !isSelected;
-                        clickedCell.CellValue = !isSelected;
-                        clickedCell.CellData = !isSelected;
-
-                        //MiscFunctions.SendLog($"BeepGrid_MouseClick: Row {rowIndex}, DataIndex {dataIndex}, RowID {rowID}, Sel = {!isSelected}, _persistentSelectedRows.Count = {_persistentSelectedRows.Count}");
-                       
-                        RaiseSelectedRowsChanged();
-                        Invalidate();
-                    }
-                    return;
-                }
-            }
-
-        
-            if (_editingCell != null && clickedCell != null && _editingCell.Id == clickedCell.Id)
-            {
-                SaveEditedValue();
-                return;
-            }
-           
-              _tempcell=  CloseCurrentEditor();
-            //    ResumeLayout(false); // Resume layout without redraw
-            if(_tempcell!=null)                    SaveEditedValue();
-    
-            _selectedCell = clickedCell;
-            if (_selectedCell != null && _columns != null)
-            {
-  
-                    _editingCell = _selectedCell;
-                    SelectCell(_selectedCell);
-                    if (DataNavigator != null && _currentRow != null && _currentRow.DisplayIndex >= 0)
-                    {
-                        DataNavigator.BindingSource.Position = _currentRow.DisplayIndex;
-                    }
-                    if (_columns == null) return;
-                    if (!_columns[_selectedCell.ColumnIndex].ReadOnly && _columns[_selectedCell.ColumnIndex].CellEditor!= BeepColumnType.Image  )
-                    {
-                        ShowCellEditor(_selectedCell, e.Location);
-                    }
-                // Redraw only after new editor is positioned
-               
-            }
-        }
-      
+     
 
     
         private void EndEdit()
@@ -7593,18 +7474,44 @@ namespace TheTechIdea.Beep.Winform.Controls
                 new Rectangle(x, y, buttonWidth, buttonHeight));
             x += buttonWidth + padding;
 
-            // Draw record counter (center)
+            // Draw record counter (center) with navigation buttons
             string recordCounter = (_fullData != null && _fullData.Any())
                 ? $"{(_currentRowIndex + _dataOffset + 1)} - {_fullData.Count}"
                 : "0 - 0";
 
+            // Calculate center area for record counter display
             using (var font = new Font(Font.FontFamily, 9f))
             using (var brush = new SolidBrush(_currentTheme.GridHeaderForeColor))
             {
                 SizeF textSize = g.MeasureString(recordCounter, font);
+
+                // Center x position for record counter text
                 float recordX = rect.Left + ((rect.Width - textSize.Width) / 2);
+
+                // Add record navigation buttons around the counter
+                int navButtonWidth = 20;
+                int navButtonSpacing = 6;
+
+                // First Record button - left of counter
+                DrawNavigationButton(g, "FirstRecordButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.angle-double-small-left.svg",
+                    new Rectangle((int)recordX - navButtonWidth * 2 - navButtonSpacing * 2, y, navButtonWidth, buttonHeight));
+
+                // Previous Record button - left of counter
+                DrawNavigationButton(g, "PreviousRecordButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.angle-small-left.svg",
+                    new Rectangle((int)recordX - navButtonWidth - navButtonSpacing, y, navButtonWidth, buttonHeight));
+
+                // Draw the record counter text
                 g.DrawString(recordCounter, font, brush, recordX, y + (buttonHeight - textSize.Height) / 2);
+
+                // Next Record button - right of counter
+                DrawNavigationButton(g, "NextRecordButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.angle-small-right.svg",
+                    new Rectangle((int)(recordX + textSize.Width + navButtonSpacing), y, navButtonWidth, buttonHeight));
+
+                // Last Record button - right of counter
+                DrawNavigationButton(g, "LastRecordButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.angle-double-small-right.svg",
+                    new Rectangle((int)(recordX + textSize.Width + navButtonWidth + navButtonSpacing * 2), y, navButtonWidth, buttonHeight));
             }
+
 
             // Draw pagination controls (right side)
             int pageButtonX = rect.Right - padding - buttonWidth;
@@ -7687,105 +7594,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Field to track tooltip state
         private bool tooltipShown = false;
 
-        // Override OnMouseMove to handle button hover effects
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-
-            // Reset tooltip shown flag when mouse moves
-            tooltipShown = false;
-
-            if (_navigatorDrawn)
-            {
-                // Check if mouse is over any hit area
-                if (HitTest(e.Location, out var hitTest))
-                {
-                    if (hitTest.Name.EndsWith("Button"))
-                    {
-                        Cursor = Cursors.Hand;
-                        Invalidate(hitTest.TargetRect); // Redraw just this button area
-                        return;
-                    }
-                }
-            }
-
-            // Reset cursor if not over a button
-            if (Cursor == Cursors.Hand)
-            {
-                Cursor = Cursors.Default;
-                Invalidate(navigatorPanelRect); // Redraw the entire navigator area
-            }
-        }
-
-        // Override OnMouseLeave to reset hover state
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
-            tooltipShown = false;
-
-            if (Cursor == Cursors.Hand)
-            {
-                Cursor = Cursors.Default;
-                Invalidate(navigatorPanelRect);
-            }
-        }
-
-   
-        // New method to handle navigation button clicks via hit testing
-        protected override void OnMouseClick(MouseEventArgs e)
-        {
-            base.OnMouseClick(e);
-
-            if (HitTest(e.Location, out var hitTest))
-            {
-                // Handle navigation buttons based on hit area name
-                switch (hitTest.Name)
-                {
-                    case "FindButton":
-                        FindpictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "EditButton":
-                        EditpictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "PrinterButton":
-                        PrinterpictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "MessageButton":
-                        MessagepictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "SaveButton":
-                        SavepictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "NewButton":
-                        NewButton_Click(this, EventArgs.Empty);
-                        break;
-                    case "RemoveButton":
-                        RemovepictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "RollbackButton":
-                        RollbackpictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "PreviousButton":
-                        PreviouspictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "NextButton":
-                        NextpictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "FirstPageButton":
-                        FirstPageButton_Click(this, EventArgs.Empty);
-                        break;
-                    case "PrevPageButton":
-                        PrevPageButton_Click(this, EventArgs.Empty);
-                        break;
-                    case "NextPageButton":
-                        NextPageButton_Click(this, EventArgs.Empty);
-                        break;
-                    case "LastPageButton":
-                        LastPageButton_Click(this, EventArgs.Empty);
-                        break;
-                }
-            }
-        }
+     
 
         #endregion
         private void HideNavigationButtons()
@@ -8789,6 +8598,287 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion
+        #region "Mouse Events"
+        // Override OnMouseMove to handle button hover effects
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            // First call base implementation
+            base.OnMouseMove(e);
+
+            // Reset tooltip shown flag when mouse moves
+            tooltipShown = false;
+
+            // Handle column/row resizing (from BeepGrid_MouseMove)
+            if (_resizingColumn && _resizingIndex >= 0)
+            {
+                int deltaX = e.X - _lastMousePos.X;
+                if (_resizingIndex < Columns.Count)
+                {
+                    Columns[_resizingIndex].Width = Math.Max(20, Columns[_resizingIndex].Width + deltaX);
+                }
+                _lastMousePos = e.Location;
+                UpdateScrollBars();
+                Invalidate();
+                return; // Early return when resizing
+            }
+            else if (_resizingRow && _resizingIndex >= 0)
+            {
+                int deltaY = e.Y - _lastMousePos.Y;
+                int currentRowHeight = Rows[_resizingIndex].Height;
+                int newHeight = Math.Max(10, currentRowHeight + deltaY);
+                if (newHeight != currentRowHeight)
+                {
+                    int displayIndex = Rows[_resizingIndex].DisplayIndex;
+                    Rows[_resizingIndex].Height = newHeight;
+                    foreach (var cell in Rows[_resizingIndex].Cells)
+                    {
+                        cell.Height = newHeight;
+                    }
+                    _rowHeights[displayIndex] = newHeight; // Track resized height
+
+                    _lastMousePos = e.Location;
+                    FillVisibleRows(); // Refresh visible rows with new height
+                    UpdateCellPositions();
+                    UpdateScrollBars();
+                    Invalidate();
+                }
+                return; // Early return when resizing
+            }
+            else
+            {
+                // Cursor handling based on where we are hovering
+                if (IsNearColumnBorder(e.Location, out _resizingIndex))
+                {
+                    this.Cursor = Cursors.SizeWE;
+                    return; // Set cursor and return
+                }
+                else if (IsNearRowBorder(e.Location, out _resizingIndex))
+                {
+                    this.Cursor = Cursors.SizeNS;
+                    return; // Set cursor and return
+                }
+            }
+
+            // Handle navigator button hover (from the original OnMouseMove)
+            if (_navigatorDrawn)
+            {
+                // Check if mouse is over any hit area
+                if (HitTest(e.Location, out var hitTest))
+                {
+                    if (hitTest.Name.EndsWith("Button"))
+                    {
+                        Cursor = Cursors.Hand;
+                        Invalidate(hitTest.TargetRect); // Redraw just this button area
+                        return;
+                    }
+                }
+            }
+
+            // Reset cursor if we reached this point and none of the above conditions matched
+            this.Cursor = Cursors.Default;
+        }
+   
+        // Override OnMouseLeave to reset hover state
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            tooltipShown = false;
+
+            if (Cursor == Cursors.Hand)
+            {
+                Cursor = Cursors.Default;
+                Invalidate(navigatorPanelRect);
+            }
+        }
+        // New method to handle navigation button clicks via hit testing
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+
+            // First check if we clicked on a navigation button in the navigation area
+            if (HitTest(e.Location, out var hitTest))
+            {
+                // Handle navigation buttons based on hit area name
+                switch (hitTest.Name)
+                {
+                    case "FirstRecordButton":
+                        // Navigate to first record
+                        if (_fullData != null && _fullData.Any())
+                        {
+                            _dataOffset = 0;
+                            SelectCell(0, _selectedColumnIndex >= 0 ? _selectedColumnIndex : 0);
+                            FillVisibleRows();
+                            UpdateScrollBars();
+                            Invalidate();
+                        }
+                        return; // Early return after handling button
+
+                    case "PreviousRecordButton":
+                        // Navigate to previous record
+                        PreviouspictureBox_Click(this, EventArgs.Empty);
+                        return; // Early return after handling button
+
+                    case "NextRecordButton":
+                        // Navigate to next record
+                        NextpictureBox_Click(this, EventArgs.Empty);
+                        return; // Early return after handling button
+
+                    case "LastRecordButton":
+                        // Navigate to last record
+                        if (_fullData != null && _fullData.Any())
+                        {
+                            int visibleRowCount = GetVisibleRowCount();
+                            _dataOffset = Math.Max(0, _fullData.Count - visibleRowCount);
+                            int lastRowIndex = Math.Min(visibleRowCount - 1, _fullData.Count - _dataOffset - 1);
+                            SelectCell(lastRowIndex, _selectedColumnIndex >= 0 ? _selectedColumnIndex : 0);
+                            FillVisibleRows();
+                            UpdateScrollBars();
+                            Invalidate();
+                        }
+                        return; // Early return after handling button
+
+                    case "FindButton":
+                        FindpictureBox_Click(this, EventArgs.Empty);
+                        return; // Early return after handling button
+
+                    case "EditButton":
+                        EditpictureBox_Click(this, EventArgs.Empty);
+                        return; // Early return after handling button
+
+                    case "PrinterButton":
+                        PrinterpictureBox_Click(this, EventArgs.Empty);
+                        return; // Early return after handling button
+
+                    case "MessageButton":
+                        MessagepictureBox_Click(this, EventArgs.Empty);
+                        return; // Early return after handling button
+
+                    case "SaveButton":
+                        SavepictureBox_Click(this, EventArgs.Empty);
+                        return; // Early return after handling button
+
+                    case "NewButton":
+                        NewButton_Click(this, EventArgs.Empty);
+                        return; // Early return after handling button
+
+                    case "RemoveButton":
+                        RemovepictureBox_Click(this, EventArgs.Empty);
+                        return; // Early return after handling button
+
+                    case "RollbackButton":
+                        RollbackpictureBox_Click(this, EventArgs.Empty);
+                        return; // Early return after handling button
+
+                    case "FirstPageButton":
+                        FirstPageButton_Click(this, EventArgs.Empty);
+                        return; // Early return after handling button
+
+                    case "PrevPageButton":
+                        PrevPageButton_Click(this, EventArgs.Empty);
+                        return; // Early return after handling button
+
+                    case "NextPageButton":
+                        NextPageButton_Click(this, EventArgs.Empty);
+                        return; // Early return after handling button
+
+                    case "LastPageButton":
+                        LastPageButton_Click(this, EventArgs.Empty);
+                        return; // Early return after handling button
+                }
+            }
+
+            // Now handle clicks within the actual grid area for cell selection and editing
+            var clickedCell = GetCellAtLocation(e.Location);
+            if (clickedCell != null)
+            {
+                int colIndex = clickedCell.ColumnIndex;
+                // Handle clicks on checkbox column specially
+                if (Columns[colIndex].IsSelectionCheckBox && (_showCheckboxes))
+                {
+                    int rowIndex = clickedCell.RowIndex;
+                    if (rowIndex >= 0 && rowIndex < Rows.Count)
+                    {
+                        int dataIndex = _dataOffset + rowIndex;
+                        if (dataIndex < _fullData.Count)
+                        {
+                            var dataItem = _fullData[dataIndex] as DataRowWrapper;
+                            if (dataItem != null)
+                            {
+                                int rowID = dataItem.RowID;
+                                bool isSelected = (bool)(clickedCell.CellValue ?? false);
+                                _persistentSelectedRows[rowID] = !isSelected;
+                                clickedCell.CellValue = !isSelected;
+                                clickedCell.CellData = !isSelected;
+
+                                RaiseSelectedRowsChanged();
+                                Invalidate();
+                            }
+                        }
+                    }
+                    return;
+                }
+
+                // Handle regular cell clicks for selection and editing
+                if (_editingCell != null && clickedCell != null && _editingCell.Id == clickedCell.Id)
+                {
+                    SaveEditedValue();
+                    return;
+                }
+
+                _tempcell = CloseCurrentEditor();
+                if (_tempcell != null) SaveEditedValue();
+
+                _selectedCell = clickedCell;
+                if (_selectedCell != null && _columns != null)
+                {
+                    _editingCell = _selectedCell;
+                    SelectCell(_selectedCell);
+
+                    // Update binding source position if connected
+                    if (DataNavigator != null && _currentRow != null && _currentRow.DisplayIndex >= 0)
+                    {
+                        DataNavigator.BindingSource.Position = _currentRow.DisplayIndex;
+                    }
+
+                    // Show editor for editable cells
+                    if (_columns[_selectedCell.ColumnIndex] != null &&
+                        !_columns[_selectedCell.ColumnIndex].ReadOnly &&
+                        _columns[_selectedCell.ColumnIndex].CellEditor != BeepColumnType.Image)
+                    {
+                        ShowCellEditor(_selectedCell, e.Location);
+                    }
+
+                    // Raise the cell click event for custom handling
+                    CellClick?.Invoke(this, new BeepCellEventArgs(_selectedCell));
+                }
+            }
+        }
+
+        private void BeepGrid_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (IsNearColumnBorder(e.Location, out _resizingIndex))
+            {
+                _resizingColumn = true;
+                _lastMousePos = e.Location;
+                this.Cursor = Cursors.SizeWE;
+            }
+            else if (IsNearRowBorder(e.Location, out _resizingIndex))
+            {
+                _resizingRow = true;
+                _lastMousePos = e.Location;
+                this.Cursor = Cursors.SizeNS;
+            }
+        }
+      
+        private void BeepGrid_MouseUp(object sender, MouseEventArgs e)
+        {
+            _resizingColumn = false;
+            _resizingRow = false;
+            this.Cursor = Cursors.Default;
+            // FillVisibleRows(); // Ensure data is redrawn after resizing
+            Invalidate();
+        }
+        #endregion "Mouse Events"
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

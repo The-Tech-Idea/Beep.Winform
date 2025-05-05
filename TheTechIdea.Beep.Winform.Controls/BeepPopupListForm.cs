@@ -156,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.IsBorderAffectedByTheme = false;
             _beepListBox.ShowAllBorders = false;
             _beepListBox.IsFrameless = true;
-            _beepListBox.InitializeMenu();
+            _beepListBox.Invalidate();
             int _maxListHeight = Width;
             int _maxListWidth = 50;
 
@@ -354,11 +354,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 return;
             }
-            BackColor =_currentTheme.ButtonBackColor;
+            BackColor =_currentTheme.ListBackColor;
             //beepPanel1.Theme = beepuiManager1.Theme;
-            BorderColor = _currentTheme.BorderColor;
-            ForeColor = _currentTheme.ButtonForeColor;
-            if(_beepListBox!=null)      _beepListBox.Theme = Theme;
+            BorderColor = _currentTheme.ListBorderColor;
+            ForeColor = _currentTheme.ListForeColor;
+            if (_beepListBox != null) _beepListBox.Theme = Theme;
 
             Invalidate();
         }

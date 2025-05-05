@@ -772,6 +772,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
+            // Store original graphics state to restore later
             var originalTransform = g.Transform;
             var originalCompositingMode = g.CompositingMode;
             var originalClip = g.Clip;
@@ -784,9 +785,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 float alpha = _isFading ? _fadeAlpha : 1.0f;
                 int shakeOffset = _isShaking ? _shakeOffset : 0;
 
+                // The center point calculation is crucial - we need to use the exact coordinates from imageRect
                 PointF center = new PointF(
                     imageRect.X + imageRect.Width / 2f,
-                    imageRect.Y + imageRect.Height / 2f
+                    imageRect.Y + imageRect.Height / 2f  // This ensures we're centered at the right Y position
                 );
 
                 // --- Create clipping path if shape clipping is enabled ---
@@ -794,111 +796,106 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     using (GraphicsPath clipPath = CreateClipPath(imageRect))
                     {
-                        // Create a matrix for transforming the clip path
-                        using (Matrix clipMatrix = new Matrix())
-                        {
-                            // Apply the same transformations to the clip path as we'll apply to the image
-                            clipMatrix.Translate(center.X, center.Y);
-                            clipMatrix.Scale(scale, scale);
-                            // We don't rotate the clip path - it stays in place
-                            clipMatrix.Translate(-center.X, -center.Y);
-
-                            // Apply the transformation to the clip path
-                            clipPath.Transform(clipMatrix);
-
-                            // Set the clip region
-                            g.SetClip(clipPath);
-                        }
+                        // Apply clip directly using the exact imageRect coordinates
+                        g.SetClip(clipPath);
                     }
                 }
 
-                // --- Apply Transforms ---
+                // --- Apply transformations relative to the exact center point ---
                 g.TranslateTransform(center.X, center.Y);
 
+                // Apply flip if needed
                 if (_flipX || _flipY)
                 {
                     g.ScaleTransform(_flipX ? -1 : 1, _flipY ? -1 : 1);
-                    g.TranslateTransform(_flipX ? -2 * center.X : 0, _flipY ? -2 * center.Y : 0);
                 }
 
+                // Apply scale and rotation
                 g.ScaleTransform(scale, scale);
                 g.RotateTransform(rotation);
+
+                // Move back to original position
                 g.TranslateTransform(-center.X, -center.Y);
 
+                // Add shake offset if needed
                 if (shakeOffset != 0)
                 {
                     g.TranslateTransform(shakeOffset, 0);
                 }
 
-                // --- Prepare drawing bounds ---
-                RectangleF scaledBounds;
-                SizeF imageSize;
-
+                // --- Draw the image based on type ---
                 if (isSvg && svgDocument != null)
                 {
-                    imageSize = svgDocument.GetDimensions();
-                    scaledBounds = GetScaledBounds(imageSize, imageRect);
+                    // For SVG images
+                    SizeF imageSize = svgDocument.GetDimensions();
+                    RectangleF scaledBounds = GetScaledBounds(imageSize, imageRect);
 
                     if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
                     {
+                        // Important: Use the scaled bounds that respects the Y position
                         g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
                         g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
 
+                        // Set compositing mode if needed for transparency
                         if (alpha < 1.0f)
                             g.CompositingMode = CompositingMode.SourceOver;
 
+                        // Draw the SVG
                         svgDocument.Draw(g);
                     }
                 }
                 else if (regularImage != null)
                 {
-                    imageSize = regularImage.Size;
-                    scaledBounds = GetScaledBounds(imageSize, imageRect);
+                    // For regular bitmap images
+                    SizeF imageSize = regularImage.Size;
+                    RectangleF scaledBounds = GetScaledBounds(imageSize, imageRect);
 
                     if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
                     {
                         if (alpha < 1.0f || _grayscale)
                         {
+                            // Apply special effects with ImageAttributes
                             ColorMatrix matrix = new ColorMatrix();
 
                             if (_grayscale)
                             {
-                                // Grayscale matrix values
+                                // Grayscale conversion matrix
                                 matrix.Matrix00 = matrix.Matrix11 = matrix.Matrix22 = 0.299f;
                                 matrix.Matrix01 = matrix.Matrix12 = 0.587f;
                                 matrix.Matrix02 = matrix.Matrix21 = 0.114f;
                                 matrix.Matrix10 = matrix.Matrix20 = 0;
                             }
 
-                            matrix.Matrix33 = alpha * _opacity; // Apply opacity
+                            // Apply opacity
+                            matrix.Matrix33 = alpha * _opacity;
 
-                            ImageAttributes attr = new ImageAttributes();
-                            attr.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                            using (ImageAttributes attr = new ImageAttributes())
+                            {
+                                attr.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-                            g.DrawImage(
-                                regularImage,
-                                new Rectangle(
-                                    (int)scaledBounds.X,
-                                    (int)scaledBounds.Y,
-                                    (int)scaledBounds.Width,
-                                    (int)scaledBounds.Height
-                                ),
-                                0,
-                                0,
-                                regularImage.Width,
-                                regularImage.Height,
-                                GraphicsUnit.Pixel,
-                                attr
-                            );
-                            attr.Dispose();
+                                // Draw the image with exact position
+                                g.DrawImage(
+                                    regularImage,
+                                    new Rectangle(
+                                        (int)scaledBounds.X,
+                                        (int)scaledBounds.Y,  // Respect the Y position
+                                        (int)scaledBounds.Width,
+                                        (int)scaledBounds.Height
+                                    ),
+                                    0, 0, regularImage.Width, regularImage.Height,
+                                    GraphicsUnit.Pixel,
+                                    attr
+                                );
+                            }
                         }
                         else
                         {
+                            // Draw the image normally with exact position
                             g.DrawImage(
                                 regularImage,
                                 new RectangleF(
                                     scaledBounds.X,
-                                    scaledBounds.Y,
+                                    scaledBounds.Y,  // Respect the Y position
                                     scaledBounds.Width,
                                     scaledBounds.Height
                                 )
@@ -916,6 +913,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -925,10 +923,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Fill the background with BackColor
 
             // Use spin functionality if enabled
-            DrawImage(
-                e.Graphics,
-                DrawingRect
-            );
+          
             DrawBadge(e.Graphics);
         }
         protected override void DrawContent(Graphics g)

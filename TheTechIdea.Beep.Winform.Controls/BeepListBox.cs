@@ -3,6 +3,7 @@ using System.ComponentModel;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using System.Drawing;
 
 
 
@@ -269,7 +270,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Constructor"
         #region "Menu Creation"
-        private void Items_ListChanged(object sender, ListChangedEventArgs e) => InitializeMenu();
+        private void Items_ListChanged(object sender, ListChangedEventArgs e) => Invalidate(); //InitializeMenu();
         private Panel CreateMenuItemPanel(SimpleItem item, bool isChild)
         {
             var menuItemPanel = new Panel
@@ -432,7 +433,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public virtual void InitializeMenu()
         {
+            return;
             GetDimensions();
+         
             // Set button size to fit within the adjusted drawing rectangle
             ButtonSize = new Size(DrawingRect.Width - BorderThickness * 2, _menuItemHeight);
             _buttons.Clear();
@@ -586,41 +589,120 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public int GetMaxWidth()
         {
-            int maxwidth = 0;
-            foreach (var item in items)
+            // If there are no items, return a default width or current width
+            if (items == null || items.Count == 0)
+                return DrawingRect.Width > 0 ? DrawingRect.Width : 100;
+
+            // Get dimensions to ensure accuracy
+            GetDimensions();
+
+            // Use Graphics object for proper text measurement
+            using (Graphics g = this.CreateGraphics())
             {
-                if (item.Text.Length > maxwidth)
+                int maxWidth = 0;
+                // Calculate width for each item
+                foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main))
                 {
-                    maxwidth = item.Text.Length;
+                    // Start with some base padding
+                    int itemWidth = 0;
+
+                    // Account for highlight box width if enabled
+                    if (_showHilightBox)
+                    {
+                        itemWidth += 7 + 1; // highlightWidth + spacingWidth
+                    }
+
+                    // Add checkbox width if enabled
+                    if (ShowCheckBox)
+                    {
+                        itemWidth += 16 + 4; // checkboxSize + padding
+                    }
+
+                    // Add image width if enabled and available
+                    if (ShowImage && !string.IsNullOrEmpty(item.ImagePath) && File.Exists(item.ImagePath))
+                    {
+                        itemWidth += _imagesize + 4; // imageSize + padding
+                    }
+
+                    // Use the appropriate font based on theme settings
+                    Font textFont = UseThemeFont ?
+                        BeepThemesManager.ToFont(_currentTheme.LabelMedium) :
+                        _textFont;
+
+                    // Measure text width
+                    SizeF textSize = g.MeasureString(item.Text, textFont);
+
+                    // Add text width plus padding
+                    itemWidth += (int)Math.Ceiling(textSize.Width) + 8; // text width + padding
+
+                    // Update max width if this item is wider
+                    maxWidth = Math.Max(maxWidth, itemWidth);
                 }
+
+                // Add left and right border thickness
+                maxWidth += BorderThickness * 2;
+
+                // Ensure minimum reasonable width
+                maxWidth = Math.Max(maxWidth, 50);
+
+                return maxWidth;
             }
-            return maxwidth;
         }
+
         public int GetMaxHeight()
         {
+            // If there are no items, just return minimal height
             if (items == null || items.Count == 0)
-                return 0;
+                return TitleBottomY > 0 ? TitleBottomY + 5 : 0;
 
-            // Calculate total height: sum of all item heights plus spacing between them
-            int totalHeight = LastItemBottomY + ButtonSize.Height - spacing;//items.Count * _menuItemHeight;
+            // Get dimensions to ensure we have the latest values
+            GetDimensions();
 
-            // Add spacing between items
-            //if (items.Count >= 1)
-            //{
-            //    totalHeight += (items.Count) * spacing;
-            //}
+            // Calculate Y offset correctly based on whether title is shown
+            int startOffset = drawRectY + (ShowTitle ? TitleBottomY : 0);
 
-            // Optionally, add padding (if required)
-            int padding = 0; // Example padding
-            totalHeight += padding * 1;
-            totalHeight = totalHeight;// LastItemBottomY + (padding * 2);//Math.Max(totalHeight,);
-           // Console.WriteLine($"GetMaxHeight: Total height calculated as {totalHeight} pixels.");
+            // Calculate total items height
+            int totalItemsHeight = 0;
+            foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main))
+            {
+                // Use consistent item height (same as in Draw method)
+                int itemHeight = _menuItemHeight;
+
+                // If we have buttons with specific heights, use those
+                BeepButton associatedButton = _buttons.FirstOrDefault(b => b.Tag == item);
+                if (associatedButton != null)
+                {
+                    itemHeight = associatedButton.Height;
+                }
+
+                // Add this item's height plus spacing
+                totalItemsHeight += itemHeight + spacing;
+            }
+
+            // Remove the last spacing (after the final item)
+            if (items.Count > 0)
+            {
+                totalItemsHeight -= spacing;
+            }
+
+            // Calculate total height: starting offset + items height + bottom padding
+            int totalHeight = startOffset + totalItemsHeight + BorderThickness;
+
+            // Use LastItemBottomY if it's valid, otherwise use calculated height
+            if (LastItemBottomY > 0 && LastItemBottomY > totalHeight)
+            {
+                totalHeight = LastItemBottomY;
+            }
+
+            // Add a small padding at the bottom for aesthetics
+            totalHeight +=6;
 
             return totalHeight;
         }
+
         #endregion "Getting and Setting Items"
         #region "Layout and Theme"
-   
+
         public void CollapseToTitleLine(int extraMargin = 0)
         {
             // Force OnPaint to ensure TitleBottomY is updated
@@ -652,10 +734,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             //base.ApplyTheme();
             // Apply theme to the main menu panel (background gradient or solid color)
             BackColor = _currentTheme.ListBackColor;
-            ForeColor = _currentTheme.ListForeColor;
+          //  ForeColor = _currentTheme.ButtonForeColor;
+            
+            ForeColor = _currentTheme.ListItemForeColor;
+            HoverBackColor = _currentTheme.ListItemHoverBackColor;
+            HoverForeColor = _currentTheme.ListItemHoverForeColor;
+            SelectedBackColor = _currentTheme.ListItemSelectedBackColor;
+            SelectedForeColor = _currentTheme.ListItemSelectedForeColor;
+            DisabledBackColor = _currentTheme.DisabledBackColor;
+            DisabledForeColor = _currentTheme.DisabledForeColor;
+            FocusBackColor = _currentTheme.ListItemSelectedBackColor;
+            FocusForeColor = _currentTheme.ListItemSelectedForeColor;
+
+
+            PressedBackColor = _currentTheme.ButtonPressedBackColor;
+            PressedForeColor = _currentTheme.ButtonPressedForeColor;
             //  _currentTheme.ButtonBackColor = _currentTheme.BackgroundColor;
             // Apply theme to each item (button and highlight panel)
-            SetColors();
+           // SetColors();
             Invalidate();
             // Optionally, apply any additional theming for the overall side menu layout here (e.g., ShowVerticalScrollBar, borders, or custom UI components)
         }
@@ -735,6 +831,110 @@ namespace TheTechIdea.Beep.Winform.Controls
         //}
         #endregion "Layout and Theme"
         #region "Mouse Events"
+        // Track the currently hovered item
+        private SimpleItem _hoveredItem;
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            // Reset the hovered item
+            SimpleItem prevHoveredItem = _hoveredItem;
+            _hoveredItem = null;
+
+            // Skip if no items
+            if (items == null || items.Count == 0)
+                return;
+
+            // Calculate starting Y position - account for no title
+            int yOffset = drawRectY + (ShowTitle ? TitleBottomY : 0);
+
+
+            // Check each item to see if the mouse is over it
+            foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main))
+            {
+                // Calculate the size of this item
+                int itemHeight = _menuItemHeight;
+                BeepButton associatedButton = _buttons.FirstOrDefault(b => b.Tag == item);
+                if (associatedButton != null)
+                {
+                    itemHeight = associatedButton.Height;
+                }
+
+                // Create hit test rectangle
+                Rectangle itemRect = new Rectangle(drawRectX, yOffset, drawRectWidth, itemHeight);
+
+                // Check if mouse is over this item
+                if (itemRect.Contains(e.Location))
+                {
+                    _hoveredItem = item;
+                    break; // Found the item under the mouse
+                }
+
+                // Move to next item
+                yOffset += itemHeight + spacing;
+            }
+
+            // If hovered item changed, redraw
+            if (prevHoveredItem != _hoveredItem)
+            {
+                Invalidate(); // Request redraw to update hover effects
+            }
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+
+            // Clear hover state when mouse leaves control
+            if (_hoveredItem != null)
+            {
+                _hoveredItem = null;
+                Invalidate(); // Redraw to remove hover effects
+            }
+        }
+
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+
+            // Skip if no items
+            if (items == null || items.Count == 0)
+                return;
+
+            // Calculate starting Y position
+            int yOffset = drawRectY + (ShowTitle ? TitleBottomY : 0);
+
+            // Check each item to see if it was clicked
+            foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main))
+            {
+                // Use consistent item height
+                int itemHeight = _menuItemHeight;
+
+                // Create hit test rectangle
+                Rectangle itemRect = new Rectangle(drawRectX, yOffset, drawRectWidth, itemHeight);
+
+                // Check if this item was clicked
+                if (itemRect.Contains(e.Location))
+                {
+                    // Set this item as selected
+                    SelectedItem = item;
+
+                    // Create a temporary button just for event purposes
+                    BeepButton tempButton = new BeepButton { Info = item, Tag = item };
+
+                    // Raise the ItemClicked event
+                    ItemClicked?.Invoke(this, item);
+
+                    Invalidate(); // Redraw to show selection
+                    break;
+                }
+
+                // Move to next item
+                yOffset += itemHeight + spacing;
+            }
+        }
+
         #endregion "Mouse Events"
         #region "Key Events"
         protected override void OnKeyDown(KeyEventArgs e)
@@ -767,20 +967,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             // DrawingRect.Inflate(-2, -2);
             // Get the dimensions of DrawingRect
 
-
+            
             base.OnPaint(e);
-
-        
-
         }
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
-            // i want to draw the content of the control here same layout as i set
-            // and detect click and hover using hitlist just like we did in beeptree
+            base.DrawContent(g); // This ensures the title and title line are drawn by the base class
+                                 // Fill the background
+          
+            Draw(g, DrawingRect);
         }
+
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
+            // Get dimensions first to ensure accurate positioning
+            GetDimensions();
+
             // Enable anti-aliasing for smoother rendering
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
@@ -791,45 +993,233 @@ namespace TheTechIdea.Beep.Winform.Controls
                 graphics.FillRectangle(backgroundBrush, rectangle);
             }
 
-            // Draw border (optional)
-            if (BorderThickness > 0)
+            if (items == null || items.Count == 0)
+                return;
+
+            // Track the current mouse position for hover detection
+            Point mousePoint = this.PointToClient(Control.MousePosition);
+
+            // Calculate y offset correctly based on whether title is shown
+            int yOffset = drawRectY + (ShowTitle ? TitleBottomY : 0);
+
+            // Iterate through all items
+            foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main))
             {
-                using (Pen borderPen = new Pen(_currentTheme.BorderColor, BorderThickness))
+                // Use a consistent height
+                int itemHeight = _menuItemHeight;
+
+                // Create the overall item rectangle
+                Rectangle menuItemRect = new Rectangle(drawRectX, yOffset, drawRectWidth, itemHeight);
+
+                // Check if this item is hovered or selected
+                bool isHovered = menuItemRect.Contains(mousePoint);
+                bool isSelected = item == SelectedItem;
+
+                // Track the X position as we add components horizontally
+                int currentX = menuItemRect.Left;
+
+                // Draw highlight panel if enabled
+                if (_showHilightBox)
                 {
-                    graphics.DrawRectangle(borderPen, rectangle);
+                    int highlightWidth = 7;
+                    Rectangle highlightRect = new Rectangle(currentX, yOffset, highlightWidth, itemHeight);
+
+                    // Choose highlight color based on item state
+                    Color highlightColor = BackColor;
+                    if (isHovered)
+                    {
+                        highlightColor = HoverBackColor;
+                    }
+                    else if (isSelected)
+                    {
+                        highlightColor = SelectedBackColor;
+                    }
+
+                    using (SolidBrush highlightBrush = new SolidBrush(highlightColor))
+                    {
+                        graphics.FillRectangle(highlightBrush, highlightRect);
+                    }
+
+                    currentX += highlightWidth;
+
+                    // Draw the spacing panel
+                    int spacingWidth = 1;
+                    Rectangle spacingRect = new Rectangle(currentX, yOffset, spacingWidth, itemHeight);
+
+                    using (SolidBrush spacingBrush = new SolidBrush(BackColor))
+                    {
+                        graphics.FillRectangle(spacingBrush, spacingRect);
+                    }
+
+                    currentX += spacingWidth;
                 }
+
+                // Calculate button area
+                Rectangle buttonRect = new Rectangle(
+                    currentX,
+                    yOffset,
+                    menuItemRect.Right - currentX,
+                    itemHeight
+                );
+
+                // Choose colors based on item state
+                Color buttonBackColor = BackColor;
+                Color buttonForeColor = ForeColor;
+
+                if (isSelected)
+                {
+                    buttonBackColor = SelectedBackColor;
+                    buttonForeColor = SelectedForeColor;
+                }
+                else if (isHovered)
+                {
+                    buttonBackColor = HoverBackColor;
+                    buttonForeColor = HoverForeColor;
+                }
+
+                // Draw button background
+                using (SolidBrush buttonBrush = new SolidBrush(buttonBackColor))
+                {
+                    graphics.FillRectangle(buttonBrush, buttonRect);
+                }
+
+                // Draw checkbox if enabled
+                if (ShowCheckBox)
+                {
+                    int checkboxSize = 16;
+                    int checkboxPadding = 2;
+                    Rectangle checkboxRect = new Rectangle(
+                        currentX + checkboxPadding,
+                        yOffset + (itemHeight - checkboxSize) / 2,
+                        checkboxSize,
+                        checkboxSize
+                    );
+
+                    // Determine checkbox state
+                    ButtonState checkState = ButtonState.Normal;
+                    if (_itemCheckBoxes.ContainsKey(item) && _itemCheckBoxes[item].State == CheckBoxState.Checked)
+                    {
+                        checkState = ButtonState.Checked;
+                    }
+
+                    ControlPaint.DrawCheckBox(graphics, checkboxRect, checkState);
+                    currentX += checkboxSize + (checkboxPadding * 2);
+                }
+
+                //// Draw image if enabled and available
+                //if (ShowImage || !string.IsNullOrEmpty(item.ImagePath))
+                //{
+                //    try
+                //    {
+                //        // Create a new BeepImage instance for each row to avoid state issues
+                //        using (BeepImage img = new BeepImage()
+                //        {
+                //            ImagePath = item.ImagePath,
+                //            Size = new Size(_imagesize, _imagesize)
+                //        })
+                //        {
+                //            int imgSize = _imagesize;
+                //            int imgPadding = 2;
+
+                //            // Calculate the correct Y position for this specific row
+                //            int imgY = yOffset + ((itemHeight - imgSize) / 2);
+
+                //            // Create a correctly positioned rectangle for this row's image
+                //            Rectangle imgRect = new Rectangle(
+                //                currentX + imgPadding,
+                //                imgY,  // This is the key change - use the calculated Y position for this row
+                //                imgSize,
+                //                imgSize
+                //            );
+
+                //            // Draw the image at the specific location
+                //            img.Draw(graphics, imgRect);
+
+                //            // Advance the X position for text
+                //            currentX += imgSize + (imgPadding * 2);
+                //        }
+                //    }
+                //    catch (Exception)
+                //    {
+                //        // Image loading failed, continue without image
+                //    }
+                //}
+
+
+
+                // Draw the text
+                Rectangle textRect = new Rectangle(
+                    currentX + 2, // Small text padding
+                    yOffset,
+                    menuItemRect.Right - currentX - 4, // Some right padding
+                    itemHeight
+                );
+
+                // Use the appropriate font based on theme settings
+                Font textFont = UseThemeFont ?
+                    BeepThemesManager.ToFont(_currentTheme.LabelMedium) :
+                    _textFont;
+
+                //// Draw a solid background behind the text to prevent transparency issues
+                //using (SolidBrush textBackBrush = new SolidBrush(buttonBackColor))
+                //{
+                //    graphics.FillRectangle(textBackBrush, textRect);
+                //}
+
+                //// Draw text with the correct color
+                //using (SolidBrush textBrush = new SolidBrush(buttonForeColor))
+                //{
+                //    StringFormat sf = new StringFormat()
+                //    {
+                //        Alignment = StringAlignment.Near,
+                //        LineAlignment = StringAlignment.Center,
+                //        Trimming = StringTrimming.EllipsisCharacter
+                //    };
+
+                //    // Draw text using the brush with the correct color
+                //    graphics.DrawString(item.Text, textFont, textBrush, textRect, sf);
+                //}
+                BeepButton beepButton=new BeepButton
+                {
+                    Text = item.Text,
+                    TextFont = textFont,
+                    BackColor = BackColor,
+                    ForeColor = ForeColor,
+                    IsFrameless = true,
+                    IsRounded = false,
+                    IsChild=true,
+                    IsRoundedAffectedByTheme = false,
+                    IsBorderAffectedByTheme = false,
+                    IsShadowAffectedByTheme = false,
+                    ShowAllBorders = false,
+                    ShowShadow = false,
+                    BorderSize = 0,
+                    MaxImageSize=new Size(ImageSize,ImageSize)
+                    
+                };
+                if(item.ImagePath != null)
+                {
+                    beepButton.ImagePath = item.ImagePath;
+                    beepButton.TextAlign = ContentAlignment.MiddleCenter;
+                    beepButton.ImageAlign = ContentAlignment.MiddleLeft;
+                }else
+                beepButton.TextAlign = ContentAlignment.MiddleLeft;
+
+                beepButton.Draw(graphics, textRect);
+                // Store the item location for hit testing
+                item.X = menuItemRect.X;
+                item.Y = menuItemRect.Y;
+                item.Width = menuItemRect.Width;
+                item.Height = menuItemRect.Height;
+
+                // Update yOffset for the next item
+                yOffset += itemHeight + spacing;
             }
 
-            // Draw items using BeepButton's Draw method
-            int yOffset = drawRectY + TitleBottomY;
-            foreach (var button in _buttons)
-            {
-                Rectangle itemRectangle = new Rectangle(drawRectX, yOffset, drawRectWidth, _menuItemHeight);
-
-                // Highlight selected item
-                if (SelectedItem == (SimpleItem)button.Tag)
-                {
-                    using (SolidBrush selectionBrush = new SolidBrush(_currentTheme.ButtonHoverBackColor))
-                    {
-                        graphics.FillRectangle(selectionBrush, itemRectangle);
-                    }
-                }
-
-                // Let BeepButton handle drawing its own content
-                button.Draw(graphics, itemRectangle);
-
-                // Draw separator line (optional)
-                if (ShowTitleLine)
-                {
-                    using (Pen separatorPen = new Pen(_currentTheme.BorderColor, 1))
-                    {
-                        graphics.DrawLine(separatorPen, itemRectangle.Left, itemRectangle.Bottom - 1, itemRectangle.Right, itemRectangle.Bottom - 1);
-                    }
-                }
-
-                yOffset += _menuItemHeight + spacing;
-            }
+            // Store the last position
+            LastItemBottomY = yOffset;
         }
+
         #endregion "Painting"
         public override void SetValue(object value)
         {

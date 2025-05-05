@@ -7665,7 +7665,61 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Add to the hit test list for click detection
             AddHitArea(buttonName, buttonRect);
         }
+        protected override void OnMouseHover(EventArgs e)
+        {
+            Point mouselocation = MousePosition;
+            base.OnMouseHover(e);
 
+            if (HitTest(mouselocation, out var hitTest))
+            {
+                // Handle navigation buttons based on hit area name
+                switch (hitTest.Name)
+                {
+                    case "FindButton":
+                        SendMouseEvent(this, MouseEventType.MouseHover,mouselocation );
+                        break;
+                    case "EditButton":
+                        EditpictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "PrinterButton":
+                        PrinterpictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "MessageButton":
+                        MessagepictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "SaveButton":
+                        SavepictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "NewButton":
+                        NewButton_Click(this, EventArgs.Empty);
+                        break;
+                    case "RemoveButton":
+                        RemovepictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "RollbackButton":
+                        RollbackpictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "PreviousButton":
+                        PreviouspictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "NextButton":
+                        NextpictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "FirstPageButton":
+                        FirstPageButton_Click(this, EventArgs.Empty);
+                        break;
+                    case "PrevPageButton":
+                        PrevPageButton_Click(this, EventArgs.Empty);
+                        break;
+                    case "NextPageButton":
+                        NextPageButton_Click(this, EventArgs.Empty);
+                        break;
+                    case "LastPageButton":
+                        LastPageButton_Click(this, EventArgs.Empty);
+                        break;
+                }
+            }
+        }
         // New method to handle navigation button clicks via hit testing
         protected override void OnMouseClick(MouseEventArgs e)
         {

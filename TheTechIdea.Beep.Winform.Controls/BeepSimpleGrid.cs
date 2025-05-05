@@ -7536,28 +7536,193 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _currentPage = 1;
         // Use visibleRowCount for paging instead of a hardcoded _recordsPerPage
         private int _totalPages;// _fullData != null ? (int)Math.Ceiling((double)_fullData.Count / (GetVisibleRowCount() == 1 ? _fullData.Count : GetVisibleRowCount())) : 1;
-    
 
+
+        #region Drawing Buttons and hittest
         private void DrawNavigationRow(Graphics g, Rectangle rect)
         {
-            
-            //  MainPanel.Location = new Point(rect.Left + 1, rect.Top + 1);
-            //   MainPanel.Size = new Size(rect.Width - 2, rect.Height - 2);
-            if(_navigatorDrawn)
-            {
-                return;
-            }
-            _navigatorDrawn = true;
-            PositionControls(rect,spacing);
-            using (var brush = new SolidBrush(_currentTheme.GridBackColor))
+            // Fill background
+            using (var brush = new SolidBrush(_currentTheme.GridHeaderBackColor))
             {
                 g.FillRectangle(brush, rect);
             }
+
+            // Draw top border line
             using (var pen = new Pen(_currentTheme.GridLineColor))
             {
                 g.DrawLine(pen, rect.Left, rect.Top, rect.Right, rect.Top);
             }
+
+            // Calculate layout positions
+            int buttonHeight = 24;
+            int buttonWidth = 24;
+            int padding = 6;
+            int y = rect.Top + (rect.Height - buttonHeight) / 2; // Center buttons vertically
+            int x = rect.Left + padding;
+
+            // Draw navigation buttons (left side)
+            DrawNavigationButton(g, "FindButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.079-search.svg",
+                new Rectangle(x, y, buttonWidth, buttonHeight));
+            x += buttonWidth + padding;
+
+            DrawNavigationButton(g, "EditButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.062-pencil.svg",
+                new Rectangle(x, y, buttonWidth, buttonHeight));
+            x += buttonWidth + padding;
+
+            DrawNavigationButton(g, "PrinterButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.072-printer.svg",
+                new Rectangle(x, y, buttonWidth, buttonHeight));
+            x += buttonWidth + padding;
+
+            DrawNavigationButton(g, "MessageButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.083-share.svg",
+                new Rectangle(x, y, buttonWidth, buttonHeight));
+            x += buttonWidth + padding;
+
+            DrawNavigationButton(g, "SaveButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.036-floppy disk.svg",
+                new Rectangle(x, y, buttonWidth, buttonHeight));
+            x += buttonWidth + padding;
+
+            DrawNavigationButton(g, "NewButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.068-plus.svg",
+                new Rectangle(x, y, buttonWidth, buttonHeight));
+            x += buttonWidth + padding;
+
+            DrawNavigationButton(g, "RemoveButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.035-eraser.svg",
+                new Rectangle(x, y, buttonWidth, buttonHeight));
+            x += buttonWidth + padding;
+
+            DrawNavigationButton(g, "RollbackButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.005-back arrow.svg",
+                new Rectangle(x, y, buttonWidth, buttonHeight));
+            x += buttonWidth + padding;
+
+            // Draw record counter (center)
+            string recordCounter = (_fullData != null && _fullData.Any())
+                ? $"{(_currentRowIndex + _dataOffset + 1)} - {_fullData.Count}"
+                : "0 - 0";
+
+            using (var font = new Font(Font.FontFamily, 9f))
+            using (var brush = new SolidBrush(_currentTheme.GridHeaderForeColor))
+            {
+                SizeF textSize = g.MeasureString(recordCounter, font);
+                float recordX = rect.Left + ((rect.Width - textSize.Width) / 2);
+                g.DrawString(recordCounter, font, brush, recordX, y + (buttonHeight - textSize.Height) / 2);
+            }
+
+            // Draw pagination controls (right side)
+            int pageButtonX = rect.Right - padding - buttonWidth;
+
+            DrawNavigationButton(g, "LastPageButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.angle-double-small-right.svg",
+                new Rectangle(pageButtonX, y, buttonWidth, buttonHeight));
+            pageButtonX -= buttonWidth + padding;
+
+            DrawNavigationButton(g, "NextPageButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.angle-small-right.svg",
+                new Rectangle(pageButtonX, y, buttonWidth, buttonHeight));
+            pageButtonX -= buttonWidth + padding;
+
+            // Draw page counter
+            int visrowcount = GetVisibleRowCount();
+            _totalPages = _fullData != null ?
+                (int)Math.Ceiling((double)_fullData.Count / (visrowcount == 1 ? _fullData.Count : visrowcount)) : 1;
+            _currentPage = Math.Max(1, Math.Min(_currentPage, _totalPages));
+            string pageCounter = $"{_currentPage} of {_totalPages}";
+
+            using (var font = new Font(Font.FontFamily, 9f))
+            using (var brush = new SolidBrush(_currentTheme.GridHeaderForeColor))
+            {
+                SizeF textSize = g.MeasureString(pageCounter, font);
+                pageButtonX -= (int)textSize.Width + padding;
+                g.DrawString(pageCounter, font, brush, pageButtonX, y + (buttonHeight - textSize.Height) / 2);
+            }
+
+            pageButtonX -= buttonWidth + padding;
+            DrawNavigationButton(g, "PrevPageButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.angle-small-left.svg",
+                new Rectangle(pageButtonX, y, buttonWidth, buttonHeight));
+            pageButtonX -= buttonWidth + padding;
+
+            DrawNavigationButton(g, "FirstPageButton", "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.angle-double-small-left.svg",
+                new Rectangle(pageButtonX, y, buttonWidth, buttonHeight));
+
+            _navigatorDrawn = true;
         }
+
+        private void DrawNavigationButton(Graphics g, string buttonName, string imagePath, Rectangle buttonRect)
+        {
+            // Create a temporary button to use its drawing mechanism
+            BeepButton tempButton = new BeepButton
+            {
+                ImagePath = imagePath,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                HideText = true,
+                IsFrameless = true,
+                Size = buttonRect.Size,
+                Theme = Theme,
+                IsChild = true,
+                MaxImageSize = new Size(buttonRect.Width - 4, buttonRect.Height - 4),
+                ApplyThemeOnImage = true
+            };
+
+            // Draw the button
+            tempButton.Draw(g, buttonRect);
+
+            // Add to the hit test list for click detection
+            AddHitArea(buttonName, buttonRect);
+        }
+
+        // New method to handle navigation button clicks via hit testing
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+
+            if (HitTest(e.Location, out var hitTest))
+            {
+                // Handle navigation buttons based on hit area name
+                switch (hitTest.Name)
+                {
+                    case "FindButton":
+                        FindpictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "EditButton":
+                        EditpictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "PrinterButton":
+                        PrinterpictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "MessageButton":
+                        MessagepictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "SaveButton":
+                        SavepictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "NewButton":
+                        NewButton_Click(this, EventArgs.Empty);
+                        break;
+                    case "RemoveButton":
+                        RemovepictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "RollbackButton":
+                        RollbackpictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "PreviousButton":
+                        PreviouspictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "NextButton":
+                        NextpictureBox_Click(this, EventArgs.Empty);
+                        break;
+                    case "FirstPageButton":
+                        FirstPageButton_Click(this, EventArgs.Empty);
+                        break;
+                    case "PrevPageButton":
+                        PrevPageButton_Click(this, EventArgs.Empty);
+                        break;
+                    case "NextPageButton":
+                        NextPageButton_Click(this, EventArgs.Empty);
+                        break;
+                    case "LastPageButton":
+                        LastPageButton_Click(this, EventArgs.Empty);
+                        break;
+                }
+            }
+        }
+
+        #endregion
         private void HideNavigationButtons()
         {
             foreach (var button in buttons)
@@ -7688,7 +7853,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
             };
             button.Click += clickHandler;
-            Controls.Add(button);
+           // Controls.Add(button);
             return button;
         }
         private void PositionControls(Rectangle rect,int spacing)
@@ -7706,10 +7871,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             foreach (var control in buttons)
             {
-                if (!Controls.Contains(control))
-                {
-                    Controls.Add(control);
-                }
+                //if (!Controls.Contains(control))
+                //{
+                //    Controls.Add(control);
+                //}
                 control.Left = currentX;
                 control.Top = centerY;
                 currentX += control.Width + spacing;
@@ -7723,10 +7888,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             foreach (var control in pagingButtons)
             {
-                if (!Controls.Contains(control))
-                {
-                    Controls.Add(control);
-                }
+                //if (!Controls.Contains(control))
+                //{
+                //    Controls.Add(control);
+                //}
                 control.Visible = true; // Ensure all paging controls are visible
                 control.Left = currentX;
                 control.Top = centerY; // Same Y position as the main buttons (single row)

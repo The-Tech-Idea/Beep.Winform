@@ -781,7 +781,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _button.BorderColor = _currentTheme.TreeNodeSelectedBackColor;
             _button.HoverBackColor = _currentTheme.TreeNodeHoverBackColor;
             _button.HoverForeColor = _currentTheme.TreeNodeHoverForeColor;
-           ;
+            _verticalScrollBar.Theme = Theme;
+            _horizontalScrollBar.Theme = Theme;
             Invalidate();
 
         }

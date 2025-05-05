@@ -83,12 +83,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private const int AnimationSteps = 10;
         private int slideDirection = 1; // 1 = forward, -1 = backward
 
-        public BeepWizard()
+        public BeepWizard():base()
         {
             DoubleBuffered = true;
             IsRoundedAffectedByTheme = true;
             IsShadowAffectedByTheme = true;
-            IsRounded = true;
+           
             ApplyThemeToChilds = true;
             InitWizardForm();
             InitSlideAnimation();

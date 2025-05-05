@@ -91,8 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected int scrollOffsetX = 0;
         protected int scrollOffsetY = 0;
         protected Size virtualSize = new Size(0, 0);
-        protected VScrollBar vScrollBar;
-        protected HScrollBar hScrollBar;
+      
         protected bool _autoScroll = false;
         protected int shadowOffset = 5;
         protected int _tmpShadowOffset = 5;

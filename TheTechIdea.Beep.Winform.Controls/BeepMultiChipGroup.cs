@@ -185,8 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CanBeFocused = false;
 
             // Disable scrollbars (remove or hide them)
-            vScrollBar = null;
-            hScrollBar = null;
+          
 
             // Initialize ListItems and handle changes
             _chipItems.ListChanged += (s, e) =>

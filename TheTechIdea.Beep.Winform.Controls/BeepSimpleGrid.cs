@@ -7656,70 +7656,81 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 IsChild = true,
                 MaxImageSize = new Size(buttonRect.Width - 4, buttonRect.Height - 4),
-                ApplyThemeOnImage = true
+                ApplyThemeOnImage = true,
+                Name = buttonName,
+                ComponentName = buttonName // Set ComponentName for tooltip support
             };
 
-            // Draw the button
+            // Check if mouse is hovering over this button
+            bool isHovered = false;
+            Point mousePos = PointToClient(MousePosition);
+            if (buttonRect.Contains(mousePos))
+            {
+                isHovered = true;
+                tempButton.IsHovered = true;
+
+                // Show tooltip if button is being hovered
+                if (!tooltipShown)
+                {
+                    tempButton.ShowToolTip(buttonName.Replace("Button", ""));
+                    tooltipShown = true;
+                }
+            }
+
+            // Draw the button with hover effect
             tempButton.Draw(g, buttonRect);
 
             // Add to the hit test list for click detection
             AddHitArea(buttonName, buttonRect);
         }
-        protected override void OnMouseHover(EventArgs e)
-        {
-            Point mouselocation = MousePosition;
-            base.OnMouseHover(e);
 
-            if (HitTest(mouselocation, out var hitTest))
+        // Field to track tooltip state
+        private bool tooltipShown = false;
+
+        // Override OnMouseMove to handle button hover effects
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            // Reset tooltip shown flag when mouse moves
+            tooltipShown = false;
+
+            if (_navigatorDrawn)
             {
-                // Handle navigation buttons based on hit area name
-                switch (hitTest.Name)
+                // Check if mouse is over any hit area
+                if (HitTest(e.Location, out var hitTest))
                 {
-                    case "FindButton":
-                        SendMouseEvent(this, MouseEventType.MouseHover,mouselocation );
-                        break;
-                    case "EditButton":
-                        EditpictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "PrinterButton":
-                        PrinterpictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "MessageButton":
-                        MessagepictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "SaveButton":
-                        SavepictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "NewButton":
-                        NewButton_Click(this, EventArgs.Empty);
-                        break;
-                    case "RemoveButton":
-                        RemovepictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "RollbackButton":
-                        RollbackpictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "PreviousButton":
-                        PreviouspictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "NextButton":
-                        NextpictureBox_Click(this, EventArgs.Empty);
-                        break;
-                    case "FirstPageButton":
-                        FirstPageButton_Click(this, EventArgs.Empty);
-                        break;
-                    case "PrevPageButton":
-                        PrevPageButton_Click(this, EventArgs.Empty);
-                        break;
-                    case "NextPageButton":
-                        NextPageButton_Click(this, EventArgs.Empty);
-                        break;
-                    case "LastPageButton":
-                        LastPageButton_Click(this, EventArgs.Empty);
-                        break;
+                    if (hitTest.Name.EndsWith("Button"))
+                    {
+                        Cursor = Cursors.Hand;
+                        Invalidate(hitTest.TargetRect); // Redraw just this button area
+                        return;
+                    }
                 }
             }
+
+            // Reset cursor if not over a button
+            if (Cursor == Cursors.Hand)
+            {
+                Cursor = Cursors.Default;
+                Invalidate(navigatorPanelRect); // Redraw the entire navigator area
+            }
         }
+
+        // Override OnMouseLeave to reset hover state
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            tooltipShown = false;
+
+            if (Cursor == Cursors.Hand)
+            {
+                Cursor = Cursors.Default;
+                Invalidate(navigatorPanelRect);
+            }
+        }
+
+   
         // New method to handle navigation button clicks via hit testing
         protected override void OnMouseClick(MouseEventArgs e)
         {

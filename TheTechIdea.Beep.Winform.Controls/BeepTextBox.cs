@@ -1644,8 +1644,5 @@ namespace TheTechIdea.Beep.Winform.Controls
             AfterThemeApplied();
         }
         #endregion "Theme and Style"
-        // Override to prevent text loss on parent change
-     
-
     }
 }

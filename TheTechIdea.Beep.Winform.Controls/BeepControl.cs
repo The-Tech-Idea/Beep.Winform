@@ -1128,8 +1128,30 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Clear the entire buffer with the control's BackColor
                 g.Clear(BackColor);
+                // EXTERNAL DRAWING - BEFORE CONTENT LAYER
+                if (_externalDrawingLayer == DrawingLayer.BeforeContent)
+                {
+                    PerformExternalDrawing(g, ClientRectangle);
+                }
+
+                // Draw the main content
                 DrawContent(g);
 
+                // EXTERNAL DRAWING - AFTER CONTENT LAYER
+                if (_externalDrawingLayer == DrawingLayer.AfterContent)
+                {
+                    PerformExternalDrawing(g, ClientRectangle);
+                }
+                // Draw the badge on top
+                if (!string.IsNullOrEmpty(BadgeText))
+                {
+                    DrawBadge(e.Graphics);
+                }
+                // EXTERNAL DRAWING - AFTER ALL LAYER
+                if (_externalDrawingLayer == DrawingLayer.AfterAll)
+                {
+                    PerformExternalDrawing(g, ClientRectangle);
+                }
                 // Finally, render the entire off-screen buffer to the screen
                 buffer.Render(e.Graphics);
             }
@@ -1240,6 +1262,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     hitTest.uIComponent.Draw(g, hitTest.TargetRect);
                 }
             }
+
         }
         protected Font GetScaledFont(Graphics g, string text, Size maxSize, Font originalFont)
         {
@@ -2207,18 +2230,41 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnParentChanged(e);
 
-            // If BeepControl is removed from its parent, remove the floating badge.
-            if (this.Parent == null && floatingBadgeForm != null && !floatingBadgeForm.IsDisposed)
+            // Keep track of the old parent before calling base.OnParentChanged
+            Control oldParent = null;
+            if (Tag is Control)
             {
-                // Remove from old parent if it still exists
-                if (floatingBadgeForm.Parent != null)
+                oldParent = Tag as Control;
+            }
+
+            // Store the current parent temporarily in Tag
+            Tag = Parent;
+
+            // Clean up any external drawing on old parent if it was a BeepControl
+            if (oldParent is BeepControl oldParentBeepControl)
+            {
+                oldParentBeepControl.ClearExternalDrawing();
+            }
+
+            // If we're being removed from the parent hierarchy completely
+            if (Parent == null)
+            {
+                // Find BeepControl parents in the form and clear their external drawing
+                Form parentForm = FindForm();
+                if (parentForm != null)
                 {
-                    floatingBadgeForm.Parent.Controls.Remove(floatingBadgeForm);
+                    foreach (Control c in parentForm.Controls)
+                    {
+                        if (c is BeepControl beepParent)
+                        {
+                            beepParent.ClearExternalDrawing();
+                        }
+                    }
                 }
-                floatingBadgeForm.Dispose();
-                floatingBadgeForm = null;
             }
         }
+
+
 
         #endregion "Util"
         #region "IBeepUIComoponent"
@@ -2809,7 +2855,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "HitTest and HitList"
         #region Badge Feature
-        private FloatingBadgeForm floatingBadgeForm;
+       // private FloatingBadgeForm floatingBadgeForm;
 
         private string _badgeText = "";
         /// <summary>
@@ -2880,121 +2926,227 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// and displays the value of BadgeText.
         /// </summary>
         /// <param name="g">The Graphics object to draw on.</param>
+        // Replace the existing DrawBadge method
         protected void DrawBadge(Graphics g)
         {
             if (string.IsNullOrEmpty(BadgeText))
-            {
-                if (floatingBadgeForm != null && !floatingBadgeForm.IsDisposed)
-                {
-                    floatingBadgeForm.Hide();
-                }
                 return;
-            }
 
-            // Measure text size
-            Size textSize = TextRenderer.MeasureText(BadgeText, BadgeFont);
-            int padding = 4;
-            int badgeWidth = textSize.Width + padding;
-            int badgeHeight = textSize.Height + padding;
-
-            // For single character, ensure circle proportions
-            if (BadgeText.Length == 1)
+            try
             {
-                badgeWidth = badgeHeight = Math.Max(badgeWidth, badgeHeight);
-            }
-
-            if (this.Parent != null)
-            {
-                // Calculate screen location
-                Point controlScreenLocation = this.Parent.PointToScreen(this.Location);
-
-                // Badge position (top-right)
-                int badgeX = controlScreenLocation.X + this.Width - badgeWidth / 2;
-                int badgeY = controlScreenLocation.Y - badgeHeight / 2;
-
-                // Convert screen coordinates to parent's client area
-                Point parentClientPoint = this.Parent.PointToClient(new Point(badgeX, badgeY));
-                Rectangle badgeRect = new Rectangle(parentClientPoint, new Size(badgeWidth, badgeHeight));
-
-                // **🔹 Recreate badge form if the shape has changed**
-                if (floatingBadgeForm == null || floatingBadgeForm.IsDisposed || floatingBadgeForm.BadgeShape != this.BadgeShape)
+                // First check if the parent is a BeepControl and should handle the badge drawing
+                Control parent = Parent;
+                if (parent is BeepControl parentBeepControl)
                 {
-                    floatingBadgeForm?.Dispose(); // **Dispose old instance**
-                    floatingBadgeForm = new FloatingBadgeForm
-                    {
-                        TopLevel = false,
-                        FormBorderStyle = FormBorderStyle.None,
-                        ShowInTaskbar = false,
-                        BackColor = Color.Magenta,
-                        TransparencyKey = Color.Magenta,
-                        BadgeShape = this.BadgeShape // **Apply new shape**
-                    };
+                    // Create a rectangular area for the badge in parent coordinates
+                    Rectangle badgeArea = new Rectangle(
+                        Right - 25, // Position in parent coordinates (slightly overlapping)
+                        Top - 3,
+                        24, // Fixed size badge
+                        24
+                    );
 
-                    this.Parent.Controls.Add(floatingBadgeForm);
+                    // Use parent external drawing to draw our badge
+                    parentBeepControl.SetExternalDrawing((parentG, _) => {
+                        // Draw the badge on the parent's surface
+                        DrawBadgeImplementation(parentG, badgeArea);
+                    }, DrawingLayer.AfterAll);
+
+                    // We're done - the parent will draw the badge
+                    return;
                 }
 
-                // Update properties
-                floatingBadgeForm.BadgeText = this.BadgeText;
-                floatingBadgeForm.BadgeBackColor = this.BadgeBackColor;
-                floatingBadgeForm.BadgeForeColor = this.BadgeForeColor;
-                floatingBadgeForm.BadgeFont = this.BadgeFont;
-                floatingBadgeForm.Size = new Size(badgeWidth, badgeHeight);
-                floatingBadgeForm.Location = badgeRect.Location;
-
-                // **Force redraw**
-                floatingBadgeForm.Invalidate();
-                floatingBadgeForm.BringToFront();
-                if (!floatingBadgeForm.Visible)
-                {
-                    floatingBadgeForm.Show();
-                }
-            }
-            else
-            {
-                // **Fallback: Draw inside the control**
+                // If parent is not a BeepControl, draw directly on this control
                 Rectangle badgeRect = new Rectangle(
-                    DrawingRect.Right - badgeWidth,
-                    DrawingRect.Y,
-                    badgeWidth,
-                    badgeHeight);
-                int offsetX = 2;
-                int offsetY = -2;
-                badgeRect.Offset(offsetX, offsetY);
+                    Width - 24, // Fixed position at top-right
+                    3,
+                    20, // Fixed size
+                    20
+                );
 
-                using (GraphicsPath path = GetRoundedRectPath(badgeRect, badgeRect.Height / 2))
+                DrawBadgeImplementation(g, badgeRect);
+            }
+            catch (Exception ex)
+            {
+                // Log exception but don't crash
+                System.Diagnostics.Debug.WriteLine($"Error drawing badge: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Internal implementation of badge drawing that can be used either directly or via parent
+        /// </summary>
+        private void DrawBadgeImplementation(Graphics g, Rectangle badgeRect)
+        {
+            // Configure graphics for smooth drawing
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Draw the badge with the appropriate shape
+            using (SolidBrush brush = new SolidBrush(BadgeBackColor))
+            {
+                if (BadgeShape == BadgeShape.Circle)
                 {
-                    using (SolidBrush brush = new SolidBrush(BadgeBackColor))
+                    g.FillEllipse(brush, badgeRect);
+                }
+                else if (BadgeShape == BadgeShape.RoundedRectangle)
+                {
+                    using (GraphicsPath path = GetRoundedRectPath(badgeRect, badgeRect.Height / 4))
                     {
                         g.FillPath(brush, path);
                     }
                 }
-
-                TextRenderer.DrawText(g, BadgeText, BadgeFont, badgeRect, BadgeForeColor,
-                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                else
+                {
+                    g.FillRectangle(brush, badgeRect);
+                }
             }
+
+            // Draw text
+            TextRenderer.DrawText(
+                g,
+                BadgeText,
+                Font,
+                badgeRect,
+                BadgeForeColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter
+            );
         }
 
 
 
+        // Add this helper method to properly scale badge text
+        // Replace the GetScaledBadgeFont method with this safer implementation
+        private Font GetScaledBadgeFont(Graphics g, string text, Size maxSize, Font originalFont)
+        {
+            // Always have a fallback option - use the control's font if anything fails
+            Font fallbackFont = Font;
+
+            // If any parameters are null or invalid, use fallback
+            if (string.IsNullOrEmpty(text) || originalFont == null || g == null)
+                return fallbackFont;
+
+            try
+            {
+                // For single characters like "1", use a simple fixed size approach
+                if (text.Length == 1)
+                {
+                    float fontSize = Math.Min(maxSize.Height * 0.7f, 12); // 70% of height, max 12pt
+                    return new Font(fallbackFont.FontFamily, fontSize, FontStyle.Regular);
+                }
+
+                // For longer text, try to fit within bounds
+                SizeF textSize;
+                try
+                {
+                    textSize = g.MeasureString(text, originalFont);
+                }
+                catch
+                {
+                    return fallbackFont;
+                }
+
+                // If original font fits, use it
+                if (textSize.Width <= maxSize.Width && textSize.Height <= maxSize.Height)
+                    return originalFont;
+
+                // Calculate a scaling factor to fit text
+                float scale = Math.Min(
+                    maxSize.Width / textSize.Width,
+                    maxSize.Height / textSize.Height);
+
+                // Apply scale to font size with minimum limit
+                float newSize = Math.Max(originalFont.Size * scale, 7);
+
+                // Create new font
+                return new Font(fallbackFont.FontFamily, newSize, FontStyle.Regular);
+            }
+            catch
+            {
+                // Any exception, use fallback
+                return fallbackFont;
+            }
+        }
 
         #endregion
+        #region "External Drawing"
+        #region "External Drawing Support"
+        // Define the delegate for external drawing
+        public delegate void DrawExternalHandler(Graphics g, Rectangle rectangle);
+
+        // Direct field for external drawing handler (no event overhead)
+        private DrawExternalHandler _externalDrawingHandler;
+
+        // When the drawing should occur - options are BeforeContent, AfterContent, or AfterAll
+        public enum DrawingLayer
+        {
+            BeforeContent,  // Draw before main content (background)
+            AfterContent,   // Draw after content but before borders/effects
+            AfterAll        // Draw on top of everything (foreground)
+        }
+
+        // Current drawing layer setting
+        private DrawingLayer _externalDrawingLayer = DrawingLayer.AfterAll;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Determines when external drawing occurs")]
+        public DrawingLayer ExternalDrawingLayer
+        {
+            get => _externalDrawingLayer;
+            set
+            {
+                _externalDrawingLayer = value;
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Sets an external drawing handler to customize the control's appearance.
+        /// This is more efficient than using events for high-frequency drawing operations.
+        /// </summary>
+        /// <param name="drawHandler">The drawing handler or null to clear</param>
+        /// <param name="layer">When the drawing should occur</param>
+        public void SetExternalDrawing(DrawExternalHandler drawHandler, DrawingLayer layer = DrawingLayer.AfterAll)
+        {
+            _externalDrawingHandler = drawHandler;
+            _externalDrawingLayer = layer;
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Clears any external drawing handler
+        /// </summary>
+        public void ClearExternalDrawing()
+        {
+            _externalDrawingHandler = null;
+            Invalidate();
+        }
+
+        // Internal method to invoke external drawing if set
+        private void PerformExternalDrawing(Graphics g, Rectangle rect)
+        {
+            _externalDrawingHandler?.Invoke(g, rect);
+        }
+        #endregion
+
+        #endregion "External Drawing"
         #region "Dispose"
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                // If the floating badge exists
-                if (floatingBadgeForm != null && !floatingBadgeForm.IsDisposed)
-                {
-                    // Remove it from the parent’s Controls collection if it’s there
-                    if (floatingBadgeForm.Parent != null)
-                    {
-                        floatingBadgeForm.Parent.Controls.Remove(floatingBadgeForm);
-                    }
+                //// If the floating badge exists
+                //if (floatingBadgeForm != null && !floatingBadgeForm.IsDisposed)
+                //{
+                //    // Remove it from the parent’s Controls collection if it’s there
+                //    if (floatingBadgeForm.Parent != null)
+                //    {
+                //        floatingBadgeForm.Parent.Controls.Remove(floatingBadgeForm);
+                //    }
 
-                    floatingBadgeForm.Dispose();
-                    floatingBadgeForm = null;
-                }
+                //    floatingBadgeForm.Dispose();
+                //    floatingBadgeForm = null;
+                //}
             }
             base.Dispose(disposing);
         }

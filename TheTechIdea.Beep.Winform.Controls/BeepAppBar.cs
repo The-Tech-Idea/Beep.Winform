@@ -515,6 +515,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void ShowBadgeOnNotificationIcon(string badgeText)
         {
             notificationIcon.BadgeText=badgeText;
+            notificationIcon.Invalidate();
         }
         private void AddThemeIcon()
         {

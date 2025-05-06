@@ -371,7 +371,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextRenderer.DrawText(graphics, Text, Font, textRect, _currentTheme.PrimaryTextColor, flags);
             }
 
-            DrawBadge(graphics);
         }
 
         public Size GetInscribedSquareSize(int circleDiameter)

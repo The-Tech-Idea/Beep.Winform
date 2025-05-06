@@ -235,29 +235,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-       
+
 
 
         #endregion "Properties"
         public BeepSideMenu()
         {
-          this.SetStyle(ControlStyles.AllPaintingInWmPaint |
-              ControlStyles.UserPaint |
-              ControlStyles.OptimizedDoubleBuffer, true);
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.UserPaint |
+                ControlStyles.OptimizedDoubleBuffer, true);
             this.UpdateStyles();
 
             ApplyThemeToChilds = false;
             DoubleBuffered = true;
             Width = expandedWidth;
-         
             IsChild = false;
             Padding = new Padding(5);
-           
-            //  Width = expandedWidth;
+
             _buttonSize = new Size(DrawingRect.Width, menuItemHeight);
             _isControlinvalidated = true;
+
             animationTimer = new Timer { Interval = 10 };
             animationTimer.Tick += AnimationTimer_Tick;
+
             IsRounded = false;
             IsRoundedAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
@@ -265,85 +265,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsFrameless = true;
             ShowAllBorders = false;
             ShowShadow = false;
-            logo = new BeepImage
-            {
-                //  Padding = new Padding( 10, 0, 10, 0),
-                Size = _buttonSize,
-                IsBorderAffectedByTheme = false,
-                IsShadowAffectedByTheme = false,
-                ShowAllBorders = false,
-                ShowShadow = false,
-                Text = Title,
-                IsFrameless = true,
-                IsChild = true,
-                ApplyThemeOnImage = false,
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                Location = new Point(DrawingRect.X, DrawingRect.Y)
-            };
-            Controls.Add(logo);
-            logo.ImagePath = this.LogoImage;
-            _titleLabel = new BeepLabel
-            {
-                // Padding = new Padding( 10, 0, 10, 0),
-                Size = new Size(_buttonSize.Width, 20),
-                Text = Title,
-                IsBorderAffectedByTheme = false,
-                IsShadowAffectedByTheme = false,
-                ShowAllBorders = false,
-                ShowShadow = false,
-                IsChild = true,
-                CanBeHovered = false,
-                CanBeFocused = false,
-                UseScaledFont = true,
-                TextAlign = ContentAlignment.MiddleCenter,
-                OverrideFontSize = TypeStyleFontSize.Small,
-                TextFont=BeepThemesManager.ToFont(_currentTheme.TitleMedium),
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                Location = new Point(DrawingRect.X, logo.Bottom)
-            };
-            Controls.Add(_titleLabel);
-            _descriptionLabel = new BeepLabel
-            {
-                // Padding = new Padding( 10, 0, 10, 0),
-                Size = new Size(_buttonSize.Width, 20),
-                Text = "",
-                IsBorderAffectedByTheme = false,
-                IsShadowAffectedByTheme = false,
-                ShowAllBorders = false,
-                ShowShadow = false,
-                IsChild = true,
-                CanBeHovered = false,
-                CanBeFocused = false,
-                UseScaledFont = true,
-                TextAlign = ContentAlignment.MiddleCenter,
-                OverrideFontSize = TypeStyleFontSize.Small,
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                Location = new Point(DrawingRect.X, _titleLabel.Bottom)
-            };
-            toggleButton = new BeepButton
-            {
-                // Padding = new Padding( 10, 0, 10, 0),
-                Size = new Size(_buttonSize.Width, _buttonSize.Height),
-                Text = "",
-                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.hamburger.svg",
-                MaxImageSize = new Size(24, 24),
-                ImageAlign = ContentAlignment.MiddleCenter,
-                IsBorderAffectedByTheme = false,
-                IsShadowAffectedByTheme = false,
-                ApplyThemeOnImage = true,
-                ShowAllBorders = false,
-                ShowShadow = false,
-                IsChild = true,
-                CanBeHovered=false,
-                CanBeFocused = false,
-
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                Location = new Point(DrawingRect.X, _titleLabel.Bottom)
-            };
-            toggleButton.Click += ToggleButton_Click;
-            Controls.Add(toggleButton);
-            SendToBack();
         }
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -488,6 +411,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         // 6. Optimize AdjustControlWidths method
         private void AdjustControlWidths(int width)
         {
+            Invalidate();
+            return;
             int padding = 5;
             int buttonWidth = width - (2 * padding);
 
@@ -541,6 +466,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void InitializeMenu()
         {
+            Invalidate();
+            return;
             UpdateDrawingRect();
 
             // Clear existing menu item panels
@@ -678,8 +605,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-          //  if (!_isControlinvalidated) return;
-         //   base.ApplyTheme();
+            // Update theme-related colors
+            BackColor = _currentTheme.SideMenuBackColor;
+
+            // Force redraw with new theme
+            Invalidate();
+            return;
+            //  if (!_isControlinvalidated) return;
+            //   base.ApplyTheme();
             BackColor = _currentTheme.SideMenuBackColor;
           //  logo.Theme = Theme;
             toggleButton.Theme = Theme;
@@ -740,5 +673,430 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
         }
+        protected override void DrawContent(Graphics g)
+        {
+            // Call the base method first if needed
+            base.DrawContent(g);
+
+            // Use our custom drawing implementation
+            Draw(g, DrawingRect);
+        }
+
+        /// <summary>
+        /// Draws the side menu directly on the control using Graphics instead of child controls
+        /// </summary>
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            // Get dimensions first to ensure accurate positioning
+            UpdateDrawingRect();
+
+            // Prepare drawing coordinates
+            drawRectX = DrawingRect.X;
+            drawRectY = DrawingRect.Y;
+            drawRectWidth = DrawingRect.Width;
+            drawRectHeight = DrawingRect.Height;
+
+            // Enable high-quality drawing
+            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            // Fill background
+            using (SolidBrush backgroundBrush = new SolidBrush(BackColor))
+            {
+                graphics.FillRectangle(backgroundBrush, rectangle);
+            }
+
+            // Calculate layout regions
+            int padding = 5;
+            int yOffset = drawRectY + padding;
+            int contentWidth = drawRectWidth - (padding * 2);
+
+            // Draw logo
+            if (!string.IsNullOrEmpty(LogoImage))
+            {
+                Rectangle logoRect = new Rectangle(
+                    drawRectX + (drawRectWidth - LogoSize.Width) / 2,
+                    yOffset,
+                    LogoSize.Width,
+                    LogoSize.Height);
+
+                using (BeepImage img = new BeepImage())
+                {
+                    img.ImagePath = LogoImage;
+                    img.ApplyThemeOnImage = ApplyThemeOnImages;
+                    img.Draw(graphics, logoRect);
+                }
+
+                yOffset += LogoSize.Height + padding;
+            }
+
+            // Draw title (if not collapsed or during animation)
+            if (!isCollapsed || Width > (collapsedWidth + 20))
+            {
+                Rectangle titleRect = new Rectangle(
+                    drawRectX + padding,
+                    yOffset,
+                    contentWidth,
+                    TitleSize.Height);
+
+                using (SolidBrush titleBrush = new SolidBrush(_currentTheme.AppBarTitleForeColor))
+                using (Font titleFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium))
+                {
+                    StringFormat titleFormat = new StringFormat
+                    {
+                        Alignment = StringAlignment.Center,
+                        LineAlignment = StringAlignment.Center,
+                        Trimming = StringTrimming.EllipsisCharacter
+                    };
+
+                    graphics.DrawString(Title, titleFont, titleBrush, titleRect, titleFormat);
+                }
+
+                yOffset += TitleSize.Height + padding;
+            }
+
+            // Draw toggle button
+            Rectangle toggleRect = new Rectangle(
+                drawRectX + padding,
+                yOffset,
+                contentWidth,
+                menuItemHeight);
+
+            using (BeepButton toggleBtn = new BeepButton())
+            {
+                toggleBtn.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.hamburger.svg";
+                toggleBtn.MaxImageSize = new Size(24, 24);
+                toggleBtn.ImageAlign = ContentAlignment.MiddleCenter;
+                toggleBtn.BackColor = BackColor;
+                toggleBtn.ForeColor = _currentTheme.SideMenuForeColor;
+                toggleBtn.IsFrameless = true;
+                toggleBtn.ApplyThemeOnImage = true;
+                toggleBtn.ImageEmbededin = ImageEmbededin.SideBar;
+
+                toggleBtn.Draw(graphics, toggleRect);
+            }
+
+            yOffset += menuItemHeight + padding;
+
+            // Draw menu items
+            if (menuItems != null && menuItems.Count > 0)
+            {
+                // Track the mouse position for hover effects
+                Point mousePosition = this.PointToClient(Control.MousePosition);
+
+                foreach (var item in menuItems)
+                {
+                    // Create item rectangle
+                    Rectangle itemRect = new Rectangle(
+                        drawRectX + padding,
+                        yOffset,
+                        contentWidth,
+                        menuItemHeight);
+
+                    // Check if mouse is hovering over this item
+                    bool isHovered = itemRect.Contains(mousePosition);
+
+                    // Draw highlight panel
+                    Rectangle highlightRect = new Rectangle(
+                        itemRect.X,
+                        itemRect.Y,
+                        HilightPanelSize,
+                        itemRect.Height);
+
+                    using (SolidBrush highlightBrush = new SolidBrush(
+                        isHovered ? _currentTheme.SideMenuHoverBackColor : BackColor))
+                    {
+                        graphics.FillRectangle(highlightBrush, highlightRect);
+                    }
+
+                    // Draw spacing
+                    Rectangle spacingRect = new Rectangle(
+                        highlightRect.Right,
+                        itemRect.Y,
+                        2,
+                        itemRect.Height);
+
+                    using (SolidBrush spacingBrush = new SolidBrush(BackColor))
+                    {
+                        graphics.FillRectangle(spacingBrush, spacingRect);
+                    }
+
+                    // Draw button area
+                    Rectangle buttonRect = new Rectangle(
+                        spacingRect.Right,
+                        itemRect.Y,
+                        itemRect.Width - highlightRect.Width - spacingRect.Width,
+                        itemRect.Height);
+
+                    using (SolidBrush buttonBrush = new SolidBrush(
+                        isHovered ? _currentTheme.SideMenuHoverBackColor : BackColor))
+                    {
+                        graphics.FillRectangle(buttonBrush, buttonRect);
+                    }
+
+                    // Draw item icon
+                    if (!string.IsNullOrEmpty(item.ImagePath))
+                    {
+                        int imageSize = ListImageSize.Width;
+                        Rectangle imageRect = new Rectangle(
+                            buttonRect.X + padding,
+                            buttonRect.Y + (buttonRect.Height - imageSize) / 2,
+                            imageSize,
+                            imageSize);
+
+                        using (BeepImage img = new BeepImage())
+                        {
+                            img.ImagePath = item.ImagePath;
+                            img.ApplyThemeOnImage = ApplyThemeOnImages;
+                            img.Draw(graphics, imageRect);
+                        }
+                    }
+
+                    // Draw item text (if not collapsed)
+                    if (!isCollapsed)
+                    {
+                        int imageOffset = !string.IsNullOrEmpty(item.ImagePath) ?
+                            ListImageSize.Width + (padding * 2) : padding;
+
+                        Rectangle textRect = new Rectangle(
+                            buttonRect.X + imageOffset,
+                            buttonRect.Y,
+                            buttonRect.Width - imageOffset,
+                            buttonRect.Height);
+
+                        using (SolidBrush textBrush = new SolidBrush(_currentTheme.SideMenuForeColor))
+                        using (Font itemFont = UseThemeFont ?
+                            BeepThemesManager.ToFont(_currentTheme.ButtonStyle) :
+                            ListButtonFont)
+                        {
+                            StringFormat textFormat = new StringFormat
+                            {
+                                Alignment = StringAlignment.Near,
+                                LineAlignment = StringAlignment.Center,
+                                Trimming = StringTrimming.EllipsisCharacter
+                            };
+
+                            graphics.DrawString(item.Text, itemFont, textBrush, textRect, textFormat);
+                        }
+                    }
+
+                    // Store item's position for hit testing in mouse events
+                    item.X = itemRect.X;
+                    item.Y = itemRect.Y;
+                    item.Width = itemRect.Width;
+                    item.Height = itemRect.Height;
+
+                    yOffset += menuItemHeight + padding;
+
+                    // Draw child items if this item has children and we're not collapsed
+                    if (!isCollapsed && item.Children != null && item.Children.Count > 0)
+                    {
+                        foreach (var childItem in item.Children)
+                        {
+                            // Create child item rectangle with indent
+                            Rectangle childRect = new Rectangle(
+                                drawRectX + (padding * 2),
+                                yOffset,
+                                contentWidth - padding,
+                                menuItemHeight);
+
+                            // Check if mouse is hovering over this child item
+                            bool isChildHovered = childRect.Contains(mousePosition);
+
+                            // Draw child highlight panel
+                            Rectangle childHighlightRect = new Rectangle(
+                                childRect.X,
+                                childRect.Y,
+                                HilightPanelSize,
+                                childRect.Height);
+
+                            using (SolidBrush highlightBrush = new SolidBrush(
+                                isChildHovered ? _currentTheme.SideMenuHoverBackColor : BackColor))
+                            {
+                                graphics.FillRectangle(highlightBrush, childHighlightRect);
+                            }
+
+                            // Draw child spacing
+                            Rectangle childSpacingRect = new Rectangle(
+                                childHighlightRect.Right,
+                                childRect.Y,
+                                2,
+                                childRect.Height);
+
+                            using (SolidBrush spacingBrush = new SolidBrush(BackColor))
+                            {
+                                graphics.FillRectangle(spacingBrush, childSpacingRect);
+                            }
+
+                            // Draw child button area
+                            Rectangle childButtonRect = new Rectangle(
+                                childSpacingRect.Right,
+                                childRect.Y,
+                                childRect.Width - childHighlightRect.Width - childSpacingRect.Width,
+                                childRect.Height);
+
+                            using (SolidBrush buttonBrush = new SolidBrush(
+                                isChildHovered ? _currentTheme.SideMenuHoverBackColor : BackColor))
+                            {
+                                graphics.FillRectangle(buttonBrush, childButtonRect);
+                            }
+
+                            // Draw child icon
+                            if (!string.IsNullOrEmpty(childItem.ImagePath))
+                            {
+                                int imageSize = ListImageSize.Width;
+                                Rectangle imageRect = new Rectangle(
+                                    childButtonRect.X + padding,
+                                    childButtonRect.Y + (childButtonRect.Height - imageSize) / 2,
+                                    imageSize,
+                                    imageSize);
+
+                                using (BeepImage img = new BeepImage())
+                                {
+                                    img.ImagePath = childItem.ImagePath;
+                                    img.ApplyThemeOnImage = ApplyThemeOnImages;
+                                    img.Draw(graphics, imageRect);
+                                }
+                            }
+
+                            // Draw child text
+                            int childImageOffset = !string.IsNullOrEmpty(childItem.ImagePath) ?
+                                ListImageSize.Width + (padding * 2) : padding;
+
+                            Rectangle childTextRect = new Rectangle(
+                                childButtonRect.X + childImageOffset,
+                                childButtonRect.Y,
+                                childButtonRect.Width - childImageOffset,
+                                childButtonRect.Height);
+
+                            using (SolidBrush textBrush = new SolidBrush(_currentTheme.SideMenuForeColor))
+                            using (Font itemFont = UseThemeFont ?
+                                BeepThemesManager.ToFont(_currentTheme.ButtonStyle) :
+                                ListButtonFont)
+                            {
+                                StringFormat textFormat = new StringFormat
+                                {
+                                    Alignment = StringAlignment.Near,
+                                    LineAlignment = StringAlignment.Center,
+                                    Trimming = StringTrimming.EllipsisCharacter
+                                };
+
+                                graphics.DrawString(childItem.Text, itemFont, textBrush, childTextRect, textFormat);
+                            }
+
+                            // Store child item's position for hit testing
+                            childItem.X = childRect.X;
+                            childItem.Y = childRect.Y;
+                            childItem.Width = childRect.Width;
+                            childItem.Height = childRect.Height;
+
+                            yOffset += menuItemHeight + padding;
+                        }
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Handles mouse click events for direct drawing implementation
+        /// </summary>
+        /// <summary>
+        /// Handles mouse click events for direct drawing implementation
+        /// </summary>
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+
+            // Calculate the toggle button position
+            int padding = 5;
+            int yOffset = drawRectY + padding;
+
+            // Account for logo height if visible
+            if (!string.IsNullOrEmpty(LogoImage))
+            {
+                yOffset += LogoSize.Height + padding;
+            }
+
+            // Account for title height if not collapsed
+            if (!isCollapsed || Width > (collapsedWidth + 20))
+            {
+                yOffset += TitleSize.Height + padding;
+            }
+
+            // Define toggle button rectangle
+            Rectangle toggleRect = new Rectangle(
+                drawRectX + padding,
+                yOffset,
+                drawRectWidth - (padding * 2),
+                menuItemHeight);
+
+            // Check if click was on toggle button
+            if (toggleRect.Contains(e.Location))
+            {
+                // Save the current width as expandedWidth before collapsing
+                if (!isCollapsed)
+                {
+                    expandedWidth = Width;
+                }
+
+                // Trigger collapse/expand events and animation
+                StartOnMenuCollapseExpand?.Invoke(isCollapsed);
+                isCollapsed = !isCollapsed;
+                StartMenuAnimation();
+
+                // Update AppBar if connected
+                if (BeepAppBar != null)
+                {
+                    BeepAppBar.ShowTitle = isCollapsed;
+                    BeepAppBar.ShowLogoIcon = false;
+                }
+
+                return;
+            }
+
+            // Check if a menu item was clicked
+            if (menuItems != null && menuItems.Count > 0)
+            {
+                // Check parent items
+                foreach (var item in menuItems)
+                {
+                    // Use item's stored position for hit testing
+                    Rectangle itemRect = new Rectangle(item.X, item.Y, item.Width, item.Height);
+                    if (itemRect.Contains(e.Location))
+                    {
+                        OnMenuItemClick(item);
+                        Invalidate();
+                        return;
+                    }
+
+                    // Check child items if parent has children and menu is expanded
+                    if (!isCollapsed && item.Children != null && item.Children.Count > 0)
+                    {
+                        foreach (var childItem in item.Children)
+                        {
+                            Rectangle childRect = new Rectangle(childItem.X, childItem.Y, childItem.Width, childItem.Height);
+                            if (childRect.Contains(e.Location))
+                            {
+                                OnMenuItemClick(childItem);
+                                Invalidate();
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Handles mouse move events to enable hover effects
+        /// </summary>
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            // Request repaint to update hover effects
+            Invalidate();
+        }
+
     }
 }

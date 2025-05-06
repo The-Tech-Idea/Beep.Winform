@@ -502,10 +502,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            if (BadgeText != null)
-            {
-                DrawBadge(g);
-            }
         }
 
         #endregion "Painting"

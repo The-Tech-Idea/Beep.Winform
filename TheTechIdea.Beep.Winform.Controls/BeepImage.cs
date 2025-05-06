@@ -924,7 +924,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Use spin functionality if enabled
           
-            DrawBadge(e.Graphics);
         }
         protected override void DrawContent(Graphics g)
         {
@@ -1596,7 +1595,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 graphics,
                 DrawingRect
             );
-            DrawBadge(graphics);
+          
         }
 
         #endregion "IBeep UI Component Implementation"

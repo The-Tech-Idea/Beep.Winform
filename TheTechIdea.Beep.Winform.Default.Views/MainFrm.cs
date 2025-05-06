@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         
             beepAppTree1.init(beepService);
             beepAppTree1.CreateRootTree();
-            beepAppBar1.ShowBadgeOnNotificationIcon("1");
+            beepAppBar1.ShowBadgeOnNotificationIcon("5");
            
             beepMenuAppBar1.beepServices = beepService;
             beepMenuAppBar1.CreateMenuItems();

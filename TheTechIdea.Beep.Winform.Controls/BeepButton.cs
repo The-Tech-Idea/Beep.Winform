@@ -969,10 +969,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
                 TextRenderer.DrawText(g, Text, scaledFont, textRect, color, flags);
             }
-            if(BadgeText != null)
-            {
-                DrawBadge(g);
-            }
+            //if(BadgeText != null)
+            //{
+            //    DrawBadge(g);
+            //}
            
         }
         public override void Draw(Graphics g, Rectangle rectangle)

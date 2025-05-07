@@ -1502,7 +1502,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int visibleWidth = ClientRectangle.Width;
 
             // Debug info
-            System.Diagnostics.Debug.WriteLine($"Content: {contentWidth}x{contentHeight}, Visible: {visibleWidth}x{visibleHeight}");
+           // System.Diagnostics.Debug.WriteLine($"Content: {contentWidth}x{contentHeight}, Visible: {visibleWidth}x{visibleHeight}");
 
             // Determine if scrollbars are needed
             bool needsVertical = _showVerticalScrollBar && contentHeight > visibleHeight;
@@ -1530,7 +1530,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _verticalScrollBar.Visible = true;
                 _verticalScrollBar.BringToFront();
 
-                System.Diagnostics.Debug.WriteLine($"Vertical scrollbar visible: H={_verticalScrollBar.Height}, Max={_verticalScrollBar.Maximum}");
+            //    System.Diagnostics.Debug.WriteLine($"Vertical scrollbar visible: H={_verticalScrollBar.Height}, Max={_verticalScrollBar.Maximum}");
             }
             else
             {

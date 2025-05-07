@@ -4,6 +4,9 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Drawing;
+using System.Runtime.InteropServices;
+
+
 
 
 
@@ -17,7 +20,11 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepListBox : BeepPanel
     {
         #region "Properties"
-        public List<BeepButton> _buttons { get; set; } = new List<BeepButton>();
+        //used for Drawing on GDI
+        BeepButton _button;
+        BeepImage _image;
+        BeepLabel _label;
+     //   public List<BeepButton> _buttons { get; set; } = new List<BeepButton>();
         private Dictionary<SimpleItem, BeepCheckBoxBool> _itemCheckBoxes = new Dictionary<SimpleItem, BeepCheckBoxBool>();
         public event EventHandler<SimpleItem> ItemClicked;
         private int _selectedIndex = -1;
@@ -37,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _showtitlelinetemp = true;
         // ---------------- NEW PRIVATE FIELD to store original height -------------
         private int _originalHeight = 0;
-        private bool _showHilightBox= true;
+        private bool _showHilightBox = true;
         private int LastItemBottomY = 0;
         private BeepButton lastbutton;
         private SimpleItem lastitem = null;
@@ -56,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _showHilightBox = value;
                 Invalidate();
             }
-        }   
+        }
 
 
         [Browsable(true)]
@@ -68,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showCheckBox = value;
-                InitializeMenu();
+                Invalidate();
             }
         }
 
@@ -87,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         // Store current height
                         _originalHeight = this.Height;
-                        _showtitlelinetemp= ShowTitleLine;
+                        _showtitlelinetemp = ShowTitleLine;
                         // Collapse to title line (just top area)
                         CollapseToTitleLine(5);
                         ShowTitleLine = false;
@@ -141,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 items = value;
-               // InitializeMenu();
+                // InitializeMenu();
             }
         }
         public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
@@ -155,12 +162,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _selectedIndex;
             set
             {
-                if (value >= 0 && value < _buttons.Count)
+                if (value >= 0 && value < items.Count)
                 {
                     _selectedIndex = value;
-                    //  HighlightSelectedButton();
-                    _selectedItem = (SimpleItem)_buttons[_selectedIndex].Tag;
-                    OnSelectedItemChanged(_selectedItem); //
+                    _selectedItem = items[_selectedIndex];
+                    OnSelectedItemChanged(_selectedItem);
                 }
             }
         }
@@ -190,11 +196,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _imagesize;
             set
             {
-                if(value > 0)
+                if (value > 0)
                 {
-                    if(value>=MenuItemHeight)
+                    if (value >= MenuItemHeight)
                     {
-                        _imagesize = MenuItemHeight-2;
+                        _imagesize = MenuItemHeight - 2;
                     }
                     else
                     {
@@ -203,10 +209,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _imagesize = value;
                     Invalidate();
                 }
-              
+
             }
         }
-        private bool _isItemChilds= true;
+        private bool _isItemChilds = true;
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool IsItemChilds
@@ -244,7 +250,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Constructor"
         public BeepListBox()
         {
+            // Initialize the GDI drawing components
+            _image = new BeepImage();
+            _label = new BeepLabel();
+            _button = new BeepButton();
 
+            // Existing code...
             if (items == null)
             {
                 items = new SimpleMenuList();
@@ -257,163 +268,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             BorderRadius = 3;
             items.ListChanged += Items_ListChanged;
             ApplyThemeToChilds = false;
-         //   this.Invalidated += BeepListBox_Invalidated;
             InitLayout();
             BoundProperty = "SelectedMenuItem";
+            InitializeSearchBox();
         }
+
         protected override void InitLayout()
         {
             base.InitLayout();
-            InitializeMenu();
+
             ApplyTheme();
             TitleText = "List Box";
+            Invalidate();
         }
         #endregion "Constructor"
         #region "Menu Creation"
         private void Items_ListChanged(object sender, ListChangedEventArgs e) => Invalidate(); //InitializeMenu();
-        private Panel CreateMenuItemPanel(SimpleItem item, bool isChild)
-        {
-            var menuItemPanel = new Panel
-            {
-                Height = ButtonSize.Height,
-                //  Padding = new Padding(isChild ? 20 : 10, 0, 0, 0),
-                Visible = true,
-                BorderStyle= BorderStyle.None,
-                BackColor=this.BackColor,
-                Tag = item, // Store the SimpleMenuItem for reference
-            };
-            Panel highlightPanel = new Panel();
-            // Create the left-side highlight panel
-            if (_showHilightBox)
-            {
-                highlightPanel = new Panel
-                {
-                    Width = 7,
-                    Dock = DockStyle.Left,
-                    BackColor = this.BackColor,
-                    Visible = true,
-
-                };
-                menuItemPanel.Controls.Add(highlightPanel);
-
-                Panel spacingpane = new Panel
-                {
-                    Width = 1,
-                    Dock = DockStyle.Left,
-                    BackColor = this.BackColor,
-                    Visible = true,
-                };
-                // Add Beepbutton and highlight panel to the panel
-                menuItemPanel.Controls.Add(spacingpane);
-                spacingpane.BringToFront(); 
-            }
-
-
-
-            // Initialize Beepbutton for icon and text
-            BeepButton button = new BeepButton
-            {
-                Dock = DockStyle.Fill,
-                Text = item.Text,
-                ImagePath = item.ImagePath,
-                MaxImageSize = new Size(_imagesize, _imagesize),
-                TextImageRelation = TextImageRelation.ImageBeforeText,
-                TextAlign = ContentAlignment.MiddleLeft,
-                ImageAlign = ContentAlignment.MiddleLeft,
-              
-                IsBorderAffectedByTheme = false,
-                IsShadowAffectedByTheme = false,
-                ShowAllBorders = false,
-                ShowShadow = false,
-                IsSelectedOptionOn = true,
-                IsFrameless = true,
-                IsRounded = false,
-                IsRoundedAffectedByTheme = false,
-                IsColorFromTheme=false,
-                BorderSize = 0,
-               // OverrideFontSize = TypeStyleFontSize.Small,
-                Tag = item,
-                Info = item,
-                IsChild = true,
-                UseScaledFont =false,
-                ApplyThemeOnImage = false,
-                UseThemeFont=this.UseThemeFont,
-            };
-            if (UseThemeFont)
-            {
-                button.TextFont = BeepThemesManager.ToFont(_currentTheme.LabelMedium);
-            }
-            else
-                button.TextFont = _textFont;
-
-            // resize button height based on new button.TextFont
-            // Get the height of the text
-            Size textSize = TextRenderer.MeasureText(item.Text, button.TextFont);
-            // Set the button height to accommodate the text size
-            button.Height = textSize.Height + 2; // Add some padding
-            button.Width = ButtonSize.Width;
-            // set the panel height to the button height
-            menuItemPanel.Height = button.Height;
-
-
-            // Load the icon if specified
-            if (!string.IsNullOrEmpty(item.ImagePath) && File.Exists(item.ImagePath))
-            {
-                try
-                {
-                    button.ImagePath = item.ImagePath;
-                }
-                catch (Exception)
-                {
-
-                    //throw;
-                }
-
-            }
-           
-            menuItemPanel.Controls.Add(button);
-            button.BringToFront();
-            _buttons.Add(button);
-
-            if (ShowCheckBox)
-            {
-                BeepCheckBoxBool checkBox = new BeepCheckBoxBool
-                {
-                    Dock = DockStyle.Left,
-                    Width = 20,
-                    Height = ButtonSize.Height,
-                    Theme = Theme,
-                    Tag = item
-                };
-
-                checkBox.StateChanged += (s, e) => UpdateSelectedItems(item, checkBox);
-                menuItemPanel.Controls.Add(checkBox);
-                _itemCheckBoxes[item] = checkBox;
-            }
-
-            button.MouseEnter += (s, e) =>
-            {
-               base.OnMouseEnter(e);
-               //  menuItemPanel.BackColor = _currentTheme.ButtonHoverBackColor;
-                if (_showHilightBox) highlightPanel.BackColor = HoverBackColor;
-            };
-            button.MouseLeave-= (s, e) =>
-            {
-                base.OnMouseLeave(e);
-                // menuItemPanel.BackColor = BackColor;
-                if (_showHilightBox) highlightPanel.BackColor = BackColor;
-            };
-            button.MouseLeave += (s, e) =>
-            {
-                base.OnMouseLeave(e);
-              //   menuItemPanel.BackColor = BackColor;
-                if (_showHilightBox) highlightPanel.BackColor = BackColor;
-            };
-            button.Click += Button_Click;
-
-
-            return menuItemPanel;
-        }
+   
         private void UpdateSelectedItems(SimpleItem item, BeepCheckBoxBool checkBox)
         {
             if (checkBox.State == CheckBoxState.Checked)
@@ -431,94 +302,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        public virtual void InitializeMenu()
-        {
-            return;
-            GetDimensions();
-         
-            // Set button size to fit within the adjusted drawing rectangle
-            ButtonSize = new Size(DrawingRect.Width - BorderThickness * 2, _menuItemHeight);
-            _buttons.Clear();
-            // Remove existing menu item panels
-            foreach (var control in this.Controls.OfType<Panel>().Where(c => c.Tag is SimpleItem).ToList())
-            {
-                this.Controls.Remove(control);
-                control.Dispose();
-            }
 
-            if (items == null || items.Count == 0)
-            {
-                return;
-            }
-            int yOffset = drawRectY + TitleBottomY; // Start placing rootnodeitems below the iconPanel
-
-            foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main))
-            {
-                var menuItemPanel = CreateMenuItemPanel(item, false);
-                ButtonSize = new Size(ButtonSize.Width, menuItemPanel.Height);
-                if (menuItemPanel != null)
-                {
-
-                    menuItemPanel.Top = yOffset;
-                    menuItemPanel.Left = drawRectX;
-                    menuItemPanel.Width = ButtonSize.Width;
-                    menuItemPanel.Height = ButtonSize.Height;
-                   
-                    menuItemPanel.Tag = item;
-                    item.X = menuItemPanel.Left;
-                    item.Y = menuItemPanel.Top;
-                    item.Width = menuItemPanel.Width;
-                    item.Height = menuItemPanel.Height;
-                    menuItemPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-                    this.Controls.Add(menuItemPanel);
-
-                    yOffset += menuItemPanel.Height + spacing;
-
-                    //Add child rootnodeitems(if any) below the parent menu item
-                    //if (item.Children != null && item.Children.Count > 0)
-                    //{
-                    //    foreach (var childItem in item.Children)
-                    //    {
-                    //        var childPanel = CreateMenuItemPanel(childItem, true);
-                    //        childPanel.Top = yOffset;
-                    //        childPanel.Left = drawRectX;
-                    //        childPanel.Width = ButtonSize.Width;
-                    //        childPanel.Height = ButtonSize.Height;
-                    //        childPanel.Visible = false; // Initially hidden
-                    //        childPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-                    //        childPanel.BackColor = _currentTheme.SideMenuBackColor;
-                    //        this.Controls.Add(childPanel);
-
-                    //        yOffset += childPanel.Height;
-                    //    }
-                    //}
-                    LastItemBottomY = yOffset;
-                }
-            }
-        }
         #endregion "Menu Creation"
         #region "Menu events Handling"
-        protected virtual void MenuItemButton_Click(object? sender, EventArgs e)
-        {
-            ListItemClicked(sender);
-        }
-        private void Button_Click(object sender, EventArgs e)
-        {
-            ListItemClicked(sender);
-        }
+       
         public virtual void ListItemClicked(object sender)
         {
             if (sender is BeepButton clickedButton)
             {
                 CurrenItemButton = (BeepButton)sender;
                 SimpleItem simpleItem = (SimpleItem)clickedButton.Info;
-                if(simpleItem == null)
+                if (simpleItem == null)
                 {
                     return;
                 }
-                
+
                 SelectedItem = simpleItem;
-                if(simpleItem != lastitem)
+                if (simpleItem != lastitem)
                 {
                     if (lastbutton != null)
                     {
@@ -530,7 +330,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     lastitem = simpleItem;
                 }
                 ItemClicked?.Invoke(this, simpleItem);
-               
+
             }
         }
         #endregion "Menu events Handling"
@@ -541,32 +341,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             //   Rectangle rectangle=new Rectangle(DrawingRect.X, DrawingRect.Y, DrawingRect.Width, DrawingRect.Height);
             drawRectX = DrawingRect.Left + BorderThickness;
             drawRectY = DrawingRect.Top + BorderThickness;
-            drawRectWidth = DrawingRect.Width-(BorderThickness*2);
+            drawRectWidth = DrawingRect.Width - (BorderThickness * 2);
             drawRectHeight = DrawingRect.Height - (BorderThickness * 2);
         }
+
+        // 5. Remove or fix the ChangeImageSettings method since it references _buttons
         private void ChangeImageSettings()
         {
-            foreach (var item in _buttons)
-            {
-                SimpleItem s = (SimpleItem)item.Tag;
-                if (ShowImage)
-                {
-                    item.TextImageRelation = TextImageRelation.ImageBeforeText;
-                    item.ImageAlign = ContentAlignment.MiddleLeft;
-                    item.TextAlign = ContentAlignment.MiddleCenter;
-                    item.ImagePath = s.ImagePath;
-                }
-                else
-                {
-                    item.TextImageRelation = TextImageRelation.Overlay;
-                    item.ImageAlign = ContentAlignment.MiddleCenter;
-                    item.TextAlign = ContentAlignment.MiddleLeft;
-                    item.ImagePath = null;
-                }
-
-            }
-
+            // This method can be simplified since we're not using buttons anymore
+            Invalidate(); // Just redraw everything with the new settings
         }
+
         public int GetItemIndex(SimpleItem item)
         {
             return items.IndexOf(item);
@@ -649,6 +434,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        // 6. Fix or update the GetMaxHeight method - remove _buttons references
         public int GetMaxHeight()
         {
             // If there are no items, just return minimal height
@@ -661,19 +447,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Calculate Y offset correctly based on whether title is shown
             int startOffset = drawRectY + (ShowTitle ? TitleBottomY : 0);
 
+            // Add search box height if visible
+            if (_showSearch)
+                startOffset += _searchAreaHeight+5;
+
             // Calculate total items height
             int totalItemsHeight = 0;
             foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main))
             {
-                // Use consistent item height (same as in Draw method)
+                // Use consistent item height
                 int itemHeight = _menuItemHeight;
-
-                // If we have buttons with specific heights, use those
-                BeepButton associatedButton = _buttons.FirstOrDefault(b => b.Tag == item);
-                if (associatedButton != null)
-                {
-                    itemHeight = associatedButton.Height;
-                }
 
                 // Add this item's height plus spacing
                 totalItemsHeight += itemHeight + spacing;
@@ -695,7 +478,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Add a small padding at the bottom for aesthetics
-            totalHeight +=6;
+            totalHeight += 6;
 
             return totalHeight;
         }
@@ -720,7 +503,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnFontChanged(e);
             _textFont = Font;
-           //// Console.WriteLine("Font Changed");
+            //// Console.WriteLine("Font Changed");
             if (AutoSize)
             {
                 Size textSize = TextRenderer.MeasureText(Text, _textFont);
@@ -729,13 +512,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-          //  base.ApplyTheme();
+            //  base.ApplyTheme();
             if (_currentTheme == null) { return; }
             //base.ApplyTheme();
             // Apply theme to the main menu panel (background gradient or solid color)
             BackColor = _currentTheme.ListBackColor;
-          //  ForeColor = _currentTheme.ButtonForeColor;
-            
+            //  ForeColor = _currentTheme.ButtonForeColor;
+
             ForeColor = _currentTheme.ListItemForeColor;
             HoverBackColor = _currentTheme.ListItemHoverBackColor;
             HoverForeColor = _currentTheme.ListItemHoverForeColor;
@@ -746,12 +529,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             FocusBackColor = _currentTheme.ListItemSelectedBackColor;
             FocusForeColor = _currentTheme.ListItemSelectedForeColor;
 
+            // Apply theme to search textbox if it exists
+            if (_searchTextBox != null)
+            {
+                _searchTextBox.BackColor = _currentTheme?.TextBoxBackColor ?? Color.White;
+                _searchTextBox.ForeColor = _currentTheme?.TextBoxForeColor ?? Color.Black;
+                _searchTextBox.Font = UseThemeFont ?
+                   _currentTheme.GetQuestionFont() :
+                    _textFont;
+            }
 
             PressedBackColor = _currentTheme.ButtonPressedBackColor;
             PressedForeColor = _currentTheme.ButtonPressedForeColor;
             //  _currentTheme.ButtonBackColor = _currentTheme.BackgroundColor;
             // Apply theme to each item (button and highlight panel)
-           // SetColors();
+            // SetColors();
             Invalidate();
             // Optionally, apply any additional theming for the overall side menu layout here (e.g., ShowVerticalScrollBar, borders, or custom UI components)
         }
@@ -801,8 +593,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 PressedForeColor = _currentTheme.ButtonPressedForeColor;
 
                                 button.UseScaledFont = true;
-                              //  button.IsChild = false;
-                              // 
+                                //  button.IsChild = false;
+                                // 
                                 button.Invalidate();
                                 // button.ForeColor = ColorUtils.GetForColor(BackColor, _currentTheme.ButtonForeColor);
                                 break;
@@ -849,17 +641,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Calculate starting Y position - account for no title
             int yOffset = drawRectY + (ShowTitle ? TitleBottomY : 0);
 
+            // Account for search box if visible
+            if (_showSearch)
+                yOffset += _searchAreaHeight;
 
             // Check each item to see if the mouse is over it
             foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main))
             {
-                // Calculate the size of this item
+                // Always use the consistent item height
                 int itemHeight = _menuItemHeight;
-                BeepButton associatedButton = _buttons.FirstOrDefault(b => b.Tag == item);
-                if (associatedButton != null)
-                {
-                    itemHeight = associatedButton.Height;
-                }
 
                 // Create hit test rectangle
                 Rectangle itemRect = new Rectangle(drawRectX, yOffset, drawRectWidth, itemHeight);
@@ -882,6 +672,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
@@ -896,17 +687,28 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
+            // Let the base class handle its own click logic
             base.OnMouseClick(e);
+
+            //// Check if we should process hit test instead
+            //if (HitTest(e.Location, out ControlHitTest hitTest))
+            //{
+            //    // Hit test found something - the action will be executed automatically
+            //    return;
+            //}
 
             // Skip if no items
             if (items == null || items.Count == 0)
                 return;
 
-            // Calculate starting Y position
+            // Update OnMouseClick to match Draw method's offset calculation:
             int yOffset = drawRectY + (ShowTitle ? TitleBottomY : 0);
+            if (_showSearch)
+                yOffset += _searchAreaHeight + 5;  // Add the same +5 as in Draw method
+
 
             // Check each item to see if it was clicked
-            foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main))
+            foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main && !_filteredOutItems.Contains(p)))
             {
                 // Use consistent item height
                 int itemHeight = _menuItemHeight;
@@ -920,9 +722,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Set this item as selected
                     SelectedItem = item;
 
-                    // Create a temporary button just for event purposes
-                    BeepButton tempButton = new BeepButton { Info = item, Tag = item };
-
                     // Raise the ItemClicked event
                     ItemClicked?.Invoke(this, item);
 
@@ -934,6 +733,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 yOffset += itemHeight + spacing;
             }
         }
+
 
         #endregion "Mouse Events"
         #region "Key Events"
@@ -949,12 +749,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else if (e.KeyCode == Keys.Down)
             {
-                if (SelectedIndex < _buttons.Count - 1)
+                if (SelectedIndex < items.Count - 1)
                 {
                     SelectedIndex++;
                 }
             }
         }
+
         #endregion "Key Events"
         #region "Painting"
         protected override void OnPaintBackground(PaintEventArgs e)
@@ -967,14 +768,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             // DrawingRect.Inflate(-2, -2);
             // Get the dimensions of DrawingRect
 
-            
+
             base.OnPaint(e);
         }
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g); // This ensures the title and title line are drawn by the base class
                                  // Fill the background
-          
+
             Draw(g, DrawingRect);
         }
 
@@ -996,14 +797,39 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (items == null || items.Count == 0)
                 return;
 
+            // Initialize the GDI drawing components if null
+            if (_image == null) _image = new BeepImage();
+            if (_label == null) _label = new BeepLabel();
+            if (_button == null) _button = new BeepButton();
+
             // Track the current mouse position for hover detection
             Point mousePoint = this.PointToClient(Control.MousePosition);
 
             // Calculate y offset correctly based on whether title is shown
             int yOffset = drawRectY + (ShowTitle ? TitleBottomY : 0);
 
+            // Draw the search area background if search is enabled
+            if (_showSearch)
+            {
+                using (SolidBrush searchAreaBrush = new SolidBrush(_currentTheme?.BackgroundColor ?? Color.WhiteSmoke))
+                {
+                    Rectangle searchRect = new Rectangle(
+                        drawRectX,
+                        yOffset,
+                        drawRectWidth,
+                        _searchAreaHeight
+                    );
+                    graphics.FillRectangle(searchAreaBrush, searchRect);
+                }
+
+                yOffset += _searchAreaHeight+5;
+            }
+
+            // Clear hit list before adding new areas
+            ClearHitList();
+
             // Iterate through all items
-            foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main))
+            foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main && !_filteredOutItems.Contains(p)))
             {
                 // Use a consistent height
                 int itemHeight = _menuItemHeight;
@@ -1054,8 +880,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     currentX += spacingWidth;
                 }
 
-                // Calculate button area
-                Rectangle buttonRect = new Rectangle(
+                // Calculate content area
+                Rectangle contentRect = new Rectangle(
                     currentX,
                     yOffset,
                     menuItemRect.Right - currentX,
@@ -1063,24 +889,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 );
 
                 // Choose colors based on item state
-                Color buttonBackColor = BackColor;
-                Color buttonForeColor = ForeColor;
+                Color itemBackColor = BackColor;
+                Color itemForeColor = ForeColor;
 
                 if (isSelected)
                 {
-                    buttonBackColor = SelectedBackColor;
-                    buttonForeColor = SelectedForeColor;
+                    itemBackColor = SelectedBackColor;
+                    itemForeColor = SelectedForeColor;
                 }
                 else if (isHovered)
                 {
-                    buttonBackColor = HoverBackColor;
-                    buttonForeColor = HoverForeColor;
+                    itemBackColor = HoverBackColor;
+                    itemForeColor = HoverForeColor;
                 }
 
                 // Draw button background
-                using (SolidBrush buttonBrush = new SolidBrush(buttonBackColor))
+                using (SolidBrush buttonBrush = new SolidBrush(itemBackColor))
                 {
-                    graphics.FillRectangle(buttonBrush, buttonRect);
+                    graphics.FillRectangle(buttonBrush, contentRect);
                 }
 
                 // Draw checkbox if enabled
@@ -1106,48 +932,29 @@ namespace TheTechIdea.Beep.Winform.Controls
                     currentX += checkboxSize + (checkboxPadding * 2);
                 }
 
-                //// Draw image if enabled and available
-                //if (ShowImage || !string.IsNullOrEmpty(item.ImagePath))
-                //{
-                //    try
-                //    {
-                //        // Create a new BeepImage instance for each row to avoid state issues
-                //        using (BeepImage img = new BeepImage()
-                //        {
-                //            ImagePath = item.ImagePath,
-                //            Size = new Size(_imagesize, _imagesize)
-                //        })
-                //        {
-                //            int imgSize = _imagesize;
-                //            int imgPadding = 2;
+                // Draw image if available (using the BeepImage instance)
+                if ((ShowImage || !string.IsNullOrEmpty(item.ImagePath)) && File.Exists(item.ImagePath))
+                {
+                    int imgSize = _imagesize;
+                    int imgPadding = 2;
 
-                //            // Calculate the correct Y position for this specific row
-                //            int imgY = yOffset + ((itemHeight - imgSize) / 2);
+                    Rectangle imgRect = new Rectangle(
+                        currentX + imgPadding,
+                        yOffset + ((itemHeight - imgSize) / 2),
+                        imgSize,
+                        imgSize
+                    );
 
-                //            // Create a correctly positioned rectangle for this row's image
-                //            Rectangle imgRect = new Rectangle(
-                //                currentX + imgPadding,
-                //                imgY,  // This is the key change - use the calculated Y position for this row
-                //                imgSize,
-                //                imgSize
-                //            );
+                    // Configure the BeepImage instance and draw it
+                    _image.ImagePath = item.ImagePath;
+                    _image.Size = new Size(imgSize, imgSize);
+                    _image.Draw(graphics, imgRect);
 
-                //            // Draw the image at the specific location
-                //            img.Draw(graphics, imgRect);
+                    // Advance the X position for text
+                    currentX += imgSize + (imgPadding * 2);
+                }
 
-                //            // Advance the X position for text
-                //            currentX += imgSize + (imgPadding * 2);
-                //        }
-                //    }
-                //    catch (Exception)
-                //    {
-                //        // Image loading failed, continue without image
-                //    }
-                //}
-
-
-
-                // Draw the text
+                // Calculate the text rectangle
                 Rectangle textRect = new Rectangle(
                     currentX + 2, // Small text padding
                     yOffset,
@@ -1160,52 +967,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                     BeepThemesManager.ToFont(_currentTheme.LabelMedium) :
                     _textFont;
 
-                //// Draw a solid background behind the text to prevent transparency issues
-                //using (SolidBrush textBackBrush = new SolidBrush(buttonBackColor))
-                //{
-                //    graphics.FillRectangle(textBackBrush, textRect);
-                //}
+                // Draw text using the BeepLabel instance
+                _label.Text = item.Text;
+                _label.TextFont = textFont;
+                _label.ForeColor = itemForeColor;
+                _label.BackColor = itemBackColor;
+                _label.TextAlign = ContentAlignment.MiddleLeft;
+                _label.Draw(graphics, textRect);
 
-                //// Draw text with the correct color
-                //using (SolidBrush textBrush = new SolidBrush(buttonForeColor))
-                //{
-                //    StringFormat sf = new StringFormat()
-                //    {
-                //        Alignment = StringAlignment.Near,
-                //        LineAlignment = StringAlignment.Center,
-                //        Trimming = StringTrimming.EllipsisCharacter
-                //    };
+                // Add hit test area for this item
+                AddHitArea(
+                    $"Item_{item.Text}_{items.IndexOf(item)}",
+                    menuItemRect,
+                    null,
+                    () => {
+                        // Action to perform when this area is clicked
+                        SelectedItem = item;
+                        ItemClicked?.Invoke(this, item);
+                        Invalidate();
+                    }
+                );
 
-                //    // Draw text using the brush with the correct color
-                //    graphics.DrawString(item.Text, textFont, textBrush, textRect, sf);
-                //}
-                BeepButton beepButton=new BeepButton
-                {
-                    Text = item.Text,
-                    TextFont = textFont,
-                    BackColor = BackColor,
-                    ForeColor = ForeColor,
-                    IsFrameless = true,
-                    IsRounded = false,
-                    IsChild=true,
-                    IsRoundedAffectedByTheme = false,
-                    IsBorderAffectedByTheme = false,
-                    IsShadowAffectedByTheme = false,
-                    ShowAllBorders = false,
-                    ShowShadow = false,
-                    BorderSize = 0,
-                    MaxImageSize=new Size(ImageSize,ImageSize)
-                    
-                };
-                if(item.ImagePath != null)
-                {
-                    beepButton.ImagePath = item.ImagePath;
-                    beepButton.TextAlign = ContentAlignment.MiddleCenter;
-                    beepButton.ImageAlign = ContentAlignment.MiddleLeft;
-                }else
-                beepButton.TextAlign = ContentAlignment.MiddleLeft;
-
-                beepButton.Draw(graphics, textRect);
                 // Store the item location for hit testing
                 item.X = menuItemRect.X;
                 item.Y = menuItemRect.Y;
@@ -1221,6 +1003,240 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion "Painting"
+
+
+        #region "Search"
+        private bool _showSearch = false;
+        private TextBox _searchTextBox;
+        private string _searchText = string.Empty;
+        private int _searchAreaHeight = 26;
+        private string _searchPlaceholderText = "Search...";
+
+        [Browsable(true)]
+        [Category("Search")]
+        [Description("Shows a search box above the list items")]
+        public bool ShowSearch
+        {
+            get => _showSearch;
+            set
+            {
+                if (_showSearch != value)
+                {
+                    _showSearch = value;
+
+                    if (_showSearch)
+                        InitializeSearchBox();
+                    else if (_searchTextBox != null)
+                    {
+                        Controls.Remove(_searchTextBox);
+                        _searchTextBox = null;
+                    }
+
+                    UpdateContentLayout();
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Search")]
+        [Description("Placeholder text shown in the search box when empty")]
+        public string SearchPlaceholderText
+        {
+            get => _searchPlaceholderText;
+            set
+            {
+                _searchPlaceholderText = value;
+                if (_searchTextBox != null)
+                    UpdateSearchBoxPlaceholder();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Search")]
+        [Description("Height of the search area")]
+        public int SearchAreaHeight
+        {
+            get => _searchAreaHeight;
+            set
+            {
+                if (value >= 20)
+                {
+                    _searchAreaHeight = value;
+                    UpdateContentLayout();
+                }
+            }
+        }
+
+        [Browsable(false)]
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (_searchText != value)
+                {
+                    _searchText = value;
+                    if (_searchTextBox != null)
+                        _searchTextBox.Text = value;
+                    FilterItems();
+                }
+            }
+        }
+        // 1. First, update the InitializeSearchBox method to ensure the search box is properly created and styled:
+        private void InitializeSearchBox()
+        {
+            if (_searchTextBox != null)
+                return;
+
+            _searchTextBox = new TextBox
+            {
+                BorderStyle = BorderStyle.FixedSingle,
+                Font = UseThemeFont ? _currentTheme?.GetQuestionFont() : _textFont,
+                BackColor = _currentTheme?.TextBoxBackColor ?? Color.White,
+                ForeColor = _currentTheme?.TextBoxForeColor ?? Color.Black,
+                Visible = _showSearch,
+                Dock = DockStyle.None // Ensure no docking to use explicit positioning
+            };
+
+            // Set placeholder text using cue banner API for Windows
+            UpdateSearchBoxPlaceholder();
+
+            _searchTextBox.TextChanged += SearchTextBox_TextChanged;
+
+            Controls.Add(_searchTextBox);
+            _searchTextBox.BringToFront(); // Ensure it's on top of other controls
+            UpdateContentLayout();
+        }
+
+        // 2. Fix the UpdateContentLayout method to correctly position the search box:
+        private void UpdateContentLayout()
+        {
+            // Get dimensions to ensure accurate positioning
+            GetDimensions();
+
+            // Calculate y-offset for search box placement
+            int searchY = drawRectY + (ShowTitle ? TitleBottomY + 2 : 2);
+
+            // Position the search box with proper size and margins
+            if (_searchTextBox != null && _showSearch)
+            {
+                _searchTextBox.Location = new Point(drawRectX + 4, searchY);
+                _searchTextBox.Size = new Size(drawRectWidth - 8, _searchAreaHeight - 4);
+                _searchTextBox.Visible = true;
+                _searchTextBox.BringToFront();
+            }
+
+          
+
+            Invalidate();
+        }
+
+        private void UpdateSearchBoxPlaceholder()
+        {
+            if (_searchTextBox == null)
+                return;
+
+            // Use the Win32 API to set placeholder text
+            // Works only on Windows
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                // Import the SendMessage function
+                [DllImport("user32.dll", CharSet = CharSet.Auto)]
+                static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
+
+                const int EM_SETCUEBANNER = 0x1501;
+                // Set the placeholder text with a fade-in effect (wParam = 1)
+                SendMessage(_searchTextBox.Handle, EM_SETCUEBANNER, 1, _searchPlaceholderText);
+            }
+            else
+            {
+                // Fallback for non-Windows platforms
+                if (string.IsNullOrEmpty(_searchTextBox.Text))
+                    _searchTextBox.Text = _searchPlaceholderText;
+            }
+        }
+
+        private void SearchTextBox_TextChanged(object sender, EventArgs e)
+        {
+            _searchText = _searchTextBox.Text;
+            FilterItems();
+        }
+
+        // Track which items are filtered out
+        private HashSet<SimpleItem> _filteredOutItems = new HashSet<SimpleItem>();
+        private void FilterItems()
+        {
+            // First, clear the filtered items collection
+            _filteredOutItems.Clear();
+
+            // If search text is empty, make sure we show all items and force a redraw
+            if (string.IsNullOrWhiteSpace(_searchText))
+            {
+                // Force redraw to show all items
+                Invalidate();
+                return;
+            }
+
+            // Search is not empty, filter the items
+            string searchLower = _searchText.ToLowerInvariant();
+
+            // Find items that don't match the search criteria
+            foreach (var item in items)
+            {
+                bool matches = item.Text?.ToLowerInvariant().Contains(searchLower) ?? false;
+
+                // Also search in SubText if available
+                if (!matches && !string.IsNullOrEmpty(item.SubText))
+                {
+                    matches = item.SubText.ToLowerInvariant().Contains(searchLower);
+                }
+
+                // Add to filtered list if no match
+                if (!matches)
+                    _filteredOutItems.Add(item);
+            }
+
+            // Invalidate to redraw with filtered items
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Clears the current search text and shows all items
+        /// </summary>
+        public void ClearSearch()
+        {
+            // Clear search text in textbox if it exists
+            if (_searchTextBox != null)
+            {
+                _searchTextBox.Text = string.Empty;
+            }
+
+            // Always ensure internal search text is cleared
+            _searchText = string.Empty;
+
+            // Clear filtered items
+            _filteredOutItems.Clear();
+
+            // Update the display - force redraw
+            Invalidate();
+            Update(); // Force immediate update
+        }
+
+       
+        /// <summary>
+        /// Programmatically sets the search text to filter items
+        /// </summary>
+        /// <param name="searchText">Text to search for</param>
+        public void Search(string searchText)
+        {
+            if (_searchTextBox != null)
+                _searchTextBox.Text = searchText;
+            else
+                SearchText = searchText;
+        }
+        #endregion
+
         public override void SetValue(object value)
         {
             if (value is SimpleItem item)
@@ -1244,11 +1260,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void Reset()
         {
-            _items.Clear();
+            // Clear the items list
+            items.Clear();
             _selectedIndex = -1;
             _selectedItem = null;
+            _filteredOutItems.Clear();
             Invalidate();
         }
+
 
         // ---------------------------------------
 

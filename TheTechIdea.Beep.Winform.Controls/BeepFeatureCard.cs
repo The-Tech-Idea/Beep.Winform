@@ -391,7 +391,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Convert List<SimpleItem> to BindingList<SimpleItem> for BeepListBox
             var simpleItems = new BindingList<SimpleItem>(bulletPoints);
             featuresListBox.ListItems = simpleItems;
-            featuresListBox.InitializeMenu();
+           
         }
 
         private GraphicsPath RoundedRect(Rectangle bounds, int radius)

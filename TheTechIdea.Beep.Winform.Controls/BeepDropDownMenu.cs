@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -11,18 +10,23 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A dropdown menu control that displays a list of items.")]
     public class BeepDropDownMenu : BeepListBox
     {
-        private BeepButton _dropDownButton;
+        // Remove the physical button control
+        // private BeepButton _dropDownButton;
+
+        // Keep a button instance just for drawing
+        private BeepButton _dropDownButtonGDI;
 
         private bool _isExpanded = false;
-        private  int _maxMenuHeight = 200; // Increased maximum height for better visibility
-        private  int _collapsedHeight = 30; // Fixed height when not expanded
+        private int _maxMenuHeight = 200; // Increased maximum height for better visibility
+        private int _collapsedHeight = 30; // Fixed height when not expanded
         private System.Windows.Forms.Timer _animationTimer;
         private int _targetHeight;
         private const int AnimationInterval = 15; // Animation speed
         private const int HeightIncrement = 10; // Height change per tick
         bool _isAnimating = false;
-        private int _buttonWidth=25;
+        private int _buttonWidth = 25;
         private int _padding = 2;
+
         public override string ToString()
         {
             return "Beep DropDown";
@@ -31,9 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepDropDownMenu()
         {
             InitializeControl();
-            InitializeDropDownButton();
-            Text= "DropDown/Combo";
-
+            Text = "DropDown/Combo";
         }
 
         /// <summary>
@@ -49,48 +51,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             ShowTitleLine = false;
             UpdateDrawingRect();
-            
-            InitDropDownMenu();
-        }
 
-        /// <summary>
-        /// Initializes the dropdown button.
-        /// </summary>
-        private void InitializeDropDownButton()
-        {
-            if (_dropDownButton != null)
+            // Initialize the GDI button for drawing
+            _dropDownButtonGDI = new BeepButton
             {
-                Controls.Remove(_dropDownButton);
-            }
-
-            // Create the dropdown button
-            _dropDownButton = new BeepButton
-            {
-                Size = new Size(_buttonWidth, TitleBottomY),
-                Location = new Point(DrawingRect.Width - _buttonWidth,  2), // Align to the right
                 TextAlign = ContentAlignment.MiddleCenter,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 TextImageRelation = TextImageRelation.ImageAboveText,
-                HideText=true,
+                HideText = true,
                 ShowAllBorders = false,
                 ShowShadow = false,
                 IsChild = true,
                 IsBorderAffectedByTheme = false,
                 IsRoundedAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
-                Theme = Theme
+                Theme = Theme,
+                MaxImageSize = new Size(_buttonWidth - 2, _buttonWidth - 2)
             };
 
             // Set initial image based on expansion state
             SetDropDownButtonImage();
 
-            // Add click event to toggle menu visibility
-            _dropDownButton.Click += ToggleMenu;
-
-            // Add the dropdown button to the controls
-            Controls.Add(_dropDownButton);
-            _dropDownButton.Anchor = AnchorStyles.Right | AnchorStyles.Top;
-            _isControlinvalidated = false;
+            // Add a hit area for the dropdown button
+            AddDropDownButtonHitArea();
         }
 
         /// <summary>
@@ -100,25 +83,46 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_isExpanded)
             {
-                _dropDownButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-up.svg";
+                _dropDownButtonGDI.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-up.svg";
             }
             else
             {
-                _dropDownButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-down.svg";
+                _dropDownButtonGDI.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-down.svg";
             }
+        }
+
+        /// <summary>
+        /// Add a hit area for the dropdown button
+        /// </summary>
+        private void AddDropDownButtonHitArea()
+        {
+            // Calculate the button's rectangle
+            Rectangle buttonRect = new Rectangle(
+                DrawingRect.Right - _buttonWidth - _padding,
+                2,
+                _buttonWidth,
+                _buttonWidth
+            );
+
+            // Add hit area for the button
+            AddHitArea(
+                "DropDownButton",
+                buttonRect,
+                null,
+                () => ToggleMenu()
+            );
         }
 
         /// <summary>
         /// Toggles the dropdown menu's visibility.
         /// </summary>
-        private void ToggleMenu(object sender, EventArgs e)
+        private void ToggleMenu()
         {
-            SetDropDownButtonImage();
             if (!_isExpanded)
             {
                 if (ListItems == null || !ListItems.Any())
                 {
-                    MessageBox.Show("Information", "No items available to display.");
+                    MessageBox.Show("No items available to display.", "Information");
                     return;
                 }
 
@@ -137,10 +141,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _isExpanded = true;
             UpdateDrawingRect();
-            _targetHeight = Math.Min(_maxMenuHeight,TitleBottomY+ GetMaxHeight()+10) ; // Adjusted item height
+            _targetHeight = Math.Min(_maxMenuHeight, TitleBottomY + GetMaxHeight() + 10);
             SetDropDownButtonImage();
             StartAnimation();
-            
         }
 
         /// <summary>
@@ -151,7 +154,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isExpanded = false;
             SetDropDownButtonImage();
             _targetHeight = _collapsedHeight;
-
             StartAnimation();
         }
 
@@ -161,11 +163,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void StartAnimation()
         {
             _animationTimer?.Stop();
-            _isAnimating=true;
+            _isAnimating = true;
             _animationTimer = new System.Windows.Forms.Timer { Interval = AnimationInterval };
             _animationTimer.Tick += AnimateMenu;
             _animationTimer.Start();
-            _isAnimating= false;
         }
 
         /// <summary>
@@ -183,6 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Height = _targetHeight;
                     _animationTimer.Stop();
+                    _isAnimating = false;
                 }
             }
             else
@@ -195,127 +197,89 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Height = _targetHeight;
                     _animationTimer.Stop();
+                    _isAnimating = false;
                 }
             }
+
+            Invalidate();
         }
 
         /// <summary>
-        /// Ensures the dropdown button is positioned correctly and applies fixed height.
+        /// Updates the drawing rectangles and hit areas when resized
         /// </summary>
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
 
-            if (_dropDownButton == null) return;
-
             // Update DrawingRect if necessary
             UpdateDrawingRect();
-            //// Define right padding (adjust as needed)
-            //int rightPadding = 2;
 
-            //// Calculate the Y position to center the button vertically
-            //int dropdownButtonHeight = TriangleButton.Height - 4;
-            //int centerY = (this.Height - dropdownButtonHeight) / 2;
+            // Clear hit areas and recreate the dropdown button hit area
+            ClearHitList();
+            AddDropDownButtonHitArea();
 
-            //// Calculate the X position based on the control's client width
-            //// Ensuring the button stays within the client area
-            //int xPos = this.ClientSize.Width - _buttonsize - rightPadding;
-
-            //// Set the button's location and size
-            //TriangleButton.Location = new Point(xPos, centerY);
-            //TriangleButton.Value = new Value(_buttonsize, dropdownButtonHeight);
-            if (_dropDownButton != null)
-            {
-                int dropdownButtonHeight = TitleBottomY - 4;
-                int centerY =  2;
-                _dropDownButton.Left = DrawingRect.Right - _buttonWidth - _padding;
-                _dropDownButton.Top = centerY;
-                _dropDownButton.Width = _buttonWidth;
-                _dropDownButton.Height = _buttonWidth;
-                _dropDownButton.MaxImageSize = new Size(_dropDownButton.Width - 2, _dropDownButton.Height - 2);
-               // Console.WriteLine($"TitlelineY: {TitleBottomY}");
-            }
             // Adjust the height of the control if it's not expanded
-            if (!_isExpanded)
+            if (!_isExpanded && !_isAnimating)
             {
                 this.Height = _collapsedHeight;
-                UpdateDrawingRect();
             }
         }
 
         /// <summary>
-        /// Ensures the dropdown button is initialized and the menu is updated.
+        /// Draw the content including the dropdown button
         /// </summary>
-        //protected override void OnPaint(PaintEventArgs e)
-        //{
-        //    base.OnPaint(e);
-        //    if (_isControlinvalidated)
-        //    {
-        //        InitDropDownMenu();
-        //        _isControlinvalidated = false;
-        //    }
-        //}
-
-        /// <summary>
-        /// Initializes the dropdown menu.
-        /// </summary>
-        private void InitDropDownMenu()
+        protected override void DrawContent(Graphics g)
         {
-           // ShowTitleLine = true;
-            if (_currentTheme == null)
-            {
-                // Initialize a default theme to avoid null reference issues
-                _currentTheme = BeepThemesManager.DefaultTheme;
-            }
-            InitializeDropDownButton();
+            // Draw the base control content first
+            base.DrawContent(g);
+
+            // Calculate the dropdown button rectangle
+            Rectangle buttonRect = new Rectangle(
+                DrawingRect.Right - _buttonWidth - _padding,
+                2,
+                _buttonWidth,
+                _buttonWidth
+            );
+
+            // Draw the dropdown button using the BeepButton instance
+            _dropDownButtonGDI.Draw(g, buttonRect);
         }
 
-        /// <summary>
-        /// Handles item selection and updates the dropdown button's text.
-        /// </summary>
-        protected override void MenuItemButton_Click(object sender, EventArgs e)
-        {
-            base.MenuItemButton_Click(sender, e);
-
-            if (sender is BeepButton clickedButton && clickedButton.Tag is SimpleItem selectedItem)
-            {
-                _dropDownButton.Text = selectedItem.Text; // Update dropdown button text
-                HideMenu(); // Collapse the menu
-            }
-        }
-
-        /// <summary>
-        /// Ensures the dropdown menu is initialized when the menu is created.
-        /// </summary>
-        public override void InitializeMenu()
-        {
-            if (ListItems == null) return;
-
-            base.InitializeMenu();
-
-            // Adjust position of menu items if necessary
-            // For example, offsetting items based on the dropdown button's height
-        }
         protected override void OnMouseHover(EventArgs e)
         {
             IsHovered = false;
+            base.OnMouseHover(e);
         }
+
         protected override void OnMouseLeave(EventArgs e)
         {
             IsHovered = false;
+            base.OnMouseLeave(e);
         }
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
             IsHovered = false;
+            base.OnMouseMove(e);
         }
+
         protected override void OnMouseEnter(EventArgs e)
         {
             IsHovered = false;
+            base.OnMouseEnter(e);
         }
+
         public override void ApplyTheme()
         {
-        //    base.ApplyTheme();
-            if (_dropDownButton != null) _dropDownButton.Theme = Theme;
+            base.ApplyTheme();
+
+            // Apply theme to the GDI button
+            if (_dropDownButtonGDI != null)
+            {
+                _dropDownButtonGDI.Theme = Theme;
+            }
+
+            Invalidate();
         }
     }
 }

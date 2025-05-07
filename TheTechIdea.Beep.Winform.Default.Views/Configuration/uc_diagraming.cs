@@ -34,13 +34,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
           //  beepStepperBar1.ListItems=beepStepperBreadCrumb1.ListItems;
         }
 
-        private void BeepCircularButton1_Click(object? sender, EventArgs e)
-        {
-            currentidx+=1;
-            if (currentidx >= beepStepperBar1.ListItems.Count)
-                currentidx = 0;
-            beepStepperBar1.UpdateCurrentStep(currentidx);
-        }
+        //private void BeepCircularButton1_Click(object? sender, EventArgs e)
+        //{
+        //    currentidx+=1;
+        //    if (currentidx >= beepStepperBar1.ListItems.Count)
+        //        currentidx = 0;
+        //    beepStepperBar1.UpdateCurrentStep(currentidx);
+        //}
 
         int currentidx = -1;
         #region "IAddinVisSchema"

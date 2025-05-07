@@ -269,7 +269,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateMenuPosition();
             _menu.ListItems = items;
             _menu.Width = _flyoutMenuWidth;
-            _menu.InitializeMenu();
+         
             _menu.Height = items.Count * _menu.MenuItemHeight+5;
             // Add the menu to the parent form
             var parentForm = FindForm();

@@ -1582,8 +1582,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     HitTestControl.IsHovered = true;
                     SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseMove, PointToScreen(e.Location));
-                    if (HitTestControl.HitAction != null)
-                        HitTestControl.HitAction.Invoke();
+                    // Don't invoke HitAction on hover - actions should only trigger on clicks
+                    // if (HitTestControl.HitAction != null)
+                    //     HitTestControl.HitAction.Invoke();
                 }
             }
             else
@@ -1594,6 +1595,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+
 
         protected override void OnMouseLeave(EventArgs e)
         {

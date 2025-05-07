@@ -1472,34 +1472,122 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
+            // Enable high-quality rendering
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.CompositingQuality = CompositingQuality.HighQuality;
             graphics.ResetTransform();
+
             // Clip all drawing to the rectangle bounds
             using (Region clipRegion = new Region(rectangle))
             {
                 graphics.Clip = clipRegion;
 
-                // Draw Image if visible
-                if (beepImage != null && beepImage.Visible)
+                // First, draw the background
+                Color bgColor = Enabled ? BackColor : DisabledBackColor;
+                using (SolidBrush bgBrush = new SolidBrush(bgColor))
                 {
-                    beepImage.Draw(graphics, rectangle);
+                    if (IsRounded)
+                    {
+                        using (GraphicsPath path = GetRoundedRectPath(rectangle, BorderRadius))
+                        {
+                            graphics.FillPath(bgBrush, path);
+                        }
+                    }
+                    else
+                    {
+                        graphics.FillRectangle(bgBrush, rectangle);
+                    }
                 }
 
-                // Draw Text with centered alignment
-                if (!string.IsNullOrEmpty(Text))
+                // Draw the border
+                Color borderColor = BorderColor;
+                using (Pen borderPen = new Pen(borderColor, 1))
+                {
+                    if (IsRounded)
+                    {
+                        using (GraphicsPath path = GetRoundedRectPath(rectangle, BorderRadius))
+                        {
+                            graphics.DrawPath(borderPen, path);
+                        }
+                    }
+                    else
+                    {
+                        graphics.DrawRectangle(borderPen, rectangle);
+                    }
+                }
+
+                // Calculate inner rectangle for content (text and image)
+                Rectangle innerRect = new Rectangle(
+                    rectangle.X + padding,
+                    rectangle.Y + padding,
+                    rectangle.Width - (padding * 2),
+                    rectangle.Height - (padding * 2)
+                );
+
+                // Draw Image if visible
+                if (beepImage != null && !string.IsNullOrEmpty(beepImage.ImagePath))
+                {
+                    // Calculate image position based on TextImageRelation
+                    Rectangle imageRect;
+
+                    if (_textImageRelation == TextImageRelation.ImageBeforeText)
+                    {
+                        // Image on left
+                        imageRect = new Rectangle(
+                            innerRect.X,
+                            innerRect.Y + ((innerRect.Height - _maxImageSize.Height) / 2),
+                            _maxImageSize.Width,
+                            _maxImageSize.Height
+                        );
+
+                        // Adjust inner rectangle for text
+                        innerRect.X += _maxImageSize.Width + spacing;
+                        innerRect.Width -= _maxImageSize.Width + spacing;
+                    }
+                    else
+                    {
+                        // Image on right
+                        imageRect = new Rectangle(
+                            innerRect.Right - _maxImageSize.Width,
+                            innerRect.Y + ((innerRect.Height - _maxImageSize.Height) / 2),
+                            _maxImageSize.Width,
+                            _maxImageSize.Height
+                        );
+
+                        // Adjust inner rectangle for text
+                        innerRect.Width -= _maxImageSize.Width + spacing;
+                    }
+
+                    // Draw the image
+                    beepImage.Draw(graphics, imageRect);
+                }
+
+                // Determine text to draw - either actual text or placeholder
+                string textToDraw = Text;
+                Color textColor = ForeColor;
+
+                // Use placeholder text if actual text is empty
+                if (string.IsNullOrEmpty(textToDraw) && !string.IsNullOrEmpty(PlaceholderText))
+                {
+                    textToDraw = PlaceholderText;
+                    textColor = _currentTheme?.TextBoxPlaceholderColor ?? Color.Gray;
+                }
+
+                // Draw the text if there's something to draw
+                if (!string.IsNullOrEmpty(textToDraw))
                 {
                     TextFormatFlags flags = TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix;
+
                     if (Multiline)
                     {
                         flags |= TextFormatFlags.WordBreak; // Allow word wrapping for multiline
                     }
                     else
                     {
-                        flags |= TextFormatFlags.SingleLine; // Force single line for non-multiline
+                        flags |= TextFormatFlags.SingleLine | TextFormatFlags.VerticalCenter; // Force single line for non-multiline
                     }
 
-                    // Determine horizontal alignment based on TextAlignment property
+                    // Set text alignment
                     switch (TextAlignment)
                     {
                         case HorizontalAlignment.Center:
@@ -1514,25 +1602,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                             break;
                     }
 
-                    // Measure text size
-                    Size textSize = TextRenderer.MeasureText(graphics, Text, Font, new Size(rectangle.Width, int.MaxValue), flags);
-
-                    // Calculate text position for vertical centering
-                    int textX = rectangle.X;
-                    int textY = rectangle.Y + (rectangle.Height - textSize.Height) / 2;
-
-                    // Adjust text rectangle for centering and clipping
-                    Rectangle textRect = new Rectangle(textX, textY, rectangle.Width, textSize.Height);
-                    if (textRect.Height > rectangle.Height)
+                    // Handle password masking if needed
+                    if (UseSystemPasswordChar && !string.IsNullOrEmpty(Text))
                     {
-                        textRect.Height = rectangle.Height; // Clip height to fit
+                        // Use a solid bullet for password masking
+                        textToDraw = new string('•', Text.Length);
+                    }
+                    else if (PasswordChar != '\0' && !string.IsNullOrEmpty(Text))
+                    {
+                        // Use the custom password char
+                        textToDraw = new string(PasswordChar, Text.Length);
                     }
 
                     // Draw the text
-                    TextRenderer.DrawText(graphics, Text, Font, textRect, ForeColor, flags);
-
-                    // Debug output to verify alignment
-                  // MiscFunctions.SendLog($"Draw: Text='{Text}', Rect={rectangle}, TextRect={textRect}, TextSize={textSize}, Alignment={TextAlignment}");
+                    TextRenderer.DrawText(graphics, textToDraw, TextFont, innerRect, textColor, flags);
                 }
 
                 graphics.ResetClip();

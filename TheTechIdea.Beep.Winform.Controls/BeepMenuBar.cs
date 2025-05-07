@@ -252,6 +252,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Text = item.Text,
                     Tag = item,
+                    Info = item,
                     ImagePath = item.ImagePath,
                     Width = initialWidthGuess,        // temporary guess
                     Height = MenuItemHeight,           // your known item height
@@ -365,7 +366,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // UnpressAllButtons();
 
-            SimpleItem item = (SimpleItem)btn.Tag;
+            SimpleItem item = (SimpleItem)btn.Info;
             //if (_lastbuttonclicked != null)
             //{
             //    _lastbuttonclicked.IsSelected = false;

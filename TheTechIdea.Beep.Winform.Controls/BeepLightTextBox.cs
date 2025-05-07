@@ -312,10 +312,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             BoundProperty = "Text";
             BorderRadius = 3;
-            Padding = new Padding(4);
+            Padding = new Padding(2);
             ShowAllBorders = true;
             IsShadowAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
+            IsRoundedAffectedByTheme = false;
             CanBeHovered = true;
             _textColor = ForeColor;
 
@@ -420,6 +421,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                         StartEditing();
                     }
                 };
+
+                // Add the button to the Controls collection
+                Controls.Add(_imageButton);
             }
         }
 
@@ -471,29 +475,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 StartEditing();
             }
         }
-
-        /// <summary>
-        /// Programmatically start editing the text box
-        /// </summary>
-        public void StartEditing()
-        {
-            if (_isEditing || ReadOnly)
-                return;
-
-            _isEditing = true;
-
-            // Position and configure the edit box
-            AdjustEditTextBoxSize();
-            _editTextBox.Text = _displayText;
-
-            // Add to controls and make visible
-            Controls.Add(_editTextBox);
-            _editTextBox.Visible = true;
-            _editTextBox.Focus();
-            _editTextBox.SelectAll();
-
-            Invalidate();
-        }
         private void AdjustEditTextBoxSize()
         {
             if (_editTextBox == null)
@@ -516,10 +497,38 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
 
-        /// <summary>
-        /// End the editing process, optionally saving the changes
-        /// </summary>
-        /// <param name="saveChanges">Whether to save the changes or revert to original text</param>
+      
+        public void StartEditing()
+        {
+            if (_isEditing || ReadOnly)
+                return;
+
+            _isEditing = true;
+            IsSelected = true;
+
+            // Position and configure the edit box
+            AdjustEditTextBoxSize();
+            _editTextBox.Text = _displayText;
+
+            // Apply appropriate theme colors to the edit textbox
+            _editTextBox.BackColor = IsChild && Parent != null ? Parent.BackColor : _currentTheme.TextBoxBackColor;
+            _editTextBox.ForeColor = _currentTheme.TextBoxForeColor;
+
+            // Make sure edit textbox is added to Controls if not already
+            if (!Controls.Contains(_editTextBox))
+            {
+                Controls.Add(_editTextBox);
+            }
+
+            _editTextBox.Visible = true;
+            _editTextBox.BringToFront(); // Make sure it's on top
+            _editTextBox.Focus();
+            _editTextBox.SelectAll();
+
+            Invalidate();
+        }
+
+
         public void EndEditing(bool saveChanges)
         {
             if (!_isEditing)
@@ -579,16 +588,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (_toolTip != null)
                         _toolTip.Hide(this);
 
-                    Text = newValue;
+                    // Set the text only if validation passed
+                    _displayText = newValue;
+                    OnTextChanged(EventArgs.Empty);
                 }
             }
 
-            Controls.Remove(_editTextBox);
+            // Do not remove from Controls, just hide it
             _editTextBox.Visible = false;
+            IsSelected = Focused; // Only remain selected if we still have focus
 
             Invalidate();
             Focus();
         }
+
 
 
         #endregion
@@ -633,39 +646,107 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.DrawContent(g);
 
-            // Don't draw text content when editing as the TextBox will show it
-            if (_isEditing)
-                return;
+            DrawControl(g, DrawingRect);
+        }
 
-            // Draw text
-            string textToDraw = string.IsNullOrEmpty(_displayText) ? _placeholderText : _displayText;
-            Color textColor = string.IsNullOrEmpty(_displayText) ? Color.Gray : (Enabled ? _textColor : DisabledForeColor);
+        private void DrawControl(Graphics g,Rectangle rectangle)
+        {
+            // Always draw the border regardless of content
+            Color borderColor = BorderColor;
+            rectangle = new Rectangle(rectangle.X+1 , rectangle.Y+1, rectangle.Width - 1, rectangle.Height - 1);
+            // Determine border color based on state
+            if (!Enabled)
+            {
+                borderColor = DisabledBackColor;
+            }
+            else if (IsSelected || Focused)
+            {
+                borderColor = _selectedBorderColor;
+            }
+            else if (_isHovered)
+            {
+                borderColor = HoverBorderColor;
+            }
+
+            if (ShowAllBorders == false)
+            {
+                using (Pen borderPen = new Pen(borderColor, 1))
+                {
+                    // Always draw a bottom line  border (whether we have text or not)
+                    // Draw line at the bottom of the control
+                    g.DrawLine(borderPen, 0, rectangle.Height - 1, rectangle.Width, rectangle.Height - 1);
+
+
+                }
+            }
+
+
+            // If we're in edit mode, don't draw text content as the TextBox will show it
+            if (_isEditing)
+            {
+                // Make sure the edit textbox is visible and added to the control
+                if (!Controls.Contains(_editTextBox))
+                {
+                    Controls.Add(_editTextBox);
+                }
+
+                if (!_editTextBox.Visible)
+                {
+                    _editTextBox.Visible = true;
+                }
+
+                return;
+            }
+
+            // Determine text color based on state
+            Color textColor;
+
+            if (!Enabled)
+            {
+                textColor = DisabledForeColor;
+            }
+            else if (IsSelected)
+            {
+                textColor = SelectedForeColor;
+            }
+            else if (_isHovered)
+            {
+                textColor = HoverForeColor;
+            }
+            else
+            {
+                // If text is empty, use placeholder color, otherwise use text color
+                textColor = string.IsNullOrEmpty(_displayText) ?
+                    _currentTheme?.TextBoxPlaceholderColor ?? Color.Gray :
+                    (Enabled ? _textColor : DisabledForeColor);
+            }
 
             // If validation failed and we're showing indicators, draw with error styling
             if (!_isValid && _showValidationIndicator)
             {
                 // Use error colors from theme if available
                 textColor = _currentTheme?.TextBoxErrorForeColor ?? Color.Red;
+                borderColor = _currentTheme?.TextBoxErrorBorderColor ?? Color.Red;
 
                 // Draw error border
-                using (Pen errorPen = new Pen(_currentTheme?.TextBoxErrorBorderColor ?? Color.Red, 1))
+                using (Pen errorPen = new Pen(borderColor, 1))
                 {
                     if (IsRounded)
                     {
-                        using (GraphicsPath path = GetRoundedRectPath(DrawingRect, BorderRadius))
+                        using (GraphicsPath path = GetRoundedRectPath(rectangle, BorderRadius))
                         {
                             g.DrawPath(errorPen, path);
                         }
                     }
                     else
                     {
-                        g.DrawRectangle(errorPen, DrawingRect);
+                        g.DrawRectangle(errorPen, rectangle);
                     }
                 }
             }
 
             // Calculate text layout
-            Rectangle textRect = DrawingRect;
+            Rectangle textRect = rectangle;
             textRect.X += _padding;
             textRect.Width -= _padding * 2;
             textRect.Y += _padding;
@@ -704,13 +785,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
 
+            // Determine text to draw - either placeholder or actual text
+            string textToDraw = string.IsNullOrEmpty(_displayText) ? _placeholderText : _displayText;
+
             // If password mode, draw masked text
             if (_passwordMode && !string.IsNullOrEmpty(_displayText))
             {
                 textToDraw = new string('•', _displayText.Length);
             }
 
-            // Draw the actual text
+            // Always draw either the text or placeholder, even if empty
             TextRenderer.DrawText(g, textToDraw, _textFont, textRect, textColor, flags);
 
             // Draw validation icon if needed
@@ -722,7 +806,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 int iconY = (Height - iconSize) / 2;
 
                 // Draw a simple error indicator
-                using (Brush errorBrush = new SolidBrush(Color.Red))
+                using (Brush errorBrush = new SolidBrush(_currentTheme?.TextBoxErrorBackColor ?? Color.Red))
                 {
                     g.FillEllipse(errorBrush, iconX, iconY, iconSize, iconSize);
                 }
@@ -759,7 +843,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-
         #endregion
 
         #region Theme Support
@@ -767,25 +850,52 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.ApplyTheme();
 
-            BackColor = _currentTheme.TextBoxBackColor;
+            // Handle parent background color inheritance for child controls
+            if (IsChild && Parent != null)
+            {
+                BackColor = Parent.BackColor;
+            }
+            else
+            {
+                BackColor = _currentTheme.TextBoxBackColor;
+            }
+
+            // Apply text colors
             ForeColor = _currentTheme.TextBoxForeColor;
             TextColor = _currentTheme.TextBoxForeColor;
+
+            // Border colors
             BorderColor = _currentTheme.TextBoxBorderColor;
 
+            // State-specific colors (to be used in drawing)
+            HoverBackColor = _currentTheme.TextBoxHoverBackColor;
+            HoverForeColor = _currentTheme.TextBoxHoverForeColor;
+            HoverBorderColor = _currentTheme.TextBoxHoverBorderColor;
+
+            SelectedBackColor = _currentTheme.TextBoxSelectedBackColor;
+            SelectedForeColor = _currentTheme.TextBoxSelectedForeColor;
+            _selectedBorderColor = _currentTheme.TextBoxSelectedBorderColor;
+
+            DisabledBackColor = _currentTheme.DisabledBackColor;
+            DisabledForeColor = _currentTheme.DisabledForeColor;
+
+            // Apply colors to the edit textbox
             if (_editTextBox != null)
             {
-                _editTextBox.BackColor = _currentTheme.TextBoxBackColor;
+                _editTextBox.BackColor = IsChild && Parent != null ? Parent.BackColor : _currentTheme.TextBoxBackColor;
                 _editTextBox.ForeColor = _currentTheme.TextBoxForeColor;
             }
 
+            // Apply colors to the image button if exists
             if (_imageButton != null)
             {
                 _imageButton.Theme = Theme;
-                _imageButton.BackColor = _currentTheme.TextBoxBackColor;
-                _imageButton.ForeColor = _currentTheme.TextBoxForeColor;
                 _imageButton.IsChild = true;
+                _imageButton.BackColor = BackColor;
+                _imageButton.ForeColor = _currentTheme.TextBoxForeColor;
             }
 
+            // Apply font from theme if needed
             if (UseThemeFont)
             {
                 _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
@@ -796,8 +906,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
+            // Force redraw
             Invalidate();
         }
+
         #endregion
         #region Validation Properties
         private TextBoxMaskFormat _maskFormatEnum = TextBoxMaskFormat.None;
@@ -1813,10 +1925,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            IsSelected = true;
+        }
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            if (Enabled && CanBeHovered)
+            {
+                IsHovered = true;
+            }
+        }
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-
+            IsHovered = false;
             // Hide any tooltips when the mouse leaves
             if (_toolTip != null)
             {
@@ -2065,6 +2190,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ClearValue()
         {
             Text = string.Empty;
+        }
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            DrawControl(graphics, rectangle);
         }
         #endregion
     }

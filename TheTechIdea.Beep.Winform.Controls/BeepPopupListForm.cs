@@ -258,7 +258,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SelectedItem = e.SelectedItem;
         }
-
+        public int GetMaxHeight()
+        {
+            if (_beepListBox == null) return -1;
+           return  _beepListBox.GetMaxHeight();
+        }
+        public int GetMaxWidth()
+        {
+            if (_beepListBox == null) return -1;
+            return _beepListBox.GetMaxWidth();
+        }
         public SimpleItem ShowPopup(string Title, Control triggerControl, BeepPopupFormPosition position, bool showtitle = false)
         {
             if (_beepListBox.ListItems == null) return null;

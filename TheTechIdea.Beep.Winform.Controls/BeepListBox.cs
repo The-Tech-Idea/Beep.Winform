@@ -933,7 +933,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 // Draw image if available (using the BeepImage instance)
-                if ((ShowImage || !string.IsNullOrEmpty(item.ImagePath)) && File.Exists(item.ImagePath))
+                if (ShowImage || !string.IsNullOrEmpty(item.ImagePath) )
                 {
                     int imgSize = _imagesize;
                     int imgPadding = 2;
@@ -948,6 +948,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Configure the BeepImage instance and draw it
                     _image.ImagePath = item.ImagePath;
                     _image.Size = new Size(imgSize, imgSize);
+                    //_image.Location = imgRect.Location;
                     _image.Draw(graphics, imgRect);
 
                     // Advance the X position for text

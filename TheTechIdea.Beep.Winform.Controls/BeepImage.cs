@@ -1583,20 +1583,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-            DrawingRect.Inflate(-1, -1); // Adjust for border thickness
+            // Use the provided rectangle in DrawingRect for our drawing area
+            DrawingRect = rectangle;
+
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
             graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
             graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-            // Fill the background with BackColor
 
-            // Use spin functionality if enabled
-            DrawImage(
-                graphics,
-                DrawingRect
-            );
-          
+            // Draw the image at the specified rectangle coordinates
+            DrawImage(graphics, rectangle);
         }
+
 
         #endregion "IBeep UI Component Implementation"
         #region "Rotate"

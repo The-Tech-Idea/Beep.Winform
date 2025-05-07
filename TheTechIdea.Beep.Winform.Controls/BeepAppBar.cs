@@ -1,11 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
-
-
-
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -15,36 +16,97 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A custom AppBar control for Beep applications.")]
     public class BeepAppBar : BeepControl
     {
+        private string _currentMenuName = null; // Track the currently hovered component name
         #region "Events"
         public EventHandler<BeepMouseEventArgs> Clicked;
         public EventHandler<BeepAppBarEventsArgs> OnButtonClicked;
         public EventHandler<BeepAppBarEventsArgs> OnSearchBoxSelected;
         #endregion "Events"
+        #region "Rectangles"
+        Rectangle logoRect; Rectangle titleRect; Rectangle searchRect;
+        Rectangle notificationRect; Rectangle profileRect; Rectangle themeRect;
+        Rectangle minimizeRect; Rectangle maximizeRect; Rectangle closeRect;
+
+        #endregion "Rectangles"
         #region "Properties"
         #region "Fields"
         private int windowsicons_height = 20;
         private int defaultHeight = 40;
-        private BeepButton hamburgerIcon;
-        private BeepLabel TitleLabel;
-        private BeepButton profileIcon;
-        private BeepButton notificationIcon;
-        private BeepButton closeIcon;
-        private BeepButton maximizeIcon;
-        private BeepButton minimizeIcon;
-        private BeepButton themeIcon;
 
-        private BeepButton _currentbutton;
+        // Drawing components instead of actual controls
         private BeepImage _logo;
+        private BeepLabel _titleLabel;
+        private BeepTextBox _searchBox;
+        private BeepButton _profileButton;
+        private BeepButton _notificationButton;
+        private BeepButton _closeButton;
+        private BeepButton _maximizeButton;
+        private BeepButton _minimizeButton;
+        private BeepButton _themeButton;
 
-   
-
+        private SimpleItem _currentSelectedItem;
         private int imageoffset = 2;
+
+        // Add field to track if search box is actually added to controls
+        private bool _searchBoxAddedToControls = false;
         #endregion "Fields"
-        //public BeepSideMenu SideMenu { get { return _sidemenu; } set { _sidemenu = value; if (_sidemenu != null) { _sidemenu.EndMenuCollapseExpand += HandleSideMenuState; } } }
+
         #region "Title and Text Properties"
+       
+        // Modified AutoComplete properties
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("AutoComplete mode for the search box.")]
+        public AutoCompleteMode AutoCompleteMode
+        {
+            get => _searchBoxAutoCompleteMode;
+            set
+            {
+                _searchBoxAutoCompleteMode = value;
+                ApplyAutoCompleteSetting();
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("AutoComplete source for the search box.")]
+        public AutoCompleteSource AutoCompleteSource
+        {
+            get => _searchBoxAutoCompleteSource;
+            set
+            {
+                _searchBoxAutoCompleteSource = value;
+                ApplyAutoCompleteSetting();
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("AutoComplete custom source for the search box.")]
+        public AutoCompleteStringCollection AutoCompleteCustomSource
+        {
+            get => _searchBoxAutoCompleteCustomSource ?? (_searchBoxAutoCompleteCustomSource = new AutoCompleteStringCollection());
+            set
+            {
+                _searchBoxAutoCompleteCustomSource = value;
+                ApplyAutoCompleteSetting();
+                Invalidate();
+            }
+        }
+
+        // Add these fields to the Fields region:
+        private AutoCompleteMode _searchBoxAutoCompleteMode = AutoCompleteMode.None;
+        private AutoCompleteSource _searchBoxAutoCompleteSource = AutoCompleteSource.None;
+        private AutoCompleteStringCollection _searchBoxAutoCompleteCustomSource;
+
+      
+
         public int TitleLabelWidth { get; private set; } = 200;
         public int SearchBoxWidth { get; private set; } = 150;
         private Font _textFont = new Font("Arial", 10);
+
         [Browsable(true)]
         [MergableProperty(true)]
         [Category("Appearance")]
@@ -55,15 +117,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _textFont;
             set
             {
-
                 _textFont = value;
                 Font = _textFont;
                 UseThemeFont = false;
                 Invalidate();
-
-
             }
         }
+
         // title property to set the title of the form
         private string _title = "Beep Form";
         [Browsable(true)]
@@ -77,28 +137,41 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _title = value;
-                if(TitleLabel != null)                    TitleLabel.Text = _title;
+                if (_titleLabel != null)
+                    _titleLabel.Text = _title;
+                Invalidate();
             }
         }
 
+        private bool _showTitle = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Show or hide the title.")]
         public bool ShowTitle
         {
-            get
-            {
-                return TitleLabel?.Visible?? false;
-            }
+            get => _showTitle;
             set
             {
-                if (TitleLabel != null && _logo != null) // Null check
-                {
-                    HideShowLogo(value);
-                    HideShowTitle(value);
-                }
-                 
-                //  RearrangeLayout();
+                _showTitle = value;
+                Invalidate();
             }
         }
-        #endregion  "Title and Text Properties"
+
+        private bool _showLogo = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Show or hide the logo.")]
+        public bool ShowLogo
+        {
+            get => _showLogo;
+            set
+            {
+                _showLogo = value;
+                Invalidate();
+            }
+        }
+        #endregion "Title and Text Properties"
+
         #region "Image and Icon Properties"
         private string _logoImage = "";
         [Browsable(true)]
@@ -115,97 +188,96 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _logoImage = value;
                 if (_logo != null)
                 {
-                    if (!string.IsNullOrEmpty(_logoImage))
-                    {
-                        _logo.ImagePath = _logoImage;
-                    }
-                    else
-                    {
-                        _logo.ImagePath = _logoImage;
-                    }
+                    _logo.ImagePath = _logoImage;
+                    Invalidate();
                 }
             }
         }
-        public bool ShowHamburgerIcon
-        {
-            get => hamburgerIcon.Visible;
-            set
-            {
-                hamburgerIcon.Visible = value;
-                //  RearrangeLayout();
-            }
-        }
-        public bool ShowNotificationIcon
-        {
-            get => notificationIcon.Visible;
-            set
-            {
-                notificationIcon.Visible = value;
-                //  RearrangeLayout();
-            }
-        }
+
+        private bool _showProfileIcon = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Show or hide the profile icon.")]
         public bool ShowProfileIcon
         {
-            get => profileIcon.Visible;
+            get => _showProfileIcon;
             set
             {
-                profileIcon.Visible = value;
-                //  RearrangeLayout();
+                _showProfileIcon = value;
+                Invalidate();
             }
         }
+
+        private bool _showNotificationIcon = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Show or hide the notification icon.")]
+        public bool ShowNotificationIcon
+        {
+            get => _showNotificationIcon;
+            set
+            {
+                _showNotificationIcon = value;
+                Invalidate();
+            }
+        }
+
+        private bool _showCloseIcon = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Show or hide the close icon.")]
         public bool ShowCloseIcon
         {
-            get => closeIcon.Visible;
+            get => _showCloseIcon;
             set
             {
-                closeIcon.Visible = value;
-                //  RearrangeLayout();
+                _showCloseIcon = value;
+                Invalidate();
             }
         }
+
+        private bool _showMaximizeIcon = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Show or hide the maximize icon.")]
         public bool ShowMaximizeIcon
         {
-            get => maximizeIcon.Visible;
+            get => _showMaximizeIcon;
             set
             {
-                maximizeIcon.Visible = value;
-                //  RearrangeLayout();
+                _showMaximizeIcon = value;
+                Invalidate();
             }
         }
+
+        private bool _showMinimizeIcon = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Show or hide the minimize icon.")]
         public bool ShowMinimizeIcon
         {
-            get => minimizeIcon.Visible;
+            get => _showMinimizeIcon;
             set
             {
-                minimizeIcon.Visible = value;
-                //  RearrangeLayout();
+                _showMinimizeIcon = value;
+                Invalidate();
             }
         }
-        public bool ShowLogoIcon
+
+        private bool _showThemeIcon = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Show or hide the theme icon.")]
+        public bool ShowThemeIcon
         {
-            get => _logo.Visible;
+            get => _showThemeIcon;
             set
             {
-                _logo.Visible = value;
-                //  RearrangeLayout();
+                _showThemeIcon = value;
+                Invalidate();
             }
         }
 
-        private BeepTextBox searchBox;
-        //bool _applyThemeOnImage = false;
-
-        //[Browsable(true)]
-        //[Category("Appearance")]
-        //public bool ApplyThemeOnLogo
-        //{
-        //    get => _applyThemeOnImage;
-        //    set
-        //    {
-        //        _applyThemeOnImage = value;
-        //        _logo.ApplyThemeOnImage = value;
-        //        _logo.Invalidate();
-        //        Invalidate();
-        //    }
-        //}
         private bool _applythemeonbuttons = false;
         [Browsable(true)]
         [Category("Appearance")]
@@ -215,14 +287,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _applythemeonbuttons = value;
-           //     applythemetoButtons();
                 Invalidate();
             }
         }
 
-     
-
-        private Size _logosize=new Size(32,32);
+        private Size _logosize = new Size(32, 32);
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Set the logo size of the form.")]
@@ -233,97 +302,63 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _logosize = value;
-                if (_logo != null)
-                {
-                    _logo.Size = _logosize;
-                    Invalidate();
-                }
+                Invalidate();
             }
         }
         #endregion "Image and Icon Properties"
-        #region "SearchBox AutoComplete Properties"
+
+        #region "SearchBox Properties"
+        private bool _showSearchBox = true;
         [Browsable(true)]
         [Category("Appearance")]
         public bool ShowSearchBox
         {
-            get => searchBox.Visible;
+            get => _showSearchBox;
             set
             {
-                searchBox.Visible = value;
-                //  RearrangeLayout();
+                _showSearchBox = value;
+                Invalidate();
             }
         }
+
         [Browsable(true)]
         [Category("Appearance")]
         public string SearchBoxPlaceholder
         {
-            get => searchBox.PlaceholderText;
-            set => searchBox.PlaceholderText = value;
+            get => _searchBox?.PlaceholderText ?? "";
+            set
+            {
+                if (_searchBox != null)
+                {
+                    _searchBox.PlaceholderText = value;
+                    Invalidate();
+                }
+            }
         }
+
         [Browsable(true)]
         [Category("Appearance")]
         public string SearchBoxText
         {
-            get => searchBox.Text;
-            set => searchBox.Text = value;
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("AutoComplete displayed in the control.")]
-        public AutoCompleteMode AutoCompleteMode
-        {
-            get => searchBox.AutoCompleteMode;
+            get => _searchBox?.Text ?? "";
             set
             {
-                searchBox.AutoCompleteMode = value;
-                Invalidate();
+                if (_searchBox != null)
+                {
+                    _searchBox.Text = value;
+                    Invalidate();
+                }
             }
         }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("AutoComplete displayed in the control.")]
-        public AutoCompleteSource AutoCompleteSource
-        {
-            get => searchBox.AutoCompleteSource;
-            set
-            {
-                searchBox.AutoCompleteSource = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("AutoComplete Custom Source .")]
-        public AutoCompleteStringCollection AutoCompleteCustomSource
-        {
-            get => searchBox.AutoCompleteCustomSource;
-            set
-            {
-                searchBox.AutoCompleteCustomSource = value;
-                Invalidate();
-            }
-        }
-        private bool _rearrange = false;
-        public bool DoRearrnage
-        {
-            get => _rearrange;
-            set
-            {
-                _rearrange = value;
-                Invalidate();
-            }
-        }
-        #endregion "SearchBox AutoComplete Properties"
-        #endregion "Properties"
-        #region "Constructor"
-        public BeepAppBar() : base()
 
-        {// Enable optimized painting and double buffering
-            //SetStyle(ControlStyles.AllPaintingInWmPaint |
-            //         ControlStyles.OptimizedDoubleBuffer |
-            //         ControlStyles.UserPaint |
-            //         ControlStyles.ResizeRedraw, true); // Enable ResizeRedraw
-            //this.UpdateStyles();
+   
+        #endregion "SearchBox Properties"
+        #endregion "Properties"
+
+        #region "Constructor and Initialization"
+        public BeepAppBar() : base()
+        {
+            // Set up basic properties
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
             IsRoundedAffectedByTheme = false;
@@ -331,133 +366,67 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowShadow = false;
             IsFrameless = false;
             IsRounded = false;
-            ApplyThemeToChilds = true;
-           
-            IsRounded = false;
-            IsRoundedAffectedByTheme = false;
-            IsBorderAffectedByTheme = false;
-            IsShadowAffectedByTheme = false;
-            InitializeAppNavBar();
-            // ApplyTheme();
-        }
-        //protected override void OnHandleCreated(EventArgs e)
-        //{
-        //    base.OnHandleCreated(e);
- 
-        //        ApplyTheme();
-        //        RearrangeLayout();
+            ApplyThemeToChilds = false;
 
-        //}
-        protected override void InitLayout()
-        {
-            base.InitLayout();
-            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            // Initialize drawing components
+            InitializeDrawingComponents();
+
+            // Set default size if not already defined
+            if (Width <= 0 || Height <= 0)
             {
                 Width = 200;
                 Height = defaultHeight;
             }
-
         }
-        #endregion "Constructor"
-        #region "Adding Controls"
-        private void InitializeAppNavBar()
+
+        protected override void InitLayout()
         {
-
-            Dock = DockStyle.Top;
-            AddTitleLabel();
-            AddSearchBox();
-            AddNotificationIcon();
-            AddUserProfileIcon();
-            AddWindowControlIcons();
-            AddLogoImage();
-            AddThemeIcon();
-            RearrangeLayout();
-
+            base.InitLayout();
         }
-        private void AddLogoImage()
+
+        private void InitializeDrawingComponents()
         {
+            // Initialize logo image
             _logo = new BeepImage
             {
-                Top = DrawingRect.Top+2,
-               Size=_logosize,
-               BackColor=Color.Black,
-              //  Theme = Theme,
+                Size = _logosize,
                 ApplyThemeOnImage = false,
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ShowAllBorders = false,
                 ShowShadow = false,
-                IsChild = true,
-                Visible = true // Initially hidden
-                
+                IsChild = true
             };
+
             if (!string.IsNullOrEmpty(_logoImage))
             {
                 _logo.ImagePath = _logoImage;
             }
-            Controls.Add(_logo);
-        }
-        private void AddHamburgerButton()
-        {
-            hamburgerIcon = new BeepButton
-            {
-                Width = 32,
-                Height = 32,
-                Cursor = Cursors.Hand,
-                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.hamburger.svg",
-                Theme = Theme,
-                HideText = true,
-             //   ApplyThemeOnImage = _applyThemeOnImage,
-                IsFrameless = true,
-                IsShadowAffectedByTheme = false,
-                IsBorderAffectedByTheme = false,
-                IsChild = true,
-                Visible = true // Initially hidden
 
-            };
-          //  hamburgerIcon.Click += (s, e) => SideMenu?.ToggleMenu();
-            Controls.Add(hamburgerIcon);
-        }
-        private void AddTitleLabel()
-        {
-            TitleLabel = new BeepLabel
+            // Initialize title label
+            _titleLabel = new BeepLabel
             {
-                Width = 200,
-
-                //  Padding = new Padding( 10, 0, 10, 0),
-                //  ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.home.svg",
-                Height = 23,   // <-- Set an explicit default height
                 TextAlign = ContentAlignment.MiddleLeft,
-               // ImageAlign = ContentAlignment.MiddleLeft,
                 TextImageRelation = TextImageRelation.ImageBeforeText,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
-                IsFrameless=true    ,
-                ShowAllBorders =false,
+                IsFrameless = true,
+                ShowAllBorders = false,
                 Text = Title,
-                //IsFrameless = true,
                 IsChild = true,
                 ApplyThemeOnImage = false,
-                UseScaledFont= true
-
+                UseScaledFont = true
             };
-            TitleLabel.MaxImageSize = new Size(30, windowsicons_height - 2);
-            //if (!string.IsNullOrEmpty(_logoImage))
-            //{
-            //    TitleLabel.ImagePath = _logoImage;
-          
-            Controls.Add(TitleLabel);
-        }
-        private void AddSearchBox()
-        {
-            searchBox = new BeepTextBox
+
+            // Initialize search box as an actual control now
+            _searchBox = new BeepTextBox
             {
                 Width = 200,
-                Height =30,
+                Height = 30,
                 Theme = this.Theme,
                 Text = string.Empty,
-                ApplyThemeOnImage =true, 
+                ApplyThemeOnImage = true,
                 IsChild = false,
                 PlaceholderText = " Search...",
                 Anchor = AnchorStyles.Right,
@@ -465,37 +434,34 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsFrameless = false,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
-                ImageAlign= ContentAlignment.MiddleRight,
+                ImageAlign = ContentAlignment.MiddleRight,
                 TextImageRelation = TextImageRelation.TextBeforeImage,
                 TextAlignment = HorizontalAlignment.Left,
                 ShowAllBorders = true,
                 Tag = "Search"
             };
-            searchBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-            searchBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
-            searchBox.Click += ButtonClicked;
-            searchBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.079-search.svg";
-            Controls.Add(searchBox);
-        }
-        public void SetSearchBoxAutoCompleteSource(AutoCompleteStringCollection source)
-        {
-            searchBox.AutoCompleteCustomSource = source;
-        }
-        public void AddToSearchBoxAutoCompleteSource(List<string> source)
-        {
-            searchBox.AutoCompleteCustomSource.AddRange(source.ToArray());
-        }
-        private void AddNotificationIcon()
-        {
-            notificationIcon = new BeepButton
+            _searchBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            _searchBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
+           // _searchBox.Click += ButtonClicked;
+            _searchBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.079-search.svg";
+
+            // Apply auto-complete settings
+            ApplyAutoCompleteSetting();
+
+            // Subscribe to search box events
+            _searchBox.TextChanged += (s, e) =>
             {
-                Width = windowsicons_height,
-                Height = windowsicons_height,
+                var arg = new BeepAppBarEventsArgs("Search");
+                arg.Selectedstring = _searchBox.Text;
+                OnSearchBoxSelected?.Invoke(this, arg);
+            };
+
+            // Initialize notification button
+            _notificationButton = new BeepButton
+            {
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
-                Cursor = Cursors.Hand,
-                Theme = Theme,
+                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.093-waving.svg",
                 IsFrameless = true,
-                Anchor = AnchorStyles.Right,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ShowAllBorders = false,
@@ -504,543 +470,1239 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChild = true,
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleLeft,
-                HideText = true,
-                Tag = "Notifications"
+                HideText = true
             };
-            notificationIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg";
-            notificationIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.093-waving.svg";
-            notificationIcon.Click += ButtonClicked;
-            Controls.Add(notificationIcon);
-        }
-        public void ShowBadgeOnNotificationIcon(string badgeText)
-        {
-            notificationIcon.BadgeText=badgeText;
-            notificationIcon.Invalidate();
-        }
-        private void AddThemeIcon()
-        {
-            themeIcon = new BeepButton
+
+            // Initialize profile button
+            _profileButton = new BeepButton
             {
-                Width = windowsicons_height,
-                Height = windowsicons_height,
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
-                Cursor = Cursors.Hand,
-                Theme = Theme,
+                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.025-user.svg",
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ShowAllBorders = false,
-                Anchor = AnchorStyles.Right,
-                ApplyThemeOnImage=true,
+                ApplyThemeOnImage = true,
                 ShowShadow = false,
                 IsChild = true,
-                TextImageRelation = TextImageRelation.Overlay,
-                ImageAlign = ContentAlignment.MiddleLeft,
-                HideText = true,
-                PopupMode = true,
-                Tag = "Theme"
-            };
-            // fill themeicons as list from beepthememanager themes enum
-            foreach (string themename in BeepThemesManager.GetThemesNames())
-            {
-                themeIcon.ListItems.Add(new SimpleItem { Text = themename });
-            }
-
-
-         //   themeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.theme.svg";
-            themeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.024-dashboard.svg";
-            //024-dashboard.svg
-            //  themeIcon.Click += ButtonClicked;
-            themeIcon.SelectedItemChanged += ThemeIcon_SelectedItemChanged;
-            Controls.Add(themeIcon);
-        }
-        private void ThemeIcon_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
-        {
-            if (e.SelectedItem!= null)
-            {
-                if (!string.IsNullOrEmpty(e.SelectedItem.Text))
-                {
-                    string selectedthemename = e.SelectedItem.Text;
-                    EnumBeepThemes selectedthem = BeepThemesManager.GetEnumFromTheme(selectedthemename);
-                    BeepThemesManager.CurrentTheme = selectedthem;
-                }
-                
-            }
-        }
-        private void AddUserProfileIcon()
-        {
-            profileIcon = new BeepButton
-            {
-                Width = windowsicons_height,
-                Height = windowsicons_height,
-                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,
-
-                ApplyThemeOnImage = true,
-                Theme = Theme,
-                IsFrameless = true,
-                IsShadowAffectedByTheme = false,
-                IsBorderAffectedByTheme = false,
-                ShowAllBorders = false,
-                Anchor = AnchorStyles.Right,
-                ShowShadow = false,
-                IsChild = true,
                 HideText = true,
-                Tag = "Profile",
                 PopupMode = true
             };
-            // ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg",
-            profileIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.025-user.svg";
-            // Add menu rootnodeitems (SimpleMenuItem instances) with text and optional SVG icons 025-user
-            profileIcon.ListItems.Add(new SimpleItem { Text = "Profile", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg" });
-            profileIcon.ListItems.Add(new SimpleItem { Text = "Settings", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.settings.svg" });
-            profileIcon.ListItems.Add(new SimpleItem { Text = "Logout", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.power.svg" });
 
-            profileIcon.Click += ButtonClicked;
-            profileIcon.SelectedItemChanged += ProfileIcon_SelectedItemChanged;
-            Controls.Add(profileIcon);
-        }
-        private void ProfileIcon_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
-        {
-           
-        }
-        private void AddWindowControlIcons()
-        {
-            // Minimize button
-            minimizeIcon = new BeepButton
+            // Set up profile menu items
+            _profileButton.ListItems.Add(new SimpleItem { Text = "Profile", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg" });
+            _profileButton.ListItems.Add(new SimpleItem { Text = "Settings", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.settings.svg" });
+            _profileButton.ListItems.Add(new SimpleItem { Text = "Logout", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.power.svg" });
+
+            // Initialize theme button
+            _themeButton = new BeepButton
             {
-                Width = windowsicons_height,
-                Height = windowsicons_height,
                 MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
-                Anchor = AnchorStyles.Right,
-                Theme = Theme,
-                ApplyThemeOnImage = true,
+                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.024-dashboard.svg",
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 ShowAllBorders = false,
-                ShowShadow = false,
-                IsChild = true,
-                TextImageRelation = TextImageRelation.Overlay,
-                ImageAlign = ContentAlignment.MiddleCenter,
-                HideText = true,
-            };
-           // minimizeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minimize.svg";
-            minimizeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.055-minimize.svg";
-            minimizeIcon.Click += (s, e) => FindForm().WindowState = FormWindowState.Minimized;
-            //rightPanel.Controls.Add(minimizeIcon);
-            Controls.Add(minimizeIcon);
-            // Maximize button
-            maximizeIcon = new BeepButton
-            {
-                Width = windowsicons_height,
-                Height = windowsicons_height,
-                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
-                Anchor = AnchorStyles.Right,
-                Theme = Theme,
-                IsFrameless = true,
                 ApplyThemeOnImage = true,
-                IsShadowAffectedByTheme = false,
-                IsBorderAffectedByTheme = false,
-                ShowAllBorders = false,
                 ShowShadow = false,
                 IsChild = true,
                 TextImageRelation = TextImageRelation.Overlay,
-                ImageAlign = ContentAlignment.MiddleCenter,
+                ImageAlign = ContentAlignment.MiddleLeft,
                 HideText = true,
+                PopupMode = true
             };
-           // maximizeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.maximize.svg";
-            maximizeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.054-maximize.svg";
-            maximizeIcon.Click += (s, e) =>
-            {
-                var form = FindForm();
-                form.WindowState = form.WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized;
-            };
-            Controls.Add(maximizeIcon);
-            //  rightPanel.Controls.Add(maximizeIcon);
 
-            // Close button
-            closeIcon = new BeepButton
+            // Set up theme menu items
+            foreach (string themeName in BeepThemesManager.GetThemesNames())
             {
-                Anchor = AnchorStyles.Right,
-                Width = windowsicons_height,
-                Height = windowsicons_height,
-                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
-                Cursor = Cursors.Hand,
-                ApplyThemeOnImage = true,
-                Theme = Theme,
-                IsFrameless = true,
-                IsShadowAffectedByTheme = false,
-                IsBorderAffectedByTheme = false,
-                ShowAllBorders = false,
-                ShowShadow = false,
-                IsChild = true,
-                TextImageRelation = TextImageRelation.Overlay,
-                ImageAlign = ContentAlignment.MiddleCenter,
-                HideText = true,
-            };
-           // closeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg";
-            closeIcon.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.078-remove.svg";
-            closeIcon.Click += (s, e) => Application.Exit();
-            Controls.Add(closeIcon);
-
-        }
-        private void ShowNotifications()
-        {
-            // Handle the notification click event
-            MessageBox.Show("Showing notifications");
-        }
-        #endregion "Adding Controls"
-        #region "Event Handlers"
-        private void ButtonClicked(object sender, EventArgs e)
-        {
-            string tag = (sender as Control).Tag.ToString();
-            Clicked?.Invoke(this, new BeepMouseEventArgs(tag, sender));
-            var arg = new BeepAppBarEventsArgs(tag, sender as BeepButton);
-            if (_currentbutton != null)
-            {
-                _currentbutton.IsSelected = false;
+                _themeButton.ListItems.Add(new SimpleItem { Text = themeName });
             }
-            _currentbutton = sender as BeepButton;
-            if (tag == "Profile")
+
+            // Initialize window control buttons (minimize, maximize, close)
+            _minimizeButton = new BeepButton
             {
-                // Handle profile button click
-                if((sender as BeepButton).SelectedItem != null)
+                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
+                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.055-minimize.svg",
+                IsFrameless = true,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+                ShowAllBorders = false,
+                ApplyThemeOnImage = true,
+                ShowShadow = false,
+                IsChild = true,
+                TextImageRelation = TextImageRelation.Overlay,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                HideText = true
+            };
+
+            _maximizeButton = new BeepButton
+            {
+                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
+                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.054-maximize.svg",
+                IsFrameless = true,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+                ShowAllBorders = false,
+                ApplyThemeOnImage = true,
+                ShowShadow = false,
+                IsChild = true,
+                TextImageRelation = TextImageRelation.Overlay,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                HideText = true
+            };
+
+            _closeButton = new BeepButton
+            {
+                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
+                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.078-remove.svg",
+                IsFrameless = true,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+                ShowAllBorders = false,
+                ApplyThemeOnImage = true,
+                ShowShadow = false,
+                IsChild = true,
+                TextImageRelation = TextImageRelation.Overlay,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                HideText = true
+            };
+        }
+        #endregion "Constructor and Initialization"
+        #region "Hit Area Management"
+        /// <summary>
+        /// Refreshes the hit areas based on the current layout.
+        /// </summary>
+        private void RefreshHitAreas()
+        {
+            // Clear existing hit areas
+            ClearHitList();
+
+            // Calculate layout positions
+            CalculateLayout(out Rectangle logoRect, out Rectangle titleRect, out Rectangle searchRect,
+                out Rectangle notificationRect, out Rectangle profileRect, out Rectangle themeRect,
+                out Rectangle minimizeRect, out Rectangle maximizeRect, out Rectangle closeRect);
+
+            // Add hit areas for each component in the calculated rectangles
+            if (_showLogo && !string.IsNullOrEmpty(_logoImage))
+            {
+                AddHitArea("Logo", logoRect, _logo, () => HandleLogoClick());
+            }
+
+            if (_showTitle)
+            {
+                AddHitArea("Title", titleRect, _titleLabel, () => HandleTitleClick());
+            }
+
+            if (_showSearchBox && !_searchBoxAddedToControls)
+            {
+                AddHitArea("Search", searchRect, _searchBox, () => HandleSearchClick(searchRect));
+            }
+
+            if (_showNotificationIcon)
+            {
+                AddHitArea("Notification", notificationRect, _notificationButton, () => HandleNotificationClick());
+            }
+
+            if (_showProfileIcon)
+            {
+                AddHitArea("Profile", profileRect, _profileButton, () => HandleProfileClick());
+            }
+
+            if (_showThemeIcon)
+            {
+                AddHitArea("Theme", themeRect, _themeButton, () => HandleThemeClick());
+            }
+
+            if (_showMinimizeIcon)
+            {
+                AddHitArea("Minimize", minimizeRect, _minimizeButton, () => HandleMinimizeClick());
+            }
+
+            if (_showMaximizeIcon)
+            {
+                AddHitArea("Maximize", maximizeRect, _maximizeButton, () => HandleMaximizeClick());
+            }
+
+            if (_showCloseIcon)
+            {
+                AddHitArea("Close", closeRect, _closeButton, () => HandleCloseClick());
+            }
+        }
+
+        /// <summary>
+        /// Handles a click on the logo area
+        /// </summary>
+        private void HandleLogoClick()
+        {
+            var arg = new BeepAppBarEventsArgs("Logo");
+            OnButtonClicked?.Invoke(this, arg);
+            Clicked?.Invoke(this, new BeepMouseEventArgs("Logo", _logo));
+        }
+
+        /// <summary>
+        /// Handles a click on the title area
+        /// </summary>
+        private void HandleTitleClick()
+        {
+            var arg = new BeepAppBarEventsArgs("Title");
+            OnButtonClicked?.Invoke(this, arg);
+            Clicked?.Invoke(this, new BeepMouseEventArgs("Title", _titleLabel));
+        }
+
+        /// <summary>
+        /// Updates the hover state of a specific hit area
+        /// </summary>
+        /// <param name="hitAreaName">Name of the hit area</param>
+        /// <param name="isHovered">Whether the area is hovered</param>
+        public void UpdateHitAreaHoverState(string hitAreaName, bool isHovered)
+        {
+            if (HitList != null)
+            {
+                foreach (var hitTest in HitList)
                 {
-                    arg.SelectedItem = (sender as BeepButton).SelectedItem;
-                    arg.Selectedstring = (sender as BeepButton).SelectedItem.Text;
+                    if (hitTest.Name == hitAreaName)
+                    {
+                        hitTest.IsHovered = isHovered;
+                        break;
+                    }
                 }
-           
-            }
-            if(tag== "SearchButton")
-            {
-                arg.Selectedstring = searchBox.Text;
-                OnSearchBoxSelected?.Invoke(this, arg);
-            }
-            OnButtonClicked?.Invoke(this,arg);
-            if (tag == "Notifications")
-            {
-                ShowNotifications();
-            }
-            
-
-        }
-        private void HandleSideMenuState(bool isCollapsed)
-        {
-            // Toggle visibility of logo and hamburger icons in AppNavBar
-            if (isCollapsed)
-            {
-                // Config logo, hide hamburger
-                TitleLabel.Visible = true;
-                hamburgerIcon.Visible = false;
-            }
-            else
-            {
-                // Config hamburger, hide logo
-                TitleLabel.Visible = false;
-                hamburgerIcon.Visible = true;
-            }
-        }
-        protected override void OnMouseHover(EventArgs e)
-        {
-            IsHovered = false;
-        }
-        protected override void OnMouseEnter(EventArgs e)
-        {
-            IsHovered = false;
-        }
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            if (_rearrange)
-            {
-                // PerformLayout ensures size is updated before rearranging
-                PerformLayout();
-              //  RearrangeLayout();
+                Invalidate(); // Redraw to show hover effects
             }
         }
 
-
-
-        #endregion "Event Handlers"
-        #region "Layout and Theme"
-        public override void ApplyTheme()
+        /// <summary>
+        /// Gets a hit area by its name
+        /// </summary>
+        /// <param name="name">The name of the hit area to find</param>
+        /// <returns>The ControlHitTest object or null if not found</returns>
+        public ControlHitTest GetHitAreaByName(string name)
         {
-           // base.ApplyTheme();
-            if (_currentTheme == null) return;
-            if (TitleLabel == null) return;
-            BackColor = _currentTheme.AppBarBackColor;
-
-            _logo.Theme = Theme;
-            
-            TitleLabel.Theme = Theme;
-            if (UseThemeFont)
+            if (HitList != null)
             {
-                TitleLabel.UseThemeFont = true;
-                _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
+                foreach (var hitTest in HitList)
+                {
+                    if (hitTest.Name == name)
+                    {
+                        return hitTest;
+                    }
+                }
             }
-            TitleLabel.Font = _textFont;
-            profileIcon.ImageEmbededin = ImageEmbededin.AppBar;
-            profileIcon.Theme = Theme;
-            profileIcon.BackColor = _currentTheme.AppBarBackColor;
-            profileIcon.IsColorFromTheme = false;
-            profileIcon.ParentBackColor = _currentTheme.AppBarBackColor;
-            profileIcon.HoverBackColor = _currentTheme.AppBarBackColor;
-            profileIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
-            closeIcon.ImageEmbededin = ImageEmbededin.AppBar;
-            closeIcon.Theme = Theme;
-            closeIcon.IsColorFromTheme = false;
-            closeIcon.BackColor = _currentTheme.AppBarBackColor;
-            closeIcon.HoverBackColor = _currentTheme.AppBarBackColor;
-            closeIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
-            closeIcon.ParentBackColor = _currentTheme.AppBarBackColor;
-            maximizeIcon.ImageEmbededin = ImageEmbededin.AppBar;
-            maximizeIcon.Theme = Theme;
-            maximizeIcon.IsColorFromTheme = false;
-            maximizeIcon.BackColor = _currentTheme.AppBarBackColor;
-            maximizeIcon.HoverBackColor = _currentTheme.AppBarBackColor;
-            maximizeIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
-            maximizeIcon.ParentBackColor = _currentTheme.AppBarBackColor;
-
-            minimizeIcon.ImageEmbededin = ImageEmbededin.AppBar;
-            minimizeIcon.Theme = Theme;
-            minimizeIcon.IsColorFromTheme = false;
-            minimizeIcon.BackColor = _currentTheme.AppBarBackColor;
-            minimizeIcon.HoverBackColor = _currentTheme.AppBarBackColor;
-            minimizeIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
-            minimizeIcon.ParentBackColor = _currentTheme.AppBarBackColor;
-
-
-            notificationIcon.ImageEmbededin = ImageEmbededin.AppBar;
-            notificationIcon.Theme = Theme;
-            notificationIcon.IsColorFromTheme = false;
-            notificationIcon.BackColor = _currentTheme.AppBarBackColor;
-            notificationIcon.ParentBackColor = _currentTheme.AppBarBackColor;
-            notificationIcon.HoverBackColor = _currentTheme.AppBarBackColor;
-            notificationIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
-            themeIcon.ImageEmbededin = ImageEmbededin.AppBar;
-            notificationIcon.Theme = Theme;
-            themeIcon.IsColorFromTheme = false;
-            themeIcon.BackColor = _currentTheme.AppBarBackColor;
-            themeIcon.ParentBackColor = _currentTheme.AppBarBackColor;
-            themeIcon.HoverBackColor = _currentTheme.AppBarBackColor;
-            themeIcon.SelectedBackColor = _currentTheme.AppBarBackColor;
-
-            searchBox.BackColor = _currentTheme.AppBarBackColor;
-            searchBox.ParentBackColor = _currentTheme.AppBarBackColor;
-            searchBox.HoverBackColor = _currentTheme.AppBarBackColor;
-            searchBox.SelectedBackColor = _currentTheme.AppBarBackColor;
-            searchBox.ForeColor = _currentTheme.AppBarForeColor;
-            searchBox.AfterThemeApplied();
-
-            //searchBox.Theme = Theme; ;
-            ///  searchBox.Invalidate();
-            //  searchBox.Refresh();
-            //  TitleLabel.Invalidate();
-            //  TitleLabel.Refresh();
-            //  RearrangeLayout();
-            Invalidate();
+            return null;
         }
-        private void applythemetoButtons()
+
+        /// <summary>
+        /// Simulates a click on a hit area by name
+        /// </summary>
+        /// <param name="hitAreaName">The name of the hit area to click</param>
+        /// <returns>True if the hit area was found and clicked</returns>
+        public bool SimulateClickOnHitArea(string hitAreaName)
         {
-            // apply theme to buttons
-            if (closeIcon != null)
+            var hitArea = GetHitAreaByName(hitAreaName);
+            if (hitArea != null && hitArea.HitAction != null)
             {
-                closeIcon.ApplyThemeOnImage = _applythemeonbuttons;
-                closeIcon.Invalidate();
+                hitArea.HitAction.Invoke();
+                return true;
             }
-            if (maximizeIcon != null)
-            {
-                maximizeIcon.ApplyThemeOnImage = _applythemeonbuttons;
-                maximizeIcon.Invalidate();
-            }
-            if (minimizeIcon != null)
-            {
-                minimizeIcon.ApplyThemeOnImage = _applythemeonbuttons;
-                minimizeIcon.Invalidate();
-            }
-            if (notificationIcon != null)
-            {
-                notificationIcon.ApplyThemeOnImage = _applythemeonbuttons;
-                notificationIcon.Invalidate();
-            }
-            if (themeIcon != null)
-            {
-                themeIcon.ApplyThemeOnImage = _applythemeonbuttons;
-                themeIcon.Invalidate();
-            }
-            if (profileIcon != null)
-            {
-                profileIcon.ApplyThemeOnImage = _applythemeonbuttons;
-                profileIcon.Invalidate();
-            }
-            if (hamburgerIcon != null)
-            {
-                hamburgerIcon.ApplyThemeOnImage = _applythemeonbuttons;
-                hamburgerIcon.Invalidate();
-            }
-            
+            return false;
         }
-        public void HideShowLogo(bool val)
+        #endregion "Hit Area Management"
+
+        #region "Draw Methods"
+        protected override void DrawContent(Graphics g)
         {
-            _logo.Visible = val;
-        }
-        public void HideShowTitle(bool val)
-        {
-            TitleLabel.Visible = val;
-        }
-        private void RearrangeLayout()
-        {
-            if (_logo == null || TitleLabel == null || searchBox == null)
-                return; // Prevent layout calculation on uninitialized components
-            int padding = 2; // Padding between controls and edges
-            int spacing = 5; // Spacing between controls
+            base.DrawContent(g);
+
             UpdateDrawingRect();
+
+            // Fill background
+            using (SolidBrush backgroundBrush = new SolidBrush(BackColor))
+            {
+                g.FillRectangle(backgroundBrush, DrawingRect);
+            }
+
+            // Enable anti-aliasing for smoother rendering
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
+            // Calculate layout positions
+            CalculateLayout(out Rectangle logoRect, out Rectangle titleRect, out Rectangle searchRect,
+                out Rectangle notificationRect, out Rectangle profileRect, out Rectangle themeRect,
+                out Rectangle minimizeRect, out Rectangle maximizeRect, out Rectangle closeRect);
+            // assign the rectangles to the fields for later use
+            this.logoRect = logoRect;
+            this.titleRect = titleRect;
+            this.searchRect = searchRect;
+            this.notificationRect = notificationRect;
+            this.profileRect = profileRect;
+            this.themeRect = themeRect;
+            this.minimizeRect = minimizeRect;
+            this.maximizeRect = maximizeRect;
+            this.closeRect = closeRect;
+            // set  button locations
+            _notificationButton.Location = notificationRect.Location;
+            _profileButton.Location = profileRect.Location;
+            _themeButton.Location = themeRect.Location;
+            _minimizeButton.Location = minimizeRect.Location;
+            _maximizeButton.Location = maximizeRect.Location;
+            _closeButton.Location = closeRect.Location;
+            // Set the size of the buttons
+
+            // Refresh hit areas based on the current layout
+            // RefreshHitAreas();
+            // Draw each component in the calculated rectangles with appropriate hover effects
+            if (_showLogo && !string.IsNullOrEmpty(_logoImage))
+            {
+                bool isLogoHovered = _hoveredComponentName == "Logo";
+                _logo.IsHovered = isLogoHovered;
+                _logo.Draw(g, logoRect);
+            }
+
+            if (_showTitle)
+            {
+                bool isTitleHovered = _hoveredComponentName == "Title";
+                _titleLabel.IsHovered = isTitleHovered;
+                _titleLabel.Draw(g, titleRect);
+            }
+
+            if (_showSearchBox)
+            {
+                // Update the search box position if it's visible
+                if (_searchBoxAddedToControls)
+                {
+                    _searchBox.Location = searchRect.Location;
+                    _searchBox.Size = searchRect.Size;
+                }
+                else
+                {
+                    // Only draw if we're not displaying the actual control
+                    bool isSearchHovered = _hoveredComponentName == "Search";
+                    _searchBox.IsHovered = isSearchHovered;
+                    _searchBox.Draw(g, searchRect);
+                }
+            }
+
+            // Draw remaining components with similar hover state checks
+            if (_showNotificationIcon)
+            {
+                bool isNotificationHovered = _hoveredComponentName == "Notification";
+                _notificationButton.IsHovered = isNotificationHovered;
+                _notificationButton.Draw(g, notificationRect);
+            }
+
+            if (_showProfileIcon)
+            {
+                bool isProfileHovered = _hoveredComponentName == "Profile";
+                _profileButton.IsHovered = isProfileHovered;
+                _profileButton.Draw(g, profileRect);
+            }
+
+            if (_showThemeIcon)
+            {
+                bool isThemeHovered = _hoveredComponentName == "Theme";
+                _themeButton.IsHovered = isThemeHovered;
+                _themeButton.Draw(g, themeRect);
+            }
+
+            if (_showMinimizeIcon)
+            {
+                bool isMinimizeHovered = _hoveredComponentName == "Minimize";
+                _minimizeButton.IsHovered = isMinimizeHovered;
+                _minimizeButton.Draw(g, minimizeRect);
+            }
+
+            if (_showMaximizeIcon)
+            {
+                bool isMaximizeHovered = _hoveredComponentName == "Maximize";
+                _maximizeButton.IsHovered = isMaximizeHovered;
+                _maximizeButton.Draw(g, maximizeRect);
+            }
+
+            if (_showCloseIcon)
+            {
+                bool isCloseHovered = _hoveredComponentName == "Close";
+                _closeButton.IsHovered = isCloseHovered;
+                _closeButton.Draw(g, closeRect);
+            }
+        }
+
+        /// <summary>
+        /// Checks if a hit area is currently being hovered over
+        /// </summary>
+        /// <param name="hitAreaName">The name of the hit area to check</param>
+        /// <returns>True if the hit area is hovered</returns>
+        private bool IsHitAreaHovered(string hitAreaName)
+        {
+            var hitArea = GetHitAreaByName(hitAreaName);
+            return hitArea?.IsHovered ?? false;
+        }
+
+
+        private void CalculateLayout(
+            out Rectangle logoRect, out Rectangle titleRect, out Rectangle searchRect,
+            out Rectangle notificationRect, out Rectangle profileRect, out Rectangle themeRect,
+            out Rectangle minimizeRect, out Rectangle maximizeRect, out Rectangle closeRect)
+        {
+            int padding = 2;
+            int spacing = 5;
+
+            // Initialize rectangles with empty values
+            logoRect = Rectangle.Empty;
+            titleRect = Rectangle.Empty;
+            searchRect = Rectangle.Empty;
+            notificationRect = Rectangle.Empty;
+            profileRect = Rectangle.Empty;
+            themeRect = Rectangle.Empty;
+            minimizeRect = Rectangle.Empty;
+            maximizeRect = Rectangle.Empty;
+            closeRect = Rectangle.Empty;
+
             // Calculate available areas in DrawingRect
             int leftEdge = DrawingRect.Left + padding;
             int rightEdge = DrawingRect.Right - padding;
-            int centerX = DrawingRect.Left + DrawingRect.Width / 2;
             int centerY = DrawingRect.Top + DrawingRect.Height / 2;
-            // Update height dynamically based on logo size (with extra padding)
-            Height = Math.Max(_logosize.Height + 8, defaultHeight);
 
-            if (_logo != null && _logo.Visible)
+            // Position closeButton, maximizeButton, minimizeButton (right-aligned)
+            if (_showCloseIcon)
             {
-                _logo.Anchor = AnchorStyles.Left| AnchorStyles.Top|AnchorStyles.Bottom;
-                _logo.Top = DrawingRect.Top + (DrawingRect.Height - _logo.Height) / 2;
-                _logo.Left = leftEdge;
-               
-                leftEdge += _logo.Width + spacing;
-            }
-           
-            // Position closeIcon, maximizeIcon, minimizeIcon, notificationIcon, and profileIcon (right-aligned)
-            if (closeIcon != null && closeIcon.Visible)
-            {
-                closeIcon.Anchor = AnchorStyles.Right;
-                closeIcon.Top = DrawingRect.Top + (DrawingRect.Height - closeIcon.Height) / 2;
-                closeIcon.Left = rightEdge - closeIcon.Width;
-                rightEdge -= closeIcon.Width + spacing;
+                closeRect = new Rectangle(
+                    rightEdge - windowsicons_height,
+                    centerY - windowsicons_height / 2,
+                    windowsicons_height,
+                    windowsicons_height
+                );
+                rightEdge = closeRect.Left - spacing;
             }
 
-            if (maximizeIcon != null && maximizeIcon.Visible)
+            if (_showMaximizeIcon)
             {
-                maximizeIcon.Anchor = AnchorStyles.Right;
-                maximizeIcon.Top = DrawingRect.Top + (DrawingRect.Height - maximizeIcon.Height) / 2;
-                maximizeIcon.Left = rightEdge - maximizeIcon.Width;
-                rightEdge -= maximizeIcon.Width + spacing;
+                maximizeRect = new Rectangle(
+                    rightEdge - windowsicons_height,
+                    centerY - windowsicons_height / 2,
+                    windowsicons_height,
+                    windowsicons_height
+                );
+                rightEdge = maximizeRect.Left - spacing;
             }
 
-            if (minimizeIcon != null && minimizeIcon.Visible)
+            if (_showMinimizeIcon)
             {
-                minimizeIcon.Anchor = AnchorStyles.Right;
-                minimizeIcon.Top = DrawingRect.Top + (DrawingRect.Height - minimizeIcon.Height) / 2;
-                minimizeIcon.Left = rightEdge - minimizeIcon.Width;
-                rightEdge -= minimizeIcon.Width + spacing;
+                minimizeRect = new Rectangle(
+                    rightEdge - windowsicons_height,
+                    centerY - windowsicons_height / 2,
+                    windowsicons_height,
+                    windowsicons_height
+                );
+                rightEdge = minimizeRect.Left - spacing;
             }
 
-            // Position searchBox (centered horizontally)
-            if (searchBox != null && searchBox.Visible)
+            // Position searchBox
+            if (_showSearchBox)
             {
-                var prefSize = searchBox.GetPreferredSize(Size.Empty);
-                searchBox.Anchor = AnchorStyles.Right;
-                searchBox.Height = prefSize.Height;
-                searchBox.Width = SearchBoxWidth; // Ensure searchBox occupies at most one-third of the width
-                searchBox.Top = DrawingRect.Top + (DrawingRect.Height - searchBox.Height) / 2;
-                searchBox.Left = rightEdge - SearchBoxWidth-spacing-20;
-                rightEdge -= SearchBoxWidth + spacing+20;
+                int searchHeight = 24;
+                searchRect = new Rectangle(
+                    rightEdge - SearchBoxWidth,
+                    centerY - searchHeight / 2,
+                    SearchBoxWidth,
+                    searchHeight
+                );
+                rightEdge = searchRect.Left - spacing;
             }
-           // Console.WriteLine("RightEdge" + rightEdge);
-            if (notificationIcon != null && notificationIcon.Visible)
+
+            // Position notificationIcon
+            if (_showNotificationIcon)
             {
-               // Console.WriteLine("notification" + rightEdge);
-                notificationIcon.Anchor = AnchorStyles.Right;
-                notificationIcon.Top = DrawingRect.Top + (DrawingRect.Height - notificationIcon.Height) / 2;
-                notificationIcon.Left = rightEdge - notificationIcon.Width-spacing-20;
-                rightEdge -= notificationIcon.Width + spacing+20;
+                notificationRect = new Rectangle(
+                    rightEdge - windowsicons_height,
+                    centerY - windowsicons_height / 2,
+                    windowsicons_height,
+                    windowsicons_height
+                );
+                rightEdge = notificationRect.Left - spacing;
             }
-           // Console.WriteLine("profileIcon RightEdge" + rightEdge);
-            if (profileIcon != null && profileIcon.Visible)
+
+            // Position profileIcon
+            if (_showProfileIcon)
             {
-               // Console.WriteLine("profileIcon" + rightEdge);
-                profileIcon.Anchor = AnchorStyles.Right;
-                profileIcon.Top = DrawingRect.Top + (DrawingRect.Height - profileIcon.Height) / 2;
-                profileIcon.Left = rightEdge - profileIcon.Width-spacing;
-                rightEdge -= profileIcon.Width + spacing;
+                profileRect = new Rectangle(
+                    rightEdge - windowsicons_height,
+                    centerY - windowsicons_height / 2,
+                    windowsicons_height,
+                    windowsicons_height
+                );
+                rightEdge = profileRect.Left - spacing;
             }
-           // Console.WriteLine("themeIcon RightEdge" + rightEdge);
-            if (themeIcon != null && themeIcon.Visible)
+
+            // Position themeIcon
+            if (_showThemeIcon)
             {
-               // Console.WriteLine("themeIcon" + rightEdge);
-                themeIcon.Anchor = AnchorStyles.Right;
-                themeIcon.Top = DrawingRect.Top + (DrawingRect.Height - themeIcon.Height) / 2;
-                themeIcon.Left = rightEdge - themeIcon.Width-spacing;
-                rightEdge -= themeIcon.Width + spacing;
+                themeRect = new Rectangle(
+                    rightEdge - windowsicons_height,
+                    centerY - windowsicons_height / 2,
+                    windowsicons_height,
+                    windowsicons_height
+                );
+                rightEdge = themeRect.Left - spacing;
+            }
+
+            // Position logo
+            if (_showLogo && !string.IsNullOrEmpty(_logoImage))
+            {
+                logoRect = new Rectangle(
+                    leftEdge,
+                    centerY - _logosize.Height / 2,
+                    _logosize.Width,
+                    _logosize.Height
+                );
+                leftEdge = logoRect.Right + spacing;
+            }
+
+            // Position title (fill remaining space)
+            if (_showTitle)
+            {
+                titleRect = new Rectangle(
+                    leftEdge,
+                    centerY - 12, // Half of typical text height
+                    rightEdge - leftEdge - spacing,
+                    24 // Typical text height
+                );
+            }
+        }
+        #endregion "Draw Methods"
+
+        #region "Event Handling"
+    
+        #region "Mouse Events"
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            // Let the base class handle its own click logic 
+            base.OnMouseClick(e);
+
+            // Skip if in design mode
+            if (DesignMode)
+                return;
+
+            // Get current mouse position to check for hits
+            Point mousePoint = e.Location;
+
+            //// Calculate layout positions
+            //CalculateLayout(out Rectangle logoRect, out Rectangle titleRect, out Rectangle searchRect,
+            //    out Rectangle notificationRect, out Rectangle profileRect, out Rectangle themeRect,
+            //    out Rectangle minimizeRect, out Rectangle maximizeRect, out Rectangle closeRect);
+
+            // Check each component to see if it was clicked
+            // Logo click
+            if (_showLogo && !string.IsNullOrEmpty(_logoImage) && logoRect.Contains(mousePoint))
+            {
+                HandleLogoClick();
+                return;
+            }
+
+            // Title click
+            if (_showTitle && titleRect.Contains(mousePoint))
+            {
+                HandleTitleClick();
+                return;
+            }
+
+            // Search box click
+            if (_showSearchBox && !_searchBoxAddedToControls && searchRect.Contains(mousePoint))
+            {
+                HandleSearchClick(searchRect);
+                return;
+            }
+
+            // Notification button click
+            if (_showNotificationIcon && notificationRect.Contains(mousePoint))
+            {
+                HandleNotificationClick();
+                return;
+            }
+
+            // Profile button click
+            if (_showProfileIcon && profileRect.Contains(mousePoint))
+            {
+                HandleProfileClick();
+                return;
+            }
+
+            // Theme button click
+            if (_showThemeIcon && themeRect.Contains(mousePoint))
+            {
+                HandleThemeClick();
+                return;
+            }
+
+            // Minimize button click
+            if (_showMinimizeIcon && minimizeRect.Contains(mousePoint))
+            {
+                HandleMinimizeClick();
+                return;
+            }
+
+            // Maximize button click
+            if (_showMaximizeIcon && maximizeRect.Contains(mousePoint))
+            {
+                HandleMaximizeClick();
+                return;
+            }
+
+            // Close button click
+            if (_showCloseIcon && closeRect.Contains(mousePoint))
+            {
+                HandleCloseClick();
+                return;
+            }
+        }
+
+        // Store the latest hovered item
+        private string _hoveredComponentName;
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            // Skip base.OnMouseMove to avoid base class behavior that might trigger actions
+            if (DesignMode)
+                return;
+
+            // Remember previous hover state
+            string previousHovered = _hoveredComponentName;
+            _hoveredComponentName = null;
+
+            // Calculate layout positions for hit testing
+            CalculateLayout(out Rectangle logoRect, out Rectangle titleRect, out Rectangle searchRect,
+                out Rectangle notificationRect, out Rectangle profileRect, out Rectangle themeRect,
+                out Rectangle minimizeRect, out Rectangle maximizeRect, out Rectangle closeRect);
+
+            // Get current mouse position
+            Point mousePoint = e.Location;
+
+            // Test each component for hover
+            if (_showLogo && !string.IsNullOrEmpty(_logoImage) && logoRect.Contains(mousePoint))
+            {
+                _hoveredComponentName = "Logo";
+                Cursor = Cursors.Hand;
+            }
+            else if (_showTitle && titleRect.Contains(mousePoint))
+            {
+                _hoveredComponentName = "Title";
+                Cursor = Cursors.Hand;
+            }
+            else if (_showSearchBox && !_searchBoxAddedToControls && searchRect.Contains(mousePoint))
+            {
+                _hoveredComponentName = "Search";
+                Cursor = Cursors.Hand;
+            }
+            else if (_showNotificationIcon && notificationRect.Contains(mousePoint))
+            {
+                _hoveredComponentName = "Notification";
+                Cursor = Cursors.Hand;
+            }
+            else if (_showProfileIcon && profileRect.Contains(mousePoint))
+            {
+                _hoveredComponentName = "Profile";
+                Cursor = Cursors.Hand;
+            }
+            else if (_showThemeIcon && themeRect.Contains(mousePoint))
+            {
+                _hoveredComponentName = "Theme";
+                Cursor = Cursors.Hand;
+            }
+            else if (_showMinimizeIcon && minimizeRect.Contains(mousePoint))
+            {
+                _hoveredComponentName = "Minimize";
+                Cursor = Cursors.Hand;
+            }
+            else if (_showMaximizeIcon && maximizeRect.Contains(mousePoint))
+            {
+                _hoveredComponentName = "Maximize";
+                Cursor = Cursors.Hand;
+            }
+            else if (_showCloseIcon && closeRect.Contains(mousePoint))
+            {
+                _hoveredComponentName = "Close";
+                Cursor = Cursors.Hand;
+            }
+            else
+            {
+                // No component hovered
+                Cursor = Cursors.Default;
+            }
+
+            // Only redraw if the hover state changed
+            if (previousHovered != _hoveredComponentName)
+            {
+                Invalidate();
+            }
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            // Call base to maintain behavior
+            base.OnMouseLeave(e);
+
+            if (DesignMode)
+                return;
+
+            // Clear hover state
+            if (_hoveredComponentName != null)
+            {
+                _hoveredComponentName = null;
+                Cursor = Cursors.Default;
+                Invalidate();
+            }
+        }
+
+       
+        #endregion "Mouse Events"
+
+
+
+
+        // Methods to handle clicks on different elements
+        private void HandleSearchClick(Rectangle searchRect)
+        {
+            if (!_searchBoxAddedToControls)
+            {
+                // Add the actual search box control at the right position
+                _searchBox.Location = searchRect.Location;
+                _searchBox.Size = searchRect.Size;
+                _searchBox.Visible = true;
+                Controls.Add(_searchBox);
+                _searchBoxAddedToControls = true;
+
+                // Start editing immediately
+              //  _searchBox.StartEditing();
+                _searchBox.Focus();
+
+                // Register for lost focus to switch back to drawing mode
+                _searchBox.LostFocus += SearchBox_LostFocus;
+            }
+            else
+            {
+                // If already added, just start editing
+            //    _searchBox.StartEditing();
+                _searchBox.Focus();
+            }
+
+            var arg = new BeepAppBarEventsArgs("Search");
+            arg.Selectedstring = _searchBox.Text;
+            OnSearchBoxSelected?.Invoke(this, arg);
+        }
+
+        private void SearchBox_LostFocus(object sender, EventArgs e)
+        {
+            // Only remove if not focused again
+            if (!_searchBox.Focused)
+            {
+                // Delay removal slightly to handle click-out cases
+                BeginInvoke(new Action(() =>
+                {
+                    if (!_searchBox.Focused)
+                    {
+                        RemoveSearchBoxControl();
+                    }
+                }));
+            }
+        }
+
+        private void RemoveSearchBoxControl()
+        {
+            if (_searchBoxAddedToControls)
+            {
+                Controls.Remove(_searchBox);
+                _searchBoxAddedToControls = false;
+                _searchBox.Visible = false;
+                Invalidate(); // Redraw to show the drawn version
+            }
+        }
+
+        private void HandleNotificationClick()
+        {
+            var arg = new BeepAppBarEventsArgs("Notifications", _notificationButton);
+            OnButtonClicked?.Invoke(this, arg);
+            Clicked?.Invoke(this, new BeepMouseEventArgs("Notifications", _notificationButton));
+
+            // Handle notification display
+            MessageBox.Show("Showing notifications");
+        }
+
+        private void HandleProfileClick()
+        {
+            // Show profile dropdown menu
+            ShowProfileMenu();
+
+            var arg = new BeepAppBarEventsArgs("Profile", _profileButton);
+            OnButtonClicked?.Invoke(this, arg);
+            Clicked?.Invoke(this, new BeepMouseEventArgs("Profile", _profileButton));
+        }
+
+        private void HandleThemeClick()
+        {
+            // Show theme dropdown menu
+            ShowThemeMenu();
+
+            var arg = new BeepAppBarEventsArgs("Theme", _themeButton);
+            OnButtonClicked?.Invoke(this, arg);
+            Clicked?.Invoke(this, new BeepMouseEventArgs("Theme", _themeButton));
+        }
+
+        private void HandleMinimizeClick()
+        {
+            Form form = FindForm();
+            if (form != null)
+            {
+                form.WindowState = FormWindowState.Minimized;
+            }
+        }
+
+        private void HandleMaximizeClick()
+        {
+            Form form = FindForm();
+            if (form != null)
+            {
+                form.WindowState = form.WindowState == FormWindowState.Maximized
+                    ? FormWindowState.Normal
+                    : FormWindowState.Maximized;
+            }
+        }
+
+        private void HandleCloseClick()
+        {
+            Application.Exit();
+        }
+
+        private void ShowProfileMenu()
+        {
+            // Simply invoke the dropdown functionality from the BeepButton
+            //this.SendMouseEvent(_profileButton, MouseEventType.Click, MousePosition);
+            _currentMenuName = "PROFILE";
+            CurrentMenutems.Clear();
+
+            TogglePopup();
+            // Subscribe to the selection event if not already done
+            _profileButton.SelectedItemChanged -= ProfileButton_SelectedItemChanged;
+            _profileButton.SelectedItemChanged += ProfileButton_SelectedItemChanged;
+        }
+
+        private void ProfileButton_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
+        {
+            if (e.SelectedItem != null)
+            {
+                _currentSelectedItem = e.SelectedItem;
+
+                var arg = new BeepAppBarEventsArgs("Profile", _profileButton);
+                arg.SelectedItem = e.SelectedItem;
+                arg.Selectedstring = e.SelectedItem.Text;
+
+                OnButtonClicked?.Invoke(this, arg);
+            }
+        }
+
+        private void ShowThemeMenu()
+        {
+            // Simply invoke the dropdown functionality from the BeepButton
+            // this.SendMouseEvent(_themeButton, MouseEventType.Click, MousePosition);
+            _currentMenuName = "THEME";
+            CurrentMenutems.Clear();
+            foreach (string themename in BeepThemesManager.GetThemesNames())
+            {
+                CurrentMenutems.Add(new SimpleItem { Text = themename });
             }
             
-          
-            if (TitleLabel != null && TitleLabel.Visible)
-            {
-                var prefSize = TitleLabel.GetPreferredSize(Size.Empty);
-                TitleLabel.Anchor = AnchorStyles.Left;
-                TitleLabel.Height = prefSize.Height;
-                // Vertically center within the app bar
-                TitleLabel.Top = DrawingRect.Top + (DrawingRect.Height - TitleLabel.Height) / 2;
-
-                TitleLabel.Left = leftEdge;
-                TitleLabel.Width = themeIcon.Left - leftEdge - spacing;
-                leftEdge += TitleLabel.Width + spacing;
-
-
-            }
-           // Console.WriteLine("LeftEdge" + leftEdge);
+           
+            TogglePopup();
+            // Subscribe to the selection event if not already done
+            _themeButton.SelectedItemChanged -= ThemeButton_SelectedItemChanged;
+            _themeButton.SelectedItemChanged += ThemeButton_SelectedItemChanged;
         }
+
+        private void ThemeButton_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
+        {
+            if (e.SelectedItem != null && !string.IsNullOrEmpty(e.SelectedItem.Text))
+            {
+                string selectedThemeName = e.SelectedItem.Text;
+                EnumBeepThemes selectedTheme = BeepThemesManager.GetEnumFromTheme(selectedThemeName);
+                BeepThemesManager.CurrentTheme = selectedTheme;
+
+                // Apply theme to this control
+                Theme = selectedTheme;
+                ApplyTheme();
+            }
+        }
+        #endregion "Event Handling"
+
+        #region "Theme and Styling"
+        public override void ApplyTheme()
+        {
+            if (_currentTheme == null)
+                return;
+
+            // Apply theme to self
+            BackColor = _currentTheme.AppBarBackColor;
+
+            // Apply theme to logo
+            if (_logo != null)
+            {
+                _logo.Theme = Theme;
+                _logo.BackColor = _currentTheme.AppBarBackColor;
+            }
+
+            // Apply theme to title label
+            if (_titleLabel != null)
+            {
+                _titleLabel.Theme = Theme;
+                _titleLabel.ForeColor = _currentTheme.AppBarForeColor;
+                _titleLabel.BackColor = _currentTheme.AppBarBackColor;
+
+                if (UseThemeFont)
+                {
+                    _titleLabel.UseThemeFont = true;
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
+                    _titleLabel.Font = _textFont;
+                }
+            }
+
+            // Apply theme to search box
+            if (_searchBox != null)
+            {
+                _searchBox.Theme = Theme;
+                _searchBox.BackColor = _currentTheme.AppBarBackColor;
+                _searchBox.ForeColor = _currentTheme.AppBarForeColor;
+                _searchBox.BorderColor = _currentTheme.AppBarBackColor;
+                _searchBox.HoverBackColor = ColorUtils.GetLighterColor(_currentTheme.AppBarBackColor, 10);
+                _searchBox.HoverForeColor = _currentTheme.AppBarForeColor;
+            }
+
+            // Apply theme to notification button
+            if (_notificationButton != null)
+            {
+                _notificationButton.Theme = Theme;
+                _notificationButton.ImageEmbededin = ImageEmbededin.AppBar;
+                _notificationButton.BackColor = _currentTheme.AppBarBackColor;
+                _notificationButton.ForeColor = _currentTheme.AppBarForeColor;
+                _notificationButton.ParentBackColor = _currentTheme.AppBarBackColor;
+                _notificationButton.HoverBackColor = _currentTheme.AppBarBackColor;
+                _notificationButton.SelectedBackColor = _currentTheme.AppBarBackColor;
+                _notificationButton.IsColorFromTheme = false;
+            }
+
+            // Apply theme to profile button
+            if (_profileButton != null)
+            {
+                _profileButton.Theme = Theme;
+                _profileButton.ImageEmbededin = ImageEmbededin.AppBar;
+                _profileButton.BackColor = _currentTheme.AppBarBackColor;
+                _profileButton.ForeColor = _currentTheme.AppBarForeColor;
+                _profileButton.ParentBackColor = _currentTheme.AppBarBackColor;
+                _profileButton.HoverBackColor = _currentTheme.AppBarBackColor;
+                _profileButton.SelectedBackColor = _currentTheme.AppBarBackColor;
+                _profileButton.IsColorFromTheme = false;
+            }
+
+            // Apply theme to theme button
+            if (_themeButton != null)
+            {
+                _themeButton.Theme = Theme;
+                _themeButton.ImageEmbededin = ImageEmbededin.AppBar;
+                _themeButton.BackColor = _currentTheme.AppBarBackColor;
+                _themeButton.ForeColor = _currentTheme.AppBarForeColor;
+                _themeButton.ParentBackColor = _currentTheme.AppBarBackColor;
+                _themeButton.HoverBackColor = _currentTheme.AppBarBackColor;
+                _themeButton.SelectedBackColor = _currentTheme.AppBarBackColor;
+                _themeButton.IsColorFromTheme = false;
+            }
+
+            // Apply theme to window control buttons
+            if (_minimizeButton != null)
+            {
+                _minimizeButton.Theme = Theme;
+                _minimizeButton.ImageEmbededin = ImageEmbededin.AppBar;
+                _minimizeButton.BackColor = _currentTheme.AppBarBackColor;
+                _minimizeButton.ForeColor = _currentTheme.AppBarForeColor;
+                _minimizeButton.ParentBackColor = _currentTheme.AppBarBackColor;
+                _minimizeButton.HoverBackColor = _currentTheme.AppBarBackColor;
+                _minimizeButton.SelectedBackColor = _currentTheme.AppBarBackColor;
+                _minimizeButton.IsColorFromTheme = false;
+            }
+
+            if (_maximizeButton != null)
+            {
+                _maximizeButton.Theme = Theme;
+                _maximizeButton.ImageEmbededin = ImageEmbededin.AppBar;
+                _maximizeButton.BackColor = _currentTheme.AppBarBackColor;
+                _maximizeButton.ForeColor = _currentTheme.AppBarForeColor;
+                _maximizeButton.ParentBackColor = _currentTheme.AppBarBackColor;
+                _maximizeButton.HoverBackColor = _currentTheme.AppBarBackColor;
+                _maximizeButton.SelectedBackColor = _currentTheme.AppBarBackColor;
+                _maximizeButton.IsColorFromTheme = false;
+            }
+
+            if (_closeButton != null)
+            {
+                _closeButton.Theme = Theme;
+                _closeButton.ImageEmbededin = ImageEmbededin.AppBar;
+                _closeButton.BackColor = _currentTheme.AppBarBackColor;
+                _closeButton.ForeColor = _currentTheme.AppBarForeColor;
+                _closeButton.ParentBackColor = _currentTheme.AppBarBackColor;
+                _closeButton.HoverBackColor = _currentTheme.AppBarBackColor;
+                _closeButton.SelectedBackColor = _currentTheme.AppBarBackColor;
+                _closeButton.IsColorFromTheme = false;
+            }
+
+            // Apply theme to buttons based on ApplyThemeButtons property
+            ApplyThemeToButtons();
+
+            // Force redraw
+            Invalidate();
+        }
+
+        private void ApplyThemeToButtons()
+        {
+            // Apply theme to buttons based on ApplyThemeButtons property
+            if (_notificationButton != null)
+            {
+                _notificationButton.ApplyThemeOnImage = _applythemeonbuttons;
+            }
+
+            if (_profileButton != null)
+            {
+                _profileButton.ApplyThemeOnImage = _applythemeonbuttons;
+            }
+
+            if (_themeButton != null)
+            {
+                _themeButton.ApplyThemeOnImage = _applythemeonbuttons;
+            }
+
+            if (_minimizeButton != null)
+            {
+                _minimizeButton.ApplyThemeOnImage = _applythemeonbuttons;
+            }
+
+            if (_maximizeButton != null)
+            {
+                _maximizeButton.ApplyThemeOnImage = _applythemeonbuttons;
+            }
+
+            if (_closeButton != null)
+            {
+                _closeButton.ApplyThemeOnImage = _applythemeonbuttons;
+            }
+        }
+        #endregion "Theme and Styling"
+
+        #region "Public Methods"
        
-        public void SuspendFormLayout()
+
+        /// <summary>
+        /// Shows a badge on the notification icon
+        /// </summary>
+        public void ShowBadgeOnNotificationIcon(string badgeText)
         {
-            return;
-            _rearrange = false;
-            //  base.SuspendFormLayout();
-            //  SuspendLayout();
-            foreach (Control ctrl in Controls)
+            if (_notificationButton != null)
             {
-                ctrl.SuspendLayout();
+                _notificationButton.BadgeText = badgeText;
+                Invalidate();
             }
         }
 
-        public void ResumeFormLayout()
+        /// <summary>
+        /// Shows or hides the logo
+        /// </summary>
+        public void HideShowLogo(bool show)
         {
-            return;
-           // base.ResumeFormLayout();
-             ResumeLayout(true); // Force layout recalculation
-                                 //    PerformLayout(); // Ensure size is updated
-            foreach (Control ctrl in Controls)
+            _showLogo = show;
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Shows or hides the title
+        /// </summary>
+        public void HideShowTitle(bool show)
+        {
+            _showTitle = show;
+            Invalidate();
+        }
+        #endregion "Public Methods"
+
+        #region "Overrides"
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+
+            // Make sure search box isn't visible while resizing
+            RemoveSearchBoxControl();
+
+            // Redraw to update control positions
+            Invalidate();
+        }
+        #endregion "Overrides"
+        /// <summary>
+        /// Sets the search box auto-complete source from a collection
+        /// </summary>
+        public void SetSearchBoxAutoCompleteSource(AutoCompleteStringCollection source)
+        {
+            AutoCompleteCustomSource = source;
+        }
+
+        /// <summary>
+        /// Adds items to the search box auto-complete source
+        /// </summary>
+        public void AddToSearchBoxAutoCompleteSource(List<string> source)
+        {
+            if (source != null)
             {
-                ctrl.ResumeLayout(true);
+                if (_searchBoxAutoCompleteCustomSource == null)
+                    _searchBoxAutoCompleteCustomSource = new AutoCompleteStringCollection();
+
+                _searchBoxAutoCompleteCustomSource.AddRange(source.ToArray());
+                ApplyAutoCompleteSetting();
+            }
+        }
+
+        // Add this method to apply AutoComplete settings to the internal TextBox if possible
+        private void ApplyAutoCompleteSetting()
+        {
+            if (_searchBox == null)
+                return;
+
+            // Try to get the internal TextBox using reflection
+            var editTextBoxField = _searchBox.GetType().GetField("_editTextBox",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            if (editTextBoxField != null)
+            {
+                var editTextBox = editTextBoxField.GetValue(_searchBox) as TextBox;
+                if (editTextBox != null)
+                {
+                    editTextBox.AutoCompleteMode = _searchBoxAutoCompleteMode;
+                    editTextBox.AutoCompleteSource = _searchBoxAutoCompleteSource;
+                    if (_searchBoxAutoCompleteCustomSource != null)
+                    {
+                        editTextBox.AutoCompleteCustomSource = _searchBoxAutoCompleteCustomSource;
+                    }
+                }
+            }
+        }
+        #region "Popup List Methods"
+        private bool _isPopupOpen;
+        private BindingList<SimpleItem> _currentMenuItems = new BindingList<SimpleItem>();
+        public BindingList<SimpleItem> CurrentMenutems
+        {
+            get => _currentMenuItems;
+            set
+            {
+                _currentMenuItems = value;
+                Invalidate();
+            }
+        }
+    //    public event EventHandler<SelectedItemChangedEventArgs> MenuItemSelected;
+        public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
+        protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
+        {
+            SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
+
+        }
+        BeepPopupListForm menuDialog;
+        // popup list items form
+        [Browsable(false)]
+        public BeepPopupListForm PopupListForm
+        {
+            get => menuDialog;
+            set => menuDialog = value;
+        }
+        private void TogglePopup()
+        {
+            if (_isPopupOpen)
+                ClosePopup();
+            else
+                ShowPopup();
+        }
+        public void ShowPopup()
+        {
+            if (_isPopupOpen) return;
+            if (CurrentMenutems.Count == 0)
+            {
+                return;
             }
 
+            // Close any existing popup before showing a new one
+            ClosePopup();
 
-            _rearrange = true;
-            // RearrangeLayout();
-        }
-        #endregion "Layout and Theme"
-    }
-    public class BeepAppBarEventsArgs : EventArgs
-    {
-        public string ButtonName { get; set; }
-        public BeepButton Beepbutton { get; set; }
-        public Dictionary<string,object> Parameters { get; set; }
-        public string Selectedstring { get; set; }
-        public SimpleItem SelectedItem { get; set; }
+            menuDialog = new BeepPopupListForm(CurrentMenutems.ToList());
+            menuDialog.Theme = Theme;
+            menuDialog.SelectedItemChanged += button_SelectedItemChanged;
 
-        public BeepAppBarEventsArgs(string buttonname)
-        {
-            ButtonName = buttonname;
+            // Initialize the menu items and prepare the popup
+            menuDialog.ShowTitle = false;
+
+            // Calculate the size based on menu items
+            int popupWidth = menuDialog.GetMaxWidth(); ; // At least as wide as the button
+          //  int popupHeight = CurrentMenutems.Count * 25 + 10; // Rough height calculation
+            int neededHeight = menuDialog.GetMaxHeight();
+            menuDialog.Size = new Size(popupWidth, neededHeight);
+
+            // Calculate the position directly below the theme button
+            Point screenLocation = this.PointToScreen(new Point(themeRect.Left, themeRect.Bottom + 2));
+            menuDialog.StartPosition = FormStartPosition.Manual;
+            menuDialog.Location = screenLocation;
+
+            // Show the form
+            menuDialog.Show(this);
+
+            _isPopupOpen = true;
+            Invalidate();
         }
-        public BeepAppBarEventsArgs(string buttonname,BeepButton button)
+
+
+
+        private void LastNodeMenuShown_MenuItemSelected(object? sender, SelectedItemChangedEventArgs e)
         {
-            Beepbutton = button;
-            ButtonName = buttonname;
+            SelectedItemChanged?.Invoke(sender, e);
         }
+        #region "Menu "
+        public void ShowContextMenu(BindingList<SimpleItem> menuList,Point adj)
+        {
+            CurrentMenutems = menuList;
+
+            TogglePopup();
+        }
+
+        private void button_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
+        {
+            SelectedItemChanged?.Invoke(this, e);
+            if(_currentMenuName == "THEME")
+            {
+                ThemeButton_SelectedItemChanged(sender, e);
+            }
+            else if (_currentMenuName == "PROFILE")
+            {
+                ProfileButton_SelectedItemChanged(sender, e);
+            }
+            else
+            {
+                OnSelectedItemChanged(e.SelectedItem);
+            }
+        }
+
+        public void ClosePopup()
+        {
+
+            if (!_isPopupOpen) return;
+
+            if (menuDialog != null)
+            {
+                menuDialog.SelectedItemChanged -= button_SelectedItemChanged;
+                menuDialog.CloseCascade();
+                //  menuDialog.Close();
+                menuDialog.Dispose();
+                menuDialog = null;
+            }
+            _isPopupOpen = false;
+            Invalidate();
+        }
+        #endregion "Menu"
+        #endregion
     }
 }

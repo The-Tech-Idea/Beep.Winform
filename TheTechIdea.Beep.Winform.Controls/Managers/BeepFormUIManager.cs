@@ -566,7 +566,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 BeepAppBar.Title = Title;
                 BeepSideMenu.Title = Title;
                 BeepAppBar.ShowTitle = obj;
-                BeepAppBar.ShowLogoIcon = false;
+                BeepAppBar.ShowLogo = false;
             }
             //BeepAppBar.ResumeDrawing();
             //BeepAppBar.ResumeLayout();

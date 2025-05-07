@@ -599,7 +599,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (BeepAppBar != null)
             {
                 BeepAppBar.ShowTitle = isCollapsed;
-                BeepAppBar.ShowLogoIcon=false;
+                BeepAppBar.ShowLogo = false;
             }
             
         }
@@ -1047,7 +1047,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (BeepAppBar != null)
                 {
                     BeepAppBar.ShowTitle = isCollapsed;
-                    BeepAppBar.ShowLogoIcon = false;
+                    BeepAppBar.ShowLogo = false;
                 }
 
                 return;

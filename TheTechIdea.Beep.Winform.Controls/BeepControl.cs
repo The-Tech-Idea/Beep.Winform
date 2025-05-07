@@ -1692,7 +1692,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Optional: Log the exception if needed
                 // You might want to add your logging code here
-                System.Diagnostics.Debug.WriteLine($"Error in BeepControl.OnClick: {ex.Message}");
+               // System.Diagnostics.Debug.WriteLine($"Error in BeepControl.OnClick: {ex.Message}");
             }
         }
         protected override void OnMouseDown(MouseEventArgs e)
@@ -2989,7 +2989,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch (Exception ex)
             {
-                // Log error but don't crash
+                // Log exception but don't crash
                 System.Diagnostics.Debug.WriteLine($"Error drawing badge: {ex.Message}");
             }
         }

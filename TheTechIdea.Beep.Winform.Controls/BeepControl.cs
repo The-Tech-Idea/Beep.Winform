@@ -1692,7 +1692,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Optional: Log the exception if needed
                 // You might want to add your logging code here
-               // System.Diagnostics.Debug.WriteLine($"Error in BeepControl.OnClick: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error in BeepControl.OnClick: {ex.Message}");
             }
         }
         protected override void OnMouseDown(MouseEventArgs e)
@@ -2934,54 +2934,73 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             try
             {
-                // First check if the parent is a BeepControl and should handle the badge drawing
+                // Always prefer drawing on the parent for better positioning
                 Control parent = Parent;
-                if (parent is BeepControl parentBeepControl)
+                if (parent != null)
                 {
-                    // Create a rectangular area for the badge in parent coordinates
+                    // Convert the top-right point of this control to parent's coordinate system
+                    Point topRightCorner = parent.PointToClient(this.PointToScreen(new Point(Width - 5, 0)));
+
+                    // Position badge to appear slightly outside the control's bounds
                     Rectangle badgeArea = new Rectangle(
-                        Right - 25, // Position in parent coordinates (slightly overlapping)
-                        Top - 3,
-                        24, // Fixed size badge
-                        24
+                        topRightCorner.X - 10,  // Shift left slightly from the right edge
+                        topRightCorner.Y - 12,  // Position above the top edge of control
+                        22,  // Fixed size badge
+                        22
                     );
 
-                    // Use parent external drawing to draw our badge
-                    parentBeepControl.SetExternalDrawing((parentG, _) => {
-                        // Draw the badge on the parent's surface
-                        DrawBadgeImplementation(parentG, badgeArea);
-                    }, DrawingLayer.AfterAll);
+                    if (parent is BeepControl parentBeepControl)
+                    {
+                        // Use parent's external drawing mechanism for better integration
+                        parentBeepControl.SetExternalDrawing((parentG, _) => {
+                            // Draw badge on parent's surface at the specified location
+                            DrawBadgeImplementation(parentG, badgeArea);
+                        }, DrawingLayer.AfterAll);
 
-                    // We're done - the parent will draw the badge
-                    return;
+                        // The parent will handle drawing the badge
+                        return;
+                    }
+                    else
+                    {
+                        // If parent is not a BeepControl, we still want the badge to appear outside
+                        // We'll draw on our own surface but position it to appear at the edge
+                        Rectangle badgeRect = new Rectangle(
+                            Width - 12,  // Right aligned with slight inset
+                            -10,         // Position above the top edge
+                            22,          // Fixed size
+                            22
+                        );
+
+                        DrawBadgeImplementation(g, badgeRect);
+                    }
                 }
+                else
+                {
+                    // Fallback if no parent is available
+                    Rectangle badgeRect = new Rectangle(
+                        Width - 12,
+                        -10,
+                        22,
+                        22
+                    );
 
-                // If parent is not a BeepControl, draw directly on this control
-                Rectangle badgeRect = new Rectangle(
-                    Width - 24, // Fixed position at top-right
-                    3,
-                    20, // Fixed size
-                    20
-                );
-
-                DrawBadgeImplementation(g, badgeRect);
+                    DrawBadgeImplementation(g, badgeRect);
+                }
             }
             catch (Exception ex)
             {
-                // Log exception but don't crash
-                //System.Diagnostics.Debug.WriteLine($"Error drawing badge: {ex.Message}");
+                // Log error but don't crash
+                System.Diagnostics.Debug.WriteLine($"Error drawing badge: {ex.Message}");
             }
         }
 
-        /// <summary>
-        /// Internal implementation of badge drawing that can be used either directly or via parent
-        /// </summary>
         private void DrawBadgeImplementation(Graphics g, Rectangle badgeRect)
         {
-            // Configure graphics for smooth drawing
+            // Set high quality rendering for the badge
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-            // Draw the badge with the appropriate shape
+            // Draw badge background with the appropriate shape
             using (SolidBrush brush = new SolidBrush(BadgeBackColor))
             {
                 if (BadgeShape == BadgeShape.Circle)
@@ -3002,16 +3021,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Draw text
-            TextRenderer.DrawText(
-                g,
-                BadgeText,
-                Font,
-                badgeRect,
-                BadgeForeColor,
-                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter
-            );
-        }
+            using (Font scaledFont = GetScaledBadgeFont(g, BadgeText,
+                                     new Size(badgeRect.Width - 4, badgeRect.Height - 4), BadgeFont ?? Font))
+            {
+                // Center the text in the badge
+                StringFormat format = new StringFormat
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center
+                };
 
+                using (Brush textBrush = new SolidBrush(BadgeForeColor))
+                {
+                    g.DrawString(BadgeText, scaledFont, textBrush, badgeRect, format);
+                }
+            }
+        }
 
 
         // Add this helper method to properly scale badge text

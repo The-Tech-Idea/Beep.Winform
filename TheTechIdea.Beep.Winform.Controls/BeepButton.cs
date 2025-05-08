@@ -939,6 +939,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 beepImage.MaximumSize = imageSize;
                 beepImage.Size = imageRect.Size;
+                if (ApplyThemeOnImage)
+                {
+                    beepImage.Theme = Theme;
+     
+                    beepImage.ApplyTheme();
+                }
                 beepImage.DrawImage(g, imageRect);
                 if(beepImageHitTest == null)
                 {

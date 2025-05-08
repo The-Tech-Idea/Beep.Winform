@@ -495,7 +495,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (ApplyThemeOnImage)
                     {
                         beepImage.ApplyThemeOnImage = ApplyThemeOnImage;
-                        //  beepImage.Theme = Theme;
+                         beepImage.Theme = Theme;
                         ApplyTheme();
                     }
                 }
@@ -523,7 +523,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                        // beepImage.Theme = Theme;
                         beepImage.ApplyThemeOnImage = ApplyThemeOnImage;
-                     //   beepImage.ApplyThemeToSvg();
+                        beepImage.ApplyThemeToSvg();
                         ApplyTheme();
                     }
                     Invalidate(); // Repaint when the image changes
@@ -1712,7 +1712,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage.IsChild = true;
             beepImage.Theme= Theme;
             beepImage.ImageEmbededin = ImageEmbededin.TextBox;
-            beepImage.ParentBackColor = BackColor; ;
+            beepImage.ParentBackColor = BackColor; 
             beepImage.BackColor = _currentTheme.TextBoxBackColor;
             beepImage.ForeColor = _currentTheme.TextBoxForeColor;
             beepImage.BorderColor = _currentTheme.BorderColor;

@@ -278,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        private bool _applythemeonbuttons = false;
+        private bool _applythemeonbuttons = true;
         [Browsable(true)]
         [Category("Appearance")]
         public bool ApplyThemeButtons
@@ -491,11 +491,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 PopupMode = true
             };
 
-            // Set up profile menu items
-            _profileButton.ListItems.Add(new SimpleItem { Text = "Profile", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg" });
-            _profileButton.ListItems.Add(new SimpleItem { Text = "Settings", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.settings.svg" });
-            _profileButton.ListItems.Add(new SimpleItem { Text = "Logout", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.power.svg" });
-
+          
             // Initialize theme button
             _themeButton = new BeepButton
             {
@@ -1278,6 +1274,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             //this.SendMouseEvent(_profileButton, MouseEventType.Click, MousePosition);
             _currentMenuName = "PROFILE";
             CurrentMenutems.Clear();
+            // Set up profile menu items
+            CurrentMenutems.Add(new SimpleItem { Text = "Profile", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.user.svg" });
+            CurrentMenutems.Add(new SimpleItem { Text = "Settings", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.settings.svg" });
+            CurrentMenutems.Add(new SimpleItem { Text = "Logout", ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.power.svg" });
 
             TogglePopup();
             // Subscribe to the selection event if not already done

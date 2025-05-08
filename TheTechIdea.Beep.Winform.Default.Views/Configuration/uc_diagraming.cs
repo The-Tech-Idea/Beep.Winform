@@ -30,8 +30,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AddinName = "Diagramming";
 
             Details.AddinName = "Diagramming";
-         //   this.beepCircularButton1.Click += BeepCircularButton1_Click;
-          //  beepStepperBar1.ListItems=beepStepperBreadCrumb1.ListItems;
+            //   this.beepCircularButton1.Click += BeepCircularButton1_Click;
+            //  beepStepperBar1.ListItems=beepStepperBreadCrumb1.ListItems;
         }
 
         //private void BeepCircularButton1_Click(object? sender, EventArgs e)
@@ -67,5 +67,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
         }
 
+        private void uc_diagraming_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

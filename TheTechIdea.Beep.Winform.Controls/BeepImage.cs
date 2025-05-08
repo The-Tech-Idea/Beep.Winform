@@ -48,7 +48,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _clipShape = value;
-                Invalidate();
+                if (!DesignMode) Invalidate();
+                //Invalidate();
             }
         }
 
@@ -237,6 +238,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _isSpinning;
             set
             {
+                if(DesignMode)
+                    return; // Skip if in design mode
                 if (_isSpinning == value)
                     return; // Skip if the state isn't changing
 
@@ -914,17 +917,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-         //   DrawingRect.Inflate(-1, -1); // Adjust for border thickness
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-
-            // Fill the background with BackColor
-
-            // Use spin functionality if enabled
-          
-        }
+    
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g);
@@ -1426,21 +1419,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Designer Support"
         #region Event Handlers for Hover and Pressed State
-        protected override void OnParentChanged(EventArgs e)
-        {
-            base.OnParentChanged(e);
-            Invalidate(); // Force redraw when parent changes
-        }
-
-        protected override void OnVisibleChanged(EventArgs e)
-        {
-            base.OnVisibleChanged(e);
-            if (Visible)
-            {
-                Invalidate(); // Force redraw when visibility changes
-            }
-        }
-
+      
+       
         protected override void OnMouseEnter(EventArgs e)
         {
             if (IsStillImage)
@@ -1460,30 +1440,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         }
 
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-
-            if (e.Button == MouseButtons.Left)
-            {
-                IsPressed = true;
-                // ApplyTheme();  // Reapply theme to reflect pressed state
-                // Invalidate();
-            }
-            base.OnMouseDown(e);
-        }
-
-        protected override void OnMouseUp(MouseEventArgs e)
-        {
-            if (IsStillImage)
-            {
-                return;
-            }
-            base.OnMouseUp(e);
-            IsPressed = false;
-            //  ApplyTheme();  // Reapply theme to reflect released state
-            //   Invalidate();
-        }
-
+      
         #endregion
         #region "Spin and Animations"
         private void StartSpin()
@@ -1693,6 +1650,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _isPulsing = value;
+                if(DesignMode)
+                    return;
                 StartSpin(); // reuse same timer
             }
         }
@@ -1704,6 +1663,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _isBouncing = value;
+                if (DesignMode)
+                    return;
                 StartSpin();
             }
         }
@@ -1717,6 +1678,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _isFading = value;
                 _fadeAlpha = 1.0f;
                 _fadeDirection = -1;
+                if (DesignMode)
+                    return;
                 StartSpin();
             }
         }
@@ -1730,6 +1693,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _isShaking = value;
                 _shakeOffset = 0;
                 _shakeDirection = 1;
+                if (DesignMode)
+                    return;
                 StartSpin();
             }
         }

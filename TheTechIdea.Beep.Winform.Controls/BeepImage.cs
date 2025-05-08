@@ -1807,5 +1807,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         SideBar,
         Menu,
         MenuBar,
+        None
     }
 }

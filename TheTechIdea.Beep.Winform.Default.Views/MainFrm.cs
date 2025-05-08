@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 namespace TheTechIdea.Beep.Winform.Default.Views
@@ -46,6 +37,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.beepServices = beepService;
             beepMenuAppBar1.CreateMenuItems();
             beepuiManager1.LogoImage = beepService.vis.LogoUrl;
+            beepuiManager1.Title = beepService.vis.Title;
+           // this.Icon = beepService.vis.IconUrl;
             //   beepSimpleGrid1.DataSource = beepService.Editor.ConfigEditor.DataSourcesClasses;
             //BindingList<SimpleItem> items = new BindingList<SimpleItem>();
             //foreach (var item in Dependencies.DMEEditor.ConfigEditor.DataSourcesClasses)

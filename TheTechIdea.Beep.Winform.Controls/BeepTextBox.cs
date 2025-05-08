@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using System.Drawing.Drawing2D;
+using Newtonsoft.Json.Linq;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -19,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls
       
         public new event EventHandler TextChanged;
         private TextBox _innerTextBox;
-        private BeepButton beepImage;
+        private BeepImage beepImage;
         private string _maskFormat = "";
         private bool _onlyDigits = false;
         private bool _onlyCharacters = false;
@@ -450,9 +451,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _maxImageSize = value;
-                beepImage.Size = value;
-                beepImage.MaxImageSize = new Size(value.Width-1,value.Height-1);
-              //  PositionInnerTextBoxAndImage();
+                if (beepImage != null)
+                {
+                    beepImage.Size = value;
+                  
+                }
+                PositionInnerTextBoxAndImage();
                 Invalidate();
             }
         }
@@ -513,7 +517,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (beepImage == null)
                 {
-                    beepImage = new BeepButton();
+                    beepImage = new BeepImage()
+                    {
+                        Size = _maxImageSize,
+                        ShowAllBorders = false,
+                        IsBorderAffectedByTheme = false,
+                        IsShadowAffectedByTheme = false,
+                        IsChild = true,
+                      
+                        Dock = DockStyle.None,
+                        Margin = new Padding(0)
+                    };
 
                 }
                 if (beepImage != null)
@@ -713,16 +727,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             //           _innerTextBox.TextChanged += (s, e) => Invalidate(); // Repaint to apply formatting
             Controls.Add(_innerTextBox);
             _innerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
-            beepImage = new BeepButton() 
+            beepImage = new BeepImage() 
             {
                 Size = _maxImageSize,
                 ShowAllBorders = false,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
                 IsChild = true,
-                
-                MaxImageSize = new Size(MaxImageSize.Width-1, MaxImageSize.Height-1), Dock = DockStyle.None, Margin = new Padding(0) 
-            
+                ClipShape = ImageClipShape.None
+
             };
             Controls.Add(beepImage);
             //      // Console.WriteLine("InitializeComponents");
@@ -881,6 +894,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void PositionInnerTextBoxAndImage()
         {
+            beepImage.IsChild = true;
+            beepImage.ParentBackColor = BackColor;
             bool hasImage = !string.IsNullOrEmpty(ImagePath) && beepImage != null;
             if (beepImage != null)
             {
@@ -905,12 +920,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (hasImage && beepImage != null)
             {
-                // Ensure image size is within bounds
-                int imageSize = Math.Min(_maxImageSize.Height, rect.Height - (padding * 2));
-                beepImage.Size = new Size(imageSize, imageSize);
+                // Ensure image size is correctly set using the MaxImageSize property
+                beepImage.Size = new Size(_maxImageSize.Width, _maxImageSize.Height);
+           //     beepImage.MaxImageSize = new Size(_maxImageSize.Width, _maxImageSize.Height);
 
                 // Calculate vertical center for image
-                int imageY = rect.Y + ((rect.Height - imageSize) / 2);
+                int imageY = rect.Y + ((rect.Height - _maxImageSize.Height) / 2);
 
                 // Position based on TextImageRelation
                 if (_textImageRelation == TextImageRelation.ImageBeforeText)
@@ -920,8 +935,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     beepImage.Location = new Point(imageX, imageY);
 
                     // Text box starts after image with spacing
-                    int textBoxX = imageX + imageSize + spacing;
-                    int textBoxWidth = Math.Max(1, availableWidth - imageSize - spacing);
+                    int textBoxX = imageX + _maxImageSize.Width + spacing;
+                    int textBoxWidth = Math.Max(1, availableWidth - _maxImageSize.Width - spacing);
 
                     _innerTextBox.Location = new Point(textBoxX, textBoxY);
                     _innerTextBox.Size = new Size(textBoxWidth, textBoxHeight);
@@ -930,7 +945,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     // Text box on the left
                     int textBoxX = rect.X + padding;
-                    int textBoxWidth = Math.Max(1, availableWidth - imageSize - spacing);
+                    int textBoxWidth = Math.Max(1, availableWidth - _maxImageSize.Width - spacing);
 
                     _innerTextBox.Location = new Point(textBoxX, textBoxY);
                     _innerTextBox.Size = new Size(textBoxWidth, textBoxHeight);
@@ -947,6 +962,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _innerTextBox.Size = new Size(Math.Max(1, availableWidth), textBoxHeight);
             }
         }
+
 
         #endregion "Size and Position"
         #region "Mouse Events"
@@ -1710,10 +1726,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             Font = _textFont;
 
             beepImage.IsChild = true;
-            beepImage.Theme= Theme;
-            beepImage.ImageEmbededin = ImageEmbededin.TextBox;
+            beepImage.ImageEmbededin = ImageEmbededin.None;
             beepImage.ParentBackColor = BackColor; 
-            beepImage.BackColor = _currentTheme.TextBoxBackColor;
+            beepImage.BackColor = BackColor;
             beepImage.ForeColor = _currentTheme.TextBoxForeColor;
             beepImage.BorderColor = _currentTheme.BorderColor;
             beepImage.HoverBackColor = _currentTheme.TextBoxHoverBackColor;
@@ -1724,6 +1739,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage.IsBorderAffectedByTheme = false;
             beepImage.IsShadowAffectedByTheme = false;
             beepImage.BorderColor = _currentTheme.TextBoxBorderColor;
+            if (beepImage != null)
+            {
+                
+                if (ApplyThemeOnImage)
+                {
+                    // beepImage.Theme = Theme;
+                    beepImage.ApplyThemeOnImage = ApplyThemeOnImage;
+                    beepImage.ApplyThemeToSvg();
+                    
+                }
+                Invalidate(); // Repaint when the image changes
+                              // UpdateSize();
+                              // PositionInnerTextBoxAndImage();
+            }
             AfterThemeApplied();
         }
         #endregion "Theme and Style"

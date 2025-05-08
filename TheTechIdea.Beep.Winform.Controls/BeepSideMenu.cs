@@ -177,8 +177,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => menuItems;
             set
             {
-                menuItems = value;
-               // InitializeMenu();
+                menuItems = value; Invalidate();
+                // InitializeMenu();
             }
         }
         [Browsable(true)]
@@ -187,7 +187,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool ApplyThemeOnImages
         {
             get { return ApplyThemeOnImage; }
-            set { ApplyThemeOnImage = value; }
+            set { ApplyThemeOnImage = value; Invalidate(); }
         }
 
         [Browsable(true)]
@@ -265,6 +265,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsFrameless = true;
             ShowAllBorders = false;
             ShowShadow = false;
+            logo = new BeepImage
+            {
+                ImagePath = LogoImage,
+              
+                ApplyThemeOnImage = ApplyThemeOnImages,
+                IsFrameless = true,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+                ShowAllBorders = false,
+                ShowShadow = false
+            };
         }
 
         protected override void OnResize(EventArgs e)
@@ -772,7 +783,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 toggleBtn.IsFrameless = true;
                 toggleBtn.ApplyThemeOnImage = true;
                 toggleBtn.ImageEmbededin = ImageEmbededin.SideBar;
-
+                toggleBtn.ApplyTheme();
                 toggleBtn.Draw(graphics, toggleRect);
             }
 

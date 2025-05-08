@@ -438,6 +438,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextImageRelation = TextImageRelation.TextBeforeImage,
                 TextAlignment = HorizontalAlignment.Left,
                 ShowAllBorders = true,
+                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
                 Tag = "Search"
             };
             _searchBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
@@ -1367,11 +1368,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_searchBox != null)
             {
                 _searchBox.Theme = Theme;
-                _searchBox.BackColor = _currentTheme.AppBarBackColor;
-                _searchBox.ForeColor = _currentTheme.AppBarForeColor;
-                _searchBox.BorderColor = _currentTheme.AppBarBackColor;
-                _searchBox.HoverBackColor = ColorUtils.GetLighterColor(_currentTheme.AppBarBackColor, 10);
-                _searchBox.HoverForeColor = _currentTheme.AppBarForeColor;
+                //_searchBox.BackColor = _currentTheme.AppBarBackColor;
+                //_searchBox.ForeColor = _currentTheme.AppBarForeColor;
+                //_searchBox.BorderColor = _currentTheme.AppBarBackColor;
+                //_searchBox.HoverBackColor = ColorUtils.GetLighterColor(_currentTheme.AppBarBackColor, 10);
+                //_searchBox.HoverForeColor = _currentTheme.AppBarForeColor;
             }
 
             // Apply theme to notification button

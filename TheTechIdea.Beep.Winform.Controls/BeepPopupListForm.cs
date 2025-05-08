@@ -207,7 +207,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (SelectedItem != null)
             {
                 CurrenItemButton = _beepListBox.CurrenItemButton;
+               
             }
+           
             //if(SelectedItem.MethodName != null)
             //{
             //    RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.Text);
@@ -252,11 +254,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 }
             }
+          
         }
 
         private void ChildPopupForm_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
             SelectedItem = e.SelectedItem;
+            
         }
         public int GetMaxHeight()
         {

@@ -81,6 +81,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     BeepiForm.Text = _title;
 
                 }
+                if(BeepAppBar != null)
+                {
+                    BeepAppBar.Title = _title;
+                }
                 if (BeepSideMenu != null)
                 {
                     BeepSideMenu.Title = _title;

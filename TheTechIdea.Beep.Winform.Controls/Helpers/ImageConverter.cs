@@ -9,6 +9,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     /// </summary>
     public static class ImageConverters
     {
+
         /// <summary>
         /// Converts an SVG file at the given path to an Icon of specified size (in pixels).
         /// </summary>

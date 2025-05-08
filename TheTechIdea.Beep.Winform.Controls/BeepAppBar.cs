@@ -1362,7 +1362,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _titleLabel.Font = _textFont;
                 }
             }
-
+            ApplyThemeToButtons();
             // Apply theme to search box
             if (_searchBox != null)
             {
@@ -1377,7 +1377,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Apply theme to notification button
             if (_notificationButton != null)
             {
-                _notificationButton.Theme = Theme;
+                //_notificationButton.Theme = Theme;
                 _notificationButton.ImageEmbededin = ImageEmbededin.AppBar;
                 _notificationButton.BackColor = _currentTheme.AppBarBackColor;
                 _notificationButton.ForeColor = _currentTheme.AppBarForeColor;
@@ -1385,6 +1385,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _notificationButton.HoverBackColor = _currentTheme.AppBarBackColor;
                 _notificationButton.SelectedBackColor = _currentTheme.AppBarBackColor;
                 _notificationButton.IsColorFromTheme = false;
+                _notificationButton.ApplyTheme();
             }
 
             // Apply theme to profile button
@@ -1397,7 +1398,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _profileButton.ParentBackColor = _currentTheme.AppBarBackColor;
                 _profileButton.HoverBackColor = _currentTheme.AppBarBackColor;
                 _profileButton.SelectedBackColor = _currentTheme.AppBarBackColor;
-                _profileButton.IsColorFromTheme = false;
+                _profileButton.ApplyTheme();
             }
 
             // Apply theme to theme button
@@ -1411,6 +1412,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _themeButton.HoverBackColor = _currentTheme.AppBarBackColor;
                 _themeButton.SelectedBackColor = _currentTheme.AppBarBackColor;
                 _themeButton.IsColorFromTheme = false;
+                _themeButton.ApplyTheme();
             }
 
             // Apply theme to window control buttons
@@ -1424,6 +1426,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _minimizeButton.HoverBackColor = _currentTheme.AppBarBackColor;
                 _minimizeButton.SelectedBackColor = _currentTheme.AppBarBackColor;
                 _minimizeButton.IsColorFromTheme = false;
+                _minimizeButton.ApplyTheme();
             }
 
             if (_maximizeButton != null)
@@ -1436,6 +1439,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _maximizeButton.HoverBackColor = _currentTheme.AppBarBackColor;
                 _maximizeButton.SelectedBackColor = _currentTheme.AppBarBackColor;
                 _maximizeButton.IsColorFromTheme = false;
+                _maximizeButton.ApplyTheme();
             }
 
             if (_closeButton != null)
@@ -1448,10 +1452,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _closeButton.HoverBackColor = _currentTheme.AppBarBackColor;
                 _closeButton.SelectedBackColor = _currentTheme.AppBarBackColor;
                 _closeButton.IsColorFromTheme = false;
+                _closeButton.ApplyTheme();
             }
 
             // Apply theme to buttons based on ApplyThemeButtons property
-            ApplyThemeToButtons();
+           
 
             // Force redraw
             Invalidate();

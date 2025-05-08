@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using System.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using System.Drawing.Imaging;
+using System.Text.RegularExpressions;
 
 
 
@@ -38,6 +39,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Fields"
         #region "Properties"
+        private bool _preserveSvgBackgrounds = false;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("When true, background elements in SVG images retain their original colors during theme application.")]
+        public bool PreserveSvgBackgrounds
+        {
+            get => _preserveSvgBackgrounds;
+            set
+            {
+                _preserveSvgBackgrounds = value;
+                if (_applyThemeOnImage && svgDocument != null)
+                {
+                    ApplyThemeToSvg();
+                    Invalidate();
+                }
+            }
+        }
         public SvgDocument svgDocument { get; private set; }
 
         [Category("Appearance")]
@@ -47,9 +65,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _clipShape;
             set
             {
-                _clipShape = value;
-                if (!DesignMode) Invalidate();
-                //Invalidate();
+                _clipShape = value;               
+               Invalidate();
             }
         }
 
@@ -136,26 +153,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-        #endregion "Properties"
-
-        public BeepImage()
-        {
-            //// Enable double buffering and optimized painting
-            SetStyle(ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.UserPaint, true);
-            UpdateStyles();
-            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
-            {
-                Width = 100;
-                Height = 100;
-            }
-            BoundProperty = "ImagePath";
-            fillColor = Color.Black;
-            strokeColor = Color.Black;
-            // ImageSelector.SetSelector();
-        }
-        #region "Properties"
 
         private ImageEmbededin _imageEmbededin = ImageEmbededin.Button;
         [Category("Appearance")]
@@ -238,7 +235,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _isSpinning;
             set
             {
-                if(DesignMode)
+                if (DesignMode)
                     return; // Skip if in design mode
                 if (_isSpinning == value)
                     return; // Skip if the state isn't changing
@@ -270,8 +267,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _imagepath;
             set
             {
-
-
                 _imagepath = value;
                 // Console.WriteLine("Loading ImagePath ...");
                 if (!string.IsNullOrEmpty(_imagepath))
@@ -394,8 +389,101 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        #endregion "Propoerties"
-        #region "Theme Properties"
+        #region "Animation"
+        [Category("Animation")]
+        public bool IsPulsing
+        {
+            get => _isPulsing;
+            set
+            {
+                _isPulsing = value;
+                if (DesignMode)
+                    return;
+                StartSpin(); // reuse same timer
+            }
+        }
+
+        [Category("Animation")]
+        public bool IsBouncing
+        {
+            get => _isBouncing;
+            set
+            {
+                _isBouncing = value;
+                if (DesignMode)
+                    return;
+                StartSpin();
+            }
+        }
+
+        [Category("Animation")]
+        public bool IsFading
+        {
+            get => _isFading;
+            set
+            {
+                _isFading = value;
+                _fadeAlpha = 1.0f;
+                _fadeDirection = -1;
+                if (DesignMode)
+                    return;
+                StartSpin();
+            }
+        }
+
+        [Category("Animation")]
+        public bool IsShaking
+        {
+            get => _isShaking;
+            set
+            {
+                _isShaking = value;
+                _shakeOffset = 0;
+                _shakeDirection = 1;
+                if (DesignMode)
+                    return;
+                StartSpin();
+            }
+        }
+
+        private bool _isPulsing = false;
+        private bool _isBouncing = false;
+        private bool _isShaking = false;
+        private bool _isFading = false;
+
+        private float _pulseScale = 1.0f;
+        private int _pulseDirection = 1;
+
+        private float _fadeAlpha = 1.0f;
+        private int _fadeDirection = -1;
+
+        private int _shakeOffset = 0;
+        private int _shakeDirection = 1;
+
+        #endregion "Animation"
+        #endregion "Properties"
+
+        public BeepImage()
+        {
+            //// Enable double buffering and optimized painting
+            SetStyle(ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.UserPaint, true);
+            UpdateStyles();
+            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            {
+                Width = 100;
+                Height = 100;
+            }
+            BoundProperty = "ImagePath";
+            fillColor = Color.Black;
+            strokeColor = Color.Black;
+            // ImageSelector.SetSelector();
+        }
+
+        #region "Theme Handling"
+      
+
         public override void ApplyTheme()
         {
             base.ApplyTheme();
@@ -407,8 +495,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
             {
                 BackColor = _currentTheme.ButtonBackColor;
-
             }
+            ForeColor=_currentTheme.ButtonForeColor;
+            BorderColor = _currentTheme.ButtonBorderColor;
             if (_applyThemeOnImage)
             {
                 ApplyThemeToSvg();
@@ -434,8 +523,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Decide what colors to apply based on your theme settings.
             Color actualFillColor, actualStrokeColor, actualbackcolor;
-       //   _imageEmbededin = ImageEmbededin.Button;
-            if ( _currentTheme != null)
+            //   _imageEmbededin = ImageEmbededin.Button;
+            if (_currentTheme != null)
             {
                 switch (_imageEmbededin)
                 {
@@ -507,7 +596,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 actualbackcolor = BackColor;
             }
 
-          
+
 
             MiscFunctions.SendLog($"ApplyThemeToSvg: Applying fillColor={actualFillColor}, strokeColor={actualStrokeColor}");
 
@@ -554,7 +643,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Trigger a redraw.
             try
             {
-           //     svgDocument.FlushStyles();
+                //     svgDocument.FlushStyles();
                 Invalidate();
                 Refresh();
                 MiscFunctions.SendLog("ApplyThemeToSvg: Redraw triggered");
@@ -572,25 +661,51 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             foreach (var node in nodes)
             {
-               
+
 
                 // Update color properties.
                 // You can check the properties if you want to preserve "None" values, or update unconditionally.
                 node.Fill = fillServer;
                 node.Color = fillServer;
-                
+
                 node.Stroke = strokeServer;
 
-         
-                    node.StrokeWidth = new SvgUnit(2); // Optional: set stroke width
+
+                node.StrokeWidth = new SvgUnit(2); // Optional: set stroke width
 
                 // Recurse into child nodes.
                 ProcessNodes(node.Descendants(), fillServer, strokeServer);
             }
         }
 
+        public void ApplyColorToAllElements(Color fillColor)
+        {
+            if (svgDocument == null)
+                return;
 
-        #endregion "Theme Properties"
+            string hexColor = ColorTranslator.ToHtml(fillColor);
+
+            // First attempt - direct style replacement for all elements (works for cancel.svg)
+            foreach (var element in svgDocument.Descendants())
+            {
+                // Fix inline styles with a direct regex replacement
+                if (element.CustomAttributes.ContainsKey("style"))
+                {
+                    string style = element.CustomAttributes["style"];
+                    style = Regex.Replace(style, @"fill:[^;]+", $"fill:{hexColor}");
+                    element.CustomAttributes["style"] = style;
+                }
+
+                // Also set the Fill property as a backup approach
+                element.Fill = new SvgColourServer(fillColor);
+            }
+
+            // Flush all styles
+            svgDocument.FlushStyles();
+            Invalidate();
+        }
+
+        #endregion "Theme Handling"
         #region "Image Drawing Methods"
         private GraphicsPath CreateClipPath(Rectangle bounds)
         {
@@ -1642,78 +1757,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         #endregion "Rotate"
-        #region "Animation"
-        [Category("Animation")]
-        public bool IsPulsing
-        {
-            get => _isPulsing;
-            set
-            {
-                _isPulsing = value;
-                if(DesignMode)
-                    return;
-                StartSpin(); // reuse same timer
-            }
-        }
-
-        [Category("Animation")]
-        public bool IsBouncing
-        {
-            get => _isBouncing;
-            set
-            {
-                _isBouncing = value;
-                if (DesignMode)
-                    return;
-                StartSpin();
-            }
-        }
-
-        [Category("Animation")]
-        public bool IsFading
-        {
-            get => _isFading;
-            set
-            {
-                _isFading = value;
-                _fadeAlpha = 1.0f;
-                _fadeDirection = -1;
-                if (DesignMode)
-                    return;
-                StartSpin();
-            }
-        }
-
-        [Category("Animation")]
-        public bool IsShaking
-        {
-            get => _isShaking;
-            set
-            {
-                _isShaking = value;
-                _shakeOffset = 0;
-                _shakeDirection = 1;
-                if (DesignMode)
-                    return;
-                StartSpin();
-            }
-        }
-
-        private bool _isPulsing = false;
-        private bool _isBouncing = false;
-        private bool _isShaking = false;
-        private bool _isFading = false;
-
-        private float _pulseScale = 1.0f;
-        private int _pulseDirection = 1;
-
-        private float _fadeAlpha = 1.0f;
-        private int _fadeDirection = -1;
-
-        private int _shakeOffset = 0;
-        private int _shakeDirection = 1;
-
-        #endregion "Animation"
+     
 
         protected override void Dispose(bool disposing)
         {
